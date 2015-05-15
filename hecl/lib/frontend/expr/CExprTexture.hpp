@@ -1,0 +1,4 @@
+#ifndef CEXPRTEXTURE_HPP
+#define CEXPRTEXTURE_HPP
+
+#endif // CEXPRTEXTURE_HPP

@@ -1,0 +1,4 @@
+#ifndef HECLFRONTEND_HPP
+#define HECLFRONTEND_HPP
+
+#endif // HECLFRONTEND_HPP

@@ -1,0 +1,4 @@
+#ifndef HECLDATABASE_HPP
+#define HECLDATABASE_HPP
+
+#endif // HECLDATABASE_HPP

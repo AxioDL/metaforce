@@ -1,0 +1,4 @@
+#ifndef IOBJECTSTORE_HPP
+#define IOBJECTSTORE_HPP
+
+#endif // IOBJECTSTORE_HPP
