@@ -1,8 +1,8 @@
 HEADERS += \
-    $$PWD/IObjectStore.hpp
+    $$PWD/CPackedDatabase.hpp \
+    $$PWD/CMemoryDatabase.hpp \
+    $$PWD/CLooseDatabase.hpp \
+    $$PWD/CSQLite.hpp
 
 SOURCES += \
-    $$PWD/CDataObject.cpp \
-    $$PWD/CObjectStoreDir.cpp \
-    $$PWD/CObjectStorePacked.cpp \
     $$PWD/HECLDatabase.cpp

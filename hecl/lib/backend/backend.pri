@@ -17,10 +17,10 @@ SOURCES += \
     $$PWD/HLSL/CHLSLObject.cpp \
     $$PWD/HLSL/CHLSLSpec.cpp \
     $$PWD/HLSL/CHLSLVertEmitter.cpp \
-    $$PWD/VSPIR/CVSPIRFragEmitter.cpp \
-    $$PWD/VSPIR/CVSPIRObject.cpp \
-    $$PWD/VSPIR/CVSPIRSpec.cpp \
-    $$PWD/VSPIR/CVSPIRVertEmitter.cpp \
+    $$PWD/SPIRV/CSPIRVFragEmitter.cpp \
+    $$PWD/SPIRV/CSPIRVObject.cpp \
+    $$PWD/SPIRV/CSPIRVSpec.cpp \
+    $$PWD/SPIRV/CSPIRVVertEmitter.cpp \
     $$PWD/HECLBackend.cpp
 
 !isEmpty(LLVMROOT) {

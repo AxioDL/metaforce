@@ -5,7 +5,7 @@ CONFIG -= Qt
 QT      =
 unix:QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD ../include ../extern
 
 include (frontend/frontend.pri)
 include (backend/backend.pri)

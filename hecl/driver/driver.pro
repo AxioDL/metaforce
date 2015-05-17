@@ -5,8 +5,10 @@ LIBS   -= -lQtGui -lQtCore
 unix:QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++
 unix:!macx:LIBS += -std=c++11 -stdlib=libc++ -lc++abi
 
-LIBPATH += $$OUT_PWD/../lib
-LIBS += -lhecl
+INCLUDEPATH += ../include
+
+LIBPATH += $$OUT_PWD/../lib $$OUT_PWD/../extern/sqlite3
+LIBS += -lhecl -lsqlite3
 
 SOURCES += \
     $$PWD/main.cpp

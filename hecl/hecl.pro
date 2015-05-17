@@ -16,7 +16,9 @@ HEADERS += \
     include/HECLRuntime.hpp
 
 SUBDIRS += \
+    extern/sqlite3 \
     lib \
     driver
 
+lib.depends = extern/sqlite3
 driver.depends = lib
