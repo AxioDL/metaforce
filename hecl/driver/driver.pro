@@ -7,8 +7,11 @@ unix:!macx:LIBS += -std=c++11 -stdlib=libc++ -lc++abi
 
 INCLUDEPATH += ../include
 
-LIBPATH += $$OUT_PWD/../lib $$OUT_PWD/../extern/sqlite3
-LIBS += -lhecl -lsqlite3
+LIBPATH += $$OUT_PWD/../lib \
+    $$OUT_PWD/../extern/sqlite3 \
+    $$OUT_PWD/../extern/blowfish
+
+LIBS += -lhecl -lsqlite3 -lblowfish
 
 SOURCES += \
     $$PWD/main.cpp
