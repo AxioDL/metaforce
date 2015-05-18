@@ -13,7 +13,7 @@ class CPackedDatabase final : public IDatabase
     CSQLite m_sql;
 public:
     CPackedDatabase(const std::string& path)
-    : m_sql(path.c_str(), (m_access == READONLY) ? true : false)
+    : m_sql(path.c_str(), true)
     {
 
     }
@@ -33,7 +33,7 @@ public:
         return READONLY;
     }
 
-    const IDataObject* lookupObject(std::size_t id) const
+    const IDataObject* lookupObject(size_t id) const
     {
     }
 
@@ -41,11 +41,11 @@ public:
     {
     }
 
-    const IDataObject* addDataBlob(const std::string& name, const void* data, std::size_t length)
+    const IDataObject* addDataBlob(const std::string& name, const void* data, size_t length)
     {
     }
 
-    const IDataObject* addDataBlob(const void* data, std::size_t length)
+    const IDataObject* addDataBlob(const void* data, size_t length)
     {
     }
 

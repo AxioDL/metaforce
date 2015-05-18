@@ -14,7 +14,7 @@ class CMemoryDatabase final : public IDatabase
     Access m_access;
 public:
     CMemoryDatabase(Access access)
-    : m_sql(":memory:"), m_access(access)
+    : m_sql(":memory:", (m_access == READONLY) ? true : false), m_access(access)
     {
 
     }
@@ -34,7 +34,7 @@ public:
         return m_access;
     }
 
-    const IDataObject* lookupObject(std::size_t id) const
+    const IDataObject* lookupObject(size_t id) const
     {
     }
 
@@ -42,11 +42,11 @@ public:
     {
     }
 
-    const IDataObject* addDataBlob(const std::string& name, const void* data, std::size_t length)
+    const IDataObject* addDataBlob(const std::string& name, const void* data, size_t length)
     {
     }
 
-    const IDataObject* addDataBlob(const void* data, std::size_t length)
+    const IDataObject* addDataBlob(const void* data, size_t length)
     {
     }
 

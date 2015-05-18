@@ -3,11 +3,46 @@
 
 #include <iterator>
 #include <string>
+#include <functional>
+#include <stdint.h>
 
 namespace HECLDatabase
 {
 
 class IDatabase;
+
+/**
+ * @brief FourCC representation used within HECL's database
+ *
+ * FourCCs are efficient, mnemonic four-char-sequences used to represent types
+ * while fitting comfortably in a 32-bit word. HECL uses a four-char array
+ * to remain endian-independent
+ */
+struct FourCC
+{
+    union
+    {
+        char fcc[4];
+        uint32_t num;
+    };
+    FourCC(const char* name)
+    : num(*(uint32_t*)name) {}
+};
+
+/**
+ * @brief Hash representation used for all storable and comparable objects
+ *
+ * Hashes are used within HECL to avoid redundant storage of objects;
+ * providing a rapid mechanism to compare for equality.
+ */
+class ObjectHash
+{
+    uint64_t hash;
+    ObjectHash(const void* buf, size_t len)
+    {
+        std::hash<std::string> hashfn;
+    }
+};
 
 /**
  * @brief The IDataObject class
@@ -22,7 +57,7 @@ public:
      * @brief Data-key of object
      * @return Primary key
      */
-    virtual std::size_t id() const=0;
+    virtual size_t id() const=0;
 
     /**
      * @brief Textual name of object
@@ -34,7 +69,7 @@ public:
      * @brief Data-hash of object
      * @return Object hash truncated to system's size-type
      */
-    virtual std::size_t hash() const=0;
+    virtual size_t hash() const=0;
 
     /**
      * @brief Retrieve the database this object is stored within
@@ -53,21 +88,21 @@ public:
      * @brief Count of objects in the group
      * @return object count
      */
-    virtual std::size_t length() const=0;
+    virtual size_t length() const=0;
 
     /**
      * @brief Alias of length()
      * @return object count
      */
-    inline std::size_t size() const {return length();}
+    inline size_t size() const {return length();}
 
     /**
      * @brief Retrieve object at specified internal index within the group
      * @param idx internal index of object to fetch (range [0,length()-1])
      * @return object or nullptr
      */
-    virtual const IDataObject* at(std::size_t idx) const=0;
-    inline const IDataObject* operator[](std::size_t idx) {return at(idx);}
+    virtual const IDataObject* at(size_t idx) const=0;
+    inline const IDataObject* operator[](size_t idx) {return at(idx);}
 
     /**
      * @brief Simple IDataDependencyGroup iterator
@@ -78,7 +113,7 @@ public:
     {
         friend class IDataDependencyGroup;
         const IDataDependencyGroup& m_grp;
-        std::size_t m_idx = 0;
+        size_t m_idx = 0;
         inline iterator(const IDataDependencyGroup& grp) : m_grp(grp) {}
     public:
         inline bool operator!=(const iterator& other)
@@ -99,13 +134,13 @@ public:
      * @brief Accesses the length of the object (in bytes)
      * @return Data length
      */
-    virtual std::size_t length() const=0;
+    virtual size_t length() const=0;
 
     /**
      * @brief Alias for the length() function
      * @return Data length
      */
-    inline std::size_t size() const {return length();}
+    inline size_t size() const {return length();}
 
     /**
      * @brief Accesses the object's data
@@ -155,7 +190,7 @@ public:
      * @param id Primary-key of object
      * @return Data object
      */
-    virtual const IDataObject* lookupObject(std::size_t id) const=0;
+    virtual const IDataObject* lookupObject(size_t id) const=0;
 
     /**
      * @brief Lookup object by name
@@ -171,7 +206,7 @@ public:
      * @param length Size of object data to copy
      * @return New data object
      */
-    virtual const IDataObject* addDataBlob(const std::string& name, const void* data, std::size_t length)=0;
+    virtual const IDataObject* addDataBlob(const std::string& name, const void* data, size_t length)=0;
 
     /**
      * @brief Insert Data-blob object into a database with read/write access
@@ -179,7 +214,7 @@ public:
      * @param length size of object data to copy
      * @return New data object
      */
-    virtual const IDataObject* addDataBlob(const void* data, std::size_t length)=0;
+    virtual const IDataObject* addDataBlob(const void* data, size_t length)=0;
 
     /**
      * @brief Write a full copy of the database to another type/path
