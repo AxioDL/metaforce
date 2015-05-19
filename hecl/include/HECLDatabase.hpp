@@ -4,7 +4,10 @@
 #include <iterator>
 #include <string>
 #include <functional>
+#include <vector>
 #include <stdint.h>
+
+#include "../extern/blowfish/blowfish.h"
 
 namespace HECLDatabase
 {
@@ -12,21 +15,35 @@ namespace HECLDatabase
 class IDatabase;
 
 /**
+ * @brief Severity of a log event
+ */
+enum LogType
+{
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR
+};
+
+/**
  * @brief FourCC representation used within HECL's database
  *
  * FourCCs are efficient, mnemonic four-char-sequences used to represent types
  * while fitting comfortably in a 32-bit word. HECL uses a four-char array
- * to remain endian-independent
+ * to remain endian-independent.
  */
-struct FourCC
+class FourCC
 {
     union
     {
         char fcc[4];
         uint32_t num;
     };
+public:
     FourCC(const char* name)
     : num(*(uint32_t*)name) {}
+    inline bool operator==(FourCC& other) {return num == other.num;}
+    inline bool operator!=(FourCC& other) {return num != other.num;}
+    inline std::string toString() {return std::string(fcc, 4);}
 };
 
 /**
@@ -37,11 +54,16 @@ struct FourCC
  */
 class ObjectHash
 {
-    uint64_t hash;
+    int64_t hash;
+public:
     ObjectHash(const void* buf, size_t len)
-    {
-        std::hash<std::string> hashfn;
-    }
+    : hash(Blowfish_hash(buf, len)) {}
+    inline bool operator==(ObjectHash& other) {return hash == other.hash;}
+    inline bool operator!=(ObjectHash& other) {return hash != other.hash;}
+    inline bool operator<(ObjectHash& other) {return hash < other.hash;}
+    inline bool operator>(ObjectHash& other) {return hash > other.hash;}
+    inline bool operator<=(ObjectHash& other) {return hash <= other.hash;}
+    inline bool operator>=(ObjectHash& other) {return hash >= other.hash;}
 };
 
 /**
@@ -104,24 +126,8 @@ public:
     virtual const IDataObject* at(size_t idx) const=0;
     inline const IDataObject* operator[](size_t idx) {return at(idx);}
 
-    /**
-     * @brief Simple IDataDependencyGroup iterator
-     *
-     * Use begin()/end() or C++11 ranged-for to use
-     */
-    class iterator : std::iterator<std::forward_iterator_tag, const IDataObject*>
-    {
-        friend class IDataDependencyGroup;
-        const IDataDependencyGroup& m_grp;
-        size_t m_idx = 0;
-        inline iterator(const IDataDependencyGroup& grp) : m_grp(grp) {}
-    public:
-        inline bool operator!=(const iterator& other)
-        {return &m_grp != &other.m_grp || m_idx != other.m_idx;}
-        inline iterator& operator++() {++m_idx; return *this;}
-    };
-    inline iterator begin() const {return iterator(*this);}
-    inline iterator end() const {auto it = iterator(*this); it.m_idx = length(); return it;}
+    virtual std::vector::const_iterator begin() const=0;
+    virtual std::vector::const_iterator end() const=0;
 };
 
 /**
@@ -233,6 +239,84 @@ public:
  * @return New database object
  */
 IDatabase* NewDatabase(IDatabase::Type type, IDatabase::Access access, const std::string& path);
+
+/**
+ * @brief Main project interface
+ *
+ * Projects are intermediate working directories used for staging
+ * resources in their ideal editor-formats. This interface exposes all
+ * primary operations to perform on a given project.
+ */
+class IProject
+{
+public:
+    virtual ~IProject() {}
+
+    /**
+     * @brief A rough description of how 'expensive' a given cook operation is
+     *
+     * This is used to provide pretty colors during the cook operation
+     */
+    enum LoadType
+    {
+        LOAD_INFO,
+        LOAD_LIGHT,
+        LOAD_MEDIUM,
+        LOAD_HEAVY
+    };
+
+    /**
+     * @brief Register an optional callback to report log-messages using
+     * @param logger logger-callback
+     */
+    virtual void registerLogger(std::function<void(LogType, std::string&)> logger)=0;
+
+    /**
+     * @brief Get the path of the project's root-directory
+     * @param absolute return as absolute-path
+     * @return project root path
+     */
+    virtual std::string getProjectRootPath(bool absolute)=0;
+
+    /**
+     * @brief Add a given file or file-pattern to the database
+     * @param path file or pattern within project
+     * @return true on success
+     */
+    virtual bool addPath(const std::string& path)=0;
+
+    /**
+     * @brief Begin cook process for specified file or directory
+     * @param path file or directory of intermediates to cook
+     * @param feedbackCb a callback to run reporting cook-progress
+     * @param recursive traverse subdirectories to cook as well
+     * @return true on success
+     */
+    virtual bool cookPath(const std::string& path,
+                          std::function<void(std::string&, LoadType, unsigned)> feedbackCb,
+                          bool recursive=false)=0;
+
+    /**
+     * @brief Delete cooked objects for file or directory
+     * @param path file or directory of intermediates to clean
+     * @param recursive traverse subdirectories to clean as well
+     * @return true on success
+     */
+    virtual bool cleanPath(const std::string& path, bool recursive=false)=0;
+
+    /**
+     * @brief Interrupts a cook in progress (call from SIGINT handler)
+     */
+    virtual void interruptCook()=0;
+
+};
+
+/**
+ * @brief Creates a new (empty) project using specified root directory
+ * @param path Path to project root-directory (may be relative)
+ * @return New project object
+ */
+IProject* NewProject(const std::string& path);
 
 }
 

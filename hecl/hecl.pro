@@ -18,9 +18,13 @@ HEADERS += \
 SUBDIRS += \
     extern/sqlite3 \
     extern/blowfish \
+    extern/libpng \
+    extern/zlib \
     lib \
     driver
 
 driver.depends = extern/sqlite3
 driver.depends = extern/blowfish
+driver.depends = extern/libpng
+driver.depends = extern/zlib
 driver.depends = lib

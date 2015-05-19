@@ -4,11 +4,11 @@
 
 #define N               16
 
-extern const unsigned long BLOWFISH_DAT_P[N + 2];
-extern const unsigned long BLOWFISH_DAT_S[4][256];
+extern const unsigned long BLOWFISH_P[N + 2];
+extern const unsigned long BLOWFISH_S[4][256];
 
-#define P BLOWFISH_DAT_P
-#define S BLOWFISH_DAT_S
+#define P BLOWFISH_P
+#define S BLOWFISH_S
 
 static unsigned long F(unsigned long x)
 {
@@ -94,13 +94,13 @@ void Blowfish_decipher(unsigned long *xl, unsigned long *xr)
     *xr = Xr;
 }
 
-uint64_t Blowfish_hash(void* buf, size_t len)
+int64_t Blowfish_hash(const void* buf, size_t len)
 {
     unsigned i,j;
     union
     {
         unsigned long h32[2];
-        uint64_t h64;
+        int64_t h64;
     } hash = {};
 
     for (i=0 ; i<len/4 ; ++i)

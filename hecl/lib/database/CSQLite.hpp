@@ -16,7 +16,7 @@ namespace HECLDatabase
 static const char* skDBINIT =
 "PRAGMA foreign_keys = ON;\n"
 "CREATE TABLE IF NOT EXISTS objects(rowid INTEGER PRIMARY KEY,"
-                                   "name UNIQUE,"
+                                   "name,"
                                    "type4cc UNSIGNED INTEGER,"
                                    "hash64 UNSIGNED INTEGER,"
                                    "compLen UNSIGNED INTEGER,"
@@ -106,7 +106,7 @@ public:
                                                    uint32_t&&,          // type4cc
                                                    uint64_t&&,          // hash64
                                                    size_t&&,       // compLen
-                                                   size_t&&)>&     // decompLen
+                                                   size_t&&)>      // decompLen
                                                    objectAdder)
     {
         while (sqlite3_step(m_selObjects) == SQLITE_ROW)
@@ -132,7 +132,8 @@ public:
         return retval;
     }
 
-    bool insertObject(const std::string& name, const FourCC& type, const ObjectHash& hash, size_t compLen, size_t decompLen)
+    bool insertObject(const std::string& name, const FourCC& type, const ObjectHash& hash,
+                      size_t compLen, size_t decompLen)
     {
     }
 
