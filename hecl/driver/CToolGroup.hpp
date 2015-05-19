@@ -1,6 +1,5 @@
-#ifndef MAIN_CPP
-#error This file may only be included from main.cpp
-#endif
+#ifndef CTOOL_GROUP
+#define CTOOL_GROUP
 
 #include "CToolBase.hpp"
 
@@ -15,3 +14,5 @@ public:
     {
     }
 };
+
+#endif // CTOOL_GROUP

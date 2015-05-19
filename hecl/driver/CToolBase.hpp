@@ -1,6 +1,5 @@
-#ifndef MAIN_CPP
-#error This file may only be included from main.cpp
-#endif
+#ifndef CTOOL_BASE
+#define CTOOL_BASE
 
 class CToolBase
 {
@@ -12,3 +11,4 @@ public:
     virtual ~CToolBase() {}
 };
 
+#endif // CTOOL_BASE

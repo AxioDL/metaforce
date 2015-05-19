@@ -297,17 +297,17 @@ public:
                           bool recursive=false)=0;
 
     /**
+     * @brief Interrupts a cook in progress (call from SIGINT handler)
+     */
+    virtual void interruptCook()=0;
+
+    /**
      * @brief Delete cooked objects for file or directory
      * @param path file or directory of intermediates to clean
      * @param recursive traverse subdirectories to clean as well
      * @return true on success
      */
     virtual bool cleanPath(const std::string& path, bool recursive=false)=0;
-
-    /**
-     * @brief Interrupts a cook in progress (call from SIGINT handler)
-     */
-    virtual void interruptCook()=0;
 
 };
 

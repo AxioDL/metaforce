@@ -1,6 +1,5 @@
-#ifndef MAIN_CPP
-#error This file may only be included from main.cpp
-#endif
+#ifndef CTOOL_PACKAGE
+#define CTOOL_PACKAGE
 
 #include <vector>
 #include <string>
@@ -17,3 +16,5 @@ public:
     {
     }
 };
+
+#endif // CTOOL_PACKAGE

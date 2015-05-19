@@ -1,6 +1,5 @@
-#ifndef MAIN_CPP
-#error This file may only be included from main.cpp
-#endif
+#ifndef CTOOL_INIT
+#define CTOOL_INIT
 
 #include "CToolBase.hpp"
 
@@ -15,3 +14,5 @@ public:
     {
     }
 };
+
+#endif // CTOOL_INIT

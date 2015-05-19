@@ -3,6 +3,7 @@
 #include <HECLDatabase.hpp>
 
 #define MAIN_CPP
+#include "CToolBase.hpp"
 #include "CToolInit.hpp"
 #include "CToolAdd.hpp"
 #include "CToolGroup.hpp"
