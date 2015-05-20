@@ -10,6 +10,7 @@ exists ($$PWD/llvm) {
 }
 
 HEADERS += \
+    include/HECL.hpp \
     include/HECLBackend.hpp \
     include/HECLDatabase.hpp \
     include/HECLFrontend.hpp \

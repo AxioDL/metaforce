@@ -5,15 +5,27 @@
 #include <string>
 #include "CToolBase.hpp"
 
-class CToolPackage : public CToolBase
+class CToolPackage final : public CToolBase
 {
 public:
-    CToolPackage(const std::vector<std::string>& args)
-    : CToolBase(args)
+    CToolPackage(const SToolPassInfo& info)
+    : CToolBase(info)
     {
     }
+
     ~CToolPackage()
     {
+    }
+
+    static void Help()
+    {
+    }
+
+    std::string toolName() const {return "package";}
+
+    int run()
+    {
+        return 0;
     }
 };
 

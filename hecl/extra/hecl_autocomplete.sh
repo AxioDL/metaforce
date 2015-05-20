@@ -3,7 +3,7 @@
 _hecl ()
 {
     local word=${COMP_WORDS[COMP_CWORD]}
-    local filecmds=(init add group cook clean package)
+    local filecmds=(init add remove group cook clean package)
     
     if [ $COMP_CWORD == 1 ]
     then
@@ -12,7 +12,7 @@ _hecl ()
     elif [ $COMP_CWORD == 2 ]
     then
         case ${COMP_WORDS[1]} in
-        init|add|group|cook|clean|package)
+        init|add|remove|group|cook|clean|package)
             COMPREPLY=($(compgen -f -- "${word}"))
             ;;
         help)

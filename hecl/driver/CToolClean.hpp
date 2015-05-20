@@ -3,15 +3,27 @@
 
 #include "CToolBase.hpp"
 
-class CToolClean : public CToolBase
+class CToolClean final : public CToolBase
 {
 public:
-    CToolClean(const std::vector<std::string>& args)
-    : CToolBase(args)
+    CToolClean(const SToolPassInfo& info)
+    : CToolBase(info)
     {
     }
+
     ~CToolClean()
     {
+    }
+
+    static void Help()
+    {
+    }
+
+    std::string toolName() const {return "clean";}
+
+    int run()
+    {
+        return 0;
     }
 };
 

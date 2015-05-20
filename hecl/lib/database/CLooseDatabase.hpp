@@ -18,8 +18,7 @@ class CLooseDatabase final : public IDatabase
     Access m_access;    
 public:
     CLooseDatabase(const std::string& path, Access access)
-    : m_mainSql((path+"/main.db").c_str(), (m_access == READONLY) ? true : false),
-      m_cookedSql((path+"/cooked.db").c_str(), (m_access == READONLY) ? true : false),
+    : m_sql(path.c_str(), (access == READONLY) ? true : false),
       m_access(access)
     {
 
@@ -51,12 +50,12 @@ public:
     const IDataObject* addDataBlob(const std::string& name, const void* data, size_t length)
     {
         /* Hash data */
-        ObjectHash hash(data, length);
+        HECL::ObjectHash hash(data, length);
 
         /* Compress data into file */
         FILE* fp = fopen("", "wb");
 
-        m_mainSql.insertObject(name, "DUMB", hash, length, length);
+        m_sql.insertObject(name, "DUMB", hash, length, length);
     }
 
     const IDataObject* addDataBlob(const void* data, size_t length)

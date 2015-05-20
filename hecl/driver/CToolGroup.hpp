@@ -3,15 +3,27 @@
 
 #include "CToolBase.hpp"
 
-class CToolGroup : public CToolBase
+class CToolGroup final : public CToolBase
 {
 public:
-    CToolGroup(const std::vector<std::string>& args)
-    : CToolBase(args)
+    CToolGroup(const SToolPassInfo& info)
+    : CToolBase(info)
     {
     }
+
     ~CToolGroup()
     {
+    }
+
+    static void Help()
+    {
+    }
+
+    std::string toolName() const {return "group";}
+
+    int run()
+    {
+        return 0;
     }
 };
 

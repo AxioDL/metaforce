@@ -7,64 +7,12 @@
 #include <vector>
 #include <stdint.h>
 
-#include "../extern/blowfish/blowfish.h"
+#include "HECL.hpp"
 
 namespace HECLDatabase
 {
 
 class IDatabase;
-
-/**
- * @brief Severity of a log event
- */
-enum LogType
-{
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR
-};
-
-/**
- * @brief FourCC representation used within HECL's database
- *
- * FourCCs are efficient, mnemonic four-char-sequences used to represent types
- * while fitting comfortably in a 32-bit word. HECL uses a four-char array
- * to remain endian-independent.
- */
-class FourCC
-{
-    union
-    {
-        char fcc[4];
-        uint32_t num;
-    };
-public:
-    FourCC(const char* name)
-    : num(*(uint32_t*)name) {}
-    inline bool operator==(FourCC& other) {return num == other.num;}
-    inline bool operator!=(FourCC& other) {return num != other.num;}
-    inline std::string toString() {return std::string(fcc, 4);}
-};
-
-/**
- * @brief Hash representation used for all storable and comparable objects
- *
- * Hashes are used within HECL to avoid redundant storage of objects;
- * providing a rapid mechanism to compare for equality.
- */
-class ObjectHash
-{
-    int64_t hash;
-public:
-    ObjectHash(const void* buf, size_t len)
-    : hash(Blowfish_hash(buf, len)) {}
-    inline bool operator==(ObjectHash& other) {return hash == other.hash;}
-    inline bool operator!=(ObjectHash& other) {return hash != other.hash;}
-    inline bool operator<(ObjectHash& other) {return hash < other.hash;}
-    inline bool operator>(ObjectHash& other) {return hash > other.hash;}
-    inline bool operator<=(ObjectHash& other) {return hash <= other.hash;}
-    inline bool operator>=(ObjectHash& other) {return hash >= other.hash;}
-};
 
 /**
  * @brief The IDataObject class
@@ -126,8 +74,8 @@ public:
     virtual const IDataObject* at(size_t idx) const=0;
     inline const IDataObject* operator[](size_t idx) {return at(idx);}
 
-    virtual std::vector::const_iterator begin() const=0;
-    virtual std::vector::const_iterator end() const=0;
+    virtual std::vector<IDataObject*>::const_iterator begin() const=0;
+    virtual std::vector<IDataObject*>::const_iterator end() const=0;
 };
 
 /**
@@ -269,7 +217,7 @@ public:
      * @brief Register an optional callback to report log-messages using
      * @param logger logger-callback
      */
-    virtual void registerLogger(std::function<void(LogType, std::string&)> logger)=0;
+    virtual void registerLogger(HECL::TLogger logger)=0;
 
     /**
      * @brief Get the path of the project's root-directory

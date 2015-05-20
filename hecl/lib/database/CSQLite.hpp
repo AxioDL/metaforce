@@ -132,7 +132,9 @@ public:
         return retval;
     }
 
-    bool insertObject(const std::string& name, const FourCC& type, const ObjectHash& hash,
+    bool insertObject(const std::string& name,
+                      const HECL::FourCC& type,
+                      const HECL::ObjectHash& hash,
                       size_t compLen, size_t decompLen)
     {
     }

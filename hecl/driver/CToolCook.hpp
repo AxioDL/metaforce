@@ -3,15 +3,27 @@
 
 #include "CToolBase.hpp"
 
-class CToolCook : public CToolBase
+class CToolCook final : public CToolBase
 {
 public:
-    CToolCook(const std::vector<std::string>& args)
-    : CToolBase(args)
+    CToolCook(const SToolPassInfo& info)
+    : CToolBase(info)
     {
     }
+
     ~CToolCook()
     {
+    }
+
+    static void Help()
+    {
+    }
+
+    std::string toolName() const {return "cook";}
+
+    int run()
+    {
+        return 0;
     }
 };
 
