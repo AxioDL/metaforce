@@ -2,8 +2,10 @@ TARGET = hecl
 CONFIG -= Qt
 QT      =
 LIBS   -= -lQtGui -lQtCore
-unix:QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++
-unix:!macx:LIBS += -std=c++11 -stdlib=libc++ -lc++abi
+unix:QMAKE_CXXFLAGS += -std=c++11
+unix:LIBS += -std=c++11
+clang:QMAKE_CXXFLAGS += -stdlib=libc++
+clang:LIBS += -stdlib=libc++ -lc++abi
 
 INCLUDEPATH += ../include
 

@@ -11,7 +11,7 @@ public:
     CToolHelp(const SToolPassInfo& info)
     : CToolBase(info)
     {
-        if (!m_info.args.size())
+        if (m_info.args.empty())
             throw std::invalid_argument("help requires a tool name argument");
     }
 
