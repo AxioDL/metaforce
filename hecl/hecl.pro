@@ -22,6 +22,7 @@ SUBDIRS += \
     extern/libpng \
     extern/zlib \
     lib \
+    dataspec \
     driver
 
 driver.depends = extern/sqlite3
@@ -29,3 +30,4 @@ driver.depends = extern/blowfish
 driver.depends = extern/libpng
 driver.depends = extern/zlib
 driver.depends = lib
+driver.depends = dataspec

@@ -33,7 +33,7 @@ static void printHelp(const char* pname)
 static const std::regex regOPEN("-o\\s*(\\S+)", std::regex::ECMAScript|std::regex::optimize);
 static const std::regex regVERBOSE("-v(v*)", std::regex::ECMAScript|std::regex::optimize);
 static const std::regex regFORCE("-f", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regWS("\\S+", std::regex::ECMAScript|std::regex::optimize);
+static const std::regex regNOWS("\\S+", std::regex::ECMAScript|std::regex::optimize);
 
 /* Iterates string segments around matched arguments and
  * filters args string accordingly */
@@ -101,7 +101,7 @@ int main(int argc, const char** argv)
         }
 
         /* Gather remaining args */
-        for (std::sregex_token_iterator it(args.begin(), args.end(), regWS);
+        for (std::sregex_token_iterator it(args.begin(), args.end(), regNOWS);
              it != std::sregex_token_iterator() ; ++it)
         {
             const std::string& str = *it;

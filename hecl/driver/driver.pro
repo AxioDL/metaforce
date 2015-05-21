@@ -10,12 +10,13 @@ clang:LIBS += -stdlib=libc++ -lc++abi
 INCLUDEPATH += ../include
 
 LIBPATH += $$OUT_PWD/../lib \
+    $$OUT_PWD/../dataspec \
     $$OUT_PWD/../extern/sqlite3 \
     $$OUT_PWD/../extern/blowfish \
     $$OUT_PWD/../extern/libpng \
     $$OUT_PWD/../extern/zlib
 
-LIBS += -lhecl -lsqlite3 -lblowfish -lpng -lz
+LIBS += -lhecl -ldataspec -lsqlite3 -lblowfish -lpng -lz
 
 SOURCES += \
     $$PWD/main.cpp

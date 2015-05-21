@@ -1,6 +1,7 @@
+
+
 #include "HECLDatabase.hpp"
 
-#define HECLDATABASE_CPP
 #include "CLooseDatabase.hpp"
 #include "CPackedDatabase.hpp"
 #include "CMemoryDatabase.hpp"
@@ -12,13 +13,13 @@ IDatabase* NewDatabase(IDatabase::Type type, IDatabase::Access access, const std
 {
     switch (type)
     {
-    case IDatabase::LOOSE:
+    case IDatabase::T_LOOSE:
         return new CLooseDatabase(path, access);
-    case IDatabase::PACKED:
+    case IDatabase::T_PACKED:
         return new CPackedDatabase(path);
-    case IDatabase::MEMORY:
+    case IDatabase::T_MEMORY:
         return new CMemoryDatabase(access);
-    case IDatabase::UNKNOWN:
+    case IDatabase::T_UNKNOWN:
         return nullptr;
     }
     return nullptr;

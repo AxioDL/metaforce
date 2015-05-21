@@ -1,6 +1,5 @@
-#ifndef HECLDATABASE_CPP
-#error This file must only be included from HECLDatabase.cpp
-#endif
+#ifndef CMEMORYDATABASE_HPP
+#define CMEMORYDATABASE_HPP
 
 #include "HECLDatabase.hpp"
 #include "CSQLite.hpp"
@@ -14,7 +13,7 @@ class CMemoryDatabase final : public IDatabase
     Access m_access;
 public:
     CMemoryDatabase(Access access)
-    : m_sql(":memory:", (m_access == READONLY) ? true : false), m_access(access)
+    : m_sql(":memory:", (m_access == A_READONLY) ? true : false), m_access(access)
     {
 
     }
@@ -26,7 +25,7 @@ public:
 
     Type getType() const
     {
-        return MEMORY;
+        return T_MEMORY;
     }
 
     Access getAccess() const
@@ -57,3 +56,5 @@ public:
 };
 
 }
+
+#endif // CMEMORYDATABASE_HPP

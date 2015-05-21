@@ -1,6 +1,5 @@
-#ifndef HECLDATABASE_CPP
-#error This file must only be included from HECLDatabase.cpp
-#endif
+#ifndef CLOOSEDATABASE_HPP
+#define CLOOSEDATABASE_HPP
 
 #include <stdio.h>
 #include <blowfish/blowfish.h>
@@ -18,7 +17,7 @@ class CLooseDatabase final : public IDatabase
     Access m_access;    
 public:
     CLooseDatabase(const std::string& path, Access access)
-    : m_sql(path.c_str(), (access == READONLY) ? true : false),
+    : m_sql(path.c_str(), (access == A_READONLY) ? true : false),
       m_access(access)
     {
 
@@ -31,7 +30,7 @@ public:
 
     Type getType() const
     {
-        return LOOSE;
+        return T_LOOSE;
     }
 
     Access getAccess() const
@@ -65,7 +64,7 @@ public:
 
     bool writeDatabase(IDatabase::Type type, const std::string& path) const
     {
-        if (type == PACKED)
+        if (type == T_PACKED)
         {
             size_t bufSz;
             void* buf = m_sql.fillDBBuffer(bufSz);
@@ -79,3 +78,5 @@ public:
 };
 
 }
+
+#endif // CLOOSEDATABASE_HPP

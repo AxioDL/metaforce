@@ -1,6 +1,5 @@
-#ifndef HECLDATABASE_CPP
-#error This file must only be included from HECLDatabase.cpp
-#endif
+#ifndef CPACKEDDATABASE_HPP
+#define CPACKEDDATABASE_HPP
 
 #include "HECLDatabase.hpp"
 #include "CSQLite.hpp"
@@ -25,12 +24,12 @@ public:
 
     Type getType() const
     {
-        return PACKED;
+        return T_PACKED;
     }
 
     Access getAccess() const
     {
-        return READONLY;
+        return A_READONLY;
     }
 
     const IDataObject* lookupObject(size_t id) const
@@ -56,3 +55,5 @@ public:
 };
 
 }
+
+#endif // CPACKEDDATABASE_HPP

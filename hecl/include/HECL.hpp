@@ -38,6 +38,8 @@ class FourCC
         uint32_t num;
     };
 public:
+    FourCC() /* Sentinel FourCC */
+    : num(0) {}
     FourCC(const char* name)
     : num(*(uint32_t*)name) {}
     inline bool operator==(FourCC& other) {return num == other.num;}
@@ -57,6 +59,8 @@ class ObjectHash
 public:
     ObjectHash(const void* buf, size_t len)
     : hash(Blowfish_hash(buf, len)) {}
+    ObjectHash(int64_t hashin)
+    : hash(hashin) {}
     inline bool operator==(ObjectHash& other) {return hash == other.hash;}
     inline bool operator!=(ObjectHash& other) {return hash != other.hash;}
     inline bool operator<(ObjectHash& other) {return hash < other.hash;}
