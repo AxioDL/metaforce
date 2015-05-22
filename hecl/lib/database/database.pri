@@ -7,6 +7,8 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/HECLDatabase.cpp \
-    $$PWD/sqlite_hecl_mem_vfs.c \
     $$PWD/CRuntime.cpp \
-    $$PWD/CProject.cpp
+    $$PWD/CProject.cpp \
+    $$PWD/sqlite_hecl_mem_vfs.c \
+    $$PWD/sqlite_hecl_memlba_vfs.c \
+    $$PWD/sqlite_hecl_memlba_make.c

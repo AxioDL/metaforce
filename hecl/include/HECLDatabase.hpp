@@ -404,7 +404,7 @@ public:
      * intermediates into a packed database file located alongside the specified
      * directory. This is a similar process to 'linking' in software development.
      *
-     * Part of this process involves calling IDataObject::_gatherDeps() to calculate
+     * Part of this process involves calling CProjectObject::_gatherDeps() to calculate
      * object dependencies. This makes package-assembly simple, as dependencies will
      * automatically be added as needed. The frontend needn't be concerned about
      * gathering leaf-objects buried in corners of the working directory.

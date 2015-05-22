@@ -16,17 +16,20 @@ namespace HECLDatabase
 static const char* skDBINIT =
 "PRAGMA foreign_keys = ON;\n"
 "CREATE TABLE IF NOT EXISTS objects(rowid INTEGER PRIMARY KEY,"
-                                   "name,"
+                                   "path,"
+                                   "subpath"
                                    "type4cc UNSIGNED INTEGER,"
-                                   "hash64 UNSIGNED INTEGER,"
-                                   "compLen UNSIGNED INTEGER,"
-                                   "decompLen UNSIGNED INTEGER);\n"
+                                   "hash64 INTEGER);\n"
 "CREATE INDEX IF NOT EXISTS nameidx ON objects(name);\n"
-"CREATE TABLE IF NOT EXISTS deplinks(groupId, "
-                                    "objId REFERENCES objects(rowid) ON DELETE CASCADE, "
+"CREATE TABLE IF NOT EXISTS deplinks(groupId,"
+                                    "objId REFERENCES objects(rowid) ON DELETE CASCADE,"
                                     "UNIQUE (groupId, objId) ON CONFLICT IGNORE);\n"
 "CREATE INDEX IF NOT EXISTS grpidx ON deplinks(groupId);\n"
-"CREATE INDEX IF NOT EXISTS depidx ON deplinks(objId);\n";
+"CREATE INDEX IF NOT EXISTS depidx ON deplinks(objId);\n"
+"CREATE TABLE IF NOT EXISTS cooked(objid INTEGER PRIMARY KEY REFERENCES objects(rowid) ON DELETE CASCADE,"
+                                  "offset UNSIGNED INTEGER,"
+                                  "compLen UNSIGNED INTEGER,"
+                                  "decompLen UNSIGNED INTEGER);\n";
 
 #define PREPSTMT(stmtSrc, outVar)\
 if (sqlite3_prepare_v2(m_db, stmtSrc, 0, &outVar, NULL) != SQLITE_OK)\

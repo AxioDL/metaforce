@@ -38,12 +38,20 @@ public:
         m_cookedDb = new CLooseDatabase(m_rootPath + "/.hecl/cooked.db", IDatabase::A_READWRITE);
     }
 
+    ~CProject()
+    {
+        delete m_mainDb;
+        delete m_cookedDb;
+    }
+
     IDatabase* mainDatabase() const
     {
+        return m_mainDb;
     }
 
     IDatabase* cookedDatabase() const
     {
+        return m_cookedDb;
     }
 
     void registerLogger(HECL::TLogger logger)

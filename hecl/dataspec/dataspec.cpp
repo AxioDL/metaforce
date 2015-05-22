@@ -6,7 +6,7 @@
 #include "STRG.hpp"
 #include "TXTR.hpp"
 
-const HECLDatabase::RegistryEntry DATASPEC_TYPES[]
+const HECLDatabase::RegistryEntry DATASPEC_TYPE_REGISTRY[]
 {
     REGISTRY_ENTRY("DUMB", CDUMBProject, CDUMBRuntime),
     REGISTRY_ENTRY("HMDL", CHMDLProject, CHMDLRuntime),

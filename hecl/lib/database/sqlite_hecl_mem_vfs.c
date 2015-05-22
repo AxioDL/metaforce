@@ -257,10 +257,10 @@ static int memOpen(
     int* pOutFlags
 )
 {
-    if(flags != SQLITE_OPEN_MAIN_DB)
+    if ((flags & SQLITE_OPEN_MAIN_DB) != SQLITE_OPEN_MAIN_DB)
     {
-        fprintf(stderr, "the sqlite hecl mem VFS only supports main-db writing\n");
-        abort();
+        fprintf(stderr, "the sqlite hecl mem VFS only supports main-db reading/writing\n");
+        return SQLITE_CANTOPEN;
     }
     mem_file* p2 = (mem_file*)pFile;
     memset(p2, 0, sizeof(*p2));
