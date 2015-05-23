@@ -20,7 +20,7 @@ from bpy.app.handlers import persistent
 # Appendable list allowing external addons to register additional resource types
 hecl_export_types = [
 ('NONE', "None", "Active scene not using HECL", None, None),
-('MESH', "Mesh", "Active scene represents an RWK Mesh", hmdl.panel_draw, hmdl.cook)]
+('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.panel_draw, hmdl.cook)]
 
 # Main Scene Panel
 class hecl_scene_panel(bpy.types.Panel):

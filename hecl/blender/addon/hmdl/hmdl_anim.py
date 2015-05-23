@@ -1,5 +1,5 @@
 '''
-RMDL Export Blender Addon
+HMDL Export Blender Addon
 By Jack Andersen <jackoalan@gmail.com>
 
 This file provides a means to encode animation key-channels
@@ -55,8 +55,8 @@ def generate_animation_info(action, res_db, rani_db_id, arg_package, endian_char
     # Relate fcurves per-frame / per-bone and assemble data
     key_stream = bytearray()
     key_stream += struct.pack(endian_char + 'II', len(frame_set), len(bone_set))
-    duration = action.frame_range[1] / action.rwk_fps
-    interval = 1.0 / action.rwk_fps
+    duration = action.frame_range[1] / action.hecl_fps
+    interval = 1.0 / action.hecl_fps
     key_stream += struct.pack(endian_char + 'ff', duration, interval)
     
     # Generate keyframe bitmap
@@ -164,12 +164,12 @@ def generate_animation_info(action, res_db, rani_db_id, arg_package, endian_char
 
     # Generate event buffer
     event_buf = bytearray()
-    if hasattr(action, 'rwk_events'):
+    if hasattr(action, 'hecl_events'):
         c1 = 0
         c2 = 0
         c3 = 0
         c4 = 0
-        for event in action.rwk_events:
+        for event in action.hecl_events:
             if event.type == 'LOOP':
                 c1 += 1
             elif event.type == 'UEVT':
@@ -180,16 +180,16 @@ def generate_animation_info(action, res_db, rani_db_id, arg_package, endian_char
                 c4 += 1
         event_buf += struct.pack(endian_char + 'IIII', c1, c2, c3, c4)
 
-        for event in action.rwk_events:
+        for event in action.hecl_events:
             if event.type == 'LOOP':
                 event_buf += struct.pack(endian_char + 'fi', event.time, event.loop_data.bool)
         
-        for event in action.rwk_events:
+        for event in action.hecl_events:
             if event.type == 'UEVT':
                 event_buf += struct.pack(endian_char + 'fii', event.time, event.uevt_data.type,
                                          hashbone(event.uevt_data.bone_name))
 
-        for event in action.rwk_events:
+        for event in action.hecl_events:
             if event.type == 'EFFECT':
                 effect_db_id, effect_hash = res_db.search_for_resource(event.effect_data.uid, arg_package)
                 if effect_hash:
@@ -201,7 +201,7 @@ def generate_animation_info(action, res_db, rani_db_id, arg_package, endian_char
                                          EFFECT_XF_MODES[event.effect_data.transform_mode])
                 event_buf += effect_hash
 
-        for event in action.rwk_events:
+        for event in action.hecl_events:
             if event.type == 'SOUND':
                 sid = int.from_bytes(event.sound_data.sound_id.encode()[:4], byteorder='big', signed=False)
                 event_buf += struct.pack(endian_char + 'fIff', event.time, sid,

@@ -38,12 +38,12 @@ def recursive_color_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
         elif node.blend_type == 'ADD':
             return '(%s + %s)' % (a_input, b_input)
         else:
-            raise RuntimeError("RMDL does not support shaders with '{0}' blending modes".format(node.blend_type))
+            raise RuntimeError("HMDL does not support shaders with '{0}' blending modes".format(node.blend_type))
 
     elif node.type == 'TEXTURE':
 
         if not node.inputs['Vector'].is_linked:
-            raise RuntimeError("RMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
 
         # Determine matrix generator type
         matrix_str = None
@@ -75,7 +75,7 @@ def recursive_color_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
             pass
 
         else:
-            raise RuntimeError("RMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
 
         if soc_from.node.type != 'GEOMETRY':
             raise RuntimeError("Matrix animator nodes must connect to 'Geometry' node")
@@ -129,7 +129,7 @@ def recursive_color_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
             return 'hecl_Lighting'
 
     else:
-        raise RuntimeError("RMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
+        raise RuntimeError("HMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
 
 
 
@@ -159,12 +159,12 @@ def recursive_alpha_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
         elif node.operation == 'ADD':
             return '(%s + %s)' % (a_input, b_input)
         else:
-            raise RuntimeError("RMDL does not support shaders with '{0}' blending modes".format(node.operation))
+            raise RuntimeError("HMDL does not support shaders with '{0}' blending modes".format(node.operation))
 
     elif node.type == 'TEXTURE':
 
         if not node.inputs['Vector'].is_linked:
-            raise RuntimeError("RMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
         
         # Determine matrix generator type
         matrix_str = None
@@ -196,7 +196,7 @@ def recursive_alpha_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
             pass
 
         else:
-            raise RuntimeError("RMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
 
         if soc_from.node.type != 'GEOMETRY':
             raise RuntimeError("Matrix animator nodes must connect to 'Geometry' node")
@@ -242,17 +242,17 @@ def recursive_alpha_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
         return '1.0'
 
     else:
-        raise RuntimeError("RMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
+        raise RuntimeError("HMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
 
 
 
 def shader(mat_obj, mesh_obj, blend_path):
 
     if not mat_obj.use_nodes:
-        raise RuntimeError("RMDL *requires* that shader nodes are used; '{0}' does not".format(mat_obj.name))
+        raise RuntimeError("HMDL *requires* that shader nodes are used; '{0}' does not".format(mat_obj.name))
 
     if 'Output' not in mat_obj.node_tree.nodes or mat_obj.node_tree.nodes['Output'].type != 'OUTPUT':
-        raise RuntimeError("RMDL *requires* that an OUTPUT shader node named 'Output' is present")
+        raise RuntimeError("HMDL *requires* that an OUTPUT shader node named 'Output' is present")
 
     # Root (output) node
     output_node = mat_obj.node_tree.nodes['Output']

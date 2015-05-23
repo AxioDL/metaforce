@@ -1,10 +1,6 @@
 '''
-RMDL Export Blender Addon
+HMDL Export Blender Addon
 By Jack Andersen <jackoalan@gmail.com>
-
-This file defines the `rmdl_draw_general` class to generate vertex+index 
-buffers and mesh arrays to draw them. `PAR1` files also include bone-weight
-coefficients per-vertex for vertex-shader-driven skeletal evaluation.
 '''
 
 import struct
@@ -105,11 +101,11 @@ def _find_polygon_opposite_lvs(mesh, original_triangle, lv_a, lv_b):
 
 
 
-class rmdl_mesh:
+class hmdl_mesh:
     
     def __init__(self):
         
-        # 4-byte ID string used in generated RMDL file
+        # 4-byte ID string used in generated HMDL file
         self.file_identifier = '_GEN'
         
         # Array that holds collections. A collection is a 16-bit index
@@ -486,10 +482,10 @@ class rmdl_mesh:
 
 # C-generation operator
 import bmesh
-class rmdl_mesh_operator(bpy.types.Operator):
-    bl_idname = "scene.rmdl_mesh"
-    bl_label = "RMDL C mesh maker"
-    bl_description = "RMDL Mesh source generation utility"
+class hmdl_mesh_operator(bpy.types.Operator):
+    bl_idname = "scene.hmdl_mesh"
+    bl_label = "HMDL C mesh maker"
+    bl_description = "HMDL Mesh source generation utility"
 
     @classmethod
     def poll(cls, context):
@@ -512,7 +508,7 @@ class rmdl_mesh_operator(bpy.types.Operator):
         bm.free()
         
         context.scene.objects.link(copy_obj)
-        rmesh = rmdl_mesh()
+        rmesh = hmdl_mesh()
         rmesh.add_mesh(copy_mesh, None, 0)
         
         str_out = '/* Vertex Buffer */\nstatic const float VERT_BUF[] = {\n'
@@ -533,51 +529,3 @@ class rmdl_mesh_operator(bpy.types.Operator):
         self.report({'INFO'}, "Wrote mesh C to clipboard")
         return {'FINISHED'}
 
-# 2D C-generation operator
-import bmesh
-class rmdl_mesh2d_operator(bpy.types.Operator):
-    bl_idname = "scene.rmdl_mesh2d"
-    bl_label = "RMDL C 2D mesh maker"
-    bl_description = "RMDL 2D Mesh source generation utility"
-
-    @classmethod
-    def poll(cls, context):
-        return context.object and context.object.type == 'MESH'
-
-    def execute(self, context):
-        copy_mesh = context.object.data.copy()
-        copy_obj = context.object.copy()
-        copy_obj.data = copy_mesh
-    
-        bm = bmesh.new()
-        bm.from_mesh(copy_mesh)
-        bmesh.ops.triangulate(bm, faces=bm.faces)
-        #to_remove = []
-        #for face in bm.faces:
-        #    if face.material_index != 7:
-        #        to_remove.append(face)
-        #bmesh.ops.delete(bm, geom=to_remove, context=5)
-        bm.to_mesh(copy_mesh)
-        bm.free()
-        
-        context.scene.objects.link(copy_obj)
-        rmesh = rmdl_mesh()
-        rmesh.add_mesh(copy_mesh, None, 0)
-        
-        str_out = '/* Vertex Buffer */\nstatic const float VERT_BUF[] = {\n'
-        vert_arr = rmesh.generate_vertex_buffer(0, '<')[3]
-        for v in vert_arr:
-            str_out += '    %f, %f,\n' % (v[0][0], v[0][2])
-        ebuf_arr = rmesh.generate_element_buffer(0, '<')[2]
-        str_out += '};\n\n/* Element Buffer */\n#define ELEM_BUF_COUNT %d\nstatic const u16 ELEM_BUF[] = {\n' % len(ebuf_arr)
-        for e in ebuf_arr:
-            str_out += '    %d,\n' % e
-        str_out += '};\n'
-        
-        context.scene.objects.unlink(copy_obj)
-        bpy.data.objects.remove(copy_obj)
-        bpy.data.meshes.remove(copy_mesh)
-
-        context.window_manager.clipboard = str_out
-        self.report({'INFO'}, "Wrote mesh C to clipboard")
-        return {'FINISHED'}
