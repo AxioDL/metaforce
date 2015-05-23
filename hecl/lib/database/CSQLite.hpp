@@ -13,23 +13,36 @@ namespace HECLDatabase
 
 /* Private sqlite3 backend to be used by database subclasses */
 
-static const char* skDBINIT =
+static const char* skMAINDBINIT =
 "PRAGMA foreign_keys = ON;\n"
-"CREATE TABLE IF NOT EXISTS objects(rowid INTEGER PRIMARY KEY,"
-                                   "path,"
-                                   "subpath"
-                                   "type4cc UNSIGNED INTEGER,"
-                                   "hash64 INTEGER);\n"
-"CREATE INDEX IF NOT EXISTS nameidx ON objects(name);\n"
-"CREATE TABLE IF NOT EXISTS deplinks(groupId,"
-                                    "objId REFERENCES objects(rowid) ON DELETE CASCADE,"
-                                    "UNIQUE (groupId, objId) ON CONFLICT IGNORE);\n"
-"CREATE INDEX IF NOT EXISTS grpidx ON deplinks(groupId);\n"
-"CREATE INDEX IF NOT EXISTS depidx ON deplinks(objId);\n"
-"CREATE TABLE IF NOT EXISTS cooked(objid INTEGER PRIMARY KEY REFERENCES objects(rowid) ON DELETE CASCADE,"
-                                  "offset UNSIGNED INTEGER,"
-                                  "compLen UNSIGNED INTEGER,"
-                                  "decompLen UNSIGNED INTEGER);\n";
+"CREATE TABLE IF NOT EXISTS grps("
+    "grpid INTEGER PRIMARY KEY," /* Unique group identifier (used as in-game ref) */
+    "path);\n" /* Directory path collecting working files for group */
+"CREATE TABLE IF NOT EXISTS objs("
+    "objid INTEGER PRIMARY KEY," /* Unique object identifier (used as in-game ref) */
+    "path," /* Path of working file */
+    "subpath DEFAULT NULL," /* String name of sub-object within working file (i.e. blender object) */
+    "cookedHash64 INTEGER DEFAULT NULL," /* Hash of last cooking pass */
+    "cookedTime64 INTEGER DEFAULT NULL);\n"; /* UTC unix-time of last cooking pass */
+
+static const char* skCOOKEDDBINIT =
+"PRAGMA foreign_keys = ON;\n"
+"CREATE TABLE IF NOT EXISTS cgrps("
+    "grpid INTEGER PRIMARY KEY," /* Unique group identifier (from main DB) */
+    "offset UNSIGNED INTEGER," /* Group-blob offset within package */
+    "compLen UNSIGNED INTEGER," /* Compressed blob-length */
+    "decompLen UNSIGNED INTEGER);\n" /* Decompressed blob-length */
+"CREATE TABLE IF NOT EXISTS cobjs("
+    "objid INTEGER PRIMARY KEY," /* Unique object identifier (from main DB) */
+    "type4cc UNSIGNED INTEGER," /* Type FourCC as claimed by first project class in dataspec */
+    "loosegrp REFERENCES cgrps(grpid) ON DELETE SET NULL DEFAULT NULL);\n" /* single-object group of ungrouped object */
+"CREATE TABLE IF NOT EXISTS cgrplinks("
+    "grpid REFERENCES cgrps(grpid) ON DELETE CASCADE," /* Group ref */
+    "objid REFERENCES cobjs(objid) ON DELETE CASCADE," /* Object ref */
+    "offset UNSIGNED INTEGER," /* Offset within decompressed group-blob */
+    "decompLen UNSIGNED INTEGER," /* Decompressed object length */
+    "UNIQUE (grpid, objid) ON CONFLICT IGNORE);\n"
+"CREATE INDEX IF NOT EXISTS grpidx ON cgrplinks(grpid);\n";
 
 #define PREPSTMT(stmtSrc, outVar)\
 if (sqlite3_prepare_v2(m_db, stmtSrc, 0, &outVar, NULL) != SQLITE_OK)\
@@ -39,15 +52,13 @@ if (sqlite3_prepare_v2(m_db, stmtSrc, 0, &outVar, NULL) != SQLITE_OK)\
     return;\
 }
 
-class CSQLite
+class CSQLiteMain
 {
     sqlite3* m_db;
 
-    sqlite3_stmt* m_selObjects;
-    sqlite3_stmt* m_selObjectByName;
-    sqlite3_stmt* m_selDistictDepGroups;
-    sqlite3_stmt* m_selDepGroupObjects;
-    sqlite3_stmt* m_insObject;
+    sqlite3_stmt* m_selObjs;
+    sqlite3_stmt* m_selGrps;
+
 
     struct SCloseBuf
     {
@@ -61,7 +72,7 @@ class CSQLite
     }
 
 public:
-    CSQLite(const char* path, bool readonly)
+    CSQLiteMain(const char* path, bool readonly)
     {
         /* Open database connection */
         int errCode = 0;
@@ -94,7 +105,7 @@ public:
         PREPSTMT("INSERT INTO objects(name,type4cc,hash64,compLen,decompLen) VALUES (?1,?2,?3,?4,?5)", m_insObject);
     }
 
-    ~CSQLite()
+    ~CSQLiteMain()
     {
         sqlite3_finalize(m_selObjects);
         sqlite3_finalize(m_selObjectByName);

@@ -2,6 +2,7 @@
 #define TXTR_HPP
 
 #include "HECLDatabase.hpp"
+#include "helpers.hpp"
 
 class CTXTRProject : public HECLDatabase::CProjectObject
 {
@@ -17,6 +18,15 @@ class CTXTRProject : public HECLDatabase::CProjectObject
     }
 
 public:
+    static bool ClaimPath(const std::string& path, const std::string&)
+    {
+        if (!HECLHelpers::IsRegularFile(path))
+            return false;
+        if (!HECLHelpers::ContainsMagic(path, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8))
+            return false;
+        return true;
+    }
+
     CTXTRProject(const ConstructionInfo& info)
     : CProjectObject(info)
     {

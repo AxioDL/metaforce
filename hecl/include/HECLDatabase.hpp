@@ -224,6 +224,7 @@ protected:
     IDataObject* m_mainObj;
     IDataObject* m_cookedObj;
 public:
+    static bool ClaimPath(const std::string&, const std::string&) {return false;}
     virtual ~CProjectObject();
     struct ConstructionInfo
     {
@@ -551,38 +552,49 @@ public:
  */
 struct RegistryEntry
 {
+    typedef std::function<bool(const std::string& path)> TPathClaimer;
+    typedef std::function<CProjectObject*(const CProjectObject::ConstructionInfo&)> TProjectFactory;
+    typedef std::function<CRuntimeObject*(const CRuntimeObject::ConstructionInfo&)> TRuntimeFactory;
     const HECL::FourCC& fcc;
 #ifndef HECL_STRIP_PROJECT
-    std::function<CProjectObject*(const CProjectObject::ConstructionInfo&)> projectFactory;
+    TPathClaimer pathClaimer;
+    TProjectFactory projectFactory;
 #endif
 #ifndef HECL_STRIP_RUNTIME
-    std::function<CRuntimeObject*(const CRuntimeObject::ConstructionInfo&)> runtimeFactory;
+    TRuntimeFactory runtimeFactory;
 #endif
 };
+
+static RegistryEntry::TPathClaimer NULL_PATH_CLAIMER =
+    [](const std::string&) -> bool {return false;};
+static RegistryEntry::TProjectFactory NULL_PROJECT_FACTORY =
+    [](const HECLDatabase::CProjectObject::ConstructionInfo&)
+    -> HECLDatabase::CProjectObject* {return nullptr;};
+static RegistryEntry::TRuntimeFactory NULL_RUNTIME_FACTORY =
+    [](const HECLDatabase::CRuntimeObject::ConstructionInfo&)
+    -> HECLDatabase::CRuntimeObject* {return nullptr;};
 
 #if !defined(HECL_STRIP_PROJECT) && !defined(HECL_STRIP_RUNTIME)
 
 #define REGISTRY_ENTRY(fourcc, projectClass, runtimeClass) {fourcc, \
+[](const std::string& path) -> bool {return projectClass::ClaimPath(path);}, \
 [](const HECLDatabase::CProjectObject::ConstructionInfo& info) -> \
     HECLDatabase::CProjectObject* {return new projectClass(info);}, \
 [](const HECLDatabase::CRuntimeObject::ConstructionInfo& info) -> \
     HECLDatabase::CRuntimeObject* {return new runtimeClass(info);}}
 
-#define REGISTRY_SENTINEL() { HECL::FourCC(), \
-[](const HECLDatabase::CProjectObject::ConstructionInfo&) -> \
-    HECLDatabase::CProjectObject* {return nullptr;}, \
-[](const HECLDatabase::CRuntimeObject::ConstructionInfo&) -> \
-    HECLDatabase::CRuntimeObject* {return nullptr;}}
+#define REGISTRY_SENTINEL() \
+    {HECL::FourCC(), NULL_PATH_CLAIMER, \
+    NULL_PROJECT_FACTORY, NULL_RUNTIME_FACTORY}
 
 #elif !defined(HECL_STRIP_PROJECT)
 
 #define REGISTRY_ENTRY(fourcc, projectClass, runtimeClass) {fourcc, \
+[](const std::string& path) -> bool {return projectClass::ClaimPath(path);}, \
 [](const HECLDatabase::CProjectObject::ConstructionInfo& info) -> \
     HECLDatabase::CProjectObject* {return new projectClass(info);}}
 
-#define REGISTRY_SENTINEL() { HECL::FourCC(), \
-[](const HECLDatabase::CProjectObject::ConstructionInfo&) -> \
-    HECLDatabase::CProjectObject* {return nullptr;}}
+#define REGISTRY_SENTINEL() {HECL::FourCC(), NULL_PATH_CLAIMER, NULL_PROJECT_FACTORY}
 
 #elif !defined(HECL_STRIP_RUNTIME)
 
@@ -590,9 +602,7 @@ struct RegistryEntry
 [](const HECLDatabase::CRuntimeObject::ConstructionInfo& info) -> \
     HECLDatabase::CRuntimeObject* {return new runtimeClass(info);}}
 
-#define REGISTRY_SENTINEL() { HECL::FourCC(), \
-[](const HECLDatabase::CRuntimeObject::ConstructionInfo&) -> \
-    HECLDatabase::CRuntimeObject* {return nullptr;}}
+#define REGISTRY_SENTINEL() {HECL::FourCC(), NULL_RUNTIME_FACTORY}
 
 #endif
 

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 CONFIG += staticlib
-TARGET = dataspec
+TARGET = hecl-dataspec
 CONFIG -= Qt
 QT      =
 unix:QMAKE_CXXFLAGS += -std=c++11
@@ -12,6 +12,7 @@ clang:LIBS += -stdlib=libc++ -lc++abi
 INCLUDEPATH += $$PWD ../include ../extern
 
 HEADERS += \
+    helpers.hpp \
     DUMB.hpp \
     HMDL.hpp \
     MATR.hpp \
@@ -19,5 +20,6 @@ HEADERS += \
     TXTR.hpp
 
 SOURCES += \
+    helpers.cpp \
     dataspec.cpp
 

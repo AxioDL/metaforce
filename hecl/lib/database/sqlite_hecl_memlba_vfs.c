@@ -80,7 +80,7 @@ static int newBlockSlot(memlba_file* file)
     return 0;
 }
 
-static void decompressBlock(memlba_file* file, int blockIdx, int targetSlot)
+static void decompressBlock(memlba_file* file, unsigned blockIdx, int targetSlot)
 {
     if (blockIdx >= file->headBuf->blockCount)
     {
@@ -158,7 +158,7 @@ static sqlite3_vfs memlba_vfs =
     memlbaRandomness,                               /* xRandomness */
     memlbaSleep,                                    /* xSleep */
     memlbaCurrentTime,                              /* xCurrentTime */
-    0                                           /* xCurrentTimeInt64 */
+    0, 0, 0, 0, 0
 };
 
 static sqlite3_io_methods memlba_io_methods =
@@ -218,15 +218,15 @@ static int memlbaRead(
     unsigned firstRemBytes = pTmp->headBuf->blockSize - firstOff;
 
     int slot = getBlockSlot(pTmp, blockIdx);
-    unsigned toRead = MIN(iAmt, firstRemBytes);
+    unsigned toRead = MIN((unsigned)iAmt, firstRemBytes);
     memcpy(zBuf, pTmp->cachedBlockBufs[slot] + firstOff, toRead);
     iAmt -= toRead;
     zBuf += toRead;
 
-    while (iAmt)
+    while (iAmt > 0)
     {
         slot = getBlockSlot(pTmp, ++blockIdx);
-        toRead = MIN(iAmt, pTmp->headBuf->blockSize);
+        toRead = MIN((unsigned)iAmt, pTmp->headBuf->blockSize);
         memcpy(zBuf, pTmp->cachedBlockBufs[slot], toRead);
         iAmt -= toRead;
         zBuf += toRead;
@@ -245,6 +245,7 @@ static int memlbaWrite(
     sqlite_int64 iOfst
 )
 {
+    (void)pFile; (void)zBuf; (void)iAmt; (void)iOfst;
     return SQLITE_OK;
 }
 
@@ -253,7 +254,7 @@ static int memlbaWrite(
 */
 static int memlbaTruncate(sqlite3_file* pFile, sqlite_int64 size)
 {
-    memlba_file* pTmp = (memlba_file*)pFile;
+    (void)pFile; (void)size;
     return SQLITE_OK;
 }
 
@@ -262,6 +263,7 @@ static int memlbaTruncate(sqlite3_file* pFile, sqlite_int64 size)
 */
 static int memlbaSync(sqlite3_file* pFile, int flags)
 {
+    (void)pFile; (void)flags;
     return SQLITE_OK;
 }
 
@@ -280,6 +282,7 @@ static int memlbaFileSize(sqlite3_file* pFile, sqlite_int64* pSize)
 */
 static int memlbaLock(sqlite3_file* pFile, int eLock)
 {
+    (void)pFile; (void)eLock;
     return SQLITE_OK;
 }
 
@@ -288,6 +291,7 @@ static int memlbaLock(sqlite3_file* pFile, int eLock)
 */
 static int memlbaUnlock(sqlite3_file* pFile, int eLock)
 {
+    (void)pFile; (void)eLock;
     return SQLITE_OK;
 }
 
@@ -296,6 +300,7 @@ static int memlbaUnlock(sqlite3_file* pFile, int eLock)
 */
 static int memlbaCheckReservedLock(sqlite3_file* pFile, int* pResOut)
 {
+    (void)pFile;
     *pResOut = 0;
     return SQLITE_OK;
 }
@@ -305,6 +310,7 @@ static int memlbaCheckReservedLock(sqlite3_file* pFile, int* pResOut)
 */
 static int memlbaFileControl(sqlite3_file* pFile, int op, void* pArg)
 {
+    (void)pFile; (void)op; (void)pArg;
     return SQLITE_OK;
 }
 
@@ -313,6 +319,7 @@ static int memlbaFileControl(sqlite3_file* pFile, int op, void* pArg)
 */
 static int memlbaSectorSize(sqlite3_file* pFile)
 {
+    (void)pFile;
     return 0;
 }
 
@@ -321,6 +328,7 @@ static int memlbaSectorSize(sqlite3_file* pFile)
 */
 static int memlbaDeviceCharacteristics(sqlite3_file* pFile)
 {
+    (void)pFile;
     return 0;
 }
 
@@ -335,6 +343,7 @@ static int memlbaOpen(
     int* pOutFlags
 )
 {
+    (void)pVfs; (void)zName; (void)pOutFlags;
     if ((flags & SQLITE_OPEN_MAIN_DB) != SQLITE_OPEN_MAIN_DB ||
         (flags & SQLITE_OPEN_READONLY) != SQLITE_OPEN_READONLY)
     {
@@ -351,6 +360,7 @@ static int memlbaOpen(
     for (i=0 ; i<BLOCK_SLOTS ; ++i)
     {
         p2->cachedBlockBufs[i] = blockBufs + p2->headBuf->blockSize * i;
+        p2->cachedBlockIndices[i] = -1;
     }
     return SQLITE_OK;
 }
@@ -362,6 +372,7 @@ static int memlbaOpen(
 */
 static int memlbaDelete(sqlite3_vfs* pVfs, const char* zPath, int dirSync)
 {
+    (void)pVfs; (void)zPath; (void)dirSync;
     return SQLITE_OK;
 }
 
@@ -376,7 +387,8 @@ static int memlbaAccess(
     int* pResOut
 )
 {
-    if(flags & SQLITE_ACCESS_READ | SQLITE_ACCESS_READWRITE)
+    (void)pVfs; (void)zPath; (void)pResOut;
+    if (flags & (SQLITE_ACCESS_READ | SQLITE_ACCESS_READWRITE))
         return 1;
     return 0;
 }
@@ -392,6 +404,7 @@ static int memlbaFullPathname(
     int nOut,                     /* Size of output buffer in bytes */
     char* zOut)                   /* Output buffer */
 {
+    (void)pVfs;
     strncpy(zOut, zPath, nOut);
     return SQLITE_OK;
 }
@@ -401,6 +414,7 @@ static int memlbaFullPathname(
 */
 static void* memlbaDlOpen(sqlite3_vfs* pVfs, const char* zPath)
 {
+    (void)pVfs; (void)zPath;
     return NULL;
 }
 
@@ -411,6 +425,7 @@ static void* memlbaDlOpen(sqlite3_vfs* pVfs, const char* zPath)
 */
 static void memlbaDlError(sqlite3_vfs* pVfs, int nByte, char* zErrMsg)
 {
+    (void)pVfs; (void)nByte; (void)zErrMsg;
 }
 
 /*
@@ -418,6 +433,8 @@ static void memlbaDlError(sqlite3_vfs* pVfs, int nByte, char* zErrMsg)
 */
 static void (*memlbaDlSym(sqlite3_vfs* pVfs, void* pH, const char* zSym))(void)
 {
+    (void)pVfs; (void)pH; (void)zSym;
+    return NULL;
 }
 
 /*
@@ -425,6 +442,7 @@ static void (*memlbaDlSym(sqlite3_vfs* pVfs, void* pH, const char* zSym))(void)
 */
 static void memlbaDlClose(sqlite3_vfs* pVfs, void* pHandle)
 {
+    (void)pVfs; (void)pHandle;
 }
 
 /*
@@ -433,6 +451,7 @@ static void memlbaDlClose(sqlite3_vfs* pVfs, void* pHandle)
 */
 static int memlbaRandomness(sqlite3_vfs* pVfs, int nByte, char* zBufOut)
 {
+    (void)pVfs;
     for(int i = 0 ; i < nByte ; ++i)
         zBufOut[i] = rand();
     return nByte;
@@ -444,6 +463,7 @@ static int memlbaRandomness(sqlite3_vfs* pVfs, int nByte, char* zBufOut)
 */
 static int memlbaSleep(sqlite3_vfs* pVfs, int nMicro)
 {
+    (void)pVfs;
     int seconds = (nMicro + 999999) / 1000000;
     sleep(seconds);
     return seconds * 1000000;
@@ -454,6 +474,7 @@ static int memlbaSleep(sqlite3_vfs* pVfs, int nMicro)
 */
 static int memlbaCurrentTime(sqlite3_vfs* pVfs, double* pTimeOut)
 {
+    (void)pVfs;
     *pTimeOut = 0.0;
     return 0;
 }
