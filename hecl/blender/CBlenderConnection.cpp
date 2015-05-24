@@ -1,12 +1,9 @@
-#if _WIN32
-#else
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <system_error>
 #include <string>
-#endif
 
 #include "CBlenderConnection.hpp"
 
@@ -20,7 +17,7 @@
 
 #define TEMP_SHELLSCRIPT "/home/jacko/hecl/blender/blendershell.py"
 
-size_t CBlenderConnection::readLine(char* buf, size_t bufSz)
+size_t CBlenderConnection::_readLine(char* buf, size_t bufSz)
 {
     size_t readBytes = 0;
     while (true)
@@ -51,7 +48,7 @@ err:
     return 0;
 }
 
-size_t CBlenderConnection::writeLine(const char* buf)
+size_t CBlenderConnection::_writeLine(const char* buf)
 {
     ssize_t ret, nlerr;
     ret = write(m_writepipe[1], buf, strlen(buf));
@@ -65,7 +62,7 @@ err:
     throw std::error_code(errno, std::system_category());
 }
 
-size_t CBlenderConnection::readBuf(char* buf, size_t len)
+size_t CBlenderConnection::_readBuf(char* buf, size_t len)
 {
     ssize_t ret = read(m_readpipe[0], buf, len);
     if (ret < 0)
@@ -73,7 +70,7 @@ size_t CBlenderConnection::readBuf(char* buf, size_t len)
     return ret;
 }
 
-size_t CBlenderConnection::writeBuf(const char* buf, size_t len)
+size_t CBlenderConnection::_writeBuf(const char* buf, size_t len)
 {
     ssize_t ret = write(m_writepipe[1], buf, len);
     if (ret < 0)
@@ -81,7 +78,7 @@ size_t CBlenderConnection::writeBuf(const char* buf, size_t len)
     return ret;
 }
 
-void CBlenderConnection::closePipe()
+void CBlenderConnection::_closePipe()
 {
     close(m_readpipe[0]);
     close(m_writepipe[1]);
@@ -115,10 +112,11 @@ CBlenderConnection::CBlenderConnection(bool silenceBlender)
         char writefds[32];
         snprintf(writefds, 32, "%d", m_readpipe[1]);
 
-        /* User-specified blender first */
+        /* Try user-specified blender first */
         if (blenderBin)
         {
-            execlp(blenderBin, blenderBin, "--background", "-P", TEMP_SHELLSCRIPT,
+            execlp(blenderBin, blenderBin,
+                   "--background", "-P", TEMP_SHELLSCRIPT,
                    "--", readfds, writefds, NULL);
             if (errno != ENOENT)
             {
@@ -128,8 +126,9 @@ CBlenderConnection::CBlenderConnection(bool silenceBlender)
             }
         }
 
-        /* Default blender next */
-        execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", TEMP_SHELLSCRIPT,
+        /* Otherwise default blender */
+        execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
+               "--background", "-P", TEMP_SHELLSCRIPT,
                "--", readfds, writefds, NULL);
         if (errno != ENOENT)
         {
@@ -149,17 +148,18 @@ CBlenderConnection::CBlenderConnection(bool silenceBlender)
 
     /* Handle first response */
     char lineBuf[256];
-    readLine(lineBuf, sizeof(lineBuf));
+    _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "NOLAUNCH"))
     {
-        closePipe();
+        _closePipe();
         throw std::runtime_error("Unable to launch blender");
     }
     else if (!strcmp(lineBuf, "NOBLENDER"))
     {
-        closePipe();
+        _closePipe();
         if (blenderBin)
-            throw std::runtime_error("Unable to find blender at '" + std::string(blenderBin) + "' or '" +
+            throw std::runtime_error("Unable to find blender at '" +
+                                     std::string(blenderBin) + "' or '" +
                                      std::string(DEFAULT_BLENDER_BIN) + "'");
         else
             throw std::runtime_error("Unable to find blender at '" +
@@ -167,32 +167,76 @@ CBlenderConnection::CBlenderConnection(bool silenceBlender)
     }
     else if (!strcmp(lineBuf, "NOADDON"))
     {
-        closePipe();
+        _closePipe();
         throw std::runtime_error("HECL addon not installed within blender");
     }
     else if (strcmp(lineBuf, "READY"))
     {
-        closePipe();
-        throw std::runtime_error("read '" + std::string(lineBuf) + "' from blender; expected 'READY'");
+        _closePipe();
+        throw std::runtime_error("read '" + std::string(lineBuf) +
+                                 "' from blender; expected 'READY'");
     }
-    writeLine("ACK");
-
-    writeLine("HELLOBLENDER!!");
-    readLine(lineBuf, sizeof(lineBuf));
-    printf("%s\n", lineBuf);
-    quitBlender();
+    _writeLine("ACK");
 
 }
 
 CBlenderConnection::~CBlenderConnection()
 {
-    closePipe();
+    _closePipe();
+}
+
+bool CBlenderConnection::openBlend(const std::string& path)
+{
+    _writeLine(("OPEN" + path).c_str());
+    char lineBuf[256];
+    _readLine(lineBuf, sizeof(lineBuf));
+    if (!strcmp(lineBuf, "FINISHED"))
+    {
+        m_loadedBlend = path;
+        return true;
+    }
+    return false;
+}
+
+bool CBlenderConnection::cookBlend(std::function<void*(uint32_t)> bufGetter,
+                                   const std::string& expectedType,
+                                   const std::string& platform,
+                                   bool bigEndian)
+{
+    char lineBuf[256];
+    char reqLine[512];
+    snprintf(reqLine, 512, "COOK %s %c", platform.c_str(), bigEndian?'>':'<');
+    _writeLine(reqLine);
+    _readLine(lineBuf, sizeof(lineBuf));
+    if (strcmp(expectedType.c_str(), lineBuf))
+    {
+        throw std::runtime_error("expected '" + m_loadedBlend +
+                                 "' to contain " + expectedType +
+                                 " not " + lineBuf);
+        return false;
+    }
+    _writeLine("ACK");
+
+    for (_readLine(lineBuf, sizeof(lineBuf));
+         !strcmp("BUF", lineBuf);
+         _readLine(lineBuf, sizeof(lineBuf)))
+    {
+        uint32_t sz;
+        _readBuf(&sz, 4);
+        void* buf = bufGetter(sz);
+        _readBuf(buf, sz);
+    }
+    if (!strcmp("SUCCESS", lineBuf))
+        return true;
+    else if (!strcmp("EXCEPTION", lineBuf))
+        throw std::runtime_error("blender script exception");
+
+    return false;
 }
 
 void CBlenderConnection::quitBlender()
 {
-    writeLine("QUIT");
+    _writeLine("QUIT");
     char lineBuf[256];
-    readLine(lineBuf, sizeof(lineBuf));
-    printf("%s\n", lineBuf);
+    _readLine(lineBuf, sizeof(lineBuf));
 }

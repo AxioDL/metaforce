@@ -10,7 +10,6 @@ or have a new one established.
 
 import struct
 import bpy
-from . import hmdl_anim
 
 class hmdl_skin:
 
@@ -72,14 +71,14 @@ class hmdl_skin:
 
 
     # Generate Rigging Info structure (call after all index-buffers generated)
-    def generate_rigging_info(self, endian_char):
+    def generate_rigging_info(self, bone_dict, endian_char):
         
         skin_entries = []
         for bone_array in self.bone_arrays:
             skin_bytes = bytearray()
             skin_bytes += struct.pack(endian_char + 'I', len(bone_array))
             for bone in bone_array:
-                skin_bytes += struct.pack(endian_char + 'i', hmdl_anim.hashbone(bone))
+                skin_bytes += struct.pack(endian_char + 'I', bone_dict[bone])
             skin_entries.append(skin_bytes)
         
         # Generate skinning data

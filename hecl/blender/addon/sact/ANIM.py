@@ -1,7 +1,4 @@
 '''
-HMDL Export Blender Addon
-By Jack Andersen <jackoalan@gmail.com>
-
 This file provides a means to encode animation key-channels
 in an interleaved, sparse array for use by the runtime
 '''
@@ -10,10 +7,6 @@ import re
 import hashlib
 import struct
 import mathutils
-
-# Hash bone name into truncated 28-bit integer
-def hashbone(name):
-    return int.from_bytes(hashlib.sha1(name.encode()).digest()[:4], byteorder='big', signed=False) & 0xfffffff
 
 # Regex RNA path matchers
 scale_matcher = re.compile(r'pose.bones\["(\S+)"\].scale')

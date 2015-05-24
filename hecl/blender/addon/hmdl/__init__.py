@@ -23,10 +23,7 @@ Positions, Normals, UV coordinates, and Weight Vectors
 
 import struct, bpy, bmesh
 from mathutils import Vector
-from . import hmdl_shader
-from . import hmdl_skin
-from . import hmdl_mesh
-from . import hmdl_anim
+from . import HMDLShader, HMDLSkin, HMDLMesh, HMDLTxtr
 
 def get_3d_context(object_):
     window = bpy.context.window_manager.windows[0]
@@ -94,7 +91,9 @@ def generate_skeleton_info(armature, endian_char='<'):
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL; packaging
 # into the HECL data-pipeline and returning a hash once complete
-def cook(writefd, platform_type, endian_char):
+def cook(writebuffunc, platform, endianchar):
+    print('COOKING HMDL')
+    return True
     mesh_obj = bpy.data.objects[bpy.context.scene.hecl_mesh_obj]
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
@@ -279,9 +278,7 @@ def cook(writefd, platform_type, endian_char):
 
     return db_id, new_hash, final_data
 
-
-def panel_draw(self, context):
-    layout = self.layout
+def draw(layout, context):
     layout.prop_search(context.scene, 'hecl_mesh_obj', context.scene, 'objects')
     if not len(context.scene.hecl_mesh_obj):
         layout.label("Mesh not specified", icon='ERROR')
@@ -301,8 +298,11 @@ def register():
     bpy.types.Scene.hecl_mesh_obj = bpy.props.StringProperty(
         name='HECL Mesh Object',
         description='Blender Mesh Object to export during HECL\'s cook process')
-    bpy.utils.register_class(hmdl_shader.hecl_shader_operator)
+    bpy.types.Scene.hecl_actor_obj = bpy.props.StringProperty(
+        name='HECL Actor Object',
+        description='Blender Empty Object to export during HECL\'s cook process')
+    bpy.utils.register_class(HMDLShader.hecl_shader_operator)
     pass
 def unregister():
-    bpy.utils.unregister_class(hmdl_shader.hecl_shader_operator)
+    bpy.utils.unregister_class(HMDLShader.hecl_shader_operator)
     pass

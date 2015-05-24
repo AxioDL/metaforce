@@ -7,7 +7,6 @@ if '--' not in sys.argv:
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
-print('READ', readfd, 'WRITE', writefd)
 
 def readpipeline():
     retval = bytearray()
@@ -18,7 +17,11 @@ def readpipeline():
         retval += ch
 
 def writepipeline(linebytes):
-    ch = os.write(writefd, linebytes + b'\n')
+    os.write(writefd, linebytes + b'\n')
+
+def writepipebuf(linebytes):
+    writepipeline(b'BUF')
+    os.write(writefd, struct.pack('I', len(linebytes)) + linebytes)
 
 def quitblender():
     writepipeline(b'QUITTING')
@@ -30,6 +33,9 @@ if 'hecl' not in bpy.context.user_preferences.addons:
         writepipeline(b'NOADDON')
         bpy.ops.wm.quit_blender()
 
+# Make addon available to commands
+import hecl
+
 # Intro handshake
 writepipeline(b'READY')
 ackbytes = readpipeline()
@@ -40,16 +46,15 @@ if ackbytes != b'ACK':
 while True:
     cmdline = readpipeline().split(b' ')
 
-    if not len(cmdline) or cmdline[0] == b'QUIT':
+    if cmdline[0] == b'QUIT':
         quitblender()
 
     elif cmdline[0] == b'OPEN':
-        bpy.ops.wm.open_mainfile(filepath=cmdline[1].decode())
-        writepipeline(b'SUCCESS')
-
-    elif cmdline[0] == b'TYPE':
-        objname = cmdline[1].decode()
+        if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdline[1].decode()):
+            writepipeline(b'FINISHED')
+        else:
+            writepipeline(b'CANCELLED')
 
     else:
-        writepipeline(b'RESP ' + cmdline[0])
+        hecl.command(cmdline, writepipeline, writepipebuf)
 

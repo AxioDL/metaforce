@@ -8,6 +8,9 @@
 #include <unistd.h>
 #endif
 
+#include <string>
+#include <functional>
+
 class CBlenderConnection
 {
 #if _WIN32
@@ -19,15 +22,26 @@ class CBlenderConnection
     int m_readpipe[2];
     int m_writepipe[2];
 #endif
-    size_t readLine(char* buf, size_t bufSz);
-    size_t writeLine(const char* buf);
-    size_t readBuf(char* buf, size_t len);
-    size_t writeBuf(const char* buf, size_t len);
-    void closePipe();
+    std::string m_loadedBlend;
+    size_t _readLine(char* buf, size_t bufSz);
+    size_t _writeLine(const char* buf);
+    size_t _readBuf(char* buf, size_t len);
+    size_t _writeBuf(const char* buf, size_t len);
+    void _closePipe();
 public:
     CBlenderConnection(bool silenceBlender=false);
     ~CBlenderConnection();
 
+    bool openBlend(const std::string& path);
+    enum CookPlatform
+    {
+        CP_MODERN = 0,
+        CP_GX     = 1,
+    };
+    bool cookBlend(std::function<void*(uint32_t)> bufGetter,
+                   const std::string& expectedType,
+                   const std::string& platform,
+                   bool bigEndian=false);
     void quitBlender();
 };
 

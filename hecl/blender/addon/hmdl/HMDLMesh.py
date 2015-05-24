@@ -528,4 +528,3 @@ class hmdl_mesh_operator(bpy.types.Operator):
         context.window_manager.clipboard = str_out
         self.report({'INFO'}, "Wrote mesh C to clipboard")
         return {'FINISHED'}
-
