@@ -4,7 +4,7 @@
 #include <system_error>
 
 #include "HECLDatabase.hpp"
-#include "CLooseDatabase.hpp"
+#include "CSQLiteMain.hpp"
 
 namespace HECLDatabase
 {
@@ -12,8 +12,7 @@ namespace HECLDatabase
 class CProject : public IProject
 {
     std::string m_rootPath;
-    IDatabase* m_mainDb;
-    IDatabase* m_cookedDb;
+    CSQLiteMain* m_db;
 public:
     CProject(const std::string& rootPath)
     : m_rootPath(rootPath)
@@ -34,24 +33,12 @@ public:
         }
 
         /* Create or open databases */
-        m_mainDb = new CLooseDatabase(m_rootPath + "/.hecl/main.db", IDatabase::A_READWRITE);
-        m_cookedDb = new CLooseDatabase(m_rootPath + "/.hecl/cooked.db", IDatabase::A_READWRITE);
+        m_db = new CSQLiteMain(m_rootPath + "/.hecl/main.db");
     }
 
     ~CProject()
     {
-        delete m_mainDb;
-        delete m_cookedDb;
-    }
-
-    IDatabase* mainDatabase() const
-    {
-        return m_mainDb;
-    }
-
-    IDatabase* cookedDatabase() const
-    {
-        return m_cookedDb;
+        delete m_db;
     }
 
     void registerLogger(HECL::TLogger logger)

@@ -1,9 +1,13 @@
 import bpy, sys, os
 
 # Extract pipe file descriptors from arguments
+print(sys.argv)
+if '--' not in sys.argv:
+    bpy.ops.wm.quit_blender()
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
+print('READ', readfd, 'WRITE', writefd)
 
 def readpipeline():
     retval = bytearray()
@@ -20,6 +24,12 @@ def quitblender():
     writepipeline(b'QUITTING')
     bpy.ops.wm.quit_blender()
 
+# Check that HECL addon is installed/enabled
+if 'hecl' not in bpy.context.user_preferences.addons:
+    if 'FINISHED' not in bpy.ops.wm.addon_enable(module='hecl'):
+        writepipeline(b'NOADDON')
+        bpy.ops.wm.quit_blender()
+
 # Intro handshake
 writepipeline(b'READY')
 ackbytes = readpipeline()
@@ -34,9 +44,12 @@ while True:
         quitblender()
 
     elif cmdline[0] == b'OPEN':
-        bpy.ops.wm.open_mainfile(filepath=cmdline[1].encode())
+        bpy.ops.wm.open_mainfile(filepath=cmdline[1].decode())
         writepipeline(b'SUCCESS')
 
     elif cmdline[0] == b'TYPE':
-        objname = cmdline[1].encode()
+        objname = cmdline[1].decode()
+
+    else:
+        writepipeline(b'RESP ' + cmdline[0])
 

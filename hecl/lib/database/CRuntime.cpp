@@ -1,5 +1,6 @@
 
 #include "HECLDatabase.hpp"
+#include "CSQLiteMain.hpp"
 
 namespace HECLDatabase
 {

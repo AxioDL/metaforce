@@ -97,7 +97,7 @@ def generate_skeleton_info(armature, endian_char='<'):
 def cook(writefd, platform_type, endian_char):
     mesh_obj = bpy.data.objects[bpy.context.scene.hecl_mesh_obj]
     if mesh_obj.type != 'MESH':
-        raise RuntimeError("{0} is not a mesh".format(mesh_obj.name))
+        raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
     # Partial meshes
     part_meshes = set()
@@ -162,7 +162,6 @@ def cook(writefd, platform_type, endian_char):
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
                         hecl_str = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
-
     
         else:
             mat = mesh_obj.data.materials[mat_idx]

@@ -13,7 +13,6 @@
 namespace HECLDatabase
 {
 
-class IDatabase;
 class IProject;
 
 /**
@@ -49,11 +48,6 @@ public:
      */
     virtual const std::string& path() const=0;
 
-    /**
-     * @brief Retrieve the database this object is stored within
-     * @return database object
-     */
-    virtual IDatabase* parentDatabase() const=0;
 };
 
 /**
@@ -85,74 +79,6 @@ public:
     virtual std::vector<IDataObject*>::const_iterator begin() const=0;
     virtual std::vector<IDataObject*>::const_iterator end() const=0;
 };
-
-/**
- * @brief Root database interface
- */
-class IDatabase
-{
-public:
-    virtual ~IDatabase() {}
-
-    /**
-     * @brief Database backend type
-     */
-    enum Type
-    {
-        T_UNKNOWN,
-        T_MEMORY, /**< In-memory database; ideal for gathering small groups of frequently-accessed objects */
-        T_LOOSE, /**< Loose database; ideal for read/write database construction or platforms with good filesystems */
-        T_PACKED /**< Packed database; ideal for read-only archived data */
-    };
-    virtual Type getType() const=0;
-
-    /**
-     * @brief Database access type
-     */
-    enum Access
-    {
-        A_INVALID,
-        A_READONLY, /**< Read-only access; packed databases always use this mode */
-        A_READWRITE /**< Read/write access; used for building fresh databases */
-    };
-    virtual Access getAccess() const=0;
-
-    /**
-     * @brief Lookup object by database primary-key
-     * @param id Primary-key of object
-     * @return Data object
-     */
-    virtual const IDataObject* lookupObject(size_t id) const=0;
-
-    /**
-     * @brief Lookup object by name
-     * @param name Name of object
-     * @return Data object
-     */
-    virtual const IDataObject* lookupObject(const std::string& name) const=0;
-
-    /**
-     * @brief Write a full copy of the database to another type/path
-     * @param type Type of new database
-     * @param path Target path of new database
-     * @return True on success
-     */
-    virtual bool writeDatabase(IDatabase::Type type, const std::string& path) const=0;
-
-};
-
-/**
- * @brief Creates a new (empty) database
- * @param type Type of new database
- * @param access Requested level of access
- * @return New database object
- *
- * Generally, the preferred method for working with HECL databases is via the
- * IProject interface. NewProject() will automatically construct the necessary
- * internal database objects.
- */
-IDatabase* NewDatabase(IDatabase::Type type, IDatabase::Access access, const std::string& path);
-
 
 /**
  * @brief Base object to subclass for integrating with key project operations
@@ -271,24 +197,6 @@ public:
         C_MEDIUM,
         C_HEAVY
     };
-
-    /**
-     * @brief Access internal database interface for working files
-     * @return main working database object
-     *
-     * It's generally recommended for HECL frontends to avoid modifying
-     * databases via this returned object.
-     */
-    virtual IDatabase* mainDatabase() const=0;
-
-    /**
-     * @brief Access internal database interface for cooked objects
-     * @return main cooked database object
-     *
-     * It's generally recommended for HECL frontends to avoid modifying
-     * databases via this returned object.
-     */
-    virtual IDatabase* cookedDatabase() const=0;
 
     /**
      * @brief Register an optional callback to report log-messages using
@@ -552,7 +460,7 @@ public:
  */
 struct RegistryEntry
 {
-    typedef std::function<bool(const std::string& path)> TPathClaimer;
+    typedef std::function<bool(const std::string& path, const std::string& subpath)> TPathClaimer;
     typedef std::function<CProjectObject*(const CProjectObject::ConstructionInfo&)> TProjectFactory;
     typedef std::function<CRuntimeObject*(const CRuntimeObject::ConstructionInfo&)> TRuntimeFactory;
     const HECL::FourCC& fcc;
@@ -566,7 +474,7 @@ struct RegistryEntry
 };
 
 static RegistryEntry::TPathClaimer NULL_PATH_CLAIMER =
-    [](const std::string&) -> bool {return false;};
+    [](const std::string&, const std::string&) -> bool {return false;};
 static RegistryEntry::TProjectFactory NULL_PROJECT_FACTORY =
     [](const HECLDatabase::CProjectObject::ConstructionInfo&)
     -> HECLDatabase::CProjectObject* {return nullptr;};
@@ -577,24 +485,27 @@ static RegistryEntry::TRuntimeFactory NULL_RUNTIME_FACTORY =
 #if !defined(HECL_STRIP_PROJECT) && !defined(HECL_STRIP_RUNTIME)
 
 #define REGISTRY_ENTRY(fourcc, projectClass, runtimeClass) {fourcc, \
-[](const std::string& path) -> bool {return projectClass::ClaimPath(path);}, \
+[](const std::string& path, const std::string& subpath) -> \
+    bool {return projectClass::ClaimPath(path, subpath);}, \
 [](const HECLDatabase::CProjectObject::ConstructionInfo& info) -> \
     HECLDatabase::CProjectObject* {return new projectClass(info);}, \
 [](const HECLDatabase::CRuntimeObject::ConstructionInfo& info) -> \
     HECLDatabase::CRuntimeObject* {return new runtimeClass(info);}}
 
 #define REGISTRY_SENTINEL() \
-    {HECL::FourCC(), NULL_PATH_CLAIMER, \
-    NULL_PROJECT_FACTORY, NULL_RUNTIME_FACTORY}
+    {HECL::FourCC(), HECLDatabase::NULL_PATH_CLAIMER, \
+    HECLDatabase::NULL_PROJECT_FACTORY, HECLDatabase::NULL_RUNTIME_FACTORY}
 
 #elif !defined(HECL_STRIP_PROJECT)
 
 #define REGISTRY_ENTRY(fourcc, projectClass, runtimeClass) {fourcc, \
-[](const std::string& path) -> bool {return projectClass::ClaimPath(path);}, \
+[](const std::string& path, const std::string& subpath) -> \
+    bool {return projectClass::ClaimPath(path, subpath);}, \
 [](const HECLDatabase::CProjectObject::ConstructionInfo& info) -> \
     HECLDatabase::CProjectObject* {return new projectClass(info);}}
 
-#define REGISTRY_SENTINEL() {HECL::FourCC(), NULL_PATH_CLAIMER, NULL_PROJECT_FACTORY}
+#define REGISTRY_SENTINEL() {HECL::FourCC(), \
+    HECLDatabase::NULL_PATH_CLAIMER, HECLDatabase::NULL_PROJECT_FACTORY}
 
 #elif !defined(HECL_STRIP_RUNTIME)
 
@@ -602,7 +513,7 @@ static RegistryEntry::TRuntimeFactory NULL_RUNTIME_FACTORY =
 [](const HECLDatabase::CRuntimeObject::ConstructionInfo& info) -> \
     HECLDatabase::CRuntimeObject* {return new runtimeClass(info);}}
 
-#define REGISTRY_SENTINEL() {HECL::FourCC(), NULL_RUNTIME_FACTORY}
+#define REGISTRY_SENTINEL() {HECL::FourCC(), HECLDatabase::NULL_RUNTIME_FACTORY}
 
 #endif
 

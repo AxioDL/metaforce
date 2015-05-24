@@ -1,12 +1,9 @@
 HEADERS += \
-    $$PWD/CPackedDatabase.hpp \
-    $$PWD/CMemoryDatabase.hpp \
-    $$PWD/CLooseDatabase.hpp \
-    $$PWD/CSQLite.hpp \
-    $$PWD/sqlite_hecl_vfs.h
+    $$PWD/sqlite_hecl_vfs.h \
+    $$PWD/CSQLiteMain.hpp \
+    $$PWD/CSQLiteCooked.hpp
 
 SOURCES += \
-    $$PWD/HECLDatabase.cpp \
     $$PWD/CRuntime.cpp \
     $$PWD/CProject.cpp \
     $$PWD/sqlite_hecl_mem_vfs.c \

@@ -49,8 +49,13 @@ static void whiddleArgs(std::string& args, const std::regex& regex)
     args = remArgs;
 }
 
+#include "../blender/CBlenderConnection.hpp"
+
 int main(int argc, const char** argv)
 {
+    CBlenderConnection bconn(false);
+    return 0;
+
     /* Basic usage check */
     if (argc == 1)
     {

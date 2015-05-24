@@ -42,8 +42,11 @@ def recursive_color_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
 
     elif node.type == 'TEXTURE':
 
+        if not node.texture or not hasattr(node.texture, 'name'):
+            raise RuntimeError("HMDL texture nodes must specify a texture object")
+
         if not node.inputs['Vector'].is_linked:
-            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry' or 'Group' UV modifier node linked")
 
         # Determine matrix generator type
         matrix_str = None
@@ -89,6 +92,8 @@ def recursive_color_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
         if soc_from.name == 'UV':
             uv_name = soc_from.node.uv_layer
             uv_idx = mesh_obj.data.uv_layers.find(uv_name)
+            if uv_idx == -1:
+                raise RuntimeError('UV Layer "%s" doesn\'t exist' % uv_name)
             uvsource_str = 'hecl_TexCoord[%d]' % uv_idx
 
         elif soc_from.name == 'Normal':
@@ -163,8 +168,11 @@ def recursive_alpha_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
 
     elif node.type == 'TEXTURE':
 
+        if not node.texture or not hasattr(node.texture, 'name'):
+            raise RuntimeError("HMDL texture nodes must specify a texture object")
+
         if not node.inputs['Vector'].is_linked:
-            raise RuntimeError("HMDL texture nodes must have a 'Geometry', 'Group' UV modifier node linked")
+            raise RuntimeError("HMDL texture nodes must have a 'Geometry' or 'Group' UV modifier node linked")
         
         # Determine matrix generator type
         matrix_str = None
@@ -210,6 +218,8 @@ def recursive_alpha_trace(mat_obj, mesh_obj, blend_path, node, socket=None):
         if soc_from.name == 'UV':
             uv_name = soc_from.node.uv_layer
             uv_idx = mesh_obj.data.uv_layers.find(uv_name)
+            if uv_idx == -1:
+                raise RuntimeError('UV Layer "%s" doesn\'t exist' % uv_name)
             uvsource_str = 'hecl_TexCoord[%d]' % uv_idx
             
         elif soc_from.name == 'Normal':
