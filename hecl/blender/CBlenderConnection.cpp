@@ -23,7 +23,11 @@ size_t CBlenderConnection::_readLine(char* buf, size_t bufSz)
     while (true)
     {
         if (readBytes >= bufSz)
+        {
             throw std::length_error("Pipe buffer overrun");
+            *(buf-1) = '\0';
+            return bufSz - 1;
+        }
         ssize_t ret = read(m_readpipe[0], buf, 1);
         if (ret < 0)
             goto err;
