@@ -38,7 +38,7 @@ public:
         CP_MODERN = 0,
         CP_GX     = 1,
     };
-    bool cookBlend(std::function<void*(uint32_t)> bufGetter,
+    bool cookBlend(std::function<char*(uint32_t)> bufGetter,
                    const std::string& expectedType,
                    const std::string& platform,
                    bool bigEndian=false);

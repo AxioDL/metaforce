@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <regex>
 #include <stdexcept>
+#include <list>
 #include <HECLDatabase.hpp>
 
 #include "CToolBase.hpp"
@@ -14,47 +16,43 @@
 #include "CToolPackage.hpp"
 #include "CToolHelp.hpp"
 
+bool XTERM_COLOR = false;
+
 /* Main usage message */
 static void printHelp(const char* pname)
 {
+    if (XTERM_COLOR)
+        printf(BOLD "HECL" NORMAL);
+    else
+        printf("HECL");
 #if HECL_GIT
-    printf("HECL Commit " #HECL_GIT " (" #HECL_BRANCH ")\n"
+    printf(" Commit " #HECL_GIT " (" #HECL_BRANCH ")\n"
            "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
 #elif HECL_VER
-    printf("HECL Version " #HECL_VER "\n"
+    printf(" Version " #HECL_VER "\n"
            "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
 #else
-    printf("HECL\n"
+    printf("\n"
            "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
 #endif
 }
 
 /* Regex patterns */
-static const std::regex regOPEN("-o\\s*(\\S+)", std::regex::ECMAScript|std::regex::optimize);
+static const std::regex regOPEN("-o([^\"]*|\\S*))", std::regex::ECMAScript|std::regex::optimize);
 static const std::regex regVERBOSE("-v(v*)", std::regex::ECMAScript|std::regex::optimize);
 static const std::regex regFORCE("-f", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regNOWS("\\S+", std::regex::ECMAScript|std::regex::optimize);
-
-/* Iterates string segments around matched arguments and
- * filters args string accordingly */
-static void whiddleArgs(std::string& args, const std::regex& regex)
-{
-    std::string remArgs;
-    for (std::sregex_token_iterator it(args.begin(), args.end(), regex, -1);
-         it != std::sregex_token_iterator() ; ++it)
-    {
-        const std::string& str = *it;
-        remArgs += str;
-    }
-    args = remArgs;
-}
 
 #include "../blender/CBlenderConnection.hpp"
 
 int main(int argc, const char** argv)
 {
-    CBlenderConnection bconn(false);
-    return 0;
+    /* Xterm check */
+    const char* term = getenv("TERM");
+    if (!strncmp(term, "xterm", 5))
+        XTERM_COLOR = true;
+
+    //CBlenderConnection bconn(false);
+    //return 0;
 
     /* Basic usage check */
     if (argc == 1)
@@ -73,45 +71,71 @@ int main(int argc, const char** argv)
     info.pname = argv[0];
 
     /* Concatenate args */
-    std::string args;
+    std::list<std::string> args;
     for (int i=2 ; i<argc ; ++i)
-        args += std::string(argv[i]) + " ";
+        args.push_back(std::string(argv[i]));
 
     if (!args.empty())
     {
         /* Extract output argument */
-        std::sregex_token_iterator openIt(args.begin(), args.end(), regOPEN, 1);
-        if (openIt != std::sregex_token_iterator())
+        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            if (info.output.empty())
-                info.output = *openIt;
-            whiddleArgs(args, regOPEN);
+            const std::string& arg = *it;
+            std::smatch oMatch;
+            if (std::regex_search(arg, oMatch, regOPEN))
+            {
+                const std::string& token = oMatch[1].str();
+                if (token.size())
+                {
+                    if (info.output.empty())
+                        info.output = oMatch[1].str();
+                    it = args.erase(it);
+                }
+                else
+                {
+                    it = args.erase(it);
+                    if (it == args.end())
+                        break;
+                    if (info.output.empty())
+                        info.output = *it;
+                    it = args.erase(it);
+                }
+                continue;
+            }
+            ++it;
         }
 
         /* Count verbosity */
-        for (std::sregex_token_iterator it(args.begin(), args.end(), regVERBOSE, 1);
-             it != std::sregex_token_iterator() ; ++it)
+        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            const std::string& str = *it;
-            ++info.verbosityLevel;
-            info.verbosityLevel += str.length();
+            const std::string& arg = *it;
+            std::smatch vMatch;
+            if (std::regex_search(arg, vMatch, regVERBOSE))
+            {
+                ++info.verbosityLevel;
+                info.verbosityLevel += vMatch[1].str().size();
+                it = args.erase(it);
+                continue;
+            }
+            ++it;
         }
-        whiddleArgs(args, regVERBOSE);
 
         /* Check force argument */
-        if (std::regex_search(args, regFORCE))
+        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            info.force = true;
-            whiddleArgs(args, regFORCE);
+            const std::string& arg = *it;
+            if (std::regex_search(arg, regFORCE))
+            {
+                info.force = true;
+                it = args.erase(it);
+                continue;
+            }
+            ++it;
         }
 
         /* Gather remaining args */
-        for (std::sregex_token_iterator it(args.begin(), args.end(), regNOWS);
-             it != std::sregex_token_iterator() ; ++it)
-        {
-            const std::string& str = *it;
-            info.args.push_back(str);
-        }
+        for (const std::string& arg : args)
+            info.args.push_back(arg);
     }
 
     /* Construct selected tool */
@@ -132,7 +156,7 @@ int main(int argc, const char** argv)
             tool = new CToolCook(info);
         else if (toolName == "clean")
             tool = new CToolClean(info);
-        else if (toolName == "package")
+        else if (toolName == "package" || toolName == "pack")
             tool = new CToolPackage(info);
         else if (toolName == "help")
             tool = new CToolHelp(info);

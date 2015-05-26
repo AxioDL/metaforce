@@ -198,7 +198,7 @@ bool CBlenderConnection::openBlend(const std::string& path)
     return false;
 }
 
-bool CBlenderConnection::cookBlend(std::function<void*(uint32_t)> bufGetter,
+bool CBlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
                                    const std::string& expectedType,
                                    const std::string& platform,
                                    bool bigEndian)
@@ -222,8 +222,8 @@ bool CBlenderConnection::cookBlend(std::function<void*(uint32_t)> bufGetter,
          _readLine(lineBuf, sizeof(lineBuf)))
     {
         uint32_t sz;
-        _readBuf(&sz, 4);
-        void* buf = bufGetter(sz);
+        _readBuf((char*)&sz, 4);
+        char* buf = bufGetter(sz);
         _readBuf(buf, sz);
     }
     if (!strcmp("SUCCESS", lineBuf))
