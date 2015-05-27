@@ -12,6 +12,7 @@
 struct SToolPassInfo
 {
     std::string pname;
+    std::string cwd;
     std::vector<std::string> args;
     std::string output;
     unsigned verbosityLevel = 0;

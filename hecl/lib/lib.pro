@@ -15,3 +15,6 @@ include (frontend/frontend.pri)
 include (backend/backend.pri)
 include (database/database.pri)
 include (runtime/runtime.pri)
+
+SOURCES += \
+    HECL.cpp

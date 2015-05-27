@@ -213,23 +213,16 @@ public:
      *
      * Self explanatory
      */
-    virtual std::string getProjectRootPath(bool absolute=false) const=0;
+    virtual const HECL::ProjectRootPath& getProjectRootPath(bool absolute=false) const=0;
 
     /**
-     * @brief Determine if an arbitrary absolute or relative path lies within project
-     * @param subpath directory or file to validate
-     * @return true if valid
-     */
-    virtual bool validateSubPath(const std::string& subpath) const=0;
-
-    /**
-     * @brief Add a given file or file-pattern to the database
+     * @brief Add given file(s) to the database
      * @param path file or pattern within project
      * @return true on success
      *
      * This method blocks while object hashing takes place
      */
-    virtual bool addPath(const std::string& path)=0;
+    virtual bool addPaths(const std::vector<HECL::ProjectPath>& paths)=0;
 
     /**
      * @brief Remove a given file or file-pattern from the database
@@ -240,7 +233,7 @@ public:
      * This method will not delete actual working files from the project
      * directory. It will delete associated cooked objects though.
      */
-    virtual bool removePath(const std::string& path, bool recursive=false)=0;
+    virtual bool removePaths(const std::string& path, bool recursive=false)=0;
 
     /**
      * @brief Register a working sub-directory as a Dependency Group
@@ -323,15 +316,15 @@ public:
 };
 
 /**
- * @brief Creates a new (empty) project using specified root directory
- * @param rootPath Path to project root-directory (may be relative)
+ * @brief Opens an existing or creates a new project using specified root directory
+ * @param rootPath Path to project root-directory
  * @return New project object
  *
  * This is the preferred way to open an existing or create a new HECL project.
  * All necessary database index files and object directories will be established
  * within the specified directory path.
  */
-IProject* NewProject(const std::string& rootPath);
+IProject* OpenProject(const HECL::ProjectRootPath& rootPath);
 
 
 /**

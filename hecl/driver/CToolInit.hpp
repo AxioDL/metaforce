@@ -6,14 +6,25 @@
 
 class CToolInit final : public CToolBase
 {
+    const std::string* m_dir = NULL;
 public:
     CToolInit(const SToolPassInfo& info)
     : CToolBase(info)
     {
+        if (info.args.size())
+        {
+
+        }
+        m_dir = &info.args[0];
     }
 
     ~CToolInit()
     {
+    }
+
+    int run()
+    {
+        return 0;
     }
 
     static void Help(CHelpOutput& help)
@@ -44,11 +55,6 @@ public:
     }
 
     std::string toolName() const {return "init";}
-
-    int run()
-    {
-        return 0;
-    }
 };
 
 #endif // CTOOL_INIT

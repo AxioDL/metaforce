@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #include <regex>
 #include <stdexcept>
 #include <list>
@@ -69,6 +70,9 @@ int main(int argc, const char** argv)
     /* Assemble common tool pass info */
     SToolPassInfo info;
     info.pname = argv[0];
+    char cwdbuf[MAXPATHLEN];
+    if (getcwd(cwdbuf, MAXPATHLEN))
+        info.cwd = cwdbuf;
 
     /* Concatenate args */
     std::list<std::string> args;

@@ -45,11 +45,7 @@ public:
     {
     }
 
-    std::string getProjectRootPath(bool absolute) const
-    {
-    }
-
-    bool validateSubPath(const std::string& subpath) const
+    const HECL::ProjectRootPath& getProjectRootPath(bool absolute) const
     {
     }
 
@@ -89,7 +85,7 @@ public:
 
 };
 
-IProject* NewProject(const std::string& rootPath)
+IProject* OpenProject(const std::string& rootPath)
 {
     return new CProject(rootPath);
 }
