@@ -102,6 +102,4 @@ void decompressFile(aIO::IStreamWriter& outbuf, const atUint8* data, atUint32 sr
         decompressData(outbuf, (const atUint8*)tmp, srcLength - 4, uncompressedLength);
         delete[] tmp;
     }
-
-    delete[] data;
 }
