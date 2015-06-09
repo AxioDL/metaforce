@@ -33,5 +33,5 @@ HEADERS += \
     CToolClean.hpp \
     CToolAdd.hpp \
     CToolRemove.hpp \
-    CToolPlatform.hpp
+    CToolSpec.hpp
 

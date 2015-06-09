@@ -58,8 +58,8 @@ public:
         CHelpOutput::THelpFunc helpFunc = NULL;
         if (toolName == "init")
             helpFunc = CToolInit::Help;
-        else if (toolName == "platform")
-            helpFunc = CToolPlatform::Help;
+        else if (toolName == "spec")
+            helpFunc = CToolSpec::Help;
         else if (toolName == "add")
             helpFunc = CToolAdd::Help;
         else if (toolName == "remove" || toolName == "rm")

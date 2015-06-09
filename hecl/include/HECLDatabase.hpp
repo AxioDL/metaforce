@@ -207,24 +207,24 @@ public:
     virtual bool removeGroup(const HECL::ProjectPath& path);
 
     /**
-     * @brief Return map populated with platforms targetable by this project interface
+     * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    virtual const std::map<const std::string, const bool>& listPlatforms();
+    virtual const std::map<const std::string, const bool>& listDataSpecs();
 
     /**
-     * @brief Enable persistent user preference for particular platform string(s)
-     * @param platforms String(s) representing unique platform(s) from listPlatforms
+     * @brief Enable persistent user preference for particular spec string(s)
+     * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    virtual bool enablePlatforms(const std::vector<std::string>& platforms);
+    virtual bool enableDataSpecs(const std::vector<std::string>& specs);
 
     /**
-     * @brief Disable persistent user preference for particular platform string(s)
-     * @param platform String(s) representing unique platform(s) from listPlatforms
+     * @brief Disable persistent user preference for particular spec string(s)
+     * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    virtual bool disablePlatforms(const std::vector<std::string>& platforms);
+    virtual bool disableDataSpecs(const std::vector<std::string>& specs);
 
     /**
      * @brief Begin cook process for specified directory

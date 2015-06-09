@@ -3,7 +3,7 @@
 _hecl ()
 {
     local word=${COMP_WORDS[COMP_CWORD]}
-    local filecmds=(init platform add remove group cook clean package)
+    local filecmds=(init spec add remove group cook clean package)
     
     if [ $COMP_CWORD == 1 ]
     then
@@ -15,7 +15,7 @@ _hecl ()
         init|add|remove|group|cook|clean|package)
             COMPREPLY=($(compgen -f -- "${word}"))
             ;;
-        platform)
+        spec)
             COMPREPLY=($(compgen -W "enable disable" "${word}"))
             ;;
         help)

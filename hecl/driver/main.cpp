@@ -9,7 +9,7 @@
 
 #include "CToolBase.hpp"
 #include "CToolInit.hpp"
-#include "CToolPlatform.hpp"
+#include "CToolSpec.hpp"
 #include "CToolAdd.hpp"
 #include "CToolRemove.hpp"
 #include "CToolGroup.hpp"

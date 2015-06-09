@@ -9,6 +9,10 @@
 namespace HECLDatabase
 {
 
+/**********************************************
+ * Project::ConfigFile
+ **********************************************/
+
 static inline bool CheckNewLineAdvance(std::string::const_iterator& it)
 {
     if (*it == '\n' || *it == '\0')
@@ -110,6 +114,10 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
     return false;
 }
 
+/**********************************************
+ * Project
+ **********************************************/
+
 Project::Project(const std::string& rootPath)
 : m_rootPath(rootPath)
 {
@@ -153,15 +161,15 @@ bool Project::removeGroup(const HECL::ProjectPath& path)
 {
 }
 
-const std::map<const std::string, const bool>& Project::listPlatforms()
+const std::map<const std::string, const bool>& Project::listDataSpecs()
 {
 }
 
-bool Project::enablePlatforms(const std::vector<std::string>& platforms)
+bool Project::enableDataSpecs(const std::vector<std::string>& specs)
 {
 }
 
-bool Project::disablePlatforms(const std::vector<std::string>& platforms)
+bool Project::disableDataSpecs(const std::vector<std::string>& specs)
 {
 }
 
