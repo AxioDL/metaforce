@@ -1,5 +1,5 @@
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG += staticlib c++11
 TARGET = hecl
 CONFIG -= Qt
 QT      =
@@ -17,4 +17,6 @@ include (database/database.pri)
 include (runtime/runtime.pri)
 
 SOURCES += \
-    HECL.cpp
+    HECL.cpp \
+    ProjectPath.cpp \
+    WideStringConvert.cpp

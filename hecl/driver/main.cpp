@@ -9,6 +9,7 @@
 
 #include "CToolBase.hpp"
 #include "CToolInit.hpp"
+#include "CToolPlatform.hpp"
 #include "CToolAdd.hpp"
 #include "CToolRemove.hpp"
 #include "CToolGroup.hpp"
@@ -150,6 +151,8 @@ int main(int argc, const char** argv)
     {
         if (toolName == "init")
             tool = new CToolInit(info);
+        else if (toolName == "platform")
+            tool = new CToolPlatform(info);
         else if (toolName == "add")
             tool = new CToolAdd(info);
         else if (toolName == "remove" || toolName == "rm")

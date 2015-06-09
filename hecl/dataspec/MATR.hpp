@@ -3,32 +3,25 @@
 
 #include "HECLDatabase.hpp"
 
-class CMATRProject : public HECLDatabase::CProjectObject
+class CMATRProject : public HECLDatabase::ProjectObjectBase
 {
-    bool _cookObject(TDataAppender dataAppender,
+    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+
+    bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
     {
         return true;
     }
 
-    void _gatherDeps(TDepAdder depAdder)
+    void _gatherDeps(FDepAdder depAdder)
     {
 
-    }
-
-public:
-    CMATRProject(const ConstructionInfo& info)
-    : CProjectObject(info)
-    {
-    }
-
-    ~CMATRProject()
-    {
     }
 };
 
-class CMATRRuntime : public HECLDatabase::CRuntimeObject
+class CMATRRuntime : public HECLDatabase::RuntimeObjectBase
 {
+    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {
@@ -38,15 +31,6 @@ class CMATRRuntime : public HECLDatabase::CRuntimeObject
     void _objectWillUnload()
     {
 
-    }
-
-public:
-    CMATRRuntime(const ConstructionInfo& info)
-    : CRuntimeObject(info)
-    {
-    }
-    ~CMATRRuntime()
-    {
     }
 };
 

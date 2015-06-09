@@ -10,25 +10,97 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <dirent.h>
 #endif
 
+#include <stdio.h>
 #include <functional>
+#include <stdexcept>
 #include <string>
 #include <regex>
-#include <stdexcept>
 #include "../extern/blowfish/blowfish.h"
 
 namespace HECL
 {
 
-#if _WIN32
-typedef std::basic_string<TCHAR> TSystemPath;
+std::string WideToUTF8(const std::wstring& src);
+std::wstring UTF8ToWide(const std::string& src);
+
+#if _WIN32 && UNICODE
+typedef wchar_t SystemChar;
+typedef std::wstring SystemString;
+class CSystemUTF8View
+{
+    std::string m_utf8;
+public:
+    CSystemUTF8View(const SystemString& str)
+    : m_utf8(WideToUTF8(str)) {}
+    inline const std::string& utf8_str() {return m_utf8;}
+};
+class CSystemStringView
+{
+    std::wstring m_sys;
+public:
+    CSystemStringView(const std::string& str)
+    : m_sys(UTF8ToWide(str)) {}
+    inline const std::string& sys_str() {return m_sys;}
+};
+#ifndef _S
+#define _S(val) L ## val
+#endif
 #else
-typedef std::string TSystemPath;
+typedef char SystemChar;
+typedef std::string SystemString;
+class CSystemUTF8View
+{
+    const std::string& m_utf8;
+public:
+    CSystemUTF8View(const SystemString& str)
+    : m_utf8(str) {}
+    inline const std::string& utf8_str() {return m_utf8;}
+};
+class CSystemStringView
+{
+    const std::string& m_sys;
+public:
+    CSystemStringView(const std::string& str)
+    : m_sys(str) {}
+    inline const std::string& sys_str() {return m_sys;}
+};
+#ifndef _S
+#define _S(val) val
+#endif
 #endif
 
+static inline void MakeDir(const SystemString& dir)
+{
+#if _WIN32
+    HRESULT err;
+    if (!CreateDirectory(dir.c_str(), NULL))
+        if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
+            throw std::error_code(err, std::system_category());
+#else
+    if (mkdir(dir.c_str(), 0755))
+        if (errno != EEXIST)
+            throw std::error_code(errno, std::system_category());
+#endif
+}
+
+static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode)
+{
+#if _WIN32 && UNICODE
+    FILE* fp = wfopen(path, mode);
+#else
+    FILE* fp = fopen(path, mode);
+#endif
+    if (!fp)
+        throw std::error_code(errno, std::system_category());
+
+    return fp;
+}
+
+typedef std::basic_regex<SystemChar> SystemRegex;
+typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexTokenIterator;
+typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
+
 class ProjectRootPath;
-static const std::regex regGLOB("\\*", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regPATHCOMP("/([^/]+)", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regDRIVELETTER("^([^/]*)/", std::regex::ECMAScript|std::regex::optimize);
 
 /**
  * @brief Severity of a log event
@@ -75,20 +147,22 @@ public:
  * Hashes are used within HECL to avoid redundant storage of objects;
  * providing a rapid mechanism to compare for equality.
  */
-class ObjectHash
+class Hash
 {
     int64_t hash;
 public:
-    ObjectHash(const void* buf, size_t len)
+    Hash(const void* buf, size_t len)
     : hash(Blowfish_hash(buf, len)) {}
-    ObjectHash(int64_t hashin)
+    Hash(const std::string& str)
+    : hash(Blowfish_hash(str.data(), str.size())) {}
+    Hash(int64_t hashin)
     : hash(hashin) {}
-    inline bool operator==(ObjectHash& other) {return hash == other.hash;}
-    inline bool operator!=(ObjectHash& other) {return hash != other.hash;}
-    inline bool operator<(ObjectHash& other) {return hash < other.hash;}
-    inline bool operator>(ObjectHash& other) {return hash > other.hash;}
-    inline bool operator<=(ObjectHash& other) {return hash <= other.hash;}
-    inline bool operator>=(ObjectHash& other) {return hash >= other.hash;}
+    inline bool operator==(Hash& other) {return hash == other.hash;}
+    inline bool operator!=(Hash& other) {return hash != other.hash;}
+    inline bool operator<(Hash& other) {return hash < other.hash;}
+    inline bool operator>(Hash& other) {return hash > other.hash;}
+    inline bool operator<=(Hash& other) {return hash <= other.hash;}
+    inline bool operator>=(Hash& other) {return hash >= other.hash;}
 };
 
 /**
@@ -107,51 +181,18 @@ public:
 class ProjectPath
 {
 protected:
-    TSystemPath m_absPath;
-    const char* m_relPath = NULL;
+    SystemString m_absPath;
+    const SystemChar* m_relPath = NULL;
     ProjectPath() {}
-    bool _canonAbsPath(const TSystemPath& path)
-    {
-#if _WIN32
-#else
-        char resolvedPath[PATH_MAX];
-        if (!realpath(path.c_str(), resolvedPath))
-        {
-            throw std::invalid_argument("Unable to resolve '" + path + "' as a canonicalized path");
-            return false;
-        }
-        m_absPath = resolvedPath;
-#endif
-        return true;
-    }
+    bool _canonAbsPath(const SystemString& path);
 public:
     /**
      * @brief Construct a project subpath representation
      * @param rootPath previously constructed ProjectRootPath held by HECLDatabase::IProject
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectRootPath& rootPath, const TSystemPath& path)
-    {
-        _canonAbsPath(path);
-        if (m_absPath.size() < ((ProjectPath&)rootPath).m_absPath.size() ||
-            m_absPath.compare(0, ((ProjectPath&)rootPath).m_absPath.size(),
-                              ((ProjectPath&)rootPath).m_absPath))
-        {
-            throw std::invalid_argument("'" + m_absPath + "' is not a subpath of '" +
-                                        ((ProjectPath&)rootPath).m_absPath + "'");
-            return;
-        }
-        if (m_absPath.size() == ((ProjectPath&)rootPath).m_absPath.size())
-        {
-            /* Copies of the project root are permitted */
-            return;
-        }
-        m_relPath = m_absPath.c_str() + ((ProjectPath&)rootPath).m_absPath.size();
-        if (m_relPath[0] == '/')
-            ++m_relPath;
-        if (m_relPath[0] == '\0')
-            m_relPath = NULL;
-    }
+    ProjectPath(const ProjectRootPath& rootPath, const SystemString& path);
+
     /**
      * @brief Determine if ProjectPath represents project root directory
      * @return true if project root directory
@@ -162,17 +203,17 @@ public:
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
-    inline const TSystemPath& getAbsolutePath() {return m_absPath;}
+    inline const SystemString& getAbsolutePath() {return m_absPath;}
 
     /**
      * @brief Access fully-canonicalized project-relative path
      * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
      */
-    inline const char* getRelativePath()
+    inline const SystemChar* getRelativePath()
     {
         if (m_relPath)
             return m_relPath;
-        return ".";
+        return _S(".");
     }
 
     /**
@@ -190,57 +231,13 @@ public:
      * @brief Get type of path based on syntax and filesystem queries
      * @return Type of path
      */
-    PathType getPathType()
-    {
-        if (std::regex_search(m_absPath, regGLOB))
-            return PT_GLOB;
-#if _WIN32
-#else
-        struct stat theStat;
-        if (stat(m_absPath.c_str(), &theStat))
-            return PT_NONE;
-        if (S_ISDIR(theStat.st_mode))
-            return PT_DIRECTORY;
-        if (S_ISREG(theStat.st_mode))
-            return PT_FILE;
-        return PT_NONE;
-#endif
-    }
+    PathType getPathType();
 
-    void getGlobResults(std::vector<TSystemPath>& outPaths)
-    {
-#if _WIN32
-        std::string itStr;
-        std::smatch letterMatch;
-        if (m_absPath.compare(0, 2, "//"))
-            itStr = "\\\\";
-        else if (std::regex_search(m_absPath, letterMatch, regDRIVELETTER))
-            if (letterMatch[1].str().size())
-                itStr = letterMatch[1];
-#else
-        std::string itStr = "/";
-#endif
-        bool needSlash = false;
-
-        std::sregex_token_iterator pathComps(m_absPath.begin(), m_absPath.end(), regPATHCOMP);
-        for (; pathComps != std::sregex_token_iterator() ; ++pathComps)
-        {
-            const std::string& comp = *pathComps;
-            if (!std::regex_search(comp, regGLOB))
-            {
-                if (needSlash)
-                    itStr += '/';
-                else
-                    needSlash = true;
-                itStr += comp;
-                continue;
-            }
-#if _WIN32
-#else
-            DIR* dir = opendir("");
-#endif
-        }
-    }
+    /**
+     * @brief Insert glob matches into existing vector
+     * @param outPaths Vector to add matches to (will not erase existing contents)
+     */
+    void getGlobResults(std::vector<SystemString>& outPaths);
 };
 
 /**
@@ -252,7 +249,7 @@ public:
 class ProjectRootPath : public ProjectPath
 {
 public:
-    ProjectRootPath(const TSystemPath& path)
+    ProjectRootPath(const SystemString& path)
     {
         _canonAbsPath(path);
     }
@@ -261,7 +258,8 @@ public:
 
 
 /* Type-sensitive byte swappers */
-static inline int16_t bswap(int16_t val)
+template <typename T>
+static inline T bswap16(T val)
 {
 #if __GNUC__
     return __builtin_bswap16(val);
@@ -272,18 +270,8 @@ static inline int16_t bswap(int16_t val)
 #endif
 }
 
-static inline uint16_t bswap(uint16_t val)
-{
-#if __GNUC__
-    return __builtin_bswap16(val);
-#elif _WIN32
-    return _byteswap_ushort(val);
-#else
-    return (val = (val << 8) | ((val >> 8) & 0xFF));
-#endif
-}
-
-static inline int32_t bswap(int32_t val)
+template <typename T>
+static inline T bswap32(T val)
 {
 #if __GNUC__
     return __builtin_bswap32(val);
@@ -296,61 +284,54 @@ static inline int32_t bswap(int32_t val)
 #endif
 }
 
-static inline uint32_t bswap(uint32_t val)
-{
-#if __GNUC__
-    return __builtin_bswap32(val);
-#elif _WIN32
-    return _byteswap_ulong(val);
-#else
-    val = (val & 0x0000FFFF) << 16 | (val & 0xFFFF0000) >> 16;
-    val = (val & 0x00FF00FF) << 8 | (val & 0xFF00FF00) >> 8;
-    return val;
-#endif
-}
-
-static inline int64_t bswap(int64_t val)
+template <typename T>
+static inline T bswap64(T val)
 {
 #if __GNUC__
     return __builtin_bswap64(val);
 #elif _WIN32
     return _byteswap_uint64(val);
 #else
-    return (val = ((atInt64)((((atInt64)(val) & 0xFF00000000000000ULL) >> 56) |
-                             (((atInt64)(val) & 0x00FF000000000000ULL) >> 40) |
-                             (((atInt64)(val) & 0x0000FF0000000000ULL) >> 24) |
-                             (((atInt64)(val) & 0x000000FF00000000ULL) >>  8) |
-                             (((atInt64)(val) & 0x00000000FF000000ULL) <<  8) |
-                             (((atInt64)(val) & 0x0000000000FF0000ULL) << 24) |
-                             (((atInt64)(val) & 0x000000000000FF00ULL) << 40) |
-                             (((atInt64)(val) & 0x00000000000000FFULL) << 56))));
+    return ((val & 0xFF00000000000000ULL) >> 56) |
+           ((val & 0x00FF000000000000ULL) >> 40) |
+           ((val & 0x0000FF0000000000ULL) >> 24) |
+           ((val & 0x000000FF00000000ULL) >>  8) |
+           ((val & 0x00000000FF000000ULL) <<  8) |
+           ((val & 0x0000000000FF0000ULL) << 24) |
+           ((val & 0x000000000000FF00ULL) << 40) |
+           ((val & 0x00000000000000FFULL) << 56);
 #endif
 }
 
-static inline uint64_t bswap(uint64_t val)
-{
-#if __GNUC__
-    return __builtin_bswap64(val);
-#elif _WIN32
-    return _byteswap_uint64(val);
-#else
-    return (val = ((atInt64)((((atInt64)(val) & 0xFF00000000000000ULL) >> 56) |
-                             (((atInt64)(val) & 0x00FF000000000000ULL) >> 40) |
-                             (((atInt64)(val) & 0x0000FF0000000000ULL) >> 24) |
-                             (((atInt64)(val) & 0x000000FF00000000ULL) >>  8) |
-                             (((atInt64)(val) & 0x00000000FF000000ULL) <<  8) |
-                             (((atInt64)(val) & 0x0000000000FF0000ULL) << 24) |
-                             (((atInt64)(val) & 0x000000000000FF00ULL) << 40) |
-                             (((atInt64)(val) & 0x00000000000000FFULL) << 56))));
-#endif
-}
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define HECLMakeBig(val) HECL::bswap(val)
-#define HECLMakeLittle(val) (val)
+static inline int16_t ToBig(int16_t val) {return bswap16(val);}
+static inline uint16_t ToBig(uint16_t val) {return bswap16(val);}
+static inline int32_t ToBig(int32_t val) {return bswap32(val);}
+static inline uint32_t ToBig(uint32_t val) {return bswap32(val);}
+static inline int64_t ToBig(int64_t val) {return bswap64(val);}
+static inline uint64_t ToBig(uint64_t val) {return bswap64(val);}
+
+static inline int16_t ToLittle(int16_t val) {return val;}
+static inline uint16_t ToLittle(uint16_t val) {return val;}
+static inline int32_t ToLittle(int32_t val) {return val;}
+static inline uint32_t ToLittle(uint32_t val) {return val;}
+static inline int64_t ToLittle(int64_t val) {return val;}
+static inline uint64_t ToLittle(uint64_t val) {return val;}
 #else
-#define HECLMakeBig(val) (val)
-#define HECLMakeLittle(val) HECL::bswap(val)
+static inline int16_t ToLittle(int16_t val) {return bswap16(val);}
+static inline uint16_t ToLittle(uint16_t val) {return bswap16(val);}
+static inline int32_t ToLittle(int32_t val) {return bswap32(val);}
+static inline uint32_t ToLittle(uint32_t val) {return bswap32(val);}
+static inline int64_t ToLittle(int64_t val) {return bswap64(val);}
+static inline uint64_t ToLittle(uint64_t val) {return bswap64(val);}
+
+static inline int16_t ToBig(int16_t val) {return val;}
+static inline uint16_t ToBig(uint16_t val) {return val;}
+static inline int32_t ToBig(int32_t val) {return val;}
+static inline uint32_t ToBig(uint32_t val) {return val;}
+static inline int64_t ToBig(int64_t val) {return val;}
+static inline uint64_t ToBig(uint64_t val) {return val;}
 #endif
 
 }

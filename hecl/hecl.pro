@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
+CONFIG += c++11
 
 # Enable building with LLVM dependencies
 exists ($$PWD/llvm) {

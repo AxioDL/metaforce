@@ -1,0 +1,3 @@
+[submodule "extern/Athena"]
+	path = extern/Athena
+	url = https://github.com/Antidote/Athena.git

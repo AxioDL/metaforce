@@ -31,5 +31,6 @@ HEADERS += \
     CToolCook.hpp \
     CToolClean.hpp \
     CToolAdd.hpp \
-    CToolRemove.hpp
+    CToolRemove.hpp \
+    CToolPlatform.hpp
 

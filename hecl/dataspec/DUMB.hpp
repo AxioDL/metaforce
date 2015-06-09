@@ -3,32 +3,26 @@
 
 #include "HECLDatabase.hpp"
 
-class CDUMBProject : public HECLDatabase::CProjectObject
+class CDUMBProject : public HECLDatabase::ProjectObjectBase
 {
-    bool _cookObject(TDataAppender dataAppender,
+    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+
+    bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
     {
         return true;
     }
 
-    void _gatherDeps(TDepAdder depAdder)
+    void _gatherDeps(FDepAdder depAdder)
     {
 
     }
 
-public:
-    CDUMBProject(const ConstructionInfo& info)
-    : CProjectObject(info)
-    {
-    }
-
-    ~CDUMBProject()
-    {
-    }
 };
 
-class CDUMBRuntime : public HECLDatabase::CRuntimeObject
+class CDUMBRuntime : public HECLDatabase::RuntimeObjectBase
 {
+    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {
@@ -40,14 +34,6 @@ class CDUMBRuntime : public HECLDatabase::CRuntimeObject
 
     }
 
-public:
-    CDUMBRuntime(const ConstructionInfo& info)
-    : CRuntimeObject(info)
-    {
-    }
-    ~CDUMBRuntime()
-    {
-    }
 };
 
 #endif // DUMB_HPP
