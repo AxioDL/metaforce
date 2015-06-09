@@ -2,6 +2,7 @@
 #define STRG_HPP
 
 #include "HECLDatabase.hpp"
+#include "HECLRuntime.hpp"
 
 class CSTRGProject : public HECLDatabase::ProjectObjectBase
 {
@@ -19,9 +20,9 @@ class CSTRGProject : public HECLDatabase::ProjectObjectBase
     }
 };
 
-class CSTRGRuntime : public HECLDatabase::RuntimeObjectBase
+class CSTRGRuntime : public HECLRuntime::RuntimeObjectBase
 {
-    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
+    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

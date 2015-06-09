@@ -1,7 +1,7 @@
 #ifndef DUMB_HPP
 #define DUMB_HPP
 
-#include "HECLDatabase.hpp"
+#include "HECLRuntime.hpp"
 
 class CDUMBProject : public HECLDatabase::ProjectObjectBase
 {
@@ -20,9 +20,9 @@ class CDUMBProject : public HECLDatabase::ProjectObjectBase
 
 };
 
-class CDUMBRuntime : public HECLDatabase::RuntimeObjectBase
+class CDUMBRuntime : public HECLRuntime::RuntimeObjectBase
 {
-    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
+    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

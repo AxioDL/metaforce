@@ -18,19 +18,16 @@ HEADERS += \
     include/HECLRuntime.hpp
 
 SUBDIRS += \
-    extern/sqlite3 \
     extern/blowfish \
     extern/libpng \
-    extern/zlib \
+    extern/Athena \
     blender \
     lib \
     dataspec \
     driver
 
-driver.depends = extern/sqlite3
 driver.depends = extern/blowfish
 driver.depends = extern/libpng
-driver.depends = extern/zlib
 driver.depends = blender
 driver.depends = lib
 driver.depends = dataspec

@@ -2,6 +2,7 @@
 #define HMDL_HPP
 
 #include "HECLDatabase.hpp"
+#include "HECLRuntime.hpp"
 
 class CHMDLProject : public HECLDatabase::ProjectObjectBase
 {
@@ -19,9 +20,9 @@ class CHMDLProject : public HECLDatabase::ProjectObjectBase
     }
 };
 
-class CHMDLRuntime : public HECLDatabase::RuntimeObjectBase
+class CHMDLRuntime : public HECLRuntime::RuntimeObjectBase
 {
-    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
+    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

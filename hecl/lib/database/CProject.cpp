@@ -27,182 +27,160 @@ static inline bool CheckNewLineAdvance(std::string::const_iterator& it)
     return false;
 }
 
-class CProject : public IProject
+Project::ConfigFile::ConfigFile(const Project& project, const HECL::SystemString& name)
+: m_project(project), m_name(name)
 {
-    HECL::SystemString m_rootPath;
+    m_filepath = project.m_rootPath + _S("/.hecl/config/") + name;
+}
 
-    class ConfigFile
+std::vector<std::string> Project::ConfigFile::readLines()
+{
+    FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("r"));
+
+    std::string mainString;
+    char readBuf[1024];
+    size_t readSz;
+    while ((readSz = fread(readBuf, 1, 1024, fp)))
+        mainString += std::string(readBuf, readSz);
+    fclose(fp);
+
+    std::string::const_iterator begin = mainString.begin();
+    std::string::const_iterator end = mainString.begin();
+
+    std::vector<std::string> retval;
+    while (end != mainString.end())
     {
-        const CProject& m_project;
-        const HECL::SystemString& m_name;
-        HECL::SystemString m_filepath;
-    public:
-        ConfigFile(const CProject& project, const HECL::SystemString& name)
-        : m_project(project), m_name(name)
+        std::string::const_iterator origEnd = end;
+        if (*end == '\0')
+            break;
+        else if (CheckNewLineAdvance(end))
         {
-            m_filepath = project.m_rootPath + _S("/.hecl/config/") + name;
+            if (begin != origEnd)
+                retval.push_back(std::string(begin, origEnd));
+            begin = end;
+            continue;
         }
+        ++end;
+    }
+    if (begin != end)
+        retval.push_back(std::string(begin, end));
 
-        std::vector<std::string> readLines()
+    return retval;
+}
+
+void Project::ConfigFile::addLine(const std::string& line)
+{
+    std::vector<std::string> curLines = readLines();
+
+    FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("w"));
+    for (std::string& line : curLines)
+    {
+        fwrite(line.data(), 1, line.length(), fp);
+        fwrite("\n", 1, 1, fp);
+    }
+    fwrite(line.data(), 1, line.length(), fp);
+    fwrite("\n", 1, 1, fp);
+    fclose(fp);
+}
+
+void Project::ConfigFile::removeLine(const std::string& refLine)
+{
+    std::vector<std::string> curLines = readLines();
+
+    FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("w"));
+    for (std::string& line : curLines)
+    {
+        if (line.compare(refLine))
         {
-            FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("r"));
-
-            std::string mainString;
-            char readBuf[1024];
-            size_t readSz;
-            while ((readSz = fread(readBuf, 1, 1024, fp)))
-                mainString += std::string(readBuf, readSz);
-            fclose(fp);
-
-            std::string::const_iterator begin = mainString.begin();
-            std::string::const_iterator end = mainString.begin();
-
-            std::vector<std::string> retval;
-            while (end != mainString.end())
-            {
-                std::string::const_iterator origEnd = end;
-                if (CheckNewLineAdvance(end))
-                {
-                    if (begin != origEnd)
-                        retval.push_back(std::string(begin, origEnd));
-                    begin = end;
-                    continue;
-                }
-                ++end;
-            }
-            if (begin != end)
-                retval.push_back(std::string(begin, end));
-
-            return retval;
-        }
-
-        void addLine(const std::string& line)
-        {
-            std::vector<std::string> curLines = readLines();
-
-            FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("w"));
-            for (std::string& line : curLines)
-            {
-                fwrite(line.data(), 1, line.length(), fp);
-                fwrite("\n", 1, 1, fp);
-            }
             fwrite(line.data(), 1, line.length(), fp);
             fwrite("\n", 1, 1, fp);
-            fclose(fp);
         }
-
-        void removeLine(const std::string& refLine)
-        {
-            std::vector<std::string> curLines = readLines();
-
-            FILE* fp = HECL::Fopen(m_filepath.c_str(), _S("w"));
-            for (std::string& line : curLines)
-            {
-                if (line.compare(refLine))
-                {
-                    fwrite(line.data(), 1, line.length(), fp);
-                    fwrite("\n", 1, 1, fp);
-                }
-            }
-            fclose(fp);
-        }
-
-        bool checkForLine(const std::string& refLine)
-        {
-            std::vector<std::string> curLines = readLines();
-            for (std::string& line : curLines)
-            {
-                if (!line.compare(refLine))
-                    return true;
-            }
-            return false;
-        }
-
-    };
-
-public:
-    CProject(const std::string& rootPath)
-    : m_rootPath(rootPath)
-    {
-        /* Stat for existing project directory (must already exist) */
-        struct stat myStat;
-        if (stat(m_rootPath.c_str(), &myStat))
-            throw std::error_code(errno, std::system_category());
-
-        if (!S_ISDIR(myStat.st_mode))
-            throw std::invalid_argument("provided path must be a directory; '" + m_rootPath + "' isn't");
-
-        /* Create project directory structure */
-        HECL::MakeDir(m_rootPath + "/.hecl");
-        HECL::MakeDir(m_rootPath + "/.hecl/cooked");
-        HECL::MakeDir(m_rootPath + "/.hecl/config");
-
-        /* Create or open databases */
     }
+    fclose(fp);
+}
 
-    ~CProject()
-    {
-    }
-
-    void registerLogger(HECL::TLogger logger)
-    {
-    }
-
-    const HECL::ProjectRootPath& getProjectRootPath(bool absolute) const
-    {
-    }
-
-    bool addPaths(const std::vector<HECL::ProjectPath>& paths)
-    {
-    }
-
-    bool removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive)
-    {
-    }
-
-    bool addGroup(const std::string& path)
-    {
-    }
-
-    bool removeGroup(const std::string& path)
-    {
-    }
-
-    const std::map<const std::string, const bool>& listPlatforms()
-    {
-    }
-
-    bool enablePlatforms(const std::vector<std::string>& platforms)
-    {
-    }
-
-    bool disablePlatforms(const std::vector<std::string>& platforms)
-    {
-    }
-
-    bool cookPath(const std::string& path,
-                  std::function<void(std::string&, Cost, unsigned)> feedbackCb,
-                  bool recursive)
-    {
-    }
-
-    void interruptCook()
-    {
-    }
-
-    bool cleanPath(const std::string& path, bool recursive)
-    {
-    }
-
-    bool packagePath(const std::string& path, bool recursive)
-    {
-    }
-
-};
-
-IProject* OpenProject(const std::string& rootPath)
+bool Project::ConfigFile::checkForLine(const std::string& refLine)
 {
-    return new CProject(rootPath);
+    std::vector<std::string> curLines = readLines();
+    for (std::string& line : curLines)
+    {
+        if (!line.compare(refLine))
+            return true;
+    }
+    return false;
+}
+
+Project::Project(const std::string& rootPath)
+: m_rootPath(rootPath)
+{
+    /* Stat for existing project directory (must already exist) */
+    struct stat myStat;
+    if (stat(m_rootPath.c_str(), &myStat))
+        throw std::error_code(errno, std::system_category());
+
+    if (!S_ISDIR(myStat.st_mode))
+        throw std::invalid_argument("provided path must be a directory; '" + m_rootPath + "' isn't");
+
+    /* Create project directory structure */
+    HECL::MakeDir(m_rootPath + "/.hecl");
+    HECL::MakeDir(m_rootPath + "/.hecl/cooked");
+    HECL::MakeDir(m_rootPath + "/.hecl/config");
+
+    /* Create or open databases */
+}
+
+void Project::registerLogger(HECL::TLogger logger)
+{
+}
+
+const HECL::ProjectRootPath& Project::getProjectRootPath(bool absolute) const
+{
+}
+
+bool Project::addPaths(const std::vector<HECL::ProjectPath>& paths)
+{
+}
+
+bool Project::removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive)
+{
+}
+
+bool Project::addGroup(const HECL::ProjectPath& path)
+{
+}
+
+bool Project::removeGroup(const HECL::ProjectPath& path)
+{
+}
+
+const std::map<const std::string, const bool>& Project::listPlatforms()
+{
+}
+
+bool Project::enablePlatforms(const std::vector<std::string>& platforms)
+{
+}
+
+bool Project::disablePlatforms(const std::vector<std::string>& platforms)
+{
+}
+
+bool Project::cookPath(const std::string& path,
+                       std::function<void(std::string&, Cost, unsigned)> feedbackCb,
+                       bool recursive)
+{
+}
+
+void Project::interruptCook()
+{
+}
+
+bool Project::cleanPath(const std::string& path, bool recursive)
+{
+}
+
+Project::PackageDepsgraph Project::buildPackageDepsgraph(const HECL::ProjectPath& path)
+{
 }
 
 }

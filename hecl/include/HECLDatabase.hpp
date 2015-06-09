@@ -106,8 +106,22 @@ public:
  */
 class Project
 {
+    HECL::SystemString m_rootPath;
 public:
-    virtual ~IProject() {}
+    Project(const std::string& rootPath);
+
+    class ConfigFile
+    {
+        const Project& m_project;
+        const HECL::SystemString& m_name;
+        HECL::SystemString m_filepath;
+    public:
+        ConfigFile(const Project& project, const HECL::SystemString& name);
+        std::vector<std::string> readLines();
+        void addLine(const std::string& line);
+        void removeLine(const std::string& refLine);
+        bool checkForLine(const std::string& refLine);
+    };
 
     /**
      * @brief Internal packagePath() exception
@@ -138,7 +152,7 @@ public:
      *
      * If this method is never called, all project operations will run silently.
      */
-    virtual void registerLogger(HECL::TLogger logger)=0;
+    virtual void registerLogger(HECL::TLogger logger);
 
     /**
      * @brief Get the path of the project's root-directory
@@ -147,7 +161,7 @@ public:
      *
      * Self explanatory
      */
-    virtual const HECL::ProjectRootPath& getProjectRootPath(bool absolute=false) const=0;
+    virtual const HECL::ProjectRootPath& getProjectRootPath(bool absolute=false) const;
 
     /**
      * @brief Add given file(s) to the database
@@ -156,7 +170,7 @@ public:
      *
      * This method blocks while object hashing takes place
      */
-    virtual bool addPaths(const std::vector<HECL::ProjectPath>& paths)=0;
+    virtual bool addPaths(const std::vector<HECL::ProjectPath>& paths);
 
     /**
      * @brief Remove a given file or file-pattern from the database
@@ -167,7 +181,7 @@ public:
      * This method will not delete actual working files from the project
      * directory. It will delete associated cooked objects though.
      */
-    virtual bool removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive=false)=0;
+    virtual bool removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive=false);
 
     /**
      * @brief Register a working sub-directory as a Dependency Group
@@ -183,34 +197,34 @@ public:
      * This contiguous storage makes for optimal loading from slow block-devices
      * like optical drives.
      */
-    virtual bool addGroup(const HECL::ProjectPath& path)=0;
+    virtual bool addGroup(const HECL::ProjectPath& path);
 
     /**
      * @brief Unregister a working sub-directory as a dependency group
      * @param path directory to unregister as Dependency Group
      * @return true on success
      */
-    virtual bool removeGroup(const HECL::ProjectPath& path)=0;
+    virtual bool removeGroup(const HECL::ProjectPath& path);
 
     /**
      * @brief Return map populated with platforms targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    virtual const std::map<const std::string, const bool>& listPlatforms()=0;
+    virtual const std::map<const std::string, const bool>& listPlatforms();
 
     /**
      * @brief Enable persistent user preference for particular platform string(s)
      * @param platforms String(s) representing unique platform(s) from listPlatforms
      * @return true on success
      */
-    virtual bool enablePlatforms(const std::vector<std::string>& platforms)=0;
+    virtual bool enablePlatforms(const std::vector<std::string>& platforms);
 
     /**
      * @brief Disable persistent user preference for particular platform string(s)
      * @param platform String(s) representing unique platform(s) from listPlatforms
      * @return true on success
      */
-    virtual bool disablePlatforms(const std::vector<std::string>& platforms)=0;
+    virtual bool disablePlatforms(const std::vector<std::string>& platforms);
 
     /**
      * @brief Begin cook process for specified directory
@@ -225,7 +239,7 @@ public:
      */
     virtual bool cookPath(const HECL::SystemString& path,
                           std::function<void(std::string&, Cost, unsigned)> feedbackCb,
-                          bool recursive=false)=0;
+                          bool recursive=false);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)
@@ -237,7 +251,7 @@ public:
      * Note that this method returns immediately; the resumed cookPath()
      * call will return as quickly as possible.
      */
-    virtual void interruptCook()=0;
+    virtual void interruptCook();
 
     /**
      * @brief Delete cooked objects for directory
@@ -248,7 +262,7 @@ public:
      * Developers understand how useful 'clean' is. While ideally not required,
      * it's useful for verifying that a rebuild from ground-up is doable.
      */
-    virtual bool cleanPath(const HECL::SystemString& path, bool recursive=false)=0;
+    virtual bool cleanPath(const HECL::SystemString& path, bool recursive=false);
 
     /**
      * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -280,20 +294,9 @@ public:
      * @param path Subpath of project to root depsgraph at
      * @return Populated depsgraph ready to traverse
      */
-    virtual PackageDepsgraph buildPackageDepsgraph(const HECL::ProjectPath& path)=0;
+    virtual PackageDepsgraph buildPackageDepsgraph(const HECL::ProjectPath& path);
 
 };
-
-/**
- * @brief Opens an existing or creates a new project using specified root directory
- * @param rootPath Path to project root-directory
- * @return New project object
- *
- * This is the preferred way to open an existing or create a new HECL project.
- * All necessary database index files and object directories will be established
- * within the specified directory path.
- */
-Project* OpenProject(const HECL::ProjectRootPath& rootPath);
 
 
 /**
@@ -306,7 +309,7 @@ class IDataSpec
 {
 public:
 
-    virtual packageData();
+    virtual Project::PackageDepsgraph packageData();
 };
 
 }

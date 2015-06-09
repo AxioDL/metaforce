@@ -2,6 +2,7 @@
 #define MATR_HPP
 
 #include "HECLDatabase.hpp"
+#include "HECLRuntime.hpp"
 
 class CMATRProject : public HECLDatabase::ProjectObjectBase
 {
@@ -19,9 +20,9 @@ class CMATRProject : public HECLDatabase::ProjectObjectBase
     }
 };
 
-class CMATRRuntime : public HECLDatabase::RuntimeObjectBase
+class CMATRRuntime : public HECLRuntime::RuntimeObjectBase
 {
-    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
+    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

@@ -2,6 +2,7 @@
 #define TXTR_HPP
 
 #include "HECLDatabase.hpp"
+#include "HECLRuntime.hpp"
 #include "helpers.hpp"
 
 class CTXTRProject : public HECLDatabase::ProjectObjectBase
@@ -30,9 +31,9 @@ public:
     }
 };
 
-class CTXTRRuntime : public HECLDatabase::RuntimeObjectBase
+class CTXTRRuntime : public HECLRuntime::RuntimeObjectBase
 {
-    using HECLDatabase::RuntimeObjectBase::RuntimeObjectBase;
+    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

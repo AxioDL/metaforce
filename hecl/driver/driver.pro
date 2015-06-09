@@ -12,12 +12,13 @@ INCLUDEPATH += ../include
 LIBPATH += $$OUT_PWD/../lib \
     $$OUT_PWD/../dataspec \
     $$OUT_PWD/../blender \
-    $$OUT_PWD/../extern/sqlite3 \
     $$OUT_PWD/../extern/blowfish \
-    $$OUT_PWD/../extern/libpng \
-    $$OUT_PWD/../extern/zlib
+    $$OUT_PWD/../extern/libpng
 
-LIBS += -lhecl -lhecl-dataspec -lhecl-blender -lsqlite3 -lblowfish -lpng -lz
+LIBS += -lhecl -lhecl-dataspec -lhecl-blender -lblowfish -lpng
+
+# Yay!! Athena IO
+include(../extern/Athena/AthenaCore.pri)
 
 SOURCES += \
     $$PWD/main.cpp
