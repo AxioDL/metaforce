@@ -1,12 +1,12 @@
-#ifndef STRG_HPP
-#define STRG_HPP
+#ifndef HMDL_HPP
+#define HMDL_HPP
 
 #include "HECLDatabase.hpp"
 #include "HECLRuntime.hpp"
 
-class CSTRGProject : public HECLDatabase::ProjectObjectBase
+class CHMDLProject : public HECL::Database::ObjectBase
 {
-    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+    using HECL::Database::ObjectBase::ObjectBase;
 
     bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
@@ -20,9 +20,9 @@ class CSTRGProject : public HECLDatabase::ProjectObjectBase
     }
 };
 
-class CSTRGRuntime : public HECLRuntime::RuntimeObjectBase
+class CHMDLRuntime : public HECL::Runtime::ObjectBase
 {
-    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
+    using HECL::Runtime::ObjectBase::ObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {
@@ -35,4 +35,4 @@ class CSTRGRuntime : public HECLRuntime::RuntimeObjectBase
     }
 };
 
-#endif // STRG_HPP
+#endif // HMDL_HPP

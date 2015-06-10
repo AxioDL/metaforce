@@ -1,23 +1,26 @@
 #include "HECLRuntime.hpp"
 
-namespace HECLRuntime
+namespace HECL
+{
+namespace Runtime
 {
 
-HECLRuntime::HECLRuntime(const HECL::SystemString& hlpkDirectory)
-{
-}
-
-HECLRuntime::~HECLRuntime()
+Runtime::Runtime(const HECL::SystemString& hlpkDirectory)
 {
 }
 
-std::shared_ptr<RuntimeEntity> HECLRuntime::loadSync(const HECL::Hash& pathHash)
+Runtime::~Runtime()
 {
 }
 
-std::shared_ptr<RuntimeEntity> HECLRuntime::loadAsync(const HECL::Hash& pathHash,
-                                                      SGroupLoadStatus* statusOut)
+std::shared_ptr<Entity> Runtime::loadSync(const Hash& pathHash)
 {
 }
 
+std::shared_ptr<Entity> Runtime::loadAsync(const Hash& pathHash,
+                                           SGroupLoadStatus* statusOut)
+{
+}
+
+}
 }

@@ -9,15 +9,19 @@ unix:LIBS += -std=c++11
 clang:QMAKE_CXXFLAGS += -stdlib=libc++
 clang:LIBS += -stdlib=libc++ -lc++abi
 
-INCLUDEPATH += $$PWD ../include ../extern ../extern/Athena/include
+INCLUDEPATH += $$PWD ../include ../extern \
+../extern/Athena/include
+../extern/RetroCommon/include
+
+include(../extern/RetroCommon/RetroCommon.pri)
+
+include(hecl/hecl.pri)
+include(mp1/mp1.pri)
+include(mp2/mp2.pri)
+include(mp3/mp3.pri)
 
 HEADERS += \
-    helpers.hpp \
-    DUMB.hpp \
-    HMDL.hpp \
-    MATR.hpp \
-    STRG.hpp \
-    TXTR.hpp
+    helpers.hpp
 
 SOURCES += \
     helpers.cpp \

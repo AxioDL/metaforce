@@ -1,4 +1,4 @@
 HEADERS +=
 
 SOURCES += \
-    $$PWD/CProject.cpp
+    $$PWD/Project.cpp

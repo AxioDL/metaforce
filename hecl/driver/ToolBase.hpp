@@ -9,25 +9,25 @@
 #include <unistd.h>
 #include <string.h>
 
-struct SToolPassInfo
+struct ToolPassInfo
 {
-    std::string pname;
-    std::string cwd;
-    std::vector<std::string> args;
-    std::string output;
+    HECL::SystemString pname;
+    HECL::SystemString cwd;
+    std::vector<HECL::SystemString> args;
+    HECL::SystemString output;
     unsigned verbosityLevel = 0;
     bool force = false;
 };
 
-class CToolBase
+class ToolBase
 {
 protected:
-    const SToolPassInfo& m_info;
+    const ToolPassInfo& m_info;
 public:
-    CToolBase(const SToolPassInfo& info)
+    ToolBase(const ToolPassInfo& info)
     : m_info(info) {}
-    virtual ~CToolBase() {}
-    virtual std::string toolName() const=0;
+    virtual ~ToolBase() {}
+    virtual HECL::SystemString toolName() const=0;
     virtual int run()=0;
 };
 
@@ -41,51 +41,51 @@ public:
 
 extern bool XTERM_COLOR;
 
-class CHelpOutput
+class HelpOutput
 {
 public:
-    typedef void(*THelpFunc)(CHelpOutput&);
+    typedef void(*HelpFunc)(HelpOutput&);
 private:
     FILE* m_sout;
-    THelpFunc m_helpFunc;
+    HelpFunc m_helpFunc;
     int m_lineWidth;
-    std::string m_wrapBuffer;
+    HECL::SystemString m_wrapBuffer;
 
-    void _wrapBuf(std::string& string)
+    void _wrapBuf(HECL::SystemString& string)
     {
         int counter;
-        std::string::iterator it = string.begin();
+        HECL::SystemString::iterator it = string.begin();
 
         while (it != string.end())
         {
-            std::string::iterator v=it;
+            HECL::SystemString::iterator v=it;
 
             /* copy string until the end of the line is reached */
             for (counter=WRAP_INDENT ; counter < m_lineWidth ; ++counter)
             {
-                if (*it == '\n')
+                if (*it == _S('\n'))
                 {
                     counter = WRAP_INDENT;
                     ++it;
                 }
                 if (counter == WRAP_INDENT)
-                    it = string.insert(it, WRAP_INDENT, ' ') + WRAP_INDENT;
+                    it = string.insert(it, WRAP_INDENT, _S(' ')) + WRAP_INDENT;
                 if (it >= string.end())
                     return;
-                if (*it != '\n')
+                if (*it != _S('\n'))
                     ++it;
             }
             /* check for whitespace */
             if (isspace(*it))
             {
-                *it = '\n';
+                *it = _S('\n');
                 counter = WRAP_INDENT;
                 ++it;
             }
             else
             {
                 /* check for nearest whitespace back in string */
-                for (std::string::iterator k=it ; k!=string.begin() ; --k)
+                for (HECL::SystemString::iterator k=it ; k!=string.begin() ; --k)
                 {
                     if (isspace(*k))
                     {
@@ -93,10 +93,10 @@ private:
                         if (k < v)
                         {
                             k = it;
-                            string.insert(k, '\n');
+                            string.insert(k, _S('\n'));
                         }
                         else
-                            *k = '\n';
+                            *k = _S('\n');
                         it = k + 1;
                         break;
                     }
@@ -107,19 +107,29 @@ private:
 
 public:
 
-    CHelpOutput(THelpFunc helpFunc)
+    HelpOutput(HelpFunc helpFunc)
     : m_sout(NULL), m_helpFunc(helpFunc)
     {
+#if _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO info;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+        m_lineWidth = info.dwSize.X;
+#else
         struct winsize w;
         m_lineWidth = 80;
         if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)
             m_lineWidth = w.ws_col;
+#endif
         if (m_lineWidth < 10)
             m_lineWidth = 10;
     }
 
     void go()
     {
+#if _WIN32
+        m_sout = stdout;
+        m_helpFunc(*this);
+#else
         m_sout = popen("less -R", "w");
         if (m_sout)
         {
@@ -131,35 +141,36 @@ public:
             m_sout = stdout;
             m_helpFunc(*this);
         }
+#endif
     }
 
-    void print(const char* str)
+    void print(const HECL::SystemChar* str)
     {
-        fputs(str, m_sout);
+        HECL::FPrintf(m_sout, _S("%s"), str);
     }
 
-    void printBold(const char* str)
-    {
-        if (XTERM_COLOR)
-            fprintf(m_sout, BOLD "%s" NORMAL, str);
-        else
-            fputs(str, m_sout);
-    }
-
-    void secHead(const char* headName)
+    void printBold(const HECL::SystemChar* str)
     {
         if (XTERM_COLOR)
-            fprintf(m_sout, BOLD "%s" NORMAL "\n", headName);
+            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL ""), str);
         else
-            fprintf(m_sout, "%s\n", headName);
+            HECL::FPrintf(m_sout, _S("%s"), str);
     }
 
-    void optionHead(const char* flag, const char* synopsis)
+    void secHead(const HECL::SystemChar* headName)
     {
         if (XTERM_COLOR)
-            fprintf(m_sout, BOLD "%s" NORMAL " (%s)\n", flag, synopsis);
+            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL "\n"), headName);
         else
-            fprintf(m_sout, "%s (%s)\n", flag, synopsis);
+            HECL::FPrintf(m_sout, _S("%s\n"), headName);
+    }
+
+    void optionHead(const HECL::SystemChar* flag, const HECL::SystemChar* synopsis)
+    {
+        if (XTERM_COLOR)
+            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
+        else
+            HECL::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
     }
 
     void beginWrap()
@@ -167,23 +178,25 @@ public:
         m_wrapBuffer.clear();
     }
 
-    void wrap(const char* str)
+    void wrap(const HECL::SystemChar* str)
     {
         m_wrapBuffer += str;
     }
 
-    void wrapBold(const char* str)
+    void wrapBold(const HECL::SystemChar* str)
     {
-        m_wrapBuffer += BOLD;
+        if (XTERM_COLOR)
+            m_wrapBuffer += _S("" BOLD "");
         m_wrapBuffer += str;
-        m_wrapBuffer += NORMAL;
+        if (XTERM_COLOR)
+            m_wrapBuffer += _S("" NORMAL "");
     }
 
     void endWrap()
     {
         _wrapBuf(m_wrapBuffer);
-        m_wrapBuffer += '\n';
-        fputs(m_wrapBuffer.c_str(), m_sout);
+        m_wrapBuffer += _S('\n');
+        HECL::FPrintf(m_sout, _S("%s"), m_wrapBuffer.c_str());
         m_wrapBuffer.clear();
     }
 };

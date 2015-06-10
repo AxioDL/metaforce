@@ -13,7 +13,9 @@
 
 #include "HECL.hpp"
 
-namespace HECLDatabase
+namespace HECL
+{
+namespace Database
 {
 
 /**
@@ -25,9 +27,9 @@ namespace HECLDatabase
  *
  * DO NOT CONSTRUCT THIS OR SUBCLASSES DIRECTLY!!
  */
-class ProjectObjectBase
+class ObjectBase
 {
-    friend class CProject;
+    friend class Project;
     std::string m_path;
 protected:
 
@@ -69,7 +71,7 @@ protected:
                              DataEndianness endianness, DataPlatform platform)
     {(void)dataAppender;(void)endianness;(void)platform;return true;}
 
-    typedef std::function<void(ProjectObjectBase*)> FDepAdder;
+    typedef std::function<void(ObjectBase*)> FDepAdder;
 
     /**
      * @brief Optional private method implemented by CProjectObject subclasses to resolve dependencies
@@ -83,7 +85,7 @@ protected:
     {(void)depAdder;}
 
 public:
-    ProjectObjectBase(const std::string& path)
+    ObjectBase(const std::string& path)
     : m_path(path) {}
 
     inline const std::string& getPath() const {return m_path;}
@@ -106,17 +108,17 @@ public:
  */
 class Project
 {
-    HECL::SystemString m_rootPath;
+    ProjectRootPath m_rootPath;
 public:
-    Project(const std::string& rootPath);
+    Project(const HECL::ProjectRootPath& rootPath);
 
     class ConfigFile
     {
         const Project& m_project;
-        const HECL::SystemString& m_name;
-        HECL::SystemString m_filepath;
+        const SystemString& m_name;
+        SystemString m_filepath;
     public:
-        ConfigFile(const Project& project, const HECL::SystemString& name);
+        ConfigFile(const Project& project, const SystemString& name);
         std::vector<std::string> readLines();
         void addLine(const std::string& line);
         void removeLine(const std::string& refLine);
@@ -152,7 +154,7 @@ public:
      *
      * If this method is never called, all project operations will run silently.
      */
-    virtual void registerLogger(HECL::TLogger logger);
+    virtual void registerLogger(HECL::FLogger logger);
 
     /**
      * @brief Get the path of the project's root-directory
@@ -161,7 +163,7 @@ public:
      *
      * Self explanatory
      */
-    virtual const HECL::ProjectRootPath& getProjectRootPath(bool absolute=false) const;
+    virtual const ProjectRootPath& getProjectRootPath(bool absolute=false) const;
 
     /**
      * @brief Add given file(s) to the database
@@ -170,7 +172,7 @@ public:
      *
      * This method blocks while object hashing takes place
      */
-    virtual bool addPaths(const std::vector<HECL::ProjectPath>& paths);
+    virtual bool addPaths(const std::vector<ProjectPath>& paths);
 
     /**
      * @brief Remove a given file or file-pattern from the database
@@ -181,7 +183,7 @@ public:
      * This method will not delete actual working files from the project
      * directory. It will delete associated cooked objects though.
      */
-    virtual bool removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive=false);
+    virtual bool removePaths(const std::vector<ProjectPath>& paths, bool recursive=false);
 
     /**
      * @brief Register a working sub-directory as a Dependency Group
@@ -197,14 +199,14 @@ public:
      * This contiguous storage makes for optimal loading from slow block-devices
      * like optical drives.
      */
-    virtual bool addGroup(const HECL::ProjectPath& path);
+    virtual bool addGroup(const ProjectPath& path);
 
     /**
      * @brief Unregister a working sub-directory as a dependency group
      * @param path directory to unregister as Dependency Group
      * @return true on success
      */
-    virtual bool removeGroup(const HECL::ProjectPath& path);
+    virtual bool removeGroup(const ProjectPath& path);
 
     /**
      * @brief Return map populated with dataspecs targetable by this project interface
@@ -237,7 +239,7 @@ public:
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    virtual bool cookPath(const HECL::SystemString& path,
+    virtual bool cookPath(const ProjectPath& path,
                           std::function<void(std::string&, Cost, unsigned)> feedbackCb,
                           bool recursive=false);
 
@@ -262,7 +264,7 @@ public:
      * Developers understand how useful 'clean' is. While ideally not required,
      * it's useful for verifying that a rebuild from ground-up is doable.
      */
-    virtual bool cleanPath(const HECL::SystemString& path, bool recursive=false);
+    virtual bool cleanPath(const ProjectPath& path, bool recursive=false);
 
     /**
      * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -278,7 +280,7 @@ public:
                 NODE_GROUP
             } type;
             std::string path;
-            ProjectObjectBase* projectObj;
+            ObjectBase* projectObj;
             Node* sub;
             Node* next;
         };
@@ -294,7 +296,7 @@ public:
      * @param path Subpath of project to root depsgraph at
      * @return Populated depsgraph ready to traverse
      */
-    virtual PackageDepsgraph buildPackageDepsgraph(const HECL::ProjectPath& path);
+    virtual PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
 
 };
 
@@ -308,10 +310,10 @@ public:
 class IDataSpec
 {
 public:
-
     virtual Project::PackageDepsgraph packageData();
 };
 
+}
 }
 
 #endif // HECLDATABASE_HPP

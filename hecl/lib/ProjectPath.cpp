@@ -22,7 +22,7 @@ bool ProjectPath::_canonAbsPath(const SystemString& path)
     SystemChar resolvedPath[PATH_MAX];
     if (!realpath(path.c_str(), resolvedPath))
     {
-        throw std::invalid_argument("Unable to resolve '" + CSystemUTF8View(path).utf8_str() +
+        throw std::invalid_argument("Unable to resolve '" + SystemUTF8View(path).utf8_str() +
                                     "' as a canonicalized path");
         return false;
     }
@@ -38,8 +38,8 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
         m_absPath.compare(0, ((ProjectPath&)rootPath).m_absPath.size(),
                           ((ProjectPath&)rootPath).m_absPath))
     {
-        throw std::invalid_argument("'" + CSystemUTF8View(m_absPath).utf8_str() + "' is not a subpath of '" +
-                                    CSystemUTF8View(((ProjectPath&)rootPath).m_absPath).utf8_str() + "'");
+        throw std::invalid_argument("'" + SystemUTF8View(m_absPath).utf8_str() + "' is not a subpath of '" +
+                                    SystemUTF8View(((ProjectPath&)rootPath).m_absPath).utf8_str() + "'");
         return;
     }
     if (m_absPath.size() == ((ProjectPath&)rootPath).m_absPath.size())
@@ -52,9 +52,14 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
         ++m_relPath;
     if (m_relPath[0] == _S('\0'))
         m_relPath = NULL;
+
+#if HECL_UCS2
+    m_utf8AbsPath = WideToUTF8(m_absPath);
+    m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
+#endif
 }
 
-ProjectPath::PathType ProjectPath::getPathType()
+ProjectPath::PathType ProjectPath::getPathType() const
 {
     if (std::regex_search(m_absPath, regGLOB))
         return PT_GLOB;
@@ -123,7 +128,7 @@ static void _recursiveGlob(std::vector<SystemString>& outPaths,
 #endif
 }
 
-void ProjectPath::getGlobResults(std::vector<SystemString>& outPaths)
+void ProjectPath::getGlobResults(std::vector<SystemString>& outPaths) const
 {
 #if _WIN32
     TSystemPath itStr;

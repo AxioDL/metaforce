@@ -4,9 +4,9 @@
 #include "HECLDatabase.hpp"
 #include "HECLRuntime.hpp"
 
-class CMATRProject : public HECLDatabase::ProjectObjectBase
+class CMATRProject : public HECL::Database::ObjectBase
 {
-    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+    using HECL::Database::ObjectBase::ObjectBase;
 
     bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
@@ -20,9 +20,9 @@ class CMATRProject : public HECLDatabase::ProjectObjectBase
     }
 };
 
-class CMATRRuntime : public HECLRuntime::RuntimeObjectBase
+class CMATRRuntime : public HECL::Runtime::ObjectBase
 {
-    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
+    using HECL::Runtime::ObjectBase::ObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

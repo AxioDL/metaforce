@@ -20,7 +20,6 @@ HEADERS += \
 SUBDIRS += \
     extern/blowfish \
     extern/libpng \
-    extern/Athena \
     blender \
     lib \
     dataspec \

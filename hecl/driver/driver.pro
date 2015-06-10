@@ -24,14 +24,14 @@ SOURCES += \
     $$PWD/main.cpp
 
 HEADERS += \
-    CToolBase.hpp \
-    CToolPackage.hpp \
-    CToolInit.hpp \
-    CToolHelp.hpp \
-    CToolGroup.hpp \
-    CToolCook.hpp \
-    CToolClean.hpp \
-    CToolAdd.hpp \
-    CToolRemove.hpp \
-    CToolSpec.hpp
+    ToolBase.hpp \
+    ToolPackage.hpp \
+    ToolInit.hpp \
+    ToolHelp.hpp \
+    ToolGroup.hpp \
+    ToolCook.hpp \
+    ToolClean.hpp \
+    ToolAdd.hpp \
+    ToolRemove.hpp \
+    ToolSpec.hpp
 

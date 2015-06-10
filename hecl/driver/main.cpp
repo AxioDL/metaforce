@@ -7,46 +7,52 @@
 #include <list>
 #include <HECLDatabase.hpp>
 
-#include "CToolBase.hpp"
-#include "CToolInit.hpp"
-#include "CToolSpec.hpp"
-#include "CToolAdd.hpp"
-#include "CToolRemove.hpp"
-#include "CToolGroup.hpp"
-#include "CToolCook.hpp"
-#include "CToolClean.hpp"
-#include "CToolPackage.hpp"
-#include "CToolHelp.hpp"
+#include "ToolBase.hpp"
+#include "ToolInit.hpp"
+#include "ToolSpec.hpp"
+#include "ToolAdd.hpp"
+#include "ToolRemove.hpp"
+#include "ToolGroup.hpp"
+#include "ToolCook.hpp"
+#include "ToolClean.hpp"
+#include "ToolPackage.hpp"
+#include "ToolHelp.hpp"
 
 bool XTERM_COLOR = false;
 
+#define HECL_GIT 1234567
+#define HECL_GIT_S "1234567"
+#define HECL_BRANCH master
+#define HECL_BRANCH_S "master"
+
 /* Main usage message */
-static void printHelp(const char* pname)
+static void printHelp(const HECL::SystemChar* pname)
 {
     if (XTERM_COLOR)
-        printf(BOLD "HECL" NORMAL);
+        HECL::Printf(_S("" BOLD "HECL" NORMAL ""));
     else
-        printf("HECL");
+        HECL::Printf(_S("HECL"));
 #if HECL_GIT
-    printf(" Commit " #HECL_GIT " (" #HECL_BRANCH ")\n"
-           "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
+    HECL::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #elif HECL_VER
-    printf(" Version " #HECL_VER "\n"
-           "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
+    HECL::Printf(_S(" Version " HECL_VER_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #else
-    printf("\n"
-           "Usage: %s init|add|remove|group|cook|clean|package|help\n", pname);
+    HECL::Printf(_S("\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #endif
 }
 
 /* Regex patterns */
-static const std::regex regOPEN("-o([^\"]*|\\S*))", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regVERBOSE("-v(v*)", std::regex::ECMAScript|std::regex::optimize);
-static const std::regex regFORCE("-f", std::regex::ECMAScript|std::regex::optimize);
+static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*))"), std::regex::ECMAScript|std::regex::optimize);
+static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
+static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
 #include "../blender/CBlenderConnection.hpp"
 
+#if HECL_UCS2
+int wmain(int argc, const wchar_t** argv)
+#else
 int main(int argc, const char** argv)
+#endif
 {
     /* Xterm check */
     const char* term = getenv("TERM");
@@ -64,32 +70,32 @@ int main(int argc, const char** argv)
     }
     else if (argc == 0)
     {
-        printHelp("hecl");
+        printHelp(_S("hecl"));
         return 0;
     }
 
     /* Assemble common tool pass info */
-    SToolPassInfo info;
+    ToolPassInfo info;
     info.pname = argv[0];
-    char cwdbuf[MAXPATHLEN];
-    if (getcwd(cwdbuf, MAXPATHLEN))
+    HECL::SystemChar cwdbuf[MAXPATHLEN];
+    if (HECL::Getcwd(cwdbuf, MAXPATHLEN))
         info.cwd = cwdbuf;
 
     /* Concatenate args */
-    std::list<std::string> args;
+    std::list<HECL::SystemString> args;
     for (int i=2 ; i<argc ; ++i)
-        args.push_back(std::string(argv[i]));
+        args.push_back(HECL::SystemString(argv[i]));
 
     if (!args.empty())
     {
         /* Extract output argument */
-        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            const std::string& arg = *it;
-            std::smatch oMatch;
+            const HECL::SystemString& arg = *it;
+            HECL::SystemRegexMatch oMatch;
             if (std::regex_search(arg, oMatch, regOPEN))
             {
-                const std::string& token = oMatch[1].str();
+                const HECL::SystemString& token = oMatch[1].str();
                 if (token.size())
                 {
                     if (info.output.empty())
@@ -111,10 +117,10 @@ int main(int argc, const char** argv)
         }
 
         /* Count verbosity */
-        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            const std::string& arg = *it;
-            std::smatch vMatch;
+            const HECL::SystemString& arg = *it;
+            HECL::SystemRegexMatch vMatch;
             if (std::regex_search(arg, vMatch, regVERBOSE))
             {
                 ++info.verbosityLevel;
@@ -126,9 +132,9 @@ int main(int argc, const char** argv)
         }
 
         /* Check force argument */
-        for (std::list<std::string>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
         {
-            const std::string& arg = *it;
+            const HECL::SystemString& arg = *it;
             if (std::regex_search(arg, regFORCE))
             {
                 info.force = true;
@@ -139,46 +145,52 @@ int main(int argc, const char** argv)
         }
 
         /* Gather remaining args */
-        for (const std::string& arg : args)
+        for (const HECL::SystemString& arg : args)
             info.args.push_back(arg);
     }
 
     /* Construct selected tool */
-    std::string toolName(argv[1]);
+    HECL::SystemString toolName(argv[1]);
+#if HECL_UCS2
+    std::transform(toolName.begin(), toolName.end(), toolName.begin(), towlower);
+#else
     std::transform(toolName.begin(), toolName.end(), toolName.begin(), tolower);
-    CToolBase* tool = NULL;
+#endif
+    ToolBase* tool = NULL;
     try
     {
-        if (toolName == "init")
-            tool = new CToolInit(info);
-        else if (toolName == "platform")
-            tool = new CToolPlatform(info);
-        else if (toolName == "add")
-            tool = new CToolAdd(info);
-        else if (toolName == "remove" || toolName == "rm")
-            tool = new CToolRemove(info);
-        else if (toolName == "group")
-            tool = new CToolGroup(info);
-        else if (toolName == "cook")
-            tool = new CToolCook(info);
-        else if (toolName == "clean")
-            tool = new CToolClean(info);
-        else if (toolName == "package" || toolName == "pack")
-            tool = new CToolPackage(info);
-        else if (toolName == "help")
-            tool = new CToolHelp(info);
+        if (toolName == _S("init"))
+            tool = new ToolInit(info);
+        else if (toolName == _S("spec"))
+            tool = new ToolSpec(info);
+        else if (toolName == _S("add"))
+            tool = new ToolAdd(info);
+        else if (toolName == _S("remove") || toolName == _S("rm"))
+            tool = new ToolRemove(info);
+        else if (toolName == _S("group"))
+            tool = new ToolGroup(info);
+        else if (toolName == _S("cook"))
+            tool = new ToolCook(info);
+        else if (toolName == _S("clean"))
+            tool = new ToolClean(info);
+        else if (toolName == _S("package") || toolName == _S("pack"))
+            tool = new ToolPackage(info);
+        else if (toolName == _S("help"))
+            tool = new ToolHelp(info);
         else
-            throw std::invalid_argument("unrecognized tool '" + toolName + "'");
+            throw HECL::Exception(_S("unrecognized tool '") + toolName + _S("'"));
     }
-    catch (std::exception& ex)
+    catch (HECL::Exception& ex)
     {
-        fprintf(stderr, "Unable to construct HECL tool '%s':\n%s\n", toolName.c_str(), ex.what());
+        HECL::FPrintf(stderr,
+                      _S("Unable to construct HECL tool '%s':\n%s\n"),
+                      toolName.c_str(), ex.swhat());
         delete tool;
         return -1;
     }
 
     if (info.verbosityLevel)
-        printf("Constructed tool '%s' %d\n", tool->toolName().c_str(), info.verbosityLevel);
+        HECL::Printf(_S("Constructed tool '%s' %d\n"), tool->toolName().c_str(), info.verbosityLevel);
 
     /* Run tool */
     int retval;
@@ -186,9 +198,9 @@ int main(int argc, const char** argv)
     {
         retval = tool->run();
     }
-    catch (std::exception& ex)
+    catch (HECL::Exception& ex)
     {
-        fprintf(stderr, "Error running HECL tool '%s':\n%s\n", toolName.c_str(), ex.what());
+        HECL::FPrintf(stderr, _S("Error running HECL tool '%s':\n%s\n"), toolName.c_str(), ex.swhat());
         delete tool;
         return -1;
     }

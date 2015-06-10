@@ -1,12 +1,12 @@
-#ifndef HMDL_HPP
-#define HMDL_HPP
+#ifndef DUMB_HPP
+#define DUMB_HPP
 
 #include "HECLDatabase.hpp"
 #include "HECLRuntime.hpp"
 
-class CHMDLProject : public HECLDatabase::ProjectObjectBase
+class CDUMBProject : public HECL::Database::ObjectBase
 {
-    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+    using HECL::Database::ObjectBase::ObjectBase;
 
     bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
@@ -18,11 +18,12 @@ class CHMDLProject : public HECLDatabase::ProjectObjectBase
     {
 
     }
+
 };
 
-class CHMDLRuntime : public HECLRuntime::RuntimeObjectBase
+class CDUMBRuntime : public HECL::Runtime::ObjectBase
 {
-    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
+    using HECL::Runtime::ObjectBase::ObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {
@@ -33,6 +34,7 @@ class CHMDLRuntime : public HECLRuntime::RuntimeObjectBase
     {
 
     }
+
 };
 
-#endif // HMDL_HPP
+#endif // DUMB_HPP

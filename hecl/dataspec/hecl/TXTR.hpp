@@ -5,9 +5,9 @@
 #include "HECLRuntime.hpp"
 #include "helpers.hpp"
 
-class CTXTRProject : public HECLDatabase::ProjectObjectBase
+class CTXTRProject : public HECL::Database::ObjectBase
 {
-    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+    using HECL::Database::ObjectBase::ObjectBase;
 
     bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
@@ -31,9 +31,9 @@ public:
     }
 };
 
-class CTXTRRuntime : public HECLRuntime::RuntimeObjectBase
+class CTXTRRuntime : public HECL::Runtime::ObjectBase
 {
-    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
+    using HECL::Runtime::ObjectBase::ObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {

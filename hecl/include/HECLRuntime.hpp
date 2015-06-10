@@ -7,14 +7,15 @@
 
 #include "HECL.hpp"
 
-
-namespace HECLRuntime
+namespace HECL
+{
+namespace Runtime
 {
 
-class RuntimeEntity
+class Entity
 {
 public:
-    enum ERuntimeEntityType
+    enum Type
     {
         ENTITY_NONE,
         ENTITY_OBJECT,
@@ -22,13 +23,13 @@ public:
     };
 
 private:
-    ERuntimeEntityType m_type;
+    Type m_type;
     const std::string& m_path;
     bool m_loaded = false;
 
-    friend class RuntimeGroup;
-    friend class RuntimeObjectBase;
-    RuntimeEntity(ERuntimeEntityType type, const std::string& path)
+    friend class Group;
+    friend class ObjectBase;
+    Entity(Type type, const std::string& path)
     : m_type(type), m_path(path) {}
 
 public:
@@ -36,7 +37,7 @@ public:
      * @brief Get type of runtime object
      * @return Type enum
      */
-    inline ERuntimeEntityType getType() const {return m_type;}
+    inline Type getType() const {return m_type;}
 
     /**
      * @brief Get database entity path
@@ -64,15 +65,15 @@ public:
  *
  * DO NOT CONSTRUCT THIS DIRECTLY!!
  */
-class RuntimeGroup : public RuntimeEntity
+class Group : public Entity
 {
 public:
     typedef std::vector<std::weak_ptr<const class RuntimeObjectBase>> GroupObjectsVector;
 private:
     friend class HECLRuntime;
     GroupObjectsVector m_objects;
-    RuntimeGroup(const std::string& path)
-    : RuntimeEntity(ENTITY_GROUP, path) {}
+    Group(const std::string& path)
+    : Entity(ENTITY_GROUP, path) {}
 public:
     inline const GroupObjectsVector& getObjects() const {return m_objects;}
 };
@@ -86,9 +87,9 @@ public:
  *
  * DO NOT CONSTRUCT THIS OR SUBCLASSES DIRECTLY!!
  */
-class RuntimeObjectBase : public RuntimeEntity
+class ObjectBase : public Entity
 {
-    std::shared_ptr<const RuntimeGroup> m_parent;
+    std::shared_ptr<const Group> m_parent;
 protected:
 
     /**
@@ -106,14 +107,14 @@ protected:
     virtual void _objectWillUnload() {}
 
 public:
-    RuntimeObjectBase(const RuntimeGroup* group, const std::string& path)
-    : RuntimeEntity(ENTITY_OBJECT, path), m_parent(group) {}
+    ObjectBase(const Group* group, const std::string& path)
+    : Entity(ENTITY_OBJECT, path), m_parent(group) {}
 
     /**
      * @brief Get parent group of object
      * @return Borrowed pointer of parent RuntimeGroup
      */
-    inline const RuntimeGroup* getParentGroup() {return m_parent.get();}
+    inline const Group* getParentGroup() {return m_parent.get();}
 };
 
 /**
@@ -124,15 +125,15 @@ public:
  * implementation automatically constructs RuntimeObjectBase and
  * RuntimeGroup instances as needed.
  */
-class HECLRuntime
+class Runtime
 {
 public:
     /**
      * @brief Constructs the HECL runtime root
      * @param hlpkDirectory directory to search for .hlpk files
      */
-    HECLRuntime(const HECL::SystemString& hlpkDirectory);
-    ~HECLRuntime();
+    Runtime(const SystemString& hlpkDirectory);
+    ~Runtime();
 
     /**
      * @brief Structure indicating the load status of an object group
@@ -152,7 +153,7 @@ public:
      * This method blocks until the entire containing-group is loaded.
      * Paths to groups or individual objects are accepted.
      */
-    std::shared_ptr<RuntimeEntity> loadSync(const HECL::Hash& pathHash);
+    std::shared_ptr<Entity> loadSync(const Hash& pathHash);
 
     /**
      * @brief Begin an asynchronous group-load transaction
@@ -163,11 +164,12 @@ public:
      * This method returns once all group entity stubs are constructed.
      * Paths to groups or individual objects are accepted.
      */
-    std::shared_ptr<RuntimeEntity> loadAsync(const HECL::Hash& pathHash,
-                                             SGroupLoadStatus* statusOut=NULL);
+    std::shared_ptr<Entity> loadAsync(const Hash& pathHash,
+                                      SGroupLoadStatus* statusOut=NULL);
 
 };
 
+}
 }
 
 #endif // HECLRUNTIME_HPP

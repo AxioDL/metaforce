@@ -10,6 +10,7 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <dirent.h>
 #endif
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <functional>
 #include <stdexcept>
@@ -20,27 +21,31 @@ char* win_realpath(const char* name, char* restrict resolved);
 namespace HECL
 {
 
+#if _WIN32 && UNICODE
+#define HECL_UCS2 1
+#endif
+
 std::string WideToUTF8(const std::wstring& src);
 std::wstring UTF8ToWide(const std::string& src);
 
-#if _WIN32 && UNICODE
+#if HECL_UCS2
 typedef wchar_t SystemChar;
 typedef std::wstring SystemString;
-class CSystemUTF8View
+class SystemUTF8View
 {
     std::string m_utf8;
 public:
-    CSystemUTF8View(const SystemString& str)
+    SystemUTF8View(const SystemString& str)
     : m_utf8(WideToUTF8(str)) {}
     inline const std::string& utf8_str() {return m_utf8;}
 };
-class CSystemStringView
+class SystemStringView
 {
     std::wstring m_sys;
 public:
-    CSystemStringView(const std::string& str)
+    SystemStringView(const std::string& str)
     : m_sys(UTF8ToWide(str)) {}
-    inline const std::string& sys_str() {return m_sys;}
+    inline const std::wstring& sys_str() {return m_sys;}
 };
 #ifndef _S
 #define _S(val) L ## val
@@ -48,19 +53,19 @@ public:
 #else
 typedef char SystemChar;
 typedef std::string SystemString;
-class CSystemUTF8View
+class SystemUTF8View
 {
     const std::string& m_utf8;
 public:
-    CSystemUTF8View(const SystemString& str)
+    SystemUTF8View(const SystemString& str)
     : m_utf8(str) {}
     inline const std::string& utf8_str() {return m_utf8;}
 };
-class CSystemStringView
+class SystemStringView
 {
     const std::string& m_sys;
 public:
-    CSystemStringView(const std::string& str)
+    SystemStringView(const std::string& str)
     : m_sys(str) {}
     inline const std::string& sys_str() {return m_sys;}
 };
@@ -68,6 +73,31 @@ public:
 #define _S(val) val
 #endif
 #endif
+
+class Exception : public std::exception
+{
+    SystemString m_what;
+#if HECL_UCS2
+    std::string m_utf8what;
+#endif
+public:
+    Exception(const SystemString& what) noexcept
+    : m_what(what)
+    {
+#if HECL_UCS2
+        m_utf8what = WideToUTF8(what);
+#endif
+    }
+    const char* what() const noexcept
+    {
+#if HECL_UCS2
+        return m_utf8what.c_str();
+#else
+        return m_what.c_str();
+#endif
+    }
+    inline const SystemChar* swhat() const noexcept {return m_what.c_str();}
+};
 
 static inline void MakeDir(const SystemString& dir)
 {
@@ -83,9 +113,18 @@ static inline void MakeDir(const SystemString& dir)
 #endif
 }
 
+static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
+{
+#if HECL_UCS2
+    return wgetcwd(buf, maxlen);
+#else
+    return getcwd(buf, maxlen);
+#endif
+}
+
 static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode)
 {
-#if _WIN32 && UNICODE
+#if HECL_UCS2
     FILE* fp = wfopen(path, mode);
 #else
     FILE* fp = fopen(path, mode);
@@ -94,6 +133,39 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode)
         throw std::error_code(errno, std::system_category());
 
     return fp;
+}
+
+static inline int Stat(const SystemChar* path, struct stat* statOut)
+{
+#if HECL_UCS2
+    return wstat(path, statOut);
+#else
+    return stat(path, statOut);
+#endif
+}
+
+static inline void Printf(const SystemChar* format, ...)
+{
+    va_list va;
+    va_start(va, format);
+#if HECL_UCS2
+    vwprintf(format, va);
+#else
+    vprintf(format, va);
+#endif
+    va_end(va);
+}
+
+static inline void FPrintf(FILE* fp, const SystemChar* format, ...)
+{
+    va_list va;
+    va_start(va, format);
+#if HECL_UCS2
+    vfwprintf(fp, format, va);
+#else
+    vfprintf(fp, format, va);
+#endif
+    va_end(va);
 }
 
 typedef std::basic_regex<SystemChar> SystemRegex;
@@ -115,7 +187,7 @@ enum LogType
 /**
  * @brief Logger callback type
  */
-typedef std::function<void(LogType, std::string&)> TLogger;
+typedef std::function<void(LogType, std::string&)> FLogger;
 
 /**
  * @brief FourCC representation used within HECL's database
@@ -183,6 +255,10 @@ class ProjectPath
 protected:
     SystemString m_absPath;
     const SystemChar* m_relPath = NULL;
+#if HECL_UCS2
+    std::string m_utf8AbsPath;
+    const char* m_utf8RelPath;
+#endif
     ProjectPath() {}
     bool _canonAbsPath(const SystemString& path);
 public:
@@ -197,23 +273,45 @@ public:
      * @brief Determine if ProjectPath represents project root directory
      * @return true if project root directory
      */
-    inline bool isRoot() {return (m_relPath == NULL);}
+    inline bool isRoot() const {return (m_relPath == NULL);}
 
     /**
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
-    inline const SystemString& getAbsolutePath() {return m_absPath;}
+    inline const SystemString& getAbsolutePath() const {return m_absPath;}
 
     /**
      * @brief Access fully-canonicalized project-relative path
      * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
      */
-    inline const SystemChar* getRelativePath()
+    inline const SystemChar* getRelativePath() const
     {
         if (m_relPath)
             return m_relPath;
         return _S(".");
+    }
+
+    /**
+     * @brief Access fully-canonicalized absolute path in UTF-8
+     * @return Absolute path reference
+     */
+    inline const std::string& getAbsolutePathUTF8() const
+    {
+#if HECL_UCS2
+        return m_utf8AbsPath;
+#else
+        return m_absPath;
+#endif
+    }
+
+    inline const char* getRelativePathUTF8() const
+    {
+#if HECL_UCS2
+        return m_utf8RelPath;
+#else
+        return m_relPath;
+#endif
     }
 
     /**
@@ -231,13 +329,13 @@ public:
      * @brief Get type of path based on syntax and filesystem queries
      * @return Type of path
      */
-    PathType getPathType();
+    PathType getPathType() const;
 
     /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
      */
-    void getGlobResults(std::vector<SystemString>& outPaths);
+    void getGlobResults(std::vector<SystemString>& outPaths) const;
 };
 
 /**

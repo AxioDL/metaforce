@@ -1,11 +1,12 @@
-#ifndef DUMB_HPP
-#define DUMB_HPP
+#ifndef STRG_HPP
+#define STRG_HPP
 
+#include "HECLDatabase.hpp"
 #include "HECLRuntime.hpp"
 
-class CDUMBProject : public HECLDatabase::ProjectObjectBase
+class CSTRGProject : public HECL::Database::ObjectBase
 {
-    using HECLDatabase::ProjectObjectBase::ProjectObjectBase;
+    using HECL::Database::ObjectBase::ObjectBase;
 
     bool _cookObject(FDataAppender dataAppender,
                      DataEndianness endianness, DataPlatform platform)
@@ -17,12 +18,11 @@ class CDUMBProject : public HECLDatabase::ProjectObjectBase
     {
 
     }
-
 };
 
-class CDUMBRuntime : public HECLRuntime::RuntimeObjectBase
+class CSTRGRuntime : public HECL::Runtime::ObjectBase
 {
-    using HECLRuntime::RuntimeObjectBase::RuntimeObjectBase;
+    using HECL::Runtime::ObjectBase::ObjectBase;
 
     bool _objectFinishedLoading(const void* data, size_t len)
     {
@@ -33,7 +33,6 @@ class CDUMBRuntime : public HECLRuntime::RuntimeObjectBase
     {
 
     }
-
 };
 
-#endif // DUMB_HPP
+#endif // STRG_HPP

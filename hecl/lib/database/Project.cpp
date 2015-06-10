@@ -6,7 +6,9 @@
 
 #include "HECLDatabase.hpp"
 
-namespace HECLDatabase
+namespace HECL
+{
+namespace Database
 {
 
 /**********************************************
@@ -31,10 +33,10 @@ static inline bool CheckNewLineAdvance(std::string::const_iterator& it)
     return false;
 }
 
-Project::ConfigFile::ConfigFile(const Project& project, const HECL::SystemString& name)
+Project::ConfigFile::ConfigFile(const Project& project, const SystemString& name)
 : m_project(project), m_name(name)
 {
-    m_filepath = project.m_rootPath + _S("/.hecl/config/") + name;
+    m_filepath = project.m_rootPath.getAbsolutePath() + _S("/.hecl/config/") + name;
 }
 
 std::vector<std::string> Project::ConfigFile::readLines()
@@ -118,38 +120,39 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
  * Project
  **********************************************/
 
-Project::Project(const std::string& rootPath)
+Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath)
 {
     /* Stat for existing project directory (must already exist) */
     struct stat myStat;
-    if (stat(m_rootPath.c_str(), &myStat))
+    if (HECL::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
         throw std::error_code(errno, std::system_category());
 
     if (!S_ISDIR(myStat.st_mode))
-        throw std::invalid_argument("provided path must be a directory; '" + m_rootPath + "' isn't");
+        throw std::invalid_argument("provided path must be a directory; '" +
+                                    m_rootPath.getAbsolutePathUTF8() + "' isn't");
 
     /* Create project directory structure */
-    HECL::MakeDir(m_rootPath + "/.hecl");
-    HECL::MakeDir(m_rootPath + "/.hecl/cooked");
-    HECL::MakeDir(m_rootPath + "/.hecl/config");
+    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl"));
+    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/cooked"));
+    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/config"));
 
     /* Create or open databases */
 }
 
-void Project::registerLogger(HECL::TLogger logger)
+void Project::registerLogger(FLogger logger)
 {
 }
 
-const HECL::ProjectRootPath& Project::getProjectRootPath(bool absolute) const
+const ProjectRootPath& Project::getProjectRootPath(bool absolute) const
 {
 }
 
-bool Project::addPaths(const std::vector<HECL::ProjectPath>& paths)
+bool Project::addPaths(const std::vector<ProjectPath>& paths)
 {
 }
 
-bool Project::removePaths(const std::vector<HECL::ProjectPath>& paths, bool recursive)
+bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
 {
 }
 
@@ -157,7 +160,7 @@ bool Project::addGroup(const HECL::ProjectPath& path)
 {
 }
 
-bool Project::removeGroup(const HECL::ProjectPath& path)
+bool Project::removeGroup(const ProjectPath& path)
 {
 }
 
@@ -173,7 +176,7 @@ bool Project::disableDataSpecs(const std::vector<std::string>& specs)
 {
 }
 
-bool Project::cookPath(const std::string& path,
+bool Project::cookPath(const ProjectPath& path,
                        std::function<void(std::string&, Cost, unsigned)> feedbackCb,
                        bool recursive)
 {
@@ -183,12 +186,13 @@ void Project::interruptCook()
 {
 }
 
-bool Project::cleanPath(const std::string& path, bool recursive)
+bool Project::cleanPath(const ProjectPath& path, bool recursive)
 {
 }
 
-Project::PackageDepsgraph Project::buildPackageDepsgraph(const HECL::ProjectPath& path)
+Project::PackageDepsgraph Project::buildPackageDepsgraph(const ProjectPath& path)
 {
 }
 
+}
 }
