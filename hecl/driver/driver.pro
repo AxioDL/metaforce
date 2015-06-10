@@ -17,9 +17,6 @@ LIBPATH += $$OUT_PWD/../lib \
 
 LIBS += -lhecl -lhecl-dataspec -lhecl-blender -lblowfish -lpng
 
-# Yay!! Athena IO
-include(../extern/Athena/AthenaCore.pri)
-
 SOURCES += \
     $$PWD/main.cpp
 

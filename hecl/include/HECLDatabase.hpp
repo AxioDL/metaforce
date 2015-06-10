@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <atomic>
 #include <stdexcept>
@@ -112,17 +113,61 @@ class Project
 public:
     Project(const HECL::ProjectRootPath& rootPath);
 
+    /**
+     * @brief Configuration file handle
+     *
+     * Holds a path to a line-delimited textual configuration file;
+     * opening a locked handle for read/write transactions
+     */
     class ConfigFile
     {
-        const Project& m_project;
-        const SystemString& m_name;
         SystemString m_filepath;
+        std::vector<std::string> m_lines;
+        FILE* m_lockedFile = NULL;
     public:
         ConfigFile(const Project& project, const SystemString& name);
-        std::vector<std::string> readLines();
+        const std::vector<std::string>& lockAndRead();
         void addLine(const std::string& line);
         void removeLine(const std::string& refLine);
         bool checkForLine(const std::string& refLine);
+        void unlockAndDiscard();
+        void unlockAndCommit();
+    };
+
+    /**
+     * @brief Index file handle
+     *
+     * Holds a path to a binary index file;
+     * opening a locked handle for read/write transactions
+     */
+    class IndexFile
+    {
+        SystemString m_filepath;
+        const Project& m_project;
+        size_t m_maxPathLen = 0;
+        FILE* m_lockedFile = NULL;
+    public:
+        class Entry
+        {
+            friend class IndexFile;
+            ProjectPath m_path;
+            HECL::Time m_lastModtime;
+            bool m_removed = false;
+            Entry(const ProjectPath& path, const HECL::Time& lastModtime)
+            : m_path(path), m_lastModtime(lastModtime) {}
+            Entry(const ProjectPath& path);
+        };
+    private:
+        std::vector<Entry> m_entryStore;
+        std::unordered_map<ProjectPath, Entry*> m_entryLookup;
+    public:
+        IndexFile(const Project& project);
+        const std::vector<Entry>& lockAndRead();
+        const std::vector<ProjectPath*> getChangedPaths();
+        void addOrUpdatePath(const ProjectPath& path);
+        void removePath(const ProjectPath& path);
+        void unlockAndDiscard();
+        void unlockAndCommit();
     };
 
     /**
@@ -154,7 +199,7 @@ public:
      *
      * If this method is never called, all project operations will run silently.
      */
-    virtual void registerLogger(HECL::FLogger logger);
+    void registerLogger(HECL::FLogger logger);
 
     /**
      * @brief Get the path of the project's root-directory
@@ -163,7 +208,7 @@ public:
      *
      * Self explanatory
      */
-    virtual const ProjectRootPath& getProjectRootPath(bool absolute=false) const;
+    inline const ProjectRootPath& getProjectRootPath() const {return m_rootPath;}
 
     /**
      * @brief Add given file(s) to the database
@@ -172,7 +217,7 @@ public:
      *
      * This method blocks while object hashing takes place
      */
-    virtual bool addPaths(const std::vector<ProjectPath>& paths);
+    bool addPaths(const std::vector<ProjectPath>& paths);
 
     /**
      * @brief Remove a given file or file-pattern from the database
@@ -183,7 +228,7 @@ public:
      * This method will not delete actual working files from the project
      * directory. It will delete associated cooked objects though.
      */
-    virtual bool removePaths(const std::vector<ProjectPath>& paths, bool recursive=false);
+    bool removePaths(const std::vector<ProjectPath>& paths, bool recursive=false);
 
     /**
      * @brief Register a working sub-directory as a Dependency Group
@@ -199,34 +244,34 @@ public:
      * This contiguous storage makes for optimal loading from slow block-devices
      * like optical drives.
      */
-    virtual bool addGroup(const ProjectPath& path);
+    bool addGroup(const ProjectPath& path);
 
     /**
      * @brief Unregister a working sub-directory as a dependency group
      * @param path directory to unregister as Dependency Group
      * @return true on success
      */
-    virtual bool removeGroup(const ProjectPath& path);
+    bool removeGroup(const ProjectPath& path);
 
     /**
      * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    virtual const std::map<const std::string, const bool>& listDataSpecs();
+    const std::map<const std::string, const bool>& listDataSpecs();
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
      * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    virtual bool enableDataSpecs(const std::vector<std::string>& specs);
+    bool enableDataSpecs(const std::vector<std::string>& specs);
 
     /**
      * @brief Disable persistent user preference for particular spec string(s)
      * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    virtual bool disableDataSpecs(const std::vector<std::string>& specs);
+    bool disableDataSpecs(const std::vector<std::string>& specs);
 
     /**
      * @brief Begin cook process for specified directory
@@ -239,9 +284,9 @@ public:
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    virtual bool cookPath(const ProjectPath& path,
-                          std::function<void(std::string&, Cost, unsigned)> feedbackCb,
-                          bool recursive=false);
+    bool cookPath(const ProjectPath& path,
+                  std::function<void(std::string&, Cost, unsigned)> feedbackCb,
+                  bool recursive=false);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)
@@ -253,7 +298,7 @@ public:
      * Note that this method returns immediately; the resumed cookPath()
      * call will return as quickly as possible.
      */
-    virtual void interruptCook();
+    void interruptCook();
 
     /**
      * @brief Delete cooked objects for directory
@@ -264,7 +309,7 @@ public:
      * Developers understand how useful 'clean' is. While ideally not required,
      * it's useful for verifying that a rebuild from ground-up is doable.
      */
-    virtual bool cleanPath(const ProjectPath& path, bool recursive=false);
+    bool cleanPath(const ProjectPath& path, bool recursive=false);
 
     /**
      * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -296,7 +341,7 @@ public:
      * @param path Subpath of project to root depsgraph at
      * @return Populated depsgraph ready to traverse
      */
-    virtual PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
+    PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
 
 };
 

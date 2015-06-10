@@ -53,6 +53,9 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
     if (m_relPath[0] == _S('\0'))
         m_relPath = NULL;
 
+    std::hash<std::string> hash_fn;
+    m_hash = hash_fn(std::string(m_relPath));
+
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
@@ -74,6 +77,11 @@ ProjectPath::PathType ProjectPath::getPathType() const
         return PT_FILE;
     return PT_NONE;
 #endif
+}
+
+Time ProjectPath::getModtime() const
+{
+
 }
 
 static void _recursiveGlob(std::vector<SystemString>& outPaths,

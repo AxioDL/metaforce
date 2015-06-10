@@ -8,8 +8,10 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <fcntl.h>
 #endif
 
+#include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <functional>
@@ -122,7 +124,13 @@ static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 #endif
 }
 
-static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode)
+enum FileLockType
+{
+    LNONE = 0,
+    LREAD,
+    LWRITE
+};
+static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock=LNONE)
 {
 #if HECL_UCS2
     FILE* fp = wfopen(path, mode);
@@ -131,6 +139,22 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode)
 #endif
     if (!fp)
         throw std::error_code(errno, std::system_category());
+
+    if (lock)
+    {
+#if _WIN32
+        HANDLE fhandle = (HANDLE)fileno(fp);
+        OVERLAPPED ov = {};
+        LockFileEx(fhandle, (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
+#else
+        struct flock lk =
+        {
+            (short)((lock == LREAD) ? F_RDLCK : F_WRLCK),
+            SEEK_SET, 0, 0, 0
+        };
+        fcntl(fileno(fp), F_SETLK, &lk);
+#endif
+    }
 
     return fp;
 }
@@ -196,7 +220,7 @@ typedef std::function<void(LogType, std::string&)> FLogger;
  * while fitting comfortably in a 32-bit word. HECL uses a four-char array
  * to remain endian-independent.
  */
-class FourCC
+class FourCC final
 {
     union
     {
@@ -210,6 +234,8 @@ public:
     : num(*(uint32_t*)name) {}
     inline bool operator==(FourCC& other) {return num == other.num;}
     inline bool operator!=(FourCC& other) {return num != other.num;}
+    inline bool operator==(const char* other) {return num == *(uint32_t*)other;}
+    inline bool operator!=(const char* other) {return num != *(uint32_t*)other;}
     inline std::string toString() {return std::string(fcc, 4);}
 };
 
@@ -219,7 +245,7 @@ public:
  * Hashes are used within HECL to avoid redundant storage of objects;
  * providing a rapid mechanism to compare for equality.
  */
-class Hash
+class Hash final
 {
     int64_t hash;
 public:
@@ -229,12 +255,34 @@ public:
     : hash(Blowfish_hash(str.data(), str.size())) {}
     Hash(int64_t hashin)
     : hash(hashin) {}
-    inline bool operator==(Hash& other) {return hash == other.hash;}
-    inline bool operator!=(Hash& other) {return hash != other.hash;}
-    inline bool operator<(Hash& other) {return hash < other.hash;}
-    inline bool operator>(Hash& other) {return hash > other.hash;}
-    inline bool operator<=(Hash& other) {return hash <= other.hash;}
-    inline bool operator>=(Hash& other) {return hash >= other.hash;}
+    Hash(const Hash& other) {hash = other.hash;}
+    inline Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
+    inline bool operator==(const Hash& other) const {return hash == other.hash;}
+    inline bool operator!=(const Hash& other) const {return hash != other.hash;}
+    inline bool operator<(const Hash& other) const {return hash < other.hash;}
+    inline bool operator>(const Hash& other) const {return hash > other.hash;}
+    inline bool operator<=(const Hash& other) const {return hash <= other.hash;}
+    inline bool operator>=(const Hash& other) const {return hash >= other.hash;}
+};
+
+/**
+ * @brief Timestamp representation used for comparing modtimes of cooked resources
+ */
+class Time final
+{
+    uint64_t ts;
+public:
+    Time() : ts(time(NULL)) {}
+    Time(uint64_t ti) : ts(ti) {}
+    Time(const Time& other) {ts = other.ts;}
+    inline uint64_t getTs() const {return ts;}
+    inline Time& operator=(const Time& other) {ts = other.ts; return *this;}
+    inline bool operator==(const Time& other) const {return ts == other.ts;}
+    inline bool operator!=(const Time& other) const {return ts != other.ts;}
+    inline bool operator<(const Time& other) const {return ts < other.ts;}
+    inline bool operator>(const Time& other) const {return ts > other.ts;}
+    inline bool operator<=(const Time& other) const {return ts <= other.ts;}
+    inline bool operator>=(const Time& other) const {return ts >= other.ts;}
 };
 
 /**
@@ -255,6 +303,7 @@ class ProjectPath
 protected:
     SystemString m_absPath;
     const SystemChar* m_relPath = NULL;
+    size_t m_hash = 0;
 #if HECL_UCS2
     std::string m_utf8AbsPath;
     const char* m_utf8RelPath;
@@ -332,10 +381,29 @@ public:
     PathType getPathType() const;
 
     /**
+     * @brief Get time of last modification with special behaviors for directories and glob-paths
+     * @return Time object representing entity's time of last modification
+     *
+     * Regular files simply return their modtime as queried from the OS
+     * Directories return the latest modtime of all first-level regular files
+     * Glob-paths return the latest modtime of all matched regular files
+     */
+    Time getModtime() const;
+
+    /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
      */
     void getGlobResults(std::vector<SystemString>& outPaths) const;
+
+    /**
+     * @brief C++11 compatible runtime hash (NOT USED IN PACKAGES!!)
+     * @return System-specific hash value
+     */
+    inline size_t hash() const {return m_hash;}
+    inline bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
+    inline bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
+
 };
 
 /**
@@ -432,6 +500,15 @@ static inline int64_t ToBig(int64_t val) {return val;}
 static inline uint64_t ToBig(uint64_t val) {return val;}
 #endif
 
+}
+
+namespace std
+{
+template <> struct hash<HECL::ProjectPath>
+{
+    size_t operator()(const HECL::ProjectPath& val) const noexcept
+    {return val.hash();}
+};
 }
 
 #endif // HECL_HPP

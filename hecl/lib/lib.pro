@@ -15,6 +15,7 @@ include (frontend/frontend.pri)
 include (backend/backend.pri)
 include (database/database.pri)
 include (runtime/runtime.pri)
+include(../extern/Athena/AthenaCore.pri)
 
 SOURCES += \
     HECL.cpp \
