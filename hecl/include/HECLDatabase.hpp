@@ -12,12 +12,76 @@
 #include <stdexcept>
 #include <stdint.h>
 
+#include <Athena/IStreamReader.hpp>
+
 #include "HECL.hpp"
 
 namespace HECL
 {
 namespace Database
 {
+
+/**
+ * @brief Nodegraph class for gathering dependency-resolved objects for packaging
+ */
+class PackageDepsgraph
+{
+public:
+    struct Node
+    {
+        enum
+        {
+            NODE_DATA,
+            NODE_GROUP
+        } type;
+        SystemString path;
+        class ObjectBase* projectObj;
+        Node* sub;
+        Node* next;
+    };
+private:
+    friend class Project;
+    std::vector<Node> m_nodes;
+public:
+    const Node* getRootNode() const {return &m_nodes[0];}
+};
+
+/**
+ * @brief Subclassed by dataspec entries to manage per-game aspects of the data pipeline
+ *
+ * The DataSpec class manages interfaces for unpackaging, cooking, and packaging
+ * of data for interacting with a specific system/game-engine.
+ */
+class IDataSpec
+{
+public:
+    struct ExtractPassInfo
+    {
+        SystemString srcpath;
+        ProjectPath subpath;
+    };
+    virtual bool canExtract(const ExtractPassInfo& info) {(void)info;return false;}
+    virtual void doExtract(const ExtractPassInfo& info) {(void)info;}
+
+    struct PackagePassInfo
+    {
+        PackageDepsgraph& depsgraph;
+        ProjectPath subpath;
+    };
+    virtual bool canPackage(const PackagePassInfo& info) {(void)info;return false;}
+    virtual void doPackage(const PackagePassInfo& info) {(void)info;}
+};
+
+/**
+ * @brief IDataSpec registry entry
+ */
+struct DataSpecEntry
+{
+    SystemString name;
+    SystemString desc;
+    std::function<IDataSpec*(void)> factory;
+};
+extern const HECL::Database::DataSpecEntry DATA_SPEC_REGISTRY[];
 
 /**
  * @brief Base object to subclass for integrating with key project operations
@@ -31,7 +95,7 @@ namespace Database
 class ObjectBase
 {
     friend class Project;
-    std::string m_path;
+    SystemString m_path;
 protected:
 
     /**
@@ -86,16 +150,10 @@ protected:
     {(void)depAdder;}
 
 public:
-    ObjectBase(const std::string& path)
+    ObjectBase(const SystemString& path)
     : m_path(path) {}
 
-    inline const std::string& getPath() const {return m_path;}
-
-    /**
-     * @brief Overridable function to verify data at provided path
-     * @return true if ProjectObject subclass handles data at provided path/subpath
-     */
-    static bool ClaimPath(const std::string& /*path*/, const std::string& /*subpath*/) {return false;}
+    inline const SystemString& getPath() const {return m_path;}
 
 };
 
@@ -109,7 +167,11 @@ public:
  */
 class Project
 {
+public:
+    typedef std::vector<std::pair<const DataSpecEntry&, bool>> CompiledSpecs;
+private:
     ProjectRootPath m_rootPath;
+    CompiledSpecs m_compiledSpecs;
 public:
     Project(const HECL::ProjectRootPath& rootPath);
 
@@ -133,6 +195,9 @@ public:
         void unlockAndDiscard();
         void unlockAndCommit();
     };
+    ConfigFile m_specs;
+    ConfigFile m_paths;
+    ConfigFile m_groups;
 
     /**
      * @brief Index file handle
@@ -145,6 +210,7 @@ public:
         SystemString m_filepath;
         const Project& m_project;
         size_t m_maxPathLen = 0;
+        size_t m_onlyUpdatedMaxPathLen = 0;
         FILE* m_lockedFile = NULL;
     public:
         class Entry
@@ -152,12 +218,13 @@ public:
             friend class IndexFile;
             ProjectPath m_path;
             HECL::Time m_lastModtime;
-            bool m_removed = false;
+            bool m_updated = false;
             Entry(const ProjectPath& path, const HECL::Time& lastModtime)
             : m_path(path), m_lastModtime(lastModtime) {}
             Entry(const ProjectPath& path);
         };
     private:
+        size_t m_updatedCount = 0;
         std::vector<Entry> m_entryStore;
         std::unordered_map<ProjectPath, Entry*> m_entryLookup;
     public:
@@ -165,10 +232,10 @@ public:
         const std::vector<Entry>& lockAndRead();
         const std::vector<ProjectPath*> getChangedPaths();
         void addOrUpdatePath(const ProjectPath& path);
-        void removePath(const ProjectPath& path);
         void unlockAndDiscard();
-        void unlockAndCommit();
+        void unlockAndCommit(bool onlyUpdated=false);
     };
+    IndexFile m_index;
 
     /**
      * @brief Internal packagePath() exception
@@ -257,21 +324,21 @@ public:
      * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    const std::map<const std::string, const bool>& listDataSpecs();
+    inline const CompiledSpecs& getDataSpecs() {return m_compiledSpecs;}
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
      * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    bool enableDataSpecs(const std::vector<std::string>& specs);
+    bool enableDataSpecs(const std::vector<SystemString>& specs);
 
     /**
      * @brief Disable persistent user preference for particular spec string(s)
      * @param specs String(s) representing unique spec(s) from listDataSpecs
      * @return true on success
      */
-    bool disableDataSpecs(const std::vector<std::string>& specs);
+    bool disableDataSpecs(const std::vector<SystemString>& specs);
 
     /**
      * @brief Begin cook process for specified directory
@@ -285,7 +352,7 @@ public:
      * feedback delivered via feedbackCb.
      */
     bool cookPath(const ProjectPath& path,
-                  std::function<void(std::string&, Cost, unsigned)> feedbackCb,
+                  std::function<void(SystemString&, Cost, unsigned)> feedbackCb,
                   bool recursive=false);
 
     /**
@@ -312,50 +379,12 @@ public:
     bool cleanPath(const ProjectPath& path, bool recursive=false);
 
     /**
-     * @brief Nodegraph class for gathering dependency-resolved objects for packaging
-     */
-    class PackageDepsgraph
-    {
-    public:
-        struct Node
-        {
-            enum
-            {
-                NODE_DATA,
-                NODE_GROUP
-            } type;
-            std::string path;
-            ObjectBase* projectObj;
-            Node* sub;
-            Node* next;
-        };
-    private:
-        friend class Project;
-        std::vector<Node> m_nodes;
-    public:
-        const Node* getRootNode() const {return &m_nodes[0];}
-    };
-
-    /**
      * @brief Constructs a full depsgraph of the project-subpath provided
      * @param path Subpath of project to root depsgraph at
      * @return Populated depsgraph ready to traverse
      */
     PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
 
-};
-
-
-/**
- * @brief Subclassed by dataspec entries to manage per-game aspects of the data pipeline
- *
- * The DataSpec class manages interfaces for unpackaging, cooking, and packaging
- * of data for interacting with a specific system/game-engine.
- */
-class IDataSpec
-{
-public:
-    virtual Project::PackageDepsgraph packageData();
 };
 
 }

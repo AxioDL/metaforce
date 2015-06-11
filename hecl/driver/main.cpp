@@ -149,34 +149,49 @@ int main(int argc, const char** argv)
             info.args.push_back(arg);
     }
 
+    /* Attempt to find hecl project */
+    HECL::ProjectRootPath* rootPath = HECL::SearchForProject(info.cwd);
+    std::unique_ptr<HECL::Database::Project> project;
+    if (rootPath)
+    {
+        try
+        {
+            project.reset(new HECL::Database::Project(*rootPath));
+            info.project = project.get();
+        }
+        catch (HECL::Exception& ex)
+        {
+            HECL::FPrintf(stderr,
+                          _S("Unable to open discovered project at '%s':\n%s\n"),
+                          rootPath->getAbsolutePath().c_str(), ex.swhat());
+            return -1;
+        }
+    }
+
     /* Construct selected tool */
     HECL::SystemString toolName(argv[1]);
-#if HECL_UCS2
-    std::transform(toolName.begin(), toolName.end(), toolName.begin(), towlower);
-#else
-    std::transform(toolName.begin(), toolName.end(), toolName.begin(), tolower);
-#endif
-    ToolBase* tool = NULL;
+    HECL::ToLower(toolName);
+    std::unique_ptr<ToolBase> tool;
     try
     {
         if (toolName == _S("init"))
-            tool = new ToolInit(info);
+            tool.reset(new ToolInit(info));
         else if (toolName == _S("spec"))
-            tool = new ToolSpec(info);
+            tool.reset(new ToolSpec(info));
         else if (toolName == _S("add"))
-            tool = new ToolAdd(info);
+            tool.reset(new ToolAdd(info));
         else if (toolName == _S("remove") || toolName == _S("rm"))
-            tool = new ToolRemove(info);
+            tool.reset(new ToolRemove(info));
         else if (toolName == _S("group"))
-            tool = new ToolGroup(info);
+            tool.reset(new ToolGroup(info));
         else if (toolName == _S("cook"))
-            tool = new ToolCook(info);
+            tool.reset(new ToolCook(info));
         else if (toolName == _S("clean"))
-            tool = new ToolClean(info);
+            tool.reset(new ToolClean(info));
         else if (toolName == _S("package") || toolName == _S("pack"))
-            tool = new ToolPackage(info);
+            tool.reset(new ToolPackage(info));
         else if (toolName == _S("help"))
-            tool = new ToolHelp(info);
+            tool.reset(new ToolHelp(info));
         else
             throw HECL::Exception(_S("unrecognized tool '") + toolName + _S("'"));
     }
@@ -185,7 +200,6 @@ int main(int argc, const char** argv)
         HECL::FPrintf(stderr,
                       _S("Unable to construct HECL tool '%s':\n%s\n"),
                       toolName.c_str(), ex.swhat());
-        delete tool;
         return -1;
     }
 
@@ -201,10 +215,8 @@ int main(int argc, const char** argv)
     catch (HECL::Exception& ex)
     {
         HECL::FPrintf(stderr, _S("Error running HECL tool '%s':\n%s\n"), toolName.c_str(), ex.swhat());
-        delete tool;
         return -1;
     }
 
-    delete tool;
     return retval;
 }

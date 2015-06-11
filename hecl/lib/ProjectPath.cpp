@@ -47,11 +47,10 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
         /* Copies of the project root are permitted */
         return;
     }
-    m_relPath = m_absPath.c_str() + ((ProjectPath&)rootPath).m_absPath.size();
-    if (m_relPath[0] == _S('/'))
-        ++m_relPath;
-    if (m_relPath[0] == _S('\0'))
-        m_relPath = NULL;
+    SystemString::iterator beginit = m_absPath.begin() + ((ProjectPath&)rootPath).m_absPath.size();
+    if (*beginit == _S('/'))
+        ++beginit;
+    m_relPath = SystemString(beginit, m_absPath.end());
 
     std::hash<std::string> hash_fn;
     m_hash = hash_fn(std::string(m_relPath));
@@ -81,7 +80,50 @@ ProjectPath::PathType ProjectPath::getPathType() const
 
 Time ProjectPath::getModtime() const
 {
-
+    struct stat theStat;
+    time_t latestTime = 0;
+    if (std::regex_search(m_absPath, regGLOB))
+    {
+        std::vector<SystemString> globReults;
+        getGlobResults(globReults);
+        for (SystemString& path : globReults)
+        {
+            if (!HECL::Stat(path.c_str(), &theStat))
+            {
+                if (S_ISREG(theStat.st_mode) && theStat.st_mtime > latestTime)
+                    latestTime = theStat.st_mtime;
+            }
+        }
+    }
+    if (!HECL::Stat(m_absPath.c_str(), &theStat))
+    {
+        if (S_ISREG(theStat.st_mode))
+        {
+            return Time(theStat.st_mtime);
+        }
+        else if (S_ISDIR(theStat.st_mode))
+        {
+#if _WIN32
+#else
+            DIR* dir = opendir(m_absPath.c_str());
+            dirent* de;
+            while ((de = readdir(dir)))
+            {
+                if (de->d_name[0] == '.')
+                    continue;
+                if (!HECL::Stat(de->d_name, &theStat))
+                {
+                    if (S_ISREG(theStat.st_mode) && theStat.st_mtime > latestTime)
+                        latestTime = theStat.st_mtime;
+                }
+            }
+            closedir(dir);
+#endif
+            return Time(latestTime);
+        }
+    }
+    throw HECL::Exception(_S("invalid path type"));
+    return Time();
 }
 
 static void _recursiveGlob(std::vector<SystemString>& outPaths,
@@ -153,6 +195,45 @@ void ProjectPath::getGlobResults(std::vector<SystemString>& outPaths) const
     SystemRegexMatch pathCompMatches;
     if (std::regex_search(m_absPath, pathCompMatches, regPATHCOMP))
         _recursiveGlob(outPaths, 1, pathCompMatches, itStr, false);
+}
+
+ProjectRootPath* SearchForProject(const SystemString& path)
+{
+    ProjectRootPath testRoot(path);
+    SystemString::const_iterator begin = testRoot.getAbsolutePath().begin();
+    SystemString::const_iterator end = testRoot.getAbsolutePath().end();
+    while (begin != end)
+    {
+        while (begin != end && *(end-1) != _S('/') && *(end-1) != _S('\\'))
+            --end;
+        if (begin == end)
+            break;
+
+        SystemString testPath(begin, end);
+        SystemString testIndexPath = testPath + _S("/.hecl/index");
+        struct stat theStat;
+        if (!HECL::Stat(testIndexPath.c_str(), &theStat))
+        {
+            if (S_ISREG(theStat.st_mode))
+            {
+                FILE* fp = HECL::Fopen(testIndexPath.c_str(), _S("rb"));
+                if (!fp)
+                    continue;
+                char magic[4];
+                size_t readSize = fread(magic, 1, 4, fp);
+                fclose(fp);
+                if (readSize != 4)
+                    continue;
+                static const HECL::FourCC hecl("HECL");
+                if (HECL::FourCC(magic) != hecl)
+                    continue;
+                return new ProjectRootPath(testPath);
+            }
+        }
+
+        --end;
+    }
+    return NULL;
 }
 
 }

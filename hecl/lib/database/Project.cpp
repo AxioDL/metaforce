@@ -176,6 +176,8 @@ const std::vector<Project::IndexFile::Entry>& Project::IndexFile::lockAndRead()
         return m_entryStore;
 
     m_lockedFile = HECL::Fopen(m_filepath.c_str(), _S("r+"), LWRITE);
+    m_maxPathLen = 0;
+    m_onlyUpdatedMaxPathLen = 0;
 
     SIndexHeader header;
     if (fread(&header, 1, sizeof(header), m_lockedFile) != sizeof(header))
@@ -208,6 +210,7 @@ const std::vector<Project::IndexFile::Entry>& Project::IndexFile::lockAndRead()
         }
     }
     delete[] pathBuf;
+    return m_entryStore;
 }
 
 const std::vector<ProjectPath*> Project::IndexFile::getChangedPaths()
@@ -217,12 +220,8 @@ const std::vector<ProjectPath*> Project::IndexFile::getChangedPaths()
 
     std::vector<ProjectPath*> retval;
     for (Project::IndexFile::Entry& ent : m_entryStore)
-    {
-        if (ent.m_removed)
-            continue;
         if (ent.m_lastModtime != ent.m_path.getModtime())
             retval.push_back(&ent.m_path);
-    }
     return retval;
 }
 
@@ -231,27 +230,20 @@ void Project::IndexFile::addOrUpdatePath(const ProjectPath& path)
     if (!m_lockedFile)
         throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
 
+    size_t pathLen = path.getRelativePath().size();
+    if (pathLen > m_onlyUpdatedMaxPathLen)
+        m_onlyUpdatedMaxPathLen = pathLen;
+
     std::unordered_map<ProjectPath, Entry*>::iterator it = m_entryLookup.find(path);
     if (it == m_entryLookup.end())
     {
         m_entryStore.push_back(Project::IndexFile::Entry(path, path.getModtime()));
         m_entryLookup[path] = &m_entryStore.back();
+        m_entryStore.back().m_updated = true;
         return;
     }
     (*it).second->m_lastModtime = path.getModtime();
-}
-
-void Project::IndexFile::removePath(const ProjectPath& path)
-{
-    if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
-
-    std::unordered_map<ProjectPath, Entry*>::iterator it = m_entryLookup.find(path);
-    if (it != m_entryLookup.end())
-    {
-        (*it).second->m_removed = true;
-        m_entryLookup.erase(it);
-    }
+    (*it).second->m_updated = true;
 }
 
 void Project::IndexFile::unlockAndDiscard()
@@ -265,7 +257,7 @@ void Project::IndexFile::unlockAndDiscard()
     m_lockedFile = NULL;
 }
 
-void Project::IndexFile::unlockAndCommit()
+void Project::IndexFile::unlockAndCommit(bool onlyUpdated)
 {
     if (!m_lockedFile)
         throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
@@ -279,20 +271,24 @@ void Project::IndexFile::unlockAndCommit()
 
     SIndexHeader header =
     {
-        HECL::FourCC("HECL"),
-        1, (uint32_t)m_entryStore.size(), (uint32_t)m_maxPathLen
+        HECL::FourCC("HECL"), 1,
+        (uint32_t)(onlyUpdated ? m_updatedCount : m_entryStore.size()),
+        (uint32_t)(onlyUpdated ? m_onlyUpdatedMaxPathLen : m_maxPathLen)
     };
     header.swapWithNative();
     fwrite(&header, 1, sizeof(header), m_lockedFile);
 
     for (Project::IndexFile::Entry& ent : m_entryStore)
     {
-        uint64_t mt = ToBig(ent.m_lastModtime.getTs());
-        fwrite(&mt, 1, 8, m_lockedFile);
-        size_t strLen = strlen(ent.m_path.getRelativePathUTF8());
-        uint32_t strLenb = ToBig(strLen);
-        fwrite(&strLenb, 1, 4, m_lockedFile);
-        fwrite(ent.m_path.getRelativePathUTF8(), 1, strLen, m_lockedFile);
+        if (!onlyUpdated || ent.m_updated)
+        {
+            uint64_t mt = ToBig(ent.m_lastModtime.getTs());
+            fwrite(&mt, 1, 8, m_lockedFile);
+            size_t strLen = ent.m_path.getRelativePathUTF8().size();
+            uint32_t strLenb = ToBig(strLen);
+            fwrite(&strLenb, 1, 4, m_lockedFile);
+            fwrite(ent.m_path.getRelativePathUTF8().c_str(), 1, strLen, m_lockedFile);
+        }
     }
 
     m_entryLookup.clear();
@@ -306,7 +302,11 @@ void Project::IndexFile::unlockAndCommit()
  **********************************************/
 
 Project::Project(const ProjectRootPath& rootPath)
-: m_rootPath(rootPath)
+: m_rootPath(rootPath),
+  m_specs(*this, _S("specs")),
+  m_paths(*this, _S("paths")),
+  m_groups(*this, _S("groups")),
+  m_index(*this)
 {
     /* Stat for existing project directory (must already exist) */
     struct stat myStat;
@@ -321,8 +321,6 @@ Project::Project(const ProjectRootPath& rootPath)
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl"));
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/cooked"));
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/config"));
-
-    /* Create or open databases */
 }
 
 void Project::registerLogger(FLogger logger)
@@ -342,10 +340,6 @@ bool Project::addGroup(const HECL::ProjectPath& path)
 }
 
 bool Project::removeGroup(const ProjectPath& path)
-{
-}
-
-const std::map<const std::string, const bool>& Project::listDataSpecs()
 {
 }
 
@@ -371,7 +365,7 @@ bool Project::cleanPath(const ProjectPath& path, bool recursive)
 {
 }
 
-Project::PackageDepsgraph Project::buildPackageDepsgraph(const ProjectPath& path)
+PackageDepsgraph Project::buildPackageDepsgraph(const ProjectPath& path)
 {
 }
 

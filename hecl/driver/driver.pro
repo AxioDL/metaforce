@@ -7,7 +7,7 @@ unix:LIBS += -std=c++11
 clang:QMAKE_CXXFLAGS += -stdlib=libc++
 clang:LIBS += -stdlib=libc++ -lc++abi
 
-INCLUDEPATH += ../include
+INCLUDEPATH += ../include ../extern/Athena/include
 
 LIBPATH += $$OUT_PWD/../lib \
     $$OUT_PWD/../dataspec \

@@ -17,6 +17,7 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 #include <regex>
 #include "../extern/blowfish/blowfish.h"
 
@@ -33,6 +34,10 @@ std::wstring UTF8ToWide(const std::string& src);
 #if HECL_UCS2
 typedef wchar_t SystemChar;
 typedef std::wstring SystemString;
+static inline void ToLower(SystemString& str)
+{std::transform(str.begin(), str.end(), str.begin(), towlower);}
+static inline void ToUpper(SystemString& str)
+{std::transform(str.begin(), str.end(), str.begin(), towupper);}
 class SystemUTF8View
 {
     std::string m_utf8;
@@ -55,6 +60,10 @@ public:
 #else
 typedef char SystemChar;
 typedef std::string SystemString;
+static inline void ToLower(SystemString& str)
+{std::transform(str.begin(), str.end(), str.begin(), tolower);}
+static inline void ToUpper(SystemString& str)
+{std::transform(str.begin(), str.end(), str.begin(), toupper);}
 class SystemUTF8View
 {
     const std::string& m_utf8;
@@ -232,11 +241,11 @@ public:
     : num(0) {}
     FourCC(const char* name)
     : num(*(uint32_t*)name) {}
-    inline bool operator==(FourCC& other) {return num == other.num;}
-    inline bool operator!=(FourCC& other) {return num != other.num;}
-    inline bool operator==(const char* other) {return num == *(uint32_t*)other;}
-    inline bool operator!=(const char* other) {return num != *(uint32_t*)other;}
-    inline std::string toString() {return std::string(fcc, 4);}
+    inline bool operator==(const FourCC& other) const {return num == other.num;}
+    inline bool operator!=(const FourCC& other) const {return num != other.num;}
+    inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
+    inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
+    inline std::string toString() const {return std::string(fcc, 4);}
 };
 
 /**
@@ -270,12 +279,12 @@ public:
  */
 class Time final
 {
-    uint64_t ts;
+    time_t ts;
 public:
     Time() : ts(time(NULL)) {}
-    Time(uint64_t ti) : ts(ti) {}
+    Time(time_t ti) : ts(ti) {}
     Time(const Time& other) {ts = other.ts;}
-    inline uint64_t getTs() const {return ts;}
+    inline time_t getTs() const {return ts;}
     inline Time& operator=(const Time& other) {ts = other.ts; return *this;}
     inline bool operator==(const Time& other) const {return ts == other.ts;}
     inline bool operator!=(const Time& other) const {return ts != other.ts;}
@@ -302,7 +311,7 @@ class ProjectPath
 {
 protected:
     SystemString m_absPath;
-    const SystemChar* m_relPath = NULL;
+    SystemString m_relPath;
     size_t m_hash = 0;
 #if HECL_UCS2
     std::string m_utf8AbsPath;
@@ -322,7 +331,7 @@ public:
      * @brief Determine if ProjectPath represents project root directory
      * @return true if project root directory
      */
-    inline bool isRoot() const {return (m_relPath == NULL);}
+    inline bool isRoot() const {return m_relPath.empty();}
 
     /**
      * @brief Access fully-canonicalized absolute path
@@ -334,11 +343,12 @@ public:
      * @brief Access fully-canonicalized project-relative path
      * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
      */
-    inline const SystemChar* getRelativePath() const
+    inline const SystemString& getRelativePath() const
     {
-        if (m_relPath)
+        if (m_relPath.size())
             return m_relPath;
-        return _S(".");
+        static const SystemString dot = _S(".");
+        return dot;
     }
 
     /**
@@ -354,7 +364,7 @@ public:
 #endif
     }
 
-    inline const char* getRelativePathUTF8() const
+    inline const std::string& getRelativePathUTF8() const
     {
 #if HECL_UCS2
         return m_utf8RelPath;
@@ -416,11 +426,15 @@ class ProjectRootPath : public ProjectPath
 {
 public:
     ProjectRootPath(const SystemString& path)
-    {
-        _canonAbsPath(path);
-    }
+    {_canonAbsPath(path);}
 };
 
+/**
+ * @brief Search from within provided directory for the project root
+ * @param path absolute or relative file path to search from
+ * @return Newly-constructed root path or NULL if not found
+ */
+ProjectRootPath* SearchForProject(const SystemString& path);
 
 
 /* Type-sensitive byte swappers */
