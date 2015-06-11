@@ -11,19 +11,48 @@ public:
     ToolInit(const ToolPassInfo& info)
     : ToolBase(info)
     {
+        struct stat theStat;
+        const HECL::SystemString* dir;
         if (info.args.size())
+            dir = &info.args[0];
+        else
+            dir = &info.cwd;
+
+        if (HECL::Stat(dir->c_str(), &theStat))
         {
-
+            throw HECL::Exception(_S("unable to stat '") + *dir + _S("'"));
+            return;
         }
-        m_dir = &info.args[0];
-    }
+        if (!S_ISDIR(theStat.st_mode))
+        {
+            throw HECL::Exception(_S("'") + *dir + _S("' is not a directory"));
+            return;
+        }
 
-    ~ToolInit()
-    {
+        HECL::SystemString testPath = *dir + _S("/.hecl/index");
+        if (!HECL::Stat(testPath.c_str(), &theStat))
+        {
+            throw HECL::Exception(_S("project already exists at '") + *dir + _S("'"));
+            return;
+        }
+
+        m_dir = dir;
     }
 
     int run()
     {
+        if (!m_dir)
+            return -1;
+        try
+        {
+            HECL::Database::Project(HECL::ProjectRootPath(*m_dir));
+        }
+        catch (HECL::Exception& e)
+        {
+            HECL::FPrintf(stderr, _S("unable to init project: '%s'\n"), e.swhat());
+            return -1;
+        }
+        HECL::Printf(_S("initialized project at '%s/.hecl'\n"), m_dir->c_str());
         return 0;
     }
 

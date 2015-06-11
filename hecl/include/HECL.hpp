@@ -7,6 +7,7 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <stdlib.h>
 #include <sys/param.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <dirent.h>
 #include <fcntl.h>
 #endif
@@ -156,12 +157,8 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
         OVERLAPPED ov = {};
         LockFileEx(fhandle, (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
-        struct flock lk =
-        {
-            (short)((lock == LREAD) ? F_RDLCK : F_WRLCK),
-            SEEK_SET, 0, 0, 0
-        };
-        fcntl(fileno(fp), F_SETLK, &lk);
+        if (flock(fileno(fp), ((lock == LWRITE) ? LOCK_EX : LOCK_SH) | LOCK_NB))
+            throw std::error_code(errno, std::system_category());
 #endif
     }
 

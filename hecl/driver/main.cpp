@@ -20,10 +20,12 @@
 
 bool XTERM_COLOR = false;
 
+/*
 #define HECL_GIT 1234567
 #define HECL_GIT_S "1234567"
 #define HECL_BRANCH master
 #define HECL_BRANCH_S "master"
+*/
 
 /* Main usage message */
 static void printHelp(const HECL::SystemChar* pname)

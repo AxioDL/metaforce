@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <map>
+#include <list>
 #include <unordered_map>
 #include <memory>
 #include <atomic>
@@ -172,6 +173,7 @@ public:
 private:
     ProjectRootPath m_rootPath;
     CompiledSpecs m_compiledSpecs;
+    FLogger m_logger;
 public:
     Project(const HECL::ProjectRootPath& rootPath);
 
@@ -184,16 +186,16 @@ public:
     class ConfigFile
     {
         SystemString m_filepath;
-        std::vector<std::string> m_lines;
+        std::list<std::string> m_lines;
         FILE* m_lockedFile = NULL;
     public:
         ConfigFile(const Project& project, const SystemString& name);
-        const std::vector<std::string>& lockAndRead();
+        std::list<std::string>& lockAndRead();
         void addLine(const std::string& line);
         void removeLine(const std::string& refLine);
         bool checkForLine(const std::string& refLine);
         void unlockAndDiscard();
-        void unlockAndCommit();
+        bool unlockAndCommit();
     };
     ConfigFile m_specs;
     ConfigFile m_paths;
@@ -233,7 +235,7 @@ public:
         const std::vector<ProjectPath*> getChangedPaths();
         void addOrUpdatePath(const ProjectPath& path);
         void unlockAndDiscard();
-        void unlockAndCommit(bool onlyUpdated=false);
+        bool unlockAndCommit(bool onlyUpdated=false);
     };
     IndexFile m_index;
 

@@ -12,10 +12,6 @@ public:
     {
     }
 
-    ~ToolAdd()
-    {
-    }
-
     static void Help(HelpOutput& help)
     {
         help.secHead(_S("NAME"));
