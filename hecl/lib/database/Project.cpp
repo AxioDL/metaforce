@@ -40,9 +40,10 @@ static inline bool CheckNewLineAdvance(std::string::const_iterator& it)
     return false;
 }
 
-Project::ConfigFile::ConfigFile(const Project& project, const SystemString& name)
+Project::ConfigFile::ConfigFile(const Project& project, const SystemString& name,
+                                const SystemString& subdir)
 {
-    m_filepath = project.m_rootPath.getAbsolutePath() + _S("/.hecl/config/") + name;
+    m_filepath = project.m_rootPath.getAbsolutePath() + subdir + name;
 }
 
 std::list<std::string>& Project::ConfigFile::lockAndRead()
@@ -184,7 +185,6 @@ Project::Project(const ProjectRootPath& rootPath)
     /* Create project directory structure */
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl"));
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/cooked"));
-    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/config"));
 
     /* Ensure beacon is valid or created */
     FILE* bf = HECL::Fopen((m_rootPath.getAbsolutePath() + _S("/.hecl/beacon")).c_str(), _S("a+b"));

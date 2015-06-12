@@ -45,7 +45,8 @@ public:
             return -1;
         try
         {
-            HECL::Database::Project(HECL::ProjectRootPath(*m_dir));
+            HECL::Database::Project proj((HECL::ProjectRootPath(*m_dir)));
+            proj.enableDataSpecs({_S("hecl-little")});
         }
         catch (HECL::Exception& e)
         {

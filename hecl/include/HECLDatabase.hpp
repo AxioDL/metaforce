@@ -8,6 +8,7 @@
 #include <map>
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <atomic>
 #include <stdexcept>
@@ -21,6 +22,7 @@ namespace HECL
 {
 namespace Database
 {
+class Project;
 
 /**
  * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -35,7 +37,8 @@ public:
             NODE_DATA,
             NODE_GROUP
         } type;
-        SystemString path;
+        ProjectPath path;
+        ProjectPath cookedPath;
         class ObjectBase* projectObj;
         Node* sub;
         Node* next;
@@ -56,21 +59,62 @@ public:
 class IDataSpec
 {
 public:
+    /**
+     * @brief Extract Pass Info
+     *
+     * An extract pass iterates through a source package or image and
+     * reverses the cooking process by emitting editable resources
+     */
     struct ExtractPassInfo
     {
         SystemString srcpath;
         ProjectPath subpath;
+        bool cookedonly;
     };
-    virtual bool canExtract(const ExtractPassInfo& info) {(void)info;return false;}
-    virtual void doExtract(const ExtractPassInfo& info) {(void)info;}
+    virtual bool canExtract(const Project& project, const ExtractPassInfo& info,
+                            SystemString& reasonNo)
+    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
+    virtual void doExtract(const Project& project, const ExtractPassInfo& info)
+    {(void)project;(void)info;}
 
+    /**
+     * @brief Cook Task Info
+     *
+     * A cook task takes a single tracked path and generates the
+     * corresponding cooked version
+     */
+    struct CookTaskInfo
+    {
+        ProjectPath path;
+        ProjectPath cookedPath;
+    };
+    virtual bool canCook(const Project& project, const CookTaskInfo& info,
+                         SystemString& reasonNo)
+    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
+    virtual void doCook(const Project& project, const CookTaskInfo& info)
+    {(void)project;(void)info;}
+
+    /**
+     * @brief Package Pass Info
+     *
+     * A package pass performs last-minute queries of source resources,
+     * gathers dependencies and packages cooked data together in the
+     * most efficient form for the dataspec
+     */
     struct PackagePassInfo
     {
-        PackageDepsgraph& depsgraph;
+        const PackageDepsgraph& depsgraph;
         ProjectPath subpath;
+        ProjectPath outpath;
     };
-    virtual bool canPackage(const PackagePassInfo& info) {(void)info;return false;}
-    virtual void doPackage(const PackagePassInfo& info) {(void)info;}
+    virtual bool canPackage(const Project& project, const PackagePassInfo& info,
+                            SystemString& reasonNo)
+    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
+    virtual void gatherDependencies(const Project& project, const PackagePassInfo& info,
+                                    std::unordered_set<ProjectPath>& implicitsOut)
+    {(void)project;(void)info;(void)implicitsOut;}
+    virtual void doPackage(const Project& project, const PackagePassInfo& info)
+    {(void)project;(void)info;}
 };
 
 /**
@@ -189,7 +233,8 @@ public:
         std::list<std::string> m_lines;
         FILE* m_lockedFile = NULL;
     public:
-        ConfigFile(const Project& project, const SystemString& name);
+        ConfigFile(const Project& project, const SystemString& name,
+                   const SystemString& subdir=_S("/.hecl/"));
         std::list<std::string>& lockAndRead();
         void addLine(const std::string& line);
         void removeLine(const std::string& refLine);

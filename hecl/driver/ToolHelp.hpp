@@ -60,6 +60,8 @@ public:
             helpFunc = ToolInit::Help;
         else if (toolName == _S("spec"))
             helpFunc = ToolSpec::Help;
+        else if (toolName == _S("extract"))
+            helpFunc = ToolExtract::Help;
         else if (toolName == _S("add"))
             helpFunc = ToolAdd::Help;
         else if (toolName == _S("remove") || toolName == _S("rm"))

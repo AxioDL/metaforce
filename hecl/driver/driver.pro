@@ -23,6 +23,7 @@ SOURCES += \
 HEADERS += \
     ToolBase.hpp \
     ToolPackage.hpp \
+    ToolExtract.hpp \
     ToolInit.hpp \
     ToolHelp.hpp \
     ToolGroup.hpp \

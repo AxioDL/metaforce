@@ -10,6 +10,7 @@
 #include "ToolBase.hpp"
 #include "ToolInit.hpp"
 #include "ToolSpec.hpp"
+#include "ToolExtract.hpp"
 #include "ToolAdd.hpp"
 #include "ToolRemove.hpp"
 #include "ToolGroup.hpp"
@@ -180,6 +181,8 @@ int main(int argc, const char** argv)
             tool.reset(new ToolInit(info));
         else if (toolName == _S("spec"))
             tool.reset(new ToolSpec(info));
+        else if (toolName == _S("extract"))
+            tool.reset(new ToolExtract(info));
         else if (toolName == _S("add"))
             tool.reset(new ToolAdd(info));
         else if (toolName == _S("remove") || toolName == _S("rm"))

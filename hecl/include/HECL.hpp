@@ -262,6 +262,7 @@ public:
     Hash(int64_t hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
+    inline size_t val() const {return hash;}
     inline Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
     inline bool operator==(const Hash& other) const {return hash == other.hash;}
     inline bool operator!=(const Hash& other) const {return hash != other.hash;}
@@ -309,7 +310,7 @@ class ProjectPath
 protected:
     SystemString m_absPath;
     SystemString m_relPath;
-    size_t m_hash = 0;
+    Hash m_hash = 0;
 #if HECL_UCS2
     std::string m_utf8AbsPath;
     const char* m_utf8RelPath;
@@ -404,10 +405,10 @@ public:
     void getGlobResults(std::vector<SystemString>& outPaths) const;
 
     /**
-     * @brief C++11 compatible runtime hash (NOT USED IN PACKAGES!!)
-     * @return System-specific hash value
+     * @brief HECL-specific blowfish hash
+     * @return unique hash value
      */
-    inline size_t hash() const {return m_hash;}
+    inline size_t hash() const {return m_hash.val();}
     inline bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
     inline bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
@@ -517,7 +518,7 @@ namespace std
 {
 template <> struct hash<HECL::ProjectPath>
 {
-    size_t operator()(const HECL::ProjectPath& val) const noexcept
+    inline size_t operator()(const HECL::ProjectPath& val) const noexcept
     {return val.hash();}
 };
 }

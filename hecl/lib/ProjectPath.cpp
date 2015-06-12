@@ -51,9 +51,7 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
     if (*beginit == _S('/'))
         ++beginit;
     m_relPath = SystemString(beginit, m_absPath.end());
-
-    std::hash<std::string> hash_fn;
-    m_hash = hash_fn(std::string(m_relPath));
+    m_hash = Hash(m_relPath);
 
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
@@ -205,7 +203,7 @@ std::unique_ptr<ProjectRootPath> SearchForProject(const SystemString& path)
     while (begin != end)
     {
         SystemString testPath(begin, end);
-        SystemString testIndexPath = testPath + _S("/.hecl/index");
+        SystemString testIndexPath = testPath + _S("/.hecl/beacon");
         struct stat theStat;
         if (!HECL::Stat(testIndexPath.c_str(), &theStat))
         {
