@@ -202,44 +202,6 @@ public:
     ConfigFile m_groups;
 
     /**
-     * @brief Index file handle
-     *
-     * Holds a path to a binary index file;
-     * opening a locked handle for read/write transactions
-     */
-    class IndexFile
-    {
-        SystemString m_filepath;
-        const Project& m_project;
-        size_t m_maxPathLen = 0;
-        size_t m_onlyUpdatedMaxPathLen = 0;
-        FILE* m_lockedFile = NULL;
-    public:
-        class Entry
-        {
-            friend class IndexFile;
-            ProjectPath m_path;
-            HECL::Time m_lastModtime;
-            bool m_updated = false;
-            Entry(const ProjectPath& path, const HECL::Time& lastModtime)
-            : m_path(path), m_lastModtime(lastModtime) {}
-            Entry(const ProjectPath& path);
-        };
-    private:
-        size_t m_updatedCount = 0;
-        std::vector<Entry> m_entryStore;
-        std::unordered_map<ProjectPath, Entry*> m_entryLookup;
-    public:
-        IndexFile(const Project& project);
-        const std::vector<Entry>& lockAndRead();
-        const std::vector<ProjectPath*> getChangedPaths();
-        void addOrUpdatePath(const ProjectPath& path);
-        void unlockAndDiscard();
-        bool unlockAndCommit(bool onlyUpdated=false);
-    };
-    IndexFile m_index;
-
-    /**
      * @brief Internal packagePath() exception
      *
      * Due to the recursive nature of packagePath(), there are potential
@@ -321,6 +283,14 @@ public:
      * @return true on success
      */
     bool removeGroup(const ProjectPath& path);
+
+    /**
+     * @brief Re-reads the data store holding user's spec preferences
+     *
+     * Call periodically in a long-term use of the HECL::Database::Project class.
+     * Install filesystem event-hooks if possible.
+     */
+    void rescanDataSpecs();
 
     /**
      * @brief Return map populated with dataspecs targetable by this project interface

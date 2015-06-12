@@ -29,7 +29,7 @@ public:
             return;
         }
 
-        HECL::SystemString testPath = *dir + _S("/.hecl/index");
+        HECL::SystemString testPath = *dir + _S("/.hecl/beacon");
         if (!HECL::Stat(testPath.c_str(), &theStat))
         {
             throw HECL::Exception(_S("project already exists at '") + *dir + _S("'"));

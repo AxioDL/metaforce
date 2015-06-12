@@ -431,7 +431,7 @@ public:
  * @param path absolute or relative file path to search from
  * @return Newly-constructed root path or NULL if not found
  */
-ProjectRootPath* SearchForProject(const SystemString& path);
+std::unique_ptr<ProjectRootPath> SearchForProject(const SystemString& path);
 
 
 /* Type-sensitive byte swappers */
@@ -482,33 +482,33 @@ static inline T bswap64(T val)
 
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-static inline int16_t ToBig(int16_t val) {return bswap16(val);}
-static inline uint16_t ToBig(uint16_t val) {return bswap16(val);}
-static inline int32_t ToBig(int32_t val) {return bswap32(val);}
-static inline uint32_t ToBig(uint32_t val) {return bswap32(val);}
-static inline int64_t ToBig(int64_t val) {return bswap64(val);}
-static inline uint64_t ToBig(uint64_t val) {return bswap64(val);}
+static inline int16_t SBig(int16_t val) {return bswap16(val);}
+static inline uint16_t SBig(uint16_t val) {return bswap16(val);}
+static inline int32_t SBig(int32_t val) {return bswap32(val);}
+static inline uint32_t SBig(uint32_t val) {return bswap32(val);}
+static inline int64_t SBig(int64_t val) {return bswap64(val);}
+static inline uint64_t SBig(uint64_t val) {return bswap64(val);}
 
-static inline int16_t ToLittle(int16_t val) {return val;}
-static inline uint16_t ToLittle(uint16_t val) {return val;}
-static inline int32_t ToLittle(int32_t val) {return val;}
-static inline uint32_t ToLittle(uint32_t val) {return val;}
-static inline int64_t ToLittle(int64_t val) {return val;}
-static inline uint64_t ToLittle(uint64_t val) {return val;}
+static inline int16_t SLittle(int16_t val) {return val;}
+static inline uint16_t SLittle(uint16_t val) {return val;}
+static inline int32_t SLittle(int32_t val) {return val;}
+static inline uint32_t SLittle(uint32_t val) {return val;}
+static inline int64_t SLittle(int64_t val) {return val;}
+static inline uint64_t SLittle(uint64_t val) {return val;}
 #else
-static inline int16_t ToLittle(int16_t val) {return bswap16(val);}
-static inline uint16_t ToLittle(uint16_t val) {return bswap16(val);}
-static inline int32_t ToLittle(int32_t val) {return bswap32(val);}
-static inline uint32_t ToLittle(uint32_t val) {return bswap32(val);}
-static inline int64_t ToLittle(int64_t val) {return bswap64(val);}
-static inline uint64_t ToLittle(uint64_t val) {return bswap64(val);}
+static inline int16_t SLittle(int16_t val) {return bswap16(val);}
+static inline uint16_t SLittle(uint16_t val) {return bswap16(val);}
+static inline int32_t SLittle(int32_t val) {return bswap32(val);}
+static inline uint32_t SLittle(uint32_t val) {return bswap32(val);}
+static inline int64_t SLittle(int64_t val) {return bswap64(val);}
+static inline uint64_t SLittle(uint64_t val) {return bswap64(val);}
 
-static inline int16_t ToBig(int16_t val) {return val;}
-static inline uint16_t ToBig(uint16_t val) {return val;}
-static inline int32_t ToBig(int32_t val) {return val;}
-static inline uint32_t ToBig(uint32_t val) {return val;}
-static inline int64_t ToBig(int64_t val) {return val;}
-static inline uint64_t ToBig(uint64_t val) {return val;}
+static inline int16_t SBig(int16_t val) {return val;}
+static inline uint16_t SBig(uint16_t val) {return val;}
+static inline int32_t SBig(int32_t val) {return val;}
+static inline uint32_t SBig(uint32_t val) {return val;}
+static inline int64_t SBig(int64_t val) {return val;}
+static inline uint64_t SBig(uint64_t val) {return val;}
 #endif
 
 }

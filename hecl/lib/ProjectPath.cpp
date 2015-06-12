@@ -197,18 +197,13 @@ void ProjectPath::getGlobResults(std::vector<SystemString>& outPaths) const
         _recursiveGlob(outPaths, 1, pathCompMatches, itStr, false);
 }
 
-ProjectRootPath* SearchForProject(const SystemString& path)
+std::unique_ptr<ProjectRootPath> SearchForProject(const SystemString& path)
 {
     ProjectRootPath testRoot(path);
     SystemString::const_iterator begin = testRoot.getAbsolutePath().begin();
     SystemString::const_iterator end = testRoot.getAbsolutePath().end();
     while (begin != end)
     {
-        while (begin != end && *(end-1) != _S('/') && *(end-1) != _S('\\'))
-            --end;
-        if (begin == end)
-            break;
-
         SystemString testPath(begin, end);
         SystemString testIndexPath = testPath + _S("/.hecl/index");
         struct stat theStat;
@@ -227,13 +222,15 @@ ProjectRootPath* SearchForProject(const SystemString& path)
                 static const HECL::FourCC hecl("HECL");
                 if (HECL::FourCC(magic) != hecl)
                     continue;
-                return new ProjectRootPath(testPath);
+                return std::unique_ptr<ProjectRootPath>(new ProjectRootPath(testPath));
             }
         }
 
+        while (begin != end && *(end-1) != _S('/') && *(end-1) != _S('\\'))
+            --end;
         --end;
     }
-    return NULL;
+    return std::unique_ptr<ProjectRootPath>();
 }
 
 }

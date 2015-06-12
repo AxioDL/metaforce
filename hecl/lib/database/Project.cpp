@@ -163,183 +163,6 @@ bool Project::ConfigFile::unlockAndCommit()
 }
 
 /**********************************************
- * Project::IndexFile
- **********************************************/
-
-struct SIndexHeader
-{
-    HECL::FourCC magic;
-    uint32_t version;
-    uint32_t entryCount;
-    uint32_t maxPathLen;
-    void swapWithNative()
-    {
-        version = ToBig(version);
-        entryCount = ToBig(entryCount);
-        maxPathLen = ToBig(maxPathLen);
-    }
-};
-
-Project::IndexFile::IndexFile(const Project& project)
-: m_project(project)
-{
-    m_filepath = project.m_rootPath.getAbsolutePath() + _S("/.hecl/index");
-}
-
-const std::vector<Project::IndexFile::Entry>& Project::IndexFile::lockAndRead()
-{
-    if (m_lockedFile)
-        return m_entryStore;
-
-    /* Open file and begin lock cycle */
-    m_lockedFile = HECL::Fopen(m_filepath.c_str(), _S("a+b"), LWRITE);
-    m_maxPathLen = 0;
-    m_onlyUpdatedMaxPathLen = 0;
-
-    /* Read index header */
-    SIndexHeader header;
-    if (fread(&header, 1, sizeof(header), m_lockedFile) != sizeof(header))
-        return m_entryStore; /* Not yet written, this commit will take care of it */
-    header.swapWithNative();
-    if (header.magic != "HECL")
-        throw HECL::Exception(_S("unrecognized HECL index"));
-    if (header.version != 1)
-        throw HECL::Exception(_S("unrecognized HECL version"));
-
-    /* Iterate existing index entries */
-    char* pathBuf = new char[header.maxPathLen];
-    for (uint32_t e=0 ; e<header.entryCount ; ++e)
-    {
-        uint64_t mt;
-        fread(&mt, 1, 8, m_lockedFile);
-        mt = ToBig(mt);
-        uint32_t strLen;
-        fread(&strLen, 1, 4, m_lockedFile);
-        strLen = ToBig(strLen);
-        if (strLen > m_maxPathLen)
-            m_maxPathLen = strLen;
-        fread(pathBuf, 1, strLen, m_lockedFile);
-        std::string pathStr(pathBuf, strLen);
-        SystemStringView pathView(pathStr);
-        ProjectPath path(m_project.getProjectRootPath(), pathView.sys_str());
-        if (m_entryLookup.find(path) == m_entryLookup.end())
-        {
-            m_entryStore.push_back(Entry(path, mt));
-            m_entryLookup[path] = &m_entryStore.back();
-        }
-    }
-    delete[] pathBuf;
-    return m_entryStore;
-}
-
-const std::vector<ProjectPath*> Project::IndexFile::getChangedPaths()
-{
-    if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
-
-    std::vector<ProjectPath*> retval;
-    for (Entry& ent : m_entryStore)
-        if (ent.m_lastModtime != ent.m_path.getModtime())
-            retval.push_back(&ent.m_path);
-    return retval;
-}
-
-void Project::IndexFile::addOrUpdatePath(const ProjectPath& path)
-{
-    if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
-
-    size_t pathLen = path.getRelativePath().size();
-    if (pathLen > m_onlyUpdatedMaxPathLen)
-        m_onlyUpdatedMaxPathLen = pathLen;
-
-    std::unordered_map<ProjectPath, Entry*>::iterator it = m_entryLookup.find(path);
-    if (it == m_entryLookup.end())
-    {
-        m_entryStore.push_back(Entry(path, path.getModtime()));
-        m_entryLookup[path] = &m_entryStore.back();
-        m_entryStore.back().m_updated = true;
-        return;
-    }
-    (*it).second->m_lastModtime = path.getModtime();
-    (*it).second->m_updated = true;
-}
-
-void Project::IndexFile::unlockAndDiscard()
-{
-    if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
-
-    m_entryLookup.clear();
-    m_entryStore.clear();
-    fclose(m_lockedFile);
-    m_lockedFile = NULL;
-}
-
-bool Project::IndexFile::unlockAndCommit(bool onlyUpdated)
-{
-    if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::IndexFile::lockAndRead not yet called"));
-
-    SystemString newPath = m_filepath + _S(".part");
-    FILE* newFile = HECL::Fopen(newPath.c_str(), _S("wb"), LWRITE);
-    SIndexHeader header =
-    {
-        HECL::FourCC("HECL"), 1,
-        (uint32_t)(onlyUpdated ? m_updatedCount : m_entryStore.size()),
-        (uint32_t)(onlyUpdated ? m_onlyUpdatedMaxPathLen : m_maxPathLen)
-    };
-    header.swapWithNative();
-    bool fail = false;
-    if (fwrite(&header, 1, sizeof(header), newFile) != sizeof(header))
-        fail = true;
-
-    if (!fail)
-    {
-        for (Entry& ent : m_entryStore)
-        {
-            if (!onlyUpdated || ent.m_updated)
-            {
-                uint64_t mt = ToBig(ent.m_lastModtime.getTs());
-                if (fwrite(&mt, 1, 8, newFile) != 8)
-                {
-                    fail = true;
-                    break;
-                }
-                size_t strLen = ent.m_path.getRelativePathUTF8().size();
-                uint32_t strLenb = ToBig(strLen);
-                if (fwrite(&strLenb, 1, 4, newFile) != 4)
-                {
-                    fail = true;
-                    break;
-                }
-                if (fwrite(ent.m_path.getRelativePathUTF8().c_str(), 1, strLen, newFile) != strLen)
-                {
-                    fail = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    m_entryLookup.clear();
-    m_entryStore.clear();
-    fclose(newFile);
-    fclose(m_lockedFile);
-    m_lockedFile = NULL;
-    if (fail)
-    {
-        unlink(newPath.c_str());
-        return false;
-    }
-    else
-    {
-        rename(newPath.c_str(), m_filepath.c_str());
-        return true;
-    }
-}
-
-/**********************************************
  * Project
  **********************************************/
 
@@ -347,8 +170,7 @@ Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath),
   m_specs(*this, _S("specs")),
   m_paths(*this, _S("paths")),
-  m_groups(*this, _S("groups")),
-  m_index(*this)
+  m_groups(*this, _S("groups"))
 {
     /* Stat for existing project directory (must already exist) */
     struct stat myStat;
@@ -364,11 +186,29 @@ Project::Project(const ProjectRootPath& rootPath)
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/cooked"));
     HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/config"));
 
-    /* Ensure index is initialized */
-    if (m_index.lockAndRead().empty())
-        m_index.unlockAndCommit();
-    else
-        m_index.unlockAndDiscard();
+    /* Ensure beacon is valid or created */
+    FILE* bf = HECL::Fopen((m_rootPath.getAbsolutePath() + _S("/.hecl/beacon")).c_str(), _S("a+b"));
+    struct BeaconStruct
+    {
+        FourCC magic;
+        uint32_t version;
+    } beacon;
+#define DATA_VERSION 1
+    static const FourCC hecl("HECL");
+    if (fread(&beacon, 1, sizeof(beacon), bf) != sizeof(beacon))
+    {
+        fseek(bf, 0, SEEK_SET);
+        beacon.magic = hecl;
+        beacon.version = SBig(DATA_VERSION);
+        fwrite(&beacon, 1, sizeof(beacon), bf);
+    }
+    fclose(bf);
+    if (beacon.magic != hecl ||
+        SBig(beacon.version) != DATA_VERSION)
+        throw Exception(_S("incompatible HECL project"));
+
+    /* Compile current dataspec */
+    rescanDataSpecs();
 }
 
 void Project::registerLogger(FLogger logger)
@@ -419,6 +259,20 @@ bool Project::removeGroup(const ProjectPath& path)
     m_groups.lockAndRead();
     m_groups.removeLine(path.getRelativePathUTF8());
     return m_groups.unlockAndCommit();
+}
+
+void Project::rescanDataSpecs()
+{
+    m_compiledSpecs.clear();
+    m_specs.lockAndRead();
+    for (const DataSpecEntry* spec = DATA_SPEC_REGISTRY;
+         spec->name.size();
+         ++spec)
+    {
+        SystemUTF8View specUTF8(spec->name);
+        m_compiledSpecs.push_back({*spec, m_specs.checkForLine(specUTF8.utf8_str()) ? true : false});
+    }
+    m_specs.unlockAndDiscard();
 }
 
 bool Project::enableDataSpecs(const std::vector<SystemString>& specs)

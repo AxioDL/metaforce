@@ -152,7 +152,7 @@ int main(int argc, const char** argv)
     }
 
     /* Attempt to find hecl project */
-    std::unique_ptr<HECL::ProjectRootPath> rootPath(HECL::SearchForProject(info.cwd));
+    std::unique_ptr<HECL::ProjectRootPath> rootPath = HECL::SearchForProject(info.cwd);
     std::unique_ptr<HECL::Database::Project> project;
     if (rootPath.get())
     {
