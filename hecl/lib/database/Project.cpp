@@ -236,7 +236,7 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
         {
             std::string recursiveBase = path.getRelativePathUTF8();
             for (auto it = existingPaths.begin();
-                 it != existingPaths.end())
+                 it != existingPaths.end();)
             {
                 if (!(*it).compare(0, recursiveBase.size(), recursiveBase))
                 {
