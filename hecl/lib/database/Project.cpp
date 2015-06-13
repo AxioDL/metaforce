@@ -95,11 +95,14 @@ void Project::ConfigFile::removeLine(const std::string& refLine)
         throw HECL::Exception(_S("Project::ConfigFile::lockAndRead not yet called"));
 
     for (auto it = m_lines.begin();
-         it != m_lines.end();
-         ++it)
+         it != m_lines.end();)
     {
         if (!(*it).compare(refLine))
+        {
             it = m_lines.erase(it);
+            continue;
+        }
+        ++it;
     }
 }
 
@@ -233,11 +236,14 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
         {
             std::string recursiveBase = path.getRelativePathUTF8();
             for (auto it = existingPaths.begin();
-                 it != existingPaths.end();
-                 ++it)
+                 it != existingPaths.end())
             {
                 if (!(*it).compare(0, recursiveBase.size(), recursiveBase))
+                {
                     it = existingPaths.erase(it);
+                    continue;
+                }
+                ++it;
             }
         }
     }
