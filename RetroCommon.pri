@@ -1,6 +1,7 @@
-INCLUDEPATH += $$PWD/include
+INCLUDEPATH += $$PWD/DNA $$PWD/include
 
 include(../libSquish/libSquish.pri)
+include(PakLib/PakLib.pri)
 
 HEADERS += \
     $$PWD/include/RetroCommon.hpp
@@ -8,3 +9,5 @@ HEADERS += \
 SOURCES += \
     $$PWD/src/RetroCommon.cpp \
     $$PWD/src/MREADecompress.cpp
+
+include(DNA/DNA.pri)

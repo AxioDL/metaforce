@@ -1,0 +1,3 @@
+[submodule "PakLib"]
+	path = PakLib
+	url = https://github.com/RetroView/PakLib.git
