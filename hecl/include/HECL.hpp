@@ -198,6 +198,32 @@ static inline void FPrintf(FILE* fp, const SystemChar* format, ...)
     va_end(va);
 }
 
+#define FORMAT_BUF_SZ 1024
+
+static inline SystemString SysFormat(const SystemChar* format, ...)
+{
+    SystemChar resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+#if HECL_UCS2
+    int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+#else
+    int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+#endif
+    va_end(va);
+    return SystemString(resultBuf, printSz);
+}
+
+static inline std::string Format(const char* format, ...)
+{
+    char resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+    int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+    va_end(va);
+    return std::string(resultBuf, printSz);
+}
+
 typedef std::basic_regex<SystemChar> SystemRegex;
 typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexTokenIterator;
 typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
