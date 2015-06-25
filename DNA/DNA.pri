@@ -1,2 +1,5 @@
-include(DNA_common/DNA_common.pri)
-include(DNA_mp1/DNA_mp1.pri)
+include(DNACommon/DNACommon.pri)
+include(DNAMP1/DNAMP1.pri)
+include(DNAMP2/DNAMP2.pri)
+include(DNAMP3/DNAMP3.pri)
+

@@ -1,6 +1,6 @@
-#include "../DNA_common/common.hpp"
+#include "../DNACommon/DNACommon.hpp"
 
-namespace MP1
+namespace DNAMP1
 {
 
 struct MLVL : public BigDNA
@@ -94,12 +94,7 @@ struct MLVL : public BigDNA
     Vector<LayerFlags, DNA_COUNT(layerFlagCount)> layerFlags;
 
     Value<atUint32> layerNameCount;
-    struct LayerName : public BigDNA
-    {
-        DECL_DNA
-        String<-1> name;
-    };
-    Vector<LayerName, DNA_COUNT(layerNameCount)> layerNames;
+    Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
 
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
