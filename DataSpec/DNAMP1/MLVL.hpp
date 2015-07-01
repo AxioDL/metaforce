@@ -1,5 +1,7 @@
 #include "../DNACommon/DNACommon.hpp"
 
+namespace Retro
+{
 namespace DNAMP1
 {
 
@@ -100,4 +102,5 @@ struct MLVL : public BigDNA
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 };
 
+}
 }

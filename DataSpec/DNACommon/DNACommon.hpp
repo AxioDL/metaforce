@@ -5,6 +5,9 @@
 #include <CFourCC.hpp>
 #include <CUniqueID.hpp>
 
+namespace Retro
+{
+
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
 
@@ -51,5 +54,7 @@ public:
     void write(Athena::io::IStreamWriter& writer) const
     {_write(writer);}
 };
+
+}
 
 #endif // __DNA_COMMON_HPP__
