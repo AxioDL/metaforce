@@ -20,13 +20,15 @@ HEADERS += \
 SUBDIRS += \
     extern/blowfish \
     extern/libpng \
+    extern/libSquish \
+    extern/RetroCommon \
     blender \
     lib \
-    dataspec \
     driver
 
 driver.depends = extern/blowfish
 driver.depends = extern/libpng
+driver.depends = extern/libSquish
+driver.depends = extern/RetroCommon
 driver.depends = blender
 driver.depends = lib
-driver.depends = dataspec

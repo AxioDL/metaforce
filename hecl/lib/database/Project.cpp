@@ -271,11 +271,9 @@ void Project::rescanDataSpecs()
 {
     m_compiledSpecs.clear();
     m_specs.lockAndRead();
-    for (const DataSpecEntry* spec = DATA_SPEC_REGISTRY;
-         spec->name.size();
-         ++spec)
+    for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
-        SystemUTF8View specUTF8(spec->name);
+        SystemUTF8View specUTF8(spec->m_name);
         m_compiledSpecs.push_back({*spec, m_specs.checkForLine(specUTF8.utf8_str()) ? true : false});
     }
     m_specs.unlockAndDiscard();

@@ -10,6 +10,7 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <sys/file.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <unistd.h>
 #endif
 
 #include <time.h>

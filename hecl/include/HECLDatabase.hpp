@@ -118,15 +118,33 @@ public:
 };
 
 /**
+ * @brief Pre-emptive indication of what the constructed DataSpec is used for
+ */
+enum DataSpecTool
+{
+    TOOL_EXTRACT,
+    TOOL_COOK,
+    TOOL_PACKAGE
+};
+
+extern std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
+
+/**
  * @brief IDataSpec registry entry
+ *
+ * Auto-registers with data spec registry
  */
 struct DataSpecEntry
 {
-    SystemString name;
-    SystemString desc;
-    std::function<IDataSpec*(void)> factory;
+    SystemString m_name;
+    SystemString m_desc;
+    std::function<IDataSpec*(DataSpecTool)> m_factory;
+
+    DataSpecEntry(SystemString&& name, SystemString&& desc,
+                  std::function<IDataSpec*(DataSpecTool)>&& factory)
+    : m_name(std::move(name)), m_desc(std::move(desc)), m_factory(std::move(factory))
+    {DATA_SPEC_REGISTRY.push_back(this);}
 };
-extern const HECL::Database::DataSpecEntry DATA_SPEC_REGISTRY[];
 
 /**
  * @brief Base object to subclass for integrating with key project operations

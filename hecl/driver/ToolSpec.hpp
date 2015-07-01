@@ -47,7 +47,7 @@ public:
             bool found = false;
             for (auto& spec : specs)
             {
-                if (!spec.first.name.compare(*it))
+                if (!spec.first.m_name.compare(*it))
                 {
                     found = true;
                     break;
@@ -90,15 +90,13 @@ public:
     {
         if (!m_info.project)
         {
-            for (const HECL::Database::DataSpecEntry* spec = HECL::Database::DATA_SPEC_REGISTRY;
-                 spec->name.size();
-                 ++spec)
+            for (const HECL::Database::DataSpecEntry* spec : HECL::Database::DATA_SPEC_REGISTRY)
             {
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->name.c_str());
+                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name.c_str());
                 else
-                    HECL::Printf(_S("%s\n"), spec->name.c_str());
-                HECL::Printf(_S("  %s\n"), spec->desc.c_str());
+                    HECL::Printf(_S("%s\n"), spec->m_name.c_str());
+                HECL::Printf(_S("  %s\n"), spec->m_desc.c_str());
             }
             return 0;
         }
@@ -109,9 +107,9 @@ public:
             for (auto& spec : specs)
             {
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.first.name.c_str());
+                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.first.m_name.c_str());
                 else
-                    HECL::Printf(_S("%s"), spec.first.name.c_str());
+                    HECL::Printf(_S("%s"), spec.first.m_name.c_str());
                 if (spec.second)
                 {
                     if (XTERM_COLOR)
@@ -119,7 +117,7 @@ public:
                     else
                         HECL::Printf(_S(" [ENABLED]"));
                 }
-                HECL::Printf(_S("\n  %s\n"), spec.first.desc.c_str());
+                HECL::Printf(_S("\n  %s\n"), spec.first.m_desc.c_str());
             }
             return 0;
         }
@@ -133,9 +131,9 @@ public:
             HECL::ToLower(itName);
             for (auto& spec : specs)
             {
-                if (!spec.first.name.compare(itName))
+                if (!spec.first.m_name.compare(itName))
                 {
-                    opSpecs.push_back(spec.first.name);
+                    opSpecs.push_back(spec.first.m_name);
                     break;
                 }
             }
