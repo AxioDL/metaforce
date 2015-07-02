@@ -71,9 +71,8 @@ public:
         ProjectPath subpath;
         bool cookedonly;
     };
-    virtual bool canExtract(const Project& project, const ExtractPassInfo& info,
-                            SystemString& reasonNo)
-    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
+    virtual bool canExtract(const ExtractPassInfo& info, SystemString& reasonNo)
+    {(void)info;reasonNo=_S("not implemented");return false;}
     virtual void doExtract(const Project& project, const ExtractPassInfo& info)
     {(void)project;(void)info;}
 
