@@ -11,8 +11,7 @@ namespace Retro
 
 struct SpecBase : public HECL::Database::IDataSpec
 {
-    bool canExtract(const HECL::Database::Project& project, const ExtractPassInfo& info,
-                    HECL::SystemString& reasonNo);
+    bool canExtract(const ExtractPassInfo& info, HECL::SystemString& reasonNo);
     void doExtract(const HECL::Database::Project& project, const ExtractPassInfo& info);
 
     bool canCook(const HECL::Database::Project& project, const CookTaskInfo& info,
