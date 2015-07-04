@@ -7,6 +7,7 @@ QT      =
 # Get hecl's headers (when built as submodule in hecl's extern)
 INCLUDEPATH += ../../../include \
     ../../Athena/include \
+    ../../LogVisor/include \
     ../NODLib/include
 
 include(../PakLib/PakLib.pri)

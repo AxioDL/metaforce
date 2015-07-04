@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include <NODLib.hpp>
-#include <HECLDatabase.hpp>
+#include <HECL/Database.hpp>
+#include <NOD/NOD.hpp>
 
 namespace Retro
 {
