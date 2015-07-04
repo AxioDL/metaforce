@@ -1,4 +1,4 @@
-#include "HECL.hpp"
+#include "HECL/HECL.hpp"
 #include <stdexcept>
 #include <regex>
 

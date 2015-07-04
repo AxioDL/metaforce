@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-#include "HECLDatabase.hpp"
+#include "HECL/Database.hpp"
 
 namespace HECL
 {

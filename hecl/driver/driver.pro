@@ -10,12 +10,13 @@ clang:LIBS += -stdlib=libc++ -lc++abi
 INCLUDEPATH += ../include ../extern/Athena/include ../extern
 
 LIBPATH += $$OUT_PWD/../lib \
-    $$OUT_PWD/../dataspec \
     $$OUT_PWD/../blender \
+    $$OUT_PWD/../extern/LogVisor \
+    $$OUT_PWD/../extern/RetroCommon/NODLib/lib \
     $$OUT_PWD/../extern/blowfish \
     $$OUT_PWD/../extern/libpng
 
-LIBS += -lhecl -lhecl-dataspec -lhecl-blender -lblowfish -lpng
+LIBS += -lhecl -lhecl-blender -lblowfish -lNOD -lLogVisor -lpng -lpthread
 
 SOURCES += \
     $$PWD/main.cpp

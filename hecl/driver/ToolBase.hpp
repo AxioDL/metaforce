@@ -3,11 +3,12 @@
 
 #include <string>
 #include <vector>
-#include <HECLDatabase.hpp>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <string.h>
+
+#include "HECL/Database.hpp"
 
 struct ToolPassInfo
 {

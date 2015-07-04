@@ -5,7 +5,7 @@
 #include <regex>
 #include <stdexcept>
 #include <list>
-#include <HECLDatabase.hpp>
+#include "HECL/Database.hpp"
 
 #include "ToolBase.hpp"
 #include "ToolInit.hpp"
