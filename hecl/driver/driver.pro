@@ -1,13 +1,14 @@
+TEMPLATE = app
 TARGET = hecl
 CONFIG -= Qt
+CONFIG += c++11
 QT      =
 LIBS   -= -lQtGui -lQtCore
-unix:QMAKE_CXXFLAGS += -std=c++11
-unix:LIBS += -std=c++11
-clang:QMAKE_CXXFLAGS += -stdlib=libc++
-clang:LIBS += -stdlib=libc++ -lc++abi
 
-INCLUDEPATH += ../include ../extern/Athena/include ../extern
+INCLUDEPATH += ../include \
+    ../extern/Athena/include \
+    ../extern/LogVisor/include \
+    ../extern
 
 LIBPATH += $$OUT_PWD/../lib \
     $$OUT_PWD/../blender \

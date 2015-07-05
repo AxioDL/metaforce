@@ -50,10 +50,10 @@ public:
         }
         catch (HECL::Exception& e)
         {
-            HECL::FPrintf(stderr, _S("unable to init project: '%s'\n"), e.swhat());
+            LogModule.report(LogVisor::Error, _S("unable to init project: '%s'\n"), e.swhat());
             return -1;
         }
-        HECL::Printf(_S("initialized project at '%s/.hecl'\n"), m_dir->c_str());
+        LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'\n"), m_dir->c_str());
         return 0;
     }
 

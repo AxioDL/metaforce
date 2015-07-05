@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <list>
 #include "HECL/Database.hpp"
+#include "LogVisor/LogVisor.hpp"
+
+LogVisor::LogModule LogModule("HECLDriver");
 
 #include "ToolBase.hpp"
 #include "ToolInit.hpp"
@@ -20,6 +23,7 @@
 #include "ToolHelp.hpp"
 
 bool XTERM_COLOR = false;
+
 
 /*
 #define HECL_GIT 1234567
@@ -164,9 +168,9 @@ int main(int argc, const char** argv)
         }
         catch (HECL::Exception& ex)
         {
-            HECL::FPrintf(stderr,
-                          _S("Unable to open discovered project at '%s':\n%s\n"),
-                          rootPath->getAbsolutePath().c_str(), ex.swhat());
+            LogModule.report(LogVisor::Error,
+                             _S("Unable to open discovered project at '%s':\n%s\n"),
+                             rootPath->getAbsolutePath().c_str(), ex.swhat());
             return -1;
         }
     }
@@ -202,14 +206,14 @@ int main(int argc, const char** argv)
     }
     catch (HECL::Exception& ex)
     {
-        HECL::FPrintf(stderr,
-                      _S("Unable to construct HECL tool '%s':\n%s\n"),
-                      toolName.c_str(), ex.swhat());
+        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s':\n%s\n"),
+                         toolName.c_str(), ex.swhat());
         return -1;
     }
 
     if (info.verbosityLevel)
-        HECL::Printf(_S("Constructed tool '%s' %d\n"), tool->toolName().c_str(), info.verbosityLevel);
+        LogModule.report(LogVisor::Info, _S("Constructed tool '%s' %d\n"),
+                         tool->toolName().c_str(), info.verbosityLevel);
 
     /* Run tool */
     int retval;
@@ -219,7 +223,8 @@ int main(int argc, const char** argv)
     }
     catch (HECL::Exception& ex)
     {
-        HECL::FPrintf(stderr, _S("Error running HECL tool '%s':\n%s\n"), toolName.c_str(), ex.swhat());
+        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s':\n%s\n"),
+                         toolName.c_str(), ex.swhat());
         return -1;
     }
 
