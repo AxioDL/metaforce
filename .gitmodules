@@ -1,6 +1,3 @@
-[submodule "PakLib"]
-	path = PakLib
-	url = https://github.com/RetroView/PakLib.git
 [submodule "NODLib"]
 	path = NODLib
 	url = https://github.com/RetroView/NODLib.git

@@ -9,17 +9,17 @@
 namespace Retro
 {
 
+extern LogVisor::LogModule LogModule;
+
 struct SpecBase : public HECL::Database::IDataSpec
 {
-    bool canExtract(const ExtractPassInfo& info, HECL::SystemString& reasonNo);
+    bool canExtract(const ExtractPassInfo& info);
     void doExtract(const HECL::Database::Project& project, const ExtractPassInfo& info);
 
-    bool canCook(const HECL::Database::Project& project, const CookTaskInfo& info,
-                 HECL::SystemString& reasonNo);
+    bool canCook(const HECL::Database::Project& project, const CookTaskInfo& info);
     void doCook(const HECL::Database::Project& project, const CookTaskInfo& info);
 
-    bool canPackage(const HECL::Database::Project& project, const PackagePassInfo& info,
-                    HECL::SystemString& reasonNo);
+    bool canPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
     void gatherDependencies(const HECL::Database::Project& project, const PackagePassInfo& info,
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);

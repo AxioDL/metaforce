@@ -49,12 +49,12 @@ struct SpecMP1 : public SpecBase
     }
 };
 
-static HECL::Database::DataSpecEntry SpecMP1
-(
+HECL::Database::DataSpecEntry SpecMP1 =
+{
     _S("MP1"),
     _S("Data specification for original Metroid Prime engine"),
     [](HECL::Database::DataSpecTool) -> HECL::Database::IDataSpec* {return new struct SpecMP1;}
-);
+};
 
 }
 

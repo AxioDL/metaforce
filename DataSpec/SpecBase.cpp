@@ -3,13 +3,15 @@
 namespace Retro
 {
 
-bool SpecBase::canExtract(const ExtractPassInfo& info, HECL::SystemString& reasonNo)
+LogVisor::LogModule LogModule("RetroDataSpec");
+
+bool SpecBase::canExtract(const ExtractPassInfo& info)
 {
     bool isWii;
     std::unique_ptr<NOD::DiscBase> disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), isWii);
     if (!disc)
     {
-        reasonNo = _S("Not a valid Nintendo disc image");
+        LogModule.report(LogVisor::Error, _S("'%s' not a valid Nintendo disc image"), info.srcpath.c_str());
         return false;
     }
     const char* gameID = disc->getHeader().gameID;
@@ -29,9 +31,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, HECL::SystemString& reaso
             return true;
     }
 
-    HECL::SystemStringView gameIDView(std::string(gameID, 6));
-    HECL::SystemStringView gameNameView(disc->getHeader().gameTitle);
-    reasonNo = gameIDView.sys_str() + _S(" (") + gameNameView.sys_str() + _S(") is not supported");
+    LogModule.report(LogVisor::Error, "%.6s (%s) is not supported", gameID, disc->getHeader().gameTitle);
     return false;
 }
 
@@ -39,8 +39,7 @@ void SpecBase::doExtract(const HECL::Database::Project& project, const ExtractPa
 {
 }
 
-bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info,
-                       HECL::SystemString& reasonNo)
+bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)
 {
 }
 
@@ -48,8 +47,7 @@ void SpecBase::doCook(const HECL::Database::Project& project, const CookTaskInfo
 {
 }
 
-bool SpecBase::canPackage(const HECL::Database::Project& project, const PackagePassInfo& info,
-                          HECL::SystemString& reasonNo)
+bool SpecBase::canPackage(const HECL::Database::Project& project, const PackagePassInfo& info)
 {
 }
 
