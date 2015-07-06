@@ -23,6 +23,7 @@ public:
 
     inline bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     inline bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
+    inline uint32_t toUint32() const {return m_id;}
     inline std::string toString() const
     {
         char buf[9];
@@ -44,10 +45,11 @@ public:
 
     inline bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     inline bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
+    inline uint64_t toUint64() const {return m_id;}
     inline std::string toString() const
     {
         char buf[17];
-        snprintf(buf, 17, "%16X", m_id);
+        snprintf(buf, 17, "%16lX", m_id);
         return std::string(buf);
     }
 };
@@ -78,7 +80,9 @@ public:
     inline bool operator!=(const UniqueID128& other) const
     {
 #if __SSE__
-        return m_id128 != other.m_id128;
+        __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
+        int vmask = _mm_movemask_epi8(vcmp);
+        return vmask != 0xffff;
 #else
         return (m_id[0] != other.m_id[0]) || (m_id[1] != other.m_id[1]);
 #endif
@@ -86,15 +90,19 @@ public:
     inline bool operator==(const UniqueID128& other) const
     {
 #if __SSE__
-        return m_id128 == other.m_id128;
+        __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
+        int vmask = _mm_movemask_epi8(vcmp);
+        return vmask == 0xffff;
 #else
         return (m_id[0] == other.m_id[0]) && (m_id[1] == other.m_id[1]);
 #endif
     }
+    inline uint64_t toHighUint64() const {return m_id[0];}
+    inline uint64_t toLowUint64() const {return m_id[1];}
     inline std::string toString() const
     {
         char buf[33];
-        snprintf(buf, 33, "%16X%16X", m_id[0], m_id[1]);
+        snprintf(buf, 33, "%16lX%16lX", m_id[0], m_id[1]);
         return std::string(buf);
     }
 };
@@ -108,21 +116,21 @@ template<>
 struct hash<Retro::UniqueID32>
 {
     inline size_t operator()(const Retro::UniqueID32& id) const
-    {return id.m_id;}
+    {return id.toUint32();}
 };
 
 template<>
 struct hash<Retro::UniqueID64>
 {
     inline size_t operator()(const Retro::UniqueID64& id) const
-    {return id.m_id;}
+    {return id.toUint64();}
 };
 
 template<>
 struct hash<Retro::UniqueID128>
 {
     inline size_t operator()(const Retro::UniqueID128& id) const
-    {return id.m_id[0] ^ id.m_id[1];}
+    {return id.toHighUint64() ^ id.toLowUint64();}
 };
 }
 

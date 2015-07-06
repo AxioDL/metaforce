@@ -16,6 +16,7 @@ class PAK : public BigDNA
 public:
     struct NameEntry : public BigDNA
     {
+        DECL_DNA
         HECL::FourCC type;
         UniqueID32 id;
         Value<atUint32> nameLen;
@@ -24,6 +25,7 @@ public:
 
     struct Entry : public BigDNA
     {
+        DECL_DNA
         Value<atUint32> compressed;
         HECL::FourCC type;
         UniqueID32 id;
@@ -72,12 +74,12 @@ public:
         m_nameMap.reserve(nameCount);
         for (NameEntry& entry : m_nameEntries)
         {
-            Entry* found = m_idMap.find(entry.id);
+            std::unordered_map<UniqueID32, Entry*>::iterator found = m_idMap.find(entry.id);
             if (found != m_idMap.end())
-                m_nameMap[entry.name] = found;
+                m_nameMap[entry.name] = found->second;
         }
     }
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(Athena::io::IStreamWriter& writer)
     {
         writer.setEndian(Athena::BigEndian);
         writer.writeUint32(0x00030005);
@@ -85,26 +87,29 @@ public:
 
         writer.writeUint32(m_nameEntries.size());
         for (NameEntry& entry : m_nameEntries)
+        {
+            entry.nameLen = entry.name.size();
             entry.write(writer);
+        }
 
         writer.writeUint32(m_entries.size());
-        for (Entry& entry : m_entries)
+        for (const Entry& entry : m_entries)
             entry.write(writer);
     }
 
     inline const Entry* lookupEntry(const UniqueID32& id) const
     {
-        Entry* result = m_idMap.find(id);
+        std::unordered_map<UniqueID32, Entry*>::const_iterator result = m_idMap.find(id);
         if (result != m_idMap.end())
-            return result;
+            return result->second;
         return nullptr;
     }
 
     inline const Entry* lookupEntry(const std::string& name) const
     {
-        Entry* result = m_nameMap.find(name);
+        std::unordered_map<std::string, Entry*>::const_iterator result = m_nameMap.find(name);
         if (result != m_nameMap.end())
-            return result;
+            return result->second;
         return nullptr;
     }
 };

@@ -16,6 +16,7 @@ class PAK : public BigDNA
 public:
     struct Header : public BigDNA
     {
+        DECL_DNA
         Value<atUint32> version;
         Value<atUint32> headSz;
         Value<atUint8> md5sum[16];
@@ -24,6 +25,7 @@ public:
 
     struct NameEntry : public BigDNA
     {
+        DECL_DNA
         String<-1> name;
         HECL::FourCC type;
         UniqueID64 id;
@@ -31,11 +33,12 @@ public:
 
     struct Entry : public BigDNA
     {
-        atUint32 compressed;
+        DECL_DNA
+        Value<atUint32> compressed;
         HECL::FourCC type;
         UniqueID64 id;
-        atUint32 size;
-        atUint32 offset;
+        Value<atUint32> size;
+        Value<atUint32> offset;
     };
 
 private:
@@ -87,9 +90,9 @@ public:
         m_nameMap.reserve(nameCount);
         for (NameEntry& entry : m_nameEntries)
         {
-            Entry* found = m_idMap.find(entry.id);
+            std::unordered_map<UniqueID64, Entry*>::iterator found = m_idMap.find(entry.id);
             if (found != m_idMap.end())
-                m_nameMap[entry.name] = found;
+                m_nameMap[entry.name] = found->second;
         }
     }
     void write(Athena::io::IStreamWriter& writer)
@@ -133,17 +136,17 @@ public:
 
     inline const Entry* lookupEntry(const UniqueID64& id) const
     {
-        Entry* result = m_idMap.find(id);
+        std::unordered_map<UniqueID64, Entry*>::const_iterator result = m_idMap.find(id);
         if (result != m_idMap.end())
-            return result;
+            return result->second;
         return nullptr;
     }
 
     inline const Entry* lookupEntry(const std::string& name) const
     {
-        Entry* result = m_nameMap.find(name);
+        std::unordered_map<std::string, Entry*>::const_iterator result = m_nameMap.find(name);
         if (result != m_nameMap.end())
-            return result;
+            return result->second;
         return nullptr;
     }
 
