@@ -4,7 +4,11 @@ TARGET = hecl
 CONFIG -= Qt
 QT      =
 
-INCLUDEPATH += $$PWD ../include ../extern ../extern/Athena/include
+INCLUDEPATH += $$PWD \
+    ../include \
+    ../extern \
+    ../extern/Athena/include \
+    ../extern/LogVisor/include
 
 include (frontend/frontend.pri)
 include (backend/backend.pri)

@@ -16,6 +16,8 @@ namespace HECL
 namespace Database
 {
 
+LogVisor::LogModule LogModule("HECLDatabase");
+
 /**********************************************
  * Project::ConfigFile
  **********************************************/
@@ -92,7 +94,10 @@ void Project::ConfigFile::addLine(const std::string& line)
 void Project::ConfigFile::removeLine(const std::string& refLine)
 {
     if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::ConfigFile::lockAndRead not yet called"));
+    {
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        return;
+    }
 
     for (auto it = m_lines.begin();
          it != m_lines.end();)
@@ -109,7 +114,10 @@ void Project::ConfigFile::removeLine(const std::string& refLine)
 bool Project::ConfigFile::checkForLine(const std::string& refLine)
 {
     if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::ConfigFile::lockAndRead not yet called"));
+    {
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        return false;
+    }
 
     for (const std::string& line : m_lines)
     {
@@ -122,7 +130,10 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
 void Project::ConfigFile::unlockAndDiscard()
 {
     if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::ConfigFile::lockAndRead not yet called"));
+    {
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        return;
+    }
 
     m_lines.clear();
     fclose(m_lockedFile);
@@ -132,7 +143,10 @@ void Project::ConfigFile::unlockAndDiscard()
 bool Project::ConfigFile::unlockAndCommit()
 {
     if (!m_lockedFile)
-        throw HECL::Exception(_S("Project::ConfigFile::lockAndRead not yet called"));
+    {
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        return false;
+    }
 
     SystemString newPath = m_filepath + _S(".part");
     FILE* newFile = HECL::Fopen(newPath.c_str(), _S("w"), LWRITE);
@@ -208,15 +222,13 @@ Project::Project(const ProjectRootPath& rootPath)
     fclose(bf);
     if (beacon.magic != hecl ||
         SBig(beacon.version) != DATA_VERSION)
-        throw Exception(_S("incompatible HECL project"));
+    {
+        LogModule.report(LogVisor::FatalError, "incompatible project version");
+        return;
+    }
 
     /* Compile current dataspec */
     rescanDataSpecs();
-}
-
-void Project::registerLogger(FLogger logger)
-{
-    m_logger = logger;
 }
 
 bool Project::addPaths(const std::vector<ProjectPath>& paths)

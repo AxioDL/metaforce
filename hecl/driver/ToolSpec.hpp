@@ -21,7 +21,7 @@ public:
             return;
 
         if (!info.project)
-            throw HECL::Exception(_S("hecl spec must be ran within a project directory"));
+            LogModule.report(LogVisor::FatalError, "hecl spec must be ran within a project directory");
 
         const auto& specs = info.project->getDataSpecs();
         HECL::SystemString firstArg = info.args[0];
@@ -37,7 +37,7 @@ public:
             return;
 
         if (info.args.size() < 2)
-            throw HECL::Exception(_S("Speclist argument required"));
+            LogModule.report(LogVisor::FatalError, "Speclist argument required");
 
         for (auto it = info.args.begin()+1;
              it != info.args.end();
@@ -54,7 +54,7 @@ public:
                 }
             }
             if (!found)
-                throw HECL::Exception(_S("'") + *it + _S("' is not found in the dataspec registry"));
+                LogModule.report(LogVisor::FatalError, _S("'%s' is not found in the dataspec registry"), it->c_str());
         }
     }
 

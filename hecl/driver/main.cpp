@@ -49,11 +49,16 @@ static void printHelp(const HECL::SystemChar* pname)
 }
 
 /* Regex patterns */
-static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*))"), std::regex::ECMAScript|std::regex::optimize);
+static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
 static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
 static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
 #include "../blender/CBlenderConnection.hpp"
+
+namespace Retro
+{
+extern HECL::Database::DataSpecEntry SpecMP1;
+}
 
 #if HECL_UCS2
 int wmain(int argc, const wchar_t** argv)
@@ -65,6 +70,8 @@ int main(int argc, const char** argv)
     const char* term = getenv("TERM");
     if (!strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
+
+    //fprintf(stderr, "%s\n", Retro::SpecMP1.m_name.c_str());
 
     //CBlenderConnection bconn(false);
     //return 0;
@@ -166,11 +173,11 @@ int main(int argc, const char** argv)
             project.reset(new HECL::Database::Project(*rootPath));
             info.project = project.get();
         }
-        catch (HECL::Exception& ex)
+        catch (std::exception&)
         {
             LogModule.report(LogVisor::Error,
-                             _S("Unable to open discovered project at '%s':\n%s\n"),
-                             rootPath->getAbsolutePath().c_str(), ex.swhat());
+                             _S("Unable to open discovered project at '%s'"),
+                             rootPath->getAbsolutePath().c_str());
             return -1;
         }
     }
@@ -202,12 +209,12 @@ int main(int argc, const char** argv)
         else if (toolName == _S("help"))
             tool.reset(new ToolHelp(info));
         else
-            throw HECL::Exception(_S("unrecognized tool '") + toolName + _S("'"));
+            LogModule.report(LogVisor::FatalError, _S("unrecognized tool '%s'"), toolName.c_str());
     }
-    catch (HECL::Exception& ex)
+    catch (std::exception&)
     {
-        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s':\n%s\n"),
-                         toolName.c_str(), ex.swhat());
+        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s'"),
+                         toolName.c_str());
         return -1;
     }
 
@@ -221,10 +228,10 @@ int main(int argc, const char** argv)
     {
         retval = tool->run();
     }
-    catch (HECL::Exception& ex)
+    catch (std::exception&)
     {
-        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s':\n%s\n"),
-                         toolName.c_str(), ex.swhat());
+        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s'"),
+                         toolName.c_str());
         return -1;
     }
 

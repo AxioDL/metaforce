@@ -20,19 +20,19 @@ public:
 
         if (HECL::Stat(dir->c_str(), &theStat))
         {
-            throw HECL::Exception(_S("unable to stat '") + *dir + _S("'"));
+            LogModule.report(LogVisor::FatalError, _S("unable to stat '%s'"), dir->c_str());
             return;
         }
         if (!S_ISDIR(theStat.st_mode))
         {
-            throw HECL::Exception(_S("'") + *dir + _S("' is not a directory"));
+            LogModule.report(LogVisor::FatalError, _S("'%s' is not a directory"), dir->c_str());
             return;
         }
 
         HECL::SystemString testPath = *dir + _S("/.hecl/beacon");
         if (!HECL::Stat(testPath.c_str(), &theStat))
         {
-            throw HECL::Exception(_S("project already exists at '") + *dir + _S("'"));
+            LogModule.report(LogVisor::FatalError, _S("project already exists at '%s'"), dir->c_str());
             return;
         }
 
@@ -48,12 +48,12 @@ public:
             HECL::Database::Project proj((HECL::ProjectRootPath(*m_dir)));
             proj.enableDataSpecs({_S("hecl-little")});
         }
-        catch (HECL::Exception& e)
+        catch (std::exception& e)
         {
-            LogModule.report(LogVisor::Error, _S("unable to init project: '%s'\n"), e.swhat());
+            LogModule.report(LogVisor::Error, "unable to init project");
             return -1;
         }
-        LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'\n"), m_dir->c_str());
+        LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());
         return 0;
     }
 

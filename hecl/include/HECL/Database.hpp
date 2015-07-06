@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include <Athena/IStreamReader.hpp>
+#include <LogVisor/LogVisor.hpp>
 
 #include "HECL.hpp"
 
@@ -23,6 +24,8 @@ namespace HECL
 namespace Database
 {
 class Project;
+
+extern LogVisor::LogModule LogModule;
 
 /**
  * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -71,8 +74,8 @@ public:
         ProjectPath subpath;
         bool cookedonly;
     };
-    virtual bool canExtract(const ExtractPassInfo& info, SystemString& reasonNo)
-    {(void)info;reasonNo=_S("not implemented");return false;}
+    virtual bool canExtract(const ExtractPassInfo& info)
+    {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
     virtual void doExtract(const Project& project, const ExtractPassInfo& info)
     {(void)project;(void)info;}
 
@@ -234,7 +237,6 @@ public:
 private:
     ProjectRootPath m_rootPath;
     CompiledSpecs m_compiledSpecs;
-    FLogger m_logger;
 public:
     Project(const HECL::ProjectRootPath& rootPath);
 
@@ -285,14 +287,6 @@ public:
         C_MEDIUM,
         C_HEAVY
     };
-
-    /**
-     * @brief Register an optional callback to report log-messages using
-     * @param logger logger-callback
-     *
-     * If this method is never called, all project operations will run silently.
-     */
-    void registerLogger(HECL::FLogger logger);
 
     /**
      * @brief Get the path of the project's root-directory

@@ -120,7 +120,7 @@ Time ProjectPath::getModtime() const
             return Time(latestTime);
         }
     }
-    throw HECL::Exception(_S("invalid path type"));
+    LogModule.report(LogVisor::Error, _S("invalid path type for computing modtime"));
     return Time();
 }
 

@@ -13,11 +13,19 @@ INCLUDEPATH += ../include \
 LIBPATH += $$OUT_PWD/../lib \
     $$OUT_PWD/../blender \
     $$OUT_PWD/../extern/LogVisor \
-    $$OUT_PWD/../extern/RetroCommon/NODLib/lib \
     $$OUT_PWD/../extern/blowfish \
-    $$OUT_PWD/../extern/libpng
+    $$OUT_PWD/../extern/libpng \
+    $$OUT_PWD/../extern/Athena/lib \
+    $$OUT_PWD/../extern/RetroCommon/DataSpec \
+    $$OUT_PWD/../extern/RetroCommon/NODLib/lib
 
-LIBS += -lhecl -lhecl-blender -lblowfish -lNOD -lLogVisor -lpng -lpthread
+LIBS += -lhecl -lhecl-blender -lblowfish -lpng -lpthread
+LIBS += -Wl,--whole-archive -lRetroDataSpec -Wl,--no-whole-archive -lNOD -lLogVisor
+CONFIG(debug, debug|release) {
+    LIBS += -lAthena-d
+} else {
+    LIBS += -lAthena
+}
 
 SOURCES += \
     $$PWD/main.cpp

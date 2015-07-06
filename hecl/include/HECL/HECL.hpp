@@ -21,10 +21,14 @@ char* win_realpath(const char* name, char* restrict resolved);
 #include <string>
 #include <algorithm>
 #include <regex>
+#include <LogVisor/LogVisor.hpp>
+#include <Athena/DNA.hpp>
 #include "../extern/blowfish/blowfish.h"
 
 namespace HECL
 {
+
+extern LogVisor::LogModule LogModule;
 
 #if _WIN32 && UNICODE
 #define HECL_UCS2 1
@@ -86,31 +90,6 @@ public:
 #define _S(val) val
 #endif
 #endif
-
-class Exception : public std::exception
-{
-    SystemString m_what;
-#if HECL_UCS2
-    std::string m_utf8what;
-#endif
-public:
-    Exception(const SystemString& what) noexcept
-    : m_what(what)
-    {
-#if HECL_UCS2
-        m_utf8what = WideToUTF8(what);
-#endif
-    }
-    const char* what() const noexcept
-    {
-#if HECL_UCS2
-        return m_utf8what.c_str();
-#else
-        return m_what.c_str();
-#endif
-    }
-    inline const SystemChar* swhat() const noexcept {return m_what.c_str();}
-};
 
 static inline void MakeDir(const SystemString& dir)
 {
@@ -232,28 +211,16 @@ typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
 class ProjectRootPath;
 
 /**
- * @brief Severity of a log event
- */
-enum LogType
-{
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR
-};
-
-/**
- * @brief Logger callback type
- */
-typedef std::function<void(LogType, std::string&)> FLogger;
-
-/**
  * @brief FourCC representation used within HECL's database
  *
  * FourCCs are efficient, mnemonic four-char-sequences used to represent types
  * while fitting comfortably in a 32-bit word. HECL uses a four-char array
  * to remain endian-independent.
+ *
+ * This class also functions as a read/write Athena DNA type,
+ * for easy initialization of FourCCs in DNA data records.
  */
-class FourCC final
+class FourCC final : public Athena::io::DNA<Athena::BigEndian>
 {
     union
     {
@@ -270,6 +237,12 @@ public:
     inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
     inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
     inline std::string toString() const {return std::string(fcc, 4);}
+
+    Delete expl;
+    inline void read(Athena::io::IStreamReader& reader)
+    {reader.readUBytesToBuf(fcc, 4);}
+    inline void write(Athena::io::IStreamWriter& writer) const
+    {writer.writeUBytes((atUint8*)fcc, 4);}
 };
 
 /**

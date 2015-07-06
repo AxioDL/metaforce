@@ -15,7 +15,7 @@ public:
     : ToolBase(info)
     {
         if (m_info.args.empty())
-            throw HECL::Exception(_S("help requires a tool name argument"));
+            LogModule.report(LogVisor::FatalError, "help requires a tool name argument");
     }
 
     ~ToolHelp()
@@ -78,7 +78,7 @@ public:
             helpFunc = ToolHelp::Help;
         else
         {
-            throw HECL::Exception(_S("unrecognized tool '") + toolName + _S("' - can't help"));
+            LogModule.report(LogVisor::FatalError, _S("unrecognized tool '%s' - can't help"), toolName.c_str());
             return;
         }
 
