@@ -14,7 +14,7 @@ namespace DNAMP3
 class PAK : public BigDNA
 {
 public:
-    struct Header : public BigDNA
+    struct Header : BigDNA
     {
         DECL_DNA
         Value<atUint32> version;
@@ -23,7 +23,7 @@ public:
         Seek<40, Athena::Current> seek;
     } m_header;
 
-    struct NameEntry : public BigDNA
+    struct NameEntry : BigDNA
     {
         DECL_DNA
         String<-1> name;
@@ -31,7 +31,7 @@ public:
         UniqueID64 id;
     };
 
-    struct Entry : public BigDNA
+    struct Entry : BigDNA
     {
         DECL_DNA
         Value<atUint32> compressed;
@@ -95,14 +95,14 @@ public:
                 m_nameMap[entry.name] = found->second;
         }
     }
-    void write(Athena::io::IStreamWriter& writer)
+    void write(Athena::io::IStreamWriter& writer) const
     {
         writer.setEndian(Athena::BigEndian);
         m_header.write(writer);
 
         HECL::FourCC("STRG").write(writer);
         atUint32 strgSz = 4;
-        for (NameEntry& entry : m_nameEntries)
+        for (const NameEntry& entry : m_nameEntries)
             strgSz += entry.name.size() + 13;
         atUint32 strgPad = ((strgSz + 63) & ~63) - strgSz;
         strgSz += strgPad;
@@ -116,7 +116,7 @@ public:
 
         HECL::FourCC("DATA").write(writer);
         atUint32 dataSz = 0;
-        for (Entry& entry : m_entries)
+        for (const Entry& entry : m_entries)
             dataSz += (entry.size + 63) & ~63;
         atUint32 dataPad = ((dataSz + 63) & ~63) - dataSz;
         dataSz += dataPad;
@@ -124,12 +124,12 @@ public:
         writer.seek(36, Athena::Current);
 
         writer.writeUint32(m_nameEntries.size());
-        for (NameEntry& entry : m_nameEntries)
+        for (const NameEntry& entry : m_nameEntries)
             entry.write(writer);
         writer.seek(strgPad, Athena::Current);
 
         writer.writeUint32(m_entries.size());
-        for (Entry& entry : m_entries)
+        for (const Entry& entry : m_entries)
             entry.write(writer);
         writer.seek(rshdPad, Athena::Current);
     }

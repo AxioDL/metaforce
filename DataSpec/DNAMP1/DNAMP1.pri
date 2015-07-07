@@ -1,6 +1,6 @@
 HEADERS += \
-    $$PWD/PAK.hpp \
-    $$PWD/MLVL.hpp
+    $$PWD/MLVL.hpp \
+    $$PWD/PAK.hpp
 
 SOURCES += \
     $$PWD/PAK.cpp

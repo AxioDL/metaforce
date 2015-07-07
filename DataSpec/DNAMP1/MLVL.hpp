@@ -5,7 +5,7 @@ namespace Retro
 namespace DNAMP1
 {
 
-struct MLVL : public BigDNA
+struct MLVL : BigDNA
 {
     DECL_DNA
     DNAFourCC magic;
@@ -15,7 +15,7 @@ struct MLVL : public BigDNA
     DNAUniqueID32 worldSkyboxId;
 
     Value<atUint32> memRelayLinkCount;
-    struct MemRelayLink : public BigDNA
+    struct MemRelayLink : BigDNA
     {
         DECL_DNA
         Value<atUint32> memRelayId;
@@ -27,7 +27,7 @@ struct MLVL : public BigDNA
 
     Value<atUint32> areaCount;
     Value<atUint32> unknown1;
-    struct Area : public BigDNA
+    struct Area : BigDNA
     {
         DECL_DNA
         DNAUniqueID32 areaNameId;
@@ -41,7 +41,7 @@ struct MLVL : public BigDNA
         Value<atUint32> padding;
 
         Value<atUint32> depCount;
-        struct Dependency : public BigDNA
+        struct Dependency : BigDNA
         {
             DECL_DNA
             DNAUniqueID32 id;
@@ -53,11 +53,11 @@ struct MLVL : public BigDNA
         Vector<atUint32, DNA_COUNT(depLayerCount)> depLayers;
 
         Value<atUint32> dockCount;
-        struct Dock : public BigDNA
+        struct Dock : BigDNA
         {
             DECL_DNA
             Value<atUint32> endpointCount;
-            struct Endpoint : public BigDNA
+            struct Endpoint : BigDNA
             {
                 DECL_DNA
                 Value<atUint32> areaIdx;
@@ -77,7 +77,7 @@ struct MLVL : public BigDNA
     Value<atUint32> unknown3;
 
     Value<atUint32> audioGroupCount;
-    struct AudioGroup : public BigDNA
+    struct AudioGroup : BigDNA
     {
         DECL_DNA
         Value<atUint32> unknown;
@@ -87,7 +87,7 @@ struct MLVL : public BigDNA
     String<-1> unkString;
 
     Value<atUint32> layerFlagCount;
-    struct LayerFlags : public BigDNA
+    struct LayerFlags : BigDNA
     {
         DECL_DNA
         Value<atUint32> layerCount;

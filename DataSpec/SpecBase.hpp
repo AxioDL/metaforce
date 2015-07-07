@@ -11,7 +11,7 @@ namespace Retro
 
 extern LogVisor::LogModule LogModule;
 
-struct SpecBase : public HECL::Database::IDataSpec
+struct SpecBase : HECL::Database::IDataSpec
 {
     bool canExtract(const ExtractPassInfo& info);
     void doExtract(const HECL::Database::Project& project, const ExtractPassInfo& info);
@@ -24,14 +24,14 @@ struct SpecBase : public HECL::Database::IDataSpec
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
 
-    virtual bool checkFromGCNDisc(const NOD::DiscGCN& disc)=0;
-    virtual bool readFromGCNDisc(const NOD::DiscGCN& disc)=0;
+    virtual bool checkFromGCNDisc(NOD::DiscGCN& disc, ExtractOption& opts)=0;
+    virtual bool readFromGCNDisc(NOD::DiscGCN& disc)=0;
 
-    virtual bool checkFromWiiDisc(const NOD::DiscWii& disc)=0;
-    virtual bool readFromWiiDisc(const NOD::DiscWii& disc)=0;
+    virtual bool checkFromWiiDisc(NOD::DiscWii& disc, ExtractOption& opts)=0;
+    virtual bool readFromWiiDisc(NOD::DiscWii& disc)=0;
 
-    virtual bool checkFromProject(const HECL::Database::Project& proj)=0;
-    virtual bool readFromProject(const HECL::Database::Project& proj)=0;
+    virtual bool checkFromProject(HECL::Database::Project& proj)=0;
+    virtual bool readFromProject(HECL::Database::Project& proj)=0;
 
     virtual bool visitGameObjects(std::function<bool(const HECL::Database::ObjectBase&)>)=0;
     struct ILevelSpec

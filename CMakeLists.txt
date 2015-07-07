@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.0)
+project(RetroCommon)
+if (NOT TARGET NOD)
+    add_subdirectory(NODLib)
+endif()
+include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR})
+add_subdirectory(DataSpec)

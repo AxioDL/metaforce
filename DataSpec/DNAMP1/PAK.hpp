@@ -23,7 +23,7 @@ public:
         String<DNA_COUNT(nameLen)> name;
     };
 
-    struct Entry : public BigDNA
+    struct Entry : BigDNA
     {
         DECL_DNA
         Value<atUint32> compressed;
@@ -79,16 +79,16 @@ public:
                 m_nameMap[entry.name] = found->second;
         }
     }
-    void write(Athena::io::IStreamWriter& writer)
+    void write(Athena::io::IStreamWriter& writer) const
     {
         writer.setEndian(Athena::BigEndian);
         writer.writeUint32(0x00030005);
         writer.writeUint32(0);
 
         writer.writeUint32(m_nameEntries.size());
-        for (NameEntry& entry : m_nameEntries)
+        for (const NameEntry& entry : m_nameEntries)
         {
-            entry.nameLen = entry.name.size();
+            ((NameEntry&)entry).nameLen = entry.name.size();
             entry.write(writer);
         }
 
