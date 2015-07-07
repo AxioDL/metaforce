@@ -55,11 +55,6 @@ static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::re
 
 #include "../blender/CBlenderConnection.hpp"
 
-namespace Retro
-{
-extern HECL::Database::DataSpecEntry SpecMP1;
-}
-
 #if HECL_UCS2
 int wmain(int argc, const wchar_t** argv)
 #else
@@ -68,10 +63,10 @@ int main(int argc, const char** argv)
 {
     /* Xterm check */
     const char* term = getenv("TERM");
-    if (!strncmp(term, "xterm", 5))
+    if (term && !strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
 
-    //fprintf(stderr, "%s\n", Retro::SpecMP1.m_name.c_str());
+    LogVisor::RegisterConsoleLogger();
 
     //CBlenderConnection bconn(false);
     //return 0;
@@ -237,3 +232,5 @@ int main(int argc, const char** argv)
 
     return retval;
 }
+
+

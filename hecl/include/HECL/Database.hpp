@@ -160,7 +160,9 @@ struct DataSpecEntry
     DataSpecEntry(SystemString&& name, SystemString&& desc,
                   std::function<IDataSpec*(DataSpecTool)>&& factory)
     : m_name(std::move(name)), m_desc(std::move(desc)), m_factory(std::move(factory))
-    {DATA_SPEC_REGISTRY.push_back(this);}
+    {
+        DATA_SPEC_REGISTRY.push_back(this);
+    }
 };
 
 /**

@@ -7,8 +7,4 @@ add_library(HECL
             HECL.cpp
             ProjectPath.cpp
             WideStringConvert.cpp)
-target_link_libraries(HECL
-                      HECLBackend
-                      HECLDatabase
-                      HECLFrontend
-                      HECLRuntime)
+
