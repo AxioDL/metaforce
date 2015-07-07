@@ -74,7 +74,22 @@ public:
         ProjectPath subpath;
         bool cookedonly;
     };
-    virtual bool canExtract(const ExtractPassInfo& info)
+
+    /**
+     * @brief Interactive Extract Option
+     *
+     * Constructed by canExtract() to solicit the user for game-specific
+     * extraction options (i.e. games that are gathered into a trilogy collection)
+     */
+    struct ExtractOption
+    {
+        SystemString name;
+        SystemString desc;
+        bool defVal;
+        std::vector<ExtractOption> childOpts;
+    };
+
+    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractOption>& opts)
     {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
     virtual void doExtract(const Project& project, const ExtractPassInfo& info)
     {(void)project;(void)info;}
