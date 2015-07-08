@@ -53,7 +53,7 @@ static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMASc
 static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
 static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
-#include "../blender/CBlenderConnection.hpp"
+#include "../blender/BlenderConnection.hpp"
 
 #if HECL_UCS2
 int wmain(int argc, const wchar_t** argv)

@@ -5,7 +5,7 @@
 #include <system_error>
 #include <string>
 
-#include "CBlenderConnection.hpp"
+#include "BlenderConnection.hpp"
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"

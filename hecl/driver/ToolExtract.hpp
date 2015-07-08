@@ -10,6 +10,12 @@ public:
     ToolExtract(const ToolPassInfo& info)
     : ToolBase(info)
     {
+        if (!info.project)
+            LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
+        for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
+        {
+
+        }
     }
 
     static void Help(HelpOutput& help)
@@ -21,13 +27,13 @@ public:
 
         help.secHead(_S("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl extract <packagefile>[/<subnode>...]\n"));
+        help.wrap(_S("hecl extract <packagefile> [<subnode>...]\n"));
         help.endWrap();
 
         help.secHead(_S("DESCRIPTION"));
         help.beginWrap();
         help.wrap(_S("This command recursively extracts all or part of a dataspec-supported "
-                     "package format.\n\n"));
+                     "package format. Each object is decoded to a working format and added to the project.\n\n"));
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));

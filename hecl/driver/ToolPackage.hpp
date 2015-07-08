@@ -12,6 +12,8 @@ public:
     ToolPackage(const ToolPassInfo& info)
     : ToolBase(info)
     {
+        if (!info.project)
+            LogModule.report(LogVisor::FatalError, "hecl package must be ran within a project directory");
     }
 
     ~ToolPackage()

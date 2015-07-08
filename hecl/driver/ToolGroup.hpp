@@ -10,6 +10,8 @@ public:
     ToolGroup(const ToolPassInfo& info)
     : ToolBase(info)
     {
+        if (!info.project)
+            LogModule.report(LogVisor::FatalError, "hecl group must be ran within a project directory");
     }
 
     ~ToolGroup()
