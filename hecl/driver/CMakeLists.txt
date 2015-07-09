@@ -13,5 +13,5 @@ add_executable(hecl main.cpp
 )
 target_link_libraries(hecl HECL HECLDatabase
     "-Wl,-whole-archive" RetroDataSpec "-Wl,-no-whole-archive"
-    AthenaCore NOD LogVisor blowfish zlib lzo pthread
+    AthenaCore NOD LogVisor blowfish z lzo2 pthread
 )
