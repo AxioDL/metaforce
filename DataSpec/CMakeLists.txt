@@ -6,17 +6,19 @@ find_package(atdna REQUIRED)
 
 # Assembles a source/header pair list for use in a DNA library
 macro(make_dnalist outlist)
-foreach(type ${ARGN})
-  atdna(${type}.cpp ${type}.hpp)
-  list(APPEND ${outlist} ${type}.cpp ${type}.hpp)
-endforeach()
+  foreach(type ${ARGN})
+    atdna(atdna_${type}.cpp ${type}.hpp)
+    list(APPEND ${outlist} atdna_${type}.cpp ${type}.hpp)
+  endforeach()
 endmacro()
 
+# Each game's DNA library
 add_subdirectory(DNACommon)
 add_subdirectory(DNAMP1)
 add_subdirectory(DNAMP2)
 add_subdirectory(DNAMP3)
 
+# Each game's DataSpec implementation
 add_library(RetroDataSpec
             SpecBase.cpp
             SpecMP1.cpp

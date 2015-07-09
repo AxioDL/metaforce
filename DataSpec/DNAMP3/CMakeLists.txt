@@ -1,5 +1,3 @@
-list(APPEND types
-     PAK)
-
-make_dnalist(liblist ${types})
+make_dnalist(liblist
+             PAK)
 add_library(DNAMP3 ${liblist})
