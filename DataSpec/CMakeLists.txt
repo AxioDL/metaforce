@@ -5,8 +5,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 find_package(atdna REQUIRED)
 
 # Assembles a source/header pair list for use in a DNA library
-macro(make_dnalist outlist inlist)
-foreach(type ${inlist})
+macro(make_dnalist outlist)
+foreach(type ${ARGN})
   atdna(${type}.cpp ${type}.hpp)
   list(APPEND ${outlist} ${type}.cpp ${type}.hpp)
 endforeach()
