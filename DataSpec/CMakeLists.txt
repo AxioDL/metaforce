@@ -1,6 +1,17 @@
 include_directories(${HECL_INCLUDE_DIR} ${NOD_LIB_INCLUDE_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+# Magic ingredient
+find_package(atdna REQUIRED)
+
+# Assembles a source/header pair list for use in a DNA library
+macro(make_dnalist outlist inlist)
+foreach(type ${inlist})
+  atdna(${type}.cpp ${type}.hpp)
+  list(APPEND ${outlist} ${type}.cpp ${type}.hpp)
+endforeach()
+endmacro()
+
 add_subdirectory(DNACommon)
 add_subdirectory(DNAMP1)
 add_subdirectory(DNAMP2)

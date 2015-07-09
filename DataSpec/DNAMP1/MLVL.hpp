@@ -8,11 +8,11 @@ namespace DNAMP1
 struct MLVL : BigDNA
 {
     DECL_DNA
-    DNAFourCC magic;
+    HECL::FourCC magic;
     Value<atUint32> version;
-    DNAUniqueID32 worldNameId;
-    DNAUniqueID32 saveWorldId;
-    DNAUniqueID32 worldSkyboxId;
+    UniqueID32 worldNameId;
+    UniqueID32 saveWorldId;
+    UniqueID32 worldSkyboxId;
 
     Value<atUint32> memRelayLinkCount;
     struct MemRelayLink : BigDNA
@@ -30,10 +30,10 @@ struct MLVL : BigDNA
     struct Area : BigDNA
     {
         DECL_DNA
-        DNAUniqueID32 areaNameId;
+        UniqueID32 areaNameId;
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
-        DNAUniqueID32 areaMREAId;
+        UniqueID32 areaMREAId;
         Value<atUint32> areaId;
 
         Value<atUint32> attachedAreaCount;
@@ -44,8 +44,8 @@ struct MLVL : BigDNA
         struct Dependency : BigDNA
         {
             DECL_DNA
-            DNAUniqueID32 id;
-            DNAFourCC type;
+            UniqueID32 id;
+            HECL::FourCC type;
         };
         Vector<Dependency, DNA_COUNT(depCount)> deps;
 
@@ -63,7 +63,7 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            DNAFourCC type;
+            HECL::FourCC type;
             Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
@@ -72,7 +72,7 @@ struct MLVL : BigDNA
         Vector<Dock, DNA_COUNT(dockCount)> docks;
     };
 
-    DNAUniqueID32 worldMap;
+    UniqueID32 worldMap;
     Value<atUint8> unknown2;
     Value<atUint32> unknown3;
 
@@ -81,7 +81,7 @@ struct MLVL : BigDNA
     {
         DECL_DNA
         Value<atUint32> unknown;
-        DNAUniqueID32 agscId;
+        UniqueID32 agscId;
     };
     Vector<AudioGroup, DNA_COUNT(audioGroupCount)> audioGroups;
     String<-1> unkString;
