@@ -70,26 +70,24 @@ public:
      */
     struct ExtractPassInfo
     {
-        SystemString srcpath;
-        ProjectPath subpath;
-        bool cookedonly;
+        const SystemString* srcpath;
+        std::vector<const SystemString*> extractArgs;
     };
 
     /**
-     * @brief Interactive Extract Option
+     * @brief Extract Report Representation
      *
-     * Constructed by canExtract() to solicit the user for game-specific
-     * extraction options (i.e. games that are gathered into a trilogy collection)
+     * Constructed by canExtract() to advise the user of the content about
+     * to be extracted
      */
-    struct ExtractOption
+    struct ExtractReport
     {
         SystemString name;
         SystemString desc;
-        bool defVal;
-        std::vector<ExtractOption> childOpts;
+        std::vector<ExtractReport> childOpts;
     };
 
-    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractOption>& opts)
+    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
     virtual void doExtract(const Project& project, const ExtractPassInfo& info)
     {(void)project;(void)info;}

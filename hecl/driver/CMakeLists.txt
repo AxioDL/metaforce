@@ -11,7 +11,14 @@ add_executable(hecl main.cpp
     ToolRemove.hpp
     ToolSpec.hpp
 )
-target_link_libraries(hecl HECL HECLDatabase
-    "-Wl,-whole-archive" RetroDataSpec "-Wl,-no-whole-archive"
-    AthenaCore NOD LogVisor blowfish z lzo2 pthread
+
+list(APPEND DATA_SPEC_LIBS
+     RetroDataSpec
+     DNAMP1
+     DNAMP2
+     DNAMP3)
+
+target_link_libraries(hecl
+    "-Wl,-whole-archive" ${DATA_SPEC_LIBS} "-Wl,-no-whole-archive"
+    HECL HECLDatabase AthenaCore NOD LogVisor blowfish z lzo2 pthread
 )

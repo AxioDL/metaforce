@@ -207,20 +207,19 @@ Project::Project(const ProjectRootPath& rootPath)
     FILE* bf = HECL::Fopen((m_rootPath.getAbsolutePath() + _S("/.hecl/beacon")).c_str(), _S("a+b"));
     struct BeaconStruct
     {
-        FourCC magic;
+        uint32_t magic;
         uint32_t version;
     } beacon;
 #define DATA_VERSION 1
-    static const FourCC hecl("HECL");
     if (fread(&beacon, 1, sizeof(beacon), bf) != sizeof(beacon))
     {
         fseek(bf, 0, SEEK_SET);
-        beacon.magic = hecl;
+        beacon.magic = SBig('HECL');
         beacon.version = SBig(DATA_VERSION);
         fwrite(&beacon, 1, sizeof(beacon), bf);
     }
     fclose(bf);
-    if (beacon.magic != hecl ||
+    if (beacon.magic != SBig('HECL') ||
         SBig(beacon.version) != DATA_VERSION)
     {
         LogModule.report(LogVisor::FatalError, "incompatible project version");
