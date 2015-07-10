@@ -13,7 +13,7 @@ extern LogVisor::LogModule LogModule;
 
 struct SpecBase : HECL::Database::IDataSpec
 {
-    bool canExtract(const ExtractPassInfo& info);
+    bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const HECL::Database::Project& project, const ExtractPassInfo& info);
 
     bool canCook(const HECL::Database::Project& project, const CookTaskInfo& info);
@@ -24,11 +24,13 @@ struct SpecBase : HECL::Database::IDataSpec
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
 
-    virtual bool checkFromGCNDisc(NOD::DiscGCN& disc, ExtractOption& opts)=0;
-    virtual bool readFromGCNDisc(NOD::DiscGCN& disc)=0;
+    virtual bool checkFromGCNDisc(NOD::DiscGCN& disc, const std::vector<const HECL::SystemString*>& args,
+                                  std::vector<ExtractReport>& reps)=0;
+    virtual bool readFromGCNDisc(NOD::DiscGCN& disc, const std::vector<const HECL::SystemString*>& args)=0;
 
-    virtual bool checkFromWiiDisc(NOD::DiscWii& disc, ExtractOption& opts)=0;
-    virtual bool readFromWiiDisc(NOD::DiscWii& disc)=0;
+    virtual bool checkFromWiiDisc(NOD::DiscWii& disc, const std::vector<const HECL::SystemString*>& args,
+                                  std::vector<ExtractReport>& reps)=0;
+    virtual bool readFromWiiDisc(NOD::DiscWii& disc, const std::vector<const HECL::SystemString*>& args)=0;
 
     virtual bool checkFromProject(HECL::Database::Project& proj)=0;
     virtual bool readFromProject(HECL::Database::Project& proj)=0;

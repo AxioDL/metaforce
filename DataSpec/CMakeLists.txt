@@ -24,6 +24,3 @@ add_library(RetroDataSpec
             SpecMP1.cpp
             SpecMP2.cpp
             SpecMP3.cpp)
-target_link_libraries(RetroDataSpec
-                      DNAMP1
-                      DNAMP3)

@@ -1,65 +1,66 @@
-/* Auto generated atdna implementation */
-#include <Athena/Global.hpp>
-#include <Athena/IStreamReader.hpp>
-#include <Athena/IStreamWriter.hpp>
-
 #include "PAK.hpp"
 
-void Retro::DNAMP1::PAK::NameEntry::read(Athena::io::IStreamReader& __dna_reader)
+namespace Retro
 {
-    /* type */
-    type.read(__dna_reader);
-    /* id */
-    id.read(__dna_reader);
-    __dna_reader.setEndian(Athena::BigEndian);
-    /* nameLen */
-    nameLen = __dna_reader.readUint32();
-    /* name */
-    name = __dna_reader.readString(nameLen);
+namespace DNAMP1
+{
+
+void PAK::read(Athena::io::IStreamReader& reader)
+{
+    reader.setEndian(Athena::BigEndian);
+    atUint32 version = reader.readUint32();
+    if (version != 0x00030005)
+        LogModule.report(LogVisor::FatalError, "unexpected PAK magic");
+    reader.readUint32();
+
+    atUint32 nameCount = reader.readUint32();
+    m_nameEntries.clear();
+    m_nameEntries.reserve(nameCount);
+    for (atUint32 n=0 ; n<nameCount ; ++n)
+    {
+        m_nameEntries.emplace_back();
+        m_nameEntries.back().read(reader);
+    }
+
+    atUint32 count = reader.readUint32();
+    m_entries.clear();
+    m_entries.reserve(count);
+    m_idMap.clear();
+    m_idMap.reserve(count);
+    for (atUint32 e=0 ; e<count ; ++e)
+    {
+        m_entries.emplace_back();
+        m_entries.back().read(reader);
+        m_idMap[m_entries.back().id] = &m_entries.back();
+    }
+
+    m_nameMap.clear();
+    m_nameMap.reserve(nameCount);
+    for (NameEntry& entry : m_nameEntries)
+    {
+        std::unordered_map<UniqueID32, Entry*>::iterator found = m_idMap.find(entry.id);
+        if (found != m_idMap.end())
+            m_nameMap[entry.name] = found->second;
+    }
 }
 
-void Retro::DNAMP1::PAK::NameEntry::write(Athena::io::IStreamWriter& __dna_writer) const
+void PAK::write(Athena::io::IStreamWriter& writer) const
 {
-    /* type */
-    type.write(__dna_writer);
-    /* id */
-    id.write(__dna_writer);
-    __dna_writer.setEndian(Athena::BigEndian);
-    /* nameLen */
-    __dna_writer.writeUint32(nameLen);
-    /* name */
-    __dna_writer.writeString(name, nameLen);
+    writer.setEndian(Athena::BigEndian);
+    writer.writeUint32(0x00030005);
+    writer.writeUint32(0);
+
+    writer.writeUint32(m_nameEntries.size());
+    for (const NameEntry& entry : m_nameEntries)
+    {
+        ((NameEntry&)entry).nameLen = entry.name.size();
+        entry.write(writer);
+    }
+
+    writer.writeUint32(m_entries.size());
+    for (const Entry& entry : m_entries)
+        entry.write(writer);
 }
 
-void Retro::DNAMP1::PAK::Entry::read(Athena::io::IStreamReader& __dna_reader)
-{
-    __dna_reader.setEndian(Athena::BigEndian);
-    /* compressed */
-    compressed = __dna_reader.readUint32();
-    /* type */
-    type.read(__dna_reader);
-    /* id */
-    id.read(__dna_reader);
-    __dna_reader.setEndian(Athena::BigEndian);
-    /* size */
-    size = __dna_reader.readUint32();
-    /* offset */
-    offset = __dna_reader.readUint32();
 }
-
-void Retro::DNAMP1::PAK::Entry::write(Athena::io::IStreamWriter& __dna_writer) const
-{
-    __dna_writer.setEndian(Athena::BigEndian);
-    /* compressed */
-    __dna_writer.writeUint32(compressed);
-    /* type */
-    type.write(__dna_writer);
-    /* id */
-    id.write(__dna_writer);
-    __dna_writer.setEndian(Athena::BigEndian);
-    /* size */
-    __dna_writer.writeUint32(size);
-    /* offset */
-    __dna_writer.writeUint32(offset);
 }
-

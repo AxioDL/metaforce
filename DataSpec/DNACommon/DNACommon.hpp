@@ -107,6 +107,20 @@ public:
     }
 };
 
+struct CaseInsensitiveCompare
+{
+    inline bool operator()(const std::string& lhs, const std::string& rhs) const
+    {
+        std::string lhsl = lhs;
+        std::transform(lhsl.begin(), lhsl.end(), lhsl.begin(), tolower);
+        std::string rhsl = rhs;
+        std::transform(rhsl.begin(), rhsl.end(), rhsl.begin(), tolower);
+        if (lhsl.compare(rhsl) < 0)
+            return true;
+        return false;
+    }
+};
+
 }
 
 /* Hash template-specializations for UniqueID types */
