@@ -17,7 +17,7 @@ public:
     struct NameEntry : public BigDNA
     {
         DECL_DNA
-        HECL::FourCC type;
+        FourCC type;
         UniqueID32 id;
         Value<atUint32> nameLen;
         String<DNA_COUNT(nameLen)> name;
@@ -27,7 +27,7 @@ public:
     {
         DECL_DNA
         Value<atUint32> compressed;
-        HECL::FourCC type;
+        FourCC type;
         UniqueID32 id;
         Value<atUint32> size;
         Value<atUint32> offset;

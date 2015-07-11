@@ -24,7 +24,7 @@ struct STRG : BigDNA
 
     struct Language
     {
-        HECL::FourCC lang;
+        FourCC lang;
         std::vector<std::wstring> strings;
     };
     std::vector<Language> langs;

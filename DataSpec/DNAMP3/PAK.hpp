@@ -27,7 +27,7 @@ public:
     {
         DECL_DNA
         String<-1> name;
-        HECL::FourCC type;
+        FourCC type;
         UniqueID64 id;
     };
 

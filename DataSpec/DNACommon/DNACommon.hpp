@@ -10,6 +10,20 @@ namespace Retro
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
 
+class FourCC final : public BigDNA, public HECL::FourCC
+{
+public:
+    FourCC() : HECL::FourCC() {}
+    FourCC(const char* name)
+    : HECL::FourCC(name) {}
+
+    Delete expl;
+    inline void read(Athena::io::IStreamReader& reader)
+    {reader.readUBytesToBuf(fcc, 4);}
+    inline void write(Athena::io::IStreamWriter& writer) const
+    {writer.writeUBytes((atUint8*)fcc, 4);}
+};
+
 /* PAK 32-bit Unique ID */
 class UniqueID32 : public BigDNA
 {

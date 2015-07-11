@@ -8,7 +8,7 @@ namespace DNAMP1
 struct MLVL : BigDNA
 {
     DECL_DNA
-    HECL::FourCC magic;
+    FourCC magic;
     Value<atUint32> version;
     UniqueID32 worldNameId;
     UniqueID32 saveWorldId;

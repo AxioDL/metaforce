@@ -55,7 +55,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     writer.setEndian(Athena::BigEndian);
     m_header.write(writer);
 
-    HECL::FourCC("STRG").write(writer);
+    FourCC("STRG").write(writer);
     atUint32 strgSz = 4;
     for (const NameEntry& entry : m_nameEntries)
         strgSz += entry.name.size() + 13;
@@ -63,13 +63,13 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     strgSz += strgPad;
     writer.writeUint32(strgSz);
 
-    HECL::FourCC("RSHD").write(writer);
+    FourCC("RSHD").write(writer);
     atUint32 rshdSz = 4 + 24 * m_entries.size();
     atUint32 rshdPad = ((rshdSz + 63) & ~63) - rshdSz;
     rshdSz += rshdPad;
     writer.writeUint32(rshdSz);
 
-    HECL::FourCC("DATA").write(writer);
+    FourCC("DATA").write(writer);
     atUint32 dataSz = 0;
     for (const Entry& entry : m_entries)
         dataSz += (entry.size + 63) & ~63;
