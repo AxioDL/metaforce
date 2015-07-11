@@ -220,8 +220,9 @@ class ProjectRootPath;
  * This class also functions as a read/write Athena DNA type,
  * for easy initialization of FourCCs in DNA data records.
  */
-class FourCC final : public Athena::io::DNA<Athena::BigEndian>
+class FourCC
 {
+protected:
     union
     {
         char fcc[4];
@@ -237,12 +238,6 @@ public:
     inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
     inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
     inline std::string toString() const {return std::string(fcc, 4);}
-
-    Delete expl;
-    inline void read(Athena::io::IStreamReader& reader)
-    {reader.readUBytesToBuf(fcc, 4);}
-    inline void write(Athena::io::IStreamWriter& writer) const
-    {writer.writeUBytes((atUint8*)fcc, 4);}
 };
 
 /**
