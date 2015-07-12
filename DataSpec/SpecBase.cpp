@@ -17,10 +17,14 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     const char* gameID = disc->getHeader().gameID;
 
     bool valid = false;
+    bool standalone = true;
     if (isWii)
     {
         if (!memcmp(gameID, "R3M", 3))
+        {
             valid = true;
+            standalone = false;
+        }
         else if (!memcmp(gameID, "R3IJ01", 6))
             valid = true;
     }
@@ -36,10 +40,29 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         return false;
     }
 
-    if (isWii)
-        return checkFromWiiDisc(*(NOD::DiscWii*)disc.get(), info.extractArgs, reps);
+    char region = disc->getHeader().gameID[3];
+    static const std::string regNONE = "";
+    static const std::string regE = "NTSC";
+    static const std::string regJ = "NTSC-J";
+    static const std::string regP = "PAL";
+    const std::string* regstr = &regNONE;
+    switch (region)
+    {
+    case 'E':
+        regstr = &regE;
+        break;
+    case 'J':
+        regstr = &regJ;
+        break;
+    case 'P':
+        regstr = &regP;
+        break;
+    }
+
+    if (standalone)
+        return checkFromStandaloneDisc(*disc.get(), *regstr, info.extractArgs, reps);
     else
-        return checkFromGCNDisc(*(NOD::DiscGCN*)disc.get(), info.extractArgs, reps);
+        return checkFromTrilogyDisc(*disc.get(), *regstr, info.extractArgs, reps);
 }
 
 void SpecBase::doExtract(const HECL::Database::Project& project, const ExtractPassInfo& info)

@@ -18,45 +18,13 @@ struct SpecMP1 : SpecBase
         DiscPAK(const NOD::DiscBase::IPartition::Node& n) : node(n) {}
     };
     std::vector<DiscPAK> m_paks;
+    std::map<std::string, DiscPAK*, CaseInsensitiveCompare> m_orderedPaks;
 
-    bool checkFromGCNDisc(NOD::DiscGCN& disc,
-                          const std::vector<const HECL::SystemString*>& args,
-                          std::vector<ExtractReport>& reps)
+    void buildPaks(NOD::DiscBase::IPartition::Node& root,
+                   const std::vector<const HECL::SystemString*>& args,
+                   ExtractReport& rep)
     {
-        if (memcmp(disc.getHeader().gameID, "GM8", 3))
-            return false;
-        char region = disc.getHeader().gameID[3];
-        static const std::string regNONE = "";
-        static const std::string regE = "NTSC";
-        static const std::string regJ = "NTSC-J";
-        static const std::string regP = "PAL";
-        const std::string* regstr = &regNONE;
-        switch (region)
-        {
-        case 'E':
-            regstr = &regE;
-            break;
-        case 'J':
-            regstr = &regJ;
-            break;
-        case 'P':
-            regstr = &regP;
-            break;
-        }
-
-        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
-        std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-        const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
-
-        reps.emplace_back();
-        ExtractReport& rep = reps.back();
-        rep.name = "MP1";
-        rep.desc = "Metroid Prime " + *regstr;
-        if (buildInfo)
-            rep.desc += " (" + std::string(buildInfo) + ")";
-
-        /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node& root = disc.getDataPartition()->getFSTRoot();
+        m_paks.clear();
         for (const NOD::DiscBase::IPartition::Node& child : root)
         {
             const std::string& name = child.getName();
@@ -85,6 +53,8 @@ struct SpecMP1 : SpecBase
                                         good = true;
                             }
                         }
+                        else
+                            good = true;
 
                         if (!good)
                         {
@@ -113,11 +83,12 @@ struct SpecMP1 : SpecBase
         }
 
         /* Sort PAKs alphabetically */
-        std::map<std::string, DiscPAK*, CaseInsensitiveCompare> orderedPaks;
+        m_orderedPaks.clear();
         for (DiscPAK& dpak : m_paks)
-            orderedPaks[dpak.node.getName()] = &dpak;
+            m_orderedPaks[dpak.node.getName()] = &dpak;
 
-        for (std::pair<std::string, DiscPAK*> item : orderedPaks)
+        /* Assemble extract report */
+        for (std::pair<std::string, DiscPAK*> item : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
@@ -149,25 +120,39 @@ struct SpecMP1 : SpecBase
                 }
             }
         }
+    }
+
+    bool checkFromStandaloneDisc(NOD::DiscBase& disc,
+                                 const std::string& regstr,
+                                 const std::vector<const HECL::SystemString*>& args,
+                                 std::vector<ExtractReport>& reps)
+    {
+        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
+        std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
+        const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
+
+        reps.emplace_back();
+        ExtractReport& rep = reps.back();
+        rep.name = "MP1";
+        rep.desc = "Metroid Prime " + regstr;
+        if (buildInfo)
+            rep.desc += " (" + std::string(buildInfo) + ")";
+
+        /* Iterate PAKs and build level options */
+        NOD::DiscBase::IPartition::Node& root = disc.getDataPartition()->getFSTRoot();
+        buildPaks(root, args, rep);
 
         return true;
     }
-    bool readFromGCNDisc(NOD::DiscGCN& disc,
-                         const std::vector<const HECL::SystemString*>& args)
-    {
 
-    }
-
-    bool checkFromWiiDisc(NOD::DiscWii& disc,
-                          const std::vector<const HECL::SystemString*>& args,
-                          std::vector<ExtractReport>& reps)
+    bool checkFromTrilogyDisc(NOD::DiscBase& disc,
+                              const std::string& regstr,
+                              const std::vector<const HECL::SystemString*>& args,
+                              std::vector<ExtractReport>& reps)
     {
-        if (memcmp(disc.getHeader().gameID, "R3M", 3))
-            return false;
         return true;
     }
-    bool readFromWiiDisc(NOD::DiscWii& disc,
-                         const std::vector<const HECL::SystemString*>& args)
+    bool extractFromDisc()
     {
     }
 

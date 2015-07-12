@@ -24,13 +24,15 @@ struct SpecBase : HECL::Database::IDataSpec
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
 
-    virtual bool checkFromGCNDisc(NOD::DiscGCN& disc, const std::vector<const HECL::SystemString*>& args,
-                                  std::vector<ExtractReport>& reps)=0;
-    virtual bool readFromGCNDisc(NOD::DiscGCN& disc, const std::vector<const HECL::SystemString*>& args)=0;
-
-    virtual bool checkFromWiiDisc(NOD::DiscWii& disc, const std::vector<const HECL::SystemString*>& args,
-                                  std::vector<ExtractReport>& reps)=0;
-    virtual bool readFromWiiDisc(NOD::DiscWii& disc, const std::vector<const HECL::SystemString*>& args)=0;
+    virtual bool checkFromStandaloneDisc(NOD::DiscBase& disc,
+                                         const std::string& regstr,
+                                         const std::vector<const HECL::SystemString*>& args,
+                                         std::vector<ExtractReport>& reps)=0;
+    virtual bool checkFromTrilogyDisc(NOD::DiscBase& disc,
+                                      const std::string& regstr,
+                                      const std::vector<const HECL::SystemString*>& args,
+                                      std::vector<ExtractReport>& reps)=0;
+    virtual bool extractFromDisc()=0;
 
     virtual bool checkFromProject(HECL::Database::Project& proj)=0;
     virtual bool readFromProject(HECL::Database::Project& proj)=0;
