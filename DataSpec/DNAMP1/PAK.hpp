@@ -14,6 +14,8 @@ namespace DNAMP1
 class PAK : public BigDNA
 {
 public:
+    DECL_EXPLICIT_DNA
+
     struct NameEntry : public BigDNA
     {
         DECL_DNA
@@ -33,14 +35,10 @@ public:
         Value<atUint32> offset;
     };
 
-private:
     std::vector<NameEntry> m_nameEntries;
     std::vector<Entry> m_entries;
     std::unordered_map<UniqueID32, Entry*> m_idMap;
     std::unordered_map<std::string, Entry*> m_nameMap;
-
-public:
-    DECL_EXPLICIT_DNA
 
     inline const Entry* lookupEntry(const UniqueID32& id) const
     {
@@ -57,9 +55,6 @@ public:
             return result->second;
         return nullptr;
     }
-
-    inline std::vector<Entry>::iterator begin() {return m_entries.begin();}
-    inline std::vector<Entry>::iterator end() {return m_entries.end();}
 };
 
 }

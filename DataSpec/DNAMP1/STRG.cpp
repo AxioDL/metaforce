@@ -15,6 +15,7 @@ const HECL::FourCC JAPNfcc("JAPN");
 
 void STRG::read(Athena::io::IStreamReader& reader)
 {
+    reader.setEndian(Athena::BigEndian);
     uint32_t magic = reader.readUint32();
     if (magic != 0x87654321)
         LogModule.report(LogVisor::FatalError, "invalid STRG magic");
@@ -46,6 +47,7 @@ void STRG::read(Athena::io::IStreamReader& reader)
 
 void STRG::write(Athena::io::IStreamWriter& writer) const
 {
+    writer.setEndian(Athena::BigEndian);
     writer.writeUint32(0x87654321);
     writer.writeUint32(version);
     writer.writeUint32(langs.size());

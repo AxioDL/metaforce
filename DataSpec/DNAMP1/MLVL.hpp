@@ -45,7 +45,7 @@ struct MLVL : BigDNA
         {
             DECL_DNA
             UniqueID32 id;
-            HECL::FourCC type;
+            FourCC type;
         };
         Vector<Dependency, DNA_COUNT(depCount)> deps;
 
@@ -63,7 +63,6 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            HECL::FourCC type;
             Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
@@ -71,6 +70,7 @@ struct MLVL : BigDNA
         };
         Vector<Dock, DNA_COUNT(dockCount)> docks;
     };
+    Vector<Area, DNA_COUNT(areaCount)> areas;
 
     UniqueID32 worldMap;
     Value<atUint8> unknown2;

@@ -11,7 +11,13 @@ namespace Retro
 
 struct SpecMP1 : SpecBase
 {
-    std::vector<std::pair<std::string, DNAMP1::PAK>> m_paks;
+    struct DiscPAK
+    {
+        const NOD::DiscBase::IPartition::Node& node;
+        DNAMP1::PAK pak;
+        DiscPAK(const NOD::DiscBase::IPartition::Node& n) : node(n) {}
+    };
+    std::vector<DiscPAK> m_paks;
 
     bool checkFromGCNDisc(NOD::DiscGCN& disc,
                           const std::vector<const HECL::SystemString*>& args,
@@ -40,7 +46,7 @@ struct SpecMP1 : SpecBase
 
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-        const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 16;
+        const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
 
         reps.emplace_back();
         ExtractReport& rep = reps.back();
@@ -50,8 +56,6 @@ struct SpecMP1 : SpecBase
             rep.desc += " (" + std::string(buildInfo) + ")";
 
         /* Iterate PAKs and build level options */
-        std::map<std::string, std::pair<const NOD::DiscBase::IPartition::Node*, DNAMP1::PAK*>,
-                CaseInsensitiveCompare> orderedPaks;
         NOD::DiscBase::IPartition::Node& root = disc.getDataPartition()->getFSTRoot();
         for (const NOD::DiscBase::IPartition::Node& child : root)
         {
@@ -100,35 +104,39 @@ struct SpecMP1 : SpecBase
 
                     if (good)
                     {
-                        m_paks.emplace_back(std::make_pair(name, DNAMP1::PAK()));
-                        std::pair<std::string, DNAMP1::PAK>& res = m_paks.back();
+                        m_paks.emplace_back(child);
                         NOD::AthenaPartReadStream rs(child.beginReadStream());
-                        res.second.read(rs);
-                        orderedPaks[name] = std::make_pair(&child, &res.second);
+                        m_paks.back().pak.read(rs);
                     }
                 }
             }
         }
 
-        for (std::pair<std::string, std::pair<const NOD::DiscBase::IPartition::Node*, DNAMP1::PAK*>> item : orderedPaks)
+        /* Sort PAKs alphabetically */
+        std::map<std::string, DiscPAK*, CaseInsensitiveCompare> orderedPaks;
+        for (DiscPAK& dpak : m_paks)
+            orderedPaks[dpak.node.getName()] = &dpak;
+
+        for (std::pair<std::string, DiscPAK*> item : orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
             childRep.name = item.first;
 
-            for (DNAMP1::PAK::Entry& entry : *item.second.second)
+            DNAMP1::PAK& pak = item.second->pak;
+            for (DNAMP1::PAK::Entry& entry : pak.m_entries)
             {
                 static const HECL::FourCC MLVLfourcc("MLVL");
                 if (entry.type == MLVLfourcc)
                 {
-                    NOD::AthenaPartReadStream rs(item.second.first->beginReadStream(entry.offset));
+                    NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(entry.offset));
                     DNAMP1::MLVL mlvl;
                     mlvl.read(rs);
-                    const DNAMP1::PAK::Entry* nameEnt = item.second.second->lookupEntry(mlvl.worldNameId);
+                    const DNAMP1::PAK::Entry* nameEnt = pak.lookupEntry(mlvl.worldNameId);
                     if (nameEnt)
                     {
                         DNAMP1::STRG mlvlName;
-                        rs.seek(nameEnt->offset, Athena::Begin);
+                        NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(nameEnt->offset));
                         mlvlName.read(rs);
                         if (childRep.desc.size())
                             childRep.desc += _S(", ");

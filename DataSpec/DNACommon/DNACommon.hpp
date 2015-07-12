@@ -31,7 +31,7 @@ class UniqueID32 : public BigDNA
 public:
     Delete expl;
     inline void read(Athena::io::IStreamReader& reader)
-    {reader.readUint32();}
+    {m_id = reader.readUint32();}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32(m_id);}
 
@@ -53,7 +53,7 @@ class UniqueID64 : public BigDNA
 public:
     Delete expl;
     inline void read(Athena::io::IStreamReader& reader)
-    {reader.readUint64();}
+    {m_id = reader.readUint64();}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint64(m_id);}
 
