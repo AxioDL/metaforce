@@ -1,5 +1,5 @@
 include_directories(${HECL_INCLUDE_DIR} ${NOD_LIB_INCLUDE_DIR})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=1")
 
 # Magic ingredient
 find_package(atdna REQUIRED)
