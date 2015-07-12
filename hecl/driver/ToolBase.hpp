@@ -77,10 +77,7 @@ private:
                     ++it;
                 }
                 if (counter == WRAP_INDENT)
-                {
-                    string.insert(it, WRAP_INDENT, _S(' '));
-                    it += WRAP_INDENT;
-                }
+                    it = string.insert(it, WRAP_INDENT, _S(' ')) + WRAP_INDENT;
                 if (it >= string.end())
                     return;
                 if (*it != _S('\n'))
