@@ -28,10 +28,13 @@ public:
         for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
         {
             HECL::Database::IDataSpec* ds = entry->m_factory(HECL::Database::TOOL_EXTRACT);
-            if (ds->canExtract(m_einfo, m_reps))
-                m_dataSpecs.emplace_back(ds);
-            else
-                delete ds;
+            if (ds)
+            {
+                if (ds->canExtract(m_einfo, m_reps))
+                    m_dataSpecs.emplace_back(ds);
+                else
+                    delete ds;
+            }
         }
     }
 
@@ -69,12 +72,12 @@ public:
         for (int l=0 ; l<level ; ++l)
             HECL::Printf(_S("  "));
         if (XTERM_COLOR)
-            HECL::Printf(_S("" CYAN BOLD "%s" NORMAL "\n"), rep.name.c_str());
+            HECL::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
-            HECL::Printf(_S("%s\n"), rep.name.c_str());
-        for (int l=0 ; l<level ; ++l)
-            HECL::Printf(_S("  "));
-        HECL::Printf(_S("  %s\n"), rep.desc.c_str());
+            HECL::Printf(_S("%s"), rep.name.c_str());
+        if (rep.desc.size())
+            HECL::Printf(_S(" [%s]"), rep.desc.c_str());
+        HECL::Printf(_S("\n"));
         for (HECL::Database::IDataSpec::ExtractReport& child : rep.childOpts)
             _recursivePrint(level + 1, child);
     }
@@ -99,9 +102,9 @@ public:
             _recursivePrint(0, rep);
 
         if (XTERM_COLOR)
-            HECL::Printf(_S("" BLUE BOLD "Continue?" NORMAL "(Y/N)"));
+            HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/N) "));
         else
-            HECL::Printf(_S("Continue? (Y/N)"));
+            HECL::Printf(_S("\nContinue? (Y/N) "));
 
         int ch;
         while ((ch = getchar()))
