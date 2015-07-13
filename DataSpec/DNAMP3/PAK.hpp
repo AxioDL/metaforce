@@ -11,9 +11,8 @@ namespace Retro
 namespace DNAMP3
 {
 
-class PAK : public BigDNA
+struct PAK : BigDNA
 {
-public:
     struct Header : BigDNA
     {
         DECL_DNA
@@ -35,20 +34,18 @@ public:
     {
         DECL_DNA
         Value<atUint32> compressed;
-        HECL::FourCC type;
+        FourCC type;
         UniqueID64 id;
         Value<atUint32> size;
         Value<atUint32> offset;
     };
 
-private:
     std::vector<NameEntry> m_nameEntries;
     std::vector<Entry> m_entries;
     std::unordered_map<UniqueID64, Entry*> m_idMap;
     std::unordered_map<std::string, Entry*> m_nameMap;
     size_t m_dataOffset = 0;
 
-public:
     DECL_EXPLICIT_DNA
 
     inline const Entry* lookupEntry(const UniqueID64& id) const
@@ -67,8 +64,6 @@ public:
         return nullptr;
     }
 
-    inline std::vector<Entry>::iterator begin() {return m_entries.begin();}
-    inline std::vector<Entry>::iterator end() {return m_entries.end();}
     inline size_t getDataOffset() const {return m_dataOffset;}
 };
 

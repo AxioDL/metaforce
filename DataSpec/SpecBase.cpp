@@ -8,10 +8,10 @@ LogVisor::LogModule LogModule("RetroDataSpec");
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
     bool isWii;
-    std::unique_ptr<NOD::DiscBase> disc = NOD::OpenDiscFromImage(info.srcpath->c_str(), isWii);
+    std::unique_ptr<NOD::DiscBase> disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), isWii);
     if (!disc)
     {
-        LogModule.report(LogVisor::Error, _S("'%s' not a valid Nintendo disc image"), info.srcpath->c_str());
+        LogModule.report(LogVisor::Error, _S("'%s' not a valid Nintendo disc image"), info.srcpath.c_str());
         return false;
     }
     const char* gameID = disc->getHeader().gameID;
@@ -41,11 +41,11 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     }
 
     char region = disc->getHeader().gameID[3];
-    static const std::string regNONE = "";
-    static const std::string regE = "NTSC";
-    static const std::string regJ = "NTSC-J";
-    static const std::string regP = "PAL";
-    const std::string* regstr = &regNONE;
+    static const HECL::SystemString regNONE = _S("");
+    static const HECL::SystemString regE = _S("NTSC");
+    static const HECL::SystemString regJ = _S("NTSC-J");
+    static const HECL::SystemString regP = _S("PAL");
+    const HECL::SystemString* regstr = &regNONE;
     switch (region)
     {
     case 'E':

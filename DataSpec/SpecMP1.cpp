@@ -21,7 +21,7 @@ struct SpecMP1 : SpecBase
     std::map<std::string, DiscPAK*, CaseInsensitiveCompare> m_orderedPaks;
 
     void buildPaks(NOD::DiscBase::IPartition::Node& root,
-                   const std::vector<const HECL::SystemString*>& args,
+                   const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
         m_paks.clear();
@@ -46,10 +46,10 @@ struct SpecMP1 : SpecBase
                         if (!lowerName.compare(0, 7, "metroid"))
                         {
                             HECL::SystemChar idxChar = lowerName[7];
-                            for (const HECL::SystemString* arg : args)
+                            for (const HECL::SystemString& arg : args)
                             {
-                                if (arg->size() == 1 && iswdigit((*arg)[0]))
-                                    if ((*arg)[0] == idxChar)
+                                if (arg.size() == 1 && iswdigit(arg[0]))
+                                    if (arg[0] == idxChar)
                                         good = true;
                             }
                         }
@@ -58,12 +58,12 @@ struct SpecMP1 : SpecBase
 
                         if (!good)
                         {
-                            for (const HECL::SystemString* arg : args)
+                            for (const HECL::SystemString& arg : args)
                             {
 #if HECL_UCS2
-                                std::string lowerArg = HECL::WideToUTF8(*arg);
+                                std::string lowerArg = HECL::WideToUTF8(arg);
 #else
-                                std::string lowerArg = *arg;
+                                std::string lowerArg = arg;
 #endif
                                 std::transform(lowerArg.begin(), lowerArg.end(), lowerArg.begin(), tolower);
                                 if (!lowerArg.compare(0, lowerBase.size(), lowerBase))
@@ -97,8 +97,7 @@ struct SpecMP1 : SpecBase
             DNAMP1::PAK& pak = item.second->pak;
             for (DNAMP1::PAK::Entry& entry : pak.m_entries)
             {
-                static const HECL::FourCC MLVLfourcc("MLVL");
-                if (entry.type == MLVLfourcc)
+                if (entry.type == MLVL)
                 {
                     NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(entry.offset));
                     DNAMP1::MLVL mlvl;
@@ -111,11 +110,7 @@ struct SpecMP1 : SpecBase
                         mlvlName.read(rs);
                         if (childRep.desc.size())
                             childRep.desc += _S(", ");
-#if HECL_UCS2
-                        childRep.desc += mlvlName.langs[0].strings[0];
-#else
-                        childRep.desc += HECL::WideToUTF8(mlvlName.langs[0].strings[0]);
-#endif
+                        childRep.desc += mlvlName.getSystemString(ENGL, 0);
                     }
                 }
             }
@@ -123,33 +118,83 @@ struct SpecMP1 : SpecBase
     }
 
     bool checkFromStandaloneDisc(NOD::DiscBase& disc,
-                                 const std::string& regstr,
-                                 const std::vector<const HECL::SystemString*>& args,
+                                 const HECL::SystemString& regstr,
+                                 const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
     {
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
 
+        /* Root Report */
         reps.emplace_back();
         ExtractReport& rep = reps.back();
-        rep.name = "MP1";
-        rep.desc = "Metroid Prime " + regstr;
+        rep.name = _S("MP1");
+        rep.desc = _S("Metroid Prime ") + regstr;
         if (buildInfo)
-            rep.desc += " (" + std::string(buildInfo) + ")";
+        {
+            HECL::SystemStringView buildView(buildInfo);
+            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+        }
 
         /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node& root = disc.getDataPartition()->getFSTRoot();
+        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
         buildPaks(root, args, rep);
 
         return true;
     }
 
     bool checkFromTrilogyDisc(NOD::DiscBase& disc,
-                              const std::string& regstr,
-                              const std::vector<const HECL::SystemString*>& args,
+                              const HECL::SystemString& regstr,
+                              const std::vector<HECL::SystemString>& args,
                               std::vector<ExtractReport>& reps)
     {
+        std::vector<HECL::SystemString> mp1args;
+        if (args.size())
+        {
+            /* Needs filter */
+            for (const HECL::SystemString& arg : args)
+            {
+                size_t slashPos = arg.find(_S('/'));
+                if (slashPos == HECL::SystemString::npos)
+                    slashPos = arg.find(_S('\\'));
+                if (slashPos != HECL::SystemString::npos)
+                {
+                    HECL::SystemString lowerArg(arg.begin(), arg.begin() + slashPos);
+                    HECL::ToLower(lowerArg);
+                    if (!lowerArg.compare(_S("mp1")))
+                        mp1args.emplace_back(HECL::SystemString(arg.begin() + slashPos + 1, arg.end()));
+                }
+            }
+        }
+
+        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
+        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
+        NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5mp1_p.dol");
+        if (dolIt == root.end())
+            return false;
+
+        std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
+        const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+
+        /* Root Report */
+        reps.emplace_back();
+        ExtractReport& rep = reps.back();
+        rep.name = _S("MP1");
+        rep.desc = _S("Metroid Prime ") + regstr;
+        if (buildInfo)
+        {
+            std::string buildStr(buildInfo);
+            HECL::SystemStringView buildView(buildStr);
+            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+        }
+
+        /* Iterate PAKs and build level options */
+        NOD::DiscBase::IPartition::Node::DirectoryIterator mp1It = root.find("MP1");
+        if (mp1It == root.end())
+            return false;
+        buildPaks(*mp1It, mp1args, rep);
+
         return true;
     }
     bool extractFromDisc()

@@ -19,6 +19,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     reader.seek(44, Athena::Current);
     m_dataOffset = 128 + strgSz + rshdSz;
 
+    atUint64 strgBase = reader.position();
     atUint32 nameCount = reader.readUint32();
     m_nameEntries.clear();
     m_nameEntries.reserve(nameCount);
@@ -27,7 +28,10 @@ void PAK::read(Athena::io::IStreamReader& reader)
         m_nameEntries.emplace_back();
         m_nameEntries.back().read(reader);
     }
-    reader.seek((reader.position() + 63) & ~63, Athena::Begin);
+    atUint64 start = reader.position();
+    reader.seek(strgBase + strgSz, Athena::Begin);
+    atUint64 end = reader.position();
+    atUint64 diff = end - start;
 
     atUint32 count = reader.readUint32();
     m_entries.clear();
@@ -38,16 +42,17 @@ void PAK::read(Athena::io::IStreamReader& reader)
     {
         m_entries.emplace_back();
         m_entries.back().read(reader);
-        m_idMap[m_entries.back().id] = &m_entries.back();
     }
+    for (Entry& entry : m_entries)
+        m_idMap[entry.id] = &entry;
 
     m_nameMap.clear();
     m_nameMap.reserve(nameCount);
     for (NameEntry& entry : m_nameEntries)
     {
-        std::unordered_map<UniqueID64, Entry*>::iterator found = m_idMap.find(entry.id);
-        if (found != m_idMap.end())
-            m_nameMap[entry.name] = found->second;
+        auto search = m_idMap.find(entry.id);
+        if (search != m_idMap.end())
+            m_nameMap[entry.name] = search->second;
     }
 }
 void PAK::write(Athena::io::IStreamWriter& writer) const

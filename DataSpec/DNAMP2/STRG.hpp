@@ -1,5 +1,5 @@
-#ifndef __DNAMP1_STRG_HPP__
-#define __DNAMP1_STRG_HPP__
+#ifndef __DNAMP2_STRG_HPP__
+#define __DNAMP2_STRG_HPP__
 
 #include <unordered_map>
 #include "../DNACommon/DNACommon.hpp"
@@ -7,7 +7,7 @@
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 struct STRG : ISTRG, BigDNA
@@ -15,8 +15,15 @@ struct STRG : ISTRG, BigDNA
     DECL_EXPLICIT_DNA
     void _read(Athena::io::IStreamReader& reader);
     std::unordered_map<FourCC, std::vector<std::wstring>> langs;
+    std::map<std::string, int32_t> names;
 
-    inline int32_t lookupIdx(const std::string& name) const {return -1;}
+    inline int32_t lookupIdx(const std::string& name) const
+    {
+        auto search = names.find(name);
+        if (search == names.end())
+            return -1;
+        return search->second;
+    }
 
     inline size_t count() const
     {
@@ -59,4 +66,4 @@ struct STRG : ISTRG, BigDNA
 }
 }
 
-#endif // __DNAMP1_STRG_HPP__
+#endif // __DNAMP2_STRG_HPP__

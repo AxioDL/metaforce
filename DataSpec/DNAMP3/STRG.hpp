@@ -1,5 +1,5 @@
-#ifndef __DNAMP1_STRG_HPP__
-#define __DNAMP1_STRG_HPP__
+#ifndef __DNAMP3_STRG_HPP__
+#define __DNAMP3_STRG_HPP__
 
 #include <unordered_map>
 #include "../DNACommon/DNACommon.hpp"
@@ -7,16 +7,23 @@
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP3
 {
 
 struct STRG : ISTRG, BigDNA
 {
     DECL_EXPLICIT_DNA
     void _read(Athena::io::IStreamReader& reader);
-    std::unordered_map<FourCC, std::vector<std::wstring>> langs;
+    std::unordered_map<FourCC, std::vector<std::string>> langs;
+    std::map<std::string, int32_t> names;
 
-    inline int32_t lookupIdx(const std::string& name) const {return -1;}
+    inline int32_t lookupIdx(const std::string& name) const
+    {
+        auto search = names.find(name);
+        if (search == names.end())
+            return -1;
+        return search->second;
+    }
 
     inline size_t count() const
     {
@@ -33,14 +40,14 @@ struct STRG : ISTRG, BigDNA
     {
         auto search = langs.find(lang);
         if (search != langs.end())
-            return HECL::WideToUTF8(search->second.at(idx));
+            return search->second.at(idx);
         return std::string();
     }
     inline std::wstring getUTF16(const FourCC& lang, size_t idx) const
     {
         auto search = langs.find(lang);
         if (search != langs.end())
-            return search->second.at(idx);
+            return HECL::UTF8ToWide(search->second.at(idx));
         return std::wstring();
     }
     inline HECL::SystemString getSystemString(const FourCC& lang, size_t idx) const
@@ -48,9 +55,9 @@ struct STRG : ISTRG, BigDNA
         auto search = langs.find(lang);
         if (search != langs.end())
 #if HECL_UCS2
-            return search->second.at(idx);
+            return HECL::UTF8ToWide(search->second.at(idx));
 #else
-            return HECL::WideToUTF8(search->second.at(idx));
+            return search->second.at(idx);
 #endif
         return std::string();
     }
@@ -59,4 +66,4 @@ struct STRG : ISTRG, BigDNA
 }
 }
 
-#endif // __DNAMP1_STRG_HPP__
+#endif // __DNAMP2_STRG_HPP__

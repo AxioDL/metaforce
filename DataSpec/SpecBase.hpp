@@ -25,12 +25,12 @@ struct SpecBase : HECL::Database::IDataSpec
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
 
     virtual bool checkFromStandaloneDisc(NOD::DiscBase& disc,
-                                         const std::string& regstr,
-                                         const std::vector<const HECL::SystemString*>& args,
+                                         const HECL::SystemString& regstr,
+                                         const std::vector<HECL::SystemString>& args,
                                          std::vector<ExtractReport>& reps)=0;
     virtual bool checkFromTrilogyDisc(NOD::DiscBase& disc,
-                                      const std::string& regstr,
-                                      const std::vector<const HECL::SystemString*>& args,
+                                      const HECL::SystemString& regstr,
+                                      const std::vector<HECL::SystemString>& args,
                                       std::vector<ExtractReport>& reps)=0;
     virtual bool extractFromDisc()=0;
 

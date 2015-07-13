@@ -1,11 +1,11 @@
-#ifndef __DNAMP1_MLVL_HPP__
-#define __DNAMP1_MLVL_HPP__
+#ifndef __DNAMP3_MLVL_HPP__
+#define __DNAMP3_MLVL_HPP__
 
 #include "../DNACommon/DNACommon.hpp"
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP3
 {
 
 struct MLVL : BigDNA
@@ -13,47 +13,23 @@ struct MLVL : BigDNA
     DECL_DNA
     Value<atUint32> magic;
     Value<atUint32> version;
-    UniqueID32 worldNameId;
-    UniqueID32 saveWorldId;
-    UniqueID32 worldSkyboxId;
-
-    Value<atUint32> memRelayLinkCount;
-    struct MemRelayLink : BigDNA
-    {
-        DECL_DNA
-        Value<atUint32> memRelayId;
-        Value<atUint32> targetId;
-        Value<atUint16> msg;
-        Value<atUint8> unk;
-    };
-    Vector<MemRelayLink, DNA_COUNT(memRelayLinkCount)> memRelayLinks;
+    UniqueID64 worldNameId;
+    Value<atUint32> unk;
+    UniqueID64 saveWorldId;
+    UniqueID64 worldSkyboxId;
 
     Value<atUint32> areaCount;
-    Value<atUint32> unknown1;
     struct Area : BigDNA
     {
         DECL_DNA
-        UniqueID32 areaNameId;
+        UniqueID64 areaNameId;
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
-        UniqueID32 areaMREAId;
+        UniqueID64 areaMREAId;
         Value<atUint32> areaId;
 
         Value<atUint32> attachedAreaCount;
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
-        Value<atUint32> padding;
-
-        Value<atUint32> depCount;
-        struct Dependency : BigDNA
-        {
-            DECL_DNA
-            UniqueID32 id;
-            FourCC type;
-        };
-        Vector<Dependency, DNA_COUNT(depCount)> deps;
-
-        Value<atUint32> depLayerCount;
-        Vector<atUint32, DNA_COUNT(depLayerCount)> depLayers;
 
         Value<atUint32> dockCount;
         struct Dock : BigDNA
@@ -66,28 +42,20 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
+            FourCC type;
             Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
             Vector<atVec3f, DNA_COUNT(planeVertCount)> planeVerts;
         };
         Vector<Dock, DNA_COUNT(dockCount)> docks;
-    };
-    Vector<Area, DNA_COUNT(areaCount)> areas;
 
-    UniqueID32 worldMap;
+        String<-1> internalAreaName;
+    };
+
+    UniqueID64 worldMap;
     Value<atUint8> unknown2;
     Value<atUint32> unknown3;
-
-    Value<atUint32> audioGroupCount;
-    struct AudioGroup : BigDNA
-    {
-        DECL_DNA
-        Value<atUint32> unknown;
-        UniqueID32 agscId;
-    };
-    Vector<AudioGroup, DNA_COUNT(audioGroupCount)> audioGroups;
-    String<-1> unkString;
 
     Value<atUint32> layerFlagCount;
     struct LayerFlags : BigDNA
@@ -101,6 +69,9 @@ struct MLVL : BigDNA
     Value<atUint32> layerNameCount;
     Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
 
+    Value<atUint32> layerIDCount;
+    Vector<UniqueID128, DNA_COUNT(layerIDCount)> layerIDs;
+
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 };
@@ -108,4 +79,4 @@ struct MLVL : BigDNA
 }
 }
 
-#endif // __DNAMP1_MLVL_HPP__
+#endif // __DNAMP3_MLVL_HPP__

@@ -11,12 +11,11 @@ namespace Retro
 namespace DNAMP1
 {
 
-class PAK : public BigDNA
+struct PAK : BigDNA
 {
-public:
     DECL_EXPLICIT_DNA
 
-    struct NameEntry : public BigDNA
+    struct NameEntry : BigDNA
     {
         DECL_DNA
         FourCC type;

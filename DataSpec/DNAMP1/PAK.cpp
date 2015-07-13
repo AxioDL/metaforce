@@ -31,14 +31,9 @@ void PAK::read(Athena::io::IStreamReader& reader)
     {
         m_entries.emplace_back();
         m_entries.back().read(reader);
-        m_idMap[m_entries.back().id] = &m_entries.back();
     }
-
-    atUint32 realCount = 0;
     for (Entry& entry : m_entries)
-    {
-        ++realCount;
-    }
+        m_idMap[entry.id] = &entry;
 
     m_nameMap.clear();
     m_nameMap.reserve(nameCount);

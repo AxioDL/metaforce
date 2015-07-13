@@ -1,3 +1,6 @@
+#ifndef __DNAMP2_MLVL_HPP__
+#define __DNAMP2_MLVL_HPP__
+
 #include "../DNACommon/DNACommon.hpp"
 
 namespace Retro
@@ -8,7 +11,7 @@ namespace DNAMP2
 struct MLVL : BigDNA
 {
     DECL_DNA
-    FourCC magic;
+    Value<atUint32> magic;
     Value<atUint32> version;
     UniqueID32 worldNameId;
     UniqueID32 darkWorldNameId;
@@ -35,7 +38,7 @@ struct MLVL : BigDNA
         {
             DECL_DNA
             UniqueID32 id;
-            HECL::FourCC type;
+            FourCC type;
         };
         Vector<Dependency, DNA_COUNT(depCount)> deps;
 
@@ -53,7 +56,7 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            HECL::FourCC type;
+            FourCC type;
             Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
@@ -66,7 +69,6 @@ struct MLVL : BigDNA
         Value<atUint32> relOffsetCount;
         Vector<atUint32, DNA_COUNT(relOffsetCount)> relOffsets;
 
-        Value<atUint32> unk1;
         String<-1> internalAreaName;
     };
 
@@ -92,3 +94,5 @@ struct MLVL : BigDNA
 
 }
 }
+
+#endif // __DNAMP2_MLVL_HPP__
