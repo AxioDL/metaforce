@@ -70,8 +70,8 @@ public:
      */
     struct ExtractPassInfo
     {
-        const SystemString* srcpath;
-        std::vector<const SystemString*> extractArgs;
+        SystemString srcpath;
+        std::vector<SystemString> extractArgs;
     };
 
     /**

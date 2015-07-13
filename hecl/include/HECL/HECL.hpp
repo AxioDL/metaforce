@@ -231,6 +231,8 @@ protected:
 public:
     FourCC() /* Sentinel FourCC */
     : num(0) {}
+    FourCC(const FourCC& other)
+    {num = other.num;}
     FourCC(const char* name)
     : num(*(uint32_t*)name) {}
     inline bool operator==(const FourCC& other) const {return num == other.num;}
@@ -238,6 +240,7 @@ public:
     inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
     inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
     inline std::string toString() const {return std::string(fcc, 4);}
+    inline uint32_t toUint32() const {return num;}
 };
 
 /**
@@ -511,6 +514,11 @@ static inline uint64_t SBig(uint64_t val) {return val;}
 
 namespace std
 {
+template <> struct hash<HECL::FourCC>
+{
+    inline size_t operator()(const HECL::FourCC& val) const noexcept
+    {return val.toUint32();}
+};
 template <> struct hash<HECL::ProjectPath>
 {
     inline size_t operator()(const HECL::ProjectPath& val) const noexcept

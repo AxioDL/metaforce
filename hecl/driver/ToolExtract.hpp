@@ -18,12 +18,12 @@ public:
         if (!m_info.args.size())
             LogModule.report(LogVisor::FatalError, "hecl extract needs a source path as its first argument");
 
-        m_einfo.srcpath = &m_info.args[0];
+        m_einfo.srcpath = m_info.args[0];
         m_einfo.extractArgs.reserve(info.args.size() - 1);
         for (std::vector<HECL::SystemString>::const_iterator it=info.args.begin() + 1;
              it != info.args.end();
              ++it)
-            m_einfo.extractArgs.push_back(&*it);
+            m_einfo.extractArgs.push_back(*it);
 
         for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
         {
@@ -99,7 +99,10 @@ public:
             HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
 
         for (HECL::Database::IDataSpec::ExtractReport& rep : m_reps)
+        {
             _recursivePrint(0, rep);
+            HECL::Printf(_S("\n"));
+        }
 
         if (XTERM_COLOR)
             HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/N) "));

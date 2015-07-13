@@ -14,6 +14,7 @@ add_executable(hecl main.cpp
 
 list(APPEND DATA_SPEC_LIBS
      RetroDataSpec
+     DNACommon
      DNAMP1
      DNAMP2
      DNAMP3)
