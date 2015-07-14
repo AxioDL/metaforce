@@ -1,3 +1,5 @@
+#include <zlib.h>
+#include <lzo/lzo1x.h>
 #include "PAK.hpp"
 
 namespace Retro
@@ -61,6 +63,69 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32(m_entries.size());
     for (const Entry& entry : m_entries)
         entry.write(writer);
+}
+
+std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const
+{
+    if (compressed)
+    {
+        std::unique_ptr<NOD::IPartReadStream> strm = pak.beginReadStream(offset);
+
+        atUint32 decompSz;
+        strm->read(&decompSz, 4);
+        decompSz = HECL::SBig(decompSz);
+        atUint8* buf = new atUint8[decompSz];
+        atUint8* bufCur = buf;
+
+        atUint16 zlibCheck;
+        strm->read(&zlibCheck, 2);
+        zlibCheck = HECL::SBig(zlibCheck);
+        strm->seek(-2, SEEK_CUR);
+
+        atUint8 compBuf[0x4000];
+        if ((zlibCheck % 31) == 0)
+        {
+            atUint32 compRem = size - 4;
+            z_stream zs;
+            inflateInit(&zs);
+            zs.avail_out = decompSz;
+            zs.next_out = buf;
+            while (zs.avail_out)
+            {
+                atUint64 readSz = strm->read(compBuf, MIN(compRem, 0x4000));
+                compRem -= readSz;
+                zs.avail_in = readSz;
+                zs.next_in = compBuf;
+                inflate(&zs, Z_FINISH);
+            }
+            inflateEnd(&zs);
+        }
+        else
+        {
+            atUint32 rem = decompSz;
+            while (rem)
+            {
+                atUint16 chunkSz;
+                strm->read(&chunkSz, 2);
+                chunkSz = HECL::SBig(chunkSz);
+                strm->read(compBuf, chunkSz);
+                lzo_uint dsz = rem;
+                lzo1x_decompress(compBuf, chunkSz, bufCur, &dsz, nullptr);
+                bufCur += dsz;
+                rem -= dsz;
+            }
+        }
+
+        szOut = decompSz;
+        return std::unique_ptr<atUint8[]>(buf);
+    }
+    else
+    {
+        atUint8* buf = new atUint8[size];
+        pak.beginReadStream(offset)->read(buf, size);
+        szOut = size;
+        return std::unique_ptr<atUint8[]>(buf);
+    }
 }
 
 }

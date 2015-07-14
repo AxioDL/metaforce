@@ -5,6 +5,8 @@ namespace Retro
 namespace DNAMP3
 {
 
+const HECL::FourCC CMPD("CMPD");
+
 void PAK::read(Athena::io::IStreamReader& reader)
 {
     reader.setEndian(Athena::BigEndian);
@@ -17,7 +19,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     reader.seek(4, Athena::Current);
     atUint32 rshdSz = reader.readUint32();
     reader.seek(44, Athena::Current);
-    m_dataOffset = 128 + strgSz + rshdSz;
+    atUint32 dataOffset = 128 + strgSz + rshdSz;
 
     atUint64 strgBase = reader.position();
     atUint32 nameCount = reader.readUint32();
@@ -42,6 +44,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     {
         m_entries.emplace_back();
         m_entries.back().read(reader);
+        m_entries.back().offset += dataOffset;
     }
     for (Entry& entry : m_entries)
         m_idMap[entry.id] = &entry;
@@ -73,6 +76,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     atUint32 rshdPad = ((rshdSz + 63) & ~63) - rshdSz;
     rshdSz += rshdPad;
     writer.writeUint32(rshdSz);
+    atUint32 dataOffset = 128 + strgSz + rshdSz;
 
     FourCC("DATA").write(writer);
     atUint32 dataSz = 0;
@@ -90,8 +94,90 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
 
     writer.writeUint32(m_entries.size());
     for (const Entry& entry : m_entries)
-        entry.write(writer);
+    {
+        Entry copy = entry;
+        copy.offset -= dataOffset;
+        copy.write(writer);
+    }
     writer.seek(rshdPad, Athena::Current);
+}
+
+std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const
+{
+    if (compressed)
+    {
+        std::unique_ptr<NOD::IPartReadStream> strm = pak.beginReadStream(offset);
+        struct
+        {
+            HECL::FourCC magic;
+            atUint32 blockCount;
+        } head;
+        strm->read(&head, 8);
+        if (head.magic != CMPD)
+        {
+            LogModule.report(LogVisor::Error, "invalid CMPD block");
+            return std::unique_ptr<atUint8[]>();
+        }
+        head.blockCount = HECL::SBig(head.blockCount);
+
+        struct Block
+        {
+            atUint32 compSz;
+            atUint32 decompSz;
+        } blocks[head.blockCount];
+        strm->read(blocks, 8 * head.blockCount);
+
+        atUint64 maxBlockSz = 0;
+        atUint64 totalDecompSz = 0;
+        for (atUint32 b=0 ; b<head.blockCount ; ++b)
+        {
+            Block& block = blocks[b];
+            block.compSz = HECL::SBig(block.compSz) & 0xffffff;
+            block.decompSz = HECL::SBig(block.decompSz);
+            if (block.compSz > maxBlockSz)
+                maxBlockSz = block.compSz;
+            totalDecompSz += block.decompSz;
+        }
+
+        std::unique_ptr<atUint8[]> compBuf(new atUint8[maxBlockSz]);
+        atUint8* buf = new atUint8[totalDecompSz];
+        atUint8* bufCur = buf;
+        for (atUint32 b=0 ; b<head.blockCount ; ++b)
+        {
+            Block& block = blocks[b];
+            atUint8* compBufCur = compBuf.get();
+            strm->read(compBufCur, block.compSz);
+            if (block.compSz == block.decompSz)
+            {
+                memcpy(bufCur, compBufCur, block.decompSz);
+                bufCur += block.decompSz;
+            }
+            else
+            {
+                atUint32 rem = block.decompSz;
+                while (rem)
+                {
+                    atUint16 chunkSz = HECL::SBig(*(atUint16*)compBufCur);
+                    compBufCur += 2;
+                    lzo_uint dsz = rem;
+                    lzo1x_decompress(compBufCur, chunkSz, bufCur, &dsz, nullptr);
+                    compBufCur += chunkSz;
+                    bufCur += dsz;
+                    rem -= dsz;
+                }
+            }
+        }
+
+        szOut = totalDecompSz;
+        return std::unique_ptr<atUint8[]>(buf);
+    }
+    else
+    {
+        atUint8* buf = new atUint8[size];
+        pak.beginReadStream(offset)->read(buf, size);
+        szOut = size;
+        return std::unique_ptr<atUint8[]>(buf);
+    }
 }
 
 }

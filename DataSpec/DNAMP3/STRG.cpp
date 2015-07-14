@@ -13,17 +13,20 @@ void STRG::_read(Athena::io::IStreamReader& reader)
 
     atUint32 nameCount = reader.readUint32();
     atUint32 nameTableSz = reader.readUint32();
-    std::unique_ptr<uint8_t[]> nameTableBuf(new uint8_t[nameTableSz]);
-    reader.readUBytesToBuf(nameTableBuf.get(), nameTableSz);
-    struct NameIdxEntry
+    if (nameTableSz)
     {
-        atUint32 nameOff;
-        atUint32 strIdx;
-    }* nameIndex = (NameIdxEntry*)nameTableBuf.get();
-    for (atUint32 n=0 ; n<nameCount ; ++n)
-    {
-        const char* name = (char*)(nameTableBuf.get() + HECL::SBig(nameIndex[n].nameOff));
-        names[name] = HECL::SBig(nameIndex[n].strIdx);
+        std::unique_ptr<uint8_t[]> nameTableBuf(new uint8_t[nameTableSz]);
+        reader.readUBytesToBuf(nameTableBuf.get(), nameTableSz);
+        struct NameIdxEntry
+        {
+            atUint32 nameOff;
+            atUint32 strIdx;
+        }* nameIndex = (NameIdxEntry*)nameTableBuf.get();
+        for (atUint32 n=0 ; n<nameCount ; ++n)
+        {
+            const char* name = (char*)(nameTableBuf.get() + HECL::SBig(nameIndex[n].nameOff));
+            names[name] = HECL::SBig(nameIndex[n].strIdx);
+        }
     }
 
     std::vector<FourCC> readLangs;
@@ -33,20 +36,28 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         FourCC lang;
         lang.read(reader);
         readLangs.emplace_back(lang);
-        reader.seek(strCount * 4 + 4);
+    }
+    std::unique_ptr<atUint32[]> strOffs(new atUint32[langCount * strCount]);
+    for (atUint32 l=0 ; l<langCount ; ++l)
+    {
+        reader.readUint32();
+        for (atUint32 s=0 ; s<strCount ; ++s)
+            strOffs[l*strCount+s] = reader.readUint32();
     }
 
+    atUint64 strBase = reader.position();
     langs.clear();
     langs.reserve(langCount);
-    for (FourCC& lang : readLangs)
+    for (atUint32 l=0 ; l<langCount ; ++l)
     {
         std::vector<std::string> strs;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
+            reader.seek(strBase + strOffs[l*strCount+s], Athena::Begin);
             atUint32 len = reader.readUint32();
             strs.emplace_back(reader.readString(len));
         }
-        langs.emplace(lang, strs);
+        langs.emplace(readLangs[l], strs);
     }
 }
 
@@ -55,11 +66,17 @@ void STRG::read(Athena::io::IStreamReader& reader)
     reader.setEndian(Athena::BigEndian);
     atUint32 magic = reader.readUint32();
     if (magic != 0x87654321)
+    {
         LogModule.report(LogVisor::Error, "invalid STRG magic");
+        return;
+    }
 
     atUint32 version = reader.readUint32();
     if (version != 3)
+    {
         LogModule.report(LogVisor::Error, "invalid STRG version");
+        return;
+    }
 
     _read(reader);
 }
@@ -74,43 +91,53 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32(strCount);
 
     atUint32 nameTableSz = names.size() * 8;
-    for (const std::pair<std::string, int32_t>& name : names)
+    for (const auto& name : names)
         nameTableSz += name.first.size() + 1;
     writer.writeUint32(names.size());
     writer.writeUint32(nameTableSz);
     atUint32 offset = names.size() * 8;
-    for (const std::pair<std::string, int32_t>& name : names)
+    for (const auto& name : names)
     {
         writer.writeUint32(offset);
         writer.writeInt32(name.second);
         offset += name.first.size() + 1;
     }
-    for (const std::pair<std::string, int32_t>& name : names)
+    for (const auto& name : names)
         writer.writeString(name.first);
 
-    offset = 0;
-    for (const std::pair<FourCC, std::vector<std::string>>& lang : langs)
-    {
+    for (const auto& lang : langs)
         lang.first.write(writer);
 
+    offset = 0;
+    for (const auto& lang : langs)
+    {
         atUint32 langSz = 0;
         for (const std::string& str : lang.second)
-            langSz += str.size() + 4;
+            langSz += str.size() + 5;
         writer.writeUint32(langSz);
 
         for (const std::string& str : lang.second)
         {
             writer.writeUint32(offset);
-            offset += str.size() + 4;
+            offset += str.size() + 5;
         }
     }
 
-    for (const std::pair<FourCC, std::vector<std::string>>& lang : langs)
+    for (atUint32 s=0 ; s<strCount ; ++s)
     {
-        for (const std::string& str : lang.second)
+        for (const auto& lang : langs)
         {
-            writer.writeUint32(str.size());
-            writer.writeString(str, str.size());
+            if (s >= lang.second.size())
+            {
+                writer.writeUint32(1);
+                writer.writeUByte(0);
+            }
+            else
+            {
+                const std::string& str = lang.second[s];
+                writer.writeUint32(str.size() + 1);
+                writer.writeString(str);
+            }
         }
     }
 }

@@ -99,14 +99,14 @@ struct SpecMP2 : SpecBase
             {
                 if (entry.type == MLVL)
                 {
-                    NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(entry.offset));
+                    PAKEntryReadStream rs = entry.beginReadStream(item.second->node);
                     DNAMP2::MLVL mlvl;
                     mlvl.read(rs);
                     const DNAMP1::PAK::Entry* nameEnt = pak.lookupEntry(mlvl.worldNameId);
                     if (nameEnt)
                     {
+                        PAKEntryReadStream rs = nameEnt->beginReadStream(item.second->node);
                         DNAMP2::STRG mlvlName;
-                        NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(nameEnt->offset));
                         mlvlName.read(rs);
                         if (childRep.desc.size())
                             childRep.desc += _S(", ");

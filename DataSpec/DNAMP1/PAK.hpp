@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include <NOD/DiscBase.hpp>
 #include "../Logging.hpp"
 #include "../DNACommon/DNACommon.hpp"
 
@@ -32,6 +33,13 @@ struct PAK : BigDNA
         UniqueID32 id;
         Value<atUint32> size;
         Value<atUint32> offset;
+
+        std::unique_ptr<atUint8[]> getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const;
+        inline PAKEntryReadStream beginReadStream(const NOD::DiscBase::IPartition::Node& pak, atUint64 off=0) const
+        {
+            atUint64 sz;
+            return PAKEntryReadStream(getBuffer(pak, sz), sz, off);
+        }
     };
 
     std::vector<NameEntry> m_nameEntries;

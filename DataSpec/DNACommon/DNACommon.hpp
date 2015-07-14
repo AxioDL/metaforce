@@ -3,6 +3,7 @@
 
 #include <Athena/DNA.hpp>
 #include "HECL/HECL.hpp"
+#include "../Logging.hpp"
 
 namespace Retro
 {
@@ -124,17 +125,55 @@ public:
     }
 };
 
+/* Case-insensitive comparator for std::map sorting */
 struct CaseInsensitiveCompare
 {
     inline bool operator()(const std::string& lhs, const std::string& rhs) const
     {
-        std::string lhsl = lhs;
-        std::transform(lhsl.begin(), lhsl.end(), lhsl.begin(), tolower);
-        std::string rhsl = rhs;
-        std::transform(rhsl.begin(), rhsl.end(), rhsl.begin(), tolower);
-        if (lhsl.compare(rhsl) < 0)
+#if _WIN32
+        if (stricmp(lhs.c_str(), rhs.c_str()) < 0)
+#else
+        if (strcasecmp(lhs.c_str(), rhs.c_str()) < 0)
+#endif
             return true;
         return false;
+    }
+};
+
+/* PAK entry stream reader */
+class PAKEntryReadStream : public Athena::io::IStreamReader
+{
+    std::unique_ptr<atUint8[]> m_buf;
+    atUint64 m_sz;
+    atUint64 m_pos;
+public:
+    PAKEntryReadStream(std::unique_ptr<atUint8[]>&& buf, atUint64 sz, atUint64 pos)
+    : m_buf(std::move(buf)), m_sz(sz), m_pos(pos)
+    {
+        if (m_pos >= m_sz)
+            LogModule.report(LogVisor::FatalError, "PAK stream cursor overrun");
+    }
+    inline void seek(atInt64 pos, Athena::SeekOrigin origin)
+    {
+        if (origin == Athena::Begin)
+            m_pos = pos;
+        else if (origin == Athena::Current)
+            m_pos += pos;
+        else if (origin == Athena::End)
+            m_pos = m_sz + pos;
+        if (m_pos >= m_sz)
+            LogModule.report(LogVisor::FatalError, "PAK stream cursor overrun");
+    }
+    inline atUint64 position() const {return m_pos;}
+    inline atUint64 length() const {return m_sz;}
+    inline atUint64 readUBytesToBuf(void* buf, atUint64 len)
+    {
+        atUint64 bufEnd = m_pos + len;
+        if (bufEnd > m_sz)
+            len -= bufEnd - m_sz;
+        memcpy(buf, m_buf.get() + m_pos, len);
+        m_pos += len;
+        return len;
     }
 };
 

@@ -3,13 +3,17 @@
 
 #include <unordered_map>
 
-#include "../Logging.hpp"
+#include <lzo/lzo1x.h>
+#include <NOD/DiscBase.hpp>
 #include "../DNACommon/DNACommon.hpp"
+#include "../Logging.hpp"
 
 namespace Retro
 {
 namespace DNAMP3
 {
+
+extern const HECL::FourCC CMPD;
 
 struct PAK : BigDNA
 {
@@ -38,13 +42,19 @@ struct PAK : BigDNA
         UniqueID64 id;
         Value<atUint32> size;
         Value<atUint32> offset;
+
+        std::unique_ptr<atUint8[]> getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const;
+        inline PAKEntryReadStream beginReadStream(const NOD::DiscBase::IPartition::Node& pak, atUint64 off=0) const
+        {
+            atUint64 sz;
+            return PAKEntryReadStream(getBuffer(pak, sz), sz, off);
+        }
     };
 
     std::vector<NameEntry> m_nameEntries;
     std::vector<Entry> m_entries;
     std::unordered_map<UniqueID64, Entry*> m_idMap;
     std::unordered_map<std::string, Entry*> m_nameMap;
-    size_t m_dataOffset = 0;
 
     DECL_EXPLICIT_DNA
 
@@ -63,8 +73,6 @@ struct PAK : BigDNA
             return result->second;
         return nullptr;
     }
-
-    inline size_t getDataOffset() const {return m_dataOffset;}
 };
 
 }

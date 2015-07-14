@@ -37,7 +37,7 @@ struct MLVL : BigDNA
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
         UniqueID32 areaMREAId;
-        Value<atUint32> areaId;
+        UniqueID32 areaId;
 
         Value<atUint32> attachedAreaCount;
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;

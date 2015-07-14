@@ -1,4 +1,5 @@
 #include <utility>
+#include <set>
 
 #define NOD_ATHENA 1
 #include "SpecBase.hpp"
@@ -93,26 +94,39 @@ struct SpecMP3 : SpecBase
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
             childRep.name = item.first;
+            if (!item.first.compare("Worlds.pak"))
+                continue;
+            else if (!item.first.compare("Metroid6.pak"))
+            {
+                childRep.desc = _S("Phaaze");
+                continue;
+            }
 
+            std::set<HECL::SystemString> worldNames;
             DNAMP3::PAK& pak = item.second->pak;
             for (DNAMP3::PAK::Entry& entry : pak.m_entries)
             {
                 if (entry.type == MLVL)
                 {
-                    NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(entry.offset));
+                    PAKEntryReadStream rs = entry.beginReadStream(item.second->node);
                     DNAMP3::MLVL mlvl;
                     mlvl.read(rs);
                     const DNAMP3::PAK::Entry* nameEnt = pak.lookupEntry(mlvl.worldNameId);
                     if (nameEnt)
                     {
+                        PAKEntryReadStream rs = nameEnt->beginReadStream(item.second->node);
                         DNAMP3::STRG mlvlName;
-                        NOD::AthenaPartReadStream rs(item.second->node.beginReadStream(nameEnt->offset));
                         mlvlName.read(rs);
-                        if (childRep.desc.size())
-                            childRep.desc += _S(", ");
-                        childRep.desc += mlvlName.getSystemString(ENGL, 0);
+                        worldNames.emplace(mlvlName.getSystemString(ENGL, 0));
                     }
                 }
+            }
+
+            for (const std::string& name : worldNames)
+            {
+                if (childRep.desc.size())
+                    childRep.desc += _S(", ");
+                childRep.desc += name;
             }
         }
     }

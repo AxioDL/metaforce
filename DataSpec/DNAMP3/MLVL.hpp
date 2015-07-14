@@ -26,7 +26,7 @@ struct MLVL : BigDNA
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
         UniqueID64 areaMREAId;
-        Value<atUint32> areaId;
+        UniqueID64 areaId;
 
         Value<atUint32> attachedAreaCount;
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
@@ -42,7 +42,6 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            FourCC type;
             Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
@@ -52,6 +51,7 @@ struct MLVL : BigDNA
 
         String<-1> internalAreaName;
     };
+    Vector<Area, DNA_COUNT(areaCount)> areas;
 
     UniqueID64 worldMap;
     Value<atUint8> unknown2;
