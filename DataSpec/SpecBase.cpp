@@ -10,35 +10,18 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     bool isWii;
     std::unique_ptr<NOD::DiscBase> disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), isWii);
     if (!disc)
-    {
-        LogModule.report(LogVisor::Error, _S("'%s' not a valid Nintendo disc image"), info.srcpath.c_str());
         return false;
-    }
     const char* gameID = disc->getHeader().gameID;
 
-    bool valid = false;
     bool standalone = true;
     if (isWii)
     {
         if (!memcmp(gameID, "R3M", 3))
-        {
-            valid = true;
             standalone = false;
-        }
-        else if (!memcmp(gameID, "R3IJ01", 6))
-            valid = true;
-    }
-    else
-    {
-        if (!memcmp(gameID, "GM8", 3))
-            valid = true;
     }
 
-    if (!valid)
-    {
-        LogModule.report(LogVisor::Error, "%.6s (%s) is not supported", gameID, disc->getHeader().gameTitle);
+    if (standalone && !checkStandaloneID(gameID))
         return false;
-    }
 
     char region = disc->getHeader().gameID[3];
     static const HECL::SystemString regNONE = _S("");

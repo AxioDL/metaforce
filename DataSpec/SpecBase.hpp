@@ -24,6 +24,7 @@ struct SpecBase : HECL::Database::IDataSpec
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const HECL::Database::Project& project, const PackagePassInfo& info);
 
+    virtual bool checkStandaloneID(const char* id) const=0;
     virtual bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                          const HECL::SystemString& regstr,
                                          const std::vector<HECL::SystemString>& args,

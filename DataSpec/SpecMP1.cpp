@@ -11,6 +11,13 @@ namespace Retro
 
 struct SpecMP1 : SpecBase
 {
+    bool checkStandaloneID(const char* id) const
+    {
+        if (!memcmp(id, "GM8", 3))
+            return true;
+        return false;
+    }
+
     struct DiscPAK
     {
         const NOD::DiscBase::IPartition::Node& node;
@@ -133,7 +140,8 @@ struct SpecMP1 : SpecBase
         rep.desc = _S("Metroid Prime ") + regstr;
         if (buildInfo)
         {
-            HECL::SystemStringView buildView(buildInfo);
+            std::string buildStr(buildInfo);
+            HECL::SystemStringView buildView(buildStr);
             rep.desc += _S(" (") + buildView.sys_str() + _S(")");
         }
 
