@@ -1,5 +1,5 @@
 #include "STRG.hpp"
-#include "../Logging.hpp"
+#include "DNAMP3.hpp"
 
 namespace Retro
 {
@@ -67,14 +67,14 @@ void STRG::read(Athena::io::IStreamReader& reader)
     atUint32 magic = reader.readUint32();
     if (magic != 0x87654321)
     {
-        LogModule.report(LogVisor::Error, "invalid STRG magic");
+        Log.report(LogVisor::Error, "invalid STRG magic");
         return;
     }
 
     atUint32 version = reader.readUint32();
     if (version != 3)
     {
-        LogModule.report(LogVisor::Error, "invalid STRG version");
+        Log.report(LogVisor::Error, "invalid STRG version");
         return;
     }
 
@@ -140,6 +140,14 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
             }
         }
     }
+}
+
+bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
+{
+}
+
+void STRG::writeAngelScript(std::ofstream& out) const
+{
 }
 
 }

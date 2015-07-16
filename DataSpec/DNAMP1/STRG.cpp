@@ -1,5 +1,5 @@
 #include "STRG.hpp"
-#include "../Logging.hpp"
+#include "DNAMP1.hpp"
 
 namespace Retro
 {
@@ -38,11 +38,11 @@ void STRG::read(Athena::io::IStreamReader& reader)
     reader.setEndian(Athena::BigEndian);
     atUint32 magic = reader.readUint32();
     if (magic != 0x87654321)
-        LogModule.report(LogVisor::Error, "invalid STRG magic");
+        Log.report(LogVisor::Error, "invalid STRG magic");
 
     atUint32 version = reader.readUint32();
     if (version != 0)
-        LogModule.report(LogVisor::Error, "invalid STRG version");
+        Log.report(LogVisor::Error, "invalid STRG version");
 
     _read(reader);
 }
@@ -103,6 +103,66 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
             else
                 writer.writeUByte(0);
         }
+    }
+}
+
+bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
+
+    /* Validate pass */
+    for (AngelScript::asUINT i=0 ; i<in.GetGlobalVarCount() ; ++i)
+    {
+        const char* name;
+        int typeId;
+        if (in.GetGlobalVar(i, &name, 0, &typeId) < 0)
+            continue;
+        if (typeId == ASTYPE_STRGLanguage.getTypeID())
+        {
+            if (strlen(name) != 4)
+            {
+                Log.report(LogVisor::Error, "STRG language string '%s' from %s must be exactly 4 characters", name, in.GetName());
+                return false;
+            }
+        }
+    }
+
+    /* Read pass */
+    for (AngelScript::asUINT i=0 ; i<in.GetGlobalVarCount() ; ++i)
+    {
+        const char* name;
+        int typeId;
+        if (in.GetGlobalVar(i, &name, 0, &typeId) < 0)
+            continue;
+        if (typeId == ASTYPE_STRGLanguage.getTypeID())
+        {
+            const std::vector<std::string*>& strsin = ASTYPE_STRGLanguage.vectorCast(in.GetAddressOfGlobalVar(i));
+            std::vector<std::wstring> strs;
+            for (const std::string* str : strsin)
+                strs.emplace_back(wconv.from_bytes(*str));
+            langs.emplace(std::make_pair(FourCC(name), strs));
+        }
+    }
+
+    return true;
+}
+
+void STRG::writeAngelScript(std::ofstream& out) const
+{
+    std::wbuffer_convert<std::codecvt_utf8<wchar_t>> wconv(out.rdbuf());
+    std::wostream wout(&wconv);
+    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    {
+        out << "STRG::Language " << lang.first.toString() << "({";
+        bool comma = false;
+        for (const std::wstring& str : lang.second)
+        {
+            out << (comma?", \"":"\"");
+            wout << str;
+            out << "\"";
+            comma = true;
+        }
+        out << "});\n";
     }
 }
 

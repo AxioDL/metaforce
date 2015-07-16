@@ -4,7 +4,6 @@
 #include <unordered_map>
 
 #include <NOD/DiscBase.hpp>
-#include "../Logging.hpp"
 #include "../DNACommon/DNACommon.hpp"
 
 namespace Retro

@@ -5,13 +5,16 @@
 
 namespace Retro
 {
+
+HECL::Database::ASListType<std::string> ASTYPE_STRGLanguage("STRG", "Language", "string");
+
 std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)
 {
     reader.setEndian(Athena::BigEndian);
     uint32_t magic = reader.readUint32();
     if (magic != 0x87654321)
     {
-        LogModule.report(LogVisor::Error, "invalid STRG magic");
+        LogDNACommon.report(LogVisor::Error, "invalid STRG magic");
         return std::unique_ptr<ISTRG>();
     }
 
@@ -20,19 +23,19 @@ std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)
     {
     case 0:
     {
-        DNAMP1::STRG* newStrg = new struct DNAMP1::STRG;
+        DNAMP1::STRG* newStrg = new DNAMP1::STRG;
         newStrg->_read(reader);
         return std::unique_ptr<ISTRG>(newStrg);
     }
     case 1:
     {
-        DNAMP2::STRG* newStrg = new struct DNAMP2::STRG;
+        DNAMP2::STRG* newStrg = new DNAMP2::STRG;
         newStrg->_read(reader);
         return std::unique_ptr<ISTRG>(newStrg);
     }
     case 3:
     {
-        DNAMP3::STRG* newStrg = new struct DNAMP3::STRG;
+        DNAMP3::STRG* newStrg = new DNAMP3::STRG;
         newStrg->_read(reader);
         return std::unique_ptr<ISTRG>(newStrg);
     }

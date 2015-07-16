@@ -10,6 +10,8 @@
 namespace Retro
 {
 
+static LogVisor::LogModule Log("Retro::SpecMP3");
+
 struct SpecMP3 : SpecBase
 {
     bool checkStandaloneID(const char* id) const
@@ -96,7 +98,7 @@ struct SpecMP3 : SpecBase
             m_orderedPaks[dpak.node.getName()] = &dpak;
 
         /* Assemble extract report */
-        for (std::pair<std::string, DiscPAK*> item : m_orderedPaks)
+        for (const std::pair<std::string, DiscPAK*>& item : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
@@ -105,6 +107,7 @@ struct SpecMP3 : SpecBase
                 continue;
             else if (!item.first.compare("Metroid6.pak"))
             {
+                /* Phaaze doesn't have a world name D: */
                 childRep.desc = _S("Phaaze");
                 continue;
             }
@@ -219,7 +222,8 @@ struct SpecMP3 : SpecBase
 
         return true;
     }
-    bool extractFromDisc()
+
+    bool extractFromDisc(NOD::DiscBase& disc, const HECL::Database::Project& project)
     {
     }
 

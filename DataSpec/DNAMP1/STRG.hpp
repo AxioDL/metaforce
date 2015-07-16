@@ -21,7 +21,7 @@ struct STRG : ISTRG, BigDNA
     inline size_t count() const
     {
         size_t retval = 0;
-        for (auto item : langs)
+        for (const auto& item : langs)
         {
             size_t sz = item.second.size();
             if (sz > retval)
@@ -54,6 +54,9 @@ struct STRG : ISTRG, BigDNA
 #endif
         return std::string();
     }
+
+    bool readAngelScript(const AngelScript::asIScriptModule& in);
+    void writeAngelScript(std::ofstream& out) const;
 };
 
 }

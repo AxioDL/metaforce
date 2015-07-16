@@ -1,5 +1,5 @@
 #include "STRG.hpp"
-#include "../Logging.hpp"
+#include "DNAMP2.hpp"
 
 namespace Retro
 {
@@ -53,11 +53,11 @@ void STRG::read(Athena::io::IStreamReader& reader)
     reader.setEndian(Athena::BigEndian);
     atUint32 magic = reader.readUint32();
     if (magic != 0x87654321)
-        LogModule.report(LogVisor::Error, "invalid STRG magic");
+        Log.report(LogVisor::Error, "invalid STRG magic");
 
     atUint32 version = reader.readUint32();
     if (version != 1)
-        LogModule.report(LogVisor::Error, "invalid STRG version");
+        Log.report(LogVisor::Error, "invalid STRG version");
 
     _read(reader);
 }
@@ -132,6 +132,14 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
                 writer.writeUByte(0);
         }
     }
+}
+
+bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
+{
+}
+
+void STRG::writeAngelScript(std::ofstream& out) const
+{
 }
 
 }

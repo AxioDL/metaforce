@@ -3,6 +3,8 @@
 namespace Retro
 {
 
+LogVisor::LogModule LogDNACommon("Retro::DNACommon");
+
 const HECL::FourCC ENGL("ENGL");
 const HECL::FourCC FREN("FREN");
 const HECL::FourCC GERM("GERM");

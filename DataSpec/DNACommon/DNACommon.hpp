@@ -3,10 +3,11 @@
 
 #include <Athena/DNA.hpp>
 #include "HECL/HECL.hpp"
-#include "../Logging.hpp"
 
 namespace Retro
 {
+
+extern LogVisor::LogModule LogDNACommon;
 
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
@@ -151,7 +152,7 @@ public:
     : m_buf(std::move(buf)), m_sz(sz), m_pos(pos)
     {
         if (m_pos >= m_sz)
-            LogModule.report(LogVisor::FatalError, "PAK stream cursor overrun");
+            LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
     }
     inline void seek(atInt64 pos, Athena::SeekOrigin origin)
     {
@@ -162,7 +163,7 @@ public:
         else if (origin == Athena::End)
             m_pos = m_sz + pos;
         if (m_pos >= m_sz)
-            LogModule.report(LogVisor::FatalError, "PAK stream cursor overrun");
+            LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
     }
     inline atUint64 position() const {return m_pos;}
     inline atUint64 length() const {return m_sz;}

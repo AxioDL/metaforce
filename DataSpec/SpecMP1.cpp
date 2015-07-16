@@ -1,4 +1,5 @@
 #include <utility>
+#include <stdio.h>
 
 #define NOD_ATHENA 1
 #include "SpecBase.hpp"
@@ -8,6 +9,8 @@
 
 namespace Retro
 {
+
+static LogVisor::LogModule Log("Retro::SpecMP1");
 
 struct SpecMP1 : SpecBase
 {
@@ -95,7 +98,7 @@ struct SpecMP1 : SpecBase
             m_orderedPaks[dpak.node.getName()] = &dpak;
 
         /* Assemble extract report */
-        for (std::pair<std::string, DiscPAK*> item : m_orderedPaks)
+        for (const std::pair<std::string, DiscPAK*>& item : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
@@ -205,8 +208,36 @@ struct SpecMP1 : SpecBase
 
         return true;
     }
-    bool extractFromDisc()
+
+    bool extractFromDisc(NOD::DiscBase& disc, const HECL::Database::Project& project)
     {
+        HECL::ProjectPath mp1Path(project.getProjectRootPath(), "MP1");
+
+        for (const DiscPAK& pak : m_paks)
+        {
+            const std::string& name = pak.node.getName();
+            std::string::const_iterator extit = name.end() - 4;
+            std::string baseName(name.begin(), extit);
+
+            HECL::ProjectPath pakPath(mp1Path, baseName);
+
+            for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& item : pak.pak.m_idMap)
+            {
+                if (item.second->type == STRG)
+                {
+                    DNAMP1::STRG strg;
+                    PAKEntryReadStream strgIn = item.second->beginReadStream(pak.node);
+                    strg.read(strgIn);
+
+                    HECL::SystemChar strgPath[1024];
+                    HECL::SNPrintf(strgPath, 1024, _S("%s/%08X.strg"), pakPath.getAbsolutePath().c_str(), item.second->id.toUint32());
+                    std::ofstream strgOut(strgPath);
+                    strg.writeAngelScript(strgOut);
+                }
+            }
+        }
+
+        return true;
     }
 
     bool checkFromProject(HECL::Database::Project& proj)

@@ -1,4 +1,5 @@
 #include "PAK.hpp"
+#include "DNAMP3.hpp"
 
 namespace Retro
 {
@@ -12,7 +13,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     reader.setEndian(Athena::BigEndian);
     m_header.read(reader);
     if (m_header.version != 2)
-        LogModule.report(LogVisor::FatalError, "unexpected PAK magic");
+        Log.report(LogVisor::FatalError, "unexpected PAK magic");
 
     reader.seek(8, Athena::Current);
     atUint32 strgSz = reader.readUint32();
@@ -115,7 +116,7 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition
         strm->read(&head, 8);
         if (head.magic != CMPD)
         {
-            LogModule.report(LogVisor::Error, "invalid CMPD block");
+            Log.report(LogVisor::Error, "invalid CMPD block");
             return std::unique_ptr<atUint8[]>();
         }
         head.blockCount = HECL::SBig(head.blockCount);

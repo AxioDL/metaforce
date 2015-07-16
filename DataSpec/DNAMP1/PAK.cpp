@@ -1,5 +1,6 @@
 #include <zlib.h>
 #include <lzo/lzo1x.h>
+#include "DNAMP1.hpp"
 #include "PAK.hpp"
 
 namespace Retro
@@ -12,7 +13,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     reader.setEndian(Athena::BigEndian);
     atUint32 version = reader.readUint32();
     if (version != 0x00030005)
-        LogModule.report(LogVisor::FatalError, "unexpected PAK magic");
+        Log.report(LogVisor::FatalError, "unexpected PAK magic");
     reader.readUint32();
 
     atUint32 nameCount = reader.readUint32();

@@ -9,8 +9,6 @@
 namespace Retro
 {
 
-extern LogVisor::LogModule LogModule;
-
 struct SpecBase : HECL::Database::IDataSpec
 {
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
@@ -33,7 +31,7 @@ struct SpecBase : HECL::Database::IDataSpec
                                       const HECL::SystemString& regstr,
                                       const std::vector<HECL::SystemString>& args,
                                       std::vector<ExtractReport>& reps)=0;
-    virtual bool extractFromDisc()=0;
+    virtual bool extractFromDisc(NOD::DiscBase& disc, const HECL::Database::Project& project)=0;
 
     virtual bool checkFromProject(HECL::Database::Project& proj)=0;
     virtual bool readFromProject(HECL::Database::Project& proj)=0;
@@ -49,6 +47,9 @@ struct SpecBase : HECL::Database::IDataSpec
         virtual bool visitAreas(std::function<bool(const IAreaSpec&)>)=0;
     };
     virtual bool visitLevels(std::function<bool(const ILevelSpec&)>)=0;
+
+private:
+    std::unique_ptr<NOD::DiscBase> m_disc;
 };
 
 }
