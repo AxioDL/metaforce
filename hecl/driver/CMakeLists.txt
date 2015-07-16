@@ -20,7 +20,6 @@ list(APPEND DATA_SPEC_LIBS
      DNAMP3)
 
 target_link_libraries(hecl
-    HECLDatabase
-    "-Wl,-whole-archive" ${DATA_SPEC_LIBS} "-Wl,-no-whole-archive"
-    HECL AthenaCore NOD LogVisor blowfish z lzo2 pthread
+    "-Wl,-whole-archive" HECLDatabaseInit ${DATA_SPEC_LIBS} "-Wl,-no-whole-archive"
+    HECLDatabase HECL AthenaCore AngelScript NOD LogVisor blowfish z lzo2
 )

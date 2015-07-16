@@ -1,3 +1,7 @@
+add_library(HECLDatabaseInit
+            Registry.cpp
+            ASInit.cpp)
 add_library(HECLDatabase
-            Project.cpp
-            Registry.cpp)
+            ASEngine.cpp
+            Project.cpp)
+

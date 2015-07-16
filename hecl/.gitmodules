@@ -10,3 +10,6 @@
 [submodule "extern/LogVisor"]
 	path = extern/LogVisor
 	url = https://github.com/RetroView/LogVisor.git
+[submodule "extern/AngelScript"]
+	path = extern/AngelScript
+	url = https://github.com/RetroView/AngelScript.git

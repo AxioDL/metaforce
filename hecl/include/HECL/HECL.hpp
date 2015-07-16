@@ -178,6 +178,18 @@ static inline void FPrintf(FILE* fp, const SystemChar* format, ...)
     va_end(va);
 }
 
+static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* format, ...)
+{
+    va_list va;
+    va_start(va, format);
+#if HECL_UCS2
+    vsnwprintf(str, maxlen, format, va);
+#else
+    vsnprintf(str, maxlen, format, va);
+#endif
+    va_end(va);
+}
+
 #define FORMAT_BUF_SZ 1024
 
 static inline SystemString SysFormat(const SystemChar* format, ...)
@@ -314,14 +326,15 @@ protected:
     const char* m_utf8RelPath;
 #endif
     ProjectPath() {}
-    bool _canonAbsPath(const SystemString& path);
+    bool _canonAbsPath(const SystemString& path, bool& needsMake);
+    inline void _makeDir() const {MakeDir(getAbsolutePath());}
 public:
     /**
-     * @brief Construct a project subpath representation
-     * @param rootPath previously constructed ProjectRootPath held by HECLDatabase::IProject
+     * @brief Construct a project subpath representation within another subpath
+     * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectRootPath& rootPath, const SystemString& path);
+    ProjectPath(const ProjectPath& parentPath, const SystemString& path);
 
     /**
      * @brief Determine if ProjectPath represents project root directory
@@ -422,7 +435,12 @@ class ProjectRootPath : public ProjectPath
 {
 public:
     ProjectRootPath(const SystemString& path)
-    {_canonAbsPath(path);}
+    {
+        bool needsMake = false;
+        _canonAbsPath(path, needsMake);
+        if (needsMake)
+            _makeDir();
+    }
 };
 
 /**

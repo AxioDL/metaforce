@@ -13,7 +13,9 @@
 #include <atomic>
 #include <stdexcept>
 #include <stdint.h>
+#include <assert.h>
 
+#include <angelscript.h>
 #include <Athena/IStreamReader.hpp>
 #include <LogVisor/LogVisor.hpp>
 
@@ -24,6 +26,94 @@ namespace HECL
 namespace Database
 {
 class Project;
+
+extern AngelScript::asIScriptEngine* asENGINE;
+void InitASEngine();
+
+template <class ASCLASS>
+class ASType
+{
+    static void Constructor(ASCLASS* self)
+    {
+        new(self) ASCLASS();
+    }
+    static void Destructor(ASCLASS* self)
+    {
+        self->~ASCLASS();
+    }
+    const char* m_name;
+    int m_typeid;
+public:
+    ASType(const char* namesp, const char* name) : m_name(name)
+    {
+        InitASEngine();
+        assert(asENGINE->SetDefaultNamespace(namesp) >= 0);
+        assert((m_typeid = asENGINE->RegisterObjectType(name, sizeof(ASCLASS), AngelScript::asOBJ_VALUE)) >= 0);
+        assert(asENGINE->RegisterObjectBehaviour(name, AngelScript::asBEHAVE_CONSTRUCT, "void f()",
+                                                 AngelScript::asFUNCTION(Constructor),
+                                                 AngelScript::asCALL_CDECL_OBJLAST) >= 0);
+        assert(asENGINE->RegisterObjectBehaviour(name, AngelScript::asBEHAVE_DESTRUCT, "void f()",
+                                                 AngelScript::asFUNCTION(Destructor),
+                                                 AngelScript::asCALL_CDECL_OBJLAST) >= 0);
+    }
+    inline const char* getName() const {return m_name;}
+    inline int getTypeID() const {return m_typeid;}
+};
+
+template <class ASELEMCLASS>
+class ASListType
+{
+    struct ASListInst
+    {
+        std::vector<ASELEMCLASS*> m_items;
+        ASListInst(void* list)
+        {
+            AngelScript::asUINT count = *(AngelScript::asUINT*)list;
+            ASELEMCLASS* items = (ASELEMCLASS*)((char*)list + 4);
+            m_items.reserve(count);
+            for (AngelScript::asUINT i=0 ; i<count ; ++i)
+                m_items.push_back(&items[i]);
+        }
+    };
+    static void ListConstructor(void* list, ASListInst* self)
+    {
+        new(self) ASListInst(list);
+    }
+    static void ListDestructor(ASListInst* self)
+    {
+        self->~ASListInst();
+    }
+    const char* m_name;
+    const char* m_elemName;
+    int m_typeid;
+public:
+    ASListType(const char* namesp, const char* name, const char* elemName) : m_name(name), m_elemName(elemName)
+    {
+        InitASEngine();
+        assert(asENGINE->SetDefaultNamespace(namesp) >= 0);
+        assert((m_typeid = asENGINE->RegisterObjectType(name, sizeof(ASListInst), AngelScript::asOBJ_VALUE)) >= 0);
+        assert(asENGINE->RegisterObjectBehaviour(name, AngelScript::asBEHAVE_LIST_CONSTRUCT,
+                                                 ("void f(int &in) {repeat " + std::string(elemName) + "}").c_str(),
+                                                 AngelScript::asFUNCTION(ListConstructor),
+                                                 AngelScript::asCALL_CDECL_OBJLAST) >= 0);
+        assert(asENGINE->RegisterObjectBehaviour(name, AngelScript::asBEHAVE_DESTRUCT, "void f()",
+                                                 AngelScript::asFUNCTION(ListDestructor),
+                                                 AngelScript::asCALL_CDECL_OBJLAST) >= 0);
+    }
+    inline const char* getName() const {return m_name;}
+    inline const char* getElemName() const {return m_elemName;}
+    inline int getTypeID() const {return m_typeid;}
+    inline std::vector<ASELEMCLASS*>& vectorCast(void* addr) const
+    {return static_cast<ASListInst*>(addr)->m_items;}
+    inline const std::vector<ASELEMCLASS*>& vectorCast(const void* addr) const
+    {return static_cast<const ASListInst*>(addr)->m_items;}
+};
+
+struct ASStringType : ASType<std::string>
+{
+    ASStringType();
+};
+extern ASStringType asSTRINGTYPE;
 
 extern LogVisor::LogModule LogModule;
 
@@ -62,6 +152,8 @@ public:
 class IDataSpec
 {
 public:
+    virtual ~IDataSpec() {}
+
     /**
      * @brief Extract Pass Info
      *

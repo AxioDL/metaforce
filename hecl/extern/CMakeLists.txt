@@ -1,6 +1,6 @@
-set(ATHENA_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Athena/include CACHE PATH "Athena include dir" FORCE)
 add_subdirectory(libpng)
 add_subdirectory(blowfish)
 add_subdirectory(LogVisor)
+add_subdirectory(AngelScript)
 add_subdirectory(Athena)
 add_subdirectory(RetroCommon)

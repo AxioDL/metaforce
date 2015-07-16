@@ -206,10 +206,15 @@ int main(int argc, const char** argv)
         else
             LogModule.report(LogVisor::FatalError, _S("unrecognized tool '%s'"), toolName.c_str());
     }
-    catch (std::exception&)
+    catch (std::exception& ex)
     {
-        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s'"),
-                         toolName.c_str());
+#if HECL_UCS2
+        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s': %S"),
+                         toolName.c_str(), ex.what());
+#else
+        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s': %s"),
+                         toolName.c_str(), ex.what());
+#endif
         return -1;
     }
 
@@ -223,10 +228,15 @@ int main(int argc, const char** argv)
     {
         retval = tool->run();
     }
-    catch (std::exception&)
+    catch (std::exception& ex)
     {
-        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s'"),
-                         toolName.c_str());
+#if HECL_UCS2
+        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s': %S"),
+                         toolName.c_str(), ex.what());
+#else
+        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s': %s"),
+                         toolName.c_str(), ex.what());
+#endif
         return -1;
     }
 

@@ -15,39 +15,54 @@ static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex:
 static const SystemRegex regPATHCOMP(_S("/([^/]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
-bool ProjectPath::_canonAbsPath(const SystemString& path)
+inline bool isAbsolute(const SystemString& path)
+{
+    if (path.size() && path[0] == '/')
+        return true;
+    return false;
+}
+
+bool ProjectPath::_canonAbsPath(const SystemString& path, bool& needsMake)
 {
 #if _WIN32
 #else
     SystemChar resolvedPath[PATH_MAX];
     if (!realpath(path.c_str(), resolvedPath))
     {
-        throw std::invalid_argument("Unable to resolve '" + SystemUTF8View(path).utf8_str() +
+        if (errno != ENOENT)
+        {
+            throw std::system_error(errno, std::system_category(),
+                                    "Unable to resolve '" + SystemUTF8View(path).utf8_str() +
                                     "' as a canonicalized path");
-        return false;
+            return false;
+        }
+        else
+            needsMake = true;
     }
     m_absPath = resolvedPath;
 #endif
     return true;
 }
 
-ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& path)
+ProjectPath::ProjectPath(const ProjectPath& parentPath, const SystemString& path)
 {
-    _canonAbsPath(path);
-    if (m_absPath.size() < ((ProjectPath&)rootPath).m_absPath.size() ||
-        m_absPath.compare(0, ((ProjectPath&)rootPath).m_absPath.size(),
-                          ((ProjectPath&)rootPath).m_absPath))
+    bool needsMake = false;
+    if (!_canonAbsPath(parentPath.getRelativePath() + '/' + path, needsMake))
+        return;
+    if (m_absPath.size() < parentPath.m_absPath.size() ||
+        m_absPath.compare(0, parentPath.m_absPath.size(),
+                          parentPath.m_absPath))
     {
         throw std::invalid_argument("'" + SystemUTF8View(m_absPath).utf8_str() + "' is not a subpath of '" +
-                                    SystemUTF8View(((ProjectPath&)rootPath).m_absPath).utf8_str() + "'");
+                                    SystemUTF8View(parentPath.m_absPath).utf8_str() + "'");
         return;
     }
-    if (m_absPath.size() == ((ProjectPath&)rootPath).m_absPath.size())
+    if (m_absPath.size() == parentPath.m_absPath.size())
     {
         /* Copies of the project root are permitted */
         return;
     }
-    SystemString::iterator beginit = m_absPath.begin() + ((ProjectPath&)rootPath).m_absPath.size();
+    SystemString::iterator beginit = m_absPath.begin() + parentPath.m_absPath.size();
     if (*beginit == _S('/'))
         ++beginit;
     m_relPath = SystemString(beginit, m_absPath.end());
@@ -57,6 +72,9 @@ ProjectPath::ProjectPath(const ProjectRootPath& rootPath, const SystemString& pa
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
 #endif
+
+    if (needsMake)
+        _makeDir();
 }
 
 ProjectPath::PathType ProjectPath::getPathType() const
