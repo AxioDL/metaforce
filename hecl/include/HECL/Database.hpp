@@ -12,6 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <stdexcept>
+#include <fstream>
 #include <stdint.h>
 #include <assert.h>
 
@@ -110,10 +111,45 @@ public:
 };
 
 struct ASStringType : ASType<std::string>
-{
-    ASStringType();
-};
+{ASStringType();};
 extern ASStringType asSTRINGTYPE;
+
+/**
+ * @brief AngelScript Module Wrapper designed for HECL usage
+ *
+ * Behaves similarly to unique_ptr. Move construction/assignment only
+ * Implicit conversion is supplied for seamless usage as a module reference
+ */
+class ASUniqueModule
+{
+    AngelScript::asIScriptModule* m_mod;
+    ASUniqueModule() {m_mod = nullptr;}
+    ASUniqueModule(AngelScript::asIScriptModule* mod) : m_mod(mod) {}
+public:
+    ~ASUniqueModule() {if (m_mod) m_mod->Discard();}
+    ASUniqueModule(ASUniqueModule&& other) = default;
+    ASUniqueModule(ASUniqueModule& other) = delete;
+    ASUniqueModule& operator=(ASUniqueModule&& other) = default;
+    ASUniqueModule& operator=(ASUniqueModule& other) = delete;
+    inline operator AngelScript::asIScriptModule&() {return *m_mod;}
+    inline operator bool() {return m_mod != nullptr;}
+    static ASUniqueModule CreateFromCode(const char* module, const char* code)
+    {
+        AngelScript::asIScriptModule* mod = asENGINE->GetModule(module, AngelScript::asGM_ALWAYS_CREATE);
+        assert(mod);
+        assert(mod->AddScriptSection(module, code) >= 0);
+        if (mod->Build() >= 0)
+            return ASUniqueModule(mod);
+        else
+            return ASUniqueModule();
+    }
+    static ASUniqueModule CreateFromPath(const ProjectPath& path)
+    {
+        std::string asStr;
+        std::ifstream(path.getAbsolutePath()) >> asStr;
+        return CreateFromCode(path.getRelativePathUTF8().c_str(), asStr.c_str());
+    }
+};
 
 extern LogVisor::LogModule LogModule;
 
@@ -179,9 +215,9 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
-    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
-    {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doExtract(const Project& project, const ExtractPassInfo& info)
+    virtual bool canExtract(Project& project, const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+    {(void)project;(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    virtual void doExtract(Project& project, const ExtractPassInfo& info)
     {(void)project;(void)info;}
 
     /**
@@ -294,7 +330,7 @@ protected:
     typedef std::function<void(const void* data, size_t len)> FDataAppender;
 
     /**
-     * @brief Optional private method implemented by CProjectObject subclasses to cook objects
+     * @brief Optional private method implemented by subclasses to cook objects
      * @param dataAppender subclass calls this function zero or more times to provide cooked-data linearly
      * @param endianness byte-order to target
      * @param platform data-formats to target
@@ -304,8 +340,8 @@ protected:
      * Part of the cooking process may include embedding database-refs to dependencies.
      * This method should store the 64-bit value provided by IDataObject::id() when doing this.
      */
-    virtual bool _cookObject(FDataAppender dataAppender,
-                             DataEndianness endianness, DataPlatform platform)
+    virtual bool cookObject(FDataAppender dataAppender,
+                            DataEndianness endianness, DataPlatform platform)
     {(void)dataAppender;(void)endianness;(void)platform;return true;}
 
     typedef std::function<void(ObjectBase*)> FDepAdder;
@@ -318,8 +354,15 @@ protected:
      * Dependencies registered via this method will eventually have this method called on themselves
      * as well. This is a non-recursive operation, no need for subclasses to implement recursion-control.
      */
-    virtual void _gatherDeps(FDepAdder depAdder)
+    virtual void gatherDeps(FDepAdder depAdder)
     {(void)depAdder;}
+
+    /**
+     * @brief Get a packagable FourCC representation of the object's type
+     * @return FourCC of the type
+     */
+    virtual FourCC getType() const
+    {return FourCC("NULL");}
 
 public:
     ObjectBase(const SystemString& path)

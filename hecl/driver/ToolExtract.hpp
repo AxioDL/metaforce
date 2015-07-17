@@ -30,7 +30,7 @@ public:
             HECL::Database::IDataSpec* ds = entry->m_factory(HECL::Database::TOOL_EXTRACT);
             if (ds)
             {
-                if (ds->canExtract(m_einfo, m_reps))
+                if (ds->canExtract(*m_info.project, m_einfo, m_reps))
                     m_dataSpecs.emplace_back(ds);
                 else
                     delete ds;

@@ -327,7 +327,7 @@ protected:
 #endif
     ProjectPath() {}
     bool _canonAbsPath(const SystemString& path, bool& needsMake);
-    inline void _makeDir() const {MakeDir(getAbsolutePath());}
+    inline void _makeDir() const {MakeDir(m_absPath);}
 public:
     /**
      * @brief Construct a project subpath representation within another subpath
