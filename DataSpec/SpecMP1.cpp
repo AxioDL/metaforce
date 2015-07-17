@@ -1,11 +1,8 @@
 #include <utility>
 #include <stdio.h>
 
-#define NOD_ATHENA 1
 #include "SpecBase.hpp"
-#include "DNAMP1/PAK.hpp"
-#include "DNAMP1/MLVL.hpp"
-#include "DNAMP1/STRG.hpp"
+#include "DNAMP1/DNAMP1.hpp"
 
 namespace Retro
 {
@@ -21,16 +18,11 @@ struct SpecMP1 : SpecBase
         return false;
     }
 
-    struct DiscPAK
-    {
-        const NOD::DiscBase::IPartition::Node& node;
-        DNAMP1::PAK pak;
-        DiscPAK(const NOD::DiscBase::IPartition::Node& n) : node(n) {}
-    };
-    std::vector<DiscPAK> m_paks;
-    std::map<std::string, DiscPAK*, CaseInsensitiveCompare> m_orderedPaks;
+    std::vector<DNAMP1::PAKBridge> m_paks;
+    std::map<std::string, DNAMP1::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
-    void buildPaks(NOD::DiscBase::IPartition::Node& root,
+    void buildPaks(HECL::Database::Project& project,
+                   NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
@@ -83,51 +75,29 @@ struct SpecMP1 : SpecBase
                     }
 
                     if (good)
-                    {
-                        m_paks.emplace_back(child);
-                        NOD::AthenaPartReadStream rs(child.beginReadStream());
-                        m_paks.back().pak.read(rs);
-                    }
+                        m_paks.emplace_back(project, child);
+
                 }
             }
         }
 
         /* Sort PAKs alphabetically */
         m_orderedPaks.clear();
-        for (DiscPAK& dpak : m_paks)
-            m_orderedPaks[dpak.node.getName()] = &dpak;
+        for (DNAMP1::PAKBridge& dpak : m_paks)
+            m_orderedPaks[dpak.getName()] = &dpak;
 
         /* Assemble extract report */
-        for (const std::pair<std::string, DiscPAK*>& item : m_orderedPaks)
+        for (const std::pair<std::string, DNAMP1::PAKBridge*>& item : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
             childRep.name = item.first;
-
-            DNAMP1::PAK& pak = item.second->pak;
-            for (DNAMP1::PAK::Entry& entry : pak.m_entries)
-            {
-                if (entry.type == MLVL)
-                {
-                    PAKEntryReadStream rs = entry.beginReadStream(item.second->node);
-                    DNAMP1::MLVL mlvl;
-                    mlvl.read(rs);
-                    const DNAMP1::PAK::Entry* nameEnt = pak.lookupEntry(mlvl.worldNameId);
-                    if (nameEnt)
-                    {
-                        PAKEntryReadStream rs = nameEnt->beginReadStream(item.second->node);
-                        DNAMP1::STRG mlvlName;
-                        mlvlName.read(rs);
-                        if (childRep.desc.size())
-                            childRep.desc += _S(", ");
-                        childRep.desc += mlvlName.getSystemString(ENGL, 0);
-                    }
-                }
-            }
+            childRep.desc = item.second->getLevelString();
         }
     }
 
-    bool checkFromStandaloneDisc(NOD::DiscBase& disc,
+    bool checkFromStandaloneDisc(HECL::Database::Project& project,
+                                 NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
@@ -150,12 +120,13 @@ struct SpecMP1 : SpecBase
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(root, args, rep);
+        buildPaks(project, root, args, rep);
 
         return true;
     }
 
-    bool checkFromTrilogyDisc(NOD::DiscBase& disc,
+    bool checkFromTrilogyDisc(HECL::Database::Project& project,
+                              NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
                               const std::vector<HECL::SystemString>& args,
                               std::vector<ExtractReport>& reps)
@@ -204,37 +175,23 @@ struct SpecMP1 : SpecBase
         NOD::DiscBase::IPartition::Node::DirectoryIterator mp1It = root.find("MP1");
         if (mp1It == root.end())
             return false;
-        buildPaks(*mp1It, mp1args, rep);
+        buildPaks(project, *mp1It, mp1args, rep);
 
         return true;
     }
 
-    bool extractFromDisc(NOD::DiscBase& disc, const HECL::Database::Project& project)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc)
     {
         HECL::ProjectPath mp1Path(project.getProjectRootPath(), "MP1");
 
-        for (const DiscPAK& pak : m_paks)
+        for (DNAMP1::PAKBridge& pak : m_paks)
         {
-            const std::string& name = pak.node.getName();
+            const std::string& name = pak.getName();
             std::string::const_iterator extit = name.end() - 4;
             std::string baseName(name.begin(), extit);
 
             HECL::ProjectPath pakPath(mp1Path, baseName);
-
-            for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& item : pak.pak.m_idMap)
-            {
-                if (item.second->type == STRG)
-                {
-                    DNAMP1::STRG strg;
-                    PAKEntryReadStream strgIn = item.second->beginReadStream(pak.node);
-                    strg.read(strgIn);
-
-                    HECL::SystemChar strgPath[1024];
-                    HECL::SNPrintf(strgPath, 1024, _S("%s/%08X.strg"), pakPath.getAbsolutePath().c_str(), item.second->id.toUint32());
-                    std::ofstream strgOut(strgPath);
-                    strg.writeAngelScript(strgOut);
-                }
-            }
+            pak.extractResources(pakPath);
         }
 
         return true;

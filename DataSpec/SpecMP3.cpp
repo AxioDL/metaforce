@@ -1,11 +1,8 @@
 #include <utility>
 #include <set>
 
-#define NOD_ATHENA 1
 #include "SpecBase.hpp"
-#include "DNAMP3/PAK.hpp"
-#include "DNAMP3/MLVL.hpp"
-#include "DNAMP3/STRG.hpp"
+#include "DNAMP3/DNAMP3.hpp"
 
 namespace Retro
 {
@@ -21,16 +18,11 @@ struct SpecMP3 : SpecBase
         return false;
     }
 
-    struct DiscPAK
-    {
-        const NOD::DiscBase::IPartition::Node& node;
-        DNAMP3::PAK pak;
-        DiscPAK(const NOD::DiscBase::IPartition::Node& n) : node(n) {}
-    };
-    std::vector<DiscPAK> m_paks;
-    std::map<std::string, DiscPAK*, CaseInsensitiveCompare> m_orderedPaks;
+    std::vector<DNAMP3::PAKBridge> m_paks;
+    std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
-    void buildPaks(NOD::DiscBase::IPartition::Node& root,
+    void buildPaks(HECL::Database::Project& project,
+                   NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
@@ -83,22 +75,18 @@ struct SpecMP3 : SpecBase
                     }
 
                     if (good)
-                    {
-                        m_paks.emplace_back(child);
-                        NOD::AthenaPartReadStream rs(child.beginReadStream());
-                        m_paks.back().pak.read(rs);
-                    }
+                        m_paks.emplace_back(project, child);
                 }
             }
         }
 
         /* Sort PAKs alphabetically */
         m_orderedPaks.clear();
-        for (DiscPAK& dpak : m_paks)
-            m_orderedPaks[dpak.node.getName()] = &dpak;
+        for (DNAMP3::PAKBridge& dpak : m_paks)
+            m_orderedPaks[dpak.getName()] = &dpak;
 
         /* Assemble extract report */
-        for (const std::pair<std::string, DiscPAK*>& item : m_orderedPaks)
+        for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
@@ -111,37 +99,12 @@ struct SpecMP3 : SpecBase
                 childRep.desc = _S("Phaaze");
                 continue;
             }
-
-            std::set<HECL::SystemString> worldNames;
-            DNAMP3::PAK& pak = item.second->pak;
-            for (DNAMP3::PAK::Entry& entry : pak.m_entries)
-            {
-                if (entry.type == MLVL)
-                {
-                    PAKEntryReadStream rs = entry.beginReadStream(item.second->node);
-                    DNAMP3::MLVL mlvl;
-                    mlvl.read(rs);
-                    const DNAMP3::PAK::Entry* nameEnt = pak.lookupEntry(mlvl.worldNameId);
-                    if (nameEnt)
-                    {
-                        PAKEntryReadStream rs = nameEnt->beginReadStream(item.second->node);
-                        DNAMP3::STRG mlvlName;
-                        mlvlName.read(rs);
-                        worldNames.emplace(mlvlName.getSystemString(ENGL, 0));
-                    }
-                }
-            }
-
-            for (const std::string& name : worldNames)
-            {
-                if (childRep.desc.size())
-                    childRep.desc += _S(", ");
-                childRep.desc += name;
-            }
+            childRep.desc = item.second->getLevelString();
         }
     }
 
-    bool checkFromStandaloneDisc(NOD::DiscBase& disc,
+    bool checkFromStandaloneDisc(HECL::Database::Project& project,
+                                 NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
@@ -164,12 +127,13 @@ struct SpecMP3 : SpecBase
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(root, args, rep);
+        buildPaks(project, root, args, rep);
 
         return true;
     }
 
-    bool checkFromTrilogyDisc(NOD::DiscBase& disc,
+    bool checkFromTrilogyDisc(HECL::Database::Project& project,
+                              NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
                               const std::vector<HECL::SystemString>& args,
                               std::vector<ExtractReport>& reps)
@@ -218,12 +182,12 @@ struct SpecMP3 : SpecBase
         NOD::DiscBase::IPartition::Node::DirectoryIterator mp3It = root.find("MP3");
         if (mp3It == root.end())
             return false;
-        buildPaks(*mp3It, mp3args, rep);
+        buildPaks(project, *mp3It, mp3args, rep);
 
         return true;
     }
 
-    bool extractFromDisc(NOD::DiscBase& disc, const HECL::Database::Project& project)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc)
     {
     }
 

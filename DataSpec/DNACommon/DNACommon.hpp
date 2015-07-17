@@ -3,6 +3,7 @@
 
 #include <Athena/DNA.hpp>
 #include "HECL/HECL.hpp"
+#include "HECL/Database.hpp"
 
 namespace Retro
 {
@@ -177,6 +178,16 @@ public:
         return len;
     }
 };
+
+/* Resource extractor type */
+typedef struct
+{
+    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func;
+    const char* fileExt;
+} ResExtractor;
+
+/* Resource cooker function */
+typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
 
 /* Language-identifiers */
 extern const HECL::FourCC ENGL;

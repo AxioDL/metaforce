@@ -3,7 +3,8 @@
 namespace Retro
 {
 
-bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+bool SpecBase::canExtract(HECL::Database::Project& project,
+                          const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
     bool isWii;
     m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), isWii);
@@ -38,14 +39,14 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     }
 
     if (standalone)
-        return checkFromStandaloneDisc(*m_disc.get(), *regstr, info.extractArgs, reps);
+        return checkFromStandaloneDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
     else
-        return checkFromTrilogyDisc(*m_disc.get(), *regstr, info.extractArgs, reps);
+        return checkFromTrilogyDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(const HECL::Database::Project& project, const ExtractPassInfo&)
+void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo&)
 {
-    extractFromDisc(*m_disc.get(), project);
+    extractFromDisc(project, *m_disc.get());
 }
 
 bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)

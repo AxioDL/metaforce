@@ -57,6 +57,8 @@ struct STRG : ISTRG, BigDNA
 
     bool readAngelScript(const AngelScript::asIScriptModule& in);
     void writeAngelScript(std::ofstream& out) const;
+
+
 };
 
 }
