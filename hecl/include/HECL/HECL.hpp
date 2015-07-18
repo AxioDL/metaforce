@@ -1,9 +1,7 @@
 #ifndef HECL_HPP
 #define HECL_HPP
 
-#if _WIN32
-char* win_realpath(const char* name, char* restrict resolved);
-#else
+#ifndef _WIN32
 #include <stdlib.h>
 #include <sys/param.h>
 #include <sys/stat.h>
@@ -50,16 +48,24 @@ class SystemUTF8View
 public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(WideToUTF8(str)) {}
-    inline const std::string& utf8_str() {return m_utf8;}
+    inline operator const std::string&() const {return m_utf8;}
+    inline std::string operator+(const std::string& other) const {return m_utf8 + other;}
+    inline std::string operator+(const char* other) const {return m_utf8 + other;}
 };
+inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
+inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
 class SystemStringView
 {
     std::wstring m_sys;
 public:
     SystemStringView(const std::string& str)
     : m_sys(UTF8ToWide(str)) {}
-    inline const std::wstring& sys_str() {return m_sys;}
+    inline operator const std::wstring&() const {return m_sys;}
+    inline std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
+    inline std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
 };
+inline std::wstring operator+(const std::wstring& lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
+inline std::wstring operator+(const wchar_t* lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
 #ifndef _S
 #define _S(val) L ## val
 #endif
@@ -76,16 +82,24 @@ class SystemUTF8View
 public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(str) {}
-    inline const std::string& utf8_str() {return m_utf8;}
+    inline operator const std::string&() const {return m_utf8;}
+    inline std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
+    inline std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
 };
+inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
+inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
 class SystemStringView
 {
     const std::string& m_sys;
 public:
     SystemStringView(const std::string& str)
     : m_sys(str) {}
-    inline const std::string& sys_str() {return m_sys;}
+    inline operator const std::string&() const {return m_sys;}
+    inline std::string operator+(const std::string& other) const {return m_sys + other;}
+    inline std::string operator+(const char* other) const {return m_sys + other;}
 };
+inline std::string operator+(const std::string& lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
+inline std::string operator+(const char* lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
 #ifndef _S
 #define _S(val) val
 #endif
@@ -318,6 +332,7 @@ public:
 class ProjectPath
 {
 protected:
+    SystemString m_projRoot;
     SystemString m_absPath;
     SystemString m_relPath;
     Hash m_hash = 0;
@@ -325,9 +340,14 @@ protected:
     std::string m_utf8AbsPath;
     const char* m_utf8RelPath;
 #endif
-    ProjectPath() {}
-    bool _canonAbsPath(const SystemString& path, bool& needsMake);
-    inline void _makeDir() const {MakeDir(m_absPath);}
+    ProjectPath(const SystemString& projRoot)
+    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath("."), m_hash(m_relPath)
+    {
+#if HECL_UCS2
+        m_utf8AbsPath = WideToUTF8(m_absPath);
+        m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
+#endif
+    }
 public:
     /**
      * @brief Construct a project subpath representation within another subpath
@@ -415,6 +435,8 @@ public:
      */
     void getGlobResults(std::vector<SystemString>& outPaths) const;
 
+    inline void makeDir() const {MakeDir(m_absPath);}
+
     /**
      * @brief HECL-specific blowfish hash
      * @return unique hash value
@@ -435,12 +457,7 @@ class ProjectRootPath : public ProjectPath
 {
 public:
     ProjectRootPath(const SystemString& path)
-    {
-        bool needsMake = false;
-        _canonAbsPath(path, needsMake);
-        if (needsMake)
-            _makeDir();
-    }
+    : ProjectPath(path) {}
 };
 
 /**

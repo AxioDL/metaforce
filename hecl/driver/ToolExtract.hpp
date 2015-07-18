@@ -20,6 +20,7 @@ public:
 
         m_einfo.srcpath = m_info.args[0];
         m_einfo.extractArgs.reserve(info.args.size() - 1);
+        m_einfo.force = info.force;
         for (std::vector<HECL::SystemString>::const_iterator it=info.args.begin() + 1;
              it != info.args.end();
              ++it)

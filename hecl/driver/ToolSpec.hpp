@@ -21,7 +21,8 @@ public:
             return;
 
         if (!info.project)
-            LogModule.report(LogVisor::FatalError, "hecl spec must be ran within a project directory");
+            LogModule.report(LogVisor::FatalError,
+                             "hecl spec must be ran within a project directory");
 
         const auto& specs = info.project->getDataSpecs();
         HECL::SystemString firstArg = info.args[0];
@@ -47,14 +48,16 @@ public:
             bool found = false;
             for (auto& spec : specs)
             {
-                if (!spec.first.m_name.compare(*it))
+                if (!spec.spec.m_name.compare(*it))
                 {
                     found = true;
                     break;
                 }
             }
             if (!found)
-                LogModule.report(LogVisor::FatalError, _S("'%s' is not found in the dataspec registry"), it->c_str());
+                LogModule.report(LogVisor::FatalError,
+                                 _S("'%s' is not found in the dataspec registry"),
+                                 it->c_str());
         }
     }
 
@@ -107,17 +110,17 @@ public:
             for (auto& spec : specs)
             {
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.first.m_name.c_str());
+                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name.c_str());
                 else
-                    HECL::Printf(_S("%s"), spec.first.m_name.c_str());
-                if (spec.second)
+                    HECL::Printf(_S("%s"), spec.spec.m_name.c_str());
+                if (spec.active)
                 {
                     if (XTERM_COLOR)
                         HECL::Printf(_S(" " BOLD GREEN "[ENABLED]" NORMAL ""));
                     else
                         HECL::Printf(_S(" [ENABLED]"));
                 }
-                HECL::Printf(_S("\n  %s\n"), spec.first.m_desc.c_str());
+                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc.c_str());
             }
             return 0;
         }
@@ -131,9 +134,9 @@ public:
             HECL::ToLower(itName);
             for (auto& spec : specs)
             {
-                if (!spec.first.m_name.compare(itName))
+                if (!spec.spec.m_name.compare(itName))
                 {
-                    opSpecs.push_back(spec.first.m_name);
+                    opSpecs.push_back(spec.spec.m_name);
                     break;
                 }
             }

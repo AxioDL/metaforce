@@ -2,79 +2,72 @@
 #include <stdexcept>
 #include <regex>
 
-#if _WIN32
-char* win_realpath(const char* name, char* restrict resolved)
-{
-}
-#endif
-
 namespace HECL
 {
 
 static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex::optimize);
-static const SystemRegex regPATHCOMP(_S("/([^/]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
+static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
-inline bool isAbsolute(const SystemString& path)
+static SystemString canonRelPath(const SystemString& path)
 {
-    if (path.size() && path[0] == '/')
-        return true;
-    return false;
-}
-
-bool ProjectPath::_canonAbsPath(const SystemString& path, bool& needsMake)
-{
-#if _WIN32
-#else
-    SystemChar resolvedPath[PATH_MAX];
-    if (!realpath(path.c_str(), resolvedPath))
+    /* Absolute paths not allowed */
+    if (path[0] == _S('/') || path[0] == _S('\\'))
     {
-        if (errno != ENOENT)
-        {
-            throw std::system_error(errno, std::system_category(),
-                                    "Unable to resolve '" + SystemUTF8View(path).utf8_str() +
-                                    "' as a canonicalized path");
-            return false;
-        }
-        else
-            needsMake = true;
+        throw std::invalid_argument("Absolute path provided; expected relative: " + path);
+        return _S(".");
     }
-    m_absPath = resolvedPath;
-#endif
-    return true;
+
+    /* Tokenize Path */
+    std::vector<SystemString> comps;
+    HECL::SystemRegexMatch matches;
+    SystemString in = path;
+    while (std::regex_search(in, matches, regPATHCOMP))
+    {
+        in = matches.suffix();
+        const SystemString& match = matches[1];
+        if (!match.compare(_S(".")))
+            continue;
+        else if (!match.compare(_S("..")))
+        {
+            if (comps.empty())
+            {
+                /* Unable to resolve outside project */
+                SystemUTF8View pathView(path);
+                throw std::invalid_argument("Unable to resolve outside project root in " + pathView);
+                return _S(".");
+            }
+            comps.pop_back();
+            continue;
+        }
+        comps.push_back(match);
+    }
+
+    /* Emit relative path */
+    if (comps.size())
+    {
+        auto it = comps.begin();
+        SystemString retval = *it;
+        for (++it ; it != comps.end() ; ++it)
+        {
+            retval += _S('/');
+            retval += *it;
+        }
+        return retval;
+    }
+    return ".";
 }
 
 ProjectPath::ProjectPath(const ProjectPath& parentPath, const SystemString& path)
+: m_projRoot(parentPath.m_projRoot)
 {
-    bool needsMake = false;
-    if (!_canonAbsPath(parentPath.getRelativePath() + '/' + path, needsMake))
-        return;
-    if (m_absPath.size() < parentPath.m_absPath.size() ||
-        m_absPath.compare(0, parentPath.m_absPath.size(),
-                          parentPath.m_absPath))
-    {
-        throw std::invalid_argument("'" + SystemUTF8View(m_absPath).utf8_str() + "' is not a subpath of '" +
-                                    SystemUTF8View(parentPath.m_absPath).utf8_str() + "'");
-        return;
-    }
-    if (m_absPath.size() == parentPath.m_absPath.size())
-    {
-        /* Copies of the project root are permitted */
-        return;
-    }
-    SystemString::iterator beginit = m_absPath.begin() + parentPath.m_absPath.size();
-    if (*beginit == _S('/'))
-        ++beginit;
-    m_relPath = SystemString(beginit, m_absPath.end());
+    m_relPath = canonRelPath(parentPath.m_relPath + '/' + path);
+    m_absPath = parentPath.m_projRoot + '/' + m_relPath;
     m_hash = Hash(m_relPath);
-
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
 #endif
-
-    if (needsMake)
-        _makeDir();
 }
 
 ProjectPath::PathType ProjectPath::getPathType() const

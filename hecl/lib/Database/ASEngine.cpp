@@ -28,6 +28,7 @@ void InitASEngine()
     InitEntered = true;
     assert(asENGINE = AngelScript::asCreateScriptEngine(ANGELSCRIPT_VERSION));
     assert(asENGINE->SetEngineProperty(AngelScript::asEP_COPY_SCRIPT_SECTIONS, false) >= 0);
+    assert(asENGINE->SetEngineProperty(AngelScript::asEP_ALLOW_MULTILINE_STRINGS, true) >= 0);
     assert(asENGINE->SetMessageCallback(AngelScript::asFUNCTION(MessageCallback), nullptr, AngelScript::asCALL_CDECL) >= 0);
 }
 

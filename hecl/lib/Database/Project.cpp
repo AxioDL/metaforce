@@ -95,7 +95,8 @@ void Project::ConfigFile::removeLine(const std::string& refLine)
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+                               "Project::ConfigFile::lockAndRead not yet called");
         return;
     }
 
@@ -115,7 +116,8 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+                               "Project::ConfigFile::lockAndRead not yet called");
         return false;
     }
 
@@ -131,7 +133,8 @@ void Project::ConfigFile::unlockAndDiscard()
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+                               "Project::ConfigFile::lockAndRead not yet called");
         return;
     }
 
@@ -144,7 +147,8 @@ bool Project::ConfigFile::unlockAndCommit()
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__, "Project::ConfigFile::lockAndRead not yet called");
+        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+                               "Project::ConfigFile::lockAndRead not yet called");
         return false;
     }
 
@@ -186,6 +190,8 @@ bool Project::ConfigFile::unlockAndCommit()
 
 Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath),
+  m_dotPath(m_rootPath, _S(".hecl")),
+  m_cookedRoot(m_dotPath, _S("cooked")),
   m_specs(*this, _S("specs")),
   m_paths(*this, _S("paths")),
   m_groups(*this, _S("groups"))
@@ -200,11 +206,12 @@ Project::Project(const ProjectRootPath& rootPath)
                                     m_rootPath.getAbsolutePathUTF8() + "' isn't");
 
     /* Create project directory structure */
-    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl"));
-    HECL::MakeDir(m_rootPath.getAbsolutePath() + _S("/.hecl/cooked"));
+    m_dotPath.makeDir();
+    m_cookedRoot.makeDir();
 
     /* Ensure beacon is valid or created */
-    FILE* bf = HECL::Fopen((m_rootPath.getAbsolutePath() + _S("/.hecl/beacon")).c_str(), _S("a+b"));
+    ProjectPath beaconPath(m_dotPath, _S("beacon"));
+    FILE* bf = HECL::Fopen(beaconPath.getAbsolutePath().c_str(), _S("a+b"));
     struct BeaconStruct
     {
         HECL::FourCC magic;
@@ -286,7 +293,8 @@ void Project::rescanDataSpecs()
     for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
         SystemUTF8View specUTF8(spec->m_name);
-        m_compiledSpecs.push_back({*spec, m_specs.checkForLine(specUTF8.utf8_str()) ? true : false});
+        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, spec->m_name + ".spec"),
+                                   m_specs.checkForLine(specUTF8) ? true : false});
     }
     m_specs.unlockAndDiscard();
 }
@@ -296,7 +304,9 @@ bool Project::enableDataSpecs(const std::vector<SystemString>& specs)
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
         m_specs.addLine(spec);
-    return m_specs.unlockAndCommit();
+    bool result = m_specs.unlockAndCommit();
+    rescanDataSpecs();
+    return result;
 }
 
 bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
@@ -304,7 +314,9 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
         m_specs.removeLine(spec);
-    return m_specs.unlockAndCommit();
+    bool result = m_specs.unlockAndCommit();
+    rescanDataSpecs();
+    return result;
 }
 
 bool Project::cookPath(const ProjectPath& path,

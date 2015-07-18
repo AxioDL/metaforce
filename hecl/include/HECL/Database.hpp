@@ -200,6 +200,7 @@ public:
     {
         SystemString srcpath;
         std::vector<SystemString> extractArgs;
+        bool force;
     };
 
     /**
@@ -383,10 +384,17 @@ public:
 class Project
 {
 public:
-    typedef std::vector<std::pair<const DataSpecEntry&, bool>> CompiledSpecs;
+    struct ProjectDataSpec
+    {
+        const DataSpecEntry& spec;
+        ProjectPath cookedPath;
+        bool active;
+    };
 private:
     ProjectRootPath m_rootPath;
-    CompiledSpecs m_compiledSpecs;
+    ProjectPath m_dotPath;
+    ProjectPath m_cookedRoot;
+    std::vector<ProjectDataSpec> m_compiledSpecs;
 public:
     Project(const HECL::ProjectRootPath& rootPath);
 
@@ -440,12 +448,28 @@ public:
 
     /**
      * @brief Get the path of the project's root-directory
-     * @param absolute return as absolute-path
      * @return project root path
      *
      * Self explanatory
      */
     inline const ProjectRootPath& getProjectRootPath() const {return m_rootPath;}
+
+    /**
+     * @brief Get the path of project's cooked directory for a specific DataSpec
+     * @param DataSpec to retrieve path for
+     * @return project cooked path
+     *
+     * The cooked path matches the directory layout of the working directory,
+     * except data is
+     */
+    inline const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const
+    {
+        for (const ProjectDataSpec& sp : m_compiledSpecs)
+            if (&sp.spec == &spec)
+                return sp.cookedPath;
+        LogModule.report(LogVisor::FatalError, "Unable to find spec '%s'", spec.m_name.c_str());
+        return m_cookedRoot;
+    }
 
     /**
      * @brief Add given file(s) to the database
@@ -502,7 +526,7 @@ public:
      * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    inline const CompiledSpecs& getDataSpecs() {return m_compiledSpecs;}
+    inline const std::vector<ProjectDataSpec>& getDataSpecs() {return m_compiledSpecs;}
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
