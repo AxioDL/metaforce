@@ -8,6 +8,7 @@ namespace Retro
 {
 
 static LogVisor::LogModule Log("Retro::SpecMP3");
+extern HECL::Database::DataSpecEntry SpecEntMP3;
 
 struct SpecMP3 : SpecBase
 {
@@ -18,17 +19,36 @@ struct SpecMP3 : SpecBase
         return false;
     }
 
+    bool doMP3 = false;
+    std::vector<const NOD::DiscBase::IPartition::Node*> m_nonPaks;
     std::vector<DNAMP3::PAKBridge> m_paks;
     std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
+
+    /* These are populated when extracting MPT's frontend (uses MP3's DataSpec) */
+    bool doMPTFE = false;
+    std::vector<const NOD::DiscBase::IPartition::Node*> m_feNonPaks;
+    std::vector<DNAMP3::PAKBridge> m_fePaks;
+    std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_feOrderedPaks;
 
     void buildPaks(HECL::Database::Project& project,
                    NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
-                   ExtractReport& rep)
+                   ExtractReport& rep,
+                   bool fe)
     {
-        m_paks.clear();
+        if (fe)
+        {
+            m_feNonPaks.clear();
+            m_fePaks.clear();
+        }
+        else
+        {
+            m_nonPaks.clear();
+            m_paks.clear();
+        }
         for (const NOD::DiscBase::IPartition::Node& child : root)
         {
+            bool isPak = false;
             const std::string& name = child.getName();
             std::string lowerName = name;
             std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
@@ -38,6 +58,7 @@ struct SpecMP3 : SpecBase
                 if (!std::string(extit, lowerName.end()).compare(".pak"))
                 {
                     /* This is a pak */
+                    isPak = true;
                     std::string lowerBase(lowerName.begin(), extit);
 
                     /* Needs filter */
@@ -75,18 +96,40 @@ struct SpecMP3 : SpecBase
                     }
 
                     if (good)
-                        m_paks.emplace_back(project, child);
+                    {
+                        if (fe)
+                            m_fePaks.emplace_back(project, child);
+                        else
+                            m_paks.emplace_back(project, child);
+                    }
                 }
+            }
+
+            if (!isPak)
+            {
+                if (fe)
+                    m_feNonPaks.push_back(&child);
+                else
+                    m_nonPaks.push_back(&child);
             }
         }
 
         /* Sort PAKs alphabetically */
-        m_orderedPaks.clear();
-        for (DNAMP3::PAKBridge& dpak : m_paks)
-            m_orderedPaks[dpak.getName()] = &dpak;
+        if (fe)
+        {
+            m_feOrderedPaks.clear();
+            for (DNAMP3::PAKBridge& dpak : m_fePaks)
+                m_feOrderedPaks[dpak.getName()] = &dpak;
+        }
+        else
+        {
+            m_orderedPaks.clear();
+            for (DNAMP3::PAKBridge& dpak : m_paks)
+                m_orderedPaks[dpak.getName()] = &dpak;
+        }
 
         /* Assemble extract report */
-        for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : m_orderedPaks)
+        for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : fe ? m_feOrderedPaks : m_orderedPaks)
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
@@ -109,6 +152,7 @@ struct SpecMP3 : SpecBase
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
     {
+        doMP3 = true;
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
@@ -122,12 +166,12 @@ struct SpecMP3 : SpecBase
         {
             std::string buildStr(buildInfo);
             HECL::SystemStringView buildView(buildStr);
-            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+            rep.desc += _S(" (") + buildView + _S(")");
         }
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(project, root, args, rep);
+        buildPaks(project, root, args, rep, false);
 
         return true;
     }
@@ -139,56 +183,165 @@ struct SpecMP3 : SpecBase
                               std::vector<ExtractReport>& reps)
     {
         std::vector<HECL::SystemString> mp3args;
+        std::vector<HECL::SystemString> feargs;
         if (args.size())
         {
             /* Needs filter */
             for (const HECL::SystemString& arg : args)
             {
-                size_t slashPos = arg.find(_S('/'));
-                if (slashPos == HECL::SystemString::npos)
-                    slashPos = arg.find(_S('\\'));
-                if (slashPos != HECL::SystemString::npos)
+                HECL::SystemString lowerArg = arg;
+                HECL::ToLower(lowerArg);
+                if (!lowerArg.compare(0, 3, "mp3"))
                 {
-                    HECL::SystemString lowerArg(arg.begin(), arg.begin() + slashPos);
-                    HECL::ToLower(lowerArg);
-                    if (!lowerArg.compare(_S("mp3")))
+                    doMP3 = true;
+                    size_t slashPos = arg.find(_S('/'));
+                    if (slashPos == HECL::SystemString::npos)
+                        slashPos = arg.find(_S('\\'));
+                    if (slashPos != HECL::SystemString::npos)
                         mp3args.emplace_back(HECL::SystemString(arg.begin() + slashPos + 1, arg.end()));
                 }
             }
+
+            for (const HECL::SystemString& arg : args)
+            {
+                HECL::SystemString lowerArg = arg;
+                HECL::ToLower(lowerArg);
+                if (!lowerArg.compare(0, 2, "fe"))
+                {
+                    doMPTFE = true;
+                    size_t slashPos = arg.find(_S('/'));
+                    if (slashPos == HECL::SystemString::npos)
+                        slashPos = arg.find(_S('\\'));
+                    if (slashPos != HECL::SystemString::npos)
+                        feargs.emplace_back(HECL::SystemString(arg.begin() + slashPos + 1, arg.end()));
+                }
+            }
+        }
+        else
+        {
+            doMP3 = true;
+            doMPTFE = true;
         }
 
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5mp3_p.dol");
-        if (dolIt == root.end())
-            return false;
 
-        std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
-        const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
-
-        /* Root Report */
-        reps.emplace_back();
-        ExtractReport& rep = reps.back();
-        rep.name = _S("MP3");
-        rep.desc = _S("Metroid Prime 3 ") + regstr;
-        if (buildInfo)
+        /* MP3 extract */
+        if (doMP3)
         {
-            std::string buildStr(buildInfo);
-            HECL::SystemStringView buildView(buildStr);
-            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+            NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5mp3_p.dol");
+            if (dolIt == root.end())
+                return false;
+
+            std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
+            const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+
+            /* Root Report */
+            reps.emplace_back();
+            ExtractReport& rep = reps.back();
+            rep.name = _S("MP3");
+            rep.desc = _S("Metroid Prime 3 ") + regstr;
+            if (buildInfo)
+            {
+                std::string buildStr(buildInfo);
+                HECL::SystemStringView buildView(buildStr);
+                rep.desc += _S(" (") + buildView + _S(")");
+            }
+
+            /* Iterate PAKs and build level options */
+            NOD::DiscBase::IPartition::Node::DirectoryIterator mp3It = root.find("MP3");
+            if (mp3It == root.end())
+                return false;
+            buildPaks(project, *mp3It, mp3args, rep, false);
         }
 
-        /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node::DirectoryIterator mp3It = root.find("MP3");
-        if (mp3It == root.end())
-            return false;
-        buildPaks(project, *mp3It, mp3args, rep);
+        /* MPT Frontend extract */
+        if (doMPTFE)
+        {
+            NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5fe_p.dol");
+            if (dolIt == root.end())
+                return false;
+
+            std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
+            const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+
+            /* Root Report */
+            reps.emplace_back();
+            ExtractReport& rep = reps.back();
+            rep.name = _S("fe");
+            rep.desc = _S("Metroid Prime Trilogy Frontend ") + regstr;
+            if (buildInfo)
+            {
+                std::string buildStr(buildInfo);
+                HECL::SystemStringView buildView(buildStr);
+                rep.desc += _S(" (") + buildView + _S(")");
+            }
+
+            /* Iterate PAKs and build level options */
+            NOD::DiscBase::IPartition::Node::DirectoryIterator feIt = root.find("fe");
+            if (feIt == root.end())
+                return false;
+            buildPaks(project, *feIt, feargs, rep, true);
+        }
 
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force)
     {
+        if (doMP3)
+        {
+            HECL::ProjectPath mp3WorkPath(project.getProjectRootPath(), "MP3");
+            mp3WorkPath.makeDir();
+            for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+                node->extractToDirectory(mp3WorkPath.getAbsolutePath(), force);
+
+            const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
+            cookPath.makeDir();
+            HECL::ProjectPath mp3CookPath(cookPath, "MP3");
+            mp3CookPath.makeDir();
+
+            for (DNAMP3::PAKBridge& pak : m_paks)
+            {
+                const std::string& name = pak.getName();
+                std::string::const_iterator extit = name.end() - 4;
+                std::string baseName(name.begin(), extit);
+
+                HECL::ProjectPath pakWorkPath(mp3WorkPath, baseName);
+                pakWorkPath.makeDir();
+                HECL::ProjectPath pakCookPath(mp3CookPath, baseName);
+                pakCookPath.makeDir();
+                pak.extractResources(pakWorkPath, pakCookPath, force);
+            }
+        }
+
+        if (doMPTFE)
+        {
+            HECL::ProjectPath feWorkPath(project.getProjectRootPath(), "fe");
+            feWorkPath.makeDir();
+            for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
+                node->extractToDirectory(feWorkPath.getAbsolutePath(), force);
+
+            const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
+            cookPath.makeDir();
+            HECL::ProjectPath feCookPath(cookPath, "fe");
+            feCookPath.makeDir();
+
+            for (DNAMP3::PAKBridge& pak : m_fePaks)
+            {
+                const std::string& name = pak.getName();
+                std::string::const_iterator extit = name.end() - 4;
+                std::string baseName(name.begin(), extit);
+
+                HECL::ProjectPath pakWorkPath(feWorkPath, baseName);
+                pakWorkPath.makeDir();
+                HECL::ProjectPath pakCookPath(feCookPath, baseName);
+                pakCookPath.makeDir();
+                pak.extractResources(pakWorkPath, pakCookPath, force);
+            }
+        }
+
+        return true;
     }
 
     bool checkFromProject(HECL::Database::Project& proj)
@@ -221,7 +374,7 @@ struct SpecMP3 : SpecBase
     }
 };
 
-static HECL::Database::DataSpecEntry SpecMP3
+HECL::Database::DataSpecEntry SpecEntMP3
 (
     _S("MP3"),
     _S("Data specification for original Metroid Prime 3 engine"),

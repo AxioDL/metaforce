@@ -29,8 +29,13 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         reader.seek(strCount * 4 + 4);
         for (atUint32 s=0 ; s<strCount ; ++s)
             strs.emplace_back(reader.readWString());
-        langs.emplace(std::make_pair(lang, strs));
+        langs.emplace_back(lang, strs);
     }
+
+    langMap.clear();
+    langMap.reserve(langCount);
+    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+        langMap.emplace(item.first, &item.second);
 }
 
 void STRG::read(Athena::io::IStreamReader& reader)
@@ -128,6 +133,7 @@ bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
     }
 
     /* Read pass */
+    langs.clear();
     for (AngelScript::asUINT i=0 ; i<in.GetGlobalVarCount() ; ++i)
     {
         const char* name;
@@ -140,29 +146,36 @@ bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
             std::vector<std::wstring> strs;
             for (const std::string* str : strsin)
                 strs.emplace_back(wconv.from_bytes(*str));
-            langs.emplace(std::make_pair(FourCC(name), strs));
+            langs.emplace_back(FourCC(name), strs);
         }
     }
+
+    langMap.clear();
+    langMap.reserve(langs.size());
+    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+        langMap.emplace(item.first, &item.second);
 
     return true;
 }
 
 void STRG::writeAngelScript(std::ofstream& out) const
 {
-    std::wbuffer_convert<std::codecvt_utf8<wchar_t>> wconv(out.rdbuf());
-    std::wostream wout(&wconv);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
     for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
     {
         out << "STRG::Language " << lang.first.toString() << "({";
         bool comma = false;
+        unsigned idx = 0;
         for (const std::wstring& str : lang.second)
         {
-            out << (comma?", \"":"\"");
-            wout << str;
+            if (comma)
+                out << ",";
+            out << "\n/* " << idx++ << " */ \"";
+            out << wconv.to_bytes(str);
             out << "\"";
             comma = true;
         }
-        out << "});\n";
+        out << "\n});\n";
     }
 }
 

@@ -7,6 +7,7 @@ namespace Retro
 {
 
 static LogVisor::LogModule Log("Retro::SpecMP2");
+extern HECL::Database::DataSpecEntry SpecEntMP2;
 
 struct SpecMP2 : SpecBase
 {
@@ -17,6 +18,8 @@ struct SpecMP2 : SpecBase
         return false;
     }
 
+    bool doMP2 = false;
+    std::vector<const NOD::DiscBase::IPartition::Node*> m_nonPaks;
     std::vector<DNAMP2::PAKBridge> m_paks;
     std::map<std::string, DNAMP2::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
@@ -25,9 +28,11 @@ struct SpecMP2 : SpecBase
                    const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
+        m_nonPaks.clear();
         m_paks.clear();
         for (const NOD::DiscBase::IPartition::Node& child : root)
         {
+            bool isPak = false;
             const std::string& name = child.getName();
             std::string lowerName = name;
             std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
@@ -37,6 +42,7 @@ struct SpecMP2 : SpecBase
                 if (!std::string(extit, lowerName.end()).compare(".pak"))
                 {
                     /* This is a pak */
+                    isPak = true;
                     std::string lowerBase(lowerName.begin(), extit);
 
                     /* Needs filter */
@@ -77,6 +83,9 @@ struct SpecMP2 : SpecBase
                         m_paks.emplace_back(project, child);
                 }
             }
+
+            if (!isPak)
+                m_nonPaks.push_back(&child);
         }
 
         /* Sort PAKs alphabetically */
@@ -100,6 +109,7 @@ struct SpecMP2 : SpecBase
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
     {
+        doMP2 = true;
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
@@ -113,7 +123,7 @@ struct SpecMP2 : SpecBase
         {
             std::string buildStr(buildInfo);
             HECL::SystemStringView buildView(buildStr);
-            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+            rep.desc += _S(" (") + buildView + _S(")");
         }
 
         /* Iterate PAKs and build level options */
@@ -135,18 +145,24 @@ struct SpecMP2 : SpecBase
             /* Needs filter */
             for (const HECL::SystemString& arg : args)
             {
-                size_t slashPos = arg.find(_S('/'));
-                if (slashPos == HECL::SystemString::npos)
-                    slashPos = arg.find(_S('\\'));
-                if (slashPos != HECL::SystemString::npos)
+                HECL::SystemString lowerArg = arg;
+                HECL::ToLower(lowerArg);
+                if (!lowerArg.compare(0, 3, "mp2"))
                 {
-                    HECL::SystemString lowerArg(arg.begin(), arg.begin() + slashPos);
-                    HECL::ToLower(lowerArg);
-                    if (!lowerArg.compare(_S("mp2")))
+                    doMP2 = true;
+                    size_t slashPos = arg.find(_S('/'));
+                    if (slashPos == HECL::SystemString::npos)
+                        slashPos = arg.find(_S('\\'));
+                    if (slashPos != HECL::SystemString::npos)
                         mp2args.emplace_back(HECL::SystemString(arg.begin() + slashPos + 1, arg.end()));
                 }
             }
         }
+        else
+            doMP2 = true;
+
+        if (!doMP2)
+            return true;
 
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
@@ -166,7 +182,7 @@ struct SpecMP2 : SpecBase
         {
             std::string buildStr(buildInfo);
             HECL::SystemStringView buildView(buildStr);
-            rep.desc += _S(" (") + buildView.sys_str() + _S(")");
+            rep.desc += _S(" (") + buildView + _S(")");
         }
 
         /* Iterate PAKs and build level options */
@@ -178,8 +194,35 @@ struct SpecMP2 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force)
     {
+        if (!doMP2)
+            return true;
+
+        HECL::ProjectPath mp2WorkPath(project.getProjectRootPath(), "MP2");
+        mp2WorkPath.makeDir();
+        for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+            node->extractToDirectory(mp2WorkPath.getAbsolutePath(), force);
+
+        const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP2);
+        cookPath.makeDir();
+        HECL::ProjectPath mp2CookPath(cookPath, "MP2");
+        mp2CookPath.makeDir();
+
+        for (DNAMP2::PAKBridge& pak : m_paks)
+        {
+            const std::string& name = pak.getName();
+            std::string::const_iterator extit = name.end() - 4;
+            std::string baseName(name.begin(), extit);
+
+            HECL::ProjectPath pakWorkPath(mp2WorkPath, baseName);
+            pakWorkPath.makeDir();
+            HECL::ProjectPath pakCookPath(mp2CookPath, baseName);
+            pakCookPath.makeDir();
+            pak.extractResources(pakWorkPath, pakCookPath, force);
+        }
+
+        return true;
     }
 
     bool checkFromProject(HECL::Database::Project& proj)
@@ -212,7 +255,7 @@ struct SpecMP2 : SpecBase
     }
 };
 
-static HECL::Database::DataSpecEntry SpecMP2
+HECL::Database::DataSpecEntry SpecEntMP2
 (
     _S("MP2"),
     _S("Data specification for original Metroid Prime 2 engine"),

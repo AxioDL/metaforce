@@ -11,7 +11,7 @@ namespace DNAMP2
 LogVisor::LogModule Log("Retro::DNAMP2");
 
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
-: m_project(project), m_node(node)
+: m_project(project), m_node(node), m_pak(true)
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
@@ -35,7 +35,7 @@ std::string PAKBridge::getLevelString() const
                 mlvlName.read(rs);
                 if (retval.size())
                     retval += _S(", ");
-                retval += mlvlName.getSystemString(ENGL, 0);
+                retval += mlvlName.getUTF8(ENGL, 0);
             }
         }
     }
@@ -45,20 +45,35 @@ std::string PAKBridge::getLevelString() const
 ResExtractor PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& entry)
 {
     if (entry.type == Retro::STRG)
-        return {STRG::Extract<STRG>, ".strg"};
+        return {STRG::Extract<STRG>, ".as"};
     return {};
 }
 
-bool PAKBridge::extractResources(const HECL::ProjectPath& dirOut)
+bool PAKBridge::extractResources(const HECL::ProjectPath& workingOut,
+                                 const HECL::ProjectPath& cookedOut,
+                                 bool force)
 {
     for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& item : m_pak.m_idMap)
     {
+        PAKEntryReadStream s;
         ResExtractor extractor = LookupExtractor(*item.second);
         if (extractor.func)
         {
-            PAKEntryReadStream strgIn = item.second->beginReadStream(m_node);
-            HECL::ProjectPath resPath(dirOut, m_pak.bestEntryName(*item.second) + extractor.fileExt);
-            extractor.func(strgIn, resPath);
+            HECL::ProjectPath workPath(workingOut, m_pak.bestEntryName(*item.second) + extractor.fileExt);
+            if (force || workPath.getPathType() == HECL::ProjectPath::PT_NONE)
+            {
+                s = item.second->beginReadStream(m_node);
+                extractor.func(s, workPath);
+            }
+        }
+        HECL::ProjectPath cookPath(cookedOut, m_pak.bestEntryName(*item.second));
+        if (force || cookPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        {
+            if (!s)
+                s = item.second->beginReadStream(m_node);
+            FILE* fout = HECL::Fopen(cookPath.getAbsolutePath().c_str(), _S("wb"));
+            fwrite(s.data(), 1, s.length(), fout);
+            fclose(fout);
         }
     }
     return true;

@@ -14,7 +14,8 @@ struct STRG : ISTRG, BigDNA
 {
     DECL_EXPLICIT_DNA
     void _read(Athena::io::IStreamReader& reader);
-    std::unordered_map<FourCC, std::vector<std::wstring>> langs;
+    std::vector<std::pair<FourCC, std::vector<std::wstring>>> langs;
+    std::unordered_map<FourCC, std::vector<std::wstring>*> langMap;
     std::map<std::string, int32_t> names;
 
     inline int32_t lookupIdx(const std::string& name) const
@@ -38,26 +39,26 @@ struct STRG : ISTRG, BigDNA
     }
     inline std::string getUTF8(const FourCC& lang, size_t idx) const
     {
-        auto search = langs.find(lang);
-        if (search != langs.end())
-            return HECL::WideToUTF8(search->second.at(idx));
+        auto search = langMap.find(lang);
+        if (search != langMap.end())
+            return HECL::WideToUTF8(search->second->at(idx));
         return std::string();
     }
     inline std::wstring getUTF16(const FourCC& lang, size_t idx) const
     {
-        auto search = langs.find(lang);
-        if (search != langs.end())
-            return search->second.at(idx);
+        auto search = langMap.find(lang);
+        if (search != langMap.end())
+            return search->second->at(idx);
         return std::wstring();
     }
     inline HECL::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {
-        auto search = langs.find(lang);
-        if (search != langs.end())
+        auto search = langMap.find(lang);
+        if (search != langMap.end())
 #if HECL_UCS2
-            return search->second.at(idx);
+            return search->second->at(idx);
 #else
-            return HECL::WideToUTF8(search->second.at(idx));
+            return HECL::WideToUTF8(search->second->at(idx));
 #endif
         return std::string();
     }

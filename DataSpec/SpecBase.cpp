@@ -6,17 +6,16 @@ namespace Retro
 bool SpecBase::canExtract(HECL::Database::Project& project,
                           const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
-    bool isWii;
-    m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), isWii);
+    m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
         return false;
     const char* gameID = m_disc->getHeader().gameID;
 
-    bool standalone = true;
-    if (isWii && !memcmp(gameID, "R3M", 3))
-        standalone = false;
+    m_standalone = true;
+    if (m_isWii && !memcmp(gameID, "R3M", 3))
+        m_standalone = false;
 
-    if (standalone && !checkStandaloneID(gameID))
+    if (m_standalone && !checkStandaloneID(gameID))
         return false;
 
     char region = m_disc->getHeader().gameID[3];
@@ -38,15 +37,32 @@ bool SpecBase::canExtract(HECL::Database::Project& project,
         break;
     }
 
-    if (standalone)
+    if (m_standalone)
         return checkFromStandaloneDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
     else
         return checkFromTrilogyDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo&)
+void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo& info)
 {
-    extractFromDisc(project, *m_disc.get());
+    if (m_isWii)
+    {
+        /* Extract update partition for repacking later */
+        const HECL::SystemString& target = project.getProjectRootPath().getAbsolutePath();
+        NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
+        if (update)
+            update->getFSTRoot().extractToDirectory(target, info.force);
+
+        if (!m_standalone)
+        {
+            NOD::DiscBase::IPartition* data = m_disc->getDataPartition();
+            const NOD::DiscBase::IPartition::Node& root = data->getFSTRoot();
+            for (const NOD::DiscBase::IPartition::Node& child : root)
+                if (child.getKind() == NOD::DiscBase::IPartition::Node::NODE_FILE)
+                    child.extractToDirectory(target, info.force);
+        }
+    }
+    extractFromDisc(project, *m_disc.get(), info.force);
 }
 
 bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)

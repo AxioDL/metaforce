@@ -13,6 +13,8 @@ namespace DNAMP1
 
 struct PAK : BigDNA
 {
+    bool m_useLzo;
+    PAK(bool useLzo) : m_useLzo(useLzo) {}
     DECL_EXPLICIT_DNA
 
     struct NameEntry : BigDNA
@@ -37,7 +39,8 @@ struct PAK : BigDNA
         inline PAKEntryReadStream beginReadStream(const NOD::DiscBase::IPartition::Node& pak, atUint64 off=0) const
         {
             atUint64 sz;
-            return PAKEntryReadStream(getBuffer(pak, sz), sz, off);
+            std::unique_ptr<atUint8[]> buf = getBuffer(pak, sz);
+            return PAKEntryReadStream(std::move(buf), sz, off);
         }
     };
 
@@ -70,7 +73,7 @@ struct PAK : BigDNA
                 return nentry.name;
 
         /* Otherwise return ID format string */
-        return entry.id.toString();
+        return entry.type.toString() + '_' + entry.id.toString();
     }
 };
 

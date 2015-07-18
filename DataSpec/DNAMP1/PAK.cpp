@@ -33,7 +33,10 @@ void PAK::read(Athena::io::IStreamReader& reader)
     for (atUint32 e=0 ; e<count ; ++e)
     {
         m_entries.emplace_back();
-        m_entries.back().read(reader);
+        Entry& ent = m_entries.back();
+        ent.read(reader);
+        if (ent.compressed && m_useLzo)
+            ent.compressed = 2;
     }
     for (Entry& entry : m_entries)
         m_idMap[entry.id] = &entry;
@@ -63,10 +66,16 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
 
     writer.writeUint32(m_entries.size());
     for (const Entry& entry : m_entries)
-        entry.write(writer);
+    {
+        Entry tmp = entry;
+        if (tmp.compressed)
+            tmp.compressed = 1;
+        tmp.write(writer);
+    }
 }
 
-std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const
+std::unique_ptr<atUint8[]>
+PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const
 {
     if (compressed)
     {
@@ -78,22 +87,17 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition
         atUint8* buf = new atUint8[decompSz];
         atUint8* bufCur = buf;
 
-        atUint16 zlibCheck;
-        strm->read(&zlibCheck, 2);
-        zlibCheck = HECL::SBig(zlibCheck);
-        strm->seek(-2, SEEK_CUR);
-
-        atUint8 compBuf[0x4000];
-        if ((zlibCheck % 31) == 0)
+        atUint8 compBuf[0x8000];
+        if (compressed == 1)
         {
             atUint32 compRem = size - 4;
-            z_stream zs;
+            z_stream zs = {};
             inflateInit(&zs);
             zs.avail_out = decompSz;
             zs.next_out = buf;
             while (zs.avail_out)
             {
-                atUint64 readSz = strm->read(compBuf, MIN(compRem, 0x4000));
+                atUint64 readSz = strm->read(compBuf, MIN(compRem, 0x8000));
                 compRem -= readSz;
                 zs.avail_in = readSz;
                 zs.next_in = compBuf;

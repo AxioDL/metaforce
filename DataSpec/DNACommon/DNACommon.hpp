@@ -149,6 +149,12 @@ class PAKEntryReadStream : public Athena::io::IStreamReader
     atUint64 m_sz;
     atUint64 m_pos;
 public:
+    PAKEntryReadStream() {}
+    operator bool() const {return m_buf.operator bool();}
+    PAKEntryReadStream(const PAKEntryReadStream& other) = delete;
+    PAKEntryReadStream(PAKEntryReadStream&& other) = default;
+    PAKEntryReadStream& operator=(const PAKEntryReadStream& other) = delete;
+    PAKEntryReadStream& operator=(PAKEntryReadStream&& other) = default;
     PAKEntryReadStream(std::unique_ptr<atUint8[]>&& buf, atUint64 sz, atUint64 pos)
     : m_buf(std::move(buf)), m_sz(sz), m_pos(pos)
     {
@@ -168,6 +174,7 @@ public:
     }
     inline atUint64 position() const {return m_pos;}
     inline atUint64 length() const {return m_sz;}
+    inline const atUint8* data() const {return m_buf.get();}
     inline atUint64 readUBytesToBuf(void* buf, atUint64 len)
     {
         atUint64 bufEnd = m_pos + len;

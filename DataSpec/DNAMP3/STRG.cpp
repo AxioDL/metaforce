@@ -57,8 +57,13 @@ void STRG::_read(Athena::io::IStreamReader& reader)
             atUint32 len = reader.readUint32();
             strs.emplace_back(reader.readString(len));
         }
-        langs.emplace(readLangs[l], strs);
+        langs.emplace_back(readLangs[l], strs);
     }
+
+    langMap.clear();
+    langMap.reserve(langCount);
+    for (std::pair<FourCC, std::vector<std::string>>& item : langs)
+        langMap.emplace(item.first, &item.second);
 }
 
 void STRG::read(Athena::io::IStreamReader& reader)
@@ -148,6 +153,33 @@ bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
 
 void STRG::writeAngelScript(std::ofstream& out) const
 {
+    for (const std::pair<FourCC, std::vector<std::string>>& lang : langs)
+    {
+        out << "STRG::Language " << lang.first.toString() << "({";
+        bool comma = false;
+        unsigned idx = 0;
+        for (const std::string& str : lang.second)
+        {
+            if (comma)
+                out << ",";
+            out << "\n/* " << idx++ << " */ \"";
+            out << str << "\"";
+            comma = true;
+        }
+        out << "\n});\n";
+    }
+
+    out << "STRG::Names NAMES({";
+    bool comma = false;
+    for (const std::pair<std::string, int32_t>& name : names)
+    {
+        if (comma)
+            out << ",";
+        out << "\n    ";
+        comma = true;
+        out << "{\"" << name.first << "\", " << name.second << "}";
+    }
+    out << "\n});\n";
 }
 
 }

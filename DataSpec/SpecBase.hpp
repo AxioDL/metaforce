@@ -34,7 +34,7 @@ struct SpecBase : HECL::Database::IDataSpec
                                       const HECL::SystemString& regstr,
                                       const std::vector<HECL::SystemString>& args,
                                       std::vector<ExtractReport>& reps)=0;
-    virtual bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc)=0;
+    virtual bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc, bool force)=0;
 
     virtual bool checkFromProject(HECL::Database::Project& proj)=0;
     virtual bool readFromProject(HECL::Database::Project& proj)=0;
@@ -53,6 +53,8 @@ struct SpecBase : HECL::Database::IDataSpec
 
 private:
     std::unique_ptr<NOD::DiscBase> m_disc;
+    bool m_isWii;
+    bool m_standalone;
 };
 
 }
