@@ -4,6 +4,7 @@
 #include "DNAMP3.hpp"
 #include "STRG.hpp"
 #include "MLVL.hpp"
+#include "../DNACommon/TXTR.hpp"
 
 namespace Retro
 {
@@ -19,9 +20,9 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     m_pak.read(rs);
 }
 
-std::string PAKBridge::getLevelString() const
+HECL::SystemString PAKBridge::getLevelString() const
 {
-    std::set<std::string, CaseInsensitiveCompare> uniq;
+    std::set<HECL::SystemString, CaseInsensitiveCompare> uniq;
     for (const PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == Retro::MLVL)
@@ -35,13 +36,13 @@ std::string PAKBridge::getLevelString() const
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
                 STRG mlvlName;
                 mlvlName.read(rs);
-                uniq.insert(mlvlName.getUTF8(ENGL, 0));
+                uniq.insert(mlvlName.getSystemString(ENGL, 0));
             }
         }
     }
-    std::string retval;
+    HECL::SystemString retval;
     bool comma = false;
-    for (const std::string& str : uniq)
+    for (const HECL::SystemString& str : uniq)
     {
         if (comma)
             retval += _S(", ");
@@ -53,8 +54,13 @@ std::string PAKBridge::getLevelString() const
 
 ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
-    if (entry.type == Retro::STRG)
+    switch (entry.type.toUint32())
+    {
+    case SBIG('STRG'):
         return {STRG::Extract, ".as"};
+    case SBIG('TXTR'):
+        return {TXTR::Extract, ".png"};
+    }
     return {};
 }
 

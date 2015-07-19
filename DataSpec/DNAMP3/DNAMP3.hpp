@@ -21,7 +21,7 @@ class PAKBridge
 public:
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
     const std::string& getName() const {return m_node.getName();}
-    std::string getLevelString() const;
+    HECL::SystemString getLevelString() const;
     bool extractResources(const HECL::ProjectPath& dirOut,
                           const HECL::ProjectPath& cookedOut,
                           bool force);

@@ -3,8 +3,7 @@ make_dnalist(liblist
              MLVL
              STRG)
 add_library(DNAMP3
-            DNAMP3.hpp
-            DNAMP3.cpp
+            DNAMP3.hpp DNAMP3.cpp
             ${liblist}
             PAK.cpp
             STRG.cpp)

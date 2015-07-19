@@ -4,6 +4,7 @@
 #include "DNAMP1.hpp"
 #include "STRG.hpp"
 #include "MLVL.hpp"
+#include "../DNACommon/TXTR.hpp"
 
 namespace Retro
 {
@@ -18,9 +19,9 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     m_pak.read(rs);
 }
 
-std::string PAKBridge::getLevelString() const
+HECL::SystemString PAKBridge::getLevelString() const
 {
-    std::string retval;
+    HECL::SystemString retval;
     for (const PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == Retro::MLVL)
@@ -36,7 +37,7 @@ std::string PAKBridge::getLevelString() const
                 mlvlName.read(rs);
                 if (retval.size())
                     retval += _S(", ");
-                retval += mlvlName.getUTF8(ENGL, 0);
+                retval += mlvlName.getSystemString(ENGL, 0);
             }
         }
     }
@@ -45,8 +46,13 @@ std::string PAKBridge::getLevelString() const
 
 ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
-    if (entry.type == Retro::STRG)
+    switch (entry.type.toUint32())
+    {
+    case SBIG('STRG'):
         return {STRG::Extract<STRG>, ".as"};
+    case SBIG('TXTR'):
+        return {TXTR::Extract, ".png"};
+    }
     return {};
 }
 
