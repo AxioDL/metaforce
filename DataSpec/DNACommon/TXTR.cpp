@@ -1,5 +1,5 @@
 #include <png.h>
-#include <colourblockGCN.h>
+#include <squish.h>
 #include "TXTR.hpp"
 
 namespace Retro
@@ -41,7 +41,7 @@ static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
     int ry = y % 8;
     int bidx = by * bwidth + bx;
     const uint8_t* btexels = &texels[32*bidx];
-    return btexels[ry*4+rx/2] << ((rx%2)?0:4) & 0xf;
+    return btexels[ry*4+rx/2] >> ((rx%2)?0:4) & 0xf;
 }
 
 static inline uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y)
@@ -90,16 +90,16 @@ static inline void LookupRGBA8(const uint8_t* texels, int width, int x, int y,
 static void DecodeI4(png_structrp png, png_infop info,
                      const uint8_t* texels, int width, int height)
 {
-    png_set_IHDR(png, info, width, height, 4,
+    png_set_IHDR(png, info, width, height, 8,
                  PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    memset(buf.get(), 0, width);
+    //memset(buf.get(), 0, width);
     for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
-            buf[x/2] |= Lookup4BPP(texels, width, x, y) << x%2*4;
+            buf[x] = Convert4To8(Lookup4BPP(texels, width, x, y));
         png_write_row(png, buf.get());
     }
 }
@@ -225,20 +225,21 @@ static const uint8_t* DecodePalette(png_structrp png, png_infop info,
 static void DecodeC4(png_structrp png, png_infop info,
                      const uint8_t* data, int width, int height)
 {
-    png_set_IHDR(png, info, width, height, 4,
+    png_set_IHDR(png, info, width, height, 8,
                  PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     const uint8_t* texels = DecodePalette(png, info, 16, data);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
     memset(buf.get(), 0, width);
-    for (int y=height-1 ; y>=0 ; --y)
+    for (int y=0 ; y<height ; ++y)
     {
         for (int x=0 ; x<width ; ++x)
-            buf[x/2] |= Lookup4BPP(texels, width, x, y) << x%2*4;
+            buf[x] = Lookup4BPP(texels, width, x, y);
         png_write_row(png, buf.get());
     }
 }
+
 
 static void DecodeC8(png_structrp png, png_infop info,
                      const uint8_t* data, int width, int height)
@@ -249,7 +250,7 @@ static void DecodeC8(png_structrp png, png_infop info,
     const uint8_t* texels = DecodePalette(png, info, 256, data);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    for (int y=height-1 ; y>=0 ; --y)
+    for (int y=0 ; y<height ; ++y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x] = Lookup8BPP(texels, width, x, y);
@@ -356,10 +357,10 @@ static void DecodeCMPR(png_structrp png, png_infop info,
         for (int x=0 ; x<width ; x+=8)
         {
             uint32_t blkOut[4][4][4];
-            squish::DecompressColourGCN((uint8_t*)blkOut[0][0], blks++);
-            squish::DecompressColourGCN((uint8_t*)blkOut[1][0], blks++);
-            squish::DecompressColourGCN((uint8_t*)blkOut[2][0], blks++);
-            squish::DecompressColourGCN((uint8_t*)blkOut[3][0], blks++);
+            squish::Decompress((uint8_t*)blkOut[0][0], blks++, squish::kDxt1GCN);
+            squish::Decompress((uint8_t*)blkOut[1][0], blks++, squish::kDxt1GCN);
+            squish::Decompress((uint8_t*)blkOut[2][0], blks++, squish::kDxt1GCN);
+            squish::Decompress((uint8_t*)blkOut[3][0], blks++, squish::kDxt1GCN);
 
             for (int bt=0 ; bt<4 ; ++bt)
                 for (int by=0 ; by<4 ; ++by)
