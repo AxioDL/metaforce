@@ -1,4 +1,5 @@
 add_subdirectory(libpng)
+add_subdirectory(libSquish)
 add_subdirectory(blowfish)
 add_subdirectory(LogVisor)
 add_subdirectory(AngelScript)

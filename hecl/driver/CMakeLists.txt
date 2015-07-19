@@ -21,5 +21,5 @@ list(APPEND DATA_SPEC_LIBS
 
 target_link_libraries(hecl
     "-Wl,-whole-archive" HECLDatabaseInit ${DATA_SPEC_LIBS} "-Wl,-no-whole-archive"
-    HECLDatabase HECL AthenaCore AngelScript NOD LogVisor blowfish z lzo2
+    HECLDatabase HECL AthenaCore AngelScript NOD LogVisor png squish blowfish z lzo2
 )

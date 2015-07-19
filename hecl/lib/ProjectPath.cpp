@@ -22,9 +22,8 @@ static SystemString canonRelPath(const SystemString& path)
     std::vector<SystemString> comps;
     HECL::SystemRegexMatch matches;
     SystemString in = path;
-    while (std::regex_search(in, matches, regPATHCOMP))
+    for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix())
     {
-        in = matches.suffix();
         const SystemString& match = matches[1];
         if (!match.compare(_S(".")))
             continue;

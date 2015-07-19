@@ -522,6 +522,8 @@ static inline int32_t SBig(int32_t val) {return bswap32(val);}
 static inline uint32_t SBig(uint32_t val) {return bswap32(val);}
 static inline int64_t SBig(int64_t val) {return bswap64(val);}
 static inline uint64_t SBig(uint64_t val) {return bswap64(val);}
+#define SBIG(q) ( ( (q) & 0x000000FF ) << 24 | ( (q) & 0x0000FF00 ) <<  8 \
+                | ( (q) & 0x00FF0000 ) >>  8 | ( (q) & 0xFF000000 ) >> 24 )
 
 static inline int16_t SLittle(int16_t val) {return val;}
 static inline uint16_t SLittle(uint16_t val) {return val;}
@@ -529,6 +531,7 @@ static inline int32_t SLittle(int32_t val) {return val;}
 static inline uint32_t SLittle(uint32_t val) {return val;}
 static inline int64_t SLittle(int64_t val) {return val;}
 static inline uint64_t SLittle(uint64_t val) {return val;}
+#define SLITTLE(q) (q)
 #else
 static inline int16_t SLittle(int16_t val) {return bswap16(val);}
 static inline uint16_t SLittle(uint16_t val) {return bswap16(val);}
@@ -536,6 +539,8 @@ static inline int32_t SLittle(int32_t val) {return bswap32(val);}
 static inline uint32_t SLittle(uint32_t val) {return bswap32(val);}
 static inline int64_t SLittle(int64_t val) {return bswap64(val);}
 static inline uint64_t SLittle(uint64_t val) {return bswap64(val);}
+#define SLITTLE(q) ( ( (q) & 0x000000FF ) << 24 | ( (q) & 0x0000FF00 ) <<  8 \
+                   | ( (q) & 0x00FF0000 ) >>  8 | ( (q) & 0xFF000000 ) >> 24 )
 
 static inline int16_t SBig(int16_t val) {return val;}
 static inline uint16_t SBig(uint16_t val) {return val;}
@@ -543,6 +548,7 @@ static inline int32_t SBig(int32_t val) {return val;}
 static inline uint32_t SBig(uint32_t val) {return val;}
 static inline int64_t SBig(int64_t val) {return val;}
 static inline uint64_t SBig(uint64_t val) {return val;}
+#define SBIG(q) (q)
 #endif
 
 }
