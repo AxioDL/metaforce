@@ -41,7 +41,7 @@ static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
     int ry = y % 8;
     int bidx = by * bwidth + bx;
     const uint8_t* btexels = &texels[32*bidx];
-    return btexels[ry*4+rx/2] << (rx%2*4) & 0xf;
+    return btexels[ry*4+rx/2] << ((rx%2)?0:4) & 0xf;
 }
 
 static inline uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y)
@@ -96,7 +96,7 @@ static void DecodeI4(png_structrp png, png_infop info,
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
     memset(buf.get(), 0, width);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x/2] |= Lookup4BPP(texels, width, x, y) << x%2*4;
@@ -112,7 +112,7 @@ static void DecodeI8(png_structrp png, png_infop info,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x] = Lookup8BPP(texels, width, x, y);
@@ -123,15 +123,19 @@ static void DecodeI8(png_structrp png, png_infop info,
 static void DecodeIA4(png_structrp png, png_infop info,
                       const uint8_t* texels, int width, int height)
 {
-    png_set_IHDR(png, info, width, height, 4,
+    png_set_IHDR(png, info, width, height, 8,
                  PNG_COLOR_TYPE_GRAY_ALPHA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
-    std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    for (int y=0 ; y<height ; ++y)
+    std::unique_ptr<uint8_t[]> buf(new uint8_t[width*2]);
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
-            buf[x] = Lookup8BPP(texels, width, x, y);
+        {
+            uint8_t texel = Lookup8BPP(texels, width, x, y);
+            buf[x*2] = texel >> 4 & 0xf;
+            buf[x*2+1] = texel & 0xf;
+        }
         png_write_row(png, buf.get());
     }
 }
@@ -144,7 +148,7 @@ static void DecodeIA8(png_structrp png, png_infop info,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint16_t[]> buf(new uint16_t[width]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x] = Lookup16BPP(texels, width, x, y);
@@ -228,7 +232,7 @@ static void DecodeC4(png_structrp png, png_infop info,
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
     memset(buf.get(), 0, width);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x/2] |= Lookup4BPP(texels, width, x, y) << x%2*4;
@@ -245,7 +249,7 @@ static void DecodeC8(png_structrp png, png_infop info,
     const uint8_t* texels = DecodePalette(png, info, 256, data);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             buf[x] = Lookup8BPP(texels, width, x, y);
@@ -261,7 +265,7 @@ static void DecodeRGB565(png_structrp png, png_infop info,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width*3]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
         {
@@ -282,7 +286,7 @@ static void DecodeRGB5A3(png_structrp png, png_infop info,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width*4]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
         {
@@ -314,7 +318,7 @@ static void DecodeRGBA8(png_structrp png, png_infop info,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width*4]);
-    for (int y=0 ; y<height ; ++y)
+    for (int y=height-1 ; y>=0 ; --y)
     {
         for (int x=0 ; x<width ; ++x)
             LookupRGBA8(texels, width, x, y, &buf[x*4], &buf[x*4+1], &buf[x*4+2], &buf[x*4+3]);
