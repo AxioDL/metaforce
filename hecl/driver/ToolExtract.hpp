@@ -7,7 +7,14 @@
 class ToolExtract final : public ToolBase
 {
     HECL::Database::IDataSpec::ExtractPassInfo m_einfo;
-    std::vector<std::unique_ptr<HECL::Database::IDataSpec>> m_dataSpecs;
+    struct SpecExtractPass
+    {
+        const HECL::Database::DataSpecEntry* m_entry;
+        std::unique_ptr<HECL::Database::IDataSpec> m_instance;
+        SpecExtractPass(const HECL::Database::DataSpecEntry* entry, HECL::Database::IDataSpec* instance)
+        : m_entry(entry), m_instance(instance) {}
+    };
+    std::vector<SpecExtractPass> m_specPasses;
     std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
 public:
     ToolExtract(const ToolPassInfo& info)
@@ -32,7 +39,7 @@ public:
             if (ds)
             {
                 if (ds->canExtract(*m_info.project, m_einfo, m_reps))
-                    m_dataSpecs.emplace_back(ds);
+                    m_specPasses.emplace_back(entry, ds);
                 else
                     delete ds;
             }
@@ -85,7 +92,7 @@ public:
 
     int run()
     {
-        if (m_dataSpecs.empty())
+        if (m_specPasses.empty())
         {
             if (XTERM_COLOR)
                 HECL::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
@@ -119,8 +126,72 @@ public:
                 break;
         }
 
-        for (std::unique_ptr<HECL::Database::IDataSpec>& ds : m_dataSpecs)
-            ds->doExtract(*m_info.project, m_einfo);
+        for (SpecExtractPass& ds : m_specPasses)
+        {
+            if (XTERM_COLOR)
+                HECL::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name.c_str());
+            else
+                HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name.c_str());
+
+            int lineIdx = 0;
+            ds.m_instance->doExtract(*m_info.project, m_einfo,
+                                     [&lineIdx](const HECL::SystemChar* message, int lidx, float factor)
+            {
+                if (XTERM_COLOR)
+                    HECL::Printf(_S("" HIDE_CURSOR ""));
+
+                if (lidx > lineIdx)
+                {
+                    HECL::Printf(_S("\n  "));
+                    lineIdx = lidx;
+                }
+                else
+                    HECL::Printf(_S("  "));
+
+                int width = HECL::ConsoleWidth();
+                int half = width / 2 - 2;
+
+                size_t messageLen = HECL::StrLen(message);
+                if (messageLen > half)
+                    HECL::Printf(_S("%.*s... "), half-3, message);
+                else
+                {
+                    HECL::Printf(_S("%s"), message);
+                    for (int i=half-messageLen ; i>=0 ; --i)
+                        HECL::Printf(_S(" "));
+                }
+
+                if (XTERM_COLOR)
+                {
+                    size_t blocks = half - 7;
+                    size_t filled = blocks * factor;
+                    size_t rem = blocks - filled;
+                    HECL::Printf(_S("" BOLD "%3d%% ["), (int)(factor * 100.0));
+                    for (int b=0 ; b<filled ; ++b)
+                        HECL::Printf(_S("#"), message);
+                    for (int b=0 ; b<rem ; ++b)
+                        HECL::Printf(_S("-"), message);
+                    HECL::Printf(_S("]" NORMAL ""));
+                }
+                else
+                {
+                    size_t blocks = half - 7;
+                    size_t filled = blocks * factor;
+                    size_t rem = blocks - filled;
+                    HECL::Printf(_S("%3d%% ["), (int)(factor * 100.0));
+                    for (int b=0 ; b<filled ; ++b)
+                        HECL::Printf(_S("#"), message);
+                    for (int b=0 ; b<rem ; ++b)
+                        HECL::Printf(_S("-"), message);
+                    HECL::Printf(_S("]"));
+                }
+
+                HECL::Printf(_S("\r"));
+                if (XTERM_COLOR)
+                    HECL::Printf(_S("" SHOW_CURSOR ""));
+            });
+            HECL::Printf(_S("\n\n"));
+        }
 
         return 0;
     }

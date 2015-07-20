@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -44,6 +43,9 @@ public:
 #define CYAN "\033[0;36m"
 #define BOLD "\033[1m"
 #define NORMAL "\033[0m"
+
+#define HIDE_CURSOR "\033[?25l"
+#define SHOW_CURSOR "\033[?25h"
 
 #define WRAP_INDENT 4
 
@@ -119,21 +121,8 @@ private:
 public:
 
     HelpOutput(HelpFunc helpFunc)
-    : m_sout(NULL), m_helpFunc(helpFunc)
-    {
-#if _WIN32
-        CONSOLE_SCREEN_BUFFER_INFO info;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-        m_lineWidth = info.dwSize.X;
-#else
-        struct winsize w;
-        m_lineWidth = 80;
-        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)
-            m_lineWidth = w.ws_col;
-#endif
-        if (m_lineWidth < 10)
-            m_lineWidth = 10;
-    }
+    : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(HECL::ConsoleWidth())
+    {}
 
     void go()
     {

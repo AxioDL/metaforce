@@ -6,6 +6,7 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/ioctl.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -37,6 +38,7 @@ std::wstring UTF8ToWide(const std::string& src);
 
 #if HECL_UCS2
 typedef wchar_t SystemChar;
+static inline size_t StrLen(const SystemChar* str) {return wcslen(str);}
 typedef std::wstring SystemString;
 static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), towlower);}
@@ -49,6 +51,7 @@ public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(WideToUTF8(str)) {}
     inline operator const std::string&() const {return m_utf8;}
+    inline const std::string& str() const {return m_utf8;}
     inline std::string operator+(const std::string& other) const {return m_utf8 + other;}
     inline std::string operator+(const char* other) const {return m_utf8 + other;}
 };
@@ -61,6 +64,7 @@ public:
     SystemStringView(const std::string& str)
     : m_sys(UTF8ToWide(str)) {}
     inline operator const std::wstring&() const {return m_sys;}
+    inline const std::wstring& sys_str() const {return m_sys;}
     inline std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
     inline std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
 };
@@ -71,6 +75,7 @@ inline std::wstring operator+(const wchar_t* lhs, const SystemStringView& rhs) {
 #endif
 #else
 typedef char SystemChar;
+static inline size_t StrLen(const SystemChar* str) {return strlen(str);}
 typedef std::string SystemString;
 static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), tolower);}
@@ -83,6 +88,7 @@ public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(str) {}
     inline operator const std::string&() const {return m_utf8;}
+    inline const std::string& str() const {return m_utf8;}
     inline std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
     inline std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
 };
@@ -95,6 +101,7 @@ public:
     SystemStringView(const std::string& str)
     : m_sys(str) {}
     inline operator const std::string&() const {return m_sys;}
+    inline const std::string& sys_str() const {return m_sys;}
     inline std::string operator+(const std::string& other) const {return m_sys + other;}
     inline std::string operator+(const char* other) const {return m_sys + other;}
 };
@@ -228,6 +235,23 @@ static inline std::string Format(const char* format, ...)
     int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
     va_end(va);
     return std::string(resultBuf, printSz);
+}
+
+static inline int ConsoleWidth()
+{
+    int retval = 80;
+#if _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO info;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+    m_lineWidth = info.dwSize.X;
+#else
+    struct winsize w;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)
+        retval = w.ws_col;
+#endif
+    if (retval < 10)
+        return 10;
+    return retval;
 }
 
 typedef std::basic_regex<SystemChar> SystemRegex;

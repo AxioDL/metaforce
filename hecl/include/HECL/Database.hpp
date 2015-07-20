@@ -216,10 +216,12 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
+    typedef std::function<void(const HECL::SystemChar*, int, float)> FExtractProgress;
+
     virtual bool canExtract(Project& project, const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)project;(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doExtract(Project& project, const ExtractPassInfo& info)
-    {(void)project;(void)info;}
+    virtual void doExtract(Project& project, const ExtractPassInfo& info, FExtractProgress progress)
+    {(void)project;(void)info;(void)progress;}
 
     /**
      * @brief Cook Task Info
