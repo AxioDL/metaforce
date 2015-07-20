@@ -7,3 +7,8 @@ include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${ANGELSCRIPT
 set(NOD_LIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_subdirectory(DataSpec)
 add_subdirectory(Runtime)
+
+include_directories(include)
+add_library(RetroCommon
+            src/RetroCommon.cpp include/RetroCommon.hpp
+            src/MREADecompress.cpp)
