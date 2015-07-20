@@ -13,7 +13,7 @@ struct SpecBase : HECL::Database::IDataSpec
 {
     bool canExtract(HECL::Database::Project& project, const ExtractPassInfo& info,
                     std::vector<ExtractReport>& reps);
-    void doExtract(HECL::Database::Project& project, const ExtractPassInfo& info);
+    void doExtract(HECL::Database::Project& project, const ExtractPassInfo& info, FExtractProgress progress);
 
     bool canCook(const HECL::Database::Project& project, const CookTaskInfo& info);
     void doCook(const HECL::Database::Project& project, const CookTaskInfo& info);
@@ -34,7 +34,8 @@ struct SpecBase : HECL::Database::IDataSpec
                                       const HECL::SystemString& regstr,
                                       const std::vector<HECL::SystemString>& args,
                                       std::vector<ExtractReport>& reps)=0;
-    virtual bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc, bool force)=0;
+    virtual bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase& disc, bool force,
+                                 FExtractProgress progress)=0;
 
     virtual bool checkFromProject(HECL::Database::Project& proj)=0;
     virtual bool readFromProject(HECL::Database::Project& proj)=0;

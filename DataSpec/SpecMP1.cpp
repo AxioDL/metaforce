@@ -196,24 +196,35 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force,
+                         FExtractProgress progress)
     {
         if (!doMP1)
             return true;
 
         HECL::ProjectPath mp1WorkPath(project.getProjectRootPath(), "MP1");
         mp1WorkPath.makeDir();
+        progress(_S("MP1 Root"), 2, 0.0);
+        int prog = 0;
         for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+        {
             node->extractToDirectory(mp1WorkPath.getAbsolutePath(), force);
+            progress(_S("MP1 Root"), 2, prog++ / (float)m_nonPaks.size());
+        }
+        progress(_S("MP1 Root"), 2, 1.0);
 
         const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP1);
         cookPath.makeDir();
         HECL::ProjectPath mp1CookPath(cookPath, "MP1");
         mp1CookPath.makeDir();
 
+        int compIdx = 3;
+        prog = 0;
         for (DNAMP1::PAKBridge& pak : m_paks)
         {
             const std::string& name = pak.getName();
+            HECL::SystemStringView sysName(name);
+
             std::string::const_iterator extit = name.end() - 4;
             std::string baseName(name.begin(), extit);
 
@@ -221,7 +232,14 @@ struct SpecMP1 : SpecBase
             pakWorkPath.makeDir();
             HECL::ProjectPath pakCookPath(mp1CookPath, baseName);
             pakCookPath.makeDir();
-            pak.extractResources(pakWorkPath, pakCookPath, force);
+
+            progress(sysName.sys_str().c_str(), compIdx, 0.0);
+            pak.extractResources(pakWorkPath, pakCookPath, force,
+                                 [&progress, &sysName, &compIdx](float factor)
+            {
+                progress(sysName.sys_str().c_str(), compIdx, factor);
+            });
+            progress(sysName.sys_str().c_str(), compIdx++, 1.0);
         }
 
         return true;

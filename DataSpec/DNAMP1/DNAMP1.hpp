@@ -24,7 +24,8 @@ public:
     HECL::SystemString getLevelString() const;
     bool extractResources(const HECL::ProjectPath& dirOut,
                           const HECL::ProjectPath& cookedOut,
-                          bool force);
+                          bool force,
+                          std::function<void(float)> progress);
 };
 
 }

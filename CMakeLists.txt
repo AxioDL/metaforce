@@ -8,6 +8,7 @@ set(NOD_LIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_subdirectory(DataSpec)
 add_subdirectory(Runtime)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(include)
 add_library(RetroCommon
             src/RetroCommon.cpp include/RetroCommon.hpp

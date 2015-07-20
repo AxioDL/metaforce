@@ -287,23 +287,35 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force)
+    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force,
+                         FExtractProgress progress)
     {
+        int compIdx = 2;
+        int prog;
         if (doMP3)
         {
             HECL::ProjectPath mp3WorkPath(project.getProjectRootPath(), "MP3");
             mp3WorkPath.makeDir();
+            progress(_S("MP3 Root"), compIdx, 0.0);
+            prog = 0;
             for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+            {
                 node->extractToDirectory(mp3WorkPath.getAbsolutePath(), force);
+                progress(_S("MP3 Root"), compIdx, prog++ / (float)m_nonPaks.size());
+            }
+            progress(_S("MP3 Root"), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
             HECL::ProjectPath mp3CookPath(cookPath, "MP3");
             mp3CookPath.makeDir();
 
+            prog = 0;
             for (DNAMP3::PAKBridge& pak : m_paks)
             {
                 const std::string& name = pak.getName();
+                HECL::SystemStringView sysName(name);
+
                 std::string::const_iterator extit = name.end() - 4;
                 std::string baseName(name.begin(), extit);
 
@@ -311,7 +323,14 @@ struct SpecMP3 : SpecBase
                 pakWorkPath.makeDir();
                 HECL::ProjectPath pakCookPath(mp3CookPath, baseName);
                 pakCookPath.makeDir();
-                pak.extractResources(pakWorkPath, pakCookPath, force);
+
+                progress(sysName.sys_str().c_str(), compIdx, 0.0);
+                pak.extractResources(pakWorkPath, pakCookPath, force,
+                                     [&progress, &sysName, &compIdx](float factor)
+                {
+                    progress(sysName.sys_str().c_str(), compIdx, factor);
+                });
+                progress(sysName.sys_str().c_str(), compIdx++, 1.0);
             }
         }
 
@@ -319,17 +338,26 @@ struct SpecMP3 : SpecBase
         {
             HECL::ProjectPath feWorkPath(project.getProjectRootPath(), "fe");
             feWorkPath.makeDir();
-            for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
+            progress(_S("fe Root"), compIdx, 0.0);
+            int prog = 0;
+            for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+            {
                 node->extractToDirectory(feWorkPath.getAbsolutePath(), force);
+                progress(_S("fe Root"), compIdx, prog++ / (float)m_nonPaks.size());
+            }
+            progress(_S("fe Root"), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
             HECL::ProjectPath feCookPath(cookPath, "fe");
             feCookPath.makeDir();
 
+            prog = 0;
             for (DNAMP3::PAKBridge& pak : m_fePaks)
             {
                 const std::string& name = pak.getName();
+                HECL::SystemStringView sysName(name);
+
                 std::string::const_iterator extit = name.end() - 4;
                 std::string baseName(name.begin(), extit);
 
@@ -337,7 +365,14 @@ struct SpecMP3 : SpecBase
                 pakWorkPath.makeDir();
                 HECL::ProjectPath pakCookPath(feCookPath, baseName);
                 pakCookPath.makeDir();
-                pak.extractResources(pakWorkPath, pakCookPath, force);
+
+                progress(sysName.sys_str().c_str(), compIdx, 0.0);
+                pak.extractResources(pakWorkPath, pakCookPath, force,
+                                     [&progress, &sysName, &compIdx](float factor)
+                {
+                    progress(sysName.sys_str().c_str(), compIdx, factor);
+                });
+                progress(sysName.sys_str().c_str(), compIdx++, 1.0);
             }
         }
 

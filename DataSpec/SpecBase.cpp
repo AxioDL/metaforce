@@ -43,7 +43,8 @@ bool SpecBase::canExtract(HECL::Database::Project& project,
         return checkFromTrilogyDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo& info)
+void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo& info,
+                         FExtractProgress progress)
 {
     if (m_isWii)
     {
@@ -51,18 +52,24 @@ void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo
         const HECL::SystemString& target = project.getProjectRootPath().getAbsolutePath();
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
         if (update)
+        {
+            progress(_S("Update Partition"), 0, 0.0);
             update->getFSTRoot().extractToDirectory(target, info.force);
+            progress(_S("Update Partition"), 0, 1.0);
+        }
 
         if (!m_standalone)
         {
+            progress(_S("Trilogy Files"), 1, 0.0);
             NOD::DiscBase::IPartition* data = m_disc->getDataPartition();
             const NOD::DiscBase::IPartition::Node& root = data->getFSTRoot();
             for (const NOD::DiscBase::IPartition::Node& child : root)
                 if (child.getKind() == NOD::DiscBase::IPartition::Node::NODE_FILE)
                     child.extractToDirectory(target, info.force);
+            progress(_S("Trilogy Files"), 1, 1.0);
         }
     }
-    extractFromDisc(project, *m_disc.get(), info.force);
+    extractFromDisc(project, *m_disc.get(), info.force, progress);
 }
 
 bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)

@@ -58,8 +58,10 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
 
 bool PAKBridge::extractResources(const HECL::ProjectPath& workingOut,
                                  const HECL::ProjectPath& cookedOut,
-                                 bool force)
+                                 bool force,
+                                 std::function<void(float)> progress)
 {
+    size_t count = 0;
     for (const std::pair<UniqueID32, PAK::Entry*>& item : m_pak.m_idMap)
     {
         PAKEntryReadStream s;
@@ -82,6 +84,9 @@ bool PAKBridge::extractResources(const HECL::ProjectPath& workingOut,
             fwrite(s.data(), 1, s.length(), fout);
             fclose(fout);
         }
+
+        ++count;
+        progress(count / (float)m_pak.m_idMap.size());
     }
     return true;
 }
