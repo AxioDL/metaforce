@@ -128,9 +128,9 @@ class ASUniqueModule
 public:
     ~ASUniqueModule() {if (m_mod) m_mod->Discard();}
     ASUniqueModule(ASUniqueModule&& other) = default;
-    ASUniqueModule(ASUniqueModule& other) = delete;
+    ASUniqueModule(const ASUniqueModule& other) = delete;
     ASUniqueModule& operator=(ASUniqueModule&& other) = default;
-    ASUniqueModule& operator=(ASUniqueModule& other) = delete;
+    ASUniqueModule& operator=(const ASUniqueModule& other) = delete;
     inline operator AngelScript::asIScriptModule&() {return *m_mod;}
     inline operator bool() {return m_mod != nullptr;}
     static ASUniqueModule CreateFromCode(const char* module, const char* code)
@@ -218,10 +218,10 @@ public:
 
     typedef std::function<void(const HECL::SystemChar*, int, float)> FExtractProgress;
 
-    virtual bool canExtract(Project& project, const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
-    {(void)project;(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doExtract(Project& project, const ExtractPassInfo& info, FExtractProgress progress)
-    {(void)project;(void)info;(void)progress;}
+    virtual bool canExtract(Project&, const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+    {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    virtual void doExtract(Project&, const ExtractPassInfo& info, FExtractProgress progress)
+    {(void)info;(void)progress;}
 
     /**
      * @brief Cook Task Info
@@ -234,11 +234,11 @@ public:
         ProjectPath path;
         ProjectPath cookedPath;
     };
-    virtual bool canCook(const Project& project, const CookTaskInfo& info,
+    virtual bool canCook(const Project&, const CookTaskInfo& info,
                          SystemString& reasonNo)
-    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void doCook(const Project& project, const CookTaskInfo& info)
-    {(void)project;(void)info;}
+    {(void)info;reasonNo=_S("not implemented");return false;}
+    virtual void doCook(const Project&, const CookTaskInfo& info)
+    {(void)info;}
 
     /**
      * @brief Package Pass Info
@@ -253,14 +253,14 @@ public:
         ProjectPath subpath;
         ProjectPath outpath;
     };
-    virtual bool canPackage(const Project& project, const PackagePassInfo& info,
+    virtual bool canPackage(const Project&, const PackagePassInfo& info,
                             SystemString& reasonNo)
-    {(void)project;(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void gatherDependencies(const Project& project, const PackagePassInfo& info,
+    {(void)info;reasonNo=_S("not implemented");return false;}
+    virtual void gatherDependencies(const Project&, const PackagePassInfo& info,
                                     std::unordered_set<ProjectPath>& implicitsOut)
-    {(void)project;(void)info;(void)implicitsOut;}
-    virtual void doPackage(const Project& project, const PackagePassInfo& info)
-    {(void)project;(void)info;}
+    {(void)info;(void)implicitsOut;}
+    virtual void doPackage(const Project&, const PackagePassInfo& info)
+    {(void)info;}
 };
 
 /**
@@ -282,11 +282,11 @@ extern std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
  */
 struct DataSpecEntry
 {
-    SystemString m_name;
-    SystemString m_desc;
+    const SystemChar* m_name;
+    const SystemChar* m_desc;
     std::function<IDataSpec*(DataSpecTool)> m_factory;
 
-    DataSpecEntry(SystemString&& name, SystemString&& desc,
+    DataSpecEntry(const SystemChar* name, const SystemChar* desc,
                   std::function<IDataSpec*(DataSpecTool)>&& factory)
     : m_name(std::move(name)), m_desc(std::move(desc)), m_factory(std::move(factory))
     {
@@ -469,7 +469,7 @@ public:
         for (const ProjectDataSpec& sp : m_compiledSpecs)
             if (&sp.spec == &spec)
                 return sp.cookedPath;
-        LogModule.report(LogVisor::FatalError, "Unable to find spec '%s'", spec.m_name.c_str());
+        LogModule.report(LogVisor::FatalError, "Unable to find spec '%s'", spec.m_name);
         return m_cookedRoot;
     }
 

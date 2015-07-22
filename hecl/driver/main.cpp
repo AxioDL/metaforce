@@ -1,7 +1,10 @@
+#if _WIN32
+#define WIN_PAUSE 1
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/param.h>
 #include <regex>
 #include <stdexcept>
 #include <list>
@@ -22,6 +25,8 @@ LogVisor::LogModule LogModule("HECLDriver");
 #include "ToolPackage.hpp"
 #include "ToolHelp.hpp"
 
+#include "../DataSpecRegistry.hpp"
+
 bool XTERM_COLOR = false;
 
 
@@ -35,10 +40,14 @@ bool XTERM_COLOR = false;
 /* Main usage message */
 static void printHelp(const HECL::SystemChar* pname)
 {
+#if _WIN32
+    HECL::Printf(_S("HECL"));
+#else
     if (XTERM_COLOR)
         HECL::Printf(_S("" BOLD "HECL" NORMAL ""));
     else
         HECL::Printf(_S("HECL"));
+#endif
 #if HECL_GIT
     HECL::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #elif HECL_VER
@@ -61,6 +70,7 @@ int wmain(int argc, const wchar_t** argv)
 int main(int argc, const char** argv)
 #endif
 {
+    //dummy();
     /* Xterm check */
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
@@ -75,19 +85,25 @@ int main(int argc, const char** argv)
     if (argc == 1)
     {
         printHelp(argv[0]);
+#if WIN_PAUSE
+        system("PAUSE");
+#endif
         return 0;
     }
     else if (argc == 0)
     {
         printHelp(_S("hecl"));
+#if WIN_PAUSE
+        system("PAUSE");
+#endif
         return 0;
     }
 
     /* Assemble common tool pass info */
     ToolPassInfo info;
     info.pname = argv[0];
-    HECL::SystemChar cwdbuf[MAXPATHLEN];
-    if (HECL::Getcwd(cwdbuf, MAXPATHLEN))
+    HECL::SystemChar cwdbuf[1024];
+    if (HECL::Getcwd(cwdbuf, 1024))
         info.cwd = cwdbuf;
 
     /* Concatenate args */
@@ -173,6 +189,9 @@ int main(int argc, const char** argv)
             LogModule.report(LogVisor::Error,
                              _S("Unable to open discovered project at '%s'"),
                              rootPath->getAbsolutePath().c_str());
+#if WIN_PAUSE
+            system("PAUSE");
+#endif
             return -1;
         }
     }
@@ -215,6 +234,9 @@ int main(int argc, const char** argv)
         LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s': %s"),
                          toolName.c_str(), ex.what());
 #endif
+#if WIN_PAUSE
+        system("PAUSE");
+#endif
         return -1;
     }
 
@@ -237,9 +259,15 @@ int main(int argc, const char** argv)
         LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s': %s"),
                          toolName.c_str(), ex.what());
 #endif
+#if WIN_PAUSE
+        system("PAUSE");
+#endif
         return -1;
     }
 
+#if WIN_PAUSE
+    system("PAUSE");
+#endif
     return retval;
 }
 

@@ -94,14 +94,14 @@ void Blowfish_decipher(uint32_t *xl, uint32_t *xr)
     *xr = Xr;
 }
 
-int64_t Blowfish_hash(const void* buf, size_t len)
+int64_t Blowfish_hash(const uint8_t* buf, size_t len)
 {
     unsigned i,j;
     union
     {
         uint32_t h32[2];
         int64_t h64;
-    } hash = {};
+    } hash = {0,0};
 
     for (i=0 ; i<len/4 ; ++i)
     {

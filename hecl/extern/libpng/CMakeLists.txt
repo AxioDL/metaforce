@@ -1,3 +1,4 @@
+include_directories(${ZLIB_INCLUDE_DIR})
 add_library(png
     png.h
     pngconf.h

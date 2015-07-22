@@ -48,7 +48,7 @@ public:
             bool found = false;
             for (auto& spec : specs)
             {
-                if (!spec.spec.m_name.compare(*it))
+                if (!it->compare(spec.spec.m_name))
                 {
                     found = true;
                     break;
@@ -75,9 +75,9 @@ public:
 
         help.secHead(_S("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command configures the HECL project with the user's preferred target DataSpecs.\n\n"
-                  "Providing enable/disable argument will bulk-set the enable status of the provided spec(s)"
-                  "list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n"));
+        help.wrap(_S("This command configures the HECL project with the user's preferred target DataSpecs.\n\n")
+                  _S("Providing enable/disable argument will bulk-set the enable status of the provided spec(s)")
+                  _S("list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n"));
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));
@@ -95,11 +95,15 @@ public:
         {
             for (const HECL::Database::DataSpecEntry* spec : HECL::Database::DATA_SPEC_REGISTRY)
             {
+#if _WIN32
+                HECL::Printf(_S("%s\n  %s\n"), spec->m_name, spec->m_desc);
+#else
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name.c_str());
+                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name);
                 else
-                    HECL::Printf(_S("%s\n"), spec->m_name.c_str());
-                HECL::Printf(_S("  %s\n"), spec->m_desc.c_str());
+                    HECL::Printf(_S("%s\n"), spec->m_name);
+                HECL::Printf(_S("  %s\n"), spec->m_desc);
+#endif
             }
             return 0;
         }
@@ -109,10 +113,16 @@ public:
         {
             for (auto& spec : specs)
             {
+#if _WIN32
+                HECL::Printf(_S("%s"), spec.spec.m_name);
+                if (spec.active)
+                    HECL::Printf(_S(" [ENABLED]"));
+                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc);
+#else
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name.c_str());
+                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name);
                 else
-                    HECL::Printf(_S("%s"), spec.spec.m_name.c_str());
+                    HECL::Printf(_S("%s"), spec.spec.m_name);
                 if (spec.active)
                 {
                     if (XTERM_COLOR)
@@ -120,7 +130,8 @@ public:
                     else
                         HECL::Printf(_S(" [ENABLED]"));
                 }
-                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc.c_str());
+                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc);
+#endif
             }
             return 0;
         }
@@ -134,7 +145,7 @@ public:
             HECL::ToLower(itName);
             for (auto& spec : specs)
             {
-                if (!spec.spec.m_name.compare(itName))
+                if (!itName.compare(spec.spec.m_name))
                 {
                     opSpecs.push_back(spec.spec.m_name);
                     break;

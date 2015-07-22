@@ -11,7 +11,7 @@ public:
     ToolInit(const ToolPassInfo& info)
     : ToolBase(info)
     {
-        struct stat theStat;
+        HECL::Sstat theStat;
         const HECL::SystemString* dir;
         if (info.args.size())
             dir = &info.args[0];
@@ -50,7 +50,7 @@ public:
         }
         catch (std::exception& e)
         {
-            LogModule.report(LogVisor::Error, "unable to init project");
+            LogModule.report(LogVisor::Error, "unable to init project: %s", e.what());
             return -1;
         }
         LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());
@@ -73,8 +73,8 @@ public:
         help.beginWrap();
         help.wrap(_S("Creates a "));
         help.wrapBold(_S(".hecl"));
-        help.wrap(_S(" directory within the selected directory with an initialized database index. "
-                  "This constitutes an empty HECL project, ready for making stuff!!\n"));
+        help.wrap(_S(" directory within the selected directory with an initialized database index. ")
+                  _S("This constitutes an empty HECL project, ready for making stuff!!\n"));
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));

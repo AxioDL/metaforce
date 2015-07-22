@@ -30,10 +30,10 @@ public:
 
         help.secHead(_S("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command initiates a cooking pass on the project database. Cooking "
-                  "is analogous to compiling in software development. The resulting object buffers "
-                  "are cached within the project database. HECL performs the following "
-                  "tasks for each object during the cook process:\n\n"));
+        help.wrap(_S("This command initiates a cooking pass on the project database. Cooking ")
+                  _S("is analogous to compiling in software development. The resulting object buffers ")
+                  _S("are cached within the project database. HECL performs the following ")
+                  _S("tasks for each object during the cook process:\n\n"));
         help.wrapBold(_S("- Object Gather: "));
         help.wrap(_S("Files added with "));
         help.wrapBold(_S("hecl add"));
@@ -43,13 +43,13 @@ public:
         help.wrapBold(_S(".png"));
         help.wrap(_S(" images). If the dependent files are unable to be found, the cook process aborts.\n\n"));
         help.wrapBold(_S("- Modtime Comparison: "));
-        help.wrap(_S("Files that have previously finished a cook pass are inspected for their time of "
-                  "last modification. If the file hasn't changed since its previous cook-pass, the "
-                  "process is skipped. If the file has been moved or deleted, the object is automatically "
-                  "removed from the project database.\n\n"));
+        help.wrap(_S("Files that have previously finished a cook pass are inspected for their time of ")
+                  _S("last modification. If the file hasn't changed since its previous cook-pass, the ")
+                  _S("process is skipped. If the file has been moved or deleted, the object is automatically ")
+                  _S("removed from the project database.\n\n"));
         help.wrapBold(_S("- Cook: "));
-        help.wrap(_S("A type-specific procedure compiles the file's contents into an efficient format "
-                  "for use by the runtime. A data-buffer is provided to HECL.\n\n"));
+        help.wrap(_S("A type-specific procedure compiles the file's contents into an efficient format ")
+                  _S("for use by the runtime. A data-buffer is provided to HECL.\n\n"));
         help.wrapBold(_S("- Hash and Compress: "));
         help.wrap(_S("The data-buffer is hashed and compressed before being cached in the object database.\n\n"));
         help.endWrap();
@@ -57,11 +57,11 @@ public:
         help.secHead(_S("OPTIONS"));
         help.optionHead(_S("<pathspec>..."), _S("input file(s)"));
         help.beginWrap();
-        help.wrap(_S("Specifies working file(s) containing production data to be cooked by HECL. "
-                  "Glob-strings may be specified (e.g. "));
+        help.wrap(_S("Specifies working file(s) containing production data to be cooked by HECL. ")
+                  _S("Glob-strings may be specified (e.g. "));
         help.wrapBold(_S("*.blend"));
-        help.wrap(_S(") to automatically cook all matching current-directory files in the project database. "
-                  "If no path specified, all files in the project database are cooked.\n"));
+        help.wrap(_S(") to automatically cook all matching current-directory files in the project database. ")
+                  _S("If no path specified, all files in the project database are cooked.\n"));
         help.endWrap();
 
         help.optionHead(_S("-r"), _S("recursion"));

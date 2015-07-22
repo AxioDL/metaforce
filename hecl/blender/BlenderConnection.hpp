@@ -1,5 +1,5 @@
-#ifndef CBLENDERCONNECTION_HPP
-#define CBLENDERCONNECTION_HPP
+#ifndef BLENDERCONNECTION_HPP
+#define BLENDERCONNECTION_HPP
 
 #if _WIN32
 #define _WIN32_LEAN_AND_MEAN 1
@@ -8,15 +8,16 @@
 #include <unistd.h>
 #endif
 
+#include <stdint.h>
 #include <string>
 #include <functional>
 
-class CBlenderConnection
+class BlenderConnection
 {
 #if _WIN32
     HANDLE m_blenderProc;
-    HANDLE m_readpipe;
-    HANDLE m_writepipe;
+    HANDLE m_readpipe[2];
+    HANDLE m_writepipe[2];
 #else
     pid_t m_blenderProc;
     int m_readpipe[2];
@@ -29,8 +30,8 @@ class CBlenderConnection
     size_t _writeBuf(const char* buf, size_t len);
     void _closePipe();
 public:
-    CBlenderConnection(bool silenceBlender=false);
-    ~CBlenderConnection();
+    BlenderConnection(bool silenceBlender=false);
+    ~BlenderConnection();
 
     bool openBlend(const std::string& path);
     enum CookPlatform
@@ -45,4 +46,4 @@ public:
     void quitBlender();
 };
 
-#endif // CBLENDERCONNECTION_HPP
+#endif // BLENDERCONNECTION_HPP

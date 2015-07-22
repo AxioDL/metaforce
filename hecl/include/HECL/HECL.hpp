@@ -10,6 +10,12 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
+#else
+#define _WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
+#include <wchar.h>
+#include "winsupport.h"
+#define snprintf _snprintf
 #endif
 
 #include <time.h>
@@ -23,6 +29,10 @@
 #include <LogVisor/LogVisor.hpp>
 #include <Athena/DNA.hpp>
 #include "../extern/blowfish/blowfish.h"
+
+/* Handy MIN/MAX macros */
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 namespace HECL
 {
@@ -73,6 +83,7 @@ inline std::wstring operator+(const wchar_t* lhs, const SystemStringView& rhs) {
 #ifndef _S
 #define _S(val) L ## val
 #endif
+typedef struct _stat Sstat;
 #else
 typedef char SystemChar;
 static inline size_t StrLen(const SystemChar* str) {return strlen(str);}
@@ -110,6 +121,7 @@ inline std::string operator+(const char* lhs, const SystemStringView& rhs) {retu
 #ifndef _S
 #define _S(val) val
 #endif
+typedef struct stat Sstat;
 #endif
 
 static inline void MakeDir(const SystemString& dir)
@@ -129,7 +141,7 @@ static inline void MakeDir(const SystemString& dir)
 static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 {
 #if HECL_UCS2
-    return wgetcwd(buf, maxlen);
+    return _wgetcwd(buf, maxlen);
 #else
     return getcwd(buf, maxlen);
 #endif
@@ -144,7 +156,7 @@ enum FileLockType
 static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock=LNONE)
 {
 #if HECL_UCS2
-    FILE* fp = wfopen(path, mode);
+    FILE* fp = _wfopen(path, mode);
 #else
     FILE* fp = fopen(path, mode);
 #endif
@@ -154,9 +166,8 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     if (lock)
     {
 #if _WIN32
-        HANDLE fhandle = (HANDLE)fileno(fp);
         OVERLAPPED ov = {};
-        LockFileEx(fhandle, (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
+        LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
         if (flock(fileno(fp), ((lock == LWRITE) ? LOCK_EX : LOCK_SH) | LOCK_NB))
             throw std::error_code(errno, std::system_category());
@@ -166,10 +177,10 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     return fp;
 }
 
-static inline int Stat(const SystemChar* path, struct stat* statOut)
+static inline int Stat(const SystemChar* path, Sstat* statOut)
 {
 #if HECL_UCS2
-    return wstat(path, statOut);
+    return _wstat(path, statOut);
 #else
     return stat(path, statOut);
 #endif
@@ -204,7 +215,7 @@ static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* fo
     va_list va;
     va_start(va, format);
 #if HECL_UCS2
-    vsnwprintf(str, maxlen, format, va);
+    _vsnwprintf(str, maxlen, format, va);
 #else
     vsnprintf(str, maxlen, format, va);
 #endif
@@ -243,7 +254,7 @@ static inline int ConsoleWidth()
 #if _WIN32
     CONSOLE_SCREEN_BUFFER_INFO info;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-    m_lineWidth = info.dwSize.X;
+    retval = info.dwSize.X;
 #else
     struct winsize w;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)
@@ -304,9 +315,11 @@ class Hash final
     int64_t hash;
 public:
     Hash(const void* buf, size_t len)
-    : hash(Blowfish_hash(buf, len)) {}
+    : hash(Blowfish_hash((uint8_t*)buf, len)) {}
     Hash(const std::string& str)
-    : hash(Blowfish_hash(str.data(), str.size())) {}
+    : hash(Blowfish_hash((uint8_t*)str.data(), str.size())) {}
+    Hash(const std::wstring& str)
+    : hash(Blowfish_hash((uint8_t*)str.data(), str.size()*2)) {}
     Hash(int64_t hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
@@ -362,14 +375,14 @@ protected:
     Hash m_hash = 0;
 #if HECL_UCS2
     std::string m_utf8AbsPath;
-    const char* m_utf8RelPath;
+    std::string m_utf8RelPath;
 #endif
     ProjectPath(const SystemString& projRoot)
-    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath("."), m_hash(m_relPath)
+    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S(".")), m_hash(m_relPath)
     {
 #if HECL_UCS2
         m_utf8AbsPath = WideToUTF8(m_absPath);
-        m_utf8RelPath = m_utf8AbsPath.c_str() + ((ProjectPath&)rootPath).m_utf8AbsPath.size();
+        m_utf8RelPath = ".";
 #endif
     }
 public:
@@ -379,6 +392,10 @@ public:
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
     ProjectPath(const ProjectPath& parentPath, const SystemString& path);
+
+#if HECL_UCS2
+    ProjectPath(const ProjectPath& parentPath, const std::string& path);
+#endif
 
     /**
      * @brief Determine if ProjectPath represents project root directory
@@ -577,16 +594,22 @@ static inline uint64_t SBig(uint64_t val) {return val;}
 
 }
 
+#if _MSC_VER
+#define NOEXCEPT
+#else
+#define NOEXCEPT noexcept
+#endif
+
 namespace std
 {
 template <> struct hash<HECL::FourCC>
 {
-    inline size_t operator()(const HECL::FourCC& val) const noexcept
+    inline size_t operator()(const HECL::FourCC& val) const NOEXCEPT
     {return val.toUint32();}
 };
 template <> struct hash<HECL::ProjectPath>
 {
-    inline size_t operator()(const HECL::ProjectPath& val) const noexcept
+    inline size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
     {return val.hash();}
 };
 }

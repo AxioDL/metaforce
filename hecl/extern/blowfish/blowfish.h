@@ -7,7 +7,7 @@ extern "C" {
 
 void Blowfish_encipher(uint32_t *xl, uint32_t *xr);
 void Blowfish_decipher(uint32_t *xl, uint32_t *xr);
-int64_t Blowfish_hash(const void* buf, size_t len);
+int64_t Blowfish_hash(const uint8_t* buf, size_t len);
 
 #ifdef __cplusplus
 }

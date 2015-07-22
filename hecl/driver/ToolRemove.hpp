@@ -31,16 +31,16 @@ public:
 
         help.secHead(_S("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command removes a file, directory, or glob-pattern of files from the project database. "
-                  "Once a file is removed, any cooked cache objects are deleted automatically. "));
+        help.wrap(_S("This command removes a file, directory, or glob-pattern of files from the project database. ")
+                  _S("Once a file is removed, any cooked cache objects are deleted automatically. "));
         help.wrapBold(_S("The working file itself is not deleted from the filesystem.\n"));
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));
         help.optionHead(_S("<pathspec>..."), _S("input file(s)"));
         help.beginWrap();
-        help.wrap(_S("Working file(s) to be removed from the project database. "
-                  "Glob-strings may be specified (e.g. "));
+        help.wrap(_S("Working file(s) to be removed from the project database. ")
+                  _S("Glob-strings may be specified (e.g. "));
         help.wrapBold(_S("*.blend"));
         help.wrap(_S(") to automatically remove all matching files from the database.\n"));
         help.endWrap();

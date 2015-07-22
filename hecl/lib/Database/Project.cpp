@@ -174,12 +174,20 @@ bool Project::ConfigFile::unlockAndCommit()
     m_lockedFile = NULL;
     if (fail)
     {
+#if HECL_UCS2
+        _wunlink(newPath.c_str());
+#else
         unlink(newPath.c_str());
+#endif
         return false;
     }
     else
     {
+#if HECL_UCS2
+        _wrename(newPath.c_str(), m_filepath.c_str());
+#else
         rename(newPath.c_str(), m_filepath.c_str());
+#endif
         return true;
     }
 }
@@ -197,7 +205,7 @@ Project::Project(const ProjectRootPath& rootPath)
   m_groups(*this, _S("groups"))
 {
     /* Stat for existing project directory (must already exist) */
-    struct stat myStat;
+    Sstat myStat;
     if (HECL::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
         throw std::error_code(errno, std::system_category());
 
@@ -293,7 +301,7 @@ void Project::rescanDataSpecs()
     for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
         SystemUTF8View specUTF8(spec->m_name);
-        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, spec->m_name + ".spec"),
+        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, HECL::SystemString(spec->m_name) + _S(".spec")),
                                    m_specs.checkForLine(specUTF8) ? true : false});
     }
     m_specs.unlockAndDiscard();
@@ -303,7 +311,10 @@ bool Project::enableDataSpecs(const std::vector<SystemString>& specs)
 {
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
-        m_specs.addLine(spec);
+    {
+        SystemUTF8View specView(spec);
+        m_specs.addLine(specView);
+    }
     bool result = m_specs.unlockAndCommit();
     rescanDataSpecs();
     return result;
@@ -313,16 +324,20 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
 {
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
-        m_specs.removeLine(spec);
+    {
+        SystemUTF8View specView(spec);
+        m_specs.removeLine(specView);
+    }
     bool result = m_specs.unlockAndCommit();
     rescanDataSpecs();
     return result;
 }
 
 bool Project::cookPath(const ProjectPath& path,
-                       std::function<void(std::string&, Cost, unsigned)> feedbackCb,
+                       std::function<void(SystemString&, Cost, unsigned)> feedbackCb,
                        bool recursive)
 {
+    return false;
 }
 
 void Project::interruptCook()
@@ -331,10 +346,12 @@ void Project::interruptCook()
 
 bool Project::cleanPath(const ProjectPath& path, bool recursive)
 {
+    return false;
 }
 
 PackageDepsgraph Project::buildPackageDepsgraph(const ProjectPath& path)
 {
+    return PackageDepsgraph();
 }
 
 }

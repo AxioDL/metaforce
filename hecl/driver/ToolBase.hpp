@@ -4,8 +4,11 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include "HECL/Database.hpp"
 #include "LogVisor/LogVisor.hpp"
@@ -151,26 +154,38 @@ public:
 
     void printBold(const HECL::SystemChar* str)
     {
+#if _WIN32
+        HECL::FPrintf(m_sout, _S("%s"), str);
+#else
         if (XTERM_COLOR)
             HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL ""), str);
         else
             HECL::FPrintf(m_sout, _S("%s"), str);
+#endif
     }
 
     void secHead(const HECL::SystemChar* headName)
     {
+#if _WIN32
+        HECL::FPrintf(m_sout, _S("%s\n"), headName);
+#else
         if (XTERM_COLOR)
             HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL "\n"), headName);
         else
             HECL::FPrintf(m_sout, _S("%s\n"), headName);
+#endif
     }
 
     void optionHead(const HECL::SystemChar* flag, const HECL::SystemChar* synopsis)
     {
+#if _WIN32
+        HECL::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
+#else
         if (XTERM_COLOR)
             HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
         else
             HECL::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
+#endif
     }
 
     void beginWrap()
@@ -185,11 +200,15 @@ public:
 
     void wrapBold(const HECL::SystemChar* str)
     {
+#if _WIN32
+        m_wrapBuffer += str;
+#else
         if (XTERM_COLOR)
             m_wrapBuffer += _S("" BOLD "");
         m_wrapBuffer += str;
         if (XTERM_COLOR)
             m_wrapBuffer += _S("" NORMAL "");
+#endif
     }
 
     void endWrap()

@@ -13,6 +13,8 @@ class ToolExtract final : public ToolBase
         std::unique_ptr<HECL::Database::IDataSpec> m_instance;
         SpecExtractPass(const HECL::Database::DataSpecEntry* entry, HECL::Database::IDataSpec* instance)
         : m_entry(entry), m_instance(instance) {}
+        SpecExtractPass(const SpecExtractPass& other) = delete;
+        SpecExtractPass(SpecExtractPass&& other) = default;
     };
     std::vector<SpecExtractPass> m_specPasses;
     std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
@@ -60,16 +62,16 @@ public:
 
         help.secHead(_S("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command recursively extracts all or part of a dataspec-supported "
-                     "package format. Each object is decoded to a working format and added to the project.\n\n"));
+        help.wrap(_S("This command recursively extracts all or part of a dataspec-supported ")
+                  _S("package format. Each object is decoded to a working format and added to the project.\n\n"));
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));
         help.optionHead(_S("<packagefile>[/<subnode>...]"), _S("input file"));
         help.beginWrap();
-        help.wrap(_S("Specifies the package file or disc image to source data from. "
-                     "An optional subnode specifies a named hierarchical-node specific "
-                     "to the game architecture (levels/areas)."));
+        help.wrap(_S("Specifies the package file or disc image to source data from. ")
+                  _S("An optional subnode specifies a named hierarchical-node specific ")
+                  _S("to the game architecture (levels/areas)."));
         help.endWrap();
     }
 
@@ -79,10 +81,14 @@ public:
     {
         for (int l=0 ; l<level ; ++l)
             HECL::Printf(_S("  "));
+#if _WIN32
+        HECL::Printf(_S("%s"), rep.name.c_str());
+#else
         if (XTERM_COLOR)
             HECL::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
             HECL::Printf(_S("%s"), rep.name.c_str());
+#endif
         if (rep.desc.size())
             HECL::Printf(_S(" [%s]"), rep.desc.c_str());
         HECL::Printf(_S("\n"));
@@ -94,17 +100,25 @@ public:
     {
         if (m_specPasses.empty())
         {
+#if _WIN32
+            HECL::Printf(_S("NOTHING TO EXTRACT\n"));
+#else
             if (XTERM_COLOR)
                 HECL::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
             else
                 HECL::Printf(_S("NOTHING TO EXTRACT\n"));
+#endif
             return -1;
         }
 
+#if _WIN32
+        HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
+#else
         if (XTERM_COLOR)
             HECL::Printf(_S("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
         else
             HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
+#endif
 
         for (HECL::Database::IDataSpec::ExtractReport& rep : m_reps)
         {
@@ -112,10 +126,14 @@ public:
             HECL::Printf(_S("\n"));
         }
 
+#if _WIN32
+        HECL::Printf(_S("\nContinue? (Y/N) "));
+#else
         if (XTERM_COLOR)
             HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/N) "));
         else
             HECL::Printf(_S("\nContinue? (Y/N) "));
+#endif
 
         int ch;
         while ((ch = getchar()))
@@ -128,17 +146,23 @@ public:
 
         for (SpecExtractPass& ds : m_specPasses)
         {
+#if _WIN32
+            HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
+#else
             if (XTERM_COLOR)
-                HECL::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name.c_str());
+                HECL::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
             else
-                HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name.c_str());
+                HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
+#endif
 
             int lineIdx = 0;
             ds.m_instance->doExtract(*m_info.project, m_einfo,
                                      [&lineIdx](const HECL::SystemChar* message, int lidx, float factor)
             {
+#ifndef _WIN32
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" HIDE_CURSOR ""));
+#endif
 
                 if (lidx > lineIdx)
                 {
@@ -161,6 +185,7 @@ public:
                         HECL::Printf(_S(" "));
                 }
 
+#ifndef _WIN32
                 if (XTERM_COLOR)
                 {
                     size_t blocks = half - 7;
@@ -175,6 +200,7 @@ public:
                 }
                 else
                 {
+#endif
                     size_t blocks = half - 7;
                     size_t filled = blocks * factor;
                     size_t rem = blocks - filled;
@@ -184,11 +210,15 @@ public:
                     for (int b=0 ; b<rem ; ++b)
                         HECL::Printf(_S("-"), message);
                     HECL::Printf(_S("]"));
+#ifndef _WIN32
                 }
+#endif
 
                 HECL::Printf(_S("\r"));
+#ifndef _WIN32
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" SHOW_CURSOR ""));
+#endif
             });
             HECL::Printf(_S("\n\n"));
         }
