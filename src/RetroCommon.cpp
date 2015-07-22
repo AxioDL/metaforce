@@ -1,6 +1,5 @@
 #include "RetroCommon.hpp"
 #include <Athena/Compression.hpp>
-#include <Athena/InvalidDataException.hpp>
 #include <memory.h>
 
 struct CMPDBlock
