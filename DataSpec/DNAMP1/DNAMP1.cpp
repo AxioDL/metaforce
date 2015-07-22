@@ -49,7 +49,7 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
     switch (entry.type.toUint32())
     {
     case SBIG('STRG'):
-        return {STRG::Extract<STRG>, ".as"};
+        return {STRG::Extract, ".as"};
     case SBIG('TXTR'):
         return {TXTR::Extract, ".png"};
     }

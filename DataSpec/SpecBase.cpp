@@ -74,6 +74,7 @@ void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo
 
 bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)
 {
+    return false;
 }
 
 void SpecBase::doCook(const HECL::Database::Project& project, const CookTaskInfo& info)
@@ -82,6 +83,7 @@ void SpecBase::doCook(const HECL::Database::Project& project, const CookTaskInfo
 
 bool SpecBase::canPackage(const HECL::Database::Project& project, const PackagePassInfo& info)
 {
+    return false;
 }
 
 void SpecBase::gatherDependencies(const HECL::Database::Project& project, const PackagePassInfo& info,

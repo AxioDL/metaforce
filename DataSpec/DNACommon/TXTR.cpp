@@ -439,11 +439,13 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     png_write_flush(png);
     png_destroy_write_struct(&png, &info);
     fclose(fp);
+
+    return true;
 }
 
 bool TXTR::Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
 {
-
+    return false;
 }
 
 }

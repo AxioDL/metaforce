@@ -133,7 +133,8 @@ struct SpecMP3 : SpecBase
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
-            childRep.name = item.first;
+            HECL::SystemStringView nameView(item.first);
+            childRep.name = nameView;
             if (!item.first.compare("Worlds.pak"))
                 continue;
             else if (!item.first.compare("Metroid6.pak"))
@@ -191,7 +192,7 @@ struct SpecMP3 : SpecBase
             {
                 HECL::SystemString lowerArg = arg;
                 HECL::ToLower(lowerArg);
-                if (!lowerArg.compare(0, 3, "mp3"))
+                if (!lowerArg.compare(0, 3, _S("mp3")))
                 {
                     doMP3 = true;
                     size_t slashPos = arg.find(_S('/'));
@@ -206,7 +207,7 @@ struct SpecMP3 : SpecBase
             {
                 HECL::SystemString lowerArg = arg;
                 HECL::ToLower(lowerArg);
-                if (!lowerArg.compare(0, 2, "fe"))
+                if (!lowerArg.compare(0, 2, _S("fe")))
                 {
                     doMPTFE = true;
                     size_t slashPos = arg.find(_S('/'));
@@ -381,31 +382,38 @@ struct SpecMP3 : SpecBase
 
     bool checkFromProject(HECL::Database::Project& proj)
     {
+        return false;
     }
     bool readFromProject(HECL::Database::Project& proj)
     {
+        return false;
     }
 
     bool visitGameObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
     {
+        return false;
     }
     struct LevelSpec : public ILevelSpec
     {
         bool visitLevelObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
         {
+            return false;
         }
         struct AreaSpec : public IAreaSpec
         {
             bool visitAreaObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
             {
+                return false;
             }
         };
         bool visitAreas(std::function<bool(const IAreaSpec&)>)
         {
+            return false;
         }
     };
     bool visitLevels(std::function<bool(const ILevelSpec&)>)
     {
+        return false;
     }
 };
 

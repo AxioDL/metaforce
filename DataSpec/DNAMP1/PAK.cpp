@@ -57,7 +57,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32(0x00030005);
     writer.writeUint32(0);
 
-    writer.writeUint32(m_nameEntries.size());
+    writer.writeUint32((atUint32)m_nameEntries.size());
     for (const NameEntry& entry : m_nameEntries)
     {
         ((NameEntry&)entry).nameLen = entry.name.size();

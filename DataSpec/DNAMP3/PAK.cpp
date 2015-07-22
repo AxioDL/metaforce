@@ -67,7 +67,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     FourCC("STRG").write(writer);
     atUint32 strgSz = 4;
     for (const NameEntry& entry : m_nameEntries)
-        strgSz += entry.name.size() + 13;
+        strgSz += (atUint32)entry.name.size() + 13;
     atUint32 strgPad = ((strgSz + 63) & ~63) - strgSz;
     strgSz += strgPad;
     writer.writeUint32(strgSz);
@@ -88,12 +88,12 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32(dataSz);
     writer.seek(36, Athena::Current);
 
-    writer.writeUint32(m_nameEntries.size());
+    writer.writeUint32((atUint32)m_nameEntries.size());
     for (const NameEntry& entry : m_nameEntries)
         entry.write(writer);
     writer.seek(strgPad, Athena::Current);
 
-    writer.writeUint32(m_entries.size());
+    writer.writeUint32((atUint32)m_entries.size());
     for (const Entry& entry : m_entries)
     {
         Entry copy = entry;
@@ -125,8 +125,9 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::DiscBase::IPartition
         {
             atUint32 compSz;
             atUint32 decompSz;
-        } blocks[head.blockCount];
-        strm->read(blocks, 8 * head.blockCount);
+        };
+        std::unique_ptr<Block[]> blocks(new Block[head.blockCount]);
+        strm->read(blocks.get(), 8 * head.blockCount);
 
         atUint64 maxBlockSz = 0;
         atUint64 totalDecompSz = 0;
