@@ -2,16 +2,16 @@
 #define _DNAMP1_CMDL_MATERIALS_HPP_
 
 #include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/GX.hpp"
 
 namespace Retro
 {
 namespace DNAMP1
 {
 
-struct CMDLMaterial : BigDNA
+struct MaterialSet : BigDNA
 {
-    Delete expl;
-
+    DECL_DNA
     struct MaterialSetHead : BigDNA
     {
         DECL_DNA
@@ -51,39 +51,43 @@ struct CMDLMaterial : BigDNA
             inline atUint16 textureSlots() const {return flags >> 16;}
             inline void setTextureSlots(atUint16 texslots) {flags &= ~0xffff0000; flags |= (atUint32)texslots << 16;}
         } flags;
+
         Value<atUint32> textureCount;
         Vector<UniqueID32, DNA_COUNT(textureCount)> texureIdxs;
         struct VAFlags : BigDNA
         {
             DECL_DNA
             Value<atUint32> vaFlags;
-            inline GXAttrType position() const {return GXAttrType(vaFlags & 0x3);}
-            inline void setPosition(GXAttrType val) {vaFlags &= ~0x3; vaFlags |= val;}
-            inline GXAttrType normal() const {return GXAttrType(vaFlags >> 2 & 0x3);}
-            inline void setNormal(GXAttrType val) {vaFlags &= ~0xC; vaFlags |= val << 2;}
-            inline GXAttrType color0() const {return GXAttrType(vaFlags >> 4 & 0x3);}
-            inline void setColor0(GXAttrType val) {vaFlags &= ~0x30; vaFlags |= val << 4;}
-            inline GXAttrType color1() const {return GXAttrType(vaFlags >> 6 & 0x3);}
-            inline void setColor1(GXAttrType val) {vaFlags &= ~0xC0; vaFlags |= val << 6;}
-            inline GXAttrType tex0() const {return GXAttrType(vaFlags >> 8 & 0x3);}
-            inline void setTex0(GXAttrType val) {vaFlags &= ~0x300; vaFlags |= val << 8;}
-            inline GXAttrType tex1() const {return GXAttrType(vaFlags >> 10 & 0x3);}
-            inline void setTex1(GXAttrType val) {vaFlags &= ~0xC00; vaFlags |= val << 10;}
-            inline GXAttrType tex2() const {return GXAttrType(vaFlags >> 12 & 0x3);}
-            inline void setTex2(GXAttrType val) {vaFlags &= ~0x3000; vaFlags |= val << 12;}
-            inline GXAttrType tex3() const {return GXAttrType(vaFlags >> 14 & 0x3);}
-            inline void setTex3(GXAttrType val) {vaFlags &= ~0xC000; vaFlags |= val << 14;}
-            inline GXAttrType tex4() const {return GXAttrType(vaFlags >> 16 & 0x3);}
-            inline void setTex4(GXAttrType val) {vaFlags &= ~0x30000; vaFlags |= val << 16;}
-            inline GXAttrType tex5() const {return GXAttrType(vaFlags >> 18 & 0x3);}
-            inline void setTex5(GXAttrType val) {vaFlags &= ~0xC0000; vaFlags |= val << 18;}
-            inline GXAttrType tex6() const {return GXAttrType(vaFlags >> 20 & 0x3);}
-            inline void setTex6(GXAttrType val) {vaFlags &= ~0x300000; vaFlags |= val << 20;}
+            inline GX::AttrType position() const {return GX::AttrType(vaFlags & 0x3);}
+            inline void setPosition(GX::AttrType val) {vaFlags &= ~0x3; vaFlags |= val;}
+            inline GX::AttrType normal() const {return GX::AttrType(vaFlags >> 2 & 0x3);}
+            inline void setNormal(GX::AttrType val) {vaFlags &= ~0xC; vaFlags |= val << 2;}
+            inline GX::AttrType color0() const {return GX::AttrType(vaFlags >> 4 & 0x3);}
+            inline void setColor0(GX::AttrType val) {vaFlags &= ~0x30; vaFlags |= val << 4;}
+            inline GX::AttrType color1() const {return GX::AttrType(vaFlags >> 6 & 0x3);}
+            inline void setColor1(GX::AttrType val) {vaFlags &= ~0xC0; vaFlags |= val << 6;}
+            inline GX::AttrType tex0() const {return GX::AttrType(vaFlags >> 8 & 0x3);}
+            inline void setTex0(GX::AttrType val) {vaFlags &= ~0x300; vaFlags |= val << 8;}
+            inline GX::AttrType tex1() const {return GX::AttrType(vaFlags >> 10 & 0x3);}
+            inline void setTex1(GX::AttrType val) {vaFlags &= ~0xC00; vaFlags |= val << 10;}
+            inline GX::AttrType tex2() const {return GX::AttrType(vaFlags >> 12 & 0x3);}
+            inline void setTex2(GX::AttrType val) {vaFlags &= ~0x3000; vaFlags |= val << 12;}
+            inline GX::AttrType tex3() const {return GX::AttrType(vaFlags >> 14 & 0x3);}
+            inline void setTex3(GX::AttrType val) {vaFlags &= ~0xC000; vaFlags |= val << 14;}
+            inline GX::AttrType tex4() const {return GX::AttrType(vaFlags >> 16 & 0x3);}
+            inline void setTex4(GX::AttrType val) {vaFlags &= ~0x30000; vaFlags |= val << 16;}
+            inline GX::AttrType tex5() const {return GX::AttrType(vaFlags >> 18 & 0x3);}
+            inline void setTex5(GX::AttrType val) {vaFlags &= ~0xC0000; vaFlags |= val << 18;}
+            inline GX::AttrType tex6() const {return GX::AttrType(vaFlags >> 20 & 0x3);}
+            inline void setTex6(GX::AttrType val) {vaFlags &= ~0x300000; vaFlags |= val << 20;}
         } vaFlags;
         Value<atUint32> groupIdx;
+
         Value<atUint32> konstCount;
-        Vector<GXColor, DNA_COUNT(konstCount)> konstColors;
-        enum GXBlendFactor
+        Vector<GX::Color, DNA_COUNT(konstCount)> konstColors;
+
+        /** Slightly modified blend enums in Retro's implementation */
+        enum BlendFactor
         {
             GX_BL_ZERO,
             GX_BL_ONE,
@@ -94,9 +98,14 @@ struct CMDLMaterial : BigDNA
             GX_BL_DSTALPHA,
             GX_BL_INVDSTALPHA
         };
-        Value<atUint16> blendDstFac;
-        Value<atUint16> blendSrcFac;
+        Value<atUint16> _blendDstFac;
+        inline BlendFactor blendDestFactor() const {return BlendFactor(_blendDstFac);}
+        inline void setBlendDestFactor(BlendFactor fac) {_blendDstFac = fac;}
+        Value<atUint16> _blendSrcFac;
+        inline BlendFactor blendSrcFactor() const {return BlendFactor(_blendSrcFac);}
+        inline void setBlendSrcFactor(BlendFactor fac) {_blendSrcFac = fac;}
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+
         Value<atUint32> colorChannelCount;
         struct ColorChannel : BigDNA
         {
@@ -116,23 +125,161 @@ struct CMDLMaterial : BigDNA
             inline void setAttenuationFn(atUint8 fn) {flags &= ~0x6000; flags |= (atUint32)fn << 13;}
         };
         Vector<ColorChannel, DNA_COUNT(colorChannelCount)> colorChannels;
+
         Value<atUint32> tevStageCount;
         struct TEVStage : BigDNA
         {
             DECL_DNA
+            Value<atUint32> ciFlags;
+            Value<atUint32> aiFlags;
+            Value<atUint32> ccFlags;
+            Value<atUint32> acFlags;
+            Value<atUint8> pad;
+            Value<atUint8> kaInput;
+            Value<atUint8> kcInput;
+            Value<atUint8> rascInput;
 
+            inline GX::TevColorArg colorInA() const {return GX::TevColorArg(ciFlags & 0xf);}
+            inline void setColorInA(GX::TevColorArg val) {ciFlags &= ~0x1f; ciFlags |= val;}
+            inline GX::TevColorArg colorInB() const {return GX::TevColorArg(ciFlags >> 5 & 0xf);}
+            inline void setColorInB(GX::TevColorArg val) {ciFlags &= ~0x3e0; ciFlags |= val << 5;}
+            inline GX::TevColorArg colorInC() const {return GX::TevColorArg(ciFlags >> 10 & 0xf);}
+            inline void setColorInC(GX::TevColorArg val) {ciFlags &= ~0x7c00; ciFlags |= val << 10;}
+            inline GX::TevColorArg colorInD() const {return GX::TevColorArg(ciFlags >> 15 & 0xf);}
+            inline void setColorInD(GX::TevColorArg val) {ciFlags &= ~0xf8000; ciFlags |= val << 15;}
+
+            inline GX::TevAlphaArg alphaInA() const {return GX::TevAlphaArg(aiFlags & 0x7);}
+            inline void setAlphaInA(GX::TevAlphaArg val) {aiFlags &= ~0x1f; aiFlags |= val;}
+            inline GX::TevAlphaArg alphaInB() const {return GX::TevAlphaArg(aiFlags >> 5 & 0x7);}
+            inline void setAlphaInB(GX::TevAlphaArg val) {aiFlags &= ~0x3e0; aiFlags |= val << 5;}
+            inline GX::TevAlphaArg alphaInC() const {return GX::TevAlphaArg(aiFlags >> 10 & 0x7);}
+            inline void setAlphaInC(GX::TevAlphaArg val) {aiFlags &= ~0x7c00; aiFlags |= val << 10;}
+            inline GX::TevAlphaArg alphaInD() const {return GX::TevAlphaArg(aiFlags >> 15 & 0x7);}
+            inline void setAlphaInD(GX::TevAlphaArg val) {aiFlags &= ~0xf8000; aiFlags |= val << 15;}
+
+            inline GX::TevOp colorOp() const {return GX::TevOp(ccFlags & 0xf);}
+            inline void setColorOp(GX::TevOp val) {ccFlags &= ~0x1; ccFlags |= val;}
+            inline GX::TevBias colorOpBias() const {return GX::TevBias(ccFlags >> 4 & 0x3);}
+            inline void setColorOpBias(GX::TevBias val) {ccFlags &= ~0x30; ccFlags |= val << 4;}
+            inline GX::TevScale colorOpScale() const {return GX::TevScale(ccFlags >> 6 & 0x3);}
+            inline void setColorOpScale(GX::TevScale val) {ccFlags &= ~0xc0; ccFlags |= val << 6;}
+            inline bool colorOpClamp() const {return ccFlags >> 8 & 0x1;}
+            inline void setColorOpClamp(bool val) {ccFlags &= ~0x100; ccFlags |= val << 8;}
+            inline GX::TevRegID colorOpOutReg() const {return GX::TevRegID(ccFlags >> 9 & 0x3);}
+            inline void setColorOpOutReg(GX::TevRegID val) {ccFlags &= ~0x600; ccFlags |= val << 9;}
+
+            inline GX::TevOp alphaOp() const {return GX::TevOp(acFlags & 0xf);}
+            inline void setAlphaOp(GX::TevOp val) {acFlags &= ~0x1; acFlags |= val;}
+            inline GX::TevBias alphaOpBias() const {return GX::TevBias(acFlags >> 4 & 0x3);}
+            inline void setAlphaOpBias(GX::TevBias val) {acFlags &= ~0x30; acFlags |= val << 4;}
+            inline GX::TevScale alphaOpScale() const {return GX::TevScale(acFlags >> 6 & 0x3);}
+            inline void setAlphaOpScale(GX::TevScale val) {acFlags &= ~0xc0; acFlags |= val << 6;}
+            inline bool alphaOpClamp() const {return acFlags >> 8 & 0x1;}
+            inline void setAlphaOpClamp(bool val) {acFlags &= ~0x100; acFlags |= val << 8;}
+            inline GX::TevRegID alphaOpOutReg() const {return GX::TevRegID(acFlags >> 9 & 0x3);}
+            inline void setAlphaOpOutReg(GX::TevRegID val) {acFlags &= ~0x600; acFlags |= val << 9;}
         };
         Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
-    };
+        struct TEVStageTexInfo : BigDNA
+        {
+            DECL_DNA
+            Value<atUint16> pad;
+            Value<atUint8> texSlot;
+            Value<atUint8> tcgSlot;
+        };
+        Vector<TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
 
-    void read(Athena::io::IStreamReader& reader)
-    {
-        head.read(reader);
-    }
-    void write(Athena::io::IStreamWriter& writer) const
-    {
-        head.write(writer);
-    }
+        Value<atUint32> tcgCount;
+        struct TexCoordGen : BigDNA
+        {
+            DECL_DNA
+            Value<atUint32> flags;
+
+            inline GX::TexGenType type() const {return GX::TexGenType(flags & 0xf);}
+            inline void setType(GX::TexGenType val) {flags &= ~0xf; flags |= val;}
+            inline GX::TexGenSrc source() const {return GX::TexGenSrc(flags >> 4 & 0x1f);}
+            inline void setSource(GX::TexGenSrc val) {flags &= ~0x1f0; flags |= val << 4;}
+            inline GX::TexMtx mtxIdx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
+            inline void setMtxIdx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (val-30) << 9;}
+            inline bool normalize() const {return flags >> 14 & 0x1;}
+            inline void setNormalize(bool val) {flags &= ~0x4000; flags |= val << 14;}
+            inline GX::PTTexMtx postMtxIdx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
+            inline void setPostMtxIdx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (val-64) << 15;}
+        };
+        Vector<TexCoordGen, DNA_COUNT(tcgCount)> tgcs;
+
+        Value<atUint32> uvAnimsSize;
+        Value<atUint32> uvAnimsCount;
+        struct UVAnimation : BigDNA
+        {
+            Delete expl;
+            enum Mode : atUint32
+            {
+                ANIM_MV_INV_NOTRANS,
+                ANIM_MV_INV,
+                ANIM_SCROLL,
+                ANIM_ROTATION,
+                ANIM_HSTRIP,
+                ANIM_VSTRIP,
+                ANIM_MODEL,
+                ANIM_MODE_WHO_MUST_NOT_BE_NAMED
+            } mode;
+            float vals[4];
+            void read(Athena::io::IStreamReader& reader)
+            {
+                reader.setEndian(Athena::BigEndian);
+                mode = Mode(reader.readUint32());
+                switch (mode)
+                {
+                case ANIM_MV_INV_NOTRANS:
+                case ANIM_MV_INV:
+                case ANIM_MODEL:
+                    break;
+                case ANIM_SCROLL:
+                case ANIM_HSTRIP:
+                case ANIM_VSTRIP:
+                    vals[0] = reader.readFloat();
+                    vals[1] = reader.readFloat();
+                    vals[2] = reader.readFloat();
+                    vals[3] = reader.readFloat();
+                    break;
+                case ANIM_ROTATION:
+                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                    vals[0] = reader.readFloat();
+                    vals[1] = reader.readFloat();
+                    break;
+                }
+            }
+            void write(Athena::io::IStreamWriter& writer) const
+            {
+                writer.setEndian(Athena::BigEndian);
+                writer.writeUint32(mode);
+                switch (mode)
+                {
+                case ANIM_MV_INV_NOTRANS:
+                case ANIM_MV_INV:
+                case ANIM_MODEL:
+                    break;
+                case ANIM_SCROLL:
+                case ANIM_HSTRIP:
+                case ANIM_VSTRIP:
+                    writer.writeFloat(vals[0]);
+                    writer.writeFloat(vals[1]);
+                    writer.writeFloat(vals[2]);
+                    writer.writeFloat(vals[3]);
+                    break;
+                case ANIM_ROTATION:
+                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                    writer.writeFloat(vals[0]);
+                    writer.writeFloat(vals[1]);
+                    break;
+                }
+            }
+        };
+        Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+    };
+    Vector<Material, DNA_COUNT(head.materialCount)> materials;
+
 };
 
 }

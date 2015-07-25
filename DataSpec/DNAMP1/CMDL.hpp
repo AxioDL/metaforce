@@ -2,9 +2,7 @@
 #define _DNAMP1_CMDL_HPP_
 
 #include "../DNACommon/DNACommon.hpp"
-#ifndef __atdna__
 #include "CMDLMaterials.hpp"
-#endif
 
 namespace Retro
 {
