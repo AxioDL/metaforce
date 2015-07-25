@@ -127,6 +127,95 @@ public:
     }
 };
 
+/* RGBA8 structure (GXColor) */
+struct GXColor : BigDNA
+{
+    Value<atUint8> r;
+    Value<atUint8> g;
+    Value<atUint8> b;
+    Value<atUint8> a;
+    Delete expl;
+    void read(Athena::io::IStreamReader& reader)
+    {reader.readUBytesToBuf(&r, 4);}
+    void write(Athena::io::IStreamWriter& writer) const
+    {writer.writeUBytes(&r, 4);}
+};
+
+/* More GX structures */
+
+enum GXAttrType
+{
+    GX_NONE,
+    GX_DIRECT,
+    GX_INDEX8,
+    GX_INDEX16
+};
+
+enum GXTevColorArg {
+    GX_CC_CPREV         = 0,                /*!< Use the color value from previous TEV stage */
+    GX_CC_APREV         = 1,                /*!< Use the alpha value from previous TEV stage */
+    GX_CC_C0            = 2,                /*!< Use the color value from the color/output register 0 */
+    GX_CC_A0            = 3,                /*!< Use the alpha value from the color/output register 0 */
+    GX_CC_C1            = 4,                /*!< Use the color value from the color/output register 1 */
+    GX_CC_A1            = 5,                /*!< Use the alpha value from the color/output register 1 */
+    GX_CC_C2            = 6,                /*!< Use the color value from the color/output register 2 */
+    GX_CC_A2            = 7,                /*!< Use the alpha value from the color/output register 2 */
+    GX_CC_TEXC          = 8,                /*!< Use the color value from texture */
+    GX_CC_TEXA          = 9,                /*!< Use the alpha value from texture */
+    GX_CC_RASC          = 10,               /*!< Use the color value from rasterizer */
+    GX_CC_RASA          = 11,               /*!< Use the alpha value from rasterizer */
+    GX_CC_ONE           = 12,
+    GX_CC_HALF          = 13,
+    GX_CC_KONST         = 14,
+    GX_CC_ZERO          = 15                /*!< Use to pass zero value */
+};
+
+enum GXTevAlphaArg {
+    GX_CA_APREV         = 0,                /*!< Use the alpha value from previous TEV stage */
+    GX_CA_A0            = 1,                /*!< Use the alpha value from the color/output register 0 */
+    GX_CA_A1            = 2,                /*!< Use the alpha value from the color/output register 1 */
+    GX_CA_A2            = 3,                /*!< Use the alpha value from the color/output register 2 */
+    GX_CA_TEXA          = 4,                /*!< Use the alpha value from texture */
+    GX_CA_RASA          = 5,                /*!< Use the alpha value from rasterizer */
+    GX_CA_KONST         = 6,
+    GX_CA_ZERO          = 7                 /*!< Use to pass zero value */
+};
+
+enum GXTevOp {
+    GX_TEV_ADD              = 0,
+    GX_TEV_SUB              = 1,
+    GX_TEV_COMP_R8_GT       = 8,
+    GX_TEV_COMP_R8_EQ       = 9,
+    GX_TEV_COMP_GR16_GT     = 10,
+    GX_TEV_COMP_GR16_EQ     = 11,
+    GX_TEV_COMP_BGR24_GT    = 12,
+    GX_TEV_COMP_BGR24_EQ    = 13,
+    GX_TEV_COMP_RGB8_GT     = 14,
+    GX_TEV_COMP_RGB8_EQ     = 15,
+    GX_TEV_COMP_A8_GT       = GX_TEV_COMP_RGB8_GT,     // for alpha channel
+    GX_TEV_COMP_A8_EQ       = GX_TEV_COMP_RGB8_EQ  // for alpha channel
+};
+
+enum GXTevBias {
+    GX_TB_ZERO          = 0,
+    GX_TB_ADDHALF       = 1,
+    GX_TB_SUBHALF       = 2,
+};
+
+enum GXTevScale {
+    GX_CS_SCALE_1       = 0,
+    GX_CS_SCALE_2       = 1,
+    GX_CS_SCALE_4       = 2,
+    GX_CS_DIVIDE_2      = 3
+};
+
+enum GXTevRegID {
+    GX_TEVPREV       = 0,
+    GX_TEVREG0       = 1,
+    GX_TEVREG1       = 2,
+    GX_TEVREG2       = 3
+};
+
 /* Case-insensitive comparator for std::map sorting */
 struct CaseInsensitiveCompare
 {
