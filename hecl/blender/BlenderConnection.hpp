@@ -11,9 +11,11 @@
 #include <stdint.h>
 #include <string>
 #include <functional>
+#include <mutex>
 
 class BlenderConnection
 {
+    std::mutex m_lock;
 #if _WIN32
     HANDLE m_blenderProc;
     HANDLE m_readpipe[2];
@@ -43,6 +45,49 @@ public:
                    const std::string& expectedType,
                    const std::string& platform,
                    bool bigEndian=false);
+
+    class PyOutStream : public std::ostream
+    {
+        friend class BlenderConnection;
+        std::unique_lock<std::mutex> m_lk;
+        BlenderConnection* m_parent;
+        struct StreamBuf : std::streambuf
+        {
+            BlenderConnection* m_parent;
+            StreamBuf(BlenderConnection* parent) : m_parent(parent) {}
+            StreamBuf(const StreamBuf& other) = delete;
+            StreamBuf(StreamBuf&& other) = default;
+            int_type overflow(int_type ch)
+            {
+                if (ch != traits_type::eof())
+                {
+                    char_type chi = ch;
+                    m_parent->_writeBuf(&chi, 1);
+                }
+                return ch;
+            }
+        } m_sbuf;
+        PyOutStream(BlenderConnection* parent)
+        : m_lk(parent->m_lock), m_parent(parent), m_sbuf(parent), std::ostream(&m_sbuf)
+        {
+            m_parent->_writeBuf("\033PYBEGIN\n", 9);
+        }
+    public:
+        PyOutStream(const PyOutStream& other) = delete;
+        PyOutStream(PyOutStream&& other)
+        : m_lk(std::move(other.m_lk)), m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
+        {other.m_parent = nullptr;}
+        ~PyOutStream()
+        {
+            if (m_parent)
+                m_parent->_writeBuf("\033PYEND\n", 7);
+        }
+    };
+    inline PyOutStream beginPythonOut()
+    {
+        return PyOutStream(this);
+    }
+
     void quitBlender();
 };
 

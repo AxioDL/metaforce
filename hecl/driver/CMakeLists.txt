@@ -14,6 +14,7 @@ add_executable(hecl main.cpp
     ToolAdd.hpp
     ToolRemove.hpp
     ToolSpec.hpp
+    ../DataSpecRegistry.hpp
 )
 
 list(APPEND DATA_SPEC_LIBS
