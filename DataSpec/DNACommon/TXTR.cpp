@@ -222,16 +222,114 @@ static const uint8_t* DecodePalette(png_structrp png, png_infop info,
     return data;
 }
 
+static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
+                                        int numEntries, const uint8_t* data)
+{
+    uint32_t format = HECL::SBig(*(uint32_t*)data);
+    data += 8;
+    png_sPLT_entry entries[256] = {};
+    png_sPLT_t GXEntry =
+    {
+        (char*)"GXPalette",
+        8,
+        entries,
+        numEntries
+    };
+    switch (format)
+    {
+    case 0:
+    {
+        /* IA8 */
+        GXEntry.name = (char*)"GX_IA8";
+        for (int e=0 ; e<numEntries ; ++e)
+        {
+            entries[e].red = data[e*2];
+            entries[e].green = data[e*2];
+            entries[e].blue = data[e*2];
+            entries[e].alpha = data[e*2+1];
+        }
+        break;
+    }
+    case 1:
+    {
+        /* RGB565 */
+        GXEntry.name = (char*)"GX_RGB565";
+        const uint16_t* data16 = (uint16_t*)data;
+        for (int e=0 ; e<numEntries ; ++e)
+        {
+            uint16_t texel = HECL::SBig(data16[e]);
+            entries[e].red = Convert5To8(texel >> 11 & 0x1f);
+            entries[e].green = Convert6To8(texel >> 5 & 0x3f);
+            entries[e].blue = Convert5To8(texel & 0x1f);
+            entries[e].alpha = 0xff;
+        }
+        break;
+    }
+    case 2:
+    {
+        /* RGB5A3 */
+        GXEntry.name = (char*)"GX_RGB5A3";
+        const uint16_t* data16 = (uint16_t*)data;
+        for (int e=0 ; e<numEntries ; ++e)
+        {
+            uint16_t texel = HECL::SBig(data16[e]);
+            if (texel & 0x8000)
+            {
+                entries[e].red = Convert5To8(texel >> 10 & 0x1f);
+                entries[e].green = Convert5To8(texel >> 5 & 0x1f);
+                entries[e].blue = Convert5To8(texel & 0x1f);
+                entries[e].alpha = 0xff;
+            }
+            else
+            {
+                entries[e].red = Convert4To8(texel >> 8 & 0xf);
+                entries[e].green = Convert4To8(texel >> 4 & 0xf);
+                entries[e].blue = Convert4To8(texel & 0xf);
+                entries[e].alpha = Convert3To8(texel >> 12 & 0x7);
+            }
+        }
+        break;
+    }
+    }
+    png_set_sPLT(png, info, &GXEntry, 1);
+    data += numEntries * 2;
+    return data;
+}
+
+static void C4Palette(png_structrp png, png_infop info)
+{
+    static const png_color C4Colors[] =
+    {
+        {0,0,0},
+        {155,0,0},
+        {0,155,0},
+        {0,0,155},
+        {155,155,0},
+        {155,0,155},
+        {0,155,155},
+        {155,155,155},
+        {55,55,55},
+        {255,0,0},
+        {0,255,0},
+        {0,0,255},
+        {255,255,0},
+        {255,0,255},
+        {0,255,255},
+        {255,255,255}
+    };
+    png_set_PLTE(png, info, C4Colors, 16);
+}
+
 static void DecodeC4(png_structrp png, png_infop info,
                      const uint8_t* data, int width, int height)
 {
     png_set_IHDR(png, info, width, height, 8,
                  PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    const uint8_t* texels = DecodePalette(png, info, 16, data);
+    C4Palette(png, info);
+    const uint8_t* texels = DecodePaletteSPLT(png, info, 16, data);
     png_write_info(png, info);
     std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
-    memset(buf.get(), 0, width);
     for (int y=0 ; y<height ; ++y)
     {
         for (int x=0 ; x<width ; ++x)
