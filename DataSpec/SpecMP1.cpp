@@ -1,5 +1,6 @@
 #include <utility>
 #include <stdio.h>
+#include <string.h>
 
 #include "SpecBase.hpp"
 #include "DNAMP1/DNAMP1.hpp"
@@ -100,7 +101,8 @@ struct SpecMP1 : SpecBase
         {
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
-            childRep.name = item.first;
+            HECL::SystemStringView nameView(item.first);
+            childRep.name = nameView;
             childRep.desc = item.second->getLevelString();
         }
     }
@@ -149,7 +151,7 @@ struct SpecMP1 : SpecBase
             {
                 HECL::SystemString lowerArg = arg;
                 HECL::ToLower(lowerArg);
-                if (!lowerArg.compare(0, 3, "mp1"))
+                if (!lowerArg.compare(0, 3, _S("mp1")))
                 {
                     doMP1 = true;
                     size_t slashPos = arg.find(_S('/'));
@@ -247,31 +249,38 @@ struct SpecMP1 : SpecBase
 
     bool checkFromProject(HECL::Database::Project& proj)
     {
+        return false;
     }
     bool readFromProject(HECL::Database::Project& proj)
     {
+        return false;
     }
 
     bool visitGameObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
     {
+        return false;
     }
     struct LevelSpec : public ILevelSpec
     {
         bool visitLevelObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
         {
+            return false;
         }
         struct AreaSpec : public IAreaSpec
         {
             bool visitAreaObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
             {
+                return false;
             }
         };
         bool visitAreas(std::function<bool(const IAreaSpec&)>)
         {
+            return false;
         }
     };
     bool visitLevels(std::function<bool(const ILevelSpec&)>)
     {
+        return false;
     }
 };
 

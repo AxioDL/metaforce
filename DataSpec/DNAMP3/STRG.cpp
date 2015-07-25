@@ -149,6 +149,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
 
 bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
 {
+    return false;
 }
 
 void STRG::writeAngelScript(std::ofstream& out) const

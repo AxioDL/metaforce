@@ -60,7 +60,7 @@ struct STRG : ISTRG, BigDNA
 #else
             return search->second->at(idx);
 #endif
-        return std::string();
+        return HECL::SystemString();
     }
 
     bool readAngelScript(const AngelScript::asIScriptModule& in);
@@ -71,6 +71,18 @@ struct STRG : ISTRG, BigDNA
         std::unique_ptr<ISTRG> strg = LoadSTRG(rs);
         std::ofstream strgOut(outPath.getAbsolutePath());
         strg->writeAngelScript(strgOut);
+        return true;
+    }
+
+    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+    {
+        STRG strg;
+        HECL::Database::ASUniqueModule mod = HECL::Database::ASUniqueModule::CreateFromPath(inPath);
+        if (!mod)
+            return false;
+        strg.readAngelScript(mod);
+        Athena::io::FileWriter ws(outPath.getAbsolutePath());
+        strg.write(ws);
         return true;
     }
 };

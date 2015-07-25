@@ -23,29 +23,6 @@ struct ISTRG
 
     virtual bool readAngelScript(const AngelScript::asIScriptModule& in)=0;
     virtual void writeAngelScript(std::ofstream& out) const=0;
-
-    template <class SUBCLS>
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
-    {
-        SUBCLS strg;
-        strg.read(rs);
-        std::ofstream strgOut(outPath.getAbsolutePath());
-        strg.writeAngelScript(strgOut);
-        return true;
-    }
-
-    template <class SUBCLS>
-    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
-    {
-        SUBCLS strg;
-        HECL::Database::ASUniqueModule mod = HECL::Database::ASUniqueModule::CreateFromPath(inPath);
-        if (!mod)
-            return false;
-        strg.readAngelScript(mod);
-        Athena::io::FileWriter ws(outPath.getAbsolutePath());
-        strg.write(ws);
-        return true;
-    }
 };
 std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader);
 

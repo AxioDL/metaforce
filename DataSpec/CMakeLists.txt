@@ -1,6 +1,5 @@
 include_directories(${HECL_INCLUDE_DIR} ${NOD_LIB_INCLUDE_DIR} ${LIBPNG_INCLUDE_DIR}
                     ${SQUISH_INCLUDE_DIR})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-multichar")
 
 # Magic ingredient
 find_package(atdna REQUIRED)
@@ -12,6 +11,8 @@ macro(make_dnalist outlist)
     list(APPEND ${outlist} atdna_${type}.cpp ${type}.hpp)
   endforeach()
 endmacro()
+
+include_directories(${ZLIB_INCLUDE_DIR} ${LZO_INCLUDE_DIR})
 
 # Each game's DNA library
 add_subdirectory(DNACommon)
