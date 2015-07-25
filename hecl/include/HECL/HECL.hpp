@@ -3,7 +3,6 @@
 
 #ifndef _WIN32
 #include <stdlib.h>
-#include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
