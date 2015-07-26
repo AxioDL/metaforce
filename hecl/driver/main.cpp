@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <regex>
-#include <stdexcept>
 #include <list>
 #include "HECL/Database.hpp"
 #include "LogVisor/LogVisor.hpp"
@@ -66,19 +66,44 @@ static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::re
 
 #include "../blender/BlenderConnection.hpp"
 
+static LogVisor::LogModule AthenaLog("Athena");
+static void AthenaExc(const Athena::error::Level& level, const char* file,
+                      const char*, int line, const char* fmt, ...)
+{
+    LogVisor::Level vLevel = LogVisor::Info;
+    switch (level)
+    {
+    case Athena::error::MESSAGE:
+        vLevel = LogVisor::Info;
+        break;
+    case Athena::error::WARNING:
+        vLevel = LogVisor::Warning;
+        break;
+    case Athena::error::ERROR:
+        vLevel = LogVisor::Error;
+        break;
+    case Athena::error::FATAL:
+        vLevel = LogVisor::FatalError;
+    }
+    va_list ap;
+    va_start(ap, fmt);
+    AthenaLog.reportSource(vLevel, file, line, fmt, ap);
+    va_end(ap);
+}
+
 #if HECL_UCS2
 int wmain(int argc, const wchar_t** argv)
 #else
 int main(int argc, const char** argv)
 #endif
 {
-    //dummy();
     /* Xterm check */
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
 
     LogVisor::RegisterConsoleLogger();
+    atSetExceptionHandler(AthenaExc);
 
     //CBlenderConnection bconn(false);
     //return 0;
@@ -181,61 +206,50 @@ int main(int argc, const char** argv)
     std::unique_ptr<HECL::Database::Project> project;
     if (rootPath.get())
     {
-        try
+        size_t ErrorRef = LogVisor::ErrorCount;
+        HECL::Database::Project* newProj = new HECL::Database::Project(*rootPath);
+        if (LogVisor::ErrorCount > ErrorRef)
         {
-            project.reset(new HECL::Database::Project(*rootPath));
-            info.project = project.get();
-        }
-        catch (std::exception&)
-        {
-            LogModule.report(LogVisor::Error,
-                             _S("Unable to open discovered project at '%s'"),
-                             rootPath->getAbsolutePath().c_str());
 #if WIN_PAUSE
             system("PAUSE");
 #endif
+            delete newProj;
             return -1;
         }
+        project.reset(newProj);
+        info.project = newProj;
     }
 
     /* Construct selected tool */
     HECL::SystemString toolName(argv[1]);
     HECL::ToLower(toolName);
     std::unique_ptr<ToolBase> tool;
-    try
+
+    size_t ErrorRef = LogVisor::ErrorCount;
+    if (toolName == _S("init"))
+        tool.reset(new ToolInit(info));
+    else if (toolName == _S("spec"))
+        tool.reset(new ToolSpec(info));
+    else if (toolName == _S("extract"))
+        tool.reset(new ToolExtract(info));
+    else if (toolName == _S("add"))
+        tool.reset(new ToolAdd(info));
+    else if (toolName == _S("remove") || toolName == _S("rm"))
+        tool.reset(new ToolRemove(info));
+    else if (toolName == _S("group"))
+        tool.reset(new ToolGroup(info));
+    else if (toolName == _S("cook"))
+        tool.reset(new ToolCook(info));
+    else if (toolName == _S("clean"))
+        tool.reset(new ToolClean(info));
+    else if (toolName == _S("package") || toolName == _S("pack"))
+        tool.reset(new ToolPackage(info));
+    else if (toolName == _S("help"))
+        tool.reset(new ToolHelp(info));
+    else
+        LogModule.report(LogVisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
+    if (LogVisor::ErrorCount > ErrorRef)
     {
-        if (toolName == _S("init"))
-            tool.reset(new ToolInit(info));
-        else if (toolName == _S("spec"))
-            tool.reset(new ToolSpec(info));
-        else if (toolName == _S("extract"))
-            tool.reset(new ToolExtract(info));
-        else if (toolName == _S("add"))
-            tool.reset(new ToolAdd(info));
-        else if (toolName == _S("remove") || toolName == _S("rm"))
-            tool.reset(new ToolRemove(info));
-        else if (toolName == _S("group"))
-            tool.reset(new ToolGroup(info));
-        else if (toolName == _S("cook"))
-            tool.reset(new ToolCook(info));
-        else if (toolName == _S("clean"))
-            tool.reset(new ToolClean(info));
-        else if (toolName == _S("package") || toolName == _S("pack"))
-            tool.reset(new ToolPackage(info));
-        else if (toolName == _S("help"))
-            tool.reset(new ToolHelp(info));
-        else
-            LogModule.report(LogVisor::FatalError, _S("unrecognized tool '%s'"), toolName.c_str());
-    }
-    catch (std::exception& ex)
-    {
-#if HECL_UCS2
-        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s': %S"),
-                         toolName.c_str(), ex.what());
-#else
-        LogModule.report(LogVisor::Error, _S("Unable to construct HECL tool '%s': %s"),
-                         toolName.c_str(), ex.what());
-#endif
 #if WIN_PAUSE
         system("PAUSE");
 #endif
@@ -247,20 +261,10 @@ int main(int argc, const char** argv)
                          tool->toolName().c_str(), info.verbosityLevel);
 
     /* Run tool */
-    int retval;
-    try
+    ErrorRef = LogVisor::ErrorCount;
+    int retval = tool->run();
+    if (LogVisor::ErrorCount > ErrorRef)
     {
-        retval = tool->run();
-    }
-    catch (std::exception& ex)
-    {
-#if HECL_UCS2
-        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s': %S"),
-                         toolName.c_str(), ex.what());
-#else
-        LogModule.report(LogVisor::Error, _S("Error running HECL tool '%s': %s"),
-                         toolName.c_str(), ex.what());
-#endif
 #if WIN_PAUSE
         system("PAUSE");
 #endif

@@ -28,7 +28,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
     {
         if (readBytes >= bufSz)
         {
-            throw std::length_error("Pipe buffer overrun");
+            Log.report(LogVisor::FatalError, "Pipe buffer overrun\n");
             *(buf-1) = '\0';
             return bufSz - 1;
         }
@@ -58,7 +58,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
         }
     }
 err:
-    throw std::error_code(errno, std::system_category());
+    Log.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -81,7 +81,8 @@ size_t BlenderConnection::_writeLine(const char* buf)
 #endif
     return (size_t)ret;
 err:
-    throw std::error_code(errno, std::system_category());
+    Log.report(LogVisor::FatalError, strerror(errno));
+    return 0;
 }
 
 size_t BlenderConnection::_readBuf(char* buf, size_t len)
@@ -97,7 +98,7 @@ size_t BlenderConnection::_readBuf(char* buf, size_t len)
 #endif
     return ret;
 err:
-    throw std::error_code(errno, std::system_category());
+    Log.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -114,7 +115,7 @@ size_t BlenderConnection::_writeBuf(const char* buf, size_t len)
 #endif
     return ret;
 err:
-    throw std::error_code(errno, std::system_category());
+    Log.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -312,9 +313,8 @@ bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
     _readLine(lineBuf, sizeof(lineBuf));
     if (strcmp(expectedType.c_str(), lineBuf))
     {
-        throw std::runtime_error("expected '" + m_loadedBlend +
-                                 "' to contain " + expectedType +
-                                 " not " + lineBuf);
+        Log.report(LogVisor::Error, "expected '%s' to contain '%s' not '%s'",
+                   m_loadedBlend.c_str(), expectedType.c_str(), lineBuf);
         return false;
     }
     _writeLine("ACK");
@@ -331,7 +331,7 @@ bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
     if (!strcmp("SUCCESS", lineBuf))
         return true;
     else if (!strcmp("EXCEPTION", lineBuf))
-        throw std::runtime_error("blender script exception");
+        Log.report(LogVisor::FatalError, "blender script exception");
 
     return false;
 }

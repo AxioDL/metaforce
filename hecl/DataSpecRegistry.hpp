@@ -25,11 +25,11 @@ namespace Retro
     extern HECL::Database::DataSpecEntry SpecEntMP3;
 }
 
-/* An overzealous optimizing compiler may not init the specs if
+/* An overzealous optimizing compiler/linker may not init the specs if
  * there's no in-code reference.. this is a simple hack to solve that */
 extern "C" void HECLDataSpecs()
 {
-    HECL::Printf(Retro::SpecEntMP1.m_name);
-    HECL::Printf(Retro::SpecEntMP2.m_name);
-    HECL::Printf(Retro::SpecEntMP3.m_name);
+    HECL::Printf(_S("%s\n"), Retro::SpecEntMP1.m_name);
+    HECL::Printf(_S("%s\n"), Retro::SpecEntMP2.m_name);
+    HECL::Printf(_S("%s\n"), Retro::SpecEntMP3.m_name);
 }

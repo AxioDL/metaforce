@@ -11,7 +11,6 @@
 #include <unordered_set>
 #include <memory>
 #include <atomic>
-#include <stdexcept>
 #include <fstream>
 #include <stdint.h>
 #include <assert.h>

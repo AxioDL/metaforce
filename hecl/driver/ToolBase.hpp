@@ -30,12 +30,14 @@ class ToolBase
 {
 protected:
     const ToolPassInfo& m_info;
+    bool m_good = false;
 public:
     ToolBase(const ToolPassInfo& info)
     : m_info(info) {}
     virtual ~ToolBase() {}
     virtual HECL::SystemString toolName() const=0;
     virtual int run()=0;
+    inline operator bool() const {return m_good;}
 };
 
 #define RED "\033[0;31m"

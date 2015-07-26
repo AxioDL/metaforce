@@ -207,11 +207,16 @@ Project::Project(const ProjectRootPath& rootPath)
     /* Stat for existing project directory (must already exist) */
     Sstat myStat;
     if (HECL::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
-        throw std::error_code(errno, std::system_category());
+    {
+        LogModule.report(LogVisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().c_str());
+        return;
+    }
 
     if (!S_ISDIR(myStat.st_mode))
-        throw std::invalid_argument("provided path must be a directory; '" +
-                                    m_rootPath.getAbsolutePathUTF8() + "' isn't");
+    {
+        LogModule.report(LogVisor::Error, _S("provided path must be a directory; '%s' isn't"), m_rootPath.getAbsolutePath().c_str());
+        return;
+    }
 
     /* Create project directory structure */
     m_dotPath.makeDir();

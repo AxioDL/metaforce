@@ -1,5 +1,4 @@
 #include "HECL/HECL.hpp"
-#include <stdexcept>
 #include <regex>
 
 namespace HECL
@@ -14,7 +13,7 @@ static SystemString canonRelPath(const SystemString& path)
     /* Absolute paths not allowed */
     if (path[0] == _S('/') || path[0] == _S('\\'))
     {
-        throw std::invalid_argument("Absolute path provided; expected relative: " + path);
+        LogModule.report(LogVisor::Error, "Absolute path provided; expected relative: %s", path.c_str());
         return _S(".");
     }
 
@@ -32,8 +31,7 @@ static SystemString canonRelPath(const SystemString& path)
             if (comps.empty())
             {
                 /* Unable to resolve outside project */
-                SystemUTF8View pathView(path);
-                throw std::invalid_argument("Unable to resolve outside project root in " + pathView);
+                LogModule.report(LogVisor::Error, _S("Unable to resolve outside project root in %s"), path.c_str());
                 return _S(".");
             }
             comps.pop_back();
@@ -171,7 +169,10 @@ static void _recursiveGlob(std::vector<SystemString>& outPaths,
 #else
     DIR* dir = opendir(itStr.c_str());
     if (!dir)
-        throw std::runtime_error("unable to open directory for traversal at '" + itStr + "'");
+    {
+        LogModule.report(LogVisor::Error, "unable to open directory for traversal at '%s'", itStr.c_str());
+        return;
+    }
 
     struct dirent* de;
     while ((de = readdir(dir)))

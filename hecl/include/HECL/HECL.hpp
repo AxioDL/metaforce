@@ -21,7 +21,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <functional>
-#include <stdexcept>
 #include <string>
 #include <algorithm>
 #include <regex>
@@ -129,11 +128,11 @@ static inline void MakeDir(const SystemString& dir)
     HRESULT err;
     if (!CreateDirectory(dir.c_str(), NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            throw std::error_code(err, std::system_category());
+            LogModule.report(LogVisor::FatalError, _S("MakeDir: %s"), dir.c_str());
 #else
     if (mkdir(dir.c_str(), 0755))
         if (errno != EEXIST)
-            throw std::error_code(errno, std::system_category());
+            LogModule.report(LogVisor::FatalError, "MakeDir %s: %s", dir.c_str(), strerror(errno));
 #endif
 }
 
@@ -160,7 +159,7 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     FILE* fp = fopen(path, mode);
 #endif
     if (!fp)
-        throw std::error_code(errno, std::system_category());
+        LogModule.report(LogVisor::FatalError, "fopen %s: %s", path, strerror(errno));
 
     if (lock)
     {
@@ -169,7 +168,7 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
         LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
         if (flock(fileno(fp), ((lock == LWRITE) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-            throw std::error_code(errno, std::system_category());
+            LogModule.report(LogVisor::FatalError, "flock %s: %s", path, strerror(errno));
 #endif
     }
 
