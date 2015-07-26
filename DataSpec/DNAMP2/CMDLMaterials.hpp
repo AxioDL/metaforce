@@ -32,15 +32,12 @@ struct MaterialSet : BigDNA
         Vector<GX::Color, DNA_COUNT(konstCount)> konstColors;
 
         Value<atUint16> _blendDstFac;
-        inline DNAMP1::MaterialSet::Material::BlendFactor blendDestFactor() const
-        {return DNAMP1::MaterialSet::Material::BlendFactor(_blendDstFac);}
-        inline void setBlendDestFactor(DNAMP1::MaterialSet::Material::BlendFactor fac)
-        {_blendDstFac = fac;}
+        using BlendFactor = DNAMP1::MaterialSet::Material::BlendFactor;
+        inline BlendFactor blendDestFactor() const {return BlendFactor(_blendDstFac);}
+        inline void setBlendDestFactor(BlendFactor fac) {_blendDstFac = fac;}
         Value<atUint16> _blendSrcFac;
-        inline DNAMP1::MaterialSet::Material::BlendFactor blendSrcFactor() const
-        {return DNAMP1::MaterialSet::Material::BlendFactor(_blendSrcFac);}
-        inline void setBlendSrcFactor(DNAMP1::MaterialSet::Material::BlendFactor fac)
-        {_blendSrcFac = fac;}
+        inline BlendFactor blendSrcFactor() const {return BlendFactor(_blendSrcFac);}
+        inline void setBlendSrcFactor(BlendFactor fac) {_blendSrcFac = fac;}
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
         Value<atUint32> colorChannelCount;
