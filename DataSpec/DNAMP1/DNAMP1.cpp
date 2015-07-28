@@ -5,6 +5,7 @@
 #include "STRG.hpp"
 #include "MLVL.hpp"
 #include "../DNACommon/TXTR.hpp"
+#include "CMDL.hpp"
 
 namespace Retro
 {
@@ -52,6 +53,8 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {STRG::Extract, ".as"};
     case SBIG('TXTR'):
         return {TXTR::Extract, ".png"};
+    case SBIG('CMDL'):
+        return {CMDL::Extract, ".blend"};
     }
     return {};
 }
