@@ -28,7 +28,8 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn, Athena::io::IStreamReade
 
     /* Open Py Stream */
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut();
-    os << "bm = bmesh.new();\n";
+    os << "import bmesh\n";
+    os << "bm = bmesh.new()\n";
 
     for (size_t s=0 ; s<head.secCount ; ++s)
     {
@@ -132,7 +133,8 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn, Athena::io::IStreamReade
             }
         }
 
-        reader.seek(secStart + head.secSizes[s], Athena::Begin);
+        if (s < head.secCount - 1)
+            reader.seek(secStart + head.secSizes[s], Athena::Begin);
     }
 
     return true;

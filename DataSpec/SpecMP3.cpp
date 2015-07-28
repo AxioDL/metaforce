@@ -24,11 +24,27 @@ struct SpecMP3 : SpecBase
     std::vector<DNAMP3::PAKBridge> m_paks;
     std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
+    HECL::ProjectPath m_workPath;
+    HECL::ProjectPath m_cookPath;
+    PAKRouter<DNAMP3::PAKBridge> m_pakRouter;
+
     /* These are populated when extracting MPT's frontend (uses MP3's DataSpec) */
     bool doMPTFE = false;
     std::vector<const NOD::DiscBase::IPartition::Node*> m_feNonPaks;
     std::vector<DNAMP3::PAKBridge> m_fePaks;
     std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_feOrderedPaks;
+
+    HECL::ProjectPath m_feWorkPath;
+    HECL::ProjectPath m_feCookPath;
+    PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
+
+    SpecMP3(HECL::Database::Project& project)
+    : m_workPath(project.getProjectRootPath(), _S("MP3")),
+      m_cookPath(project.getProjectCookedPath(SpecEntMP3), _S("MP3")),
+      m_pakRouter(m_workPath, m_cookPath),
+      m_feWorkPath(project.getProjectRootPath(), _S("fe")),
+      m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _S("fe")),
+      m_fePakRouter(m_feWorkPath, m_feCookPath) {}
 
     void buildPaks(HECL::Database::Project& project,
                    NOD::DiscBase::IPartition::Node& root,
@@ -295,6 +311,13 @@ struct SpecMP3 : SpecBase
         int prog;
         if (doMP3)
         {
+            progress(_S("Indexing PAKs"), compIdx, 0.0);
+            m_pakRouter.build(m_paks, [&progress, &compIdx](float factor)
+            {
+                progress(_S("Indexing PAKs"), compIdx, factor);
+            });
+            progress(_S("Indexing PAKs"), compIdx++, 1.0);
+
             HECL::ProjectPath mp3WorkPath(project.getProjectRootPath(), "MP3");
             mp3WorkPath.makeDir();
             progress(_S("MP3 Root"), compIdx, 0.0);
@@ -314,19 +337,13 @@ struct SpecMP3 : SpecBase
             prog = 0;
             for (DNAMP3::PAKBridge& pak : m_paks)
             {
+                m_pakRouter.enterPAKBridge(pak);
+
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
-                std::string::const_iterator extit = name.end() - 4;
-                std::string baseName(name.begin(), extit);
-
-                HECL::ProjectPath pakWorkPath(mp3WorkPath, baseName);
-                pakWorkPath.makeDir();
-                HECL::ProjectPath pakCookPath(mp3CookPath, baseName);
-                pakCookPath.makeDir();
-
                 progress(sysName.sys_str().c_str(), compIdx, 0.0);
-                pak.extractResources(pakWorkPath, pakCookPath, force,
+                pak.extractResources(m_pakRouter, force,
                                      [&progress, &sysName, &compIdx](float factor)
                 {
                     progress(sysName.sys_str().c_str(), compIdx, factor);
@@ -337,38 +354,37 @@ struct SpecMP3 : SpecBase
 
         if (doMPTFE)
         {
-            HECL::ProjectPath feWorkPath(project.getProjectRootPath(), "fe");
-            feWorkPath.makeDir();
+            progress(_S("Indexing PAKs"), compIdx, 0.0);
+            m_fePakRouter.build(m_fePaks, [&progress, &compIdx](float factor)
+            {
+                progress(_S("Indexing PAKs"), compIdx, factor);
+            });
+            progress(_S("Indexing PAKs"), compIdx++, 1.0);
+
+            m_feWorkPath.makeDir();
             progress(_S("fe Root"), compIdx, 0.0);
             int prog = 0;
-            for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+            for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
             {
-                node->extractToDirectory(feWorkPath.getAbsolutePath(), force);
-                progress(_S("fe Root"), compIdx, prog++ / (float)m_nonPaks.size());
+                node->extractToDirectory(m_feWorkPath.getAbsolutePath(), force);
+                progress(_S("fe Root"), compIdx, prog++ / (float)m_feNonPaks.size());
             }
             progress(_S("fe Root"), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
-            HECL::ProjectPath feCookPath(cookPath, "fe");
-            feCookPath.makeDir();
+            m_feCookPath.makeDir();
 
             prog = 0;
             for (DNAMP3::PAKBridge& pak : m_fePaks)
             {
+                m_fePakRouter.enterPAKBridge(pak);
+
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
-                std::string::const_iterator extit = name.end() - 4;
-                std::string baseName(name.begin(), extit);
-
-                HECL::ProjectPath pakWorkPath(feWorkPath, baseName);
-                pakWorkPath.makeDir();
-                HECL::ProjectPath pakCookPath(feCookPath, baseName);
-                pakCookPath.makeDir();
-
                 progress(sysName.sys_str().c_str(), compIdx, 0.0);
-                pak.extractResources(pakWorkPath, pakCookPath, force,
+                pak.extractResources(m_fePakRouter, force,
                                      [&progress, &sysName, &compIdx](float factor)
                 {
                     progress(sysName.sys_str().c_str(), compIdx, factor);
@@ -421,7 +437,8 @@ HECL::Database::DataSpecEntry SpecEntMP3
 (
     _S("MP3"),
     _S("Data specification for original Metroid Prime 3 engine"),
-    [](HECL::Database::DataSpecTool tool) -> HECL::Database::IDataSpec* {return new struct SpecMP3;}
+    [](HECL::Database::Project& project, HECL::Database::DataSpecTool)
+    -> HECL::Database::IDataSpec* {return new struct SpecMP3(project);}
 );
 
 }

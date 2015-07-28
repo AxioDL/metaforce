@@ -23,6 +23,15 @@ struct SpecMP2 : SpecBase
     std::vector<DNAMP2::PAKBridge> m_paks;
     std::map<std::string, DNAMP2::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
+    HECL::ProjectPath m_workPath;
+    HECL::ProjectPath m_cookPath;
+    PAKRouter<DNAMP2::PAKBridge> m_pakRouter;
+
+    SpecMP2(HECL::Database::Project& project)
+    : m_workPath(project.getProjectRootPath(), _S("MP2")),
+      m_cookPath(project.getProjectCookedPath(SpecEntMP2), _S("MP2")),
+      m_pakRouter(m_workPath, m_cookPath) {}
+
     void buildPaks(HECL::Database::Project& project,
                    NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
@@ -201,39 +210,38 @@ struct SpecMP2 : SpecBase
         if (!doMP2)
             return true;
 
-        HECL::ProjectPath mp2WorkPath(project.getProjectRootPath(), "MP2");
-        mp2WorkPath.makeDir();
-        progress(_S("MP2 Root"), 2, 0.0);
+        progress(_S("Indexing PAKs"), 2, 0.0);
+        m_pakRouter.build(m_paks, [&progress](float factor)
+        {
+            progress(_S("Indexing PAKs"), 2, factor);
+        });
+        progress(_S("Indexing PAKs"), 2, 1.0);
+
+        m_workPath.makeDir();
+        progress(_S("MP2 Root"), 3, 0.0);
         int prog = 0;
         for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
         {
-            node->extractToDirectory(mp2WorkPath.getAbsolutePath(), force);
-            progress(_S("MP2 Root"), 2, prog++ / (float)m_nonPaks.size());
+            node->extractToDirectory(m_workPath.getAbsolutePath(), force);
+            progress(_S("MP2 Root"), 3, prog++ / (float)m_nonPaks.size());
         }
-        progress(_S("MP2 Root"), 2, 1.0);
+        progress(_S("MP2 Root"), 3, 1.0);
 
         const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP2);
         cookPath.makeDir();
-        HECL::ProjectPath mp2CookPath(cookPath, "MP2");
-        mp2CookPath.makeDir();
+        m_cookPath.makeDir();
 
-        int compIdx = 3;
+        int compIdx = 4;
         prog = 0;
         for (DNAMP2::PAKBridge& pak : m_paks)
         {
+            m_pakRouter.enterPAKBridge(pak);
+
             const std::string& name = pak.getName();
             HECL::SystemStringView sysName(name);
 
-            std::string::const_iterator extit = name.end() - 4;
-            std::string baseName(name.begin(), extit);
-
-            HECL::ProjectPath pakWorkPath(mp2WorkPath, baseName);
-            pakWorkPath.makeDir();
-            HECL::ProjectPath pakCookPath(mp2CookPath, baseName);
-            pakCookPath.makeDir();
-
             progress(sysName.sys_str().c_str(), compIdx, 0.0);
-            pak.extractResources(pakWorkPath, pakCookPath, force,
+            pak.extractResources(m_pakRouter, force,
                                  [&progress, &sysName, &compIdx](float factor)
             {
                 progress(sysName.sys_str().c_str(), compIdx, factor);
@@ -285,7 +293,8 @@ HECL::Database::DataSpecEntry SpecEntMP2
 (
     _S("MP2"),
     _S("Data specification for original Metroid Prime 2 engine"),
-    [](HECL::Database::DataSpecTool tool) -> HECL::Database::IDataSpec* {return new struct SpecMP2;}
+    [](HECL::Database::Project& project, HECL::Database::DataSpecTool)
+    -> HECL::Database::IDataSpec* {return new struct SpecMP2(project);}
 );
 
 }

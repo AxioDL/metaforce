@@ -18,7 +18,7 @@ struct MaterialSet : BigDNA
         Value<atUint32> textureCount;
         Vector<UniqueID32, DNA_COUNT(textureCount)> textureIDs;
         Value<atUint32> materialCount;
-        Vector<UniqueID32, DNA_COUNT(materialCount)> materialEndOffs;
+        Vector<atUint32, DNA_COUNT(materialCount)> materialEndOffs;
     } head;
 
     struct Material : BigDNA
@@ -53,7 +53,7 @@ struct MaterialSet : BigDNA
         } flags;
 
         Value<atUint32> textureCount;
-        Vector<UniqueID32, DNA_COUNT(textureCount)> texureIdxs;
+        Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
         struct VAFlags : BigDNA
         {
             DECL_DNA
@@ -83,8 +83,8 @@ struct MaterialSet : BigDNA
         } vaFlags;
         Value<atUint32> groupIdx;
 
-        Value<atUint32> konstCount;
-        Vector<GX::Color, DNA_COUNT(konstCount)> konstColors;
+        Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
+        Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
         /** Slightly modified blend enums in Retro's implementation */
         enum BlendFactor

@@ -64,8 +64,7 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
     return {};
 }
 
-bool PAKBridge::extractResources(const HECL::ProjectPath& workingOut,
-                                 const HECL::ProjectPath& cookedOut,
+bool PAKBridge::extractResources(const PAKRouter<PAKBridge>& router,
                                  bool force,
                                  std::function<void(float)> progress)
 {
@@ -73,24 +72,25 @@ bool PAKBridge::extractResources(const HECL::ProjectPath& workingOut,
     for (const std::pair<UniqueID64, PAK::Entry*>& item : m_pak.m_idMap)
     {
         PAKEntryReadStream s;
-        ResExtractor extractor = LookupExtractor(*item.second);
-        if (extractor.func)
-        {
-            HECL::ProjectPath workPath(workingOut, m_pak.bestEntryName(*item.second) + extractor.fileExt);
-            if (force || workPath.getPathType() == HECL::ProjectPath::PT_NONE)
-            {
-                s = item.second->beginReadStream(m_node);
-                extractor.func(s, workPath);
-            }
-        }
-        HECL::ProjectPath cookPath(cookedOut, m_pak.bestEntryName(*item.second));
-        if (force || cookPath.getPathType() == HECL::ProjectPath::PT_NONE)
+
+        auto cooked = router.getCooked(item.first);
+        if (force || cooked.first.getPathType() == HECL::ProjectPath::PT_NONE)
         {
             if (!s)
                 s = item.second->beginReadStream(m_node);
-            FILE* fout = HECL::Fopen(cookPath.getAbsolutePath().c_str(), _S("wb"));
+            FILE* fout = HECL::Fopen(cooked.first.getAbsolutePath().c_str(), _S("wb"));
             fwrite(s.data(), 1, s.length(), fout);
             fclose(fout);
+        }
+
+        auto working = router.getWorking(item.first);
+        if (working.second.func)
+        {
+            if (force || working.first.getPathType() == HECL::ProjectPath::PT_NONE)
+            {
+                s = item.second->beginReadStream(m_node);
+                working.second.func(s, working.first);
+            }
         }
 
         ++count;

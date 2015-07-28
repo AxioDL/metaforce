@@ -17,7 +17,7 @@ struct CMDL
         DECL_DNA
         Value<atUint32> magic;
         Value<atUint32> version;
-        struct Flags
+        struct Flags : BigDNA
         {
             DECL_DNA
             Value<atUint32> flags;
@@ -31,6 +31,7 @@ struct CMDL
         Value<atUint32> secCount;
         Value<atUint32> matSetCount;
         Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+        Align<32> align;
     };
 
     struct SurfaceHeader : BigDNA

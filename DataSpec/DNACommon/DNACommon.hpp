@@ -202,6 +202,125 @@ typedef struct
     const char* fileExt;
 } ResExtractor;
 
+/* PAKRouter (for detecting shared entry locations) */
+template <class BRIDGETYPE>
+class PAKRouter
+{
+    const HECL::ProjectPath& m_gameWorking;
+    const HECL::ProjectPath& m_gameCooked;
+    HECL::ProjectPath m_sharedWorking;
+    HECL::ProjectPath m_sharedCooked;
+    const BRIDGETYPE* m_pak = nullptr;
+    HECL::ProjectPath m_pakWorking;
+    HECL::ProjectPath m_pakCooked;
+    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_uniqueEntries;
+    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_sharedEntries;
+public:
+    PAKRouter(const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
+    : m_gameWorking(working), m_gameCooked(cooked),
+      m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
+    void build(const std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
+    {
+        m_uniqueEntries.clear();
+        m_sharedEntries.clear();
+        size_t count = 0;
+        float bridgesSz = bridges.size();
+        for (const BRIDGETYPE& bridge : bridges)
+        {
+            const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
+            for (const auto& entry : pak.m_idMap)
+            {
+                auto search = m_uniqueEntries.find(entry.first);
+                if (search != m_uniqueEntries.end())
+                {
+                    m_uniqueEntries.erase(search);
+                    m_sharedEntries.insert(entry);
+                }
+                else
+                    m_uniqueEntries.insert(entry);
+            }
+            progress(++count / bridgesSz);
+        }
+    }
+
+    void enterPAKBridge(const BRIDGETYPE& pakBridge)
+    {
+        const std::string& name = pakBridge.getName();
+        HECL::SystemStringView sysName(name);
+
+        HECL::SystemString::const_iterator extit = sysName.sys_str().end() - 4;
+        HECL::SystemString baseName(sysName.sys_str().begin(), extit);
+
+        m_pakWorking.assign(m_gameWorking, baseName);
+        m_pakWorking.makeDir();
+        m_pakCooked.assign(m_gameCooked, baseName);
+        m_pakCooked.makeDir();
+
+        m_pak = &pakBridge;
+    }
+
+    std::pair<HECL::ProjectPath, ResExtractor> getWorking(const typename BRIDGETYPE::PAKType::IDType& id) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getWorkingPath()");
+        const typename BRIDGETYPE::PAKType& pak = m_pak->getPAK();
+        auto uniqueSearch = m_uniqueEntries.find(id);
+        if (uniqueSearch != m_uniqueEntries.end())
+        {
+            typename BRIDGETYPE::PAKType::Entry* ent = uniqueSearch->second;
+            ResExtractor extractor = BRIDGETYPE::LookupExtractor(*ent);
+            HECL::SystemString entName = pak.bestEntryName(*ent);
+            if (extractor.fileExt)
+                entName += extractor.fileExt;
+            return std::make_pair(HECL::ProjectPath(m_pakWorking, entName),
+                                  std::move(extractor));
+        }
+        auto sharedSearch = m_sharedEntries.find(id);
+        if (sharedSearch != m_sharedEntries.end())
+        {
+            typename BRIDGETYPE::PAKType::Entry* ent = sharedSearch->second;
+            ResExtractor extractor = BRIDGETYPE::LookupExtractor(*ent);
+            HECL::SystemString entName = pak.bestEntryName(*ent);
+            if (extractor.fileExt)
+                entName += extractor.fileExt;
+            HECL::ProjectPath sharedPath(m_sharedWorking, entName);
+            HECL::ProjectPath uniquePath(m_pakWorking, entName);
+            if (extractor.func)
+                uniquePath.makeLinkTo(sharedPath);
+            m_sharedWorking.makeDir();
+            return std::make_pair(std::move(sharedPath), std::move(extractor));
+        }
+        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", id.toString().c_str());
+        return std::make_pair(HECL::ProjectPath(), ResExtractor());
+    }
+
+    std::pair<HECL::ProjectPath, ResExtractor> getCooked(const typename BRIDGETYPE::PAKType::IDType& id) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getCookedPath()");
+        const typename BRIDGETYPE::PAKType& pak = m_pak->getPAK();
+        auto uniqueSearch = m_uniqueEntries.find(id);
+        if (uniqueSearch != m_uniqueEntries.end())
+        {
+            typename BRIDGETYPE::PAKType::Entry* ent = uniqueSearch->second;
+            return std::make_pair(HECL::ProjectPath(m_pakCooked, pak.bestEntryName(*ent)),
+                                  BRIDGETYPE::LookupExtractor(*ent));
+        }
+        auto sharedSearch = m_sharedEntries.find(id);
+        if (sharedSearch != m_sharedEntries.end())
+        {
+            m_sharedCooked.makeDir();
+            typename BRIDGETYPE::PAKType::Entry* ent = sharedSearch->second;
+            return std::make_pair(HECL::ProjectPath(m_sharedCooked, pak.bestEntryName(*ent)),
+                                  BRIDGETYPE::LookupExtractor(*ent));
+        }
+        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", id.toString().c_str());
+        return std::make_pair(HECL::ProjectPath(), ResExtractor());
+    }
+};
+
 /* Resource cooker function */
 typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
 

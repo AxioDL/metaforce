@@ -75,6 +75,8 @@ struct PAK : BigDNA
         /* Otherwise return ID format string */
         return entry.type.toString() + '_' + entry.id.toString();
     }
+
+    typedef UniqueID32 IDType;
 };
 
 }

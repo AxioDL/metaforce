@@ -2,7 +2,6 @@
 #define RETRO_CRANDOM16_HPP
 
 #include <stdint.h>
-#include "CRandom16.hpp"
 
 namespace Retro
 {
@@ -44,10 +43,10 @@ public:
 
     inline int32_t Range(int32_t min, int32_t max)
     {
-        uint32_t diff = max - min;
-        uint32_t rand = 0xffffffff;
-        while (rand == 0xffffffff)
-            rand = (Next() << 16) | Next();
+        int64_t diff = max - min;
+        int64_t rand = -1;
+        while (rand < 0)
+            rand = int32_t((Next() << 16) | Next());
         return rand % diff + min;
     }
 

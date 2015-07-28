@@ -17,15 +17,17 @@ class PAKBridge
     HECL::Database::Project& m_project;
     const NOD::DiscBase::IPartition::Node& m_node;
     DNAMP1::PAK m_pak;
-    static ResExtractor LookupExtractor(const DNAMP1::PAK::Entry& entry);
 public:
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
+    static ResExtractor LookupExtractor(const DNAMP1::PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
     HECL::SystemString getLevelString() const;
-    bool extractResources(const HECL::ProjectPath& dirOut,
-                          const HECL::ProjectPath& cookedOut,
+    bool extractResources(const PAKRouter<PAKBridge>& router,
                           bool force,
                           std::function<void(float)> progress);
+
+    typedef DNAMP1::PAK PAKType;
+    const PAKType& getPAK() const {return m_pak;}
 };
 
 }
