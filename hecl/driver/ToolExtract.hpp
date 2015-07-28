@@ -22,10 +22,20 @@ public:
     ToolExtract(const ToolPassInfo& info)
     : ToolBase(info)
     {
-        if (!info.project)
-            LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
         if (!m_info.args.size())
             LogModule.report(LogVisor::FatalError, "hecl extract needs a source path as its first argument");
+
+        if (!info.project)
+        {
+            /* Get name from input file and init project there */
+            std::string baseFile = info.args[0];
+            size_t slashPos = baseFile.rfind(_S('/'));
+            if (slashPos == HECL::SystemString::npos)
+                slashPos = baseFile.rfind(_S('\\'));
+            if (slashPos != HECL::SystemString::npos)
+                baseFile.assign(baseFile.g
+            LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
+        }
 
         m_einfo.srcpath = m_info.args[0];
         m_einfo.extractArgs.reserve(info.args.size() - 1);

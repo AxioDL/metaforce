@@ -55,6 +55,33 @@ while True:
         else:
             writepipeline(b'CANCELLED')
 
+    elif cmdline[0] == b'CREATE':
+        bpy.context.user_preferences.filepaths.save_version = 0
+        if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdline[1].decode()):
+            writepipeline(b'FINISHED')
+        else:
+            writepipeline(b'CANCELLED')
+
+    elif cmdline[0] == b'PYBEGIN':
+        writepipeline(b'READY')
+        globals = dict()
+        locals = dict()
+        while True:
+            try:
+                line = readpipeline()
+                if line == b'PYEND':
+                    writepipeline(b'DONE')
+                    break
+                co = compile(line+'\n', '<HECL>', 'single')
+                exec(co, globals, locals)
+            except Exception as e:
+                writepipeline(b'EXCEPTION')
+                break
+            writepipeline(b'OK')
+
+    elif cmdline[0] == b'PYEND':
+        writepipeline(b'ERROR')
+
     else:
         hecl.command(cmdline, writepipeline, writepipebuf)
 

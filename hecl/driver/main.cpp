@@ -9,6 +9,7 @@
 #include <regex>
 #include <list>
 #include "HECL/Database.hpp"
+#include "../blender/BlenderConnection.hpp"
 #include "LogVisor/LogVisor.hpp"
 
 LogVisor::LogModule LogModule("HECLDriver");
@@ -64,30 +65,13 @@ static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMASc
 static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
 static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
-#include "../blender/BlenderConnection.hpp"
-
 static LogVisor::LogModule AthenaLog("Athena");
 static void AthenaExc(const Athena::error::Level& level, const char* file,
                       const char*, int line, const char* fmt, ...)
 {
-    LogVisor::Level vLevel = LogVisor::Info;
-    switch (level)
-    {
-    case Athena::error::MESSAGE:
-        vLevel = LogVisor::Info;
-        break;
-    case Athena::error::WARNING:
-        vLevel = LogVisor::Warning;
-        break;
-    case Athena::error::ERROR:
-        vLevel = LogVisor::Error;
-        break;
-    case Athena::error::FATAL:
-        vLevel = LogVisor::FatalError;
-    }
     va_list ap;
     va_start(ap, fmt);
-    AthenaLog.reportSource(vLevel, file, line, fmt, ap);
+    AthenaLog.reportSource(LogVisor::Level(level), file, line, fmt, ap);
     va_end(ap);
 }
 
@@ -104,9 +88,6 @@ int main(int argc, const char** argv)
 
     LogVisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
-
-    //CBlenderConnection bconn(false);
-    //return 0;
 
     /* Basic usage check */
     if (argc == 1)
@@ -265,12 +246,14 @@ int main(int argc, const char** argv)
     int retval = tool->run();
     if (LogVisor::ErrorCount > ErrorRef)
     {
+        HECL::BlenderConnection::Shutdown();
 #if WIN_PAUSE
         system("PAUSE");
 #endif
         return -1;
     }
 
+    HECL::BlenderConnection::Shutdown();
 #if WIN_PAUSE
     system("PAUSE");
 #endif

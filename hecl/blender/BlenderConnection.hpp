@@ -13,6 +13,14 @@
 #include <functional>
 #include <mutex>
 
+#include "HECL/HECL.hpp"
+
+namespace HECL
+{
+
+extern LogVisor::LogModule BlenderLog;
+extern class BlenderConnection* SharedBlenderConnection;
+
 class BlenderConnection
 {
     std::mutex m_lock;
@@ -35,7 +43,8 @@ public:
     BlenderConnection(bool silenceBlender=false);
     ~BlenderConnection();
 
-    bool openBlend(const std::string& path);
+    bool createBlend(const SystemString& path);
+    bool openBlend(const SystemString& path);
     enum CookPlatform
     {
         CP_MODERN = 0,
@@ -54,23 +63,34 @@ public:
         struct StreamBuf : std::streambuf
         {
             BlenderConnection* m_parent;
+            std::string m_lineBuf;
             StreamBuf(BlenderConnection* parent) : m_parent(parent) {}
             StreamBuf(const StreamBuf& other) = delete;
             StreamBuf(StreamBuf&& other) = default;
             int_type overflow(int_type ch)
             {
-                if (ch != traits_type::eof())
+                if (ch != traits_type::eof() && ch != '\n')
                 {
-                    char_type chi = ch;
-                    m_parent->_writeBuf(&chi, 1);
+                    m_lineBuf += char_type(ch);
+                    return ch;
                 }
+                m_parent->_writeLine(m_lineBuf.c_str());
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "OK"))
+                    BlenderLog.report(LogVisor::FatalError, "error sending '%s' to blender", m_lineBuf.c_str());
+                m_lineBuf.clear();
                 return ch;
             }
         } m_sbuf;
         PyOutStream(BlenderConnection* parent)
         : m_lk(parent->m_lock), m_parent(parent), m_sbuf(parent), std::ostream(&m_sbuf)
         {
-            m_parent->_writeBuf("\033PYBEGIN\n", 9);
+            m_parent->_writeLine("PYBEGIN");
+            char readBuf[16];
+            m_parent->_readLine(readBuf, 16);
+            if (strcmp(readBuf, "READY"))
+                BlenderLog.report(LogVisor::FatalError, "unable to open PyOutStream with blender");
         }
     public:
         PyOutStream(const PyOutStream& other) = delete;
@@ -80,7 +100,13 @@ public:
         ~PyOutStream()
         {
             if (m_parent)
-                m_parent->_writeBuf("\033PYEND\n", 7);
+            {
+                m_parent->_writeLine("PYEND");
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "DONE"))
+                    BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
+            }
         }
     };
     inline PyOutStream beginPythonOut()
@@ -89,6 +115,20 @@ public:
     }
 
     void quitBlender();
+
+    static inline BlenderConnection& SharedConnection()
+    {
+        if (!SharedBlenderConnection)
+            SharedBlenderConnection = new BlenderConnection();
+        return *SharedBlenderConnection;
+    }
+
+    static inline void Shutdown()
+    {
+        delete SharedBlenderConnection;
+    }
 };
+
+}
 
 #endif // BLENDERCONNECTION_HPP

@@ -9,7 +9,11 @@
 #include <LogVisor/LogVisor.hpp>
 #include "BlenderConnection.hpp"
 
-static LogVisor::LogModule Log("BlenderConnection");
+namespace HECL
+{
+
+LogVisor::LogModule BlenderLog("BlenderConnection");
+BlenderConnection* SharedBlenderConnection = nullptr;
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
@@ -28,7 +32,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
     {
         if (readBytes >= bufSz)
         {
-            Log.report(LogVisor::FatalError, "Pipe buffer overrun\n");
+            BlenderLog.report(LogVisor::FatalError, "Pipe buffer overrun\n");
             *(buf-1) = '\0';
             return bufSz - 1;
         }
@@ -58,7 +62,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
         }
     }
 err:
-    Log.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -81,7 +85,7 @@ size_t BlenderConnection::_writeLine(const char* buf)
 #endif
     return (size_t)ret;
 err:
-    Log.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -98,7 +102,7 @@ size_t BlenderConnection::_readBuf(char* buf, size_t len)
 #endif
     return ret;
 err:
-    Log.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -115,7 +119,7 @@ size_t BlenderConnection::_writeBuf(const char* buf, size_t len)
 #endif
     return ret;
 err:
-    Log.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(LogVisor::FatalError, strerror(errno));
     return 0;
 }
 
@@ -257,27 +261,27 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
     if (!strcmp(lineBuf, "NOLAUNCH"))
     {
         _closePipe();
-        Log.report(LogVisor::FatalError, "Unable to launch blender");
+        BlenderLog.report(LogVisor::FatalError, "Unable to launch blender");
     }
     else if (!strcmp(lineBuf, "NOBLENDER"))
     {
         _closePipe();
         if (blenderBin)
-            Log.report(LogVisor::FatalError, _S("Unable to find blender at '%s' or '%s'"),
+            BlenderLog.report(LogVisor::FatalError, _S("Unable to find blender at '%s' or '%s'"),
                        blenderBin, DEFAULT_BLENDER_BIN);
         else
-            Log.report(LogVisor::FatalError, _S("Unable to find blender at '%s'"),
+            BlenderLog.report(LogVisor::FatalError, _S("Unable to find blender at '%s'"),
                        DEFAULT_BLENDER_BIN);
     }
     else if (!strcmp(lineBuf, "NOADDON"))
     {
         _closePipe();
-        Log.report(LogVisor::FatalError, "HECL addon not installed within blender");
+        BlenderLog.report(LogVisor::FatalError, "HECL addon not installed within blender");
     }
     else if (strcmp(lineBuf, "READY"))
     {
         _closePipe();
-        Log.report(LogVisor::FatalError, "read '%s' from blender; expected 'READY'", lineBuf);
+        BlenderLog.report(LogVisor::FatalError, "read '%s' from blender; expected 'READY'", lineBuf);
     }
     _writeLine("ACK");
 
@@ -288,7 +292,20 @@ BlenderConnection::~BlenderConnection()
     _closePipe();
 }
 
-bool BlenderConnection::openBlend(const std::string& path)
+bool BlenderConnection::createBlend(const SystemString& path)
+{
+    _writeLine(("CREATE" + path).c_str());
+    char lineBuf[256];
+    _readLine(lineBuf, sizeof(lineBuf));
+    if (!strcmp(lineBuf, "FINISHED"))
+    {
+        m_loadedBlend = path;
+        return true;
+    }
+    return false;
+}
+
+bool BlenderConnection::openBlend(const SystemString& path)
 {
     _writeLine(("OPEN" + path).c_str());
     char lineBuf[256];
@@ -313,7 +330,7 @@ bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
     _readLine(lineBuf, sizeof(lineBuf));
     if (strcmp(expectedType.c_str(), lineBuf))
     {
-        Log.report(LogVisor::Error, "expected '%s' to contain '%s' not '%s'",
+        BlenderLog.report(LogVisor::Error, "expected '%s' to contain '%s' not '%s'",
                    m_loadedBlend.c_str(), expectedType.c_str(), lineBuf);
         return false;
     }
@@ -331,7 +348,7 @@ bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
     if (!strcmp("SUCCESS", lineBuf))
         return true;
     else if (!strcmp("EXCEPTION", lineBuf))
-        Log.report(LogVisor::FatalError, "blender script exception");
+        BlenderLog.report(LogVisor::FatalError, "blender script exception");
 
     return false;
 }
@@ -341,4 +358,6 @@ void BlenderConnection::quitBlender()
     _writeLine("QUIT");
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
+}
+
 }
