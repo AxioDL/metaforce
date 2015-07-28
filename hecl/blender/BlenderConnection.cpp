@@ -294,7 +294,7 @@ BlenderConnection::~BlenderConnection()
 
 bool BlenderConnection::createBlend(const SystemString& path)
 {
-    _writeLine(("CREATE" + path).c_str());
+    _writeLine(("CREATE \"" + path + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
@@ -307,7 +307,7 @@ bool BlenderConnection::createBlend(const SystemString& path)
 
 bool BlenderConnection::openBlend(const SystemString& path)
 {
-    _writeLine(("OPEN" + path).c_str());
+    _writeLine(("OPEN \"" + path + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))

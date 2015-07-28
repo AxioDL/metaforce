@@ -45,7 +45,6 @@ public:
             return -1;
         size_t ErrorRef = LogVisor::ErrorCount;
         HECL::Database::Project proj((HECL::ProjectRootPath(*m_dir)));
-        proj.enableDataSpecs({_S("hecl-little")});
         if (LogVisor::ErrorCount > ErrorRef)
             return -1;
         LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());

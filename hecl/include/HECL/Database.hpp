@@ -283,10 +283,10 @@ struct DataSpecEntry
 {
     const SystemChar* m_name;
     const SystemChar* m_desc;
-    std::function<IDataSpec*(DataSpecTool)> m_factory;
+    std::function<IDataSpec*(Project&, DataSpecTool)> m_factory;
 
     DataSpecEntry(const SystemChar* name, const SystemChar* desc,
-                  std::function<IDataSpec*(DataSpecTool)>&& factory)
+                  std::function<IDataSpec*(Project& project, DataSpecTool)>&& factory)
     : m_name(std::move(name)), m_desc(std::move(desc)), m_factory(std::move(factory))
     {
         DATA_SPEC_REGISTRY.push_back(this);

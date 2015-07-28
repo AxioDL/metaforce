@@ -1,4 +1,6 @@
-import bpy, sys, os
+import bpy, sys, os, re
+
+ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
 # Extract pipe file descriptors from arguments
 print(sys.argv)
@@ -44,25 +46,32 @@ if ackbytes != b'ACK':
 
 # Command loop
 while True:
-    cmdline = readpipeline().split(b' ')
+    cmdline = readpipeline()
+    if cmdline == b'':
+        print('HECL connection lost')
+        bpy.ops.wm.quit_blender()
+    cmdargs = []
+    for match in ARGS_PATTERN.finditer(cmdline.decode()):
+        cmdargs.append(match.group(match.lastindex))
+    print(cmdargs)
 
-    if cmdline[0] == b'QUIT':
+    if cmdargs[0] == 'QUIT':
         quitblender()
 
-    elif cmdline[0] == b'OPEN':
-        if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdline[1].decode()):
+    elif cmdargs[0] == 'OPEN':
+        if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdargs[1]):
             writepipeline(b'FINISHED')
         else:
             writepipeline(b'CANCELLED')
 
-    elif cmdline[0] == b'CREATE':
+    elif cmdargs[0] == 'CREATE':
         bpy.context.user_preferences.filepaths.save_version = 0
-        if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdline[1].decode()):
+        if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
             writepipeline(b'FINISHED')
         else:
             writepipeline(b'CANCELLED')
 
-    elif cmdline[0] == b'PYBEGIN':
+    elif cmdargs[0] == 'PYBEGIN':
         writepipeline(b'READY')
         globals = dict()
         locals = dict()
@@ -72,16 +81,17 @@ while True:
                 if line == b'PYEND':
                     writepipeline(b'DONE')
                     break
-                co = compile(line+'\n', '<HECL>', 'single')
+                co = compile(line+b'\n', '<HECL>', 'single')
                 exec(co, globals, locals)
             except Exception as e:
                 writepipeline(b'EXCEPTION')
+                raise
                 break
             writepipeline(b'OK')
 
-    elif cmdline[0] == b'PYEND':
+    elif cmdargs[0] == 'PYEND':
         writepipeline(b'ERROR')
 
     else:
-        hecl.command(cmdline, writepipeline, writepipebuf)
+        hecl.command(cmdargs, writepipeline, writepipebuf)
 

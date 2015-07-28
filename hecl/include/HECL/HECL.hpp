@@ -122,17 +122,27 @@ inline std::string operator+(const char* lhs, const SystemStringView& rhs) {retu
 typedef struct stat Sstat;
 #endif
 
-static inline void MakeDir(const SystemString& dir)
+static inline void MakeDir(const SystemChar* dir)
 {
 #if _WIN32
     HRESULT err;
-    if (!CreateDirectory(dir.c_str(), NULL))
+    if (!CreateDirectory(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            LogModule.report(LogVisor::FatalError, _S("MakeDir: %s"), dir.c_str());
+            LogModule.report(LogVisor::FatalError, _S("MakeDir(%s)"), dir);
 #else
-    if (mkdir(dir.c_str(), 0755))
+    if (mkdir(dir, 0755))
         if (errno != EEXIST)
-            LogModule.report(LogVisor::FatalError, "MakeDir %s: %s", dir.c_str(), strerror(errno));
+            LogModule.report(LogVisor::FatalError, "MakeDir(%s): %s", dir, strerror(errno));
+#endif
+}
+
+static inline void MakeLink(const SystemChar* target, const SystemChar* linkPath)
+{
+#if _WIN32
+#else
+    if (symlink(target, linkPath))
+        if (errno != EEXIST)
+            LogModule.report(LogVisor::FatalError, "MakeLink(%s, %s): %s", target, linkPath, strerror(errno));
 #endif
 }
 
@@ -385,14 +395,28 @@ protected:
     }
 public:
     /**
+     * @brief Empty constructor
+     *
+     * Used to preallocate ProjectPath for later population using assign()
+     */
+    ProjectPath() {}
+
+    /**
+     * @brief Tests for non-empty project path
+     */
+    operator bool() const {return m_absPath.size() != 0;}
+
+    /**
      * @brief Construct a project subpath representation within another subpath
      * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectPath& parentPath, const SystemString& path);
+    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, const SystemString& path);
 
 #if HECL_UCS2
-    ProjectPath(const ProjectPath& parentPath, const std::string& path);
+    ProjectPath(const ProjectPath& parentPath, const std::string& path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, const std::string& path);
 #endif
 
     /**
@@ -474,7 +498,27 @@ public:
      */
     void getGlobResults(std::vector<SystemString>& outPaths) const;
 
-    inline void makeDir() const {MakeDir(m_absPath);}
+    /**
+     * @brief Create directory at path
+     *
+     * Fatal log report is issued if directory is not able to be created or doesn't already exist.
+     * If directory already exists, no action taken.
+     */
+    inline void makeDir() const {MakeDir(m_absPath.c_str());}
+
+    /**
+     * @brief Create relative symbolic link at calling path targeting another path
+     * @param target Path to target
+     */
+    inline void makeLinkTo(const ProjectPath& target) const
+    {
+        SystemString relTarget;
+        for (SystemChar ch : m_relPath)
+            if (ch == _S('/') || ch == _S('\\'))
+                relTarget += _S("../");
+        relTarget += target.m_relPath;
+        MakeLink(relTarget.c_str(), m_absPath.c_str());
+    }
 
     /**
      * @brief HECL-specific blowfish hash

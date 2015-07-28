@@ -55,9 +55,9 @@ static SystemString canonRelPath(const SystemString& path)
     return _S(".");
 }
 
-ProjectPath::ProjectPath(const ProjectPath& parentPath, const SystemString& path)
-: m_projRoot(parentPath.m_projRoot)
+void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path)
 {
+    m_projRoot = parentPath.m_projRoot;
     m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + path);
     m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;
     m_hash = Hash(m_relPath);
@@ -68,9 +68,9 @@ ProjectPath::ProjectPath(const ProjectPath& parentPath, const SystemString& path
 }
 
 #if HECL_UCS2
-ProjectPath::ProjectPath(const ProjectPath& parentPath, const std::string& path)
-: m_projRoot(parentPath.m_projRoot)
+void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 {
+    m_projRoot = parentPath.m_projRoot;
     std::wstring wpath = UTF8ToWide(path);
     m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + wpath);
     m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;

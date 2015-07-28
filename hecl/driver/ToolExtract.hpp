@@ -18,6 +18,8 @@ class ToolExtract final : public ToolBase
     };
     std::vector<SpecExtractPass> m_specPasses;
     std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
+    std::unique_ptr<HECL::Database::Project> m_fallbackProj;
+    HECL::Database::Project* m_useProj;
 public:
     ToolExtract(const ToolPassInfo& info)
     : ToolBase(info)
@@ -28,14 +30,30 @@ public:
         if (!info.project)
         {
             /* Get name from input file and init project there */
-            std::string baseFile = info.args[0];
+            HECL::SystemString baseFile = info.args[0];
             size_t slashPos = baseFile.rfind(_S('/'));
             if (slashPos == HECL::SystemString::npos)
                 slashPos = baseFile.rfind(_S('\\'));
             if (slashPos != HECL::SystemString::npos)
-                baseFile.assign(baseFile.g
-            LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
+                baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
+            size_t dotPos = baseFile.rfind(_S('.'));
+            if (dotPos != HECL::SystemString::npos)
+                baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
+
+            if (baseFile.empty())
+                LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
+
+            size_t ErrorRef = LogVisor::ErrorCount;
+            HECL::ProjectRootPath newProjRoot(baseFile);
+            newProjRoot.makeDir();
+            m_fallbackProj.reset(new HECL::Database::Project(newProjRoot));
+            if (LogVisor::ErrorCount > ErrorRef)
+                LogModule.report(LogVisor::FatalError, "unable to init project at '%s'", baseFile.c_str());
+            LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), baseFile.c_str());
+            m_useProj = m_fallbackProj.get();
         }
+        else
+            m_useProj = info.project;
 
         m_einfo.srcpath = m_info.args[0];
         m_einfo.extractArgs.reserve(info.args.size() - 1);
@@ -47,10 +65,10 @@ public:
 
         for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
         {
-            HECL::Database::IDataSpec* ds = entry->m_factory(HECL::Database::TOOL_EXTRACT);
+            HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::TOOL_EXTRACT);
             if (ds)
             {
-                if (ds->canExtract(*m_info.project, m_einfo, m_reps))
+                if (ds->canExtract(*m_useProj, m_einfo, m_reps))
                     m_specPasses.emplace_back(entry, ds);
                 else
                     delete ds;
@@ -166,7 +184,7 @@ public:
 #endif
 
             int lineIdx = 0;
-            ds.m_instance->doExtract(*m_info.project, m_einfo,
+            ds.m_instance->doExtract(*m_useProj, m_einfo,
                                      [&lineIdx](const HECL::SystemChar* message, int lidx, float factor)
             {
 #ifndef _WIN32
@@ -229,6 +247,7 @@ public:
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" SHOW_CURSOR ""));
 #endif
+                fflush(stdout);
             });
             HECL::Printf(_S("\n\n"));
         }
