@@ -22,13 +22,10 @@ public:
     static ResExtractor LookupExtractor(const DNAMP1::PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
     HECL::SystemString getLevelString() const;
-    bool extractResources(const PAKRouter<PAKBridge>& router,
-                          bool force,
-                          std::function<void(float)> progress);
 
     typedef DNAMP1::PAK PAKType;
-    const PAKType& getPAK() const {return m_pak;}
-};
+    inline const PAKType& getPAK() const {return m_pak;}
+    inline const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}};
 
 }
 }

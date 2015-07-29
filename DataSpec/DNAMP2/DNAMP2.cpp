@@ -55,40 +55,5 @@ ResExtractor PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& entry)
     return {};
 }
 
-bool PAKBridge::extractResources(const PAKRouter<PAKBridge>& router,
-                                 bool force,
-                                 std::function<void(float)> progress)
-{
-    size_t count = 0;
-    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& item : m_pak.m_idMap)
-    {
-        PAKEntryReadStream s;
-
-        auto cooked = router.getCooked(item.first);
-        if (force || cooked.first.getPathType() == HECL::ProjectPath::PT_NONE)
-        {
-            if (!s)
-                s = item.second->beginReadStream(m_node);
-            FILE* fout = HECL::Fopen(cooked.first.getAbsolutePath().c_str(), _S("wb"));
-            fwrite(s.data(), 1, s.length(), fout);
-            fclose(fout);
-        }
-
-        auto working = router.getWorking(item.first);
-        if (working.second.func)
-        {
-            if (force || working.first.getPathType() == HECL::ProjectPath::PT_NONE)
-            {
-                s = item.second->beginReadStream(m_node);
-                working.second.func(s, working.first);
-            }
-        }
-
-        ++count;
-        progress(count / (float)m_pak.m_idMap.size());
-    }
-    return true;
-}
-
 }
 }

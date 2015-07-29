@@ -1,7 +1,9 @@
 #ifndef __DNA_COMMON_HPP__
 #define __DNA_COMMON_HPP__
 
+#include <stdio.h>
 #include <Athena/DNA.hpp>
+#include <NOD/DiscBase.hpp>
 #include "HECL/HECL.hpp"
 #include "HECL/Database.hpp"
 
@@ -200,6 +202,7 @@ typedef struct
 {
     std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func;
     const char* fileExt;
+    unsigned weight;
 } ResExtractor;
 
 /* PAKRouter (for detecting shared entry locations) */
@@ -210,7 +213,8 @@ class PAKRouter
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
     HECL::ProjectPath m_sharedCooked;
-    const BRIDGETYPE* m_pak = nullptr;
+    const typename BRIDGETYPE::PAKType* m_pak = nullptr;
+    const NOD::DiscBase::IPartition::Node* m_node = nullptr;
     HECL::ProjectPath m_pakWorking;
     HECL::ProjectPath m_pakCooked;
     std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_uniqueEntries;
@@ -256,32 +260,28 @@ public:
         m_pakCooked.assign(m_gameCooked, baseName);
         m_pakCooked.makeDir();
 
-        m_pak = &pakBridge;
+        m_pak = &pakBridge.getPAK();
+        m_node = &pakBridge.getNode();
     }
 
-    std::pair<HECL::ProjectPath, ResExtractor> getWorking(const typename BRIDGETYPE::PAKType::IDType& id) const
+    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry,
+                                 const ResExtractor& extractor) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
             "PAKRouter::enterPAKBridge() must be called before PAKRouter::getWorkingPath()");
-        const typename BRIDGETYPE::PAKType& pak = m_pak->getPAK();
-        auto uniqueSearch = m_uniqueEntries.find(id);
+        auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            typename BRIDGETYPE::PAKType::Entry* ent = uniqueSearch->second;
-            ResExtractor extractor = BRIDGETYPE::LookupExtractor(*ent);
-            HECL::SystemString entName = pak.bestEntryName(*ent);
+            HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
-            return std::make_pair(HECL::ProjectPath(m_pakWorking, entName),
-                                  std::move(extractor));
+            return HECL::ProjectPath(m_pakWorking, entName);
         }
-        auto sharedSearch = m_sharedEntries.find(id);
+        auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
-            typename BRIDGETYPE::PAKType::Entry* ent = sharedSearch->second;
-            ResExtractor extractor = BRIDGETYPE::LookupExtractor(*ent);
-            HECL::SystemString entName = pak.bestEntryName(*ent);
+            HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
@@ -289,35 +289,70 @@ public:
             if (extractor.func)
                 uniquePath.makeLinkTo(sharedPath);
             m_sharedWorking.makeDir();
-            return std::make_pair(std::move(sharedPath), std::move(extractor));
+            return sharedPath;
         }
-        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", id.toString().c_str());
-        return std::make_pair(HECL::ProjectPath(), ResExtractor());
+        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
+        return HECL::ProjectPath();
     }
 
-    std::pair<HECL::ProjectPath, ResExtractor> getCooked(const typename BRIDGETYPE::PAKType::IDType& id) const
+    HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::Entry* entry) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
             "PAKRouter::enterPAKBridge() must be called before PAKRouter::getCookedPath()");
-        const typename BRIDGETYPE::PAKType& pak = m_pak->getPAK();
-        auto uniqueSearch = m_uniqueEntries.find(id);
+        auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            typename BRIDGETYPE::PAKType::Entry* ent = uniqueSearch->second;
-            return std::make_pair(HECL::ProjectPath(m_pakCooked, pak.bestEntryName(*ent)),
-                                  BRIDGETYPE::LookupExtractor(*ent));
+            return HECL::ProjectPath(m_pakCooked, m_pak->bestEntryName(*entry));
         }
-        auto sharedSearch = m_sharedEntries.find(id);
+        auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
             m_sharedCooked.makeDir();
-            typename BRIDGETYPE::PAKType::Entry* ent = sharedSearch->second;
-            return std::make_pair(HECL::ProjectPath(m_sharedCooked, pak.bestEntryName(*ent)),
-                                  BRIDGETYPE::LookupExtractor(*ent));
+            return HECL::ProjectPath(m_sharedCooked, m_pak->bestEntryName(*entry));
         }
-        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", id.toString().c_str());
-        return std::make_pair(HECL::ProjectPath(), ResExtractor());
+        LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
+        return HECL::ProjectPath();
+    }
+
+    bool extractResources(const BRIDGETYPE& pakBridge, bool force, std::function<void(float)> progress)
+    {
+        enterPAKBridge(pakBridge);
+        size_t count = 0;
+        size_t sz = m_pak->m_idMap.size();
+        float fsz = sz;
+        for (unsigned w=0 ; count<sz ; ++w)
+        {
+            for (const auto& item : m_pak->m_idMap)
+            {
+                ResExtractor extractor = BRIDGETYPE::LookupExtractor(*item.second);
+                if (extractor.weight != w)
+                    continue;
+
+                HECL::ProjectPath cooked = getCooked(item.second);
+                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
+                {
+                    PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                    FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
+                    fwrite(s.data(), 1, s.length(), fout);
+                    fclose(fout);
+                }
+
+                HECL::ProjectPath working = getWorking(item.second, extractor);
+                if (extractor.func)
+                {
+                    if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
+                    {
+                        PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                        extractor.func(s, working);
+                    }
+                }
+
+                progress(++count / fsz);
+            }
+        }
+
+        return true;
     }
 };
 

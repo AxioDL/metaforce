@@ -343,8 +343,8 @@ struct SpecMP3 : SpecBase
                 HECL::SystemStringView sysName(name);
 
                 progress(sysName.sys_str().c_str(), compIdx, 0.0);
-                pak.extractResources(m_pakRouter, force,
-                                     [&progress, &sysName, &compIdx](float factor)
+                m_pakRouter.extractResources(pak, force,
+                [&progress, &sysName, &compIdx](float factor)
                 {
                     progress(sysName.sys_str().c_str(), compIdx, factor);
                 });
@@ -378,14 +378,12 @@ struct SpecMP3 : SpecBase
             prog = 0;
             for (DNAMP3::PAKBridge& pak : m_fePaks)
             {
-                m_fePakRouter.enterPAKBridge(pak);
-
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
                 progress(sysName.sys_str().c_str(), compIdx, 0.0);
-                pak.extractResources(m_fePakRouter, force,
-                                     [&progress, &sysName, &compIdx](float factor)
+                m_fePakRouter.extractResources(pak, force,
+                [&progress, &sysName, &compIdx](float factor)
                 {
                     progress(sysName.sys_str().c_str(), compIdx, factor);
                 });
