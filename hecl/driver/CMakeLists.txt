@@ -32,5 +32,5 @@ endif()
 target_link_libraries(hecl
     ${WHOLE_START} HECLDatabaseInit ${DATA_SPEC_LIBS} ${WHOLE_END}
     HECLDatabase HECLBlender HECLCommon AthenaCore AngelScript NOD
-    LogVisor png squish blowfish z lzo2
+    LogVisor yaml png squish blowfish z lzo2
 )
