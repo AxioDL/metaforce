@@ -50,7 +50,7 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
     switch (entry.type.toUint32())
     {
     case SBIG('STRG'):
-        return {STRG::Extract, ".as"};
+        return {STRG::Extract, ".yaml"};
     case SBIG('TXTR'):
         return {TXTR::Extract, ".png"};
     case SBIG('CMDL'):

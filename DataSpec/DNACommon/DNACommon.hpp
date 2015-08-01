@@ -2,7 +2,7 @@
 #define __DNA_COMMON_HPP__
 
 #include <stdio.h>
-#include <Athena/DNA.hpp>
+#include <Athena/DNAYaml.hpp>
 #include <NOD/DiscBase.hpp>
 #include "HECL/HECL.hpp"
 #include "HECL/Database.hpp"
@@ -14,9 +14,10 @@ extern LogVisor::LogModule LogDNACommon;
 
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
+typedef Athena::io::DNAYaml<Athena::BigEndian> BigYAML;
 
 /* FourCC with DNA read/write */
-class FourCC final : public BigDNA, public HECL::FourCC
+class FourCC final : public BigYAML, public HECL::FourCC
 {
 public:
     FourCC() : HECL::FourCC() {}
@@ -30,10 +31,14 @@ public:
     {reader.readUBytesToBuf(fcc, 4);}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUBytes((atUint8*)fcc, 4);}
+    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
+    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {writer.writeString(nullptr, std::string(fcc, 4));}
 };
 
 /* PAK 32-bit Unique ID */
-class UniqueID32 : public BigDNA
+class UniqueID32 : public BigYAML
 {
     uint32_t m_id;
 public:
@@ -42,6 +47,10 @@ public:
     {m_id = reader.readUint32();}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32(m_id);}
+    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    {m_id = reader.readUint32(nullptr);}
+    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {writer.writeUint32(nullptr, m_id);}
 
     inline bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     inline bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}

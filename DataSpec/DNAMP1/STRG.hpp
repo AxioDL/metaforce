@@ -10,9 +10,10 @@ namespace Retro
 namespace DNAMP1
 {
 
-struct STRG : ISTRG, BigDNA
+struct STRG : ISTRG, BigYAML
 {
     DECL_EXPLICIT_DNA
+    DECL_EXPLICIT_YAML
     void _read(Athena::io::IStreamReader& reader);
     std::vector<std::pair<FourCC, std::vector<std::wstring>>> langs;
     std::unordered_map<FourCC, std::vector<std::wstring>*> langMap;
@@ -63,18 +64,18 @@ struct STRG : ISTRG, BigDNA
     {
         STRG strg;
         strg.read(rs);
-        std::ofstream strgOut(outPath.getAbsolutePath());
-        strg.writeAngelScript(strgOut);
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
+        strg.toYAMLFile(fp);
+        fclose(fp);
         return true;
     }
 
     static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
     {
         STRG strg;
-        HECL::Database::ASUniqueModule mod = HECL::Database::ASUniqueModule::CreateFromPath(inPath);
-        if (!mod)
-            return false;
-        strg.readAngelScript(mod);
+        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("r"));
+        strg.fromYAMLFile(fp);
+        fclose(fp);
         Athena::io::FileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;

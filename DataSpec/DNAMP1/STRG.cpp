@@ -111,6 +111,69 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
+void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
+    const Athena::io::YAMLNode* root = reader.getRootNode();
+
+    /* Validate Pass */
+    if (root->m_type == YAML_MAPPING_NODE)
+    {
+        for (const auto& lang : root->m_mapChildren)
+        {
+            if (lang.first.size() != 4)
+            {
+                Log.report(LogVisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
+                return;
+            }
+            if (lang.second->m_type != YAML_SEQUENCE_NODE)
+            {
+                Log.report(LogVisor::Warning, "STRG language string '%s' must contain a sequence; skipping", lang.first.c_str());
+                return;
+            }
+            for (const auto& str : lang.second->m_seqChildren)
+            {
+                if (str->m_type != YAML_SCALAR_NODE)
+                {
+                    Log.report(LogVisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        Log.report(LogVisor::Warning, "STRG must have a mapping root node; skipping");
+        return;
+    }
+
+    /* Read Pass */
+    langs.clear();
+    for (const auto& lang : root->m_mapChildren)
+    {
+        std::vector<std::wstring> strs;
+        for (const auto& str : lang.second->m_seqChildren)
+            strs.emplace_back(wconv.from_bytes(str->m_scalarString));
+        langs.emplace_back(FourCC(lang.first.c_str()), strs);
+    }
+
+    langMap.clear();
+    langMap.reserve(langs.size());
+    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+        langMap.emplace(item.first, &item.second);
+}
+
+void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
+{
+    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    {
+        writer.enterSubVector(lang.first.toString().c_str());
+        for (const std::wstring& str : lang.second)
+            writer.writeWString(nullptr, str);
+        writer.leaveSubVector();
+    }
+}
+
 bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
