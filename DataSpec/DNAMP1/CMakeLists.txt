@@ -8,4 +8,5 @@ add_library(DNAMP1
             ${liblist}
             PAK.cpp
             STRG.hpp STRG.cpp
-            CMDL.cpp)
+            CMDL.cpp
+            CMDLMaterials.cpp)

@@ -60,6 +60,78 @@ enum TevAlphaArg {
     GX_CA_ZERO          = 7                 /*!< Use to pass zero value */
 };
 
+enum TevKColorSel
+{
+    GX_TEV_KCSEL_8_8  = 0x00,
+    GX_TEV_KCSEL_7_8  = 0x01,
+    GX_TEV_KCSEL_6_8  = 0x02,
+    GX_TEV_KCSEL_5_8  = 0x03,
+    GX_TEV_KCSEL_4_8  = 0x04,
+    GX_TEV_KCSEL_3_8  = 0x05,
+    GX_TEV_KCSEL_2_8  = 0x06,
+    GX_TEV_KCSEL_1_8  = 0x07,
+
+    GX_TEV_KCSEL_1    = GX_TEV_KCSEL_8_8,
+    GX_TEV_KCSEL_3_4  = GX_TEV_KCSEL_6_8,
+    GX_TEV_KCSEL_1_2  = GX_TEV_KCSEL_4_8,
+    GX_TEV_KCSEL_1_4  = GX_TEV_KCSEL_2_8,
+
+    GX_TEV_KCSEL_K0   = 0x0C,
+    GX_TEV_KCSEL_K1   = 0x0D,
+    GX_TEV_KCSEL_K2   = 0x0E,
+    GX_TEV_KCSEL_K3   = 0x0F,
+    GX_TEV_KCSEL_K0_R = 0x10,
+    GX_TEV_KCSEL_K1_R = 0x11,
+    GX_TEV_KCSEL_K2_R = 0x12,
+    GX_TEV_KCSEL_K3_R = 0x13,
+    GX_TEV_KCSEL_K0_G = 0x14,
+    GX_TEV_KCSEL_K1_G = 0x15,
+    GX_TEV_KCSEL_K2_G = 0x16,
+    GX_TEV_KCSEL_K3_G = 0x17,
+    GX_TEV_KCSEL_K0_B = 0x18,
+    GX_TEV_KCSEL_K1_B = 0x19,
+    GX_TEV_KCSEL_K2_B = 0x1A,
+    GX_TEV_KCSEL_K3_B = 0x1B,
+    GX_TEV_KCSEL_K0_A = 0x1C,
+    GX_TEV_KCSEL_K1_A = 0x1D,
+    GX_TEV_KCSEL_K2_A = 0x1E,
+    GX_TEV_KCSEL_K3_A = 0x1F
+};
+
+enum TevKAlphaSel
+{
+    GX_TEV_KASEL_8_8  = 0x00,
+    GX_TEV_KASEL_7_8  = 0x01,
+    GX_TEV_KASEL_6_8  = 0x02,
+    GX_TEV_KASEL_5_8  = 0x03,
+    GX_TEV_KASEL_4_8  = 0x04,
+    GX_TEV_KASEL_3_8  = 0x05,
+    GX_TEV_KASEL_2_8  = 0x06,
+    GX_TEV_KASEL_1_8  = 0x07,
+
+    GX_TEV_KASEL_1    = GX_TEV_KASEL_8_8,
+    GX_TEV_KASEL_3_4  = GX_TEV_KASEL_6_8,
+    GX_TEV_KASEL_1_2  = GX_TEV_KASEL_4_8,
+    GX_TEV_KASEL_1_4  = GX_TEV_KASEL_2_8,
+
+    GX_TEV_KASEL_K0_R = 0x10,
+    GX_TEV_KASEL_K1_R = 0x11,
+    GX_TEV_KASEL_K2_R = 0x12,
+    GX_TEV_KASEL_K3_R = 0x13,
+    GX_TEV_KASEL_K0_G = 0x14,
+    GX_TEV_KASEL_K1_G = 0x15,
+    GX_TEV_KASEL_K2_G = 0x16,
+    GX_TEV_KASEL_K3_G = 0x17,
+    GX_TEV_KASEL_K0_B = 0x18,
+    GX_TEV_KASEL_K1_B = 0x19,
+    GX_TEV_KASEL_K2_B = 0x1A,
+    GX_TEV_KASEL_K3_B = 0x1B,
+    GX_TEV_KASEL_K0_A = 0x1C,
+    GX_TEV_KASEL_K1_A = 0x1D,
+    GX_TEV_KASEL_K2_A = 0x1E,
+    GX_TEV_KASEL_K3_A = 0x1F
+};
+
 enum TevOp {
     GX_TEV_ADD              = 0,
     GX_TEV_SUB              = 1,

@@ -1,6 +1,7 @@
 #ifndef _DNAMP1_CMDL_MATERIALS_HPP_
 #define _DNAMP1_CMDL_MATERIALS_HPP_
 
+#include <BlenderConnection.hpp>
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/GX.hpp"
 
@@ -178,6 +179,9 @@ struct MaterialSet : BigDNA
             inline void setAlphaOpClamp(bool val) {acFlags &= ~0x100; acFlags |= atUint32(val) << 8;}
             inline GX::TevRegID alphaOpOutReg() const {return GX::TevRegID(acFlags >> 9 & 0x3);}
             inline void setAlphaOpOutReg(GX::TevRegID val) {acFlags &= ~0x600; acFlags |= atUint32(val) << 9;}
+
+            inline GX::TevKColorSel kColorIn() const {return GX::TevKColorSel(kcInput);}
+            inline GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
         };
         Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
@@ -199,14 +203,14 @@ struct MaterialSet : BigDNA
             inline void setType(GX::TexGenType val) {flags &= ~0xf; flags |= atUint32(val);}
             inline GX::TexGenSrc source() const {return GX::TexGenSrc(flags >> 4 & 0x1f);}
             inline void setSource(GX::TexGenSrc val) {flags &= ~0x1f0; flags |= atUint32(val) << 4;}
-            inline GX::TexMtx mtxIdx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
-            inline void setMtxIdx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (atUint32(val)-30) << 9;}
+            inline GX::TexMtx mtx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
+            inline void setMtx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (atUint32(val)-30) << 9;}
             inline bool normalize() const {return flags >> 14 & 0x1;}
             inline void setNormalize(bool val) {flags &= ~0x4000; flags |= atUint32(val) << 14;}
-            inline GX::PTTexMtx postMtxIdx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
-            inline void setPostMtxIdx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
+            inline GX::PTTexMtx postMtx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
+            inline void setPostMtx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
         };
-        Vector<TexCoordGen, DNA_COUNT(tcgCount)> tgcs;
+        Vector<TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
 
         Value<atUint32> uvAnimsSize;
         Value<atUint32> uvAnimsCount;
@@ -280,6 +284,11 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
+    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out);
+    static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+                                  const MaterialSet::Material& material,
+                                  unsigned groupIdx, unsigned matIdx,
+                                  unsigned& uvCountOut);
 };
 
 }

@@ -22,7 +22,7 @@ struct MaterialSet : BigDNA
         DNAMP1::MaterialSet::Material::Flags flags;
 
         Value<atUint32> textureCount;
-        Vector<UniqueID32, DNA_COUNT(textureCount)> texureIdxs;
+        Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
         DNAMP1::MaterialSet::Material::VAFlags vaFlags;
         Value<atUint32> unk0; /* MP2 only */
         Value<atUint32> unk1; /* MP2 only */
@@ -48,7 +48,7 @@ struct MaterialSet : BigDNA
         Vector<DNAMP1::MaterialSet::Material::TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
 
         Value<atUint32> tcgCount;
-        Vector<DNAMP1::MaterialSet::Material::TexCoordGen, DNA_COUNT(tcgCount)> tgcs;
+        Vector<DNAMP1::MaterialSet::Material::TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
 
         Value<atUint32> uvAnimsSize;
         Value<atUint32> uvAnimsCount;
@@ -56,6 +56,10 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
+    static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+                                  const MaterialSet::Material& material,
+                                  unsigned groupIdx, unsigned matIdx,
+                                  unsigned& uvCountOut);
 };
 
 }

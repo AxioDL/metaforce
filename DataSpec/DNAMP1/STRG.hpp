@@ -64,7 +64,7 @@ struct STRG : ISTRG, BigYAML
     {
         STRG strg;
         strg.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         strg.toYAMLFile(fp);
         fclose(fp);
         return true;
@@ -73,7 +73,7 @@ struct STRG : ISTRG, BigYAML
     static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
     {
         STRG strg;
-        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("r"));
+        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
         strg.fromYAMLFile(fp);
         fclose(fp);
         Athena::io::FileWriter ws(outPath.getAbsolutePath());

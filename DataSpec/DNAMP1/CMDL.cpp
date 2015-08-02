@@ -1,6 +1,7 @@
 #include <cstddef>
 #include "CMDL.hpp"
 #include "DNAMP1.hpp"
+#include "CMDLMaterials.hpp"
 
 namespace Retro
 {
@@ -28,8 +29,10 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn, Athena::io::IStreamReade
 
     /* Open Py Stream */
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut();
-    os << "import bmesh\n";
-    os << "bm = bmesh.new()\n";
+    os << "import bmesh\n"
+          "import bpy;\n";
+          "bm = bmesh.new()\n";
+    MaterialSet::RegisterMaterialProps(os);
 
     for (size_t s=0 ; s<head.secCount ; ++s)
     {
