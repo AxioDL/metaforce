@@ -55,6 +55,8 @@ ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {TXTR::Extract, ".png"};
     case SBIG('CMDL'):
         return {CMDL::Extract, ".blend", 1};
+    case SBIG('MLVL'):
+        return {MLVL::Extract, ".yaml"};
     }
     return {};
 }
