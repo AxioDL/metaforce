@@ -2,7 +2,6 @@
 #include "../DNAMP2/CMDLMaterials.hpp"
 
 using Stream = HECL::BlenderConnection::PyOutStream;
-using namespace GX;
 
 namespace Retro
 {
@@ -22,7 +21,7 @@ void MaterialSet::RegisterMaterialProps(Stream& out)
            "\n";
 }
 
-static void AddTexture(Stream& out, TexGenSrc type, int mtxIdx, uint32_t texIdx)
+static void AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx)
 {
     char mtxLabel[64];
     if (mtxIdx == -1)
@@ -46,12 +45,12 @@ static void AddTexture(Stream& out, TexGenSrc type, int mtxIdx, uint32_t texIdx)
         out.format("tex_node.texture = tex_maps[%u]\n",
                    texIdx);
 
-    if (type == GX_TG_POS)
+    if (type == GX::TG_POS)
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['View'], tex_node.inputs['Vector']))\n");
-    else if (type == GX_TG_NRM)
+    else if (type == GX::TG_NRM)
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n");
-    else if (type >= GX_TG_TEX0 && type <= GX_TG_TEX7) {
-        uint8_t texIdx = type - GX_TG_TEX0;
+    else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
+        uint8_t texIdx = type - GX::TG_TEX0;
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                    "tex_uv_node.uv_layer = 'UV_%u'\n", texIdx);
     }
@@ -205,7 +204,7 @@ static void AddTextureAnim(Stream& out,
     }
 }
 
-static void AddKcolor(Stream& out, const Color& col, unsigned idx)
+static void AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
 {
     out.format("# KColor\n"
                "kc_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
@@ -340,33 +339,33 @@ static void AddLightmap(Stream& out, const char* tex, unsigned& c_combiner_idx)
     c_combiner_idx += 2;
 }
 
-static void TranslateColorSocket(char* socketOut, TevColorArg arg,
-                                 TevKColorSel kcolor,
+static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg,
+                                 GX::TevKColorSel kcolor,
                                  const MaterialSet::Material::TEVStageTexInfo& stageTex,
                                  char c_regs[4][64], char a_regs[4][64]) {
-    if (arg == GX_CC_ZERO)
+    if (arg == GX::CC_ZERO)
         strcpy(socketOut, "ZERO");
-    else if (arg == GX_CC_HALF)
+    else if (arg == GX::CC_HALF)
         strcpy(socketOut, "HALF");
-    else if (arg == GX_CC_ONE)
+    else if (arg == GX::CC_ONE)
         strcpy(socketOut, "ONE");
-    else if (arg == GX_CC_TEXC) {
+    else if (arg == GX::CC_TEXC) {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Color']", stageTex.tcgSlot);
-    } else if (arg == GX_CC_TEXA) {
+    } else if (arg == GX::CC_TEXA) {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-    } else if (arg == GX_CC_RASC)
+    } else if (arg == GX::CC_RASC)
         strcpy(socketOut, "material_node.outputs['Color']");
-    else if (arg == GX_CC_RASA) {
+    else if (arg == GX::CC_RASA) {
         strcpy(socketOut, "material_node.outputs['Alpha']");
-    } else if (arg == GX_CC_KONST) {
-        int kreg = (kcolor - GX_TEV_KCSEL_K0) % 4;
-        if (kcolor < GX_TEV_KCSEL_K0)
+    } else if (arg == GX::CC_KONST) {
+        int kreg = (kcolor - GX::TEV_KCSEL_K0) % 4;
+        if (kcolor < GX::TEV_KCSEL_K0)
             strcpy(socketOut, "ONE");
         else if (kreg == 0)
             strcpy(socketOut, "kcolor_nodes[0][0].outputs[0]");
@@ -378,40 +377,40 @@ static void TranslateColorSocket(char* socketOut, TevColorArg arg,
             strcpy(socketOut, "kcolor_nodes[3][0].outputs[0]");
         else
             strcpy(socketOut, "ONE");
-    } else if (arg == GX_CC_CPREV)
-        strcpy(socketOut, c_regs[GX_TEVPREV]);
-    else if (arg == GX_CC_APREV) {
-        strcpy(socketOut, a_regs[GX_TEVPREV]);
-    } else if (arg == GX_CC_C0)
-        strcpy(socketOut, c_regs[GX_TEVREG0]);
-    else if (arg == GX_CC_A0) {
-        strcpy(socketOut, a_regs[GX_TEVREG0]);
-    } else if (arg == GX_CC_C1)
-        strcpy(socketOut, c_regs[GX_TEVREG1]);
-    else if (arg == GX_CC_A1) {
-        strcpy(socketOut, a_regs[GX_TEVREG1]);
-    } else if (arg == GX_CC_C2)
-        strcpy(socketOut, c_regs[GX_TEVREG2]);
-    else if (arg == GX_CC_A2) {
-        strcpy(socketOut, a_regs[GX_TEVREG2]);
+    } else if (arg == GX::CC_CPREV)
+        strcpy(socketOut, c_regs[GX::TEVPREV]);
+    else if (arg == GX::CC_APREV) {
+        strcpy(socketOut, a_regs[GX::TEVPREV]);
+    } else if (arg == GX::CC_C0)
+        strcpy(socketOut, c_regs[GX::TEVREG0]);
+    else if (arg == GX::CC_A0) {
+        strcpy(socketOut, a_regs[GX::TEVREG0]);
+    } else if (arg == GX::CC_C1)
+        strcpy(socketOut, c_regs[GX::TEVREG1]);
+    else if (arg == GX::CC_A1) {
+        strcpy(socketOut, a_regs[GX::TEVREG1]);
+    } else if (arg == GX::CC_C2)
+        strcpy(socketOut, c_regs[GX::TEVREG2]);
+    else if (arg == GX::CC_A2) {
+        strcpy(socketOut, a_regs[GX::TEVREG2]);
     }
 }
 
-static void TranslateAlphaSocket(char* socketOut, TevAlphaArg arg,
-                                 TevKAlphaSel kalpha,
+static void TranslateAlphaSocket(char* socketOut, GX::TevAlphaArg arg,
+                                 GX::TevKAlphaSel kalpha,
                                  const MaterialSet::Material::TEVStageTexInfo& stageTex,
                                  char a_regs[4][64]) {
-    if (arg == GX_CA_ZERO)
+    if (arg == GX::CA_ZERO)
         strcpy(socketOut, "ZERO");
-    else if (arg == GX_CA_TEXA) {
+    else if (arg == GX::CA_TEXA) {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-    } else if (arg == GX_CA_RASA)
+    } else if (arg == GX::CA_RASA)
         strcpy(socketOut, "material_node.outputs['Alpha']");
-    else if (arg == GX_CA_KONST) {
-        int kreg = kalpha - GX_TEV_KASEL_K0_A;
+    else if (arg == GX::CA_KONST) {
+        int kreg = kalpha - GX::TEV_KASEL_K0_A;
         if (kreg == 0)
             strcpy(socketOut, "kcolor_nodes[0][1].outputs[0]");
         else if (kreg == 1)
@@ -422,14 +421,14 @@ static void TranslateAlphaSocket(char* socketOut, TevAlphaArg arg,
             strcpy(socketOut, "kcolor_nodes[3][1].outputs[0]");
         else
             strcpy(socketOut, "ONE");
-    } else if (arg == GX_CA_APREV)
-        strcpy(socketOut, a_regs[GX_TEVPREV]);
-    else if (arg == GX_CA_A0)
-        strcpy(socketOut, a_regs[GX_TEVREG0]);
-    else if (arg == GX_CA_A1)
-        strcpy(socketOut, a_regs[GX_TEVREG1]);
-    else if (arg == GX_CA_A2)
-        strcpy(socketOut, a_regs[GX_TEVREG2]);
+    } else if (arg == GX::CA_APREV)
+        strcpy(socketOut, a_regs[GX::TEVPREV]);
+    else if (arg == GX::CA_A0)
+        strcpy(socketOut, a_regs[GX::TEVREG0]);
+    else if (arg == GX::CA_A1)
+        strcpy(socketOut, a_regs[GX::TEVREG1]);
+    else if (arg == GX::CA_A2)
+        strcpy(socketOut, a_regs[GX::TEVREG2]);
 }
 
 static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stage,
@@ -457,13 +456,13 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
 
     /* Apply color optimizations */
     unsigned c_tev_opts = 0;
-    if (stage.colorInA() == GX_CC_ZERO || stage.colorInC() == GX_CC_ONE)
+    if (stage.colorInA() == GX::CC_ZERO || stage.colorInC() == GX::CC_ONE)
         c_tev_opts |= 1;
-    if (stage.colorInB() == GX_CC_ZERO || stage.colorInC() == GX_CC_ZERO)
+    if (stage.colorInB() == GX::CC_ZERO || stage.colorInC() == GX::CC_ZERO)
         c_tev_opts |= 2;
     if (c_tev_opts & 1 || c_tev_opts & 2)
         c_tev_opts |= 4;
-    if (stage.colorInD() == GX_CC_ZERO || (c_tev_opts & 7) == 7)
+    if (stage.colorInD() == GX::CC_ZERO || (c_tev_opts & 7) == 7)
         c_tev_opts |= 8;
 
     if (!(c_tev_opts & 1))
@@ -498,13 +497,13 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
 
     /* Apply alpha optimizations */
     unsigned a_tev_opts = 0;
-    if (stage.alphaInA() == GX_CA_ZERO)
+    if (stage.alphaInA() == GX::CA_ZERO)
         a_tev_opts |= 1;
-    if (stage.alphaInB() == GX_CA_ZERO || stage.alphaInC() == GX_CA_ZERO)
+    if (stage.alphaInB() == GX::CA_ZERO || stage.alphaInC() == GX::CA_ZERO)
         a_tev_opts |= 2;
     if (a_tev_opts & 1 || a_tev_opts & 2)
         a_tev_opts |= 4;
-    if (stage.alphaInD() == GX_CA_ZERO || (a_tev_opts & 7) == 7)
+    if (stage.alphaInD() == GX::CA_ZERO || (a_tev_opts & 7) == 7)
         a_tev_opts |= 8;
 
     if (!(a_tev_opts & 1))
@@ -539,13 +538,13 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     /* Update TEV regs */
     if (c_tev_opts == 0xf)
     {
-        if (stage.colorInD() != GX_CC_ZERO)
+        if (stage.colorInD() != GX::CC_ZERO)
             strncpy(c_regs[stage.colorOpOutReg()], cd, 64);
     } else
         snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_nodes[%u].outputs[0]", c_combiner_idx - 1);
     if (a_tev_opts == 0xf)
     {
-        if (stage.alphaInD() != GX_CA_ZERO)
+        if (stage.alphaInD() != GX::CA_ZERO)
             strncpy(a_regs[stage.alphaOpOutReg()], ad, 64);
     } else
         snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_nodes[%u].outputs[0]", a_combiner_idx - 1);
@@ -635,7 +634,7 @@ void _ConstructMaterial(Stream& out,
     if (material.flags.konstValuesEnabled())
     {
         unsigned i=0;
-        for (const Color& col : material.konstColors)
+        for (const GX::Color& col : material.konstColors)
             AddKcolor(out, col, i++);
     }
 
@@ -670,10 +669,10 @@ void _ConstructMaterial(Stream& out,
             !(addedTcgs >> material.tevStageTexInfo[i].tcgSlot & 1))
         {
             const MaterialSet::Material::TexCoordGen& tcg = material.tcgs[material.tevStageTexInfo[i].tcgSlot];
-            TexMtx mtx = tcg.mtx();
+            GX::TexMtx mtx = tcg.mtx();
             int mtxIdx = -1;
-            if (mtx >= GX_TEXMTX0 && mtx <= GX_TEXMTX9)
-                mtxIdx = (mtx - GX_TEXMTX0) / 3;
+            if (mtx >= GX::TEXMTX0 && mtx <= GX::TEXMTX9)
+                mtxIdx = (mtx - GX::TEXMTX0) / 3;
             AddTexture(out, tcg.source(), mtxIdx, material.tevStageTexInfo[i].texSlot);
             addedTcgs |= 1 << material.tevStageTexInfo[i].tcgSlot;
         }
@@ -688,13 +687,13 @@ void _ConstructMaterial(Stream& out,
     char a_regs[4][64] = {"ONE", "ONE", "ONE", "ONE"};
 
     /* Has Lightmap? */
-    if (material.tevStages[0].colorInB() == GX_CC_C1)
+    if (material.tevStages[0].colorInB() == GX::CC_C1)
     {
         if (material.tevStageTexInfo[0].texSlot != 0xff)
             out << "new_material.rwk_lightmap = tex_maps[0].name\n"
                    "tex_maps[0].image.use_fake_user = True\n";
         AddLightmap(out, "texture_nodes[0].outputs['Color']", c_combiner_idx);
-        strncpy(c_regs[GX_TEVREG1], "world_light_node.outputs[0]", 64);
+        strncpy(c_regs[GX::TEVREG1], "world_light_node.outputs[0]", 64);
     }
 
     /* Add TEV stages */
@@ -706,11 +705,11 @@ void _ConstructMaterial(Stream& out,
     }
 
     /* Connect final prev register */
-    out.format("new_nodetree.links.new(%s, final_node.inputs['Color'])\n", c_regs[GX_TEVPREV]);
-    if (!strcmp(a_regs[GX_TEVPREV], "ONE"))
+    out.format("new_nodetree.links.new(%s, final_node.inputs['Color'])\n", c_regs[GX::TEVPREV]);
+    if (!strcmp(a_regs[GX::TEVPREV], "ONE"))
         out << "final_node.inputs['Alpha'].default_value = 1.0\n";
     else
-        out.format("new_nodetree.links.new(%s, final_node.inputs['Alpha'])\n", a_regs[GX_TEVPREV]);
+        out.format("new_nodetree.links.new(%s, final_node.inputs['Alpha'])\n", a_regs[GX::TEVPREV]);
 
     /* Texmtx Animation Section */
     i=0;

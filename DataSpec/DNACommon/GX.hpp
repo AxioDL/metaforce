@@ -24,229 +24,229 @@ struct Color : Athena::io::DNA<Athena::BigEndian>
 
 enum AttrType
 {
-    GX_NONE,
-    GX_DIRECT,
-    GX_INDEX8,
-    GX_INDEX16
+    NONE,
+    DIRECT,
+    INDEX8,
+    INDEX16
 };
 
 enum TevColorArg {
-    GX_CC_CPREV         = 0,                /*!< Use the color value from previous TEV stage */
-    GX_CC_APREV         = 1,                /*!< Use the alpha value from previous TEV stage */
-    GX_CC_C0            = 2,                /*!< Use the color value from the color/output register 0 */
-    GX_CC_A0            = 3,                /*!< Use the alpha value from the color/output register 0 */
-    GX_CC_C1            = 4,                /*!< Use the color value from the color/output register 1 */
-    GX_CC_A1            = 5,                /*!< Use the alpha value from the color/output register 1 */
-    GX_CC_C2            = 6,                /*!< Use the color value from the color/output register 2 */
-    GX_CC_A2            = 7,                /*!< Use the alpha value from the color/output register 2 */
-    GX_CC_TEXC          = 8,                /*!< Use the color value from texture */
-    GX_CC_TEXA          = 9,                /*!< Use the alpha value from texture */
-    GX_CC_RASC          = 10,               /*!< Use the color value from rasterizer */
-    GX_CC_RASA          = 11,               /*!< Use the alpha value from rasterizer */
-    GX_CC_ONE           = 12,
-    GX_CC_HALF          = 13,
-    GX_CC_KONST         = 14,
-    GX_CC_ZERO          = 15                /*!< Use to pass zero value */
+    CC_CPREV         = 0,                /*!< Use the color value from previous TEV stage */
+    CC_APREV         = 1,                /*!< Use the alpha value from previous TEV stage */
+    CC_C0            = 2,                /*!< Use the color value from the color/output register 0 */
+    CC_A0            = 3,                /*!< Use the alpha value from the color/output register 0 */
+    CC_C1            = 4,                /*!< Use the color value from the color/output register 1 */
+    CC_A1            = 5,                /*!< Use the alpha value from the color/output register 1 */
+    CC_C2            = 6,                /*!< Use the color value from the color/output register 2 */
+    CC_A2            = 7,                /*!< Use the alpha value from the color/output register 2 */
+    CC_TEXC          = 8,                /*!< Use the color value from texture */
+    CC_TEXA          = 9,                /*!< Use the alpha value from texture */
+    CC_RASC          = 10,               /*!< Use the color value from rasterizer */
+    CC_RASA          = 11,               /*!< Use the alpha value from rasterizer */
+    CC_ONE           = 12,
+    CC_HALF          = 13,
+    CC_KONST         = 14,
+    CC_ZERO          = 15                /*!< Use to pass zero value */
 };
 
 enum TevAlphaArg {
-    GX_CA_APREV         = 0,                /*!< Use the alpha value from previous TEV stage */
-    GX_CA_A0            = 1,                /*!< Use the alpha value from the color/output register 0 */
-    GX_CA_A1            = 2,                /*!< Use the alpha value from the color/output register 1 */
-    GX_CA_A2            = 3,                /*!< Use the alpha value from the color/output register 2 */
-    GX_CA_TEXA          = 4,                /*!< Use the alpha value from texture */
-    GX_CA_RASA          = 5,                /*!< Use the alpha value from rasterizer */
-    GX_CA_KONST         = 6,
-    GX_CA_ZERO          = 7                 /*!< Use to pass zero value */
+    CA_APREV         = 0,                /*!< Use the alpha value from previous TEV stage */
+    CA_A0            = 1,                /*!< Use the alpha value from the color/output register 0 */
+    CA_A1            = 2,                /*!< Use the alpha value from the color/output register 1 */
+    CA_A2            = 3,                /*!< Use the alpha value from the color/output register 2 */
+    CA_TEXA          = 4,                /*!< Use the alpha value from texture */
+    CA_RASA          = 5,                /*!< Use the alpha value from rasterizer */
+    CA_KONST         = 6,
+    CA_ZERO          = 7                 /*!< Use to pass zero value */
 };
 
 enum TevKColorSel
 {
-    GX_TEV_KCSEL_8_8  = 0x00,
-    GX_TEV_KCSEL_7_8  = 0x01,
-    GX_TEV_KCSEL_6_8  = 0x02,
-    GX_TEV_KCSEL_5_8  = 0x03,
-    GX_TEV_KCSEL_4_8  = 0x04,
-    GX_TEV_KCSEL_3_8  = 0x05,
-    GX_TEV_KCSEL_2_8  = 0x06,
-    GX_TEV_KCSEL_1_8  = 0x07,
+    TEV_KCSEL_8_8  = 0x00,
+    TEV_KCSEL_7_8  = 0x01,
+    TEV_KCSEL_6_8  = 0x02,
+    TEV_KCSEL_5_8  = 0x03,
+    TEV_KCSEL_4_8  = 0x04,
+    TEV_KCSEL_3_8  = 0x05,
+    TEV_KCSEL_2_8  = 0x06,
+    TEV_KCSEL_1_8  = 0x07,
 
-    GX_TEV_KCSEL_1    = GX_TEV_KCSEL_8_8,
-    GX_TEV_KCSEL_3_4  = GX_TEV_KCSEL_6_8,
-    GX_TEV_KCSEL_1_2  = GX_TEV_KCSEL_4_8,
-    GX_TEV_KCSEL_1_4  = GX_TEV_KCSEL_2_8,
+    TEV_KCSEL_1    = TEV_KCSEL_8_8,
+    TEV_KCSEL_3_4  = TEV_KCSEL_6_8,
+    TEV_KCSEL_1_2  = TEV_KCSEL_4_8,
+    TEV_KCSEL_1_4  = TEV_KCSEL_2_8,
 
-    GX_TEV_KCSEL_K0   = 0x0C,
-    GX_TEV_KCSEL_K1   = 0x0D,
-    GX_TEV_KCSEL_K2   = 0x0E,
-    GX_TEV_KCSEL_K3   = 0x0F,
-    GX_TEV_KCSEL_K0_R = 0x10,
-    GX_TEV_KCSEL_K1_R = 0x11,
-    GX_TEV_KCSEL_K2_R = 0x12,
-    GX_TEV_KCSEL_K3_R = 0x13,
-    GX_TEV_KCSEL_K0_G = 0x14,
-    GX_TEV_KCSEL_K1_G = 0x15,
-    GX_TEV_KCSEL_K2_G = 0x16,
-    GX_TEV_KCSEL_K3_G = 0x17,
-    GX_TEV_KCSEL_K0_B = 0x18,
-    GX_TEV_KCSEL_K1_B = 0x19,
-    GX_TEV_KCSEL_K2_B = 0x1A,
-    GX_TEV_KCSEL_K3_B = 0x1B,
-    GX_TEV_KCSEL_K0_A = 0x1C,
-    GX_TEV_KCSEL_K1_A = 0x1D,
-    GX_TEV_KCSEL_K2_A = 0x1E,
-    GX_TEV_KCSEL_K3_A = 0x1F
+    TEV_KCSEL_K0   = 0x0C,
+    TEV_KCSEL_K1   = 0x0D,
+    TEV_KCSEL_K2   = 0x0E,
+    TEV_KCSEL_K3   = 0x0F,
+    TEV_KCSEL_K0_R = 0x10,
+    TEV_KCSEL_K1_R = 0x11,
+    TEV_KCSEL_K2_R = 0x12,
+    TEV_KCSEL_K3_R = 0x13,
+    TEV_KCSEL_K0_G = 0x14,
+    TEV_KCSEL_K1_G = 0x15,
+    TEV_KCSEL_K2_G = 0x16,
+    TEV_KCSEL_K3_G = 0x17,
+    TEV_KCSEL_K0_B = 0x18,
+    TEV_KCSEL_K1_B = 0x19,
+    TEV_KCSEL_K2_B = 0x1A,
+    TEV_KCSEL_K3_B = 0x1B,
+    TEV_KCSEL_K0_A = 0x1C,
+    TEV_KCSEL_K1_A = 0x1D,
+    TEV_KCSEL_K2_A = 0x1E,
+    TEV_KCSEL_K3_A = 0x1F
 };
 
 enum TevKAlphaSel
 {
-    GX_TEV_KASEL_8_8  = 0x00,
-    GX_TEV_KASEL_7_8  = 0x01,
-    GX_TEV_KASEL_6_8  = 0x02,
-    GX_TEV_KASEL_5_8  = 0x03,
-    GX_TEV_KASEL_4_8  = 0x04,
-    GX_TEV_KASEL_3_8  = 0x05,
-    GX_TEV_KASEL_2_8  = 0x06,
-    GX_TEV_KASEL_1_8  = 0x07,
+    TEV_KASEL_8_8  = 0x00,
+    TEV_KASEL_7_8  = 0x01,
+    TEV_KASEL_6_8  = 0x02,
+    TEV_KASEL_5_8  = 0x03,
+    TEV_KASEL_4_8  = 0x04,
+    TEV_KASEL_3_8  = 0x05,
+    TEV_KASEL_2_8  = 0x06,
+    TEV_KASEL_1_8  = 0x07,
 
-    GX_TEV_KASEL_1    = GX_TEV_KASEL_8_8,
-    GX_TEV_KASEL_3_4  = GX_TEV_KASEL_6_8,
-    GX_TEV_KASEL_1_2  = GX_TEV_KASEL_4_8,
-    GX_TEV_KASEL_1_4  = GX_TEV_KASEL_2_8,
+    TEV_KASEL_1    = TEV_KASEL_8_8,
+    TEV_KASEL_3_4  = TEV_KASEL_6_8,
+    TEV_KASEL_1_2  = TEV_KASEL_4_8,
+    TEV_KASEL_1_4  = TEV_KASEL_2_8,
 
-    GX_TEV_KASEL_K0_R = 0x10,
-    GX_TEV_KASEL_K1_R = 0x11,
-    GX_TEV_KASEL_K2_R = 0x12,
-    GX_TEV_KASEL_K3_R = 0x13,
-    GX_TEV_KASEL_K0_G = 0x14,
-    GX_TEV_KASEL_K1_G = 0x15,
-    GX_TEV_KASEL_K2_G = 0x16,
-    GX_TEV_KASEL_K3_G = 0x17,
-    GX_TEV_KASEL_K0_B = 0x18,
-    GX_TEV_KASEL_K1_B = 0x19,
-    GX_TEV_KASEL_K2_B = 0x1A,
-    GX_TEV_KASEL_K3_B = 0x1B,
-    GX_TEV_KASEL_K0_A = 0x1C,
-    GX_TEV_KASEL_K1_A = 0x1D,
-    GX_TEV_KASEL_K2_A = 0x1E,
-    GX_TEV_KASEL_K3_A = 0x1F
+    TEV_KASEL_K0_R = 0x10,
+    TEV_KASEL_K1_R = 0x11,
+    TEV_KASEL_K2_R = 0x12,
+    TEV_KASEL_K3_R = 0x13,
+    TEV_KASEL_K0_G = 0x14,
+    TEV_KASEL_K1_G = 0x15,
+    TEV_KASEL_K2_G = 0x16,
+    TEV_KASEL_K3_G = 0x17,
+    TEV_KASEL_K0_B = 0x18,
+    TEV_KASEL_K1_B = 0x19,
+    TEV_KASEL_K2_B = 0x1A,
+    TEV_KASEL_K3_B = 0x1B,
+    TEV_KASEL_K0_A = 0x1C,
+    TEV_KASEL_K1_A = 0x1D,
+    TEV_KASEL_K2_A = 0x1E,
+    TEV_KASEL_K3_A = 0x1F
 };
 
 enum TevOp {
-    GX_TEV_ADD              = 0,
-    GX_TEV_SUB              = 1,
-    GX_TEV_COMP_R8_GT       = 8,
-    GX_TEV_COMP_R8_EQ       = 9,
-    GX_TEV_COMP_GR16_GT     = 10,
-    GX_TEV_COMP_GR16_EQ     = 11,
-    GX_TEV_COMP_BGR24_GT    = 12,
-    GX_TEV_COMP_BGR24_EQ    = 13,
-    GX_TEV_COMP_RGB8_GT     = 14,
-    GX_TEV_COMP_RGB8_EQ     = 15,
-    GX_TEV_COMP_A8_GT       = GX_TEV_COMP_RGB8_GT,     // for alpha channel
-    GX_TEV_COMP_A8_EQ       = GX_TEV_COMP_RGB8_EQ  // for alpha channel
+    TEV_ADD              = 0,
+    TEV_SUB              = 1,
+    TEV_COMP_R8_GT       = 8,
+    TEV_COMP_R8_EQ       = 9,
+    TEV_COMP_GR16_GT     = 10,
+    TEV_COMP_GR16_EQ     = 11,
+    TEV_COMP_BGR24_GT    = 12,
+    TEV_COMP_BGR24_EQ    = 13,
+    TEV_COMP_RGB8_GT     = 14,
+    TEV_COMP_RGB8_EQ     = 15,
+    TEV_COMP_A8_GT       = TEV_COMP_RGB8_GT,     // for alpha channel
+    TEV_COMP_A8_EQ       = TEV_COMP_RGB8_EQ  // for alpha channel
 };
 
 enum TevBias {
-    GX_TB_ZERO          = 0,
-    GX_TB_ADDHALF       = 1,
-    GX_TB_SUBHALF       = 2,
+    TB_ZERO          = 0,
+    TB_ADDHALF       = 1,
+    TB_SUBHALF       = 2,
 };
 
 enum TevScale {
-    GX_CS_SCALE_1       = 0,
-    GX_CS_SCALE_2       = 1,
-    GX_CS_SCALE_4       = 2,
-    GX_CS_DIVIDE_2      = 3
+    CS_SCALE_1       = 0,
+    CS_SCALE_2       = 1,
+    CS_SCALE_4       = 2,
+    CS_DIVIDE_2      = 3
 };
 
 enum TevRegID {
-    GX_TEVPREV       = 0,
-    GX_TEVREG0       = 1,
-    GX_TEVREG1       = 2,
-    GX_TEVREG2       = 3
+    TEVPREV       = 0,
+    TEVREG0       = 1,
+    TEVREG1       = 2,
+    TEVREG2       = 3
 };
 
 enum TexGenType
 {
-    GX_TG_MTX3x4 = 0,
-    GX_TG_MTX2x4,
-    GX_TG_BUMP0,
-    GX_TG_BUMP1,
-    GX_TG_BUMP2,
-    GX_TG_BUMP3,
-    GX_TG_BUMP4,
-    GX_TG_BUMP5,
-    GX_TG_BUMP6,
-    GX_TG_BUMP7,
-    GX_TG_SRTG
+    TG_MTX3x4 = 0,
+    TG_MTX2x4,
+    TG_BUMP0,
+    TG_BUMP1,
+    TG_BUMP2,
+    TG_BUMP3,
+    TG_BUMP4,
+    TG_BUMP5,
+    TG_BUMP6,
+    TG_BUMP7,
+    TG_SRTG
 };
 
 enum TexGenSrc
 {
-    GX_TG_POS = 0,
-    GX_TG_NRM,
-    GX_TG_BINRM,
-    GX_TG_TANGENT,
-    GX_TG_TEX0,
-    GX_TG_TEX1,
-    GX_TG_TEX2,
-    GX_TG_TEX3,
-    GX_TG_TEX4,
-    GX_TG_TEX5,
-    GX_TG_TEX6,
-    GX_TG_TEX7,
-    GX_TG_TEXCOORD0,
-    GX_TG_TEXCOORD1,
-    GX_TG_TEXCOORD2,
-    GX_TG_TEXCOORD3,
-    GX_TG_TEXCOORD4,
-    GX_TG_TEXCOORD5,
-    GX_TG_TEXCOORD6,
-    GX_TG_COLOR0,
-    GX_TG_COLOR1
+    TG_POS = 0,
+    TG_NRM,
+    TG_BINRM,
+    TG_TANGENT,
+    TG_TEX0,
+    TG_TEX1,
+    TG_TEX2,
+    TG_TEX3,
+    TG_TEX4,
+    TG_TEX5,
+    TG_TEX6,
+    TG_TEX7,
+    TG_TEXCOORD0,
+    TG_TEXCOORD1,
+    TG_TEXCOORD2,
+    TG_TEXCOORD3,
+    TG_TEXCOORD4,
+    TG_TEXCOORD5,
+    TG_TEXCOORD6,
+    TG_COLOR0,
+    TG_COLOR1
 };
 
 enum TexMtx
 {
-    GX_TEXMTX0  = 30,
-    GX_TEXMTX1  = 33,
-    GX_TEXMTX2  = 36,
-    GX_TEXMTX3  = 39,
-    GX_TEXMTX4  = 42,
-    GX_TEXMTX5  = 45,
-    GX_TEXMTX6  = 48,
-    GX_TEXMTX7  = 51,
-    GX_TEXMTX8  = 54,
-    GX_TEXMTX9  = 57,
-    GX_IDENTITY = 60
+    TEXMTX0  = 30,
+    TEXMTX1  = 33,
+    TEXMTX2  = 36,
+    TEXMTX3  = 39,
+    TEXMTX4  = 42,
+    TEXMTX5  = 45,
+    TEXMTX6  = 48,
+    TEXMTX7  = 51,
+    TEXMTX8  = 54,
+    TEXMTX9  = 57,
+    IDENTITY = 60
 };
 
 enum PTTexMtx
 {
-    GX_PTTEXMTX0  = 64,
-    GX_PTTEXMTX1  = 67,
-    GX_PTTEXMTX2  = 70,
-    GX_PTTEXMTX3  = 73,
-    GX_PTTEXMTX4  = 76,
-    GX_PTTEXMTX5  = 79,
-    GX_PTTEXMTX6  = 82,
-    GX_PTTEXMTX7  = 85,
-    GX_PTTEXMTX8  = 88,
-    GX_PTTEXMTX9  = 91,
-    GX_PTTEXMTX10 = 94,
-    GX_PTTEXMTX11 = 97,
-    GX_PTTEXMTX12 = 100,
-    GX_PTTEXMTX13 = 103,
-    GX_PTTEXMTX14 = 106,
-    GX_PTTEXMTX15 = 109,
-    GX_PTTEXMTX16 = 112,
-    GX_PTTEXMTX17 = 115,
-    GX_PTTEXMTX18 = 118,
-    GX_PTTEXMTX19 = 121,
-    GX_PTIDENTITY = 125
+    PTTEXMTX0  = 64,
+    PTTEXMTX1  = 67,
+    PTTEXMTX2  = 70,
+    PTTEXMTX3  = 73,
+    PTTEXMTX4  = 76,
+    PTTEXMTX5  = 79,
+    PTTEXMTX6  = 82,
+    PTTEXMTX7  = 85,
+    PTTEXMTX8  = 88,
+    PTTEXMTX9  = 91,
+    PTTEXMTX10 = 94,
+    PTTEXMTX11 = 97,
+    PTTEXMTX12 = 100,
+    PTTEXMTX13 = 103,
+    PTTEXMTX14 = 106,
+    PTTEXMTX15 = 109,
+    PTTEXMTX16 = 112,
+    PTTEXMTX17 = 115,
+    PTTEXMTX18 = 118,
+    PTTEXMTX19 = 121,
+    PTIDENTITY = 125
 };
 
 }
 
-#endif
+#endif // _DNACOMMON_GX_HPP_
