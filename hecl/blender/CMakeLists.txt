@@ -1,5 +1,6 @@
 list(APPEND PY_SOURCES
      addon/__init__.py
+     addon/Nodegrid.py
      addon/hmdl/__init__.py
      addon/hmdl/HMDLMesh.py
      addon/hmdl/HMDLShader.py

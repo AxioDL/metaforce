@@ -9,6 +9,7 @@
 #endif
 
 #include <stdint.h>
+#include <stdio.h>
 #include <string>
 #include <functional>
 #include <mutex>
@@ -107,6 +108,17 @@ public:
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
             }
+        }
+        void format(const char* fmt, ...)
+        {
+            va_list ap;
+            va_start(ap, fmt);
+            char* result = nullptr;
+            int length = vasprintf(&result, fmt, ap);
+            if (length > 0)
+                this->write(result, length);
+            free(result);
+            va_end(ap);
         }
     };
     inline PyOutStream beginPythonOut()
