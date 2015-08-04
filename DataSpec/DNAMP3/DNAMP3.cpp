@@ -18,10 +18,8 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
-}
 
-HECL::SystemString PAKBridge::getLevelString() const
-{
+    /* Append Level String */
     std::set<HECL::SystemString, CaseInsensitiveCompare> uniq;
     for (const PAK::Entry& entry : m_pak.m_entries)
     {
@@ -40,26 +38,28 @@ HECL::SystemString PAKBridge::getLevelString() const
             }
         }
     }
-    HECL::SystemString retval;
     bool comma = false;
     for (const HECL::SystemString& str : uniq)
     {
         if (comma)
-            retval += _S(", ");
+            m_levelString += _S(", ");
         comma = true;
-        retval += str;
+        m_levelString += str;
     }
-    return retval;
 }
 
-ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
+void PAKBridge::build()
+{
+}
+
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
     switch (entry.type.toUint32())
     {
     case SBIG('STRG'):
-        return {STRG::Extract, ".as"};
+        return {STRG::Extract, nullptr, ".as"};
     case SBIG('TXTR'):
-        return {TXTR::Extract, ".png"};
+        return {TXTR::Extract, nullptr, ".png"};
     }
     return {};
 }

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/STRG.hpp"
+#include "DNAMP1.hpp"
 
 namespace Retro
 {

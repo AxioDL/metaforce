@@ -34,6 +34,7 @@ struct PAK : BigDNA
         UniqueID32 id;
         Value<atUint32> size;
         Value<atUint32> offset;
+        UniqueResult unique;
 
         std::unique_ptr<atUint8[]> getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const;
         inline PAKEntryReadStream beginReadStream(const NOD::DiscBase::IPartition::Node& pak, atUint64 off=0) const

@@ -70,6 +70,7 @@ struct MLVL : BigDNA
 
         String<-1> internalAreaName;
     };
+    Vector<Area, DNA_COUNT(areaCount)> areas;
 
     UniqueID32 worldMap;
     Value<atUint8> unknown2;

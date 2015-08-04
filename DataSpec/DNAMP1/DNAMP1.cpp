@@ -18,11 +18,8 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
-}
 
-HECL::SystemString PAKBridge::getLevelString() const
-{
-    HECL::SystemString retval;
+    /* Append Level String */
     for (const PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == Retro::MLVL)
@@ -36,27 +33,147 @@ HECL::SystemString PAKBridge::getLevelString() const
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
                 STRG mlvlName;
                 mlvlName.read(rs);
-                if (retval.size())
-                    retval += _S(", ");
-                retval += mlvlName.getSystemString(ENGL, 0);
+                if (m_levelString.size())
+                    m_levelString += _S(", ");
+                m_levelString += mlvlName.getSystemString(ENGL, 0);
             }
+        }
+    }
+}
+
+UniqueResult PAKBridge::uniqueCheck(const PAK::Entry& entry)
+{
+    UniqueResult::Type result = UniqueResult::UNIQUE_NOTFOUND;
+    bool foundOneLayer = false;
+    UniqueID32 areaId;
+    unsigned layerIdx;
+    for (const auto& pair : m_areaDeps)
+    {
+        unsigned l=0;
+        for (const auto& layer : pair.second.layers)
+        {
+            if (layer.resources.find(entry.id) != layer.resources.end())
+            {
+                if (foundOneLayer)
+                {
+                    if (areaId == pair.first)
+                        result = UniqueResult::UNIQUE_AREA;
+                    else
+                        return {UniqueResult::UNIQUE_LEVEL};
+                    continue;
+                }
+                else
+                    result = UniqueResult::UNIQUE_LAYER;
+                areaId = pair.first;
+                layerIdx = l;
+                foundOneLayer = true;
+            }
+            ++l;
+        }
+        if (pair.second.resources.find(entry.id) != pair.second.resources.end())
+        {
+            if (foundOneLayer)
+            {
+                if (areaId == pair.first)
+                    result = UniqueResult::UNIQUE_AREA;
+                else
+                    return {UniqueResult::UNIQUE_LEVEL};
+                continue;
+            }
+            else
+                result = UniqueResult::UNIQUE_AREA;
+            areaId = pair.first;
+            foundOneLayer = true;
+        }
+    }
+    UniqueResult retval = {result};
+    if (result == UniqueResult::UNIQUE_LAYER || result == UniqueResult::UNIQUE_AREA)
+    {
+        const PAKBridge::Area& area = m_areaDeps[areaId];
+        retval.areaName = &area.name;
+        if (result == UniqueResult::UNIQUE_LAYER)
+        {
+            const PAKBridge::Area::Layer& layer = area.layers[layerIdx];
+            retval.layerName = &layer.name;
         }
     }
     return retval;
 }
 
-ResExtractor PAKBridge::LookupExtractor(const PAK::Entry& entry)
+static HECL::SystemString LayerName(const std::string& name)
+{
+#if HECL_UCS2
+    HECL::SystemString ret = HECL::UTF8ToWide(mlvl.layerNames[layerIdx++]);
+#else
+    HECL::SystemString ret = name;
+#endif
+    for (auto& ch : ret)
+        if (ch == _S('/') || ch == _S('\\'))
+            ch = _S('-');
+    return ret;
+}
+
+void PAKBridge::build()
+{
+    /* First pass: build per-area/per-layer dependency map */
+    for (const PAK::Entry& entry : m_pak.m_entries)
+    {
+        if (entry.type == Retro::MLVL)
+        {
+            PAKEntryReadStream rs = entry.beginReadStream(m_node);
+            MLVL mlvl;
+            mlvl.read(rs);
+            m_areaDeps.reserve(mlvl.areaCount);
+            unsigned layerIdx = 0;
+            for (const MLVL::Area& area : mlvl.areas)
+            {
+                Area& areaDeps = m_areaDeps[area.areaMREAId];
+                const PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
+                if (areaNameEnt)
+                {
+                    STRG areaName;
+                    PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
+                    areaName.read(rs);
+                    areaDeps.name = areaName.getSystemString(Retro::ENGL, 0);
+                }
+
+                areaDeps.layers.reserve(area.depLayerCount-1);
+                unsigned r=0;
+                for (unsigned l=1 ; l<area.depLayerCount ; ++l)
+                {
+                    areaDeps.layers.emplace_back();
+                    Area::Layer& layer = areaDeps.layers.back();
+                    layer.name = LayerName(mlvl.layerNames[layerIdx++]);
+                    layer.resources.reserve(area.depLayers[l] - r);
+                    for (; r<area.depLayers[l] ; ++r)
+                        layer.resources.emplace(area.deps[r].id);
+                }
+                areaDeps.resources.reserve(area.depCount - r);
+                for (; r<area.depCount ; ++r)
+                    areaDeps.resources.emplace(area.deps[r].id);
+            }
+        }
+    }
+
+    /* Second pass: cross-compare uniqueness */
+    for (PAK::Entry& entry : m_pak.m_entries)
+    {
+        entry.unique = uniqueCheck(entry);
+    }
+}
+
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
     switch (entry.type.toUint32())
     {
     case SBIG('STRG'):
-        return {STRG::Extract, ".yaml"};
+        return {STRG::Extract, nullptr, ".yaml"};
     case SBIG('TXTR'):
-        return {TXTR::Extract, ".png"};
+        return {TXTR::Extract, nullptr, ".png"};
     case SBIG('CMDL'):
-        return {CMDL::Extract, ".blend", 1};
+        return {nullptr, CMDL::Extract, ".blend", 1};
     case SBIG('MLVL'):
-        return {MLVL::Extract, ".yaml"};
+        return {MLVL::Extract, nullptr, ".yaml"};
     }
     return {};
 }

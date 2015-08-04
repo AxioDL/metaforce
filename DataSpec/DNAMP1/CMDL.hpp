@@ -4,6 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "CMDLMaterials.hpp"
 #include "BlenderConnection.hpp"
+#include "DNAMP1.hpp"
 
 namespace Retro
 {
@@ -48,14 +49,18 @@ struct CMDL
         Align<32> align;
     };
 
-    static bool ReadToBlender(HECL::BlenderConnection& conn, Athena::io::IStreamReader& reader);
+    static bool ReadToBlender(HECL::BlenderConnection& conn,
+                              Athena::io::IStreamReader& reader,
+                              PAKRouter<PAKBridge>& pakRouter);
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs,
+                        const HECL::ProjectPath& outPath,
+                        PAKRouter<PAKBridge>& pakRouter)
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath.getAbsolutePath()))
             return false;
-        return ReadToBlender(conn, rs);
+        return ReadToBlender(conn, rs, pakRouter);
     }
 };
 

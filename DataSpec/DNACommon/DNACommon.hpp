@@ -206,13 +206,51 @@ public:
     }
 };
 
-/* Resource extractor type */
-typedef struct
+struct UniqueResult
 {
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func;
+    enum Type
+    {
+        UNIQUE_NOTFOUND,
+        UNIQUE_LEVEL,
+        UNIQUE_AREA,
+        UNIQUE_LAYER
+    } type = UNIQUE_NOTFOUND;
+    const HECL::SystemString* areaName = nullptr;
+    const HECL::SystemString* layerName = nullptr;
+    UniqueResult() = default;
+    UniqueResult(Type tp) : type(tp) {}
+    inline HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
+    {
+        if (type == UNIQUE_AREA)
+        {
+            HECL::ProjectPath areaDir(pakPath, *areaName);
+            areaDir.makeDir();
+            return areaDir;
+        }
+        else if (type == UNIQUE_LAYER)
+        {
+            HECL::ProjectPath areaDir(pakPath, *areaName);
+            areaDir.makeDir();
+            HECL::ProjectPath layerDir(areaDir, *layerName);
+            layerDir.makeDir();
+            return layerDir;
+        }
+        return pakPath;
+    }
+};
+
+template <class BRIDGETYPE>
+class PAKRouter;
+
+/* Resource extractor type */
+template <class PAKBRIDGE>
+struct ResExtractor
+{
+    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
+    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&)> func_b;
     const char* fileExt;
     unsigned weight;
-} ResExtractor;
+};
 
 /* PAKRouter (for detecting shared entry locations) */
 template <class BRIDGETYPE>
@@ -232,14 +270,17 @@ public:
     PAKRouter(const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
     : m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
-    void build(const std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
+    void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
         m_uniqueEntries.clear();
         m_sharedEntries.clear();
         size_t count = 0;
         float bridgesSz = bridges.size();
-        for (const BRIDGETYPE& bridge : bridges)
+
+        /* Route entries unique/shared per-pak */
+        for (BRIDGETYPE& bridge : bridges)
         {
+            bridge.build();
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
@@ -274,7 +315,7 @@ public:
     }
 
     HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry,
-                                 const ResExtractor& extractor) const
+                                 const ResExtractor<BRIDGETYPE>& extractor) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -282,10 +323,11 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakWorking);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
-            return HECL::ProjectPath(m_pakWorking, entName);
+            return HECL::ProjectPath(uniquePath, entName);
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
@@ -295,7 +337,7 @@ public:
                 entName += extractor.fileExt;
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
             HECL::ProjectPath uniquePath(m_pakWorking, entName);
-            if (extractor.func)
+            if (extractor.func_a || extractor.func_b)
                 uniquePath.makeLinkTo(sharedPath);
             m_sharedWorking.makeDir();
             return sharedPath;
@@ -312,7 +354,8 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            return HECL::ProjectPath(m_pakCooked, m_pak->bestEntryName(*entry));
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakCooked);
+            return HECL::ProjectPath(uniquePath, m_pak->bestEntryName(*entry));
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
@@ -334,7 +377,7 @@ public:
         {
             for (const auto& item : m_pak->m_idMap)
             {
-                ResExtractor extractor = BRIDGETYPE::LookupExtractor(*item.second);
+                ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item.second);
                 if (extractor.weight != w)
                     continue;
 
@@ -348,12 +391,20 @@ public:
                 }
 
                 HECL::ProjectPath working = getWorking(item.second, extractor);
-                if (extractor.func)
+                if (extractor.func_a) /* Doesn't need PAKRouter access */
                 {
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func(s, working);
+                        extractor.func_a(s, working);
+                    }
+                }
+                else if (extractor.func_b) /* Needs PAKRouter access */
+                {
+                    if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
+                    {
+                        PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                        extractor.func_b(s, working, *this);
                     }
                 }
 
