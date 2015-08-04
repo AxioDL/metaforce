@@ -332,11 +332,12 @@ public:
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
+            HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(m_pakWorking);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
-            HECL::ProjectPath uniquePath(m_pakWorking, entName);
+            HECL::ProjectPath uniquePath(uniquePathPre, entName);
             if (extractor.func_a || extractor.func_b)
                 uniquePath.makeLinkTo(sharedPath);
             m_sharedWorking.makeDir();
