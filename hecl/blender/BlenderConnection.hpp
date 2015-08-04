@@ -46,6 +46,7 @@ public:
 
     bool createBlend(const SystemString& path);
     bool openBlend(const SystemString& path);
+    bool saveBlend();
     enum CookPlatform
     {
         CP_MODERN = 0,
@@ -120,6 +121,7 @@ public:
             free(result);
             va_end(ap);
         }
+        void linkBlend(const SystemString& target, const std::string& objName, bool link=true);
     };
     inline PyOutStream beginPythonOut()
     {

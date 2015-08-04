@@ -1,4 +1,4 @@
-import bpy, sys, os, re
+import bpy, sys, os, re, code
 
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
@@ -71,18 +71,43 @@ while True:
         else:
             writepipeline(b'CANCELLED')
 
+    elif cmdargs[0] == 'SAVE':
+        bpy.context.user_preferences.filepaths.save_version = 0
+        if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False):
+            writepipeline(b'FINISHED')
+        else:
+            writepipeline(b'CANCELLED')
+
     elif cmdargs[0] == 'PYBEGIN':
         writepipeline(b'READY')
         globals = dict()
-        locals = dict()
+        compbuf = str()
+        prev_leading_spaces = 0
         while True:
             try:
                 line = readpipeline()
                 if line == b'PYEND':
                     writepipeline(b'DONE')
                     break
-                co = compile(line+b'\n', '<HECL>', 'single')
-                exec(co, globals, locals)
+                linestr = line.decode()
+                if linestr.isspace() or not len(linestr):
+                    writepipeline(b'OK')
+                    continue
+                leading_spaces = len(linestr) - len(linestr.lstrip())
+                if prev_leading_spaces and not leading_spaces:
+                    compbuf += '\n'
+                    co = code.compile_command(compbuf, filename='<HECL>')
+                    if co is not None:
+                        exec(co, globals)
+                        compbuf = str()
+                prev_leading_spaces = leading_spaces
+                if len(compbuf):
+                    compbuf += '\n'
+                compbuf += linestr
+                co = code.compile_command(compbuf, filename='<HECL>')
+                if co is not None:
+                    exec(co, globals)
+                    compbuf = str()
             except Exception as e:
                 writepipeline(b'EXCEPTION')
                 raise

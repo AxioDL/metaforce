@@ -499,6 +499,19 @@ public:
     void getGlobResults(std::vector<SystemString>& outPaths) const;
 
     /**
+     * @brief Count how many directory levels deep in project path is
+     * @return Level Count
+     */
+    inline size_t levelCount() const
+    {
+        size_t count = 0;
+        for (SystemChar ch : m_relPath)
+            if (ch == _S('/') || ch == _S('\\'))
+                ++count;
+        return count;
+    }
+
+    /**
      * @brief Create directory at path
      *
      * Fatal log report is issued if directory is not able to be created or doesn't already exist.

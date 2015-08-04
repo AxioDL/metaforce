@@ -23,7 +23,8 @@ BlenderConnection* SharedBlenderConnection = nullptr;
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
 
-#define TEMP_SHELLSCRIPT "/home/jacko/hecl/blender/blendershell.py"
+extern "C" uint8_t BLENDERSHELL[];
+extern "C" size_t BLENDERSHELL_SZ;
 
 size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
 {
@@ -136,6 +137,24 @@ void BlenderConnection::_closePipe()
 
 BlenderConnection::BlenderConnection(bool silenceBlender)
 {
+    /* Put blendershell.py in temp dir */
+#ifdef _WIN32
+    wchar_t* TMPDIR = _wgetenv(L"TEMP");
+    if (!TMPDIR)
+        TMPDIR = (wchar_t*)L"\\Temp";
+#else
+    char* TMPDIR = getenv("TMPDIR");
+    if (!TMPDIR)
+        TMPDIR = (char*)"/tmp";
+#endif
+    HECL::SystemString blenderShellPath(TMPDIR);
+    blenderShellPath += _S("/blendershell.py");
+    FILE* fp = HECL::Fopen(blenderShellPath.c_str(), _S("w"));
+    if (!fp)
+        BlenderLog.report(LogVisor::FatalError, _S("unable to open %s for writing"), blenderShellPath.c_str());
+    fwrite(BLENDERSHELL, 1, BLENDERSHELL_SZ, fp);
+    fclose(fp);
+
     /* Construct communication pipes */
 #if _WIN32
     SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
@@ -224,7 +243,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
         if (blenderBin)
         {
             execlp(blenderBin, blenderBin,
-                   "--background", "-P", TEMP_SHELLSCRIPT,
+                   "--background", "-P", blenderShellPath.c_str(),
                    "--", readfds, writefds, NULL);
             if (errno != ENOENT)
             {
@@ -236,7 +255,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
 
         /* Otherwise default blender */
         execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
-               "--background", "-P", TEMP_SHELLSCRIPT,
+               "--background", "-P", blenderShellPath.c_str(),
                "--", readfds, writefds, NULL);
         if (errno != ENOENT)
         {
@@ -294,12 +313,13 @@ BlenderConnection::~BlenderConnection()
 
 bool BlenderConnection::createBlend(const SystemString& path)
 {
-    _writeLine(("CREATE \"" + path + "\"").c_str());
+    HECL::SystemUTF8View pathView(path);
+    _writeLine(("CREATE \"" + pathView.str() + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
     {
-        m_loadedBlend = path;
+        m_loadedBlend = pathView.str();
         return true;
     }
     return false;
@@ -307,15 +327,49 @@ bool BlenderConnection::createBlend(const SystemString& path)
 
 bool BlenderConnection::openBlend(const SystemString& path)
 {
-    _writeLine(("OPEN \"" + path + "\"").c_str());
+    HECL::SystemUTF8View pathView(path);
+    _writeLine(("OPEN \"" + pathView.str() + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
     {
-        m_loadedBlend = path;
+        m_loadedBlend = pathView.str();
         return true;
     }
     return false;
+}
+
+bool BlenderConnection::saveBlend()
+{
+    _writeLine("SAVE");
+    char lineBuf[256];
+    _readLine(lineBuf, sizeof(lineBuf));
+    if (!strcmp(lineBuf, "FINISHED"))
+        return true;
+    return false;
+}
+
+void BlenderConnection::PyOutStream::linkBlend(const SystemString& relPath, const std::string& objName,
+                                               bool link)
+{
+    HECL::SystemUTF8View relView(relPath);
+    format("if '%s' not in bpy.data.scenes:\n"
+           "    with bpy.data.libraries.load('//%s', link=%s, relative=True) as (data_from, data_to):\n"
+           "        data_to.scenes = data_from.scenes\n"
+           "    obj_scene = None\n"
+           "    for scene in data_to.scenes:\n"
+           "        if scene.name == '%s':\n"
+           "            obj_scene = scene\n"
+           "            break\n"
+           "    obj = None\n"
+           "    for object in obj_scene.objects:\n"
+           "        if object.name == obj_scene.name:\n"
+           "            obj = object\n"
+           "else:\n"
+           "    obj = bpy.data.objects['%s']\n"
+           "\n",
+           objName.c_str(), relView.str().c_str(), link?"True":"False",
+           objName.c_str(), objName.c_str());
 }
 
 bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
