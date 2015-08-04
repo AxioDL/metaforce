@@ -1,7 +1,10 @@
 #include "SpecBase.hpp"
+#include "Blender/BlenderSupport.hpp"
 
 namespace Retro
 {
+
+static LogVisor::LogModule Log("Retro::SpecBase");
 
 bool SpecBase::canExtract(HECL::Database::Project& project,
                           const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
@@ -46,6 +49,8 @@ bool SpecBase::canExtract(HECL::Database::Project& project,
 void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo& info,
                          FExtractProgress progress)
 {
+    if (!Blender::BuildMasterShader(HECL::ProjectPath(project.getProjectRootPath(), ".hecl/RetroMasterShader.blend")))
+        Log.report(LogVisor::FatalError, "Unable to build master shader blend");
     if (m_isWii)
     {
         /* Extract update partition for repacking later */

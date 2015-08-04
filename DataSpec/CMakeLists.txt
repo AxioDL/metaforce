@@ -20,9 +20,16 @@ add_subdirectory(DNAMP1)
 add_subdirectory(DNAMP2)
 add_subdirectory(DNAMP3)
 
+# Embed master shader script
+bintoc(RetroMasterShader.c Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
+
 # Each game's DataSpec implementation
 add_library(RetroDataSpec
             SpecBase.cpp
             SpecMP1.cpp
             SpecMP2.cpp
-            SpecMP3.cpp)
+            SpecMP3.cpp
+            Blender/BlenderSupport.hpp
+            Blender/BlenderSupport.cpp
+            Blender/RetroMasterShader.py
+            RetroMasterShader.c)

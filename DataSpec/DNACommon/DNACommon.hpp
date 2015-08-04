@@ -247,7 +247,8 @@ template <class PAKBRIDGE>
 struct ResExtractor
 {
     std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&)> func_b;
+    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
+                       const typename PAKBRIDGE::PAKType::Entry&)> func_b;
     const char* fileExt;
     unsigned weight;
 };
@@ -368,6 +369,43 @@ public:
         return HECL::ProjectPath();
     }
 
+    HECL::SystemString getResourceRelativePath(const typename BRIDGETYPE::PAKType::Entry& a,
+                                               const typename BRIDGETYPE::PAKType::IDType& b) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()");
+        const typename BRIDGETYPE::PAKType::Entry* be = m_pak->lookupEntry(b);
+        if (!be)
+            return HECL::SystemString();
+        HECL::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(a));
+        HECL::SystemString ret;
+        for (int i=0 ; i<aPath.levelCount() ; ++i)
+            ret += "../";
+        HECL::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*be));
+        ret += bPath.getRelativePath();
+        return ret;
+    }
+
+    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::Entry& entry) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getBestEntryName()");
+        return m_pak->bestEntryName(entry);
+    }
+
+    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::IDType& entry) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getBestEntryName()");
+        const typename BRIDGETYPE::PAKType::Entry* e = m_pak->lookupEntry(entry);
+        if (!e)
+            return entry.toString();
+        return m_pak->bestEntryName(*e);
+    }
+
     bool extractResources(const BRIDGETYPE& pakBridge, bool force, std::function<void(float)> progress)
     {
         enterPAKBridge(pakBridge);
@@ -405,7 +443,7 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_b(s, working, *this);
+                        extractor.func_b(s, working, *this, *item.second);
                     }
                 }
 

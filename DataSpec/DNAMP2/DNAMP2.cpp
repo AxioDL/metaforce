@@ -136,11 +136,20 @@ void PAKBridge::build()
                 }
                 if (areaDeps.name.empty())
                 {
+                    areaDeps.name = area.internalAreaName;
 #if HECL_UCS2
-                    areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+                    areaDeps.name = HECL::UTF8ToWide(area.internalAreaName);
 #else
-                    areaDeps.name = "MREA_" + area.areaMREAId.toString();
+                    areaDeps.name = area.internalAreaName;
 #endif
+                    if (areaDeps.name.empty())
+                    {
+#if HECL_UCS2
+                        areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+#else
+                        areaDeps.name = "MREA_" + area.areaMREAId.toString();
+#endif
+                    }
                 }
 
                 areaDeps.layers.reserve(area.depLayerCount-1);
