@@ -122,6 +122,10 @@ inline std::string operator+(const char* lhs, const SystemStringView& rhs) {retu
 typedef struct stat Sstat;
 #endif
 
+
+void SanitizePath(std::string& path);
+void SanitizePath(std::wstring& path);
+
 static inline void MakeDir(const SystemChar* dir)
 {
 #if _WIN32
@@ -386,8 +390,12 @@ protected:
     std::string m_utf8RelPath;
 #endif
     ProjectPath(const SystemString& projRoot)
-    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S(".")), m_hash(m_relPath)
+        : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S("."))
     {
+        SanitizePath(m_projRoot);
+        SanitizePath(m_relPath);
+        SanitizePath(m_absPath);
+        m_hash = Hash(m_relPath);
 #if HECL_UCS2
         m_utf8AbsPath = WideToUTF8(m_absPath);
         m_utf8RelPath = ".";
@@ -411,10 +419,10 @@ public:
      * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
-    void assign(const ProjectPath& parentPath, const SystemString& path);
+/*    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, const SystemString& path);*/
 
-#if HECL_UCS2
+#ifndef HECL_UCS2
     ProjectPath(const ProjectPath& parentPath, const std::string& path) {assign(parentPath, path);}
     void assign(const ProjectPath& parentPath, const std::string& path);
 #endif
@@ -532,7 +540,6 @@ public:
         relTarget += target.m_relPath;
         MakeLink(relTarget.c_str(), m_absPath.c_str());
     }
-
     /**
      * @brief HECL-specific blowfish hash
      * @return unique hash value
