@@ -4,29 +4,28 @@ namespace HECL
 {
 LogVisor::LogModule LogModule("HECL");
 
-template <class T>
-inline void replaceAll(T& str, const T& from, const T& to)
-{
-    size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos)
-    {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-    }
-}
-
 void SanitizePath(std::string& path)
 {
     path.erase(std::remove(path.begin(), path.end(), '\n'), path.end());
     path.erase(std::remove(path.begin(), path.end(), '\r'), path.end());
-    replaceAll<std::string>(path, "<>:\"|?*", "_");
+    std::transform(path.begin(), path.end(), path.begin(), [](const char a) -> char {
+        static const std::string illegals {"<>?*\"|"};
+        if (illegals.find_first_of(a) != std::string::npos)
+            return '_';
+        return a;
+    });
 }
 
 void SanitizePath(std::wstring& path)
 {
     path.erase(std::remove(path.begin(), path.end(), L'\n'), path.end());
     path.erase(std::remove(path.begin(), path.end(), L'\r'), path.end());
-    replaceAll<std::wstring>(path, L"<>:\"|?*", L"_");
+    std::transform(path.begin(), path.end(), path.begin(), [](const wchar_t a) -> wchar_t {
+        static const std::wstring illegals {L"<>?*\"|"};
+        if (illegals.find_first_of(a) != std::wstring::npos)
+            return L'_';
+        return a;
+    });
 }
 
 }
