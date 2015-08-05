@@ -104,7 +104,7 @@ struct MLVL : BigYAML
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(const SpecBase& dataspec, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     {
         MLVL mlvl;
         mlvl.read(rs);

@@ -6,6 +6,7 @@
 #include <NOD/DiscBase.hpp>
 #include "HECL/HECL.hpp"
 #include "HECL/Database.hpp"
+#include "../SpecBase.hpp"
 
 namespace Retro
 {
@@ -246,8 +247,8 @@ class PAKRouter;
 template <class PAKBRIDGE>
 struct ResExtractor
 {
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
+    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
+    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&)> func_b;
     const char* fileExt;
     unsigned weight;
@@ -257,6 +258,7 @@ struct ResExtractor
 template <class BRIDGETYPE>
 class PAKRouter
 {
+    const SpecBase& m_dataSpec;
     const HECL::ProjectPath& m_gameWorking;
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
@@ -268,8 +270,9 @@ class PAKRouter
     std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_uniqueEntries;
     std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_sharedEntries;
 public:
-    PAKRouter(const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
-    : m_gameWorking(working), m_gameCooked(cooked),
+    PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
+    : m_dataSpec(dataSpec),
+      m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
     void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
@@ -435,7 +438,7 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_a(s, working);
+                        extractor.func_a(m_dataSpec, s, working);
                     }
                 }
                 else if (extractor.func_b) /* Needs PAKRouter access */
@@ -443,7 +446,7 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_b(s, working, *this, *item.second);
+                        extractor.func_b(m_dataSpec, s, working, *this, *item.second);
                     }
                 }
 

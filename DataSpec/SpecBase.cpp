@@ -6,8 +6,7 @@ namespace Retro
 
 static LogVisor::LogModule Log("Retro::SpecBase");
 
-bool SpecBase::canExtract(HECL::Database::Project& project,
-                          const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
     m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
@@ -41,20 +40,19 @@ bool SpecBase::canExtract(HECL::Database::Project& project,
     }
 
     if (m_standalone)
-        return checkFromStandaloneDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
+        return checkFromStandaloneDisc(*m_disc, *regstr, info.extractArgs, reps);
     else
-        return checkFromTrilogyDisc(project, *m_disc.get(), *regstr, info.extractArgs, reps);
+        return checkFromTrilogyDisc(*m_disc, *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo& info,
-                         FExtractProgress progress)
+void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
 {
-    if (!Blender::BuildMasterShader(HECL::ProjectPath(project.getProjectRootPath(), ".hecl/RetroMasterShader.blend")))
+    if (!Blender::BuildMasterShader(m_masterShader))
         Log.report(LogVisor::FatalError, "Unable to build master shader blend");
     if (m_isWii)
     {
         /* Extract update partition for repacking later */
-        const HECL::SystemString& target = project.getProjectRootPath().getAbsolutePath();
+        const HECL::SystemString& target = m_project.getProjectRootPath().getAbsolutePath();
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
         if (update)
         {
@@ -74,29 +72,29 @@ void SpecBase::doExtract(HECL::Database::Project& project, const ExtractPassInfo
             progress(_S("Trilogy Files"), 1, 1.0);
         }
     }
-    extractFromDisc(project, *m_disc.get(), info.force, progress);
+    extractFromDisc(*m_disc, info.force, progress);
 }
 
-bool SpecBase::canCook(const HECL::Database::Project& project, const CookTaskInfo& info)
+bool SpecBase::canCook(const CookTaskInfo& info)
 {
     return false;
 }
 
-void SpecBase::doCook(const HECL::Database::Project& project, const CookTaskInfo& info)
+void SpecBase::doCook(const CookTaskInfo& info)
 {
 }
 
-bool SpecBase::canPackage(const HECL::Database::Project& project, const PackagePassInfo& info)
+bool SpecBase::canPackage(const PackagePassInfo& info)
 {
     return false;
 }
 
-void SpecBase::gatherDependencies(const HECL::Database::Project& project, const PackagePassInfo& info,
+void SpecBase::gatherDependencies(const PackagePassInfo& info,
                                   std::unordered_set<HECL::ProjectPath>& implicitsOut)
 {
 }
 
-void SpecBase::doPackage(const HECL::Database::Project& project, const PackagePassInfo& info)
+void SpecBase::doPackage(const PackagePassInfo& info)
 {
 }
 

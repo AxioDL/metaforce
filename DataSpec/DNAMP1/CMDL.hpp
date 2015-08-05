@@ -52,9 +52,11 @@ struct CMDL
     static bool ReadToBlender(HECL::BlenderConnection& conn,
                               Athena::io::IStreamReader& reader,
                               PAKRouter<PAKBridge>& pakRouter,
-                              const PAK::Entry& entry);
+                              const PAK::Entry& entry,
+                              const HECL::ProjectPath& masterShader);
 
-    static bool Extract(PAKEntryReadStream& rs,
+    static bool Extract(const SpecBase& dataSpec,
+                        PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry)
@@ -62,7 +64,8 @@ struct CMDL
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath.getAbsolutePath()))
             return false;
-        return ReadToBlender(conn, rs, pakRouter, entry);
+        ReadToBlender(conn, rs, pakRouter, entry, dataSpec.getMasterShaderPath());
+        return conn.saveBlend();
     }
 };
 

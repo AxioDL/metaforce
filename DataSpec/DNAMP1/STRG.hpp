@@ -61,7 +61,7 @@ struct STRG : ISTRG, BigYAML
     bool readAngelScript(const AngelScript::asIScriptModule& in);
     void writeAngelScript(std::ofstream& out) const;
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(const SpecBase& dataspec, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     {
         STRG strg;
         strg.read(rs);

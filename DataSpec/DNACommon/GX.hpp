@@ -247,6 +247,18 @@ enum PTTexMtx
     PTIDENTITY = 125
 };
 
+enum Primitive
+{
+    POINTS        = 0xb8,
+    LINES         = 0xa8,
+    LINESTRIP     = 0xb0,
+    TRIANGLES     = 0x90,
+    TRIANGLESTRIP = 0x98,
+    TRIANGLEFAN   = 0xa0,
+    QUADS         = 0x80
+
+};
+
 }
 
 #endif // _DNACOMMON_GX_HPP_

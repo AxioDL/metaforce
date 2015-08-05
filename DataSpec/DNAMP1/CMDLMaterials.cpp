@@ -18,6 +18,8 @@ void MaterialSet::RegisterMaterialProps(Stream& out)
            "bpy.types.Material.retro_shadow_occluder = bpy.props.BoolProperty(name='Retro: Shadow Occluder')\n"
            "bpy.types.Material.retro_samus_reflection_indirect = bpy.props.BoolProperty(name='Retro: Samus Reflection Indirect Texture')\n"
            "bpy.types.Material.retro_lightmapped = bpy.props.BoolProperty(name='Retro: Lightmapped')\n"
+           "bpy.types.Material.retro_lightmap = bpy.props.StringProperty(name='Retro: Lightmap')\n"
+           "bpy.types.Mesh.cmdl_material_count = bpy.props.IntProperty(name='CMDL: Material Count')\n"
            "\n";
 }
 
@@ -574,7 +576,7 @@ void _ConstructMaterial(Stream& out,
                "material_node = new_nodetree.nodes['Material']\n"
                "final_node = new_nodetree.nodes['Output']\n"
                "\n"
-               "gridder = nodegrid(new_nodetree)\n"
+               "gridder = hecl.Nodegrid(new_nodetree)\n"
                "gridder.place_node(final_node, 3)\n"
                "gridder.place_node(material_node, 0)\n"
                "material_node.material = new_material\n"
@@ -690,7 +692,7 @@ void _ConstructMaterial(Stream& out,
     if (material.tevStages[0].colorInB() == GX::CC_C1)
     {
         if (material.tevStageTexInfo[0].texSlot != 0xff)
-            out << "new_material.rwk_lightmap = tex_maps[0].name\n"
+            out << "new_material.retro_lightmap = tex_maps[0].name\n"
                    "tex_maps[0].image.use_fake_user = True\n";
         AddLightmap(out, "texture_nodes[0].outputs['Color']", c_combiner_idx);
         strncpy(c_regs[GX::TEVREG1], "world_light_node.outputs[0]", 64);

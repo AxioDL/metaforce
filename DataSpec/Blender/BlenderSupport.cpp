@@ -18,7 +18,7 @@ bool BuildMasterShader(const HECL::ProjectPath& path)
     if (!conn.createBlend(path.getAbsolutePath()))
         return false;
     {
-        HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut();
+        HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
         os << RETRO_MASTER_SHADER;
         os << "make_master_shader_library()\n";
     }

@@ -30,9 +30,10 @@ struct SpecMP1 : SpecBase
     PAKRouter<DNAMP1::PAKBridge> m_pakRouter;
 
     SpecMP1(HECL::Database::Project& project)
-    : m_workPath(project.getProjectRootPath(), _S("MP1")),
+    : SpecBase(project),
+      m_workPath(project.getProjectRootPath(), _S("MP1")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1")),
-      m_pakRouter(m_workPath, m_cookPath) {}
+      m_pakRouter(*this, m_workPath, m_cookPath) {}
 
     void buildPaks(HECL::Database::Project& project,
                    NOD::DiscBase::IPartition::Node& root,
@@ -116,8 +117,7 @@ struct SpecMP1 : SpecBase
         }
     }
 
-    bool checkFromStandaloneDisc(HECL::Database::Project& project,
-                                 NOD::DiscBase& disc,
+    bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
@@ -141,13 +141,12 @@ struct SpecMP1 : SpecBase
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(project, root, args, rep);
+        buildPaks(m_project, root, args, rep);
 
         return true;
     }
 
-    bool checkFromTrilogyDisc(HECL::Database::Project& project,
-                              NOD::DiscBase& disc,
+    bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
                               const std::vector<HECL::SystemString>& args,
                               std::vector<ExtractReport>& reps)
@@ -202,13 +201,12 @@ struct SpecMP1 : SpecBase
         NOD::DiscBase::IPartition::Node::DirectoryIterator mp1It = root.find("MP1");
         if (mp1It == root.end())
             return false;
-        buildPaks(project, *mp1It, mp1args, rep);
+        buildPaks(m_project, *mp1It, mp1args, rep);
 
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force,
-                         FExtractProgress progress)
+    bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
         if (!doMP1)
             return true;
@@ -230,7 +228,7 @@ struct SpecMP1 : SpecBase
         }
         progress(_S("MP1 Root"), 3, 1.0);
 
-        const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP1);
+        const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP1);
         cookPath.makeDir();
         m_cookPath.makeDir();
 
@@ -253,11 +251,11 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    bool checkFromProject(HECL::Database::Project& proj)
+    bool checkFromProject()
     {
         return false;
     }
-    bool readFromProject(HECL::Database::Project& proj)
+    bool readFromProject()
     {
         return false;
     }
