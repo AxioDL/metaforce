@@ -3,7 +3,6 @@
 
 namespace HECL
 {
-
 static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
@@ -21,6 +20,7 @@ static SystemString canonRelPath(const SystemString& path)
     std::vector<SystemString> comps;
     HECL::SystemRegexMatch matches;
     SystemString in = path;
+    SanitizePath(in);
     for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix())
     {
         const SystemString& match = matches[1];
@@ -57,10 +57,15 @@ static SystemString canonRelPath(const SystemString& path)
 
 void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path)
 {
+    SystemString in = path;
     m_projRoot = parentPath.m_projRoot;
-    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + path);
+    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + in);
     m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;
+    SanitizePath(m_projRoot);
+    SanitizePath(m_relPath);
+    SanitizePath(m_absPath);
     m_hash = Hash(m_relPath);
+
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
@@ -70,10 +75,14 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
 #if HECL_UCS2
 void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 {
+    std::string in = path;
     m_projRoot = parentPath.m_projRoot;
-    std::wstring wpath = UTF8ToWide(path);
+    std::wstring wpath = UTF8ToWide(in);
     m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + wpath);
     m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;
+    SanitizePath(m_projRoot);
+    SanitizePath(m_relPath);
+    SanitizePath(m_absPath);
     m_hash = Hash(m_relPath);
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
