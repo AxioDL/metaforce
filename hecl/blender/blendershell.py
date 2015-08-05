@@ -1,4 +1,4 @@
-import bpy, sys, os, re, code
+import bpy, sys, os, re
 
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
@@ -44,6 +44,22 @@ ackbytes = readpipeline()
 if ackbytes != b'ACK':
     quitblender()
 
+# Count brackets
+def count_brackets(linestr):
+    bracket_count = 0
+    for ch in linestr:
+        if ch in {'[','{','('}:
+            bracket_count += 1
+        elif ch in {']','}',')'}:
+            bracket_count -= 1
+    return bracket_count
+
+# Complete sequences of statements compiled/executed here
+def exec_compbuf(compbuf, globals):
+    #print('EXEC', compbuf)
+    co = compile(compbuf, '<HECL>', 'exec')
+    exec(co, globals)
+
 # Command loop
 while True:
     cmdline = readpipeline()
@@ -80,34 +96,46 @@ while True:
 
     elif cmdargs[0] == 'PYBEGIN':
         writepipeline(b'READY')
-        globals = dict()
+        globals = {'hecl':hecl}
         compbuf = str()
-        prev_leading_spaces = 0
+        bracket_count = 0
         while True:
             try:
                 line = readpipeline()
+
+                # End check
                 if line == b'PYEND':
+                    # Ensure remaining block gets executed
+                    if len(compbuf):
+                        exec_compbuf(compbuf, globals)
+                        compbuf = str()
                     writepipeline(b'DONE')
                     break
-                linestr = line.decode()
-                if linestr.isspace() or not len(linestr):
+
+                # Syntax filter
+                linestr = line.decode().rstrip()
+                if not len(linestr) or linestr.lstrip()[0] == '#':
                     writepipeline(b'OK')
                     continue
                 leading_spaces = len(linestr) - len(linestr.lstrip())
-                if prev_leading_spaces and not leading_spaces:
-                    compbuf += '\n'
-                    co = code.compile_command(compbuf, filename='<HECL>')
-                    if co is not None:
-                        exec(co, globals)
-                        compbuf = str()
-                prev_leading_spaces = leading_spaces
+
+                # Block lines always get appended right away
+                if linestr.endswith(':') or leading_spaces or bracket_count:
+                    if len(compbuf):
+                        compbuf += '\n'
+                    compbuf += linestr
+                    bracket_count += count_brackets(linestr)
+                    writepipeline(b'OK')
+                    continue
+
+                # Complete non-block statement in compbuf
                 if len(compbuf):
-                    compbuf += '\n'
-                compbuf += linestr
-                co = code.compile_command(compbuf, filename='<HECL>')
-                if co is not None:
-                    exec(co, globals)
-                    compbuf = str()
+                    exec_compbuf(compbuf, globals)
+
+                # Establish new compbuf
+                compbuf = linestr
+                bracket_count += count_brackets(linestr)
+
             except Exception as e:
                 writepipeline(b'EXCEPTION')
                 raise

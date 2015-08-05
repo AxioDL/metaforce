@@ -15,7 +15,7 @@ class Nodegrid:
         self.col_roffs = [[0.0,0.0]] * self.ncol
         for i in range(self.ncol):
             self.heights.append(0.0)
-            frame_node = new_nodetree.nodes.new('NodeFrame')
+            frame_node = nodetree.nodes.new('NodeFrame')
             frame_node.label = FRAME_NAMES[i]
             frame_node.use_custom_color = True
             frame_node.color = FRAME_COLORS[i]

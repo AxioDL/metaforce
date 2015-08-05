@@ -44,12 +44,13 @@ public:
                 LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
 
             size_t ErrorRef = LogVisor::ErrorCount;
-            HECL::ProjectRootPath newProjRoot(baseFile);
+            HECL::SystemString rootDir = info.cwd + '/' + baseFile;
+            HECL::ProjectRootPath newProjRoot(rootDir);
             newProjRoot.makeDir();
             m_fallbackProj.reset(new HECL::Database::Project(newProjRoot));
             if (LogVisor::ErrorCount > ErrorRef)
-                LogModule.report(LogVisor::FatalError, "unable to init project at '%s'", baseFile.c_str());
-            LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), baseFile.c_str());
+                LogModule.report(LogVisor::FatalError, "unable to init project at '%s'", rootDir.c_str());
+            LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), rootDir.c_str());
             m_useProj = m_fallbackProj.get();
         }
         else
@@ -68,7 +69,7 @@ public:
             HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::TOOL_EXTRACT);
             if (ds)
             {
-                if (ds->canExtract(*m_useProj, m_einfo, m_reps))
+                if (ds->canExtract(m_einfo, m_reps))
                     m_specPasses.emplace_back(entry, ds);
                 else
                     delete ds;
@@ -184,7 +185,7 @@ public:
 #endif
 
             int lineIdx = 0;
-            ds.m_instance->doExtract(*m_useProj, m_einfo,
+            ds.m_instance->doExtract(m_einfo,
                                      [&lineIdx](const HECL::SystemChar* message, int lidx, float factor)
             {
 #ifndef _WIN32

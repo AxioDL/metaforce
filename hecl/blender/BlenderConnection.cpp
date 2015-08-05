@@ -313,6 +313,13 @@ BlenderConnection::~BlenderConnection()
 
 bool BlenderConnection::createBlend(const SystemString& path)
 {
+    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
+    if (!lk)
+    {
+        BlenderLog.report(LogVisor::FatalError,
+                          "BlenderConnection::createBlend() musn't be called with stream active");
+        return false;
+    }
     HECL::SystemUTF8View pathView(path);
     _writeLine(("CREATE \"" + pathView.str() + "\"").c_str());
     char lineBuf[256];
@@ -327,6 +334,13 @@ bool BlenderConnection::createBlend(const SystemString& path)
 
 bool BlenderConnection::openBlend(const SystemString& path)
 {
+    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
+    if (!lk)
+    {
+        BlenderLog.report(LogVisor::FatalError,
+                          "BlenderConnection::openBlend() musn't be called with stream active");
+        return false;
+    }
     HECL::SystemUTF8View pathView(path);
     _writeLine(("OPEN \"" + pathView.str() + "\"").c_str());
     char lineBuf[256];
@@ -341,6 +355,13 @@ bool BlenderConnection::openBlend(const SystemString& path)
 
 bool BlenderConnection::saveBlend()
 {
+    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
+    if (!lk)
+    {
+        BlenderLog.report(LogVisor::FatalError,
+                          "BlenderConnection::saveBlend() musn't be called with stream active");
+        return false;
+    }
     _writeLine("SAVE");
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
@@ -349,12 +370,20 @@ bool BlenderConnection::saveBlend()
     return false;
 }
 
-void BlenderConnection::PyOutStream::linkBlend(const SystemString& relPath, const std::string& objName,
+void BlenderConnection::deleteBlend()
+{
+    if (m_loadedBlend.size())
+    {
+        HECL::Unlink(m_loadedBlend.c_str());
+        m_loadedBlend.clear();
+    }
+}
+
+void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const std::string& objName,
                                                bool link)
 {
-    HECL::SystemUTF8View relView(relPath);
     format("if '%s' not in bpy.data.scenes:\n"
-           "    with bpy.data.libraries.load('//%s', link=%s, relative=True) as (data_from, data_to):\n"
+           "    with bpy.data.libraries.load('%s', link=%s, relative=True) as (data_from, data_to):\n"
            "        data_to.scenes = data_from.scenes\n"
            "    obj_scene = None\n"
            "    for scene in data_to.scenes:\n"
@@ -368,7 +397,7 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& relPath, cons
            "else:\n"
            "    obj = bpy.data.objects['%s']\n"
            "\n",
-           objName.c_str(), relView.str().c_str(), link?"True":"False",
+           objName.c_str(), target.c_str(), link?"True":"False",
            objName.c_str(), objName.c_str());
 }
 

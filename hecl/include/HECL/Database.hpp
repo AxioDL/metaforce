@@ -217,9 +217,9 @@ public:
 
     typedef std::function<void(const HECL::SystemChar*, int, float)> FExtractProgress;
 
-    virtual bool canExtract(Project&, const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doExtract(Project&, const ExtractPassInfo& info, FExtractProgress progress)
+    virtual void doExtract(const ExtractPassInfo& info, FExtractProgress progress)
     {(void)info;(void)progress;}
 
     /**
@@ -233,10 +233,10 @@ public:
         ProjectPath path;
         ProjectPath cookedPath;
     };
-    virtual bool canCook(const Project&, const CookTaskInfo& info,
+    virtual bool canCook(const CookTaskInfo& info,
                          SystemString& reasonNo)
     {(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void doCook(const Project&, const CookTaskInfo& info)
+    virtual void doCook(const CookTaskInfo& info)
     {(void)info;}
 
     /**
@@ -252,13 +252,13 @@ public:
         ProjectPath subpath;
         ProjectPath outpath;
     };
-    virtual bool canPackage(const Project&, const PackagePassInfo& info,
+    virtual bool canPackage(const PackagePassInfo& info,
                             SystemString& reasonNo)
     {(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void gatherDependencies(const Project&, const PackagePassInfo& info,
+    virtual void gatherDependencies(const PackagePassInfo& info,
                                     std::unordered_set<ProjectPath>& implicitsOut)
     {(void)info;(void)implicitsOut;}
-    virtual void doPackage(const Project&, const PackagePassInfo& info)
+    virtual void doPackage(const PackagePassInfo& info)
     {(void)info;}
 };
 

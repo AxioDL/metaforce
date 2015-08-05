@@ -47,6 +47,7 @@ public:
     bool createBlend(const SystemString& path);
     bool openBlend(const SystemString& path);
     bool saveBlend();
+    void deleteBlend();
     enum CookPlatform
     {
         CP_MODERN = 0,
@@ -62,31 +63,43 @@ public:
         friend class BlenderConnection;
         std::unique_lock<std::mutex> m_lk;
         BlenderConnection* m_parent;
+        bool m_deleteOnError;
         struct StreamBuf : std::streambuf
         {
-            BlenderConnection* m_parent;
+            PyOutStream& m_parent;
             std::string m_lineBuf;
-            StreamBuf(BlenderConnection* parent) : m_parent(parent) {}
+            bool m_deleteOnError;
+            StreamBuf(PyOutStream& parent, bool deleteOnError)
+            : m_parent(parent), m_deleteOnError(deleteOnError) {}
             StreamBuf(const StreamBuf& other) = delete;
             StreamBuf(StreamBuf&& other) = default;
             int_type overflow(int_type ch)
             {
+                if (!m_parent.m_lk)
+                    BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream writing");
                 if (ch != traits_type::eof() && ch != '\n')
                 {
                     m_lineBuf += char_type(ch);
                     return ch;
                 }
-                m_parent->_writeLine(m_lineBuf.c_str());
+                m_parent.m_parent->_writeLine(m_lineBuf.c_str());
                 char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
+                m_parent.m_parent->_readLine(readBuf, 16);
                 if (strcmp(readBuf, "OK"))
+                {
+                    if (m_deleteOnError)
+                        m_parent.m_parent->deleteBlend();
                     BlenderLog.report(LogVisor::FatalError, "error sending '%s' to blender", m_lineBuf.c_str());
+                }
                 m_lineBuf.clear();
                 return ch;
             }
         } m_sbuf;
-        PyOutStream(BlenderConnection* parent)
-        : m_lk(parent->m_lock), m_parent(parent), m_sbuf(parent), std::ostream(&m_sbuf)
+        PyOutStream(BlenderConnection* parent, bool deleteOnError)
+        : m_lk(parent->m_lock), m_parent(parent),
+          m_sbuf(*this, deleteOnError),
+          m_deleteOnError(deleteOnError),
+          std::ostream(&m_sbuf)
         {
             m_parent->_writeLine("PYBEGIN");
             char readBuf[16];
@@ -99,9 +112,10 @@ public:
         PyOutStream(PyOutStream&& other)
         : m_lk(std::move(other.m_lk)), m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
         {other.m_parent = nullptr;}
-        ~PyOutStream()
+        ~PyOutStream() {close();}
+        void close()
         {
-            if (m_parent)
+            if (m_parent && m_lk)
             {
                 m_parent->_writeLine("PYEND");
                 char readBuf[16];
@@ -109,9 +123,12 @@ public:
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
             }
+            m_lk.unlock();
         }
         void format(const char* fmt, ...)
         {
+            if (!m_lk)
+                BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream::format()");
             va_list ap;
             va_start(ap, fmt);
             char* result = nullptr;
@@ -123,9 +140,9 @@ public:
         }
         void linkBlend(const SystemString& target, const std::string& objName, bool link=true);
     };
-    inline PyOutStream beginPythonOut()
+    inline PyOutStream beginPythonOut(bool deleteOnError=false)
     {
-        return PyOutStream(this);
+        return PyOutStream(this, deleteOnError);
     }
 
     void quitBlender();

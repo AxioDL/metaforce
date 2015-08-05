@@ -122,6 +122,15 @@ inline std::string operator+(const char* lhs, const SystemStringView& rhs) {retu
 typedef struct stat Sstat;
 #endif
 
+static inline void Unlink(const SystemChar* file)
+{
+#if _WIN32
+    _wunlink(file);
+#else
+    unlink(file);
+#endif
+}
+
 static inline void MakeDir(const SystemChar* dir)
 {
 #if _WIN32
