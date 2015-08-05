@@ -398,7 +398,7 @@ protected:
     std::string m_utf8RelPath;
 #endif
     ProjectPath(const SystemString& projRoot)
-        : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S("."))
+    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S("."))
     {
         SanitizePath(m_projRoot);
         SanitizePath(m_relPath);
@@ -427,10 +427,10 @@ public:
      * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-/*    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
-    void assign(const ProjectPath& parentPath, const SystemString& path);*/
+    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, const SystemString& path);
 
-#ifndef HECL_UCS2
+#if HECL_UCS2
     ProjectPath(const ProjectPath& parentPath, const std::string& path) {assign(parentPath, path);}
     void assign(const ProjectPath& parentPath, const std::string& path);
 #endif
