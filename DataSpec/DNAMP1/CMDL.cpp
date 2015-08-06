@@ -136,12 +136,15 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
           "od_list = []\n"
           "\n";
 
+    std::vector<std::vector<unsigned>> matUVCounts;
+    matUVCounts.reserve(head.matSetCount);
+    bool visitedDLOffsets = false;
+    unsigned createdUVLayers = 0;
+    unsigned surfIdx = 0;
+
     for (size_t s=0 ; s<head.secCount ; ++s)
     {
         atUint64 secStart = reader.position();
-        std::vector<std::vector<unsigned>> matUVCounts;
-        matUVCounts.reserve(head.matSetCount);
-        bool visitedDLOffsets = false;
         if (s < head.matSetCount)
         {
             MaterialSet matSet;
@@ -158,7 +161,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                           "    image = bpy.data.images['%s']\n"
                           "    texture = bpy.data.textures[image.name]\n"
                           "else:\n"
-                          "    image = bpy.data.images.load('//%s')\n"
+                          "    image = bpy.data.images.load('''//%s''')\n"
                           "    image.name = '%s'\n"
                           "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
                           "    texture.image = image\n"
@@ -199,13 +202,13 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
             case 1:
             {
                 /* Normals */
-                os << "normals = []\n";
+                os << "norm_list = []\n";
                 if (head.flags.shortNormals())
                 {
                     size_t normCount = head.secSizes[s] / 6;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
-                        os.format("normals.append((%f,%f,%f))\n",
+                        os.format("norm_list.append((%f,%f,%f))\n",
                                   reader.readInt16(), reader.readInt16(), reader.readInt16());
                     }
                 }
@@ -215,7 +218,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
                         atVec3f norm = reader.readVec3f();
-                        os.format("normals.append((%f,%f,%f))\n",
+                        os.format("norm_list.append((%f,%f,%f))\n",
                                   norm.vec[0], norm.vec[1], norm.vec[2]);
                     }
                 }
@@ -271,6 +274,14 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                 sHead.read(reader);
                 unsigned matUVCount = matUVCounts[0][sHead.matIdx];
 
+                os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
+                if (matUVCount > createdUVLayers)
+                {
+                    for (int l=createdUVLayers ; l<matUVCount ; ++l)
+                        os.format("bm.loops.layers.uv.new('UV_%u')\n", l);
+                    createdUVLayers = matUVCount;
+                }
+
                 std::unique_ptr<atUint8[]> dlBuf = reader.readUBytes(sHead.dlSize);
                 atUint8* origDl = dlBuf.get();
                 atUint8* dl = origDl;
@@ -278,9 +289,9 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                 while (*dl && (dl-origDl) < sHead.dlSize)
                 {
 
-                    GX::Primitive ptype = GX::Primitive(*dl);
+                    GX::Primitive ptype = GX::Primitive(*dl & 0xf8);
                     atUint16 vert_count = HECL::SBig(*(atUint16*)(dl + 1));
-                    os.format("# VAT Type: %u\n", (*(atUint8*)dl)&7);
+                    os.format("# VAT Type: %u\n", *dl&7);
 
                     atUint16* dli = (atUint16*)(dl + 3);
 
