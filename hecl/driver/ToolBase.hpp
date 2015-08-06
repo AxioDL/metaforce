@@ -33,7 +33,10 @@ protected:
     bool m_good = false;
 public:
     ToolBase(const ToolPassInfo& info)
-    : m_info(info) {}
+    : m_info(info)
+    {
+        HECL::VerbosityLevel = info.verbosityLevel;
+    }
     virtual ~ToolBase() {}
     virtual HECL::SystemString toolName() const=0;
     virtual int run()=0;

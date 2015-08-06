@@ -197,7 +197,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
     }
 
     wchar_t cmdLine[2048];
-    _snwprintf(cmdLine, 2048, L" --background -P shellscript.py -- %08X %08X", 
+    _snwprintf(cmdLine, 2048, L" --background -P shellscript.py -- %08X %08X",
                (uint32_t)m_writepipe[0], (uint32_t)m_readpipe[1]);
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};

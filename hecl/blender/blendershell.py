@@ -3,7 +3,7 @@ import bpy, sys, os, re
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
 # Extract pipe file descriptors from arguments
-print(sys.argv)
+print('HECL Blender Launch', sys.argv)
 if '--' not in sys.argv:
     bpy.ops.wm.quit_blender()
 args = sys.argv[sys.argv.index('--')+1:]

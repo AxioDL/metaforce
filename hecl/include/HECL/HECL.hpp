@@ -35,6 +35,7 @@
 namespace HECL
 {
 
+extern unsigned VerbosityLevel;
 extern LogVisor::LogModule LogModule;
 
 #if _WIN32 && UNICODE

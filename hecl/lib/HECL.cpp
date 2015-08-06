@@ -2,6 +2,7 @@
 
 namespace HECL
 {
+unsigned VerbosityLevel = 0;
 LogVisor::LogModule LogModule("HECL");
 
 void SanitizePath(std::string& path)

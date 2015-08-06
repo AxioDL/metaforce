@@ -150,7 +150,7 @@ public:
     static inline BlenderConnection& SharedConnection()
     {
         if (!SharedBlenderConnection)
-            SharedBlenderConnection = new BlenderConnection();
+            SharedBlenderConnection = new BlenderConnection(HECL::VerbosityLevel?false:true);
         return *SharedBlenderConnection;
     }
 
