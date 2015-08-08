@@ -107,6 +107,9 @@ int main(int argc, const char** argv)
         return 0;
     }
 
+    /* Prepare DataSpecs */
+    HECLRegisterDataSpecs();
+
     /* Assemble common tool pass info */
     ToolPassInfo info;
     info.pname = argv[0];

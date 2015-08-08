@@ -229,8 +229,9 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
 
         if (silenceBlender)
         {
-            close(STDOUT_FILENO);
-            close(STDERR_FILENO);
+            int devNull = open("/dev/null", O_WRONLY);
+            dup2(devNull, STDOUT_FILENO);
+            dup2(devNull, STDERR_FILENO);
         }
 
         char errbuf[256];

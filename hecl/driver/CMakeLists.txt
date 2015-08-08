@@ -19,18 +19,13 @@ add_executable(hecl main.cpp
 
 list(APPEND DATA_SPEC_LIBS
      RetroDataSpec
-     DNACommon
      DNAMP1
      DNAMP2
-     DNAMP3)
-
-if(NOT WIN32)
-set(WHOLE_START "-Wl,-whole-archive")
-set(WHOLE_END "-Wl,-no-whole-archive")
-endif()
+     DNAMP3
+     DNACommon)
 
 target_link_libraries(hecl
-    ${WHOLE_START} HECLDatabaseInit ${DATA_SPEC_LIBS} ${WHOLE_END}
-    HECLDatabase HECLBlender HECLCommon AthenaCore AngelScript NOD
-    LogVisor yaml png squish blowfish z lzo2
+    ${DATA_SPEC_LIBS}
+    HECLDatabase HECLBlender HECLCommon AthenaCore NOD
+    LogVisor AthenaLibYaml png squish blowfish z lzo2 pthread
 )
