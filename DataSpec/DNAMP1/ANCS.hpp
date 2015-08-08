@@ -329,7 +329,7 @@ struct ANCS : BigYAML
             UniqueID32 animId;
             UniqueID32 evntId;
         };
-        std::vector<HalfTransition> animResources;
+        std::vector<AnimationResources> animResources;
 
         void read(Athena::io::IStreamReader& reader);
         void write(Athena::io::IStreamWriter& writer) const;
