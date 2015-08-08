@@ -234,8 +234,9 @@ struct SpecMP1 : SpecBase
 
         int compIdx = 4;
         prog = 0;
-        for (DNAMP1::PAKBridge& pak : m_paks)
+        for (std::pair<std::string, DNAMP1::PAKBridge*> pair : m_orderedPaks)
         {
+            DNAMP1::PAKBridge& pak = *pair.second;
             const std::string& name = pak.getName();
             HECL::SystemStringView sysName(name);
 

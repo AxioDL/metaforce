@@ -332,8 +332,9 @@ struct SpecMP3 : SpecBase
             mp3CookPath.makeDir();
 
             prog = 0;
-            for (DNAMP3::PAKBridge& pak : m_paks)
+            for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
             {
+                DNAMP3::PAKBridge& pak = *pair.second;
                 m_pakRouter.enterPAKBridge(pak);
 
                 const std::string& name = pak.getName();
@@ -373,8 +374,9 @@ struct SpecMP3 : SpecBase
             m_feCookPath.makeDir();
 
             prog = 0;
-            for (DNAMP3::PAKBridge& pak : m_fePaks)
+            for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)
             {
+                DNAMP3::PAKBridge& pak = *pair.second;
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
