@@ -81,6 +81,7 @@ while True:
             writepipeline(b'CANCELLED')
 
     elif cmdargs[0] == 'CREATE':
+        bpy.ops.wm.read_homefile()
         bpy.context.user_preferences.filepaths.save_version = 0
         if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
             writepipeline(b'FINISHED')
