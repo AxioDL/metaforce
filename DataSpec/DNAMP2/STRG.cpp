@@ -139,43 +139,5 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
-bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
-{
-    return false;
-}
-
-void STRG::writeAngelScript(std::ofstream& out) const
-{
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
-    {
-        out << "STRG::Language " << lang.first.toString() << "({";
-        bool comma = false;
-        unsigned idx = 0;
-        for (const std::wstring& str : lang.second)
-        {
-            if (comma)
-                out << ",";
-            out << "\n/* " << idx++ << " */ \"";
-            out << wconv.to_bytes(str);
-            out << "\"";
-            comma = true;
-        }
-        out << "\n});\n";
-    }
-
-    out << "STRG::Names NAMES({";
-    bool comma = false;
-    for (const std::pair<std::string, int32_t>& name : names)
-    {
-        if (comma)
-            out << ",";
-        out << "\n    ";
-        comma = true;
-        out << "{\"" << name.first << "\", " << name.second << "}";
-    }
-    out << "\n});\n";
-}
-
 }
 }

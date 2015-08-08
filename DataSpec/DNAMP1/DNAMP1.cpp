@@ -6,6 +6,7 @@
 #include "MLVL.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "CMDL.hpp"
+#include "ANCS.hpp"
 
 namespace Retro
 {
@@ -181,6 +182,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {TXTR::Extract, nullptr, ".png"};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, ".blend", 1};
+    case SBIG('ANCS'):
+        return {ANCS::Extract, nullptr, ".yaml"};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, ".yaml"};
     }

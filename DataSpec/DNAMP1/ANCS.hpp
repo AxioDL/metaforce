@@ -20,6 +20,7 @@ struct ANCS : BigYAML
         Value<atUint32> characterCount;
         struct CharacterInfo : BigYAML
         {
+            DECL_YAML
             Delete expl;
 
             atUint32 idx;
@@ -45,11 +46,13 @@ struct ANCS : BigYAML
                 Value<atUint32> defaultState;
                 struct AnimState : BigYAML
                 {
+                    DECL_YAML
                     Delete expl;
                     atUint32 id;
 
                     struct ParmInfo : BigYAML
                     {
+                        DECL_YAML
                         Delete expl;
                         enum DataType
                         {
@@ -76,11 +79,6 @@ struct ANCS : BigYAML
                         atUint32 unk1;
                         float unk2;
                         Parm parmVals[2];
-
-                        void read(Athena::io::IStreamReader& reader);
-                        void write(Athena::io::IStreamWriter& writer) const;
-                        void fromYAML(Athena::io::YAMLDocReader& reader);
-                        void toYAML(Athena::io::YAMLDocWriter& writer) const;
                     };
                     std::vector<ParmInfo> parmInfos;
 
@@ -90,12 +88,8 @@ struct ANCS : BigYAML
                         std::vector<ParmInfo::Parm> parmVals;
                     };
                     std::vector<AnimInfo> animInfos;
-
-                    void read(Athena::io::IStreamReader& reader);
-                    void write(Athena::io::IStreamWriter& writer) const;
-                    void fromYAML(Athena::io::YAMLDocReader& reader);
-                    void toYAML(Athena::io::YAMLDocWriter& writer) const;
                 };
+                Vector<AnimState, DNA_COUNT(animStateCount)> animStates;
             } pasDatabase;
 
             struct ParticleResData
@@ -106,7 +100,9 @@ struct ANCS : BigYAML
                 std::vector<UniqueID32> elsc;
             } partResData;
 
-            atUint32 unk1;
+            atUint32 unk1 = 0;
+            atUint32 unk2 = 0;
+            atUint32 unk3 = 0;
 
             struct ActionAABB : BigYAML
             {
@@ -140,17 +136,13 @@ struct ANCS : BigYAML
             UniqueID32 cskrOverride;
 
             std::vector<atUint32> animIdxs;
-
-            void read(Athena::io::IStreamReader& reader);
-            void write(Athena::io::IStreamWriter& writer) const;
-            void fromYAML(Athena::io::YAMLDocReader& reader);
-            void toYAML(Athena::io::YAMLDocWriter& writer) const;
-
         };
+        Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
     } characterSet;
 
     struct AnimationSet : BigYAML
     {
+        DECL_YAML
         Delete expl;
 
         struct IMetaAnim : BigYAML
@@ -174,12 +166,9 @@ struct ANCS : BigYAML
         };
         struct MetaAnimFactory : BigYAML
         {
+            DECL_YAML
             Delete expl;
             std::unique_ptr<IMetaAnim> m_anim;
-            void read(Athena::io::IStreamReader& reader);
-            void write(Athena::io::IStreamWriter& writer) const;
-            void fromYAML(Athena::io::YAMLDocReader& reader);
-            void toYAML(Athena::io::YAMLDocWriter& writer) const;
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
@@ -258,12 +247,9 @@ struct ANCS : BigYAML
         };
         struct MetaTransFactory : BigYAML
         {
+            DECL_YAML
             Delete expl;
             std::unique_ptr<IMetaTrans> m_trans;
-            void read(Athena::io::IStreamReader& reader);
-            void write(Athena::io::IStreamWriter& writer) const;
-            void fromYAML(Athena::io::YAMLDocReader& reader);
-            void toYAML(Athena::io::YAMLDocWriter& writer) const;
         };
         struct MetaTransMetaAnim : IMetaTrans
         {
@@ -280,7 +266,6 @@ struct ANCS : BigYAML
             Value<atUint8> unk2;
             Value<atUint8> unk3;
             Value<atUint32> unk4;
-
         };
         struct MetaTransPhaseTrans : IMetaTrans
         {
@@ -302,6 +287,7 @@ struct ANCS : BigYAML
             MetaTransFactory metaTrans;
         };
         std::vector<Transition> transitions;
+        MetaTransFactory defaultTransition;
 
         struct AdditiveAnimationInfo : BigYAML
         {
@@ -330,12 +316,17 @@ struct ANCS : BigYAML
             UniqueID32 evntId;
         };
         std::vector<AnimationResources> animResources;
-
-        void read(Athena::io::IStreamReader& reader);
-        void write(Athena::io::IStreamWriter& writer) const;
-        void fromYAML(Athena::io::YAMLDocReader& reader);
-        void toYAML(Athena::io::YAMLDocWriter& writer) const;
     } animationSet;
+
+    static bool Extract(const SpecBase&, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    {
+        ANCS ancs;
+        ancs.read(rs);
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        ancs.toYAMLFile(fp);
+        fclose(fp);
+        return true;
+    }
 };
 
 }
