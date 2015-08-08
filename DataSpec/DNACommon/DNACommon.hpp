@@ -41,9 +41,10 @@ public:
 /* PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
 {
-    uint32_t m_id;
+    uint32_t m_id = 0;
 public:
     Delete expl;
+    inline operator bool() const {return m_id;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint32();}
     inline void write(Athena::io::IStreamWriter& writer) const
@@ -67,9 +68,10 @@ public:
 /* PAK 64-bit Unique ID */
 class UniqueID64 : public BigDNA
 {
-    uint64_t m_id;
+    uint64_t m_id = 0;
 public:
     Delete expl;
+    inline operator bool() const {return m_id;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint64();}
     inline void write(Athena::io::IStreamWriter& writer) const
@@ -98,6 +100,8 @@ class UniqueID128 : public BigDNA
     };
 public:
     Delete expl;
+    UniqueID128() {m_id[0]=0; m_id[1]=0;}
+    inline operator bool() const {return m_id[0] && m_id[1];}
     inline void read(Athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64();

@@ -1,6 +1,7 @@
 make_dnalist(liblist
              PAK
              MLVL
+             ANCS
              CMDL
              CMDLMaterials)
 add_library(DNAMP1
@@ -8,5 +9,6 @@ add_library(DNAMP1
             ${liblist}
             PAK.cpp
             STRG.hpp STRG.cpp
+            ANCS.cpp
             CMDL.cpp
             CMDLMaterials.cpp)
