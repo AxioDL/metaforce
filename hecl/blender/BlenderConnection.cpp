@@ -33,7 +33,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
     {
         if (readBytes >= bufSz)
         {
-            BlenderLog.report(LogVisor::FatalError, "Pipe buffer overrun\n");
+            BlenderLog.report(LogVisor::FatalError, "Pipe buffer overrun");
             *(buf-1) = '\0';
             return bufSz - 1;
         }
@@ -383,7 +383,7 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const
                                                bool link)
 {
     format("if '%s' not in bpy.data.scenes:\n"
-           "    with bpy.data.libraries.load('%s', link=%s, relative=True) as (data_from, data_to):\n"
+           "    with bpy.data.libraries.load('''%s''', link=%s, relative=True) as (data_from, data_to):\n"
            "        data_to.scenes = data_from.scenes\n"
            "    obj_scene = None\n"
            "    for scene in data_to.scenes:\n"
@@ -402,9 +402,9 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const
 }
 
 bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
-                                   const std::string& expectedType,
-                                   const std::string& platform,
-                                   bool bigEndian)
+                                  const std::string& expectedType,
+                                  const std::string& platform,
+                                  bool bigEndian)
 {
     char lineBuf[256];
     char reqLine[512];
