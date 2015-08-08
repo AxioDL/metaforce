@@ -2,6 +2,7 @@ make_dnalist(liblist
              PAK
              MLVL
              ANCS
+             MAPA
              CMDL
              CMDLMaterials)
 add_library(DNAMP1
