@@ -41,8 +41,8 @@ struct MAPA : BigDNA
     struct SurfaceHeader : BigDNA
     {
         DECL_DNA
-        Value<atVec3f>  unkFloats1;
-        Value<atVec3f>  unkFloats2;
+        Value<atVec3f>  normal;
+        Value<atVec3f>  center;
         Value<atUint32> start;
         Value<atUint32> end;
     };

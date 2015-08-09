@@ -270,6 +270,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                 }
 
                 /* GX Display List (surface) */
+                atUint64 start = reader.position();
                 SurfaceHeader sHead;
                 sHead.read(reader);
                 unsigned matUVCount = matUVCounts[0][sHead.matIdx];
@@ -282,14 +283,18 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                     createdUVLayers = matUVCount;
                 }
 
-                std::unique_ptr<atUint8[]> dlBuf = reader.readUBytes(sHead.dlSize);
+                atUint32 realDlSize = head.secSizes[s] - (reader.position() - secStart);
+                std::unique_ptr<atUint8[]> dlBuf = reader.readUBytes(realDlSize);
                 atUint8* origDl = dlBuf.get();
                 atUint8* dl = origDl;
 
-                while (*dl && (dl-origDl) < sHead.dlSize)
+                while (*dl && (dl-origDl) < realDlSize)
                 {
 
                     GX::Primitive ptype = GX::Primitive(*dl & 0xf8);
+                    if (ptype == 0)
+                        break;
+
                     atUint16 vert_count = HECL::SBig(*(atUint16*)(dl + 1));
                     os.format("# VAT Type: %u\n", *dl&7);
 
