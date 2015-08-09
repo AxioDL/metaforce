@@ -10,7 +10,7 @@
 
 namespace Retro
 {
-struct ISTRG
+struct ISTRG : BigYAML
 {
     virtual ~ISTRG() {}
 

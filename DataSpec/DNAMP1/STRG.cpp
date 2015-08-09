@@ -159,13 +159,13 @@ void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
 
     langMap.clear();
     langMap.reserve(langs.size());
-    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+    for (auto& item : langs)
         langMap.emplace(item.first, &item.second);
 }
 
 void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
 {
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const auto& lang : langs)
     {
         writer.enterSubVector(lang.first.toString().c_str());
         for (const std::wstring& str : lang.second)

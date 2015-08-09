@@ -86,6 +86,72 @@ void STRG::read(Athena::io::IStreamReader& reader)
     _read(reader);
 }
 
+void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
+{
+    const Athena::io::YAMLNode* root = reader.getRootNode();
+
+    /* Validate Pass */
+    if (root->m_type == YAML_MAPPING_NODE)
+    {
+        for (const auto& lang : root->m_mapChildren)
+        {
+            if (!lang.first.compare("names"))
+                continue;
+            if (lang.first.size() != 4)
+            {
+                Log.report(LogVisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
+                return;
+            }
+            if (lang.second->m_type != YAML_SEQUENCE_NODE)
+            {
+                Log.report(LogVisor::Warning,
+                           "STRG language string '%s' must contain a sequence; skipping", lang.first.c_str());
+                return;
+            }
+            for (const auto& str : lang.second->m_seqChildren)
+            {
+                if (str->m_type != YAML_SCALAR_NODE)
+                {
+                    Log.report(LogVisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        Log.report(LogVisor::Warning, "STRG must have a mapping root node; skipping");
+        return;
+    }
+
+    const Athena::io::YAMLNode* nameYAML = root->findMapChild("names");
+    names.clear();
+    if (nameYAML && nameYAML->m_type == YAML_MAPPING_NODE)
+        for (const auto& item : nameYAML->m_mapChildren)
+            if (item.second->m_type == YAML_SCALAR_NODE)
+                names[item.first] = Athena::io::NodeToVal<atInt32>(item.second.get());
+
+    langs.clear();
+    langs.reserve(root->m_mapChildren.size());
+    for (const auto& item : root->m_mapChildren)
+    {
+        if (!item.first.compare("names") || item.first.size() != 4 ||
+            item.second->m_type != YAML_SEQUENCE_NODE)
+            continue;
+
+        std::vector<std::string> strs;
+        for (const auto& node : item.second->m_seqChildren)
+            if (node->m_type == YAML_SCALAR_NODE)
+                strs.emplace_back(node->m_scalarString);
+        langs.emplace_back(std::make_pair(FourCC(item.first.c_str()), std::move(strs)));
+    }
+
+    langMap.clear();
+    langMap.reserve(langs.size());
+    for (std::pair<FourCC, std::vector<std::string>>& item : langs)
+        langMap.emplace(item.first, &item.second);
+}
+
 void STRG::write(Athena::io::IStreamWriter& writer) const
 {
     writer.setEndian(Athena::BigEndian);
@@ -144,6 +210,29 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
                 writer.writeString(str);
             }
         }
+    }
+}
+
+void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
+{
+    for (const auto& item : langs)
+    {
+        writer.enterSubVector(item.first.toString().c_str());
+        for (const std::string& str : item.second)
+            writer.writeString(nullptr, str);
+        writer.leaveSubVector();
+    }
+
+    if (names.size())
+    {
+        writer.enterSubRecord("names");
+        for (const auto& item : names)
+        {
+            writer.enterSubRecord(item.first.c_str());
+            writer.writeInt32(nullptr, item.second);
+            writer.leaveSubRecord();
+        }
+        writer.leaveSubRecord();
     }
 }
 

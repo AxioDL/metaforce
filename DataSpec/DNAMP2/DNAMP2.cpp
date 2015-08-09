@@ -183,7 +183,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     switch (entry.type.toUint32())
     {
     case SBIG('STRG'):
-        return {STRG::Extract, nullptr, ".as"};
+        return {STRG::Extract, nullptr, ".yaml"};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, ".png"};
     }

@@ -148,10 +148,6 @@ struct ANCS : BigYAML
         struct IMetaAnim : BigYAML
         {
             Delete expl;
-            void read(Athena::io::IStreamReader&) {}
-            void write(Athena::io::IStreamWriter&) const {}
-            void fromYAML(Athena::io::YAMLDocReader&) {}
-            void toYAML(Athena::io::YAMLDocWriter&) const {}
             enum Type
             {
                 MAPrimitive = 0,
@@ -230,10 +226,6 @@ struct ANCS : BigYAML
         struct IMetaTrans : BigYAML
         {
             Delete expl;
-            void read(Athena::io::IStreamReader&) {}
-            void write(Athena::io::IStreamWriter&) const {}
-            void fromYAML(Athena::io::YAMLDocReader&) {}
-            void toYAML(Athena::io::YAMLDocWriter&) const {}
             enum Type
             {
                 MTMetaAnim = 0,
