@@ -329,6 +329,7 @@ public:
     inline uint32_t toUint32() const {return num;}
     inline operator uint32_t() const {return num;}
 };
+#define FOURCC(chars) FourCC(SBIG(chars))
 
 /**
  * @brief Hash representation used for all storable and comparable objects
