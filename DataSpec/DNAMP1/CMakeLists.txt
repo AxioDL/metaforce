@@ -3,7 +3,6 @@ make_dnalist(liblist
              MLVL
              ANCS
              MAPA
-             CMDL
              CMDLMaterials)
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
@@ -11,5 +10,5 @@ add_library(DNAMP1
             PAK.cpp
             STRG.hpp STRG.cpp
             ANCS.cpp
-            CMDL.cpp
+            CMDL.hpp
             CMDLMaterials.cpp)

@@ -18,7 +18,6 @@ struct SpecMP2 : SpecBase
         return false;
     }
 
-    bool doMP2 = false;
     std::vector<const NOD::DiscBase::IPartition::Node*> m_nonPaks;
     std::vector<DNAMP2::PAKBridge> m_paks;
     std::map<std::string, DNAMP2::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
@@ -118,7 +117,6 @@ struct SpecMP2 : SpecBase
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
     {
-        doMP2 = true;
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
@@ -148,6 +146,7 @@ struct SpecMP2 : SpecBase
                               std::vector<ExtractReport>& reps)
     {
         std::vector<HECL::SystemString> mp2args;
+        bool doExtract = false;
         if (args.size())
         {
             /* Needs filter */
@@ -157,7 +156,7 @@ struct SpecMP2 : SpecBase
                 HECL::ToLower(lowerArg);
                 if (!lowerArg.compare(0, 3, _S("mp2")))
                 {
-                    doMP2 = true;
+                    doExtract = true;
                     size_t slashPos = arg.find(_S('/'));
                     if (slashPos == HECL::SystemString::npos)
                         slashPos = arg.find(_S('\\'));
@@ -167,10 +166,10 @@ struct SpecMP2 : SpecBase
             }
         }
         else
-            doMP2 = true;
+            doExtract = true;
 
-        if (!doMP2)
-            return true;
+        if (!doExtract)
+            return false;
 
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
@@ -204,9 +203,6 @@ struct SpecMP2 : SpecBase
 
     bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
-        if (!doMP2)
-            return true;
-
         progress(_S("Indexing PAKs"), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {

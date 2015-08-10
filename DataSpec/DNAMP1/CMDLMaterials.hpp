@@ -4,6 +4,8 @@
 #include <BlenderConnection.hpp>
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/GX.hpp"
+#include "../DNACommon/CMDL.hpp"
+#include "DNAMP1.hpp"
 
 namespace Retro
 {
@@ -81,7 +83,24 @@ struct MaterialSet : BigDNA
             inline void setTex5(GX::AttrType val) {vaFlags &= ~0xC0000; vaFlags |= atUint32(val) << 18;}
             inline GX::AttrType tex6() const {return GX::AttrType(vaFlags >> 20 & 0x3);}
             inline void setTex6(GX::AttrType val) {vaFlags &= ~0x300000; vaFlags |= atUint32(val) << 20;}
+            inline GX::AttrType pnMatIdx() const {return GX::AttrType(vaFlags >> 24 & 0x1);}
+            inline void setPnMatIdx(GX::AttrType val) {vaFlags &= ~0x1000000; vaFlags |= atUint32(val & 0x1) << 24;}
+            inline GX::AttrType tex0MatIdx() const {return GX::AttrType(vaFlags >> 25 & 0x1);}
+            inline void setTex0MatIdx(GX::AttrType val) {vaFlags &= ~0x2000000; vaFlags |= atUint32(val & 0x1) << 25;}
+            inline GX::AttrType tex1MatIdx() const {return GX::AttrType(vaFlags >> 26 & 0x1);}
+            inline void setTex1MatIdx(GX::AttrType val) {vaFlags &= ~0x4000000; vaFlags |= atUint32(val & 0x1) << 26;}
+            inline GX::AttrType tex2MatIdx() const {return GX::AttrType(vaFlags >> 27 & 0x1);}
+            inline void setTex2MatIdx(GX::AttrType val) {vaFlags &= ~0x8000000; vaFlags |= atUint32(val & 0x1) << 27;}
+            inline GX::AttrType tex3MatIdx() const {return GX::AttrType(vaFlags >> 28 & 0x1);}
+            inline void setTex3MatIdx(GX::AttrType val) {vaFlags &= ~0x10000000; vaFlags |= atUint32(val & 0x1) << 28;}
+            inline GX::AttrType tex4MatIdx() const {return GX::AttrType(vaFlags >> 29 & 0x1);}
+            inline void setTex4MatIdx(GX::AttrType val) {vaFlags &= ~0x20000000; vaFlags |= atUint32(val & 0x1) << 29;}
+            inline GX::AttrType tex5MatIdx() const {return GX::AttrType(vaFlags >> 30 & 0x1);}
+            inline void setTex5MatIdx(GX::AttrType val) {vaFlags &= ~0x40000000; vaFlags |= atUint32(val & 0x1) << 30;}
+            inline GX::AttrType tex6MatIdx() const {return GX::AttrType(vaFlags >> 31 & 0x1);}
+            inline void setTex6MatIdx(GX::AttrType val) {vaFlags &= ~0x80000000; vaFlags |= atUint32(val & 0x1) << 31;}
         } vaFlags;
+        inline const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> groupIdx;
 
         Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
@@ -287,8 +306,16 @@ struct MaterialSet : BigDNA
     static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out);
     static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
                                   const MaterialSet::Material& material,
-                                  unsigned groupIdx, unsigned matIdx,
-                                  unsigned& uvCountOut);
+                                  unsigned groupIdx, unsigned matIdx);
+
+    inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+                              const PAKRouter<PAKBridge>& pakRouter,
+                              const typename PAKRouter<PAKBridge>::EntryType& entry,
+                              std::vector<DNACMDL::VertexAttributes>& attributesOut,
+                              unsigned setIdx)
+    {
+        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, attributesOut, setIdx);
+    }
 };
 
 }

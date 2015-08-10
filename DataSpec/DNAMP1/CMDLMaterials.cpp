@@ -560,8 +560,7 @@ template <class MAT>
 void _ConstructMaterial(Stream& out,
                         const MAT& material,
                         unsigned groupIdx,
-                        unsigned matIdx,
-                        unsigned& uvCountOut)
+                        unsigned matIdx)
 {
     unsigned i;
 
@@ -614,23 +613,6 @@ void _ConstructMaterial(Stream& out,
     out << "tex_maps = []\n";
     for (atUint32 idx : material.texureIdxs)
         out.format("tex_maps.append(texmap_list[%u])\n", idx);
-
-    /* Vertex Attribute Flags */
-    uvCountOut = 0;
-    if (material.vaFlags.tex0())
-        ++uvCountOut;
-    if (material.vaFlags.tex1())
-        ++uvCountOut;
-    if (material.vaFlags.tex2())
-        ++uvCountOut;
-    if (material.vaFlags.tex3())
-        ++uvCountOut;
-    if (material.vaFlags.tex4())
-        ++uvCountOut;
-    if (material.vaFlags.tex5())
-        ++uvCountOut;
-    if (material.vaFlags.tex6())
-        ++uvCountOut;
 
     /* KColor entries */
     if (material.flags.konstValuesEnabled())
@@ -707,7 +689,11 @@ void _ConstructMaterial(Stream& out,
     }
 
     /* Connect final prev register */
-    out.format("new_nodetree.links.new(%s, final_node.inputs['Color'])\n", c_regs[GX::TEVPREV]);
+    if (!strcmp(c_regs[GX::TEVPREV], "ONE"))
+        out << "final_node.inputs['Color'].default_value = (1.0,1.0,1.0,1.0)\n";
+    else
+        out.format("new_nodetree.links.new(%s, final_node.inputs['Color'])\n", c_regs[GX::TEVPREV]);
+
     if (!strcmp(a_regs[GX::TEVPREV], "ONE"))
         out << "final_node.inputs['Alpha'].default_value = 1.0\n";
     else
@@ -722,9 +708,8 @@ void _ConstructMaterial(Stream& out,
 void MaterialSet::ConstructMaterial(Stream& out,
                                     const MaterialSet::Material& material,
                                     unsigned groupIdx,
-                                    unsigned matIdx,
-                                    unsigned& uvCountOut)
-{_ConstructMaterial(out, material, groupIdx, matIdx, uvCountOut);}
+                                    unsigned matIdx)
+{_ConstructMaterial(out, material, groupIdx, matIdx);}
 
 }
 }
@@ -737,9 +722,8 @@ namespace DNAMP2
 void MaterialSet::ConstructMaterial(Stream& out,
                                     const MaterialSet::Material& material,
                                     unsigned groupIdx,
-                                    unsigned matIdx,
-                                    unsigned& uvCountOut)
-{Retro::DNAMP1::_ConstructMaterial(out, material, groupIdx, matIdx, uvCountOut);}
+                                    unsigned matIdx)
+{Retro::DNAMP1::_ConstructMaterial(out, material, groupIdx, matIdx);}
 
 }
 }

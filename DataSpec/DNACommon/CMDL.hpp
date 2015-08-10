@@ -1,40 +1,275 @@
-#include <cstddef>
-#include "CMDL.hpp"
-#include "DNAMP1.hpp"
-#include "CMDLMaterials.hpp"
+#ifndef _DNACOMMON_CMDL_HPP_
+#define _DNACOMMON_CMDL_HPP_
 
-struct DLPrimVert
-{
-    atUint16 pos;
-    atUint16 norm;
-    atUint16 uvs[8];
-};
+#include "DNACommon.hpp"
+#include "BlenderConnection.hpp"
+#include "GX.hpp"
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNACMDL
 {
 
-bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
-                         Athena::io::IStreamReader& reader,
-                         PAKRouter<PAKBridge>& pakRouter,
-                         const PAK::Entry& entry,
-                         const HECL::ProjectPath& masterShader)
+struct Header : BigDNA
+{
+    DECL_DNA
+    Value<atUint32> magic;
+    Value<atUint32> version;
+    struct Flags : BigDNA
+    {
+        DECL_DNA
+        Value<atUint32> flags;
+        inline bool shortNormals() const {return (flags & 0x2) != 0;}
+        inline void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
+        inline bool shortUVs() const {return (flags & 0x4) != 0;}
+        inline void setShortUVs(bool val) {flags &= ~0x4; flags |= val << 2;}
+    } flags;
+    Value<atVec3f> aabbMin;
+    Value<atVec3f> aabbMax;
+    Value<atUint32> secCount;
+    Value<atUint32> matSetCount;
+    Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+    Align<32> align;
+};
+
+struct SurfaceHeader : BigDNA
+{
+    DECL_DNA
+    Value<atVec3f> centroid;
+    Value<atUint32> matIdx;
+    Value<atInt16> qDiv;
+    Value<atUint16> dlSize;
+    Seek<8, Athena::Current> seek;
+    Value<atUint32> aabbSz;
+    Value<atVec3f> reflectionNormal;
+    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Align<32> align;
+};
+
+struct VertexAttributes
+{
+    GX::AttrType pos = GX::NONE;
+    GX::AttrType norm = GX::NONE;
+    GX::AttrType color0 = GX::NONE;
+    GX::AttrType color1 = GX::NONE;
+    unsigned uvCount = 0;
+    GX::AttrType uvs[7] = {GX::NONE};
+    GX::AttrType pnMtxIdx = GX::NONE;
+    unsigned texMtxIdxCount = 0;
+    GX::AttrType texMtxIdx[7] = {GX::NONE};
+};
+
+template <class MaterialSet>
+void GetVertexAttributes(const MaterialSet& matSet,
+                         std::vector<VertexAttributes>& attributesOut)
+{
+    attributesOut.clear();
+    attributesOut.reserve(matSet.materials.size());
+
+    for (const typename MaterialSet::Material& mat : matSet.materials)
+    {
+        const typename MaterialSet::Material::VAFlags& vaFlags = mat.getVAFlags();
+        attributesOut.emplace_back();
+        VertexAttributes& metrics = attributesOut.back();
+
+        metrics.pos = vaFlags.position();
+        metrics.norm = vaFlags.normal();
+        metrics.color0 = vaFlags.color0();
+        metrics.color1 = vaFlags.color1();
+
+        if ((metrics.uvs[0] = vaFlags.tex0()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[1] = vaFlags.tex1()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[2] = vaFlags.tex2()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[3] = vaFlags.tex3()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[4] = vaFlags.tex4()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[5] = vaFlags.tex5()))
+            ++metrics.uvCount;
+        if ((metrics.uvs[6] = vaFlags.tex6()))
+            ++metrics.uvCount;
+
+        metrics.pnMtxIdx = vaFlags.pnMatIdx();
+
+        if ((metrics.texMtxIdx[0] = vaFlags.tex0MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[1] = vaFlags.tex1MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[2] = vaFlags.tex2MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[3] = vaFlags.tex3MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[4] = vaFlags.tex4MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[5] = vaFlags.tex5MatIdx()))
+            ++metrics.texMtxIdxCount;
+        if ((metrics.texMtxIdx[6] = vaFlags.tex6MatIdx()))
+            ++metrics.texMtxIdxCount;
+    }
+}
+
+template <class PAKRouter, class MaterialSet>
+void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
+                                  const MaterialSet& matSet,
+                                  const PAKRouter& pakRouter,
+                                  const typename PAKRouter::EntryType& entry,
+                                  std::vector<VertexAttributes>& attributesOut,
+                                  unsigned setIdx)
+{
+    /* Texmaps */
+    os << "texmap_list = []\n";
+    for (const UniqueID32& tex : matSet.head.textureIDs)
+    {
+        std::string texName = pakRouter.getBestEntryName(tex);
+        HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
+        HECL::SystemUTF8View resPathView(resPath);
+        os.format("if '%s' in bpy.data.textures:\n"
+                  "    image = bpy.data.images['%s']\n"
+                  "    texture = bpy.data.textures[image.name]\n"
+                  "else:\n"
+                  "    image = bpy.data.images.load('''//%s''')\n"
+                  "    image.name = '%s'\n"
+                  "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
+                  "    texture.image = image\n"
+                  "texmap_list.append(texture)\n"
+                  "\n", texName.c_str(), texName.c_str(),
+                  resPathView.str().c_str(), texName.c_str());
+    }
+
+    if (!setIdx)
+        GetVertexAttributes(matSet, attributesOut);
+
+    unsigned m=0;
+    for (const typename MaterialSet::Material& mat : matSet.materials)
+    {
+        MaterialSet::ConstructMaterial(os, mat, setIdx, m++);
+        os << "materials.append(new_material)\n";
+    }
+}
+
+template <class PAKRouter, class MaterialSet>
+void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
+                                const MaterialSet& matSet,
+                                const PAKRouter& pakRouter,
+                                const typename PAKRouter::EntryType& entry,
+                                std::vector<DNACMDL::VertexAttributes>& attributesOut,
+                                unsigned setIdx)
+{
+    if (!setIdx)
+        GetVertexAttributes(matSet, attributesOut);
+
+    unsigned m=0;
+    for (const typename MaterialSet::Material& mat : matSet.materials)
+    {
+        MaterialSet::ConstructMaterial(os, mat, setIdx, m++);
+        os << "materials.append(new_material)\n";
+    }
+}
+
+class DLReader
+{
+    const VertexAttributes& m_va;
+    std::unique_ptr<atUint8[]> m_dl;
+    size_t m_dlSize;
+    atUint8* m_cur;
+    atUint16 readVal(GX::AttrType type)
+    {
+        atUint16 retval = 0;
+        switch (type)
+        {
+        case GX::DIRECT:
+        case GX::INDEX8:
+            retval = *m_cur;
+            ++m_cur;
+            break;
+        case GX::INDEX16:
+            retval = HECL::SBig(*(atUint16*)m_cur);
+            m_cur += 2;
+            break;
+        default: break;
+        }
+        return retval;
+    }
+public:
+    DLReader(const VertexAttributes& va, std::unique_ptr<atUint8[]>&& dl, size_t dlSize)
+    : m_va(va), m_dl(std::move(dl)), m_dlSize(dlSize)
+    {
+        m_cur = m_dl.get();
+    }
+    operator bool()
+    {
+        return *m_cur && ((m_cur - m_dl.get()) < m_dlSize);
+    }
+    GX::Primitive readPrimitive()
+    {
+        return GX::Primitive(*m_cur++ & 0xf8);
+    }
+    atUint16 readVertCount()
+    {
+        return readVal(GX::INDEX16);
+    }
+    struct DLPrimVert
+    {
+        atUint16 pos;
+        atUint16 norm;
+        atUint16 color[2];
+        atUint16 uvs[7];
+        atUint8 pnMtxIdx;
+        atUint8 texMtxIdx[7];
+    };
+    DLPrimVert readVert(bool peek=false)
+    {
+        atUint8* bakCur = m_cur;
+        DLPrimVert retval;
+        retval.pnMtxIdx = readVal(m_va.pnMtxIdx);
+        retval.texMtxIdx[0] = readVal(m_va.texMtxIdx[0]);
+        retval.texMtxIdx[1] = readVal(m_va.texMtxIdx[1]);
+        retval.texMtxIdx[2] = readVal(m_va.texMtxIdx[2]);
+        retval.texMtxIdx[3] = readVal(m_va.texMtxIdx[3]);
+        retval.texMtxIdx[4] = readVal(m_va.texMtxIdx[4]);
+        retval.texMtxIdx[5] = readVal(m_va.texMtxIdx[5]);
+        retval.texMtxIdx[6] = readVal(m_va.texMtxIdx[6]);
+        retval.pos = readVal(m_va.pos);
+        retval.norm = readVal(m_va.norm);
+        retval.color[0] = readVal(m_va.color0);
+        retval.color[1] = readVal(m_va.color1);
+        retval.uvs[0] = readVal(m_va.uvs[0]);
+        retval.uvs[1] = readVal(m_va.uvs[1]);
+        retval.uvs[2] = readVal(m_va.uvs[2]);
+        retval.uvs[3] = readVal(m_va.uvs[3]);
+        retval.uvs[4] = readVal(m_va.uvs[4]);
+        retval.uvs[5] = readVal(m_va.uvs[5]);
+        retval.uvs[6] = readVal(m_va.uvs[6]);
+        if (peek)
+            m_cur = bakCur;
+        return retval;
+    }
+};
+
+template <class PAKRouter, class MaterialSet, atUint32 Version>
+bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
+                       Athena::io::IStreamReader& reader,
+                       PAKRouter& pakRouter,
+                       const typename PAKRouter::EntryType& entry,
+                       const HECL::ProjectPath& masterShader)
 {
     reader.setEndian(Athena::BigEndian);
 
-    CMDL::Header head;
+    Header head;
     head.read(reader);
 
     if (head.magic != 0xDEADBABE)
     {
-        Log.report(LogVisor::Error, "invalid CMDL magic");
+        LogDNACommon.report(LogVisor::Error, "invalid CMDL magic");
         return false;
     }
 
-    if (head.version != 2)
+    if (head.version != Version)
     {
-        Log.report(LogVisor::Error, "invalid CMDL version for MP1");
+        LogDNACommon.report(LogVisor::Error, "invalid CMDL version");
         return false;
     }
 
@@ -136,8 +371,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
           "od_list = []\n"
           "\n";
 
-    std::vector<std::vector<unsigned>> matUVCounts;
-    matUVCounts.reserve(head.matSetCount);
+    std::vector<VertexAttributes> vertAttribs;
     bool visitedDLOffsets = false;
     unsigned createdUVLayers = 0;
     unsigned surfIdx = 0;
@@ -149,39 +383,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
         {
             MaterialSet matSet;
             matSet.read(reader);
-
-            /* Texmaps */
-            os << "texmap_list = []\n";
-            for (const UniqueID32& tex : matSet.head.textureIDs)
-            {
-                std::string texName = pakRouter.getBestEntryName(tex);
-                HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
-                HECL::SystemUTF8View resPathView(resPath);
-                os.format("if '%s' in bpy.data.textures:\n"
-                          "    image = bpy.data.images['%s']\n"
-                          "    texture = bpy.data.textures[image.name]\n"
-                          "else:\n"
-                          "    image = bpy.data.images.load('''//%s''')\n"
-                          "    image.name = '%s'\n"
-                          "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
-                          "    texture.image = image\n"
-                          "texmap_list.append(texture)\n"
-                          "\n", texName.c_str(), texName.c_str(),
-                          resPathView.str().c_str(), texName.c_str());
-            }
-
-            matUVCounts.emplace_back();
-            std::vector<unsigned>& uvCounts = matUVCounts.back();
-            uvCounts.reserve(matSet.head.materialCount);
-
-            unsigned m=0;
-            for (const MaterialSet::Material& mat : matSet.materials)
-            {
-                uvCounts.emplace_back();
-                unsigned& uvCount = uvCounts.back();
-                MaterialSet::ConstructMaterial(os, mat, s, m++, uvCount);
-                os << "materials.append(new_material)\n";
-            }
+            matSet.readToBlender(os, pakRouter, entry, vertAttribs, s);
         }
         else
         {
@@ -273,7 +475,7 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                 atUint64 start = reader.position();
                 SurfaceHeader sHead;
                 sHead.read(reader);
-                unsigned matUVCount = matUVCounts[0][sHead.matIdx];
+                unsigned matUVCount = vertAttribs[sHead.matIdx].uvCount;
 
                 os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
                 if (matUVCount > createdUVLayers)
@@ -284,55 +486,41 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                 }
 
                 atUint32 realDlSize = head.secSizes[s] - (reader.position() - secStart);
-                std::unique_ptr<atUint8[]> dlBuf = reader.readUBytes(realDlSize);
-                atUint8* origDl = dlBuf.get();
-                atUint8* dl = origDl;
+                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
 
-                while (*dl && (dl-origDl) < realDlSize)
+                while (dl)
                 {
 
-                    GX::Primitive ptype = GX::Primitive(*dl & 0xf8);
-                    if (ptype == 0)
-                        break;
-
-                    atUint16 vert_count = HECL::SBig(*(atUint16*)(dl + 1));
-                    os.format("# VAT Type: %u\n", *dl&7);
-
-                    atUint16* dli = (atUint16*)(dl + 3);
+                    GX::Primitive ptype = dl.readPrimitive();
+                    atUint16 vertCount = dl.readVertCount();
 
                     /* First vert */
-                    DLPrimVert first_prim_vert;
-                    first_prim_vert.pos = HECL::SBig(dli[0]);
-                    first_prim_vert.norm = HECL::SBig(dli[1]);
-                    for (int uv=0 ; uv<matUVCount ; ++uv)
-                        first_prim_vert.uvs[uv] = HECL::SBig(dli[2+uv]);
+                    DLReader::DLPrimVert firstPrimVert = dl.readVert(true);
 
                     /* 3 Prim Verts to start */
                     int c = 0;
-                    DLPrimVert prim_verts[3];
-                    for (int pv=0 ; pv<3 ; ++pv)
+                    DLReader::DLPrimVert primVerts[3] =
                     {
-                        prim_verts[pv].pos = HECL::SBig(*dli++);
-                        prim_verts[pv].norm = HECL::SBig(*dli++);
-                        for (int uv=0 ; uv<matUVCount ; ++uv)
-                            prim_verts[pv].uvs[uv] = HECL::SBig(*dli++);
-                    }
+                        dl.readVert(),
+                        dl.readVert(),
+                        dl.readVert()
+                    };
 
                     if (ptype == GX::TRIANGLESTRIP)
                     {
                         atUint8 flip = 0;
-                        for (int v=0 ; v<vert_count-2 ; ++v)
+                        for (int v=0 ; v<vertCount-2 ; ++v)
                         {
 
                             if (flip)
                             {
                                 os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
-                                          prim_verts[c%3].pos,
-                                          prim_verts[(c+2)%3].pos,
-                                          prim_verts[(c+1)%3].pos,
-                                          prim_verts[c%3].norm,
-                                          prim_verts[(c+2)%3].norm,
-                                          prim_verts[(c+1)%3].norm,
+                                          primVerts[c%3].pos,
+                                          primVerts[(c+2)%3].pos,
+                                          primVerts[(c+1)%3].pos,
+                                          primVerts[c%3].norm,
+                                          primVerts[(c+2)%3].norm,
+                                          primVerts[(c+1)%3].norm,
                                           sHead.matIdx);
                                 if (matUVCount)
                                 {
@@ -341,20 +529,20 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                                         os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                                  prim_verts[c%3].pos, j, prim_verts[c%3].uvs[j],
-                                                  prim_verts[(c+2)%3].pos, j, prim_verts[(c+2)%3].uvs[j],
-                                                  prim_verts[(c+1)%3].pos, j, prim_verts[(c+1)%3].uvs[j]);
+                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                  primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j],
+                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
                                 }
                             }
                             else
                             {
                                 os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
-                                          prim_verts[c%3].pos,
-                                          prim_verts[(c+1)%3].pos,
-                                          prim_verts[(c+2)%3].pos,
-                                          prim_verts[c%3].norm,
-                                          prim_verts[(c+1)%3].norm,
-                                          prim_verts[(c+2)%3].norm,
+                                          primVerts[c%3].pos,
+                                          primVerts[(c+1)%3].pos,
+                                          primVerts[(c+2)%3].pos,
+                                          primVerts[c%3].norm,
+                                          primVerts[(c+1)%3].norm,
+                                          primVerts[(c+2)%3].norm,
                                           sHead.matIdx);
                                 if (matUVCount)
                                 {
@@ -363,36 +551,33 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                                         os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                                  prim_verts[c%3].pos, j, prim_verts[c%3].uvs[j],
-                                                  prim_verts[(c+1)%3].pos, j, prim_verts[(c+1)%3].uvs[j],
-                                                  prim_verts[(c+2)%3].pos, j, prim_verts[(c+2)%3].uvs[j]);
+                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j],
+                                                  primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j]);
                                 }
                             }
                             flip ^= 1;
 
-                            dl = (atUint8*)dli;
+                            bool peek = (v >= vertCount - 3);
 
                             /* Advance one prim vert */
-                            prim_verts[c%3].pos = HECL::SBig(*dli++);
-                            prim_verts[c%3].norm = HECL::SBig(*dli++);
-                            for (int uv=0 ; uv<matUVCount ; ++uv)
-                                prim_verts[c%3].uvs[uv] = HECL::SBig(*dli++);
+                            primVerts[c%3] = dl.readVert(peek);
                             ++c;
 
                         }
                     }
                     else if (ptype == GX::TRIANGLES)
                     {
-                        for (int v=0 ; v<vert_count ; v+=3)
+                        for (int v=0 ; v<vertCount ; v+=3)
                         {
 
                             os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
-                                      prim_verts[0].pos,
-                                      prim_verts[1].pos,
-                                      prim_verts[2].pos,
-                                      prim_verts[0].norm,
-                                      prim_verts[1].norm,
-                                      prim_verts[2].norm,
+                                      primVerts[0].pos,
+                                      primVerts[1].pos,
+                                      primVerts[2].pos,
+                                      primVerts[0].norm,
+                                      primVerts[1].norm,
+                                      primVerts[2].norm,
                                       sHead.matIdx);
                             if (matUVCount)
                             {
@@ -401,39 +586,34 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                                     os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                              prim_verts[0].pos, j, prim_verts[0].uvs[j],
-                                              prim_verts[1].pos, j, prim_verts[1].uvs[j],
-                                              prim_verts[2].pos, j, prim_verts[2].uvs[j]);
+                                              primVerts[0].pos, j, primVerts[0].uvs[j],
+                                              primVerts[1].pos, j, primVerts[1].uvs[j],
+                                              primVerts[2].pos, j, primVerts[2].uvs[j]);
                             }
 
-                            dl = (atUint8*)dli;
-
                             /* Break if done */
-                            if (v+3 >= vert_count)
+                            if (v+3 >= vertCount)
                                 break;
+
+                            bool peek = (v >= vertCount - 3);
 
                             /* Advance 3 Prim Verts */
                             for (int pv=0 ; pv<3 ; ++pv)
-                            {
-                                prim_verts[pv].pos = HECL::SBig(*dli++);
-                                prim_verts[pv].norm = HECL::SBig(*dli++);
-                                for (int uv=0 ; uv<matUVCount ; ++uv)
-                                    prim_verts[pv].uvs[uv] = HECL::SBig(*dli++);
-                            }
+                                primVerts[pv] = dl.readVert(peek);
                         }
                     }
                     else if (ptype == GX::TRIANGLEFAN)
                     {
                         ++c;
-                        for (int v=0 ; v<vert_count-2 ; ++v)
+                        for (int v=0 ; v<vertCount-2 ; ++v)
                         {
                             os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
-                                      first_prim_vert.pos,
-                                      prim_verts[c%3].pos,
-                                      prim_verts[(c+1)%3].pos,
-                                      first_prim_vert.norm,
-                                      prim_verts[c%3].norm,
-                                      prim_verts[(c+1)%3].norm,
+                                      firstPrimVert.pos,
+                                      primVerts[c%3].pos,
+                                      primVerts[(c+1)%3].pos,
+                                      firstPrimVert.norm,
+                                      primVerts[c%3].norm,
+                                      primVerts[(c+1)%3].norm,
                                       sHead.matIdx);
                             if (matUVCount)
                             {
@@ -442,18 +622,15 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
                                     os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                              first_prim_vert.pos, j, first_prim_vert.uvs[j],
-                                              prim_verts[c%3].pos, j, prim_verts[c%3].uvs[j],
-                                              prim_verts[(c+1)%3].pos, j, prim_verts[(c+1)%3].uvs[j]);
+                                              firstPrimVert.pos, j, firstPrimVert.uvs[j],
+                                              primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                              primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
                             }
 
-                            dl = (atUint8*)dli;
+                            bool peek = (v >= vertCount - 3);
 
                             /* Advance one prim vert */
-                            prim_verts[(c+2)%3].pos = HECL::SBig(*dli++);
-                            prim_verts[(c+2)%3].norm = HECL::SBig(*dli++);
-                            for (int uv=0 ; uv<matUVCount ; ++uv)
-                                prim_verts[(c+2)%3].uvs[uv] = HECL::SBig(*dli++);
+                            primVerts[(c+2)%3] = dl.readVert(peek);
                             ++c;
                         }
                     }
@@ -522,3 +699,5 @@ bool CMDL::ReadToBlender(HECL::BlenderConnection& conn,
 
 }
 }
+
+#endif // _DNACOMMON_CMDL_HPP_

@@ -4,6 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/GX.hpp"
 #include "../DNAMP1/CMDLMaterials.hpp"
+#include "DNAMP2.hpp"
 
 namespace Retro
 {
@@ -23,13 +24,15 @@ struct MaterialSet : BigDNA
 
         Value<atUint32> textureCount;
         Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
+        using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
         DNAMP1::MaterialSet::Material::VAFlags vaFlags;
+        inline const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> unk0; /* MP2 only */
         Value<atUint32> unk1; /* MP2 only */
         Value<atUint32> groupIdx;
 
-        Value<atUint32> konstCount;
-        Vector<GX::Color, DNA_COUNT(konstCount)> konstColors;
+        Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
+        Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
         Value<atUint16> _blendDstFac;
         using BlendFactor = DNAMP1::MaterialSet::Material::BlendFactor;
@@ -56,10 +59,22 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
+    static inline void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
+    {
+        DNAMP1::MaterialSet::RegisterMaterialProps(out);
+    }
     static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
                                   const MaterialSet::Material& material,
-                                  unsigned groupIdx, unsigned matIdx,
-                                  unsigned& uvCountOut);
+                                  unsigned groupIdx, unsigned matIdx);
+
+    inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+                              const PAKRouter<PAKBridge>& pakRouter,
+                              const typename PAKRouter<PAKBridge>::EntryType& entry,
+                              std::vector<DNACMDL::VertexAttributes>& attributesOut,
+                              unsigned setIdx)
+    {
+        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, attributesOut, setIdx);
+    }
 };
 
 }

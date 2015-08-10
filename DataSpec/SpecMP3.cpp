@@ -238,6 +238,9 @@ struct SpecMP3 : SpecBase
             doMPTFE = true;
         }
 
+        if (!doMP3 && !doMPTFE)
+            return false;
+
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
 

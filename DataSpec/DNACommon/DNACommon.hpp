@@ -262,17 +262,22 @@ struct ResExtractor
 template <class BRIDGETYPE>
 class PAKRouter
 {
+public:
+    using PAKType = typename BRIDGETYPE::PAKType;
+    using IDType = typename PAKType::IDType;
+    using EntryType = typename PAKType::Entry;
+private:
     const SpecBase& m_dataSpec;
     const HECL::ProjectPath& m_gameWorking;
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
     HECL::ProjectPath m_sharedCooked;
-    const typename BRIDGETYPE::PAKType* m_pak = nullptr;
+    const PAKType* m_pak = nullptr;
     const NOD::DiscBase::IPartition::Node* m_node = nullptr;
     HECL::ProjectPath m_pakWorking;
     HECL::ProjectPath m_pakCooked;
-    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_uniqueEntries;
-    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_sharedEntries;
+    std::unordered_map<typename PAKType::IDType, typename PAKType::Entry*> m_uniqueEntries;
+    std::unordered_map<IDType, EntryType*> m_sharedEntries;
 public:
     PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
     : m_dataSpec(dataSpec),

@@ -2,6 +2,7 @@
 #include "DNAMP2.hpp"
 #include "STRG.hpp"
 #include "MLVL.hpp"
+#include "CMDL.hpp"
 #include "../DNACommon/TXTR.hpp"
 
 namespace Retro
@@ -186,6 +187,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
         return {STRG::Extract, nullptr, ".yaml"};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, ".png"};
+    case SBIG('CMDL'):
+        return {nullptr, CMDL::Extract, ".blend", 1};
     }
     return {};
 }
