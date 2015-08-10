@@ -26,6 +26,8 @@ public:
     : HECL::FourCC() {num = other.toUint32();}
     FourCC(const char* name)
     : HECL::FourCC(name) {}
+    FourCC(uint32_t n)
+    : HECL::FourCC(n) {}
 
     Delete expl;
     inline void read(Athena::io::IStreamReader& reader)
@@ -469,51 +471,6 @@ public:
 
 /* Resource cooker function */
 typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
-
-/* Language-identifiers */
-extern const HECL::FourCC ENGL;
-extern const HECL::FourCC FREN;
-extern const HECL::FourCC GERM;
-extern const HECL::FourCC SPAN;
-extern const HECL::FourCC ITAL;
-extern const HECL::FourCC JAPN;
-
-/* Resource types */
-extern const HECL::FourCC AFSM;
-extern const HECL::FourCC AGSC;
-extern const HECL::FourCC ANCS;
-extern const HECL::FourCC ANIM;
-extern const HECL::FourCC ATBL;
-extern const HECL::FourCC CINF;
-extern const HECL::FourCC CMDL;
-extern const HECL::FourCC CRSC;
-extern const HECL::FourCC CSKR;
-extern const HECL::FourCC CSMP;
-extern const HECL::FourCC CSNG;
-extern const HECL::FourCC CTWK;
-extern const HECL::FourCC DGRP;
-extern const HECL::FourCC DPSC;
-extern const HECL::FourCC DUMB;
-extern const HECL::FourCC ELSC;
-extern const HECL::FourCC EVNT;
-extern const HECL::FourCC FONT;
-extern const HECL::FourCC FRME;
-extern const HECL::FourCC HINT;
-extern const HECL::FourCC MAPA;
-extern const HECL::FourCC MAPU;
-extern const HECL::FourCC MAPW;
-extern const HECL::FourCC MLVL;
-extern const HECL::FourCC MREA;
-extern const HECL::FourCC PART;
-extern const HECL::FourCC PATH;
-extern const HECL::FourCC RFRM;
-extern const HECL::FourCC ROOM;
-extern const HECL::FourCC SAVW;
-extern const HECL::FourCC SCAN;
-extern const HECL::FourCC STRG;
-extern const HECL::FourCC SWHC;
-extern const HECL::FourCC TXTR;
-extern const HECL::FourCC WPSC;
 
 }
 

@@ -21,7 +21,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     /* Append Level String */
     for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
-        if (entry.type == Retro::MLVL)
+        if (entry.type == SBIG('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
@@ -34,7 +34,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
                 mlvlName.read(rs);
                 if (m_levelString.size())
                     m_levelString += _S(", ");
-                m_levelString += mlvlName.getSystemString(ENGL, 0);
+                m_levelString += mlvlName.getSystemString(FourCC(SBIG('ENGL')), 0);
             }
         }
     }
@@ -117,7 +117,7 @@ void PAKBridge::build()
     /* First pass: build per-area/per-layer dependency map */
     for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
-        if (entry.type == Retro::MLVL)
+        if (entry.type == SBIG('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
@@ -133,7 +133,7 @@ void PAKBridge::build()
                     STRG areaName;
                     PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
                     areaName.read(rs);
-                    areaDeps.name = areaName.getSystemString(Retro::ENGL, 0);
+                    areaDeps.name = areaName.getSystemString(FourCC(SBIG('ENGL')), 0);
                 }
                 if (areaDeps.name.empty())
                 {

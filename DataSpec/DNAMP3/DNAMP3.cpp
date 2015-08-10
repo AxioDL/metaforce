@@ -24,7 +24,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     std::set<HECL::SystemString, CaseInsensitiveCompare> uniq;
     for (const PAK::Entry& entry : m_pak.m_entries)
     {
-        if (entry.type == Retro::MLVL)
+        if (entry.type == SBIG('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
@@ -35,7 +35,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
                 STRG mlvlName;
                 mlvlName.read(rs);
-                uniq.insert(mlvlName.getSystemString(ENGL, 0));
+                uniq.insert(mlvlName.getSystemString(FourCC(SBIG('ENGL')), 0));
             }
         }
     }
