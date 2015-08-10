@@ -36,7 +36,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
                 mlvlName.read(rs);
                 if (m_levelString.size())
                     m_levelString += _S(", ");
-                m_levelString += mlvlName.getSystemString(FourCC(SBIG('ENGL')), 0);
+                m_levelString += mlvlName.getSystemString(FOURCC('ENGL'), 0);
             }
         }
     }
@@ -135,7 +135,7 @@ void PAKBridge::build()
                     STRG areaName;
                     PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
                     areaName.read(rs);
-                    areaDeps.name = areaName.getSystemString(FourCC(SBIG('ENGL')), 0);
+                    areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
                 }
                 if (areaDeps.name.empty())
                 {

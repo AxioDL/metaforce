@@ -35,7 +35,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
                 STRG mlvlName;
                 mlvlName.read(rs);
-                uniq.insert(mlvlName.getSystemString(FourCC(SBIG('ENGL')), 0));
+                uniq.insert(mlvlName.getSystemString(FOURCC('ENGL'), 0));
             }
         }
     }

@@ -70,44 +70,44 @@ void GetVertexAttributes(const MaterialSet& matSet,
     {
         const typename MaterialSet::Material::VAFlags& vaFlags = mat.getVAFlags();
         attributesOut.emplace_back();
-        VertexAttributes& metrics = attributesOut.back();
+        VertexAttributes& va = attributesOut.back();
 
-        metrics.pos = vaFlags.position();
-        metrics.norm = vaFlags.normal();
-        metrics.color0 = vaFlags.color0();
-        metrics.color1 = vaFlags.color1();
+        va.pos = vaFlags.position();
+        va.norm = vaFlags.normal();
+        va.color0 = vaFlags.color0();
+        va.color1 = vaFlags.color1();
 
-        if ((metrics.uvs[0] = vaFlags.tex0()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[1] = vaFlags.tex1()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[2] = vaFlags.tex2()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[3] = vaFlags.tex3()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[4] = vaFlags.tex4()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[5] = vaFlags.tex5()))
-            ++metrics.uvCount;
-        if ((metrics.uvs[6] = vaFlags.tex6()))
-            ++metrics.uvCount;
+        if ((va.uvs[0] = vaFlags.tex0()))
+            ++va.uvCount;
+        if ((va.uvs[1] = vaFlags.tex1()))
+            ++va.uvCount;
+        if ((va.uvs[2] = vaFlags.tex2()))
+            ++va.uvCount;
+        if ((va.uvs[3] = vaFlags.tex3()))
+            ++va.uvCount;
+        if ((va.uvs[4] = vaFlags.tex4()))
+            ++va.uvCount;
+        if ((va.uvs[5] = vaFlags.tex5()))
+            ++va.uvCount;
+        if ((va.uvs[6] = vaFlags.tex6()))
+            ++va.uvCount;
 
-        metrics.pnMtxIdx = vaFlags.pnMatIdx();
+        va.pnMtxIdx = vaFlags.pnMatIdx();
 
-        if ((metrics.texMtxIdx[0] = vaFlags.tex0MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[1] = vaFlags.tex1MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[2] = vaFlags.tex2MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[3] = vaFlags.tex3MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[4] = vaFlags.tex4MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[5] = vaFlags.tex5MatIdx()))
-            ++metrics.texMtxIdxCount;
-        if ((metrics.texMtxIdx[6] = vaFlags.tex6MatIdx()))
-            ++metrics.texMtxIdxCount;
+        if ((va.texMtxIdx[0] = vaFlags.tex0MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[1] = vaFlags.tex1MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[2] = vaFlags.tex2MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[3] = vaFlags.tex3MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[4] = vaFlags.tex4MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[5] = vaFlags.tex5MatIdx()))
+            ++va.texMtxIdxCount;
+        if ((va.texMtxIdx[6] = vaFlags.tex6MatIdx()))
+            ++va.texMtxIdxCount;
     }
 }
 
