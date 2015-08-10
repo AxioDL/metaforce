@@ -116,7 +116,6 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
-                                  std::vector<VertexAttributes>& attributesOut,
                                   unsigned setIdx)
 {
     /* Texmaps */
@@ -139,9 +138,6 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
                   resPathView.str().c_str(), texName.c_str());
     }
 
-    if (!setIdx)
-        GetVertexAttributes(matSet, attributesOut);
-
     unsigned m=0;
     for (const typename MaterialSet::Material& mat : matSet.materials)
     {
@@ -155,12 +151,8 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
-                                std::vector<DNACMDL::VertexAttributes>& attributesOut,
                                 unsigned setIdx)
 {
-    if (!setIdx)
-        GetVertexAttributes(matSet, attributesOut);
-
     unsigned m=0;
     for (const typename MaterialSet::Material& mat : matSet.materials)
     {
@@ -213,12 +205,12 @@ public:
     }
     struct DLPrimVert
     {
-        atUint16 pos;
-        atUint16 norm;
-        atUint16 color[2];
-        atUint16 uvs[7];
-        atUint8 pnMtxIdx;
-        atUint8 texMtxIdx[7];
+        atUint16 pos = 0;
+        atUint16 norm = 0;
+        atUint16 color[2] = {0};
+        atUint16 uvs[7] = {0};
+        atUint8 pnMtxIdx = 0;
+        atUint8 texMtxIdx[7] = {0};
     };
     DLPrimVert readVert(bool peek=false)
     {
@@ -246,6 +238,58 @@ public:
         if (peek)
             m_cur = bakCur;
         return retval;
+    }
+    void preReadMaxIdxs(DLPrimVert& out)
+    {
+        atUint8* bakCur = m_cur;
+        while (*this)
+        {
+            readPrimitive();
+            atUint16 vc = readVertCount();
+            for (atUint16 v=0 ; v<vc ; ++v)
+            {
+                atUint16 val;
+                val = readVal(m_va.pnMtxIdx);
+                out.pnMtxIdx = MAX(out.pnMtxIdx, val);
+                val = readVal(m_va.texMtxIdx[0]);
+                out.texMtxIdx[0] = MAX(out.texMtxIdx[0], val);
+                val = readVal(m_va.texMtxIdx[1]);
+                out.texMtxIdx[1] = MAX(out.texMtxIdx[1], val);
+                val = readVal(m_va.texMtxIdx[2]);
+                out.texMtxIdx[2] = MAX(out.texMtxIdx[2], val);
+                val = readVal(m_va.texMtxIdx[3]);
+                out.texMtxIdx[3] = MAX(out.texMtxIdx[3], val);
+                val = readVal(m_va.texMtxIdx[4]);
+                out.texMtxIdx[4] = MAX(out.texMtxIdx[4], val);
+                val = readVal(m_va.texMtxIdx[5]);
+                out.texMtxIdx[5] = MAX(out.texMtxIdx[5], val);
+                val = readVal(m_va.texMtxIdx[6]);
+                out.texMtxIdx[6] = MAX(out.texMtxIdx[6], val);
+                val = readVal(m_va.pos);
+                out.pos = MAX(out.pos, val);
+                val = readVal(m_va.norm);
+                out.norm = MAX(out.norm, val);
+                val = readVal(m_va.color0);
+                out.color[0] = MAX(out.color[0], val);
+                val = readVal(m_va.color1);
+                out.color[1] = MAX(out.color[1], val);
+                val = readVal(m_va.uvs[0]);
+                out.uvs[0] = MAX(out.uvs[0], val);
+                val = readVal(m_va.uvs[1]);
+                out.uvs[1] = MAX(out.uvs[1], val);
+                val = readVal(m_va.uvs[2]);
+                out.uvs[2] = MAX(out.uvs[2], val);
+                val = readVal(m_va.uvs[3]);
+                out.uvs[3] = MAX(out.uvs[3], val);
+                val = readVal(m_va.uvs[4]);
+                out.uvs[4] = MAX(out.uvs[4], val);
+                val = readVal(m_va.uvs[5]);
+                out.uvs[5] = MAX(out.uvs[5], val);
+                val = readVal(m_va.uvs[6]);
+                out.uvs[6] = MAX(out.uvs[6], val);
+            }
+        }
+        m_cur = bakCur;
     }
 };
 
@@ -371,8 +415,87 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
           "od_list = []\n"
           "\n";
 
-    std::vector<VertexAttributes> vertAttribs;
+    /* Pre-read pass to determine maximum used vert indices */
     bool visitedDLOffsets = false;
+    std::vector<VertexAttributes> vertAttribs;
+
+    atUint64 afterHeaderPos = reader.position();
+
+    DLReader::DLPrimVert maxIdxs;
+    for (size_t s=0 ; s<head.secCount ; ++s)
+    {
+        atUint64 secStart = reader.position();
+        if (s < head.matSetCount)
+        {
+            if (!s)
+            {
+                MaterialSet matSet;
+                matSet.read(reader);
+                GetVertexAttributes(matSet, vertAttribs);
+            }
+        }
+        else
+        {
+            switch (s-head.matSetCount)
+            {
+            case 0:
+            {
+                /* Positions */
+                break;
+            }
+            case 1:
+            {
+                /* Normals */
+                break;
+            }
+            case 2:
+            {
+                /* Colors */
+                break;
+            }
+            case 3:
+            {
+                /* Float UVs */
+                break;
+            }
+            case 4:
+            {
+                /* Short UVs */
+                if (head.flags.shortUVs())
+                    break;
+
+                /* DL Offsets (here or next section) */
+                visitedDLOffsets = true;
+                break;
+            }
+            default:
+            {
+                if (!visitedDLOffsets)
+                {
+                    visitedDLOffsets = true;
+                    break;
+                }
+
+                /* GX Display List (surface) */
+                SurfaceHeader sHead;
+                sHead.read(reader);
+
+                /* Do max index pre-read */
+                atUint32 realDlSize = head.secSizes[s] - (reader.position() - secStart);
+                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
+                dl.preReadMaxIdxs(maxIdxs);
+
+            }
+            }
+        }
+
+        if (s < head.secCount - 1)
+            reader.seek(secStart + head.secSizes[s], Athena::Begin);
+    }
+
+    reader.seek(afterHeaderPos, Athena::Begin);
+
+    visitedDLOffsets = false;
     unsigned createdUVLayers = 0;
     unsigned surfIdx = 0;
 
@@ -383,7 +506,9 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
         {
             MaterialSet matSet;
             matSet.read(reader);
-            matSet.readToBlender(os, pakRouter, entry, vertAttribs, s);
+            matSet.readToBlender(os, pakRouter, entry, s);
+            if (!s)
+                GetVertexAttributes(matSet, vertAttribs);
         }
         else
         {
@@ -392,8 +517,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             case 0:
             {
                 /* Positions */
-                size_t vertCount = head.secSizes[s] / 12;
-                for (size_t i=0 ; i<vertCount ; ++i)
+                for (size_t i=0 ; i<=maxIdxs.pos ; ++i)
                 {
                     atVec3f pos = reader.readVec3f();
                     os.format("bm.verts.new((%f,%f,%f))\n",
@@ -472,7 +596,6 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 }
 
                 /* GX Display List (surface) */
-                atUint64 start = reader.position();
                 SurfaceHeader sHead;
                 sHead.read(reader);
                 unsigned matUVCount = vertAttribs[sHead.matIdx].uvCount;
