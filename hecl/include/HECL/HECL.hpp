@@ -317,12 +317,17 @@ public:
     {num = other.num;}
     FourCC(const char* name)
     : num(*(uint32_t*)name) {}
+    FourCC(uint32_t n)
+    : num(n) {}
     inline bool operator==(const FourCC& other) const {return num == other.num;}
     inline bool operator!=(const FourCC& other) const {return num != other.num;}
     inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
     inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
+    inline bool operator==(uint32_t other) const {return num == other;}
+    inline bool operator!=(uint32_t other) const {return num != other;}
     inline std::string toString() const {return std::string(fcc, 4);}
     inline uint32_t toUint32() const {return num;}
+    inline operator uint32_t() const {return num;}
 };
 
 /**
