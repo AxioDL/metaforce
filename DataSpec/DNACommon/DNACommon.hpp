@@ -43,10 +43,10 @@ public:
 /* PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
 {
-    uint32_t m_id = 0;
+    uint32_t m_id = 0xffffffff;
 public:
     Delete expl;
-    inline operator bool() const {return m_id;}
+    inline operator bool() const {return m_id != 0xffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint32();}
     inline void write(Athena::io::IStreamWriter& writer) const
@@ -70,10 +70,10 @@ public:
 /* PAK 64-bit Unique ID */
 class UniqueID64 : public BigDNA
 {
-    uint64_t m_id = 0;
+    uint64_t m_id = 0xffffffffffffffff;
 public:
     Delete expl;
-    inline operator bool() const {return m_id;}
+    inline operator bool() const {return m_id != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint64();}
     inline void write(Athena::io::IStreamWriter& writer) const
@@ -102,8 +102,9 @@ class UniqueID128 : public BigDNA
     };
 public:
     Delete expl;
-    UniqueID128() {m_id[0]=0; m_id[1]=0;}
-    inline operator bool() const {return m_id[0] && m_id[1];}
+    UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
+    inline operator bool() const
+    {return m_id[0] != 0xffffffffffffffff && m_id[1] != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64();
@@ -167,6 +168,70 @@ struct CaseInsensitiveCompare
         return false;
     }
 #endif
+};
+
+/* Word Bitmap reader/writer */
+struct WordBitmap
+{
+    std::vector<atUint32> m_words;
+    size_t m_bitCount = 0;
+    void read(Athena::io::IStreamReader& reader, size_t bitCount)
+    {
+        m_bitCount = bitCount;
+        size_t wordCount = (bitCount + 31) / 32;
+        m_words.clear();
+        m_words.reserve(wordCount);
+        for (size_t w=0 ; w<wordCount ; ++w)
+            m_words.push_back(reader.readUint32());
+    }
+    void write(Athena::io::IStreamWriter& writer) const
+    {
+        for (atUint32 word : m_words)
+            writer.writeUint32(word);
+    }
+    size_t getBitCount() const {return m_bitCount;}
+    bool getBit(size_t idx) const
+    {
+        size_t wordIdx = idx / 32;
+        if (wordIdx >= m_words.size())
+            return false;
+        size_t wordCur = idx % 32;
+        return (m_words[wordIdx] >> wordCur) & 0x1;
+    }
+    void setBit(size_t idx)
+    {
+        size_t wordIdx = idx / 32;
+        while (wordIdx >= m_words.size())
+            m_words.push_back(0);
+        size_t wordCur = idx % 32;
+        m_words[wordIdx] |= (1 << wordCur);
+    }
+    void unsetBit(size_t idx)
+    {
+        size_t wordIdx = idx / 32;
+        while (wordIdx >= m_words.size())
+            m_words.push_back(0);
+        size_t wordCur = idx % 32;
+        m_words[wordIdx] &= ~(1 << wordCur);
+    }
+    void clear()
+    {
+        m_words.clear();
+    }
+
+    class Iterator : public std::iterator<std::forward_iterator_tag, bool>
+    {
+        friend class WordBitmap;
+        const WordBitmap& m_bmp;
+        size_t m_idx = 0;
+        Iterator(const WordBitmap& bmp, size_t idx) : m_bmp(bmp), m_idx(idx) {}
+    public:
+        Iterator& operator++() {++m_idx; return *this;}
+        bool operator*() {return m_bmp.getBit(m_idx);}
+        bool operator!=(const Iterator& other) const {return m_idx != other.m_idx;}
+    };
+    Iterator begin() const {return Iterator(*this, 0);}
+    Iterator end() const {return Iterator(*this, m_bitCount);}
 };
 
 /* PAK entry stream reader */
@@ -255,7 +320,7 @@ struct ResExtractor
 {
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
-                       const typename PAKBRIDGE::PAKType::Entry&)> func_b;
+                       const typename PAKBRIDGE::PAKType::Entry&, bool)> func_b;
     const char* fileExt;
     unsigned weight;
 };
@@ -270,6 +335,7 @@ public:
     using EntryType = typename PAKType::Entry;
 private:
     const SpecBase& m_dataSpec;
+    const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     const HECL::ProjectPath& m_gameWorking;
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
@@ -287,6 +353,7 @@ public:
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
     void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
+        m_bridges = &bridges;
         m_uniqueEntries.clear();
         m_sharedEntries.clear();
         size_t count = 0;
@@ -360,6 +427,11 @@ public:
         }
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();
+    }
+
+    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry) const
+    {
+        return getWorking(entry, BRIDGETYPE::LookupExtractor(*entry));
     }
 
     HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::Entry* entry) const
@@ -457,7 +529,7 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_b(m_dataSpec, s, working, *this, *item.second);
+                        extractor.func_b(m_dataSpec, s, working, *this, *item.second, force);
                     }
                 }
 
@@ -466,6 +538,38 @@ public:
         }
 
         return true;
+    }
+
+    const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const typename BRIDGETYPE::PAKType::IDType& entry,
+                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr)
+    {
+        if (!m_bridges)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
+        if (m_pak)
+        {
+            const typename BRIDGETYPE::PAKType::Entry* ent = m_pak->lookupEntry(entry);
+            if (ent)
+            {
+                if (nodeOut)
+                    *nodeOut = m_node;
+                return ent;
+            }
+        }
+        for (const BRIDGETYPE& bridge : *m_bridges)
+        {
+            const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
+            const typename BRIDGETYPE::PAKType::Entry* ent = pak.lookupEntry(entry);
+            if (ent)
+            {
+                if (nodeOut)
+                    *nodeOut = &bridge.getNode();
+                return ent;
+            }
+        }
+        if (nodeOut)
+            *nodeOut = nullptr;
+        return nullptr;
     }
 };
 

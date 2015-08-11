@@ -1,7 +1,11 @@
 #ifndef _DNAMP1_ANCS_HPP_
 #define _DNAMP1_ANCS_HPP_
 
+#include <unordered_set>
 #include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/ANCS.hpp"
+#include "CMDLMaterials.hpp"
+#include "BlenderConnection.hpp"
 
 namespace Retro
 {
@@ -159,6 +163,7 @@ struct ANCS : BigYAML
             const char* m_typeStr;
             IMetaAnim(Type type, const char* typeStr)
             : m_type(type), m_typeStr(typeStr) {}
+            virtual void gatherPrimitives(std::unordered_set<UniqueID32>& out)=0;
         };
         struct MetaAnimFactory : BigYAML
         {
@@ -175,6 +180,11 @@ struct ANCS : BigYAML
             String<-1> animName;
             Value<float> unk1;
             Value<atUint32> unk2;
+
+            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            {
+                out.insert(animId);
+            }
         };
         struct MetaAnimBlend : IMetaAnim
         {
@@ -184,6 +194,12 @@ struct ANCS : BigYAML
             MetaAnimFactory animB;
             Value<float> unkFloat;
             Value<atUint8> unk;
+
+            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            {
+                animA.m_anim->gatherPrimitives(out);
+                animB.m_anim->gatherPrimitives(out);
+            }
         };
         struct MetaAnimPhaseBlend : IMetaAnim
         {
@@ -193,6 +209,12 @@ struct ANCS : BigYAML
             MetaAnimFactory animB;
             Value<float> unkFloat;
             Value<atUint8> unk;
+
+            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            {
+                animA.m_anim->gatherPrimitives(out);
+                animB.m_anim->gatherPrimitives(out);
+            }
         };
         struct MetaAnimRandom : IMetaAnim
         {
@@ -206,6 +228,12 @@ struct ANCS : BigYAML
                 Value<atUint32> probability;
             };
             Vector<Child, DNA_COUNT(animCount)> children;
+
+            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            {
+                for (const auto& child : children)
+                    child.anim.m_anim->gatherPrimitives(out);
+            }
         };
         struct MetaAnimSequence : IMetaAnim
         {
@@ -213,6 +241,12 @@ struct ANCS : BigYAML
             DECL_YAML
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
+
+            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            {
+                for (const auto& child : children)
+                    child.m_anim->gatherPrimitives(out);
+            }
         };
 
         struct Animation : BigYAML
@@ -310,14 +344,45 @@ struct ANCS : BigYAML
         std::vector<AnimationResources> animResources;
     } animationSet;
 
-    static bool Extract(const SpecBase&, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    void getCharacterResInfo(std::vector<DNAANCS::CharacterResInfo<UniqueID32>>& out) const
+    {
+        out.clear();
+        out.reserve(characterSet.characters.size());
+        for (const CharacterSet::CharacterInfo& ci : characterSet.characters)
+        {
+            out.emplace_back();
+            DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
+            chOut.name = ci.name;
+            chOut.cmdl = ci.cmdl;
+            chOut.cskr = ci.cskr;
+            chOut.cinf = ci.cinf;
+        }
+    }
+
+    void getAnimationResInfo(std::unordered_set<UniqueID32>& out) const
+    {
+        out.clear();
+        for (const AnimationSet::Animation& ai : animationSet.animations)
+            ai.metaAnim.m_anim->gatherPrimitives(out);
+    }
+
+    static bool Extract(const SpecBase& dataSpec,
+                        PAKEntryReadStream& rs,
+                        const HECL::ProjectPath& outPath,
+                        PAKRouter<PAKBridge>& pakRouter,
+                        const PAK::Entry& entry,
+                        bool force)
     {
         ANCS ancs;
         ancs.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = HECL::Fopen((outPath.getAbsolutePath() + ".yaml").c_str(), _S("wb"));
         ancs.toYAMLFile(fp);
         fclose(fp);
-        return true;
+
+        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
+                (conn, ancs, outPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
+        return conn.saveBlend();
     }
 };
 

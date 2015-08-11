@@ -183,7 +183,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, ".blend", 1};
     case SBIG('ANCS'):
-        return {ANCS::Extract, nullptr, ".yaml"};
+        return {nullptr, ANCS::Extract, nullptr};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, ".yaml"};
     }

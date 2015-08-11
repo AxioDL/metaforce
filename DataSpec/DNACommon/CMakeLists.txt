@@ -5,4 +5,6 @@ add_library(DNACommon
             ${liblist}
             GX.hpp
             STRG.hpp STRG.cpp
-            TXTR.hpp TXTR.cpp)
+            TXTR.hpp TXTR.cpp
+            ANCS.hpp
+            ANIM.hpp ANIM.cpp)

@@ -17,7 +17,8 @@ struct CMDL
                         PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
-                        const DNAMP1::PAK::Entry& entry)
+                        const DNAMP1::PAK::Entry& entry,
+                        bool force)
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath.getAbsolutePath()))
