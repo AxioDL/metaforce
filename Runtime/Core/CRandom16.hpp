@@ -17,7 +17,7 @@ public:
 
     inline uint32_t Next()
     {
-        m_seed = m_seed * 0x41c64e6d + 0x00003039;
+        m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
         return m_seed >> 16;
     }
 
@@ -26,7 +26,7 @@ public:
         return m_seed;
     }
 
-    inline void SetSeed(time_t p)
+    inline void SetSeed(uint32_t p)
     {
         m_seed = p;
     }
