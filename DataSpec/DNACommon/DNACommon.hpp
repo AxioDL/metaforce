@@ -2,10 +2,11 @@
 #define __DNA_COMMON_HPP__
 
 #include <stdio.h>
-#include <Athena/DNA.hpp>
+#include <Athena/DNAYaml.hpp>
 #include <NOD/DiscBase.hpp>
 #include "HECL/HECL.hpp"
 #include "HECL/Database.hpp"
+#include "../SpecBase.hpp"
 
 namespace Retro
 {
@@ -14,9 +15,10 @@ extern LogVisor::LogModule LogDNACommon;
 
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
+typedef Athena::io::DNAYaml<Athena::BigEndian> BigYAML;
 
 /* FourCC with DNA read/write */
-class FourCC final : public BigDNA, public HECL::FourCC
+class FourCC final : public BigYAML, public HECL::FourCC
 {
 public:
     FourCC() : HECL::FourCC() {}
@@ -24,24 +26,35 @@ public:
     : HECL::FourCC() {num = other.toUint32();}
     FourCC(const char* name)
     : HECL::FourCC(name) {}
+    FourCC(uint32_t n)
+    : HECL::FourCC(n) {}
 
     Delete expl;
     inline void read(Athena::io::IStreamReader& reader)
     {reader.readUBytesToBuf(fcc, 4);}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUBytes((atUint8*)fcc, 4);}
+    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
+    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {writer.writeString(nullptr, std::string(fcc, 4));}
 };
 
 /* PAK 32-bit Unique ID */
-class UniqueID32 : public BigDNA
+class UniqueID32 : public BigYAML
 {
-    uint32_t m_id;
+    uint32_t m_id = 0xffffffff;
 public:
     Delete expl;
+    inline operator bool() const {return m_id != 0xffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint32();}
     inline void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32(m_id);}
+    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    {m_id = reader.readUint32(nullptr);}
+    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {writer.writeUint32(nullptr, m_id);}
 
     inline bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     inline bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
@@ -57,9 +70,10 @@ public:
 /* PAK 64-bit Unique ID */
 class UniqueID64 : public BigDNA
 {
-    uint64_t m_id;
+    uint64_t m_id = 0xffffffffffffffff;
 public:
     Delete expl;
+    inline operator bool() const {return m_id != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint64();}
     inline void write(Athena::io::IStreamWriter& writer) const
@@ -88,6 +102,9 @@ class UniqueID128 : public BigDNA
     };
 public:
     Delete expl;
+    UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
+    inline operator bool() const
+    {return m_id[0] != 0xffffffffffffffff && m_id[1] != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64();
@@ -153,6 +170,70 @@ struct CaseInsensitiveCompare
 #endif
 };
 
+/* Word Bitmap reader/writer */
+struct WordBitmap
+{
+    std::vector<atUint32> m_words;
+    size_t m_bitCount = 0;
+    void read(Athena::io::IStreamReader& reader, size_t bitCount)
+    {
+        m_bitCount = bitCount;
+        size_t wordCount = (bitCount + 31) / 32;
+        m_words.clear();
+        m_words.reserve(wordCount);
+        for (size_t w=0 ; w<wordCount ; ++w)
+            m_words.push_back(reader.readUint32());
+    }
+    void write(Athena::io::IStreamWriter& writer) const
+    {
+        for (atUint32 word : m_words)
+            writer.writeUint32(word);
+    }
+    size_t getBitCount() const {return m_bitCount;}
+    bool getBit(size_t idx) const
+    {
+        size_t wordIdx = idx / 32;
+        if (wordIdx >= m_words.size())
+            return false;
+        size_t wordCur = idx % 32;
+        return (m_words[wordIdx] >> wordCur) & 0x1;
+    }
+    void setBit(size_t idx)
+    {
+        size_t wordIdx = idx / 32;
+        while (wordIdx >= m_words.size())
+            m_words.push_back(0);
+        size_t wordCur = idx % 32;
+        m_words[wordIdx] |= (1 << wordCur);
+    }
+    void unsetBit(size_t idx)
+    {
+        size_t wordIdx = idx / 32;
+        while (wordIdx >= m_words.size())
+            m_words.push_back(0);
+        size_t wordCur = idx % 32;
+        m_words[wordIdx] &= ~(1 << wordCur);
+    }
+    void clear()
+    {
+        m_words.clear();
+    }
+
+    class Iterator : public std::iterator<std::forward_iterator_tag, bool>
+    {
+        friend class WordBitmap;
+        const WordBitmap& m_bmp;
+        size_t m_idx = 0;
+        Iterator(const WordBitmap& bmp, size_t idx) : m_bmp(bmp), m_idx(idx) {}
+    public:
+        Iterator& operator++() {++m_idx; return *this;}
+        bool operator*() {return m_bmp.getBit(m_idx);}
+        bool operator!=(const Iterator& other) const {return m_idx != other.m_idx;}
+    };
+    Iterator begin() const {return Iterator(*this, 0);}
+    Iterator end() const {return Iterator(*this, m_bitCount);}
+};
+
 /* PAK entry stream reader */
 class PAKEntryReadStream : public Athena::io::IStreamReader
 {
@@ -197,40 +278,91 @@ public:
     }
 };
 
-/* Resource extractor type */
-typedef struct
+struct UniqueResult
 {
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func;
+    enum Type
+    {
+        UNIQUE_NOTFOUND,
+        UNIQUE_LEVEL,
+        UNIQUE_AREA,
+        UNIQUE_LAYER
+    } type = UNIQUE_NOTFOUND;
+    const HECL::SystemString* areaName = nullptr;
+    const HECL::SystemString* layerName = nullptr;
+    UniqueResult() = default;
+    UniqueResult(Type tp) : type(tp) {}
+    inline HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
+    {
+        if (type == UNIQUE_AREA)
+        {
+            HECL::ProjectPath areaDir(pakPath, *areaName);
+            areaDir.makeDir();
+            return areaDir;
+        }
+        else if (type == UNIQUE_LAYER)
+        {
+            HECL::ProjectPath areaDir(pakPath, *areaName);
+            areaDir.makeDir();
+            HECL::ProjectPath layerDir(areaDir, *layerName);
+            layerDir.makeDir();
+            return layerDir;
+        }
+        return pakPath;
+    }
+};
+
+template <class BRIDGETYPE>
+class PAKRouter;
+
+/* Resource extractor type */
+template <class PAKBRIDGE>
+struct ResExtractor
+{
+    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
+    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
+                       const typename PAKBRIDGE::PAKType::Entry&, bool)> func_b;
     const char* fileExt;
     unsigned weight;
-} ResExtractor;
+};
 
 /* PAKRouter (for detecting shared entry locations) */
 template <class BRIDGETYPE>
 class PAKRouter
 {
+public:
+    using PAKType = typename BRIDGETYPE::PAKType;
+    using IDType = typename PAKType::IDType;
+    using EntryType = typename PAKType::Entry;
+private:
+    const SpecBase& m_dataSpec;
+    const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     const HECL::ProjectPath& m_gameWorking;
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
     HECL::ProjectPath m_sharedCooked;
-    const typename BRIDGETYPE::PAKType* m_pak = nullptr;
+    const PAKType* m_pak = nullptr;
     const NOD::DiscBase::IPartition::Node* m_node = nullptr;
     HECL::ProjectPath m_pakWorking;
     HECL::ProjectPath m_pakCooked;
-    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_uniqueEntries;
-    std::unordered_map<typename BRIDGETYPE::PAKType::IDType, typename BRIDGETYPE::PAKType::Entry*> m_sharedEntries;
+    std::unordered_map<typename PAKType::IDType, typename PAKType::Entry*> m_uniqueEntries;
+    std::unordered_map<IDType, EntryType*> m_sharedEntries;
 public:
-    PAKRouter(const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
-    : m_gameWorking(working), m_gameCooked(cooked),
+    PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
+    : m_dataSpec(dataSpec),
+      m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
-    void build(const std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
+    void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
+        m_bridges = &bridges;
         m_uniqueEntries.clear();
         m_sharedEntries.clear();
         size_t count = 0;
         float bridgesSz = bridges.size();
-        for (const BRIDGETYPE& bridge : bridges)
+
+        /* Route entries unique/shared per-pak */
+        for (BRIDGETYPE& bridge : bridges)
         {
+            bridge.build();
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
@@ -265,7 +397,7 @@ public:
     }
 
     HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry,
-                                 const ResExtractor& extractor) const
+                                 const ResExtractor<BRIDGETYPE>& extractor) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -273,26 +405,33 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakWorking);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
-            return HECL::ProjectPath(m_pakWorking, entName);
+            return HECL::ProjectPath(uniquePath, entName);
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
+            HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(m_pakWorking);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExt)
                 entName += extractor.fileExt;
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
-            HECL::ProjectPath uniquePath(m_pakWorking, entName);
-            if (extractor.func)
+            HECL::ProjectPath uniquePath(uniquePathPre, entName);
+            if (extractor.func_a || extractor.func_b)
                 uniquePath.makeLinkTo(sharedPath);
             m_sharedWorking.makeDir();
             return sharedPath;
         }
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();
+    }
+
+    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry) const
+    {
+        return getWorking(entry, BRIDGETYPE::LookupExtractor(*entry));
     }
 
     HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::Entry* entry) const
@@ -303,7 +442,8 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            return HECL::ProjectPath(m_pakCooked, m_pak->bestEntryName(*entry));
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakCooked);
+            return HECL::ProjectPath(uniquePath, m_pak->bestEntryName(*entry));
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
@@ -313,6 +453,43 @@ public:
         }
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();
+    }
+
+    HECL::SystemString getResourceRelativePath(const typename BRIDGETYPE::PAKType::Entry& a,
+                                               const typename BRIDGETYPE::PAKType::IDType& b) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()");
+        const typename BRIDGETYPE::PAKType::Entry* be = m_pak->lookupEntry(b);
+        if (!be)
+            return HECL::SystemString();
+        HECL::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(a));
+        HECL::SystemString ret;
+        for (int i=0 ; i<aPath.levelCount() ; ++i)
+            ret += "../";
+        HECL::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*be));
+        ret += bPath.getRelativePath();
+        return ret;
+    }
+
+    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::Entry& entry) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getBestEntryName()");
+        return m_pak->bestEntryName(entry);
+    }
+
+    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::IDType& entry) const
+    {
+        if (!m_pak)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::enterPAKBridge() must be called before PAKRouter::getBestEntryName()");
+        const typename BRIDGETYPE::PAKType::Entry* e = m_pak->lookupEntry(entry);
+        if (!e)
+            return entry.toString();
+        return m_pak->bestEntryName(*e);
     }
 
     bool extractResources(const BRIDGETYPE& pakBridge, bool force, std::function<void(float)> progress)
@@ -325,7 +502,7 @@ public:
         {
             for (const auto& item : m_pak->m_idMap)
             {
-                ResExtractor extractor = BRIDGETYPE::LookupExtractor(*item.second);
+                ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item.second);
                 if (extractor.weight != w)
                     continue;
 
@@ -339,12 +516,20 @@ public:
                 }
 
                 HECL::ProjectPath working = getWorking(item.second, extractor);
-                if (extractor.func)
+                if (extractor.func_a) /* Doesn't need PAKRouter access */
                 {
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func(s, working);
+                        extractor.func_a(m_dataSpec, s, working);
+                    }
+                }
+                else if (extractor.func_b) /* Needs PAKRouter access */
+                {
+                    if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
+                    {
+                        PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                        extractor.func_b(m_dataSpec, s, working, *this, *item.second, force);
                     }
                 }
 
@@ -354,55 +539,42 @@ public:
 
         return true;
     }
+
+    const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const typename BRIDGETYPE::PAKType::IDType& entry,
+                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr)
+    {
+        if (!m_bridges)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
+        if (m_pak)
+        {
+            const typename BRIDGETYPE::PAKType::Entry* ent = m_pak->lookupEntry(entry);
+            if (ent)
+            {
+                if (nodeOut)
+                    *nodeOut = m_node;
+                return ent;
+            }
+        }
+        for (const BRIDGETYPE& bridge : *m_bridges)
+        {
+            const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
+            const typename BRIDGETYPE::PAKType::Entry* ent = pak.lookupEntry(entry);
+            if (ent)
+            {
+                if (nodeOut)
+                    *nodeOut = &bridge.getNode();
+                return ent;
+            }
+        }
+        if (nodeOut)
+            *nodeOut = nullptr;
+        return nullptr;
+    }
 };
 
 /* Resource cooker function */
 typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
-
-/* Language-identifiers */
-extern const HECL::FourCC ENGL;
-extern const HECL::FourCC FREN;
-extern const HECL::FourCC GERM;
-extern const HECL::FourCC SPAN;
-extern const HECL::FourCC ITAL;
-extern const HECL::FourCC JAPN;
-
-/* Resource types */
-extern const HECL::FourCC AFSM;
-extern const HECL::FourCC AGSC;
-extern const HECL::FourCC ANCS;
-extern const HECL::FourCC ANIM;
-extern const HECL::FourCC ATBL;
-extern const HECL::FourCC CINF;
-extern const HECL::FourCC CMDL;
-extern const HECL::FourCC CRSC;
-extern const HECL::FourCC CSKR;
-extern const HECL::FourCC CSMP;
-extern const HECL::FourCC CSNG;
-extern const HECL::FourCC CTWK;
-extern const HECL::FourCC DGRP;
-extern const HECL::FourCC DPSC;
-extern const HECL::FourCC DUMB;
-extern const HECL::FourCC ELSC;
-extern const HECL::FourCC EVNT;
-extern const HECL::FourCC FONT;
-extern const HECL::FourCC FRME;
-extern const HECL::FourCC HINT;
-extern const HECL::FourCC MAPA;
-extern const HECL::FourCC MAPU;
-extern const HECL::FourCC MAPW;
-extern const HECL::FourCC MLVL;
-extern const HECL::FourCC MREA;
-extern const HECL::FourCC PART;
-extern const HECL::FourCC PATH;
-extern const HECL::FourCC RFRM;
-extern const HECL::FourCC ROOM;
-extern const HECL::FourCC SAVW;
-extern const HECL::FourCC SCAN;
-extern const HECL::FourCC STRG;
-extern const HECL::FourCC SWHC;
-extern const HECL::FourCC TXTR;
-extern const HECL::FourCC WPSC;
 
 }
 

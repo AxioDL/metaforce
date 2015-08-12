@@ -39,15 +39,15 @@ struct SpecMP3 : SpecBase
     PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
 
     SpecMP3(HECL::Database::Project& project)
-    : m_workPath(project.getProjectRootPath(), _S("MP3")),
+    : SpecBase(project),
+      m_workPath(project.getProjectRootPath(), _S("MP3")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP3), _S("MP3")),
-      m_pakRouter(m_workPath, m_cookPath),
+      m_pakRouter(*this, m_workPath, m_cookPath),
       m_feWorkPath(project.getProjectRootPath(), _S("fe")),
       m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _S("fe")),
-      m_fePakRouter(m_feWorkPath, m_feCookPath) {}
+      m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {}
 
-    void buildPaks(HECL::Database::Project& project,
-                   NOD::DiscBase::IPartition::Node& root,
+    void buildPaks(NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep,
                    bool fe)
@@ -114,9 +114,9 @@ struct SpecMP3 : SpecBase
                     if (good)
                     {
                         if (fe)
-                            m_fePaks.emplace_back(project, child);
+                            m_fePaks.emplace_back(m_project, child);
                         else
-                            m_paks.emplace_back(project, child);
+                            m_paks.emplace_back(m_project, child);
                     }
                 }
             }
@@ -163,8 +163,7 @@ struct SpecMP3 : SpecBase
         }
     }
 
-    bool checkFromStandaloneDisc(HECL::Database::Project& project,
-                                 NOD::DiscBase& disc,
+    bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
                                  const std::vector<HECL::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
@@ -188,13 +187,12 @@ struct SpecMP3 : SpecBase
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(project, root, args, rep, false);
+        buildPaks(root, args, rep, false);
 
         return true;
     }
 
-    bool checkFromTrilogyDisc(HECL::Database::Project& project,
-                              NOD::DiscBase& disc,
+    bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
                               const std::vector<HECL::SystemString>& args,
                               std::vector<ExtractReport>& reps)
@@ -240,6 +238,9 @@ struct SpecMP3 : SpecBase
             doMPTFE = true;
         }
 
+        if (!doMP3 && !doMPTFE)
+            return false;
+
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
 
@@ -269,7 +270,7 @@ struct SpecMP3 : SpecBase
             NOD::DiscBase::IPartition::Node::DirectoryIterator mp3It = root.find("MP3");
             if (mp3It == root.end())
                 return false;
-            buildPaks(project, *mp3It, mp3args, rep, false);
+            buildPaks(*mp3It, mp3args, rep, false);
         }
 
         /* MPT Frontend extract */
@@ -298,14 +299,13 @@ struct SpecMP3 : SpecBase
             NOD::DiscBase::IPartition::Node::DirectoryIterator feIt = root.find("fe");
             if (feIt == root.end())
                 return false;
-            buildPaks(project, *feIt, feargs, rep, true);
+            buildPaks(*feIt, feargs, rep, true);
         }
 
         return true;
     }
 
-    bool extractFromDisc(HECL::Database::Project& project, NOD::DiscBase&, bool force,
-                         FExtractProgress progress)
+    bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
         int compIdx = 2;
         int prog;
@@ -318,7 +318,7 @@ struct SpecMP3 : SpecBase
             });
             progress(_S("Indexing PAKs"), compIdx++, 1.0);
 
-            HECL::ProjectPath mp3WorkPath(project.getProjectRootPath(), "MP3");
+            HECL::ProjectPath mp3WorkPath(m_project.getProjectRootPath(), "MP3");
             mp3WorkPath.makeDir();
             progress(_S("MP3 Root"), compIdx, 0.0);
             prog = 0;
@@ -329,14 +329,15 @@ struct SpecMP3 : SpecBase
             }
             progress(_S("MP3 Root"), compIdx++, 1.0);
 
-            const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
+            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
             HECL::ProjectPath mp3CookPath(cookPath, "MP3");
             mp3CookPath.makeDir();
 
             prog = 0;
-            for (DNAMP3::PAKBridge& pak : m_paks)
+            for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
             {
+                DNAMP3::PAKBridge& pak = *pair.second;
                 m_pakRouter.enterPAKBridge(pak);
 
                 const std::string& name = pak.getName();
@@ -371,13 +372,14 @@ struct SpecMP3 : SpecBase
             }
             progress(_S("fe Root"), compIdx++, 1.0);
 
-            const HECL::ProjectPath& cookPath = project.getProjectCookedPath(SpecEntMP3);
+            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
             m_feCookPath.makeDir();
 
             prog = 0;
-            for (DNAMP3::PAKBridge& pak : m_fePaks)
+            for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)
             {
+                DNAMP3::PAKBridge& pak = *pair.second;
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
@@ -394,11 +396,11 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
-    bool checkFromProject(HECL::Database::Project& proj)
+    bool checkFromProject()
     {
         return false;
     }
-    bool readFromProject(HECL::Database::Project& proj)
+    bool readFromProject()
     {
         return false;
     }

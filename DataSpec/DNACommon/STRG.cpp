@@ -6,8 +6,6 @@
 namespace Retro
 {
 
-HECL::Database::ASListType<std::string> ASTYPE_STRGLanguage("STRG", "Language", "string");
-
 std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)
 {
     reader.setEndian(Athena::BigEndian);

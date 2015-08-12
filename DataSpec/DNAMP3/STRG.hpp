@@ -10,9 +10,10 @@ namespace Retro
 namespace DNAMP3
 {
 
-struct STRG : ISTRG, BigDNA
+struct STRG : ISTRG
 {
-    DECL_EXPLICIT_DNA
+    DECL_YAML
+    Delete expl;
     void _read(Athena::io::IStreamReader& reader);
     std::vector<std::pair<FourCC, std::vector<std::string>>> langs;
     std::unordered_map<FourCC, std::vector<std::string>*> langMap;
@@ -63,24 +64,21 @@ struct STRG : ISTRG, BigDNA
         return HECL::SystemString();
     }
 
-    bool readAngelScript(const AngelScript::asIScriptModule& in);
-    void writeAngelScript(std::ofstream& out) const;
-
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(const SpecBase&, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     {
         std::unique_ptr<ISTRG> strg = LoadSTRG(rs);
-        std::ofstream strgOut(outPath.getAbsolutePath());
-        strg->writeAngelScript(strgOut);
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        strg->toYAMLFile(fp);
+        fclose(fp);
         return true;
     }
 
     static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
     {
         STRG strg;
-        HECL::Database::ASUniqueModule mod = HECL::Database::ASUniqueModule::CreateFromPath(inPath);
-        if (!mod)
-            return false;
-        strg.readAngelScript(mod);
+        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+        strg.fromYAMLFile(fp);
+        fclose(fp);
         Athena::io::FileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;

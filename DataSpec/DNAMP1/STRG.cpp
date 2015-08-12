@@ -111,71 +111,66 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
-bool STRG::readAngelScript(const AngelScript::asIScriptModule& in)
+void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
+    const Athena::io::YAMLNode* root = reader.getRootNode();
 
-    /* Validate pass */
-    for (AngelScript::asUINT i=0 ; i<in.GetGlobalVarCount() ; ++i)
+    /* Validate Pass */
+    if (root->m_type == YAML_MAPPING_NODE)
     {
-        const char* name;
-        int typeId;
-        if (in.GetGlobalVar(i, &name, 0, &typeId) < 0)
-            continue;
-        if (typeId == ASTYPE_STRGLanguage.getTypeID())
+        for (const auto& lang : root->m_mapChildren)
         {
-            if (strlen(name) != 4)
+            if (lang.first.size() != 4)
             {
-                Log.report(LogVisor::Error, "STRG language string '%s' from %s must be exactly 4 characters", name, in.GetName());
-                return false;
+                Log.report(LogVisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
+                return;
+            }
+            if (lang.second->m_type != YAML_SEQUENCE_NODE)
+            {
+                Log.report(LogVisor::Warning, "STRG language string '%s' must contain a sequence; skipping", lang.first.c_str());
+                return;
+            }
+            for (const auto& str : lang.second->m_seqChildren)
+            {
+                if (str->m_type != YAML_SCALAR_NODE)
+                {
+                    Log.report(LogVisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+                    return;
+                }
             }
         }
     }
-
-    /* Read pass */
-    langs.clear();
-    for (AngelScript::asUINT i=0 ; i<in.GetGlobalVarCount() ; ++i)
+    else
     {
-        const char* name;
-        int typeId;
-        if (in.GetGlobalVar(i, &name, 0, &typeId) < 0)
-            continue;
-        if (typeId == ASTYPE_STRGLanguage.getTypeID())
-        {
-            const std::vector<std::string*>& strsin = ASTYPE_STRGLanguage.vectorCast(in.GetAddressOfGlobalVar(i));
-            std::vector<std::wstring> strs;
-            for (const std::string* str : strsin)
-                strs.emplace_back(wconv.from_bytes(*str));
-            langs.emplace_back(FourCC(name), strs);
-        }
+        Log.report(LogVisor::Warning, "STRG must have a mapping root node; skipping");
+        return;
+    }
+
+    /* Read Pass */
+    langs.clear();
+    for (const auto& lang : root->m_mapChildren)
+    {
+        std::vector<std::wstring> strs;
+        for (const auto& str : lang.second->m_seqChildren)
+            strs.emplace_back(wconv.from_bytes(str->m_scalarString));
+        langs.emplace_back(FourCC(lang.first.c_str()), strs);
     }
 
     langMap.clear();
     langMap.reserve(langs.size());
-    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+    for (auto& item : langs)
         langMap.emplace(item.first, &item.second);
-
-    return true;
 }
 
-void STRG::writeAngelScript(std::ofstream& out) const
+void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const auto& lang : langs)
     {
-        out << "STRG::Language " << lang.first.toString() << "({";
-        bool comma = false;
-        unsigned idx = 0;
+        writer.enterSubVector(lang.first.toString().c_str());
         for (const std::wstring& str : lang.second)
-        {
-            if (comma)
-                out << ",";
-            out << "\n/* " << idx++ << " */ \"";
-            out << wconv.to_bytes(str);
-            out << "\"";
-            comma = true;
-        }
-        out << "\n});\n";
+            writer.writeWString(nullptr, str);
+        writer.leaveSubVector();
     }
 }
 

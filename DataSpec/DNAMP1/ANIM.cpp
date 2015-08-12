@@ -1,0 +1,290 @@
+#include "ANIM.hpp"
+
+namespace Retro
+{
+namespace DNAMP1
+{
+
+void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
+{
+    Header head;
+    head.read(reader);
+    mainInterval = head.interval;
+
+    times.clear();
+    times.reserve(head.keyCount);
+    float timeAccum = 0.0;
+    for (size_t k=0 ; k<head.keyCount ; ++k)
+    {
+        times.push_back(timeAccum);
+        timeAccum += head.interval;
+    }
+
+    std::map<atUint8, atUint32> boneMap;
+    for (size_t b=0 ; b<head.boneSlotCount ; ++b)
+    {
+        atUint8 idx = reader.readUByte();
+        if (idx == 0xff)
+            continue;
+        boneMap[idx] = b;
+    }
+
+    atUint32 boneCount = reader.readUint32();
+    bones.clear();
+    bones.reserve(boneCount);
+    channels.clear();
+    for (size_t b=0 ; b<boneCount ; ++b)
+    {
+        bones.emplace_back(boneMap[b], false);
+        atUint8 idx = reader.readUByte();
+        channels.emplace_back();
+        DNAANIM::Channel& chan = channels.back();
+        chan.type = DNAANIM::Channel::ROTATION;
+        if (idx != 0xff)
+        {
+            bones.back().second = true;
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::TRANSLATION;
+        }
+    }
+
+    reader.readUint32();
+    chanKeys.clear();
+    chanKeys.reserve(channels.size());
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        chanKeys.emplace_back();
+        std::vector<DNAANIM::Value>& keys = chanKeys.back();
+        for (size_t k=0 ; k<head.keyCount ; ++k)
+            keys.emplace_back(reader.readVec4f());
+
+        if (bone.second)
+            chanKeys.emplace_back();
+    }
+
+    reader.readUint32();
+    auto kit = chanKeys.begin();
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        ++kit;
+        if (bone.second)
+        {
+            std::vector<DNAANIM::Value>& keys = *kit++;
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                keys.emplace_back(reader.readVec3f());
+        }
+    }
+
+    evnt.read(reader);
+}
+
+void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
+{
+    Header head;
+    head.unk0 = 0;
+    head.unk1 = 0;
+    head.unk2 = 0;
+    head.keyCount = times.size();
+    head.duration = head.keyCount * mainInterval;
+    head.interval = mainInterval;
+
+    atUint32 maxId = 0;
+    for (const std::pair<atUint32, bool>& bone : bones)
+        maxId = MAX(maxId, bone.first);
+    head.boneSlotCount = maxId + 1;
+    head.write(writer);
+
+    for (size_t s=0 ; s<head.boneSlotCount ; ++s)
+    {
+        size_t boneIdx = 0;
+        bool found = false;
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            if (s == bone.first)
+            {
+                writer.writeUByte(boneIdx);
+                found = true;
+                break;
+            }
+            ++boneIdx;
+        }
+        if (!found)
+            writer.writeUByte(0xff);
+    }
+
+    writer.writeUint32(bones.size());
+    size_t boneIdx = 0;
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        if (bone.second)
+            writer.writeUByte(boneIdx);
+        else
+            writer.writeUByte(0xff);
+        ++boneIdx;
+    }
+
+    writer.writeUint32(bones.size() * head.keyCount);
+    auto cit = chanKeys.begin();
+    atUint32 transKeyCount = 0;
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        const std::vector<DNAANIM::Value>& keys = *cit++;
+        auto kit = keys.begin();
+        for (size_t k=0 ; k<head.keyCount ; ++k)
+            writer.writeVec4f((*kit++).v4);
+        if (bone.second)
+        {
+            transKeyCount += head.keyCount;
+            ++cit;
+        }
+    }
+
+    writer.writeUint32(transKeyCount);
+    cit = chanKeys.begin();
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        ++cit;
+        if (bone.second)
+        {
+            const std::vector<DNAANIM::Value>& keys = *cit++;
+            auto kit = keys.begin();
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                writer.writeVec3f((*kit++).v3);
+        }
+    }
+
+    evnt.write(writer);
+}
+
+void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
+{
+    Header head;
+    head.read(reader);
+    evnt = head.evnt;
+    mainInterval = head.interval;
+
+    WordBitmap keyBmp;
+    keyBmp.read(reader, head.keyBitmapBitCount);
+    times.clear();
+    float timeAccum = 0.0;
+    for (bool bit : keyBmp)
+    {
+        if (bit)
+            times.push_back(timeAccum);
+        timeAccum += head.interval;
+    }
+
+    bones.clear();
+    bones.reserve(head.boneChannelCount);
+    channels.clear();
+    channels.reserve(head.boneChannelCount);
+    size_t keyframeCount = 0;
+    for (size_t b=0 ; b<head.boneChannelCount ; ++b)
+    {
+        ChannelDesc desc;
+        desc.read(reader);
+        bones.emplace_back(desc.id, desc.keyCount2);
+
+        if (desc.keyCount1)
+        {
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::ROTATION;
+            chan.i[0] = desc.initRX;
+            chan.q[0] = desc.qRX;
+            chan.i[1] = desc.initRY;
+            chan.q[1] = desc.qRY;
+            chan.i[2] = desc.initRZ;
+            chan.q[2] = desc.qRZ;
+        }
+        keyframeCount = MAX(keyframeCount, desc.keyCount1);
+
+        if (desc.keyCount2)
+        {
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::TRANSLATION;
+            chan.i[0] = desc.initTX;
+            chan.q[0] = desc.qTX;
+            chan.i[1] = desc.initTY;
+            chan.q[1] = desc.qTY;
+            chan.i[2] = desc.initTZ;
+            chan.q[2] = desc.qTZ;
+        }
+    }
+
+    size_t bsSize = DNAANIM::ComputeBitstreamSize(keyframeCount, channels);
+    std::unique_ptr<atUint8[]> bsData = reader.readUBytes(bsSize);
+    DNAANIM::BitstreamReader bsReader;
+    chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult);
+}
+
+void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
+{
+    Header head;
+    head.evnt = evnt;
+    head.unk0 = 1;
+    head.interval = mainInterval;
+    head.unk1 = 3;
+    head.unk2 = 0;
+    head.unk3 = 1;
+
+    WordBitmap keyBmp;
+    size_t frameCount = 0;
+    for (float time : times)
+    {
+        size_t frameIdx = time / mainInterval;
+        while (keyBmp.getBit(frameIdx))
+            ++frameIdx;
+        keyBmp.setBit(frameIdx);
+        frameCount = frameIdx + 1;
+    }
+    head.keyBitmapBitCount = frameCount;
+    head.duration = frameCount * mainInterval;
+    head.boneChannelCount = bones.size();
+
+    size_t keyframeCount = times.size();
+    std::vector<DNAANIM::Channel> qChannels = channels;
+    DNAANIM::BitstreamWriter bsWriter;
+    size_t bsSize;
+    std::unique_ptr<atUint8[]> bsData = bsWriter.write(chanKeys, keyframeCount, qChannels,
+                                                       head.rotDiv, head.translationMult, bsSize);
+
+    /* TODO: Figure out proper scratch size computation */
+    head.scratchSize = keyframeCount * channels.size() * 16;
+
+    head.write(writer);
+    keyBmp.write(writer);
+    auto cit = qChannels.begin();
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        ChannelDesc desc;
+        desc.id = bone.first;
+        DNAANIM::Channel& chan = *cit++;
+        desc.keyCount1 = keyframeCount;
+        desc.initRX = chan.i[0];
+        desc.qRX = chan.q[0];
+        desc.initRY = chan.i[1];
+        desc.qRY = chan.q[1];
+        desc.initRZ = chan.i[2];
+        desc.qRZ = chan.q[2];
+        if (bone.second)
+        {
+            DNAANIM::Channel& chan = *cit++;
+            desc.keyCount2 = keyframeCount;
+            desc.initTX = chan.i[0];
+            desc.qTX = chan.q[0];
+            desc.initTY = chan.i[1];
+            desc.qTY = chan.q[1];
+            desc.initTZ = chan.i[2];
+            desc.qTZ = chan.q[2];
+        }
+        desc.write(writer);
+    }
+
+    writer.writeUBytes(bsData.get(), bsSize);
+}
+
+}
+}
