@@ -5,6 +5,8 @@
 #include "../DNACommon/CMDL.hpp"
 #include "CMDLMaterials.hpp"
 #include "DNAMP2.hpp"
+#include "CINF.hpp"
+#include "CSKR.hpp"
 
 namespace Retro
 {
@@ -23,7 +25,7 @@ struct CMDL
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath.getAbsolutePath()))
             return false;
-        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, 4>
+        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, 4>
                 (conn, rs, pakRouter, entry, dataSpec.getMasterShaderPath());
         return conn.saveBlend();
     }

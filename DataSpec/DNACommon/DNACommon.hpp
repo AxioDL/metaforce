@@ -571,6 +571,21 @@ public:
             *nodeOut = nullptr;
         return nullptr;
     }
+
+    template <typename DNA>
+    bool lookupAndReadDNA(const typename BRIDGETYPE::PAKType::IDType& id, DNA& out)
+    {
+        const NOD::DiscBase::IPartition::Node* node;
+        const typename BRIDGETYPE::PAKType::Entry* entry = lookupEntry(id, &node);
+        if (!entry)
+        {
+            LogDNACommon.report(LogVisor::Error, "unable to find PAK entry %s", id.toString().c_str());
+            return false;
+        }
+        PAKEntryReadStream rs = entry->beginReadStream(*node);
+        out.read(rs);
+        return true;
+    }
 };
 
 /* Resource cooker function */

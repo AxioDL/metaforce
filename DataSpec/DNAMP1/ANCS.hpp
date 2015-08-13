@@ -1,11 +1,14 @@
 #ifndef _DNAMP1_ANCS_HPP_
 #define _DNAMP1_ANCS_HPP_
 
-#include <unordered_set>
+#include <map>
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
 #include "BlenderConnection.hpp"
+#include "CINF.hpp"
+#include "CSKR.hpp"
+#include "ANIM.hpp"
 
 namespace Retro
 {
@@ -14,6 +17,10 @@ namespace DNAMP1
 
 struct ANCS : BigYAML
 {
+    using CINFType = CINF;
+    using CSKRType = CSKR;
+    using ANIMType = ANIM;
+
     DECL_YAML
     Value<atUint16> version;
 
@@ -163,7 +170,7 @@ struct ANCS : BigYAML
             const char* m_typeStr;
             IMetaAnim(Type type, const char* typeStr)
             : m_type(type), m_typeStr(typeStr) {}
-            virtual void gatherPrimitives(std::unordered_set<UniqueID32>& out)=0;
+            virtual void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)=0;
         };
         struct MetaAnimFactory : BigYAML
         {
@@ -181,9 +188,9 @@ struct ANCS : BigYAML
             Value<float> unk1;
             Value<atUint32> unk2;
 
-            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)
             {
-                out.insert(animId);
+                out[animIdx] = std::make_pair(animName, animId);
             }
         };
         struct MetaAnimBlend : IMetaAnim
@@ -195,7 +202,7 @@ struct ANCS : BigYAML
             Value<float> unkFloat;
             Value<atUint8> unk;
 
-            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)
             {
                 animA.m_anim->gatherPrimitives(out);
                 animB.m_anim->gatherPrimitives(out);
@@ -210,7 +217,7 @@ struct ANCS : BigYAML
             Value<float> unkFloat;
             Value<atUint8> unk;
 
-            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)
             {
                 animA.m_anim->gatherPrimitives(out);
                 animB.m_anim->gatherPrimitives(out);
@@ -229,7 +236,7 @@ struct ANCS : BigYAML
             };
             Vector<Child, DNA_COUNT(animCount)> children;
 
-            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)
             {
                 for (const auto& child : children)
                     child.anim.m_anim->gatherPrimitives(out);
@@ -242,7 +249,7 @@ struct ANCS : BigYAML
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
 
-            void gatherPrimitives(std::unordered_set<UniqueID32>& out)
+            void gatherPrimitives(std::map<atUint32, std::pair<std::string, UniqueID32>>& out)
             {
                 for (const auto& child : children)
                     child.m_anim->gatherPrimitives(out);
@@ -359,7 +366,7 @@ struct ANCS : BigYAML
         }
     }
 
-    void getAnimationResInfo(std::unordered_set<UniqueID32>& out) const
+    void getAnimationResInfo(std::map<atUint32, std::pair<std::string, UniqueID32>>& out) const
     {
         out.clear();
         for (const AnimationSet::Animation& ai : animationSet.animations)

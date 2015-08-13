@@ -1,8 +1,10 @@
 #ifndef _DNAMP1_ANIM_HPP_
 #define _DNAMP1_ANIM_HPP_
 
+#include "BlenderConnection.hpp"
 #include "DNAMP1.hpp"
 #include "../DNACommon/ANIM.hpp"
+#include "CINF.hpp"
 
 namespace Retro
 {
@@ -25,6 +27,8 @@ struct ANIM : BigDNA
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
         UniqueID32 evnt;
+
+        void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&) const;
     };
 
     struct ANIM0 : IANIM
@@ -134,6 +138,7 @@ struct ANIM : BigDNA
     std::unique_ptr<IANIM> m_anim;
     void read(Athena::io::IStreamReader& reader)
     {
+        reader.setEndian(Athena::BigEndian);
         atUint32 version = reader.readUint32();
         switch (version)
         {
@@ -153,9 +158,16 @@ struct ANIM : BigDNA
 
     void write(Athena::io::IStreamWriter& writer) const
     {
+        writer.setEndian(Athena::BigEndian);
         writer.writeUint32(m_anim->m_version);
         m_anim->write(writer);
     }
+
+    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+    {
+        m_anim->sendANIMToBlender(os, cinf);
+    }
+
 };
 
 }

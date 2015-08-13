@@ -1,5 +1,5 @@
-#ifndef _DNAMP1_CSKR_HPP_
-#define _DNAMP1_CSKR_HPP_
+#ifndef _DNAMP2_CSKR_HPP_
+#define _DNAMP2_CSKR_HPP_
 
 #include "BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
@@ -7,7 +7,7 @@
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 struct CSKR : BigDNA
@@ -34,7 +34,7 @@ struct CSKR : BigDNA
         atUint32 accum = 0;
         for (const SkinningRule& rule : skinningRules)
         {
-            if (idx >= accum && idx < accum + rule.vertCount)
+            if (idx < accum + rule.vertCount)
                 for (const SkinningRule::Weight& weight : rule.weights)
                     os.format("vert[dvert_lay][%u] = %f\n",
                               cinf.getBoneIdxFromId(weight.boneId),
@@ -47,4 +47,4 @@ struct CSKR : BigDNA
 }
 }
 
-#endif // _DNAMP1_CSKR_HPP_
+#endif // _DNAMP2_CSKR_HPP_

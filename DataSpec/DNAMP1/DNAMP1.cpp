@@ -174,16 +174,16 @@ void PAKBridge::build()
 
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
-    switch (entry.type.toUint32())
+    switch (entry.type)
     {
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, ".yaml"};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, ".png"};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, ".blend", 1};
+        return {nullptr, CMDL::Extract, ".blend", 2};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, nullptr};
+        return {nullptr, ANCS::Extract, nullptr, 1};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, ".yaml"};
     }

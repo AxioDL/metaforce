@@ -1,12 +1,12 @@
-#ifndef _DNAMP1_CINF_HPP_
-#define _DNAMP1_CINF_HPP_
+#ifndef _DNAMP3_CINF_HPP_
+#define _DNAMP3_CINF_HPP_
 
 #include "BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP3
 {
 
 struct CINF : BigDNA
@@ -100,4 +100,4 @@ struct CINF : BigDNA
 }
 }
 
-#endif // _DNAMP1_CINF_HPP_
+#endif // _DNAMP3_CINF_HPP_

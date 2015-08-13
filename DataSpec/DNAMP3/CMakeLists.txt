@@ -1,7 +1,9 @@
 make_dnalist(liblist
              PAK
              MLVL
-             CMDLMaterials)
+             CMDLMaterials
+             CINF
+             CSKR)
 add_library(DNAMP3
             DNAMP3.hpp DNAMP3.cpp
             ${liblist}

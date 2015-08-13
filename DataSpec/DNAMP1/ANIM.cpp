@@ -5,6 +5,72 @@ namespace Retro
 namespace DNAMP1
 {
 
+void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+{
+    os.format("bone_trans_heads = []\n"
+              "act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
+
+    auto kit = chanKeys.begin();
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        os.format("bone_string = '%s'\n", cinf.getBoneNameFromId(bone.first)->c_str());
+        os <<     "action_group = act.groups.new(bone_string)\n"
+                  "\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=0, action_group=bone_string)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=1, action_group=bone_string)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=2, action_group=bone_string)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=3, action_group=bone_string)\n"
+                  "\n";
+
+        if (bone.second)
+            os << "bone_parent_head = (0.0,0.0,0.0)\n"
+                  "if arm_obj.data.bones[bone_string].parent is not None:\n"
+                  "    bone_parent_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
+                  "bone_trans_heads.append(bone_parent_head)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string)\n"
+                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string)\n"
+                  "\n";
+        else
+            os << "bone_trans_heads.append((0,0,0))\n";
+
+        os << "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_mode', action_group=bone_string)\n"
+              "crv.keyframe_points.add()\n"
+              "crv.keyframe_points[-1].co = (0, 0)\n"
+              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
+              "\n";
+
+        const std::vector<DNAANIM::Value>& rotKeys = *kit++;
+        auto timeit = times.begin();
+        for (const DNAANIM::Value& val : rotKeys)
+        {
+            float time = *timeit++;
+            for (int c=0 ; c<4 ; ++c)
+                os.format("crv = act.fcurves[%d]\n"
+                          "crv.keyframe_points.add()\n"
+                          "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
+                          "crv.keyframe_points[-1].co = (%f, %f)\n",
+                          c, time, val.v4.vec[c]);
+        }
+
+        if (bone.second)
+        {
+            const std::vector<DNAANIM::Value>& transKeys = *kit++;
+            auto timeit = times.begin();
+            for (const DNAANIM::Value& val : transKeys)
+            {
+                float time = *timeit++;
+                for (int c=0 ; c<3 ; ++c)
+                    os.format("crv = act.fcurves[%d+4]\n"
+                              "crv.keyframe_points.add()\n"
+                              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
+                              "crv.keyframe_points[-1].co = (%f, %f)\n",
+                              c, time, val.v4.vec[c]);
+            }
+        }
+    }
+}
+
 void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
 {
     Header head;
@@ -174,6 +240,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
             times.push_back(timeAccum);
         timeAccum += head.interval;
     }
+    reader.seek(8);
 
     bones.clear();
     bones.reserve(head.boneChannelCount);
@@ -256,6 +323,8 @@ void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
 
     head.write(writer);
     keyBmp.write(writer);
+    writer.writeUint32(head.boneChannelCount);
+    writer.writeUint32(head.boneChannelCount);
     auto cit = qChannels.begin();
     for (const std::pair<atUint32, bool>& bone : bones)
     {

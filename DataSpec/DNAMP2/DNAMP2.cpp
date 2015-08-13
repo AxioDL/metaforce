@@ -181,7 +181,7 @@ void PAKBridge::build()
 
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& entry)
 {
-    switch (entry.type.toUint32())
+    switch (entry.type)
     {
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, ".yaml"};

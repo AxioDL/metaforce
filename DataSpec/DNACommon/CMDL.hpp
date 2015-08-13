@@ -293,12 +293,13 @@ public:
     }
 };
 
-template <class PAKRouter, class MaterialSet, atUint32 Version>
+template <class PAKRouter, class MaterialSet, class RIGPAIR, atUint32 Version>
 bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                        Athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
-                       const HECL::ProjectPath& masterShader)
+                       const HECL::ProjectPath& masterShader,
+                       const RIGPAIR* rp=nullptr)
 {
     reader.setEndian(Athena::BigEndian);
 
@@ -400,6 +401,9 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "# Begin bmesh\n"
               "bm = bmesh.new()\n"
               "\n", pakRouter.getBestEntryName(entry).c_str());
+
+    if (rp)
+        os << "dvert_lay = bm.verts.layers.deform.verify()\n";
 
     /* Link master shader library */
     os.format("# Master shader library\n"
@@ -520,8 +524,10 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 for (size_t i=0 ; i<=maxIdxs.pos ; ++i)
                 {
                     atVec3f pos = reader.readVec3f();
-                    os.format("bm.verts.new((%f,%f,%f))\n",
+                    os.format("vert = bm.verts.new((%f,%f,%f))\n",
                               pos.vec[0], pos.vec[1], pos.vec[2]);
+                    if (rp)
+                        rp->first->weightVertex(os, *rp->second, i);
                 }
                 break;
             }
@@ -816,6 +822,9 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "bm.to_mesh(mesh)\n"
               "bm.free()\n"
               "\n", head.matSetCount);
+
+    if (rp)
+        rp->second->sendVertexGroupsToBlender(os);
 
     return true;
 }
