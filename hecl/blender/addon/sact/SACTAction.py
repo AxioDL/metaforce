@@ -6,7 +6,7 @@ def active_action_update(self, context):
     if not bpy.app.background:
         if context.scene.hecl_type == 'ACTOR' and context.scene.hecl_auto_select:
             if SACTAction_load.poll(context):
-                bpy.ops.scene.SACTAction_load()
+                bpy.ops.scene.sactaction_load()
 
 # Action type update
 def action_type_update(self, context):
@@ -17,7 +17,6 @@ def action_type_update(self, context):
 # Actor action class
 class SACTAction(bpy.types.PropertyGroup):
     name = bpy.props.StringProperty(name="Action Name")
-    action = bpy.props.StringProperty(name="Blender Action")
 
 # Panel draw
 def draw(layout, context):
@@ -43,12 +42,10 @@ def draw(layout, context):
                 layout.operator("scene.sactaction_load", icon='FILE_TICK', text="Load Action")
 
             # Name edit field
-            layout.prop(action, 'name', text="Name")
-
-            layout.prop_search(action, 'action', bpy.data, 'actions', text="Action")
+            layout.prop_search(action, 'name', bpy.data, 'actions', text="Name")
             linked_action = None
-            if bpy.data.actions.find(action.action) != -1:
-                linked_action = bpy.data.actions[action.action]
+            if bpy.data.actions.find(action.name) != -1:
+                linked_action = bpy.data.actions[action.name]
 
             # Validate
             if linked_action is None:
@@ -151,9 +148,9 @@ class SACTAction_load(bpy.types.Operator):
         # Set single action into armature
         if subtype.linked_armature in bpy.data.objects:
             armature_obj = bpy.data.objects[subtype.linked_armature]
-            if action_data.action in bpy.data.actions:
+            if action_data.name in bpy.data.actions:
                 action_obj =\
-                bpy.data.actions[action_data.action]
+                bpy.data.actions[action_data.name]
                 armature_obj.animation_data_clear()
                 armature_obj.animation_data_create()
                 armature_obj.animation_data.action = action_obj
@@ -196,8 +193,6 @@ def register():
                                                      description="Frame-rate at which action is authored; to be interpolated at 60-fps by runtime",
                                                      min=1, max=60, default=30,
                                                      update=active_action_update)
-    bpy.types.Action.hecl_anim_props = bpy.props.StringProperty(name="Animation Metadata")
-    bpy.types.Action.hecl_index = bpy.props.IntProperty(name="HECL Actor Action Index")
     bpy.utils.register_class(SACTAction)
     bpy.utils.register_class(SACTAction_add)
     bpy.utils.register_class(SACTAction_load)

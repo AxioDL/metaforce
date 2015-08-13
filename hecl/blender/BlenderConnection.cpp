@@ -23,8 +23,8 @@ BlenderConnection* SharedBlenderConnection = nullptr;
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
 
-extern "C" uint8_t BLENDERSHELL[];
-extern "C" size_t BLENDERSHELL_SZ;
+extern "C" uint8_t HECL_BLENDERSHELL[];
+extern "C" size_t HECL_BLENDERSHELL_SZ;
 
 size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
 {
@@ -137,7 +137,7 @@ void BlenderConnection::_closePipe()
 
 BlenderConnection::BlenderConnection(bool silenceBlender)
 {
-    /* Put blendershell.py in temp dir */
+    /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
     if (!TMPDIR)
@@ -148,11 +148,11 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
         TMPDIR = (char*)"/tmp";
 #endif
     HECL::SystemString blenderShellPath(TMPDIR);
-    blenderShellPath += _S("/blendershell.py");
+    blenderShellPath += _S("/hecl_blendershell.py");
     FILE* fp = HECL::Fopen(blenderShellPath.c_str(), _S("w"));
     if (!fp)
         BlenderLog.report(LogVisor::FatalError, _S("unable to open %s for writing"), blenderShellPath.c_str());
-    fwrite(BLENDERSHELL, 1, BLENDERSHELL_SZ, fp);
+    fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
     fclose(fp);
 
     /* Construct communication pipes */
@@ -391,6 +391,8 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const
            "        if scene.name == '%s':\n"
            "            obj_scene = scene\n"
            "            break\n"
+           "    if not obj_scene:\n"
+           "        raise RuntimeError('unable to find %s in %s')\n"
            "    obj = None\n"
            "    for object in obj_scene.objects:\n"
            "        if object.name == obj_scene.name:\n"
@@ -399,7 +401,7 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const
            "    obj = bpy.data.objects['%s']\n"
            "\n",
            objName.c_str(), target.c_str(), link?"True":"False",
-           objName.c_str(), objName.c_str());
+           objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
 }
 
 bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,

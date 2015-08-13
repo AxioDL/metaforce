@@ -4,8 +4,7 @@ import bpy
 def active_subtype_update(self, context):
     if context.scene.hecl_type == 'ACTOR' and context.scene.hecl_auto_select:
         if SACTSubtype_load.poll(context):
-            bpy.ops.scene.SACTSubtype_load()
-
+            bpy.ops.scene.sactsubtype_load()
 
 
 # Actor subtype class

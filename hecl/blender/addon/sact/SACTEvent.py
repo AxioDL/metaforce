@@ -169,9 +169,9 @@ def update_action_events(dummy):
 
         if actor_data.active_action in range(len(actor_data.actions)):
             action_data = actor_data.actions[actor_data.active_action]
-            if action_data.action in bpy.data.actions:
+            if action_data.name in bpy.data.actions:
                 action_obj =\
-                bpy.data.actions[action_data.action]
+                bpy.data.actions[action_data.name]
                 for i in range(len(action_obj.hecl_events)):
                     event = action_obj.hecl_events[i]
                     marker_name = 'hecl_' + str(action_obj.hecl_index) + '_' + str(i) + '_' + event.name

@@ -245,6 +245,7 @@ def register():
     SACTAction.register()
     bpy.utils.register_class(SACTData)
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
+    bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Acion FPS', default=30)
 
 def unregister():
     bpy.utils.unregister_class(SACTData)

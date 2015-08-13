@@ -89,6 +89,34 @@ def command(cmdline, writepipeline, writepipebuf):
         except:
             writepipeline(b'EXCEPTION')
 
+# Load scene callback
+from bpy.app.handlers import persistent
+@persistent
+def scene_loaded(dummy):
+    # Hide everything from an external library
+    for o in bpy.context.scene.objects:
+        if o.library:
+            o.hide = True
+
+    # Linked-Child Detection
+    for scene in bpy.data.scenes:
+        if scene.hecl_type == 'ACTOR':
+            actor_data = scene.hecl_sact_data
+            for subtype in actor_data.subtypes:
+                if subtype.linked_mesh in bpy.data.objects:
+                    mesh_obj = bpy.data.objects[subtype.linked_mesh]
+                    if subtype.linked_armature in bpy.data.objects:
+                        arm_obj = bpy.data.objects[subtype.linked_armature]
+                        mesh_obj.parent = arm_obj
+                        mesh_obj.parent_type = 'ARMATURE'
+
+
+    # Show only the active mesh and action
+    if sact.SACTSubtype.SACTSubtype_load.poll(bpy.context):
+        bpy.ops.scene.sactsubtype_load()
+    if sact.SACTAction.SACTAction_load.poll(bpy.context):
+        bpy.ops.scene.sactaction_load()
+
 
 # Registration
 def register():
@@ -96,8 +124,11 @@ def register():
     hmdl.register()
     sact.register()
     bpy.utils.register_class(hecl_scene_panel)
+    bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
+    bpy.app.handlers.load_post.append(scene_loaded)
 
 def unregister():
+    bpy.app.handlers.load_post.remove(scene_loaded)
     hmdl.unregister()
     sact.unregister()
     bpy.utils.unregister_class(hecl_scene_panel)

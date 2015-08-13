@@ -115,15 +115,18 @@ public:
         ~PyOutStream() {close();}
         void close()
         {
-            if (m_parent && m_lk)
+            if (m_lk)
             {
-                m_parent->_writeLine("PYEND");
-                char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
-                if (strcmp(readBuf, "DONE"))
-                    BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
+                if (m_parent)
+                {
+                    m_parent->_writeLine("PYEND");
+                    char readBuf[16];
+                    m_parent->_readLine(readBuf, 16);
+                    if (strcmp(readBuf, "DONE"))
+                        BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
+                }
+                m_lk.unlock();
             }
-            m_lk.unlock();
         }
         void format(const char* fmt, ...)
         {
