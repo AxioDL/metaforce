@@ -400,16 +400,14 @@ def active_event_update(self, context):
     actor_data = context.scene.hecl_sact_data
     if actor_data.active_action in range(len(actor_data.actions)):
         action_data = actor_data.actions[actor_data.active_action]
-        if action_data.active_subaction in range(len(action_data.subactions)):
-            subaction_data = action_data.subactions[action_data.active_subaction]
-            for marker in context.scene.timeline_markers:
-                if marker.name.startswith('hecl_'):
-                    blend_action = bpy.data.actions[subaction_data.name]
-                    event_name = blend_action.hecl_events[blend_action.hecl_active_event].name
-                    if marker.name == 'hecl_' + str(blend_action.hecl_index) + '_' + str(blend_action.hecl_active_event) + '_' + event_name:
-                        marker.select = True
-                    else:
-                        marker.select = False
+        for marker in context.scene.timeline_markers:
+            if marker.name.startswith('hecl_'):
+                blend_action = bpy.data.actions[action_data.name]
+                event_name = blend_action.hecl_events[blend_action.hecl_active_event].name
+                if marker.name == 'hecl_' + str(blend_action.hecl_index) + '_' + str(blend_action.hecl_active_event) + '_' + event_name:
+                    marker.select = True
+                else:
+                    marker.select = False
 
 # Registration
 def register():
@@ -423,7 +421,7 @@ def register():
     bpy.utils.register_class(hecl_actor_subaction_event_move_down)
     bpy.utils.register_class(hecl_actor_subaction_event_move_up)
     bpy.types.Action.hecl_events = bpy.props.CollectionProperty(name="HECL action event",
-                                                               type=hecl_actor_event)
+                                                                type=hecl_actor_event)
     bpy.types.Action.hecl_active_event = bpy.props.IntProperty(name="HECL active action event",
                                                               default=0,
                                                               update=active_event_update)

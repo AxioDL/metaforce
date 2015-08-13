@@ -1,4 +1,4 @@
-from . import SACTSubtype, SACTAction, SACTEvent, ANIM
+from . import SACTSubtype, SACTAction, ANIM
 from .. import hmdl
 
 import bpy
@@ -25,8 +25,8 @@ class SACTData(bpy.types.PropertyGroup):
     show_actions =\
     bpy.props.BoolProperty()
 
-    show_events =\
-    bpy.props.BoolProperty()
+    #show_events =\
+    #bpy.props.BoolProperty()
 
 # A Routine to resolve HECL DAG-relative paths while ensuring database path-constraints
 def resolve_local_path(blend_path, rel_path):
@@ -235,20 +235,29 @@ def cook(writebuffunc, platform, endianchar):
 def draw(layout, context):
     SACTSubtype.draw(layout.box(), context)
     SACTAction.draw(layout.box(), context)
-    SACTEvent.draw(layout.box(), context)
+    #SACTEvent.draw(layout.box(), context)
+
+
+# Time-remap option update
+def time_remap_update(self, context):
+    if context.scene.hecl_type == 'ACTOR':
+        SACTAction.active_action_update(self, context)
 
 
 # Registration
 def register():
     SACTSubtype.register()
-    SACTEvent.register()
+    #SACTEvent.register()
     SACTAction.register()
     bpy.utils.register_class(SACTData)
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
     bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Acion FPS', default=30)
+    bpy.types.Scene.hecl_auto_remap = bpy.props.BoolProperty(name="Auto Remap",
+        description="Enables automatic 60-fps time-remapping for playback-validation purposes",
+        default=True, update=time_remap_update)
 
 def unregister():
     bpy.utils.unregister_class(SACTData)
     SACTSubtype.unregister()
     SACTAction.unregister()
-    SACTEvent.unregister()
+    #SACTEvent.unregister()

@@ -51,8 +51,8 @@ def draw(layout, context):
             if linked_action is None:
                 layout.label("Source action not set", icon='ERROR')
             else:
-                layout.prop(linked_action, 'hecl_index', text="Index")
-                layout.prop(linked_action, 'hecl_anim_props', text="Props")
+                #layout.prop(linked_action, 'hecl_index', text="Index")
+                #layout.prop(linked_action, 'hecl_anim_props', text="Props")
                 layout.prop(linked_action, 'hecl_fps', text="Frame Rate")
                 layout.prop(context.scene, 'hecl_auto_remap', text="60-fps Remap")
 
@@ -134,9 +134,9 @@ class SACTAction_load(bpy.types.Operator):
         subtype = actor_data.subtypes[actor_data.active_subtype]
 
         # Refresh event markers
-        actor_event.clear_event_markers(actor_data, context)
-        actor_event.update_action_events(None)
-        actor_event.active_event_update(None, context)
+        #SACTEvent.clear_event_markers(actor_data, context)
+        #SACTEvent.update_action_events(None)
+        #SACTEvent.active_event_update(None, context)
 
         # Clear animation data for all subtypes
         for s in range(len(actor_data.subtypes)):
@@ -170,8 +170,8 @@ class SACTAction_load(bpy.types.Operator):
                     bpy.context.scene.frame_end = action_obj.frame_range[1]
 
                 # Events
-                #actor_event.clear_action_events(self, context, actor_data)
-                #actor_event.load_action_events(self, context, action_obj, 0)
+                #SACTEvent.clear_action_events(self, context, actor_data)
+                #SACTEvent.load_action_events(self, context, action_obj, 0)
 
                 return {'FINISHED'}
 
@@ -190,9 +190,9 @@ class SACTAction_load(bpy.types.Operator):
 # Registration
 def register():
     bpy.types.Action.hecl_fps = bpy.props.IntProperty(name="HECL Actor Sub-action Frame-rate",
-                                                     description="Frame-rate at which action is authored; to be interpolated at 60-fps by runtime",
-                                                     min=1, max=60, default=30,
-                                                     update=active_action_update)
+                                                      description="Frame-rate at which action is authored; to be interpolated at 60-fps by runtime",
+                                                      min=1, max=60, default=30,
+                                                      update=active_action_update)
     bpy.utils.register_class(SACTAction)
     bpy.utils.register_class(SACTAction_add)
     bpy.utils.register_class(SACTAction_load)
