@@ -7,8 +7,7 @@ namespace DNAMP1
 
 void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
 {
-    os.format("bone_trans_heads = []\n"
-              "act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
+    os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin();
     for (const std::pair<atUint32, bool>& bone : bones)
@@ -16,23 +15,22 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         os.format("bone_string = '%s'\n", cinf.getBoneNameFromId(bone.first)->c_str());
         os <<     "action_group = act.groups.new(bone_string)\n"
                   "\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=0, action_group=bone_string)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=1, action_group=bone_string)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=2, action_group=bone_string)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=3, action_group=bone_string)\n"
+                  "rotCurves = []\n"
+                  "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=0, action_group=bone_string))\n"
+                  "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=1, action_group=bone_string))\n"
+                  "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=2, action_group=bone_string))\n"
+                  "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=3, action_group=bone_string))\n"
                   "\n";
 
         if (bone.second)
-            os << "bone_parent_head = (0.0,0.0,0.0)\n"
+            os << "bone_trans_head = (0.0,0.0,0.0)\n"
                   "if arm_obj.data.bones[bone_string].parent is not None:\n"
-                  "    bone_parent_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
-                  "bone_trans_heads.append(bone_parent_head)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string)\n"
-                  "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string)\n"
+                  "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
+                  "transCurves = []\n"
+                  "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
+                  "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"
+                  "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string))\n"
                   "\n";
-        else
-            os << "bone_trans_heads.append((0,0,0))\n";
 
         os << "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_mode', action_group=bone_string)\n"
               "crv.keyframe_points.add()\n"
@@ -41,31 +39,31 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
               "\n";
 
         const std::vector<DNAANIM::Value>& rotKeys = *kit++;
-        auto timeit = times.begin();
+        auto frameit = frames.begin();
         for (const DNAANIM::Value& val : rotKeys)
         {
-            float time = *timeit++;
+            atUint32 frame = *frameit++;
             for (int c=0 ; c<4 ; ++c)
-                os.format("crv = act.fcurves[%d]\n"
+                os.format("crv = rotCurves[%d]\n"
                           "crv.keyframe_points.add()\n"
                           "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-                          "crv.keyframe_points[-1].co = (%f, %f)\n",
-                          c, time, val.v4.vec[c]);
+                          "crv.keyframe_points[-1].co = (%u, %f)\n",
+                          c, frame, val.v4.vec[c]);
         }
 
         if (bone.second)
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
-            auto timeit = times.begin();
+            auto frameit = frames.begin();
             for (const DNAANIM::Value& val : transKeys)
             {
-                float time = *timeit++;
+                atUint32 frame = *frameit++;
                 for (int c=0 ; c<3 ; ++c)
-                    os.format("crv = act.fcurves[%d+4]\n"
+                    os.format("crv = transCurves[%d]\n"
                               "crv.keyframe_points.add()\n"
                               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-                              "crv.keyframe_points[-1].co = (%f, %f)\n",
-                              c, time, val.v4.vec[c]);
+                              "crv.keyframe_points[-1].co = (%u, %f - bone_trans_head[%d])\n",
+                              c, frame, val.v4.vec[c], c);
             }
         }
     }
@@ -77,14 +75,10 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     head.read(reader);
     mainInterval = head.interval;
 
-    times.clear();
-    times.reserve(head.keyCount);
-    float timeAccum = 0.0;
+    frames.clear();
+    frames.reserve(head.keyCount);
     for (size_t k=0 ; k<head.keyCount ; ++k)
-    {
-        times.push_back(timeAccum);
-        timeAccum += head.interval;
-    }
+        frames.push_back(k);
 
     std::map<atUint8, atUint32> boneMap;
     for (size_t b=0 ; b<head.boneSlotCount ; ++b)
@@ -151,7 +145,7 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
     head.unk0 = 0;
     head.unk1 = 0;
     head.unk2 = 0;
-    head.keyCount = times.size();
+    head.keyCount = frames.size();
     head.duration = head.keyCount * mainInterval;
     head.interval = mainInterval;
 
@@ -232,13 +226,13 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
 
     WordBitmap keyBmp;
     keyBmp.read(reader, head.keyBitmapBitCount);
-    times.clear();
-    float timeAccum = 0.0;
+    frames.clear();
+    atUint32 frameAccum = 0;
     for (bool bit : keyBmp)
     {
         if (bit)
-            times.push_back(timeAccum);
-        timeAccum += head.interval;
+            frames.push_back(frameAccum);
+        ++frameAccum;
     }
     reader.seek(8);
 
@@ -299,19 +293,18 @@ void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
 
     WordBitmap keyBmp;
     size_t frameCount = 0;
-    for (float time : times)
+    for (atUint32 frame : frames)
     {
-        size_t frameIdx = time / mainInterval;
-        while (keyBmp.getBit(frameIdx))
-            ++frameIdx;
-        keyBmp.setBit(frameIdx);
-        frameCount = frameIdx + 1;
+        while (keyBmp.getBit(frame))
+            ++frame;
+        keyBmp.setBit(frame);
+        frameCount = frame + 1;
     }
     head.keyBitmapBitCount = frameCount;
     head.duration = frameCount * mainInterval;
     head.boneChannelCount = bones.size();
 
-    size_t keyframeCount = times.size();
+    size_t keyframeCount = frames.size();
     std::vector<DNAANIM::Channel> qChannels = channels;
     DNAANIM::BitstreamWriter bsWriter;
     size_t bsSize;

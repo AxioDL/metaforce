@@ -22,7 +22,7 @@ struct ANIM : BigDNA
         IANIM(atUint32 version) : m_version(version) {}
 
         std::vector<std::pair<atUint32, bool>> bones;
-        std::vector<float> times;
+        std::vector<atUint32> frames;
         std::vector<DNAANIM::Channel> channels;
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;

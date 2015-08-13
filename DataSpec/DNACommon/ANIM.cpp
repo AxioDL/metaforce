@@ -13,6 +13,7 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
         switch (chan.type)
         {
         case Channel::ROTATION:
+            bitsPerKeyFrame += 1;
         case Channel::TRANSLATION:
         {
             bitsPerKeyFrame += chan.q[0];
@@ -37,11 +38,11 @@ static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
     return
     {
         {
-            atInt16(asinf(quat.v4.vec[0]) / q),
             atInt16(asinf(quat.v4.vec[1]) / q),
             atInt16(asinf(quat.v4.vec[2]) / q),
+            atInt16(asinf(quat.v4.vec[3]) / q),
         },
-        (quat.v4.vec[3] < 0) ? true : false
+        (quat.v4.vec[0] < 0) ? true : false
     };
 }
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
@@ -49,16 +50,31 @@ static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
     float q = M_PI / 2.0 / div;
     Value retval =
     {
+        0.0,
         sinf(v.v[0] * q),
         sinf(v.v[1] * q),
         sinf(v.v[2] * q),
     };
-    retval.v4.vec[3] = sqrtf(MAX((1.0 -
-                               (retval.v4.vec[0]*retval.v4.vec[0] +
-                                retval.v4.vec[1]*retval.v4.vec[1] +
-                                retval.v4.vec[2]*retval.v4.vec[2])), 0.0));
-    retval.v4.vec[3] = v.w ? -retval.v4.vec[3] : retval.v4.vec[3];
+    retval.v4.vec[0] = sqrtf(MAX((1.0 -
+                               (retval.v4.vec[1] * retval.v4.vec[1] +
+                                retval.v4.vec[2] * retval.v4.vec[2] +
+                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0));
+    retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
     return retval;
+}
+
+bool BitstreamReader::dequantizeBit(const atUint8* data)
+{
+    atUint32 byteCur = (m_bitCur / 32) * 4;
+    atUint32 bitRem = m_bitCur % 32;
+
+    /* Fill 32 bit buffer with region containing bits */
+    /* Make them least significant */
+    atUint32 tempBuf = HECL::SBig(*(atUint32*)(data + byteCur)) >> bitRem;
+
+    /* That's it */
+    m_bitCur += 1;
+    return tempBuf & 0x1;
 }
 
 atInt16 BitstreamReader::dequantize(const atUint8* data, atUint8 q)
@@ -144,7 +160,7 @@ BitstreamReader::read(const atUint8* data,
             {
             case Channel::ROTATION:
             {
-                bool wBit = dequantize(data, 1);
+                bool wBit = dequantizeBit(data);
                 p[0] += dequantize(data, chan.q[0]);
                 p[1] += dequantize(data, chan.q[1]);
                 p[2] += dequantize(data, chan.q[2]);
@@ -173,6 +189,19 @@ BitstreamReader::read(const atUint8* data,
         }
     }
     return chanKeys;
+}
+
+void BitstreamWriter::quantizeBit(atUint8* data, bool val)
+{
+    atUint32 byteCur = (m_bitCur / 32) * 4;
+    atUint32 bitRem = m_bitCur % 32;
+
+    /* Fill 32 bit buffer with region containing bits */
+    /* Make them least significant */
+    *(atUint32*)(data + byteCur) =
+    HECL::SBig(HECL::SBig(*(atUint32*)(data + byteCur)) | (val << bitRem));
+
+    m_bitCur += 1;
 }
 
 void BitstreamWriter::quantize(atUint8* data, atUint8 q, atInt16 val)
@@ -344,7 +373,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                      ++it)
                 {
                     QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
-                    quantize(newData, 1, qrCur.w);
+                    quantizeBit(newData, qrCur.w);
                     quantize(newData, chan.q[0], qrCur.v[0] - qrLast.v[0]);
                     quantize(newData, chan.q[1], qrCur.v[1] - qrLast.v[0]);
                     quantize(newData, chan.q[2], qrCur.v[2] - qrLast.v[0]);

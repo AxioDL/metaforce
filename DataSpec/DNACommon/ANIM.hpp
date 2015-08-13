@@ -24,6 +24,13 @@ union Value
         v3.vec[2] = z;
         v4.vec[3] = 0.0;
     }
+    Value(float w, float x, float y, float z)
+    {
+        v4.vec[0] = w;
+        v4.vec[1] = x;
+        v4.vec[2] = y;
+        v4.vec[3] = z;
+    }
 };
 struct QuantizedValue
 {
@@ -56,6 +63,7 @@ class BitstreamReader
 {
     size_t m_bitCur;
     atInt16 dequantize(const atUint8* data, atUint8 q);
+    bool dequantizeBit(const atUint8* data);
 public:
     std::vector<std::vector<Value>>
     read(const atUint8* data,
@@ -69,6 +77,7 @@ class BitstreamWriter
 {
     size_t m_bitCur;
     void quantize(atUint8* data, atUint8 q, atInt16 val);
+    void quantizeBit(atUint8* data, bool val);
 public:
     std::unique_ptr<atUint8[]>
     write(const std::vector<std::vector<Value>>& chanKeys,
