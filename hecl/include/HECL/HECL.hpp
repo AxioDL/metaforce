@@ -449,6 +449,19 @@ public:
     inline bool isRoot() const {return m_relPath.empty();}
 
     /**
+     * @brief Return new ProjectPath with extension added
+     * @param ext file extension to add
+     * @return new path with extension
+     */
+    inline ProjectPath getWithExtension(const SystemChar* ext) const
+    {
+        ProjectPath pp(*this);
+        pp.m_relPath += ext;
+        pp.m_absPath += ext;
+        return pp;
+    }
+
+    /**
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
