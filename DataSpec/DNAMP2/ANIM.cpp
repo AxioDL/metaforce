@@ -2,7 +2,7 @@
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const

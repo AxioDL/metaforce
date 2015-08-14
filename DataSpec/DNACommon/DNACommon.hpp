@@ -48,9 +48,9 @@ public:
     Delete expl;
     inline operator bool() const {return m_id != 0xffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
-    {m_id = reader.readUint32();}
+    {m_id = reader.readUint32Big();}
     inline void write(Athena::io::IStreamWriter& writer) const
-    {writer.writeUint32(m_id);}
+    {writer.writeUint32Big(m_id);}
     inline void fromYAML(Athena::io::YAMLDocReader& reader)
     {m_id = reader.readUint32(nullptr);}
     inline void toYAML(Athena::io::YAMLDocWriter& writer) const
@@ -75,9 +75,9 @@ public:
     Delete expl;
     inline operator bool() const {return m_id != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
-    {m_id = reader.readUint64();}
+    {m_id = reader.readUint64Big();}
     inline void write(Athena::io::IStreamWriter& writer) const
-    {writer.writeUint64(m_id);}
+    {writer.writeUint64Big(m_id);}
 
     inline bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     inline bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
@@ -107,13 +107,13 @@ public:
     {return m_id[0] != 0xffffffffffffffff && m_id[1] != 0xffffffffffffffff;}
     inline void read(Athena::io::IStreamReader& reader)
     {
-        m_id[0] = reader.readUint64();
-        m_id[1] = reader.readUint64();
+        m_id[0] = reader.readUint64Big();
+        m_id[1] = reader.readUint64Big();
     }
     inline void write(Athena::io::IStreamWriter& writer) const
     {
-        writer.writeUint64(m_id[0]);
-        writer.writeUint64(m_id[1]);
+        writer.writeUint64Big(m_id[0]);
+        writer.writeUint64Big(m_id[1]);
     }
 
     inline bool operator!=(const UniqueID128& other) const
@@ -182,7 +182,7 @@ struct WordBitmap
         m_words.clear();
         m_words.reserve(wordCount);
         for (size_t w=0 ; w<wordCount ; ++w)
-            m_words.push_back(reader.readUint32());
+            m_words.push_back(reader.readUint32Big());
     }
     void write(Athena::io::IStreamWriter& writer) const
     {

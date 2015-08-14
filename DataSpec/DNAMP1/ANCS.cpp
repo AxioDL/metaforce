@@ -7,23 +7,23 @@ namespace DNAMP1
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(Athena::io::IStreamReader& reader)
 {
-    parmType = reader.readUint32();
-    unk1 = reader.readUint32();
-    unk2 = reader.readFloat();
+    parmType = reader.readUint32Big();
+    unk1 = reader.readUint32Big();
+    unk2 = reader.readFloatBig();
     switch (DataType(parmType))
     {
     case DataType::DTInt32:
-        parmVals[0].int32 = reader.readInt32();
-        parmVals[1].int32 = reader.readInt32();
+        parmVals[0].int32 = reader.readInt32Big();
+        parmVals[1].int32 = reader.readInt32Big();
         break;
     case DataType::DTUInt32:
     case DataType::DTEnum:
-        parmVals[0].uint32 = reader.readUint32();
-        parmVals[1].uint32 = reader.readUint32();
+        parmVals[0].uint32 = reader.readUint32Big();
+        parmVals[1].uint32 = reader.readUint32Big();
         break;
     case DataType::DTFloat:
-        parmVals[0].float32 = reader.readFloat();
-        parmVals[1].float32 = reader.readFloat();
+        parmVals[0].float32 = reader.readFloatBig();
+        parmVals[1].float32 = reader.readFloatBig();
         break;
     case DataType::DTBool:
         parmVals[0].bool1 = reader.readBool();
@@ -34,23 +34,23 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(A
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.writeUint32(parmType);
-    writer.writeUint32(unk1);
-    writer.writeFloat(unk2);
+    writer.writeUint32Big(parmType);
+    writer.writeUint32Big(unk1);
+    writer.writeFloatBig(unk2);
     switch (DataType(parmType))
     {
     case DataType::DTInt32:
-        writer.writeInt32(parmVals[0].int32);
-        writer.writeInt32(parmVals[1].int32);
+        writer.writeInt32Big(parmVals[0].int32);
+        writer.writeInt32Big(parmVals[1].int32);
         break;
     case DataType::DTUInt32:
     case DataType::DTEnum:
-        writer.writeUint32(parmVals[0].uint32);
-        writer.writeUint32(parmVals[0].uint32);
+        writer.writeUint32Big(parmVals[0].uint32);
+        writer.writeUint32Big(parmVals[0].uint32);
         break;
     case DataType::DTFloat:
-        writer.writeFloat(parmVals[0].float32);
-        writer.writeFloat(parmVals[0].float32);
+        writer.writeFloatBig(parmVals[0].float32);
+        writer.writeFloatBig(parmVals[0].float32);
         break;
     case DataType::DTBool:
         writer.writeBool(parmVals[0].bool1);
@@ -120,9 +120,9 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::toYAML
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io::IStreamReader& reader)
 {
-    id = reader.readUint32();
-    atUint32 parmInfoCount = reader.readUint32();
-    atUint32 animInfoCount = reader.readUint32();
+    id = reader.readUint32Big();
+    atUint32 parmInfoCount = reader.readUint32Big();
+    atUint32 animInfoCount = reader.readUint32Big();
 
     reader.enumerate(parmInfos, parmInfoCount);
 
@@ -131,21 +131,21 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io:
     reader.enumerate<AnimInfo>(animInfos, animInfoCount,
     [this, parmInfoCount](Athena::io::IStreamReader& reader, AnimInfo& ai)
     {
-        ai.id = reader.readUint32();
+        ai.id = reader.readUint32Big();
         ai.parmVals.reserve(parmInfoCount);
         for (const ParmInfo& pi : parmInfos)
         {
             switch (ParmInfo::DataType(pi.parmType))
             {
             case ParmInfo::DTInt32:
-                ai.parmVals.emplace_back(reader.readInt32());
+                ai.parmVals.emplace_back(reader.readInt32Big());
                 break;
             case ParmInfo::DTUInt32:
             case ParmInfo::DTEnum:
-                ai.parmVals.emplace_back(reader.readUint32());
+                ai.parmVals.emplace_back(reader.readUint32Big());
                 break;
             case ParmInfo::DTFloat:
-                ai.parmVals.emplace_back(reader.readFloat());
+                ai.parmVals.emplace_back(reader.readFloatBig());
                 break;
             case ParmInfo::DTBool:
                 ai.parmVals.emplace_back(reader.readBool());
@@ -158,16 +158,16 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io:
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.writeUint32(id);
-    writer.writeUint32(parmInfos.size());
-    writer.writeUint32(animInfos.size());
+    writer.writeUint32Big(id);
+    writer.writeUint32Big(parmInfos.size());
+    writer.writeUint32Big(animInfos.size());
 
     for (const ParmInfo& pi : parmInfos)
         pi.write(writer);
 
     for (const AnimInfo& ai : animInfos)
     {
-        writer.writeUint32(ai.id);
+        writer.writeUint32Big(ai.id);
         auto it = ai.parmVals.begin();
         for (const ParmInfo& pi : parmInfos)
         {
@@ -177,14 +177,14 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io
             switch (ParmInfo::DataType(pi.parmType))
             {
             case ParmInfo::DTInt32:
-                writer.writeInt32(pVal.int32);
+                writer.writeInt32Big(pVal.int32);
                 break;
             case ParmInfo::DTUInt32:
             case ParmInfo::DTEnum:
-                writer.writeUint32(pVal.uint32);
+                writer.writeUint32Big(pVal.uint32);
                 break;
             case ParmInfo::DTFloat:
-                writer.writeFloat(pVal.float32);
+                writer.writeFloatBig(pVal.float32);
                 break;
             case ParmInfo::DTBool:
                 writer.writeBool(pVal.bool1);
@@ -276,52 +276,52 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::toYAML(Athena::i
 
 void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
 {
-    idx = reader.readUint32();
-    atUint16 sectionCount = reader.readUint16();
+    idx = reader.readUint32Big();
+    atUint16 sectionCount = reader.readUint16Big();
     name = reader.readString();
     cmdl.read(reader);
     cskr.read(reader);
     cinf.read(reader);
 
-    atUint32 animationCount = reader.readUint32();
+    atUint32 animationCount = reader.readUint32Big();
     reader.enumerate(animations, animationCount);
 
     pasDatabase.read(reader);
 
-    atUint32 partCount = reader.readUint32();
+    atUint32 partCount = reader.readUint32Big();
     reader.enumerate(partResData.part, partCount);
 
-    atUint32 swhcCount = reader.readUint32();
+    atUint32 swhcCount = reader.readUint32Big();
     reader.enumerate(partResData.swhc, swhcCount);
 
-    atUint32 unkCount = reader.readUint32();
+    atUint32 unkCount = reader.readUint32Big();
     reader.enumerate(partResData.unk, unkCount);
 
     partResData.elsc.clear();
     if (sectionCount > 5)
     {
-        atUint32 elscCount = reader.readUint32();
+        atUint32 elscCount = reader.readUint32Big();
         reader.enumerate(partResData.elsc, elscCount);
     }
 
-    unk1 = reader.readUint32();
+    unk1 = reader.readUint32Big();
     if (sectionCount > 9)
     {
-        unk2 = reader.readUint32();
-        unk3 = reader.readUint32();
+        unk2 = reader.readUint32Big();
+        unk3 = reader.readUint32Big();
     }
 
     animAABBs.clear();
     if (sectionCount > 1)
     {
-        atUint32 aabbCount = reader.readUint32();
+        atUint32 aabbCount = reader.readUint32Big();
         reader.enumerate(animAABBs, aabbCount);
     }
 
     effects.clear();
     if (sectionCount > 2)
     {
-        atUint32 effectCount = reader.readUint32();
+        atUint32 effectCount = reader.readUint32Big();
         reader.enumerate(effects, effectCount);
     }
 
@@ -334,14 +334,14 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
     animIdxs.clear();
     if (sectionCount > 4)
     {
-        atUint32 aidxCount = reader.readUint32();
-        reader.enumerate(animIdxs, aidxCount);
+        atUint32 aidxCount = reader.readUint32Big();
+        reader.enumerateBig(animIdxs, aidxCount);
     }
 }
 
 void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.writeUint32(idx);
+    writer.writeUint32Big(idx);
 
     atUint16 sectionCount;
     if (unk2 || unk3)
@@ -358,49 +358,49 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
         sectionCount = 2;
     else
         sectionCount = 1;
-    writer.writeUint16(sectionCount);
+    writer.writeUint16Big(sectionCount);
 
     writer.writeString(name);
     cmdl.write(writer);
     cskr.write(writer);
     cinf.write(writer);
 
-    writer.writeUint32(animations.size());
+    writer.writeUint32Big(animations.size());
     writer.enumerate(animations);
 
     pasDatabase.write(writer);
 
-    writer.writeUint32(partResData.part.size());
+    writer.writeUint32Big(partResData.part.size());
     writer.enumerate(partResData.part);
 
-    writer.writeUint32(partResData.swhc.size());
+    writer.writeUint32Big(partResData.swhc.size());
     writer.enumerate(partResData.swhc);
 
-    writer.writeUint32(partResData.unk.size());
+    writer.writeUint32Big(partResData.unk.size());
     writer.enumerate(partResData.unk);
 
     if (sectionCount > 5)
     {
-        writer.writeUint32(partResData.elsc.size());
+        writer.writeUint32Big(partResData.elsc.size());
         writer.enumerate(partResData.elsc);
     }
 
-    writer.writeUint32(unk1);
+    writer.writeUint32Big(unk1);
     if (sectionCount > 9)
     {
-        writer.writeUint32(unk2);
-        writer.writeUint32(unk3);
+        writer.writeUint32Big(unk2);
+        writer.writeUint32Big(unk3);
     }
 
     if (sectionCount > 1)
     {
-        writer.writeUint32(animAABBs.size());
+        writer.writeUint32Big(animAABBs.size());
         writer.enumerate(animAABBs);
     }
 
     if (sectionCount > 2)
     {
-        writer.writeUint32(effects.size());
+        writer.writeUint32Big(effects.size());
         writer.enumerate(effects);
     }
 
@@ -412,9 +412,9 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
 
     if (sectionCount > 4)
     {
-        writer.writeUint32(animIdxs.size());
+        writer.writeUint32Big(animIdxs.size());
         for (atUint32 idx : animIdxs)
-            writer.writeUint32(idx);
+            writer.writeUint32Big(idx);
     }
 }
 
@@ -563,7 +563,7 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
 
 void ANCS::AnimationSet::MetaAnimFactory::read(Athena::io::IStreamReader& reader)
 {
-    IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32()));
+    IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
     {
     case IMetaAnim::MAPrimitive:
@@ -596,7 +596,7 @@ void ANCS::AnimationSet::MetaAnimFactory::write(Athena::io::IStreamWriter& write
 {
     if (!m_anim)
         return;
-    writer.writeInt32(m_anim->m_type);
+    writer.writeInt32Big(m_anim->m_type);
     m_anim->write(writer);
 }
 
@@ -646,7 +646,7 @@ void ANCS::AnimationSet::MetaAnimFactory::toYAML(Athena::io::YAMLDocWriter& writ
 
 void ANCS::AnimationSet::MetaTransFactory::read(Athena::io::IStreamReader& reader)
 {
-    IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32()));
+    IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32Big()));
     switch (type)
     {
     case IMetaTrans::MTMetaAnim:
@@ -672,10 +672,10 @@ void ANCS::AnimationSet::MetaTransFactory::write(Athena::io::IStreamWriter& writ
 {
     if (!m_trans)
     {
-        writer.writeInt32(IMetaTrans::MTNoTrans);
+        writer.writeInt32Big(IMetaTrans::MTNoTrans);
         return;
     }
-    writer.writeInt32(m_trans->m_type);
+    writer.writeInt32Big(m_trans->m_type);
     m_trans->write(writer);
 }
 
@@ -718,35 +718,35 @@ void ANCS::AnimationSet::MetaTransFactory::toYAML(Athena::io::YAMLDocWriter& wri
 
 void ANCS::AnimationSet::read(Athena::io::IStreamReader& reader)
 {
-    atUint16 sectionCount = reader.readUint16();
+    atUint16 sectionCount = reader.readUint16Big();
 
-    atUint32 animationCount = reader.readUint32();
+    atUint32 animationCount = reader.readUint32Big();
     reader.enumerate(animations, animationCount);
 
-    atUint32 transitionCount = reader.readUint32();
+    atUint32 transitionCount = reader.readUint32Big();
     reader.enumerate(transitions, transitionCount);
     defaultTransition.read(reader);
 
     additiveAnims.clear();
     if (sectionCount > 1)
     {
-        atUint32 additiveAnimCount = reader.readUint32();
+        atUint32 additiveAnimCount = reader.readUint32Big();
         reader.enumerate(additiveAnims, additiveAnimCount);
-        floatA = reader.readFloat();
-        floatB = reader.readFloat();
+        floatA = reader.readFloatBig();
+        floatB = reader.readFloatBig();
     }
 
     halfTransitions.clear();
     if (sectionCount > 2)
     {
-        atUint32 halfTransitionCount = reader.readUint32();
+        atUint32 halfTransitionCount = reader.readUint32Big();
         reader.enumerate(halfTransitions, halfTransitionCount);
     }
 
     animResources.clear();
     if (sectionCount > 3)
     {
-        atUint32 animResourcesCount = reader.readUint32();
+        atUint32 animResourcesCount = reader.readUint32Big();
         reader.enumerate(animResources, animResourcesCount);
     }
 }
@@ -763,32 +763,32 @@ void ANCS::AnimationSet::write(Athena::io::IStreamWriter& writer) const
     else
         sectionCount = 1;
 
-    writer.writeUint16(sectionCount);
+    writer.writeUint16Big(sectionCount);
 
-    writer.writeUint32(animations.size());
+    writer.writeUint32Big(animations.size());
     writer.enumerate(animations);
 
-    writer.writeUint32(transitions.size());
+    writer.writeUint32Big(transitions.size());
     writer.enumerate(transitions);
     defaultTransition.write(writer);
 
     if (sectionCount > 1)
     {
-        writer.writeUint32(additiveAnims.size());
+        writer.writeUint32Big(additiveAnims.size());
         writer.enumerate(additiveAnims);
-        writer.writeFloat(floatA);
-        writer.writeFloat(floatB);
+        writer.writeFloatBig(floatA);
+        writer.writeFloatBig(floatB);
     }
 
     if (sectionCount > 2)
     {
-        writer.writeUint32(halfTransitions.size());
+        writer.writeUint32Big(halfTransitions.size());
         writer.enumerate(halfTransitions);
     }
 
     if (sectionCount > 3)
     {
-        writer.writeUint32(animResources.size());
+        writer.writeUint32Big(animResources.size());
         writer.enumerate(animResources);
     }
 }

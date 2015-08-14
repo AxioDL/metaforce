@@ -8,15 +8,14 @@ namespace Retro
 
 std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)
 {
-    reader.setEndian(Athena::BigEndian);
-    uint32_t magic = reader.readUint32();
+    uint32_t magic = reader.readUint32Big();
     if (magic != 0x87654321)
     {
         LogDNACommon.report(LogVisor::Error, "invalid STRG magic");
         return std::unique_ptr<ISTRG>();
     }
 
-    uint32_t version = reader.readUint32();
+    uint32_t version = reader.readUint32Big();
     switch (version)
     {
     case 0:

@@ -481,11 +481,10 @@ static void PNGWarn(png_structp png, png_const_charp msg)
 
 bool TXTR::Extract(const SpecBase& dataspec, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
 {
-    rs.setEndian(Athena::BigEndian);
-    uint32_t format = rs.readUint32();
-    uint16_t width = rs.readUint16();
-    uint16_t height = rs.readUint16();
-    uint32_t numMips = rs.readUint32();
+    uint32_t format = rs.readUint32Big();
+    uint16_t width = rs.readUint16Big();
+    uint16_t height = rs.readUint16Big();
+    uint32_t numMips = rs.readUint32Big();
 
     FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
     if (!fp)

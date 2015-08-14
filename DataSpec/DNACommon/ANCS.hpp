@@ -58,7 +58,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     }
 
     /* Establish ANCS blend */
-    if (!conn.createBlend(outPath.getAbsolutePath() + ".blend"))
+    if (!conn.createBlend(outPath.getAbsolutePath()))
         return false;
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 

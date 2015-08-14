@@ -8,8 +8,8 @@ namespace DNAMP2
 
 void STRG::_read(Athena::io::IStreamReader& reader)
 {
-    atUint32 langCount = reader.readUint32();
-    atUint32 strCount = reader.readUint32();
+    atUint32 langCount = reader.readUint32Big();
+    atUint32 strCount = reader.readUint32Big();
 
     std::vector<FourCC> readLangs;
     readLangs.reserve(langCount);
@@ -21,8 +21,8 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         reader.seek(8);
     }
 
-    atUint32 nameCount = reader.readUint32();
-    atUint32 nameTableSz = reader.readUint32();
+    atUint32 nameCount = reader.readUint32Big();
+    atUint32 nameTableSz = reader.readUint32Big();
     std::unique_ptr<uint8_t[]> nameTableBuf(new uint8_t[nameTableSz]);
     reader.readUBytesToBuf(nameTableBuf.get(), nameTableSz);
     struct NameIdxEntry
@@ -43,7 +43,7 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         std::vector<std::wstring> strs;
         reader.seek(strCount * 4);
         for (atUint32 s=0 ; s<strCount ; ++s)
-            strs.emplace_back(reader.readWString());
+            strs.emplace_back(reader.readWStringBig());
         langs.emplace_back(lang, strs);
     }
 
@@ -55,12 +55,11 @@ void STRG::_read(Athena::io::IStreamReader& reader)
 
 void STRG::read(Athena::io::IStreamReader& reader)
 {
-    reader.setEndian(Athena::BigEndian);
-    atUint32 magic = reader.readUint32();
+    atUint32 magic = reader.readUint32Big();
     if (magic != 0x87654321)
         Log.report(LogVisor::Error, "invalid STRG magic");
 
-    atUint32 version = reader.readUint32();
+    atUint32 version = reader.readUint32Big();
     if (version != 1)
         Log.report(LogVisor::Error, "invalid STRG version");
 
@@ -69,18 +68,17 @@ void STRG::read(Athena::io::IStreamReader& reader)
 
 void STRG::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.setEndian(Athena::BigEndian);
-    writer.writeUint32(0x87654321);
-    writer.writeUint32(1);
-    writer.writeUint32(langs.size());
+    writer.writeUint32Big(0x87654321);
+    writer.writeUint32Big(1);
+    writer.writeUint32Big(langs.size());
     atUint32 strCount = STRG::count();
-    writer.writeUint32(strCount);
+    writer.writeUint32Big(strCount);
 
     atUint32 offset = 0;
     for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
     {
         lang.first.write(writer);
-        writer.writeUint32(offset);
+        writer.writeUint32Big(offset);
         offset += strCount * 4 + 4;
         atUint32 langStrCount = lang.second.size();
         atUint32 tableSz = strCount * 4;
@@ -98,19 +96,19 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
                 tableSz += 1;
             }
         }
-        writer.writeUint32(tableSz);
+        writer.writeUint32Big(tableSz);
     }
 
     atUint32 nameTableSz = names.size() * 8;
     for (const std::pair<std::string, int32_t>& name : names)
         nameTableSz += name.first.size() + 1;
-    writer.writeUint32(names.size());
-    writer.writeUint32(nameTableSz);
+    writer.writeUint32Big(names.size());
+    writer.writeUint32Big(nameTableSz);
     offset = names.size() * 8;
     for (const std::pair<std::string, int32_t>& name : names)
     {
-        writer.writeUint32(offset);
-        writer.writeInt32(name.second);
+        writer.writeUint32Big(offset);
+        writer.writeInt32Big(name.second);
         offset += name.first.size() + 1;
     }
     for (const std::pair<std::string, int32_t>& name : names)
@@ -122,7 +120,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
         atUint32 langStrCount = lang.second.size();
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
-            writer.writeUint32(offset);
+            writer.writeUint32Big(offset);
             if (s < langStrCount)
                 offset += lang.second[s].size() * 2 + 1;
             else
@@ -132,7 +130,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                writer.writeWString(lang.second[s]);
+                writer.writeWStringBig(lang.second[s]);
             else
                 writer.writeUByte(0);
         }

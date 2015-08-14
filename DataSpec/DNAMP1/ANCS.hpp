@@ -382,14 +382,25 @@ struct ANCS : BigYAML
     {
         ANCS ancs;
         ancs.read(rs);
-        FILE* fp = HECL::Fopen((outPath.getAbsolutePath() + ".yaml").c_str(), _S("wb"));
-        ancs.toYAMLFile(fp);
-        fclose(fp);
 
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
-                (conn, ancs, outPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
-        return conn.saveBlend();
+        HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+        if (force || yamlPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        {
+            FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
+            ancs.toYAMLFile(fp);
+            fclose(fp);
+        }
+
+        HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+        if (force || blendPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        {
+            HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+            DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
+                    (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
+            return conn.saveBlend();
+        }
+
+        return true;
     }
 };
 

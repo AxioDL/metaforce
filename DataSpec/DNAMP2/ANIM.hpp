@@ -1,14 +1,14 @@
-#ifndef _DNAMP1_ANIM_HPP_
-#define _DNAMP1_ANIM_HPP_
+#ifndef _DNAMP2_ANIM_HPP_
+#define _DNAMP2_ANIM_HPP_
 
 #include "BlenderConnection.hpp"
-#include "DNAMP1.hpp"
+#include "DNAMP2.hpp"
 #include "../DNACommon/ANIM.hpp"
 #include "CINF.hpp"
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 struct ANIM : BigDNA
@@ -171,4 +171,4 @@ struct ANIM : BigDNA
 }
 }
 
-#endif // _DNAMP1_ANIM_HPP_
+#endif // _DNAMP2_ANIM_HPP_

@@ -301,8 +301,6 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                        const HECL::ProjectPath& masterShader,
                        const RIGPAIR* rp=nullptr)
 {
-    reader.setEndian(Athena::BigEndian);
-
     Header head;
     head.read(reader);
 
@@ -523,7 +521,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 /* Positions */
                 for (size_t i=0 ; i<=maxIdxs.pos ; ++i)
                 {
-                    atVec3f pos = reader.readVec3f();
+                    atVec3f pos = reader.readVec3fBig();
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
                               pos.vec[0], pos.vec[1], pos.vec[2]);
                     if (rp)
@@ -541,7 +539,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
                         os.format("norm_list.append((%f,%f,%f))\n",
-                                  reader.readInt16(), reader.readInt16(), reader.readInt16());
+                                  reader.readInt16Big(), reader.readInt16Big(), reader.readInt16Big());
                     }
                 }
                 else
@@ -549,7 +547,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                     size_t normCount = head.secSizes[s] / 12;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
-                        atVec3f norm = reader.readVec3f();
+                        atVec3f norm = reader.readVec3fBig();
                         os.format("norm_list.append((%f,%f,%f))\n",
                                   norm.vec[0], norm.vec[1], norm.vec[2]);
                     }
@@ -568,7 +566,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 size_t uvCount = head.secSizes[s] / 8;
                 for (size_t i=0 ; i<uvCount ; ++i)
                 {
-                    atVec2f uv = reader.readVec2f();
+                    atVec2f uv = reader.readVec2fBig();
                     os.format("uv_list.append((%f,%f))\n",
                               uv.vec[0], uv.vec[1]);
                 }
@@ -584,7 +582,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                     for (size_t i=0 ; i<uvCount ; ++i)
                     {
                         os.format("suv_list.append((%f,%f))\n",
-                                  reader.readInt16(), reader.readInt16());
+                                  reader.readInt16Big(), reader.readInt16Big());
                     }
                     break;
                 }

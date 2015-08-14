@@ -10,13 +10,12 @@ namespace DNAMP1
 
 void PAK::read(Athena::io::IStreamReader& reader)
 {
-    reader.setEndian(Athena::BigEndian);
-    atUint32 version = reader.readUint32();
+    atUint32 version = reader.readUint32Big();
     if (version != 0x00030005)
         Log.report(LogVisor::FatalError, "unexpected PAK magic");
-    reader.readUint32();
+    reader.readUint32Big();
 
-    atUint32 nameCount = reader.readUint32();
+    atUint32 nameCount = reader.readUint32Big();
     m_nameEntries.clear();
     m_nameEntries.reserve(nameCount);
     for (atUint32 n=0 ; n<nameCount ; ++n)
@@ -25,7 +24,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
         m_nameEntries.back().read(reader);
     }
 
-    atUint32 count = reader.readUint32();
+    atUint32 count = reader.readUint32Big();
     m_entries.clear();
     m_entries.reserve(count);
     m_idMap.clear();
@@ -53,18 +52,17 @@ void PAK::read(Athena::io::IStreamReader& reader)
 
 void PAK::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.setEndian(Athena::BigEndian);
-    writer.writeUint32(0x00030005);
-    writer.writeUint32(0);
+    writer.writeUint32Big(0x00030005);
+    writer.writeUint32Big(0);
 
-    writer.writeUint32((atUint32)m_nameEntries.size());
+    writer.writeUint32Big((atUint32)m_nameEntries.size());
     for (const NameEntry& entry : m_nameEntries)
     {
         ((NameEntry&)entry).nameLen = entry.name.size();
         entry.write(writer);
     }
 
-    writer.writeUint32(m_entries.size());
+    writer.writeUint32Big(m_entries.size());
     for (const Entry& entry : m_entries)
     {
         Entry tmp = entry;

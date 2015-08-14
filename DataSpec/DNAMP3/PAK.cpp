@@ -10,20 +10,19 @@ const HECL::FourCC CMPD("CMPD");
 
 void PAK::read(Athena::io::IStreamReader& reader)
 {
-    reader.setEndian(Athena::BigEndian);
     m_header.read(reader);
     if (m_header.version != 2)
         Log.report(LogVisor::FatalError, "unexpected PAK magic");
 
     reader.seek(8, Athena::Current);
-    atUint32 strgSz = reader.readUint32();
+    atUint32 strgSz = reader.readUint32Big();
     reader.seek(4, Athena::Current);
-    atUint32 rshdSz = reader.readUint32();
+    atUint32 rshdSz = reader.readUint32Big();
     reader.seek(44, Athena::Current);
     atUint32 dataOffset = 128 + strgSz + rshdSz;
 
     atUint64 strgBase = reader.position();
-    atUint32 nameCount = reader.readUint32();
+    atUint32 nameCount = reader.readUint32Big();
     m_nameEntries.clear();
     m_nameEntries.reserve(nameCount);
     for (atUint32 n=0 ; n<nameCount ; ++n)
@@ -36,7 +35,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     atUint64 end = reader.position();
     atUint64 diff = end - start;
 
-    atUint32 count = reader.readUint32();
+    atUint32 count = reader.readUint32Big();
     m_entries.clear();
     m_entries.reserve(count);
     m_idMap.clear();
@@ -61,7 +60,6 @@ void PAK::read(Athena::io::IStreamReader& reader)
 }
 void PAK::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.setEndian(Athena::BigEndian);
     m_header.write(writer);
 
     FourCC("STRG").write(writer);
@@ -70,13 +68,13 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
         strgSz += (atUint32)entry.name.size() + 13;
     atUint32 strgPad = ((strgSz + 63) & ~63) - strgSz;
     strgSz += strgPad;
-    writer.writeUint32(strgSz);
+    writer.writeUint32Big(strgSz);
 
     FourCC("RSHD").write(writer);
     atUint32 rshdSz = 4 + 24 * m_entries.size();
     atUint32 rshdPad = ((rshdSz + 63) & ~63) - rshdSz;
     rshdSz += rshdPad;
-    writer.writeUint32(rshdSz);
+    writer.writeUint32Big(rshdSz);
     atUint32 dataOffset = 128 + strgSz + rshdSz;
 
     FourCC("DATA").write(writer);
@@ -85,15 +83,15 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
         dataSz += (entry.size + 63) & ~63;
     atUint32 dataPad = ((dataSz + 63) & ~63) - dataSz;
     dataSz += dataPad;
-    writer.writeUint32(dataSz);
+    writer.writeUint32Big(dataSz);
     writer.seek(36, Athena::Current);
 
-    writer.writeUint32((atUint32)m_nameEntries.size());
+    writer.writeUint32Big((atUint32)m_nameEntries.size());
     for (const NameEntry& entry : m_nameEntries)
         entry.write(writer);
     writer.seek(strgPad, Athena::Current);
 
-    writer.writeUint32((atUint32)m_entries.size());
+    writer.writeUint32Big((atUint32)m_entries.size());
     for (const Entry& entry : m_entries)
     {
         Entry copy = entry;

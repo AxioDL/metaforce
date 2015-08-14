@@ -8,8 +8,8 @@ namespace DNAMP1
 
 void STRG::_read(Athena::io::IStreamReader& reader)
 {
-    atUint32 langCount = reader.readUint32();
-    atUint32 strCount = reader.readUint32();
+    atUint32 langCount = reader.readUint32Big();
+    atUint32 strCount = reader.readUint32Big();
 
     std::vector<FourCC> readLangs;
     readLangs.reserve(langCount);
@@ -28,7 +28,7 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         std::vector<std::wstring> strs;
         reader.seek(strCount * 4 + 4);
         for (atUint32 s=0 ; s<strCount ; ++s)
-            strs.emplace_back(reader.readWString());
+            strs.emplace_back(reader.readWStringBig());
         langs.emplace_back(lang, strs);
     }
 
@@ -40,12 +40,11 @@ void STRG::_read(Athena::io::IStreamReader& reader)
 
 void STRG::read(Athena::io::IStreamReader& reader)
 {
-    reader.setEndian(Athena::BigEndian);
-    atUint32 magic = reader.readUint32();
+    atUint32 magic = reader.readUint32Big();
     if (magic != 0x87654321)
         Log.report(LogVisor::Error, "invalid STRG magic");
 
-    atUint32 version = reader.readUint32();
+    atUint32 version = reader.readUint32Big();
     if (version != 0)
         Log.report(LogVisor::Error, "invalid STRG version");
 
@@ -54,18 +53,17 @@ void STRG::read(Athena::io::IStreamReader& reader)
 
 void STRG::write(Athena::io::IStreamWriter& writer) const
 {
-    writer.setEndian(Athena::BigEndian);
-    writer.writeUint32(0x87654321);
-    writer.writeUint32(0);
-    writer.writeUint32(langs.size());
+    writer.writeUint32Big(0x87654321);
+    writer.writeUint32Big(0);
+    writer.writeUint32Big(langs.size());
     atUint32 strCount = STRG::count();
-    writer.writeUint32(strCount);
+    writer.writeUint32Big(strCount);
 
     atUint32 offset = 0;
     for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
     {
         lang.first.write(writer);
-        writer.writeUint32(offset);
+        writer.writeUint32Big(offset);
         offset += strCount * 4 + 4;
         atUint32 langStrCount = lang.second.size();
         for (atUint32 s=0 ; s<strCount ; ++s)
@@ -89,12 +87,12 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
             else
                 tableSz += 1;
         }
-        writer.writeUint32(tableSz);
+        writer.writeUint32Big(tableSz);
 
         offset = strCount * 4;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
-            writer.writeUint32(offset);
+            writer.writeUint32Big(offset);
             if (s < langStrCount)
                 offset += lang.second[s].size() * 2 + 1;
             else
@@ -104,7 +102,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                writer.writeWString(lang.second[s]);
+                writer.writeWStringBig(lang.second[s]);
             else
                 writer.writeUByte(0);
         }

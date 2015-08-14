@@ -250,8 +250,7 @@ struct MaterialSet : BigDNA
             float vals[4];
             void read(Athena::io::IStreamReader& reader)
             {
-                reader.setEndian(Athena::BigEndian);
-                mode = Mode(reader.readUint32());
+                mode = Mode(reader.readUint32Big());
                 switch (mode)
                 {
                 case ANIM_MV_INV_NOTRANS:
@@ -261,22 +260,21 @@ struct MaterialSet : BigDNA
                 case ANIM_SCROLL:
                 case ANIM_HSTRIP:
                 case ANIM_VSTRIP:
-                    vals[0] = reader.readFloat();
-                    vals[1] = reader.readFloat();
-                    vals[2] = reader.readFloat();
-                    vals[3] = reader.readFloat();
+                    vals[0] = reader.readFloatBig();
+                    vals[1] = reader.readFloatBig();
+                    vals[2] = reader.readFloatBig();
+                    vals[3] = reader.readFloatBig();
                     break;
                 case ANIM_ROTATION:
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
-                    vals[0] = reader.readFloat();
-                    vals[1] = reader.readFloat();
+                    vals[0] = reader.readFloatBig();
+                    vals[1] = reader.readFloatBig();
                     break;
                 }
             }
             void write(Athena::io::IStreamWriter& writer) const
             {
-                writer.setEndian(Athena::BigEndian);
-                writer.writeUint32(mode);
+                writer.writeUint32Big(mode);
                 switch (mode)
                 {
                 case ANIM_MV_INV_NOTRANS:
@@ -286,15 +284,15 @@ struct MaterialSet : BigDNA
                 case ANIM_SCROLL:
                 case ANIM_HSTRIP:
                 case ANIM_VSTRIP:
-                    writer.writeFloat(vals[0]);
-                    writer.writeFloat(vals[1]);
-                    writer.writeFloat(vals[2]);
-                    writer.writeFloat(vals[3]);
+                    writer.writeFloatBig(vals[0]);
+                    writer.writeFloatBig(vals[1]);
+                    writer.writeFloatBig(vals[2]);
+                    writer.writeFloatBig(vals[3]);
                     break;
                 case ANIM_ROTATION:
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
-                    writer.writeFloat(vals[0]);
-                    writer.writeFloat(vals[1]);
+                    writer.writeFloatBig(vals[0]);
+                    writer.writeFloatBig(vals[1]);
                     break;
                 }
             }
