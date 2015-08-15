@@ -392,7 +392,7 @@ void BlenderConnection::PyOutStream::linkBlend(const SystemString& target, const
            "            obj_scene = scene\n"
            "            break\n"
            "    if not obj_scene:\n"
-           "        raise RuntimeError('unable to find %s in %s')\n"
+           "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
            "    obj = None\n"
            "    for object in obj_scene.objects:\n"
            "        if object.name == obj_scene.name:\n"
