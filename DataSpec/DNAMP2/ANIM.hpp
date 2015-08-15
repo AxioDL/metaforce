@@ -21,12 +21,11 @@ struct ANIM : BigDNA
         atUint32 m_version;
         IANIM(atUint32 version) : m_version(version) {}
 
-        std::vector<std::pair<atUint32, bool>> bones;
+        std::vector<std::pair<atUint32, std::tuple<bool,bool,bool>>> bones;
         std::vector<atUint32> frames;
         std::vector<DNAANIM::Channel> channels;
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
-        UniqueID32 evnt;
 
         void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&) const;
     };
@@ -58,23 +57,24 @@ struct ANIM : BigDNA
         {
             DECL_DNA
             Value<atUint32> scratchSize;
-            UniqueID32 evnt;
-            Value<atUint32> unk0;
+            Value<atUint8> unk1;
+            Value<atUint8> unk2;
             Value<float> duration;
             Value<float> interval;
-            Value<atUint32> unk1;
-            Value<atUint32> unk2;
+            Value<atUint32> unk3;
+            Value<atUint32> unk4;
             Value<atUint32> rotDiv;
             Value<float> translationMult;
+            Value<atUint32> unk5;
             Value<atUint32> boneChannelCount;
-            Value<atUint32> unk3;
+            Value<atUint32> unk6;
             Value<atUint32> keyBitmapBitCount;
         };
 
         struct ChannelDesc : BigDNA
         {
             Delete expl;
-            Value<atUint32> id = 0;
+            Value<atUint8> id = 0;
             Value<atUint16> keyCount1 = 0;
             Value<atUint16> initRX = 0;
             Value<atUint8> qRX = 0;
@@ -89,17 +89,27 @@ struct ANIM : BigDNA
             Value<atUint8> qTY = 0;
             Value<atUint16> initTZ = 0;
             Value<atUint8> qTZ = 0;
+            Value<atUint16> keyCount3 = 0;
+            Value<atUint16> initSX = 0;
+            Value<atUint8> qSX = 0;
+            Value<atUint16> initSY = 0;
+            Value<atUint8> qSY = 0;
+            Value<atUint16> initSZ = 0;
+            Value<atUint8> qSZ = 0;
 
             void read(Athena::io::IStreamReader& reader)
             {
-                id = reader.readUint32Big();
+                id = reader.readUByte();
                 keyCount1 = reader.readUint16Big();
-                initRX = reader.readUint16Big();
-                qRX = reader.readUByte();
-                initRY = reader.readUint16Big();
-                qRY = reader.readUByte();
-                initRZ = reader.readUint16Big();
-                qRZ = reader.readUByte();
+                if (keyCount1)
+                {
+                    initRX = reader.readUint16Big();
+                    qRX = reader.readUByte();
+                    initRY = reader.readUint16Big();
+                    qRY = reader.readUByte();
+                    initRZ = reader.readUint16Big();
+                    qRZ = reader.readUByte();
+                }
                 keyCount2 = reader.readUint16Big();
                 if (keyCount2)
                 {
@@ -110,17 +120,30 @@ struct ANIM : BigDNA
                     initTZ = reader.readUint16Big();
                     qTZ = reader.readUByte();
                 }
+                keyCount3 = reader.readUint16Big();
+                if (keyCount3)
+                {
+                    initSX = reader.readUint16Big();
+                    qSX = reader.readUByte();
+                    initSY = reader.readUint16Big();
+                    qSY = reader.readUByte();
+                    initSZ = reader.readUint16Big();
+                    qSZ = reader.readUByte();
+                }
             }
             void write(Athena::io::IStreamWriter& writer) const
             {
-                writer.writeUint32Big(id);
+                writer.writeUByte(id);
                 writer.writeUint16Big(keyCount1);
-                writer.writeUint16Big(initRX);
-                writer.writeUByte(qRX);
-                writer.writeUint16Big(initRY);
-                writer.writeUByte(qRY);
-                writer.writeUint16Big(initRZ);
-                writer.writeUByte(qRZ);
+                if (keyCount1)
+                {
+                    writer.writeUint16Big(initRX);
+                    writer.writeUByte(qRX);
+                    writer.writeUint16Big(initRY);
+                    writer.writeUByte(qRY);
+                    writer.writeUint16Big(initRZ);
+                    writer.writeUByte(qRZ);
+                }
                 writer.writeUint16Big(keyCount2);
                 if (keyCount2)
                 {
@@ -130,6 +153,16 @@ struct ANIM : BigDNA
                     writer.writeUByte(qTY);
                     writer.writeUint16Big(initTZ);
                     writer.writeUByte(qTZ);
+                }
+                writer.writeUint16Big(keyCount3);
+                if (keyCount3)
+                {
+                    writer.writeUint16Big(initSX);
+                    writer.writeUByte(qSX);
+                    writer.writeUint16Big(initSY);
+                    writer.writeUByte(qSY);
+                    writer.writeUint16Big(initSZ);
+                    writer.writeUByte(qSZ);
                 }
             }
         };
@@ -150,7 +183,7 @@ struct ANIM : BigDNA
             m_anim->read(reader);
             break;
         default:
-            Log.report(LogVisor::Error, "unrecognized ANIM version");
+            Log.report(LogVisor::FatalError, "unrecognized ANIM version");
             break;
         }
     }

@@ -112,8 +112,6 @@ struct ANCS : BigYAML
             } partResData;
 
             atUint32 unk1 = 0;
-            atUint32 unk2 = 0;
-            atUint32 unk3 = 0;
 
             struct ActionAABB : BigYAML
             {
@@ -380,24 +378,32 @@ struct ANCS : BigYAML
                         const PAK::Entry& entry,
                         bool force)
     {
-        ANCS ancs;
-        ancs.read(rs);
-
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        if (force || yamlPath.getPathType() == HECL::ProjectPath::PT_NONE)
-        {
-            FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
-            ancs.toYAMLFile(fp);
-            fclose(fp);
-        }
-
+        HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
         HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        if (force || blendPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        HECL::ProjectPath::PathType blendType = blendPath.getPathType();
+
+        if (force ||
+            yamlType == HECL::ProjectPath::PT_NONE ||
+            blendType == HECL::ProjectPath::PT_NONE)
         {
-            HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-            DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
-                    (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
-            return conn.saveBlend();
+            ANCS ancs;
+            ancs.read(rs);
+
+            if (force || yamlType == HECL::ProjectPath::PT_NONE)
+            {
+                FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
+                ancs.toYAMLFile(fp);
+                fclose(fp);
+            }
+
+            if (force || blendType == HECL::ProjectPath::PT_NONE)
+            {
+                HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
+                        (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
+                conn.saveBlend();
+            }
         }
 
         return true;

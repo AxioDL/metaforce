@@ -305,11 +305,6 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
     }
 
     unk1 = reader.readUint32Big();
-    if (sectionCount > 9)
-    {
-        unk2 = reader.readUint32Big();
-        unk3 = reader.readUint32Big();
-    }
 
     animAABBs.clear();
     if (sectionCount > 1)
@@ -344,9 +339,7 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
     writer.writeUint32Big(idx);
 
     atUint16 sectionCount;
-    if (unk2 || unk3)
-        sectionCount = 10;
-    else if (partResData.elsc.size())
+    if (partResData.elsc.size())
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
@@ -386,11 +379,6 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
     }
 
     writer.writeUint32Big(unk1);
-    if (sectionCount > 9)
-    {
-        writer.writeUint32Big(unk2);
-        writer.writeUint32Big(unk3);
-    }
 
     if (sectionCount > 1)
     {
@@ -449,11 +437,6 @@ void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& read
     }
 
     unk1 = reader.readUint32("unk1");
-    if (sectionCount > 9)
-    {
-        unk2 = reader.readUint32("unk2");
-        unk3 = reader.readUint32("unk3");
-    }
 
     animAABBs.clear();
     if (sectionCount > 1)
@@ -488,9 +471,7 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
     writer.writeUint32("idx", idx);
 
     atUint16 sectionCount;
-    if (unk2 || unk3)
-        sectionCount = 10;
-    else if (partResData.elsc.size())
+    if (partResData.elsc.size())
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
@@ -530,11 +511,6 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
     }
 
     writer.writeUint32("unk1", unk1);
-    if (sectionCount > 9)
-    {
-        writer.writeUint32("unk2", unk2);
-        writer.writeUint32("unk3", unk3);
-    }
 
     if (sectionCount > 1)
     {

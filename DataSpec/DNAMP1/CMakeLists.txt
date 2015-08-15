@@ -5,6 +5,7 @@ make_dnalist(liblist
              ANIM
              CINF
              CSKR
+             EVNT
              MAPA
              CMDLMaterials)
 add_library(DNAMP1
@@ -14,5 +15,6 @@ add_library(DNAMP1
             STRG.hpp STRG.cpp
             ANCS.cpp
             ANIM.cpp
+            EVNT.cpp
             CMDL.hpp
             CMDLMaterials.cpp)

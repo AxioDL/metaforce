@@ -19,6 +19,7 @@ struct CINF : BigDNA
         Value<atUint32> id;
         Value<atUint32> parentId;
         Value<atVec3f> origin;
+        Value<float> skinMetrics[8];
         Value<atUint32> linkedCount;
         Vector<atUint32, DNA_COUNT(linkedCount)> linked;
     };
@@ -90,7 +91,7 @@ struct CINF : BigDNA
                       bone.origin.vec[0], bone.origin.vec[1], bone.origin.vec[2], bone.id);
 
         for (const Bone& bone : bones)
-            if (bone.parentId != 2)
+            if (bone.parentId != 97)
                 os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";

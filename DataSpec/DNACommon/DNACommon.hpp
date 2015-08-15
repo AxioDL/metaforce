@@ -321,7 +321,7 @@ struct ResExtractor
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&, bool)> func_b;
-    const char* fileExt;
+    const char* fileExts[4];
     unsigned weight;
 };
 
@@ -407,21 +407,37 @@ public:
         {
             HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakWorking);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
-            if (extractor.fileExt)
-                entName += extractor.fileExt;
+            if (extractor.fileExts[0] && !extractor.fileExts[1])
+                entName += extractor.fileExts[0];
             return HECL::ProjectPath(uniquePath, entName);
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
             HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(m_pakWorking);
-            HECL::SystemString entName = m_pak->bestEntryName(*entry);
-            if (extractor.fileExt)
-                entName += extractor.fileExt;
+            HECL::SystemString entBase = m_pak->bestEntryName(*entry);
+            HECL::SystemString entName = entBase;
+            if (extractor.fileExts[0] && !extractor.fileExts[1])
+                entName += extractor.fileExts[0];
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
             HECL::ProjectPath uniquePath(uniquePathPre, entName);
             if (extractor.func_a || extractor.func_b)
-                uniquePath.makeLinkTo(sharedPath);
+            {
+                if (extractor.fileExts[0] && !extractor.fileExts[1])
+                    uniquePath.makeLinkTo(sharedPath);
+                else
+                {
+                    for (int e=0 ; e<4 ; ++e)
+                    {
+                        if (!extractor.fileExts[e])
+                            break;
+                        HECL::SystemString entName = entBase + extractor.fileExts[e];
+                        HECL::ProjectPath sharedPath(m_sharedWorking, entName);
+                        HECL::ProjectPath uniquePath(uniquePathPre, entName);
+                        uniquePath.makeLinkTo(sharedPath);
+                    }
+                }
+            }
             m_sharedWorking.makeDir();
             return sharedPath;
         }
@@ -567,6 +583,7 @@ public:
                 return ent;
             }
         }
+        LogDNACommon.report(LogVisor::Warning, "unable to find PAK entry %s", entry.toString().c_str());
         if (nodeOut)
             *nodeOut = nullptr;
         return nullptr;
@@ -578,10 +595,7 @@ public:
         const NOD::DiscBase::IPartition::Node* node;
         const typename BRIDGETYPE::PAKType::Entry* entry = lookupEntry(id, &node);
         if (!entry)
-        {
-            LogDNACommon.report(LogVisor::Error, "unable to find PAK entry %s", id.toString().c_str());
             return false;
-        }
         PAKEntryReadStream rs = entry->beginReadStream(*node);
         out.read(rs);
         return true;

@@ -10,19 +10,21 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin();
-    for (const std::pair<atUint32, bool>& bone : bones)
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         os.format("bone_string = '%s'\n", cinf.getBoneNameFromId(bone.first)->c_str());
         os <<     "action_group = act.groups.new(bone_string)\n"
-                  "\n"
-                  "rotCurves = []\n"
+                  "\n";
+
+        if (std::get<0>(bone.second))
+            os << "rotCurves = []\n"
                   "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=0, action_group=bone_string))\n"
                   "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=1, action_group=bone_string))\n"
                   "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=2, action_group=bone_string))\n"
                   "rotCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_quaternion', index=3, action_group=bone_string))\n"
                   "\n";
 
-        if (bone.second)
+        if (std::get<1>(bone.second))
             os << "bone_trans_head = (0.0,0.0,0.0)\n"
                   "if arm_obj.data.bones[bone_string].parent is not None:\n"
                   "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
@@ -32,26 +34,36 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string))\n"
                   "\n";
 
+        if (std::get<2>(bone.second))
+            os << "scaleCurves = []\n"
+                  "scaleCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].scale', index=0, action_group=bone_string))\n"
+                  "scaleCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].scale', index=1, action_group=bone_string))\n"
+                  "scaleCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].scale', index=2, action_group=bone_string))\n"
+                  "\n";
+
         os << "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_mode', action_group=bone_string)\n"
               "crv.keyframe_points.add()\n"
               "crv.keyframe_points[-1].co = (0, 0)\n"
               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
               "\n";
 
-        const std::vector<DNAANIM::Value>& rotKeys = *kit++;
-        auto frameit = frames.begin();
-        for (const DNAANIM::Value& val : rotKeys)
+        if (std::get<0>(bone.second))
         {
-            atUint32 frame = *frameit++;
-            for (int c=0 ; c<4 ; ++c)
-                os.format("crv = rotCurves[%d]\n"
-                          "crv.keyframe_points.add()\n"
-                          "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-                          "crv.keyframe_points[-1].co = (%u, %f)\n",
-                          c, frame, val.v4.vec[c]);
+            const std::vector<DNAANIM::Value>& rotKeys = *kit++;
+            auto frameit = frames.begin();
+            for (const DNAANIM::Value& val : rotKeys)
+            {
+                atUint32 frame = *frameit++;
+                for (int c=0 ; c<4 ; ++c)
+                    os.format("crv = rotCurves[%d]\n"
+                              "crv.keyframe_points.add()\n"
+                              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
+                              "crv.keyframe_points[-1].co = (%u, %f)\n",
+                              c, frame, val.v4.vec[c]);
+            }
         }
 
-        if (bone.second)
+        if (std::get<1>(bone.second))
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
             auto frameit = frames.begin();
@@ -63,7 +75,23 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
                               "crv.keyframe_points.add()\n"
                               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
                               "crv.keyframe_points[-1].co = (%u, %f - bone_trans_head[%d])\n",
-                              c, frame, val.v4.vec[c], c);
+                              c, frame, val.v3.vec[c], c);
+            }
+        }
+
+        if (std::get<2>(bone.second))
+        {
+            const std::vector<DNAANIM::Value>& scaleKeys = *kit++;
+            auto frameit = frames.begin();
+            for (const DNAANIM::Value& val : scaleKeys)
+            {
+                atUint32 frame = *frameit++;
+                for (int c=0 ; c<3 ; ++c)
+                    os.format("crv = scaleCurves[%d]\n"
+                              "crv.keyframe_points.add()\n"
+                              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
+                              "crv.keyframe_points[-1].co = (%u, %f)\n",
+                              c, frame, val.v3.vec[c], c);
             }
         }
     }
@@ -92,43 +120,66 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     atUint32 boneCount = reader.readUint32Big();
     bones.clear();
     bones.reserve(boneCount);
-    channels.clear();
     for (size_t b=0 ; b<boneCount ; ++b)
     {
-        bones.emplace_back(boneMap[b], false);
+        bones.emplace_back(boneMap[b], std::make_tuple(false, false, false));
         atUint8 idx = reader.readUByte();
-        channels.emplace_back();
-        DNAANIM::Channel& chan = channels.back();
-        chan.type = DNAANIM::Channel::ROTATION;
         if (idx != 0xff)
+            std::get<0>(bones.back().second) = true;
+    }
+
+    boneCount = reader.readUint32Big();
+    for (size_t b=0 ; b<boneCount ; ++b)
+    {
+        atUint8 idx = reader.readUByte();
+        if (idx != 0xff)
+            std::get<1>(bones.back().second) = true;
+    }
+
+    boneCount = reader.readUint32Big();
+    for (size_t b=0 ; b<boneCount ; ++b)
+    {
+        atUint8 idx = reader.readUByte();
+        if (idx != 0xff)
+            std::get<2>(bones.back().second) = true;
+    }
+
+    channels.clear();
+    chanKeys.clear();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
         {
-            bones.back().second = true;
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::ROTATION;
+            chanKeys.emplace_back();
+        }
+        if (std::get<1>(bone.second))
+        {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
             chan.type = DNAANIM::Channel::TRANSLATION;
+            chanKeys.emplace_back();
+        }
+        if (std::get<2>(bone.second))
+        {
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::SCALE;
+            chanKeys.emplace_back();
         }
     }
 
     reader.readUint32Big();
-    chanKeys.clear();
-    chanKeys.reserve(channels.size());
-    for (const std::pair<atUint32, bool>& bone : bones)
-    {
-        chanKeys.emplace_back();
-        std::vector<DNAANIM::Value>& keys = chanKeys.back();
-        for (size_t k=0 ; k<head.keyCount ; ++k)
-            keys.emplace_back(reader.readVec4fBig());
-
-        if (bone.second)
-            chanKeys.emplace_back();
-    }
-
-    reader.readUint32Big();
     auto kit = chanKeys.begin();
-    for (const std::pair<atUint32, bool>& bone : bones)
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
-        ++kit;
-        if (bone.second)
+        if (std::get<0>(bone.second))
+            ++kit;
+        if (std::get<1>(bone.second))
+            ++kit;
+        if (std::get<2>(bone.second))
         {
             std::vector<DNAANIM::Value>& keys = *kit++;
             for (size_t k=0 ; k<head.keyCount ; ++k)
@@ -136,7 +187,38 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
         }
     }
 
-    evnt.read(reader);
+    reader.readUint32Big();
+    kit = chanKeys.begin();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+        {
+            chanKeys.emplace_back();
+            std::vector<DNAANIM::Value>& keys = chanKeys.back();
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                keys.emplace_back(reader.readVec4fBig());
+        }
+        if (std::get<1>(bone.second))
+            ++kit;
+        if (std::get<2>(bone.second))
+            ++kit;
+    }
+
+    reader.readUint32Big();
+    kit = chanKeys.begin();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+            ++kit;
+        if (std::get<1>(bone.second))
+        {
+            std::vector<DNAANIM::Value>& keys = *kit++;
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                keys.emplace_back(reader.readVec3fBig());
+        }
+        if (std::get<2>(bone.second))
+            ++kit;
+    }
 }
 
 void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
@@ -150,7 +232,7 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
     head.interval = mainInterval;
 
     atUint32 maxId = 0;
-    for (const std::pair<atUint32, bool>& bone : bones)
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
         maxId = MAX(maxId, bone.first);
     head.boneSlotCount = maxId + 1;
     head.write(writer);
@@ -159,7 +241,7 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
     {
         size_t boneIdx = 0;
         bool found = false;
-        for (const std::pair<atUint32, bool>& bone : bones)
+        for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
         {
             if (s == bone.first)
             {
@@ -175,37 +257,58 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
 
     writer.writeUint32Big(bones.size());
     size_t boneIdx = 0;
-    for (const std::pair<atUint32, bool>& bone : bones)
+    size_t rotKeyCount = 0;
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
-        if (bone.second)
+        if (std::get<0>(bone.second))
+        {
             writer.writeUByte(boneIdx);
+            ++rotKeyCount;
+        }
         else
             writer.writeUByte(0xff);
         ++boneIdx;
     }
 
-    writer.writeUint32Big(bones.size() * head.keyCount);
-    auto cit = chanKeys.begin();
-    atUint32 transKeyCount = 0;
-    for (const std::pair<atUint32, bool>& bone : bones)
+    writer.writeUint32Big(bones.size());
+    boneIdx = 0;
+    size_t transKeyCount = 0;
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
-        const std::vector<DNAANIM::Value>& keys = *cit++;
-        auto kit = keys.begin();
-        for (size_t k=0 ; k<head.keyCount ; ++k)
-            writer.writeVec4fBig((*kit++).v4);
-        if (bone.second)
+        if (std::get<1>(bone.second))
         {
-            transKeyCount += head.keyCount;
-            ++cit;
+            writer.writeUByte(boneIdx);
+            ++transKeyCount;
         }
+        else
+            writer.writeUByte(0xff);
+        ++boneIdx;
     }
 
-    writer.writeUint32Big(transKeyCount);
-    cit = chanKeys.begin();
-    for (const std::pair<atUint32, bool>& bone : bones)
+    writer.writeUint32Big(bones.size());
+    boneIdx = 0;
+    size_t scaleKeyCount = 0;
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
-        ++cit;
-        if (bone.second)
+        if (std::get<2>(bone.second))
+        {
+            writer.writeUByte(boneIdx);
+            ++scaleKeyCount;
+        }
+        else
+            writer.writeUByte(0xff);
+        ++boneIdx;
+    }
+
+    writer.writeUint32Big(scaleKeyCount * head.keyCount);
+    auto cit = chanKeys.begin();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+            ++cit;
+        if (std::get<1>(bone.second))
+            ++cit;
+        if (std::get<2>(bone.second))
         {
             const std::vector<DNAANIM::Value>& keys = *cit++;
             auto kit = keys.begin();
@@ -214,14 +317,45 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
         }
     }
 
-    evnt.write(writer);
+    writer.writeUint32Big(rotKeyCount * head.keyCount);
+    cit = chanKeys.begin();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+        {
+            const std::vector<DNAANIM::Value>& keys = *cit++;
+            auto kit = keys.begin();
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                writer.writeVec4fBig((*kit++).v4);
+        }
+        if (std::get<1>(bone.second))
+            ++cit;
+        if (std::get<2>(bone.second))
+            ++cit;
+    }
+
+    writer.writeUint32Big(transKeyCount * head.keyCount);
+    cit = chanKeys.begin();
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+            ++cit;
+        if (std::get<1>(bone.second))
+        {
+            const std::vector<DNAANIM::Value>& keys = *cit++;
+            auto kit = keys.begin();
+            for (size_t k=0 ; k<head.keyCount ; ++k)
+                writer.writeVec3fBig((*kit++).v3);
+        }
+        if (std::get<2>(bone.second))
+            ++cit;
+    }
 }
 
 void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
-    evnt = head.evnt;
     mainInterval = head.interval;
 
     WordBitmap keyBmp;
@@ -234,7 +368,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
             frames.push_back(frameAccum);
         ++frameAccum;
     }
-    reader.seek(8);
+    reader.seek(4);
 
     bones.clear();
     bones.reserve(head.boneChannelCount);
@@ -245,7 +379,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
     {
         ChannelDesc desc;
         desc.read(reader);
-        bones.emplace_back(desc.id, desc.keyCount2);
+        bones.emplace_back(desc.id, std::make_tuple(desc.keyCount1, desc.keyCount2, desc.keyCount3));
 
         if (desc.keyCount1)
         {
@@ -273,6 +407,21 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
             chan.i[2] = desc.initTZ;
             chan.q[2] = desc.qTZ;
         }
+        keyframeCount = MAX(keyframeCount, desc.keyCount2);
+
+        if (desc.keyCount3)
+        {
+            channels.emplace_back();
+            DNAANIM::Channel& chan = channels.back();
+            chan.type = DNAANIM::Channel::SCALE;
+            chan.i[0] = desc.initSX;
+            chan.q[0] = desc.qSX;
+            chan.i[1] = desc.initSY;
+            chan.q[1] = desc.qSY;
+            chan.i[2] = desc.initSZ;
+            chan.q[2] = desc.qSZ;
+        }
+        keyframeCount = MAX(keyframeCount, desc.keyCount3);
     }
 
     size_t bsSize = DNAANIM::ComputeBitstreamSize(keyframeCount, channels);
@@ -284,12 +433,13 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
 void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
 {
     Header head;
-    head.evnt = evnt;
-    head.unk0 = 1;
+    head.unk1 = 1;
+    head.unk2 = 1;
     head.interval = mainInterval;
-    head.unk1 = 3;
-    head.unk2 = 0;
-    head.unk3 = 1;
+    head.unk3 = 0;
+    head.unk4 = 0;
+    head.unk5 = 0;
+    head.unk6 = 1;
 
     WordBitmap keyBmp;
     size_t frameCount = 0;
@@ -317,21 +467,22 @@ void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
     head.write(writer);
     keyBmp.write(writer);
     writer.writeUint32Big(head.boneChannelCount);
-    writer.writeUint32Big(head.boneChannelCount);
     auto cit = qChannels.begin();
-    for (const std::pair<atUint32, bool>& bone : bones)
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         ChannelDesc desc;
-        desc.id = bone.first;
-        DNAANIM::Channel& chan = *cit++;
-        desc.keyCount1 = keyframeCount;
-        desc.initRX = chan.i[0];
-        desc.qRX = chan.q[0];
-        desc.initRY = chan.i[1];
-        desc.qRY = chan.q[1];
-        desc.initRZ = chan.i[2];
-        desc.qRZ = chan.q[2];
-        if (bone.second)
+        if (std::get<0>(bone.second))
+        {
+            DNAANIM::Channel& chan = *cit++;
+            desc.keyCount1 = keyframeCount;
+            desc.initRX = chan.i[0];
+            desc.qRX = chan.q[0];
+            desc.initRY = chan.i[1];
+            desc.qRY = chan.q[1];
+            desc.initRZ = chan.i[2];
+            desc.qRZ = chan.q[2];
+        }
+        if (std::get<1>(bone.second))
         {
             DNAANIM::Channel& chan = *cit++;
             desc.keyCount2 = keyframeCount;
@@ -342,7 +493,17 @@ void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
             desc.initTZ = chan.i[2];
             desc.qTZ = chan.q[2];
         }
-        desc.write(writer);
+        if (std::get<2>(bone.second))
+        {
+            DNAANIM::Channel& chan = *cit++;
+            desc.keyCount3 = keyframeCount;
+            desc.initSX = chan.i[0];
+            desc.qSX = chan.q[0];
+            desc.initSY = chan.i[1];
+            desc.qSY = chan.q[1];
+            desc.initSZ = chan.i[2];
+            desc.qSZ = chan.q[2];
+        }
     }
 
     writer.writeUBytes(bsData.get(), bsSize);

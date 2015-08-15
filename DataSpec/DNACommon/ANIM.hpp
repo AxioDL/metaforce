@@ -13,10 +13,8 @@ union Value
 {
     atVec3f v3;
     atVec4f v4;
-    float scale;
     Value(atVec3f v) : v3(v) {}
     Value(atVec4f v) : v4(v) {}
-    Value(float v) : scale(v) {}
     Value(float x, float y, float z)
     {
         v3.vec[0] = x;

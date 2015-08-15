@@ -15,15 +15,11 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
         case Channel::ROTATION:
             bitsPerKeyFrame += 1;
         case Channel::TRANSLATION:
+        case Channel::SCALE:
         {
             bitsPerKeyFrame += chan.q[0];
             bitsPerKeyFrame += chan.q[1];
             bitsPerKeyFrame += chan.q[2];
-            break;
-        }
-        case Channel::SCALE:
-        {
-            bitsPerKeyFrame += chan.q[0];
             break;
         }
         default: break;
@@ -143,7 +139,7 @@ BitstreamReader::read(const atUint8* data,
         }
         case Channel::SCALE:
         {
-            keys.push_back({chan.i[0] * transMult});
+            keys.push_back({chan.i[0] / (float)rotDiv, chan.i[1] / (float)rotDiv, chan.i[2] / (float)rotDiv});
             break;
         }
         default: break;
@@ -179,7 +175,9 @@ BitstreamReader::read(const atUint8* data,
             case Channel::SCALE:
             {
                 p[0] += dequantize(data, chan.q[0]);
-                kit->push_back({p[0] * transMult});
+                p[1] += dequantize(data, chan.q[1]);
+                p[2] += dequantize(data, chan.q[2]);
+                kit->push_back({p[0] / (float)rotDiv, p[1] / (float)rotDiv, p[2] / (float)rotDiv});
                 break;
             }
             default: break;
@@ -289,7 +287,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         }
         case Channel::SCALE:
         {
-            chan.i = {atInt16((*kit)[0].scale / transMultOut)};
+            chan.i = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
+                      atInt16((*kit)[0].v3.vec[1] * rotDivOut),
+                      atInt16((*kit)[0].v3.vec[2] * rotDivOut)};
             break;
         }
         default: break;
@@ -321,15 +321,15 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         case Channel::TRANSLATION:
         {
             QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] / transMultOut),
-                                 atInt16((*kit)[0].v3.vec[1] / transMultOut),
-                                 atInt16((*kit)[0].v3.vec[2] / transMultOut)};
+                                   atInt16((*kit)[0].v3.vec[1] / transMultOut),
+                                   atInt16((*kit)[0].v3.vec[2] / transMultOut)};
             for (auto it=kit->begin() + 1;
                  it != kit->end();
                  ++it)
             {
                 QuantizedValue cur = {atInt16(it->v3.vec[0] / transMultOut),
-                                    atInt16(it->v3.vec[1] / transMultOut),
-                                    atInt16(it->v3.vec[2] / transMultOut)};
+                                      atInt16(it->v3.vec[1] / transMultOut),
+                                      atInt16(it->v3.vec[2] / transMultOut)};
                 chan.q[0] = MAX(chan.q[0], ceilf(log2f(cur[0] - last[0])));
                 chan.q[1] = MAX(chan.q[1], ceilf(log2f(cur[1] - last[1])));
                 chan.q[2] = MAX(chan.q[2], ceilf(log2f(cur[2] - last[2])));
@@ -339,13 +339,19 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         }
         case Channel::SCALE:
         {
-            atUint16 last = (*kit)[0].scale / transMultOut;
+            QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
+                                   atInt16((*kit)[0].v3.vec[1] * rotDivOut),
+                                   atInt16((*kit)[0].v3.vec[2] * rotDivOut)};
             for (auto it=kit->begin() + 1;
                  it != kit->end();
                  ++it)
             {
-                atUint16 cur = it->scale / transMultOut;
-                chan.q[0] = MAX(chan.q[0], ceilf(log2f(cur - last)));
+                QuantizedValue cur = {atInt16(it->v3.vec[0] * rotDivOut),
+                                      atInt16(it->v3.vec[1] * rotDivOut),
+                                      atInt16(it->v3.vec[2] * rotDivOut)};
+                chan.q[0] = MAX(chan.q[0], ceilf(log2f(cur[0] - last[0])));
+                chan.q[1] = MAX(chan.q[1], ceilf(log2f(cur[1] - last[1])));
+                chan.q[2] = MAX(chan.q[2], ceilf(log2f(cur[2] - last[2])));
                 last = cur;
             }
             break;
@@ -384,15 +390,15 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             case Channel::TRANSLATION:
             {
                 QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] / transMultOut),
-                                     atInt16((*kit)[0].v3.vec[1] / transMultOut),
-                                     atInt16((*kit)[0].v3.vec[2] / transMultOut)};
+                                       atInt16((*kit)[0].v3.vec[1] / transMultOut),
+                                       atInt16((*kit)[0].v3.vec[2] / transMultOut)};
                 for (auto it=kit->begin() + 1;
                      it != kit->end();
                      ++it)
                 {
                     QuantizedValue cur = {atInt16(it->v3.vec[0] / transMultOut),
-                                        atInt16(it->v3.vec[1] / transMultOut),
-                                        atInt16(it->v3.vec[2] / transMultOut)};
+                                          atInt16(it->v3.vec[1] / transMultOut),
+                                          atInt16(it->v3.vec[2] / transMultOut)};
                     quantize(newData, chan.q[0], cur[0] - last[0]);
                     quantize(newData, chan.q[1], cur[1] - last[0]);
                     quantize(newData, chan.q[2], cur[2] - last[0]);
@@ -402,13 +408,19 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             case Channel::SCALE:
             {
-                atUint16 last = (*kit)[0].scale / transMultOut;
+                QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
+                                       atInt16((*kit)[0].v3.vec[1] * rotDivOut),
+                                       atInt16((*kit)[0].v3.vec[2] * rotDivOut)};
                 for (auto it=kit->begin() + 1;
                      it != kit->end();
                      ++it)
                 {
-                    atUint16 cur = it->scale / transMultOut;
-                    quantize(newData, chan.q[0], cur - last);
+                    QuantizedValue cur = {atInt16(it->v3.vec[0] * rotDivOut),
+                                          atInt16(it->v3.vec[1] * rotDivOut),
+                                          atInt16(it->v3.vec[2] * rotDivOut)};
+                    quantize(newData, chan.q[0], cur[0] - last[0]);
+                    quantize(newData, chan.q[1], cur[1] - last[0]);
+                    quantize(newData, chan.q[2], cur[2] - last[0]);
                     last = cur;
                 }
                 break;

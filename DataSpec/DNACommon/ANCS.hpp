@@ -36,24 +36,27 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     {
         const NOD::DiscBase::IPartition::Node* node;
         const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node);
-        HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-        if (force || cmdlPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        if (cmdlE)
         {
-            if (!conn.createBlend(cmdlPath.getAbsolutePath()))
-                return false;
+            HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+            if (force || cmdlPath.getPathType() == HECL::ProjectPath::PT_NONE)
+            {
+                if (!conn.createBlend(cmdlPath.getAbsolutePath()))
+                    return false;
 
-            typename ANCSDNA::CSKRType cskr;
-            pakRouter.lookupAndReadDNA(info.cskr, cskr);
-            typename ANCSDNA::CINFType cinf;
-            pakRouter.lookupAndReadDNA(info.cinf, cinf);
-            using RIGPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
-            RIGPair rigPair(&cskr, &cinf);
+                typename ANCSDNA::CSKRType cskr;
+                pakRouter.lookupAndReadDNA(info.cskr, cskr);
+                typename ANCSDNA::CINFType cinf;
+                pakRouter.lookupAndReadDNA(info.cinf, cinf);
+                using RIGPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
+                RIGPair rigPair(&cskr, &cinf);
 
-            PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
-            DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RIGPair, CMDLVersion>
-                    (conn, rs, pakRouter, *cmdlE, masterShader, &rigPair);
+                PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
+                DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RIGPair, CMDLVersion>
+                        (conn, rs, pakRouter, *cmdlE, masterShader, &rigPair);
 
-            conn.saveBlend();
+                conn.saveBlend();
+            }
         }
     }
 
@@ -84,6 +87,11 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     std::unordered_set<typename PAKRouter::IDType> cinfsDone;
     for (const auto& info : chResInfo)
     {
+        /* Provide data to add-on */
+        os.format("actor_subtype = actor_data.subtypes.add()\n"
+                  "actor_subtype.name = '%s'\n\n",
+                  info.name.c_str());
+
         /* Build CINF if needed */
         if (cinfsDone.find(info.cinf) == cinfsDone.end())
         {
@@ -93,25 +101,22 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         }
         else
             os.format("arm_obj = bpy.data.objects['CINF_%08X']\n", info.cinf.toUint32());
+        os << "actor_subtype.linked_armature = arm_obj.name\n";
 
         /* Link CMDL */
         const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl);
-        HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-        os.linkBlend(cmdlPath.getAbsolutePath(), pakRouter.getBestEntryName(*cmdlE), true);
+        if (cmdlE)
+        {
+            HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+            os.linkBlend(cmdlPath.getAbsolutePath(), pakRouter.getBestEntryName(*cmdlE), true);
 
-        /* Attach CMDL to CINF */
-        os << "if obj.name not in bpy.context.scene.objects:\n"
-              "    bpy.context.scene.objects.link(obj)\n"
-              "obj.parent = arm_obj\n"
-              "obj.parent_type = 'ARMATURE'\n"
-              "\n";
-
-        /* Provide data to add-on */
-        os.format("actor_subtype = actor_data.subtypes.add()\n"
-                  "actor_subtype.name = '%s'\n"
-                  "actor_subtype.linked_armature = arm_obj.name\n"
-                  "actor_subtype.linked_mesh = obj.name\n\n",
-                  info.name.c_str());
+            /* Attach CMDL to CINF */
+            os << "if obj.name not in bpy.context.scene.objects:\n"
+                  "    bpy.context.scene.objects.link(obj)\n"
+                  "obj.parent = arm_obj\n"
+                  "obj.parent_type = 'ARMATURE'\n"
+                  "actor_subtype.linked_mesh = obj.name\n\n";
+        }
     }
 
     /* Get animation primitives */
@@ -120,11 +125,12 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     for (const auto& id : animResInfo)
     {
         typename ANCSDNA::ANIMType anim;
-        pakRouter.lookupAndReadDNA(id.second.second, anim);
-
-        os.format("act = bpy.data.actions.new('%s')\n"
-                  "act.use_fake_user = True\n", id.second.first.c_str());
-        anim.sendANIMToBlender(os, cinf);
+        if (pakRouter.lookupAndReadDNA(id.second.second, anim))
+        {
+            os.format("act = bpy.data.actions.new('%s')\n"
+                      "act.use_fake_user = True\n", id.second.first.c_str());
+            anim.sendANIMToBlender(os, cinf);
+        }
 
         os.format("actor_action = actor_data.actions.add()\n"
                   "actor_action.name = '%s'\n", id.second.first.c_str());

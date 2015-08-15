@@ -185,13 +185,13 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     switch (entry.type)
     {
     case SBIG('STRG'):
-        return {STRG::Extract, nullptr, ".yaml"};
+        return {STRG::Extract, nullptr, {".yaml"}};
     case SBIG('TXTR'):
-        return {TXTR::Extract, nullptr, ".png"};
+        return {TXTR::Extract, nullptr, {".png"}};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, ".blend", 2};
+        return {nullptr, CMDL::Extract, {".blend"}, 2};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, nullptr, 1};
+        return {nullptr, ANCS::Extract, {".yaml", ".blend"}, 1};
     }
     return {};
 }

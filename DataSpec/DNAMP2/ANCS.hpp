@@ -25,14 +25,172 @@ struct ANCS : BigYAML
     DECL_YAML
     Value<atUint16> version;
 
-    DNAMP1::ANCS::CharacterSet characterSet;
-    DNAMP1::ANCS::AnimationSet animationSet;
+    struct CharacterSet : BigYAML
+    {
+        DECL_YAML
+        Value<atUint16> version;
+        Value<atUint32> characterCount;
+        struct CharacterInfo : BigYAML
+        {
+            DECL_YAML
+            Delete expl;
+            using MP1CharacterInfo = DNAMP1::ANCS::CharacterSet::CharacterInfo;
+
+            atUint32 idx;
+            std::string name;
+            UniqueID32 cmdl;
+            UniqueID32 cskr;
+            UniqueID32 cinf;
+
+            struct Animation : BigYAML
+            {
+                DECL_YAML
+                Value<atUint32> animIdx;
+                String<-1> strA;
+            };
+            std::vector<Animation> animations;
+
+            MP1CharacterInfo::PASDatabase pasDatabase;
+            struct ParticleResData
+            {
+                std::vector<UniqueID32> part;
+                std::vector<UniqueID32> swhc;
+                std::vector<UniqueID32> unk;
+                std::vector<UniqueID32> elsc;
+                std::vector<UniqueID32> spsc;
+                std::vector<UniqueID32> unk2;
+            } partResData;
+
+            atUint32 unk1 = 0;
+
+            std::vector<MP1CharacterInfo::ActionAABB> animAABBs;
+
+            struct Effect : BigYAML
+            {
+                DECL_YAML
+                String<-1> name;
+                Value<atUint32> compCount;
+                struct EffectComponent : BigYAML
+                {
+                    DECL_YAML
+                    String<-1> name;
+                    FourCC type;
+                    UniqueID32 id;
+                    Value<atUint32> unkMP2;
+                    Value<float> unk1;
+                    Value<atUint32> unk2;
+                    Value<atUint32> unk3;
+                };
+                Vector<EffectComponent, DNA_COUNT(compCount)> comps;
+            };
+            std::vector<Effect> effects;
+
+            UniqueID32 cmdlOverride;
+            UniqueID32 cskrOverride;
+
+            std::vector<atUint32> animIdxs;
+
+            atUint32 unk4;
+            atUint8 unk5;
+
+            struct Extents : BigYAML
+            {
+                DECL_YAML
+                Value<atUint32> animIdx;
+                Value<atVec3f> aabb[2];
+            };
+            std::vector<Extents> extents;
+        };
+        Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
+    } characterSet;
+
+    struct AnimationSet : BigYAML
+    {
+        DECL_YAML
+        Delete expl;
+        using MP1AnimationSet = DNAMP1::ANCS::AnimationSet;
+
+        std::vector<MP1AnimationSet::Animation> animations;
+
+        std::vector<MP1AnimationSet::Transition> transitions;
+        MP1AnimationSet::MetaTransFactory defaultTransition;
+
+        std::vector<MP1AnimationSet::AdditiveAnimationInfo> additiveAnims;
+
+        float floatA = 0.0;
+        float floatB = 0.0;
+
+        std::vector<MP1AnimationSet::HalfTransition> halfTransitions;
+
+        struct EVNT : BigYAML
+        {
+            DECL_YAML
+            Delete expl;
+            atUint32 version;
+
+            struct EventBase : BigYAML
+            {
+                DECL_YAML
+                Value<atUint16> unk0;
+                String<-1> name;
+                Value<atUint16> type;
+                Value<float> startTime;
+                Value<atUint32> unk1;
+                Value<atUint32> idx;
+                Value<atUint8> unk2;
+                Value<float> unk3;
+                Value<float> unk4;
+                Value<atUint32> unk5;
+            };
+
+            struct LoopEvent : EventBase
+            {
+                DECL_YAML
+                Value<atUint8> flag;
+            };
+            std::vector<LoopEvent> loopEvents;
+
+            struct UEVTEvent : EventBase
+            {
+                DECL_YAML
+                Value<atUint32> uevtType;
+                String<-1> boneName;
+            };
+            std::vector<UEVTEvent> uevtEvents;
+
+            struct EffectEvent : EventBase
+            {
+                DECL_YAML
+                Value<atUint32> frameCount;
+                FourCC effectType;
+                UniqueID32 effectId;
+                Value<atUint32> boneId;
+                Value<float> scale;
+                Value<atUint32> parentMode;
+            };
+            std::vector<EffectEvent> effectEvents;
+
+            struct SFXEvent : EventBase
+            {
+                DECL_YAML
+                Value<atUint32> soundId;
+                Value<float> smallNum;
+                Value<float> bigNum;
+                Value<atUint32> sfxUnk1;
+                Value<atUint16> sfxUnk2;
+                Value<atUint16> sfxUnk3;
+                Value<float> sfxUnk4;
+            };
+            std::vector<SFXEvent> sfxEvents;
+        };
+        std::vector<EVNT> evnts;
+    } animationSet;
 
     void getCharacterResInfo(std::vector<DNAANCS::CharacterResInfo<UniqueID32>>& out) const
     {
         out.clear();
         out.reserve(characterSet.characters.size());
-        for (const DNAMP1::ANCS::CharacterSet::CharacterInfo& ci : characterSet.characters)
+        for (const CharacterSet::CharacterInfo& ci : characterSet.characters)
         {
             out.emplace_back();
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
@@ -57,24 +215,32 @@ struct ANCS : BigYAML
                         const DNAMP1::PAK::Entry& entry,
                         bool force)
     {
-        ANCS ancs;
-        ancs.read(rs);
-
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        if (force || yamlPath.getPathType() == HECL::ProjectPath::PT_NONE)
-        {
-            FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
-            ancs.toYAMLFile(fp);
-            fclose(fp);
-        }
-
+        HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
         HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        if (force || blendPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        HECL::ProjectPath::PathType blendType = blendPath.getPathType();
+
+        if (force ||
+            yamlType == HECL::ProjectPath::PT_NONE ||
+            blendType == HECL::ProjectPath::PT_NONE)
         {
-            HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-            DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 4>
-                    (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
-            return conn.saveBlend();
+            ANCS ancs;
+            ancs.read(rs);
+
+            if (force || yamlType == HECL::ProjectPath::PT_NONE)
+            {
+                FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
+                ancs.toYAMLFile(fp);
+                fclose(fp);
+            }
+
+            if (force || blendType == HECL::ProjectPath::PT_NONE)
+            {
+                HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 4>
+                        (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
+                conn.saveBlend();
+            }
         }
 
         return true;
