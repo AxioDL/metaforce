@@ -291,8 +291,17 @@ def draw(layout, context):
         layout.prop(obj.data, 'hecl_active_material')
         layout.prop(obj.data, 'hecl_material_count')
 
+# Material update
+def material_update(self, context):
+    target_idx = self.hecl_active_material
+    if target_idx >= self.hecl_material_count or target_idx < 0:
+        return
+    slot_count = len(self.materials)
+    for mat_idx in range(slot_count):
+        for mat in bpy.data.materials:
+            if mat.name.endswith('_%u_%u' % (target_idx, mat_idx)):
+                self.materials[mat_idx] = mat
 
-# Debug register operators
 import bpy
 def register():
     bpy.types.Scene.hecl_mesh_obj = bpy.props.StringProperty(
@@ -301,6 +310,8 @@ def register():
     bpy.types.Scene.hecl_actor_obj = bpy.props.StringProperty(
         name='HECL Actor Object',
         description='Blender Empty Object to export during HECL\'s cook process')
+    bpy.types.Mesh.hecl_material_count = bpy.props.IntProperty(name='HECL Material Count', default=0, min=0)
+    bpy.types.Mesh.hecl_active_material = bpy.props.IntProperty(name='HECL Active Material', default=0, min=0, update=material_update)
     bpy.utils.register_class(HMDLShader.hecl_shader_operator)
     pass
 def unregister():
