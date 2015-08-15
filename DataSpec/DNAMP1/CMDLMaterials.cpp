@@ -19,7 +19,6 @@ void MaterialSet::RegisterMaterialProps(Stream& out)
            "bpy.types.Material.retro_samus_reflection_indirect = bpy.props.BoolProperty(name='Retro: Samus Reflection Indirect Texture')\n"
            "bpy.types.Material.retro_lightmapped = bpy.props.BoolProperty(name='Retro: Lightmapped')\n"
            "bpy.types.Material.retro_lightmap = bpy.props.StringProperty(name='Retro: Lightmap')\n"
-           "bpy.types.Mesh.cmdl_material_count = bpy.props.IntProperty(name='CMDL: Material Count')\n"
            "\n";
 }
 

@@ -776,7 +776,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "obj = bpy.data.objects.new(mesh.name, mesh)\n"
               "obj.show_transparent = True\n"
               "bpy.context.scene.objects.link(obj)\n"
-              "mesh.cmdl_material_count = %u\n"
+              "mesh.hecl_material_count = %u\n"
               "for material in materials:\n"
               "    mesh.materials.append(material)\n"
               "\n"

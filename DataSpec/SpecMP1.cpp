@@ -34,8 +34,7 @@ struct SpecMP1 : SpecBase
       m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1")),
       m_pakRouter(*this, m_workPath, m_cookPath) {}
 
-    void buildPaks(HECL::Database::Project& project,
-                   NOD::DiscBase::IPartition::Node& root,
+    void buildPaks(NOD::DiscBase::IPartition::Node& root,
                    const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
@@ -91,7 +90,7 @@ struct SpecMP1 : SpecBase
                     }
 
                     if (good)
-                        m_paks.emplace_back(project, child);
+                        m_paks.emplace_back(m_project, child);
 
                 }
             }
@@ -139,7 +138,7 @@ struct SpecMP1 : SpecBase
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        buildPaks(m_project, root, args, rep);
+        buildPaks(root, args, rep);
 
         return true;
     }
@@ -200,7 +199,7 @@ struct SpecMP1 : SpecBase
         NOD::DiscBase::IPartition::Node::DirectoryIterator mp1It = root.find("MP1");
         if (mp1It == root.end())
             return false;
-        buildPaks(m_project, *mp1It, mp1args, rep);
+        buildPaks(*mp1It, mp1args, rep);
 
         return true;
     }

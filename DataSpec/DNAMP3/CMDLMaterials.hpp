@@ -39,7 +39,7 @@ struct MaterialSet : BigDNA
             } flags;
             Value<atUint32> groupIdx;
             Value<atUint32> unk1;
-            DNAMP1::MaterialSet::Material::VAFlags vaFlags;
+            VAFlags vaFlags;
             Value<atUint32> unk2;
             Value<atUint32> unk3;
             Value<atUint32> unk4;
