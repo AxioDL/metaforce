@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <signal.h>
 #include <regex>
 #include <list>
 #include "HECL/Database.hpp"
@@ -65,6 +66,13 @@ static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMASc
 static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
 static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
+/* SIGINT will gracefully close blender connections and delete blends in progress */
+static void SIGINTHandler(int sig)
+{
+    HECL::BlenderConnection::Shutdown();
+    exit(1);
+}
+
 static LogVisor::LogModule AthenaLog("Athena");
 static void AthenaExc(const Athena::error::Level& level, const char* file,
                       const char*, int line, const char* fmt, ...)
@@ -85,6 +93,8 @@ int main(int argc, const char** argv)
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
+
+    signal(SIGINT, SIGINTHandler);
 
     LogVisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);

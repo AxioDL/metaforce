@@ -148,6 +148,12 @@ class SACTAction_load(bpy.types.Operator):
         # Set single action into armature
         if subtype.linked_armature in bpy.data.objects:
             armature_obj = bpy.data.objects[subtype.linked_armature]
+
+            for bone in armature_obj.pose.bones:
+                bone.location = (0,0,0)
+                bone.rotation_quaternion = (1,0,0,0)
+                bone.scale = (1,1,1)
+
             if action_data.name in bpy.data.actions:
                 action_obj =\
                 bpy.data.actions[action_data.name]

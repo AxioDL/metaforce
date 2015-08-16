@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string>
 #include <functional>
-#include <mutex>
 
 #include "HECL/HECL.hpp"
 
@@ -24,7 +23,7 @@ extern class BlenderConnection* SharedBlenderConnection;
 
 class BlenderConnection
 {
-    std::mutex m_lock;
+    bool m_lock;
 #if _WIN32
     HANDLE m_blenderProc;
     HANDLE m_readpipe[2];
@@ -61,7 +60,6 @@ public:
     class PyOutStream : public std::ostream
     {
         friend class BlenderConnection;
-        std::unique_lock<std::mutex> m_lk;
         BlenderConnection* m_parent;
         bool m_deleteOnError;
         struct StreamBuf : std::streambuf
@@ -75,7 +73,7 @@ public:
             StreamBuf(StreamBuf&& other) = default;
             int_type overflow(int_type ch)
             {
-                if (!m_parent.m_lk)
+                if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
                     BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream writing");
                 if (ch != traits_type::eof() && ch != '\n')
                 {
@@ -96,11 +94,12 @@ public:
             }
         } m_sbuf;
         PyOutStream(BlenderConnection* parent, bool deleteOnError)
-        : m_lk(parent->m_lock), m_parent(parent),
+        : m_parent(parent),
           m_sbuf(*this, deleteOnError),
           m_deleteOnError(deleteOnError),
           std::ostream(&m_sbuf)
         {
+            m_parent->m_lock = true;
             m_parent->_writeLine("PYBEGIN");
             char readBuf[16];
             m_parent->_readLine(readBuf, 16);
@@ -110,27 +109,24 @@ public:
     public:
         PyOutStream(const PyOutStream& other) = delete;
         PyOutStream(PyOutStream&& other)
-        : m_lk(std::move(other.m_lk)), m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
+        : m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
         {other.m_parent = nullptr;}
         ~PyOutStream() {close();}
         void close()
         {
-            if (m_lk)
+            if (m_parent && m_parent->m_lock)
             {
-                if (m_parent)
-                {
-                    m_parent->_writeLine("PYEND");
-                    char readBuf[16];
-                    m_parent->_readLine(readBuf, 16);
-                    if (strcmp(readBuf, "DONE"))
-                        BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
-                }
-                m_lk.unlock();
+                m_parent->_writeLine("PYEND");
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "DONE"))
+                    BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
+                m_parent->m_lock = false;
             }
         }
         void format(const char* fmt, ...)
         {
-            if (!m_lk)
+            if (!m_parent || !m_parent->m_lock)
                 BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream::format()");
             va_list ap;
             va_start(ap, fmt);
@@ -145,6 +141,8 @@ public:
     };
     inline PyOutStream beginPythonOut(bool deleteOnError=false)
     {
+        if (m_lock)
+            BlenderLog.report(LogVisor::FatalError, "lock already held for BlenderConnection::beginPythonOut()");
         return PyOutStream(this, deleteOnError);
     }
 
@@ -157,10 +155,24 @@ public:
         return *SharedBlenderConnection;
     }
 
+    inline void closeStream()
+    {
+        if (m_lock)
+            deleteBlend();
+    }
+
     static inline void Shutdown()
     {
-        delete SharedBlenderConnection;
+        if (SharedBlenderConnection)
+        {
+            SharedBlenderConnection->closeStream();
+            SharedBlenderConnection->quitBlender();
+            delete SharedBlenderConnection;
+            SharedBlenderConnection = nullptr;
+            BlenderLog.report(LogVisor::Info, "BlenderConnection Shutdown Successful");
+        }
     }
+
 };
 
 }

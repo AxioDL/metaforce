@@ -314,8 +314,7 @@ BlenderConnection::~BlenderConnection()
 
 bool BlenderConnection::createBlend(const SystemString& path)
 {
-    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
-    if (!lk)
+    if (m_lock)
     {
         BlenderLog.report(LogVisor::FatalError,
                           "BlenderConnection::createBlend() musn't be called with stream active");
@@ -335,8 +334,7 @@ bool BlenderConnection::createBlend(const SystemString& path)
 
 bool BlenderConnection::openBlend(const SystemString& path)
 {
-    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
-    if (!lk)
+    if (m_lock)
     {
         BlenderLog.report(LogVisor::FatalError,
                           "BlenderConnection::openBlend() musn't be called with stream active");
@@ -356,8 +354,7 @@ bool BlenderConnection::openBlend(const SystemString& path)
 
 bool BlenderConnection::saveBlend()
 {
-    std::unique_lock<std::mutex> lk(m_lock, std::try_to_lock);
-    if (!lk)
+    if (m_lock)
     {
         BlenderLog.report(LogVisor::FatalError,
                           "BlenderConnection::saveBlend() musn't be called with stream active");
@@ -376,6 +373,7 @@ void BlenderConnection::deleteBlend()
     if (m_loadedBlend.size())
     {
         HECL::Unlink(m_loadedBlend.c_str());
+        BlenderLog.report(LogVisor::Info, "Deleted '%s'", m_loadedBlend.c_str());
         m_loadedBlend.clear();
     }
 }
