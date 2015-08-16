@@ -26,7 +26,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        const HECL::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
-                       const HECL::ProjectPath& masterShader,
+                       const SpecBase& dataspec,
                        bool force=false)
 {    
     /* Extract character CMDL/CSKR first */
@@ -53,7 +53,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
 
                 PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
                 DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RIGPair, CMDLVersion>
-                        (conn, rs, pakRouter, *cmdlE, masterShader, &rigPair);
+                        (conn, rs, pakRouter, *cmdlE, dataspec, &rigPair);
 
                 conn.saveBlend();
             }

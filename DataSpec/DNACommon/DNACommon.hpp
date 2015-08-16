@@ -336,16 +336,16 @@ public:
 private:
     const SpecBase& m_dataSpec;
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
+    std::vector<std::pair<HECL::ProjectPath,HECL::ProjectPath>> m_bridgePaths;
+    size_t m_curBridgeIdx = 0;
     const HECL::ProjectPath& m_gameWorking;
     const HECL::ProjectPath& m_gameCooked;
     HECL::ProjectPath m_sharedWorking;
     HECL::ProjectPath m_sharedCooked;
     const PAKType* m_pak = nullptr;
     const NOD::DiscBase::IPartition::Node* m_node = nullptr;
-    HECL::ProjectPath m_pakWorking;
-    HECL::ProjectPath m_pakCooked;
-    std::unordered_map<typename PAKType::IDType, typename PAKType::Entry*> m_uniqueEntries;
-    std::unordered_map<IDType, EntryType*> m_sharedEntries;
+    std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
+    std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
 public:
     PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
     : m_dataSpec(dataSpec),
@@ -354,46 +354,66 @@ public:
     void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
         m_bridges = &bridges;
+        m_bridgePaths.clear();
+
         m_uniqueEntries.clear();
         m_sharedEntries.clear();
         size_t count = 0;
         float bridgesSz = bridges.size();
 
         /* Route entries unique/shared per-pak */
+        size_t bridgeIdx = 0;
         for (BRIDGETYPE& bridge : bridges)
         {
+            const std::string& name = bridge.getName();
+            HECL::SystemStringView sysName(name);
+
+            HECL::SystemString::const_iterator extit = sysName.sys_str().end() - 4;
+            HECL::SystemString baseName(sysName.sys_str().begin(), extit);
+
+            m_bridgePaths.emplace_back(std::make_pair(HECL::ProjectPath(m_gameWorking, baseName),
+                                                      HECL::ProjectPath(m_gameCooked, baseName)));
+
             bridge.build();
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
-                auto search = m_uniqueEntries.find(entry.first);
-                if (search != m_uniqueEntries.end())
+                auto sSearch = m_sharedEntries.find(entry.first);
+                if (sSearch != m_sharedEntries.end())
+                    continue;
+                auto uSearch = m_uniqueEntries.find(entry.first);
+                if (uSearch != m_uniqueEntries.end())
                 {
-                    m_uniqueEntries.erase(search);
-                    m_sharedEntries.insert(entry);
+                    m_uniqueEntries.erase(uSearch);
+                    m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
                 }
                 else
-                    m_uniqueEntries.insert(entry);
+                    m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
             }
             progress(++count / bridgesSz);
+            ++bridgeIdx;
         }
     }
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge)
-    {
-        const std::string& name = pakBridge.getName();
-        HECL::SystemStringView sysName(name);
-
-        HECL::SystemString::const_iterator extit = sysName.sys_str().end() - 4;
-        HECL::SystemString baseName(sysName.sys_str().begin(), extit);
-
-        m_pakWorking.assign(m_gameWorking, baseName);
-        m_pakWorking.makeDir();
-        m_pakCooked.assign(m_gameCooked, baseName);
-        m_pakCooked.makeDir();
-
-        m_pak = &pakBridge.getPAK();
-        m_node = &pakBridge.getNode();
+    {   
+        auto pit = m_bridgePaths.begin();
+        size_t bridgeIdx = 0;
+        for (const BRIDGETYPE& bridge : *m_bridges)
+        {
+            if (&bridge == &pakBridge)
+            {
+                pit->first.makeDir();
+                pit->second.makeDir();
+                m_pak = &pakBridge.getPAK();
+                m_node = &pakBridge.getNode();
+                m_curBridgeIdx = bridgeIdx;
+                return;
+            }
+            ++pit;
+            ++bridgeIdx;
+        }
+        LogDNACommon.report(LogVisor::FatalError, "PAKBridge provided to PAKRouter::enterPAKBridge() was not part of build()");
     }
 
     HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry,
@@ -405,7 +425,9 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakWorking);
+            const HECL::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
+            pakPath.makeDir();
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
@@ -414,7 +436,8 @@ public:
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
-            HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(m_pakWorking);
+            const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
+            HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(pakPath);
             HECL::SystemString entBase = m_pak->bestEntryName(*entry);
             HECL::SystemString entName = entBase;
             if (extractor.fileExts[0] && !extractor.fileExts[1])
@@ -450,6 +473,11 @@ public:
         return getWorking(entry, BRIDGETYPE::LookupExtractor(*entry));
     }
 
+    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::IDType& id) const
+    {
+        return getWorking(lookupEntry(id));
+    }
+
     HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::Entry* entry) const
     {
         if (!m_pak)
@@ -458,7 +486,9 @@ public:
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
-            HECL::ProjectPath uniquePath = entry->unique.uniquePath(m_pakCooked);
+            const HECL::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].second;
+            pakPath.makeDir();
+            HECL::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
             return HECL::ProjectPath(uniquePath, m_pak->bestEntryName(*entry));
         }
         auto sharedSearch = m_sharedEntries.find(entry->id);
@@ -471,13 +501,18 @@ public:
         return HECL::ProjectPath();
     }
 
+    HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::IDType& id) const
+    {
+        return getCooked(lookupEntry(id));
+    }
+
     HECL::SystemString getResourceRelativePath(const typename BRIDGETYPE::PAKType::Entry& a,
                                                const typename BRIDGETYPE::PAKType::IDType& b) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
             "PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()");
-        const typename BRIDGETYPE::PAKType::Entry* be = m_pak->lookupEntry(b);
+        const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
         if (!be)
             return HECL::SystemString();
         HECL::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(a));
@@ -557,7 +592,7 @@ public:
     }
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const typename BRIDGETYPE::PAKType::IDType& entry,
-                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr)
+                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr) const
     {
         if (!m_bridges)
             LogDNACommon.report(LogVisor::FatalError,

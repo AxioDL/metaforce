@@ -191,9 +191,10 @@ struct MaterialSet : BigDNA
     inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
                               const PAKRouter<PAKBridge>& pakRouter,
                               const typename PAKRouter<PAKBridge>::EntryType& entry,
-                              unsigned setIdx)
+                              unsigned setIdx,
+                              const SpecBase& dataspec)
     {
-        DNACMDL::ReadMaterialSetToBlender_3(os, *this, pakRouter, entry, setIdx);
+        DNACMDL::ReadMaterialSetToBlender_3(os, *this, pakRouter, entry, setIdx, dataspec);
     }
 };
 

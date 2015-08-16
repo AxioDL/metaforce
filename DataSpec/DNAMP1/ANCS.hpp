@@ -401,7 +401,7 @@ struct ANCS : BigYAML
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
-                        (conn, ancs, blendPath, pakRouter, entry, dataSpec.getMasterShaderPath(), force);
+                        (conn, ancs, blendPath, pakRouter, entry, dataSpec, force);
                 conn.saveBlend();
             }
         }

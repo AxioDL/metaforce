@@ -4,6 +4,7 @@
 #include "DNACommon.hpp"
 #include "BlenderConnection.hpp"
 #include "GX.hpp"
+#include "TXTR.hpp"
 
 namespace Retro
 {
@@ -116,13 +117,22 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
-                                  unsigned setIdx)
+                                  unsigned setIdx,
+                                  const SpecBase& dataspec)
 {
     /* Texmaps */
     os << "texmap_list = []\n";
     for (const UniqueID32& tex : matSet.head.textureIDs)
     {
         std::string texName = pakRouter.getBestEntryName(tex);
+        const NOD::DiscBase::IPartition::Node* node;
+        const typename PAKRouter::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);
+        HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+        if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        {
+            PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+            TXTR::Extract(dataspec, rs, txtrPath);
+        }
         HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
         HECL::SystemUTF8View resPathView(resPath);
         os.format("if '%s' in bpy.data.textures:\n"
@@ -151,7 +161,8 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
-                                unsigned setIdx)
+                                unsigned setIdx,
+                                const SpecBase& dataspec)
 {
     unsigned m=0;
     for (const typename MaterialSet::Material& mat : matSet.materials)
@@ -298,7 +309,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                        Athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
-                       const HECL::ProjectPath& masterShader,
+                       const SpecBase& dataspec,
                        const RIGPAIR* rp=nullptr)
 {
     Header head;
@@ -407,7 +418,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
     os.format("# Master shader library\n"
               "with bpy.data.libraries.load('%s', link=True, relative=True) as (data_from, data_to):\n"
               "    data_to.node_groups = data_from.node_groups\n"
-              "\n", masterShader.getAbsolutePathUTF8().c_str());
+              "\n", dataspec.getMasterShaderPath().getAbsolutePathUTF8().c_str());
 
     MaterialSet::RegisterMaterialProps(os);
     os << "# Materials\n"
@@ -508,7 +519,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
         {
             MaterialSet matSet;
             matSet.read(reader);
-            matSet.readToBlender(os, pakRouter, entry, s);
+            matSet.readToBlender(os, pakRouter, entry, s, dataspec);
             if (!s)
                 GetVertexAttributes(matSet, vertAttribs);
         }

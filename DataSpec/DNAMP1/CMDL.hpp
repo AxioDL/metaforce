@@ -26,7 +26,7 @@ struct CMDL
         if (!conn.createBlend(outPath.getAbsolutePath()))
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, 2>
-                (conn, rs, pakRouter, entry, dataSpec.getMasterShaderPath());
+                (conn, rs, pakRouter, entry, dataSpec);
         return conn.saveBlend();
     }
 };
