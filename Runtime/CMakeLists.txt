@@ -5,7 +5,7 @@ add_subdirectory(GuiSys)
 add_subdirectory(Script)
 
 add_executable(RuntimeCheck
-               main.hpp main.cpp
+               main.cpp
                COsContext.hpp COsContextBoo.cpp
                CMemory.hpp CMemory.cpp
                CMemoryCardSys.hpp CMemoryCardSysPC.cpp
@@ -20,4 +20,12 @@ add_executable(RuntimeCheck
                CMapWorldInfo.hpp CMapWorldInfo.cpp
                CPlayerState.hpp CPlayerState.cpp
                CWorldTransManager.hpp CWorldTransManager.cpp
-               CRandom16.hpp CRandom16.cpp)
+               CRandom16.hpp CRandom16.cpp
+               CResFactory.hpp CResFactory.cpp
+               CSimplePool.hpp CSimplePool.cpp
+               CAssetFactory.hpp CAssetFactory.cpp
+               CAi.hpp CAi.cpp
+               CGameOptions.hpp CGameOptions.cpp
+               CStaticInterference.hpp CStaticInterference.cpp
+               RetroTemplates.hpp
+               GCNTypes.hpp)

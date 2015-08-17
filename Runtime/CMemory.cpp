@@ -36,5 +36,5 @@ CMemorySys::~CMemorySys()
     CMemory::Shutdown();
 }
 
-IAllocator* CMemorySys::GetGameAllocator() {return &GAME_ALLOCATOR;}
+IAllocator& CMemorySys::GetGameAllocator() {return GAME_ALLOCATOR;}
 

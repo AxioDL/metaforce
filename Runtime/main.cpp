@@ -2,21 +2,30 @@
 #include "COsContext.hpp"
 #include "CBasics.hpp"
 #include "CTweaks.hpp"
+#include "CMemory.hpp"
 #include "CMemoryCardSys.hpp"
+#include "CResFactory.hpp"
+#include "CSimplePool.hpp"
 
 class CGameGlobalObjects : public TOneStatic<CGameGlobalObjects>
 {
     CMemoryCardSys m_memoryCardSys;
+    CResFactory m_resFactory;
+    CSimplePool m_simplePool;
 public:
-
+    void PostInitialize(COsContext& osctx, CMemorySys& memSys)
+    {
+    }
 };
 
 class CMain : public COsContext
 {
-    std::unique_ptr<CGameGlobalObjects> m_gameGlobalObjects;
+    CMemorySys m_memSys;
     CTweaks m_tweaks;
+    bool m_run = true;
 public:
     CMain()
+    : m_memSys(*this, CMemorySys::GetGameAllocator())
     {
         OpenWindow("", 0, 0, 640, 480);
     }
@@ -25,7 +34,13 @@ public:
     }
     int RsMain(int argc, const char* argv[])
     {
-        m_gameGlobalObjects.reset(new CGameGlobalObjects);
+        CGameGlobalObjects* globalObjs = new CGameGlobalObjects;
+        InitializeSubsystems();
+        globalObjs->PostInitialize(*this, m_memSys);
+        while (m_run)
+        {
+
+        }
         return 0;
     }
 };

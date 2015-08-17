@@ -17,7 +17,7 @@ class CMemorySys
 public:
     CMemorySys(COsContext&, IAllocator&);
     ~CMemorySys();
-    static IAllocator* GetGameAllocator();
+    static IAllocator& GetGameAllocator();
 };
 
 #endif // __RETRO_CMEMORY_HPP__
