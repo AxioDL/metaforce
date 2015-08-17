@@ -1,15 +1,9 @@
 [submodule "extern/Athena"]
 	path = extern/Athena
 	url = https://github.com/Antidote/Athena.git
-[submodule "extern/RetroCommon"]
-	path = extern/RetroCommon
-	url = https://github.com/RetroView/RetroCommon.git
 [submodule "extern/libSquish"]
 	path = extern/libSquish
 	url = https://github.com/jackoalan/libSquish.git
 [submodule "extern/LogVisor"]
 	path = extern/LogVisor
 	url = https://github.com/RetroView/LogVisor.git
-[submodule "extern/AngelScript"]
-	path = extern/AngelScript
-	url = https://github.com/RetroView/AngelScript.git
