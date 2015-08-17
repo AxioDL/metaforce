@@ -11,6 +11,7 @@ add_library(RuntimeCommon
             CGameAllocator.hpp CGameAllocator.cpp
             CBasics.hpp CBasicsPC.cpp
             CTweaks.hpp CTweaks.cpp
+            CInGameTweakManager.hpp CInGameTweakManager.cpp
             CTweakParticle.hpp CTweakParticle.cpp
             CStateManager.hpp CStateManager.cpp
             CGameState.hpp CGameState.cpp
@@ -21,10 +22,10 @@ add_library(RuntimeCommon
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
             CSimplePool.hpp CSimplePool.cpp
-            CAssetFactory.hpp CAssetFactory.cpp
             CAi.hpp CAi.cpp
             CGameOptions.hpp CGameOptions.cpp
             CStaticInterference.hpp CStaticInterference.cpp
+            CElementGen.hpp CElementGen.cpp
             CCRC32.hpp CCRC32.cpp
             RetroTemplates.hpp
             GCNTypes.hpp)

@@ -6,6 +6,10 @@ namespace Retro
 namespace Common
 {
 
+class CCharacterFactoryBuilder
+{
+};
+
 }
 }
 

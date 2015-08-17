@@ -1,0 +1,8 @@
+#ifndef __RETRO_CCHARACTERFACTORY_HPP__
+#define __RETRO_CCHARACTERFACTORY_HPP__
+
+class CCharacterFactory
+{
+};
+
+#endif // __RETRO_CCHARACTERFACTORY_HPP__

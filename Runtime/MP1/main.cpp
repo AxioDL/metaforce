@@ -6,6 +6,10 @@
 #include "CMemoryCardSys.hpp"
 #include "CResFactory.hpp"
 #include "CSimplePool.hpp"
+#include "Character/CAssetFactory.hpp"
+#include "CAi.hpp"
+#include "CGameState.hpp"
+#include "CInGameTweakManager.hpp"
 
 namespace Retro
 {
@@ -17,6 +21,11 @@ class CGameGlobalObjects : public Common::TOneStatic<CGameGlobalObjects>
     Common::CMemoryCardSys m_memoryCardSys;
     Common::CResFactory m_resFactory;
     Common::CSimplePool m_simplePool;
+    Common::CCharacterFactoryBuilder m_charFactoryBuilder;
+    Common::CAiFuncMap m_aiFuncMap;
+    Common::CGameState m_gameState;
+    Common::CInGameTweakManager m_tweakManager;
+
 public:
     void PostInitialize(Common::COsContext& osctx, Common::CMemorySys& memSys)
     {

@@ -1,3 +1,4 @@
+add_subdirectory(Tweaks)
 make_dnalist(liblist
              PAK
              MLVL
@@ -8,7 +9,8 @@ make_dnalist(liblist
              EVNT
              MAPA
              CMDLMaterials
-             MREA)
+             MREA
+             Tweaks/CTweakParticle)
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
             ${liblist}
