@@ -11,6 +11,19 @@ else()
 endif()
 
 set(HECL_SUBPROJECT TRUE)
+set(HECL_DATASPEC_DECLS
+"/* RetroCommon specs */
+namespace Retro
+{
+    extern HECL::Database::DataSpecEntry SpecEntMP1;
+    extern HECL::Database::DataSpecEntry SpecEntMP2;
+    extern HECL::Database::DataSpecEntry SpecEntMP3;
+}")
+set(HECL_DATASPEC_PUSHES
+"    /* RetroCommon */
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP1);
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP2);
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);")
 add_subdirectory(hecl)
 add_subdirectory(NODLib)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
