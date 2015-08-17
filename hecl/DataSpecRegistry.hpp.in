@@ -17,18 +17,10 @@ std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
 }
 }
 
-/* RetroCommon specs */
-namespace Retro
-{
-    extern HECL::Database::DataSpecEntry SpecEntMP1;
-    extern HECL::Database::DataSpecEntry SpecEntMP2;
-    extern HECL::Database::DataSpecEntry SpecEntMP3;
-}
+@HECL_DATASPEC_DECLS@
 
 /* Please Call Me! */
 void HECLRegisterDataSpecs()
 {
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP1);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP2);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);
+@HECL_DATASPEC_PUSHES@
 }

@@ -9,6 +9,8 @@ else()
 endif()
 endif()
 
+configure_file(DataSpecRegistry.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/DataSpecRegistry.hpp @ONLY)
+
 list(APPEND HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/blender)
 set(HECL_INCLUDE_DIR ${HECL_INCLUDE_DIR} PARENT_SCOPE)
 set(ATHENA_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/Athena/include)
