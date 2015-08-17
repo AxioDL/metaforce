@@ -7,7 +7,8 @@ make_dnalist(liblist
              CSKR
              EVNT
              MAPA
-             CMDLMaterials)
+             CMDLMaterials
+             MREA)
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
             ${liblist}
@@ -17,4 +18,5 @@ add_library(DNAMP1
             ANIM.cpp
             EVNT.cpp
             CMDL.hpp
-            CMDLMaterials.cpp)
+            CMDLMaterials.cpp
+            MREA.cpp)
