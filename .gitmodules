@@ -1,3 +1,9 @@
 [submodule "NODLib"]
 	path = NODLib
 	url = https://github.com/RetroView/NODLib.git
+[submodule "hecl"]
+	path = hecl
+	url = https://github.com/RetroView/hecl.git
+[submodule "MathLib"]
+	path = MathLib
+	url = https://github.com/RetroView/MathLib.git

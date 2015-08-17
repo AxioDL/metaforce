@@ -1,8 +1,0 @@
-#ifndef __RETRO_CWORLDTRANSMANAGER_HPP__
-#define __RETRO_CWORLDTRANSMANAGER_HPP__
-
-class CWorldTransManager
-{
-};
-
-#endif // __RETRO_CWORLDTRANSMANAGER_HPP__

@@ -1,32 +1,5 @@
-add_subdirectory(Graphics)
-add_subdirectory(Audio)
-add_subdirectory(Character)
-add_subdirectory(GuiSys)
-add_subdirectory(Script)
+add_subdirectory(MP3)
+add_subdirectory(MP2)
+add_subdirectory(MP1)
+add_subdirectory(Common)
 
-add_executable(RuntimeCheck
-               main.cpp
-               COsContext.hpp COsContextBoo.cpp
-               CMemory.hpp CMemory.cpp
-               CMemoryCardSys.hpp CMemoryCardSysPC.cpp
-               IAllocator.hpp IAllocator.cpp
-               CGameAllocator.hpp CGameAllocator.cpp
-               CBasics.hpp CBasicsPC.cpp
-               CTweaks.hpp CTweaks.cpp
-               CTweakParticle.hpp CTweakParticle.cpp
-               CStateManager.hpp CStateManager.cpp
-               CGameState.hpp CGameState.cpp
-               CScriptMailbox.hpp CScriptMailbox.cpp
-               CMapWorldInfo.hpp CMapWorldInfo.cpp
-               CPlayerState.hpp CPlayerState.cpp
-               CWorldTransManager.hpp CWorldTransManager.cpp
-               CRandom16.hpp CRandom16.cpp
-               CResFactory.hpp CResFactory.cpp
-               CSimplePool.hpp CSimplePool.cpp
-               CAssetFactory.hpp CAssetFactory.cpp
-               CAi.hpp CAi.cpp
-               CGameOptions.hpp CGameOptions.cpp
-               CStaticInterference.hpp CStaticInterference.cpp
-               CCRC32.hpp CCRC32.cpp
-               RetroTemplates.hpp
-               GCNTypes.hpp)

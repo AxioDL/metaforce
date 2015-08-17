@@ -1,7 +1,7 @@
 #ifndef _DNAMP3_CSKR_HPP_
 #define _DNAMP3_CSKR_HPP_
 
-#include "BlenderConnection.hpp"
+#include "hecl/blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
 
