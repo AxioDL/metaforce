@@ -27,5 +27,6 @@ add_executable(RuntimeCheck
                CAi.hpp CAi.cpp
                CGameOptions.hpp CGameOptions.cpp
                CStaticInterference.hpp CStaticInterference.cpp
+               CCRC32.hpp CCRC32.cpp
                RetroTemplates.hpp
                GCNTypes.hpp)
