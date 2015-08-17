@@ -20,4 +20,5 @@ add_executable(RuntimeCheck
                CMapWorldInfo.hpp CMapWorldInfo.cpp
                CPlayerState.hpp CPlayerState.cpp
                CWorldTransManager.hpp CWorldTransManager.cpp
-               CRandom16.hpp CRandom16.cpp)
+               CRandom16.hpp CRandom16.cpp
+               CCRC32.hpp CCRC32.cpp)
