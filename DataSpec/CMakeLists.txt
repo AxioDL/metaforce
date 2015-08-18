@@ -7,10 +7,13 @@ find_package(atdna REQUIRED)
 macro(make_dnalist outlist)
   foreach(type ${ARGN})
     get_filename_component(dir ${type} DIRECTORY)
+    if(dir)
+      set(dir "${dir}/")
+    endif()
     get_filename_component(name ${type} NAME)
-    atdna(${CMAKE_CURRENT_BINARY_DIR}/${dir}atdna_${name}.cpp ${dir}/${name}.hpp)
+    atdna(${dir}atdna_${name}.cpp ${dir}/${name}.hpp)
     list(APPEND ${outlist}
-         ${CMAKE_CURRENT_BINARY_DIR}/${dir}/atdna_${name}.cpp
+         ${dir}atdna_${name}.cpp
          ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.hpp)
   endforeach()
 endmacro()
