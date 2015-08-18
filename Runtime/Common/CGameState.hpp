@@ -12,12 +12,11 @@ namespace Common
 
 class CGameState
 {
-    std::unique_ptr<CPlayerState> m_playerState;
+    TOneStatic<CPlayerState> m_playerState;
     CGameOptions m_gameOpts;
 public:
     CGameState()
     {
-        m_playerState.reset(new CPlayerState);
     }
 };
 

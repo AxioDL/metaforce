@@ -1,13 +1,20 @@
 #ifndef __RETRO_CSIMPLEPOOL_HPP__
 #define __RETRO_CSIMPLEPOOL_HPP__
 
+#include "IFactory.hpp"
+#include "CFactoryStore.hpp"
+
 namespace Retro
 {
 namespace Common
 {
 
-class CSimplePool
+class CSimplePool : public IObjectStore
 {
+public:
+    CSimplePool(IFactory&)
+    {
+    }
 };
 
 }

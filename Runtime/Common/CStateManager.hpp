@@ -13,7 +13,7 @@ namespace Retro
 namespace Common
 {
 
-class CStateManager : public TOneStatic<CStateManager>
+class CStateManager
 {
 public:
     CStateManager(const std::weak_ptr<CScriptMailbox>&,

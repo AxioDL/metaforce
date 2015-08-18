@@ -26,8 +26,9 @@ set(HECL_DATASPEC_PUSHES
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);")
 add_subdirectory(hecl)
 add_subdirectory(NODLib)
+set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
+                    ${NODLIB_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
-set(NOD_LIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_subdirectory(DataSpec)
 add_subdirectory(Runtime)

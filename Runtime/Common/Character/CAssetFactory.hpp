@@ -1,13 +1,19 @@
 #ifndef __RETRO_CASSETFACTORY_HPP__
 #define __RETRO_CASSETFACTORY_HPP__
 
+#include "../IFactory.hpp"
+
 namespace Retro
 {
 namespace Common
 {
 
-class CCharacterFactoryBuilder
+class CCharacterFactoryBuilder : public IFactory
 {
+public:
+    class CDummyFactory : public IFactory
+    {
+    };
 };
 
 }

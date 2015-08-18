@@ -1,18 +1,20 @@
-add_subdirectory(Graphics)
 add_subdirectory(Audio)
 add_subdirectory(Character)
+add_subdirectory(Graphics)
 add_subdirectory(GuiSys)
+add_subdirectory(Input)
+add_subdirectory(Particle)
 
 add_library(RuntimeCommon
             COsContext.hpp COsContextBoo.cpp
+            CMainFlow.hpp CMainFlow.cpp
             CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp CMemoryCardSysPC.cpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
             CBasics.hpp CBasicsPC.cpp
-            CTweaks.hpp CTweaks.cpp
-            CInGameTweakManager.hpp CInGameTweakManager.cpp
-            CTweakParticle.hpp CTweakParticle.cpp
+            CIOWin.hpp CIOWin.cpp
+            CIOWinManager.hpp CIOWinManager.cpp
             CStateManager.hpp CStateManager.cpp
             CGameState.hpp CGameState.cpp
             CScriptMailbox.hpp CScriptMailbox.cpp
@@ -21,11 +23,13 @@ add_library(RuntimeCommon
             CWorldTransManager.hpp CWorldTransManager.cpp
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
+            CFactoryStore.hpp CFactoryStore.cpp
             CSimplePool.hpp CSimplePool.cpp
             CAi.hpp CAi.cpp
             CGameOptions.hpp CGameOptions.cpp
             CStaticInterference.hpp CStaticInterference.cpp
-            CElementGen.hpp CElementGen.cpp
             CCRC32.hpp CCRC32.cpp
+            IFactory.hpp
+            GameGlobalObjects.hpp
             RetroTemplates.hpp
             GCNTypes.hpp)

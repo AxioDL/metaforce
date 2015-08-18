@@ -8,6 +8,10 @@ namespace Common
 
 class CElementGen
 {
+public:
+    static void Initialize()
+    {
+    }
 };
 
 }

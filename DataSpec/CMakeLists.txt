@@ -1,5 +1,4 @@
-include_directories(${HECL_INCLUDE_DIR} ${NOD_LIB_INCLUDE_DIR} ${LIBPNG_INCLUDE_DIR}
-                    ${SQUISH_INCLUDE_DIR})
+include_directories(${LIBPNG_INCLUDE_DIR} ${SQUISH_INCLUDE_DIR})
 
 # Magic ingredient
 find_package(atdna REQUIRED)

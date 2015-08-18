@@ -2,13 +2,14 @@
 #define __RETRO_CTWEAKPARTICLE_HPP__
 
 #include "CBasics.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakParticle.hpp"
 
 namespace Retro
 {
 namespace Common
 {
 
-class CTweakParticle : TOneStatic<CTweakParticle>
+class CTweakParticle : DNAMP1::CTweakParticle
 {
 public:
     CTweakParticle(CInputStream&);

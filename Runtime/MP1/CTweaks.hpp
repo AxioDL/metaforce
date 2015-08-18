@@ -1,7 +1,6 @@
 #ifndef __RETRO_CTWEAKS_HPP__
 #define __RETRO_CTWEAKS_HPP__
 
-#include <memory>
 #include "CTweakParticle.hpp"
 
 namespace Retro

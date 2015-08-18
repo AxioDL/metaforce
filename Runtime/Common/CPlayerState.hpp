@@ -9,7 +9,7 @@ namespace Retro
 namespace Common
 {
 
-class CPlayerState : public TOneStatic<CPlayerState>
+class CPlayerState
 {
     CStaticInterference m_staticIntf;
     class CPowerUp
