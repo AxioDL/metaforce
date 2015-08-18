@@ -10,6 +10,8 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-multichar -fno-exceptions")
 endif()
 
+add_subdirectory(libBoo)
+
 set(HECL_SUBPROJECT TRUE)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */

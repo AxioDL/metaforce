@@ -30,15 +30,15 @@ public:
     {++ReferenceCount();}
     template<typename U = T>
     TOneStatic(typename std::enable_if<std::is_default_constructible<U>::value>::type* = 0)
-    {++ReferenceCount(); new (GetAllocSpace()) T();}
+    {++ReferenceCount(); new (m_allocspace) T();}
 
     template<typename... Args> TOneStatic(Args&&... args)
-    {++ReferenceCount(); new (GetAllocSpace()) T(std::forward<Args>(args)...);}
+    {++ReferenceCount(); new (m_allocspace) T(std::forward<Args>(args)...);}
 
     ~TOneStatic() {--ReferenceCount();}
 
     template<typename... Args> void reset(Args&&... args)
-    {new (GetAllocSpace()) T(std::forward<Args>(args)...);}
+    {new (m_allocspace) T(std::forward<Args>(args)...);}
 };
 template<class T> u8 TOneStatic<T>::m_allocspace[sizeof(T)];
 template<class T> u32 TOneStatic<T>::m_refCount;

@@ -7,3 +7,6 @@
 [submodule "MathLib"]
 	path = MathLib
 	url = https://github.com/RetroView/MathLib.git
+[submodule "libBoo"]
+	path = libBoo
+	url = https://github.com/RetroView/libBoo.git
