@@ -19,6 +19,7 @@ public:
     static T* GetAllocSpace() {return (T*)m_allocspace;}
     static u32& ReferenceCount() {return m_refCount;}
     T* operator->() const {return (T*)m_allocspace;}
+    T& operator*() const {return *(T*)m_allocspace;}
 
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;

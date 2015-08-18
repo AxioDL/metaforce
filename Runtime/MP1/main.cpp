@@ -274,10 +274,10 @@ struct ApplicationCallback : boo::IApplicationCallback
 
 int main(int argc, const char* argv[])
 {
-    ApplicationCallback appCB;
+    Retro::TOneStatic<ApplicationCallback> appCB;
     std::unique_ptr<boo::IApplication> app =
-        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, appCB,
+        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *appCB,
                                   "mp1", "MP1", argc, argv);
-    Retro::MP1::CMain main;
-    return main.RsMain(argc, argv);
+    Retro::TOneStatic<Retro::MP1::CMain> main;
+    return main->RsMain(argc, argv);
 }
