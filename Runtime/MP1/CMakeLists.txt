@@ -1,4 +1,4 @@
-include_directories(. ../Common)
+include_directories(. ..)
 add_executable(mp1
                CTweaks.hpp CTweaks.cpp
                CInGameTweakManager.hpp CInGameTweakManager.cpp
@@ -8,4 +8,6 @@ target_link_libraries(mp1
                       RuntimeCommonCharacter
                       RuntimeCommon
                       DNAMP1
-                      DNACommon)
+                      DNACommon
+                      Boo
+                      ${BOO_SYS_LIBS})

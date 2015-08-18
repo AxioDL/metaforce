@@ -5,8 +5,6 @@
 
 namespace Retro
 {
-namespace Common
-{
 
 class CInGameTweakManager
 {
@@ -17,7 +15,6 @@ public:
     }
 };
 
-}
 }
 
 #endif // __RETRO_CINGAMETWEAKMANAGER_HPP__

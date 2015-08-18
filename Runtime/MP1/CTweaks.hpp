@@ -5,8 +5,6 @@
 
 namespace Retro
 {
-namespace Common
-{
 
 class CTweaks
 {
@@ -16,7 +14,6 @@ public:
     void RegisterResourceTweaks();
 };
 
-}
 }
 
 #endif // __RETRO_CTWEAKS_HPP__

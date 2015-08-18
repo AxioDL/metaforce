@@ -2,13 +2,10 @@
 
 namespace Retro
 {
-namespace Common
-{
 
 CTweakParticle::CTweakParticle(CInputStream&)
 {
 
 }
 
-}
 }

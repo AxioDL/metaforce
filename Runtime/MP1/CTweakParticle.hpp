@@ -6,8 +6,6 @@
 
 namespace Retro
 {
-namespace Common
-{
 
 class CTweakParticle : DNAMP1::CTweakParticle
 {
@@ -15,7 +13,6 @@ public:
     CTweakParticle(CInputStream&);
 };
 
-}
 }
 
 #endif // __RETRO_CTWEAKPARTICLE_HPP__

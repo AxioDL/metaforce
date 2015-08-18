@@ -8,7 +8,7 @@ macro(make_dnalist outlist)
   foreach(type ${ARGN})
     get_filename_component(dir ${type} DIRECTORY)
     get_filename_component(name ${type} NAME)
-    atdna(${dir}/atdna_${name}.cpp ${dir}/${name}.hpp)
+    atdna(${CMAKE_CURRENT_BINARY_DIR}/${dir}atdna_${name}.cpp ${dir}/${name}.hpp)
     list(APPEND ${outlist}
          ${CMAKE_CURRENT_BINARY_DIR}/${dir}/atdna_${name}.cpp
          ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.hpp)

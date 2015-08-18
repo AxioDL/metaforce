@@ -1,4 +1,5 @@
 #include <memory>
+#include <boo/boo.hpp>
 #include "COsContext.hpp"
 #include "CBasics.hpp"
 #include "CTweaks.hpp"
@@ -26,8 +27,6 @@
 
 namespace Retro
 {
-namespace Common
-{
 CMemoryCardSys* g_MemoryCardSys = nullptr;
 CResFactory* g_ResFactory = nullptr;
 CSimplePool* g_SimplePool = nullptr;
@@ -36,21 +35,20 @@ CAiFuncMap* g_AiFuncMap = nullptr;
 CGameState* g_GameState = nullptr;
 CInGameTweakManager* g_TweakManager = nullptr;
 CBooRenderer* g_Renderer = nullptr;
-}
 
 namespace MP1
 {
 
 class CGameGlobalObjects
 {
-    Common::CMemoryCardSys m_memoryCardSys;
-    Common::CResFactory m_resFactory;
-    Common::CSimplePool m_simplePool;
-    Common::CCharacterFactoryBuilder m_charFactoryBuilder;
-    Common::CAiFuncMap m_aiFuncMap;
-    Common::CGameState m_gameState;
-    Common::CInGameTweakManager m_tweakManager;
-    std::unique_ptr<Common::CBooRenderer> m_renderer;
+    CMemoryCardSys m_memoryCardSys;
+    CResFactory m_resFactory;
+    CSimplePool m_simplePool;
+    CCharacterFactoryBuilder m_charFactoryBuilder;
+    CAiFuncMap m_aiFuncMap;
+    CGameState m_gameState;
+    CInGameTweakManager m_tweakManager;
+    std::unique_ptr<CBooRenderer> m_renderer;
 
     void AddPaksAndFactories()
     {
@@ -58,28 +56,28 @@ class CGameGlobalObjects
     void LoadStringTable()
     {
     }
-    static Common::CBooRenderer*
-    AllocateRenderer(Common::IObjectStore& store, Common::COsContext& osctx,
-                     Common::CMemorySys& memSys, Common::CResFactory& resFactory)
+    static CBooRenderer*
+    AllocateRenderer(IObjectStore& store, COsContext& osctx,
+                     CMemorySys& memSys, CResFactory& resFactory)
     {
-        Common::g_Renderer = new Common::CBooRenderer(store, osctx, memSys, resFactory);
-        return Common::g_Renderer;
+        g_Renderer = new CBooRenderer(store, osctx, memSys, resFactory);
+        return g_Renderer;
     }
 
 public:
     CGameGlobalObjects()
     : m_simplePool(m_resFactory)
     {
-        Common::g_MemoryCardSys = &m_memoryCardSys;
-        Common::g_ResFactory = &m_resFactory;
-        Common::g_SimplePool = &m_simplePool;
-        Common::g_CharFactoryBuilder = &m_charFactoryBuilder;
-        Common::g_AiFuncMap = &m_aiFuncMap;
-        Common::g_GameState = &m_gameState;
-        Common::g_TweakManager = &m_tweakManager;
+        g_MemoryCardSys = &m_memoryCardSys;
+        g_ResFactory = &m_resFactory;
+        g_SimplePool = &m_simplePool;
+        g_CharFactoryBuilder = &m_charFactoryBuilder;
+        g_AiFuncMap = &m_aiFuncMap;
+        g_GameState = &m_gameState;
+        g_TweakManager = &m_tweakManager;
     }
 
-    void PostInitialize(Common::COsContext& osctx, Common::CMemorySys& memSys)
+    void PostInitialize(COsContext& osctx, CMemorySys& memSys)
     {
         AddPaksAndFactories();
         LoadStringTable();
@@ -89,37 +87,37 @@ public:
 
 class CGameArchitectureSupport
 {
-    Common::CAudioSys m_audioSys;
-    Common::CInputGenerator m_inputGenerator;
-    Common::CGuiSys m_guiSys;
-    Common::CIOWinManager m_ioWinManager;
-    Common::CSplashScreen m_splashScreen;
-    Common::CMainFlow m_mainFlow;
-    Common::CConsoleOutputWindow m_consoleWindow;
-    Common::CAudioStateWin m_audioStateWin;
+    CAudioSys m_audioSys;
+    CInputGenerator m_inputGenerator;
+    CGuiSys m_guiSys;
+    CIOWinManager m_ioWinManager;
+    CSplashScreen m_splashScreen;
+    CMainFlow m_mainFlow;
+    CConsoleOutputWindow m_consoleWindow;
+    CAudioStateWin m_audioStateWin;
 public:
-    CGameArchitectureSupport(Common::COsContext& osctx)
+    CGameArchitectureSupport(COsContext& osctx)
         : m_audioSys(0,0,0,0,0)
     {
     }
 };
 
-class CMain : public Common::COsContext
+class CMain : public COsContext
 {
-    Common::CMemorySys m_memSys;
-    Common::CTweaks m_tweaks;
+    CMemorySys m_memSys;
+    CTweaks m_tweaks;
     bool m_run = true;
 public:
     CMain()
-    : m_memSys(*this, Common::CMemorySys::GetGameAllocator())
+    : m_memSys(*this, CMemorySys::GetGameAllocator())
     {
         OpenWindow("", 0, 0, 640, 480);
     }
     void InitializeSubsystems()
     {
-        Common::CElementGen::Initialize();
-        Common::CAnimData::InitializeCache();
-        Common::CDecalManager::Initialize();
+        CElementGen::Initialize();
+        CAnimData::InitializeCache();
+        CDecalManager::Initialize();
     }
     void AddWorldPaks()
     {
@@ -129,14 +127,14 @@ public:
     }
     int RsMain(int argc, const char* argv[])
     {
-        Common::TOneStatic<CGameGlobalObjects> globalObjs;
+        TOneStatic<CGameGlobalObjects> globalObjs;
         InitializeSubsystems();
         globalObjs->PostInitialize(*this, m_memSys);
         m_tweaks.RegisterTweaks();
         AddWorldPaks();
-        Common::g_TweakManager->ReadFromMemoryCard("AudioTweaks");
+        g_TweakManager->ReadFromMemoryCard("AudioTweaks");
         FillInAssetIDs();
-        Common::TOneStatic<CGameArchitectureSupport> archSupport(*this);
+        TOneStatic<CGameArchitectureSupport> archSupport(*this);
         while (m_run)
         {
 
@@ -148,8 +146,138 @@ public:
 }
 }
 
+struct WindowCallback : boo::IWindowCallback
+{
+
+    void mouseDown(const SWindowCoord& coord, EMouseButton button, EModifierKey mods)
+    {
+        fprintf(stderr, "Mouse Down %d (%f,%f)\n", button, coord.norm[0], coord.norm[1]);
+    }
+    void mouseUp(const SWindowCoord& coord, EMouseButton button, EModifierKey mods)
+    {
+        fprintf(stderr, "Mouse Up %d (%f,%f)\n", button, coord.norm[0], coord.norm[1]);
+    }
+    void mouseMove(const SWindowCoord& coord)
+    {
+        //fprintf(stderr, "Mouse Move (%f,%f)\n", coord.norm[0], coord.norm[1]);
+    }
+    void scroll(const SWindowCoord& coord, const SScrollDelta& scroll)
+    {
+        fprintf(stderr, "Mouse Scroll (%f,%f) (%f,%f)\n", coord.norm[0], coord.norm[1], scroll.delta[0], scroll.delta[1]);
+    }
+
+    void touchDown(const STouchCoord& coord, uintptr_t tid)
+    {
+        //fprintf(stderr, "Touch Down %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
+    }
+    void touchUp(const STouchCoord& coord, uintptr_t tid)
+    {
+        //fprintf(stderr, "Touch Up %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
+    }
+    void touchMove(const STouchCoord& coord, uintptr_t tid)
+    {
+        //fprintf(stderr, "Touch Move %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
+    }
+
+    void charKeyDown(unsigned long charCode, EModifierKey mods, bool isRepeat)
+    {
+
+    }
+    void charKeyUp(unsigned long charCode, EModifierKey mods)
+    {
+
+    }
+    void specialKeyDown(ESpecialKey key, EModifierKey mods, bool isRepeat)
+    {
+
+    }
+    void specialKeyUp(ESpecialKey key, EModifierKey mods)
+    {
+
+    }
+    void modKeyDown(EModifierKey mod, bool isRepeat)
+    {
+
+    }
+    void modKeyUp(EModifierKey mod)
+    {
+
+    }
+
+};
+
+struct DolphinSmashAdapterCallback : boo::IDolphinSmashAdapterCallback
+{
+    void controllerConnected(unsigned idx, boo::EDolphinControllerType)
+    {
+        printf("CONTROLLER %u CONNECTED\n", idx);
+    }
+    void controllerDisconnected(unsigned idx, boo::EDolphinControllerType)
+    {
+        printf("CONTROLLER %u DISCONNECTED\n", idx);
+    }
+    void controllerUpdate(unsigned idx, boo::EDolphinControllerType,
+                          const boo::DolphinControllerState& state)
+    {
+        printf("CONTROLLER %u UPDATE %d %d\n", idx, state.m_leftStick[0], state.m_leftStick[1]);
+    }
+};
+
+class ApplicationDeviceFinder : public boo::DeviceFinder
+{
+    std::unique_ptr<boo::DolphinSmashAdapter> smashAdapter = NULL;
+    DolphinSmashAdapterCallback m_cb;
+public:
+    ApplicationDeviceFinder()
+    : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)})
+    {}
+    void deviceConnected(boo::DeviceToken& tok)
+    {
+        if (!smashAdapter)
+        {
+            smashAdapter.reset(dynamic_cast<boo::DolphinSmashAdapter*>(tok.openAndGetDevice()));
+            smashAdapter->setCallback(&m_cb);
+            smashAdapter->startRumble(0);
+        }
+    }
+    void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device)
+    {
+        if (smashAdapter.get() == device)
+            smashAdapter.reset(nullptr);
+    }
+};
+
+struct ApplicationCallback : boo::IApplicationCallback
+{
+    boo::IWindow* mainWindow = NULL;
+    ApplicationDeviceFinder devFinder;
+    WindowCallback windowCallback;
+    void appLaunched(boo::IApplication* app)
+    {
+        mainWindow = app->newWindow("YAY!");
+        mainWindow->setCallback(&windowCallback);
+        mainWindow->showWindow();
+        devFinder.startScanning();
+    }
+    void appQuitting(boo::IApplication*)
+    {
+        delete mainWindow;
+    }
+    void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths)
+    {
+        fprintf(stderr, "OPENING: ");
+        for (const std::string& path : paths)
+            fprintf(stderr, "%s ", path.c_str());
+        fprintf(stderr, "\n");
+    }
+};
+
 int main(int argc, const char* argv[])
 {
+    ApplicationCallback appCB;
+    std::unique_ptr<boo::IApplication> app =
+        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, appCB,
+                                  "mp1", "MP1", argc, argv);
     Retro::MP1::CMain main;
     return main.RsMain(argc, argv);
 }
