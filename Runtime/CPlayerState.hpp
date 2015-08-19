@@ -1,7 +1,7 @@
 #ifndef __RETRO_CPLAYERSTATE_HPP__
 #define __RETRO_CPLAYERSTATE_HPP__
 
-#include "RetroTemplates.hpp"
+#include "RetroTypes.hpp"
 #include "CStaticInterference.hpp"
 
 namespace Retro

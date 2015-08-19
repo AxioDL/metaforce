@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "RetroTemplates.hpp"
+#include "RetroTypes.hpp"
 
 #include <Athena/IStreamReader.hpp>
 #include <Athena/IStreamWriter.hpp>

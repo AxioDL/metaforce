@@ -31,9 +31,12 @@ add_library(RuntimeCommon
             CGameOptions.hpp CGameOptions.cpp
             CStaticInterference.hpp CStaticInterference.cpp
             CCRC32.hpp CCRC32.cpp
+            CEntity.hpp CEntity.cpp
             IFactory.hpp
+            ScriptObjectSupport.hpp ScriptObjectSupport.cpp
+            CObjectList.hpp CObjectList.cpp
             GameGlobalObjects.hpp
-            RetroTemplates.hpp
+            RetroTypes.hpp
             GCNTypes.hpp)
 
 add_subdirectory(MP1)

@@ -1,5 +1,5 @@
-#ifndef __RETRO_TEMPLATES_HPP__
-#define __RETRO_TEMPLATES_HPP__
+#ifndef __RETRO_TYPES_HPP__
+#define __RETRO_TYPES_HPP__
 
 #include <utility>
 #include "GCNTypes.hpp"
@@ -8,13 +8,13 @@ namespace Retro
 {
 
 /**
- * @brief Inheritable singleton static-allocator
+ * @brief singleton static-allocator
  */
 template<class T>
 class TOneStatic
 {
     static u8 m_allocspace[sizeof(T)];
-    static uint32_t m_refCount;
+    static u32 m_refCount;
 public:
     static T* GetAllocSpace() {return (T*)m_allocspace;}
     static u32& ReferenceCount() {return m_refCount;}
@@ -42,6 +42,10 @@ public:
 template<class T> u8 TOneStatic<T>::m_allocspace[sizeof(T)];
 template<class T> u32 TOneStatic<T>::m_refCount;
 
+using TUniqueId = s16;
+using TEditorId = u32;
+using TAreaId = u32;
+
 }
 
-#endif // __RETRO_TEMPLATES_HPP__
+#endif // __RETRO_TYPES_HPP__

@@ -7,6 +7,7 @@
 #include "CMapWorldInfo.hpp"
 #include "CPlayerState.hpp"
 #include "CWorldTransManager.hpp"
+#include "ScriptObjectSupport.hpp"
 
 namespace Retro
 {
@@ -18,6 +19,15 @@ public:
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&);
+
+    void GetObjectListById() const
+    {
+    }
+    void GetObjectById(TUniqueId uid) const
+    {
+
+    }
+    void SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state);
 };
 
 }
