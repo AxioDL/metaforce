@@ -6,6 +6,13 @@ namespace Retro
 
 class CGameOptions
 {
+    char a = 0;
+    char b = 0;
+    char c = 128;
+    char d = 128;
+    char e = 255;
+    char f = 255;
+    bool g = true;
 };
 
 }

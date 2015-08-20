@@ -87,6 +87,7 @@ public:
 
 class CGameArchitectureSupport
 {
+    CArchitectureQueue m_archQueue;
     CAudioSys m_audioSys;
     CInputGenerator m_inputGenerator;
     CGuiSys m_guiSys;
@@ -100,13 +101,18 @@ public:
         : m_audioSys(0,0,0,0,0)
     {
     }
+    bool Update()
+    {
+        bool finished = false;
+        return finished;
+    }
 };
 
 class CMain : public COsContext
 {
     CMemorySys m_memSys;
     CTweaks m_tweaks;
-    bool m_run = true;
+    bool m_finished = false;
 public:
     CMain()
     : m_memSys(*this, CMemorySys::GetGameAllocator())
@@ -135,9 +141,9 @@ public:
         g_TweakManager->ReadFromMemoryCard("AudioTweaks");
         FillInAssetIDs();
         TOneStatic<CGameArchitectureSupport> archSupport(*this);
-        while (m_run)
+        while (!m_finished)
         {
-
+            m_finished = archSupport->Update();
         }
         return 0;
     }

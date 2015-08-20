@@ -8,6 +8,11 @@ namespace Retro
 
 class CAudioStateWin : public CIOWin
 {
+public:
+    CAudioStateWin() : CIOWin("CAudioStateWin") {}
+    virtual bool OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
+    {
+    }
 };
 
 }

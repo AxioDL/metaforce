@@ -1,6 +1,7 @@
 #ifndef __RETRO_TYPES_HPP__
 #define __RETRO_TYPES_HPP__
 
+#include <vector>
 #include <utility>
 #include "GCNTypes.hpp"
 
@@ -42,10 +43,24 @@ public:
 template<class T> u8 TOneStatic<T>::m_allocspace[sizeof(T)];
 template<class T> u32 TOneStatic<T>::m_refCount;
 
-using TUniqueId = s16;
+using TUniqueId = u16;
 using TEditorId = u32;
 using TAreaId = u32;
 
+#define kInvalidEditorId TEditorId(-1)
+#define kInvalidUniqueId TUniqueId(-1)
+#define kInvalidAreaId TAreaId(-1)
+
+}
+
+namespace rstl
+{
+template <class T, size_t N>
+class reserved_vector : public std::vector<T>
+{
+public:
+    reserved_vector() {this->reserve(N);}
+};
 }
 
 #endif // __RETRO_TYPES_HPP__

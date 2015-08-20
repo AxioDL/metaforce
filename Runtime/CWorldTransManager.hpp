@@ -6,6 +6,17 @@ namespace Retro
 
 class CWorldTransManager
 {
+    bool m_drawEnabled;
+public:
+    void DrawEnabled() const;
+    void DrawDisabled() const;
+    void Draw() const
+    {
+        if (m_drawEnabled)
+            DrawEnabled();
+        else
+            DrawDisabled();
+    }
 };
 
 }

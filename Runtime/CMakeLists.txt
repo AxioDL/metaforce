@@ -29,12 +29,16 @@ add_library(RuntimeCommon
             CSimplePool.hpp CSimplePool.cpp
             CAi.hpp CAi.cpp
             CGameOptions.hpp CGameOptions.cpp
-            CStaticInterference.hpp CStaticInterference.cpp
+            CStaticInterference.hpp
             CCRC32.hpp CCRC32.cpp
             CEntity.hpp CEntity.cpp
             IFactory.hpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
-            CObjectList.hpp CObjectList.cpp
+            CObjectList.hpp
+            CMFGame.hpp CMFGame.cpp
+            CMainFlow.hpp CMainFlow.cpp
+            CArchitectureMessage.hpp
+            CArchitectureQueue.hpp CArchitectureQueue.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
             GCNTypes.hpp)
