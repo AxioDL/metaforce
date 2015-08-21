@@ -39,6 +39,9 @@ add_library(RuntimeCommon
             CMainFlow.hpp CMainFlow.cpp
             CArchitectureMessage.hpp
             CArchitectureQueue.hpp CArchitectureQueue.cpp
+            IObj.hpp
+            CToken.hpp
+            CAreaOctTree.hpp CAreaOctTree.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
             GCNTypes.hpp)

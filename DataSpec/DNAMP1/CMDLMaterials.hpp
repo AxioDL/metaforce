@@ -107,7 +107,7 @@ struct MaterialSet : BigDNA
         Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
         /** Slightly modified blend enums in Retro's implementation */
-        enum BlendFactor
+        enum BlendFactor : atUint16
         {
             GX_BL_ZERO,
             GX_BL_ONE,
@@ -118,12 +118,8 @@ struct MaterialSet : BigDNA
             GX_BL_DSTALPHA,
             GX_BL_INVDSTALPHA
         };
-        Value<atUint16> _blendDstFac;
-        inline BlendFactor blendDestFactor() const {return BlendFactor(_blendDstFac);}
-        inline void setBlendDestFactor(BlendFactor fac) {_blendDstFac = fac;}
-        Value<atUint16> _blendSrcFac;
-        inline BlendFactor blendSrcFactor() const {return BlendFactor(_blendSrcFac);}
-        inline void setBlendSrcFactor(BlendFactor fac) {_blendSrcFac = fac;}
+        Value<BlendFactor> blendDstFac;
+        Value<BlendFactor> blendSrcFac;
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
         Value<atUint32> colorChannelCount;

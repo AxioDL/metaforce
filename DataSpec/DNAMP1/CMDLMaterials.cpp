@@ -623,9 +623,9 @@ void _ConstructMaterial(Stream& out,
 
     /* Blend factors */
     using BlendFactor = MaterialSet::Material::BlendFactor;
-    if (material.blendDestFactor() != BlendFactor::GX_BL_ZERO)
+    if (material.blendDstFac != BlendFactor::GX_BL_ZERO)
     {
-        if (material.blendDestFactor() == BlendFactor::GX_BL_ONE)
+        if (material.blendDstFac == BlendFactor::GX_BL_ONE)
             out << "new_material.game_settings.alpha_blend = 'ADD'\n"
                    "new_material.use_transparency = True\n"
                    "new_material.transparency_method = 'RAYTRACE'\n"

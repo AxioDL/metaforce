@@ -1,2 +1,5 @@
 add_library(RuntimeCommonGraphics
-            CBooRenderer.hpp CBooRenderer.cpp)
+            IRenderer.hpp
+            CBooRenderer.hpp CBooRenderer.cpp
+            CMetroidModelInstance.hpp
+            CLight.hpp)
