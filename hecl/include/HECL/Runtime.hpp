@@ -118,6 +118,35 @@ public:
 };
 
 /**
+ * @brief Loadable/Bindable runtime texture class
+ */
+class Texture
+{
+};
+
+/**
+ * @brief Bindable runtime material class
+ */
+class Material
+{
+};
+
+/**
+ * @brief Bindable runtime mesh surface
+ */
+class MeshSurface
+{
+};
+
+/**
+ * @brief Loadable data representation containing vertex buffers, surfaces and shader refs
+ */
+class MeshObject
+{
+public:
+};
+
+/**
  * @brief HLPK Runtime data-management root
  *
  * Interface for controlling runtime data-operations like object lookup
