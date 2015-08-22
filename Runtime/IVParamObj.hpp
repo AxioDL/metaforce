@@ -1,6 +1,7 @@
 #ifndef __RETRO_IVPARAMOBJ_HPP__
 #define __RETRO_IVPARAMOBJ_HPP__
 
+#include <memory>
 #include "IObj.hpp"
 
 namespace Retro
