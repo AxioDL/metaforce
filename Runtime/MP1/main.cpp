@@ -24,6 +24,7 @@
 #include "GuiSys/CConsoleOutputWindow.hpp"
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
+#include "CArchitectureQueue.hpp"
 
 namespace Retro
 {

@@ -8,6 +8,12 @@ class CAiFuncMap
 {
 };
 
+class CAi
+{
+public:
+
+};
+
 }
 
 #endif // __RETRO_CAI_HPP__

@@ -2,11 +2,11 @@
 #define __RETRO_CIOWIN_HPP__
 
 #include <string>
-#include "CArchitectureMessage.hpp"
-#include "CArchitectureQueue.hpp"
 
 namespace Retro
 {
+class CArchitectureMessage;
+class CArchitectureQueue;
 
 class CIOWin
 {

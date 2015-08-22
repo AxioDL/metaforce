@@ -1,13 +1,12 @@
 #ifndef __RETRO_CBOORENDERER_HPP__
 #define __RETRO_CBOORENDERER_HPP__
 
-#include "../CFactoryStore.hpp"
-#include "../COsContext.hpp"
-#include "../CMemory.hpp"
-#include "../CResFactory.hpp"
-
 namespace Retro
 {
+class IObjectStore;
+class COsContext;
+class CMemorySys;
+class CResFactory;
 
 class CBooRenderer
 {

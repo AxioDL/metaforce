@@ -5,6 +5,7 @@
 
 namespace Retro
 {
+class PAKEntryReadStream;
 
 struct TXTR
 {

@@ -5,7 +5,7 @@
 
 #include <lzo/lzo1x.h>
 #include <NOD/DiscBase.hpp>
-#include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/PAK.hpp"
 
 namespace Retro
 {

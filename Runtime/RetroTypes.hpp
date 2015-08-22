@@ -3,10 +3,19 @@
 
 #include <vector>
 #include <utility>
+#include <string>
 #include "GCNTypes.hpp"
+#include "rstl.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 
 namespace Retro
 {
+
+struct SObjectTag
+{
+    FourCC type;
+    UniqueID32 id;
+};
 
 /**
  * @brief singleton static-allocator
@@ -27,15 +36,15 @@ public:
 
     template<typename U = T>
     TOneStatic(typename std::enable_if<!std::is_default_constructible<U>::value>::type* = 0)
-    {++ReferenceCount();}
+    {++m_refCount;}
     template<typename U = T>
     TOneStatic(typename std::enable_if<std::is_default_constructible<U>::value>::type* = 0)
-    {++ReferenceCount(); new (m_allocspace) T();}
+    {++m_refCount; new (m_allocspace) T();}
 
     template<typename... Args> TOneStatic(Args&&... args)
-    {++ReferenceCount(); new (m_allocspace) T(std::forward<Args>(args)...);}
+    {++m_refCount; new (m_allocspace) T(std::forward<Args>(args)...);}
 
-    ~TOneStatic() {--ReferenceCount();}
+    ~TOneStatic() {--m_refCount;}
 
     template<typename... Args> void reset(Args&&... args)
     {new (m_allocspace) T(std::forward<Args>(args)...);}
@@ -51,16 +60,6 @@ using TAreaId = u32;
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
 
-}
-
-namespace rstl
-{
-template <class T, size_t N>
-class reserved_vector : public std::vector<T>
-{
-public:
-    reserved_vector() {this->reserve(N);}
-};
 }
 
 #endif // __RETRO_TYPES_HPP__

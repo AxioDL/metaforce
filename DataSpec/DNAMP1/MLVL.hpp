@@ -1,7 +1,7 @@
 #ifndef __DNAMP1_MLVL_HPP__
 #define __DNAMP1_MLVL_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/PAK.hpp"
 
 namespace Retro
 {

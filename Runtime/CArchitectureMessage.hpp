@@ -7,7 +7,6 @@
 
 namespace Retro
 {
-
 class CIOWin;
 
 enum EArchMsgTarget

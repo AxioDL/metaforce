@@ -6,9 +6,10 @@
 namespace Retro
 {
 
-class CCharacterFactoryBuilder : public IFactory
+class CCharacterFactoryBuilder
 {
 public:
+    CCharacterFactoryBuilder();
     class CDummyFactory : public IFactory
     {
     };

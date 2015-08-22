@@ -1,7 +1,7 @@
 #ifndef _DNACOMMON_CMDL_HPP_
 #define _DNACOMMON_CMDL_HPP_
 
-#include "DNACommon.hpp"
+#include "PAK.hpp"
 #include "BlenderConnection.hpp"
 #include "GX.hpp"
 #include "TXTR.hpp"

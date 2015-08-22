@@ -1,11 +1,10 @@
 #ifndef __RETRO_CMEMORY_HPP__
 #define __RETRO_CMEMORY_HPP__
 
-#include "IAllocator.hpp"
-#include "COsContext.hpp"
-
 namespace Retro
 {
+class IAllocator;
+class COsContext;
 
 class CMemory
 {

@@ -3,14 +3,14 @@
 
 #include <memory>
 #include "CBasics.hpp"
-#include "CScriptMailbox.hpp"
-#include "CMapWorldInfo.hpp"
-#include "CPlayerState.hpp"
-#include "CWorldTransManager.hpp"
 #include "ScriptObjectSupport.hpp"
 
 namespace Retro
 {
+class CScriptMailbox;
+class CMapWorldInfo;
+class CPlayerState;
+class CWorldTransManager;
 
 class CStateManager
 {

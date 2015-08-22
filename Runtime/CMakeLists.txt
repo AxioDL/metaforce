@@ -25,7 +25,7 @@ add_library(RuntimeCommon
             CWorldTransManager.hpp CWorldTransManager.cpp
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
-            CFactoryStore.hpp CFactoryStore.cpp
+            IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
             CAi.hpp CAi.cpp
             CGameOptions.hpp CGameOptions.cpp
@@ -40,8 +40,12 @@ add_library(RuntimeCommon
             CArchitectureMessage.hpp
             CArchitectureQueue.hpp CArchitectureQueue.cpp
             IObj.hpp
+            IVParamObj.hpp
             CToken.hpp
             CAreaOctTree.hpp CAreaOctTree.cpp
+            CActor.hpp CActor.cpp
+            CPhysicsActor.hpp CPhysicsActor.cpp
+            rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
             GCNTypes.hpp)

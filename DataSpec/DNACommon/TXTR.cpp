@@ -1,6 +1,7 @@
 #include <png.h>
 #include <squish.h>
 #include "TXTR.hpp"
+#include "PAK.hpp"
 
 namespace Retro
 {

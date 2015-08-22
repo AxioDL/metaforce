@@ -3,10 +3,10 @@
 
 #include "RetroTypes.hpp"
 #include "ScriptObjectSupport.hpp"
-#include "CStateManager.hpp"
 
 namespace Retro
 {
+class CStateManager;
 
 struct SConnection
 {

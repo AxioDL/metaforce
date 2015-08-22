@@ -3,6 +3,7 @@ make_dnalist(liblist
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
             ${liblist}
+            PAK.hpp
             GX.hpp
             STRG.hpp STRG.cpp
             TXTR.hpp TXTR.cpp

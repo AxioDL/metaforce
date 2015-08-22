@@ -8,6 +8,12 @@ namespace Retro
 
 class CResFactory : public IFactory
 {
+public:
+    void Build(const SObjectTag&, const CVParamTransfer&);
+    void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**);
+    void CancelBuild(const SObjectTag&);
+    bool CanBuild(const SObjectTag&);
+    const SObjectTag& GetResourceIdByName(const char*) const;
 };
 
 }

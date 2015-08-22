@@ -2,7 +2,7 @@
 #define __DNAMP3_STRG_HPP__
 
 #include <unordered_map>
-#include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/PAK.hpp"
 #include "../DNACommon/STRG.hpp"
 
 namespace Retro

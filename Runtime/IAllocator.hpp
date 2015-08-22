@@ -1,10 +1,9 @@
 #ifndef __RETRO_IALLOCATOR_HPP__
 #define __RETRO_IALLOCATOR_HPP__
 
-#include "COsContext.hpp"
-
 namespace Retro
 {
+class COsContext;
 
 class IAllocator
 {

@@ -1,4 +1,5 @@
 #include "CEntity.hpp"
+#include "CStateManager.hpp"
 
 namespace Retro
 {

@@ -9,7 +9,6 @@
 #include <Athena/IStreamReader.hpp>
 #include <Athena/IStreamWriter.hpp>
 
-
 namespace Retro
 {
 
