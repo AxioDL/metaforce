@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(RetroCommon)
-
-cmake_minimum_required(VERSION 3.0)
-project(RetroCommon)
+project(PathShagged)
 if(MSVC)
   # Shaddup MSVC
   add_definitions(-DUNICODE=1 -D_UNICODE=1 -D_CRT_SECURE_NO_WARNINGS=1 /wd4267 /wd4244)
