@@ -5,16 +5,9 @@
 
 namespace Retro
 {
-
-class CCharacterFactoryBuilder
+class CCharacterFactoryBuilder : public IFactory
 {
-public:
-    CCharacterFactoryBuilder();
-    class CDummyFactory : public IFactory
-    {
-    };
 };
-
 }
 
 #endif // __RETRO_CASSETFACTORY_HPP__

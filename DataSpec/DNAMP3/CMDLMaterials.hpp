@@ -79,7 +79,7 @@ struct MaterialSet : BigDNA
                 XRAY = SBIG('XRAY'),
                 TOON = SBIG('TOON')
             };
-            FourCC subtype;
+            DNAFourCC subtype;
             struct Flags : BigDNA
             {
                 DECL_DNA
@@ -106,7 +106,7 @@ struct MaterialSet : BigDNA
                 CLR = SBIG('CLR '),
                 DIFB = SBIG('DIFB')
             };
-            FourCC subtype;
+            DNAFourCC subtype;
             GX::Color color;
         };
         struct SectionINT : ISection
@@ -121,7 +121,7 @@ struct MaterialSet : BigDNA
                 BNIF = SBIG('BNIF'),
                 XRBR = SBIG('XRBR')
             };
-            FourCC subtype;
+            DNAFourCC subtype;
             Value<atUint32> value;
         };
         struct SectionFactory : BigDNA
@@ -130,7 +130,7 @@ struct MaterialSet : BigDNA
             std::unique_ptr<ISection> section;
             void read(Athena::io::IStreamReader& reader)
             {
-                FourCC type;
+                DNAFourCC type;
                 type.read(reader);
                 switch (type)
                 {

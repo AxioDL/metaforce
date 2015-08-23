@@ -62,7 +62,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
 {
     m_header.write(writer);
 
-    FourCC("STRG").write(writer);
+    DNAFourCC("STRG").write(writer);
     atUint32 strgSz = 4;
     for (const NameEntry& entry : m_nameEntries)
         strgSz += (atUint32)entry.name.size() + 13;
@@ -70,14 +70,14 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     strgSz += strgPad;
     writer.writeUint32Big(strgSz);
 
-    FourCC("RSHD").write(writer);
+    DNAFourCC("RSHD").write(writer);
     atUint32 rshdSz = 4 + 24 * m_entries.size();
     atUint32 rshdPad = ((rshdSz + 63) & ~63) - rshdSz;
     rshdSz += rshdPad;
     writer.writeUint32Big(rshdSz);
     atUint32 dataOffset = 128 + strgSz + rshdSz;
 
-    FourCC("DATA").write(writer);
+    DNAFourCC("DATA").write(writer);
     atUint32 dataSz = 0;
     for (const Entry& entry : m_entries)
         dataSz += (entry.size + 63) & ~63;

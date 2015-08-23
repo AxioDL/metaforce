@@ -48,7 +48,7 @@ struct EVNT : BigYAML
     {
         DECL_YAML
         Value<atUint32> frameCount;
-        FourCC effectType;
+        DNAFourCC effectType;
         UniqueID32 effectId;
         String<-1> boneName;
         Value<float> scale;

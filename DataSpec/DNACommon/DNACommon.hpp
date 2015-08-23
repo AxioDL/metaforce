@@ -18,15 +18,15 @@ typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
 typedef Athena::io::DNAYaml<Athena::BigEndian> BigYAML;
 
 /* FourCC with DNA read/write */
-class FourCC final : public BigYAML, public HECL::FourCC
+class DNAFourCC final : public BigYAML, public HECL::FourCC
 {
 public:
-    FourCC() : HECL::FourCC() {}
-    FourCC(const HECL::FourCC& other)
+    DNAFourCC() : HECL::FourCC() {}
+    DNAFourCC(const HECL::FourCC& other)
     : HECL::FourCC() {num = other.toUint32();}
-    FourCC(const char* name)
+    DNAFourCC(const char* name)
     : HECL::FourCC(name) {}
-    FourCC(uint32_t n)
+    DNAFourCC(uint32_t n)
     : HECL::FourCC(n) {}
 
     Delete expl;
@@ -39,6 +39,8 @@ public:
     inline void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
 };
+
+using FourCC = HECL::FourCC;
 
 /* PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
@@ -243,9 +245,9 @@ typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> 
 namespace std
 {
 template<>
-struct hash<Retro::FourCC>
+struct hash<Retro::DNAFourCC>
 {
-    inline size_t operator()(const Retro::FourCC& fcc) const
+    inline size_t operator()(const Retro::DNAFourCC& fcc) const
     {return fcc.toUint32();}
 };
 

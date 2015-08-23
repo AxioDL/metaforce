@@ -15,8 +15,8 @@ struct STRG : ISTRG
     DECL_YAML
     Delete expl;
     void _read(Athena::io::IStreamReader& reader);
-    std::vector<std::pair<FourCC, std::vector<std::string>>> langs;
-    std::unordered_map<FourCC, std::vector<std::string>*> langMap;
+    std::vector<std::pair<DNAFourCC, std::vector<std::string>>> langs;
+    std::unordered_map<DNAFourCC, std::vector<std::string>*> langMap;
     std::map<std::string, int32_t> names;
 
     inline int32_t lookupIdx(const std::string& name) const

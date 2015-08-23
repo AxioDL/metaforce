@@ -3,21 +3,23 @@
 
 namespace Retro
 {
+class SObjectTag;
+class CVParamTransfer;
+class IFactory;
+class IObj;
 
 class IObjectStore
 {
 public:
-    /*
-    GetObj((SObjectTag const &,CVParamTransfer const &))
-    GetObj((SObjectTag const &))
-    GetObj((char const *))
-    GetObj((char const *,CVParamTransfer const &))
-    HasObject(const(SObjectTag const &))
-    .data6:80352C6C                 .long CSimplePool::ObjectIsLive(const(SObjectTag const &))
-    .data6:80352C70                 .long CSimplePool::GetFactory(const(void))
-    .data6:80352C74                 .long CSimplePool::Flush((void))
-    .data6:80352C78                 .long CSimplePool::ObjectUnreferenced((SObjectTag const &))
-    */
+    virtual IObj& GetObj(const SObjectTag&, const CVParamTransfer&)=0;
+    virtual IObj& GetObj(const SObjectTag&)=0;
+    virtual IObj& GetObj(char const*)=0;
+    virtual IObj& GetObj(char const*, const CVParamTransfer&)=0;
+    virtual void HasObject(const SObjectTag&) const=0;
+    virtual void ObjectIsLive(const SObjectTag&) const=0;
+    virtual IFactory& GetFactory() const=0;
+    virtual void Flush()=0;
+    virtual void ObjectUnreferenced(const SObjectTag&)=0;
 };
 
 }

@@ -20,7 +20,7 @@ struct PAK : BigDNA
     struct NameEntry : BigDNA
     {
         DECL_DNA
-        FourCC type;
+        DNAFourCC type;
         UniqueID32 id;
         Value<atUint32> nameLen;
         String<DNA_COUNT(nameLen)> name;
@@ -30,7 +30,7 @@ struct PAK : BigDNA
     {
         DECL_DNA
         Value<atUint32> compressed;
-        FourCC type;
+        DNAFourCC type;
         UniqueID32 id;
         Value<atUint32> size;
         Value<atUint32> offset;

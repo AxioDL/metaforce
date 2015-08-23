@@ -74,7 +74,7 @@ struct ANCS : BigYAML
                 {
                     DECL_YAML
                     String<-1> name;
-                    FourCC type;
+                    DNAFourCC type;
                     UniqueID32 id;
                     Value<atUint32> unkMP2;
                     Value<float> unk1;
@@ -162,7 +162,7 @@ struct ANCS : BigYAML
             {
                 DECL_YAML
                 Value<atUint32> frameCount;
-                FourCC effectType;
+                DNAFourCC effectType;
                 UniqueID32 effectId;
                 Value<atUint32> boneId;
                 Value<float> scale;

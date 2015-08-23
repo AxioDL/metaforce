@@ -22,7 +22,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     /* Append Level String */
     for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
-        if (entry.type == SBIG('MLVL'))
+        if (entry.type == FOURCC('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
@@ -118,7 +118,7 @@ void PAKBridge::build()
     /* First pass: build per-area/per-layer dependency map */
     for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
-        if (entry.type == SBIG('MLVL'))
+        if (entry.type == FOURCC('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;

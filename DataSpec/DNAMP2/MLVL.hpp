@@ -38,7 +38,7 @@ struct MLVL : BigDNA
         {
             DECL_DNA
             UniqueID32 id;
-            FourCC type;
+            DNAFourCC type;
         };
         Vector<Dependency, DNA_COUNT(depCount)> deps;
 

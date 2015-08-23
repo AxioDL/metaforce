@@ -7,11 +7,19 @@ add_subdirectory(GuiSys)
 add_subdirectory(Input)
 add_subdirectory(Particle)
 
+if(WIN32)
+  list(APPEND PLAT_SRCS CMemoryCardSysWin.cpp)
+elseif(APPLE)
+  list(APPEND PLAT_SRCS CMemoryCardSysMac.cpp)
+else()
+  list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
+endif()
+
 add_library(RuntimeCommon
             COsContext.hpp COsContextBoo.cpp
             CMainFlow.hpp CMainFlow.cpp
             CMemory.hpp CMemory.cpp
-            CMemoryCardSys.hpp CMemoryCardSysPC.cpp
+            CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
             CBasics.hpp CBasicsPC.cpp
@@ -25,6 +33,9 @@ add_library(RuntimeCommon
             CWorldTransManager.hpp CWorldTransManager.cpp
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
+            CResLoader.hpp CResLoader.cpp
+            CDvdRequest.hpp CNODDvdRequest.cpp
+            CDvdFile.hpp CNODDvdFile.cpp
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
             CAi.hpp CAi.cpp
@@ -45,10 +56,14 @@ add_library(RuntimeCommon
             CAreaOctTree.hpp CAreaOctTree.cpp
             CActor.hpp CActor.cpp
             CPhysicsActor.hpp CPhysicsActor.cpp
+            CFactoryMgr.hpp CFactoryMgr.cpp
+            CPakFile.hpp CPakFile.cpp
+            CStringExtras.hpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
-            GCNTypes.hpp)
+            GCNTypes.hpp
+            ${PLAT_SRCS})
 
 add_subdirectory(MP1)
 add_subdirectory(MP2)

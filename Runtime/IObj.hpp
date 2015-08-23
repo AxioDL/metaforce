@@ -8,13 +8,15 @@ namespace Retro
 
 class IObj
 {
+public:
+    virtual ~IObj() {}
 };
 
 class TObjOwnerDerivedFromIObjUntyped : public IObj
 {
 protected:
-    void* m_objPtr;
-    TObjOwnerDerivedFromIObjUntyped(void* objPtr) : m_objPtr(objPtr) {}
+    IObj* m_objPtr;
+    TObjOwnerDerivedFromIObjUntyped(IObj* objPtr) : m_objPtr(objPtr) {}
 };
 
 template<class T>

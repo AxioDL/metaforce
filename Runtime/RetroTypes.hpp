@@ -11,10 +11,14 @@
 namespace Retro
 {
 
+using FourCC = HECL::FourCC;
+
 struct SObjectTag
 {
     FourCC type;
-    UniqueID32 id;
+    u32 id;
+    bool operator!=(const SObjectTag& other) const {return id != other.id;}
+    bool operator==(const SObjectTag& other) const {return id == other.id;}
 };
 
 /**
@@ -60,6 +64,16 @@ using TAreaId = u32;
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
 
+}
+
+namespace std
+{
+template<>
+struct hash<Retro::SObjectTag>
+{
+    inline size_t operator()(const Retro::SObjectTag& tag) const
+    {return tag.id;}
+};
 }
 
 #endif // __RETRO_TYPES_HPP__

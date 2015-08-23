@@ -29,11 +29,11 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         }
     }
 
-    std::vector<FourCC> readLangs;
+    std::vector<DNAFourCC> readLangs;
     readLangs.reserve(langCount);
     for (atUint32 l=0 ; l<langCount ; ++l)
     {
-        FourCC lang;
+        DNAFourCC lang;
         lang.read(reader);
         readLangs.emplace_back(lang);
     }
@@ -62,7 +62,7 @@ void STRG::_read(Athena::io::IStreamReader& reader)
 
     langMap.clear();
     langMap.reserve(langCount);
-    for (std::pair<FourCC, std::vector<std::string>>& item : langs)
+    for (std::pair<DNAFourCC, std::vector<std::string>>& item : langs)
         langMap.emplace(item.first, &item.second);
 }
 
@@ -142,12 +142,12 @@ void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
         for (const auto& node : item.second->m_seqChildren)
             if (node->m_type == YAML_SCALAR_NODE)
                 strs.emplace_back(node->m_scalarString);
-        langs.emplace_back(std::make_pair(FourCC(item.first.c_str()), std::move(strs)));
+        langs.emplace_back(std::make_pair(DNAFourCC(item.first.c_str()), std::move(strs)));
     }
 
     langMap.clear();
     langMap.reserve(langs.size());
-    for (std::pair<FourCC, std::vector<std::string>>& item : langs)
+    for (std::pair<DNAFourCC, std::vector<std::string>>& item : langs)
         langMap.emplace(item.first, &item.second);
 }
 

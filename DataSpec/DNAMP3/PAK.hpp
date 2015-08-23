@@ -29,7 +29,7 @@ struct PAK : BigDNA
     {
         DECL_DNA
         String<-1> name;
-        FourCC type;
+        DNAFourCC type;
         UniqueID64 id;
     };
 
@@ -37,7 +37,7 @@ struct PAK : BigDNA
     {
         DECL_DNA
         Value<atUint32> compressed;
-        FourCC type;
+        DNAFourCC type;
         UniqueID64 id;
         Value<atUint32> size;
         Value<atUint32> offset;

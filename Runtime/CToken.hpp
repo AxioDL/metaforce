@@ -2,9 +2,11 @@
 #define __RETRO_CTOKEN_HPP__
 
 #include <memory>
+#include "IObj.hpp"
 #include "RetroTypes.hpp"
-#include "CVParamTransfer.hpp"
+#include "IVParamObj.hpp"
 #include "IObjectStore.hpp"
+#include "IFactory.hpp"
 
 namespace Retro
 {
@@ -28,22 +30,71 @@ public:
 
     bool IsLoading() const {return x3_loading;}
     void Unlock() {}
-    void RemoveReference() {}
+    void Lock() {}
+    u32 RemoveReference()
+    {
+        --x0_refCount;
+        if (x0_refCount == 0)
+        {
+            if (x10_object)
+                Unload();
+            if (IsLoading())
+                CancelLoad();
+            xC_objectStore->ObjectUnreferenced(x4_objTag);
+        }
+    }
     void CancelLoad() {}
-    void Unload() {}
-    void GetObject() {}
+    void Unload()
+    {
+        x10_object.reset(nullptr);
+        x3_loading = false;
+    }
+    IObj& GetObject()
+    {
+        IFactory& factory = xC_objectStore->GetFactory();
+        factory.Build(x4_objTag, x14_params);
+    }
 
 };
 
 class CToken
 {
-    CObjectReference* x0_objRef;
+    CObjectReference& x0_objRef;
     bool x4_lockHeld = false;
 public:
-    ~CToken()
+    void Unlock()
     {
         if (x4_lockHeld)
+        {
+            x0_objRef.Unlock();
+            x4_lockHeld = false;
+        }
+    }
+    void Lock()
+    {
+        if (!x4_lockHeld)
+        {
+            x0_objRef.Lock();
+            x4_lockHeld = true;
+        }
+    }
+    void RemoveRef()
+    {
 
+    }
+    IObj& GetObj()
+    {
+        Lock();
+        return x0_objRef.GetObject();
+    }
+    CToken& operator=(CToken&& other)
+    {
+
+    }
+    ~CToken()
+    {
+        if (x0_objRef && x4_lockHeld)
+            x0_objRef->Unlock();
     }
 };
 

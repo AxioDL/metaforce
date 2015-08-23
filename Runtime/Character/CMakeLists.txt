@@ -8,4 +8,5 @@ add_library(RuntimeCommonCharacter
             CAnimationDatabase.hpp
             CAnimationDatabaseGame.hpp
             CTransitionDatabase.hpp
-            CTransitionDatabaseGame.hpp)
+            CTransitionDatabaseGame.hpp
+            CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp)

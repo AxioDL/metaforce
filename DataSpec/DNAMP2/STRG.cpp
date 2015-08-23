@@ -15,7 +15,7 @@ void STRG::_read(Athena::io::IStreamReader& reader)
     readLangs.reserve(langCount);
     for (atUint32 l=0 ; l<langCount ; ++l)
     {
-        FourCC lang;
+        DNAFourCC lang;
         lang.read(reader);
         readLangs.emplace_back(lang);
         reader.seek(8);
@@ -75,7 +75,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32Big(strCount);
 
     atUint32 offset = 0;
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const std::pair<DNAFourCC, std::vector<std::wstring>>& lang : langs)
     {
         lang.first.write(writer);
         writer.writeUint32Big(offset);
@@ -114,7 +114,7 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     for (const std::pair<std::string, int32_t>& name : names)
         writer.writeString(name.first);
 
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const std::pair<DNAFourCC, std::vector<std::wstring>>& lang : langs)
     {
         offset = strCount * 4;
         atUint32 langStrCount = lang.second.size();

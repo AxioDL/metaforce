@@ -130,7 +130,7 @@ struct ANCS : BigYAML
                 {
                     DECL_YAML
                     String<-1> name;
-                    FourCC type;
+                    DNAFourCC type;
                     UniqueID32 id;
                     String<-1> name2;
                     Value<float> unk1;
