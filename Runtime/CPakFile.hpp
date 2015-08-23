@@ -16,12 +16,13 @@ class CPakFile : public CDvdFile
 public:
     struct SResInfo
     {
-        u32 compressed;
-        SObjectTag tag;
-        u32 size;
-        u32 offset;
+        FourCC x0_type;
+        u32 x4_offset;
+        u32 x8_size;
+        bool xb_compressed;
     };
 private:
+    bool x28_b24_ctFlag;
     enum EAsyncPhase
     {
         PakAsyncWarmup = 0,
@@ -34,7 +35,7 @@ private:
     std::vector<u32> x5c_depList;
     std::vector<std::pair<u32, SResInfo>> x6c_resList;
 public:
-    CPakFile(const std::string& filename);
+    CPakFile(const std::string& filename, bool flag);
     const std::vector<u32>& GetDepList() const {return x5c_depList;}
     u32 GetResIdByName(const char* name) const
     {

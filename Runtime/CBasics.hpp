@@ -6,14 +6,8 @@
 
 #include "RetroTypes.hpp"
 
-#include <Athena/IStreamReader.hpp>
-#include <Athena/IStreamWriter.hpp>
-
 namespace Retro
 {
-
-using CInputStream = Athena::io::IStreamReader;
-using COutputStream = Athena::io::IStreamWriter;
 
 class CBasics
 {

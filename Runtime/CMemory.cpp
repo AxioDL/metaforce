@@ -1,5 +1,6 @@
 #include "CMemory.hpp"
 #include "CGameAllocator.hpp"
+#include "CCallStack.hpp"
 #include <LogVisor/LogVisor.hpp>
 
 namespace Retro
@@ -46,7 +47,7 @@ void CMemory::Free(void* ptr)
     g_memoryAllocator->Free(ptr);
 }
 
-void* CMemory::Alloc(u32 sz, IAllocator::EHint hint, IAllocator::EScope scope,
+void* CMemory::Alloc(size_t sz, IAllocator::EHint hint, IAllocator::EScope scope,
                      IAllocator::EType type, const CCallStack& cs)
 {
     void* newPtr = g_memoryAllocator->Alloc(sz, hint, scope, type, cs);
@@ -68,4 +69,48 @@ CMemorySys::~CMemorySys()
 
 IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
+}
+
+void* operator new(std::size_t)
+{
+    extern void *bare_new_erroneously_called();
+    return bare_new_erroneously_called();
+}
+
+void* operator new(std::size_t sz,
+                   const char* funcName, const char* typeName)
+{
+    Retro::CCallStack cs(funcName, typeName);
+    return Retro::CMemory::Alloc(sz,
+                                 Retro::IAllocator::HintNone,
+                                 Retro::IAllocator::ScopeDefault,
+                                 Retro::IAllocator::TypePrimitive,
+                                 cs);
+}
+
+void operator delete(void* ptr) noexcept
+{
+    Retro::CMemory::Free(ptr);
+}
+
+void* operator new[](std::size_t)
+{
+    extern void *bare_new_array_erroneously_called();
+    return bare_new_array_erroneously_called();
+}
+
+void* operator new[](std::size_t sz,
+                     const char* funcName, const char* typeName)
+{
+    Retro::CCallStack cs(funcName, typeName);
+    return Retro::CMemory::Alloc(sz,
+                                 Retro::IAllocator::HintNone,
+                                 Retro::IAllocator::ScopeDefault,
+                                 Retro::IAllocator::TypeArray,
+                                 cs);
+}
+
+void operator delete[](void* ptr) noexcept
+{
+    Retro::CMemory::Free(ptr);
 }

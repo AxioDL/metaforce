@@ -14,7 +14,9 @@ public:
     {
     };
 private:
-    SGameMemInfo* x10_rootInfo;
+    SGameMemInfo* x10_rootInfo = nullptr;
+    TOutOfMemoryCallback x58_oomCb = nullptr;
+    void* x5c_oomCtx = nullptr;
     u32 xbc_fakeStaticOff = 0;
 public:
     SGameMemInfo* FindFreeBlock(u32);
@@ -27,15 +29,14 @@ public:
     void RemoveFreeEntryFromFreeList(SGameMemInfo*);
     void DumpAllocations() const;
     u32 GetLargestFreeChunk() const;
-    SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr)
-    {return reinterpret_cast<SGameMemInfo*>(reinterpret_cast<u8*>(ptr) - 32);}
+    SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr);
 
     bool Initialize(COsContext&);
     void Shutdown();
-    void* Alloc(u32, EHint, EScope, EType, const CCallStack&);
+    void* Alloc(size_t, EHint, EScope, EType, const CCallStack&);
     void Free(void*);
     void ReleaseAll();
-    void* AllocSecondary(u32, EHint, EScope, EType, const CCallStack&);
+    void* AllocSecondary(size_t, EHint, EScope, EType, const CCallStack&);
     void FreeSecondary(void*);
     void ReleaseAllSecondary();
     void SetOutOfMemoryCallback(const TOutOfMemoryCallback, void*);

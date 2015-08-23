@@ -20,12 +20,14 @@ class CDvdRequest;
 
 class CDvdFile
 {
+    friend class CResLoader;
+    std::string x18_name;
 public:
     CDvdFile(const char*);
     void UpdateFilePos(int);
     void CalcFileOffset(int, ESeekOrigin);
     static void internalCallback(s32, DVDFileInfo*);
-    bool FileExists(const char*);
+    static bool FileExists(const char*);
     void CloseFile();
     CDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int);
     void SyncSeekRead(void*, u32, ESeekOrigin, int);

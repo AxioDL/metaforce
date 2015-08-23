@@ -16,7 +16,7 @@ public:
     static void OffsetFakeStatics(int);
     static void SetOutOfMemoryCallback(const IAllocator::TOutOfMemoryCallback, void*);
     static void Free(void*);
-    static void* Alloc(u32, IAllocator::EHint, IAllocator::EScope, IAllocator::EType, const CCallStack&);
+    static void* Alloc(size_t, IAllocator::EHint, IAllocator::EScope, IAllocator::EType, const CCallStack&);
 };
 
 class CMemorySys
@@ -28,5 +28,13 @@ public:
 };
 
 }
+
+/* Custom new funcs */
+void* operator new(std::size_t sz, const char* funcName, const char* typeName);
+void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
+
+/* Macro to perform custom with debug strings */
+#define NEW(T) new (AT_PRETTY_FUNCTION, typeid(T).name()) T
+#define NEWA(T, N) new (AT_PRETTY_FUNCTION, typeid(T).name()) T[N]
 
 #endif // __RETRO_CMEMORY_HPP__

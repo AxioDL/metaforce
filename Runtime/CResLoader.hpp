@@ -5,8 +5,7 @@
 #include <string>
 #include "RetroTypes.hpp"
 #include "CPakFile.hpp"
-#include "CBasics.hpp"
-#include "CMemory.hpp"
+#include "IOStreams.hpp"
 
 namespace Retro
 {
@@ -22,140 +21,28 @@ class CResLoader
     u32 x4c_cachedResId = -1;
     const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
 public:
-    const std::vector<u32>& GetTagListForFile(const std::string&) const;
-    void AddPakFileAsync(const std::string&, bool);
-    void AddPakFile(const std::string&, bool);
-    CInputStream* LoadNewResourcePartSync(const SObjectTag&, int, int, char*);
-    void LoadMemResourceSync(const SObjectTag&, char*, int*);
-    CInputStream* LoadResourceFromMemorySync(const SObjectTag&, const void*);
-    CInputStream* LoadNewResourceSync(const SObjectTag& tag, void* buf)
-    {
-        FindResourceForLoad(tag);
-        if (!buf)
-        {
-
-        }
-    }
-
-    CDvdRequest* LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
-    {
-        return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
-                                                          OriginBegin, x50_cachedResInfo->offset + offset);
-    }
-
-    CDvdRequest* LoadResourceAsync(const SObjectTag& tag, void* buf)
-    {
-        return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->size),
-                                                          OriginBegin, x50_cachedResInfo->offset);
-    }
-
-    bool GetResourceCompression(const SObjectTag& tag)
-    {
-        if (FindResource(tag.id))
-            return x50_cachedResInfo->compressed;
-        return false;
-    }
-
-    u32 ResourceSize(const SObjectTag& tag)
-    {
-        if (FindResource(tag.id))
-            return x50_cachedResInfo->size;
-        return false;
-    }
-
-    bool ResourceExists(const SObjectTag& tag)
-    {
-        return FindResource(tag.id);
-    }
-
-    FourCC GetResourceTypeById(u32 id)
-    {
-        if (FindResource(id))
-            return x50_cachedResInfo->tag.type;
-        return false;
-    }
-
-    u32 GetResourceIdByName(const char* name) const
-    {
-        for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
-        {
-            u32 id = file->GetResIdByName(name);
-            if (id)
-                return id;
-        }
-        return 0;
-    }
-
-    bool AreAllPaksLoaded() const
-    {
-        return x44_pakLoadingCount == 0;
-    }
-
-    void AsyncIdlePakLoading()
-    {
-        for (auto it=x34_pakLoadingList.begin();
-             it != x34_pakLoadingList.end();
-             ++it)
-        {
-            (*it)->AsyncIdle();
-            if ((*it)->x2c_asyncLoadPhase == CPakFile::PakAsyncLoaded)
-            {
-                MoveToCorrectLoadedList(std::move(*it));
-                it = x34_pakLoadingList.erase(it);
-                --x44_pakLoadingCount;
-            }
-        }
-    }
-
-    bool FindResource(u32 id)
-    {
-        for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
-            if (CacheFromPak(*file, id))
-                return true;
-        return false;
-    }
-
-    CPakFile* FindResourceForLoad(u32 id)
-    {
-        for (std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
-            if (CacheFromPakForLoad(*file, id))
-                return file.get();
-        return nullptr;
-    }
-
-    CPakFile* FindResourceForLoad(const SObjectTag& tag)
-    {
-        return FindResourceForLoad(tag.id);
-    }
-
-    bool CacheFromPakForLoad(CPakFile& file, u32 id)
-    {
-        const CPakFile::SResInfo* info = file.GetResInfoForLoad(id);
-        if (info)
-        {
-            x4c_cachedResId = id;
-            x50_cachedResInfo = info;
-            return true;
-        }
-        return false;
-    }
-
-    bool CacheFromPak(const CPakFile& file, u32 id)
-    {
-        const CPakFile::SResInfo* info = file.GetResInfo(id);
-        if (info)
-        {
-            x4c_cachedResId = id;
-            x50_cachedResInfo = info;
-            return true;
-        }
-        return false;
-    }
-
-    void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file)
-    {
-        x1c_pakLoadedList.push_back(std::move(file));
-    }
+    const std::vector<u32>* GetTagListForFile(const std::string& name) const;
+    void AddPakFileAsync(const std::string& name, bool flag);
+    void AddPakFile(const std::string& name, bool flag);
+    CInputStream* LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);
+    void LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut);
+    CInputStream* LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);
+    CInputStream* LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
+    CDvdRequest* LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf);
+    CDvdRequest* LoadResourceAsync(const SObjectTag& tag, void* buf);
+    bool GetResourceCompression(const SObjectTag& tag);
+    u32 ResourceSize(const SObjectTag& tag);
+    bool ResourceExists(const SObjectTag& tag);
+    FourCC GetResourceTypeById(u32 id);
+    u32 GetResourceIdByName(const char* name) const;
+    bool AreAllPaksLoaded() const;
+    void AsyncIdlePakLoading();
+    bool FindResource(u32 id);
+    CPakFile* FindResourceForLoad(u32 id);
+    CPakFile* FindResourceForLoad(const SObjectTag& tag);
+    bool CacheFromPakForLoad(CPakFile& file, u32 id);
+    bool CacheFromPak(const CPakFile& file, u32 id);
+    void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file);
 };
 
 }

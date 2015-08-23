@@ -1,4 +1,5 @@
 #include "CGameState.hpp"
+#include "IOStreams.hpp"
 
 namespace Retro
 {

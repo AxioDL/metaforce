@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "CBasics.hpp"
 #include "CStaticInterference.hpp"
+#include "IOStreams.hpp"
 
 namespace Retro
 {

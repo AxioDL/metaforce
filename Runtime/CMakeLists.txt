@@ -60,6 +60,7 @@ add_library(RuntimeCommon
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
             CCallStack.hpp
+            IOStreams.hpp IOStreams.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp

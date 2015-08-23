@@ -14,12 +14,19 @@ public:
     virtual ~IAllocator() {}
     enum EHint
     {
+        HintNone = 0x0,
+        HintTopOfHeap = 0x1,
+        HintLarge = 0x2
     };
     enum EScope
     {
+        ScopeNone = 0,
+        ScopeDefault = 1
     };
     enum EType
     {
+        TypePrimitive = 0,
+        TypeArray = 1
     };
     struct SAllocInfo
     {
@@ -54,10 +61,10 @@ public:
 
     virtual bool Initialize(COsContext&)=0;
     virtual void Shutdown()=0;
-    virtual void* Alloc(u32, EHint, EScope, EType, const CCallStack&)=0;
+    virtual void* Alloc(size_t, EHint, EScope, EType, const CCallStack&)=0;
     virtual void Free(void*)=0;
     virtual void ReleaseAll()=0;
-    virtual void* AllocSecondary(u32, EHint, EScope, EType, const CCallStack&)=0;
+    virtual void* AllocSecondary(size_t, EHint, EScope, EType, const CCallStack&)=0;
     virtual void FreeSecondary(void*)=0;
     virtual void ReleaseAllSecondary()=0;
     virtual void SetOutOfMemoryCallback(const TOutOfMemoryCallback, void*)=0;
