@@ -6,6 +6,7 @@
 #include "RetroTypes.hpp"
 #include "CPakFile.hpp"
 #include "CBasics.hpp"
+#include "CMemory.hpp"
 
 namespace Retro
 {
@@ -27,7 +28,14 @@ public:
     CInputStream* LoadNewResourcePartSync(const SObjectTag&, int, int, char*);
     void LoadMemResourceSync(const SObjectTag&, char*, int*);
     CInputStream* LoadResourceFromMemorySync(const SObjectTag&, const void*);
-    CInputStream* LoadNewResourceSync(const SObjectTag&, char*);
+    CInputStream* LoadNewResourceSync(const SObjectTag& tag, void* buf)
+    {
+        FindResourceForLoad(tag);
+        if (!buf)
+        {
+
+        }
+    }
 
     CDvdRequest* LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
     {

@@ -12,7 +12,7 @@ if(WIN32)
 elseif(APPLE)
   list(APPEND PLAT_SRCS CMemoryCardSysMac.cpp)
 else()
-  list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
+  list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp CCallStackNix.cpp)
 endif()
 
 add_library(RuntimeCommon
@@ -59,6 +59,7 @@ add_library(RuntimeCommon
             CFactoryMgr.hpp CFactoryMgr.cpp
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
+            CCallStack.hpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
