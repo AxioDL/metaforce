@@ -111,7 +111,6 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
 
 void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> wconv;
     const Athena::io::YAMLNode* root = reader.getRootNode();
 
     /* Validate Pass */
@@ -151,7 +150,7 @@ void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
     {
         std::vector<std::wstring> strs;
         for (const auto& str : lang.second->m_seqChildren)
-            strs.emplace_back(wconv.from_bytes(str->m_scalarString));
+            strs.emplace_back(HECL::UTF8ToWide(str->m_scalarString));
         langs.emplace_back(FourCC(lang.first.c_str()), strs);
     }
 

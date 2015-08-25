@@ -71,10 +71,14 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 }
 
-void* operator new(std::size_t)
+void* operator new(std::size_t sz)
 {
-    extern void *bare_new_erroneously_called();
-    return bare_new_erroneously_called();
+    Retro::CCallStack cs("?\?(?\?)", "UnknownType");
+    return Retro::CMemory::Alloc(sz,
+                                 Retro::IAllocator::HintNone,
+                                 Retro::IAllocator::ScopeDefault,
+                                 Retro::IAllocator::TypePrimitive,
+                                 cs);
 }
 
 void* operator new(std::size_t sz,
@@ -93,10 +97,14 @@ void operator delete(void* ptr) noexcept
     Retro::CMemory::Free(ptr);
 }
 
-void* operator new[](std::size_t)
+void* operator new[](std::size_t sz)
 {
-    extern void *bare_new_array_erroneously_called();
-    return bare_new_array_erroneously_called();
+    Retro::CCallStack cs("?\?(?\?)", "UnknownType");
+    return Retro::CMemory::Alloc(sz,
+                                 Retro::IAllocator::HintNone,
+                                 Retro::IAllocator::ScopeDefault,
+                                 Retro::IAllocator::TypeArray,
+                                 cs);
 }
 
 void* operator new[](std::size_t sz,

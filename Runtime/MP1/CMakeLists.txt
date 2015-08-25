@@ -9,5 +9,6 @@ target_link_libraries(mp1
                       RuntimeCommon
                       DNAMP1
                       DNACommon
-                      Boo
+                      HECLDatabase HECLBlender HECLCommon AthenaCore NOD
+                      LogVisor AthenaLibYaml Boo png squish blowfish z lzo2 pthread
                       ${BOO_SYS_LIBS})

@@ -35,7 +35,7 @@ private:
     std::vector<u32> x5c_depList;
     std::vector<std::pair<u32, SResInfo>> x6c_resList;
 public:
-    CPakFile(const std::string& filename, bool flag);
+    CPakFile(const std::string& filename, bool flag) : CDvdFile(filename.c_str()) {}
     const std::vector<u32>& GetDepList() const {return x5c_depList;}
     u32 GetResIdByName(const char* name) const
     {
@@ -44,12 +44,12 @@ public:
                 return p.second.id;
         return 0;
     }
-    const SResInfo* GetResInfoForLoad(u32 id);
-    const SResInfo* GetResInfo(u32 id) const;
-    u32 GetFakeStaticSize() const;
-    void DataLoad();
-    void InitialHeaderLoad();
-    void Warmup();
+    const SResInfo* GetResInfoForLoad(u32 id) {}
+    const SResInfo* GetResInfo(u32 id) const {}
+    u32 GetFakeStaticSize() const {}
+    void DataLoad() {}
+    void InitialHeaderLoad() {}
+    void Warmup() {}
     void AsyncIdle()
     {
         if (x2c_asyncLoadPhase == PakAsyncLoaded)
