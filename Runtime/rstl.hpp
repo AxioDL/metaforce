@@ -77,6 +77,7 @@ class ncrc_ptr
     friend class rc_ptr<T>;
 public:
     ncrc_ptr(const rc_ptr<T>& other) : m_aux(other.m_aux) {}
+    T* get() const {return static_cast<T*>(m_aux->GetPtr());}
 };
 
 }

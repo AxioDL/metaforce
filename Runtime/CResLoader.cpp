@@ -20,7 +20,7 @@ void CResLoader::AddPakFileAsync(const std::string& name, bool flag)
     std::string namePak = name + ".pak";
     if (CDvdFile::FileExists(namePak.c_str()))
     {
-        x34_pakLoadingList.emplace_back(NEW(CPakFile)(namePak, flag));
+        x34_pakLoadingList.emplace_back(new CPakFile(namePak, flag));
         ++x44_pakLoadingCount;
     }
 }
@@ -46,7 +46,7 @@ CInputStream* CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, int off
                              cs);
     }
     file->SyncSeekRead(buf, length, OriginBegin, x50_cachedResInfo->x4_offset + offset);
-    return NEW(CMemoryInStream)((atUint8*)buf, length, !extBuf);
+    return new CMemoryInStream((atUint8*)buf, length, !extBuf);
 }
 
 void CResLoader::LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut)
@@ -67,11 +67,11 @@ void CResLoader::LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* 
 CInputStream* CResLoader::LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf)
 {
     FindResourceForLoad(tag);
-    CInputStream* newStrm = NEW(CMemoryInStream)((atUint8*)buf, x50_cachedResInfo->x8_size);
+    CInputStream* newStrm = new CMemoryInStream((atUint8*)buf, x50_cachedResInfo->x8_size);
     if (x50_cachedResInfo->xb_compressed)
     {
         newStrm->readUint32Big();
-        newStrm = NEW(CZipInputStream)(std::move(std::unique_ptr<CInputStream>(newStrm)));
+        newStrm = new CZipInputStream(std::move(std::unique_ptr<CInputStream>(newStrm)));
     }
     return newStrm;
 }
@@ -91,11 +91,11 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
                              cs);
     }
     file->SyncSeekRead(buf, resSz, OriginBegin, x50_cachedResInfo->x4_offset);
-    CInputStream* newStrm = NEW(CMemoryInStream)((atUint8*)buf, resSz, !extBuf);
+    CInputStream* newStrm = new CMemoryInStream((atUint8*)buf, resSz, !extBuf);
     if (x50_cachedResInfo->xb_compressed)
     {
         newStrm->readUint32Big();
-        newStrm = NEW(CZipInputStream)(std::move(std::unique_ptr<CInputStream>(newStrm)));
+        newStrm = new CZipInputStream(std::move(std::unique_ptr<CInputStream>(newStrm)));
     }
     return newStrm;
 }

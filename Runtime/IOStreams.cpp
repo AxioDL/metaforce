@@ -9,7 +9,7 @@ class CZipSupport
 public:
     static void* Alloc(void*, u32 c, u32 n)
     {
-        return NEWA(u8, c*n);
+        return new u8[c*n];
     }
     static void Free(void*, void* buf)
     {
@@ -18,7 +18,7 @@ public:
 };
 
 CZipInputStream::CZipInputStream(std::unique_ptr<CInputStream>&& strm)
-: x24_compBuf(NEWA(u8, 4096)), x28_strm(std::move(strm))
+: x24_compBuf(new u8[4096]), x28_strm(std::move(strm))
 {
     x30_zstrm.next_in = x24_compBuf.get();
     x30_zstrm.avail_in = 0;

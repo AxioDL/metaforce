@@ -20,21 +20,23 @@ class CIOWinManager
         IOWinPQNode(rstl::ncrc_ptr<CIOWin> iowin, int prio,
                     CIOWinManager::IOWinPQNode* next)
         : x0_iowin(iowin), x4_prio(prio), x8_next(next) {}
-        rstl::rc_ptr<CIOWin> GetIOWin() const {return rstl::rc_ptr<CIOWin>(x0_iowin);}
+        rstl::rc_ptr<CIOWin> ShareIOWin() const {return rstl::rc_ptr<CIOWin>(x0_iowin);}
+        CIOWin* GetIOWin() const {return x0_iowin.get();}
     };
-    IOWinPQNode* x0_rootDraw = nullptr;
-    IOWinPQNode* x4_rootPump = nullptr;
+    IOWinPQNode* x0_drawRoot = nullptr;
+    IOWinPQNode* x4_pumpRoot = nullptr;
     CArchitectureQueue x8_internalQueue;
 public:
     bool OnIOWinMessage(const CArchitectureMessage& msg);
     void Draw() const;
     bool DistributeOneMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void PumpMessages(CArchitectureQueue& queue);
-    rstl::rc_ptr<CIOWin> FindIOWin(const std::string& name);
-    void ChangeIOWinPriority(rstl::ncrc_ptr<CIOWin>, int pumpPrio, int drawPrio);
+    CIOWin* FindIOWin(const std::string& name);
+    rstl::rc_ptr<CIOWin> FindAndShareIOWin(const std::string& name);
+    void ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int drawPrio);
     void RemoveAllIOWins();
-    void RemoveIOWin(rstl::ncrc_ptr<CIOWin>);
-    void AddIOWin(rstl::ncrc_ptr<CIOWin>, int pumpPrio, int drawPrio);
+    void RemoveIOWin(CIOWin* toRemove);
+    void AddIOWin(rstl::ncrc_ptr<CIOWin> toAdd, int pumpPrio, int drawPrio);
 };
 
 

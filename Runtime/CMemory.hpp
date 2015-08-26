@@ -33,8 +33,4 @@ public:
 void* operator new(std::size_t sz, const char* funcName, const char* typeName);
 void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
 
-/* Macro to perform custom with debug strings */
-#define NEW(T) new (AT_PRETTY_FUNCTION, typeid(T).name()) T
-#define NEWA(T, N) new (AT_PRETTY_FUNCTION, typeid(T).name()) T[N]
-
 #endif // __RETRO_CMEMORY_HPP__
