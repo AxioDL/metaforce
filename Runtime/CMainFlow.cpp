@@ -13,12 +13,12 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     switch (state)
     {
     case StateGameLoad:
-        queue.PushMessage(std::move(MakeMsg::CreateCreateIOWin(TargetMainFlow, 10, 1000, new CMFGameLoader())));
+        queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 10, 1000, new CMFGameLoader())));
         break;
     default: break;
     }
 }
-bool CMainFlow::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
+CIOWin::EMessageReturn CMainFlow::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
     switch (msg.GetType())
     {
@@ -28,12 +28,12 @@ bool CMainFlow::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& q
     case MsgSetGameState:
     {
         CArchMsgParmInt32 state = MakeMsg::GetParmNewGameflowState(msg);
-        SetGameState(EClientFlowStates(state.m_parm), queue);
-        return true;
+        SetGameState(EClientFlowStates(state.x4_parm), queue);
+        return MsgRetExit;
     }
     default: break;
     }
-    return false;
+    return MsgRetNormal;
 }
 
 }

@@ -10,7 +10,7 @@ class CAudioStateWin : public CIOWin
 {
 public:
     CAudioStateWin() : CIOWin("CAudioStateWin") {}
-    virtual bool OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
+    virtual CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
     {
     }
 };

@@ -19,7 +19,7 @@ public:
     CMainFlow() : CIOWin("CMainFlow") {}
     void AdvanceGameState(CArchitectureQueue& queue);
     void SetGameState(EClientFlowStates state, CArchitectureQueue& queue);
-    bool OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
+    EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     bool GetIsContinueDraw() const {return false;}
     void Draw() const {}
 };

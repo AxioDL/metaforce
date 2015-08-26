@@ -2,6 +2,7 @@
 #define __RETRO_CIOWIN_HPP__
 
 #include <string>
+#include "rstl.hpp"
 
 namespace Retro
 {
@@ -10,15 +11,30 @@ class CArchitectureQueue;
 
 class CIOWin
 {
-    const char* m_name;
+    std::string m_name;
+    size_t m_nameHash;
 public:
+    enum EMessageReturn
+    {
+        MsgRetNormal = 0,
+        MsgRetExit = 1,
+        MsgRetRemoveIOWinAndExit = 2,
+        MsgRetRemoveIOWin = 3
+    };
     virtual ~CIOWin() {}
-    CIOWin(const char* name) : m_name(name) {}
-    virtual bool OnMessage(const CArchitectureMessage&, CArchitectureQueue&)=0;
+    CIOWin(const std::string& name) : m_name(name) {m_nameHash = std::hash<std::string>()(name);}
+    virtual EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&)=0;
     virtual bool GetIsContinueDraw() const {return true;}
     virtual void Draw() const {}
     virtual void PreDraw() const {}
+    const std::string& GetName() const {return m_name;}
+    size_t GetNameHash() const {return m_nameHash;}
 };
+
+static bool operator==(rstl::rc_ptr<CIOWin> a, rstl::rc_ptr<CIOWin> b)
+{
+    return a.get() == b.get();
+}
 
 }
 

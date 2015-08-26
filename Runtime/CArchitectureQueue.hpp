@@ -11,18 +11,18 @@ class CArchitectureQueue
 {
     std::list<CArchitectureMessage> m_list;
 public:
-    void PushMessage(CArchitectureMessage&& msg)
+    void Push(CArchitectureMessage&& msg)
     {
         m_list.push_back(std::move(msg));
     }
-    const CArchitectureMessage& PeekMessage() const
+    CArchitectureMessage Pop()
     {
-        return m_list.front();
-    }
-    void PopMessage()
-    {
+        CArchitectureMessage msg = std::move(m_list.front());
         m_list.pop_front();
+        return msg;
     }
+    void Clear() {m_list.clear();}
+    operator bool() {return m_list.size() != 0;}
 };
 
 }

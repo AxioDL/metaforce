@@ -10,7 +10,7 @@ class CMFGameLoader : public CIOWin
 {
 public:
     CMFGameLoader() : CIOWin("CMFGameLoader") {}
-    bool OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
+    EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Draw() const;
 };
 

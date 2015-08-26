@@ -1,9 +1,9 @@
 #ifndef __RETRO_CARCHITECTUREMESSAGE_HPP__
 #define __RETRO_CARCHITECTUREMESSAGE_HPP__
 
-#include <memory>
 #include "GCNTypes.hpp"
 #include "Input/CFinalInput.hpp"
+#include "rstl.hpp"
 
 namespace Retro
 {
@@ -11,14 +11,15 @@ class CIOWin;
 
 enum EArchMsgTarget
 {
-    TargetMainFlow = 0
+    TargetIOWinManager = 0
 };
 
 enum EArchMsgType
 {
-    MsgDeleteIOWin = 0,
+    MsgRemoveIOWin = 0,
     MsgCreateIOWin = 1,
     MsgChangeIOWinPriority = 2,
+    MsgRemoveAllIOWins = 3,
     MsgTimerTick = 4,
     MsgUserInput = 5,
     MsgSetGameState = 6,
@@ -35,17 +36,24 @@ struct IArchMsgParm
 
 struct CArchMsgParmInt32 : IArchMsgParm
 {
-    u32 m_parm;
-    CArchMsgParmInt32(u32 parm) : m_parm(parm) {}
+    u32 x4_parm;
+    CArchMsgParmInt32(u32 parm) : x4_parm(parm) {}
+};
+
+struct CArchMsgParmVoidPtr : IArchMsgParm
+{
+    void* x4_parm1;
+    CArchMsgParmVoidPtr(void* parm1)
+    : x4_parm1(parm1) {}
 };
 
 struct CArchMsgParmInt32Int32VoidPtr : IArchMsgParm
 {
-    u32 m_parm1;
-    u32 m_parm2;
-    const void* m_parm3;
-    CArchMsgParmInt32Int32VoidPtr(u32 parm1, u32 parm2, const void* parm3)
-    : m_parm1(parm1), m_parm2(parm2), m_parm3(parm3) {}
+    u32 x4_parm1;
+    u32 x8_parm2;
+    void* xc_parm3;
+    CArchMsgParmInt32Int32VoidPtr(u32 parm1, u32 parm2, void* parm3)
+    : x4_parm1(parm1), x8_parm2(parm2), xc_parm3(parm3) {}
 };
 
 struct CArchMsgParmNull : IArchMsgParm
@@ -54,37 +62,37 @@ struct CArchMsgParmNull : IArchMsgParm
 
 struct CArchMsgParmReal32 : IArchMsgParm
 {
-    float m_parm;
-    CArchMsgParmReal32(float parm) : m_parm(parm) {}
+    float x4_parm;
+    CArchMsgParmReal32(float parm) : x4_parm(parm) {}
 };
 
 struct CArchMsgParmUserInput : IArchMsgParm
 {
-    CFinalInput m_parm;
-    CArchMsgParmUserInput(const CFinalInput& parm) : m_parm(parm) {}
+    CFinalInput x4_parm;
+    CArchMsgParmUserInput(const CFinalInput& parm) : x4_parm(parm) {}
 };
 
 struct CArchMsgParmControllerStatus : IArchMsgParm
 {
-    u16 m_parm1;
-    bool m_parm2;
+    u16 x4_parm1;
+    bool x6_parm2;
     CArchMsgParmControllerStatus(u16 a, bool b)
-    : m_parm1(a), m_parm2(b) {}
+    : x4_parm1(a), x6_parm2(b) {}
 };
 
 class CArchitectureMessage
 {
-    EArchMsgTarget m_target;
-    EArchMsgType m_type;
-    std::unique_ptr<IArchMsgParm> m_parm;
+    EArchMsgTarget x0_target;
+    EArchMsgType x4_type;
+    rstl::rc_ptr<IArchMsgParm> x8_parm;
 public:
     CArchitectureMessage(EArchMsgTarget target, EArchMsgType type, IArchMsgParm* parm)
-    : m_target(target), m_type(type), m_parm(parm) {}
+    : x0_target(target), x4_type(type), x8_parm(parm) {}
 
-    EArchMsgTarget GetTarget() const {return m_target;}
-    EArchMsgType GetType() const {return m_type;}
+    EArchMsgTarget GetTarget() const {return x0_target;}
+    EArchMsgType GetType() const {return x4_type;}
     template <class T>
-    const T* GetParm() const {return dynamic_cast<T*>(m_parm.get());}
+    const T* GetParm() const {return dynamic_cast<T*>(x8_parm.get());}
 };
 
 class MakeMsg
@@ -126,13 +134,13 @@ public:
     {
         return *msg.GetParm<CArchMsgParmInt32Int32VoidPtr>();
     }
-    static CArchitectureMessage CreateCreateIOWin(EArchMsgTarget target, int pmin, int pmax, const CIOWin* iowin)
+    static CArchitectureMessage CreateCreateIOWin(EArchMsgTarget target, int pmin, int pmax, CIOWin* iowin)
     {
         return CArchitectureMessage(target, MsgCreateIOWin, new CArchMsgParmInt32Int32VoidPtr(pmin, pmax, iowin));
     }
-    static const CArchMsgParmInt32Int32VoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg)
+    static const CArchMsgParmVoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg)
     {
-        return *msg.GetParm<CArchMsgParmInt32Int32VoidPtr>();
+        return *msg.GetParm<CArchMsgParmVoidPtr>();
     }
 };
 

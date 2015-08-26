@@ -6,7 +6,7 @@
 namespace Retro
 {
 
-bool CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
+CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
     switch (msg.GetType())
     {
@@ -17,7 +17,7 @@ bool CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueu
     }
     default: break;
     }
-    return true;
+    return MsgRetExit;
 }
 
 void CMFGameLoader::Draw() const
