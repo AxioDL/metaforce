@@ -73,6 +73,7 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 void* operator new(std::size_t sz)
 {
+    return malloc(sz);
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::HintNone,
@@ -94,11 +95,15 @@ void* operator new(std::size_t sz,
 
 void operator delete(void* ptr) noexcept
 {
-    Retro::CMemory::Free(ptr);
+    if (*(u32*)(((u8*)ptr) - sizeof(Retro::CGameAllocator::SGameMemInfo)) == Retro::CGameAllocator::skSentinel)
+        Retro::CMemory::Free(ptr);
+    else
+        free(ptr);
 }
 
 void* operator new[](std::size_t sz)
 {
+    return malloc(sz);
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::HintNone,
@@ -120,5 +125,8 @@ void* operator new[](std::size_t sz,
 
 void operator delete[](void* ptr) noexcept
 {
-    Retro::CMemory::Free(ptr);
+    if (*(u32*)(((u8*)ptr) - sizeof(Retro::CGameAllocator::SGameMemInfo)) == Retro::CGameAllocator::skSentinel)
+        Retro::CMemory::Free(ptr);
+    else
+        free(ptr);
 }
