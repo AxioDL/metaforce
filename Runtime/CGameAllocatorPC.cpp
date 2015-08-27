@@ -136,7 +136,6 @@ void CGameAllocator::UpdateAllocDebugStats(u32, u32, u32)
 
 bool CGameAllocator::FreeNormalAllocation(void* ptr)
 {
-    return false;
     SGameMemInfo* memInfo = GetMemInfoFromBlockPtr(ptr);
     SGameMemInfo* next = memInfo->x14_next;
     if (next)
@@ -259,7 +258,6 @@ bool CGameAllocator::Initialize()
     AddFreeEntryToFreeList(xc_infoHead);
 
     Alloc(0x000d0000, HintNone, ScopeDefault, TypePrimitive, CCallStack(__FILE__, "Test"));
-
     return true;
 }
 

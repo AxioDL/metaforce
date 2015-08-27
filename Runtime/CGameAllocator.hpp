@@ -42,6 +42,7 @@ private:
     CMediumAllocPool*    x70_mediumAllocPool = nullptr;
     u32                  xbc_fakeStaticOff   = 0;
 public:
+    CGameAllocator();
     SGameMemInfo* FindFreeBlock(u32);
     SGameMemInfo* FindFreeBlockFromTopOfHeap(u32);
     u32 FixupAllocPtrs(SGameMemInfo*, u32, u32, EHint, const CCallStack&);
