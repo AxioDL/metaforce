@@ -23,21 +23,4 @@ CIOWin::EMessageReturn CMainFlowBase::OnMessage(const CArchitectureMessage& msg,
     return MsgRetNormal;
 }
 
-void CMainFlowBase::AdvanceGameState(CArchitectureQueue& queue)
-{
-    switch (x14_gameState)
-    {
-    case ClientStateFrontEnd:
-        SetGameState(ClientStateGameLoad, queue);
-        break;
-    case ClientStateUnspecified:
-    case ClientStateGameLoad:
-        SetGameState(ClientStateMoviePlay, queue);
-        break;
-    case ClientStateMoviePlay:
-        SetGameState(ClientStateFrontEnd, queue);
-        break;
-    }
-}
-
 }

@@ -21,7 +21,7 @@ protected:
 public:
     CMainFlowBase(const char* name) : CIOWin(name) {}
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
-    void AdvanceGameState(CArchitectureQueue& queue);
+    virtual void AdvanceGameState(CArchitectureQueue& queue)=0;
     virtual void SetGameState(EClientFlowStates state, CArchitectureQueue& queue)=0;
 };
 

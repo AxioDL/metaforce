@@ -12,7 +12,22 @@ namespace Retro
 namespace MP1
 {
 
-
+void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
+{
+    switch (x14_gameState)
+    {
+    case ClientStateFrontEnd:
+        SetGameState(ClientStateGameLoad, queue);
+        break;
+    case ClientStateUnspecified:
+    case ClientStateGameLoad:
+        SetGameState(ClientStateMoviePlay, queue);
+        break;
+    case ClientStateMoviePlay:
+        SetGameState(ClientStateFrontEnd, queue);
+        break;
+    }
+}
 
 void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
 {

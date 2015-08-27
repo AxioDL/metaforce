@@ -15,6 +15,7 @@ class CMainFlow : public CMainFlowBase
 {
 public:
     CMainFlow() : CMainFlowBase("CMainFlow") {}
+    void AdvanceGameState(CArchitectureQueue& queue);
     void SetGameState(EClientFlowStates state, CArchitectureQueue& queue);
     bool GetIsContinueDraw() const {return false;}
     void Draw() const {}
