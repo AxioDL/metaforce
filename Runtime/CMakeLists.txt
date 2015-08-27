@@ -17,13 +17,12 @@ endif()
 
 add_library(RuntimeCommon
             COsContext.hpp COsContextBoo.cpp
-            CMainFlow.hpp CMainFlow.cpp
             CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
             CBasics.hpp CBasicsPC.cpp
-            CIOWin.hpp CIOWin.cpp
+            CIOWin.hpp
             CIOWinManager.hpp CIOWinManager.cpp
             CStateManager.hpp CStateManager.cpp
             CGameState.hpp CGameState.cpp
@@ -46,8 +45,6 @@ add_library(RuntimeCommon
             IFactory.hpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             CObjectList.hpp
-            CMFGame.hpp CMFGame.cpp
-            CMainFlow.hpp CMainFlow.cpp
             CArchitectureMessage.hpp
             CArchitectureQueue.hpp CArchitectureQueue.cpp
             IObj.hpp
@@ -61,6 +58,12 @@ add_library(RuntimeCommon
             CStringExtras.hpp
             CCallStack.hpp
             IOStreams.hpp IOStreams.cpp
+            CMainFlowBase.hpp CMainFlowBase.cpp
+            CMFGameBase.hpp
+            CInGameTweakManagerBase.hpp
+            CPlayMovieBase.hpp
+            CMoviePlayer.hpp CMoviePlayer.cpp
+            CGameDebug.hpp CGameDebug.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp

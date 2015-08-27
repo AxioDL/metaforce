@@ -70,16 +70,16 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
     while (node)
     {
         CIOWin* iow = node->GetIOWin();
-        CIOWin::EMessageReturn mret = iow->OnMessage(msg, x8_internalQueue);
+        CIOWin::EMessageReturn mret = iow->OnMessage(msg, x8_localGatherQueue);
 
-        while (x8_internalQueue)
+        while (x8_localGatherQueue)
         {
-            CArchitectureMessage msg = x8_internalQueue.Pop();
+            CArchitectureMessage msg = x8_localGatherQueue.Pop();
             if (msg.GetTarget() == TargetIOWinManager)
             {
                 if (OnIOWinMessage(msg))
                 {
-                    x8_internalQueue.Clear();
+                    x8_localGatherQueue.Clear();
                     queue.Clear();
                     return true;
                 }
@@ -238,6 +238,7 @@ void CIOWinManager::RemoveAllIOWins()
         node = node->x8_next;
         delete delNode;
     }
+    x0_drawRoot = nullptr;
     node = x4_pumpRoot;
     while (node)
     {
@@ -245,6 +246,7 @@ void CIOWinManager::RemoveAllIOWins()
         node = node->x8_next;
         delete delNode;
     }
+    x4_pumpRoot = nullptr;
 }
 
 void CIOWinManager::RemoveIOWin(CIOWin* chIow)

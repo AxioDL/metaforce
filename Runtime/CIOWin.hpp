@@ -22,7 +22,7 @@ public:
         MsgRetRemoveIOWin = 3
     };
     virtual ~CIOWin() {}
-    CIOWin(const std::string& name) : m_name(name) {m_nameHash = std::hash<std::string>()(name);}
+    CIOWin(const char* name) : m_name(name) {m_nameHash = std::hash<std::string>()(m_name);}
     virtual EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&)=0;
     virtual bool GetIsContinueDraw() const {return true;}
     virtual void Draw() const {}

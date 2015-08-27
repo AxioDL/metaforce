@@ -1,9 +1,6 @@
 #include <memory>
 #include <boo/boo.hpp>
-#include "COsContext.hpp"
 #include "CBasics.hpp"
-#include "CTweaks.hpp"
-#include "CMemory.hpp"
 #include "CMemoryCardSys.hpp"
 #include "CResFactory.hpp"
 #include "CSimplePool.hpp"
@@ -25,6 +22,7 @@
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"
+#include "CMain.hpp"
 
 namespace Retro
 {
@@ -34,11 +32,12 @@ CSimplePool* g_SimplePool = nullptr;
 CCharacterFactoryBuilder* g_CharFactoryBuilder = nullptr;
 CAiFuncMap* g_AiFuncMap = nullptr;
 CGameState* g_GameState = nullptr;
-CInGameTweakManager* g_TweakManager = nullptr;
+CInGameTweakManagerBase* g_TweakManager = nullptr;
 CBooRenderer* g_Renderer = nullptr;
 
 namespace MP1
 {
+class CMain* g_main = nullptr;
 
 class CGameGlobalObjects
 {
@@ -109,46 +108,50 @@ public:
     }
 };
 
-class CMain : public COsContext
+CMain::CMain()
+: x6c_memSys(*this, CMemorySys::GetGameAllocator())
 {
-    CMemorySys m_memSys;
-    CTweaks m_tweaks;
-    bool m_finished = false;
-public:
-    CMain()
-    : m_memSys(*this, CMemorySys::GetGameAllocator())
+    OpenWindow("", 0, 0, 640, 480);
+    g_main = this;
+    xe4_gameplayResult = GameplayResultPlaying;
+}
+void CMain::RegisterResourceTweaks()
+{
+}
+void CMain::ResetGameState()
+{
+}
+void CMain::InitializeSubsystems()
+{
+    CElementGen::Initialize();
+    CAnimData::InitializeCache();
+    CDecalManager::Initialize();
+}
+void CMain::AddWorldPaks()
+{
+}
+void CMain::FillInAssetIDs()
+{
+}
+void CMain::LoadAudio()
+{
+}
+int CMain::RsMain(int argc, const char* argv[])
+{
+    TOneStatic<CGameGlobalObjects> globalObjs;
+    InitializeSubsystems();
+    globalObjs->PostInitialize(*this, x6c_memSys);
+    x70_tweaks.RegisterTweaks();
+    AddWorldPaks();
+    g_TweakManager->ReadFromMemoryCard("AudioTweaks");
+    FillInAssetIDs();
+    TOneStatic<CGameArchitectureSupport> archSupport(*this);
+    while (!xe8_finished)
     {
-        OpenWindow("", 0, 0, 640, 480);
+        xe8_finished = archSupport->Update();
     }
-    void InitializeSubsystems()
-    {
-        CElementGen::Initialize();
-        CAnimData::InitializeCache();
-        CDecalManager::Initialize();
-    }
-    void AddWorldPaks()
-    {
-    }
-    void FillInAssetIDs()
-    {
-    }
-    int RsMain(int argc, const char* argv[])
-    {
-        TOneStatic<CGameGlobalObjects> globalObjs;
-        InitializeSubsystems();
-        globalObjs->PostInitialize(*this, m_memSys);
-        m_tweaks.RegisterTweaks();
-        AddWorldPaks();
-        g_TweakManager->ReadFromMemoryCard("AudioTweaks");
-        FillInAssetIDs();
-        TOneStatic<CGameArchitectureSupport> archSupport(*this);
-        while (!m_finished)
-        {
-            m_finished = archSupport->Update();
-        }
-        return 0;
-    }
-};
+    return 0;
+}
 
 }
 }

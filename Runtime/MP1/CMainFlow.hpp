@@ -1,28 +1,26 @@
 #ifndef __RETRO_CMAINFLOW_HPP__
 #define __RETRO_CMAINFLOW_HPP__
 
-#include "CIOWin.hpp"
+#include "CMainFlowBase.hpp"
 
 namespace Retro
 {
 class CArchitectureMessage;
 class CArchitectureQueue;
 
-enum EClientFlowStates
+namespace MP1
 {
-    StateGameLoad = 13,
-};
 
-class CMainFlow : public CIOWin
+class CMainFlow : public CMainFlowBase
 {
 public:
-    CMainFlow() : CIOWin("CMainFlow") {}
-    void AdvanceGameState(CArchitectureQueue& queue);
+    CMainFlow() : CMainFlowBase("CMainFlow") {}
     void SetGameState(EClientFlowStates state, CArchitectureQueue& queue);
-    EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     bool GetIsContinueDraw() const {return false;}
     void Draw() const {}
 };
+
+}
 
 }
 

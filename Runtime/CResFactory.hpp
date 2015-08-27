@@ -25,6 +25,7 @@ private:
     std::unordered_map<SObjectTag, SLoadingData> m_loadList;
     void AddToLoadList(const SLoadingData& data) {m_loadList[data.tag] = data;}
 public:
+    CResLoader& GetLoader() {return x4_loader;}
     std::unique_ptr<IObj> Build(const SObjectTag&, const CVParamTransfer&);
     void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**);
     void CancelBuild(const SObjectTag&);

@@ -10,7 +10,7 @@ extern class CSimplePool* g_SimplePool;
 extern class CCharacterFactoryBuilder* g_CharFactoryBuilder;
 extern class CAiFuncMap* g_AiFuncMap;
 extern class CGameState* g_GameState;
-extern class CInGameTweakManager* g_TweakManager;
+extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 
 }

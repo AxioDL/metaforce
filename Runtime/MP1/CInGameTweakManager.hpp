@@ -1,20 +1,20 @@
 #ifndef __RETRO_CINGAMETWEAKMANAGER_HPP__
 #define __RETRO_CINGAMETWEAKMANAGER_HPP__
 
-#include <string>
+#include "CInGameTweakManagerBase.hpp"
 
 namespace Retro
 {
+namespace MP1
+{
 
-class CInGameTweakManager
+class CInGameTweakManager : public CInGameTweakManagerBase
 {
 public:
-    bool ReadFromMemoryCard(const std::string& name)
-    {
-        return true;
-    }
+
 };
 
+}
 }
 
 #endif // __RETRO_CINGAMETWEAKMANAGER_HPP__

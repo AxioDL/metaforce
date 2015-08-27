@@ -5,6 +5,8 @@
 
 namespace Retro
 {
+namespace MP1
+{
 
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
@@ -25,4 +27,5 @@ void CMFGameLoader::Draw() const
     g_GameState->WorldTransitionManager().Draw();
 }
 
+}
 }

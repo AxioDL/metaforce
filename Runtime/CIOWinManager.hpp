@@ -25,7 +25,7 @@ class CIOWinManager
     };
     IOWinPQNode* x0_drawRoot = nullptr;
     IOWinPQNode* x4_pumpRoot = nullptr;
-    CArchitectureQueue x8_internalQueue;
+    CArchitectureQueue x8_localGatherQueue;
 public:
     bool OnIOWinMessage(const CArchitectureMessage& msg);
     void Draw() const;
@@ -38,8 +38,6 @@ public:
     void RemoveIOWin(CIOWin* toRemove);
     void AddIOWin(rstl::ncrc_ptr<CIOWin> toAdd, int pumpPrio, int drawPrio);
 };
-
-
 
 }
 

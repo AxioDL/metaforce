@@ -6,6 +6,8 @@
 
 namespace Retro
 {
+namespace MP1
+{
 
 class CTweaks
 {
@@ -15,6 +17,7 @@ public:
     void RegisterResourceTweaks();
 };
 
+}
 }
 
 #endif // __RETRO_CTWEAKS_HPP__
