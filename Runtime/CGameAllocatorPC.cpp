@@ -14,14 +14,6 @@ const u32 CGameAllocator::skMaxBlockSize = (2 * 1024 * 1024);
 const char* CGameAllocator::skMemHead = "MemHead\0";
 const char* CGameAllocator::skMemTail = "MemTail\0";
 
-CGameAllocator::CGameAllocator()
-    : x8_infoHead(nullptr),
-      xc_infoTail(nullptr),
-      x60_smallAllocPool(nullptr),
-      x70_mediumAllocPool(nullptr)
-{
-}
-
 CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlock(u32 size)
 {
     return nullptr;
@@ -146,20 +138,20 @@ CGameAllocator::SGameMemInfo* CGameAllocator::GetMemInfoFromBlockPtr(void* ptr)
 bool CGameAllocator::Initialize()
 {
     x4_heapSize = (0x0116d280);
-    u8* heap = (u8*)_mm_malloc(x4_heapSize, sizeof(SGameMemInfo));
-    if (!heap)
+    x54_heap = (u8*)_mm_malloc(x4_heapSize, sizeof(SGameMemInfo));
+    if (!x54_heap)
     {
         AllocLog.report(LogVisor::FatalError, _S("Failed allocate memory, unable to continue!"));
         return false;
     }
 
-    x8_infoHead = (SGameMemInfo*)(heap);
+    x8_infoHead = (SGameMemInfo*)(x54_heap);
     x8_infoHead->x0_sentinel = skSentinel;
     x8_infoHead->x4_size = x4_heapSize;
     x8_infoHead->x8_fileAndLine = &skMemHead;
     x8_infoHead->xc_type = &skMemHead;
     x8_infoHead->x10_prev = nullptr;
-    x8_infoHead->x14_next = (SGameMemInfo*)(heap + x4_heapSize - sizeof(SGameMemInfo));
+    x8_infoHead->x14_next = (SGameMemInfo*)(((u8*)x54_heap) + x4_heapSize - sizeof(SGameMemInfo));
     x8_infoHead->x18_ctx = x8_infoHead->x14_next;
     memset(x8_infoHead->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
     xc_infoTail = x8_infoHead->x14_next;
@@ -181,8 +173,10 @@ bool CGameAllocator::Initialize()
 
 void CGameAllocator::Shutdown()
 {
-    if  (x8_infoHead)
-        _mm_free((void*)x8_infoHead);
+    ReleaseAll();
+    _mm_free((void*)x54_heap);
+    x54_heap = nullptr;
+    x4_heapSize = 0;
 }
 
 void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, const CCallStack& cs)
@@ -255,6 +249,8 @@ void CGameAllocator::ReleaseAll()
 
         node = node->x14_next;
     }
+
+    xc_infoTail = nullptr;
 }
 
 void* CGameAllocator::AllocSecondary(size_t size, EHint hint, EScope scope, EType type, const CCallStack& callstack)
@@ -269,7 +265,6 @@ void CGameAllocator::FreeSecondary(void* ptr)
 
 void CGameAllocator::ReleaseAllSecondary()
 {
-    ReleaseAll();
 }
 
 void CGameAllocator::SetOutOfMemoryCallback(const TOutOfMemoryCallback cb, void* ctx)
