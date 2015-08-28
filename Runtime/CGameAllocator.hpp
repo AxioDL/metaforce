@@ -31,17 +31,17 @@ public:
     };
 
 private:
-    u32           x4_heapSize;
-    SGameMemInfo* x8_infoHead = nullptr;
-    SGameMemInfo* xc_infoTail = nullptr;
-    SGameMemInfo* x10_bins[0x10] ={nullptr};
-    TOutOfMemoryCallback x58_oomCb = nullptr;
-    void* x5c_oomCtx = nullptr;
-    CSmallAllocPool*  x60_smallAllocPool;
-    CMediumAllocPool* x70_mediumAllocPool;
-    u32 xbc_fakeStaticOff = 0;
+    u32                  x4_heapSize         = 0;
+    SGameMemInfo*        x8_infoHead         = nullptr;
+    SGameMemInfo*        xc_infoTail         = nullptr;
+    SGameMemInfo*        x10_bins[0x10]      = {nullptr};
+    void*                x54_heap            = nullptr;
+    TOutOfMemoryCallback x58_oomCb           = nullptr;
+    void*                x5c_oomCtx          = nullptr;
+    CSmallAllocPool*     x60_smallAllocPool  = nullptr;
+    CMediumAllocPool*    x70_mediumAllocPool = nullptr;
+    u32                  xbc_fakeStaticOff   = 0;
 public:
-    CGameAllocator();
     SGameMemInfo* FindFreeBlock(u32);
     SGameMemInfo* FindFreeBlockFromTopOfHeap(u32);
     u32 FixupAllocPtrs(SGameMemInfo*, u32, u32, EHint, const CCallStack&);
