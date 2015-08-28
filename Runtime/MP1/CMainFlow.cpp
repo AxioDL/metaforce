@@ -16,15 +16,15 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
 {
     switch (x14_gameState)
     {
-    case ClientStateFrontEnd:
-        SetGameState(ClientStateGameLoad, queue);
+    case ClientFlowFrontEnd:
+        CMainFlow::SetGameState(ClientFlowGameLoad, queue);
         break;
-    case ClientStateUnspecified:
-    case ClientStateGameLoad:
-        SetGameState(ClientStateMoviePlay, queue);
+    case ClientFlowUnspecified:
+    case ClientFlowGameLoad:
+        CMainFlow::SetGameState(ClientFlowMoviePlay, queue);
         break;
-    case ClientStateMoviePlay:
-        SetGameState(ClientStateFrontEnd, queue);
+    case ClientFlowMoviePlay:
+        CMainFlow::SetGameState(ClientFlowFrontEnd, queue);
         break;
     }
 }
@@ -33,7 +33,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
 {
     switch (state)
     {
-    case ClientStateFrontEnd:
+    case ClientFlowFrontEnd:
     {
         if (g_main->GetGameplayResult() == GameplayResultNone)
         {
@@ -48,12 +48,12 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 12, 11, new CFrontEndUI(queue))));
         break;
     }
-    case ClientStateGameLoad:
+    case ClientFlowGameLoad:
     {
         queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 10, 1000, new CMFGameLoader())));
         break;
     }
-    case ClientStateMoviePlay:
+    case ClientFlowMoviePlay:
     {
         switch (g_main->GetGameplayResult())
         {

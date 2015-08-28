@@ -59,7 +59,7 @@ public:
     typedef bool(*TOutOfMemoryCallback)(void*, u32);
     typedef bool(*TAllocationVisitCallback)(const SAllocInfo&, void*);
 
-    virtual bool Initialize(COsContext&)=0;
+    virtual bool Initialize()=0;
     virtual void Shutdown()=0;
     virtual void* Alloc(size_t, EHint, EScope, EType, const CCallStack&)=0;
     virtual void Free(void*)=0;

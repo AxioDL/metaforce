@@ -4,14 +4,13 @@
 namespace Retro
 {
 class IObjectStore;
-class COsContext;
 class CMemorySys;
 class CResFactory;
 
 class CBooRenderer
 {
 public:
-    CBooRenderer(IObjectStore&, COsContext&, CMemorySys&, CResFactory&)
+    CBooRenderer(IObjectStore&, CMemorySys&, CResFactory&)
     {
     }
 };

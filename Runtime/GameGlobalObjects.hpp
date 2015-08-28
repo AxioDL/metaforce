@@ -13,6 +13,8 @@ extern class CGameState* g_GameState;
 extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 
+extern class ITweakPlayerControl* g_tweakPlayerControl;
+
 }
 
 #endif // __RETRO_GAMEGLOBALOBJECTS_HPP__

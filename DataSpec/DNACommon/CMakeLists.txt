@@ -8,4 +8,5 @@ add_library(DNACommon
             STRG.hpp STRG.cpp
             TXTR.hpp TXTR.cpp
             ANCS.hpp
-            ANIM.hpp ANIM.cpp)
+            ANIM.hpp ANIM.cpp
+            Tweaks/ITweakPlayerControl.hpp)

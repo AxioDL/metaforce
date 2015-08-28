@@ -17,7 +17,7 @@ public:
     virtual void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**)=0;
     virtual void CancelBuild(const SObjectTag&)=0;
     virtual bool CanBuild(const SObjectTag&)=0;
-    virtual u32 GetResourceIdByName(const char*) const=0;
+    virtual const SObjectTag* GetResourceIdByName(const char*) const=0;
 };
 
 }

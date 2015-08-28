@@ -8,10 +8,10 @@ namespace Retro
 
 enum EClientFlowStates
 {
-    ClientStateUnspecified = -1,
-    ClientStateFrontEnd = 7,
-    ClientStateGameLoad = 13,
-    ClientStateMoviePlay = 14
+    ClientFlowUnspecified = -1,
+    ClientFlowFrontEnd = 7,
+    ClientFlowGameLoad = 13,
+    ClientFlowMoviePlay = 14
 };
 
 class CMainFlowBase : public CIOWin

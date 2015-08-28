@@ -31,7 +31,7 @@ public:
     u32 GetLargestFreeChunk() const;
     SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr);
 
-    bool Initialize(COsContext&);
+    bool Initialize();
     void Shutdown();
     void* Alloc(size_t, EHint, EScope, EType, const CCallStack&);
     void Free(void*);

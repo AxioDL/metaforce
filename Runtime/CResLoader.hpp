@@ -34,7 +34,7 @@ public:
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
     FourCC GetResourceTypeById(u32 id);
-    u32 GetResourceIdByName(const char* name) const;
+    const SObjectTag* GetResourceIdByName(const char* name) const;
     bool AreAllPaksLoaded() const;
     void AsyncIdlePakLoading();
     bool FindResource(u32 id);

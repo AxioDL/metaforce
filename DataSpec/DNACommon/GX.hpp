@@ -1,13 +1,13 @@
 #ifndef _DNACOMMON_GX_HPP_
 #define _DNACOMMON_GX_HPP_
 
-#include <Athena/DNA.hpp>
+#include "DNACommon.hpp"
 
 namespace GX
 {
 
 /* RGBA8 structure (GXColor) */
-struct Color : Athena::io::DNA<Athena::BigEndian>
+struct Color : Retro::BigDNA
 {
     Value<atUint8> r;
     Value<atUint8> g;
@@ -30,7 +30,8 @@ enum AttrType
     INDEX16
 };
 
-enum TevColorArg {
+enum TevColorArg
+{
     CC_CPREV         = 0,                /*!< Use the color value from previous TEV stage */
     CC_APREV         = 1,                /*!< Use the alpha value from previous TEV stage */
     CC_C0            = 2,                /*!< Use the color value from the color/output register 0 */
@@ -49,7 +50,8 @@ enum TevColorArg {
     CC_ZERO          = 15                /*!< Use to pass zero value */
 };
 
-enum TevAlphaArg {
+enum TevAlphaArg
+{
     CA_APREV         = 0,                /*!< Use the alpha value from previous TEV stage */
     CA_A0            = 1,                /*!< Use the alpha value from the color/output register 0 */
     CA_A1            = 2,                /*!< Use the alpha value from the color/output register 1 */
@@ -132,7 +134,8 @@ enum TevKAlphaSel
     TEV_KASEL_K3_A = 0x1F
 };
 
-enum TevOp {
+enum TevOp
+{
     TEV_ADD              = 0,
     TEV_SUB              = 1,
     TEV_COMP_R8_GT       = 8,
@@ -147,20 +150,23 @@ enum TevOp {
     TEV_COMP_A8_EQ       = TEV_COMP_RGB8_EQ  // for alpha channel
 };
 
-enum TevBias {
+enum TevBias
+{
     TB_ZERO          = 0,
     TB_ADDHALF       = 1,
     TB_SUBHALF       = 2,
 };
 
-enum TevScale {
+enum TevScale
+{
     CS_SCALE_1       = 0,
     CS_SCALE_2       = 1,
     CS_SCALE_4       = 2,
     CS_DIVIDE_2      = 3
 };
 
-enum TevRegID {
+enum TevRegID
+{
     TEVPREV       = 0,
     TEVREG0       = 1,
     TEVREG1       = 2,

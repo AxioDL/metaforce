@@ -57,10 +57,10 @@ class CGameGlobalObjects
     {
     }
     static CBooRenderer*
-    AllocateRenderer(IObjectStore& store, COsContext& osctx,
+    AllocateRenderer(IObjectStore& store,
                      CMemorySys& memSys, CResFactory& resFactory)
     {
-        g_Renderer = new CBooRenderer(store, osctx, memSys, resFactory);
+        g_Renderer = new CBooRenderer(store, memSys, resFactory);
         return g_Renderer;
     }
 
@@ -77,11 +77,11 @@ public:
         g_TweakManager = &m_tweakManager;
     }
 
-    void PostInitialize(COsContext& osctx, CMemorySys& memSys)
+    void PostInitialize(CMemorySys& memSys)
     {
         AddPaksAndFactories();
         LoadStringTable();
-        m_renderer.reset(AllocateRenderer(m_simplePool, osctx, memSys, m_resFactory));
+        m_renderer.reset(AllocateRenderer(m_simplePool, memSys, m_resFactory));
     }
 };
 
@@ -97,7 +97,7 @@ class CGameArchitectureSupport
     CConsoleOutputWindow m_consoleWindow;
     CAudioStateWin m_audioStateWin;
 public:
-    CGameArchitectureSupport(COsContext& osctx)
+    CGameArchitectureSupport()
         : m_audioSys(0,0,0,0,0)
     {
     }
@@ -109,9 +109,8 @@ public:
 };
 
 CMain::CMain()
-: x6c_memSys(*this, CMemorySys::GetGameAllocator())
+: x6c_memSys(CMemorySys::GetGameAllocator())
 {
-    OpenWindow("", 0, 0, 640, 480);
     g_main = this;
     xe4_gameplayResult = GameplayResultPlaying;
 }
@@ -140,12 +139,12 @@ int CMain::RsMain(int argc, const char* argv[])
 {
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();
-    globalObjs->PostInitialize(*this, x6c_memSys);
+    globalObjs->PostInitialize(x6c_memSys);
     x70_tweaks.RegisterTweaks();
     AddWorldPaks();
     g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
-    TOneStatic<CGameArchitectureSupport> archSupport(*this);
+    TOneStatic<CGameArchitectureSupport> archSupport;
     while (!xe8_finished)
     {
         xe8_finished = archSupport->Update();
@@ -156,138 +155,11 @@ int CMain::RsMain(int argc, const char* argv[])
 }
 }
 
-struct WindowCallback : boo::IWindowCallback
-{
-
-    void mouseDown(const SWindowCoord& coord, EMouseButton button, EModifierKey mods)
-    {
-        fprintf(stderr, "Mouse Down %d (%f,%f)\n", button, coord.norm[0], coord.norm[1]);
-    }
-    void mouseUp(const SWindowCoord& coord, EMouseButton button, EModifierKey mods)
-    {
-        fprintf(stderr, "Mouse Up %d (%f,%f)\n", button, coord.norm[0], coord.norm[1]);
-    }
-    void mouseMove(const SWindowCoord& coord)
-    {
-        //fprintf(stderr, "Mouse Move (%f,%f)\n", coord.norm[0], coord.norm[1]);
-    }
-    void scroll(const SWindowCoord& coord, const SScrollDelta& scroll)
-    {
-        fprintf(stderr, "Mouse Scroll (%f,%f) (%f,%f)\n", coord.norm[0], coord.norm[1], scroll.delta[0], scroll.delta[1]);
-    }
-
-    void touchDown(const STouchCoord& coord, uintptr_t tid)
-    {
-        //fprintf(stderr, "Touch Down %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
-    }
-    void touchUp(const STouchCoord& coord, uintptr_t tid)
-    {
-        //fprintf(stderr, "Touch Up %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
-    }
-    void touchMove(const STouchCoord& coord, uintptr_t tid)
-    {
-        //fprintf(stderr, "Touch Move %16lX (%f,%f)\n", tid, coord.coord[0], coord.coord[1]);
-    }
-
-    void charKeyDown(unsigned long charCode, EModifierKey mods, bool isRepeat)
-    {
-
-    }
-    void charKeyUp(unsigned long charCode, EModifierKey mods)
-    {
-
-    }
-    void specialKeyDown(ESpecialKey key, EModifierKey mods, bool isRepeat)
-    {
-
-    }
-    void specialKeyUp(ESpecialKey key, EModifierKey mods)
-    {
-
-    }
-    void modKeyDown(EModifierKey mod, bool isRepeat)
-    {
-
-    }
-    void modKeyUp(EModifierKey mod)
-    {
-
-    }
-
-};
-
-struct DolphinSmashAdapterCallback : boo::IDolphinSmashAdapterCallback
-{
-    void controllerConnected(unsigned idx, boo::EDolphinControllerType)
-    {
-        printf("CONTROLLER %u CONNECTED\n", idx);
-    }
-    void controllerDisconnected(unsigned idx, boo::EDolphinControllerType)
-    {
-        printf("CONTROLLER %u DISCONNECTED\n", idx);
-    }
-    void controllerUpdate(unsigned idx, boo::EDolphinControllerType,
-                          const boo::DolphinControllerState& state)
-    {
-        printf("CONTROLLER %u UPDATE %d %d\n", idx, state.m_leftStick[0], state.m_leftStick[1]);
-    }
-};
-
-class ApplicationDeviceFinder : public boo::DeviceFinder
-{
-    std::unique_ptr<boo::DolphinSmashAdapter> smashAdapter = NULL;
-    DolphinSmashAdapterCallback m_cb;
-public:
-    ApplicationDeviceFinder()
-    : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)})
-    {}
-    void deviceConnected(boo::DeviceToken& tok)
-    {
-        if (!smashAdapter)
-        {
-            smashAdapter.reset(dynamic_cast<boo::DolphinSmashAdapter*>(tok.openAndGetDevice()));
-            smashAdapter->setCallback(&m_cb);
-            smashAdapter->startRumble(0);
-        }
-    }
-    void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device)
-    {
-        if (smashAdapter.get() == device)
-            smashAdapter.reset(nullptr);
-    }
-};
-
-struct ApplicationCallback : boo::IApplicationCallback
-{
-    boo::IWindow* mainWindow = NULL;
-    ApplicationDeviceFinder devFinder;
-    WindowCallback windowCallback;
-    void appLaunched(boo::IApplication* app)
-    {
-        mainWindow = app->newWindow("YAY!");
-        mainWindow->setCallback(&windowCallback);
-        mainWindow->showWindow();
-        devFinder.startScanning();
-    }
-    void appQuitting(boo::IApplication*)
-    {
-        delete mainWindow;
-    }
-    void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths)
-    {
-        fprintf(stderr, "OPENING: ");
-        for (const std::string& path : paths)
-            fprintf(stderr, "%s ", path.c_str());
-        fprintf(stderr, "\n");
-    }
-};
-
 int main(int argc, const char* argv[])
 {
-    Retro::TOneStatic<ApplicationCallback> appCB;
-    std::unique_ptr<boo::IApplication> app =
-        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *appCB,
-                                  "mp1", "MP1", argc, argv);
     Retro::TOneStatic<Retro::MP1::CMain> main;
+    std::unique_ptr<boo::IApplication> app =
+        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *main,
+                                  "mp1", "MP1", argc, argv);
     return main->RsMain(argc, argv);
 }

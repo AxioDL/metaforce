@@ -16,7 +16,6 @@ else()
 endif()
 
 add_library(RuntimeCommon
-            COsContext.hpp COsContextBoo.cpp
             CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp

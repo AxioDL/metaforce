@@ -30,7 +30,7 @@ public:
     void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**);
     void CancelBuild(const SObjectTag&);
     bool CanBuild(const SObjectTag& tag) {return x4_loader.ResourceExists(tag);}
-    u32 GetResourceIdByName(const char* name) const {return x4_loader.GetResourceIdByName(name);}
+    const SObjectTag* GetResourceIdByName(const char* name) const {return x4_loader.GetResourceIdByName(name);}
 
     std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const
     {

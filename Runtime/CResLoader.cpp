@@ -138,15 +138,15 @@ FourCC CResLoader::GetResourceTypeById(u32 id)
     return false;
 }
 
-u32 CResLoader::GetResourceIdByName(const char* name) const
+const SObjectTag* CResLoader::GetResourceIdByName(const char* name) const
 {
     for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
     {
-        u32 id = file->GetResIdByName(name);
+        const SObjectTag* id = file->GetResIdByName(name);
         if (id)
             return id;
     }
-    return 0;
+    return nullptr;
 }
 
 bool CResLoader::AreAllPaksLoaded() const

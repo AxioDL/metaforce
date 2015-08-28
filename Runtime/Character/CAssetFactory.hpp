@@ -12,7 +12,7 @@ public:
     void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**) {}
     void CancelBuild(const SObjectTag&) {}
     bool CanBuild(const SObjectTag&) {}
-    u32 GetResourceIdByName(const char*) const {}
+    const SObjectTag* GetResourceIdByName(const char*) const {}
 };
 }
 

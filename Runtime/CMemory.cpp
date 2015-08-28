@@ -12,9 +12,9 @@ static CGameAllocator g_gameAllocator;
 static IAllocator* g_memoryAllocator = &g_gameAllocator;
 static bool g_memoryAllocatorReady = false;
 
-void CMemory::Startup(COsContext& cos)
+void CMemory::Startup()
 {
-    g_memoryAllocatorReady = g_memoryAllocator->Initialize(cos);
+    g_memoryAllocatorReady = g_memoryAllocator->Initialize();
 }
 
 void CMemory::Shutdown()
@@ -23,12 +23,12 @@ void CMemory::Shutdown()
     g_memoryAllocatorReady = false;
 }
 
-void CMemory::SetAllocator(COsContext& cos, IAllocator& alloc)
+void CMemory::SetAllocator(IAllocator& alloc)
 {
     if (&alloc != g_memoryAllocator)
     {
         g_memoryAllocator = &alloc;
-        g_memoryAllocator->Initialize(cos);
+        g_memoryAllocator->Initialize();
     }
 }
 
@@ -56,10 +56,10 @@ void* CMemory::Alloc(size_t sz, IAllocator::EHint hint, IAllocator::EScope scope
     return newPtr;
 }
 
-CMemorySys::CMemorySys(COsContext& cos, IAllocator& alloc)
+CMemorySys::CMemorySys(IAllocator& alloc)
 {
-    CMemory::Startup(cos);
-    CMemory::SetAllocator(cos, alloc);
+    CMemory::Startup();
+    CMemory::SetAllocator(alloc);
 }
 
 CMemorySys::~CMemorySys()

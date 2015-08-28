@@ -10,9 +10,9 @@ class COsContext;
 class CMemory
 {
 public:
-    static void Startup(COsContext&);
+    static void Startup();
     static void Shutdown();
-    static void SetAllocator(COsContext&, IAllocator&);
+    static void SetAllocator(IAllocator&);
     static void OffsetFakeStatics(int);
     static void SetOutOfMemoryCallback(const IAllocator::TOutOfMemoryCallback, void*);
     static void Free(void*);
@@ -22,7 +22,7 @@ public:
 class CMemorySys
 {
 public:
-    CMemorySys(COsContext&, IAllocator&);
+    CMemorySys(IAllocator&);
     ~CMemorySys();
     static IAllocator& GetGameAllocator();
 };

@@ -38,7 +38,7 @@ CGameAllocator::SGameMemInfo* CGameAllocator::GetMemInfoFromBlockPtr(void* ptr)
     return reinterpret_cast<SGameMemInfo*>(reinterpret_cast<u8*>(ptr) - 32);
 }
 
-bool CGameAllocator::Initialize(COsContext&)
+bool CGameAllocator::Initialize()
 {
 }
 void CGameAllocator::Shutdown()
