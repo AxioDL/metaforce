@@ -24,6 +24,8 @@
 #include "CArchitectureQueue.hpp"
 #include "CMain.hpp"
 
+#include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
+
 namespace Retro
 {
 CMemoryCardSys* g_MemoryCardSys = nullptr;
@@ -98,7 +100,9 @@ class CGameArchitectureSupport
     CAudioStateWin m_audioStateWin;
 public:
     CGameArchitectureSupport()
-        : m_audioSys(0,0,0,0,0)
+        : m_audioSys(0,0,0,0,0),
+          m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
+                           g_tweakPlayer->GetRightLogicalThreshold())
     {
     }
     bool Update()

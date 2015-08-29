@@ -11,6 +11,7 @@ add_executable(mp1
                main.cpp)
 target_link_libraries(mp1
                       RuntimeCommonCharacter
+                      RuntimeCommonInput
                       RuntimeCommon
                       DNAMP1
                       DNACommon

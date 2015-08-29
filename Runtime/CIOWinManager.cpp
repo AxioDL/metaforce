@@ -1,5 +1,6 @@
 #include "CIOWinManager.hpp"
 #include "CArchitectureMessage.hpp"
+#include "CIOWin.hpp"
 
 namespace Retro
 {

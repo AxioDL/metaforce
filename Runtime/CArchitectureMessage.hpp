@@ -11,7 +11,8 @@ class CIOWin;
 
 enum EArchMsgTarget
 {
-    TargetIOWinManager = 0
+    TargetIOWinManager = 0,
+    TargetGame = 1
 };
 
 enum EArchMsgType

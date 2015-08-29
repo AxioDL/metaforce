@@ -2,6 +2,8 @@
 #define __RETRO_CFINALINPUT_HPP__
 
 #include "../RetroTypes.hpp"
+#include "CKeyboardMouseController.hpp"
+#include <boo/inputdev/DolphinSmashAdapter.hpp>
 
 namespace Retro
 {
@@ -16,12 +18,23 @@ class CFinalInput
     float x14_anaRightY;
     float x18_anaLeftTrigger;
     float x1c_anaRightTrigger;
-    bool x20_enableAnaLeftXP;
-    bool x21_enableAnaLeftYP;
-    bool x22_enableAnaRightXP;
-    bool x23_enableAnaRightYP;
-    float x24_anaLeftTriggerP;
-    float x28_anaRightTriggerP;
+
+    /* These were originally per-axis bools, requiring two logical tests
+     * at read-time; now they're logical cardinal-direction states
+     * (negative values indicated) */
+    bool x20_enableAnaLeftXP:1;
+    bool x20_enableAnaLeftNegXP:1;
+    bool x21_enableAnaLeftYP:1;
+    bool x21_enableAnaLeftNegYP:1;
+    bool x22_enableAnaRightXP:1;
+    bool x22_enableAnaRightNegXP:1;
+    bool x23_enableAnaRightYP:1;
+    bool x23_enableAnaRightNegYP:1;
+
+    /* These were originally redundantly-compared floats;
+     * now the logical state is stored directly */
+    bool x24_anaLeftTriggerP:1;
+    bool x28_anaRightTriggerP:1;
 
     bool x2c_b24_A:1;
     bool x2c_b25_B:1;
@@ -50,6 +63,16 @@ class CFinalInput
     bool x2e_b31_PStart:1;
 
 public:
+    CFinalInput();
+    CFinalInput(int cIdx, float dt,
+                const boo::DolphinControllerState& data,
+                const CFinalInput& prevInput,
+                float leftDiv, float rightDiv);
+    CFinalInput(int cIdx, float dt,
+                const CKeyboardMouseControllerData& data,
+                const CFinalInput& prevInput);
+    CFinalInput& operator|=(const CFinalInput& other);
+
     bool PStart() const {return x2e_b31_PStart;}
     bool PR() const {return x2e_b26_PR;}
     bool PL() const {return x2e_b25_PL;}
@@ -62,16 +85,16 @@ public:
     bool PDPLeft() const {return x2e_b30_PDPLeft;}
     bool PDPDown() const {return x2e_b29_PDPDown;}
     bool PDPUp() const {return x2e_b27_PDPUp;}
-    bool PRTrigger() const {return x28_anaRightTriggerP > 0.050000001;}
-    bool PLTrigger() const {return x24_anaLeftTriggerP > 0.050000001;}
-    bool PRARight() const {return x22_enableAnaRightXP && x10_anaRightX > 0.69999999;}
-    bool PRALeft() const {return x22_enableAnaRightXP && x10_anaRightX < -0.69999999;}
-    bool PRADown() const {return x23_enableAnaRightYP && x14_anaRightY < -0.69999999;}
-    bool PRAUp() const {return x23_enableAnaRightYP && x14_anaRightY > 0.69999999;}
-    bool PLARight() const {return x20_enableAnaLeftXP && x8_anaLeftX > 0.69999999;}
-    bool PLALeft() const {return x20_enableAnaLeftXP && x8_anaLeftX < -0.69999999;}
-    bool PLADown() const {return x21_enableAnaLeftYP && xc_anaLeftY < -0.69999999;}
-    bool PLAUp() const {return x21_enableAnaLeftYP && xc_anaLeftY > 0.69999999;}
+    bool PRTrigger() const {return x28_anaRightTriggerP;}
+    bool PLTrigger() const {return x24_anaLeftTriggerP;}
+    bool PRARight() const {return x22_enableAnaRightXP;}
+    bool PRALeft() const {return x22_enableAnaRightNegXP;}
+    bool PRADown() const {return x23_enableAnaRightNegYP;}
+    bool PRAUp() const {return x23_enableAnaRightYP;}
+    bool PLARight() const {return x20_enableAnaLeftXP;}
+    bool PLALeft() const {return x20_enableAnaLeftNegXP;}
+    bool PLADown() const {return x21_enableAnaLeftNegYP;}
+    bool PLAUp() const {return x21_enableAnaLeftYP;}
     bool DStart() const {return x2d_b27_Start;}
     bool DR() const {return x2c_b30_R;}
     bool DL() const {return x2c_b29_L;}

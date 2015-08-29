@@ -1,25 +1,22 @@
 #ifndef __RETRO_ICONTROLLER_HPP__
 #define __RETRO_ICONTROLLER_HPP__
 
+#include "../RetroTypes.hpp"
+
 namespace Retro
 {
 
 class IController
 {
 public:
-    class CControllerAxis
+    enum EMotorState
     {
+        MotorStop = 0,
+        MotorRumble = 1,
+        MotorStopHard = 2
     };
-    class CControllerButton
-    {
-    };
-    class IControllerGamepadData
-    {
-    };
-
-    void Poll();
-    u32 GetDeviceCount();
-
+    virtual void Poll()=0;
+    virtual void SetMotorState(EMotorState state)=0;
 };
 
 }

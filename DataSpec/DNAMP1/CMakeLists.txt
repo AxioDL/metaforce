@@ -10,6 +10,7 @@ make_dnalist(liblist
              CMDLMaterials
              MREA
              Tweaks/CTweakParticle
+             Tweaks/CTweakPlayer
              Tweaks/CTweakPlayerControl)
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
