@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <system_error>
 #include <string>
 
@@ -182,11 +183,11 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
 
         wchar_t cmdLine[2048];
         if (installAttempt == 1)
-            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %d %d \"%s\"",
-                blenderShellPath.c_str(), int(writehandle), int(readhandle), blenderAddonPath.c_str());
+            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " \"%s\"",
+                       blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle), blenderAddonPath.c_str());
         else
-            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %d %d",
-                       blenderShellPath.c_str(), int(writehandle), int(readhandle));
+            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR,
+                       blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle));
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
         HANDLE nulHandle = NULL;

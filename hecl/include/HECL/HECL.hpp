@@ -18,6 +18,7 @@
 #include "winsupport.hpp"
 #endif
 
+#include <inttypes.h>
 #include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
