@@ -158,6 +158,7 @@ int CMain::RsMain(int argc, const boo::SystemChar* argv[])
     {
         xe8_b24_finished = archSupport->Update();
     }
+
     return 0;
 }
 

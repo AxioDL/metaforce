@@ -26,6 +26,7 @@ static const SObjectTag& IDFromFactory(CResFactory& factory, const char* name)
 
 void CTweaks::RegisterTweaks()
 {
+    return;
     CResFactory& factory = *g_ResFactory;
     CResLoader& loader = factory.GetLoader();
     std::unique_ptr<CInputStream> strm;
