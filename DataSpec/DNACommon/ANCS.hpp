@@ -108,7 +108,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-            os.linkBlend(cmdlPath.getAbsolutePath(), pakRouter.getBestEntryName(*cmdlE), true);
+            os.linkBlend(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE), true);
 
             /* Attach CMDL to CINF */
             os << "if obj.name not in bpy.context.scene.objects:\n"

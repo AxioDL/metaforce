@@ -135,7 +135,7 @@ FourCC CResLoader::GetResourceTypeById(u32 id)
 {
     if (FindResource(id))
         return x50_cachedResInfo->x0_type;
-    return false;
+    return FourCC();
 }
 
 const SObjectTag* CResLoader::GetResourceIdByName(const char* name) const

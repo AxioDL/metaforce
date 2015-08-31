@@ -1,3 +1,8 @@
+#if _WIN32
+#include <objbase.h>
+#endif
+
+#include <clocale>
 #include <memory>
 #include <boo/boo.hpp>
 #include "CBasics.hpp"
@@ -139,7 +144,7 @@ void CMain::FillInAssetIDs()
 void CMain::LoadAudio()
 {
 }
-int CMain::RsMain(int argc, const char* argv[])
+int CMain::RsMain(int argc, const boo::SystemChar* argv[])
 {
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();
@@ -159,11 +164,21 @@ int CMain::RsMain(int argc, const char* argv[])
 }
 }
 
+#ifdef _WIN32
+int wmain(int argc, const wchar_t* argv[])
+#else
 int main(int argc, const char* argv[])
+#endif
 {
+#if _WIN32
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+#else
+    std::setlocale(LC_ALL, "en-US.UTF-8");
+#endif
+    
     Retro::TOneStatic<Retro::MP1::CMain> main;
     std::unique_ptr<boo::IApplication> app =
         boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *main,
-                                  "mp1", "MP1", argc, argv);
+                                  _S("mp1"), _S("MP1"), argc, argv);
     return main->RsMain(argc, argv);
 }

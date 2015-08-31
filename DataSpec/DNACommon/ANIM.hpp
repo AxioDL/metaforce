@@ -1,7 +1,6 @@
 #ifndef _DNACOMMON_ANIMBITSTREAM_HPP_
 #define _DNACOMMON_ANIMBITSTREAM_HPP_
 
-#include <math.h>
 #include "DNACommon.hpp"
 
 namespace Retro

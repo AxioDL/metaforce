@@ -13,8 +13,8 @@ extern class CGameState* g_GameState;
 extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 
-extern class ITweakPlayer* g_tweakPlayer;
-extern class ITweakPlayerControl* g_tweakPlayerControl;
+extern struct ITweakPlayer* g_tweakPlayer;
+extern struct ITweakPlayerControl* g_tweakPlayerControl;
 
 }
 
