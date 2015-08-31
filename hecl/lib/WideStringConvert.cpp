@@ -1,3 +1,4 @@
+#include <utf8proc.h>
 #include "HECL/HECL.hpp"
 
 namespace HECL
@@ -5,45 +6,40 @@ namespace HECL
 
 std::string WideToUTF8(const std::wstring& src)
 {
-#if _WIN32
-    int len = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.size(), nullptr, 0, nullptr, nullptr);
-    std::string retval(len, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.size(), &retval[0], len, nullptr, nullptr);
-    return retval;
-#else
     std::string retval;
     retval.reserve(src.length());
-    std::mbstate_t state = {};
     for (wchar_t ch : src)
     {
-        char mb[MB_LEN_MAX];
-        int c = std::wcrtomb(mb, ch, &state);
-        retval.append(mb, c);
+        utf8proc_uint8_t mb[4];
+        utf8proc_ssize_t c = utf8proc_encode_char(utf8proc_int32_t(ch), mb);
+        if (c < 0)
+        {
+            LogModule.report(LogVisor::Warning, "invalid UTF-8 character while encoding");
+            return retval;
+        }
+        retval.append(reinterpret_cast<char*>(mb), c);
     }
     return retval;
-#endif
 }
 
 std::wstring UTF8ToWide(const std::string& src)
 {
-#if _WIN32
-    int len = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.size(), nullptr, 0);
-    std::wstring retval(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.size(), &retval[0], len);
-    return retval;
-#else
     std::wstring retval;
     retval.reserve(src.length());
-    const char* buf = src.c_str();
-    std::mbstate_t state = {};
+    const utf8proc_uint8_t* buf = reinterpret_cast<const utf8proc_uint8_t*>(src.c_str());
     while (*buf)
     {
-        wchar_t wc;
-        buf += std::mbrtowc(&wc, buf, MB_LEN_MAX, &state);
-        retval += wc;
+        utf8proc_int32_t wc;
+        utf8proc_ssize_t len = utf8proc_iterate(buf, -1, &wc);
+        if (len < 0)
+        {
+            LogModule.report(LogVisor::Warning, "invalid UTF-8 character while decoding");
+            return retval;
+        }
+        buf += len;
+        retval += wchar_t(wc);
     }
     return retval;
-#endif
 }
 
 }
