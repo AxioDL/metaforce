@@ -1,7 +1,3 @@
-if(WIN32)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCLUDE:HECLDataSpecs")
-endif()
-
 add_executable(hecl main.cpp
     ToolBase.hpp
     ToolPackage.hpp
@@ -24,8 +20,12 @@ list(APPEND DATA_SPEC_LIBS
      DNAMP1
      DNACommon)
 
+if(NOT WIN32)
+  list(APPEND PLAT_LIBS pthread)
+endif()
+
 target_link_libraries(hecl
     ${DATA_SPEC_LIBS}
     HECLDatabase HECLBlender HECLCommon AthenaCore NOD
-    LogVisor AthenaLibYaml png squish blowfish z lzo2 pthread
+    LogVisor AthenaLibYaml png squish blowfish z lzo2 ${PLAT_LIBS}
 )

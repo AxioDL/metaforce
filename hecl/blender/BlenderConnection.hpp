@@ -2,7 +2,9 @@
 #define BLENDERCONNECTION_HPP
 
 #if _WIN32
-#define _WIN32_LEAN_AND_MEAN 1
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -23,17 +25,15 @@ extern class BlenderConnection* SharedBlenderConnection;
 
 class BlenderConnection
 {
-    bool m_lock;
+    bool m_lock = false;
 #if _WIN32
     HANDLE m_blenderProc;
-    HANDLE m_readpipe[2];
-    HANDLE m_writepipe[2];
 #else
     pid_t m_blenderProc;
+#endif
     int m_readpipe[2];
     int m_writepipe[2];
-#endif
-    std::string m_loadedBlend;
+    SystemString m_loadedBlend;
     size_t _readLine(char* buf, size_t bufSz);
     size_t _writeLine(const char* buf);
     size_t _readBuf(char* buf, size_t len);
@@ -75,11 +75,12 @@ public:
             {
                 if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
                     BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream writing");
-                if (ch != traits_type::eof() && ch != '\n')
+                if (ch != traits_type::eof() && ch != '\n' && ch != '\0')
                 {
                     m_lineBuf += char_type(ch);
                     return ch;
                 }
+                //printf("FLUSHING %s\n", m_lineBuf.c_str());
                 m_parent.m_parent->_writeLine(m_lineBuf.c_str());
                 char readBuf[16];
                 m_parent.m_parent->_readLine(readBuf, 16);
@@ -109,7 +110,8 @@ public:
     public:
         PyOutStream(const PyOutStream& other) = delete;
         PyOutStream(PyOutStream&& other)
-        : m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
+        : m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf)),
+          std::ostream(&m_sbuf)
         {other.m_parent = nullptr;}
         ~PyOutStream() {close();}
         void close()
@@ -131,13 +133,19 @@ public:
             va_list ap;
             va_start(ap, fmt);
             char* result = nullptr;
+#ifdef _WIN32
+            int length = _vscprintf(fmt, ap);
+            result = (char*)malloc(length);
+            vsnprintf(result, length, fmt, ap);
+#else
             int length = vasprintf(&result, fmt, ap);
+#endif
+            va_end(ap);
             if (length > 0)
                 this->write(result, length);
             free(result);
-            va_end(ap);
         }
-        void linkBlend(const SystemString& target, const std::string& objName, bool link=true);
+        void linkBlend(const std::string& target, const std::string& objName, bool link=true);
     };
     inline PyOutStream beginPythonOut(bool deleteOnError=false)
     {

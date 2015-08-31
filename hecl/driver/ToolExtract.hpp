@@ -44,7 +44,7 @@ public:
                 LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
 
             size_t ErrorRef = LogVisor::ErrorCount;
-            HECL::SystemString rootDir = info.cwd + '/' + baseFile;
+            HECL::SystemString rootDir = info.cwd + _S('/') + baseFile;
             HECL::ProjectRootPath newProjRoot(rootDir);
             newProjRoot.makeDir();
             m_fallbackProj.reset(new HECL::Database::Project(newProjRoot));

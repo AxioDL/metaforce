@@ -10,11 +10,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #else
-#define _WIN32_LEAN_AND_MEAN 1
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif
 #include <Windows.h>
 #include <wchar.h>
-#include "winsupport.h"
-#define snprintf _snprintf
+#include "winsupport.hpp"
 #endif
 
 #include <time.h>
@@ -29,8 +30,10 @@
 #include "../extern/blowfish/blowfish.h"
 
 /* Handy MIN/MAX macros */
+#ifndef MAX
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#endif
 
 namespace HECL
 {
@@ -135,11 +138,11 @@ static inline void Unlink(const SystemChar* file)
 #endif
 }
 
-static inline void MakeDir(const SystemChar* dir)
+static inline void MakeDir(const char* dir)
 {
 #if _WIN32
     HRESULT err;
-    if (!CreateDirectory(dir, NULL))
+    if (!CreateDirectoryA(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
             LogModule.report(LogVisor::FatalError, _S("MakeDir(%s)"), dir);
 #else
@@ -149,11 +152,29 @@ static inline void MakeDir(const SystemChar* dir)
 #endif
 }
 
+#if _WIN32
+static inline void MakeDir(const wchar_t* dir)
+{
+    HRESULT err;
+    if (!CreateDirectoryW(dir, NULL))
+        if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
+            LogModule.report(LogVisor::FatalError, _S("MakeDir(%s)"), dir);
+}
+#endif
+
 static inline void MakeLink(const SystemChar* target, const SystemChar* linkPath)
 {
 #if _WIN32
+    HRESULT res = CreateShellLink(target, linkPath, _S("HECL Link")); /* :(( */
+    if (!SUCCEEDED(res))
+    {
+        LPWSTR messageBuffer = nullptr;
+        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, res, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL); /* :((( */
+        LogModule.report(LogVisor::FatalError, _S("MakeLink(%s, %s): %s"), target, linkPath, messageBuffer);
+    }
 #else
-    if (symlink(target, linkPath))
+    if (symlink(target, linkPath)) /* :) */
         if (errno != EEXIST)
             LogModule.report(LogVisor::FatalError, "MakeLink(%s, %s): %s", target, linkPath, strerror(errno));
 #endif

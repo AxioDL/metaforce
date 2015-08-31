@@ -4,7 +4,7 @@ add_subdirectory(Frontend)
 add_subdirectory(Runtime)
 
 if(WIN32)
-list(APPEND PLAT_SRCS winsupport.c ../include/HECL/winsupport.h)
+list(APPEND PLAT_SRCS winsupport.cpp ../include/HECL/winsupport.hpp)
 endif()
 
 add_library(HECLCommon

@@ -9,6 +9,10 @@ if '--' not in sys.argv:
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
+if sys.platform == "win32":
+    import msvcrt
+    readfd = msvcrt.open_osfhandle(readfd, os.O_RDONLY | os.O_BINARY)
+    writefd = msvcrt.open_osfhandle(writefd, os.O_WRONLY | os.O_BINARY)
 
 def readpipeline():
     retval = bytearray()
@@ -29,14 +33,23 @@ def quitblender():
     writepipeline(b'QUITTING')
     bpy.ops.wm.quit_blender()
 
-# Check that HECL addon is installed/enabled
-if 'hecl' not in bpy.context.user_preferences.addons:
-    if 'FINISHED' not in bpy.ops.wm.addon_enable(module='hecl'):
-        writepipeline(b'NOADDON')
-        bpy.ops.wm.quit_blender()
+# If there's a third argument, use it as the .zip path containing the addon
+if len(args) >= 3:
+    bpy.ops.wm.addon_install(overwrite=True, target='DEFAULT', filepath=args[2])
+    bpy.ops.wm.addon_refresh()
 
 # Make addon available to commands
-import hecl
+if bpy.context.user_preferences.addons.find('hecl') == -1:
+    try:
+        bpy.ops.wm.addon_enable(module='hecl')
+        bpy.ops.wm.save_userpref()
+    except:
+        pass
+try:
+    import hecl
+except:
+    writepipeline(b'NOADDON')
+    bpy.ops.wm.quit_blender()
 
 # Intro handshake
 writepipeline(b'READY')

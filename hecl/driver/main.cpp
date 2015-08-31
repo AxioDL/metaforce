@@ -1,7 +1,9 @@
 #if _WIN32
 #define WIN_PAUSE 1
+#include <objbase.h>
 #endif
 
+#include <clocale>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -89,6 +91,12 @@ int wmain(int argc, const wchar_t** argv)
 int main(int argc, const char** argv)
 #endif
 {
+#if _WIN32
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+#else
+    std::setlocale(LC_ALL, "en-US.UTF-8");
+#endif
+    
     /* Xterm check */
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
