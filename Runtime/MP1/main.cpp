@@ -197,6 +197,7 @@ int CMain::appMain(boo::IApplication* app)
         time = (frame++) / 60.f;
         //fprintf(stderr, "%f\n", test.x0_currentTime);
     }
+
     return 0;
 }
 
