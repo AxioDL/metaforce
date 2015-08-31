@@ -87,7 +87,7 @@ public:
     inline std::string toString() const
     {
         char buf[17];
-        snprintf(buf, 17, "%016llX", m_id);
+        snprintf(buf, 17, "%016" PRIX64, m_id);
         return std::string(buf);
     }
 };
@@ -143,7 +143,7 @@ public:
     inline std::string toString() const
     {
         char buf[33];
-        snprintf(buf, 33, "%016llX%016llX", m_id[0], m_id[1]);
+        snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id[0], m_id[1]);
         return std::string(buf);
     }
 };
