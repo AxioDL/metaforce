@@ -291,8 +291,8 @@ void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, c
                 break;
             }
         }
-        case HintTopOfHeap:
-            ret = FindFreeBlockFromTopOfHeap(roundedSize);
+        /*case HintTopOfHeap:
+            ret = FindFreeBlockFromTopOfHeap(roundedSize);*/
             break;
     }
 
