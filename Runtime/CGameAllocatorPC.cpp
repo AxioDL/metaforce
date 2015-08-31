@@ -16,7 +16,71 @@ const char* CGameAllocator::skMemTail = "MemTail\0";
 
 CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlock(u32 size)
 {
-    return nullptr;
+    u32 binIdx = GetFreeBinEntryForSize(size);
+    SGameMemInfo** bin = &x10_bins[binIdx];
+    SGameMemInfo* blockr31 = nullptr;
+    SGameMemInfo* blockr7 = nullptr;
+    u32 prevIdx = 0;
+
+    u32 unk1 = 0x1000;
+
+    while (!blockr31)
+    {
+        if (binIdx >= 0x10)
+            break;
+        SGameMemInfo* r9 = (*bin)->x14_next;
+        SGameMemInfo* r10 = nullptr;
+        while (r9)
+        {
+            SGameMemInfo* r0 = r9->x10_prev;
+            if (!r0)
+            {
+                r10 = r9;
+                r9 = r9->x18_ctx;
+                continue;
+            }
+
+            u32 r0_u = r9->x4_size;
+            if (r0_u < size)
+            {
+                r10 = r9;
+                r9 = r9->x18_ctx;
+                continue;
+            }
+
+            r0 = r9->x14_next;
+            if (!r0)
+            {
+                r10 = r9;
+                r9 = r9->x18_ctx;
+                continue;
+            }
+
+            u32 r4 = (size - r0_u);
+            if (r4 >= unk1)
+            {
+                r10 = r9;
+                r9 = r9->x18_ctx;
+                continue;
+            }
+            unk1 = r4;
+            blockr31 = r9;
+            blockr7 = r10;
+            prevIdx = binIdx;
+
+            if (r4 < 0x20)
+                break;
+        }
+        binIdx++;
+        bin++;
+    }
+
+    if (!blockr31 || !blockr7)
+        return nullptr;
+
+    SGameMemInfo* ret = blockr7->x18_ctx;
+    blockr7->x18_ctx = blockr31->x18_ctx;
+    return ret;
 }
 
 CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlockFromTopOfHeap(u32 size)
@@ -161,12 +225,12 @@ bool CGameAllocator::Initialize()
     xc_infoTail->xc_type = &skMemTail;
     xc_infoTail->x10_prev = x8_infoHead;
     xc_infoTail->x14_next = nullptr;
-    xc_infoTail->x18_ctx = 0;
+    xc_infoTail->x18_ctx = x8_infoHead;
     memset(xc_infoTail->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
 
     AddFreeEntryToFreeList(x8_infoHead);
 
-    Alloc(0x0000043a, HintNone, ScopeDefault, TypePrimitive, CCallStack(__FILE__, "Test"));
+    Alloc((18 * 1024 * 1024), HintNone, ScopeDefault, TypePrimitive, CCallStack(__FILE__, "Test"));
 
     return true;
 }
@@ -201,8 +265,8 @@ void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, c
             if (ret)
                 break;
         }
-        case HintTopOfHeap:
-            ret = FindFreeBlockFromTopOfHeap(roundedSize);
+        /*case HintTopOfHeap:
+            ret = FindFreeBlockFromTopOfHeap(roundedSize);*/
             break;
     }
 
