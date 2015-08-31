@@ -35,15 +35,19 @@ void CMoviePlayer::Rewind()
 
 bool CMoviePlayer::GetIsMovieFinishedPlaying() const
 {
+    return false;
 }
 bool CMoviePlayer::GetIsFullyCached() const
 {
+    return false;
 }
 float CMoviePlayer::GetPlayedSeconds() const
 {
+    return 0.0;
 }
 float CMoviePlayer::GetTotalSeconds() const
 {
+    return 0.0;
 }
 void CMoviePlayer::SetPlayMode(EPlayMode mode)
 {

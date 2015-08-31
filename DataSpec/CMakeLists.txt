@@ -5,9 +5,10 @@ find_package(atdna REQUIRED)
 
 # Assembles a source/header pair list for use in a DNA library
 macro(make_dnalist outlist)
-  foreach(type ${ARGN})
+  foreach(type ${ARGN}) 
     get_filename_component(dir ${type} DIRECTORY)
     if(dir)
+      file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${dir}") 
       set(dir "${dir}/")
     endif()
     get_filename_component(name ${type} NAME)

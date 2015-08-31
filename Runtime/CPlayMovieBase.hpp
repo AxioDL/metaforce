@@ -13,7 +13,7 @@ class CPlayMovieBase : public CIOWin
 public:
     CPlayMovieBase(const char* iowName, const char* path)
     : CIOWin(iowName), x18_moviePlayer(path, 0.0, false) {}
-    EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) {}
+    EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) {return MsgRetNormal;}
     void Draw() const {}
 };
 

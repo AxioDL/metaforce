@@ -27,11 +27,11 @@ public:
     void UpdateFilePos(int) {}
     void CalcFileOffset(int, ESeekOrigin) {}
     static void internalCallback(s32, DVDFileInfo*) {}
-    static bool FileExists(const char*) {}
+    static bool FileExists(const char*) {return false;}
     void CloseFile() {}
-    CDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int) {}
+    CDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int) {return nullptr;}
     void SyncSeekRead(void*, u32, ESeekOrigin, int) {}
-    CDvdRequest* AsyncRead(void*, u32) {}
+    CDvdRequest* AsyncRead(void*, u32) {return nullptr;}
     void SyncRead(void*, u32) {}
     void StallForARAMFile() {}
     void StartARAMFileLoad() {}

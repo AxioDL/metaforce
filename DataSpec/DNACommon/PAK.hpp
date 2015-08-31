@@ -93,7 +93,7 @@ struct ResExtractor
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&, bool)> func_b;
-    const char* fileExts[4];
+    const HECL::SystemChar* fileExts[4];
     unsigned weight;
 };
 
@@ -200,7 +200,11 @@ public:
             const HECL::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
             pakPath.makeDir();
             HECL::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
+#if HECL_UCS2
+            HECL::SystemString entName = HECL::UTF8ToWide(m_pak->bestEntryName(*entry));
+#else
             HECL::SystemString entName = m_pak->bestEntryName(*entry);
+#endif
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
             return HECL::ProjectPath(uniquePath, entName);
@@ -210,7 +214,11 @@ public:
         {
             const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
             HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(pakPath);
+#if HECL_UCS2
+            HECL::SystemString entBase = HECL::UTF8ToWide(m_pak->bestEntryName(*entry));
+#else
             HECL::SystemString entBase = m_pak->bestEntryName(*entry);
+#endif
             HECL::SystemString entName = entBase;
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
@@ -290,7 +298,7 @@ public:
         HECL::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(a));
         HECL::SystemString ret;
         for (int i=0 ; i<aPath.levelCount() ; ++i)
-            ret += "../";
+            ret += _S("../");
         HECL::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*be));
         ret += bPath.getRelativePath();
         return ret;

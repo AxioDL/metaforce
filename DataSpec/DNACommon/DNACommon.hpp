@@ -87,7 +87,7 @@ public:
     inline std::string toString() const
     {
         char buf[17];
-        snprintf(buf, 17, "%016lX", m_id);
+        snprintf(buf, 17, "%016llX", m_id);
         return std::string(buf);
     }
 };
@@ -143,7 +143,7 @@ public:
     inline std::string toString() const
     {
         char buf[33];
-        snprintf(buf, 33, "%016lX%016lX", m_id[0], m_id[1]);
+        snprintf(buf, 33, "%016llX%016llX", m_id[0], m_id[1]);
         return std::string(buf);
     }
 };
@@ -173,10 +173,11 @@ struct CaseInsensitiveCompare
 };
 
 /* Word Bitmap reader/writer */
-struct WordBitmap
+class WordBitmap
 {
     std::vector<atUint32> m_words;
     size_t m_bitCount = 0;
+public:
     void read(Athena::io::IStreamReader& reader, size_t bitCount)
     {
         m_bitCount = bitCount;

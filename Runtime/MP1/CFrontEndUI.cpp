@@ -31,9 +31,9 @@ void CFrontEndUI::OnFileMenuAdvance(CGuiTableGroup* grp)
 void CFrontEndUI::OnMainMenuAdvance(CGuiTableGroup* grp)
 {}
 const char* CFrontEndUI::GetAttractMovieFileName(int idx)
-{}
+{return nullptr;}
 const char* CFrontEndUI::GetNextAttractMovieFileName(int idx)
-{}
+{return nullptr;}
 void CFrontEndUI::SetCurrentMovie(EMenuMovie movie)
 {}
 void CFrontEndUI::StopAttractMovie()
@@ -45,7 +45,7 @@ void CFrontEndUI::UpdateMenuHighlights(CGuiTableGroup* grp)
 void CFrontEndUI::CompleteStateTransition()
 {}
 bool CFrontEndUI::CanBuild(const SObjectTag& tag)
-{}
+{return false;}
 void CFrontEndUI::StartStateTransition(EScreen screen)
 {}
 void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue)
@@ -57,7 +57,7 @@ void CFrontEndUI::UpdateMovies(float dt)
 void CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {}
 CIOWin::EMessageReturn CFrontEndUI::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
-{}
+{return MsgRetNormal;}
 void CFrontEndUI::StartGame()
 {}
 void CFrontEndUI::InitializeFrame()

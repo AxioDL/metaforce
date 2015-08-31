@@ -8,7 +8,7 @@ namespace Retro
 {
 class CGuiSliderGroup;
 class CGuiTableGroup;
-class SObjectTag;
+struct SObjectTag;
 
 namespace MP1
 {

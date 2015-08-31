@@ -1,4 +1,4 @@
-include_directories(${BOO_INCLUDE_DIR})
+include_directories(${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 add_subdirectory(Audio)
 add_subdirectory(Character)

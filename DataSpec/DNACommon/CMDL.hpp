@@ -204,7 +204,7 @@ public:
     }
     operator bool()
     {
-        return *m_cur && ((m_cur - m_dl.get()) < m_dlSize);
+        return *m_cur && ((m_cur - m_dl.get()) < intptr_t(m_dlSize));
     }
     GX::Primitive readPrimitive()
     {
@@ -618,7 +618,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
                 if (matUVCount > createdUVLayers)
                 {
-                    for (int l=createdUVLayers ; l<matUVCount ; ++l)
+                    for (unsigned l=createdUVLayers ; l<matUVCount ; ++l)
                         os.format("bm.loops.layers.uv.new('UV_%u')\n", l);
                     createdUVLayers = matUVCount;
                 }
@@ -663,7 +663,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                                 if (matUVCount)
                                 {
                                     os << "if last_face is not None:\n";
-                                    for (int j=0 ; j<matUVCount ; ++j)
+                                    for (unsigned j=0 ; j<matUVCount ; ++j)
                                         os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
@@ -685,7 +685,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                                 if (matUVCount)
                                 {
                                     os << "if last_face is not None:\n";
-                                    for (int j=0 ; j<matUVCount ; ++j)
+                                    for (unsigned j=0 ; j<matUVCount ; ++j)
                                         os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                                   "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
@@ -720,7 +720,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                             if (matUVCount)
                             {
                                 os << "if last_face is not None:\n";
-                                for (int j=0 ; j<matUVCount ; ++j)
+                                for (unsigned j=0 ; j<matUVCount ; ++j)
                                     os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
@@ -756,7 +756,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                             if (matUVCount)
                             {
                                 os << "if last_face is not None:\n";
-                                for (int j=0 ; j<matUVCount ; ++j)
+                                for (unsigned j=0 ; j<matUVCount ; ++j)
                                     os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
                                               "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",

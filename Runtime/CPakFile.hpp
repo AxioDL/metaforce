@@ -44,9 +44,9 @@ public:
                 return &p.second;
         return nullptr;
     }
-    const SResInfo* GetResInfoForLoad(u32 id) {}
-    const SResInfo* GetResInfo(u32 id) const {}
-    u32 GetFakeStaticSize() const {}
+    const SResInfo* GetResInfoForLoad(u32 id) {return nullptr;}
+    const SResInfo* GetResInfo(u32 id) const {return nullptr;}
+    u32 GetFakeStaticSize() const {return 0;}
     void DataLoad() {}
     void InitialHeaderLoad() {}
     void Warmup() {}

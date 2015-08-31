@@ -103,7 +103,7 @@ UniqueResult PAKBridge::uniqueCheck(const DNAMP1::PAK::Entry& entry)
 static HECL::SystemString LayerName(const std::string& name)
 {
 #if HECL_UCS2
-    HECL::SystemString ret = HECL::UTF8ToWide(mlvl.layerNames[layerIdx++]);
+    HECL::SystemString ret = HECL::UTF8ToWide(name);
 #else
     HECL::SystemString ret = name;
 #endif
@@ -138,7 +138,6 @@ void PAKBridge::build()
                 }
                 if (areaDeps.name.empty())
                 {
-                    areaDeps.name = area.internalAreaName;
 #if HECL_UCS2
                     areaDeps.name = HECL::UTF8ToWide(area.internalAreaName);
 #else
@@ -185,13 +184,13 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     switch (entry.type)
     {
     case SBIG('STRG'):
-        return {STRG::Extract, nullptr, {".yaml"}};
+        return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
-        return {TXTR::Extract, nullptr, {".png"}};
+        return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, {".blend"}, 2};
+        return {nullptr, CMDL::Extract, {_S(".blend")}, 2};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, {".yaml", ".blend"}, 1};
+        return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 1};
     }
     return {};
 }

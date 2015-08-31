@@ -245,7 +245,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
     {
         ChannelDesc desc;
         desc.read(reader);
-        bones.emplace_back(desc.id, desc.keyCount2);
+        bones.emplace_back(desc.id, desc.keyCount2 != 0);
 
         if (desc.keyCount1)
         {

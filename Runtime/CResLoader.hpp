@@ -9,7 +9,7 @@
 
 namespace Retro
 {
-class SObjectTag;
+struct SObjectTag;
 class CDvdRequest;
 
 class CResLoader

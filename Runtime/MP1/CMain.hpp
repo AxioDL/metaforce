@@ -57,7 +57,7 @@ public:
     void StreamNewGameState(CInputStream&);
     void CheckTweakManagerDebugOptions() {}
     void AddWorldPaks();
-    int RsMain(int argc, const char* argv[]);
+    int RsMain(int argc, const boo::SystemChar* argv[]);
     bool CheckReset();
     bool CheckTerminate() {return false;}
     void DrawDebugMetrics(double, CStopwatch&) {}
