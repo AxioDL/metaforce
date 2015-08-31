@@ -1,15 +1,15 @@
 list(APPEND PY_SOURCES
-     addon/__init__.py
-     addon/Nodegrid.py
-     addon/hmdl/__init__.py
-     addon/hmdl/HMDLMesh.py
-     addon/hmdl/HMDLShader.py
-     addon/hmdl/HMDLSkin.py
-     addon/hmdl/HMDLTxtr.py
-     addon/sact/__init__.py
-     addon/sact/SACTAction.py
-     addon/sact/SACTEvent.py
-     addon/sact/SACTSubtype.py)
+     hecl/__init__.py
+     hecl/Nodegrid.py
+     hecl/hmdl/__init__.py
+     hecl/hmdl/HMDLMesh.py
+     hecl/hmdl/HMDLShader.py
+     hecl/hmdl/HMDLSkin.py
+     hecl/hmdl/HMDLTxtr.py
+     hecl/sact/__init__.py
+     hecl/sact/SACTAction.py
+     hecl/sact/SACTEvent.py
+     hecl/sact/SACTSubtype.py)
 
 bintoc(hecl_blendershell.c hecl_blendershell.py HECL_BLENDERSHELL)
 
