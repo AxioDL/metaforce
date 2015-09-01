@@ -138,16 +138,13 @@ void PAKBridge::build()
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
 
                     /* Trim possible trailing whitespace */
-                    if (areaDeps.name.size())
-                    {
 #if HECL_UCS2
-                        while (iswblank(areaDeps.name.back()))
-                            areaDeps.name.pop_back();
+                    while (areaDeps.name.size() && iswblank(areaDeps.name.back()))
+                        areaDeps.name.pop_back();
 #else
-                        while (isblank(areaDeps.name.back()))
-                            areaDeps.name.pop_back();
+                    while (areaDeps.name.size() && isblank(areaDeps.name.back()))
+                        areaDeps.name.pop_back();
 #endif
-                    }
                 }
                 if (areaDeps.name.empty())
                 {
@@ -166,16 +163,13 @@ void PAKBridge::build()
                     Area::Layer& layer = areaDeps.layers.back();
                     layer.name = LayerName(mlvl.layerNames[layerIdx++]);
                     /* Trim possible trailing whitespace */
-                    if (layer.name.size())
-                    {
 #if HECL_UCS2
-                        while (iswblank(layer.name.back()))
-                            layer.name.pop_back();
+                    while (layer.name.size() && iswblank(layer.name.back()))
+                        layer.name.pop_back();
 #else
-                        while (isblank(layer.name.back()))
-                            layer.name.pop_back();
+                    while (layer.name.size() && isblank(layer.name.back()))
+                        layer.name.pop_back();
 #endif
-                    }
 
                     layer.resources.reserve(area.depLayers[l] - r);
                     for (; r<area.depLayers[l] ; ++r)
