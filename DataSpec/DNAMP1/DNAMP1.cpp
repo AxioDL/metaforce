@@ -136,6 +136,18 @@ void PAKBridge::build()
                     PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
                     areaName.read(rs);
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
+
+                    /* Trim possible trailing whitespace */
+                    if (areaDeps.name.size())
+                    {
+#if HECL_UCS2
+                        while (iswblank(areaDeps.name.back()))
+                            areaDeps.name.pop_back();
+#else
+                        while (isblank(areaDeps.name.back()))
+                            areaDeps.name.pop_back();
+#endif
+                    }
                 }
                 if (areaDeps.name.empty())
                 {
