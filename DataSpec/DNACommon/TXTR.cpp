@@ -442,14 +442,15 @@ static void DecodeCMPR(png_structrp png, png_infop info,
     png_write_info(png, info);
 
     /* Decode 8 rows at a time */
-    std::unique_ptr<uint32_t[]> buf(new uint32_t[width*8]);
+    int bwidth = (width + 7) / 8;
+    int bpwidth = bwidth * 8;
+    std::unique_ptr<uint32_t[]> buf(new uint32_t[bpwidth*8]);
     uint32_t* bTargets[4] = {
         buf.get(),
         buf.get() + 4,
         buf.get() + 4 * width,
         buf.get() + 4 * width + 4
     };
-    int bwidth = (width + 7) / 8;
     for (int y=height/8-1 ; y>=0 ; --y)
     {
         const DXTBlock* blks = (DXTBlock*)(texels + 32 * bwidth * y);

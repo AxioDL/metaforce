@@ -188,8 +188,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     {
         if (std::get<0>(bone.second))
         {
-            chanKeys.emplace_back();
-            std::vector<DNAANIM::Value>& keys = chanKeys.back();
+            std::vector<DNAANIM::Value>& keys = *kit++;
             for (size_t k=0 ; k<head.keyCount ; ++k)
                 keys.emplace_back(reader.readVec4fBig());
         }
