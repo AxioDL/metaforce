@@ -3,7 +3,12 @@
 
 #include "ToolBase.hpp"
 #include <stdio.h>
+
+#if _WIN32
 #include <conio.h>
+#else
+#include <termios.h>
+#endif
 
 class ToolExtract final : public ToolBase
 {
@@ -166,13 +171,26 @@ public:
 #endif
 
         int ch;
+#ifndef _WIN32
+        struct termios tioOld, tioNew;
+        tcgetattr(0, &tioOld);
+        tioNew = tioOld;
+        tioNew.c_lflag &= ~ICANON; 
+        tcsetattr(0, TCSANOW, &tioNew);
+        while ((ch = getchar()))
+#else
         while ((ch = getch()))
+#endif
         {
             if (ch == 'n' || ch == 'N')
                 return 0;
             if (ch == 'y' || ch == 'Y' || ch == 13)
                 break;
         }
+#ifndef _WIN32
+        tcsetattr(0, TCSANOW, &tioOld);
+#endif
+
         HECL::Printf(_S("\n"));
 
         for (SpecExtractPass& ds : m_specPasses)
