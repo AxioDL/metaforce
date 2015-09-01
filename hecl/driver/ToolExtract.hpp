@@ -3,6 +3,7 @@
 
 #include "ToolBase.hpp"
 #include <stdio.h>
+#include <conio.h>
 
 class ToolExtract final : public ToolBase
 {
@@ -156,7 +157,7 @@ public:
         }
 
 #if _WIN32
-        HECL::Printf(_S("\nContinue? (Y/N) "));
+        HECL::Printf(_S("\nContinue? (Y/n) "));
 #else
         if (XTERM_COLOR)
             HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/N) "));
@@ -165,13 +166,14 @@ public:
 #endif
 
         int ch;
-        while ((ch = getchar()))
+        while ((ch = getch()))
         {
             if (ch == 'n' || ch == 'N')
                 return 0;
-            if (ch == 'y' || ch == 'Y')
+            if (ch == 'y' || ch == 'Y' || ch == 13)
                 break;
         }
+        HECL::Printf(_S("\n"));
 
         for (SpecExtractPass& ds : m_specPasses)
         {
