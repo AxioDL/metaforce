@@ -172,6 +172,18 @@ void PAKBridge::build()
                     areaDeps.layers.emplace_back();
                     Area::Layer& layer = areaDeps.layers.back();
                     layer.name = LayerName(mlvl.layerNames[layerIdx++]);
+                    /* Trim possible trailing whitespace */
+                    if (layer.name.size())
+                    {
+#if HECL_UCS2
+                        while (iswblank(layer.name.back()))
+                            layer.name.pop_back();
+#else
+                        while (isblank(layer.name.back()))
+                            layer.name.pop_back();
+#endif
+                    }
+
                     layer.resources.reserve(area.depLayers[l] - r);
                     for (; r<area.depLayers[l] ; ++r)
                         layer.resources.emplace(area.deps[r].id);
