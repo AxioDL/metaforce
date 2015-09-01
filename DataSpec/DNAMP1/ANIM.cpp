@@ -5,6 +5,8 @@ namespace Retro
 namespace DNAMP1
 {
 
+using ANIMOutStream = HECL::BlenderConnection::PyOutStream::ANIMOutStream;
+
 void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
 {
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
@@ -12,7 +14,11 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     auto kit = chanKeys.begin();
     for (const std::pair<atUint32, bool>& bone : bones)
     {
-        os.format("bone_string = '%s'\n", cinf.getBoneNameFromId(bone.first)->c_str());
+        const std::string* bName = cinf.getBoneNameFromId(bone.first);
+        if (!bName)
+            continue;
+
+        os.format("bone_string = '%s'\n", bName->c_str());
         os <<     "action_group = act.groups.new(bone_string)\n"
                   "\n"
                   "rotCurves = []\n"
@@ -39,31 +45,24 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
               "\n";
 
         const std::vector<DNAANIM::Value>& rotKeys = *kit++;
-        auto frameit = frames.begin();
-        for (const DNAANIM::Value& val : rotKeys)
+        ANIMOutStream ao = os.beginANIMCurve();
+        for (int c=0 ; c<4 ; ++c)
         {
-            atUint32 frame = *frameit++;
-            for (int c=0 ; c<4 ; ++c)
-                os.format("crv = rotCurves[%d]\n"
-                          "crv.keyframe_points.add()\n"
-                          "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-                          "crv.keyframe_points[-1].co = (%u, %f)\n",
-                          c, frame, val.v4.vec[c]);
+            auto frameit = frames.begin();
+            ao.changeCurve(ANIMOutStream::CurveRotate, c, rotKeys.size());
+            for (const DNAANIM::Value& val : rotKeys)
+                ao.write(*frameit++, val.v4.vec[c]);
         }
 
         if (bone.second)
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
-            auto frameit = frames.begin();
-            for (const DNAANIM::Value& val : transKeys)
+            for (int c=0 ; c<3 ; ++c)
             {
-                atUint32 frame = *frameit++;
-                for (int c=0 ; c<3 ; ++c)
-                    os.format("crv = transCurves[%d]\n"
-                              "crv.keyframe_points.add()\n"
-                              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-                              "crv.keyframe_points[-1].co = (%u, %f - bone_trans_head[%d])\n",
-                              c, frame, val.v4.vec[c], c);
+                auto frameit = frames.begin();
+                ao.changeCurve(ANIMOutStream::CurveTranslate, c, transKeys.size());
+                for (const DNAANIM::Value& val : transKeys)
+                    ao.write(*frameit++, val.v3.vec[c]);
             }
         }
     }
