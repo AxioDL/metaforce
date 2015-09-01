@@ -1,4 +1,4 @@
-import bpy, sys, os, re
+import bpy, sys, os, re, struct
 
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
@@ -73,6 +73,38 @@ def exec_compbuf(compbuf, globals):
     co = compile(compbuf, '<HECL>', 'exec')
     exec(co, globals)
 
+def anim_loop(globals):
+    writepipeline(b'ANIMREADY')
+    while True:
+        crv_type = struct.unpack('b', os.read(readfd, 1))
+        if crv_type[0] < 0:
+            writepipeline(b'ANIMDONE')
+            return
+        elif crv_type[0] == 0:
+            crvs = globals['rotCurves']
+        elif crv_type[0] == 1:
+            crvs = globals['transCurves']
+        elif crv_type[0] == 2:
+            crvs = globals['scaleCurves']
+
+        key_info = struct.unpack('ii', os.read(readfd, 8))
+        crv = crvs[key_info[0]]
+        crv.keyframe_points.add(count=key_info[1])
+
+        if crv_type[0] == 1:
+            trans_head = globals['bone_trans_head'][key_info[0]]
+            for k in range(key_info[1]):
+                key_data = struct.unpack('if', os.read(readfd, 8))
+                pt = crv.keyframe_points[k]
+                pt.interpolation = 'LINEAR'
+                pt.co = (key_data[0], key_data[1] - trans_head)
+        else:
+            for k in range(key_info[1]):
+                key_data = struct.unpack('if', os.read(readfd, 8))
+                pt = crv.keyframe_points[k]
+                pt.interpolation = 'LINEAR'
+                pt.co = (key_data[0], key_data[1])
+
 # Command loop
 while True:
     cmdline = readpipeline()
@@ -117,8 +149,17 @@ while True:
             try:
                 line = readpipeline()
 
+                # ANIM check
+                if line == b'PYANIM':
+                    # Ensure remaining block gets executed
+                    if len(compbuf):
+                        exec_compbuf(compbuf, globals)
+                        compbuf = str()
+                    anim_loop(globals)
+                    continue
+
                 # End check
-                if line == b'PYEND':
+                elif line == b'PYEND':
                     # Ensure remaining block gets executed
                     if len(compbuf):
                         exec_compbuf(compbuf, globals)

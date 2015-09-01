@@ -185,9 +185,14 @@ public:
 #endif
 
             int lineIdx = 0;
+            int prevIFactor = -1;
             ds.m_instance->doExtract(m_einfo,
-                                     [&lineIdx](const HECL::SystemChar* message, int lidx, float factor)
+                                     [&lineIdx, &prevIFactor](const HECL::SystemChar* message, int lidx, float factor)
             {
+                int iFactor = factor * 100.0;
+                if (iFactor == prevIFactor)
+                    return;
+                prevIFactor = iFactor;
 #ifndef _WIN32
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" HIDE_CURSOR ""));
@@ -220,7 +225,7 @@ public:
                     size_t blocks = half - 7;
                     size_t filled = blocks * factor;
                     size_t rem = blocks - filled;
-                    HECL::Printf(_S("" BOLD "%3d%% ["), (int)(factor * 100.0));
+                    HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
                         HECL::Printf(_S("#"), message);
                     for (int b=0 ; b<rem ; ++b)
@@ -233,7 +238,7 @@ public:
                     size_t blocks = half - 7;
                     size_t filled = blocks * factor;
                     size_t rem = blocks - filled;
-                    HECL::Printf(_S("%3d%% ["), (int)(factor * 100.0));
+                    HECL::Printf(_S("%3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
                         HECL::Printf(_S("#"), message);
                     for (int b=0 ; b<rem ; ++b)

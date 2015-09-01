@@ -43,6 +43,8 @@ void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
 #include "shlguid.h"
 #include "strsafe.h"
 
+#define HECL_MAX_PATH 2048
+
 HRESULT CreateShellLink(LPCWSTR lpszPathObj, LPCWSTR lpszPathLink, LPCWSTR lpszDesc)
 {
     std::wstring targetStr(lpszPathObj);
@@ -66,13 +68,13 @@ HRESULT CreateShellLink(LPCWSTR lpszPathObj, LPCWSTR lpszPathLink, LPCWSTR lpszD
         IPersistFile* ppf;
 
         // Set the path to the shortcut target and add the description. 
-        WCHAR targetBuf[MAX_PATH];
-        WCHAR linkBuf[MAX_PATH];
+        WCHAR targetBuf[HECL_MAX_PATH];
+        WCHAR linkBuf[HECL_MAX_PATH];
         WCHAR* linkFinalPart = nullptr;
-        GetFullPathNameW(linkStr.c_str(), MAX_PATH, linkBuf, &linkFinalPart);
+        GetFullPathNameW(linkStr.c_str(), HECL_MAX_PATH, linkBuf, &linkFinalPart);
         if (linkFinalPart != linkBuf)
             *(linkFinalPart-1) = L'\0';
-        StringCbPrintfW(targetBuf, MAX_PATH, L"%s\\%s", linkBuf, targetStr.c_str());
+        StringCbPrintfW(targetBuf, HECL_MAX_PATH, L"%s\\%s", linkBuf, targetStr.c_str());
         if (linkFinalPart != linkBuf)
             *(linkFinalPart - 1) = L'\\';
         psl->SetPath(targetBuf);
@@ -98,8 +100,8 @@ HRESULT ResolveShellLink(LPCWSTR lpszLinkFile, LPWSTR lpszPath, int iPathBufferS
 {
     HRESULT hres;
     IShellLink* psl;
-    WCHAR szGotPath[MAX_PATH];
-    WCHAR szDescription[MAX_PATH];
+    WCHAR szGotPath[HECL_MAX_PATH];
+    WCHAR szDescription[HECL_MAX_PATH];
     WIN32_FIND_DATA wfd;
 
     *lpszPath = 0; // Assume failure 
@@ -130,12 +132,12 @@ HRESULT ResolveShellLink(LPCWSTR lpszLinkFile, LPWSTR lpszPath, int iPathBufferS
                 if (SUCCEEDED(hres))
                 {
                     // Get the path to the link target. 
-                    hres = psl->GetPath(szGotPath, MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH);
+                    hres = psl->GetPath(szGotPath, HECL_MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH);
 
                     if (SUCCEEDED(hres))
                     {
                         // Get the description of the target. 
-                        hres = psl->GetDescription(szDescription, MAX_PATH);
+                        hres = psl->GetDescription(szDescription, HECL_MAX_PATH);
 
                         if (SUCCEEDED(hres))
                         {

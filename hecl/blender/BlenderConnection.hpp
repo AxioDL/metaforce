@@ -146,6 +146,76 @@ public:
             free(result);
         }
         void linkBlend(const std::string& target, const std::string& objName, bool link=true);
+
+        class ANIMOutStream
+        {
+            BlenderConnection* m_parent;
+            unsigned m_curCount = 0;
+            unsigned m_totalCount = 0;
+            bool m_inCurve = false;
+        public:
+            enum CurveType
+            {
+                CurveRotate,
+                CurveTranslate,
+                CurveScale
+            };
+            ANIMOutStream(BlenderConnection* parent)
+            : m_parent(parent)
+            {
+                m_parent->_writeLine("PYANIM");
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "ANIMREADY"))
+                    BlenderLog.report(LogVisor::FatalError, "unable to open ANIMOutStream");
+            }
+            ~ANIMOutStream()
+            {
+                char tp = -1;
+                m_parent->_writeBuf(&tp, 1);
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "ANIMDONE"))
+                    BlenderLog.report(LogVisor::FatalError, "unable to close ANIMOutStream");
+            }
+            void changeCurve(CurveType type, unsigned crvIdx, unsigned keyCount)
+            {
+                if (m_curCount != m_totalCount)
+                    BlenderLog.report(LogVisor::FatalError, "incomplete ANIMOutStream for change");
+                m_curCount = 0;
+                m_totalCount = keyCount;
+                char tp = char(type);
+                m_parent->_writeBuf(&tp, 1);
+                struct
+                {
+                    uint32_t ci;
+                    uint32_t kc;
+                } info = {uint32_t(crvIdx), uint32_t(keyCount)};
+                m_parent->_writeBuf(reinterpret_cast<const char*>(&info), 8);
+                m_inCurve = true;
+            }
+            void write(unsigned frame, float val)
+            {
+                if (!m_inCurve)
+                    BlenderLog.report(LogVisor::FatalError, "changeCurve not called before write");
+                if (m_curCount < m_totalCount)
+                {
+                    struct
+                    {
+                        uint32_t frm;
+                        float val;
+                    } key = {uint32_t(frame), val};
+                    m_parent->_writeBuf(reinterpret_cast<const char*>(&key), 8);
+                    ++m_curCount;
+                }
+                else
+                    BlenderLog.report(LogVisor::FatalError, "ANIMOutStream keyCount overflow");
+            }
+        };
+        ANIMOutStream beginANIMCurve()
+        {
+            return ANIMOutStream(m_parent);
+        }
     };
     inline PyOutStream beginPythonOut(bool deleteOnError=false)
     {

@@ -200,11 +200,13 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
 {
 #if HECL_UCS2
     FILE* fp = _wfopen(path, mode);
+    if (!fp)
+        LogModule.report(LogVisor::FatalError, L"fopen %s: %s", path, _wcserror(errno));
 #else
     FILE* fp = fopen(path, mode);
-#endif
     if (!fp)
         LogModule.report(LogVisor::FatalError, "fopen %s: %s", path, strerror(errno));
+#endif
 
     if (lock)
     {
