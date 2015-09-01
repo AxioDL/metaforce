@@ -165,9 +165,9 @@ public:
         HECL::Printf(_S("\nContinue? (Y/n) "));
 #else
         if (XTERM_COLOR)
-            HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/N) "));
+            HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
         else
-            HECL::Printf(_S("\nContinue? (Y/N) "));
+            HECL::Printf(_S("\nContinue? (Y/n) "));
 #endif
 
         int ch;
@@ -184,7 +184,7 @@ public:
         {
             if (ch == 'n' || ch == 'N')
                 return 0;
-            if (ch == 'y' || ch == 'Y' || ch == 13)
+            if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
                 break;
         }
 #ifndef _WIN32
