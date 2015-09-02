@@ -30,5 +30,9 @@ add_library(png
     pngwtran.c
     pngwutil.c)
 
+set(PNG_LIB png CACHE PATH "PNG library" FORCE)
 set(LIBPNG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "PNG include path" FORCE)
+
+else()
+find_path(LIBPNG_INCLUDE_DIR png.h)
 endif()
