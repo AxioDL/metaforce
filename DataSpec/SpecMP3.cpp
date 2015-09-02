@@ -311,23 +311,24 @@ struct SpecMP3 : SpecBase
         int prog;
         if (doMP3)
         {
-            progress(_S("Indexing PAKs"), compIdx, 0.0);
+            progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_pakRouter.build(m_paks, [&progress, &compIdx](float factor)
             {
-                progress(_S("Indexing PAKs"), compIdx, factor);
+                progress(_S("Indexing PAKs"), _S(""), compIdx, factor);
             });
-            progress(_S("Indexing PAKs"), compIdx++, 1.0);
+            progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
             HECL::ProjectPath mp3WorkPath(m_project.getProjectRootPath(), "MP3");
             mp3WorkPath.makeDir();
-            progress(_S("MP3 Root"), compIdx, 0.0);
+            progress(_S("MP3 Root"), _S(""), compIdx, 0.0);
             prog = 0;
             for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
             {
                 node->extractToDirectory(mp3WorkPath.getAbsolutePath(), force);
-                progress(_S("MP3 Root"), compIdx, prog++ / (float)m_nonPaks.size());
+                HECL::SystemStringView nameView(node->getName());
+                progress(_S("MP3 Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_nonPaks.size());
             }
-            progress(_S("MP3 Root"), compIdx++, 1.0);
+            progress(_S("MP3 Root"), _S(""), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
@@ -343,34 +344,35 @@ struct SpecMP3 : SpecBase
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
-                progress(sysName.sys_str().c_str(), compIdx, 0.0);
+                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
                 m_pakRouter.extractResources(pak, force,
-                [&progress, &sysName, &compIdx](float factor)
+                [&progress, &sysName, &compIdx](const HECL::SystemChar* substr, float factor)
                 {
-                    progress(sysName.sys_str().c_str(), compIdx, factor);
+                    progress(sysName.sys_str().c_str(), substr, compIdx, factor);
                 });
-                progress(sysName.sys_str().c_str(), compIdx++, 1.0);
+                progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
             }
         }
 
         if (doMPTFE)
         {
-            progress(_S("Indexing PAKs"), compIdx, 0.0);
+            progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_fePakRouter.build(m_fePaks, [&progress, &compIdx](float factor)
             {
-                progress(_S("Indexing PAKs"), compIdx, factor);
+                progress(_S("Indexing PAKs"), _S(""), compIdx, factor);
             });
-            progress(_S("Indexing PAKs"), compIdx++, 1.0);
+            progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
             m_feWorkPath.makeDir();
-            progress(_S("fe Root"), compIdx, 0.0);
+            progress(_S("fe Root"), _S(""), compIdx, 0.0);
             int prog = 0;
             for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
             {
                 node->extractToDirectory(m_feWorkPath.getAbsolutePath(), force);
-                progress(_S("fe Root"), compIdx, prog++ / (float)m_feNonPaks.size());
+                HECL::SystemStringView nameView(node->getName());
+                progress(_S("fe Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_feNonPaks.size());
             }
-            progress(_S("fe Root"), compIdx++, 1.0);
+            progress(_S("fe Root"), _S(""), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
@@ -383,13 +385,13 @@ struct SpecMP3 : SpecBase
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 
-                progress(sysName.sys_str().c_str(), compIdx, 0.0);
+                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
                 m_fePakRouter.extractResources(pak, force,
-                [&progress, &sysName, &compIdx](float factor)
+                [&progress, &sysName, &compIdx](const HECL::SystemChar* substr, float factor)
                 {
-                    progress(sysName.sys_str().c_str(), compIdx, factor);
+                    progress(sysName.sys_str().c_str(), substr, compIdx, factor);
                 });
-                progress(sysName.sys_str().c_str(), compIdx++, 1.0);
+                progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
             }
         }
 

@@ -323,7 +323,8 @@ public:
         return m_pak->bestEntryName(*e);
     }
 
-    bool extractResources(const BRIDGETYPE& pakBridge, bool force, std::function<void(float)> progress)
+    bool extractResources(const BRIDGETYPE& pakBridge, bool force,
+                          std::function<void(const HECL::SystemChar*, float)> progress)
     {
         enterPAKBridge(pakBridge);
         size_t count = 0;
@@ -336,6 +337,9 @@ public:
                 ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item.second);
                 if (extractor.weight != w)
                     continue;
+                
+                HECL::SystemStringView bestName(getBestEntryName(*item.second));
+                progress(bestName.sys_str().c_str(), ++count / fsz);
 
                 HECL::ProjectPath cooked = getCooked(item.second);
                 if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
@@ -363,8 +367,6 @@ public:
                         extractor.func_b(m_dataSpec, s, working, *this, *item.second, force);
                     }
                 }
-
-                progress(++count / fsz);
             }
         }
 

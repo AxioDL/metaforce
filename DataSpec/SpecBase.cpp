@@ -56,20 +56,20 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
         if (update)
         {
-            progress(_S("Update Partition"), 0, 0.0);
+            progress(_S("Update Partition"), _S(""), 0, 0.0);
             update->getFSTRoot().extractToDirectory(target, info.force);
-            progress(_S("Update Partition"), 0, 1.0);
+            progress(_S("Update Partition"), _S(""), 0, 1.0);
         }
 
         if (!m_standalone)
         {
-            progress(_S("Trilogy Files"), 1, 0.0);
+            progress(_S("Trilogy Files"), _S(""), 1, 0.0);
             NOD::DiscBase::IPartition* data = m_disc->getDataPartition();
             const NOD::DiscBase::IPartition::Node& root = data->getFSTRoot();
             for (const NOD::DiscBase::IPartition::Node& child : root)
                 if (child.getKind() == NOD::DiscBase::IPartition::Node::NODE_FILE)
                     child.extractToDirectory(target, info.force);
-            progress(_S("Trilogy Files"), 1, 1.0);
+            progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
     }
     extractFromDisc(*m_disc, info.force, progress);

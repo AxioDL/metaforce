@@ -206,22 +206,23 @@ struct SpecMP1 : SpecBase
 
     bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
-        progress(_S("Indexing PAKs"), 2, 0.0);
+        progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {
-            progress(_S("Indexing PAKs"), 2, factor);
+            progress(_S("Indexing PAKs"), _S(""), 2, factor);
         });
-        progress(_S("Indexing PAKs"), 2, 1.0);
+        progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
 
         m_workPath.makeDir();
-        progress(_S("MP1 Root"), 3, 0.0);
+        progress(_S("MP1 Root"), _S(""), 3, 0.0);
         int prog = 0;
         for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
         {
             node->extractToDirectory(m_workPath.getAbsolutePath(), force);
-            progress(_S("MP1 Root"), 3, prog++ / (float)m_nonPaks.size());
+            HECL::SystemStringView nameView(node->getName());
+            progress(_S("MP1 Root"), nameView.sys_str().c_str(), 3, prog++ / (float)m_nonPaks.size());
         }
-        progress(_S("MP1 Root"), 3, 1.0);
+        progress(_S("MP1 Root"), _S(""), 3, 1.0);
 
         const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP1);
         cookPath.makeDir();
@@ -235,13 +236,13 @@ struct SpecMP1 : SpecBase
             const std::string& name = pak.getName();
             HECL::SystemStringView sysName(name);
 
-            progress(sysName.sys_str().c_str(), compIdx, 0.0);
+            progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
             m_pakRouter.extractResources(pak, force,
-            [&progress, &sysName, &compIdx](float factor)
+            [&progress, &sysName, &compIdx](const HECL::SystemChar* substr, float factor)
             {
-                progress(sysName.sys_str().c_str(), compIdx, factor);
+                progress(sysName.sys_str().c_str(), substr, compIdx, factor);
             });
-            progress(sysName.sys_str().c_str(), compIdx++, 1.0);
+            progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
         }
 
         return true;
