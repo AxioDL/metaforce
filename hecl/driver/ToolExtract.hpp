@@ -116,14 +116,11 @@ public:
     {
         for (int l=0 ; l<level ; ++l)
             HECL::Printf(_S("  "));
-#if _WIN32
-        HECL::Printf(_S("%s"), rep.name.c_str());
-#else
         if (XTERM_COLOR)
             HECL::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
             HECL::Printf(_S("%s"), rep.name.c_str());
-#endif
+        
         if (rep.desc.size())
             HECL::Printf(_S(" [%s]"), rep.desc.c_str());
         HECL::Printf(_S("\n"));
@@ -135,25 +132,17 @@ public:
     {
         if (m_specPasses.empty())
         {
-#if _WIN32
-            HECL::Printf(_S("NOTHING TO EXTRACT\n"));
-#else
             if (XTERM_COLOR)
                 HECL::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
             else
                 HECL::Printf(_S("NOTHING TO EXTRACT\n"));
-#endif
             return -1;
         }
 
-#if _WIN32
-        HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
-#else
         if (XTERM_COLOR)
             HECL::Printf(_S("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
         else
             HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
-#endif
 
         for (HECL::Database::IDataSpec::ExtractReport& rep : m_reps)
         {
@@ -161,14 +150,10 @@ public:
             HECL::Printf(_S("\n"));
         }
 
-#if _WIN32
-        HECL::Printf(_S("\nContinue? (Y/n) "));
-#else
         if (XTERM_COLOR)
             HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
         else
             HECL::Printf(_S("\nContinue? (Y/n) "));
-#endif
 
         int ch;
 #ifndef _WIN32
@@ -195,28 +180,19 @@ public:
 
         for (SpecExtractPass& ds : m_specPasses)
         {
-#if _WIN32
-            HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
-#else
             if (XTERM_COLOR)
                 HECL::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
             else
                 HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
-#endif
 
             int lineIdx = 0;
-            int prevIFactor = -1;
             ds.m_instance->doExtract(m_einfo,
-                                     [&lineIdx, &prevIFactor](const HECL::SystemChar* message, int lidx, float factor)
+            [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
+                       int lidx, float factor)
             {
                 int iFactor = factor * 100.0;
-                if (iFactor == prevIFactor)
-                    return;
-                prevIFactor = iFactor;
-#ifndef _WIN32
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" HIDE_CURSOR ""));
-#endif
 
                 if (lidx > lineIdx)
                 {
@@ -230,16 +206,34 @@ public:
                 int half = width / 2 - 2;
 
                 size_t messageLen = HECL::StrLen(message);
-                if (messageLen > half)
-                    HECL::Printf(_S("%.*s... "), half-3, message);
+                size_t submessageLen = HECL::StrLen(submessage);
+                if (half - messageLen < submessageLen-2)
+                    submessageLen = 0;
+                
+                if (submessageLen)
+                {
+                    if (messageLen > half-submessageLen-1)
+                        HECL::Printf(_S("%.*s... "), half-submessageLen-4, message);
+                    else
+                    {
+                        HECL::Printf(_S("%s"), message);
+                        for (int i=half-messageLen-submessageLen-1 ; i>=0 ; --i)
+                            HECL::Printf(_S(" "));
+                        HECL::Printf(_S("%s "), submessage);
+                    }
+                }
                 else
                 {
-                    HECL::Printf(_S("%s"), message);
-                    for (int i=half-messageLen ; i>=0 ; --i)
-                        HECL::Printf(_S(" "));
+                    if (messageLen > half)
+                        HECL::Printf(_S("%.*s... "), half-3, message);
+                    else
+                    {
+                        HECL::Printf(_S("%s"), message);
+                        for (int i=half-messageLen ; i>=0 ; --i)
+                            HECL::Printf(_S(" "));
+                    }
                 }
 
-#ifndef _WIN32
                 if (XTERM_COLOR)
                 {
                     size_t blocks = half - 7;
@@ -254,7 +248,6 @@ public:
                 }
                 else
                 {
-#endif
                     size_t blocks = half - 7;
                     size_t filled = blocks * factor;
                     size_t rem = blocks - filled;
@@ -264,15 +257,11 @@ public:
                     for (int b=0 ; b<rem ; ++b)
                         HECL::Printf(_S("-"), message);
                     HECL::Printf(_S("]"));
-#ifndef _WIN32
                 }
-#endif
 
                 HECL::Printf(_S("\r"));
-#ifndef _WIN32
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" SHOW_CURSOR ""));
-#endif
                 fflush(stdout);
             });
             HECL::Printf(_S("\n\n"));

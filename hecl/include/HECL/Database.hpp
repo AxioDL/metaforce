@@ -91,7 +91,7 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
-    typedef std::function<void(const HECL::SystemChar*, int, float)> FExtractProgress;
+    typedef std::function<void(const HECL::SystemChar*, const HECL::SystemChar*, int, float)> FExtractProgress;
 
     virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}

@@ -46,14 +46,10 @@ bool XTERM_COLOR = false;
 /* Main usage message */
 static void printHelp(const HECL::SystemChar* pname)
 {
-#if _WIN32
-    HECL::Printf(_S("HECL"));
-#else
     if (XTERM_COLOR)
         HECL::Printf(_S("" BOLD "HECL" NORMAL ""));
     else
         HECL::Printf(_S("HECL"));
-#endif
 #if HECL_GIT
     HECL::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #elif HECL_VER
@@ -74,6 +70,9 @@ static void SIGINTHandler(int sig)
     HECL::BlenderConnection::Shutdown();
     exit(1);
 }
+
+/* SIGWINCH should do nothing */
+static void SIGWINCHHandler(int sig) {}
 
 static LogVisor::LogModule AthenaLog("Athena");
 static void AthenaExc(const Athena::error::Level& level, const char* file,
@@ -98,11 +97,18 @@ int main(int argc, const char** argv)
 #endif
     
     /* Xterm check */
+#if _WIN32
+    const char* conemuANSI = getenv("ConEmuANSI");
+    if (conemuANSI && !strcmp(conemuANSI, "ON"))
+        XTERM_COLOR = true;
+#else
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
+#endif
 
     signal(SIGINT, SIGINTHandler);
+    signal(SIGWINCH, SIGWINCHHandler);
 
     LogVisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);

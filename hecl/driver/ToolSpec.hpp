@@ -95,15 +95,11 @@ public:
         {
             for (const HECL::Database::DataSpecEntry* spec : HECL::Database::DATA_SPEC_REGISTRY)
             {
-#if _WIN32
-                HECL::Printf(_S("%s\n  %s\n"), spec->m_name, spec->m_desc);
-#else
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name);
                 else
                     HECL::Printf(_S("%s\n"), spec->m_name);
                 HECL::Printf(_S("  %s\n"), spec->m_desc);
-#endif
             }
             return 0;
         }
@@ -113,12 +109,6 @@ public:
         {
             for (auto& spec : specs)
             {
-#if _WIN32
-                HECL::Printf(_S("%s"), spec.spec.m_name);
-                if (spec.active)
-                    HECL::Printf(_S(" [ENABLED]"));
-                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc);
-#else
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name);
                 else
@@ -131,7 +121,6 @@ public:
                         HECL::Printf(_S(" [ENABLED]"));
                 }
                 HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc);
-#endif
             }
             return 0;
         }
