@@ -105,10 +105,9 @@ int main(int argc, const char** argv)
     const char* term = getenv("TERM");
     if (term && !strncmp(term, "xterm", 5))
         XTERM_COLOR = true;
-#endif
-
-    signal(SIGINT, SIGINTHandler);
     signal(SIGWINCH, SIGWINCHHandler);
+#endif
+    signal(SIGINT, SIGINTHandler);
 
     LogVisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
