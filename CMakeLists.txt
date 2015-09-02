@@ -10,7 +10,6 @@ endif()
 add_subdirectory(libBoo)
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libBoo/include)
 
-set(HECL_SUBPROJECT TRUE)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace Retro

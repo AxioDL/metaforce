@@ -16,5 +16,6 @@ target_link_libraries(mp1
                       DNAMP1
                       DNACommon
                       HECLDatabase HECLBlender HECLCommon AthenaCore NOD
-                      LogVisor AthenaLibYaml Boo png squish blowfish z lzo2
+                      LogVisor AthenaLibYaml Boo ${PNG_LIB} squish blowfish
+                      ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})

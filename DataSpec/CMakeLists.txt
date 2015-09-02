@@ -1,8 +1,5 @@
 include_directories(${LIBPNG_INCLUDE_DIR} ${SQUISH_INCLUDE_DIR})
 
-# Magic ingredient
-find_package(atdna REQUIRED)
-
 # Assembles a source/header pair list for use in a DNA library
 macro(make_dnalist outlist)
   foreach(type ${ARGN}) 
