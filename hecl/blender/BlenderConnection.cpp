@@ -123,6 +123,8 @@ void BlenderConnection::_closePipe()
 
 BlenderConnection::BlenderConnection(bool silenceBlender)
 {
+    BlenderLog.report(LogVisor::Info, "Establishing BlenderConnection...");
+    
     /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
@@ -143,6 +145,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
 
     HECL::SystemString blenderAddonPath(TMPDIR);
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
+    InstallAddon(blenderAddonPath.c_str());
 
     int installAttempt = 0;
     while (true)
@@ -182,12 +185,8 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
         }
 
         wchar_t cmdLine[2048];
-        if (installAttempt == 1)
-            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " \"%s\"",
-                       blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle), blenderAddonPath.c_str());
-        else
-            _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR,
-                       blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle));
+        _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " \"%s\"",
+                    blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle), blenderAddonPath.c_str());
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
         HANDLE nulHandle = NULL;
@@ -238,14 +237,9 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
             /* Try user-specified blender first */
             if (blenderBin)
             {
-                if (installAttempt == 1)
-                    execlp(blenderBin, blenderBin,
-                        "--background", "-P", blenderShellPath.c_str(),
-                        "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
-                else
-                    execlp(blenderBin, blenderBin,
-                           "--background", "-P", blenderShellPath.c_str(),
-                           "--", readfds, writefds, NULL);
+                execlp(blenderBin, blenderBin,
+                    "--background", "-P", blenderShellPath.c_str(),
+                    "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
                 if (errno != ENOENT)
                 {
                     snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));
@@ -255,14 +249,9 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
             }
 
             /* Otherwise default blender */
-            if (installAttempt == 1)
-                execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
-                    "--background", "-P", blenderShellPath.c_str(),
-                    "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
-            else
-                execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
-                       "--background", "-P", blenderShellPath.c_str(),
-                       "--", readfds, writefds, NULL);
+            execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
+                "--background", "-P", blenderShellPath.c_str(),
+                "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
             if (errno != ENOENT)
             {
                 snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));

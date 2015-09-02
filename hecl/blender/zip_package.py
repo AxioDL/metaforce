@@ -8,7 +8,7 @@ def zipdir(path, ziph):
             ziph.write(os.path.join(root, file))
 
 package_path = 'hecl'
-target_zip = 'hecl.zip'
+target_zip = sys.argv[1]
 
 zf = zipfile.ZipFile(target_zip, mode='w', compression=zipfile.ZIP_DEFLATED)
 print('GENERATING', target_zip)

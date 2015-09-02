@@ -1,6 +1,16 @@
 add_executable(bintoc bintoc.c)
 macro(bintoc out in sym)
-  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${out}
-                     COMMAND $<TARGET_FILE:bintoc> ARGS ${CMAKE_CURRENT_SOURCE_DIR}/${in} ${CMAKE_CURRENT_BINARY_DIR}/${out} ${sym}
-                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${in})
+  if(IS_ABSOLUTE ${out})
+    set(theOut ${out})
+  else()
+    set(theOut ${CMAKE_CURRENT_BINARY_DIR}/${out})
+  endif()
+  if(IS_ABSOLUTE ${in})
+    set(theIn ${in})
+  else()
+    set(theIn ${CMAKE_CURRENT_SOURCE_DIR}/${in})
+  endif()
+  add_custom_command(OUTPUT ${theOut}
+                     COMMAND $<TARGET_FILE:bintoc> ARGS ${theIn} ${theOut} ${sym}
+                     DEPENDS ${theIn})
 endmacro()
