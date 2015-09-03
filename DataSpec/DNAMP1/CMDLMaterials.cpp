@@ -231,10 +231,6 @@ static void AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
 
 }
 
-static void add_link(Stream& out, const char* a, const char* b)
-{
-    out.format("new_nodetree.links.new(%s, %s)\n", a, b);
-}
 
 enum CombinerType
 {

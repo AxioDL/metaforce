@@ -27,6 +27,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
+                       std::function<void(const HECL::SystemChar*)> fileChanged,
                        bool force=false)
 {    
     /* Extract character CMDL/CSKR first */
@@ -44,6 +45,8 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                 if (!conn.createBlend(cmdlPath.getAbsolutePath()))
                     return false;
 
+                fileChanged(pakRouter.getBestEntryName(*cmdlE).c_str());
+                
                 typename ANCSDNA::CSKRType cskr;
                 pakRouter.lookupAndReadDNA(info.cskr, cskr);
                 typename ANCSDNA::CINFType cinf;
@@ -60,6 +63,8 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         }
     }
 
+    fileChanged(pakRouter.getBestEntryName(entry).c_str());
+    
     /* Establish ANCS blend */
     if (!conn.createBlend(outPath.getAbsolutePath()))
         return false;

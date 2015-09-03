@@ -30,10 +30,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
         m_nameEntries.emplace_back();
         m_nameEntries.back().read(reader);
     }
-    atUint64 start = reader.position();
     reader.seek(strgBase + strgSz, Athena::Begin);
-    atUint64 end = reader.position();
-    atUint64 diff = end - start;
 
     atUint32 count = reader.readUint32Big();
     m_entries.clear();

@@ -92,7 +92,8 @@ struct ResExtractor
 {
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
-                       const typename PAKBRIDGE::PAKType::Entry&, bool)> func_b;
+                       const typename PAKBRIDGE::PAKType::Entry&, bool,
+                       std::function<void(const HECL::SystemChar*)>)> func_b;
     const HECL::SystemChar* fileExts[4];
     unsigned weight;
 };
@@ -339,7 +340,8 @@ public:
                     continue;
                 
                 HECL::SystemStringView bestName(getBestEntryName(*item.second));
-                progress(bestName.sys_str().c_str(), ++count / fsz);
+                float thisFac = ++count / fsz;
+                progress(bestName.sys_str().c_str(), thisFac);
 
                 HECL::ProjectPath cooked = getCooked(item.second);
                 if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
@@ -364,7 +366,11 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_b(m_dataSpec, s, working, *this, *item.second, force);
+                        extractor.func_b(m_dataSpec, s, working, *this, *item.second, force,
+                                         [&progress, thisFac](const HECL::SystemChar* update)
+                                         {
+                                             progress(update, thisFac);
+                                         });
                     }
                 }
             }

@@ -213,7 +213,8 @@ struct ANCS : BigYAML
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
-                        bool force)
+                        bool force,
+                        std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
         HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
@@ -238,8 +239,7 @@ struct ANCS : BigYAML
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 4>
-                        (conn, ancs, blendPath, pakRouter, entry, dataSpec, force);
-                conn.saveBlend();
+                        (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
         }
 

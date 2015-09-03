@@ -20,7 +20,8 @@ struct CMDL
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
-                        bool force)
+                        bool force,
+                        std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath.getAbsolutePath()))
