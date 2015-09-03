@@ -95,10 +95,10 @@ public:
             }
         } m_sbuf;
         PyOutStream(BlenderConnection* parent, bool deleteOnError)
-        : m_parent(parent),
-          m_sbuf(*this, deleteOnError),
+        : std::ostream(&m_sbuf),
+          m_parent(parent),
           m_deleteOnError(deleteOnError),
-          std::ostream(&m_sbuf)
+          m_sbuf(*this, deleteOnError)
         {
             m_parent->m_lock = true;
             m_parent->_writeLine("PYBEGIN");
@@ -110,8 +110,7 @@ public:
     public:
         PyOutStream(const PyOutStream& other) = delete;
         PyOutStream(PyOutStream&& other)
-        : m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf)),
-          std::ostream(&m_sbuf)
+        : std::ostream(&m_sbuf), m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf))
         {other.m_parent = nullptr;}
         ~PyOutStream() {close();}
         void close()
