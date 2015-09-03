@@ -1,8 +1,8 @@
-if(NOT WIN32)
+if(NOT WIN32 AND NOT APPLE)
 find_library(PNG_LIB png)
 endif()
 
-if(WIN32 OR PNG_LIB STREQUAL PNG_LIB-NOTFOUND)
+if(WIN32 OR APPLE OR PNG_LIB STREQUAL PNG_LIB-NOTFOUND)
 message("-- Using HECL's built-in libpng")
 include_directories(${ZLIB_INCLUDE_DIR})
 add_library(png
