@@ -53,6 +53,16 @@ void PAKBridge::build()
 {
 }
 
+void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo) const
+{
+    for (const std::pair<UniqueID64, PAK::Entry*>& entry : m_pak.m_idMap)
+    {
+        if (entry.second->type == FOURCC('CHAR'))
+        {
+        }
+    }
+}
+
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
     switch (entry.type)

@@ -208,13 +208,13 @@ struct ANCS : BigYAML
             ai.metaAnim.m_anim->gatherPrimitives(out);
     }
 
-    static bool Extract(const SpecBase& dataSpec,
+    static bool Extract(const SpecBase&,
                         PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
+                        std::function<void(const HECL::SystemChar*)>)
     {
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
         HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
@@ -239,7 +239,7 @@ struct ANCS : BigYAML
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 4>
-                        (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
+                        (conn, ancs, blendPath, pakRouter, entry, force);
             }
         }
 

@@ -310,7 +310,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
-                       const RIGPAIR* rp=nullptr)
+                       const RIGPAIR& rp)
 {
     Header head;
     head.read(reader);
@@ -411,7 +411,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "bm = bmesh.new()\n"
               "\n", pakRouter.getBestEntryName(entry).c_str());
 
-    if (rp)
+    if (rp.first)
         os << "dvert_lay = bm.verts.layers.deform.verify()\n";
 
     /* Link master shader library */
@@ -535,8 +535,8 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                     atVec3f pos = reader.readVec3fBig();
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
                               pos.vec[0], pos.vec[1], pos.vec[2]);
-                    if (rp)
-                        rp->first->weightVertex(os, *rp->second, i);
+                    if (rp.first)
+                        rp.first->weightVertex(os, *rp.second, i);
                 }
                 break;
             }
@@ -832,8 +832,8 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "bm.free()\n"
               "\n", head.matSetCount);
 
-    if (rp)
-        rp->second->sendVertexGroupsToBlender(os);
+    if (rp.first)
+        rp.second->sendVertexGroupsToBlender(os);
 
     return true;
 }

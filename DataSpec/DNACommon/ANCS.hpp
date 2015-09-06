@@ -26,46 +26,10 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        const HECL::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
-                       const SpecBase& dataspec,
-                       std::function<void(const HECL::SystemChar*)> fileChanged,
                        bool force=false)
 {    
-    /* Extract character CMDL/CSKR first */
     std::vector<CharacterResInfo<typename PAKRouter::IDType>> chResInfo;
     ancs.getCharacterResInfo(chResInfo);
-    for (const auto& info : chResInfo)
-    {
-        const NOD::DiscBase::IPartition::Node* node;
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node);
-        if (cmdlE)
-        {
-            HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-            if (force || cmdlPath.getPathType() == HECL::ProjectPath::PT_NONE)
-            {
-                if (!conn.createBlend(cmdlPath.getAbsolutePath()))
-                    return false;
-
-                HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(*cmdlE));
-                fileChanged(bestNameView.sys_str().c_str());
-                
-                typename ANCSDNA::CSKRType cskr;
-                pakRouter.lookupAndReadDNA(info.cskr, cskr);
-                typename ANCSDNA::CINFType cinf;
-                pakRouter.lookupAndReadDNA(info.cinf, cinf);
-                using RIGPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
-                RIGPair rigPair(&cskr, &cinf);
-
-                PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
-                DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RIGPair, CMDLVersion>
-                        (conn, rs, pakRouter, *cmdlE, dataspec, &rigPair);
-
-                conn.saveBlend();
-            }
-        }
-    }
-
-    HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(entry));
-    fileChanged(bestNameView.sys_str().c_str());
     
     /* Establish ANCS blend */
     if (!conn.createBlend(outPath.getAbsolutePath()))

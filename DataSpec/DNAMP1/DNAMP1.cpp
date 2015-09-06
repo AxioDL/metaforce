@@ -190,6 +190,21 @@ void PAKBridge::build()
     }
 }
 
+void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+{
+    for (const std::pair<UniqueID32, PAK::Entry*>& entry : m_pak.m_idMap)
+    {
+        if (entry.second->type == FOURCC('ANCS'))
+        {
+            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            ANCS ancs;
+            ancs.read(rs);
+            for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
+                addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+        }
+    }
+}
+
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
 {
     switch (entry.type)
@@ -199,9 +214,9 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, {_S(".blend")}, 2};
+        return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 1};
+        return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, {_S(".yaml")}};
     }

@@ -35,12 +35,14 @@ public:
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);
-    inline const std::string& getName() const {return m_node.getName();}
-    inline const HECL::SystemString& getLevelString() const {return m_levelString;}
+    const std::string& getName() const {return m_node.getName();}
+    const HECL::SystemString& getLevelString() const {return m_levelString;}
 
-    typedef PAK PAKType;
-    inline const PAKType& getPAK() const {return m_pak;}
-    inline const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
+    using PAKType = PAK;
+    const PAKType& getPAK() const {return m_pak;}
+    const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
+
+    void addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
 };
 
 }

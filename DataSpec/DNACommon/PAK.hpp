@@ -106,6 +106,7 @@ public:
     using PAKType = typename BRIDGETYPE::PAKType;
     using IDType = typename PAKType::IDType;
     using EntryType = typename PAKType::Entry;
+    using RigPair = std::pair<IDType, IDType>;
 private:
     const SpecBase& m_dataSpec;
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
@@ -119,6 +120,7 @@ private:
     const NOD::DiscBase::IPartition::Node* m_node = nullptr;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
+    std::unordered_map<IDType, RigPair> m_cmdlRigs;
 public:
     PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
     : m_dataSpec(dataSpec),
@@ -147,7 +149,10 @@ public:
             m_bridgePaths.emplace_back(std::make_pair(HECL::ProjectPath(m_gameWorking, baseName),
                                                       HECL::ProjectPath(m_gameCooked, baseName)));
 
+            /* Index this PAK */
             bridge.build();
+
+            /* Add to global enntry lookup */
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
@@ -163,6 +168,10 @@ public:
                 else
                     m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
             }
+
+            /* Add RigPairs to global map */
+            bridge.addCMDLRigPairs(m_cmdlRigs);
+
             progress(++count / bridgesSz);
             ++bridgeIdx;
         }
@@ -189,7 +198,7 @@ public:
         LogDNACommon.report(LogVisor::FatalError, "PAKBridge provided to PAKRouter::enterPAKBridge() was not part of build()");
     }
 
-    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry,
+    HECL::ProjectPath getWorking(const EntryType* entry,
                                  const ResExtractor<BRIDGETYPE>& extractor) const
     {
         if (!m_pak)
@@ -249,17 +258,17 @@ public:
         return HECL::ProjectPath();
     }
 
-    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::Entry* entry) const
+    HECL::ProjectPath getWorking(const EntryType* entry) const
     {
         return getWorking(entry, BRIDGETYPE::LookupExtractor(*entry));
     }
 
-    HECL::ProjectPath getWorking(const typename BRIDGETYPE::PAKType::IDType& id) const
+    HECL::ProjectPath getWorking(const IDType& id) const
     {
         return getWorking(lookupEntry(id));
     }
 
-    HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::Entry* entry) const
+    HECL::ProjectPath getCooked(const EntryType* entry) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -282,13 +291,12 @@ public:
         return HECL::ProjectPath();
     }
 
-    HECL::ProjectPath getCooked(const typename BRIDGETYPE::PAKType::IDType& id) const
+    HECL::ProjectPath getCooked(const IDType& id) const
     {
         return getCooked(lookupEntry(id));
     }
 
-    HECL::SystemString getResourceRelativePath(const typename BRIDGETYPE::PAKType::Entry& a,
-                                               const typename BRIDGETYPE::PAKType::IDType& b) const
+    HECL::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -305,7 +313,7 @@ public:
         return ret;
     }
 
-    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::Entry& entry) const
+    std::string getBestEntryName(const EntryType& entry) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -313,7 +321,7 @@ public:
         return m_pak->bestEntryName(entry);
     }
 
-    std::string getBestEntryName(const typename BRIDGETYPE::PAKType::IDType& entry) const
+    std::string getBestEntryName(const IDType& entry) const
     {
         if (!m_pak)
             LogDNACommon.report(LogVisor::FatalError,
@@ -379,7 +387,7 @@ public:
         return true;
     }
 
-    const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const typename BRIDGETYPE::PAKType::IDType& entry,
+    const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
                                                            const NOD::DiscBase::IPartition::Node** nodeOut=nullptr) const
     {
         if (!m_bridges)
@@ -387,7 +395,7 @@ public:
             "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
         if (m_pak)
         {
-            const typename BRIDGETYPE::PAKType::Entry* ent = m_pak->lookupEntry(entry);
+            const EntryType* ent = m_pak->lookupEntry(entry);
             if (ent)
             {
                 if (nodeOut)
@@ -397,8 +405,8 @@ public:
         }
         for (const BRIDGETYPE& bridge : *m_bridges)
         {
-            const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
-            const typename BRIDGETYPE::PAKType::Entry* ent = pak.lookupEntry(entry);
+            const PAKType& pak = bridge.getPAK();
+            const EntryType* ent = pak.lookupEntry(entry);
             if (ent)
             {
                 if (nodeOut)
@@ -413,15 +421,23 @@ public:
     }
 
     template <typename DNA>
-    bool lookupAndReadDNA(const typename BRIDGETYPE::PAKType::IDType& id, DNA& out)
+    bool lookupAndReadDNA(const IDType& id, DNA& out)
     {
         const NOD::DiscBase::IPartition::Node* node;
-        const typename BRIDGETYPE::PAKType::Entry* entry = lookupEntry(id, &node);
+        const EntryType* entry = lookupEntry(id, &node);
         if (!entry)
             return false;
         PAKEntryReadStream rs = entry->beginReadStream(*node);
         out.read(rs);
         return true;
+    }
+
+    const RigPair* lookupCMDLRigPair(const IDType& id) const
+    {
+        auto search = m_cmdlRigs.find(id);
+        if (search == m_cmdlRigs.end())
+            return nullptr;
+        return &search->second;
     }
 };
 

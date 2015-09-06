@@ -28,6 +28,8 @@ public:
     typedef PAK PAKType;
     inline const PAKType& getPAK() const {return m_pak;}
     inline const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
+
+    void addCMDLRigPairs(std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo) const;
 };
 
 }
