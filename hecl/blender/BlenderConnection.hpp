@@ -34,6 +34,7 @@ class BlenderConnection
     int m_readpipe[2];
     int m_writepipe[2];
     SystemString m_loadedBlend;
+    std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
     size_t _writeLine(const char* buf);
     size_t _readBuf(char* buf, size_t len);

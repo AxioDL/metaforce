@@ -32,17 +32,37 @@ extern "C" size_t HECL_BLENDERSHELL_SZ;
 
 extern "C" uint8_t HECL_ADDON[];
 extern "C" size_t HECL_ADDON_SZ;
+    
+extern "C" uint8_t HECL_STARTUP[];
+extern "C" size_t HECL_STARTUP_SZ;
 
-static bool InstallAddon(const SystemChar* path)
+static void InstallBlendershell(const SystemChar* path)
+{
+    FILE* fp = HECL::Fopen(path, _S("w"));
+    if (!fp)
+        BlenderLog.report(LogVisor::FatalError, _S("unable to open %s for writing"), path);
+    fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
+    fclose(fp);
+}
+    
+static void InstallAddon(const SystemChar* path)
 {
     FILE* fp = HECL::Fopen(path, _S("wb"));
     if (!fp)
         BlenderLog.report(LogVisor::FatalError, _S("Unable to install blender addon at '%s'"), path);
     fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
     fclose(fp);
-    return true;
 }
 
+static void InstallStartup(const char* path)
+{
+    FILE* fp = fopen(path, "wb");
+    if (!fp)
+        BlenderLog.report(LogVisor::FatalError, "Unable to place hecl_startup.blend at '%s'", path);
+    fwrite(HECL_STARTUP, 1, HECL_STARTUP_SZ, fp);
+    fclose(fp);
+}
+    
 size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
 {
     size_t readBytes = 0;
@@ -137,15 +157,16 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
 #endif
     HECL::SystemString blenderShellPath(TMPDIR);
     blenderShellPath += _S("/hecl_blendershell.py");
-    FILE* fp = HECL::Fopen(blenderShellPath.c_str(), _S("w"));
-    if (!fp)
-        BlenderLog.report(LogVisor::FatalError, _S("unable to open %s for writing"), blenderShellPath.c_str());
-    fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
-    fclose(fp);
+    InstallBlendershell(blenderShellPath.c_str());
 
     HECL::SystemString blenderAddonPath(TMPDIR);
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
     InstallAddon(blenderAddonPath.c_str());
+    
+    HECL::SystemString blenderStartupPath(TMPDIR);
+    m_startupBlend = TMPDIR;
+    m_startupBlend += _S("/hecl_startup.blend");
+    InstallStartup(m_startupBlend.c_str());
 
     int installAttempt = 0;
     while (true)
@@ -321,7 +342,7 @@ bool BlenderConnection::createBlend(const SystemString& path)
         return false;
     }
     HECL::SystemUTF8View pathView(path);
-    _writeLine(("CREATE \"" + pathView.str() + "\"").c_str());
+    _writeLine(("CREATE \"" + pathView.str() + "\" \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
