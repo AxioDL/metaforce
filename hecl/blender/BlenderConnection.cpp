@@ -150,10 +150,12 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
     if (!TMPDIR)
         TMPDIR = (wchar_t*)L"\\Temp";
+    m_startupBlend = HECL::WideToUTF8(TMPDIR);
 #else
     char* TMPDIR = getenv("TMPDIR");
     if (!TMPDIR)
         TMPDIR = (char*)"/tmp";
+    m_startupBlend = TMPDIR;
 #endif
     HECL::SystemString blenderShellPath(TMPDIR);
     blenderShellPath += _S("/hecl_blendershell.py");
@@ -163,9 +165,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
     InstallAddon(blenderAddonPath.c_str());
     
-    HECL::SystemString blenderStartupPath(TMPDIR);
-    m_startupBlend = TMPDIR;
-    m_startupBlend += _S("/hecl_startup.blend");
+    m_startupBlend += "/hecl_startup.blend";
     InstallStartup(m_startupBlend.c_str());
 
     int installAttempt = 0;
