@@ -133,6 +133,7 @@ public:
 
         m_uniqueEntries.clear();
         m_sharedEntries.clear();
+        m_cmdlRigs.clear();
         size_t count = 0;
         float bridgesSz = bridges.size();
 
