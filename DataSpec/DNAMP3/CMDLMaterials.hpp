@@ -28,14 +28,15 @@ struct MaterialSet : BigDNA
             {
                 DECL_DNA
                 Value<atUint32> flags;
-                inline bool alphaBlending() const {return (flags & 0x8) != 0;}
-                inline void setAlphaBlending(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
-                inline bool punchthroughAlpha() const {return (flags & 0x10) != 0;}
-                inline void setPunchthroughAlpha(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
-                inline bool additiveBlending() const {return (flags & 0x20) != 0;}
-                inline void setAdditiveBlending(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}
-                inline bool shadowOccluderMesh() const {return (flags & 0x100) != 0;}
-                inline void setShadowOccluderMesh(bool enabled) {flags &= ~0x100; flags |= atUint32(enabled) << 8;}
+                bool alphaBlending() const {return (flags & 0x8) != 0;}
+                void setAlphaBlending(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
+                bool punchthroughAlpha() const {return (flags & 0x10) != 0;}
+                void setPunchthroughAlpha(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
+                bool additiveBlending() const {return (flags & 0x20) != 0;}
+                void setAdditiveBlending(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}
+                bool shadowOccluderMesh() const {return (flags & 0x100) != 0;}
+                void setShadowOccluderMesh(bool enabled) {flags &= ~0x100; flags |= atUint32(enabled) << 8;}
+                bool lightmapUVArray() const {return false;} /* For polymorphic compatibility with MP1/2 */
             } flags;
             Value<atUint32> groupIdx;
             Value<atUint32> unk1;
@@ -44,7 +45,8 @@ struct MaterialSet : BigDNA
             Value<atUint32> unk3;
             Value<atUint32> unk4;
         } header;
-        inline const VAFlags& getVAFlags() const {return header.vaFlags;}
+        const Header::Flags& getFlags() const {return header.flags;}
+        const VAFlags& getVAFlags() const {return header.vaFlags;}
 
         struct ISection : BigDNA
         {
@@ -180,7 +182,7 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;
 
-    static inline void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
+    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
     {
         DNAMP1::MaterialSet::RegisterMaterialProps(out);
     }
@@ -188,11 +190,11 @@ struct MaterialSet : BigDNA
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
-                              const PAKRouter<PAKBridge>& pakRouter,
-                              const PAKRouter<PAKBridge>::EntryType& entry,
-                              unsigned setIdx,
-                              const SpecBase& dataspec)
+    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+                       const PAKRouter<PAKBridge>& pakRouter,
+                       const PAKRouter<PAKBridge>::EntryType& entry,
+                       unsigned setIdx,
+                       const SpecBase& dataspec)
     {
         DNACMDL::ReadMaterialSetToBlender_3(os, *this, pakRouter, entry, setIdx, dataspec);
     }

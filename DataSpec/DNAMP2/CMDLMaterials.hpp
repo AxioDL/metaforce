@@ -20,13 +20,15 @@ struct MaterialSet : BigDNA
     struct Material : BigDNA
     {
         DECL_DNA
-        DNAMP1::MaterialSet::Material::Flags flags;
+        using Flags = DNAMP1::MaterialSet::Material::Flags;
+        Flags flags;
+        const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount;
         Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
         using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
         DNAMP1::MaterialSet::Material::VAFlags vaFlags;
-        inline const VAFlags& getVAFlags() const {return vaFlags;}
+        const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> unk0; /* MP2 only */
         Value<atUint32> unk1; /* MP2 only */
         Value<atUint32> groupIdx;
@@ -55,7 +57,7 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
-    static inline void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
+    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
     {
         DNAMP1::MaterialSet::RegisterMaterialProps(out);
     }
@@ -63,11 +65,11 @@ struct MaterialSet : BigDNA
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
-                              const PAKRouter<PAKBridge>& pakRouter,
-                              const PAKRouter<PAKBridge>::EntryType& entry,
-                              unsigned setIdx,
-                              const SpecBase& dataspec)
+    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+                       const PAKRouter<PAKBridge>& pakRouter,
+                       const PAKRouter<PAKBridge>::EntryType& entry,
+                       unsigned setIdx,
+                       const SpecBase& dataspec)
     {
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx, dataspec);
     }

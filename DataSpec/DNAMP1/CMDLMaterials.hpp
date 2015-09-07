@@ -31,29 +31,30 @@ struct MaterialSet : BigDNA
         {
             DECL_DNA
             Value<atUint32> flags;
-            inline bool konstValuesEnabled() const {return (flags & 0x8) != 0;}
-            inline void setKonstValuesEnabled(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
-            inline bool depthSorting() const {return (flags & 0x10) != 0;}
-            inline void setDepthSorting(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
-            inline bool punchthroughAlpha() const {return (flags & 0x20) != 0;}
-            inline void setPunchthroughAlpha(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}
-            inline bool samusReflection() const {return (flags & 0x40) != 0;}
-            inline void setSamusReflection(bool enabled) {flags &= ~0x40; flags |= atUint32(enabled) << 6;}
-            inline bool depthWrite() const {return (flags & 0x80) != 0;}
-            inline void setDepthWrite(bool enabled) {flags &= ~0x80; flags |= atUint32(enabled) << 7;}
-            inline bool samusReflectionSurfaceEye() const {return (flags & 0x100) != 0;}
-            inline void setSamusReflectionSurfaceEye(bool enabled) {flags &= ~0x100; flags |= atUint32(enabled) << 8;}
-            inline bool shadowOccluderMesh() const {return (flags & 0x200) != 0;}
-            inline void setShadowOccluderMesh(bool enabled) {flags &= ~0x200; flags |= atUint32(enabled) << 9;}
-            inline bool samusReflectionIndirectTexture() const {return (flags & 0x400) != 0;}
-            inline void setSamusReflectionIndirectTexture(bool enabled) {flags &= ~0x400; flags |= atUint32(enabled) << 10;}
-            inline bool lightmap() const {return (flags & 0x800) != 0;}
-            inline void setLightmap(bool enabled) {flags &= ~0x800; flags |= atUint32(enabled) << 11;}
-            inline bool lightmapUVArray() const {return (flags & 0x2000) != 0;}
-            inline void setLightmapUVArray(bool enabled) {flags &= ~0x2000; flags |= atUint32(enabled) << 13;}
-            inline atUint16 textureSlots() const {return (flags >> 16) != 0;}
-            inline void setTextureSlots(atUint16 texslots) {flags &= ~0xffff0000; flags |= atUint32(texslots) << 16;}
+            bool konstValuesEnabled() const {return (flags & 0x8) != 0;}
+            void setKonstValuesEnabled(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
+            bool depthSorting() const {return (flags & 0x10) != 0;}
+            void setDepthSorting(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
+            bool punchthroughAlpha() const {return (flags & 0x20) != 0;}
+            void setPunchthroughAlpha(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}
+            bool samusReflection() const {return (flags & 0x40) != 0;}
+            void setSamusReflection(bool enabled) {flags &= ~0x40; flags |= atUint32(enabled) << 6;}
+            bool depthWrite() const {return (flags & 0x80) != 0;}
+            void setDepthWrite(bool enabled) {flags &= ~0x80; flags |= atUint32(enabled) << 7;}
+            bool samusReflectionSurfaceEye() const {return (flags & 0x100) != 0;}
+            void setSamusReflectionSurfaceEye(bool enabled) {flags &= ~0x100; flags |= atUint32(enabled) << 8;}
+            bool shadowOccluderMesh() const {return (flags & 0x200) != 0;}
+            void setShadowOccluderMesh(bool enabled) {flags &= ~0x200; flags |= atUint32(enabled) << 9;}
+            bool samusReflectionIndirectTexture() const {return (flags & 0x400) != 0;}
+            void setSamusReflectionIndirectTexture(bool enabled) {flags &= ~0x400; flags |= atUint32(enabled) << 10;}
+            bool lightmap() const {return (flags & 0x800) != 0;}
+            void setLightmap(bool enabled) {flags &= ~0x800; flags |= atUint32(enabled) << 11;}
+            bool lightmapUVArray() const {return (flags & 0x2000) != 0;}
+            void setLightmapUVArray(bool enabled) {flags &= ~0x2000; flags |= atUint32(enabled) << 13;}
+            atUint16 textureSlots() const {return (flags >> 16) != 0;}
+            void setTextureSlots(atUint16 texslots) {flags &= ~0xffff0000; flags |= atUint32(texslots) << 16;}
         } flags;
+        const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount;
         Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
@@ -61,46 +62,46 @@ struct MaterialSet : BigDNA
         {
             DECL_DNA
             Value<atUint32> vaFlags;
-            inline GX::AttrType position() const {return GX::AttrType(vaFlags & 0x3);}
-            inline void setPosition(GX::AttrType val) {vaFlags &= ~0x3; vaFlags |= atUint32(val);}
-            inline GX::AttrType normal() const {return GX::AttrType(vaFlags >> 2 & 0x3);}
-            inline void setNormal(GX::AttrType val) {vaFlags &= ~0xC; vaFlags |= atUint32(val) << 2;}
-            inline GX::AttrType color0() const {return GX::AttrType(vaFlags >> 4 & 0x3);}
-            inline void setColor0(GX::AttrType val) {vaFlags &= ~0x30; vaFlags |= atUint32(val) << 4;}
-            inline GX::AttrType color1() const {return GX::AttrType(vaFlags >> 6 & 0x3);}
-            inline void setColor1(GX::AttrType val) {vaFlags &= ~0xC0; vaFlags |= atUint32(val) << 6;}
-            inline GX::AttrType tex0() const {return GX::AttrType(vaFlags >> 8 & 0x3);}
-            inline void setTex0(GX::AttrType val) {vaFlags &= ~0x300; vaFlags |= atUint32(val) << 8;}
-            inline GX::AttrType tex1() const {return GX::AttrType(vaFlags >> 10 & 0x3);}
-            inline void setTex1(GX::AttrType val) {vaFlags &= ~0xC00; vaFlags |= atUint32(val) << 10;}
-            inline GX::AttrType tex2() const {return GX::AttrType(vaFlags >> 12 & 0x3);}
-            inline void setTex2(GX::AttrType val) {vaFlags &= ~0x3000; vaFlags |= atUint32(val) << 12;}
-            inline GX::AttrType tex3() const {return GX::AttrType(vaFlags >> 14 & 0x3);}
-            inline void setTex3(GX::AttrType val) {vaFlags &= ~0xC000; vaFlags |= atUint32(val) << 14;}
-            inline GX::AttrType tex4() const {return GX::AttrType(vaFlags >> 16 & 0x3);}
-            inline void setTex4(GX::AttrType val) {vaFlags &= ~0x30000; vaFlags |= atUint32(val) << 16;}
-            inline GX::AttrType tex5() const {return GX::AttrType(vaFlags >> 18 & 0x3);}
-            inline void setTex5(GX::AttrType val) {vaFlags &= ~0xC0000; vaFlags |= atUint32(val) << 18;}
-            inline GX::AttrType tex6() const {return GX::AttrType(vaFlags >> 20 & 0x3);}
-            inline void setTex6(GX::AttrType val) {vaFlags &= ~0x300000; vaFlags |= atUint32(val) << 20;}
-            inline GX::AttrType pnMatIdx() const {return GX::AttrType(vaFlags >> 24 & 0x1);}
-            inline void setPnMatIdx(GX::AttrType val) {vaFlags &= ~0x1000000; vaFlags |= atUint32(val & 0x1) << 24;}
-            inline GX::AttrType tex0MatIdx() const {return GX::AttrType(vaFlags >> 25 & 0x1);}
-            inline void setTex0MatIdx(GX::AttrType val) {vaFlags &= ~0x2000000; vaFlags |= atUint32(val & 0x1) << 25;}
-            inline GX::AttrType tex1MatIdx() const {return GX::AttrType(vaFlags >> 26 & 0x1);}
-            inline void setTex1MatIdx(GX::AttrType val) {vaFlags &= ~0x4000000; vaFlags |= atUint32(val & 0x1) << 26;}
-            inline GX::AttrType tex2MatIdx() const {return GX::AttrType(vaFlags >> 27 & 0x1);}
-            inline void setTex2MatIdx(GX::AttrType val) {vaFlags &= ~0x8000000; vaFlags |= atUint32(val & 0x1) << 27;}
-            inline GX::AttrType tex3MatIdx() const {return GX::AttrType(vaFlags >> 28 & 0x1);}
-            inline void setTex3MatIdx(GX::AttrType val) {vaFlags &= ~0x10000000; vaFlags |= atUint32(val & 0x1) << 28;}
-            inline GX::AttrType tex4MatIdx() const {return GX::AttrType(vaFlags >> 29 & 0x1);}
-            inline void setTex4MatIdx(GX::AttrType val) {vaFlags &= ~0x20000000; vaFlags |= atUint32(val & 0x1) << 29;}
-            inline GX::AttrType tex5MatIdx() const {return GX::AttrType(vaFlags >> 30 & 0x1);}
-            inline void setTex5MatIdx(GX::AttrType val) {vaFlags &= ~0x40000000; vaFlags |= atUint32(val & 0x1) << 30;}
-            inline GX::AttrType tex6MatIdx() const {return GX::AttrType(vaFlags >> 31 & 0x1);}
-            inline void setTex6MatIdx(GX::AttrType val) {vaFlags &= ~0x80000000; vaFlags |= atUint32(val & 0x1) << 31;}
+            GX::AttrType position() const {return GX::AttrType(vaFlags & 0x3);}
+            void setPosition(GX::AttrType val) {vaFlags &= ~0x3; vaFlags |= atUint32(val);}
+            GX::AttrType normal() const {return GX::AttrType(vaFlags >> 2 & 0x3);}
+            void setNormal(GX::AttrType val) {vaFlags &= ~0xC; vaFlags |= atUint32(val) << 2;}
+            GX::AttrType color0() const {return GX::AttrType(vaFlags >> 4 & 0x3);}
+            void setColor0(GX::AttrType val) {vaFlags &= ~0x30; vaFlags |= atUint32(val) << 4;}
+            GX::AttrType color1() const {return GX::AttrType(vaFlags >> 6 & 0x3);}
+            void setColor1(GX::AttrType val) {vaFlags &= ~0xC0; vaFlags |= atUint32(val) << 6;}
+            GX::AttrType tex0() const {return GX::AttrType(vaFlags >> 8 & 0x3);}
+            void setTex0(GX::AttrType val) {vaFlags &= ~0x300; vaFlags |= atUint32(val) << 8;}
+            GX::AttrType tex1() const {return GX::AttrType(vaFlags >> 10 & 0x3);}
+            void setTex1(GX::AttrType val) {vaFlags &= ~0xC00; vaFlags |= atUint32(val) << 10;}
+            GX::AttrType tex2() const {return GX::AttrType(vaFlags >> 12 & 0x3);}
+            void setTex2(GX::AttrType val) {vaFlags &= ~0x3000; vaFlags |= atUint32(val) << 12;}
+            GX::AttrType tex3() const {return GX::AttrType(vaFlags >> 14 & 0x3);}
+            void setTex3(GX::AttrType val) {vaFlags &= ~0xC000; vaFlags |= atUint32(val) << 14;}
+            GX::AttrType tex4() const {return GX::AttrType(vaFlags >> 16 & 0x3);}
+            void setTex4(GX::AttrType val) {vaFlags &= ~0x30000; vaFlags |= atUint32(val) << 16;}
+            GX::AttrType tex5() const {return GX::AttrType(vaFlags >> 18 & 0x3);}
+            void setTex5(GX::AttrType val) {vaFlags &= ~0xC0000; vaFlags |= atUint32(val) << 18;}
+            GX::AttrType tex6() const {return GX::AttrType(vaFlags >> 20 & 0x3);}
+            void setTex6(GX::AttrType val) {vaFlags &= ~0x300000; vaFlags |= atUint32(val) << 20;}
+            GX::AttrType pnMatIdx() const {return GX::AttrType(vaFlags >> 24 & 0x1);}
+            void setPnMatIdx(GX::AttrType val) {vaFlags &= ~0x1000000; vaFlags |= atUint32(val & 0x1) << 24;}
+            GX::AttrType tex0MatIdx() const {return GX::AttrType(vaFlags >> 25 & 0x1);}
+            void setTex0MatIdx(GX::AttrType val) {vaFlags &= ~0x2000000; vaFlags |= atUint32(val & 0x1) << 25;}
+            GX::AttrType tex1MatIdx() const {return GX::AttrType(vaFlags >> 26 & 0x1);}
+            void setTex1MatIdx(GX::AttrType val) {vaFlags &= ~0x4000000; vaFlags |= atUint32(val & 0x1) << 26;}
+            GX::AttrType tex2MatIdx() const {return GX::AttrType(vaFlags >> 27 & 0x1);}
+            void setTex2MatIdx(GX::AttrType val) {vaFlags &= ~0x8000000; vaFlags |= atUint32(val & 0x1) << 27;}
+            GX::AttrType tex3MatIdx() const {return GX::AttrType(vaFlags >> 28 & 0x1);}
+            void setTex3MatIdx(GX::AttrType val) {vaFlags &= ~0x10000000; vaFlags |= atUint32(val & 0x1) << 28;}
+            GX::AttrType tex4MatIdx() const {return GX::AttrType(vaFlags >> 29 & 0x1);}
+            void setTex4MatIdx(GX::AttrType val) {vaFlags &= ~0x20000000; vaFlags |= atUint32(val & 0x1) << 29;}
+            GX::AttrType tex5MatIdx() const {return GX::AttrType(vaFlags >> 30 & 0x1);}
+            void setTex5MatIdx(GX::AttrType val) {vaFlags &= ~0x40000000; vaFlags |= atUint32(val & 0x1) << 30;}
+            GX::AttrType tex6MatIdx() const {return GX::AttrType(vaFlags >> 31 & 0x1);}
+            void setTex6MatIdx(GX::AttrType val) {vaFlags &= ~0x80000000; vaFlags |= atUint32(val & 0x1) << 31;}
         } vaFlags;
-        inline const VAFlags& getVAFlags() const {return vaFlags;}
+        const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> groupIdx;
 
         Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
@@ -127,18 +128,18 @@ struct MaterialSet : BigDNA
         {
             DECL_DNA
             Value<atUint32> flags;
-            inline bool lighting() const {return (flags & 0x1) != 0;}
-            inline void setLighting(bool enabled) {flags &= ~0x1; flags |= atUint32(enabled);}
-            inline bool useAmbient() const {return (flags & 0x2) != 0;}
-            inline void setUseAmbient(bool enabled) {flags &= ~0x2; flags |= atUint32(enabled) << 1;}
-            inline bool useMaterial() const {return (flags & 0x4) != 0;}
-            inline void setUseMaterial(bool enabled) {flags &= ~0x4; flags |= atUint32(enabled) << 2;}
-            inline atUint8 lightmask() const {return atUint8(flags >> 3 & 0xff);}
-            inline void setLightmask(atUint8 mask) {flags &= ~0x7f8; flags |= atUint32(mask) << 3;}
-            inline atUint8 diffuseFn() const {return atUint8(flags >> 11 & 0x3);}
-            inline void setDiffuseFn(atUint8 fn) {flags &= ~0x1800; flags |= atUint32(fn) << 11;}
-            inline atUint8 attenuationFn() const {return atUint8(flags >> 13 & 0x3);}
-            inline void setAttenuationFn(atUint8 fn) {flags &= ~0x6000; flags |= atUint32(fn) << 13;}
+            bool lighting() const {return (flags & 0x1) != 0;}
+            void setLighting(bool enabled) {flags &= ~0x1; flags |= atUint32(enabled);}
+            bool useAmbient() const {return (flags & 0x2) != 0;}
+            void setUseAmbient(bool enabled) {flags &= ~0x2; flags |= atUint32(enabled) << 1;}
+            bool useMaterial() const {return (flags & 0x4) != 0;}
+            void setUseMaterial(bool enabled) {flags &= ~0x4; flags |= atUint32(enabled) << 2;}
+            atUint8 lightmask() const {return atUint8(flags >> 3 & 0xff);}
+            void setLightmask(atUint8 mask) {flags &= ~0x7f8; flags |= atUint32(mask) << 3;}
+            atUint8 diffuseFn() const {return atUint8(flags >> 11 & 0x3);}
+            void setDiffuseFn(atUint8 fn) {flags &= ~0x1800; flags |= atUint32(fn) << 11;}
+            atUint8 attenuationFn() const {return atUint8(flags >> 13 & 0x3);}
+            void setAttenuationFn(atUint8 fn) {flags &= ~0x6000; flags |= atUint32(fn) << 13;}
         };
         Vector<ColorChannel, DNA_COUNT(colorChannelCount)> colorChannels;
 
@@ -155,48 +156,48 @@ struct MaterialSet : BigDNA
             Value<atUint8> kcInput;
             Value<atUint8> rascInput;
 
-            inline GX::TevColorArg colorInA() const {return GX::TevColorArg(ciFlags & 0xf);}
-            inline void setColorInA(GX::TevColorArg val) {ciFlags &= ~0x1f; ciFlags |= atUint32(val);}
-            inline GX::TevColorArg colorInB() const {return GX::TevColorArg(ciFlags >> 5 & 0xf);}
-            inline void setColorInB(GX::TevColorArg val) {ciFlags &= ~0x3e0; ciFlags |= atUint32(val) << 5;}
-            inline GX::TevColorArg colorInC() const {return GX::TevColorArg(ciFlags >> 10 & 0xf);}
-            inline void setColorInC(GX::TevColorArg val) {ciFlags &= ~0x7c00; ciFlags |= atUint32(val) << 10;}
-            inline GX::TevColorArg colorInD() const {return GX::TevColorArg(ciFlags >> 15 & 0xf);}
-            inline void setColorInD(GX::TevColorArg val) {ciFlags &= ~0xf8000; ciFlags |= atUint32(val) << 15;}
+            GX::TevColorArg colorInA() const {return GX::TevColorArg(ciFlags & 0xf);}
+            void setColorInA(GX::TevColorArg val) {ciFlags &= ~0x1f; ciFlags |= atUint32(val);}
+            GX::TevColorArg colorInB() const {return GX::TevColorArg(ciFlags >> 5 & 0xf);}
+            void setColorInB(GX::TevColorArg val) {ciFlags &= ~0x3e0; ciFlags |= atUint32(val) << 5;}
+            GX::TevColorArg colorInC() const {return GX::TevColorArg(ciFlags >> 10 & 0xf);}
+            void setColorInC(GX::TevColorArg val) {ciFlags &= ~0x7c00; ciFlags |= atUint32(val) << 10;}
+            GX::TevColorArg colorInD() const {return GX::TevColorArg(ciFlags >> 15 & 0xf);}
+            void setColorInD(GX::TevColorArg val) {ciFlags &= ~0xf8000; ciFlags |= atUint32(val) << 15;}
 
-            inline GX::TevAlphaArg alphaInA() const {return GX::TevAlphaArg(aiFlags & 0x7);}
-            inline void setAlphaInA(GX::TevAlphaArg val) {aiFlags &= ~0x1f; aiFlags |= atUint32(val);}
-            inline GX::TevAlphaArg alphaInB() const {return GX::TevAlphaArg(aiFlags >> 5 & 0x7);}
-            inline void setAlphaInB(GX::TevAlphaArg val) {aiFlags &= ~0x3e0; aiFlags |= atUint32(val) << 5;}
-            inline GX::TevAlphaArg alphaInC() const {return GX::TevAlphaArg(aiFlags >> 10 & 0x7);}
-            inline void setAlphaInC(GX::TevAlphaArg val) {aiFlags &= ~0x7c00; aiFlags |= atUint32(val) << 10;}
-            inline GX::TevAlphaArg alphaInD() const {return GX::TevAlphaArg(aiFlags >> 15 & 0x7);}
-            inline void setAlphaInD(GX::TevAlphaArg val) {aiFlags &= ~0xf8000; aiFlags |= atUint32(val) << 15;}
+            GX::TevAlphaArg alphaInA() const {return GX::TevAlphaArg(aiFlags & 0x7);}
+            void setAlphaInA(GX::TevAlphaArg val) {aiFlags &= ~0x1f; aiFlags |= atUint32(val);}
+            GX::TevAlphaArg alphaInB() const {return GX::TevAlphaArg(aiFlags >> 5 & 0x7);}
+            void setAlphaInB(GX::TevAlphaArg val) {aiFlags &= ~0x3e0; aiFlags |= atUint32(val) << 5;}
+            GX::TevAlphaArg alphaInC() const {return GX::TevAlphaArg(aiFlags >> 10 & 0x7);}
+            void setAlphaInC(GX::TevAlphaArg val) {aiFlags &= ~0x7c00; aiFlags |= atUint32(val) << 10;}
+            GX::TevAlphaArg alphaInD() const {return GX::TevAlphaArg(aiFlags >> 15 & 0x7);}
+            void setAlphaInD(GX::TevAlphaArg val) {aiFlags &= ~0xf8000; aiFlags |= atUint32(val) << 15;}
 
-            inline GX::TevOp colorOp() const {return GX::TevOp(ccFlags & 0xf);}
-            inline void setColorOp(GX::TevOp val) {ccFlags &= ~0x1; ccFlags |= atUint32(val);}
-            inline GX::TevBias colorOpBias() const {return GX::TevBias(ccFlags >> 4 & 0x3);}
-            inline void setColorOpBias(GX::TevBias val) {ccFlags &= ~0x30; ccFlags |= atUint32(val) << 4;}
-            inline GX::TevScale colorOpScale() const {return GX::TevScale(ccFlags >> 6 & 0x3);}
-            inline void setColorOpScale(GX::TevScale val) {ccFlags &= ~0xc0; ccFlags |= atUint32(val) << 6;}
-            inline bool colorOpClamp() const {return ccFlags >> 8 & 0x1;}
-            inline void setColorOpClamp(bool val) {ccFlags &= ~0x100; ccFlags |= atUint32(val) << 8;}
-            inline GX::TevRegID colorOpOutReg() const {return GX::TevRegID(ccFlags >> 9 & 0x3);}
-            inline void setColorOpOutReg(GX::TevRegID val) {ccFlags &= ~0x600; ccFlags |= atUint32(val) << 9;}
+            GX::TevOp colorOp() const {return GX::TevOp(ccFlags & 0xf);}
+            void setColorOp(GX::TevOp val) {ccFlags &= ~0x1; ccFlags |= atUint32(val);}
+            GX::TevBias colorOpBias() const {return GX::TevBias(ccFlags >> 4 & 0x3);}
+            void setColorOpBias(GX::TevBias val) {ccFlags &= ~0x30; ccFlags |= atUint32(val) << 4;}
+            GX::TevScale colorOpScale() const {return GX::TevScale(ccFlags >> 6 & 0x3);}
+            void setColorOpScale(GX::TevScale val) {ccFlags &= ~0xc0; ccFlags |= atUint32(val) << 6;}
+            bool colorOpClamp() const {return ccFlags >> 8 & 0x1;}
+            void setColorOpClamp(bool val) {ccFlags &= ~0x100; ccFlags |= atUint32(val) << 8;}
+            GX::TevRegID colorOpOutReg() const {return GX::TevRegID(ccFlags >> 9 & 0x3);}
+            void setColorOpOutReg(GX::TevRegID val) {ccFlags &= ~0x600; ccFlags |= atUint32(val) << 9;}
 
-            inline GX::TevOp alphaOp() const {return GX::TevOp(acFlags & 0xf);}
-            inline void setAlphaOp(GX::TevOp val) {acFlags &= ~0x1; acFlags |= atUint32(val);}
-            inline GX::TevBias alphaOpBias() const {return GX::TevBias(acFlags >> 4 & 0x3);}
-            inline void setAlphaOpBias(GX::TevBias val) {acFlags &= ~0x30; acFlags |= atUint32(val) << 4;}
-            inline GX::TevScale alphaOpScale() const {return GX::TevScale(acFlags >> 6 & 0x3);}
-            inline void setAlphaOpScale(GX::TevScale val) {acFlags &= ~0xc0; acFlags |= atUint32(val) << 6;}
-            inline bool alphaOpClamp() const {return acFlags >> 8 & 0x1;}
-            inline void setAlphaOpClamp(bool val) {acFlags &= ~0x100; acFlags |= atUint32(val) << 8;}
-            inline GX::TevRegID alphaOpOutReg() const {return GX::TevRegID(acFlags >> 9 & 0x3);}
-            inline void setAlphaOpOutReg(GX::TevRegID val) {acFlags &= ~0x600; acFlags |= atUint32(val) << 9;}
+            GX::TevOp alphaOp() const {return GX::TevOp(acFlags & 0xf);}
+            void setAlphaOp(GX::TevOp val) {acFlags &= ~0x1; acFlags |= atUint32(val);}
+            GX::TevBias alphaOpBias() const {return GX::TevBias(acFlags >> 4 & 0x3);}
+            void setAlphaOpBias(GX::TevBias val) {acFlags &= ~0x30; acFlags |= atUint32(val) << 4;}
+            GX::TevScale alphaOpScale() const {return GX::TevScale(acFlags >> 6 & 0x3);}
+            void setAlphaOpScale(GX::TevScale val) {acFlags &= ~0xc0; acFlags |= atUint32(val) << 6;}
+            bool alphaOpClamp() const {return acFlags >> 8 & 0x1;}
+            void setAlphaOpClamp(bool val) {acFlags &= ~0x100; acFlags |= atUint32(val) << 8;}
+            GX::TevRegID alphaOpOutReg() const {return GX::TevRegID(acFlags >> 9 & 0x3);}
+            void setAlphaOpOutReg(GX::TevRegID val) {acFlags &= ~0x600; acFlags |= atUint32(val) << 9;}
 
-            inline GX::TevKColorSel kColorIn() const {return GX::TevKColorSel(kcInput);}
-            inline GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
+            GX::TevKColorSel kColorIn() const {return GX::TevKColorSel(kcInput);}
+            GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
         };
         Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
@@ -214,16 +215,16 @@ struct MaterialSet : BigDNA
             DECL_DNA
             Value<atUint32> flags;
 
-            inline GX::TexGenType type() const {return GX::TexGenType(flags & 0xf);}
-            inline void setType(GX::TexGenType val) {flags &= ~0xf; flags |= atUint32(val);}
-            inline GX::TexGenSrc source() const {return GX::TexGenSrc(flags >> 4 & 0x1f);}
-            inline void setSource(GX::TexGenSrc val) {flags &= ~0x1f0; flags |= atUint32(val) << 4;}
-            inline GX::TexMtx mtx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
-            inline void setMtx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (atUint32(val)-30) << 9;}
-            inline bool normalize() const {return flags >> 14 & 0x1;}
-            inline void setNormalize(bool val) {flags &= ~0x4000; flags |= atUint32(val) << 14;}
-            inline GX::PTTexMtx postMtx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
-            inline void setPostMtx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
+            GX::TexGenType type() const {return GX::TexGenType(flags & 0xf);}
+            void setType(GX::TexGenType val) {flags &= ~0xf; flags |= atUint32(val);}
+            GX::TexGenSrc source() const {return GX::TexGenSrc(flags >> 4 & 0x1f);}
+            void setSource(GX::TexGenSrc val) {flags &= ~0x1f0; flags |= atUint32(val) << 4;}
+            GX::TexMtx mtx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
+            void setMtx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (atUint32(val)-30) << 9;}
+            bool normalize() const {return flags >> 14 & 0x1;}
+            void setNormalize(bool val) {flags &= ~0x4000; flags |= atUint32(val) << 14;}
+            GX::PTTexMtx postMtx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
+            void setPostMtx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
         };
         Vector<TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
 
@@ -302,11 +303,11 @@ struct MaterialSet : BigDNA
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    inline void readToBlender(HECL::BlenderConnection::PyOutStream& os,
-                              const PAKRouter<PAKBridge>& pakRouter,
-                              const PAKRouter<PAKBridge>::EntryType& entry,
-                              unsigned setIdx,
-                              const SpecBase& dataspec)
+    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+                       const PAKRouter<PAKBridge>& pakRouter,
+                       const PAKRouter<PAKBridge>::EntryType& entry,
+                       unsigned setIdx,
+                       const SpecBase& dataspec)
     {
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx, dataspec);
     }

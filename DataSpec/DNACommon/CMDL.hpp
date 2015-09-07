@@ -58,6 +58,7 @@ struct VertexAttributes
     GX::AttrType pnMtxIdx = GX::NONE;
     unsigned texMtxIdxCount = 0;
     GX::AttrType texMtxIdx[7] = {GX::NONE};
+    bool shortUVs;
 };
 
 template <class MaterialSet>
@@ -109,6 +110,8 @@ void GetVertexAttributes(const MaterialSet& matSet,
             ++va.texMtxIdxCount;
         if ((va.texMtxIdx[6] = vaFlags.tex6MatIdx()))
             ++va.texMtxIdxCount;
+
+        va.shortUVs = mat.getFlags().lightmapUVArray();
     }
 }
 
@@ -304,141 +307,46 @@ public:
     }
 };
 
-template <class PAKRouter, class MaterialSet, class RIGPAIR, atUint32 Version>
-bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
-                       Athena::io::IStreamReader& reader,
-                       PAKRouter& pakRouter,
-                       const typename PAKRouter::EntryType& entry,
-                       const SpecBase& dataspec,
-                       const RIGPAIR& rp)
+void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
+                            const HECL::ProjectPath& masterShaderPath);
+void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
+                       unsigned matSetCount, int meshIdx);
+
+template <class PAKRouter, class MaterialSet, class RIGPAIR>
+atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
+                                   Athena::io::IStreamReader& reader,
+                                   PAKRouter& pakRouter,
+                                   const typename PAKRouter::EntryType& entry,
+                                   const SpecBase& dataspec,
+                                   const RIGPAIR& rp,
+                                   bool shortNormals,
+                                   bool shortUVs,
+                                   std::vector<VertexAttributes>& vertAttribs,
+                                   int meshIdx,
+                                   atUint32 secCount,
+                                   atUint32 matSetCount,
+                                   const atUint32* secSizes)
 {
-    Header head;
-    head.read(reader);
-
-    if (head.magic != 0xDEADBABE)
-    {
-        LogDNACommon.report(LogVisor::Error, "invalid CMDL magic");
-        return false;
-    }
-
-    if (head.version != Version)
-    {
-        LogDNACommon.report(LogVisor::Error, "invalid CMDL version");
-        return false;
-    }
-
-    /* Open Py Stream */
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
-    os.format("import bpy\n"
-              "import bmesh\n"
-              "\n"
-              "bpy.context.scene.name = '%s'\n"
-              "bpy.context.scene.hecl_type = 'MESH'\n"
-              "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
-              "\n"
-              "# Using 'Blender Game'\n"
-              "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-              "\n"
-              "# Clear Scene\n"
-              "for ob in bpy.data.objects:\n"
-              "    if ob.type != 'LAMP':\n"
-              "        bpy.context.scene.objects.unlink(ob)\n"
-              "        bpy.data.objects.remove(ob)\n"
-              "\n"
-              "# Property to convey original vert indices in overdraw meshes\n"
-              "class CMDLOriginalIndex(bpy.types.PropertyGroup):\n"
-              "    index = bpy.props.IntProperty(name='Original Vertex Index')\n"
-              "bpy.utils.register_class(CMDLOriginalIndex)\n"
-              "bpy.types.Mesh.cmdl_orig_verts = bpy.props.CollectionProperty(type=CMDLOriginalIndex)\n"
-              "\n"
-              "def loop_from_facevert(face, vert_idx):\n"
-              "    for loop in face.loops:\n"
-              "        if loop.vert.index == vert_idx:\n"
-              "            return loop\n"
-              "\n"
-              "def add_triangle(bm, vert_seq, vert_indices, norm_seq, norm_indices, mat_nr, od_list):\n"
-              "    if len(set(vert_indices)) != 3:\n"
-              "        return None, None\n"
-              "\n"
-              "    ret_mesh = bm\n"
-              "    vert_seq.ensure_lookup_table()\n"
-              "    verts = [vert_seq[i] for i in vert_indices]\n"
-              "    norms = [norm_seq[i] for i in norm_indices]\n"
-              "\n"
-              "    # Make the face\n"
-              "    face = bm.faces.get(verts)\n"
-              "\n"
-              "    if face is not None and face.material_index != mat_nr: # Same poly, new material\n"
-              "        # Overdraw detected; track copy\n"
-              "        od_entry = None\n"
-              "        for entry in od_list:\n"
-              "            if entry['material'] == mat_nr:\n"
-              "                od_entry = entry\n"
-              "        if od_entry is None:\n"
-              "            bm_cpy = bm.copy()\n"
-              "            od_entry = {'material':mat_nr, 'bm':bm_cpy}\n"
-              "            bmesh.ops.delete(od_entry['bm'], geom=od_entry['bm'].faces, context=3)\n"
-              "            od_list.append(od_entry)\n"
-              "        od_entry['bm'].verts.ensure_lookup_table()\n"
-              "        verts = [od_entry['bm'].verts[i] for i in vert_indices]\n"
-              "        face = od_entry['bm'].faces.get(verts)\n"
-              "        if face is None:\n"
-              "            face = od_entry['bm'].faces.new(verts)\n"
-              "        else: # Probably a double-sided surface\n"
-              "            face = face.copy()\n"
-              "            face.normal_flip()\n"
-              "        ret_mesh = od_entry['bm']\n"
-              "\n"
-              "    elif face is not None: # Same material, probably double-sided\n"
-              "        face = face.copy()\n"
-              "        face.normal_flip()\n"
-              "\n"
-              "    else: \n"
-              "        face = bm.faces.new(verts)\n"
-              "\n"
-              "    # Apply normals\n"
-              "    for i in range(3):\n"
-              "        verts[i].normal = norms[i]\n"
-              "\n"
-              "    for i in range(3):\n"
-              "        face.verts[i].index = vert_indices[i]\n"
-              "    face.material_index = mat_nr\n"
-              "    face.smooth = True\n"
-              "\n"
-              "    return face, ret_mesh\n"
-              "\n"
-              "# Begin bmesh\n"
-              "bm = bmesh.new()\n"
-              "\n", pakRouter.getBestEntryName(entry).c_str());
+    os << "# Begin bmesh\n"
+          "bm = bmesh.new()\n"
+          "\n";
 
     if (rp.first)
         os << "dvert_lay = bm.verts.layers.deform.verify()\n";
 
-    /* Link master shader library */
-    os.format("# Master shader library\n"
-              "with bpy.data.libraries.load('%s', link=True, relative=True) as (data_from, data_to):\n"
-              "    data_to.node_groups = data_from.node_groups\n"
-              "\n", dataspec.getMasterShaderPath().getAbsolutePathUTF8().c_str());
-
-    MaterialSet::RegisterMaterialProps(os);
-    os << "# Materials\n"
-          "materials = []\n"
-          "\n"
-          "# Overdraw-tracking\n"
+    os << "# Overdraw-tracking\n"
           "od_list = []\n"
           "\n";
 
     /* Pre-read pass to determine maximum used vert indices */
     bool visitedDLOffsets = false;
-    std::vector<VertexAttributes> vertAttribs;
-
+    atUint32 lastDlSec = secCount;
     atUint64 afterHeaderPos = reader.position();
-
     DLReader::DLPrimVert maxIdxs;
-    for (size_t s=0 ; s<head.secCount ; ++s)
+    for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
-        if (s < head.matSetCount)
+        if (s < matSetCount)
         {
             if (!s)
             {
@@ -449,7 +357,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
         }
         else
         {
-            switch (s-head.matSetCount)
+            switch (s-matSetCount)
             {
             case 0:
             {
@@ -474,11 +382,12 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             case 4:
             {
                 /* Short UVs */
-                if (head.flags.shortUVs())
+                if (shortUVs)
                     break;
 
                 /* DL Offsets (here or next section) */
                 visitedDLOffsets = true;
+                lastDlSec = s + reader.readUint32Big() + 1;
                 break;
             }
             default:
@@ -486,6 +395,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 if (!visitedDLOffsets)
                 {
                     visitedDLOffsets = true;
+                    lastDlSec = s + reader.readUint32Big() + 1;
                     break;
                 }
 
@@ -494,7 +404,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 sHead.read(reader);
 
                 /* Do max index pre-read */
-                atUint32 realDlSize = head.secSizes[s] - (reader.position() - secStart);
+                atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
                 DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
                 dl.preReadMaxIdxs(maxIdxs);
 
@@ -502,8 +412,8 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             }
         }
 
-        if (s < head.secCount - 1)
-            reader.seek(secStart + head.secSizes[s], Athena::Begin);
+        if (s < secCount - 1)
+            reader.seek(secStart + secSizes[s], Athena::Begin);
     }
 
     reader.seek(afterHeaderPos, Athena::Begin);
@@ -512,10 +422,10 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
     unsigned createdUVLayers = 0;
     unsigned surfIdx = 0;
 
-    for (size_t s=0 ; s<head.secCount ; ++s)
+    for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
-        if (s < head.matSetCount)
+        if (s < matSetCount)
         {
             MaterialSet matSet;
             matSet.read(reader);
@@ -525,7 +435,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
         }
         else
         {
-            switch (s-head.matSetCount)
+            switch (s-matSetCount)
             {
             case 0:
             {
@@ -544,18 +454,20 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             {
                 /* Normals */
                 os << "norm_list = []\n";
-                if (head.flags.shortNormals())
+                if (shortNormals)
                 {
-                    size_t normCount = head.secSizes[s] / 6;
+                    size_t normCount = secSizes[s] / 6;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
                         os.format("norm_list.append((%f,%f,%f))\n",
-                                  reader.readInt16Big(), reader.readInt16Big(), reader.readInt16Big());
+                                  reader.readInt16Big() / 16834.0f,
+                                  reader.readInt16Big() / 16834.0f,
+                                  reader.readInt16Big() / 16834.0f);
                     }
                 }
                 else
                 {
-                    size_t normCount = head.secSizes[s] / 12;
+                    size_t normCount = secSizes[s] / 12;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
                         atVec3f norm = reader.readVec3fBig();
@@ -574,7 +486,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             {
                 /* Float UVs */
                 os << "uv_list = []\n";
-                size_t uvCount = head.secSizes[s] / 8;
+                size_t uvCount = secSizes[s] / 8;
                 for (size_t i=0 ; i<uvCount ; ++i)
                 {
                     atVec2f uv = reader.readVec2fBig();
@@ -587,13 +499,14 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             {
                 /* Short UVs */
                 os << "suv_list = []\n";
-                if (head.flags.shortUVs())
+                if (shortUVs)
                 {
-                    size_t uvCount = head.secSizes[s] / 4;
+                    size_t uvCount = secSizes[s] / 4;
                     for (size_t i=0 ; i<uvCount ; ++i)
                     {
                         os.format("suv_list.append((%f,%f))\n",
-                                  reader.readInt16Big(), reader.readInt16Big());
+                                  reader.readInt16Big() / 32768.0f,
+                                  reader.readInt16Big() / 32768.0f);
                     }
                     break;
                 }
@@ -613,7 +526,9 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                 /* GX Display List (surface) */
                 SurfaceHeader sHead;
                 sHead.read(reader);
-                unsigned matUVCount = vertAttribs[sHead.matIdx].uvCount;
+                VertexAttributes& curVA = vertAttribs[sHead.matIdx];
+                unsigned matUVCount = curVA.uvCount;
+                bool matShortUVs = curVA.shortUVs;
 
                 os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
                 if (matUVCount > createdUVLayers)
@@ -623,7 +538,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                     createdUVLayers = matUVCount;
                 }
 
-                atUint32 realDlSize = head.secSizes[s] - (reader.position() - secStart);
+                atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
                 DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
 
                 while (dl)
@@ -664,12 +579,22 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                                 {
                                     os << "if last_face is not None:\n";
                                     for (unsigned j=0 ; j<matUVCount ; ++j)
-                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
-                                                  primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j],
-                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                    {
+                                        if (j==0 && matShortUVs)
+                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n",
+                                                      primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                      primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j],
+                                                      primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                        else
+                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                                      primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                      primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j],
+                                                      primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                    }
                                 }
                             }
                             else
@@ -686,12 +611,22 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                                 {
                                     os << "if last_face is not None:\n";
                                     for (unsigned j=0 ; j<matUVCount ; ++j)
-                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
-                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j],
-                                                  primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j]);
+                                    {
+                                        if (j==0 && matShortUVs)
+                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n",
+                                                      primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                      primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j],
+                                                      primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j]);
+                                        else
+                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                                      primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                      primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j],
+                                                      primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j]);
+                                    }
                                 }
                             }
                             flip ^= 1;
@@ -721,12 +656,22 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                             {
                                 os << "if last_face is not None:\n";
                                 for (unsigned j=0 ; j<matUVCount ; ++j)
-                                    os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                              "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                              "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                              primVerts[0].pos, j, primVerts[0].uvs[j],
-                                              primVerts[1].pos, j, primVerts[1].uvs[j],
-                                              primVerts[2].pos, j, primVerts[2].uvs[j]);
+                                {
+                                    if (j==0 && matShortUVs)
+                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n",
+                                                  primVerts[0].pos, j, primVerts[0].uvs[j],
+                                                  primVerts[1].pos, j, primVerts[1].uvs[j],
+                                                  primVerts[2].pos, j, primVerts[2].uvs[j]);
+                                    else
+                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                                  primVerts[0].pos, j, primVerts[0].uvs[j],
+                                                  primVerts[1].pos, j, primVerts[1].uvs[j],
+                                                  primVerts[2].pos, j, primVerts[2].uvs[j]);
+                                }
                             }
 
                             /* Break if done */
@@ -757,12 +702,22 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                             {
                                 os << "if last_face is not None:\n";
                                 for (unsigned j=0 ; j<matUVCount ; ++j)
-                                    os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                              "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                              "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
-                                              firstPrimVert.pos, j, firstPrimVert.uvs[j],
-                                              primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
-                                              primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                {
+                                    if (j==0 && matShortUVs)
+                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = suv_list[%u]\n",
+                                                  firstPrimVert.pos, j, firstPrimVert.uvs[j],
+                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                    else
+                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                                  firstPrimVert.pos, j, firstPrimVert.uvs[j],
+                                                  primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
+                                                  primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
+                                }
                             }
 
                             bool peek = (v >= vertCount - 3);
@@ -778,62 +733,63 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             }
         }
 
-        if (s < head.secCount - 1)
-            reader.seek(secStart + head.secSizes[s], Athena::Begin);
+        if (s < secCount - 1)
+            reader.seek(secStart + secSizes[s], Athena::Begin);
     }
 
     /* Finish Mesh */
-    os.format("mesh = bpy.data.meshes.new(bpy.context.scene.name)\n"
-              "obj = bpy.data.objects.new(mesh.name, mesh)\n"
-              "obj.show_transparent = True\n"
-              "bpy.context.scene.objects.link(obj)\n"
-              "mesh.hecl_material_count = %u\n"
-              "for material in materials:\n"
-              "    mesh.materials.append(material)\n"
-              "\n"
-              "# Preserve original indices\n"
-              "for vert in bm.verts:\n"
-              "    ov = mesh.cmdl_orig_verts.add()\n"
-              "    ov.index = vert.index\n"
-              "\n"
-              "# Merge OD meshes\n"
-              "for od_entry in od_list:\n"
-              "    vert_dict = {}\n"
-              "\n"
-              "    for vert in od_entry['bm'].verts:\n"
-              "        if len(vert.link_faces):\n"
-              "            vert_dict[vert.index] = bm.verts.new(vert.co, vert)\n"
-              "            ov = mesh.cmdl_orig_verts.add()\n"
-              "            ov.index = vert.index\n"
-              "\n"
-              "    for face in od_entry['bm'].faces:\n"
-              "        merge_verts = [vert_dict[fv.index] for fv in face.verts]\n"
-              "        if bm.faces.get(merge_verts) is not None:\n"
-              "            continue\n"
-              "        merge_face = bm.faces.new(merge_verts)\n"
-              "        for i in range(len(face.loops)):\n"
-              "            old = face.loops[i]\n"
-              "            new = merge_face.loops[i]\n"
-              "            for j in range(len(od_entry['bm'].loops.layers.uv)):\n"
-              "                new[bm.loops.layers.uv[j]] = old[od_entry['bm'].loops.layers.uv[j]]\n"
-              "        merge_face.smooth = True\n"
-              "        merge_face.material_index = face.material_index\n"
-              "\n"
-              "    od_entry['bm'].free()\n"
-              "\n"
-              "# Remove loose vertices\n"
-              "#to_remove = []\n"
-              "#for vert in bm.verts:\n"
-              "#    if not len(vert.link_faces):\n"
-              "#        to_remove.append(vert)\n"
-              "#bmesh.ops.delete(bm, geom=to_remove, context=1)\n"
-              "\n"
-              "bm.to_mesh(mesh)\n"
-              "bm.free()\n"
-              "\n", head.matSetCount);
+    FinishBlenderMesh(os, matSetCount, meshIdx);
 
     if (rp.first)
         rp.second->sendVertexGroupsToBlender(os);
+
+    return lastDlSec;
+}
+
+template <class PAKRouter, class MaterialSet, class RIGPAIR, atUint32 Version>
+bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
+                       Athena::io::IStreamReader& reader,
+                       PAKRouter& pakRouter,
+                       const typename PAKRouter::EntryType& entry,
+                       const SpecBase& dataspec,
+                       const RIGPAIR& rp)
+{
+    Header head;
+    head.read(reader);
+
+    if (head.magic != 0xDEADBABE)
+    {
+        LogDNACommon.report(LogVisor::Error, "invalid CMDL magic");
+        return false;
+    }
+
+    if (head.version != Version)
+    {
+        LogDNACommon.report(LogVisor::Error, "invalid CMDL version");
+        return false;
+    }
+
+    /* Open Py Stream and read sections */
+    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    os.format("import bpy\n"
+              "import bmesh\n"
+              "\n"
+              "bpy.context.scene.name = '%s'\n"
+              "bpy.context.scene.hecl_type = 'MESH'\n"
+              "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n",
+              pakRouter.getBestEntryName(entry).c_str());
+    InitGeomBlenderContext(os, dataspec.getMasterShaderPath());
+    MaterialSet::RegisterMaterialProps(os);
+
+    os << "# Materials\n"
+          "materials = []\n"
+          "\n";
+
+    std::vector<VertexAttributes> vertAttribs;
+    ReadGeomSectionsToBlender<PAKRouter, MaterialSet, RIGPAIR>
+            (os, reader, pakRouter, entry, dataspec, rp, head.flags.shortNormals(),
+             head.flags.shortUVs(), vertAttribs, -1,
+             head.secCount, head.matSetCount, head.secSizes.data());
 
     return true;
 }
