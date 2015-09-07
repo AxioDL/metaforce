@@ -13,7 +13,7 @@ bl_info = {
     "category": "System"}
 
 # Package import
-from . import hmdl, sact, Nodegrid
+from . import hmdl, sact, srea, Nodegrid
 Nodegrid = Nodegrid.Nodegrid
 import bpy, os, sys
 from bpy.app.handlers import persistent
@@ -22,7 +22,8 @@ from bpy.app.handlers import persistent
 hecl_typeS = [
 ('NONE', "None", "Active scene not using HECL", None, None),
 ('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.draw, hmdl.cook),
-('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw, sact.cook)]
+('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw, sact.cook),
+('AREA', "Area", "Active scene represents a HECL Area", srea.draw, srea.cook)]
 
 # Main Scene Panel
 class hecl_scene_panel(bpy.types.Panel):
