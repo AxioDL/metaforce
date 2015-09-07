@@ -459,10 +459,11 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                     size_t normCount = secSizes[s] / 6;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
+                        float x = reader.readInt16Big() / 16834.0f;
+                        float y = reader.readInt16Big() / 16834.0f;
+                        float z = reader.readInt16Big() / 16834.0f;
                         os.format("norm_list.append((%f,%f,%f))\n",
-                                  reader.readInt16Big() / 16834.0f,
-                                  reader.readInt16Big() / 16834.0f,
-                                  reader.readInt16Big() / 16834.0f);
+                                  x, y, z);
                     }
                 }
                 else
@@ -504,9 +505,10 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                     size_t uvCount = secSizes[s] / 4;
                     for (size_t i=0 ; i<uvCount ; ++i)
                     {
+                        float x = reader.readInt16Big() / 32768.0f;
+                        float y = reader.readInt16Big() / 32768.0f;
                         os.format("suv_list.append((%f,%f))\n",
-                                  reader.readInt16Big() / 32768.0f,
-                                  reader.readInt16Big() / 32768.0f);
+                                  x, y);
                     }
                     break;
                 }

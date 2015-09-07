@@ -145,6 +145,11 @@ struct MREA
                       mHeader.visorFlags.thermalLevelStr());
         }
 
+        /* Origins to center of mass */
+        os << "bpy.ops.object.select_by_type(type='MESH')\n"
+              "bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS')\n"
+              "bpy.ops.object.select_all(action='DESELECT')\n";
+
         /* Center view */
         os << "bpy.context.user_preferences.view.smooth_view = 0\n"
               "for window in bpy.context.window_manager.windows:\n"
