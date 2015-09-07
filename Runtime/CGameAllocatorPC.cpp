@@ -192,6 +192,21 @@ void CGameAllocator::DumpAllocations() const
 
 u32 CGameAllocator::GetLargestFreeChunk() const
 {
+    SGameMemInfo* memInfo = xc_infoTail;
+    u32 ret = 0;
+    while(memInfo)
+    {
+        SGameMemInfo* tmp = memInfo->x10_prev;
+        if (!tmp || memInfo->x4_size <= ret)
+        {
+            memInfo = memInfo->x18_ctx;
+            continue;
+        }
+        ret = memInfo->x4_size;
+        memInfo = memInfo->x18_ctx;
+    }
+
+    return ret;
 }
 
 CGameAllocator::SGameMemInfo* CGameAllocator::GetMemInfoFromBlockPtr(void* ptr)
