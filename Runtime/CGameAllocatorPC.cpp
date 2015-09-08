@@ -136,6 +136,7 @@ void CGameAllocator::UpdateAllocDebugStats(u32, u32, u32)
 
 bool CGameAllocator::FreeNormalAllocation(void* ptr)
 {
+    return false;
     SGameMemInfo* memInfo = GetMemInfoFromBlockPtr(ptr);
     SGameMemInfo* next = memInfo->x14_next;
     if (next)
