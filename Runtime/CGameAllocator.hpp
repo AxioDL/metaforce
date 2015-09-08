@@ -46,7 +46,7 @@ public:
     SGameMemInfo* FindFreeBlockFromTopOfHeap(u32);
     u32 FixupAllocPtrs(SGameMemInfo*, u32, u32, EHint, const CCallStack&);
     void UpdateAllocDebugStats(u32, u32, u32);
-    void FreeNormalAllocation(void* ptr);
+    bool FreeNormalAllocation(void* ptr);
     static u32 GetFreeBinEntryForSize(u32);
     void AddFreeEntryToFreeList(SGameMemInfo*);
     void RemoveFreeEntryFromFreeList(SGameMemInfo*);
@@ -105,8 +105,9 @@ public:
     {
     }
 
-    void  Free(const void* buf)
+    bool  Free(const void* buf)
     {
+        return false;
     }
 };
 
@@ -126,7 +127,7 @@ public:
     void AddPuddle(u32 size, void* start, void* end, u32) {}
     void ClearPuddles() {}
     CGameAllocator::SGameMemInfo* Alloc(u32 size) { return nullptr; }
-    void Free(void* ptr) {}
+    bool Free(void* ptr) { return false; }
     void* FindFree();
 };
 }
