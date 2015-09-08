@@ -31,10 +31,10 @@ public:
     };
 
 private:
-    u32                  x4_heapSize         = 0;
-    SGameMemInfo*        x8_infoHead         = nullptr;
-    SGameMemInfo*        xc_infoTail         = nullptr;
-    SGameMemInfo*        x10_bins[0x10]      = {nullptr};
+    u32                  x8_heapSize         = 0;
+    SGameMemInfo*        xc_infoHead         = nullptr;
+    SGameMemInfo*        x10_infoTail        = nullptr;
+    SGameMemInfo*        x14_bins[0x10]      = {nullptr};
     void*                x54_heap            = nullptr;
     TOutOfMemoryCallback x58_oomCb           = nullptr;
     void*                x5c_oomCtx          = nullptr;
@@ -47,7 +47,7 @@ public:
     u32 FixupAllocPtrs(SGameMemInfo*, u32, u32, EHint, const CCallStack&);
     void UpdateAllocDebugStats(u32, u32, u32);
     void FreeNormalAllocation(void* ptr);
-    u32 GetFreeBinEntryForSize(u32);
+    static u32 GetFreeBinEntryForSize(u32);
     void AddFreeEntryToFreeList(SGameMemInfo*);
     void RemoveFreeEntryFromFreeList(SGameMemInfo*);
     void DumpAllocations() const;
@@ -57,7 +57,7 @@ public:
     bool Initialize();
     void Shutdown();
     void* Alloc(size_t, EHint, EScope, EType, const CCallStack&);
-    void Free(void*);
+    bool Free(void*);
     void ReleaseAll();
     void* AllocSecondary(size_t, EHint, EScope, EType, const CCallStack&);
     void FreeSecondary(void*);
@@ -74,20 +74,40 @@ class CSmallAllocPool
     void* x0_poolStart;
     void* x4_poolEnd;
     u32   x8_size;
-    u32   xc_unknown;
+    void* xc_unknown;
     u32   x10_initial1;
     u32   x14_initial2;
+    u32   x18_unkSize;
+    void* x1c_unkPtr;
+
 public:
     CSmallAllocPool(u32 size, void* begin, void* end)
         : x8_size(size), x0_poolStart(begin), x4_poolEnd(end),
-          xc_unknown(0), x10_initial1((u32)~0UL), x14_initial2((u32)~0UL)
+          xc_unknown(nullptr), x10_initial1((u32)~0UL), x14_initial2((u32)~0UL),
+          x18_unkSize(size), x1c_unkPtr(nullptr)
+    { memset(x0_poolStart, 0, (x8_size >> 1)); }
+
+    CGameAllocator::SGameMemInfo* Alloc(u32 size)
     {
-        u32 tmpSize = (x8_size >> 1);
-        memset(x0_poolStart, 0, tmpSize);
+        u32 r3 = 1;
+        if (size < 4)
+        {
+            u32 mask = (1 << 31);
+            if (r3 )
+            {
+
+            }
+        }
+        return nullptr;
     }
 
-    CGameAllocator::SGameMemInfo* Alloc(u32 size) { return nullptr; }
-    void  Free(const void* buf);
+    void* FindFree(int size)
+    {
+    }
+
+    void  Free(const void* buf)
+    {
+    }
 };
 
 struct SMediumAllocPuddle

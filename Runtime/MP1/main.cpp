@@ -106,8 +106,8 @@ class CGameArchitectureSupport
 public:
     CGameArchitectureSupport()
         : m_audioSys(0,0,0,0,0),
-          m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
-                           g_tweakPlayer->GetRightLogicalThreshold())
+          m_inputGenerator(0.0f, 0.0f) /*(g_tweakPlayer->GetLeftLogicalThreshold(),
+                           g_tweakPlayer->GetRightLogicalThreshold())*/
     {
     }
     bool Update()
