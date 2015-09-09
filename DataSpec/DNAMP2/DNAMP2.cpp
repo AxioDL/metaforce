@@ -226,7 +226,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     case SBIG('ANCS'):
         return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".yaml"), _S(".blend")}, 3};
+        return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     }
     return {};
 }

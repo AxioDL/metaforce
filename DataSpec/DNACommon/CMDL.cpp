@@ -97,7 +97,7 @@ void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
                   "bpy.context.scene.objects.link(obj)\n"
                   "mesh.hecl_material_count = %u\n", matSetCount);
     else
-        os.format("mesh = bpy.data.meshes.new(bpy.context.scene.name + '_%3d')\n"
+        os.format("mesh = bpy.data.meshes.new(bpy.context.scene.name + '_%03d')\n"
                   "obj = bpy.data.objects.new(mesh.name, mesh)\n"
                   "obj.show_transparent = True\n"
                   "bpy.context.scene.objects.link(obj)\n"

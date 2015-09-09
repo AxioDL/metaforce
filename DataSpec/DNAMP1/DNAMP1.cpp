@@ -219,7 +219,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('ANCS'):
         return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".yaml"), _S(".blend")}, 3};
+        return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, {_S(".yaml")}};
     }

@@ -22,7 +22,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     rs.seekAlign32();
 
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(outPath.getWithExtension(_S(".blend")).getAbsolutePath()))
+    if (!conn.createBlend(outPath.getAbsolutePath()))
         return false;
 
     /* Open Py Stream and read sections */
