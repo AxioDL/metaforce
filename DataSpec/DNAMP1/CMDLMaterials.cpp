@@ -666,7 +666,7 @@ void _ConstructMaterial(Stream& out,
     char a_regs[4][64] = {"ONE", "ONE", "ONE", "ONE"};
 
     /* Has Lightmap? */
-    if (material.tevStages[0].colorInB() == GX::CC_C1)
+    if (material.flags.lightmap() && material.tevStages[0].colorInB() == GX::CC_C1)
     {
         if (material.tevStageTexInfo[0].texSlot != 0xff)
             out << "new_material.retro_lightmap = tex_maps[0].name\n"

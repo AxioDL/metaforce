@@ -7,11 +7,46 @@
 
 namespace Retro
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 struct MREA
 {
+    class StreamReader : public Athena::io::IStreamReader
+    {
+        struct BlockInfo : BigDNA
+        {
+            DECL_DNA
+            Value<atUint32> bufSize;
+            Value<atUint32> decompSize;
+            Value<atUint32> compSize;
+            Value<atUint32> secCount;
+        };
+        std::vector<BlockInfo> m_blockInfos;
+
+        size_t m_compBufSz;
+        std::unique_ptr<atUint8[]> m_compBuf;
+        size_t m_decompBufSz;
+        std::unique_ptr<atUint8[]> m_decompBuf;
+        Athena::io::IStreamReader& m_source;
+        atUint64 m_blkBase;
+        atUint32 m_blkCount;
+        atUint32 m_totalDecompLen = 0;
+        atUint32 m_pos = 0;
+
+        atUint32 m_nextBlk = 0;
+        atUint32 m_posInBlk = 0;
+        atUint32 m_blkSz = 0;
+        void nextBlock();
+
+    public:
+        StreamReader(Athena::io::IStreamReader& source, atUint32 blkCount);
+        void seek(atInt64 diff, Athena::SeekOrigin whence);
+        atUint64 position() const {return m_pos;}
+        atUint64 length() const {return m_totalDecompLen;}
+        atUint64 readUBytesToBuf(void* buf, atUint64 len);
+    };
+
     struct Header : BigDNA
     {
         DECL_DNA
@@ -19,15 +54,21 @@ struct MREA
         Value<atUint32> version;
         Value<atVec4f> localToWorldMtx[3];
         Value<atUint32> meshCount;
+        Value<atUint32> sclyLayerCount;
         Value<atUint32> secCount;
         Value<atUint32> geomSecIdx;
         Value<atUint32> sclySecIdx;
+        Value<atUint32> scgnSecIdx;
         Value<atUint32> collisionSecIdx;
         Value<atUint32> unkSecIdx;
         Value<atUint32> lightSecIdx;
-        Value<atUint32> visiSecIdx;
+        Value<atUint32> emptySecIdx;
         Value<atUint32> pathSecIdx;
-        Value<atUint32> arotSecIdx;
+        Value<atUint32> unk2SecIdx;
+        Value<atUint32> unk3SecIdx;
+        Value<atUint32> egmcSecIdx;
+        Value<atUint32> compressedBlockCount;
+        Seek<12, Athena::Current> align1;
         Vector<atUint32, DNA_COUNT(secCount)> secSizes;
     };
 
@@ -73,7 +114,7 @@ struct MREA
                         PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
-                        const PAK::Entry& entry,
+                        const DNAMP1::PAK::Entry& entry,
                         bool,
                         std::function<void(const HECL::SystemChar*)>);
 };
