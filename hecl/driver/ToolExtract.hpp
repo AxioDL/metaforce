@@ -205,7 +205,11 @@ public:
                 int width = HECL::ConsoleWidth();
                 int half = width / 2 - 2;
 
+                if (!message)
+                    message = _S("");
                 size_t messageLen = HECL::StrLen(message);
+                if (!submessage)
+                    submessage = _S("");
                 size_t submessageLen = HECL::StrLen(submessage);
                 if (half - messageLen < submessageLen-2)
                     submessageLen = 0;
