@@ -221,6 +221,10 @@ bool MREA::Extract(const SpecBase& dataSpec,
                   mHeader.visorFlags.disableThermal() ? "True" : "False",
                   mHeader.visorFlags.disableXray() ? "True" : "False",
                   mHeader.visorFlags.thermalLevelStr());
+
+        /* Seek through unknown per-mesh sections */
+        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], Athena::Current);
     }
 
     /* Origins to center of mass */
