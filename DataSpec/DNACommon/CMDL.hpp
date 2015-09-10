@@ -188,10 +188,14 @@ class DLReader
         {
         case GX::DIRECT:
         case GX::INDEX8:
+            if ((m_cur - m_dl.get()) >= intptr_t(m_dlSize))
+                return 0;
             retval = *m_cur;
             ++m_cur;
             break;
         case GX::INDEX16:
+            if ((m_cur - m_dl.get() + 1) >= intptr_t(m_dlSize))
+                return 0;
             retval = HECL::SBig(*(atUint16*)m_cur);
             m_cur += 2;
             break;
@@ -207,7 +211,7 @@ public:
     }
     operator bool()
     {
-        return *m_cur && ((m_cur - m_dl.get()) < intptr_t(m_dlSize));
+        return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur;
     }
     GX::Primitive readPrimitive()
     {
@@ -215,7 +219,9 @@ public:
     }
     atUint16 readVertCount()
     {
-        return readVal(GX::INDEX16);
+        atUint16 retval = HECL::SBig(*(atUint16*)m_cur);
+        m_cur += 2;
+        return retval;
     }
     struct DLPrimVert
     {

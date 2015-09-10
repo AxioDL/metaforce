@@ -348,9 +348,10 @@ public:
                 if (extractor.weight != w)
                     continue;
                 
-                HECL::SystemStringView bestName(getBestEntryName(*item.second));
+                std::string bestName = getBestEntryName(*item.second);
+                HECL::SystemStringView bestNameView(bestName);
                 float thisFac = ++count / fsz;
-                progress(bestName.sys_str().c_str(), thisFac);
+                progress(bestNameView.sys_str().c_str(), thisFac);
 
                 HECL::ProjectPath cooked = getCooked(item.second);
                 if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
