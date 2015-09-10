@@ -66,25 +66,25 @@ CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlock(u32 size)
 
 CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlockFromTopOfHeap(u32 size)
 {
-    SGameMemInfo** bins = &x14_bins[0];
-    SGameMemInfo* bin = nullptr;
-    u32 i = 0;
-    while (i < 0x10)
+    SGameMemInfo* bin = x10_infoTail;
+    SGameMemInfo* ret = nullptr;
+    while (bin)
     {
-        if (*bins && (*bins)->x4_size >= size)
+        SGameMemInfo* tmp = bin->x10_prev;
+        if (tmp && tmp->x4_size >= size)
         {
-            bin = *bins;
+            ret = tmp;
             break;
         }
-        bins++;
-        i++;
+
+        bin = tmp;
     }
 
-    if (!bin)
+    if (!ret)
         return nullptr;
 
-    RemoveFreeEntryFromFreeList(bin);
-    return bin;
+    RemoveFreeEntryFromFreeList(ret);
+    return ret;
 }
 
 u32 CGameAllocator::FixupAllocPtrs(SGameMemInfo* memInfo, u32 size, u32 roundedSize, EHint hint, const CCallStack& cs)
