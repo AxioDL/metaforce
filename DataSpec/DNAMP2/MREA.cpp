@@ -1,3 +1,4 @@
+#include <Athena/FileWriter.hpp>
 #include <lzo/lzo1x.h>
 #include "MREA.hpp"
 
@@ -143,6 +144,16 @@ atUint64 MREA::StreamReader::readUBytesToBuf(void* buf, atUint64 len)
     return len;
 }
 
+void MREA::StreamReader::writeDecompInfos(Athena::io::IStreamWriter& writer) const
+{
+    for (const BlockInfo& info : m_blockInfos)
+    {
+        BlockInfo modInfo = info;
+        modInfo.compSize = 0;
+        modInfo.write(writer);
+    }
+}
+
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
                    const HECL::ProjectPath& outPath,
@@ -161,6 +172,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount);
+    Athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
+    head.write(mreaDecompOut);
+    mreaDecompOut.seekAlign32();
+    drs.writeDecompInfos(mreaDecompOut);
+    mreaDecompOut.seekAlign32();
+    atUint64 decompLen = drs.length();
+    mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
+    drs.seek(0, Athena::Begin);
 
     /* Start up blender connection */
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
@@ -222,7 +241,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                   mHeader.visorFlags.disableXray() ? "True" : "False",
                   mHeader.visorFlags.thermalLevelStr());
 
-        /* Seek through unknown per-mesh sections */
+        /* Seek through AROT-relation sections */
         drs.seek(head.secSizes[curSec++], Athena::Current);
         drs.seek(head.secSizes[curSec++], Athena::Current);
     }

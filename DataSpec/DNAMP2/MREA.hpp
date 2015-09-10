@@ -45,6 +45,7 @@ struct MREA
         atUint64 position() const {return m_pos;}
         atUint64 length() const {return m_totalDecompLen;}
         atUint64 readUBytesToBuf(void* buf, atUint64 len);
+        void writeDecompInfos(Athena::io::IStreamWriter& writer) const;
     };
 
     struct Header : BigDNA
