@@ -138,7 +138,15 @@ int main(int argc, const char** argv)
     info.pname = argv[0];
     HECL::SystemChar cwdbuf[1024];
     if (HECL::Getcwd(cwdbuf, 1024))
+    {
         info.cwd = cwdbuf;
+        if (info.cwd.size() && info.cwd.back() != _S('/') && info.cwd.back() != _S('\\'))
+#if _WIN32
+            info.cwd += _S('\\');
+#else
+            info.cwd += _S('/');
+#endif
+    }
 
     /* Concatenate args */
     std::list<HECL::SystemString> args;
@@ -254,7 +262,19 @@ int main(int argc, const char** argv)
     else if (toolName == _S("help"))
         tool.reset(new ToolHelp(info));
     else
-        LogModule.report(LogVisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
+    {
+        FILE* fp = HECL::Fopen(argv[1], _S("rb"));
+        if (!fp)
+            LogModule.report(LogVisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
+        else
+        {
+            /* Shortcut-case: implicit extract */
+            fclose(fp);
+            info.args.push_front(argv[1]);
+            tool.reset(new ToolExtract(info));
+        }
+    }
+
     if (LogVisor::ErrorCount > ErrorRef)
     {
 #if WIN_PAUSE

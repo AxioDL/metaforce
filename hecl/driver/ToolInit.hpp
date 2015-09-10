@@ -14,7 +14,7 @@ public:
         HECL::Sstat theStat;
         const HECL::SystemString* dir;
         if (info.args.size())
-            dir = &info.args[0];
+            dir = &info.args.front();
         else
             dir = &info.cwd;
 

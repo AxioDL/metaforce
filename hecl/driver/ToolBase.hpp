@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <stdio.h>
 #include <string.h>
 
@@ -19,7 +20,7 @@ struct ToolPassInfo
 {
     HECL::SystemString pname;
     HECL::SystemString cwd;
-    std::vector<HECL::SystemString> args;
+    std::list<HECL::SystemString> args;
     HECL::SystemString output;
     HECL::Database::Project* project = NULL;
     unsigned verbosityLevel = 0;

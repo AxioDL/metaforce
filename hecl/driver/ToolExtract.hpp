@@ -36,7 +36,7 @@ public:
         if (!info.project)
         {
             /* Get name from input file and init project there */
-            HECL::SystemString baseFile = info.args[0];
+            HECL::SystemString baseFile = info.args.front();
             size_t slashPos = baseFile.rfind(_S('/'));
             if (slashPos == HECL::SystemString::npos)
                 slashPos = baseFile.rfind(_S('\\'));
@@ -50,7 +50,7 @@ public:
                 LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
 
             size_t ErrorRef = LogVisor::ErrorCount;
-            HECL::SystemString rootDir = info.cwd + _S('/') + baseFile;
+            HECL::SystemString rootDir = info.cwd + baseFile;
             HECL::ProjectRootPath newProjRoot(rootDir);
             newProjRoot.makeDir();
             m_fallbackProj.reset(new HECL::Database::Project(newProjRoot));
@@ -62,11 +62,12 @@ public:
         else
             m_useProj = info.project;
 
-        m_einfo.srcpath = m_info.args[0];
+        m_einfo.srcpath = m_info.args.front();
         m_einfo.extractArgs.reserve(info.args.size() - 1);
         m_einfo.force = info.force;
-        for (std::vector<HECL::SystemString>::const_iterator it=info.args.begin() + 1;
-             it != info.args.end();
+        std::list<HECL::SystemString>::const_iterator it=info.args.begin();
+        ++it;
+        for (;it != info.args.end();
              ++it)
             m_einfo.extractArgs.push_back(*it);
 

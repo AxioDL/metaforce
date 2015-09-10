@@ -25,7 +25,7 @@ public:
                              "hecl spec must be ran within a project directory");
 
         const auto& specs = info.project->getDataSpecs();
-        HECL::SystemString firstArg = info.args[0];
+        HECL::SystemString firstArg = info.args.front();
         HECL::ToLower(firstArg);
 
         static const HECL::SystemString enable(_S("enable"));
@@ -40,8 +40,9 @@ public:
         if (info.args.size() < 2)
             LogModule.report(LogVisor::FatalError, "Speclist argument required");
 
-        for (auto it = info.args.begin()+1;
-             it != info.args.end();
+        auto it = info.args.begin();
+        ++it;
+        for (;it != info.args.end();
              ++it)
         {
 
@@ -126,8 +127,9 @@ public:
         }
 
         std::vector<HECL::SystemString> opSpecs;
-        for (auto it = m_info.args.begin()+1;
-             it != m_info.args.end();
+        auto it = m_info.args.begin();
+        ++it;
+        for (;it != m_info.args.end();
              ++it)
         {
             HECL::SystemString itName = *it;

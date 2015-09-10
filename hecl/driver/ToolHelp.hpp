@@ -94,7 +94,7 @@ public:
 
     int run()
     {
-        ShowHelp(m_info.args[0]);
+        ShowHelp(m_info.args.front());
         return 0;
     }
 };
