@@ -30,7 +30,6 @@ public:
     static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
     const HECL::SystemString& getLevelString() const {return m_levelString;}
-
     using PAKType = PAK;
     const PAKType& getPAK() const {return m_pak;}
     const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
