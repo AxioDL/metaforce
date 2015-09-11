@@ -145,6 +145,16 @@ void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
               "\n"
               "bm.to_mesh(mesh)\n"
               "bm.free()\n"
+              "\n"
+              "# Remove redundant materials\n"
+              "present_mats = set()\n"
+              "for poly in mesh.polygons:\n"
+              "    present_mats.add(poly.material_index)\n"
+              "for mat_idx in reversed(range(len(mesh.materials))):\n"
+              "    if mat_idx not in present_mats:\n"
+              "        mesh.materials.pop(index=mat_idx, update_data=True)\n"
+              "\n"
+              "mesh.update()\n"
               "\n";
 }
 

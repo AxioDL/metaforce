@@ -1,5 +1,6 @@
 make_dnalist(liblist
-             CMDL)
+             CMDL
+             DeafBabe)
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
             ${liblist}
@@ -10,5 +11,6 @@ add_library(DNACommon
             TXTR.hpp TXTR.cpp
             ANCS.hpp
             ANIM.hpp ANIM.cpp
+            DeafBabe.cpp
             Tweaks/ITweakPlayer.hpp
             Tweaks/ITweakPlayerControl.hpp)
