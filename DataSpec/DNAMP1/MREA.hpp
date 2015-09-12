@@ -69,6 +69,38 @@ struct MREA
         Value<atVec3f> aabb[2];
     };
 
+    struct BabeDeadLight : BigDNA
+    {
+        DECL_DNA
+        enum LightType : atUint32
+        {
+            LightLocalAmbient,
+            LightDirectional,
+            LightCustom,
+            LightSpot
+        };
+        enum Falloff : atUint32
+        {
+            FalloffConstant,
+            FalloffLinear,
+            FalloffQuadratic
+        };
+        Value<LightType> lightType;
+        Value<atVec3f> color;
+        Value<atVec3f> position;
+        Value<atVec3f> direction;
+        Value<float> q;
+        Value<float> spotCutoff;
+        Value<float> unk5;
+        Value<atUint8> unk6;
+        Value<float> unk7;
+        Value<Falloff> falloff;
+        Value<float> unk9;
+    };
+
+    static void ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
+                                          Athena::io::IStreamReader& rs);
+
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,

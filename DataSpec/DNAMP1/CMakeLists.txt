@@ -9,6 +9,7 @@ make_dnalist(liblist
              MAPA
              CMDLMaterials
              MREA
+             DeafBabe
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
              Tweaks/CTweakPlayerControl)
@@ -22,4 +23,5 @@ add_library(DNAMP1
             EVNT.cpp
             CMDL.hpp
             CMDLMaterials.cpp
-            MREA.cpp)
+            MREA.cpp
+            DeafBabe.cpp)

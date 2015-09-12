@@ -1,6 +1,8 @@
 #include <Athena/FileWriter.hpp>
 #include <lzo/lzo1x.h>
 #include "MREA.hpp"
+#include "../DNAMP1/MREA.hpp"
+#include "DeafBabe.hpp"
 
 namespace Retro
 {
@@ -190,6 +192,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
+              "from mathutils import Vector\n"
               "\n"
               "bpy.context.scene.name = '%s'\n"
               "bpy.context.scene.hecl_type = 'AREA'\n",
@@ -200,6 +203,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
           "for ob in bpy.data.objects:\n"
           "    bpy.context.scene.objects.unlink(ob)\n"
           "    bpy.data.objects.remove(ob)\n"
+          "bpy.types.Lamp.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
           "bpy.types.Object.retro_disable_enviro_visor = bpy.props.BoolProperty(name='Retro: Disable in Combat/Scan Visor')\n"
           "bpy.types.Object.retro_disable_thermal_visor = bpy.props.BoolProperty(name='Retro: Disable in Thermal Visor')\n"
           "bpy.types.Object.retro_disable_xray_visor = bpy.props.BoolProperty(name='Retro: Disable in X-Ray Visor')\n"
@@ -246,10 +250,44 @@ bool MREA::Extract(const SpecBase& dataSpec,
         drs.seek(head.secSizes[curSec++], Athena::Current);
     }
 
+    /* Skip AROT */
+    drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Skip BVH */
+    drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Skip Bitmap */
+    drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Skip SCLY (for now) */
+    for (atUint32 l=0 ; l<head.sclyLayerCount ; ++l)
+        drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Skip SCGN (for now) */
+    drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Read collision meshes */
+    DeafBabe collision;
+    secStart = drs.position();
+    collision.read(drs);
+    DeafBabe::BlenderInit(os);
+    collision.sendToBlender(os);
+    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+
+    /* Skip unknown section */
+    drs.seek(head.secSizes[curSec++], Athena::Current);
+
+    /* Read BABEDEAD Lights as Cycles emissives */
+    secStart = drs.position();
+    DNAMP1::MREA::ReadBabeDeadToBlender_1_2(os, drs);
+    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+
     /* Origins to center of mass */
-    os << "bpy.ops.object.select_by_type(type='MESH')\n"
+    os << "bpy.context.scene.layers[1] = True\n"
+          "bpy.ops.object.select_by_type(type='MESH')\n"
           "bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS')\n"
-          "bpy.ops.object.select_all(action='DESELECT')\n";
+          "bpy.ops.object.select_all(action='DESELECT')\n"
+          "bpy.context.scene.layers[1] = False\n";
 
     /* Center view */
     os << "bpy.context.user_preferences.view.smooth_view = 0\n"

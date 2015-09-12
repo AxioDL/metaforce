@@ -1,5 +1,5 @@
-#ifndef __DNAMP1_MREA_HPP__
-#define __DNAMP1_MREA_HPP__
+#ifndef __DNAMP2_MREA_HPP__
+#define __DNAMP2_MREA_HPP__
 
 #include "../DNACommon/DNACommon.hpp"
 #include "CMDLMaterials.hpp"

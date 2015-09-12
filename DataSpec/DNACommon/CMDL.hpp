@@ -686,11 +686,9 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                             if (v+3 >= vertCount)
                                 break;
 
-                            bool peek = (v >= vertCount - 3);
-
                             /* Advance 3 Prim Verts */
                             for (int pv=0 ; pv<3 ; ++pv)
-                                primVerts[pv] = dl.readVert(peek);
+                                primVerts[pv] = dl.readVert();
                         }
                     }
                     else if (ptype == GX::TRIANGLEFAN)
@@ -728,10 +726,12 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                 }
                             }
 
-                            bool peek = (v >= vertCount - 3);
+                            /* Break if done */
+                            if (v+3 >= vertCount)
+                                break;
 
                             /* Advance one prim vert */
-                            primVerts[(c+2)%3] = dl.readVert(peek);
+                            primVerts[(c+2)%3] = dl.readVert();
                             ++c;
                         }
                     }
