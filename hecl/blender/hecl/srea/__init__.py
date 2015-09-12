@@ -5,3 +5,10 @@ def cook(writebuffunc, platform, endianchar):
 # Panel draw
 def draw(layout, context):
     pass
+
+# Registration
+def register():
+    pass
+
+def unregister():
+    pass

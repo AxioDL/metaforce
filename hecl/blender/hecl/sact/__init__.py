@@ -251,7 +251,7 @@ def register():
     SACTAction.register()
     bpy.utils.register_class(SACTData)
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
-    bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Acion FPS', default=30)
+    bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Action FPS', default=30)
     bpy.types.Scene.hecl_auto_remap = bpy.props.BoolProperty(name="Auto Remap",
         description="Enables automatic 60-fps time-remapping for playback-validation purposes",
         default=True, update=time_remap_update)

@@ -124,6 +124,7 @@ def register():
     register_export_type_enum()
     hmdl.register()
     sact.register()
+    srea.register()
     bpy.utils.register_class(hecl_scene_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
     bpy.app.handlers.load_post.append(scene_loaded)
@@ -132,6 +133,7 @@ def unregister():
     bpy.app.handlers.load_post.remove(scene_loaded)
     hmdl.unregister()
     sact.unregister()
+    srea.unregister()
     bpy.utils.unregister_class(hecl_scene_panel)
 
 if __name__ == "__main__":
