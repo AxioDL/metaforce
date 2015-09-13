@@ -7,8 +7,15 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-multichar -fno-exceptions")
 endif()
 
+if(UNIX)
+include_directories(/usr/local/include)
+endif()
+
+#disable libBoo for FreeBSD for the time being
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 add_subdirectory(libBoo)
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libBoo/include)
+endif()
 
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
@@ -32,4 +39,7 @@ include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUD
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
+#disable Runtime on FreeBSD for now
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 add_subdirectory(Runtime)
+endif()
