@@ -622,6 +622,9 @@ public:
  */
 std::unique_ptr<ProjectRootPath> SearchForProject(const SystemString& path);
 
+#undef bswap16
+#undef bswap32
+#undef bswap64
 
 /* Type-sensitive byte swappers */
 template <typename T>
