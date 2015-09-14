@@ -8,13 +8,20 @@ for width in FRAME_WIDTHS:
 FRAME_COLORS = [(0.6,0.46,0.6),(0.6,0.48,0.44),(0.33,0.48,0.6),(0.53,0.6,0.47)]
 class Nodegrid:
 
-    def __init__(self, nodetree):
+    def __init__(self, nodetree, cycles=False):
         self.ncol = len(FRAME_NAMES)
         self.heights = []
         self.frames = []
         self.col_roffs = [[0.0,0.0]] * self.ncol
         for i in range(self.ncol):
-            self.heights.append(0.0)
+            if cycles and i<1:
+                self.heights.append(-1600.0)
+                self.frames.append(None)
+                continue
+            elif cycles:
+                self.heights.append(-1600.0)
+            else:
+                self.heights.append(0.0)
             frame_node = nodetree.nodes.new('NodeFrame')
             frame_node.label = FRAME_NAMES[i]
             frame_node.use_custom_color = True
