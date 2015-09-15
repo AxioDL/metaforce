@@ -1,5 +1,88 @@
 import bpy
+from bpy.app.handlers import persistent
 from .. import Nodegrid
+
+# Preview update func (for lighting preview)
+def preview_update(self, context):
+    if context.scene.hecl_type == 'AREA':
+        area_data = context.scene.hecl_srea_data
+
+        # Original Lightmaps
+        if area_data.lightmap_mode == 'ORIGINAL':
+            for material in bpy.data.materials:
+                if material.hecl_lightmap != '':
+                    material.use_shadeless = False
+
+                    # Reference original game lightmaps
+                    if material.hecl_lightmap in bpy.data.textures:
+                        img_name = material.hecl_lightmap
+                        if img_name in bpy.data.images:
+                            bpy.data.textures[material.hecl_lightmap].image = bpy.data.images[img_name]
+                        else:
+                            bpy.data.textures[material.hecl_lightmap].image = None
+
+        # Cycles Lightmaps
+        elif area_data.lightmap_mode == 'CYCLES':
+            for material in bpy.data.materials:
+                if material.hecl_lightmap != '':
+                    material.use_shadeless = False
+
+                    # Reference newly-generated lightmaps
+                    if material.hecl_lightmap in bpy.data.textures:
+                        img_name = material.hecl_lightmap + '_CYCLES'
+                        if img_name in bpy.data.images:
+                            bpy.data.textures[material.hecl_lightmap].image = bpy.data.images[img_name]
+                        else:
+                            bpy.data.textures[material.hecl_lightmap].image = None
+
+
+# Update lightmap output-resolution
+def set_lightmap_resolution(self, context):
+    area_data = context.scene.hecl_srea_data
+    pixel_size = int(area_data.lightmap_resolution)
+    for mat in bpy.data.materials:
+        if mat.hecl_lightmap == '':
+            continue
+
+        # Determine proportional aspect
+        old_image = bpy.data.images[mat.hecl_lightmap]
+        width_fac = 1
+        height_fac = 1
+        if old_image.size[0] > old_image.size[1]:
+            height_fac = old_image.size[0] // old_image.size[1]
+        else:
+            width_fac = old_image.size[1] // old_image.size[0]
+        width = pixel_size // width_fac
+        height = pixel_size // height_fac
+
+        # Find target texture and scale connected image
+        if 'CYCLES_OUT' in mat.node_tree.nodes:
+            out_node = mat.node_tree.nodes['CYCLES_OUT']
+            if out_node.type == 'TEX_IMAGE':
+                image = out_node.image
+                if image:
+                    image.scale(width, height)
+
+# Area data class
+class SREAData(bpy.types.PropertyGroup):
+    lightmap_resolution = bpy.props.EnumProperty(name="HECL Area Lightmap Resolution",
+            description="Set square resolution to use when rendering new lightmaps",
+            items=[
+            ('256', "256", "256x256 (original quality)"),
+            ('512', "512", "512x512"),
+            ('1024', "1024", "1024x1024"),
+            ('2048', "2048", "2048x2048"),
+            ('4096', "4096", "4096x4096")],
+            update=set_lightmap_resolution,
+            default='1024')
+
+    lightmap_mode = bpy.props.EnumProperty(name="HECL Area Lightmap Mode",
+            description="Simple way to manipulate all lightmap-using materials",
+            items=[
+            ('ORIGINAL', "Original", "Original extracted lightmaps"),
+            ('CYCLES', "Cycles", "Blender-rendered lightmaps")],
+            update=preview_update,
+            default='ORIGINAL')
 
 # Trace color output searching for material node and making list from it
 def recursive_build_material_chain(node):
@@ -71,8 +154,9 @@ def tex_node_from_node(node):
     return None
 
 # Delete existing cycles nodes and convert from GLSL nodes
-CYCLES_TYPES = {'OUTPUT_MATERIAL', 'ADD_SHADER', 'BSDF_DIFFUSE', 'BSDF_TRANSPARENT', 'EMISSION', 'TEX_IMAGE'}
-def configure_nodetree_cycles(mat, pixel_size):
+CYCLES_TYPES = {'OUTPUT_MATERIAL', 'ADD_SHADER', 'BSDF_DIFFUSE', 'BSDF_TRANSPARENT',
+                'EMISSION', 'MIX_SHADER', 'TEX_IMAGE'}
+def initialize_nodetree_cycles(mat, pixel_size):
     nt = mat.node_tree
     to_remove = set()
     for node in nt.nodes:
@@ -86,26 +170,25 @@ def configure_nodetree_cycles(mat, pixel_size):
     gridder = Nodegrid.Nodegrid(nt, cycles=True)
 
     image_out_node = None
-    if mat.retro_lightmap != '':
+    if mat.hecl_lightmap != '':
 
         # Get name of lightmap texture
-        if mat.retro_lightmap in bpy.data.textures:
-            img_name = mat.retro_lightmap
+        if mat.hecl_lightmap in bpy.data.textures:
+            img_name = mat.hecl_lightmap
             if img_name in bpy.data.images:
-                bpy.data.textures[mat.retro_lightmap].image = bpy.data.images[img_name]
+                bpy.data.textures[mat.hecl_lightmap].image = bpy.data.images[img_name]
             else:
-                bpy.data.textures[mat.retro_lightmap].image = None
+                bpy.data.textures[mat.hecl_lightmap].image = None
 
 
         # Determine if image already established
         new_image = None
-        tex_name = mat.retro_lightmap + '_CYCLES'
+        tex_name = mat.hecl_lightmap + '_CYCLES'
         if tex_name in bpy.data.images:
             new_image = bpy.data.images[tex_name]
         else:
-
             # New image; determine proportional aspect
-            old_image = bpy.data.images[mat.retro_lightmap]
+            old_image = bpy.data.images[mat.hecl_lightmap]
             width_fac = 1
             height_fac = 1
             if old_image.size[0] > old_image.size[1]:
@@ -113,11 +196,17 @@ def configure_nodetree_cycles(mat, pixel_size):
             else:
                 width_fac = old_image.size[1] // old_image.size[0]
 
-            # Make image and establish in filesystem
-            new_image = bpy.data.images.new(tex_name, pixel_size // width_fac, pixel_size // height_fac)
-            new_image.use_fake_user = True
-            new_image.file_format = 'PNG'
-            new_image.filepath = old_image.filepath[:len(old_image.filepath)-4] + '_CYCLES.png'
+            # Make or load image established in filesystem
+            new_path = '//' + mat.hecl_lightmap + '_CYCLES.png'
+            try:
+                new_image = bpy.data.images.load(new_path)
+                new_image.name = tex_name
+                new_image.use_fake_user = True
+            except:
+                new_image = bpy.data.images.new(tex_name, pixel_size // width_fac, pixel_size // height_fac)
+                new_image.use_fake_user = True
+                new_image.file_format = 'PNG'
+                new_image.filepath = new_path
 
         image_out_node = nt.nodes.new('ShaderNodeTexImage')
         image_out_node.name = 'CYCLES_OUT'
@@ -133,11 +222,17 @@ def configure_nodetree_cycles(mat, pixel_size):
         nt.links.new(transp.outputs[0], material_output.inputs[0])
 
     elif mat.game_settings.alpha_blend == 'ALPHA':
+        diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
+        gridder.place_node(diffuse, 2)
         transp = nt.nodes.new('ShaderNodeBsdfTransparent')
         gridder.place_node(transp, 2)
+        mix_shader = nt.nodes.new('ShaderNodeMixShader')
+        gridder.place_node(mix_shader, 2)
+        nt.links.new(transp.outputs[0], mix_shader.inputs[1])
+        nt.links.new(diffuse.outputs[0], mix_shader.inputs[2])
         material_output = nt.nodes.new('ShaderNodeOutputMaterial')
         gridder.place_node(material_output, 3)
-        nt.links.new(transp.outputs[0], material_output.inputs[0])
+        nt.links.new(mix_shader.outputs[0], material_output.inputs[0])
 
         # Classify connected transparent textures
         chain = recursive_build_material_chain(nt.nodes['Output'])
@@ -148,11 +243,13 @@ def configure_nodetree_cycles(mat, pixel_size):
             gridder.place_node(diffuse_image_node, 1)
             diffuse_image_node.image = tex_node.texture.image
             mapping = nt.nodes.new('ShaderNodeMapping')
-            gridder.place_node(mapping, 2)
+            gridder.place_node(mapping, 1)
             mapping.vector_type = 'TEXTURE'
             mapping.translation = (1.0,1.0,0.0)
             mapping.scale = (2.0,2.0,1.0)
-            nt.links.new(diffuse_image_node.outputs[0], transp.inputs[0])
+            nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
+            if nt.nodes['Output'].inputs[1].is_linked:
+                nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mix_shader.inputs[0])
             nt.links.new(tex_node.inputs[0].links[0].from_socket, mapping.inputs[0])
             nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
 
@@ -164,19 +261,23 @@ def configure_nodetree_cycles(mat, pixel_size):
             emissive_soc = None
             if diffuse_soc:
                 tex_node = tex_node_from_node(diffuse_soc.node)
-                diffuse_image_node = nt.nodes.new('ShaderNodeTexImage')
-                gridder.place_node(diffuse_image_node, 1)
-                diffuse_image_node.image = tex_node.texture.image
-                mapping = nt.nodes.new('ShaderNodeMapping')
-                gridder.place_node(mapping, 2)
-                mapping.vector_type = 'TEXTURE'
-                mapping.translation = (1.0,1.0,0.0)
-                mapping.scale = (2.0,2.0,1.0)
-                diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
-                gridder.place_node(diffuse, 2)
-                nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
-                nt.links.new(tex_node.inputs[0].links[0].from_socket, mapping.inputs[0])
-                nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
+                if tex_node:
+                    diffuse_image_node = nt.nodes.new('ShaderNodeTexImage')
+                    gridder.place_node(diffuse_image_node, 1)
+                    diffuse_image_node.image = tex_node.texture.image
+                    mapping = nt.nodes.new('ShaderNodeMapping')
+                    gridder.place_node(mapping, 1)
+                    mapping.vector_type = 'TEXTURE'
+                    mapping.translation = (1.0,1.0,0.0)
+                    mapping.scale = (2.0,2.0,1.0)
+                    diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
+                    gridder.place_node(diffuse, 2)
+                    nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
+                    nt.links.new(tex_node.inputs[0].links[0].from_socket, mapping.inputs[0])
+                    nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
+                else:
+                    diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
+                    gridder.place_node(diffuse, 2)
             if emissive_soc:
                 emissive = nt.nodes.new('ShaderNodeEmission')
                 gridder.place_node(emissive, 2)
@@ -195,25 +296,11 @@ def configure_nodetree_cycles(mat, pixel_size):
             elif emissive_soc:
                 nt.links.new(emissive.outputs[0], material_output.inputs[0])
 
-    # Set bake target node active
-    if image_out_node:
-        nt.nodes.active = image_out_node
-    else:
-        image_out_node = nt.nodes.new('ShaderNodeTexImage')
-        nt.nodes.active = image_out_node
-        image_out_node.name = 'CYCLES_OUT'
-        gridder.place_node(image_out_node, 3)
-        if 'FAKE' in bpy.data.images:
-            image_out_node.image = bpy.data.images['FAKE']
-        else:
-            fake_img = bpy.data.images.new('FAKE', 1, 1)
-            image_out_node.image = fake_img
-
 # Lightmap render operator
-class SREAConfigureCycles(bpy.types.Operator):
-    bl_idname = "scene.hecl_area_configure_cycles"
-    bl_label = "HECL Configure Cycles"
-    bl_description = "Setup Cycles nodes for lightmap baking"
+class SREAInitializeCycles(bpy.types.Operator):
+    bl_idname = "scene.hecl_area_initialize_cycles"
+    bl_label = "HECL Initialize Cycles"
+    bl_description = "Initialize Cycles nodes for lightmap baking (WILL DELETE EXISTING CYCLES NODES!)"
 
     @classmethod
     def poll(cls, context):
@@ -228,23 +315,8 @@ class SREAConfigureCycles(bpy.types.Operator):
         # Iterate materials and setup cycles
         for mat in bpy.data.materials:
             if mat.use_nodes:
-                configure_nodetree_cycles(mat, pixel_size)
+                initialize_nodetree_cycles(mat, pixel_size)
         return {'FINISHED'}
-
-
-# Area data class
-class SREAData(bpy.types.PropertyGroup):
-    lightmap_resolution = bpy.props.EnumProperty(name="HECL Area Lightmap Resolution",
-            description="Set square resolution to use when rendering new lightmaps",
-            items=[
-            ('256', "256", "256x256 (original quality)"),
-            ('512', "512", "512x512"),
-            ('1024', "1024", "1024x1024"),
-            ('2048', "2048", "2048x2048"),
-            ('4096', "4096", "4096x4096")],
-            default='1024')
-
-
 
 # Lightmap render operator
 class SREARenderLightmaps(bpy.types.Operator):
@@ -254,29 +326,40 @@ class SREARenderLightmaps(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (context.scene is not None and context.scene.hecl_type == 'AREA')
+        return context.scene is not None
 
     def execute(self, context):
-        area_data = context.scene.hecl_srea_data
-        if (context.scene is not None and context.scene.hecl_type == 'AREA'):
+        if not bpy.ops.object.bake.poll():
+            self.report({'ERROR_INVALID_CONTEXT'}, 'One or more mesh objects must be selected; nothing else')
+            return {'CANCELLED'}
 
-            # Mmm Cycles
-            context.scene.render.engine = 'CYCLES'
-            context.scene.cycles.use_clear = False
-            context.scene.cycles.bake_type = 'COMBINED'
+        if context.scene is not None:
+            area_data = context.scene.hecl_srea_data
 
             # Resolution
             pixel_size = int(area_data.lightmap_resolution)
 
+            # Mmm Cycles
+            context.scene.render.engine = 'CYCLES'
+            context.scene.render.bake.margin = pixel_size // 128
+
             # Iterate materials and setup cycles
             for mat in bpy.data.materials:
                 if mat.use_nodes:
-                    configure_nodetree_cycles(mat, pixel_size)
+                    # Set bake target node active
+                    if 'CYCLES_OUT' in mat.node_tree.nodes:
+                        mat.node_tree.nodes.active = mat.node_tree.nodes['CYCLES_OUT']
+                    else:
+                        image_out_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                        mat.node_tree.nodes.active = image_out_node
+                        image_out_node.name = 'CYCLES_OUT'
+                        if 'FAKE' in bpy.data.images:
+                            image_out_node.image = bpy.data.images['FAKE']
+                        else:
+                            fake_img = bpy.data.images.new('FAKE', 1, 1)
+                            image_out_node.image = fake_img
 
-            # Bake operation runs with object selection
-            bpy.ops.object.select_all(action='DESELECT')
-
-            # Iterate mesh objects and establish images for receiving baked renders
+            # Iterate mesh objects and set UV 0 as the active UV layer
             for obj in context.scene.objects:
                 if obj.type == 'MESH':
 
@@ -286,17 +369,8 @@ class SREARenderLightmaps(bpy.types.Operator):
                     # Make correct UV layer active
                     obj.data.uv_textures.active_index = 0
 
-                    bpy.context.scene.objects.active = obj
-                    obj.select = True
-
-
             # Make lightmaps
-            bpy.ops.object.bake()
-
-            # Save images to disk
-            for img in bpy.data.images:
-                if img.name.endswith('_CYCLES'):
-                    img.save()
+            bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE_DIRECT')
 
         return {'FINISHED'}
 
@@ -306,18 +380,36 @@ def cook(writebuffunc, platform, endianchar):
 
 # Panel draw
 def draw(layout, context):
-    pass
+    area_data = context.scene.hecl_srea_data
+
+    layout.label("Lighting:", icon='LAMP_SPOT')
+    light_row = layout.row(align=True)
+    light_row.prop_enum(context.scene.hecl_srea_data, 'lightmap_mode', 'ORIGINAL')
+    light_row.prop_enum(context.scene.hecl_srea_data, 'lightmap_mode', 'CYCLES')
+    layout.prop(context.scene.hecl_srea_data, 'lightmap_resolution', text="Resolution")
+    layout.menu("CYCLES_MT_sampling_presets", text=bpy.types.CYCLES_MT_sampling_presets.bl_label)
+    layout.prop(context.scene.render.bake, "use_clear", text="Clear Before Baking")
+    layout.operator("scene.hecl_area_initialize_cycles", text="Initialize Cycles Nodes", icon='NODETREE')
+    layout.operator("scene.hecl_area_render_lightmaps", text="Bake Cycles Lightmaps", icon='RENDER_STILL')
+    layout.operator("image.save_dirty", text="Save Lightmaps", icon='FILE_TICK')
+
+
+# Load scene callback
+@persistent
+def scene_loaded(dummy):
+    preview_update(None, bpy.context)
 
 # Registration
 def register():
     bpy.utils.register_class(SREAData)
-    bpy.utils.register_class(SREAConfigureCycles)
+    bpy.utils.register_class(SREAInitializeCycles)
     bpy.utils.register_class(SREARenderLightmaps)
     bpy.types.Scene.hecl_srea_data = bpy.props.PointerProperty(type=SREAData)
-    bpy.types.Material.retro_lightmap = bpy.props.StringProperty(name='Retro: Lightmap')
+    bpy.types.Material.hecl_lightmap = bpy.props.StringProperty(name='HECL: Lightmap Base Name')
+    bpy.app.handlers.load_post.append(scene_loaded)
 
 def unregister():
     bpy.utils.unregister_class(SREAData)
-    bpy.utils.unregister_class(SREAConfigureCycles)
+    bpy.utils.unregister_class(SREAInitializeCycles)
     bpy.utils.unregister_class(SREARenderLightmaps)
 
