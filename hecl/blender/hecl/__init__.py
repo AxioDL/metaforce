@@ -13,7 +13,7 @@ bl_info = {
     "category": "System"}
 
 # Package import
-from . import hmdl, sact, srea, Nodegrid
+from . import hmdl, sact, srea, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
 import bpy, os, sys
 from bpy.app.handlers import persistent
@@ -128,6 +128,7 @@ def register():
     bpy.utils.register_class(hecl_scene_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
     bpy.app.handlers.load_post.append(scene_loaded)
+    Patching.register()
 
 def unregister():
     bpy.app.handlers.load_post.remove(scene_loaded)
@@ -135,6 +136,7 @@ def unregister():
     sact.unregister()
     srea.unregister()
     bpy.utils.unregister_class(hecl_scene_panel)
+    Patching.unregister()
 
 if __name__ == "__main__":
     register()

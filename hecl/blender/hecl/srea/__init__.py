@@ -242,14 +242,20 @@ def initialize_nodetree_cycles(mat, pixel_size):
             diffuse_image_node = nt.nodes.new('ShaderNodeTexImage')
             gridder.place_node(diffuse_image_node, 1)
             diffuse_image_node.image = tex_node.texture.image
+            mixrgb_node = nt.nodes.new('ShaderNodeMixRGB')
+            gridder.place_node(mixrgb_node, 1)
+            mixrgb_node.inputs[1].default_value = (1.0,1.0,1.0,1.0)
             mapping = nt.nodes.new('ShaderNodeMapping')
             gridder.place_node(mapping, 1)
             mapping.vector_type = 'TEXTURE'
             mapping.translation = (1.0,1.0,0.0)
             mapping.scale = (2.0,2.0,1.0)
             nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
+            nt.links.new(diffuse_image_node.outputs[0], mixrgb_node.inputs[2])
             if nt.nodes['Output'].inputs[1].is_linked:
                 nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mix_shader.inputs[0])
+                nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mixrgb_node.inputs[0])
+            nt.links.new(mixrgb_node.outputs[0], transp.inputs[0])
             nt.links.new(tex_node.inputs[0].links[0].from_socket, mapping.inputs[0])
             nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
 

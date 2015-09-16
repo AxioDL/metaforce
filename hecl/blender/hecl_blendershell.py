@@ -132,6 +132,7 @@ while True:
             bpy.ops.wm.read_homefile()
         bpy.context.user_preferences.filepaths.save_version = 0
         if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
+            bpy.ops.file.hecl_patching_load()
             writepipeline(b'FINISHED')
         else:
             writepipeline(b'CANCELLED')

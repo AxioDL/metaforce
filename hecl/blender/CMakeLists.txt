@@ -1,6 +1,7 @@
 list(APPEND PY_SOURCES
      hecl/__init__.py
      hecl/Nodegrid.py
+     hecl/Patching.py
      hecl/hmdl/__init__.py
      hecl/hmdl/HMDLMesh.py
      hecl/hmdl/HMDLShader.py
