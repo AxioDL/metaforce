@@ -1,12 +1,12 @@
 [submodule "NODLib"]
 	path = NODLib
-	url = https://github.com/RetroView/NODLib.git
+	url = https://github.com/AxioDL/NODLib.git
 [submodule "hecl"]
 	path = hecl
-	url = https://github.com/RetroView/hecl.git
+	url = https://github.com/AxioDL/hecl.git
 [submodule "MathLib"]
 	path = MathLib
-	url = https://github.com/RetroView/MathLib.git
+	url = https://github.com/AxioDL/MathLib.git
 [submodule "libBoo"]
 	path = libBoo
-	url = https://github.com/RetroView/libBoo.git
+	url = https://github.com/AxioDL/libBoo.git
