@@ -348,8 +348,7 @@ bool BlenderConnection::createBlend(const SystemString& path)
         return false;
     }
     HECL::SystemUTF8View pathView(path);
-    _writeLine(("CREATE \"" + pathView.str() + "\"").c_str());
-    //_writeLine(("CREATE \"" + pathView.str() + "\" \"" + m_startupBlend + "\"").c_str());
+    _writeLine(("CREATE \"" + pathView.str() + "\" \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
