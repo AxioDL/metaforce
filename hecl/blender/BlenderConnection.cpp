@@ -317,6 +317,12 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
                 BlenderLog.report(LogVisor::FatalError, "unable to install blender addon using '%s'", blenderAddonPath.c_str());
             continue;
         }
+        else if (!strcmp(lineBuf, "ADDONINSTALLED"))
+        {
+            _closePipe();
+            blenderAddonPath = _S("SKIPINSTALL");
+            continue;
+        }
         else if (strcmp(lineBuf, "READY"))
         {
             _closePipe();

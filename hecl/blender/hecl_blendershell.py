@@ -34,9 +34,11 @@ def quitblender():
     bpy.ops.wm.quit_blender()
 
 # If there's a third argument, use it as the .zip path containing the addon
-if len(args) >= 3:
+did_install = False
+if len(args) >= 3 and args[2] != 'SKIPINSTALL':
     bpy.ops.wm.addon_install(overwrite=True, target='DEFAULT', filepath=args[2])
     bpy.ops.wm.addon_refresh()
+    did_install = True
 
 # Make addon available to commands
 if bpy.context.user_preferences.addons.find('hecl') == -1:
@@ -49,6 +51,11 @@ try:
     import hecl
 except:
     writepipeline(b'NOADDON')
+    bpy.ops.wm.quit_blender()
+
+# Quit if just installed
+if did_install:
+    writepipeline(b'ADDONINSTALLED')
     bpy.ops.wm.quit_blender()
 
 # Intro handshake

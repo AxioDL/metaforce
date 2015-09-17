@@ -18,6 +18,7 @@ Nodegrid = Nodegrid.Nodegrid
 import bpy, os, sys
 from bpy.app.handlers import persistent
 
+
 # Appendable list allowing external addons to register additional resource types
 hecl_typeS = [
 ('NONE', "None", "Active scene not using HECL", None, None),

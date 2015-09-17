@@ -29,29 +29,29 @@ def find_project_root():
         return path[0]
     return None
 
-def get_patching_dir(make_dirs=False):
+def get_patching_dirs(make_dirs=False):
     proj_root = find_project_root()
     if not proj_root:
-        return None
+        return None, None
     rel_to_blend = os.path.relpath(bpy.data.filepath, start=proj_root)
     rel_to_blend_comps = path_components(rel_to_blend)
     trace_dir = os.path.join(proj_root, '.hecl', 'patches')
+    global_out = trace_dir
     if not make_dirs and not os.path.exists(trace_dir):
-        return None
+        return None, global_out
     _mkdir(trace_dir)
     for comp in rel_to_blend_comps:
         ext_pair = os.path.splitext(comp)
         if ext_pair[1] == '.blend':
             trace_dir = os.path.join(trace_dir, ext_pair[0])
             if not make_dirs and not os.path.exists(trace_dir):
-                return None
+                return None, global_out
             _mkdir(trace_dir)
-            return trace_dir
+            return trace_dir, global_out
         trace_dir = os.path.join(trace_dir, comp)
         if not make_dirs and not os.path.exists(trace_dir):
-            return None
+            return None, global_out
         _mkdir(trace_dir)
-
 
 class FILE_OT_hecl_patching_save(bpy.types.Operator):
     '''Save text datablocks to hecl patching directory'''
@@ -60,13 +60,13 @@ class FILE_OT_hecl_patching_save(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        patching_dir = get_patching_dir(make_dirs=True)
+        patching_dir, global_dir = get_patching_dirs(make_dirs=True)
         if not patching_dir:
-            self.report({'ERROR'}, 'Unable to save patches for ' + bpy.data.filepath)
+            self.report({'WARNING'}, 'Unable to save patches for ' + bpy.data.filepath)
             return {'CANCELLED'}
         count = 0
         for text in bpy.data.texts:
-            if not text.name.endswith('.py'):
+            if not text.name.endswith('.py') or text.name.startswith('g_'):
                 continue
             text_abspath = os.path.join(patching_dir, text.name)
             text_file = open(text_abspath, 'w')
@@ -86,23 +86,40 @@ class FILE_OT_hecl_patching_load(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        patching_dir = get_patching_dir()
-        if not patching_dir:
-            self.report({'ERROR'}, 'Unable to load patches for ' + bpy.data.filepath)
-            return {'CANCELLED'}
-        p = Path(patching_dir)
+        patching_dir, global_dir = get_patching_dirs()
         count = 0
-        for path in p.glob('*.py'):
-            path = path.name
-            text_abspath = os.path.join(patching_dir, path)
-            text_file = open(text_abspath, 'r')
-            if path in bpy.data.texts:
-                text = bpy.data.texts[path]
-            else:
-                text = bpy.data.texts.new(path)
-            text.from_string(text_file.read())
-            text_file.close()
-            count += 1
+
+        # Locals
+        if patching_dir:
+            p = Path(patching_dir)
+            for path in p.glob('*.py'):
+                path = path.name
+                text_abspath = os.path.join(patching_dir, path)
+                text_file = open(text_abspath, 'r')
+                if path in bpy.data.texts:
+                    text = bpy.data.texts[path]
+                else:
+                    text = bpy.data.texts.new(path)
+                text.from_string(text_file.read())
+                text_file.close()
+                count += 1
+
+        # Globals
+        if global_dir:
+            p = Path(global_dir)
+            print('CHECKING', global_dir)
+            for path in p.glob('g_*.py'):
+                path = path.name
+                text_abspath = os.path.join(global_dir, path)
+                text_file = open(text_abspath, 'r')
+                if path in bpy.data.texts:
+                    text = bpy.data.texts[path]
+                else:
+                    text = bpy.data.texts.new(path)
+                text.from_string(text_file.read())
+                text_file.close()
+                count += 1
+
         if count == 1:
             self.report({'INFO'}, 'loaded 1 patch')
         else:

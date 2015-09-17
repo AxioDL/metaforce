@@ -324,6 +324,9 @@ class SREAInitializeCycles(bpy.types.Operator):
                 initialize_nodetree_cycles(mat, pixel_size)
         return {'FINISHED'}
 
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
 # Lightmap render operator
 class SREARenderLightmaps(bpy.types.Operator):
     bl_idname = "scene.hecl_area_render_lightmaps"
@@ -347,7 +350,7 @@ class SREARenderLightmaps(bpy.types.Operator):
 
             # Mmm Cycles
             context.scene.render.engine = 'CYCLES'
-            context.scene.render.bake.margin = pixel_size // 128
+            context.scene.render.bake.margin = pixel_size // 256
 
             # Iterate materials and setup cycles
             for mat in bpy.data.materials:
