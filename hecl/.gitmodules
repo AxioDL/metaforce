@@ -6,4 +6,4 @@
 	url = https://github.com/jackoalan/libSquish.git
 [submodule "extern/LogVisor"]
 	path = extern/LogVisor
-	url = https://github.com/RetroView/LogVisor.git
+	url = https://github.com/AxioDL/LogVisor.git
