@@ -126,6 +126,28 @@ void PAKBridge::build()
             mlvl.read(rs);
             m_areaDeps.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
+
+            /* Pre-pass: find duplicate area names */
+            std::unordered_map<HECL::SystemString, std::pair<atUint32, atUint32>> dupeTracker;
+            dupeTracker.reserve(mlvl.areas.size());
+            for (const MLVL::Area& area : mlvl.areas)
+            {
+                const DNAMP1::PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
+                if (areaNameEnt)
+                {
+                    STRG areaName;
+                    PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
+                    areaName.read(rs);
+                    HECL::SystemString name = areaName.getSystemString(FOURCC('ENGL'), 0);
+                    auto search = dupeTracker.find(name);
+                    if (search != dupeTracker.end())
+                        ++search->second.first;
+                    else
+                        dupeTracker[name] = std::make_pair(1, 1);
+                }
+            }
+
+            /* Main-pass: index areas */
             for (const MLVL::Area& area : mlvl.areas)
             {
                 Area& areaDeps = m_areaDeps[area.areaMREAId];
@@ -136,6 +158,13 @@ void PAKBridge::build()
                     PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
                     areaName.read(rs);
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
+                    auto search = dupeTracker.find(areaDeps.name);
+                    if (search != dupeTracker.end() && search->second.first > 1)
+                    {
+                        char num[16];
+                        snprintf(num, 16, " (%d)", search->second.second++);
+                        areaDeps.name += num;
+                    }
 
                     /* Trim possible trailing whitespace */
 #if HECL_UCS2

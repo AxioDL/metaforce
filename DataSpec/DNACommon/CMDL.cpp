@@ -80,6 +80,14 @@ void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
           "    face.smooth = True\n"
           "\n"
           "    return face, ret_mesh\n"
+          "\n"
+          "def expand_lightmap_triangle(uva, uvb, uvc):\n"
+          "    result = ([uva[0],uva[1]], [uvb[0],uvb[1]], [uvc[0],uvc[1]])\n"
+          "    if uva == uvb:\n"
+          "        result[1][0] += 0.005\n"
+          "    if uva == uvc:\n"
+          "        result[2][1] -= 0.005\n"
+          "    return result\n"
           "\n";
 
     /* Link master shader library */

@@ -12,6 +12,10 @@ void MREA::ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
     atUint32 bdMagic = rs.readUint32Big();
     if (bdMagic != 0xBABEDEAD)
         Log.report(LogVisor::FatalError, "invalid BABEDEAD magic");
+    os << "bpy.context.scene.render.engine = 'CYCLES'\n"
+          "bpy.context.scene.world.use_nodes = True\n"
+          "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
+          "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n";
     for (atUint32 s=0 ; s<2 ; ++s)
     {
         atUint32 lightCount = rs.readUint32Big();
@@ -22,8 +26,10 @@ void MREA::ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
             switch (light.lightType)
             {
             case BabeDeadLight::LightLocalAmbient:
-                os.format("bpy.context.scene.world.horizon_color = (%f,%f,%f)\n",
-                          light.color.vec[0], light.color.vec[1], light.color.vec[2]);
+                os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
+                          "bg_node.inputs[1].default_value = %f\n",
+                          light.color.vec[0], light.color.vec[1], light.color.vec[2],
+                          light.q / 8.0);
                 continue;
             case BabeDeadLight::LightDirectional:
                 os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
@@ -54,23 +60,30 @@ void MREA::ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
             os.format("lamp.retro_layer = %u\n"
                       "lamp.use_nodes = True\n"
                       "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                      "lamp.energy = 0.0\n"
                       "falloff_node.inputs[0].default_value = %f\n"
-                      "lamp.node_tree.nodes['Emission'].inputs[0].default_value = (%f,%f,%f,1.0)\n"
-                      "lamp_obj.hide_render = True\n"
+                      "hue_sat_node = lamp.node_tree.nodes.new('ShaderNodeHueSaturation')\n"
+                      "hue_sat_node.inputs[1].default_value = 1.25\n"
+                      "hue_sat_node.inputs[4].default_value = (%f,%f,%f,1.0)\n"
+                      "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
                       "lamp_obj.location = (%f,%f,%f)\n"
                       "bpy.context.scene.objects.link(lamp_obj)\n"
-                      "\n", s, light.q,
+                      "\n", s, light.q / 8.0,
                       light.color.vec[0], light.color.vec[1], light.color.vec[2],
                       light.position.vec[0], light.position.vec[1], light.position.vec[2]);
 
             switch (light.falloff)
             {
             case BabeDeadLight::FalloffConstant:
-                os << "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+                os << "falloff_node.inputs[0].default_value *= 75.0\n"
+                      "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+                break;
             case BabeDeadLight::FalloffLinear:
                 os << "lamp.node_tree.links.new(falloff_node.outputs[1], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+                break;
             case BabeDeadLight::FalloffQuadratic:
                 os << "lamp.node_tree.links.new(falloff_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+                break;
             default: break;
             }
 

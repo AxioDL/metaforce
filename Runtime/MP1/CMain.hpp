@@ -48,7 +48,7 @@ class CMain : public boo::IApplicationCallback
     CMemorySys x6c_memSys;
     CTweaks x70_tweaks;
     EGameplayResult xe4_gameplayResult;
-    bool xe8_finished = false;
+    bool xe8_b24_finished = false;
 
 public:
     CMain();

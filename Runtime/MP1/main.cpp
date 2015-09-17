@@ -154,9 +154,9 @@ int CMain::RsMain(int argc, const boo::SystemChar* argv[])
     g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
     TOneStatic<CGameArchitectureSupport> archSupport;
-    while (!xe8_finished)
+    while (!xe8_b24_finished)
     {
-        xe8_finished = archSupport->Update();
+        xe8_b24_finished = archSupport->Update();
     }
     return 0;
 }

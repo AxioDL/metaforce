@@ -18,7 +18,6 @@ void MaterialSet::RegisterMaterialProps(Stream& out)
            "bpy.types.Material.retro_shadow_occluder = bpy.props.BoolProperty(name='Retro: Shadow Occluder')\n"
            "bpy.types.Material.retro_samus_reflection_indirect = bpy.props.BoolProperty(name='Retro: Samus Reflection Indirect Texture')\n"
            "bpy.types.Material.retro_lightmapped = bpy.props.BoolProperty(name='Retro: Lightmapped')\n"
-           "bpy.types.Material.retro_lightmap = bpy.props.StringProperty(name='Retro: Lightmap')\n"
            "\n";
 }
 
@@ -321,19 +320,6 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
         out.format("new_nodetree.links.new(combiner_node.outputs[0], %s)\n", v);
 
     out << "alpha_combiner_nodes.append(combiner_node)\n\n";
-}
-
-static void AddLightmap(Stream& out, const char* tex, unsigned& c_combiner_idx)
-{
-    out << "world_light_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
-           "gridder.place_node(world_light_node, 1)\n"
-           "world_light_node.label = 'WORLD_LIGHTING'\n"
-           "world_light_node.outputs[0].default_value = (1.0,1.0,1.0,1.0)\n";
-    AddColorCombiner(out, COMB_MULT, tex, "world_light_node.outputs[0]", nullptr);
-    AddColorCombiner(out, COMB_ADD,
-                       "color_combiner_nodes[-1].outputs[0]",
-                       "material_node.outputs['Color']", nullptr);
-    c_combiner_idx += 2;
 }
 
 static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg,
@@ -669,9 +655,12 @@ void _ConstructMaterial(Stream& out,
     if (material.flags.lightmap() && material.tevStages[0].colorInB() == GX::CC_C1)
     {
         if (material.tevStageTexInfo[0].texSlot != 0xff)
-            out << "new_material.retro_lightmap = tex_maps[0].name\n"
+            out << "new_material.hecl_lightmap = tex_maps[0].name\n"
                    "tex_maps[0].image.use_fake_user = True\n";
-        AddLightmap(out, "texture_nodes[0].outputs['Color']", c_combiner_idx);
+        out << "world_light_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
+               "gridder.place_node(world_light_node, 1)\n"
+               "world_light_node.label = 'WORLD_LIGHTING'\n"
+               "world_light_node.outputs[0].default_value = (1.0,1.0,1.0,1.0)\n";
         strncpy(c_regs[GX::TEVREG1], "world_light_node.outputs[0]", 64);
     }
 
