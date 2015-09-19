@@ -220,14 +220,14 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
                "new_nodetree.links.new(material_node.outputs['Alpha'], pnode.inputs['Prev Alpha'])\n";
     else if (prevSection)
     {
-        if (prevSection->m_type == ISection::PASS)
+        if (prevSection->m_type == ISection::PASS &&
+            static_cast<const SectionPASS*>(prevSection)->subtype.toUint32() != RFLV)
             out << "new_nodetree.links.new(prev_pnode.outputs['Next Color'], pnode.inputs['Prev Color'])\n"
                    "new_nodetree.links.new(prev_pnode.outputs['Next Alpha'], pnode.inputs['Prev Alpha'])\n";
         else if (prevSection->m_type == ISection::CLR)
             out << "new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], pnode.inputs['Prev Color'])\n"
                    "new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], pnode.inputs['Prev Alpha'])\n";
     }
-
 
     /* Row Break in gridder */
     out << "gridder.row_break(2)\n";
