@@ -107,7 +107,6 @@ class FILE_OT_hecl_patching_load(bpy.types.Operator):
         # Globals
         if global_dir:
             p = Path(global_dir)
-            print('CHECKING', global_dir)
             for path in p.glob('g_*.py'):
                 path = path.name
                 text_abspath = os.path.join(global_dir, path)
