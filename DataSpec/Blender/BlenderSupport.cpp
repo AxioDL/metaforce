@@ -12,8 +12,6 @@ namespace Blender
 
 bool BuildMasterShader(const HECL::ProjectPath& path)
 {
-    if (path.getPathType() == HECL::ProjectPath::PT_FILE)
-        return true;
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
     if (!conn.createBlend(path.getAbsolutePath()))
         return false;

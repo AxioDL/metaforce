@@ -536,8 +536,16 @@ def make_pass_clr():
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
 
+    # Multiply
+    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
+    mult1.blend_type = 'MULTIPLY'
+    mult1.inputs[0].default_value = 1.0
+    grp_in.location = (-400, 0)
+
     # Links
-    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[0], mult1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], mult1.inputs[2])
+    new_grp.links.new(mult1.outputs[0], grp_out.inputs[0])
     grp_out.inputs[1].default_value = 1.0
 
 # Opacity Map
@@ -612,38 +620,25 @@ def make_pass_inca():
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
 
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Reflectivity Map
-def make_pass_rflv():
-    new_grp = bpy.data.node_groups.new('RetroPassRFLV', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
+    # Multiply
+    add1 = new_grp.nodes.new('ShaderNodeMixRGB')
+    add1.blend_type = 'ADD'
+    add1.inputs[0].default_value = 1.0
+    grp_in.location = (-400, 0)
 
     # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+    new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], add1.inputs[2])
+    new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
+    grp_out.inputs[1].default_value = 1.0
 
 # Reflection Map
 def make_pass_rfld():
     new_grp = bpy.data.node_groups.new('RetroPassRFLD', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketColor', 'Prev Color')
     new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Mask Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Mask Alpha')
     new_grp.inputs.new('NodeSocketColor', 'Tex Color')
     new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
     new_grp.outputs.new('NodeSocketColor', 'Next Color')
@@ -658,8 +653,24 @@ def make_pass_rfld():
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
 
+    # Multiply
+    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
+    mult1.location = (-600, 0)
+    mult1.blend_type = 'MULTIPLY'
+    mult1.inputs[0].default_value = 1.0
+
+    # Add
+    add1 = new_grp.nodes.new('ShaderNodeMixRGB')
+    add1.location = (-400, 0)
+    add1.blend_type = 'ADD'
+    add1.inputs[0].default_value = 1.0
+
     # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], mult1.inputs[1])
+    new_grp.links.new(grp_in.outputs[4], mult1.inputs[2])
+    new_grp.links.new(mult1.outputs[0], add1.inputs[2])
+    new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
     new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
 
 # Unk1
@@ -786,7 +797,6 @@ MP3_PASS_GROUPS = (
     make_pass_tran,
     make_pass_tran_inv,
     make_pass_inca,
-    make_pass_rflv,
     make_pass_rfld,
     make_pass_lrld,
     make_pass_lurd,

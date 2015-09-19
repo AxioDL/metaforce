@@ -77,7 +77,8 @@ void MaterialSet::ConstructMaterial(Stream& out,
 
     /* Texmap list */
     out << "tex_maps = []\n"
-           "pnode = None\n";
+           "pnode = None\n"
+           "rflv_tex_node = None\n";
 
     /* Add PASSes */
     i=0;
@@ -137,14 +138,23 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
         if (uvAnim.size())
         {
             const UVAnimation& uva = uvAnim[0];
-            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 4)), -1, texMapIdx++);
+            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 2)), texMtxIdx, texMapIdx++);
             DNAMP1::MaterialSet::Material::AddTextureAnim(out, uva.anim.mode, texMtxIdx++, uva.anim.vals);
         }
         else
             DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc + 4), -1, texMapIdx++);
     }
 
+    /* Special case for RFLV (environment UV mask) */
+    if (subtype.toUint32() == RFLV)
+    {
+        if (txtrId)
+            out << "rflv_tex_node = texture_nodes[-1]\n";
+        return;
+    }
+
     /* Add PASS node */
+    bool linkRAS = false;
     out << "prev_pnode = pnode\n"
            "pnode = new_nodetree.nodes.new('ShaderNodeGroup')\n";
     switch (subtype)
@@ -163,6 +173,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
         break;
     case CLR:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassCLR']\n";
+        linkRAS = true;
         break;
     case TRAN:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRAN']\n";
@@ -174,7 +185,10 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLV']\n";
         break;
     case RFLD:
-        out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLD']\n";
+        out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLD']\n"
+               "if rflv_tex_node:\n"
+               "    new_nodetree.links.new(rflv_tex_node.outputs['Color'], pnode.inputs['Mask Color'])\n"
+               "    new_nodetree.links.new(rflv_tex_node.outputs['Value'], pnode.inputs['Mask Alpha'])\n";
         break;
     case LRLD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassLRLD']\n";
@@ -201,7 +215,10 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
                "new_nodetree.links.new(texture_nodes[-1].outputs['Value'], pnode.inputs['Tex Alpha'])\n";
     }
 
-    if (prevSection)
+    if (linkRAS)
+        out << "new_nodetree.links.new(material_node.outputs['Color'], pnode.inputs['Prev Color'])\n"
+               "new_nodetree.links.new(material_node.outputs['Alpha'], pnode.inputs['Prev Alpha'])\n";
+    else if (prevSection)
     {
         if (prevSection->m_type == ISection::PASS)
             out << "new_nodetree.links.new(prev_pnode.outputs['Next Color'], pnode.inputs['Prev Color'])\n"
@@ -210,6 +227,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
             out << "new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], pnode.inputs['Prev Color'])\n"
                    "new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], pnode.inputs['Prev Alpha'])\n";
     }
+
 
     /* Row Break in gridder */
     out << "gridder.row_break(2)\n";
