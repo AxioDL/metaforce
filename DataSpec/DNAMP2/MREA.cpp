@@ -220,7 +220,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     MaterialSet matSet;
     atUint64 secStart = drs.position();
     matSet.read(drs);
-    matSet.readToBlender(os, pakRouter, entry, 0, dataSpec);
+    matSet.readToBlender(os, pakRouter, entry, 0);
     drs.seek(secStart + head.secSizes[0], Athena::Begin);
     std::vector<DNACMDL::VertexAttributes> vertAttribs;
     DNACMDL::GetVertexAttributes(matSet, vertAttribs);
@@ -234,7 +234,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         mHeader.read(drs);
         drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
         curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair>
-                      (os, drs, pakRouter, entry, dataSpec, dummy, true,
+                      (os, drs, pakRouter, entry, dummy, true,
                        true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
         os.format("obj.retro_disable_enviro_visor = %s\n"
                   "obj.retro_disable_thermal_visor = %s\n"

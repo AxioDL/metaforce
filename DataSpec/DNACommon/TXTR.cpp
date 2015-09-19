@@ -481,7 +481,7 @@ static void PNGWarn(png_structp png, png_const_charp msg)
     Log.report(LogVisor::Warning, msg);
 }
 
-bool TXTR::Extract(const SpecBase& dataspec, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+bool TXTR::Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
 {
     uint32_t format = rs.readUint32Big();
     uint16_t width = rs.readUint16Big();

@@ -7,6 +7,7 @@ namespace Retro
 {
 namespace DNAMP1
 {
+using Material = MaterialSet::Material;
 
 void MaterialSet::RegisterMaterialProps(Stream& out)
 {
@@ -21,7 +22,7 @@ void MaterialSet::RegisterMaterialProps(Stream& out)
            "\n";
 }
 
-static void AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx)
+void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx)
 {
     char mtxLabel[64];
     if (mtxIdx == -1)
@@ -42,14 +43,14 @@ static void AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t tex
                "tex_node.location[1] += 176\n", mtxLabel, texIdx);
 
     if (texIdx != 0xff)
-        out.format("tex_node.texture = tex_maps[%u]\n",
-                   texIdx);
+        out.format("tex_node.texture = tex_maps[%u]\n", texIdx);
 
     if (type == GX::TG_POS)
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['View'], tex_node.inputs['Vector']))\n");
     else if (type == GX::TG_NRM)
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n");
-    else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
+    else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7)
+    {
         uint8_t texIdx = type - GX::TG_TEX0;
         out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                    "tex_uv_node.uv_layer = 'UV_%u'\n", texIdx);
@@ -59,20 +60,20 @@ static void AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t tex
 
 }
 
-static void AddTextureAnim(Stream& out,
-                           MaterialSet::Material::UVAnimation::Mode type,
-                           unsigned idx, const float* vals)
+void Material::AddTextureAnim(Stream& out,
+                              UVAnimation::Mode type,
+                              unsigned idx, const float* vals)
 {
     switch (type)
     {
-    case MaterialSet::Material::UVAnimation::ANIM_MV_INV_NOTRANS:
+    case UVAnimation::ANIM_MV_INV_NOTRANS:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode0Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode0Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -80,14 +81,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_MV_INV:
+    case UVAnimation::ANIM_MV_INV:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode1Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode1Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -95,14 +96,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_SCROLL:
+    case UVAnimation::ANIM_SCROLL:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode2Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode2Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = (%f,%f,0)\n"
@@ -112,14 +113,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[2], vals[3]);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_ROTATION:
+    case UVAnimation::ANIM_ROTATION:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode3Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode3Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = %f\n"
@@ -129,14 +130,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1]);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_HSTRIP:
+    case UVAnimation::ANIM_HSTRIP:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode4Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode4Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = %f\n"
@@ -148,14 +149,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[2], vals[3]);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_VSTRIP:
+    case UVAnimation::ANIM_VSTRIP:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode5Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode5Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = %f\n"
@@ -167,14 +168,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[3], vals[2]);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_MODEL:
+    case UVAnimation::ANIM_MODEL:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode6Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode6Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -182,14 +183,14 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case MaterialSet::Material::UVAnimation::ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+    case UVAnimation::ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RWKUVMode7Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode7Node']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = %f\n"
@@ -199,12 +200,11 @@ static void AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1]);
         break;
-    default:
-        break;
+    default: break;
     }
 }
 
-static void AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
+void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
 {
     out.format("# KColor\n"
                "kc_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
@@ -227,7 +227,6 @@ static void AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
                (float)col.b / (float)0xff, (float)col.a / (float)0xff,
                idx,
                (float)col.a / (float)0xff);
-
 }
 
 
@@ -250,7 +249,8 @@ static void AddColorCombiner(Stream& out, CombinerType type,
     else if (type == COMB_MULT)
         out << "combiner_node.blend_type = 'MULTIPLY'\n";
 
-    if (a) {
+    if (a)
+    {
         if (!strcmp(a, "ZERO"))
             out << "combiner_node.inputs['Color1'].default_value = (0.0, 0.0, 0.0, 0.0)\n";
         else if (!strcmp(a, "HALF"))
@@ -263,7 +263,8 @@ static void AddColorCombiner(Stream& out, CombinerType type,
             out.format("new_nodetree.links.new(%s, combiner_node.inputs['Color1'])\n", a);
     }
 
-    if (b) {
+    if (b)
+    {
         if (!strcmp(b, "ZERO"))
             out << "combiner_node.inputs['Color2'].default_value = (0.0, 0.0, 0.0, 0.0)\n";
         else if (!strcmp(b, "HALF"))
@@ -294,7 +295,8 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
     else if (type == COMB_MULT)
         out << "combiner_node.operation = 'MULTIPLY'\n";
 
-    if (a) {
+    if (a)
+    {
         if (!strcmp(a, "ZERO"))
             out << "combiner_node.inputs[0].default_value = 0.0\n";
         else if (!strcmp(a, "HALF"))
@@ -305,7 +307,8 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
             out.format("new_nodetree.links.new(%s, combiner_node.inputs[0])\n", a);
     }
 
-    if (b) {
+    if (b)
+    {
         if (!strcmp(b, "ZERO"))
             out << "combiner_node.inputs[1].default_value = 0.0\n";
         else if (!strcmp(b, "HALF"))
@@ -332,21 +335,25 @@ static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg,
         strcpy(socketOut, "HALF");
     else if (arg == GX::CC_ONE)
         strcpy(socketOut, "ONE");
-    else if (arg == GX::CC_TEXC) {
+    else if (arg == GX::CC_TEXC)
+    {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Color']", stageTex.tcgSlot);
-    } else if (arg == GX::CC_TEXA) {
+    }
+    else if (arg == GX::CC_TEXA) {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-    } else if (arg == GX::CC_RASC)
+    }
+    else if (arg == GX::CC_RASC)
         strcpy(socketOut, "material_node.outputs['Color']");
-    else if (arg == GX::CC_RASA) {
+    else if (arg == GX::CC_RASA)
         strcpy(socketOut, "material_node.outputs['Alpha']");
-    } else if (arg == GX::CC_KONST) {
+    else if (arg == GX::CC_KONST)
+    {
         int kreg = (kcolor - GX::TEV_KCSEL_K0) % 4;
         if (kcolor < GX::TEV_KCSEL_K0)
             strcpy(socketOut, "ONE");
@@ -360,23 +367,23 @@ static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg,
             strcpy(socketOut, "kcolor_nodes[3][0].outputs[0]");
         else
             strcpy(socketOut, "ONE");
-    } else if (arg == GX::CC_CPREV)
-        strcpy(socketOut, c_regs[GX::TEVPREV]);
-    else if (arg == GX::CC_APREV) {
-        strcpy(socketOut, a_regs[GX::TEVPREV]);
-    } else if (arg == GX::CC_C0)
-        strcpy(socketOut, c_regs[GX::TEVREG0]);
-    else if (arg == GX::CC_A0) {
-        strcpy(socketOut, a_regs[GX::TEVREG0]);
-    } else if (arg == GX::CC_C1)
-        strcpy(socketOut, c_regs[GX::TEVREG1]);
-    else if (arg == GX::CC_A1) {
-        strcpy(socketOut, a_regs[GX::TEVREG1]);
-    } else if (arg == GX::CC_C2)
-        strcpy(socketOut, c_regs[GX::TEVREG2]);
-    else if (arg == GX::CC_A2) {
-        strcpy(socketOut, a_regs[GX::TEVREG2]);
     }
+    else if (arg == GX::CC_CPREV)
+        strcpy(socketOut, c_regs[GX::TEVPREV]);
+    else if (arg == GX::CC_APREV)
+        strcpy(socketOut, a_regs[GX::TEVPREV]); 
+    else if (arg == GX::CC_C0)
+        strcpy(socketOut, c_regs[GX::TEVREG0]);
+    else if (arg == GX::CC_A0)
+        strcpy(socketOut, a_regs[GX::TEVREG0]);
+    else if (arg == GX::CC_C1)
+        strcpy(socketOut, c_regs[GX::TEVREG1]);
+    else if (arg == GX::CC_A1)
+        strcpy(socketOut, a_regs[GX::TEVREG1]);
+    else if (arg == GX::CC_C2)
+        strcpy(socketOut, c_regs[GX::TEVREG2]);
+    else if (arg == GX::CC_A2)
+        strcpy(socketOut, a_regs[GX::TEVREG2]);
 }
 
 static void TranslateAlphaSocket(char* socketOut, GX::TevAlphaArg arg,
@@ -385,12 +392,14 @@ static void TranslateAlphaSocket(char* socketOut, GX::TevAlphaArg arg,
                                  char a_regs[4][64]) {
     if (arg == GX::CA_ZERO)
         strcpy(socketOut, "ZERO");
-    else if (arg == GX::CA_TEXA) {
+    else if (arg == GX::CA_TEXA)
+    {
         if (stageTex.tcgSlot == 0xff)
             strcpy(socketOut, "ONE");
         else
             sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-    } else if (arg == GX::CA_RASA)
+    }
+    else if (arg == GX::CA_RASA)
         strcpy(socketOut, "material_node.outputs['Alpha']");
     else if (arg == GX::CA_KONST) {
         int kreg = kalpha - GX::TEV_KASEL_K0_A;
@@ -404,7 +413,8 @@ static void TranslateAlphaSocket(char* socketOut, GX::TevAlphaArg arg,
             strcpy(socketOut, "kcolor_nodes[3][1].outputs[0]");
         else
             strcpy(socketOut, "ONE");
-    } else if (arg == GX::CA_APREV)
+    }
+    else if (arg == GX::CA_APREV)
         strcpy(socketOut, a_regs[GX::TEVPREV]);
     else if (arg == GX::CA_A0)
         strcpy(socketOut, a_regs[GX::TEVREG0]);
@@ -512,7 +522,8 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         ++a_combiner_idx;
     }
 
-    if (!(a_tev_opts & 8)) {
+    if (!(a_tev_opts & 8))
+    {
         /* +D node */
         AddAlphaCombiner(out, COMB_ADD, "alpha_combiner_nodes[-1].outputs[0]", ad, NULL);
         ++a_combiner_idx;
@@ -523,13 +534,15 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     {
         if (stage.colorInD() != GX::CC_ZERO)
             strncpy(c_regs[stage.colorOpOutReg()], cd, 64);
-    } else
+    }
+    else
         snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_nodes[%u].outputs[0]", c_combiner_idx - 1);
     if (a_tev_opts == 0xf)
     {
         if (stage.alphaInD() != GX::CA_ZERO)
             strncpy(a_regs[stage.alphaOpOutReg()], ad, 64);
-    } else
+    }
+    else
         snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_nodes[%u].outputs[0]", a_combiner_idx - 1);
 
     /* Row Break in gridder */
@@ -600,11 +613,11 @@ void _ConstructMaterial(Stream& out,
     {
         unsigned i=0;
         for (const GX::Color& col : material.konstColors)
-            AddKcolor(out, col, i++);
+            Material::AddKcolor(out, col, i++);
     }
 
     /* Blend factors */
-    using BlendFactor = MaterialSet::Material::BlendFactor;
+    using BlendFactor = Material::BlendFactor;
     if (material.blendDstFac != BlendFactor::GX_BL_ZERO)
     {
         if (material.blendDstFac == BlendFactor::GX_BL_ONE)
@@ -620,7 +633,7 @@ void _ConstructMaterial(Stream& out,
     }
 
     /* Color channels (for combining dynamic lighting) */
-    for (const MaterialSet::Material::ColorChannel& chan : material.colorChannels)
+    for (const Material::ColorChannel& chan : material.colorChannels)
     {
         if (!chan.lighting())
             out << "new_material.use_shadeless = True\n";
@@ -633,12 +646,12 @@ void _ConstructMaterial(Stream& out,
         if (material.tevStageTexInfo[i].tcgSlot != 0xff &&
             !(addedTcgs >> material.tevStageTexInfo[i].tcgSlot & 1))
         {
-            const MaterialSet::Material::TexCoordGen& tcg = material.tcgs[material.tevStageTexInfo[i].tcgSlot];
+            const Material::TexCoordGen& tcg = material.tcgs[material.tevStageTexInfo[i].tcgSlot];
             GX::TexMtx mtx = tcg.mtx();
             int mtxIdx = -1;
             if (mtx >= GX::TEXMTX0 && mtx <= GX::TEXMTX9)
                 mtxIdx = (mtx - GX::TEXMTX0) / 3;
-            AddTexture(out, tcg.source(), mtxIdx, material.tevStageTexInfo[i].texSlot);
+            Material::AddTexture(out, tcg.source(), mtxIdx, material.tevStageTexInfo[i].texSlot);
             addedTcgs |= 1 << material.tevStageTexInfo[i].tcgSlot;
         }
     }
@@ -667,8 +680,8 @@ void _ConstructMaterial(Stream& out,
     /* Add TEV stages */
     for (i=0 ; i<material.tevStageCount ; ++i)
     {
-        const MaterialSet::Material::TEVStage& stage = material.tevStages[i];
-        const MaterialSet::Material::TEVStageTexInfo& stage_tex = material.tevStageTexInfo[i];
+        const Material::TEVStage& stage = material.tevStages[i];
+        const Material::TEVStageTexInfo& stage_tex = material.tevStageTexInfo[i];
         AddTEVStage(out, stage, stage_tex, c_regs, a_regs, c_combiner_idx, a_combiner_idx);
     }
 
@@ -685,8 +698,8 @@ void _ConstructMaterial(Stream& out,
 
     /* Texmtx Animation Section */
     i=0;
-    for (const MaterialSet::Material::UVAnimation& anim : material.uvAnims)
-        AddTextureAnim(out, anim.mode, i++, anim.vals);
+    for (const Material::UVAnimation& anim : material.uvAnims)
+        Material::AddTextureAnim(out, anim.mode, i++, anim.vals);
 }
 
 void MaterialSet::ConstructMaterial(Stream& out,

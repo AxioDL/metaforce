@@ -64,7 +64,7 @@ struct STRG : ISTRG
         return HECL::SystemString();
     }
 
-    static bool Extract(const SpecBase&, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     {
         STRG strg;
         strg.read(rs);

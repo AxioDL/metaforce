@@ -13,6 +13,8 @@ namespace DNAMP3
 
 struct MaterialSet : BigDNA
 {
+    static constexpr bool OneSection() {return true;}
+
     DECL_DNA
     Value<atUint32> materialCount;
 
@@ -58,6 +60,14 @@ struct MaterialSet : BigDNA
                 INT = SBIG('INT ')
             } m_type;
             ISection(Type type) : m_type(type) {}
+            virtual void constructNode(HECL::BlenderConnection::PyOutStream& out,
+                                       const PAKRouter<PAKBridge>& pakRouter,
+                                       const PAK::Entry& entry,
+                                       const Material::ISection* prevSection,
+                                       unsigned idx,
+                                       unsigned& texMapIdx,
+                                       unsigned& texMtxIdx,
+                                       unsigned& kColorIdx) const=0;
         };
         struct SectionPASS : ISection
         {
@@ -86,6 +96,8 @@ struct MaterialSet : BigDNA
             {
                 DECL_DNA
                 Value<atUint32> flags;
+                bool TRANInvert() const {return (flags & 0x10) != 0;}
+                void setTRANInvert(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
             } flags;
             UniqueID64 txtrId;
             Value<atUint32> uvSrc;
@@ -98,6 +110,15 @@ struct MaterialSet : BigDNA
                 DNAMP1::MaterialSet::Material::UVAnimation anim;
             };
             Vector<UVAnimation, DNA_COUNT(uvAnimSize != 0)> uvAnim;
+
+            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+                               const PAKRouter<PAKBridge>& pakRouter,
+                               const PAK::Entry& entry,
+                               const Material::ISection* prevSection,
+                               unsigned idx,
+                               unsigned& texMapIdx,
+                               unsigned& texMtxIdx,
+                               unsigned& kColorIdx) const;
         };
         struct SectionCLR : ISection
         {
@@ -110,6 +131,15 @@ struct MaterialSet : BigDNA
             };
             DNAFourCC subtype;
             GX::Color color;
+
+            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+                               const PAKRouter<PAKBridge>& pakRouter,
+                               const PAK::Entry& entry,
+                               const Material::ISection* prevSection,
+                               unsigned idx,
+                               unsigned& texMapIdx,
+                               unsigned& texMtxIdx,
+                               unsigned& kColorIdx) const;
         };
         struct SectionINT : ISection
         {
@@ -125,6 +155,15 @@ struct MaterialSet : BigDNA
             };
             DNAFourCC subtype;
             Value<atUint32> value;
+
+            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+                               const PAKRouter<PAKBridge>& pakRouter,
+                               const PAK::Entry& entry,
+                               const Material::ISection* prevSection,
+                               unsigned idx,
+                               unsigned& texMapIdx,
+                               unsigned& texMtxIdx,
+                               unsigned& kColorIdx) const;
         };
         struct SectionFactory : BigDNA
         {
@@ -182,21 +221,19 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;
 
-    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
-    {
-        DNAMP1::MaterialSet::RegisterMaterialProps(out);
-    }
+    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out);
     static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+                                  const PAKRouter<PAKBridge>& pakRouter,
+                                  const PAK::Entry& entry,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
     void readToBlender(HECL::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
-                       unsigned setIdx,
-                       const SpecBase& dataspec)
+                       unsigned setIdx)
     {
-        DNACMDL::ReadMaterialSetToBlender_3(os, *this, pakRouter, entry, setIdx, dataspec);
+        DNACMDL::ReadMaterialSetToBlender_3(os, *this, pakRouter, entry, setIdx);
     }
 };
 

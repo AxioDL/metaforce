@@ -25,7 +25,7 @@ public:
     inline const std::string& getName() const {return m_node.getName();}
     inline HECL::SystemString getLevelString() const {return m_levelString;}
 
-    typedef PAK PAKType;
+    using PAKType = PAK;
     inline const PAKType& getPAK() const {return m_pak;}
     inline const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
 

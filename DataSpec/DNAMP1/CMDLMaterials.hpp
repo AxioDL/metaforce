@@ -14,6 +14,8 @@ namespace DNAMP1
 
 struct MaterialSet : BigDNA
 {
+    static constexpr bool OneSection() {return false;}
+
     DECL_DNA
     struct MaterialSetHead : BigDNA
     {
@@ -295,6 +297,14 @@ struct MaterialSet : BigDNA
             }
         };
         Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+
+        static void AddTexture(HECL::BlenderConnection::PyOutStream& out,
+                               GX::TexGenSrc type, int mtxIdx, uint32_t texIdx);
+        static void AddTextureAnim(HECL::BlenderConnection::PyOutStream& out,
+                                   MaterialSet::Material::UVAnimation::Mode type,
+                                   unsigned idx, const float* vals);
+        static void AddKcolor(HECL::BlenderConnection::PyOutStream& out,
+                              const GX::Color& col, unsigned idx);
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
@@ -306,10 +316,9 @@ struct MaterialSet : BigDNA
     void readToBlender(HECL::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
-                       unsigned setIdx,
-                       const SpecBase& dataspec)
+                       unsigned setIdx)
     {
-        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx, dataspec);
+        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
     }
 };
 

@@ -90,7 +90,7 @@ class PAKRouter;
 template <class PAKBRIDGE>
 struct ResExtractor
 {
-    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
+    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&, bool,
                        std::function<void(const HECL::SystemChar*)>)> func_b;
@@ -368,7 +368,7 @@ public:
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
                         PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_a(m_dataSpec, s, working);
+                        extractor.func_a(s, working);
                     }
                 }
                 else if (extractor.func_b) /* Needs PAKRouter access */

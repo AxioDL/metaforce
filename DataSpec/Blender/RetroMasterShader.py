@@ -1,13 +1,13 @@
-"Defines a node group for all game shaders to provide individual outputs to"
+"Defines node groups implementing shader components found in Retro games"
 
 import bpy
 
-# UV modifier nodes:
+# UV animation nodes:
 # http://www.metroid2002.com/retromodding/wiki/Materials_(Metroid_Prime)#UV_Animations
 
 # 0 - Modelview Inverse (zero translation)
-def make_uvm0():
-    new_grp = bpy.data.node_groups.new('RWKUVMode0Node', 'ShaderNodeTree')
+def make_uva0():
+    new_grp = bpy.data.node_groups.new('RetroUVMode0Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -31,8 +31,8 @@ def make_uvm0():
     new_grp.links.new(v_flip.outputs[0], grp_out.inputs[0])
 
 # 1 - Modelview Inverse
-def make_uvm1():
-    new_grp = bpy.data.node_groups.new('RWKUVMode1Node', 'ShaderNodeTree')
+def make_uva1():
+    new_grp = bpy.data.node_groups.new('RetroUVMode1Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -74,8 +74,8 @@ def make_uvm1():
     new_grp.links.new(v_flip.outputs[0], grp_out.inputs[0])
 
 # 2 - UV Scroll
-def make_uvm2():
-    new_grp = bpy.data.node_groups.new('RWKUVMode2Node', 'ShaderNodeTree')
+def make_uva2():
+    new_grp = bpy.data.node_groups.new('RetroUVMode2Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketVector', 'Offset')
     new_grp.inputs.new('NodeSocketVector', 'Scale')
@@ -108,8 +108,8 @@ def make_uvm2():
     new_grp.links.new(adder2.outputs[0], grp_out.inputs[0])
 
 # 3 - Rotation
-def make_uvm3():
-    new_grp = bpy.data.node_groups.new('RWKUVMode3Node', 'ShaderNodeTree')
+def make_uva3():
+    new_grp = bpy.data.node_groups.new('RetroUVMode3Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketFloat', 'Offset')
     new_grp.inputs.new('NodeSocketFloat', 'Scale')
@@ -135,8 +135,8 @@ def make_uvm3():
     new_grp.links.new(grp_in.outputs[2], add1.inputs[1])
 
 # 4 - Horizontal Filmstrip Animation
-def make_uvm4():
-    new_grp = bpy.data.node_groups.new('RWKUVMode4Node', 'ShaderNodeTree')
+def make_uva4():
+    new_grp = bpy.data.node_groups.new('RetroUVMode4Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketFloat', 'Scale')
     new_grp.inputs.new('NodeSocketFloat', 'NumFrames')
@@ -205,8 +205,8 @@ def make_uvm4():
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
 
 # 5 - Vertical Filmstrip Animation
-def make_uvm5():
-    new_grp = bpy.data.node_groups.new('RWKUVMode5Node', 'ShaderNodeTree')
+def make_uva5():
+    new_grp = bpy.data.node_groups.new('RetroUVMode5Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketFloat', 'Scale')
     new_grp.inputs.new('NodeSocketFloat', 'NumFrames')
@@ -275,8 +275,8 @@ def make_uvm5():
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
 
 # 6 - Model Matrix
-def make_uvm6():
-    new_grp = bpy.data.node_groups.new('RWKUVMode6Node', 'ShaderNodeTree')
+def make_uva6():
+    new_grp = bpy.data.node_groups.new('RetroUVMode6Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -304,8 +304,8 @@ def make_uvm6():
     new_grp.links.new(adder1.outputs[0], grp_out.inputs[0])
 
 # 7 - Mode Who Must Not Be Named
-def make_uvm7():
-    new_grp = bpy.data.node_groups.new('RWKUVMode7Node', 'ShaderNodeTree')
+def make_uva7():
+    new_grp = bpy.data.node_groups.new('RetroUVMode7Node', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketFloat', 'ParamA')
     new_grp.inputs.new('NodeSocketFloat', 'ParamB')
@@ -402,18 +402,402 @@ def make_uvm7():
     new_grp.links.new(mult5.outputs[0], add2.inputs[1])
     new_grp.links.new(add2.outputs[0], grp_out.inputs[0])
 
-UV_MODIFIER_GROUPS = [
-    make_uvm0,
-    make_uvm1,
-    make_uvm2,
-    make_uvm3,
-    make_uvm4,
-    make_uvm5,
-    make_uvm6,
-    make_uvm7
-]
+UV_ANIMATION_GROUPS = (
+    make_uva0,
+    make_uva1,
+    make_uva2,
+    make_uva3,
+    make_uva4,
+    make_uva5,
+    make_uva6,
+    make_uva7
+)
+
+# MP3 / DKCR Material Passes:
+# http://www.metroid2002.com/retromodding/wiki/Materials_(Metroid_Prime_3)
+
+# Lightmap
+def make_pass_diff():
+    new_grp = bpy.data.node_groups.new('RetroPassDIFF', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Multiply1
+    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
+    mult1.blend_type = 'MULTIPLY'
+    mult1.inputs[0].default_value = 1.0
+    mult1.location = (-600, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], mult1.inputs[1])
+    new_grp.links.new(grp_in.outputs[1], mult1.inputs[2])
+    new_grp.links.new(mult1.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+
+# Rim Lighting Map
+def make_pass_riml():
+    new_grp = bpy.data.node_groups.new('RetroPassRIML', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Bloom Lightmap
+def make_pass_blol():
+    new_grp = bpy.data.node_groups.new('RetroPassBLOL', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Bloom Diffuse Map
+def make_pass_blod():
+    new_grp = bpy.data.node_groups.new('RetroPassBLOD', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Diffuse Map
+def make_pass_clr():
+    new_grp = bpy.data.node_groups.new('RetroPassCLR', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[0])
+    grp_out.inputs[1].default_value = 1.0
+
+# Opacity Map
+def make_pass_tran():
+    new_grp = bpy.data.node_groups.new('RetroPassTRAN', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[1])
+
+# Opacity Map Inverted
+def make_pass_tran_inv():
+    new_grp = bpy.data.node_groups.new('RetroPassTRANInv', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Subtract
+    sub1 = new_grp.nodes.new('ShaderNodeMath')
+    sub1.operation = 'SUBTRACT'
+    sub1.inputs[0].default_value = 1.0
+    sub1.location = (-400, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], sub1.inputs[1])
+    new_grp.links.new(sub1.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[1])
+
+# Incandescence Map
+def make_pass_inca():
+    new_grp = bpy.data.node_groups.new('RetroPassINCA', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Reflectivity Map
+def make_pass_rflv():
+    new_grp = bpy.data.node_groups.new('RetroPassRFLV', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Reflection Map
+def make_pass_rfld():
+    new_grp = bpy.data.node_groups.new('RetroPassRFLD', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Unk1
+def make_pass_lrld():
+    new_grp = bpy.data.node_groups.new('RetroPassLRLD', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Unk2
+def make_pass_lurd():
+    new_grp = bpy.data.node_groups.new('RetroPassLURD', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Bloom Incandescence Map
+def make_pass_bloi():
+    new_grp = bpy.data.node_groups.new('RetroPassBLOI', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# X-ray Reflection Map
+def make_pass_xray():
+    new_grp = bpy.data.node_groups.new('RetroPassXRAY', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+# Unused
+def make_pass_toon():
+    new_grp = bpy.data.node_groups.new('RetroPassTOON', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
+    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
+    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
+    new_grp.outputs.new('NodeSocketColor', 'Next Color')
+    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
+
+MP3_PASS_GROUPS = (
+    make_pass_diff,
+    make_pass_riml,
+    make_pass_blol,
+    make_pass_blod,
+    make_pass_clr,
+    make_pass_tran,
+    make_pass_tran_inv,
+    make_pass_inca,
+    make_pass_rflv,
+    make_pass_rfld,
+    make_pass_lrld,
+    make_pass_lurd,
+    make_pass_bloi,
+    make_pass_xray,
+    make_pass_toon
+)
 
 def make_master_shader_library():
-    for uvm in UV_MODIFIER_GROUPS:
-        uvm()
+    for uva in UV_ANIMATION_GROUPS:
+        uva()
+    for aPass in MP3_PASS_GROUPS:
+        aPass()
 

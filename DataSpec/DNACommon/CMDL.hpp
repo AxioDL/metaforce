@@ -120,8 +120,7 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
-                                  unsigned setIdx,
-                                  const SpecBase& dataspec)
+                                  unsigned setIdx)
 {
     /* Texmaps */
     os << "texmap_list = []\n";
@@ -134,7 +133,7 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
         if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)
         {
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
-            TXTR::Extract(dataspec, rs, txtrPath);
+            TXTR::Extract(rs, txtrPath);
         }
         HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
         HECL::SystemUTF8View resPathView(resPath);
@@ -164,13 +163,12 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
-                                unsigned setIdx,
-                                const SpecBase& dataspec)
+                                unsigned setIdx)
 {
     unsigned m=0;
     for (const typename MaterialSet::Material& mat : matSet.materials)
     {
-        MaterialSet::ConstructMaterial(os, mat, setIdx, m++);
+        MaterialSet::ConstructMaterial(os, pakRouter, entry, mat, setIdx, m++);
         os << "materials.append(new_material)\n";
     }
 }
@@ -323,7 +321,6 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                    Athena::io::IStreamReader& reader,
                                    PAKRouter& pakRouter,
                                    const typename PAKRouter::EntryType& entry,
-                                   const SpecBase& dataspec,
                                    const RIGPAIR& rp,
                                    bool shortNormals,
                                    bool shortUVs,
@@ -345,6 +342,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
           "\n";
 
     /* Pre-read pass to determine maximum used vert indices */
+    atUint32 matSecCount = MaterialSet::OneSection() ? 1 : matSetCount;
     bool visitedDLOffsets = false;
     atUint32 lastDlSec = secCount;
     atUint64 afterHeaderPos = reader.position();
@@ -352,7 +350,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
     for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
-        if (s < matSetCount)
+        if (s < matSecCount)
         {
             if (!s)
             {
@@ -363,7 +361,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
         }
         else
         {
-            switch (s-matSetCount)
+            switch (s-matSecCount)
             {
             case 0:
             {
@@ -431,17 +429,17 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
     for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
-        if (s < matSetCount)
+        if (s < matSecCount)
         {
             MaterialSet matSet;
             matSet.read(reader);
-            matSet.readToBlender(os, pakRouter, entry, s, dataspec);
+            matSet.readToBlender(os, pakRouter, entry, s);
             if (!s)
                 GetVertexAttributes(matSet, vertAttribs);
         }
         else
         {
-            switch (s-matSetCount)
+            switch (s-matSecCount)
             {
             case 0:
             {
@@ -803,7 +801,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
 
     std::vector<VertexAttributes> vertAttribs;
     ReadGeomSectionsToBlender<PAKRouter, MaterialSet, RIGPAIR>
-            (os, reader, pakRouter, entry, dataspec, rp, head.flags.shortNormals(),
+            (os, reader, pakRouter, entry, rp, head.flags.shortNormals(),
              head.flags.shortUVs(), vertAttribs, -1,
              head.secCount, head.matSetCount, head.secSizes.data());
 

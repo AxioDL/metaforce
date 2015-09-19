@@ -64,7 +64,7 @@ struct STRG : ISTRG
         return HECL::SystemString();
     }
 
-    static bool Extract(const SpecBase&, PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     {
         std::unique_ptr<ISTRG> strg = LoadSTRG(rs);
         FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));

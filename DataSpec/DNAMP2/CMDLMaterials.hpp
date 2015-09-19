@@ -14,6 +14,8 @@ namespace DNAMP2
 /* Structurally identical to DNAMP1::MaterialSet except unk0 and unk1 fields */
 struct MaterialSet : BigDNA
 {
+    static constexpr bool OneSection() {return false;}
+
     DECL_DNA
     DNAMP1::MaterialSet::MaterialSetHead head;
 
@@ -68,10 +70,9 @@ struct MaterialSet : BigDNA
     void readToBlender(HECL::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
-                       unsigned setIdx,
-                       const SpecBase& dataspec)
+                       unsigned setIdx)
     {
-        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx, dataspec);
+        DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
     }
 };
 
