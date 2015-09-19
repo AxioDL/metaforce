@@ -136,12 +136,12 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
                    resPathView.str().c_str(), texName.c_str());
         if (uvAnim.size())
         {
-            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc), texMtxIdx, texMapIdx++);
             const UVAnimation& uva = uvAnim[0];
+            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 4)), -1, texMapIdx++);
             DNAMP1::MaterialSet::Material::AddTextureAnim(out, uva.anim.mode, texMtxIdx++, uva.anim.vals);
         }
         else
-            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc), -1, texMapIdx++);
+            DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc + 4), -1, texMapIdx++);
     }
 
     /* Add PASS node */
