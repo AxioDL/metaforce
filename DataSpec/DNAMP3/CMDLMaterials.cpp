@@ -89,7 +89,9 @@ void MaterialSet::ConstructMaterial(Stream& out,
     for (const Material::SectionFactory& factory : material.sections)
     {
         factory.section->constructNode(out, pakRouter, entry, prevSection, i++, texMapIdx, texMtxIdx, kColorIdx);
-        prevSection = factory.section.get();
+        Material::SectionPASS* pass = dynamic_cast<Material::SectionPASS*>(factory.section.get());
+        if (!pass || (pass && pass->subtype.toUint32() != Material::SectionPASS::RFLV))
+            prevSection = factory.section.get();
     }
 
     /* Connect final PASS */
@@ -161,22 +163,33 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     {
     case DIFF:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassDIFF']\n";
+        linkRAS = true;
         break;
     case RIML:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRIML']\n";
+        if (idx == 0)
+            linkRAS = true;
         break;
     case BLOL:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOL']\n";
+        if (idx == 0)
+            linkRAS = true;
         break;
     case BLOD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOD']\n";
+        if (idx == 0)
+            linkRAS = true;
         break;
     case CLR:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassCLR']\n";
-        linkRAS = true;
+        if (idx == 0)
+            linkRAS = true;
         break;
     case TRAN:
-        out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRAN']\n";
+        if (flags.TRANInvert())
+            out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRANInv']\n";
+        else
+            out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRAN']\n";
         break;
     case INCA:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassINCA']\n";

@@ -567,9 +567,17 @@ def make_pass_tran():
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
 
+    # Multiply
+    mul1 = new_grp.nodes.new('ShaderNodeMath')
+    mul1.operation = 'MULTIPLY'
+    mul1.inputs[0].default_value = 1.0
+    mul1.location = (-400, 0)
+
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[1])
+    new_grp.links.new(grp_in.outputs[1], mul1.inputs[0])
+    new_grp.links.new(grp_in.outputs[2], mul1.inputs[1])
+    new_grp.links.new(mul1.outputs[0], grp_out.inputs[1])
 
 # Opacity Map Inverted
 def make_pass_tran_inv():
@@ -590,16 +598,23 @@ def make_pass_tran_inv():
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
 
-    # Subtract
-    sub1 = new_grp.nodes.new('ShaderNodeMath')
-    sub1.operation = 'SUBTRACT'
-    sub1.inputs[0].default_value = 1.0
-    sub1.location = (-400, 0)
+    # Multiply
+    mul1 = new_grp.nodes.new('ShaderNodeMath')
+    mul1.operation = 'MULTIPLY'
+    mul1.inputs[0].default_value = 1.0
+    mul1.location = (-400, 0)
+
+    # Invert
+    inv1 = new_grp.nodes.new('ShaderNodeInvert')
+    inv1.inputs[0].default_value = 1.0
+    inv1.location = (-600, 0)
 
     # Links
-    new_grp.links.new(grp_in.outputs[0], sub1.inputs[1])
-    new_grp.links.new(sub1.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[2], grp_out.inputs[1])
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], mul1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], inv1.inputs[1])
+    new_grp.links.new(inv1.outputs[0], mul1.inputs[0])
+    new_grp.links.new(mul1.outputs[0], grp_out.inputs[1])
 
 # Incandescence Map
 def make_pass_inca():
