@@ -402,6 +402,33 @@ def make_uva7():
     new_grp.links.new(mult5.outputs[0], add2.inputs[1])
     new_grp.links.new(add2.outputs[0], grp_out.inputs[0])
 
+# 8 - Mode 8
+def make_uva8():
+    new_grp = bpy.data.node_groups.new('RetroUVMode8Node', 'ShaderNodeTree')
+    new_grp.inputs.new('NodeSocketVector', 'UV In')
+    new_grp.inputs.new('NodeSocketFloat', 'Param1')
+    new_grp.inputs.new('NodeSocketFloat', 'Param2')
+    new_grp.inputs.new('NodeSocketFloat', 'Param3')
+    new_grp.inputs.new('NodeSocketFloat', 'Param4')
+    new_grp.inputs.new('NodeSocketFloat', 'Param5')
+    new_grp.inputs.new('NodeSocketFloat', 'Param6')
+    new_grp.inputs.new('NodeSocketFloat', 'Param7')
+    new_grp.inputs.new('NodeSocketFloat', 'Param8')
+    new_grp.inputs.new('NodeSocketFloat', 'Param9')
+    new_grp.outputs.new('NodeSocketVector', 'UV Out')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-800, 0)
+
+    # Group outputs
+    grp_out = new_grp.nodes.new('NodeGroupOutput')
+    grp_out.location = (0, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+
 UV_ANIMATION_GROUPS = (
     make_uva0,
     make_uva1,
@@ -410,7 +437,8 @@ UV_ANIMATION_GROUPS = (
     make_uva4,
     make_uva5,
     make_uva6,
-    make_uva7
+    make_uva7,
+    make_uva8
 )
 
 # MP3 / DKCR Material Passes:

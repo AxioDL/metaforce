@@ -215,6 +215,12 @@ public:
     {
         return GX::Primitive(*m_cur++ & 0xf8);
     }
+    GX::Primitive readPrimitiveAndVat(unsigned& vatOut)
+    {
+        atUint8 val = *m_cur++;
+        vatOut = val & 0x7;
+        return GX::Primitive(val & 0xf8);
+    }
     atUint16 readVertCount()
     {
         atUint16 retval = HECL::SBig(*(atUint16*)m_cur);
@@ -549,7 +555,6 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
 
                 while (dl)
                 {
-
                     GX::Primitive ptype = dl.readPrimitive();
                     atUint16 vertCount = dl.readVertCount();
 
@@ -570,7 +575,6 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                         atUint8 flip = 0;
                         for (int v=0 ; v<vertCount-2 ; ++v)
                         {
-
                             if (flip)
                             {
                                 os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
@@ -646,7 +650,6 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                             /* Advance one prim vert */
                             primVerts[c%3] = dl.readVert(peek);
                             ++c;
-
                         }
                     }
                     else if (ptype == GX::TRIANGLES)

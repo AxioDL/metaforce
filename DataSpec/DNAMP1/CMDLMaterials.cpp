@@ -200,6 +200,30 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1]);
         break;
+    case UVAnimation::ANIM_MODE_8:
+        out.format("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_%u':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode8Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = %f\n"
+                   "        node.inputs[2].default_value = %f\n"
+                   "        node.inputs[3].default_value = %f\n"
+                   "        node.inputs[4].default_value = %f\n"
+                   "        node.inputs[5].default_value = %f\n"
+                   "        node.inputs[6].default_value = %f\n"
+                   "        node.inputs[7].default_value = %f\n"
+                   "        node.inputs[8].default_value = %f\n"
+                   "        node.inputs[9].default_value = %f\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
+                   idx, vals[0], vals[1]);
+        break;
     default: break;
     }
 }

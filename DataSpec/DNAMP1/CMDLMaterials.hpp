@@ -244,9 +244,10 @@ struct MaterialSet : BigDNA
                 ANIM_HSTRIP,
                 ANIM_VSTRIP,
                 ANIM_MODEL,
-                ANIM_MODE_WHO_MUST_NOT_BE_NAMED
+                ANIM_MODE_WHO_MUST_NOT_BE_NAMED,
+                ANIM_MODE_8
             } mode;
-            float vals[4];
+            float vals[9];
             void read(Athena::io::IStreamReader& reader)
             {
                 mode = Mode(reader.readUint32Big());
@@ -268,6 +269,17 @@ struct MaterialSet : BigDNA
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
                     vals[0] = reader.readFloatBig();
                     vals[1] = reader.readFloatBig();
+                    break;
+                case ANIM_MODE_8:
+                    vals[0] = reader.readFloatBig();
+                    vals[1] = reader.readFloatBig();
+                    vals[2] = reader.readFloatBig();
+                    vals[3] = reader.readFloatBig();
+                    vals[4] = reader.readFloatBig();
+                    vals[5] = reader.readFloatBig();
+                    vals[6] = reader.readFloatBig();
+                    vals[7] = reader.readFloatBig();
+                    vals[8] = reader.readFloatBig();
                     break;
                 }
             }
@@ -292,6 +304,17 @@ struct MaterialSet : BigDNA
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
                     writer.writeFloatBig(vals[0]);
                     writer.writeFloatBig(vals[1]);
+                    break;
+                case ANIM_MODE_8:
+                    writer.writeFloatBig(vals[0]);
+                    writer.writeFloatBig(vals[1]);
+                    writer.writeFloatBig(vals[2]);
+                    writer.writeFloatBig(vals[3]);
+                    writer.writeFloatBig(vals[4]);
+                    writer.writeFloatBig(vals[5]);
+                    writer.writeFloatBig(vals[6]);
+                    writer.writeFloatBig(vals[7]);
+                    writer.writeFloatBig(vals[8]);
                     break;
                 }
             }
