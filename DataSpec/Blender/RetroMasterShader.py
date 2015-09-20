@@ -465,13 +465,13 @@ def make_pass_diff():
 
     # Multiply1
     mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    mult1.blend_type = 'MULTIPLY'
+    mult1.blend_type = 'ADD'
     mult1.inputs[0].default_value = 1.0
     mult1.location = (-600, 0)
 
     # Links
     new_grp.links.new(grp_in.outputs[0], mult1.inputs[1])
-    new_grp.links.new(grp_in.outputs[1], mult1.inputs[2])
+    new_grp.links.new(grp_in.outputs[2], mult1.inputs[2])
     new_grp.links.new(mult1.outputs[0], grp_out.inputs[0])
     new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
 

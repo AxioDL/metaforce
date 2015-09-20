@@ -14,6 +14,7 @@ struct MREA
 {
     class StreamReader : public Athena::io::IStreamReader
     {
+    protected:
         struct BlockInfo : BigDNA
         {
             DECL_DNA
@@ -38,6 +39,11 @@ struct MREA
         atUint32 m_posInBlk = 0;
         atUint32 m_blkSz = 0;
         void nextBlock();
+
+        StreamReader(Athena::io::IStreamReader& source)
+        : m_compBufSz(0x4120), m_compBuf(new atUint8[0x4120]),
+          m_decompBufSz(0x4120), m_decompBuf(new atUint8[0x4120]),
+          m_source(source) {} /* Empty constructor for inheriting */
 
     public:
         StreamReader(Athena::io::IStreamReader& source, atUint32 blkCount);

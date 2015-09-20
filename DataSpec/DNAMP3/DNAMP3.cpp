@@ -5,6 +5,7 @@
 #include "STRG.hpp"
 #include "MLVL.hpp"
 #include "CMDL.hpp"
+#include "MREA.hpp"
 #include "../DNACommon/TXTR.hpp"
 
 namespace Retro
@@ -73,6 +74,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
+    case SBIG('MREA'):
+        return {nullptr, MREA::Extract, {_S(".blend")}, 2};
     }
     return {};
 }

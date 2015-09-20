@@ -334,7 +334,8 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                    int meshIdx,
                                    atUint32 secCount,
                                    atUint32 matSetCount,
-                                   const atUint32* secSizes)
+                                   const atUint32* secSizes,
+                                   atUint32 surfaceCount=0)
 {
     os << "# Begin bmesh\n"
           "bm = bmesh.new()\n"
@@ -348,7 +349,9 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
           "\n";
 
     /* Pre-read pass to determine maximum used vert indices */
-    atUint32 matSecCount = MaterialSet::OneSection() ? 1 : matSetCount;
+    atUint32 matSecCount = 0;
+    if (matSetCount)
+        matSecCount = MaterialSet::OneSection() ? 1 : matSetCount;
     bool visitedDLOffsets = false;
     atUint32 lastDlSec = secCount;
     atUint64 afterHeaderPos = reader.position();
@@ -391,14 +394,23 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
             }
             case 4:
             {
-                /* Short UVs */
-                if (shortUVs)
-                    break;
+                if (surfaceCount)
+                {
+                    /* MP3 MREA case */
+                    visitedDLOffsets = true;
+                    lastDlSec = 4 + surfaceCount;
+                }
+                else
+                {
+                    /* Short UVs */
+                    if (shortUVs)
+                        break;
 
-                /* DL Offsets (here or next section) */
-                visitedDLOffsets = true;
-                lastDlSec = s + reader.readUint32Big() + 1;
-                break;
+                    /* DL Offsets (here or next section) */
+                    visitedDLOffsets = true;
+                    lastDlSec = s + reader.readUint32Big() + 1;
+                    break;
+                }
             }
             default:
             {
@@ -508,24 +520,32 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
             }
             case 4:
             {
-                /* Short UVs */
-                os << "suv_list = []\n";
-                if (shortUVs)
+                if (surfaceCount)
                 {
-                    size_t uvCount = secSizes[s] / 4;
-                    for (size_t i=0 ; i<uvCount ; ++i)
+                    /* MP3 MREA case */
+                    visitedDLOffsets = true;
+                }
+                else
+                {
+                    /* Short UVs */
+                    os << "suv_list = []\n";
+                    if (shortUVs)
                     {
-                        float x = reader.readInt16Big() / 32768.0f;
-                        float y = reader.readInt16Big() / 32768.0f;
-                        os.format("suv_list.append((%f,%f))\n",
-                                  x, y);
+                        size_t uvCount = secSizes[s] / 4;
+                        for (size_t i=0 ; i<uvCount ; ++i)
+                        {
+                            float x = reader.readInt16Big() / 32768.0f;
+                            float y = reader.readInt16Big() / 32768.0f;
+                            os.format("suv_list.append((%f,%f))\n",
+                                      x, y);
+                        }
+                        break;
                     }
+
+                    /* DL Offsets (here or next section) */
+                    visitedDLOffsets = true;
                     break;
                 }
-
-                /* DL Offsets (here or next section) */
-                visitedDLOffsets = true;
-                break;
             }
             default:
             {

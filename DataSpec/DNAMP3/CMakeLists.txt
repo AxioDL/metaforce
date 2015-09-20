@@ -3,11 +3,13 @@ make_dnalist(liblist
              MLVL
              CMDLMaterials
              CINF
-             CSKR)
+             CSKR
+             MREA)
 add_library(DNAMP3
             DNAMP3.hpp DNAMP3.cpp
             ${liblist}
             PAK.cpp
             CMDL.hpp
             CMDLMaterials.cpp
-            STRG.hpp STRG.cpp)
+            STRG.hpp STRG.cpp
+            MREA.cpp)
