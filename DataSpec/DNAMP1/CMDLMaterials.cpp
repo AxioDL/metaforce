@@ -222,7 +222,8 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.remove(link)\n"
                    "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
-                   idx, vals[0], vals[1]);
+                   idx, vals[0], vals[1], vals[2], vals[3],
+                   vals[4], vals[5], vals[6], vals[7], vals[8]);
         break;
     default: break;
     }
