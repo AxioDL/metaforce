@@ -181,6 +181,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     mreaDecompOut.seekAlign32();
     atUint64 decompLen = drs.length();
     mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
+    mreaDecompOut.close();
     drs.seek(0, Athena::Begin);
 
     /* Start up blender connection */
