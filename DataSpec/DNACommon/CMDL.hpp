@@ -339,14 +339,15 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
 {
     os << "# Begin bmesh\n"
           "bm = bmesh.new()\n"
-          "\n";
+          "\n"
+          "# Overdraw-tracking\n"
+          "od_list = []\n"
+          "\n"
+          "orig_pidx_lay = bm.verts.layers.int.new('CMDLOriginalPosIdxs')\n"
+          "orig_nidx_lay = bm.loops.layers.int.new('CMDLOriginalNormIdxs')\n";
 
     if (rp.first)
         os << "dvert_lay = bm.verts.layers.deform.verify()\n";
-
-    os << "# Overdraw-tracking\n"
-          "od_list = []\n"
-          "\n";
 
     /* Pre-read pass to determine maximum used vert indices */
     atUint32 matSecCount = 0;
@@ -612,17 +613,17 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                     {
                                         if (j==0 && matShortUVs)
                                             os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
                                                       primVerts[c%3].uvs[j], primVerts[(c+2)%3].uvs[j], primVerts[(c+1)%3].uvs[j],
                                                       primVerts[c%3].pos, j,
                                                       primVerts[(c+2)%3].pos, j,
                                                       primVerts[(c+1)%3].pos, j);
                                         else
-                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                            os.format("    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
                                                       primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
                                                       primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j],
                                                       primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
@@ -646,17 +647,17 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                     {
                                         if (j==0 && matShortUVs)
                                             os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
                                                       primVerts[c%3].uvs[j], primVerts[(c+1)%3].uvs[j], primVerts[(c+2)%3].uvs[j],
                                                       primVerts[c%3].pos, j,
                                                       primVerts[(c+1)%3].pos, j,
                                                       primVerts[(c+2)%3].pos, j);
                                         else
-                                            os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                      "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                            os.format("    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                      "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
                                                       primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
                                                       primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j],
                                                       primVerts[(c+2)%3].pos, j, primVerts[(c+2)%3].uvs[j]);
@@ -692,17 +693,17 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                 {
                                     if (j==0 && matShortUVs)
                                         os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
                                                   primVerts[0].uvs[j], primVerts[1].uvs[j], primVerts[2].uvs[j],
                                                   primVerts[0].pos, j,
                                                   primVerts[1].pos, j,
                                                   primVerts[2].pos, j);
                                     else
-                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                        os.format("    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
                                                   primVerts[0].pos, j, primVerts[0].uvs[j],
                                                   primVerts[1].pos, j, primVerts[1].uvs[j],
                                                   primVerts[2].pos, j, primVerts[2].uvs[j]);
@@ -738,17 +739,17 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                 {
                                     if (j==0 && matShortUVs)
                                         os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
                                                   firstPrimVert.uvs[j], primVerts[c%3].uvs[j], primVerts[(c+1)%3].uvs[j],
                                                   firstPrimVert.pos, j,
                                                   primVerts[c%3].pos, j,
                                                   primVerts[(c+1)%3].pos, j);
                                     else
-                                        os.format("    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
-                                                  "    loop_from_facevert(last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
+                                        os.format("    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n"
+                                                  "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_list[%u]\n",
                                                   firstPrimVert.pos, j, firstPrimVert.uvs[j],
                                                   primVerts[c%3].pos, j, primVerts[c%3].uvs[j],
                                                   primVerts[(c+1)%3].pos, j, primVerts[(c+1)%3].uvs[j]);
