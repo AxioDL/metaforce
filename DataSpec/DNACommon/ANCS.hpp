@@ -36,7 +36,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     for (const auto& info : chResInfo)
     {
         const NOD::DiscBase::IPartition::Node* node;
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node);
+        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true);
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -111,7 +111,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         os << "actor_subtype.linked_armature = arm_obj.name\n";
 
         /* Link CMDL */
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl);
+        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true);
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -132,7 +132,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     for (const auto& id : animResInfo)
     {
         typename ANCSDNA::ANIMType anim;
-        if (pakRouter.lookupAndReadDNA(id.second.second, anim))
+        if (pakRouter.lookupAndReadDNA(id.second.second, anim, true))
         {
             os.format("act = bpy.data.actions.new('%s')\n"
                       "act.use_fake_user = True\n", id.second.first.c_str());

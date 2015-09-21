@@ -16,6 +16,9 @@ extern const HECL::FourCC CMPD;
 
 struct PAK : BigDNA
 {
+    bool m_noShare;
+    PAK(bool noShare) : m_noShare(noShare) {}
+
     struct Header : BigDNA
     {
         DECL_DNA

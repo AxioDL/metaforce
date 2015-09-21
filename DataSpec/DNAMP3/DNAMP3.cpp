@@ -12,11 +12,17 @@ namespace Retro
 {
 namespace DNAMP3
 {
-
 LogVisor::LogModule Log("Retro::DNAMP3");
 
+static bool GetNoShare(const std::string& name)
+{
+    if (!name.compare("RS5.PAK"))
+        return true;
+    return false;
+}
+
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
-: m_project(project), m_node(node)
+: m_project(project), m_node(node), m_pak(GetNoShare(node.getName()))
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);

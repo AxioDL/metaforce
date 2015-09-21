@@ -14,7 +14,8 @@ namespace DNAMP1
 struct PAK : BigDNA
 {
     bool m_useLzo;
-    PAK(bool useLzo) : m_useLzo(useLzo) {}
+    bool m_noShare;
+    PAK(bool useLzo, bool noShare) : m_useLzo(useLzo), m_noShare(noShare) {}
     DECL_EXPLICIT_DNA
 
     struct NameEntry : BigDNA

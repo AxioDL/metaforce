@@ -15,8 +15,17 @@ namespace DNAMP1
 {
 LogVisor::LogModule Log("Retro::DNAMP1");
 
+static bool GetNoShare(const std::string& name)
+{
+    if (!name.compare("RS5.pak"))
+        return true;
+    else if (!name.compare("Strings.pak"))
+        return true;
+    return false;
+}
+
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
-: m_project(project), m_node(node), m_pak(false)
+: m_project(project), m_node(node), m_pak(false, GetNoShare(node.getName()))
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);

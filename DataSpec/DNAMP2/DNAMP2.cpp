@@ -11,11 +11,19 @@ namespace Retro
 {
 namespace DNAMP2
 {
-
 LogVisor::LogModule Log("Retro::DNAMP2");
 
+static bool GetNoShare(const std::string& name)
+{
+    if (!name.compare("RS5.PAK"))
+        return true;
+    else if (!name.compare("Strings.pak"))
+        return true;
+    return false;
+}
+
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
-: m_project(project), m_node(node), m_pak(true)
+: m_project(project), m_node(node), m_pak(true, GetNoShare(node.getName()))
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);

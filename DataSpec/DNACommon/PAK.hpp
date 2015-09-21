@@ -153,7 +153,7 @@ public:
             /* Index this PAK */
             bridge.build();
 
-            /* Add to global enntry lookup */
+            /* Add to global entry lookup */
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
@@ -161,7 +161,7 @@ public:
                 if (sSearch != m_sharedEntries.end())
                     continue;
                 auto uSearch = m_uniqueEntries.find(entry.first);
-                if (uSearch != m_uniqueEntries.end())
+                if (!pak.m_noShare && uSearch != m_uniqueEntries.end())
                 {
                     m_uniqueEntries.erase(uSearch);
                     m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
@@ -390,7 +390,8 @@ public:
     }
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
-                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr) const
+                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr,
+                                                           bool silenceWarnings=false) const
     {
         if (!m_bridges)
             LogDNACommon.report(LogVisor::FatalError,
@@ -416,17 +417,18 @@ public:
                 return ent;
             }
         }
-        LogDNACommon.report(LogVisor::Warning, "unable to find PAK entry %s", entry.toString().c_str());
+        if (!silenceWarnings)
+            LogDNACommon.report(LogVisor::Warning, "unable to find PAK entry %s", entry.toString().c_str());
         if (nodeOut)
             *nodeOut = nullptr;
         return nullptr;
     }
 
     template <typename DNA>
-    bool lookupAndReadDNA(const IDType& id, DNA& out)
+    bool lookupAndReadDNA(const IDType& id, DNA& out, bool silenceWarnings=false)
     {
         const NOD::DiscBase::IPartition::Node* node;
-        const EntryType* entry = lookupEntry(id, &node);
+        const EntryType* entry = lookupEntry(id, &node, silenceWarnings);
         if (!entry)
             return false;
         PAKEntryReadStream rs = entry->beginReadStream(*node);
