@@ -16,9 +16,11 @@ LogVisor::LogModule Log("Retro::DNAMP3");
 
 static bool GetNoShare(const std::string& name)
 {
-    if (!name.compare("RS5.PAK"))
-        return true;
-    return false;
+    std::string lowerName = name;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
+    if (!name.compare(0, 7, "metroid"))
+        return false;
+    return true;
 }
 
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
@@ -29,7 +31,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
 
     /* Append Level String */
     std::set<HECL::SystemString, CaseInsensitiveCompare> uniq;
-    for (const PAK::Entry& entry : m_pak.m_entries)
+    for (PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == FOURCC('MLVL'))
         {

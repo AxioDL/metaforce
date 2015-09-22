@@ -161,13 +161,16 @@ public:
                 if (sSearch != m_sharedEntries.end())
                     continue;
                 auto uSearch = m_uniqueEntries.find(entry.first);
-                if (!pak.m_noShare && uSearch != m_uniqueEntries.end())
+                if (!pak.m_noShare)
                 {
-                    m_uniqueEntries.erase(uSearch);
-                    m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
+                    if (uSearch != m_uniqueEntries.end())
+                    {
+                        m_uniqueEntries.erase(uSearch);
+                        m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
+                    }
+                    else
+                        m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
                 }
-                else
-                    m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
             }
 
             /* Add RigPairs to global map */
@@ -255,6 +258,20 @@ public:
             m_sharedWorking.makeDir();
             return sharedPath;
         }
+        const EntryType* singleSearch = m_pak->lookupEntry(entry->id);
+        if (singleSearch)
+        {
+            const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
+            pakPath.makeDir();
+#if HECL_UCS2
+            HECL::SystemString entName = HECL::UTF8ToWide(m_pak->bestEntryName(*entry));
+#else
+            HECL::SystemString entName = m_pak->bestEntryName(*entry);
+#endif
+            if (extractor.fileExts[0] && !extractor.fileExts[1])
+                entName += extractor.fileExts[0];
+            return HECL::ProjectPath(pakPath, entName);
+        }
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();
     }
@@ -287,6 +304,13 @@ public:
         {
             m_sharedCooked.makeDir();
             return HECL::ProjectPath(m_sharedCooked, m_pak->bestEntryName(*entry));
+        }
+        const EntryType* singleSearch = m_pak->lookupEntry(entry->id);
+        if (singleSearch)
+        {
+            const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].second;
+            pakPath.makeDir();
+            return HECL::ProjectPath(pakPath, m_pak->bestEntryName(*entry));
         }
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();

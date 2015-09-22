@@ -15,11 +15,11 @@ LogVisor::LogModule Log("Retro::DNAMP2");
 
 static bool GetNoShare(const std::string& name)
 {
-    if (!name.compare("RS5.PAK"))
-        return true;
-    else if (!name.compare("Strings.pak"))
-        return true;
-    return false;
+    std::string lowerName = name;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
+    if (!name.compare(0, 7, "metroid"))
+        return false;
+    return true;
 }
 
 PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
@@ -29,7 +29,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     m_pak.read(rs);
 
     /* Append Level String */
-    for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
+    for (DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == FOURCC('MLVL'))
         {
