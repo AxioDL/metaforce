@@ -9,6 +9,7 @@ if '--' not in sys.argv:
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
+double_verbose = int(args[2])
 if sys.platform == "win32":
     import msvcrt
     readfd = msvcrt.open_osfhandle(readfd, os.O_RDONLY | os.O_BINARY)
@@ -35,8 +36,8 @@ def quitblender():
 
 # If there's a third argument, use it as the .zip path containing the addon
 did_install = False
-if len(args) >= 3 and args[2] != 'SKIPINSTALL':
-    bpy.ops.wm.addon_install(overwrite=True, target='DEFAULT', filepath=args[2])
+if len(args) >= 4 and args[3] != 'SKIPINSTALL':
+    bpy.ops.wm.addon_install(overwrite=True, target='DEFAULT', filepath=args[3])
     bpy.ops.wm.addon_refresh()
     did_install = True
 
@@ -76,7 +77,8 @@ def count_brackets(linestr):
 
 # Complete sequences of statements compiled/executed here
 def exec_compbuf(compbuf, globals):
-    #print('EXEC', compbuf)
+    if double_verbose:
+        print('EXEC', compbuf)
     co = compile(compbuf, '<HECL>', 'exec')
     exec(co, globals)
 

@@ -141,7 +141,7 @@ void BlenderConnection::_closePipe()
     close(m_writepipe[1]);
 }
 
-BlenderConnection::BlenderConnection(bool silenceBlender)
+BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(LogVisor::Info, "Establishing BlenderConnection...");
     
@@ -206,8 +206,9 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
         }
 
         wchar_t cmdLine[2048];
-        _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " \"%s\"",
-                    blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle), blenderAddonPath.c_str());
+        _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " %d \"%s\"",
+                   blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle),
+                   verbosityLevel > 1 ? 1 : 0, blenderAddonPath.c_str());
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
         HANDLE nulHandle = NULL;
@@ -242,7 +243,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
             close(m_writepipe[1]);
             close(m_readpipe[0]);
 
-            if (silenceBlender)
+            if (verbosityLevel == 0)
             {
                 int devNull = open("/dev/null", O_WRONLY);
                 dup2(devNull, STDOUT_FILENO);
@@ -254,13 +255,15 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
             snprintf(readfds, 32, "%d", m_writepipe[0]);
             char writefds[32];
             snprintf(writefds, 32, "%d", m_readpipe[1]);
+            char dverbose[32];
+            snprintf(dverbose, 32, "%d", verbosityLevel > 1 ? 1 : 0);
 
             /* Try user-specified blender first */
             if (blenderBin)
             {
                 execlp(blenderBin, blenderBin,
                     "--background", "-P", blenderShellPath.c_str(),
-                    "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
+                    "--", readfds, writefds, dverbose, blenderAddonPath.c_str(), NULL);
                 if (errno != ENOENT)
                 {
                     snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));
@@ -272,7 +275,7 @@ BlenderConnection::BlenderConnection(bool silenceBlender)
             /* Otherwise default blender */
             execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
                 "--background", "-P", blenderShellPath.c_str(),
-                "--", readfds, writefds, blenderAddonPath.c_str(), NULL);
+                "--", readfds, writefds, dverbose, blenderAddonPath.c_str(), NULL);
             if (errno != ENOENT)
             {
                 snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));

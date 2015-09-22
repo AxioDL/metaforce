@@ -41,7 +41,7 @@ class BlenderConnection
     size_t _writeBuf(const char* buf, size_t len);
     void _closePipe();
 public:
-    BlenderConnection(bool silenceBlender=false);
+    BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
 
     bool createBlend(const SystemString& path);
@@ -229,7 +229,7 @@ public:
     static inline BlenderConnection& SharedConnection()
     {
         if (!SharedBlenderConnection)
-            SharedBlenderConnection = new BlenderConnection(HECL::VerbosityLevel?false:true);
+            SharedBlenderConnection = new BlenderConnection(HECL::VerbosityLevel);
         return *SharedBlenderConnection;
     }
 

@@ -1,5 +1,5 @@
 add_subdirectory(libSquish)
-add_subdirectory(blowfish)
+add_subdirectory(xxhash)
 add_subdirectory(LogVisor)
 add_subdirectory(Athena)
 add_subdirectory(libpng)

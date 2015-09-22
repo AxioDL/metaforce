@@ -28,7 +28,7 @@
 #include <regex>
 #include <LogVisor/LogVisor.hpp>
 #include <Athena/DNA.hpp>
-#include "../extern/blowfish/blowfish.h"
+#include "../extern/xxhash/xxhash.h"
 
 /* Handy MIN/MAX macros */
 #ifndef MAX
@@ -63,10 +63,10 @@ class SystemUTF8View
 public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(WideToUTF8(str)) {}
-    inline operator const std::string&() const {return m_utf8;}
-    inline const std::string& str() const {return m_utf8;}
-    inline std::string operator+(const std::string& other) const {return m_utf8 + other;}
-    inline std::string operator+(const char* other) const {return m_utf8 + other;}
+    operator const std::string&() const {return m_utf8;}
+    const std::string& str() const {return m_utf8;}
+    std::string operator+(const std::string& other) const {return m_utf8 + other;}
+    std::string operator+(const char* other) const {return m_utf8 + other;}
 };
 inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
 inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
@@ -76,10 +76,10 @@ class SystemStringView
 public:
     SystemStringView(const std::string& str)
     : m_sys(UTF8ToWide(str)) {}
-    inline operator const std::wstring&() const {return m_sys;}
-    inline const std::wstring& sys_str() const {return m_sys;}
-    inline std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
-    inline std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
+    operator const std::wstring&() const {return m_sys;}
+    const std::wstring& sys_str() const {return m_sys;}
+    std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
+    std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
 };
 inline std::wstring operator+(const std::wstring& lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
 inline std::wstring operator+(const wchar_t* lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
@@ -101,10 +101,10 @@ class SystemUTF8View
 public:
     SystemUTF8View(const SystemString& str)
     : m_utf8(str) {}
-    inline operator const std::string&() const {return m_utf8;}
-    inline const std::string& str() const {return m_utf8;}
-    inline std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
-    inline std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
+    operator const std::string&() const {return m_utf8;}
+    const std::string& str() const {return m_utf8;}
+    std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
+    std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
 };
 inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
 inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
@@ -114,10 +114,10 @@ class SystemStringView
 public:
     SystemStringView(const std::string& str)
     : m_sys(str) {}
-    inline operator const std::string&() const {return m_sys;}
-    inline const std::string& sys_str() const {return m_sys;}
-    inline std::string operator+(const std::string& other) const {return m_sys + other;}
-    inline std::string operator+(const char* other) const {return m_sys + other;}
+    operator const std::string&() const {return m_sys;}
+    const std::string& sys_str() const {return m_sys;}
+    std::string operator+(const std::string& other) const {return m_sys + other;}
+    std::string operator+(const char* other) const {return m_sys + other;}
 };
 inline std::string operator+(const std::string& lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
 inline std::string operator+(const char* lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
@@ -343,15 +343,15 @@ public:
     : num(*(uint32_t*)name) {}
     FourCC(uint32_t n)
     : num(n) {}
-    inline bool operator==(const FourCC& other) const {return num == other.num;}
-    inline bool operator!=(const FourCC& other) const {return num != other.num;}
-    inline bool operator==(const char* other) const {return num == *(uint32_t*)other;}
-    inline bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
-    inline bool operator==(uint32_t other) const {return num == other;}
-    inline bool operator!=(uint32_t other) const {return num != other;}
-    inline std::string toString() const {return std::string(fcc, 4);}
-    inline uint32_t toUint32() const {return num;}
-    inline operator uint32_t() const {return num;}
+    bool operator==(const FourCC& other) const {return num == other.num;}
+    bool operator!=(const FourCC& other) const {return num != other.num;}
+    bool operator==(const char* other) const {return num == *(uint32_t*)other;}
+    bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
+    bool operator==(uint32_t other) const {return num == other;}
+    bool operator!=(uint32_t other) const {return num != other;}
+    std::string toString() const {return std::string(fcc, 4);}
+    uint32_t toUint32() const {return num;}
+    operator uint32_t() const {return num;}
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
@@ -363,25 +363,25 @@ public:
  */
 class Hash final
 {
-    int64_t hash;
+    unsigned long long hash;
 public:
     Hash(const void* buf, size_t len)
-    : hash(Blowfish_hash((uint8_t*)buf, len)) {}
+    : hash(XXH64((uint8_t*)buf, len, 0)) {}
     Hash(const std::string& str)
-    : hash(Blowfish_hash((uint8_t*)str.data(), str.size())) {}
+    : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
     Hash(const std::wstring& str)
-    : hash(Blowfish_hash((uint8_t*)str.data(), str.size()*2)) {}
-    Hash(int64_t hashin)
+    : hash(XXH64((uint8_t*)str.data(), str.size()*2, 0)) {}
+    Hash(unsigned long long hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
-    inline size_t val() const {return hash;}
-    inline Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
-    inline bool operator==(const Hash& other) const {return hash == other.hash;}
-    inline bool operator!=(const Hash& other) const {return hash != other.hash;}
-    inline bool operator<(const Hash& other) const {return hash < other.hash;}
-    inline bool operator>(const Hash& other) const {return hash > other.hash;}
-    inline bool operator<=(const Hash& other) const {return hash <= other.hash;}
-    inline bool operator>=(const Hash& other) const {return hash >= other.hash;}
+    unsigned long long val() const {return hash;}
+    Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
+    bool operator==(const Hash& other) const {return hash == other.hash;}
+    bool operator!=(const Hash& other) const {return hash != other.hash;}
+    bool operator<(const Hash& other) const {return hash < other.hash;}
+    bool operator>(const Hash& other) const {return hash > other.hash;}
+    bool operator<=(const Hash& other) const {return hash <= other.hash;}
+    bool operator>=(const Hash& other) const {return hash >= other.hash;}
 };
 
 /**
@@ -394,14 +394,14 @@ public:
     Time() : ts(time(NULL)) {}
     Time(time_t ti) : ts(ti) {}
     Time(const Time& other) {ts = other.ts;}
-    inline time_t getTs() const {return ts;}
-    inline Time& operator=(const Time& other) {ts = other.ts; return *this;}
-    inline bool operator==(const Time& other) const {return ts == other.ts;}
-    inline bool operator!=(const Time& other) const {return ts != other.ts;}
-    inline bool operator<(const Time& other) const {return ts < other.ts;}
-    inline bool operator>(const Time& other) const {return ts > other.ts;}
-    inline bool operator<=(const Time& other) const {return ts <= other.ts;}
-    inline bool operator>=(const Time& other) const {return ts >= other.ts;}
+    time_t getTs() const {return ts;}
+    Time& operator=(const Time& other) {ts = other.ts; return *this;}
+    bool operator==(const Time& other) const {return ts == other.ts;}
+    bool operator!=(const Time& other) const {return ts != other.ts;}
+    bool operator<(const Time& other) const {return ts < other.ts;}
+    bool operator>(const Time& other) const {return ts > other.ts;}
+    bool operator<=(const Time& other) const {return ts <= other.ts;}
+    bool operator>=(const Time& other) const {return ts >= other.ts;}
 };
 
 /**
@@ -470,14 +470,14 @@ public:
      * @brief Determine if ProjectPath represents project root directory
      * @return true if project root directory
      */
-    inline bool isRoot() const {return m_relPath.empty();}
+    bool isRoot() const {return m_relPath.empty();}
 
     /**
      * @brief Return new ProjectPath with extension added
      * @param ext file extension to add
      * @return new path with extension
      */
-    inline ProjectPath getWithExtension(const SystemChar* ext) const
+     ProjectPath getWithExtension(const SystemChar* ext) const
     {
         ProjectPath pp(*this);
         pp.m_relPath += ext;
@@ -489,13 +489,13 @@ public:
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
-    inline const SystemString& getAbsolutePath() const {return m_absPath;}
+    const SystemString& getAbsolutePath() const {return m_absPath;}
 
     /**
      * @brief Access fully-canonicalized project-relative path
      * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
      */
-    inline const SystemString& getRelativePath() const
+    const SystemString& getRelativePath() const
     {
         if (m_relPath.size())
             return m_relPath;
@@ -507,7 +507,7 @@ public:
      * @brief Access fully-canonicalized absolute path in UTF-8
      * @return Absolute path reference
      */
-    inline const std::string& getAbsolutePathUTF8() const
+    const std::string& getAbsolutePathUTF8() const
     {
 #if HECL_UCS2
         return m_utf8AbsPath;
@@ -516,7 +516,7 @@ public:
 #endif
     }
 
-    inline const std::string& getRelativePathUTF8() const
+    const std::string& getRelativePathUTF8() const
     {
 #if HECL_UCS2
         return m_utf8RelPath;
@@ -562,7 +562,7 @@ public:
      * @brief Count how many directory levels deep in project path is
      * @return Level Count
      */
-    inline size_t levelCount() const
+    size_t levelCount() const
     {
         size_t count = 0;
         for (SystemChar ch : m_relPath)
@@ -577,13 +577,13 @@ public:
      * Fatal log report is issued if directory is not able to be created or doesn't already exist.
      * If directory already exists, no action taken.
      */
-    inline void makeDir() const {MakeDir(m_absPath.c_str());}
+    void makeDir() const {MakeDir(m_absPath.c_str());}
 
     /**
      * @brief Create relative symbolic link at calling path targeting another path
      * @param target Path to target
      */
-    inline void makeLinkTo(const ProjectPath& target) const
+    void makeLinkTo(const ProjectPath& target) const
     {
         SystemString relTarget;
         for (SystemChar ch : m_relPath)
@@ -596,9 +596,9 @@ public:
      * @brief HECL-specific blowfish hash
      * @return unique hash value
      */
-    inline size_t hash() const {return m_hash.val();}
-    inline bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
-    inline bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
+    size_t hash() const {return m_hash.val();}
+    bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
+    bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
 };
 
@@ -721,12 +721,12 @@ namespace std
 {
 template <> struct hash<HECL::FourCC>
 {
-    inline size_t operator()(const HECL::FourCC& val) const NOEXCEPT
+    size_t operator()(const HECL::FourCC& val) const NOEXCEPT
     {return val.toUint32();}
 };
 template <> struct hash<HECL::ProjectPath>
 {
-    inline size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
+    size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
     {return val.hash();}
 };
 }
