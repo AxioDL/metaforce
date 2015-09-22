@@ -25,7 +25,7 @@ public:
         if (m_pos >= m_sz)
             LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
     }
-    inline void seek(atInt64 pos, Athena::SeekOrigin origin)
+    void seek(atInt64 pos, Athena::SeekOrigin origin)
     {
         if (origin == Athena::Begin)
             m_pos = pos;
@@ -36,10 +36,10 @@ public:
         if (m_pos >= m_sz)
             LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
     }
-    inline atUint64 position() const {return m_pos;}
-    inline atUint64 length() const {return m_sz;}
-    inline const atUint8* data() const {return m_buf.get();}
-    inline atUint64 readUBytesToBuf(void* buf, atUint64 len)
+    atUint64 position() const {return m_pos;}
+    atUint64 length() const {return m_sz;}
+    const atUint8* data() const {return m_buf.get();}
+    atUint64 readUBytesToBuf(void* buf, atUint64 len)
     {
         atUint64 bufEnd = m_pos + len;
         if (bufEnd > m_sz)
@@ -63,7 +63,7 @@ struct UniqueResult
     const HECL::SystemString* layerName = nullptr;
     UniqueResult() = default;
     UniqueResult(Type tp) : type(tp) {}
-    inline HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
+    HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
     {
         if (type == UNIQUE_AREA)
         {
@@ -157,12 +157,12 @@ public:
             const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
             for (const auto& entry : pak.m_idMap)
             {
-                auto sSearch = m_sharedEntries.find(entry.first);
-                if (sSearch != m_sharedEntries.end())
-                    continue;
-                auto uSearch = m_uniqueEntries.find(entry.first);
                 if (!pak.m_noShare)
                 {
+                    auto sSearch = m_sharedEntries.find(entry.first);
+                    if (sSearch != m_sharedEntries.end())
+                        continue;
+                    auto uSearch = m_uniqueEntries.find(entry.first);
                     if (uSearch != m_uniqueEntries.end())
                     {
                         m_uniqueEntries.erase(uSearch);

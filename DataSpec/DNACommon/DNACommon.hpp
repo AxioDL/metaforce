@@ -30,13 +30,13 @@ public:
     : HECL::FourCC(n) {}
 
     Delete expl;
-    inline void read(Athena::io::IStreamReader& reader)
+    void read(Athena::io::IStreamReader& reader)
     {reader.readUBytesToBuf(fcc, 4);}
-    inline void write(Athena::io::IStreamWriter& writer) const
+    void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUBytes((atUint8*)fcc, 4);}
-    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    void fromYAML(Athena::io::YAMLDocReader& reader)
     {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
-    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
 };
 
@@ -48,20 +48,20 @@ class UniqueID32 : public BigYAML
     uint32_t m_id = 0xffffffff;
 public:
     Delete expl;
-    inline operator bool() const {return m_id != 0xffffffff;}
-    inline void read(Athena::io::IStreamReader& reader)
+    operator bool() const {return m_id != 0xffffffff;}
+    void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint32Big();}
-    inline void write(Athena::io::IStreamWriter& writer) const
+    void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32Big(m_id);}
-    inline void fromYAML(Athena::io::YAMLDocReader& reader)
+    void fromYAML(Athena::io::YAMLDocReader& reader)
     {m_id = reader.readUint32(nullptr);}
-    inline void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeUint32(nullptr, m_id);}
 
-    inline bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
-    inline bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
-    inline uint32_t toUint32() const {return m_id;}
-    inline std::string toString() const
+    bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
+    bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
+    uint32_t toUint32() const {return m_id;}
+    std::string toString() const
     {
         char buf[9];
         snprintf(buf, 9, "%08X", m_id);
@@ -75,16 +75,16 @@ class UniqueID64 : public BigDNA
     uint64_t m_id = 0xffffffffffffffff;
 public:
     Delete expl;
-    inline operator bool() const {return m_id != 0xffffffffffffffff;}
-    inline void read(Athena::io::IStreamReader& reader)
+    operator bool() const {return m_id != 0xffffffffffffffff;}
+    void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint64Big();}
-    inline void write(Athena::io::IStreamWriter& writer) const
+    void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint64Big(m_id);}
 
-    inline bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
-    inline bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
-    inline uint64_t toUint64() const {return m_id;}
-    inline std::string toString() const
+    bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
+    bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
+    uint64_t toUint64() const {return m_id;}
+    std::string toString() const
     {
         char buf[17];
         snprintf(buf, 17, "%016" PRIX64, m_id);
@@ -105,20 +105,20 @@ class UniqueID128 : public BigDNA
 public:
     Delete expl;
     UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
-    inline operator bool() const
+    operator bool() const
     {return m_id[0] != 0xffffffffffffffff && m_id[1] != 0xffffffffffffffff;}
-    inline void read(Athena::io::IStreamReader& reader)
+    void read(Athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64Big();
         m_id[1] = reader.readUint64Big();
     }
-    inline void write(Athena::io::IStreamWriter& writer) const
+    void write(Athena::io::IStreamWriter& writer) const
     {
         writer.writeUint64Big(m_id[0]);
         writer.writeUint64Big(m_id[1]);
     }
 
-    inline bool operator!=(const UniqueID128& other) const
+    bool operator!=(const UniqueID128& other) const
     {
 #if __SSE__
         __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
@@ -128,7 +128,7 @@ public:
         return (m_id[0] != other.m_id[0]) || (m_id[1] != other.m_id[1]);
 #endif
     }
-    inline bool operator==(const UniqueID128& other) const
+    bool operator==(const UniqueID128& other) const
     {
 #if __SSE__
         __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
@@ -138,9 +138,9 @@ public:
         return (m_id[0] == other.m_id[0]) && (m_id[1] == other.m_id[1]);
 #endif
     }
-    inline uint64_t toHighUint64() const {return m_id[0];}
-    inline uint64_t toLowUint64() const {return m_id[1];}
-    inline std::string toString() const
+    uint64_t toHighUint64() const {return m_id[0];}
+    uint64_t toLowUint64() const {return m_id[1];}
+    std::string toString() const
     {
         char buf[33];
         snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id[0], m_id[1]);
@@ -151,7 +151,7 @@ public:
 /* Case-insensitive comparator for std::map sorting */
 struct CaseInsensitiveCompare
 {
-    inline bool operator()(const std::string& lhs, const std::string& rhs) const
+    bool operator()(const std::string& lhs, const std::string& rhs) const
     {
 #if _WIN32
         if (_stricmp(lhs.c_str(), rhs.c_str()) < 0)
@@ -163,7 +163,7 @@ struct CaseInsensitiveCompare
     }
 
 #if _WIN32
-    inline bool operator()(const std::wstring& lhs, const std::wstring& rhs) const
+    bool operator()(const std::wstring& lhs, const std::wstring& rhs) const
     {
         if (_wcsicmp(lhs.c_str(), rhs.c_str()) < 0)
             return true;
@@ -248,28 +248,28 @@ namespace std
 template<>
 struct hash<Retro::DNAFourCC>
 {
-    inline size_t operator()(const Retro::DNAFourCC& fcc) const
+    size_t operator()(const Retro::DNAFourCC& fcc) const
     {return fcc.toUint32();}
 };
 
 template<>
 struct hash<Retro::UniqueID32>
 {
-    inline size_t operator()(const Retro::UniqueID32& id) const
+    size_t operator()(const Retro::UniqueID32& id) const
     {return id.toUint32();}
 };
 
 template<>
 struct hash<Retro::UniqueID64>
 {
-    inline size_t operator()(const Retro::UniqueID64& id) const
+    size_t operator()(const Retro::UniqueID64& id) const
     {return id.toUint64();}
 };
 
 template<>
 struct hash<Retro::UniqueID128>
 {
-    inline size_t operator()(const Retro::UniqueID128& id) const
+    size_t operator()(const Retro::UniqueID128& id) const
     {return id.toHighUint64() ^ id.toLowUint64();}
 };
 }

@@ -17,7 +17,7 @@ static bool GetNoShare(const std::string& name)
 {
     std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
-    if (!name.compare(0, 7, "metroid"))
+    if (!lowerName.compare(0, 7, "metroid"))
         return false;
     return true;
 }
