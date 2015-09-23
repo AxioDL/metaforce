@@ -315,7 +315,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     return conn.saveBlend();
 }
 
-bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Area& areaOut)
+bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& areaOut)
 {
     /* Do extract */
     Header head;
@@ -335,7 +335,7 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Area& areaOut)
             unsigned r=0;
             for (unsigned l=1 ; l<deps.depLayerCount ; ++l)
             {
-                PAKBridge::Area::Layer& layer = areaOut.layers.at(l-1);
+                PAKBridge::Level::Area::Layer& layer = areaOut.layers.at(l-1);
                 layer.resources.reserve(deps.depLayers[l] - r);
                 for (; r<deps.depLayers[l] ; ++r)
                     layer.resources.emplace(deps.deps[r].id);

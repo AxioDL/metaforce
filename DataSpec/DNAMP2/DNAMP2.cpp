@@ -54,55 +54,88 @@ UniqueResult PAKBridge::uniqueCheck(const DNAMP1::PAK::Entry& entry)
 {
     UniqueResult::Type result = UniqueResult::UNIQUE_NOTFOUND;
     bool foundOneLayer = false;
+    const HECL::SystemString* levelName = nullptr;
+    UniqueID32 levelId;
     UniqueID32 areaId;
     unsigned layerIdx;
-    for (const auto& pair : m_areaDeps)
+    for (const auto& lpair : m_levelDeps)
     {
-        unsigned l=0;
-        for (const auto& layer : pair.second.layers)
+        levelName = &lpair.second.name;
+        if (entry.id == lpair.first)
         {
-            if (layer.resources.find(entry.id) != layer.resources.end())
+            result = UniqueResult::UNIQUE_LEVEL;
+            break;
+        }
+
+        for (const auto& pair : lpair.second.areas)
+        {
+            unsigned l=0;
+            for (const auto& layer : pair.second.layers)
+            {
+                if (layer.resources.find(entry.id) != layer.resources.end())
+                {
+                    if (foundOneLayer)
+                    {
+                        if (areaId == pair.first)
+                        {
+                            result = UniqueResult::UNIQUE_AREA;
+                        }
+                        else if (levelId == lpair.first)
+                        {
+                            result = UniqueResult::UNIQUE_LEVEL;
+                            break;
+                        }
+                        else
+                        {
+                            return {UniqueResult::UNIQUE_PAK};
+                        }
+                        continue;
+                    }
+                    else
+                        result = UniqueResult::UNIQUE_LAYER;
+                    levelId = lpair.first;
+                    areaId = pair.first;
+                    layerIdx = l;
+                    foundOneLayer = true;
+                }
+                ++l;
+            }
+            if (pair.second.resources.find(entry.id) != pair.second.resources.end())
             {
                 if (foundOneLayer)
                 {
                     if (areaId == pair.first)
+                    {
                         result = UniqueResult::UNIQUE_AREA;
+                    }
+                    else if (levelId == lpair.first)
+                    {
+                        result = UniqueResult::UNIQUE_LEVEL;
+                        break;
+                    }
                     else
-                        return {UniqueResult::UNIQUE_LEVEL};
+                    {
+                        return {UniqueResult::UNIQUE_PAK};
+                    }
                     continue;
                 }
                 else
-                    result = UniqueResult::UNIQUE_LAYER;
+                    result = UniqueResult::UNIQUE_AREA;
+                levelId = lpair.first;
                 areaId = pair.first;
-                layerIdx = l;
                 foundOneLayer = true;
             }
-            ++l;
-        }
-        if (pair.second.resources.find(entry.id) != pair.second.resources.end())
-        {
-            if (foundOneLayer)
-            {
-                if (areaId == pair.first)
-                    result = UniqueResult::UNIQUE_AREA;
-                else
-                    return {UniqueResult::UNIQUE_LEVEL};
-                continue;
-            }
-            else
-                result = UniqueResult::UNIQUE_AREA;
-            areaId = pair.first;
-            foundOneLayer = true;
         }
     }
     UniqueResult retval = {result};
+    retval.levelName = levelName;
     if (result == UniqueResult::UNIQUE_LAYER || result == UniqueResult::UNIQUE_AREA)
     {
-        const PAKBridge::Area& area = m_areaDeps[areaId];
+        const PAKBridge::Level::Area& area = m_levelDeps[levelId].areas[areaId];
         retval.areaName = &area.name;
         if (result == UniqueResult::UNIQUE_LAYER)
         {
-            const PAKBridge::Area::Layer& layer = area.layers[layerIdx];
+            const PAKBridge::Level::Area::Layer& layer = area.layers[layerIdx];
             retval.layerName = &layer.name;
         }
     }
@@ -129,10 +162,17 @@ void PAKBridge::build()
     {
         if (entry.type == FOURCC('MLVL'))
         {
+            PAKBridge::Level& level = m_levelDeps[entry.id];
+
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
             mlvl.read(rs);
-            m_areaDeps.reserve(mlvl.areaCount);
+#if HECL_UCS2
+            level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry));
+#else
+            level.name = m_pak.bestEntryName(entry);
+#endif
+            level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
             /* Pre-pass: find duplicate area names */
@@ -158,7 +198,7 @@ void PAKBridge::build()
             /* Main-pass: index areas */
             for (const MLVL::Area& area : mlvl.areas)
             {
-                Area& areaDeps = m_areaDeps[area.areaMREAId];
+                Level::Area& areaDeps = level.areas[area.areaMREAId];
                 const DNAMP1::PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
                 if (areaNameEnt)
                 {
@@ -205,7 +245,7 @@ void PAKBridge::build()
                 for (unsigned l=1 ; l<area.depLayerCount ; ++l)
                 {
                     areaDeps.layers.emplace_back();
-                    Area::Layer& layer = areaDeps.layers.back();
+                    Level::Area::Layer& layer = areaDeps.layers.back();
                     layer.name = LayerName(mlvl.layerNames[layerIdx++]);
                     /* Trim possible trailing whitespace */
 #if HECL_UCS2

@@ -19,18 +19,23 @@ class PAKBridge
     PAK m_pak;
     UniqueResult uniqueCheck(const PAK::Entry& entry);
 public:
-    struct Area
+    struct Level
     {
         HECL::SystemString name;
-        struct Layer
+        struct Area
         {
             HECL::SystemString name;
+            struct Layer
+            {
+                HECL::SystemString name;
+                std::unordered_set<UniqueID64> resources;
+            };
+            std::vector<Layer> layers;
             std::unordered_set<UniqueID64> resources;
         };
-        std::vector<Layer> layers;
-        std::unordered_set<UniqueID64> resources;
+        std::unordered_map<UniqueID64, Area> areas;
     };
-    std::unordered_map<UniqueID64, Area> m_areaDeps;
+    std::unordered_map<UniqueID64, Level> m_levelDeps;
     HECL::SystemString m_levelString;
 
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);

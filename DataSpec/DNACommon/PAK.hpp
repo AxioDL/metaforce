@@ -55,31 +55,44 @@ struct UniqueResult
     enum Type
     {
         UNIQUE_NOTFOUND,
+        UNIQUE_PAK,
         UNIQUE_LEVEL,
         UNIQUE_AREA,
         UNIQUE_LAYER
     } type = UNIQUE_NOTFOUND;
+    const HECL::SystemString* levelName = nullptr;
     const HECL::SystemString* areaName = nullptr;
     const HECL::SystemString* layerName = nullptr;
     UniqueResult() = default;
     UniqueResult(Type tp) : type(tp) {}
     HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
     {
+        if (type == UNIQUE_PAK)
+            return pakPath;
+
+        HECL::ProjectPath levelDir;
+        if (levelName)
+            levelDir.assign(pakPath, *levelName);
+        else
+            levelDir = pakPath;
+        levelDir.makeDir();
+
         if (type == UNIQUE_AREA)
         {
-            HECL::ProjectPath areaDir(pakPath, *areaName);
+            HECL::ProjectPath areaDir(levelDir, *areaName);
             areaDir.makeDir();
             return areaDir;
         }
         else if (type == UNIQUE_LAYER)
         {
-            HECL::ProjectPath areaDir(pakPath, *areaName);
+            HECL::ProjectPath areaDir(levelDir, *areaName);
             areaDir.makeDir();
             HECL::ProjectPath layerDir(areaDir, *layerName);
             layerDir.makeDir();
             return layerDir;
         }
-        return pakPath;
+
+        return levelDir;
     }
 };
 

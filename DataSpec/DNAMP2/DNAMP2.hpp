@@ -17,18 +17,23 @@ class PAKBridge
     HECL::Database::Project& m_project;
     const NOD::DiscBase::IPartition::Node& m_node;
     DNAMP1::PAK m_pak;
-    struct Area
+    struct Level
     {
         HECL::SystemString name;
-        struct Layer
+        struct Area
         {
             HECL::SystemString name;
+            struct Layer
+            {
+                HECL::SystemString name;
+                std::unordered_set<UniqueID32> resources;
+            };
+            std::vector<Layer> layers;
             std::unordered_set<UniqueID32> resources;
         };
-        std::vector<Layer> layers;
-        std::unordered_set<UniqueID32> resources;
+        std::unordered_map<UniqueID32, Area> areas;
     };
-    std::unordered_map<UniqueID32, Area> m_areaDeps;
+    std::unordered_map<UniqueID32, Level> m_levelDeps;
     HECL::SystemString m_levelString;
     UniqueResult uniqueCheck(const DNAMP1::PAK::Entry& entry);
 public:

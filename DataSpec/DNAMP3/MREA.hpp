@@ -114,7 +114,7 @@ struct MREA
                         bool,
                         std::function<void(const HECL::SystemChar*)>);
 
-    static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Area& areaOut);
+    static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& areaOut);
 };
 
 }
