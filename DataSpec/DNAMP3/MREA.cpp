@@ -60,14 +60,13 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
         {
             BabeDeadLight light;
             light.read(rs);
-#if 0
             switch (light.lightType)
             {
             case BabeDeadLight::LightLocalAmbient:
                 os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
                           "bg_node.inputs[1].default_value = %f\n",
                           light.color.vec[0], light.color.vec[1], light.color.vec[2],
-                          light.q / 8.0);
+                          light.unk6 / 8.0);
                 continue;
             case BabeDeadLight::LightDirectional:
                 os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
@@ -89,7 +88,7 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
                           "lamp_obj.rotation_mode = 'QUATERNION'\n"
                           "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                           "\n", s, l,
-                          light.spotCutoff * M_PI / 180.f,
+                          light.spotCutoff / 2.f,
                           light.direction.vec[0], light.direction.vec[1], light.direction.vec[2]);
                 break;
             default: continue;
@@ -97,34 +96,36 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
 
             os.format("lamp.retro_layer = %u\n"
                       "lamp.use_nodes = True\n"
-                      "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                      "quadratic_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                      "quadratic_node.inputs[0].default_value = %f\n"
+                      "quadratic_node.location = (-600, 0)\n"
+                      "linear_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                      "linear_node.inputs[0].default_value = %f\n"
+                      "linear_node.location = (-400, 0)\n"
+                      "constant_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                      "constant_node.inputs[0].default_value = %f\n"
+                      "constant_node.location = (-200, 0)\n"
+                      "add1 = lamp.node_tree.nodes.new('ShaderNodeMath')\n"
+                      "add1.operation = 'ADD'\n"
+                      "add1.location = (-400, -300)\n"
+                      "add2 = lamp.node_tree.nodes.new('ShaderNodeMath')\n"
+                      "add2.operation = 'ADD'\n"
+                      "add2.location = (-200, -300)\n"
+                      "lamp.node_tree.links.new(quadratic_node.outputs[0], add1.inputs[0])\n"
+                      "lamp.node_tree.links.new(linear_node.outputs[1], add1.inputs[1])\n"
+                      "lamp.node_tree.links.new(add1.outputs[0], add2.inputs[0])\n"
+                      "lamp.node_tree.links.new(constant_node.outputs[2], add2.inputs[1])\n"
+                      "lamp.node_tree.links.new(add2.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n"
                       "lamp.energy = 0.0\n"
-                      "falloff_node.inputs[0].default_value = %f\n"
                       "hue_sat_node = lamp.node_tree.nodes.new('ShaderNodeHueSaturation')\n"
                       "hue_sat_node.inputs[1].default_value = 1.25\n"
                       "hue_sat_node.inputs[4].default_value = (%f,%f,%f,1.0)\n"
                       "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
                       "lamp_obj.location = (%f,%f,%f)\n"
                       "bpy.context.scene.objects.link(lamp_obj)\n"
-                      "\n", s, light.q / 8.0,
+                      "\n", s, light.unk5, light.unk6, light.unk7,
                       light.color.vec[0], light.color.vec[1], light.color.vec[2],
                       light.position.vec[0], light.position.vec[1], light.position.vec[2]);
-
-            switch (light.falloff)
-            {
-            case BabeDeadLight::FalloffConstant:
-                os << "falloff_node.inputs[0].default_value *= 75.0\n"
-                      "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
-                break;
-            case BabeDeadLight::FalloffLinear:
-                os << "lamp.node_tree.links.new(falloff_node.outputs[1], lamp.node_tree.nodes['Emission'].inputs[1])\n";
-                break;
-            case BabeDeadLight::FalloffQuadratic:
-                os << "lamp.node_tree.links.new(falloff_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n";
-                break;
-            default: break;
-            }
-#endif
         }
     }
 }
@@ -197,30 +198,30 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Read mesh info */
     atUint32 curSec = 1;
-    auto secIdxIt = drs.beginSecIdxs();
     std::vector<atUint32> surfaceCounts;
     surfaceCounts.reserve(head.meshCount);
     for (int m=0 ; m<head.meshCount ; ++m)
     {
-        if (secIdxIt->first == FOURCC('WOBJ'))
-        {
-            /* Mesh header */
-            MeshHeader mHeader;
-            secStart = drs.position();
-            mHeader.read(drs);
-            drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        /* Mesh header */
+        MeshHeader mHeader;
+        secStart = drs.position();
+        mHeader.read(drs);
+        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
 
-            /* Surface count from here */
-            secStart = drs.position();
-            surfaceCounts.push_back(drs.readUint32Big());
-            drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        /* Surface count from here */
+        secStart = drs.position();
+        surfaceCounts.push_back(drs.readUint32Big());
+        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
 
-            /* Seek through AROT-relation sections */
-            drs.seek(head.secSizes[curSec++], Athena::Current);
-            drs.seek(head.secSizes[curSec++], Athena::Current);
-            ++secIdxIt;
-        }
+        /* Seek through AROT-relation sections */
+        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], Athena::Current);
     }
+
+    /* Skip though WOBJs */
+    auto secIdxIt = drs.beginSecIdxs();
+    while (secIdxIt->first == FOURCC('WOBJ'))
+        ++secIdxIt;
 
     /* Skip AROT */
     if (secIdxIt->first == FOURCC('ROCT'))
@@ -248,41 +249,48 @@ bool MREA::Extract(const SpecBase& dataSpec,
         ++secIdxIt;
     }
 
-#if 0
-
-
-    /* Skip AROT */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
-
-    /* Skip BVH */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
-
-    /* Skip Bitmap */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
-
-    /* Skip SCLY (for now) */
-    for (atUint32 l=0 ; l<head.sclyLayerCount ; ++l)
+    /* Skip DEPS */
+    if (secIdxIt->first == FOURCC('DEPS'))
+    {
         drs.seek(head.secSizes[curSec++], Athena::Current);
+        ++secIdxIt;
+    }
 
-    /* Skip SCGN (for now) */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    /* Skip SOBJ (SCLY) */
+    if (secIdxIt->first == FOURCC('SOBJ'))
+    {
+        for (int l=0 ; l<head.sclyLayerCount ; ++l)
+            drs.seek(head.secSizes[curSec++], Athena::Current);
+        ++secIdxIt;
+    }
 
-    /* Read collision meshes */
-    DNAMP2::DeafBabe collision;
-    secStart = drs.position();
-    collision.read(drs);
-    DNAMP2::DeafBabe::BlenderInit(os);
-    collision.sendToBlender(os);
-    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    /* Skip SGEN */
+    if (secIdxIt->first == FOURCC('SGEN'))
+    {
+        drs.seek(head.secSizes[curSec++], Athena::Current);
+        ++secIdxIt;
+    }
 
-    /* Skip unknown section */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    /* Read Collision Meshes */
+    if (secIdxIt->first == FOURCC('COLI'))
+    {
+        DNAMP2::DeafBabe collision;
+        secStart = drs.position();
+        collision.read(drs);
+        DNAMP2::DeafBabe::BlenderInit(os);
+        collision.sendToBlender(os);
+        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        ++secIdxIt;
+    }
 
     /* Read BABEDEAD Lights as Cycles emissives */
-    secStart = drs.position();
-    ReadBabeDeadToBlender_3(os, drs);
-    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
-#endif
+    if (secIdxIt->first == FOURCC('LITE'))
+    {
+        secStart = drs.position();
+        ReadBabeDeadToBlender_3(os, drs);
+        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        ++secIdxIt;
+    }
 
     /* Origins to center of mass */
     os << "bpy.context.scene.layers[1] = True\n"

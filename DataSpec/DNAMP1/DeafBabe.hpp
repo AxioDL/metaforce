@@ -23,9 +23,6 @@ void DeafBabeSendToBlender(HECL::BlenderConnection::PyOutStream& os, const DEAFB
     os << "col_bm.verts.ensure_lookup_table()\n";
 
     int triIdx = 0;
-
-#define TEST 0
-#if TEST == 0
     for (const typename DEAFBABE::Triangle& tri : db.triangleEdgeConnections)
     {
         const typename DEAFBABE::Material& triMat = db.materials[db.triMats[triIdx++]];
@@ -52,68 +49,8 @@ void DeafBabeSendToBlender(HECL::BlenderConnection::PyOutStream& os, const DEAFB
                   "\n",
                   triMat.material);
     }
-#elif TEST == 1
 
-    for (const typename DEAFBABE::Triangle& tri : db.triangleEdgeConnections2)
-    {
-
-        if (tri.edges[0] != 65535)
-        {
-            const typename DEAFBABE::Edge& edge0 = db.edgeVertConnections[tri.edges[0]];
-
-            os.format("edge_verts = [col_bm.verts[%u], col_bm.verts[%u]]\n",
-                      edge0.verts[0], edge0.verts[1]);
-
-            os << "edge = col_bm.edges.get(edge_verts)\n"
-                  "if edge is None:\n"
-                  "    edge = col_bm.edges.new(edge_verts)\n"
-                  "\n";
-        }
-
-        if (tri.edges[1] != 65535)
-        {
-            const typename DEAFBABE::Edge& edge1 = db.edgeVertConnections[tri.edges[1]];
-
-            os.format("edge_verts = [col_bm.verts[%u], col_bm.verts[%u]]\n",
-                      edge1.verts[0], edge1.verts[1]);
-
-            os << "edge = col_bm.edges.get(edge_verts)\n"
-                  "if edge is None:\n"
-                  "    edge = col_bm.edges.new(edge_verts)\n"
-                  "\n";
-        }
-
-        if (tri.edges[2] != 65535)
-        {
-            const typename DEAFBABE::Edge& edge2 = db.edgeVertConnections[tri.edges[2]];
-
-            os.format("edge_verts = [col_bm.verts[%u], col_bm.verts[%u]]\n",
-                      edge2.verts[0], edge2.verts[1]);
-
-            os << "edge = col_bm.edges.get(edge_verts)\n"
-                  "if edge is None:\n"
-                  "    edge = col_bm.edges.new(edge_verts)\n"
-                  "\n";
-        }
-    }
-
-#elif TEST == 2
-    int max = 0;
-    for (const typename DEAFBABE::Triangle& tri : db.triangleEdgeConnections2)
-    {
-        for (int e=0 ; e<3 ; ++e)
-        {
-            if (tri.edges[e] == 65535)
-                continue;
-            const typename DEAFBABE::Edge& edge = db.edgeVertConnections.at(tri.edges[e]);
-            if (edge.verts[0] > max)
-                max = edge.verts[0];
-            if (edge.verts[1] > max)
-                max = edge.verts[1];
-        }
-    }
-    printf("MAX: %d\n", max);
-#endif
+    db.insertNoClimb(os);
 
     os << "col_mesh = bpy.data.meshes.new('CMESH')\n"
           "col_bm.to_mesh(col_mesh)\n"
@@ -209,7 +146,7 @@ struct DeafBabe : BigDNA
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
     /* Dummy MP2 member */
-    std::vector<Triangle> triangleEdgeConnections2;
+    void insertNoClimb(HECL::BlenderConnection::PyOutStream&) const {}
 
     static void BlenderInit(HECL::BlenderConnection::PyOutStream& os);
     void sendToBlender(HECL::BlenderConnection::PyOutStream& os) const

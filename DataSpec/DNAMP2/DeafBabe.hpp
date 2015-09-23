@@ -62,14 +62,27 @@ struct DeafBabe : BigDNA
     Vector<Edge, DNA_COUNT(edgeVertsCount)> edgeVertConnections;
     Value<atUint32> triangleEdgesCount;
     Vector<Triangle, DNA_COUNT(triangleEdgesCount / 3)> triangleEdgeConnections;
-    Value<atUint32> triangleEdges2Count;
-    Vector<Triangle, DNA_COUNT(triangleEdges2Count / 3)> triangleEdgeConnections2;
+    Value<atUint32> noClimbEdgeCount;
+    Vector<atInt16, DNA_COUNT(noClimbEdgeCount)> noClimbEdges;
     Value<atUint32> vertCount;
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
     static void BlenderInit(HECL::BlenderConnection::PyOutStream& os)
     {
         DNAMP1::DeafBabe::BlenderInit(os);
+    }
+    void insertNoClimb(HECL::BlenderConnection::PyOutStream& os) const
+    {
+        for (atInt16 edgeIdx : noClimbEdges)
+        {
+            if (edgeIdx == -1)
+                continue;
+            const Edge& edge = edgeVertConnections[edgeIdx];
+            os.format("edge = col_bm.edges.get((col_bm.verts[%u], col_bm.verts[%u]))\n"
+                      "if edge:\n"
+                      "    edge.seam = True\n",
+                      edge.verts[0], edge.verts[1]);
+        }
     }
     void sendToBlender(HECL::BlenderConnection::PyOutStream& os) const
     {
