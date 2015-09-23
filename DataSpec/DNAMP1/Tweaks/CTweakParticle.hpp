@@ -8,9 +8,14 @@ namespace Retro
 namespace DNAMP1
 {
 
-class CTweakParticle : BigYAML
+struct CTweakParticle : BigYAML
 {
     DECL_YAML
+    String<-1> m_particle;
+    String<-1> m_powerBeam;
+    String<-1> m_genThrust;
+
+    CTweakParticle(Athena::io::IStreamReader& reader) { this->read(reader); }
 };
 
 }
