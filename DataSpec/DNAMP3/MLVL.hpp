@@ -1,16 +1,16 @@
 #ifndef __DNAMP3_MLVL_HPP__
 #define __DNAMP3_MLVL_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/PAK.hpp"
 
 namespace Retro
 {
 namespace DNAMP3
 {
 
-struct MLVL : BigDNA
+struct MLVL : BigYAML
 {
-    DECL_DNA
+    DECL_YAML
     Value<atUint32> magic;
     Value<atUint32> version;
     UniqueID64 worldNameId;
@@ -19,9 +19,9 @@ struct MLVL : BigDNA
     UniqueID64 worldSkyboxId;
 
     Value<atUint32> areaCount;
-    struct Area : BigDNA
+    struct Area : BigYAML
     {
-        DECL_DNA
+        DECL_YAML
         UniqueID64 areaNameId;
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
@@ -32,13 +32,13 @@ struct MLVL : BigDNA
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
 
         Value<atUint32> dockCount;
-        struct Dock : BigDNA
+        struct Dock : BigYAML
         {
-            DECL_DNA
+            DECL_YAML
             Value<atUint32> endpointCount;
-            struct Endpoint : BigDNA
+            struct Endpoint : BigYAML
             {
-                DECL_DNA
+                DECL_YAML
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
@@ -58,9 +58,9 @@ struct MLVL : BigDNA
     Value<atUint32> unknown3;
 
     Value<atUint32> layerFlagCount;
-    struct LayerFlags : BigDNA
+    struct LayerFlags : BigYAML
     {
-        DECL_DNA
+        DECL_YAML
         Value<atUint32> layerCount;
         Value<atUint64> flags;
     };
@@ -74,6 +74,16 @@ struct MLVL : BigDNA
 
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
+
+    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    {
+        MLVL mlvl;
+        mlvl.read(rs);
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        mlvl.toYAMLFile(fp);
+        fclose(fp);
+        return true;
+    }
 };
 
 }

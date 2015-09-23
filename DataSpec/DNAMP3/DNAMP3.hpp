@@ -17,8 +17,22 @@ class PAKBridge
     HECL::Database::Project& m_project;
     const NOD::DiscBase::IPartition::Node& m_node;
     PAK m_pak;
-    HECL::SystemString m_levelString;
+    UniqueResult uniqueCheck(const PAK::Entry& entry);
 public:
+    struct Area
+    {
+        HECL::SystemString name;
+        struct Layer
+        {
+            HECL::SystemString name;
+            std::unordered_set<UniqueID64> resources;
+        };
+        std::vector<Layer> layers;
+        std::unordered_set<UniqueID64> resources;
+    };
+    std::unordered_map<UniqueID64, Area> m_areaDeps;
+    HECL::SystemString m_levelString;
+
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);

@@ -315,5 +315,40 @@ bool MREA::Extract(const SpecBase& dataSpec,
     return conn.saveBlend();
 }
 
+bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Area& areaOut)
+{
+    /* Do extract */
+    Header head;
+    head.read(rs);
+    rs.seekAlign32();
+
+    /* MREA decompression stream */
+    StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
+    for (const std::pair<DNAFourCC, atUint32>& idx : drs.m_secIdxs)
+    {
+        if (idx.first == FOURCC('DEPS'))
+        {
+            drs.seek(head.getSecOffset(idx.second), Athena::Begin);
+            DEPS deps;
+            deps.read(drs);
+
+            unsigned r=0;
+            for (unsigned l=1 ; l<deps.depLayerCount ; ++l)
+            {
+                PAKBridge::Area::Layer& layer = areaOut.layers.at(l-1);
+                layer.resources.reserve(deps.depLayers[l] - r);
+                for (; r<deps.depLayers[l] ; ++r)
+                    layer.resources.emplace(deps.deps[r].id);
+            }
+            areaOut.resources.reserve(deps.depCount - r);
+            for (; r<deps.depCount ; ++r)
+                areaOut.resources.emplace(deps.deps[r].id);
+
+            return true;
+        }
+    }
+    return false;
+}
+
 }
 }

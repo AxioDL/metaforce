@@ -13,10 +13,9 @@ namespace DNAMP3
 
 struct MREA
 {
-    class StreamReader : public DNAMP2::MREA::StreamReader
+    struct StreamReader : DNAMP2::MREA::StreamReader
     {
         std::vector<std::pair<DNAFourCC, atUint32>> m_secIdxs;
-    public:
         StreamReader(Athena::io::IStreamReader& source,
                      atUint32 blkCount, atUint32 secIdxCount);
         std::vector<std::pair<DNAFourCC, atUint32>>::const_iterator beginSecIdxs()
@@ -39,6 +38,16 @@ struct MREA
         Value<atUint32> secIndexCount;
         Seek<20, Athena::Current> align1;
         Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+
+        atUint32 getSecOffset(atUint32 idx) const
+        {
+            if (idx >= secSizes.size())
+                return -1;
+            atUint32 retval = 0;
+            for (atUint32 i=0 ; i<idx ; ++i)
+                retval += secSizes[i];
+            return retval;
+        }
     };
 
     struct MeshHeader : BigDNA
@@ -51,6 +60,21 @@ struct MREA
         } visorFlags;
         Value<atVec4f> xfMtx[3];
         Value<atVec3f> aabb[2];
+    };
+
+    struct DEPS : BigDNA
+    {
+        DECL_DNA
+        Value<atUint32> depCount;
+        struct Dependency : BigDNA
+        {
+            DECL_DNA
+            UniqueID64 id;
+            DNAFourCC type;
+        };
+        Vector<Dependency, DNA_COUNT(depCount)> deps;
+        Value<atUint32> depLayerCount;
+        Vector<atUint32, DNA_COUNT(depLayerCount)> depLayers;
     };
 
     struct BabeDeadLight : BigDNA
@@ -89,6 +113,8 @@ struct MREA
                         const PAK::Entry& entry,
                         bool,
                         std::function<void(const HECL::SystemChar*)>);
+
+    static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Area& areaOut);
 };
 
 }

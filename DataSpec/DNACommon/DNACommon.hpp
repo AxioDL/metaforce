@@ -70,7 +70,7 @@ public:
 };
 
 /* PAK 64-bit Unique ID */
-class UniqueID64 : public BigDNA
+class UniqueID64 : public BigYAML
 {
     uint64_t m_id = 0xffffffffffffffff;
 public:
@@ -80,6 +80,10 @@ public:
     {m_id = reader.readUint64Big();}
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint64Big(m_id);}
+    void fromYAML(Athena::io::YAMLDocReader& reader)
+    {m_id = reader.readUint64(nullptr);}
+    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {writer.writeUint64(nullptr, m_id);}
 
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
@@ -93,7 +97,7 @@ public:
 };
 
 /* PAK 128-bit Unique ID */
-class UniqueID128 : public BigDNA
+class UniqueID128 : public BigYAML
 {
     union
     {
@@ -116,6 +120,20 @@ public:
     {
         writer.writeUint64Big(m_id[0]);
         writer.writeUint64Big(m_id[1]);
+    }
+    void fromYAML(Athena::io::YAMLDocReader& reader)
+    {
+        std::string str = reader.readString(nullptr);
+        while (str.size() < 32)
+            str += '0';
+        std::string hStr(str.begin(), str.begin() + 16);
+        std::string lStr(str.begin() + 16, str.begin() + 32);
+        m_id[0] = strtoull(hStr.c_str(), nullptr, 16);
+        m_id[1] = strtoull(lStr.c_str(), nullptr, 16);
+    }
+    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {
+        writer.writeString(nullptr, toString().c_str());
     }
 
     bool operator!=(const UniqueID128& other) const
