@@ -332,9 +332,12 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
             DEPS deps;
             deps.read(drs);
 
+            printf("%d\n", deps.depLayerCount);
             unsigned r=0;
             for (unsigned l=1 ; l<deps.depLayerCount ; ++l)
             {
+                if (l > areaOut.layers.size())
+                    break;
                 PAKBridge::Level::Area::Layer& layer = areaOut.layers.at(l-1);
                 layer.resources.reserve(deps.depLayers[l] - r);
                 for (; r<deps.depLayers[l] ; ++r)
