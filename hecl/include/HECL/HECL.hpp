@@ -231,6 +231,9 @@ static inline int Stat(const SystemChar* path, Sstat* statOut)
 #endif
 }
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
 static inline void Printf(const SystemChar* format, ...)
 {
     va_list va;
@@ -243,6 +246,9 @@ static inline void Printf(const SystemChar* format, ...)
     va_end(va);
 }
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 2, 3)))
+#endif
 static inline void FPrintf(FILE* fp, const SystemChar* format, ...)
 {
     va_list va;
@@ -255,6 +261,9 @@ static inline void FPrintf(FILE* fp, const SystemChar* format, ...)
     va_end(va);
 }
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 3, 4)))
+#endif
 static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* format, ...)
 {
     va_list va;
@@ -269,6 +278,9 @@ static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* fo
 
 #define FORMAT_BUF_SZ 1024
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
 static inline SystemString SysFormat(const SystemChar* format, ...)
 {
     SystemChar resultBuf[FORMAT_BUF_SZ];
@@ -283,6 +295,9 @@ static inline SystemString SysFormat(const SystemChar* format, ...)
     return SystemString(resultBuf, printSz);
 }
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
 static inline std::string Format(const char* format, ...)
 {
     char resultBuf[FORMAT_BUF_SZ];

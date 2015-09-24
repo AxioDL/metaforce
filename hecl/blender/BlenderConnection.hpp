@@ -126,6 +126,9 @@ public:
                 m_parent->m_lock = false;
             }
         }
+#if __GNUC__
+        __attribute__((__format__ (__printf__, 2, 3)))
+#endif
         void format(const char* fmt, ...)
         {
             if (!m_parent || !m_parent->m_lock)

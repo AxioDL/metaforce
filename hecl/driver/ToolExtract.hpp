@@ -218,7 +218,7 @@ public:
                 if (submessageLen)
                 {
                     if (messageLen > half-submessageLen-1)
-                        HECL::Printf(_S("%.*s... "), half-submessageLen-4, message);
+                        HECL::Printf(_S("%.*s... "), half-int(submessageLen)-4, message);
                     else
                     {
                         HECL::Printf(_S("%s"), message);
@@ -246,9 +246,9 @@ public:
                     size_t rem = blocks - filled;
                     HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
-                        HECL::Printf(_S("#"), message);
+                        HECL::Printf(_S("#"));
                     for (int b=0 ; b<rem ; ++b)
-                        HECL::Printf(_S("-"), message);
+                        HECL::Printf(_S("-"));
                     HECL::Printf(_S("]" NORMAL ""));
                 }
                 else
@@ -258,9 +258,9 @@ public:
                     size_t rem = blocks - filled;
                     HECL::Printf(_S("%3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
-                        HECL::Printf(_S("#"), message);
+                        HECL::Printf(_S("#"));
                     for (int b=0 ; b<rem ; ++b)
-                        HECL::Printf(_S("-"), message);
+                        HECL::Printf(_S("-"));
                     HECL::Printf(_S("]"));
                 }
 
