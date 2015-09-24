@@ -332,7 +332,6 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
             DEPS deps;
             deps.read(drs);
 
-            printf("%d\n", deps.depLayerCount);
             unsigned r=0;
             for (unsigned l=1 ; l<deps.depLayerCount ; ++l)
             {

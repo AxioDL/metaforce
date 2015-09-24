@@ -59,35 +59,132 @@ struct UniqueResult
         UNIQUE_LEVEL,
         UNIQUE_AREA,
         UNIQUE_LAYER
-    } type = UNIQUE_NOTFOUND;
-    const HECL::SystemString* levelName = nullptr;
-    const HECL::SystemString* areaName = nullptr;
-    const HECL::SystemString* layerName = nullptr;
+    } m_type = UNIQUE_NOTFOUND;
+    const HECL::SystemString* m_levelName = nullptr;
+    const HECL::SystemString* m_areaName = nullptr;
+    const HECL::SystemString* m_layerName = nullptr;
     UniqueResult() = default;
-    UniqueResult(Type tp) : type(tp) {}
+    UniqueResult(Type tp) : m_type(tp) {}
+
+    template<class PAKBRIDGE>
+    void checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRIDGE::PAKType::Entry& entry)
+    {
+        UniqueResult::Type resultType = UniqueResult::UNIQUE_NOTFOUND;
+        bool foundOneLayer = false;
+        const HECL::SystemString* levelName = nullptr;
+        typename PAKBRIDGE::PAKType::IDType levelId;
+        typename PAKBRIDGE::PAKType::IDType areaId;
+        unsigned layerIdx;
+        for (const auto& lpair : pakBridge.m_levelDeps)
+        {
+            if (entry.id == lpair.first)
+            {
+                levelName = &lpair.second.name;
+                resultType = UniqueResult::UNIQUE_LEVEL;
+                break;
+            }
+
+            for (const auto& pair : lpair.second.areas)
+            {
+                unsigned l=0;
+                for (const auto& layer : pair.second.layers)
+                {
+                    if (layer.resources.find(entry.id) != layer.resources.end())
+                    {
+                        if (foundOneLayer)
+                        {
+                            if (areaId == pair.first)
+                            {
+                                resultType = UniqueResult::UNIQUE_AREA;
+                            }
+                            else if (levelId == lpair.first)
+                            {
+                                resultType = UniqueResult::UNIQUE_LEVEL;
+                                break;
+                            }
+                            else
+                            {
+                                m_type = UniqueResult::UNIQUE_PAK;
+                                return;
+                            }
+                            continue;
+                        }
+                        else
+                            resultType = UniqueResult::UNIQUE_LAYER;
+                        levelName = &lpair.second.name;
+                        levelId = lpair.first;
+                        areaId = pair.first;
+                        layerIdx = l;
+                        foundOneLayer = true;
+                    }
+                    ++l;
+                }
+                if (pair.second.resources.find(entry.id) != pair.second.resources.end())
+                {
+                    if (foundOneLayer)
+                    {
+                        if (areaId == pair.first)
+                        {
+                            resultType = UniqueResult::UNIQUE_AREA;
+                        }
+                        else if (levelId == lpair.first)
+                        {
+                            resultType = UniqueResult::UNIQUE_LEVEL;
+                            break;
+                        }
+                        else
+                        {
+                            m_type = UniqueResult::UNIQUE_PAK;
+                            return;
+                        }
+                        continue;
+                    }
+                    else
+                        resultType = UniqueResult::UNIQUE_AREA;
+                    levelName = &lpair.second.name;
+                    levelId = lpair.first;
+                    areaId = pair.first;
+                    foundOneLayer = true;
+                }
+            }
+        }
+        m_type = resultType;
+        m_levelName = levelName;
+        if (resultType == UniqueResult::UNIQUE_LAYER || resultType == UniqueResult::UNIQUE_AREA)
+        {
+            const typename PAKBRIDGE::Level::Area& area = pakBridge.m_levelDeps.at(levelId).areas.at(areaId);
+            m_areaName = &area.name;
+            if (resultType == UniqueResult::UNIQUE_LAYER)
+            {
+                const typename PAKBRIDGE::Level::Area::Layer& layer = area.layers[layerIdx];
+                m_layerName = &layer.name;
+            }
+        }
+    }
+
     HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
     {
-        if (type == UNIQUE_PAK)
+        if (m_type == UNIQUE_PAK)
             return pakPath;
 
         HECL::ProjectPath levelDir;
-        if (levelName)
-            levelDir.assign(pakPath, *levelName);
+        if (m_levelName)
+            levelDir.assign(pakPath, *m_levelName);
         else
             levelDir = pakPath;
         levelDir.makeDir();
 
-        if (type == UNIQUE_AREA)
+        if (m_type == UNIQUE_AREA)
         {
-            HECL::ProjectPath areaDir(levelDir, *areaName);
+            HECL::ProjectPath areaDir(levelDir, *m_areaName);
             areaDir.makeDir();
             return areaDir;
         }
-        else if (type == UNIQUE_LAYER)
+        else if (m_type == UNIQUE_LAYER)
         {
-            HECL::ProjectPath areaDir(levelDir, *areaName);
+            HECL::ProjectPath areaDir(levelDir, *m_areaName);
             areaDir.makeDir();
-            HECL::ProjectPath layerDir(areaDir, *layerName);
+            HECL::ProjectPath layerDir(areaDir, *m_layerName);
             layerDir.makeDir();
             return layerDir;
         }

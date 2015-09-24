@@ -17,7 +17,6 @@ class PAKBridge
     HECL::Database::Project& m_project;
     const NOD::DiscBase::IPartition::Node& m_node;
     PAK m_pak;
-    UniqueResult uniqueCheck(const PAK::Entry& entry);
 public:
     struct Level
     {

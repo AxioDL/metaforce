@@ -50,98 +50,6 @@ PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPar
     }
 }
 
-UniqueResult PAKBridge::uniqueCheck(const DNAMP1::PAK::Entry& entry)
-{
-    UniqueResult::Type result = UniqueResult::UNIQUE_NOTFOUND;
-    bool foundOneLayer = false;
-    const HECL::SystemString* levelName = nullptr;
-    UniqueID32 levelId;
-    UniqueID32 areaId;
-    unsigned layerIdx;
-    for (const auto& lpair : m_levelDeps)
-    {
-        levelName = &lpair.second.name;
-        if (entry.id == lpair.first)
-        {
-            result = UniqueResult::UNIQUE_LEVEL;
-            break;
-        }
-
-        for (const auto& pair : lpair.second.areas)
-        {
-            unsigned l=0;
-            for (const auto& layer : pair.second.layers)
-            {
-                if (layer.resources.find(entry.id) != layer.resources.end())
-                {
-                    if (foundOneLayer)
-                    {
-                        if (areaId == pair.first)
-                        {
-                            result = UniqueResult::UNIQUE_AREA;
-                        }
-                        else if (levelId == lpair.first)
-                        {
-                            result = UniqueResult::UNIQUE_LEVEL;
-                            break;
-                        }
-                        else
-                        {
-                            return {UniqueResult::UNIQUE_PAK};
-                        }
-                        continue;
-                    }
-                    else
-                        result = UniqueResult::UNIQUE_LAYER;
-                    levelId = lpair.first;
-                    areaId = pair.first;
-                    layerIdx = l;
-                    foundOneLayer = true;
-                }
-                ++l;
-            }
-            if (pair.second.resources.find(entry.id) != pair.second.resources.end())
-            {
-                if (foundOneLayer)
-                {
-                    if (areaId == pair.first)
-                    {
-                        result = UniqueResult::UNIQUE_AREA;
-                    }
-                    else if (levelId == lpair.first)
-                    {
-                        result = UniqueResult::UNIQUE_LEVEL;
-                        break;
-                    }
-                    else
-                    {
-                        return {UniqueResult::UNIQUE_PAK};
-                    }
-                    continue;
-                }
-                else
-                    result = UniqueResult::UNIQUE_AREA;
-                levelId = lpair.first;
-                areaId = pair.first;
-                foundOneLayer = true;
-            }
-        }
-    }
-    UniqueResult retval = {result};
-    retval.levelName = levelName;
-    if (result == UniqueResult::UNIQUE_LAYER || result == UniqueResult::UNIQUE_AREA)
-    {
-        const PAKBridge::Level::Area& area = m_levelDeps[levelId].areas[areaId];
-        retval.areaName = &area.name;
-        if (result == UniqueResult::UNIQUE_LAYER)
-        {
-            const PAKBridge::Level::Area::Layer& layer = area.layers[layerIdx];
-            retval.layerName = &layer.name;
-        }
-    }
-    return retval;
-}
-
 static HECL::SystemString LayerName(const std::string& name)
 {
 #if HECL_UCS2
@@ -271,7 +179,7 @@ void PAKBridge::build()
     /* Second pass: cross-compare uniqueness */
     for (DNAMP1::PAK::Entry& entry : m_pak.m_entries)
     {
-        entry.unique = uniqueCheck(entry);
+        entry.unique.checkEntry(*this, entry);
     }
 }
 
