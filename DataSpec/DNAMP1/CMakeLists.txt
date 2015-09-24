@@ -10,6 +10,7 @@ make_dnalist(liblist
              CMDLMaterials
              MREA
              DeafBabe
+             SCAN
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
              Tweaks/CTweakPlayerControl)

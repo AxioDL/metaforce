@@ -3,6 +3,7 @@
 #define NOD_ATHENA 1
 #include "DNAMP1.hpp"
 #include "STRG.hpp"
+#include "SCAN.hpp"
 #include "MLVL.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "CMDL.hpp"
@@ -198,6 +199,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     {
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, {_S(".yaml")}};
+    case SBIG('SCAN'):
+        return {SCAN::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):

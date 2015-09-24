@@ -120,18 +120,17 @@ struct SpecMP2 : SpecBase
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
+        if (!buildInfo)
+            return false;
 
         /* Root Report */
         reps.emplace_back();
         ExtractReport& rep = reps.back();
         rep.name = _S("MP2");
         rep.desc = _S("Metroid Prime 2 ") + regstr;
-        if (buildInfo)
-        {
-            std::string buildStr(buildInfo);
-            HECL::SystemStringView buildView(buildStr);
-            rep.desc += _S(" (") + buildView + _S(")");
-        }
+        std::string buildStr(buildInfo);
+        HECL::SystemStringView buildView(buildStr);
+        rep.desc += _S(" (") + buildView + _S(")");
 
         /* Iterate PAKs and build level options */
         NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();

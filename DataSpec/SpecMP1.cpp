@@ -124,6 +124,9 @@ struct SpecMP1 : SpecBase
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
 
+        if (!buildInfo)
+            return false;
+
         /* Root Report */
         reps.emplace_back();
         ExtractReport& rep = reps.back();
