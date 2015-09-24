@@ -47,7 +47,7 @@ void DeafBabeSendToBlender(HECL::BlenderConnection::PyOutStream& os, const DEAFB
                   "face.material_index = select_material(0x%08X)\n"
                   "face.smooth = False\n"
                   "\n",
-                  triMat.material);
+                  atUint32(triMat.material));
     }
 
     db.insertNoClimb(os);

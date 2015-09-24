@@ -486,6 +486,52 @@ public:
             return nullptr;
         return &search->second;
     }
+
+    HECL::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const
+    {
+        if (!m_bridges)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()");
+        auto bridgePathIt = m_bridgePaths.cbegin();
+        for (const BRIDGETYPE& bridge : *m_bridges)
+        {
+            for (const auto& level : bridge.m_levelDeps)
+                for (const auto& area : level.second.areas)
+                    if (area.first == areaId)
+                    {
+                        HECL::ProjectPath levelPath(bridgePathIt->first, level.second.name);
+                        HECL::ProjectPath areaPath(levelPath, area.second.name);
+                        if (layerIdx < 0)
+                            return areaPath;
+                        return HECL::ProjectPath(areaPath, area.second.layers.at(layerIdx).name);
+                    }
+            ++bridgePathIt;
+        }
+        return HECL::ProjectPath();
+    }
+
+    HECL::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx) const
+    {
+        if (!m_bridges)
+            LogDNACommon.report(LogVisor::FatalError,
+            "PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()");
+        auto bridgePathIt = m_bridgePaths.cbegin();
+        for (const BRIDGETYPE& bridge : *m_bridges)
+        {
+            for (const auto& level : bridge.m_levelDeps)
+                for (const auto& area : level.second.areas)
+                    if (area.first == areaId)
+                    {
+                        HECL::ProjectPath levelPath(bridgePathIt->second, level.second.name);
+                        HECL::ProjectPath areaPath(levelPath, area.second.name);
+                        if (layerIdx < 0)
+                            return areaPath;
+                        return HECL::ProjectPath(areaPath, area.second.layers.at(layerIdx).name);
+                    }
+            ++bridgePathIt;
+        }
+        return HECL::ProjectPath();
+    }
 };
 
 }

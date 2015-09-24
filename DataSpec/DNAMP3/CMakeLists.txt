@@ -1,6 +1,8 @@
 make_dnalist(liblist
              PAK
              MLVL
+             ANIM
+             CHAR
              CMDLMaterials
              CINF
              CSKR
@@ -9,6 +11,8 @@ add_library(DNAMP3
             DNAMP3.hpp DNAMP3.cpp
             ${liblist}
             PAK.cpp
+            ANIM.cpp
+            CHAR.cpp
             CMDL.hpp
             CMDLMaterials.cpp
             STRG.hpp STRG.cpp

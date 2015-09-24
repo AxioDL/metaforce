@@ -107,7 +107,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
             cinfsDone.insert(info.cinf);
         }
         else
-            os.format("arm_obj = bpy.data.objects['CINF_%08X']\n", info.cinf.toUint32());
+            os.format("arm_obj = bpy.data.objects['CINF_%s']\n", info.cinf.toString().c_str());
         os << "actor_subtype.linked_armature = arm_obj.name\n";
 
         /* Link CMDL */

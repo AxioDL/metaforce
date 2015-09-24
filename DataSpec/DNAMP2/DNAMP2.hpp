@@ -17,6 +17,8 @@ class PAKBridge
     HECL::Database::Project& m_project;
     const NOD::DiscBase::IPartition::Node& m_node;
     DNAMP1::PAK m_pak;
+    UniqueResult uniqueCheck(const DNAMP1::PAK::Entry& entry);
+public:
     struct Level
     {
         HECL::SystemString name;
@@ -35,8 +37,7 @@ class PAKBridge
     };
     std::unordered_map<UniqueID32, Level> m_levelDeps;
     HECL::SystemString m_levelString;
-    UniqueResult uniqueCheck(const DNAMP1::PAK::Entry& entry);
-public:
+
     PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const DNAMP1::PAK::Entry& entry);
