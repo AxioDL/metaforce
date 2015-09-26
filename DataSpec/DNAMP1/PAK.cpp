@@ -95,7 +95,7 @@ PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOu
             zs.next_out = buf;
             while (zs.avail_out)
             {
-                atUint64 readSz = strm->read(compBuf, MIN(compRem, 0x8000));
+                atUint64 readSz = strm->read(compBuf, std::min(compRem, atUint32(0x8000)));
                 compRem -= readSz;
                 zs.avail_in = readSz;
                 zs.next_in = compBuf;

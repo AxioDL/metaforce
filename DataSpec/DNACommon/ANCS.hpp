@@ -20,7 +20,7 @@ struct CharacterResInfo
     IDTYPE cinf;
 };
 
-template <class PAKRouter, class ANCSDNA, class MaterialSet, atUint32 CMDLVersion>
+template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
 bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        const ANCSDNA& ancs,
                        const HECL::ProjectPath& outPath,
@@ -52,11 +52,11 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                 pakRouter.lookupAndReadDNA(info.cskr, cskr);
                 typename ANCSDNA::CINFType cinf;
                 pakRouter.lookupAndReadDNA(info.cinf, cinf);
-                using RIGPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
-                RIGPair rigPair(&cskr, &cinf);
+                using RigPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
+                RigPair rigPair(&cskr, &cinf);
 
                 PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
-                DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RIGPair, CMDLVersion>
+                DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RigPair, SurfaceHeader, CMDLVersion>
                         (conn, rs, pakRouter, *cmdlE, dataspec, rigPair);
 
                 conn.saveBlend();
@@ -136,6 +136,8 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         {
             os.format("act = bpy.data.actions.new('%s')\n"
                       "act.use_fake_user = True\n", id.second.first.c_str());
+            if (id.second.second.toString() == std::string("6DD5CB1DC42BFBB3"))
+                printf("");
             anim.sendANIMToBlender(os, cinf);
         }
 

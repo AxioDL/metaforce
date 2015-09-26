@@ -33,18 +33,42 @@ struct Header : BigDNA
     Align<32> align;
 };
 
-struct SurfaceHeader : BigDNA
+struct SurfaceHeader_1_2 : BigDNA
 {
     DECL_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx;
     Value<atInt16> qDiv;
     Value<atUint16> dlSize;
-    Seek<8, Athena::Current> seek;
+    Value<atUint32> unk1;
+    Value<atUint32> unk2;
     Value<atUint32> aabbSz;
     Value<atVec3f> reflectionNormal;
     Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
     Align<32> align;
+
+    static constexpr bool UseMatrixSkinning() {return false;}
+    constexpr atInt16 skinMatrixBankIdx() const {return -1;}
+};
+
+struct SurfaceHeader_3 : BigDNA
+{
+    DECL_DNA
+    Value<atVec3f> centroid;
+    Value<atUint32> matIdx;
+    Value<atInt16> qDiv;
+    Value<atUint16> dlSize;
+    Value<atUint32> unk1;
+    Value<atUint32> unk2;
+    Value<atUint32> aabbSz;
+    Value<atVec3f> reflectionNormal;
+    Value<atInt16> skinMtxBankIdx;
+    Value<atUint16> unk3;
+    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Align<32> align;
+
+    static constexpr bool UseMatrixSkinning() {return true;}
+    atInt16 skinMatrixBankIdx() const {return skinMtxBankIdx;}
 };
 
 struct VertexAttributes
@@ -274,43 +298,98 @@ public:
             {
                 atUint16 val;
                 val = readVal(m_va.pnMtxIdx);
-                out.pnMtxIdx = MAX(out.pnMtxIdx, val);
+                out.pnMtxIdx = std::max(out.pnMtxIdx, atUint8(val));
                 val = readVal(m_va.texMtxIdx[0]);
-                out.texMtxIdx[0] = MAX(out.texMtxIdx[0], val);
+                out.texMtxIdx[0] = std::max(out.texMtxIdx[0], atUint8(val));
                 val = readVal(m_va.texMtxIdx[1]);
-                out.texMtxIdx[1] = MAX(out.texMtxIdx[1], val);
+                out.texMtxIdx[1] = std::max(out.texMtxIdx[1], atUint8(val));
                 val = readVal(m_va.texMtxIdx[2]);
-                out.texMtxIdx[2] = MAX(out.texMtxIdx[2], val);
+                out.texMtxIdx[2] = std::max(out.texMtxIdx[2], atUint8(val));
                 val = readVal(m_va.texMtxIdx[3]);
-                out.texMtxIdx[3] = MAX(out.texMtxIdx[3], val);
+                out.texMtxIdx[3] = std::max(out.texMtxIdx[3], atUint8(val));
                 val = readVal(m_va.texMtxIdx[4]);
-                out.texMtxIdx[4] = MAX(out.texMtxIdx[4], val);
+                out.texMtxIdx[4] = std::max(out.texMtxIdx[4], atUint8(val));
                 val = readVal(m_va.texMtxIdx[5]);
-                out.texMtxIdx[5] = MAX(out.texMtxIdx[5], val);
+                out.texMtxIdx[5] = std::max(out.texMtxIdx[5], atUint8(val));
                 val = readVal(m_va.texMtxIdx[6]);
-                out.texMtxIdx[6] = MAX(out.texMtxIdx[6], val);
+                out.texMtxIdx[6] = std::max(out.texMtxIdx[6], atUint8(val));
                 val = readVal(m_va.pos);
-                out.pos = MAX(out.pos, val);
+                out.pos = std::max(out.pos, val);
                 val = readVal(m_va.norm);
-                out.norm = MAX(out.norm, val);
+                out.norm = std::max(out.norm, val);
                 val = readVal(m_va.color0);
-                out.color[0] = MAX(out.color[0], val);
+                out.color[0] = std::max(out.color[0], val);
                 val = readVal(m_va.color1);
-                out.color[1] = MAX(out.color[1], val);
+                out.color[1] = std::max(out.color[1], val);
                 val = readVal(m_va.uvs[0]);
-                out.uvs[0] = MAX(out.uvs[0], val);
+                out.uvs[0] = std::max(out.uvs[0], val);
                 val = readVal(m_va.uvs[1]);
-                out.uvs[1] = MAX(out.uvs[1], val);
+                out.uvs[1] = std::max(out.uvs[1], val);
                 val = readVal(m_va.uvs[2]);
-                out.uvs[2] = MAX(out.uvs[2], val);
+                out.uvs[2] = std::max(out.uvs[2], val);
                 val = readVal(m_va.uvs[3]);
-                out.uvs[3] = MAX(out.uvs[3], val);
+                out.uvs[3] = std::max(out.uvs[3], val);
                 val = readVal(m_va.uvs[4]);
-                out.uvs[4] = MAX(out.uvs[4], val);
+                out.uvs[4] = std::max(out.uvs[4], val);
                 val = readVal(m_va.uvs[5]);
-                out.uvs[5] = MAX(out.uvs[5], val);
+                out.uvs[5] = std::max(out.uvs[5], val);
                 val = readVal(m_va.uvs[6]);
-                out.uvs[6] = MAX(out.uvs[6], val);
+                out.uvs[6] = std::max(out.uvs[6], val);
+            }
+        }
+        m_cur = bakCur;
+    }
+    void preReadMaxIdxs(DLPrimVert& out, std::vector<atInt16>& skinOut,
+                        const atInt16 bankIn[10])
+    {
+        atUint8* bakCur = m_cur;
+        while (*this)
+        {
+            readPrimitive();
+            atUint16 vc = readVertCount();
+            for (atUint16 v=0 ; v<vc ; ++v)
+            {
+                atUint16 val;
+                atUint8 pnMtxVal = readVal(m_va.pnMtxIdx);
+                out.pnMtxIdx = std::max(out.pnMtxIdx, pnMtxVal);
+                val = readVal(m_va.texMtxIdx[0]);
+                out.texMtxIdx[0] = std::max(out.texMtxIdx[0], atUint8(val));
+                val = readVal(m_va.texMtxIdx[1]);
+                out.texMtxIdx[1] = std::max(out.texMtxIdx[1], atUint8(val));
+                val = readVal(m_va.texMtxIdx[2]);
+                out.texMtxIdx[2] = std::max(out.texMtxIdx[2], atUint8(val));
+                val = readVal(m_va.texMtxIdx[3]);
+                out.texMtxIdx[3] = std::max(out.texMtxIdx[3], atUint8(val));
+                val = readVal(m_va.texMtxIdx[4]);
+                out.texMtxIdx[4] = std::max(out.texMtxIdx[4], atUint8(val));
+                val = readVal(m_va.texMtxIdx[5]);
+                out.texMtxIdx[5] = std::max(out.texMtxIdx[5], atUint8(val));
+                val = readVal(m_va.texMtxIdx[6]);
+                out.texMtxIdx[6] = std::max(out.texMtxIdx[6], atUint8(val));
+                atUint16 posVal = readVal(m_va.pos);
+                out.pos = std::max(out.pos, posVal);
+                val = readVal(m_va.norm);
+                out.norm = std::max(out.norm, val);
+                val = readVal(m_va.color0);
+                out.color[0] = std::max(out.color[0], val);
+                val = readVal(m_va.color1);
+                out.color[1] = std::max(out.color[1], val);
+                val = readVal(m_va.uvs[0]);
+                out.uvs[0] = std::max(out.uvs[0], val);
+                val = readVal(m_va.uvs[1]);
+                out.uvs[1] = std::max(out.uvs[1], val);
+                val = readVal(m_va.uvs[2]);
+                out.uvs[2] = std::max(out.uvs[2], val);
+                val = readVal(m_va.uvs[3]);
+                out.uvs[3] = std::max(out.uvs[3], val);
+                val = readVal(m_va.uvs[4]);
+                out.uvs[4] = std::max(out.uvs[4], val);
+                val = readVal(m_va.uvs[5]);
+                out.uvs[5] = std::max(out.uvs[5], val);
+                val = readVal(m_va.uvs[6]);
+                out.uvs[6] = std::max(out.uvs[6], val);
+
+                skinOut[posVal] = bankIn[pnMtxVal/3];
             }
         }
         m_cur = bakCur;
@@ -322,12 +401,12 @@ void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
 void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
                        unsigned matSetCount, int meshIdx);
 
-template <class PAKRouter, class MaterialSet, class RIGPAIR>
+template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader>
 atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                    Athena::io::IStreamReader& reader,
                                    PAKRouter& pakRouter,
                                    const typename PAKRouter::EntryType& entry,
-                                   const RIGPAIR& rp,
+                                   const RigPair& rp,
                                    bool shortNormals,
                                    bool shortUVs,
                                    std::vector<VertexAttributes>& vertAttribs,
@@ -357,6 +436,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
     atUint32 lastDlSec = secCount;
     atUint64 afterHeaderPos = reader.position();
     DLReader::DLPrimVert maxIdxs;
+    std::vector<atInt16> skinIndices;
     for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
@@ -376,6 +456,8 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
             case 0:
             {
                 /* Positions */
+                if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+                    skinIndices.assign(secSizes[s] / 12, -1);
                 break;
             }
             case 1:
@@ -429,7 +511,10 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                 /* Do max index pre-read */
                 atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
                 DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
-                dl.preReadMaxIdxs(maxIdxs);
+                if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+                    dl.preReadMaxIdxs(maxIdxs, skinIndices, rp.first->getMatrixBank(sHead.skinMatrixBankIdx()));
+                else
+                    dl.preReadMaxIdxs(maxIdxs);
 
             }
             }
@@ -469,7 +554,12 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
                               pos.vec[0], pos.vec[1], pos.vec[2]);
                     if (rp.first)
-                        rp.first->weightVertex(os, *rp.second, i);
+                    {
+                        if (SurfaceHeader::UseMatrixSkinning())
+                            rp.first->weightVertex(os, *rp.second, skinIndices[i]);
+                        else
+                            rp.first->weightVertex(os, *rp.second, i);
+                    }
                 }
                 break;
             }
@@ -784,13 +874,13 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
     return lastDlSec;
 }
 
-template <class PAKRouter, class MaterialSet, class RIGPAIR, atUint32 Version>
+template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader, atUint32 Version>
 bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
                        Athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
-                       const RIGPAIR& rp)
+                       const RigPair& rp)
 {
     Header head;
     head.read(reader);
@@ -824,7 +914,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
           "\n";
 
     std::vector<VertexAttributes> vertAttribs;
-    ReadGeomSectionsToBlender<PAKRouter, MaterialSet, RIGPAIR>
+    ReadGeomSectionsToBlender<PAKRouter, MaterialSet, RigPair, SurfaceHeader>
             (os, reader, pakRouter, entry, rp, head.flags.shortNormals(),
              head.flags.shortUVs(), vertAttribs, -1,
              head.secCount, head.matSetCount, head.secSizes.data());

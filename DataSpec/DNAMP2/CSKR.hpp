@@ -4,30 +4,21 @@
 #include "BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
+#include "../DNAMP1/CSKR.hpp"
 
 namespace Retro
 {
 namespace DNAMP2
 {
 
-struct CSKR : BigDNA
+struct CSKR : DNAMP1::CSKR
 {
-    DECL_DNA
-    Value<atUint32> skinningRuleCount;
-    struct SkinningRule : BigDNA
+    Delete expl;
+
+    const atInt16* getMatrixBank(size_t) const
     {
-        DECL_DNA
-        Value<atUint32> weightCount;
-        struct Weight : BigDNA
-        {
-            DECL_DNA
-            Value<atUint32> boneId;
-            Value<float> weight;
-        };
-        Vector<Weight, DNA_COUNT(weightCount)> weights;
-        Value<atUint32> vertCount;
-    };
-    Vector<SkinningRule, DNA_COUNT(skinningRuleCount)> skinningRules;
+        return nullptr;
+    }
 
     void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
     {

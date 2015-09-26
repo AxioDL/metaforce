@@ -18,12 +18,19 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
             bitsPerKeyFrame += 1;
         case Channel::TRANSLATION:
         case Channel::SCALE:
-        {
             bitsPerKeyFrame += chan.q[0];
             bitsPerKeyFrame += chan.q[1];
             bitsPerKeyFrame += chan.q[2];
             break;
-        }
+        case Channel::KF_HEAD:
+            bitsPerKeyFrame += 1;
+            break;
+        case Channel::ROTATION_MP3:
+            bitsPerKeyFrame += chan.q[0];
+            bitsPerKeyFrame += chan.q[1];
+            bitsPerKeyFrame += chan.q[2];
+            bitsPerKeyFrame += chan.q[3];
+            break;
         default: break;
         }
     }
@@ -43,6 +50,7 @@ static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
         (quat.v4.vec[0] < 0) ? true : false
     };
 }
+
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
 {
     float q = M_PI / 2.0 / div;
@@ -53,11 +61,24 @@ static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
         sinf(v.v[1] * q),
         sinf(v.v[2] * q),
     };
-    retval.v4.vec[0] = sqrtf(MAX((1.0 -
+    retval.v4.vec[0] = sqrtf(std::max((1.0 -
                                (retval.v4.vec[1] * retval.v4.vec[1] +
                                 retval.v4.vec[2] * retval.v4.vec[2] +
                                 retval.v4.vec[3] * retval.v4.vec[3])), 0.0));
     retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
+    return retval;
+}
+
+static inline Value DequantizeRotation_3(const QuantizedValue& v, atUint32 div)
+{
+    float q = 1.0 / div;
+    Value retval =
+    {
+        v.v[0] * q,
+        v.v[1] * q,
+        v.v[2] * q,
+        v.v[3] * q
+    };
     return retval;
 }
 
@@ -144,6 +165,16 @@ BitstreamReader::read(const atUint8* data,
             keys.push_back({chan.i[0] / (float)rotDiv, chan.i[1] / (float)rotDiv, chan.i[2] / (float)rotDiv});
             break;
         }
+        case Channel::KF_HEAD:
+        {
+            break;
+        }
+        case Channel::ROTATION_MP3:
+        {
+            QuantizedRot qr = {{chan.i[1], chan.i[2], chan.i[3]}, chan.i[0] != 0};
+            keys.emplace_back(DequantizeRotation(qr, rotDiv));
+            break;
+        }
         default: break;
         }
     }
@@ -180,6 +211,24 @@ BitstreamReader::read(const atUint8* data,
                 p[1] += dequantize(data, chan.q[1]);
                 p[2] += dequantize(data, chan.q[2]);
                 kit->push_back({p[0] / (float)rotDiv, p[1] / (float)rotDiv, p[2] / (float)rotDiv});
+                break;
+            }
+            case Channel::KF_HEAD:
+            {
+                bool aBit = dequantizeBit(data);
+                break;
+            }
+            case Channel::ROTATION_MP3:
+            {
+                p[0] += dequantize(data, chan.q[0]);
+                p[1] += dequantize(data, chan.q[1]);
+                p[2] += dequantize(data, chan.q[2]);
+                p[3] += dequantize(data, chan.q[3]);
+#if 0
+                kit->emplace_back(DequantizeRotation_3(p, rotDiv));
+#else
+                kit->emplace_back(DequantizeRotation({p[1], p[2], p[3]}, p[0] < 0));
+#endif
                 break;
             }
             default: break;
@@ -252,9 +301,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  ++it)
             {
                 const Value* current = &*it;
-                maxTransDiff = MAX(maxTransDiff, current->v3.vec[0] - last->v3.vec[0]);
-                maxTransDiff = MAX(maxTransDiff, current->v3.vec[1] - last->v3.vec[1]);
-                maxTransDiff = MAX(maxTransDiff, current->v3.vec[2] - last->v3.vec[2]);
+                maxTransDiff = std::max(maxTransDiff, current->v3.vec[0] - last->v3.vec[0]);
+                maxTransDiff = std::max(maxTransDiff, current->v3.vec[1] - last->v3.vec[1]);
+                maxTransDiff = std::max(maxTransDiff, current->v3.vec[2] - last->v3.vec[2]);
                 last = current;
             }
             break;
@@ -313,9 +362,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  ++it)
             {
                 QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
-                chan.q[0] = MAX(chan.q[0], ceilf(log2f(qrCur.v[0] - qrLast.v[0])));
-                chan.q[1] = MAX(chan.q[1], ceilf(log2f(qrCur.v[1] - qrLast.v[1])));
-                chan.q[2] = MAX(chan.q[2], ceilf(log2f(qrCur.v[2] - qrLast.v[2])));
+                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(qrCur.v[0] - qrLast.v[0]))));
+                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(qrCur.v[1] - qrLast.v[1]))));
+                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(qrCur.v[2] - qrLast.v[2]))));
                 qrLast = qrCur;
             }
             break;
@@ -332,9 +381,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 QuantizedValue cur = {atInt16(it->v3.vec[0] / transMultOut),
                                       atInt16(it->v3.vec[1] / transMultOut),
                                       atInt16(it->v3.vec[2] / transMultOut)};
-                chan.q[0] = MAX(chan.q[0], ceilf(log2f(cur[0] - last[0])));
-                chan.q[1] = MAX(chan.q[1], ceilf(log2f(cur[1] - last[1])));
-                chan.q[2] = MAX(chan.q[2], ceilf(log2f(cur[2] - last[2])));
+                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(cur[0] - last[0]))));
+                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(cur[1] - last[1]))));
+                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(cur[2] - last[2]))));
                 last = cur;
             }
             break;
@@ -351,9 +400,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 QuantizedValue cur = {atInt16(it->v3.vec[0] * rotDivOut),
                                       atInt16(it->v3.vec[1] * rotDivOut),
                                       atInt16(it->v3.vec[2] * rotDivOut)};
-                chan.q[0] = MAX(chan.q[0], ceilf(log2f(cur[0] - last[0])));
-                chan.q[1] = MAX(chan.q[1], ceilf(log2f(cur[1] - last[1])));
-                chan.q[2] = MAX(chan.q[2], ceilf(log2f(cur[2] - last[2])));
+                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(cur[0] - last[0]))));
+                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(cur[1] - last[1]))));
+                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(cur[2] - last[2]))));
                 last = cur;
             }
             break;

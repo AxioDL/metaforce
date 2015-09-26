@@ -150,7 +150,7 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
 
     atUint32 maxId = 0;
     for (const std::pair<atUint32, bool>& bone : bones)
-        maxId = MAX(maxId, bone.first);
+        maxId = std::max(maxId, bone.first);
     head.boneSlotCount = maxId + 1;
     head.write(writer);
 
@@ -239,7 +239,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
     bones.reserve(head.boneChannelCount);
     channels.clear();
     channels.reserve(head.boneChannelCount);
-    size_t keyframeCount = 0;
+    atUint16 keyframeCount = 0;
     for (size_t b=0 ; b<head.boneChannelCount ; ++b)
     {
         ChannelDesc desc;
@@ -258,7 +258,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
             chan.i[2] = desc.initRZ;
             chan.q[2] = desc.qRZ;
         }
-        keyframeCount = MAX(keyframeCount, desc.keyCount1);
+        keyframeCount = std::max(keyframeCount, desc.keyCount1);
 
         if (desc.keyCount2)
         {

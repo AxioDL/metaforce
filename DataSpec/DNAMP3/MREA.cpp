@@ -83,12 +83,11 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
                 break;
             case BabeDeadLight::LightSpot:
                 os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
-                          "lamp.spot_size = %f\n"
+                          "lamp.spot_size = 1.0\n"
                           "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                           "lamp_obj.rotation_mode = 'QUATERNION'\n"
                           "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                           "\n", s, l,
-                          light.spotCutoff / 2.f,
                           light.direction.vec[0], light.direction.vec[1], light.direction.vec[2]);
                 break;
             default: continue;
@@ -242,7 +241,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     {
         for (int m=0 ; m<head.meshCount ; ++m)
         {
-            curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair>
+            curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_3>
                           (os, drs, pakRouter, entry, dummy, true,
                            false, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec], surfaceCounts[m]);
         }

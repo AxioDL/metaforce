@@ -3,74 +3,16 @@
 
 #include "BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
+#include "../DNAMP2/CINF.hpp"
 
 namespace Retro
 {
 namespace DNAMP3
 {
 
-struct CINF : BigDNA
+struct CINF : DNAMP2::CINF
 {
-    DECL_DNA
-    Value<atUint32> boneCount;
-    struct Bone : BigDNA
-    {
-        DECL_DNA
-        Value<atUint32> id;
-        Value<atUint32> parentId;
-        Value<atVec3f> origin;
-        Value<atUint32> linkedCount;
-        Vector<atUint32, DNA_COUNT(linkedCount)> linked;
-    };
-    Vector<Bone, DNA_COUNT(boneCount)> bones;
-
-    Value<atUint32> boneIdCount;
-    Vector<atUint32, DNA_COUNT(boneIdCount)> boneIds;
-
-    Value<atUint32> nameCount;
-    struct Name : BigDNA
-    {
-        DECL_DNA
-        String<-1> name;
-        Value<atUint32> boneId;
-    };
-    Vector<Name, DNA_COUNT(nameCount)> names;
-
-    atUint32 getBoneIdxFromId(atUint32 id) const
-    {
-        atUint32 idx = 0;
-        for (atUint32 bid : boneIds)
-        {
-            if (bid == id)
-                return idx;
-            ++idx;
-        }
-        return 0;
-    }
-
-    const std::string* getBoneNameFromId(atUint32 id) const
-    {
-        for (const Name& name : names)
-            if (id == name.boneId)
-                return &name.name;
-        return nullptr;
-    }
-
-    void sendVertexGroupsToBlender(HECL::BlenderConnection::PyOutStream& os) const
-    {
-        for (atUint32 bid : boneIds)
-        {
-            for (const Name& name : names)
-            {
-                if (name.boneId == bid)
-                {
-                    os.format("obj.vertex_groups.new('%s')\n", name.name.c_str());
-                    break;
-                }
-            }
-        }
-    }
-
+    Delete expl;
     void sendCINFToBlender(HECL::BlenderConnection::PyOutStream& os, const UniqueID64& cinfId) const
     {
         os.format("arm = bpy.data.armatures.new('CINF_%016" PRIX64 "')\n"
@@ -90,7 +32,7 @@ struct CINF : BigDNA
                       bone.origin.vec[0], bone.origin.vec[1], bone.origin.vec[2], bone.id);
 
         for (const Bone& bone : bones)
-            if (bone.parentId != 2)
+            if (bone.parentId != 97 && bone.parentId != 147)
                 os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";

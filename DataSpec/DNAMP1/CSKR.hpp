@@ -29,6 +29,11 @@ struct CSKR : BigDNA
     };
     Vector<SkinningRule, DNA_COUNT(skinningRuleCount)> skinningRules;
 
+    const atInt16* getMatrixBank(size_t) const
+    {
+        return nullptr;
+    }
+
     void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
     {
         atUint32 accum = 0;

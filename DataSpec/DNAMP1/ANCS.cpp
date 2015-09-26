@@ -322,8 +322,8 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
 
     if (sectionCount > 3)
     {
-        cmdlOverride.read(reader);
-        cskrOverride.read(reader);
+        cmdlOverlay.read(reader);
+        cskrOverlay.read(reader);
     }
 
     animIdxs.clear();
@@ -343,7 +343,7 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverride)
+    else if (cmdlOverlay)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -394,8 +394,8 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
 
     if (sectionCount > 3)
     {
-        cmdlOverride.write(writer);
-        cskrOverride.write(writer);
+        cmdlOverlay.write(writer);
+        cskrOverlay.write(writer);
     }
 
     if (sectionCount > 4)
@@ -454,8 +454,8 @@ void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& read
 
     if (sectionCount > 3)
     {
-        reader.enumerate("cmdlOverride", cmdlOverride);
-        reader.enumerate("cskrOverride", cskrOverride);
+        reader.enumerate("cmdlOverride", cmdlOverlay);
+        reader.enumerate("cskrOverride", cskrOverlay);
     }
 
     animIdxs.clear();
@@ -475,7 +475,7 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverride)
+    else if (cmdlOverlay)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -526,8 +526,8 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
 
     if (sectionCount > 3)
     {
-        writer.enumerate("cmdlOverride", cmdlOverride);
-        writer.enumerate("cskrOverride", cskrOverride);
+        writer.enumerate("cmdlOverride", cmdlOverlay);
+        writer.enumerate("cskrOverride", cskrOverlay);
     }
 
     if (sectionCount > 4)

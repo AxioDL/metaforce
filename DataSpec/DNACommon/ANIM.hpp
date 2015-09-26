@@ -31,7 +31,7 @@ union Value
 };
 struct QuantizedValue
 {
-    atInt16 v[3];
+    atInt16 v[4];
     atInt16& operator[] (size_t idx)
     {return v[idx];}
     const atInt16& operator[] (size_t idx) const
@@ -48,10 +48,12 @@ struct Channel
     {
         ROTATION,
         TRANSLATION,
-        SCALE
+        SCALE,
+        KF_HEAD,
+        ROTATION_MP3
     } type;
     QuantizedValue i = {};
-    atUint8 q[3] = {};
+    atUint8 q[4] = {};
 };
 
 size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& channels);

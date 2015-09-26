@@ -4,6 +4,7 @@
 #include "hecl/blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
+#include "../DNAMP2/CSKR.hpp"
 
 namespace Retro
 {
@@ -13,34 +14,42 @@ namespace DNAMP3
 struct CSKR : BigDNA
 {
     DECL_DNA
-    Value<atUint32> skinningRuleCount;
-    struct SkinningRule : BigDNA
+    DNAFourCC magic;
+    Value<atUint32> version;
+    DNAMP2::CSKR data;
+    Value<atUint32> matrixCount;
+    struct MatrixBindings : BigDNA
     {
         DECL_DNA
-        Value<atUint32> weightCount;
-        struct Weight : BigDNA
-        {
-            DECL_DNA
-            Value<atUint32> boneId;
-            Value<float> weight;
-        };
-        Vector<Weight, DNA_COUNT(weightCount)> weights;
-        Value<atUint32> vertCount;
+        Value<atInt16> mtxs[10];
     };
-    Vector<SkinningRule, DNA_COUNT(skinningRuleCount)> skinningRules;
+    Vector<MatrixBindings, DNA_COUNT(matrixCount / 10)> mtxBindings;
 
-    void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
+    Value<atUint32> unkCount1;
+    Vector<atUint8, DNA_COUNT(unkCount1)> unk1;
+    Value<atUint32> unkCount2;
+    Vector<atUint8, DNA_COUNT(unkCount2)> unk2;
+    Value<atUint32> unkCount3;
+    Vector<atUint8, DNA_COUNT(unkCount3)> unk3;
+    Value<atUint32> unkCount4;
+    Vector<atUint8, DNA_COUNT(unkCount4)> unk4;
+    Value<atUint32> unkCount5;
+    Vector<atUint8, DNA_COUNT(unkCount5)> unk5;
+
+    const atInt16* getMatrixBank(size_t idx) const
     {
-        atUint32 accum = 0;
-        for (const SkinningRule& rule : skinningRules)
-        {
-            if (idx < accum + rule.vertCount)
-                for (const SkinningRule::Weight& weight : rule.weights)
-                    os.format("vert[dvert_lay][%u] = %f\n",
-                              cinf.getBoneIdxFromId(weight.boneId),
-                              weight.weight);
-            accum += rule.vertCount;
-        }
+        return mtxBindings.at(idx).mtxs;
+    }
+
+    void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atInt16 skinIdx) const
+    {
+        if (skinIdx < 0)
+            return;
+        const DNAMP2::CSKR::SkinningRule& rule = data.skinningRules[skinIdx];
+        for (const DNAMP2::CSKR::SkinningRule::Weight& weight : rule.weights)
+            os.format("vert[dvert_lay][%u] = %f\n",
+                      cinf.getBoneIdxFromId(weight.boneId),
+                      weight.weight);
     }
 };
 

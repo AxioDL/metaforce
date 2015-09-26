@@ -98,7 +98,7 @@ struct MREA
         Value<atUint8> unk8;
         Value<atUint32> unk9;
         Value<atUint32> unk10;
-        Value<float> spotCutoff;
+        Value<float> unk11;
         Value<atVec4f> unk12;
         Value<atUint32> unk13;
     };

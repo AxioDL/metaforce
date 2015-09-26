@@ -203,6 +203,13 @@ void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID64, std::pair<UniqueI
     {
         if (entry.second->type == FOURCC('CHAR'))
         {
+            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            CHAR aChar;
+            aChar.read(rs);
+            const CHAR::CharacterInfo& ci = aChar.characterInfo;
+            addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+            for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays)
+                addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
         }
     }
 }
@@ -217,12 +224,10 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
-#if 0
     case SBIG('CHAR'):
         return {nullptr, CHAR::Extract, {_S(".yaml"), _S(".blend")}, 2};
-#endif
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 2};
+        return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, {_S(".yaml")}};
     }

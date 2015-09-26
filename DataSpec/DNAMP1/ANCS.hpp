@@ -141,8 +141,8 @@ struct ANCS : BigYAML
             };
             std::vector<Effect> effects;
 
-            UniqueID32 cmdlOverride;
-            UniqueID32 cskrOverride;
+            UniqueID32 cmdlOverlay;
+            UniqueID32 cskrOverlay;
 
             std::vector<atUint32> animIdxs;
         };
@@ -401,7 +401,7 @@ struct ANCS : BigYAML
             if (force || blendType == HECL::ProjectPath::PT_NONE)
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, 2>
+                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>
                         (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
         }
