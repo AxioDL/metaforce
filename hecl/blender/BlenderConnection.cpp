@@ -212,7 +212,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
         HANDLE nulHandle = NULL;
-        if (silenceBlender)
+        if (verbosityLevel == 0)
         {
             SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
             nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
