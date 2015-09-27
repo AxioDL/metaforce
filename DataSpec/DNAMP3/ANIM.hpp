@@ -38,6 +38,7 @@ struct ANIM : BigDNA
         struct Header : BigDNA
         {
             DECL_DNA
+            Value<atUint16> unkS;
             Value<float> duration;
             Value<atUint32> unk0;
             Value<float> interval;

@@ -14,7 +14,6 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin() + 1;
-    int idx = 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         const std::string* bName = cinf.getBoneNameFromId(bone.first);
@@ -68,7 +67,6 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<0>(bone.second))
         {
             const std::vector<DNAANIM::Value>& rotKeys = *kit++;
-            ++idx;
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -81,7 +79,6 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<1>(bone.second))
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
-            ++idx;
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -94,7 +91,6 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<2>(bone.second))
         {
             const std::vector<DNAANIM::Value>& scaleKeys = *kit++;
-            ++idx;
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -142,7 +138,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     {
         atUint8 idx = reader.readUByte();
         if (idx != 0xff)
-            std::get<1>(bones.back().second) = true;
+            std::get<1>(bones[b].second) = true;
     }
 
     boneCount = reader.readUint32Big();
@@ -150,11 +146,14 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     {
         atUint8 idx = reader.readUByte();
         if (idx != 0xff)
-            std::get<2>(bones.back().second) = true;
+            std::get<2>(bones[b].second) = true;
     }
 
     channels.clear();
     chanKeys.clear();
+    channels.emplace_back();
+    channels.back().type = DNAANIM::Channel::KF_HEAD;
+    chanKeys.emplace_back();
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         if (std::get<0>(bone.second))
@@ -181,7 +180,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     }
 
     reader.readUint32Big();
-    auto kit = chanKeys.begin();
+    auto kit = chanKeys.begin() + 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         if (std::get<0>(bone.second))
@@ -197,7 +196,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     }
 
     reader.readUint32Big();
-    kit = chanKeys.begin();
+    kit = chanKeys.begin() + 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         if (std::get<0>(bone.second))
@@ -213,7 +212,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     }
 
     reader.readUint32Big();
-    kit = chanKeys.begin();
+    kit = chanKeys.begin() + 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         if (std::get<0>(bone.second))

@@ -128,7 +128,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     {
         atUint8 idx = reader.readUByte();
         if (idx != 0xff)
-            std::get<1>(bones.back().second) = true;
+            std::get<1>(bones[b].second) = true;
     }
 
     boneCount = reader.readUint32Big();
@@ -136,7 +136,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     {
         atUint8 idx = reader.readUByte();
         if (idx != 0xff)
-            std::get<2>(bones.back().second) = true;
+            std::get<2>(bones[b].second) = true;
     }
 
     channels.clear();
