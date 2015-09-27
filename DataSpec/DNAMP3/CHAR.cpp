@@ -12,6 +12,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::IStreamReader& reader
     unk1 = reader.readUint32Big();
     unk2 = reader.readUint32Big();
     unk3 = reader.readUint32Big();
+    reader.enumerateBig(unk3Vals, unk3);
     extraType = reader.readUint32Big();
     if (extraType == 1)
         extraFloat = reader.readFloatBig();
@@ -26,6 +27,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::IStreamWriter& write
     writer.writeUint32Big(unk1);
     writer.writeUint32Big(unk2);
     writer.writeUint32Big(unk3);
+    writer.enumerateBig(unk3Vals);
     writer.writeUint32Big(extraType);
     if (extraType == 1)
         writer.writeFloatBig(extraFloat);
@@ -40,6 +42,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::fromYAML(Athena::io::YAMLDocReader& re
     unk1 = reader.readUint32("unk1");
     unk2 = reader.readUint32("unk2");
     unk3 = reader.readUint32("unk3");
+    reader.enumerate("unk3Vals", unk3Vals, unk3);
     extraType = reader.readUint32("extraType");
     if (extraType == 1)
         extraFloat = reader.readFloat("extraFloat");
@@ -52,6 +55,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::toYAML(Athena::io::YAMLDocWriter& writ
     writer.writeUint32("unk1", unk1);
     writer.writeUint32("unk2", unk2);
     writer.writeUint32("unk3", unk3);
+    writer.enumerate("unk3Vals", unk3Vals);
     writer.writeUint32("extraType", extraType);
     if (extraType == 1)
         writer.writeFloat("extraFloat", extraFloat);

@@ -72,7 +72,7 @@ struct CHAR : BigYAML
         struct EVNT : BigYAML
         {
             DECL_YAML
-            Value<atUint32> eventBinding;
+            Value<atUint32> eventIdx;
             String<-1> eventName;
 
             struct EventBase : BigYAML
@@ -117,6 +117,7 @@ struct CHAR : BigYAML
                 Value<atUint32> unk1;
                 Value<atUint32> unk2;
                 Value<atUint32> unk3;
+                std::vector<float> unk3Vals;
                 Value<atUint32> extraType;
                 Value<float> extraFloat;
             };
