@@ -58,7 +58,7 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
     if (sectionCount > 3)
     {
         cmdlOverlay.read(reader);
-        cskrOverley.read(reader);
+        cskrOverlay.read(reader);
     }
 
     animIdxs.clear();
@@ -144,7 +144,7 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
     if (sectionCount > 3)
     {
         cmdlOverlay.write(writer);
-        cskrOverley.write(writer);
+        cskrOverlay.write(writer);
     }
 
     if (sectionCount > 4)
@@ -213,8 +213,8 @@ void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& read
 
     if (sectionCount > 3)
     {
-        reader.enumerate("cmdlOverride", cmdlOverlay);
-        reader.enumerate("cskrOverride", cskrOverley);
+        reader.enumerate("cmdlOverlay", cmdlOverlay);
+        reader.enumerate("cskrOverlay", cskrOverlay);
     }
 
     animIdxs.clear();
@@ -299,8 +299,8 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
 
     if (sectionCount > 3)
     {
-        writer.enumerate("cmdlOverride", cmdlOverlay);
-        writer.enumerate("cskrOverride", cskrOverley);
+        writer.enumerate("cmdlOverlay", cmdlOverlay);
+        writer.enumerate("cskrOverlay", cskrOverlay);
     }
 
     if (sectionCount > 4)

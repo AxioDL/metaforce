@@ -361,6 +361,9 @@ struct ANCS : BigYAML
             chOut.cmdl = ci.cmdl;
             chOut.cskr = ci.cskr;
             chOut.cinf = ci.cinf;
+
+            if (ci.cmdlOverlay)
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
         }
     }
 

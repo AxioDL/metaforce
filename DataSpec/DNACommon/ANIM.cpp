@@ -79,6 +79,10 @@ static inline Value DequantizeRotation_3(const QuantizedValue& v, atUint32 div)
         v.v[2] * q,
         v.v[3] * q
     };
+    if (retval.v4.vec[0] < 0)
+        retval.v4.vec[0] = -1.0 - retval.v4.vec[0];
+    else
+        retval.v4.vec[0] = 1.0 - retval.v4.vec[0];
     return retval;
 }
 
@@ -89,7 +93,7 @@ bool BitstreamReader::dequantizeBit(const atUint8* data)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    atUint32 tempBuf = HECL::SBig(*(atUint32*)(data + byteCur)) >> bitRem;
+    atUint32 tempBuf = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
 
     /* That's it */
     m_bitCur += 1;
@@ -103,28 +107,28 @@ atInt16 BitstreamReader::dequantize(const atUint8* data, atUint8 q)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    atUint32 tempBuf = HECL::SBig(*(atUint32*)(data + byteCur)) >> bitRem;
+    atUint32 tempBuf = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
 
     /* If this shift underflows the value, buffer the next 32 bits */
     /* And tack onto shifted buffer */
     if ((bitRem + q) > 32)
     {
-        atUint32 tempBuf2 = HECL::SBig(*(atUint32*)(data + byteCur + 4));
+        atUint32 tempBuf2 = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur + 4));
         tempBuf |= (tempBuf2 << (32 - bitRem));
     }
 
-    /* Pick out sign */
+    /* Mask it */
+    atUint32 mask = (1 << q) - 1;
+    tempBuf &= mask;
+
+    /* Sign extend */
     atUint32 sign = (tempBuf >> (q - 1)) & 0x1;
     if (sign)
-        tempBuf = ~tempBuf;
-
-    /* mask it (excluding sign bit) */
-    atUint32 mask = (1 << (q - 1)) - 1;
-    tempBuf &= mask;
+        tempBuf |= ~0 << q;
 
     /* Return delta value */
     m_bitCur += q;
-    return atInt32(sign ? (tempBuf + 1) * -1 : tempBuf);
+    return atInt32(tempBuf);
 }
 
 std::vector<std::vector<Value>>
@@ -141,8 +145,7 @@ BitstreamReader::read(const atUint8* data,
     chanAccum.reserve(channels.size());
     for (const Channel& chan : channels)
     {
-        chanAccum.push_back({chan.i[0], chan.i[1], chan.i[2]});
-        QuantizedValue& accum = chanAccum.back();
+        chanAccum.push_back(chan.i);
 
         chanKeys.emplace_back();
         std::vector<Value>& keys = chanKeys.back();
@@ -171,7 +174,7 @@ BitstreamReader::read(const atUint8* data,
         }
         case Channel::ROTATION_MP3:
         {
-            QuantizedRot qr = {{chan.i[1], chan.i[2], chan.i[3]}, chan.i[0] != 0};
+            QuantizedRot qr = {{chan.i[1], chan.i[2], chan.i[3]}, bool(chan.i[0] & 0x1)};
             keys.emplace_back(DequantizeRotation(qr, rotDiv));
             break;
         }
@@ -199,9 +202,12 @@ BitstreamReader::read(const atUint8* data,
             }
             case Channel::TRANSLATION:
             {
-                p[0] += dequantize(data, chan.q[0]);
-                p[1] += dequantize(data, chan.q[1]);
-                p[2] += dequantize(data, chan.q[2]);
+                atInt16 val1 = dequantize(data, chan.q[0]);
+                p[0] += val1;
+                atInt16 val2 = dequantize(data, chan.q[1]);
+                p[1] += val2;
+                atInt16 val3 = dequantize(data, chan.q[2]);
+                p[2] += val3;
                 kit->push_back({p[0] * transMult, p[1] * transMult, p[2] * transMult});
                 break;
             }
@@ -220,15 +226,16 @@ BitstreamReader::read(const atUint8* data,
             }
             case Channel::ROTATION_MP3:
             {
-                p[0] += dequantize(data, chan.q[0]);
-                p[1] += dequantize(data, chan.q[1]);
-                p[2] += dequantize(data, chan.q[2]);
-                p[3] += dequantize(data, chan.q[3]);
-#if 0
-                kit->emplace_back(DequantizeRotation_3(p, rotDiv));
-#else
-                kit->emplace_back(DequantizeRotation({p[1], p[2], p[3]}, p[0] < 0));
-#endif
+                atInt16 val1 = dequantize(data, chan.q[0]);
+                p[0] += val1;
+                atInt16 val2 = dequantize(data, chan.q[1]);
+                p[1] += val2;
+                atInt16 val3 = dequantize(data, chan.q[2]);
+                p[2] += val3;
+                atInt16 val4 = dequantize(data, chan.q[3]);
+                p[3] += val4;
+                QuantizedRot qr = {{p[1], p[2], p[3]}, bool(p[0] & 0x1)};
+                kit->emplace_back(DequantizeRotation(qr, rotDiv));
                 break;
             }
             default: break;

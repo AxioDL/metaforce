@@ -86,7 +86,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
-            UniqueID32 cskrOverley;
+            UniqueID32 cskrOverlay;
 
             std::vector<atUint32> animIdxs;
 
@@ -198,6 +198,9 @@ struct ANCS : BigYAML
             chOut.cmdl = ci.cmdl;
             chOut.cskr = ci.cskr;
             chOut.cinf = ci.cinf;
+
+            if (ci.cmdlOverlay)
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
         }
     }
 

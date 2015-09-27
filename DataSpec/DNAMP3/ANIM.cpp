@@ -14,11 +14,20 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin() + 1;
+    int idx = 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         const std::string* bName = cinf.getBoneNameFromId(bone.first);
         if (!bName)
+        {
+            if (std::get<0>(bone.second))
+                ++kit;
+            if (std::get<1>(bone.second))
+                ++kit;
+            if (std::get<2>(bone.second))
+                ++kit;
             continue;
+        }
 
         os.format("bone_string = '%s'\n", bName->c_str());
         os <<     "action_group = act.groups.new(bone_string)\n"
@@ -59,6 +68,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<0>(bone.second))
         {
             const std::vector<DNAANIM::Value>& rotKeys = *kit++;
+            ++idx;
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -71,6 +81,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<1>(bone.second))
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
+            ++idx;
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -83,6 +94,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         if (std::get<2>(bone.second))
         {
             const std::vector<DNAANIM::Value>& scaleKeys = *kit++;
+            ++idx;
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();

@@ -196,7 +196,7 @@ void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueI
             {
                 addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
                 if (ci.cmdlOverlay)
-                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverley, ci.cinf);
+                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
             }
         }
     }

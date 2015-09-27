@@ -18,6 +18,7 @@ struct CharacterResInfo
     IDTYPE cmdl;
     IDTYPE cskr;
     IDTYPE cinf;
+    std::vector<std::pair<HECL::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
 };
 
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
@@ -124,6 +125,28 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                   "obj.parent_type = 'ARMATURE'\n"
                   "actor_subtype.linked_mesh = obj.name\n\n";
         }
+
+        /* Link overlays */
+        for (const auto& overlay : info.overlays)
+        {
+            os << "overlay = actor_subtype.overlays.add()\n";
+            os.format("overlay.name = '%s'\n", overlay.first.toString().c_str());
+
+            /* Link CMDL */
+            const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true);
+            if (cmdlE)
+            {
+                HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+                os.linkBlend(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE), true);
+
+                /* Attach CMDL to CINF */
+                os << "if obj.name not in bpy.context.scene.objects:\n"
+                      "    bpy.context.scene.objects.link(obj)\n"
+                      "obj.parent = arm_obj\n"
+                      "obj.parent_type = 'ARMATURE'\n"
+                      "overlay.linked_mesh = obj.name\n\n";
+            }
+        }
     }
 
     /* Get animation primitives */
@@ -136,8 +159,6 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         {
             os.format("act = bpy.data.actions.new('%s')\n"
                       "act.use_fake_user = True\n", id.second.first.c_str());
-            if (id.second.second.toString() == std::string("6DD5CB1DC42BFBB3"))
-                printf("");
             anim.sendANIMToBlender(os, cinf);
         }
 
