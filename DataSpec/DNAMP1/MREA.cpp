@@ -1,6 +1,9 @@
 #include "MREA.hpp"
 #include "DeafBabe.hpp"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace Retro
 {
 namespace DNAMP1

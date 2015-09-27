@@ -117,8 +117,8 @@ void PAKBridge::build()
                     auto search = dupeTracker.find(areaDeps.name);
                     if (search != dupeTracker.end() && search->second.first > 1)
                     {
-                        char num[16];
-                        snprintf(num, 16, " (%d)", search->second.second++);
+                        HECL::SystemChar num[16];
+                        HECL::SNPrintf(num, 16, _S(" (%d)"), search->second.second++);
                         areaDeps.name += num;
                     }
 
