@@ -1,6 +1,4 @@
-'''
-Root HECL addon package for Blender
-'''
+'''Root HECL addon package for Blender'''
 
 bl_info = {
     "name": "HECL",
@@ -111,6 +109,11 @@ def scene_loaded(dummy):
                         arm_obj = bpy.data.objects[subtype.linked_armature]
                         mesh_obj.parent = arm_obj
                         mesh_obj.parent_type = 'ARMATURE'
+                        for overlay in subtype.overlays:
+                            if overlay.linked_mesh in bpy.data.objects:
+                                mesh_obj = bpy.data.objects[overlay.linked_mesh]
+                                mesh_obj.parent = arm_obj
+                                mesh_obj.parent_type = 'ARMATURE'
 
 
     # Show only the active mesh and action

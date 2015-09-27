@@ -30,12 +30,6 @@
 #include <Athena/DNA.hpp>
 #include "../extern/xxhash/xxhash.h"
 
-/* Handy MIN/MAX macros */
-#ifndef MAX
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
 namespace HECL
 {
 
