@@ -69,20 +69,21 @@ static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
     return retval;
 }
 
-static inline Value DequantizeRotation_3(const QuantizedValue& v, atUint32 div)
+static inline Value DequantizeRotation_3(const QuantizedRot& v, atUint32 div)
 {
     float q = 1.0 / div;
     Value retval =
     {
+        0.0,
         v.v[0] * q,
         v.v[1] * q,
         v.v[2] * q,
-        v.v[3] * q
     };
-    if (retval.v4.vec[0] < 0)
-        retval.v4.vec[0] = -1.0 - retval.v4.vec[0];
-    else
-        retval.v4.vec[0] = 1.0 - retval.v4.vec[0];
+    retval.v4.vec[0] = sqrtf(std::max((1.0 -
+                               (retval.v4.vec[1] * retval.v4.vec[1] +
+                                retval.v4.vec[2] * retval.v4.vec[2] +
+                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0));
+    retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
     return retval;
 }
 
@@ -175,7 +176,7 @@ BitstreamReader::read(const atUint8* data,
         case Channel::ROTATION_MP3:
         {
             QuantizedRot qr = {{chan.i[1], chan.i[2], chan.i[3]}, bool(chan.i[0] & 0x1)};
-            keys.emplace_back(DequantizeRotation(qr, rotDiv));
+            keys.emplace_back(DequantizeRotation_3(qr, rotDiv));
             break;
         }
         default: break;
@@ -235,7 +236,7 @@ BitstreamReader::read(const atUint8* data,
                 atInt16 val4 = dequantize(data, chan.q[3]);
                 p[3] += val4;
                 QuantizedRot qr = {{p[1], p[2], p[3]}, bool(p[0] & 0x1)};
-                kit->emplace_back(DequantizeRotation(qr, rotDiv));
+                kit->emplace_back(DequantizeRotation_3(qr, rotDiv));
                 break;
             }
             default: break;
