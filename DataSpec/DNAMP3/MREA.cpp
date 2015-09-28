@@ -118,6 +118,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
           "    bpy.context.scene.objects.unlink(ob)\n"
           "    bpy.data.objects.remove(ob)\n"
           "bpy.types.Lamp.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
+          "bpy.types.Lamp.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
           "\n";
 
     /* One shared material set for all meshes */

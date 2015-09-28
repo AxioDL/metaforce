@@ -13,6 +13,7 @@ void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
     switch (light.lightType)
     {
     case BabeDeadLight::LightLocalAmbient:
+    case BabeDeadLight::LightLocalAmbient2:
         os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
                   "bg_node.inputs[1].default_value = %f\n",
                   light.color.vec[0], light.color.vec[1], light.color.vec[2],
@@ -32,6 +33,7 @@ void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
                   "\n", s, l);
         break;
     case BabeDeadLight::LightSpot:
+    case BabeDeadLight::LightSpot2:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
                   "lamp.spot_size = %f\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
@@ -45,6 +47,7 @@ void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
     }
 
     os.format("lamp.retro_layer = %u\n"
+              "lamp.retro_origtype = %u\n"
               "lamp.use_nodes = True\n"
               "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
               "lamp.energy = 0.0\n"
@@ -55,7 +58,7 @@ void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
               "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
               "lamp_obj.location = (%f,%f,%f)\n"
               "bpy.context.scene.objects.link(lamp_obj)\n"
-              "\n", s, light.q / 8.0,
+              "\n", s, light.lightType, light.q / 8.0,
               light.color.vec[0], light.color.vec[1], light.color.vec[2],
               light.position.vec[0], light.position.vec[1], light.position.vec[2]);
 

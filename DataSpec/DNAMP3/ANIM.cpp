@@ -374,7 +374,10 @@ static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUin
         lastTime = *it;
     }
 
-    mainInterval = 1.0 / round(1.0 / mainInterval);
+    float fps = round(1.0 / mainInterval);
+    if (fps < 15.0)
+        fps = 15.0;
+    mainInterval = 1.0 / fps;
 
     framesOut.clear();
     framesOut.reserve(keyTimes.size());

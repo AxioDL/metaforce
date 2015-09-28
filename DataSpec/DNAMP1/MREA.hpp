@@ -77,7 +77,9 @@ struct MREA
             LightLocalAmbient,
             LightDirectional,
             LightCustom,
-            LightSpot
+            LightSpot,
+            LightSpot2,
+            LightLocalAmbient2
         };
         enum Falloff : atUint32
         {
