@@ -555,9 +555,9 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                               pos.vec[0], pos.vec[1], pos.vec[2]);
                     if (rp.first)
                     {
-                        if (SurfaceHeader::UseMatrixSkinning())
+                        if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
                             rp.first->weightVertex(os, *rp.second, skinIndices[i]);
-                        else
+                        else if (!SurfaceHeader::UseMatrixSkinning())
                             rp.first->weightVertex(os, *rp.second, i);
                     }
                 }

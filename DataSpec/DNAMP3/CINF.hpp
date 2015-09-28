@@ -28,6 +28,7 @@ struct CINF : DNAMP2::CINF
                       "bone.head = (%f,%f,%f)\n"
                       "bone.tail = bone.head\n"
                       "bone.tail[1] += 0.5\n"
+                      "bone.use_inherit_scale = False\n"
                       "arm_bone_table[%u] = bone\n", getBoneNameFromId(bone.id)->c_str(),
                       bone.origin.vec[0], bone.origin.vec[1], bone.origin.vec[2], bone.id);
 

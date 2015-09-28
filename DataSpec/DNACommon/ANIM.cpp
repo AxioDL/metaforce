@@ -166,7 +166,7 @@ BitstreamReader::read(const atUint8* data,
         }
         case Channel::SCALE:
         {
-            keys.push_back({chan.i[0] / (float)rotDiv, chan.i[1] / (float)rotDiv, chan.i[2] / (float)rotDiv});
+            keys.push_back({chan.i[0] / float(rotDiv), chan.i[1] / float(rotDiv), chan.i[2] / float(rotDiv)});
             break;
         }
         case Channel::KF_HEAD:
@@ -217,7 +217,7 @@ BitstreamReader::read(const atUint8* data,
                 p[0] += dequantize(data, chan.q[0]);
                 p[1] += dequantize(data, chan.q[1]);
                 p[2] += dequantize(data, chan.q[2]);
-                kit->push_back({p[0] / (float)rotDiv, p[1] / (float)rotDiv, p[2] / (float)rotDiv});
+                kit->push_back({p[0] / float(rotDiv), p[1] / float(rotDiv), p[2] / float(rotDiv)});
                 break;
             }
             case Channel::KF_HEAD:
