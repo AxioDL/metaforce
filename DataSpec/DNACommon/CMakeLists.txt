@@ -10,5 +10,6 @@ add_library(DNACommon
             TXTR.hpp TXTR.cpp
             ANCS.hpp
             ANIM.hpp ANIM.cpp
+            BabeDead.hpp
             Tweaks/ITweakPlayer.hpp
             Tweaks/ITweakPlayerControl.hpp)

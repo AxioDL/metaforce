@@ -1,6 +1,7 @@
 #include <Athena/FileWriter.hpp>
 #include "MREA.hpp"
 #include "../DNAMP2/DeafBabe.hpp"
+#include "../DNACommon/BabeDead.hpp"
 
 namespace Retro
 {
@@ -60,71 +61,7 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
         {
             BabeDeadLight light;
             light.read(rs);
-            switch (light.lightType)
-            {
-            case BabeDeadLight::LightLocalAmbient:
-                os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
-                          "bg_node.inputs[1].default_value = %f\n",
-                          light.color.vec[0], light.color.vec[1], light.color.vec[2],
-                          light.unk6 / 8.0);
-                continue;
-            case BabeDeadLight::LightDirectional:
-                os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
-                          "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-                          "lamp_obj.rotation_mode = 'QUATERNION'\n"
-                          "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
-                          "\n", s, l,
-                          light.direction.vec[0], light.direction.vec[1], light.direction.vec[2]);
-                break;
-            case BabeDeadLight::LightCustom:
-                os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'POINT')\n"
-                          "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-                          "\n", s, l);
-                break;
-            case BabeDeadLight::LightSpot:
-                os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
-                          "lamp.spot_size = 1.0\n"
-                          "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-                          "lamp_obj.rotation_mode = 'QUATERNION'\n"
-                          "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
-                          "\n", s, l,
-                          light.direction.vec[0], light.direction.vec[1], light.direction.vec[2]);
-                break;
-            default: continue;
-            }
-
-            os.format("lamp.retro_layer = %u\n"
-                      "lamp.use_nodes = True\n"
-                      "quadratic_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
-                      "quadratic_node.inputs[0].default_value = %f\n"
-                      "quadratic_node.location = (-600, 0)\n"
-                      "linear_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
-                      "linear_node.inputs[0].default_value = %f\n"
-                      "linear_node.location = (-400, 0)\n"
-                      "constant_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
-                      "constant_node.inputs[0].default_value = %f\n"
-                      "constant_node.location = (-200, 0)\n"
-                      "add1 = lamp.node_tree.nodes.new('ShaderNodeMath')\n"
-                      "add1.operation = 'ADD'\n"
-                      "add1.location = (-400, -300)\n"
-                      "add2 = lamp.node_tree.nodes.new('ShaderNodeMath')\n"
-                      "add2.operation = 'ADD'\n"
-                      "add2.location = (-200, -300)\n"
-                      "lamp.node_tree.links.new(quadratic_node.outputs[0], add1.inputs[0])\n"
-                      "lamp.node_tree.links.new(linear_node.outputs[1], add1.inputs[1])\n"
-                      "lamp.node_tree.links.new(add1.outputs[0], add2.inputs[0])\n"
-                      "lamp.node_tree.links.new(constant_node.outputs[2], add2.inputs[1])\n"
-                      "lamp.node_tree.links.new(add2.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n"
-                      "lamp.energy = 0.0\n"
-                      "hue_sat_node = lamp.node_tree.nodes.new('ShaderNodeHueSaturation')\n"
-                      "hue_sat_node.inputs[1].default_value = 1.25\n"
-                      "hue_sat_node.inputs[4].default_value = (%f,%f,%f,1.0)\n"
-                      "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
-                      "lamp_obj.location = (%f,%f,%f)\n"
-                      "bpy.context.scene.objects.link(lamp_obj)\n"
-                      "\n", s, light.unk5, light.unk6, light.unk7,
-                      light.color.vec[0], light.color.vec[1], light.color.vec[2],
-                      light.position.vec[0], light.position.vec[1], light.position.vec[2]);
+            ReadBabeDeadLightToBlender(os, light, s, l);
         }
     }
 }

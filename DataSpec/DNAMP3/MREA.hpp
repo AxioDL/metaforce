@@ -87,17 +87,23 @@ struct MREA
             LightCustom,
             LightSpot
         };
+        enum Falloff : atUint32
+        {
+            FalloffConstant,
+            FalloffLinear,
+            FalloffQuadratic
+        };
         Value<LightType> lightType;
         Value<atVec4f> color;
         Value<atVec3f> position;
         Value<atVec3f> direction;
         Value<atVec3f> codirection;
-        Value<float> unk5;
-        Value<float> unk6;
+        Value<float> q;
+        Value<float> spotCutoff;
         Value<float> unk7;
         Value<atUint8> unk8;
-        Value<atUint32> unk9;
-        Value<atUint32> unk10;
+        Value<float> unk9;
+        Value<Falloff> falloff;
         Value<float> unk11;
         Value<atVec4f> unk12;
         Value<atUint32> unk13;

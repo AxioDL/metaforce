@@ -32,9 +32,13 @@ struct CINF : DNAMP2::CINF
                       "arm_bone_table[%u] = bone\n", getBoneNameFromId(bone.id)->c_str(),
                       bone.origin.vec[0], bone.origin.vec[1], bone.origin.vec[2], bone.id);
 
-        for (const Bone& bone : bones)
-            if (bone.parentId != 97 && bone.parentId != 147)
-                os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
+        if (bones.size())
+        {
+            atUint32 nullId = bones[0].parentId;
+            for (const Bone& bone : bones)
+                if (bone.parentId != nullId)
+                    os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
+        }
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
     }
