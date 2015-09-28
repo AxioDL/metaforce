@@ -111,13 +111,10 @@ struct SpecMP3 : SpecBase
                         }
                     }
 
-                    if (good)
-                    {
-                        if (fe)
-                            m_fePaks.emplace_back(m_project, child);
-                        else
-                            m_paks.emplace_back(m_project, child);
-                    }
+                    if (fe)
+                        m_fePaks.emplace_back(m_project, child, good);
+                    else
+                        m_paks.emplace_back(m_project, child, good);
                 }
             }
 
@@ -147,6 +144,8 @@ struct SpecMP3 : SpecBase
         /* Assemble extract report */
         for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : fe ? m_feOrderedPaks : m_orderedPaks)
         {
+            if (!item.second->m_doExtract)
+                continue;
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
             HECL::SystemStringView nameView(item.first);
@@ -157,6 +156,12 @@ struct SpecMP3 : SpecBase
             {
                 /* Phaaze doesn't have a world name D: */
                 childRep.desc = _S("Phaaze");
+                continue;
+            }
+            else if (!item.first.compare("Metroid8.pak"))
+            {
+                /* Space world is misnamed */
+                childRep.desc = _S("Space");
                 continue;
             }
             childRep.desc = item.second->getLevelString();
@@ -348,7 +353,8 @@ struct SpecMP3 : SpecBase
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
             {
                 DNAMP3::PAKBridge& pak = *pair.second;
-                m_pakRouter.enterPAKBridge(pak);
+                if (!pak.m_doExtract)
+                    continue;
 
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
@@ -391,6 +397,9 @@ struct SpecMP3 : SpecBase
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)
             {
                 DNAMP3::PAKBridge& pak = *pair.second;
+                if (!pak.m_doExtract)
+                    continue;
+
                 const std::string& name = pak.getName();
                 HECL::SystemStringView sysName(name);
 

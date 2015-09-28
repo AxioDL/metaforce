@@ -208,6 +208,25 @@ struct ResExtractor
     unsigned weight;
 };
 
+/* Level hierarchy representation */
+template <class IDType>
+struct Level
+{
+    HECL::SystemString name;
+    struct Area
+    {
+        HECL::SystemString name;
+        struct Layer
+        {
+            HECL::SystemString name;
+            std::unordered_set<IDType> resources;
+        };
+        std::vector<Layer> layers;
+        std::unordered_set<IDType> resources;
+    };
+    std::unordered_map<IDType, Area> areas;
+};
+
 /* PAKRouter (for detecting shared entry locations) */
 template <class BRIDGETYPE>
 class PAKRouter

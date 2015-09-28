@@ -87,8 +87,7 @@ struct SpecMP2 : SpecBase
                         }
                     }
 
-                    if (good)
-                        m_paks.emplace_back(m_project, child);
+                    m_paks.emplace_back(m_project, child, good);
                 }
             }
 
@@ -104,6 +103,8 @@ struct SpecMP2 : SpecBase
         /* Assemble extract report */
         for (const std::pair<std::string, DNAMP2::PAKBridge*>& item : m_orderedPaks)
         {
+            if (!item.second->m_doExtract)
+                continue;
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
             HECL::SystemStringView nameView(item.first);
@@ -229,6 +230,9 @@ struct SpecMP2 : SpecBase
         for (std::pair<std::string, DNAMP2::PAKBridge*> pair : m_orderedPaks)
         {
             DNAMP2::PAKBridge& pak = *pair.second;
+            if (!pak.m_doExtract)
+                continue;
+
             const std::string& name = pak.getName();
             HECL::SystemStringView sysName(name);
 

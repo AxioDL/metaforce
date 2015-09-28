@@ -22,8 +22,10 @@ static bool GetNoShare(const std::string& name)
     return true;
 }
 
-PAKBridge::PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node)
-: m_project(project), m_node(node), m_pak(true, GetNoShare(node.getName()))
+PAKBridge::PAKBridge(HECL::Database::Project& project,
+                     const NOD::DiscBase::IPartition::Node& node,
+                     bool doExtract)
+: m_project(project), m_node(node), m_pak(true, GetNoShare(node.getName())), m_doExtract(doExtract)
 {
     NOD::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
@@ -70,7 +72,7 @@ void PAKBridge::build()
     {
         if (entry.type == FOURCC('MLVL'))
         {
-            PAKBridge::Level& level = m_levelDeps[entry.id];
+            Level& level = m_levelDeps[entry.id];
 
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;

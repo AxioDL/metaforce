@@ -18,26 +18,14 @@ class PAKBridge
     const NOD::DiscBase::IPartition::Node& m_node;
     PAK m_pak;
 public:
-    struct Level
-    {
-        HECL::SystemString name;
-        struct Area
-        {
-            HECL::SystemString name;
-            struct Layer
-            {
-                HECL::SystemString name;
-                std::unordered_set<UniqueID32> resources;
-            };
-            std::vector<Layer> layers;
-            std::unordered_set<UniqueID32> resources;
-        };
-        std::unordered_map<UniqueID32, Area> areas;
-    };
+    bool m_doExtract;
+    using Level = Level<UniqueID32>;
     std::unordered_map<UniqueID32, Level> m_levelDeps;
     HECL::SystemString m_levelString;
 
-    PAKBridge(HECL::Database::Project& project, const NOD::DiscBase::IPartition::Node& node);
+    PAKBridge(HECL::Database::Project& project,
+              const NOD::DiscBase::IPartition::Node& node,
+              bool doExtract=true);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
