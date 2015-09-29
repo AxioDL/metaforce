@@ -157,6 +157,7 @@ struct ANCS : BigYAML
         struct IMetaAnim : BigYAML
         {
             Delete expl;
+            virtual ~IMetaAnim() {}
             enum Type
             {
                 MAPrimitive = 0,
@@ -265,6 +266,7 @@ struct ANCS : BigYAML
         struct IMetaTrans : BigYAML
         {
             Delete expl;
+            virtual ~IMetaTrans() {}
             enum Type
             {
                 MTMetaAnim = 0,

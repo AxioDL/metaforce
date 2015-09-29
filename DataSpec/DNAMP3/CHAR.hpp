@@ -130,6 +130,7 @@ struct CHAR : BigYAML
         struct IMetaAnim : BigYAML
         {
             Delete expl;
+            virtual ~IMetaAnim() {}
             enum Type
             {
                 MAPrimitive = 0,
