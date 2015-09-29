@@ -120,10 +120,18 @@ void PAKBridge::build()
                 if (areaDeps.name.empty())
                 {
 #if HECL_UCS2
-                    areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+                    areaDeps.name = HECL::UTF8ToWide(area.internalAreaName);
 #else
-                    areaDeps.name = "MREA_" + area.areaMREAId.toString();
+                    areaDeps.name = area.internalAreaName;
 #endif
+                    if (areaDeps.name.empty())
+                    {
+#if HECL_UCS2
+                        areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+#else
+                        areaDeps.name = "MREA_" + area.areaMREAId.toString();
+#endif
+                    }
                 }
                 HECL::SystemChar num[16];
                 HECL::SNPrintf(num, 16, _S("%02u "), ai++);
