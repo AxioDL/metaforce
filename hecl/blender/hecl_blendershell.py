@@ -148,7 +148,7 @@ while True:
 
     elif cmdargs[0] == 'SAVE':
         bpy.context.user_preferences.filepaths.save_version = 0
-        if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False):
+        if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False, compress=True):
             writepipeline(b'FINISHED')
         else:
             writepipeline(b'CANCELLED')
