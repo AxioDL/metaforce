@@ -417,6 +417,28 @@ public:
 };
 
 /**
+ * @brief Special ProjectRootPath class for opening HECLDatabase::IProject instances
+ *
+ * Constructing a ProjectPath requires supplying a ProjectRootPath to consistently
+ * resolve canonicalized relative paths.
+ */
+class ProjectRootPath
+{
+    SystemString m_projRoot;
+public:
+    ProjectRootPath(const SystemString& path) : m_projRoot(path) {SanitizePath(m_projRoot);}
+    const SystemString& getAbsolutePath() const {return m_projRoot;}
+
+    /**
+     * @brief Create directory at path
+     *
+     * Fatal log report is issued if directory is not able to be created or doesn't already exist.
+     * If directory already exists, no action taken.
+     */
+    void makeDir() const {MakeDir(m_projRoot.c_str());}
+};
+
+/**
  * @brief Canonicalized project path representation using POSIX conventions
  *
  * HECL uses POSIX-style paths (with '/' separator) and directory tokens
@@ -431,8 +453,7 @@ public:
  */
 class ProjectPath
 {
-protected:
-    SystemString m_projRoot;
+    const ProjectRootPath* m_projRoot = nullptr;
     SystemString m_absPath;
     SystemString m_relPath;
     Hash m_hash = 0;
@@ -440,30 +461,31 @@ protected:
     std::string m_utf8AbsPath;
     std::string m_utf8RelPath;
 #endif
-    ProjectPath(const SystemString& projRoot)
-    : m_projRoot(projRoot), m_absPath(projRoot), m_relPath(_S("."))
-    {
-        SanitizePath(m_projRoot);
-        SanitizePath(m_relPath);
-        SanitizePath(m_absPath);
-        m_hash = Hash(m_relPath);
-#if HECL_UCS2
-        m_utf8AbsPath = WideToUTF8(m_absPath);
-        m_utf8RelPath = ".";
-#endif
-    }
 public:
     /**
      * @brief Empty constructor
      *
      * Used to preallocate ProjectPath for later population using assign()
      */
-    ProjectPath() {}
+    ProjectPath() = default;
 
     /**
      * @brief Tests for non-empty project path
      */
     operator bool() const {return m_absPath.size() != 0;}
+
+    /**
+     * @brief Construct a project subpath representation within a root path
+     * @param parentPath previously constructed ProjectRootPath
+     * @param path valid filesystem-path (relative or absolute) to subpath
+     */
+    ProjectPath(const ProjectRootPath& parentPath, const SystemString& path) {assign(parentPath, path);}
+    void assign(const ProjectRootPath& parentPath, const SystemString& path);
+
+#if HECL_UCS2
+    ProjectPath(const ProjectRootPath& parentPath, const std::string& path) {assign(parentPath, path);}
+    void assign(const ProjectRootPath& parentPath, const std::string& path);
+#endif
 
     /**
      * @brief Construct a project subpath representation within another subpath
@@ -612,19 +634,6 @@ public:
     bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
-};
-
-/**
- * @brief Special ProjectRootPath subclass for opening HECLDatabase::IProject instances
- *
- * Constructing a ProjectPath requires supplying a ProjectRootPath to consistently
- * resolve canonicalized relative paths.
- */
-class ProjectRootPath : public ProjectPath
-{
-public:
-    ProjectRootPath(const SystemString& path)
-    : ProjectPath(path) {}
 };
 
 /**

@@ -55,13 +55,41 @@ static SystemString canonRelPath(const SystemString& path)
     return _S(".");
 }
 
+void ProjectPath::assign(const ProjectRootPath& parentPath, const SystemString& path)
+{
+    m_projRoot = &parentPath;
+    m_relPath = canonRelPath(path);
+    m_absPath = parentPath.getAbsolutePath() + _S('/') + m_relPath;
+    SanitizePath(m_relPath);
+    SanitizePath(m_absPath);
+    m_hash = Hash(m_relPath);
+
+#if HECL_UCS2
+    m_utf8AbsPath = WideToUTF8(m_absPath);
+    m_utf8RelPath = WideToUTF8(m_relPath);
+#endif
+}
+
+#if HECL_UCS2
+void ProjectPath::assign(const ProjectRootPath& parentPath, const std::string& path)
+{
+    m_projRoot = &parentPath;
+    std::wstring wpath = UTF8ToWide(path);
+    m_relPath = canonRelPath(wpath);
+    m_absPath = parentPath.getAbsolutePath() + _S('/') + m_relPath;
+    SanitizePath(m_relPath);
+    SanitizePath(m_absPath);
+    m_hash = Hash(m_relPath);
+    m_utf8AbsPath = WideToUTF8(m_absPath);
+    m_utf8RelPath = WideToUTF8(m_relPath);
+}
+#endif
+
 void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path)
 {
-    SystemString in = path;
     m_projRoot = parentPath.m_projRoot;
-    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + in);
-    m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;
-    SanitizePath(m_projRoot);
+    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + path);
+    m_absPath = parentPath.m_projRoot->getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
     m_hash = Hash(m_relPath);
@@ -75,12 +103,10 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
 #if HECL_UCS2
 void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 {
-    std::string in = path;
     m_projRoot = parentPath.m_projRoot;
-    std::wstring wpath = UTF8ToWide(in);
+    std::wstring wpath = UTF8ToWide(path);
     m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + wpath);
-    m_absPath = parentPath.m_projRoot + _S('/') + m_relPath;
-    SanitizePath(m_projRoot);
+    m_absPath = parentPath.m_projRoot->getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
     m_hash = Hash(m_relPath);
