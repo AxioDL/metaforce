@@ -54,11 +54,19 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
         /* Extract update partition for repacking later */
         const HECL::SystemString& target = m_project.getProjectRootPath().getAbsolutePath();
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
-        NOD::ExtractionContext ctx = {false, info.force, nullptr};
+        NOD::ExtractionContext ctx = {true, info.force, nullptr};
 
         if (update)
         {
+            atUint64 idx = 0;
             progress(_S("Update Partition"), _S(""), 0, 0.0);
+            const atUint64 nodeCount = update->getFSTRoot().rawEnd() - update->getFSTRoot().rawBegin();
+            ctx.progressCB = [&](const std::string& name) {
+                HECL::SystemStringView nameView(name);
+                progress(_S("Update Partition"), nameView.sys_str().c_str(), 0, idx / (float)nodeCount);
+                idx++;
+            };
+
             update->getFSTRoot().extractToDirectory(target, ctx);
             progress(_S("Update Partition"), _S(""), 0, 1.0);
         }

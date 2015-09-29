@@ -321,9 +321,16 @@ struct SpecMP3 : SpecBase
 
     bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
-        NOD::ExtractionContext ctx = {false, force, nullptr};
         int compIdx = 2;
-        int prog;
+        HECL::SystemString currentTarget = _S("");
+        size_t nodeCount = 0;
+        int prog = 0;
+        NOD::ExtractionContext ctx = {true, force,
+                                      [&](const std::string& name)
+                                      {
+                                          HECL::SystemStringView nameView(name);
+                                          progress(currentTarget.c_str(), nameView.sys_str().c_str(), compIdx, prog / (float)nodeCount);
+                                      }};
         if (doMP3)
         {
             progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
@@ -335,15 +342,20 @@ struct SpecMP3 : SpecBase
 
             HECL::ProjectPath mp3WorkPath(m_project.getProjectRootPath(), "MP3");
             mp3WorkPath.makeDir();
-            progress(_S("MP3 Root"), _S(""), compIdx, 0.0);
+            currentTarget = _S("MP3 Root");
+            progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
             prog = 0;
+
+            nodeCount = m_nonPaks.size();
+            // TODO: Make this more granular
             for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
             {
                 node->extractToDirectory(mp3WorkPath.getAbsolutePath(), ctx);
-                HECL::SystemStringView nameView(node->getName());
-                progress(_S("MP3 Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_nonPaks.size());
+                prog++;
             }
-            progress(_S("MP3 Root"), _S(""), compIdx++, 1.0);
+            ctx.progressCB = nullptr;
+
+            progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
@@ -380,15 +392,18 @@ struct SpecMP3 : SpecBase
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
             m_feWorkPath.makeDir();
-            progress(_S("fe Root"), _S(""), compIdx, 0.0);
-            int prog = 0;
+            currentTarget = _S("fe Root");
+            progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
+            prog = 0;
+            nodeCount = m_feNonPaks.size();
+
+            // TODO: Make this more granular
             for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
             {
                 node->extractToDirectory(m_feWorkPath.getAbsolutePath(), ctx);
-                HECL::SystemStringView nameView(node->getName());
-                progress(_S("fe Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_feNonPaks.size());
+                prog++;
             }
-            progress(_S("fe Root"), _S(""), compIdx++, 1.0);
+            progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
 
             const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
             cookPath.makeDir();
@@ -413,7 +428,6 @@ struct SpecMP3 : SpecBase
                 progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
             }
         }
-
         return true;
     }
 
