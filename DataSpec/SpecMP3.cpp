@@ -321,6 +321,7 @@ struct SpecMP3 : SpecBase
 
     bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
+        NOD::ExtractionContext ctx = {false, force, nullptr};
         int compIdx = 2;
         int prog;
         if (doMP3)
@@ -338,7 +339,7 @@ struct SpecMP3 : SpecBase
             prog = 0;
             for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
             {
-                node->extractToDirectory(mp3WorkPath.getAbsolutePath(), force);
+                node->extractToDirectory(mp3WorkPath.getAbsolutePath(), ctx);
                 HECL::SystemStringView nameView(node->getName());
                 progress(_S("MP3 Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_nonPaks.size());
             }
@@ -383,7 +384,7 @@ struct SpecMP3 : SpecBase
             int prog = 0;
             for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
             {
-                node->extractToDirectory(m_feWorkPath.getAbsolutePath(), force);
+                node->extractToDirectory(m_feWorkPath.getAbsolutePath(), ctx);
                 HECL::SystemStringView nameView(node->getName());
                 progress(_S("fe Root"), nameView.sys_str().c_str(), compIdx, prog++ / (float)m_feNonPaks.size());
             }

@@ -210,6 +210,8 @@ struct SpecMP1 : SpecBase
 
     bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
     {
+        NOD::ExtractionContext ctx = {false, force, nullptr};
+
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {
@@ -222,7 +224,7 @@ struct SpecMP1 : SpecBase
         int prog = 0;
         for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
         {
-            node->extractToDirectory(m_workPath.getAbsolutePath(), force);
+            node->extractToDirectory(m_workPath.getAbsolutePath(), ctx);
             HECL::SystemStringView nameView(node->getName());
             progress(_S("MP1 Root"), nameView.sys_str().c_str(), 3, prog++ / (float)m_nonPaks.size());
         }

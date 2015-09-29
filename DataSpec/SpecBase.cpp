@@ -54,10 +54,12 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
         /* Extract update partition for repacking later */
         const HECL::SystemString& target = m_project.getProjectRootPath().getAbsolutePath();
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
+        NOD::ExtractionContext ctx = {false, info.force, nullptr};
+
         if (update)
         {
             progress(_S("Update Partition"), _S(""), 0, 0.0);
-            update->getFSTRoot().extractToDirectory(target, info.force);
+            update->getFSTRoot().extractToDirectory(target, ctx);
             progress(_S("Update Partition"), _S(""), 0, 1.0);
         }
 
@@ -68,7 +70,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
             const NOD::DiscBase::IPartition::Node& root = data->getFSTRoot();
             for (const NOD::DiscBase::IPartition::Node& child : root)
                 if (child.getKind() == NOD::DiscBase::IPartition::Node::NODE_FILE)
-                    child.extractToDirectory(target, info.force);
+                    child.extractToDirectory(target, ctx);
             progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
     }
