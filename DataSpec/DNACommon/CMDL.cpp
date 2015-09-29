@@ -29,7 +29,6 @@ void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
           "    ret_mesh = bm\n"
           "    vert_seq.ensure_lookup_table()\n"
           "    verts = [vert_seq[i] for i in vert_indices]\n"
-          "    #norms = [norm_seq[i] for i in norm_indices]\n"
           "\n"
           "    # Make the face\n"
           "    face = bm.faces.get(verts)\n"

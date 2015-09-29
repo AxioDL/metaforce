@@ -21,6 +21,14 @@ struct CharacterResInfo
     std::vector<std::pair<HECL::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
 };
 
+template <typename IDTYPE>
+struct AnimationResInfo
+{
+    std::string name;
+    IDTYPE animId;
+    bool additive;
+};
+
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
 bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        const ANCSDNA& ancs,
@@ -150,20 +158,20 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     }
 
     /* Get animation primitives */
-    std::map<atUint32, std::pair<std::string, typename PAKRouter::IDType>> animResInfo;
+    std::map<atUint32, AnimationResInfo<typename PAKRouter::IDType>> animResInfo;
     ancs.getAnimationResInfo(animResInfo);
     for (const auto& id : animResInfo)
     {
         typename ANCSDNA::ANIMType anim;
-        if (pakRouter.lookupAndReadDNA(id.second.second, anim, true))
+        if (pakRouter.lookupAndReadDNA(id.second.animId, anim, true))
         {
             os.format("act = bpy.data.actions.new('%s')\n"
-                      "act.use_fake_user = True\n", id.second.first.c_str());
-            anim.sendANIMToBlender(os, cinf);
+                      "act.use_fake_user = True\n", id.second.name.c_str());
+            anim.sendANIMToBlender(os, cinf, id.second.additive);
         }
 
         os.format("actor_action = actor_data.actions.add()\n"
-                  "actor_action.name = '%s'\n", id.second.first.c_str());
+                  "actor_action.name = '%s'\n", id.second.name.c_str());
     }
 
     os.close();

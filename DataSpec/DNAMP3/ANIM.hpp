@@ -27,7 +27,7 @@ struct ANIM : BigDNA
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
 
-        void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&) const;
+        void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&, bool additive) const;
     };
 
     struct ANIM0 : IANIM
@@ -105,9 +105,9 @@ struct ANIM : BigDNA
         m_anim->write(writer);
     }
 
-    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
     {
-        m_anim->sendANIMToBlender(os, cinf);
+        m_anim->sendANIMToBlender(os, cinf, additive);
     }
 
 };

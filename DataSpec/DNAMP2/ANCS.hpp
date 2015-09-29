@@ -204,7 +204,7 @@ struct ANCS : BigYAML
         }
     }
 
-    void getAnimationResInfo(std::map<atUint32, std::pair<std::string, UniqueID32>>& out) const
+    void getAnimationResInfo(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) const
     {
         out.clear();
         for (const DNAMP1::ANCS::AnimationSet::Animation& ai : animationSet.animations)

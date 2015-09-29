@@ -194,7 +194,7 @@ struct ANIM : BigDNA
         m_anim->write(writer);
     }
 
-    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool) const
     {
         m_anim->sendANIMToBlender(os, cinf);
     }

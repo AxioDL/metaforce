@@ -20,10 +20,10 @@ struct Header : BigDNA
     {
         DECL_DNA
         Value<atUint32> flags;
-        inline bool shortNormals() const {return (flags & 0x2) != 0;}
-        inline void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
-        inline bool shortUVs() const {return (flags & 0x4) != 0;}
-        inline void setShortUVs(bool val) {flags &= ~0x4; flags |= val << 2;}
+        bool shortNormals() const {return (flags & 0x2) != 0;}
+        void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
+        bool shortUVs() const {return (flags & 0x4) != 0;}
+        void setShortUVs(bool val) {flags &= ~0x4; flags |= val << 2;}
     } flags;
     Value<atVec3f> aabbMin;
     Value<atVec3f> aabbMax;
@@ -199,9 +199,77 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
 
 class DLReader
 {
+public:
+    /* Class used for splitting verts with shared positions but different skinning matrices */
+    class ExtraVertTracker
+    {
+        std::map<atUint16, std::vector<std::pair<atInt16, atUint16>>> m_extraVerts;
+        atUint16 m_maxBasePos = 0;
+        atUint16 m_nextOverPos = 1;
+    public:
+        atInt16 addPosSkinPair(atUint16 pos, atInt16 skin)
+        {
+            m_maxBasePos = std::max(m_maxBasePos, pos);
+            auto search = m_extraVerts.find(pos);
+            if (search == m_extraVerts.end())
+            {
+                m_extraVerts[pos] = {std::make_pair(skin, 0)};
+                return skin;
+            }
+            std::vector<std::pair<atInt16, atUint16>>& vertTrack = search->second;
+            for (const std::pair<atInt16, atUint16>& s : vertTrack)
+                if (s.first == skin)
+                    return vertTrack.front().first;
+            vertTrack.push_back(std::make_pair(skin, m_nextOverPos++));
+            return vertTrack.front().first;
+        }
+
+        template<class RigPair>
+        void sendAdditionalVertsToBlender(HECL::BlenderConnection::PyOutStream& os,
+                                          const RigPair& rp) const
+        {
+            atUint32 nextVert = 1;
+            while (nextVert < m_nextOverPos)
+            {
+                for (const std::pair<atUint16, std::vector<std::pair<atInt16, atUint16>>>& ev : m_extraVerts)
+                {
+                    for (const std::pair<atInt16, atUint16>& se : ev.second)
+                    {
+                        if (se.second == nextVert)
+                        {
+                            os.format("bm.verts.ensure_lookup_table()\n"
+                                      "orig_vert = bm.verts[%u]\n"
+                                      "vert = bm.verts.new(orig_vert.co)\n",
+                                      ev.first);
+                            rp.first->weightVertex(os, *rp.second, se.first);
+                            ++nextVert;
+                        }
+                    }
+                }
+            }
+        }
+
+        atUint16 lookupVertIdx(atUint16 pos, atInt16 skin) const
+        {
+            auto search = m_extraVerts.find(pos);
+            if (search == m_extraVerts.end())
+                return -1;
+            const std::vector<std::pair<atInt16, atUint16>>& vertTrack = search->second;
+            if (vertTrack.front().first == skin)
+                return pos;
+            for (auto it=vertTrack.begin()+1 ; it!=vertTrack.end() ; ++it)
+                if (it->first == skin)
+                    return m_maxBasePos + it->second;
+            return -1;
+        }
+    };
+
+private:
     const VertexAttributes& m_va;
     std::unique_ptr<atUint8[]> m_dl;
     size_t m_dlSize;
+    ExtraVertTracker& m_evt;
+    const atInt16* m_bankIn;
     atUint8* m_cur;
     atUint16 readVal(GX::AttrType type)
     {
@@ -226,31 +294,37 @@ class DLReader
         return retval;
     }
 public:
-    DLReader(const VertexAttributes& va, std::unique_ptr<atUint8[]>&& dl, size_t dlSize)
-    : m_va(va), m_dl(std::move(dl)), m_dlSize(dlSize)
+    DLReader(const VertexAttributes& va, std::unique_ptr<atUint8[]>&& dl,
+             size_t dlSize, ExtraVertTracker& evt, const atInt16* bankIn=nullptr)
+    : m_va(va), m_dl(std::move(dl)), m_dlSize(dlSize), m_evt(evt), m_bankIn(bankIn)
     {
         m_cur = m_dl.get();
     }
+
     operator bool()
     {
         return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur;
     }
+
     GX::Primitive readPrimitive()
     {
         return GX::Primitive(*m_cur++ & 0xf8);
     }
+
     GX::Primitive readPrimitiveAndVat(unsigned& vatOut)
     {
         atUint8 val = *m_cur++;
         vatOut = val & 0x7;
         return GX::Primitive(val & 0xf8);
     }
+
     atUint16 readVertCount()
     {
         atUint16 retval = HECL::SBig(*(atUint16*)m_cur);
         m_cur += 2;
         return retval;
     }
+
     struct DLPrimVert
     {
         atUint16 pos = 0;
@@ -260,6 +334,7 @@ public:
         atUint8 pnMtxIdx = 0;
         atUint8 texMtxIdx[7] = {0};
     };
+
     DLPrimVert readVert(bool peek=false)
     {
         atUint8* bakCur = m_cur;
@@ -272,7 +347,17 @@ public:
         retval.texMtxIdx[4] = readVal(m_va.texMtxIdx[4]);
         retval.texMtxIdx[5] = readVal(m_va.texMtxIdx[5]);
         retval.texMtxIdx[6] = readVal(m_va.texMtxIdx[6]);
-        retval.pos = readVal(m_va.pos);
+        if (m_bankIn)
+        {
+            atUint16 posIdx = readVal(m_va.pos);
+            atUint8 mtxIdx = retval.pnMtxIdx / 3;
+            atInt16 skinIdx = -1;
+            if (mtxIdx < 10)
+                skinIdx = m_bankIn[mtxIdx];
+            retval.pos = m_evt.lookupVertIdx(posIdx, skinIdx);
+        }
+        else
+            retval.pos = readVal(m_va.pos);
         retval.norm = readVal(m_va.norm);
         retval.color[0] = readVal(m_va.color0);
         retval.color[1] = readVal(m_va.color1);
@@ -287,6 +372,7 @@ public:
             m_cur = bakCur;
         return retval;
     }
+
     void preReadMaxIdxs(DLPrimVert& out)
     {
         atUint8* bakCur = m_cur;
@@ -339,8 +425,9 @@ public:
         }
         m_cur = bakCur;
     }
-    void preReadMaxIdxs(DLPrimVert& out, std::vector<atInt16>& skinOut,
-                        const atInt16 bankIn[10])
+
+    void preReadMaxIdxs(DLPrimVert& out,
+                        std::vector<atInt16>& skinOut)
     {
         atUint8* bakCur = m_cur;
         while (*this)
@@ -389,7 +476,8 @@ public:
                 val = readVal(m_va.uvs[6]);
                 out.uvs[6] = std::max(out.uvs[6], val);
 
-                skinOut[posVal] = bankIn[pnMtxVal/3];
+                atInt16 skinIdx = m_bankIn[pnMtxVal/3];
+                skinOut[posVal] = m_evt.addPosSkinPair(posVal, skinIdx);
             }
         }
         m_cur = bakCur;
@@ -437,6 +525,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
     atUint64 afterHeaderPos = reader.position();
     DLReader::DLPrimVert maxIdxs;
     std::vector<atInt16> skinIndices;
+    DLReader::ExtraVertTracker extraTracker;
     for (size_t s=0 ; s<lastDlSec ; ++s)
     {
         atUint64 secStart = reader.position();
@@ -507,12 +596,16 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                 /* GX Display List (surface) */
                 SurfaceHeader sHead;
                 sHead.read(reader);
+                const atInt16* bankIn = nullptr;
+                if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+                    bankIn = rp.first->getMatrixBank(sHead.skinMatrixBankIdx());
 
                 /* Do max index pre-read */
                 atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
-                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
+                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize),
+                            realDlSize, extraTracker, bankIn);
                 if (SurfaceHeader::UseMatrixSkinning() && rp.first)
-                    dl.preReadMaxIdxs(maxIdxs, skinIndices, rp.first->getMatrixBank(sHead.skinMatrixBankIdx()));
+                    dl.preReadMaxIdxs(maxIdxs, skinIndices);
                 else
                     dl.preReadMaxIdxs(maxIdxs);
 
@@ -561,6 +654,8 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                             rp.first->weightVertex(os, *rp.second, i);
                     }
                 }
+                if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
+                    extraTracker.sendAdditionalVertsToBlender(os, rp);
                 break;
             }
             case 1:
@@ -652,6 +747,9 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                 VertexAttributes& curVA = vertAttribs[sHead.matIdx];
                 unsigned matUVCount = curVA.uvCount;
                 bool matShortUVs = curVA.shortUVs;
+                const atInt16* bankIn = nullptr;
+                if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+                    bankIn = rp.first->getMatrixBank(sHead.skinMatrixBankIdx());
 
                 os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
                 if (matUVCount > createdUVLayers)
@@ -662,7 +760,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                 }
 
                 atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
-                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize);
+                DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize, extraTracker, bankIn);
 
                 while (dl)
                 {

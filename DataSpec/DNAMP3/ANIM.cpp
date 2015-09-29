@@ -9,9 +9,11 @@ namespace DNAMP3
 
 using ANIMOutStream = HECL::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
 {
-    os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
+    os.format("act.hecl_fps = round(%f)\n"
+              "act.hecl_additive = %s\n",
+              1.0f / mainInterval, additive ? "True" : "False");
 
     auto kit = chanKeys.begin() + 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
@@ -41,14 +43,19 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
                   "\n";
 
         if (std::get<1>(bone.second))
-            os << "bone_trans_head = (0.0,0.0,0.0)\n"
-                  "if arm_obj.data.bones[bone_string].parent is not None:\n"
-                  "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
-                  "transCurves = []\n"
+        {
+            if (!additive)
+                os << "bone_trans_head = (0.0,0.0,0.0)\n"
+                      "if arm_obj.data.bones[bone_string].parent is not None:\n"
+                      "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n";
+            else
+                os << "bone_trans_head = (0.0,0.0,0.0)\n";
+            os << "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string))\n"
                   "\n";
+        }
 
         if (std::get<2>(bone.second))
             os << "scaleCurves = []\n"
