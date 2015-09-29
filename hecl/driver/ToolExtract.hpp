@@ -191,6 +191,7 @@ public:
             [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
                        int lidx, float factor)
             {
+                factor = std::max(0.0f, std::min(1.0f, factor));
                 int iFactor = factor * 100.0;
                 if (XTERM_COLOR)
                     HECL::Printf(_S("" HIDE_CURSOR ""));
