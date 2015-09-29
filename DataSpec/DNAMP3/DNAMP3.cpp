@@ -94,27 +94,8 @@ void PAKBridge::build()
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
-            /* Pre-pass: find duplicate area names */
-            std::unordered_map<HECL::SystemString, std::pair<atUint32, atUint32>> dupeTracker;
-            dupeTracker.reserve(mlvl.areas.size());
-            for (const MLVL::Area& area : mlvl.areas)
-            {
-                const PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
-                if (areaNameEnt)
-                {
-                    STRG areaName;
-                    PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
-                    areaName.read(rs);
-                    HECL::SystemString name = areaName.getSystemString(FOURCC('ENGL'), 0);
-                    auto search = dupeTracker.find(name);
-                    if (search != dupeTracker.end())
-                        ++search->second.first;
-                    else
-                        dupeTracker[name] = std::make_pair(1, 1);
-                }
-            }
-
-            /* Main-pass: index areas */
+            /* Index areas */
+            unsigned ai = 0;
             auto layerFlagsIt = mlvl.layerFlags.begin();
             for (const MLVL::Area& area : mlvl.areas)
             {
@@ -126,13 +107,6 @@ void PAKBridge::build()
                     PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
                     areaName.read(rs);
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
-                    auto search = dupeTracker.find(areaDeps.name);
-                    if (search != dupeTracker.end() && search->second.first > 1)
-                    {
-                        HECL::SystemChar num[16];
-                        HECL::SNPrintf(num, 16, _S(" (%d)"), search->second.second++);
-                        areaDeps.name += num;
-                    }
 
                     /* Trim possible trailing whitespace */
 #if HECL_UCS2
@@ -146,19 +120,14 @@ void PAKBridge::build()
                 if (areaDeps.name.empty())
                 {
 #if HECL_UCS2
-                    areaDeps.name = HECL::UTF8ToWide(area.internalAreaName);
+                    areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
 #else
-                    areaDeps.name = area.internalAreaName;
+                    areaDeps.name = "MREA_" + area.areaMREAId.toString();
 #endif
-                    if (areaDeps.name.empty())
-                    {
-#if HECL_UCS2
-                        areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
-#else
-                        areaDeps.name = "MREA_" + area.areaMREAId.toString();
-#endif
-                    }
                 }
+                HECL::SystemChar num[16];
+                HECL::SNPrintf(num, 16, _S("%02u "), ai++);
+                areaDeps.name = num + areaDeps.name;
 
                 const MLVL::LayerFlags& areaLayers = *layerFlagsIt++;
                 if (areaLayers.layerCount)
