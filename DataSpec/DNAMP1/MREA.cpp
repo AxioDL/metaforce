@@ -1,4 +1,5 @@
 #include "MREA.hpp"
+#include "SCLY.hpp"
 #include "DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
 
@@ -37,7 +38,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    const HECL::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
-                   bool,
+                   bool force,
                    std::function<void(const HECL::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -114,8 +115,12 @@ bool MREA::Extract(const SpecBase& dataSpec,
     /* Skip AROT */
     rs.seek(head.secSizes[curSec++], Athena::Current);
 
-    /* Skip SCLY (for now) */
-    rs.seek(head.secSizes[curSec++], Athena::Current);
+    /* Read SCLY layers */
+    secStart = rs.position();
+    SCLY scly;
+    scly.read(rs);
+    scly.exportToLayerDirectories(entry, pakRouter, force);
+    rs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
 
     /* Read collision meshes */
     DeafBabe collision;

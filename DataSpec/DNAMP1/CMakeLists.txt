@@ -1,3 +1,5 @@
+add_subdirectory(ScriptObjects)
+
 make_dnalist(liblist
              PAK
              MLVL
@@ -14,6 +16,7 @@ make_dnalist(liblist
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
              Tweaks/CTweakPlayerControl)
+
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
             ${liblist}
@@ -25,4 +28,7 @@ add_library(DNAMP1
             CMDL.hpp
             CMDLMaterials.cpp
             MREA.cpp
+            SCLY.hpp SCLY.cpp
             DeafBabe.cpp)
+
+target_link_libraries(DNAMP1 ScriptObjectsMP1)
