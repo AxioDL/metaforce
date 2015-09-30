@@ -48,7 +48,7 @@ struct SpecMP3 : SpecBase
       m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {}
 
     void buildPaks(NOD::DiscBase::IPartition::Node& root,
-                   const std::vector<HECL::SystemString>& args,
+                   const std::list<HECL::SystemString>& args,
                    ExtractReport& rep,
                    bool fe)
     {
@@ -170,8 +170,8 @@ struct SpecMP3 : SpecBase
 
     bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
-                                 const std::vector<HECL::SystemString>& args,
-                                 std::vector<ExtractReport>& reps)
+                                 const std::list<HECL::SystemString>& args,
+                                 std::list<ExtractReport>& reps)
     {
         doMP3 = true;
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
@@ -202,11 +202,11 @@ struct SpecMP3 : SpecBase
 
     bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
-                              const std::vector<HECL::SystemString>& args,
-                              std::vector<ExtractReport>& reps)
+                              const std::list<HECL::SystemString>& args,
+                              std::list<ExtractReport>& reps)
     {
-        std::vector<HECL::SystemString> mp3args;
-        std::vector<HECL::SystemString> feargs;
+        std::list<HECL::SystemString> mp3args;
+        std::list<HECL::SystemString> feargs;
         if (args.size())
         {
             /* Needs filter */
@@ -319,7 +319,7 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
+    bool extractFromDisc(NOD::DiscBase&, bool force, FProgress progress)
     {
         int compIdx = 2;
         HECL::SystemString currentTarget = _S("");
@@ -429,42 +429,6 @@ struct SpecMP3 : SpecBase
             }
         }
         return true;
-    }
-
-    bool checkFromProject()
-    {
-        return false;
-    }
-    bool readFromProject()
-    {
-        return false;
-    }
-
-    bool visitGameObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-    {
-        return false;
-    }
-    struct LevelSpec : public ILevelSpec
-    {
-        bool visitLevelObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-        {
-            return false;
-        }
-        struct AreaSpec : public IAreaSpec
-        {
-            bool visitAreaObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-            {
-                return false;
-            }
-        };
-        bool visitAreas(std::function<bool(const IAreaSpec&)>)
-        {
-            return false;
-        }
-    };
-    bool visitLevels(std::function<bool(const ILevelSpec&)>)
-    {
-        return false;
     }
 };
 

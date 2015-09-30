@@ -6,7 +6,7 @@ namespace Retro
 
 static LogVisor::LogModule Log("Retro::SpecBase");
 
-bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+bool SpecBase::canExtract(const ExtractPassInfo& info, std::list<ExtractReport>& reps)
 {
     m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
@@ -45,7 +45,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         return checkFromTrilogyDisc(*m_disc, *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
+void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 {
     if (!Blender::BuildMasterShader(m_masterShader))
         Log.report(LogVisor::FatalError, "Unable to build master shader blend");
@@ -85,12 +85,12 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FExtractProgress progress)
     extractFromDisc(*m_disc, info.force, progress);
 }
 
-bool SpecBase::canCook(const CookTaskInfo& info)
+bool SpecBase::canCook(const HECL::ProjectPath& path)
 {
     return false;
 }
 
-void SpecBase::doCook(const CookTaskInfo& info)
+void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath)
 {
 }
 

@@ -33,7 +33,7 @@ struct SpecMP2 : SpecBase
       m_pakRouter(*this, m_workPath, m_cookPath) {}
 
     void buildPaks(NOD::DiscBase::IPartition::Node& root,
-                   const std::vector<HECL::SystemString>& args,
+                   const std::list<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
         m_nonPaks.clear();
@@ -115,8 +115,8 @@ struct SpecMP2 : SpecBase
 
     bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
-                                 const std::vector<HECL::SystemString>& args,
-                                 std::vector<ExtractReport>& reps)
+                                 const std::list<HECL::SystemString>& args,
+                                 std::list<ExtractReport>& reps)
     {
         NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
@@ -142,10 +142,10 @@ struct SpecMP2 : SpecBase
 
     bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
-                              const std::vector<HECL::SystemString>& args,
-                              std::vector<ExtractReport>& reps)
+                              const std::list<HECL::SystemString>& args,
+                              std::list<ExtractReport>& reps)
     {
-        std::vector<HECL::SystemString> mp2args;
+        std::list<HECL::SystemString> mp2args;
         bool doExtract = false;
         if (args.size())
         {
@@ -201,7 +201,7 @@ struct SpecMP2 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(NOD::DiscBase&, bool force, FExtractProgress progress)
+    bool extractFromDisc(NOD::DiscBase&, bool force, FProgress progress)
     {
         NOD::ExtractionContext ctx = {true, force, nullptr};
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
@@ -250,42 +250,6 @@ struct SpecMP2 : SpecBase
         }
 
         return true;
-    }
-
-    bool checkFromProject()
-    {
-        return false;
-    }
-    bool readFromProject()
-    {
-        return false;
-    }
-
-    bool visitGameObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-    {
-        return false;
-    }
-    struct LevelSpec : public ILevelSpec
-    {
-        bool visitLevelObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-        {
-            return false;
-        }
-        struct AreaSpec : public IAreaSpec
-        {
-            bool visitAreaObjects(std::function<bool(const HECL::Database::ObjectBase&)>)
-            {
-                return false;
-            }
-        };
-        bool visitAreas(std::function<bool(const IAreaSpec&)>)
-        {
-            return false;
-        }
-    };
-    bool visitLevels(std::function<bool(const ILevelSpec&)>)
-    {
-        return false;
     }
 };
 
