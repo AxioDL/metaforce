@@ -198,7 +198,8 @@ bool Project::ConfigFile::unlockAndCommit()
 
 Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath),
-  m_dotPath(m_rootPath, _S(".hecl")),
+  m_workRoot(*this, _S("")),
+  m_dotPath(m_workRoot, _S(".hecl")),
   m_cookedRoot(m_dotPath, _S("cooked")),
   m_specs(*this, _S("specs")),
   m_paths(*this, _S("paths")),
@@ -338,11 +339,118 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
     return result;
 }
 
-bool Project::cookPath(const ProjectPath& path,
-                       std::function<void(SystemString&, Cost, unsigned)> feedbackCb,
-                       bool recursive)
+static void InsertPath(std::list<std::pair<ProjectPath, std::list<ProjectPath>>>& dirs,
+                       ProjectPath&& path)
 {
-    return false;
+    ProjectPath thisDir = path.getParentPath();
+    for (std::pair<ProjectPath, std::list<ProjectPath>>& dir : dirs)
+    {
+        if (dir.first == thisDir)
+        {
+            dir.second.push_back(std::move(path));
+            return;
+        }
+    }
+    dirs.emplace_back(std::move(thisDir), std::list<ProjectPath>(std::move(path)));
+}
+
+static void VisitDirectory(std::list<std::pair<ProjectPath, std::list<ProjectPath>>>& allDirs,
+                           const ProjectPath& dir, bool recursive)
+{
+    std::list<ProjectPath> children;
+    dir.getDirChildren(children);
+    for (ProjectPath& child : children)
+    {
+        allDirs.emplace_back(dir, std::list<ProjectPath>());
+        std::list<ProjectPath>& ch = allDirs.back().second;
+        switch (child.getPathType())
+        {
+        case ProjectPath::PT_FILE:
+        {
+            ch.push_back(std::move(child));
+            break;
+        }
+        case ProjectPath::PT_DIRECTORY:
+        {
+            if (recursive)
+                VisitDirectory(allDirs, child, recursive);
+            break;
+        }
+        default: break;
+        }
+    }
+}
+
+bool Project::cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive)
+{
+    /* Construct DataSpec instances for cooking */
+    std::list<std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>> specInsts;
+    for (const ProjectDataSpec& spec : m_compiledSpecs)
+        if (spec.active)
+            specInsts.emplace_back(&spec.spec, std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, TOOL_COOK)));
+
+    /* Gather complete directory/file list */
+    std::list<std::pair<ProjectPath, std::list<ProjectPath>>> allDirs;
+    switch (path.getPathType())
+    {
+    case ProjectPath::PT_FILE:
+    {
+        InsertPath(allDirs, std::move(ProjectPath(path)));
+        break;
+    }
+    case ProjectPath::PT_DIRECTORY:
+    {
+        VisitDirectory(allDirs, path, recursive);
+        break;
+    }
+    case ProjectPath::PT_GLOB:
+    {
+        std::list<ProjectPath> results;
+        path.getGlobResults(results);
+        for (ProjectPath& result : results)
+        {
+            switch (result.getPathType())
+            {
+            case ProjectPath::PT_FILE:
+            {
+                InsertPath(allDirs, std::move(result));
+                break;
+            }
+            case ProjectPath::PT_DIRECTORY:
+            {
+                VisitDirectory(allDirs, path, recursive);
+                break;
+            }
+            default: break;
+            }
+        }
+    }
+    default: break;
+    }
+
+    /* Iterate and cook */
+    int lidx = 0;
+    for (const std::pair<ProjectPath, std::list<ProjectPath>>& dir : allDirs)
+    {
+        float dirSz = dir.second.size();
+        int pidx = 0;
+        for (const ProjectPath& path : dir.second)
+        {
+            feedbackCb(dir.first.getLastComponent(), path.getLastComponent(), lidx, pidx++/dirSz);
+            for (std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>& spec : specInsts)
+            {
+                if (spec.second->canCook(path))
+                {
+                    ProjectPath cooked = path.getCookedPath(*spec.first);
+                    if (path.getModtime() > cooked.getModtime())
+                        spec.second->doCook(path, cooked);
+                }
+            }
+        }
+        feedbackCb(dir.first.getLastComponent(), nullptr, lidx++, 1.0);
+    }
+
+    return true;
 }
 
 void Project::interruptCook()

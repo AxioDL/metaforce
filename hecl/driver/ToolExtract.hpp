@@ -22,8 +22,8 @@ class ToolExtract final : public ToolBase
         SpecExtractPass(const SpecExtractPass& other) = delete;
         SpecExtractPass(SpecExtractPass&& other) = default;
     };
-    std::vector<SpecExtractPass> m_specPasses;
-    std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
+    std::list<SpecExtractPass> m_specPasses;
+    std::list<HECL::Database::IDataSpec::ExtractReport> m_reps;
     std::unique_ptr<HECL::Database::Project> m_fallbackProj;
     HECL::Database::Project* m_useProj;
 public:
@@ -63,7 +63,6 @@ public:
             m_useProj = info.project;
 
         m_einfo.srcpath = m_info.args.front();
-        m_einfo.extractArgs.reserve(info.args.size() - 1);
         m_einfo.force = info.force;
         std::list<HECL::SystemString>::const_iterator it=info.args.begin();
         ++it;
@@ -191,84 +190,7 @@ public:
             [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
                        int lidx, float factor)
             {
-                factor = std::max(0.0f, std::min(1.0f, factor));
-                int iFactor = factor * 100.0;
-                if (XTERM_COLOR)
-                    HECL::Printf(_S("" HIDE_CURSOR ""));
-
-                if (lidx > lineIdx)
-                {
-                    HECL::Printf(_S("\n  "));
-                    lineIdx = lidx;
-                }
-                else
-                    HECL::Printf(_S("  "));
-
-                int width = HECL::ConsoleWidth();
-                int half = width / 2 - 2;
-
-                if (!message)
-                    message = _S("");
-                size_t messageLen = HECL::StrLen(message);
-                if (!submessage)
-                    submessage = _S("");
-                size_t submessageLen = HECL::StrLen(submessage);
-                if (half - messageLen < submessageLen-2)
-                    submessageLen = 0;
-                
-                if (submessageLen)
-                {
-                    if (messageLen > half-submessageLen-1)
-                        HECL::Printf(_S("%.*s... "), half-int(submessageLen)-4, message);
-                    else
-                    {
-                        HECL::Printf(_S("%s"), message);
-                        for (int i=half-messageLen-submessageLen-1 ; i>=0 ; --i)
-                            HECL::Printf(_S(" "));
-                        HECL::Printf(_S("%s "), submessage);
-                    }
-                }
-                else
-                {
-                    if (messageLen > half)
-                        HECL::Printf(_S("%.*s... "), half-3, message);
-                    else
-                    {
-                        HECL::Printf(_S("%s"), message);
-                        for (int i=half-messageLen ; i>=0 ; --i)
-                            HECL::Printf(_S(" "));
-                    }
-                }
-
-                if (XTERM_COLOR)
-                {
-                    size_t blocks = half - 7;
-                    size_t filled = blocks * factor;
-                    size_t rem = blocks - filled;
-                    HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
-                    for (int b=0 ; b<filled ; ++b)
-                        HECL::Printf(_S("#"));
-                    for (int b=0 ; b<rem ; ++b)
-                        HECL::Printf(_S("-"));
-                    HECL::Printf(_S("]" NORMAL ""));
-                }
-                else
-                {
-                    size_t blocks = half - 7;
-                    size_t filled = blocks * factor;
-                    size_t rem = blocks - filled;
-                    HECL::Printf(_S("%3d%% ["), iFactor);
-                    for (int b=0 ; b<filled ; ++b)
-                        HECL::Printf(_S("#"));
-                    for (int b=0 ; b<rem ; ++b)
-                        HECL::Printf(_S("-"));
-                    HECL::Printf(_S("]"));
-                }
-
-                HECL::Printf(_S("\r"));
-                if (XTERM_COLOR)
-                    HECL::Printf(_S("" SHOW_CURSOR ""));
-                fflush(stdout);
+                ToolPrintProgress(message, submessage, lidx, factor, lineIdx);
             });
             HECL::Printf(_S("\n\n"));
         }

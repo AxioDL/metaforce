@@ -29,12 +29,18 @@
 #include <string>
 #include <algorithm>
 #include <regex>
+#include <list>
 #include <LogVisor/LogVisor.hpp>
-#include <Athena/DNA.hpp>
 #include "../extern/xxhash/xxhash.h"
 
 namespace HECL
 {
+namespace Database
+{
+class Project;
+class DataSpecEntry;
+}
+
 
 extern unsigned VerbosityLevel;
 extern LogVisor::LogModule LogModule;
@@ -334,9 +340,6 @@ class ProjectRootPath;
  * FourCCs are efficient, mnemonic four-char-sequences used to represent types
  * while fitting comfortably in a 32-bit word. HECL uses a four-char array
  * to remain endian-independent.
- *
- * This class also functions as a read/write Athena DNA type,
- * for easy initialization of FourCCs in DNA data records.
  */
 class FourCC
 {
@@ -425,8 +428,34 @@ public:
 class ProjectRootPath
 {
     SystemString m_projRoot;
+    Hash m_hash = 0;
 public:
-    ProjectRootPath(const SystemString& path) : m_projRoot(path) {SanitizePath(m_projRoot);}
+    /**
+     * @brief Empty constructor
+     *
+     * Used to preallocate ProjectPath for later population using assign()
+     */
+    ProjectRootPath() = default;
+
+    /**
+     * @brief Tests for non-empty project root path
+     */
+    operator bool() const {return m_projRoot.size() != 0;}
+
+    /**
+     * @brief Construct a representation of a project root path
+     * @param path valid filesystem-path (relative or absolute) to project root
+     */
+    ProjectRootPath(const SystemString& path) : m_projRoot(path)
+    {
+        SanitizePath(m_projRoot);
+        m_hash = Hash(m_projRoot);
+    }
+
+    /**
+     * @brief Access fully-canonicalized absolute path
+     * @return Absolute path reference
+     */
     const SystemString& getAbsolutePath() const {return m_projRoot;}
 
     /**
@@ -436,6 +465,14 @@ public:
      * If directory already exists, no action taken.
      */
     void makeDir() const {MakeDir(m_projRoot.c_str());}
+
+    /**
+     * @brief HECL-specific xxhash
+     * @return unique hash value
+     */
+    size_t hash() const {return m_hash.val();}
+    bool operator==(const ProjectRootPath& other) const {return m_hash == other.m_hash;}
+    bool operator!=(const ProjectRootPath& other) const {return m_hash != other.m_hash;}
 };
 
 /**
@@ -453,7 +490,7 @@ public:
  */
 class ProjectPath
 {
-    const ProjectRootPath* m_projRoot = nullptr;
+    Database::Project* m_proj = nullptr;
     SystemString m_absPath;
     SystemString m_relPath;
     Hash m_hash = 0;
@@ -475,16 +512,16 @@ public:
     operator bool() const {return m_absPath.size() != 0;}
 
     /**
-     * @brief Construct a project subpath representation within a root path
-     * @param parentPath previously constructed ProjectRootPath
+     * @brief Construct a project subpath representation within a project's root path
+     * @param project previously constructed Project to use root path of
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectRootPath& parentPath, const SystemString& path) {assign(parentPath, path);}
-    void assign(const ProjectRootPath& parentPath, const SystemString& path);
+    ProjectPath(Database::Project& project, const SystemString& path) {assign(project, path);}
+    void assign(Database::Project& project, const SystemString& path);
 
 #if HECL_UCS2
-    ProjectPath(const ProjectRootPath& parentPath, const std::string& path) {assign(parentPath, path);}
-    void assign(const ProjectRootPath& parentPath, const std::string& path);
+    ProjectPath(Database::Project& project, const std::string& path) {assign(project, path);}
+    void assign(Database::Project& project, const std::string& path);
 #endif
 
     /**
@@ -538,6 +575,41 @@ public:
     }
 
     /**
+     * @brief Obtain cooked equivalent of this ProjectPath
+     * @param spec DataSpec to get path against
+     * @return Cooked representation path
+     */
+    ProjectPath getCookedPath(const Database::DataSpecEntry& spec) const;
+
+    /**
+     * @brief Obtain path of parent entity (a directory for file paths)
+     * @return Parent Path
+     *
+     * This will not resolve outside the project root (error in that case)
+     */
+    ProjectPath getParentPath() const
+    {
+        if (m_relPath == _S("."))
+            LogModule.report(LogVisor::FatalError, "attempted to resolve parent of root project path");
+        size_t pos = m_relPath.rfind(_S('/'));
+        if (pos == SystemString::npos)
+            return ProjectPath(*m_proj, _S(""));
+        return ProjectPath(*m_proj, SystemString(m_relPath.begin(), m_relPath.begin() + pos));
+    }
+
+    /**
+     * @brief Obtain c-string of final path component (stored within relative path)
+     * @return Final component c-string
+     */
+    const SystemChar* getLastComponent() const
+    {
+        size_t pos = m_relPath.rfind(_S('/'));
+        if (pos == SystemString::npos)
+            return m_relPath.c_str() + m_relPath.size();
+        return m_relPath.c_str() + pos + 1;
+    }
+
+    /**
      * @brief Access fully-canonicalized absolute path in UTF-8
      * @return Absolute path reference
      */
@@ -587,10 +659,16 @@ public:
     Time getModtime() const;
 
     /**
+     * @brief Insert directory children into list
+     * @param outPaths list to append children to
+     */
+    void getDirChildren(std::list<ProjectPath>& outPaths) const;
+
+    /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
      */
-    void getGlobResults(std::vector<SystemString>& outPaths) const;
+    void getGlobResults(std::list<ProjectPath>& outPaths) const;
 
     /**
      * @brief Count how many directory levels deep in project path is
@@ -627,7 +705,7 @@ public:
         MakeLink(relTarget.c_str(), m_absPath.c_str());
     }
     /**
-     * @brief HECL-specific blowfish hash
+     * @brief HECL-specific xxhash
      * @return unique hash value
      */
     size_t hash() const {return m_hash.val();}
@@ -639,9 +717,17 @@ public:
 /**
  * @brief Search from within provided directory for the project root
  * @param path absolute or relative file path to search from
- * @return Newly-constructed root path or NULL if not found
+ * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
-std::unique_ptr<ProjectRootPath> SearchForProject(const SystemString& path);
+ProjectRootPath SearchForProject(const SystemString& path);
+
+/**
+ * @brief Search from within provided directory for the project root
+ * @param path absolute or relative file path to search from
+ * @param subpathOut remainder of provided path assigned to this ProjectPath
+ * @return Newly-constructed root path (bool-evaluating to false if not found)
+ */
+ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpathOut);
 
 #undef bswap16
 #undef bswap32

@@ -6,14 +6,60 @@
 
 class ToolCook final : public ToolBase
 {
+    std::list<HECL::ProjectPath> m_selectedItems;
+    std::unique_ptr<HECL::Database::Project> m_fallbackProj;
+    HECL::Database::Project* m_useProj;
+    bool m_recursive = false;
 public:
     ToolCook(const ToolPassInfo& info)
-    : ToolBase(info)
+    : ToolBase(info), m_useProj(info.project)
     {
-    }
+        /* Scan args */
+        if (info.args.size())
+        {
+            /* See if project path is supplied via args and use that over the getcwd one */
+            for (const HECL::SystemString& arg : info.args)
+            {
+                if (arg.empty())
+                    continue;
+                if (arg.size() >= 2 && arg[0] == _S('-'))
+                {
+                    switch (arg[1])
+                    {
+                    case _S('r'):
+                        m_recursive = true;
+                        break;
+                    default: break;
+                    }
+                    continue;
+                }
+                HECL::SystemString subPath;
+                HECL::ProjectRootPath root = HECL::SearchForProject(arg, subPath);
+                if (root)
+                {
+                    if (!m_fallbackProj)
+                    {
+                        m_fallbackProj.reset(new HECL::Database::Project(root));
+                        m_useProj = m_fallbackProj.get();
+                    }
+                    else if (m_fallbackProj->getProjectRootPath() != root)
+                        LogModule.report(LogVisor::FatalError,
+                                         _S("hecl cook can only process multiple items in the same project; ")
+                                         _S("'%s' and '%s' are different projects"),
+                                         m_fallbackProj->getProjectRootPath().getAbsolutePath().c_str(),
+                                         root.getAbsolutePath().c_str());
+                    m_selectedItems.emplace_back(*m_useProj, subPath);
+                }
+            }
+        }
+        if (!m_useProj)
+            LogModule.report(LogVisor::FatalError,
+                             "hecl cook must be ran within a project directory or "
+                             "provided a path within a project");
 
-    ~ToolCook()
-    {
+        /* Default case: recursive at root */
+        if (m_selectedItems.empty())
+            m_selectedItems.push_back({HECL::ProjectPath(*m_useProj, _S("."))});
     }
 
     static void Help(HelpOutput& help)
@@ -72,8 +118,19 @@ public:
 
     HECL::SystemString toolName() const {return _S("cook");}
 
+    using ProjectDataSpec = HECL::Database::Project::ProjectDataSpec;
     int run()
     {
+        for (const HECL::ProjectPath& path : m_selectedItems)
+        {
+            int lineIdx = 0;
+            m_useProj->cookPath(path,
+            [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
+                       int lidx, float factor)
+            {
+                ToolPrintProgress(message, submessage, lidx, factor, lineIdx);
+            }, m_recursive);
+        }
         return 0;
     }
 };

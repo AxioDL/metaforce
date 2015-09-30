@@ -28,6 +28,8 @@ class Project;
 
 extern LogVisor::LogModule LogModule;
 
+typedef std::function<void(const HECL::SystemChar*, const HECL::SystemChar*, int, float)> FProgress;
+
 /**
  * @brief Nodegraph class for gathering dependency-resolved objects for packaging
  */
@@ -64,6 +66,7 @@ class IDataSpec
 {
 public:
     virtual ~IDataSpec() {}
+    using FProgress = FProgress;
 
     /**
      * @brief Extract Pass Info
@@ -74,7 +77,7 @@ public:
     struct ExtractPassInfo
     {
         SystemString srcpath;
-        std::vector<SystemString> extractArgs;
+        std::list<SystemString> extractArgs;
         bool force;
     };
 
@@ -91,29 +94,15 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
-    typedef std::function<void(const HECL::SystemChar*, const HECL::SystemChar*, int, float)> FExtractProgress;
-
-    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+    virtual bool canExtract(const ExtractPassInfo& info, std::list<ExtractReport>& reps)
     {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doExtract(const ExtractPassInfo& info, FExtractProgress progress)
+    virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
     {(void)info;(void)progress;}
 
-    /**
-     * @brief Cook Task Info
-     *
-     * A cook task takes a single tracked path and generates the
-     * corresponding cooked version
-     */
-    struct CookTaskInfo
-    {
-        ProjectPath path;
-        ProjectPath cookedPath;
-    };
-    virtual bool canCook(const CookTaskInfo& info,
-                         SystemString& reasonNo)
-    {(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void doCook(const CookTaskInfo& info)
-    {(void)info;}
+    virtual bool canCook(const ProjectPath& path)
+    {(void)path;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath)
+    {(void)path;(void)cookedPath;}
 
     /**
      * @brief Package Pass Info
@@ -243,7 +232,7 @@ public:
     ObjectBase(const SystemString& path)
     : m_path(path) {}
 
-    inline const SystemString& getPath() const {return m_path;}
+    const SystemString& getPath() const {return m_path;}
 
 };
 
@@ -266,6 +255,7 @@ public:
     };
 private:
     ProjectRootPath m_rootPath;
+    ProjectPath m_workRoot;
     ProjectPath m_dotPath;
     ProjectPath m_cookedRoot;
     std::vector<ProjectDataSpec> m_compiledSpecs;
@@ -298,16 +288,6 @@ public:
     ConfigFile m_groups;
 
     /**
-     * @brief Internal packagePath() exception
-     *
-     * Due to the recursive nature of packagePath(), there are potential
-     * pitfalls like infinite-recursion. HECL throws this whenever there
-     * are uncooked dependencies or if the maximum dependency-recursion
-     * limit is exceeded.
-     */
-    class PackageException : public std::runtime_error {};
-
-    /**
      * @brief A rough description of how 'expensive' a given cook operation is
      *
      * This is used to provide pretty colors during the cook operation
@@ -326,7 +306,7 @@ public:
      *
      * Self explanatory
      */
-    inline const ProjectRootPath& getProjectRootPath() const {return m_rootPath;}
+    const ProjectPath& getProjectRootPath() const {return m_workRoot;}
 
     /**
      * @brief Get the path of project's cooked directory for a specific DataSpec
@@ -336,7 +316,7 @@ public:
      * The cooked path matches the directory layout of the working directory,
      * except data is
      */
-    inline const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const
+    const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const
     {
         for (const ProjectDataSpec& sp : m_compiledSpecs)
             if (&sp.spec == &spec)
@@ -400,7 +380,7 @@ public:
      * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    inline const std::vector<ProjectDataSpec>& getDataSpecs() {return m_compiledSpecs;}
+    const std::vector<ProjectDataSpec>& getDataSpecs() {return m_compiledSpecs;}
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
@@ -427,9 +407,7 @@ public:
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    bool cookPath(const ProjectPath& path,
-                  std::function<void(SystemString&, Cost, unsigned)> feedbackCb,
-                  bool recursive=false);
+    bool cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive=false);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)

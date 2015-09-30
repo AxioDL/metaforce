@@ -217,12 +217,12 @@ int main(int argc, const char** argv)
     }
 
     /* Attempt to find hecl project */
-    std::unique_ptr<HECL::ProjectRootPath> rootPath = HECL::SearchForProject(info.cwd);
+    HECL::ProjectRootPath rootPath = HECL::SearchForProject(info.cwd);
     std::unique_ptr<HECL::Database::Project> project;
-    if (rootPath.get())
+    if (rootPath)
     {
         size_t ErrorRef = LogVisor::ErrorCount;
-        HECL::Database::Project* newProj = new HECL::Database::Project(*rootPath);
+        HECL::Database::Project* newProj = new HECL::Database::Project(rootPath);
         if (LogVisor::ErrorCount > ErrorRef)
         {
 #if WIN_PAUSE
