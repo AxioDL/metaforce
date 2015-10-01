@@ -65,6 +65,11 @@ void SCLY::toYAML(Athena::io::YAMLDocWriter& docout) const
     docout.enumerate("layers", layers);
 }
 
+const char* SCLY::DNAType()
+{
+    return "Retro::DNAMP1::SCLY";
+}
+
 void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
 {
     unknown = rs.readUByte();
@@ -146,6 +151,11 @@ void SCLY::ScriptLayer::toYAML(Athena::io::YAMLDocWriter& ws) const
         ws.leaveSubRecord();
     };
     ws.leaveSubVector();
+}
+
+const char* SCLY::ScriptLayer::DNAType()
+{
+    return "Retro::DNAMP1::SCLY::ScriptLayer";
 }
 
 }
