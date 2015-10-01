@@ -66,8 +66,8 @@ public:
         CmdVisorMenu,
         CmdVisorUp,
         CmdVisorDown,
-        CmdUseSheild,
-        CmdScanItem,
+        CmdUseSheild=0x3B,
+        CmdScanItem=0x3C,
         CmdUNKNOWN,
         CmdNone,
         CmdMAX

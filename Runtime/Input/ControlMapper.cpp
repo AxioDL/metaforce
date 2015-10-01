@@ -66,6 +66,8 @@ static const char* skCommandDescs[] =
     "Visor Menu",
     "Visor Up",
     "Visor Down",
+    "UNKNOWN",
+    "UNKNOWN",
     "Use Shield",
     "Scan Item",
     "UNKNOWN"
