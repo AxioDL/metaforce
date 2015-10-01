@@ -34,12 +34,13 @@ struct SpecBase : HECL::Database::IDataSpec
     virtual bool extractFromDisc(NOD::DiscBase& disc, bool force,
                                  FProgress progress)=0;
 
+    virtual bool validateYAMLDNAType(FILE* fp) const=0;
 
     const HECL::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 
     SpecBase(HECL::Database::Project& project)
     : m_project(project),
-      m_masterShader(project.getProjectRootPath(), ".hecl/RetroMasterShader.blend") {}
+      m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
 protected:
     HECL::Database::Project& m_project;
     HECL::ProjectPath m_masterShader;

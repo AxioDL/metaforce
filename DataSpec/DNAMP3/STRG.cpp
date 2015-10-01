@@ -234,5 +234,10 @@ void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
     }
 }
 
+const char* STRG::DNAType()
+{
+    return "Retro::DNAMP3::STRG";
+}
+
 }
 }

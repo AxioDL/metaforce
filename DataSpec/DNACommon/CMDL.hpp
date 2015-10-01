@@ -1001,7 +1001,6 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
               "import bmesh\n"
               "\n"
               "bpy.context.scene.name = '%s'\n"
-              "bpy.context.scene.hecl_type = 'MESH'\n"
               "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n",
               pakRouter.getBestEntryName(entry).c_str());
     InitGeomBlenderContext(os, dataspec.getMasterShaderPath());

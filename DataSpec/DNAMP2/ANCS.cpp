@@ -318,6 +318,11 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
     }
 }
 
+const char* ANCS::CharacterSet::CharacterInfo::DNAType()
+{
+    return "Retro::DNAMP2::ANCS::CharacterSet::CharacterInfo";
+}
+
 void ANCS::AnimationSet::read(Athena::io::IStreamReader& reader)
 {
     atUint16 sectionCount = reader.readUint16Big();
@@ -472,6 +477,11 @@ void ANCS::AnimationSet::toYAML(Athena::io::YAMLDocWriter& writer) const
     }
 }
 
+const char* ANCS::AnimationSet::DNAType()
+{
+    return "Retro::DNAMP2::ANCS::AnimationSet";
+}
+
 void ANCS::AnimationSet::EVNT::read(Athena::io::IStreamReader& reader)
 {
     version = reader.readUint32Big();
@@ -552,6 +562,11 @@ void ANCS::AnimationSet::EVNT::toYAML(Athena::io::YAMLDocWriter& writer) const
 
     writer.writeUint32("sfxCount", sfxEvents.size());
     writer.enumerate("sfxEvents", sfxEvents);
+}
+
+const char* ANCS::AnimationSet::EVNT::DNAType()
+{
+    return "Retro::DNAMP2::ANCS::AnimationSet::EVNT";
 }
 
 }

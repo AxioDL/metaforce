@@ -118,6 +118,11 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::toYAML
     writer.leaveSubVector();
 }
 
+const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo";
+}
+
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io::IStreamReader& reader)
 {
     id = reader.readUint32Big();
@@ -272,6 +277,11 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::toYAML(Athena::i
         }
         writer.leaveSubVector();
     });
+}
+
+const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState";
 }
 
 void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
@@ -537,6 +547,11 @@ void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer
     }
 }
 
+const char* ANCS::CharacterSet::CharacterInfo::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::CharacterSet::CharacterInfo";
+}
+
 void ANCS::AnimationSet::MetaAnimFactory::read(Athena::io::IStreamReader& reader)
 {
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
@@ -620,6 +635,11 @@ void ANCS::AnimationSet::MetaAnimFactory::toYAML(Athena::io::YAMLDocWriter& writ
     m_anim->toYAML(writer);
 }
 
+const char* ANCS::AnimationSet::MetaAnimFactory::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::AnimationSet::MetaAnimFactory";
+}
+
 void ANCS::AnimationSet::MetaTransFactory::read(Athena::io::IStreamReader& reader)
 {
     IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32Big()));
@@ -690,6 +710,11 @@ void ANCS::AnimationSet::MetaTransFactory::toYAML(Athena::io::YAMLDocWriter& wri
     }
     writer.writeString("type", m_trans->m_typeStr?m_trans->m_typeStr:"NoTrans");
     m_trans->toYAML(writer);
+}
+
+const char* ANCS::AnimationSet::MetaTransFactory::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::AnimationSet::MetaTransFactory";
 }
 
 void ANCS::AnimationSet::read(Athena::io::IStreamReader& reader)
@@ -844,6 +869,11 @@ void ANCS::AnimationSet::toYAML(Athena::io::YAMLDocWriter& writer) const
         writer.writeUint32("animResourcesCount", animResources.size());
         writer.enumerate("animResources", animResources);
     }
+}
+
+const char* ANCS::AnimationSet::DNAType()
+{
+    return "Retro::DNAMP1::ANCS::AnimationSet";
 }
 
 }

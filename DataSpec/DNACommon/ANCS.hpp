@@ -51,7 +51,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
             if (force || cmdlPath.getPathType() == HECL::ProjectPath::PT_NONE)
             {
-                if (!conn.createBlend(cmdlPath.getAbsolutePath()))
+                if (!conn.createBlend(cmdlPath.getAbsolutePath(), HECL::BlenderConnection::TypeMesh))
                     return false;
 
                 HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(*cmdlE));
@@ -77,14 +77,13 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     fileChanged(bestNameView.sys_str().c_str());
 
     /* Establish ANCS blend */
-    if (!conn.createBlend(outPath.getAbsolutePath()))
+    if (!conn.createBlend(outPath.getAbsolutePath(), HECL::BlenderConnection::TypeActor))
         return false;
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
     os.format("import bpy\n"
               "from mathutils import Vector\n"
               "bpy.context.scene.name = '%s'\n"
-              "bpy.context.scene.hecl_type = 'ACTOR'\n"
               "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
               "\n"
               "# Using 'Blender Game'\n"

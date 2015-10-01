@@ -61,6 +61,11 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::toYAML(Athena::io::YAMLDocWriter& writ
         writer.writeFloat("extraFloat", extraFloat);
 }
 
+const char* CHAR::AnimationInfo::EVNT::SFXEvent::DNAType()
+{
+    return "Retro::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent";
+}
+
 void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::IStreamReader& reader)
 {
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
@@ -142,6 +147,11 @@ void CHAR::AnimationInfo::MetaAnimFactory::toYAML(Athena::io::YAMLDocWriter& wri
         return;
     writer.writeString("type", m_anim->m_typeStr);
     m_anim->toYAML(writer);
+}
+
+const char* CHAR::AnimationInfo::MetaAnimFactory::DNAType()
+{
+    return "Retro::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory";
 }
 
 }

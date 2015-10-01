@@ -3,6 +3,9 @@
 #include "SpecBase.hpp"
 #include "DNAMP2/DNAMP2.hpp"
 
+#include "DNAMP2/MLVL.hpp"
+#include "DNAMP2/STRG.hpp"
+
 namespace Retro
 {
 
@@ -28,7 +31,7 @@ struct SpecMP2 : SpecBase
 
     SpecMP2(HECL::Database::Project& project)
     : SpecBase(project),
-      m_workPath(project.getProjectRootPath(), _S("MP2")),
+      m_workPath(project.getProjectWorkingPath(), _S("MP2")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP2), _S("MP2")),
       m_pakRouter(*this, m_workPath, m_cookPath) {}
 
@@ -250,6 +253,15 @@ struct SpecMP2 : SpecBase
         }
 
         return true;
+    }
+
+    bool validateYAMLDNAType(FILE* fp) const
+    {
+        if (BigYAML::ValidateFromYAMLFile<DNAMP2::MLVL>(fp))
+            return true;
+        if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
+            return true;
+        return false;
     }
 };
 

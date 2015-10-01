@@ -99,7 +99,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Start up blender connection */
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(outPath.getAbsolutePath()))
+    if (!conn.createBlend(outPath.getAbsolutePath(), HECL::BlenderConnection::TypeArea))
         return false;
 
     /* Open Py Stream and read sections */
@@ -108,8 +108,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
               "import bmesh\n"
               "from mathutils import Vector\n"
               "\n"
-              "bpy.context.scene.name = '%s'\n"
-              "bpy.context.scene.hecl_type = 'AREA'\n",
+              "bpy.context.scene.name = '%s'\n",
               pakRouter.getBestEntryName(entry).c_str());
     DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
     MaterialSet::RegisterMaterialProps(os);

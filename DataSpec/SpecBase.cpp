@@ -1,5 +1,6 @@
 #include "SpecBase.hpp"
 #include "Blender/BlenderSupport.hpp"
+#include "BlenderConnection.hpp"
 
 namespace Retro
 {
@@ -52,7 +53,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     if (m_isWii)
     {
         /* Extract update partition for repacking later */
-        const HECL::SystemString& target = m_project.getProjectRootPath().getAbsolutePath();
+        const HECL::SystemString& target = m_project.getProjectWorkingPath().getAbsolutePath();
         NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
         NOD::ExtractionContext ctx = {true, info.force, nullptr};
 
@@ -87,6 +88,25 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 
 bool SpecBase::canCook(const HECL::ProjectPath& path)
 {
+    if (HECL::IsPathBlend(path))
+    {
+        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        if (!conn.openBlend(path.getAbsolutePath()))
+            return false;
+        if (conn.getBlendType() != HECL::BlenderConnection::TypeNone)
+            return true;
+    }
+    else if (HECL::IsPathPNG(path))
+    {
+        return true;
+    }
+    else if (HECL::IsPathYAML(path))
+    {
+        FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+        bool retval = validateYAMLDNAType(fp);
+        fclose(fp);
+        return retval;
+    }
     return false;
 }
 

@@ -4,6 +4,10 @@
 #include "SpecBase.hpp"
 #include "DNAMP3/DNAMP3.hpp"
 
+#include "DNAMP3/MLVL.hpp"
+#include "DNAMP3/STRG.hpp"
+#include "DNAMP2/STRG.hpp"
+
 namespace Retro
 {
 
@@ -40,10 +44,10 @@ struct SpecMP3 : SpecBase
 
     SpecMP3(HECL::Database::Project& project)
     : SpecBase(project),
-      m_workPath(project.getProjectRootPath(), _S("MP3")),
+      m_workPath(project.getProjectWorkingPath(), _S("MP3")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP3), _S("MP3")),
       m_pakRouter(*this, m_workPath, m_cookPath),
-      m_feWorkPath(project.getProjectRootPath(), _S("fe")),
+      m_feWorkPath(project.getProjectWorkingPath(), _S("fe")),
       m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _S("fe")),
       m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {}
 
@@ -340,7 +344,7 @@ struct SpecMP3 : SpecBase
             });
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
-            HECL::ProjectPath mp3WorkPath(m_project.getProjectRootPath(), "MP3");
+            HECL::ProjectPath mp3WorkPath(m_project.getProjectWorkingPath(), "MP3");
             mp3WorkPath.makeDir();
             currentTarget = _S("MP3 Root");
             progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
@@ -429,6 +433,17 @@ struct SpecMP3 : SpecBase
             }
         }
         return true;
+    }
+
+    bool validateYAMLDNAType(FILE* fp) const
+    {
+        if (BigYAML::ValidateFromYAMLFile<DNAMP3::MLVL>(fp))
+            return true;
+        if (BigYAML::ValidateFromYAMLFile<DNAMP3::STRG>(fp))
+            return true;
+        if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
+            return true;
+        return false;
     }
 };
 
