@@ -342,7 +342,16 @@ BlenderConnection::~BlenderConnection()
     _closePipe();
 }
 
-bool BlenderConnection::createBlend(const SystemString& path)
+static std::string BlendTypeStrs[] =
+{
+    "NONE",
+    "MESH",
+    "ACTOR",
+    "AREA",
+    ""
+};
+
+bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
 {
     if (m_lock)
     {
@@ -351,7 +360,7 @@ bool BlenderConnection::createBlend(const SystemString& path)
         return false;
     }
     HECL::SystemUTF8View pathView(path);
-    _writeLine(("CREATE \"" + pathView.str() + "\" \"" + m_startupBlend + "\"").c_str());
+    _writeLine(("CREATE \"" + pathView.str() + "\" " + BlendTypeStrs[type] + " \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
@@ -360,6 +369,18 @@ bool BlenderConnection::createBlend(const SystemString& path)
         return true;
     }
     return false;
+}
+
+BlenderConnection::BlendType BlenderConnection::getBlendType()
+{
+    _writeLine("GETTYPE");
+    char lineBuf[256];
+    _readLine(lineBuf, sizeof(lineBuf));
+    unsigned idx = 0;
+    while (BlendTypeStrs[idx].size())
+        if (!BlendTypeStrs[idx].compare(lineBuf))
+            return BlendType(idx);
+    return TypeNone;
 }
 
 bool BlenderConnection::openBlend(const SystemString& path)
@@ -430,41 +451,6 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target, const 
            "\n",
            objName.c_str(), target.c_str(), link?"True":"False",
            objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
-}
-
-bool BlenderConnection::cookBlend(std::function<char*(uint32_t)> bufGetter,
-                                  const std::string& expectedType,
-                                  const std::string& platform,
-                                  bool bigEndian)
-{
-    char lineBuf[256];
-    char reqLine[512];
-    snprintf(reqLine, 512, "COOK %s %c", platform.c_str(), bigEndian?'>':'<');
-    _writeLine(reqLine);
-    _readLine(lineBuf, sizeof(lineBuf));
-    if (strcmp(expectedType.c_str(), lineBuf))
-    {
-        BlenderLog.report(LogVisor::Error, "expected '%s' to contain '%s' not '%s'",
-                   m_loadedBlend.c_str(), expectedType.c_str(), lineBuf);
-        return false;
-    }
-    _writeLine("ACK");
-
-    for (_readLine(lineBuf, sizeof(lineBuf));
-         !strcmp("BUF", lineBuf);
-         _readLine(lineBuf, sizeof(lineBuf)))
-    {
-        uint32_t sz;
-        _readBuf((char*)&sz, 4);
-        char* buf = bufGetter(sz);
-        _readBuf(buf, sz);
-    }
-    if (!strcmp("SUCCESS", lineBuf))
-        return true;
-    else if (!strcmp("EXCEPTION", lineBuf))
-        BlenderLog.report(LogVisor::FatalError, "blender script exception");
-
-    return false;
 }
 
 void BlenderConnection::quitBlender()

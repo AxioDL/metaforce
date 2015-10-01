@@ -359,10 +359,10 @@ static void VisitDirectory(std::list<std::pair<ProjectPath, std::list<ProjectPat
 {
     std::list<ProjectPath> children;
     dir.getDirChildren(children);
+    allDirs.emplace_back(dir, std::list<ProjectPath>());
+    std::list<ProjectPath>& ch = allDirs.back().second;
     for (ProjectPath& child : children)
     {
-        allDirs.emplace_back(dir, std::list<ProjectPath>());
-        std::list<ProjectPath>& ch = allDirs.back().second;
         switch (child.getPathType())
         {
         case ProjectPath::PT_FILE:

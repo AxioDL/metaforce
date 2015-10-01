@@ -47,19 +47,19 @@ public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
 
-    bool createBlend(const SystemString& path);
+    enum BlendType
+    {
+        TypeNone,
+        TypeMesh,
+        TypeActor,
+        TypeArea
+    };
+
+    bool createBlend(const SystemString& path, BlendType type);
+    BlendType getBlendType();
     bool openBlend(const SystemString& path);
     bool saveBlend();
     void deleteBlend();
-    enum CookPlatform
-    {
-        CP_MODERN = 0,
-        CP_GX     = 1,
-    };
-    bool cookBlend(std::function<char*(uint32_t)> bufGetter,
-                   const std::string& expectedType,
-                   const std::string& platform,
-                   bool bigEndian=false);
 
     class PyOutStream : public std::ostream
     {

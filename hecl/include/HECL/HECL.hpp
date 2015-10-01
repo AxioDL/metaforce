@@ -279,6 +279,15 @@ static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* fo
     va_end(va);
 }
 
+static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
+{
+#if HECL_UCS2
+    return wcscmp(str1, str2);
+#else
+    return strcmp(str1, str2);
+#endif
+}
+
 #define FORMAT_BUF_SZ 1024
 
 #if __GNUC__
@@ -599,7 +608,7 @@ public:
 
     /**
      * @brief Obtain c-string of final path component (stored within relative path)
-     * @return Final component c-string
+     * @return Final component c-string (may be empty)
      */
     const SystemChar* getLastComponent() const
     {
@@ -607,6 +616,25 @@ public:
         if (pos == SystemString::npos)
             return m_relPath.c_str() + m_relPath.size();
         return m_relPath.c_str() + pos + 1;
+    }
+
+    /**
+     * @brief Obtain c-string of extension of final path component (stored within relative path)
+     * @return Final component extension c-string (may be nullptr)
+     */
+    const SystemChar* getLastComponentExt() const
+    {
+        const SystemChar* lastCompOrig = getLastComponent();
+        const SystemChar* lastComp = lastCompOrig;
+        while (*lastComp != _S('\0'))
+            ++lastComp;
+        while (lastComp != lastCompOrig)
+        {
+            if (*lastComp == _S('.'))
+                return lastComp + 1;
+            --lastComp;
+        }
+        return nullptr;
     }
 
     /**
@@ -728,6 +756,27 @@ ProjectRootPath SearchForProject(const SystemString& path);
  * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
 ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpathOut);
+
+/**
+ * @brief Test if given path is a PNG (based on file header)
+ * @param path Path to test
+ * @return true if PNG
+ */
+bool IsPathPNG(const HECL::ProjectPath& path);
+
+/**
+ * @brief Test if given path is a blend (based on file header)
+ * @param path Path to test
+ * @return true if blend
+ */
+bool IsPathBlend(const HECL::ProjectPath& path);
+
+/**
+ * @brief Test if given path is a yaml (based on file extension)
+ * @param path Path to test
+ * @return true if yaml
+ */
+bool IsPathYAML(const HECL::ProjectPath& path);
 
 #undef bswap16
 #undef bswap32

@@ -29,4 +29,51 @@ void SanitizePath(std::wstring& path)
     });
 }
 
+bool IsPathPNG(const HECL::ProjectPath& path)
+{
+    FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    if (!fp)
+        return false;
+    uint32_t buf;
+    if (fread(&buf, 1, 4, fp) != 4)
+    {
+        fclose(fp);
+        return false;
+    }
+    fclose(fp);
+    buf = HECL::SBig(buf);
+    if (buf == 0x89504e47)
+        return true;
+    return false;
+}
+
+bool IsPathBlend(const HECL::ProjectPath& path)
+{
+    FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    if (!fp)
+        return false;
+    uint32_t buf;
+    if (fread(&buf, 1, 4, fp) != 4)
+    {
+        fclose(fp);
+        return false;
+    }
+    fclose(fp);
+    buf = HECL::SLittle(buf);
+    if (buf == 0x4e454c42 || buf == 0x88b1f)
+        return true;
+    return false;
+}
+
+bool IsPathYAML(const HECL::ProjectPath& path)
+{
+    const SystemChar* lastCompExt = path.getLastComponentExt();
+    if (!lastCompExt)
+        return false;
+    if (!HECL::StrCmp(lastCompExt, _S("yaml")) ||
+        !HECL::StrCmp(lastCompExt, _S("yml")))
+        return true;
+    return false;
+}
+
 }

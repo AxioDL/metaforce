@@ -306,15 +306,20 @@ public:
      *
      * Self explanatory
      */
-    const ProjectPath& getProjectRootPath() const {return m_workRoot;}
+    const ProjectRootPath& getProjectRootPath() const {return m_rootPath;}
+
+    /**
+     * @brief Get the path of project's working directory
+     * @return project working path
+     */
+    const ProjectPath& getProjectWorkingPath() const {return m_workRoot;}
 
     /**
      * @brief Get the path of project's cooked directory for a specific DataSpec
      * @param DataSpec to retrieve path for
      * @return project cooked path
      *
-     * The cooked path matches the directory layout of the working directory,
-     * except data is
+     * The cooked path matches the directory layout of the working directory
      */
     const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const
     {
