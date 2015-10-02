@@ -40,8 +40,8 @@ class BlenderConnection
     std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
     size_t _writeLine(const char* buf);
-    size_t _readBuf(char* buf, size_t len);
-    size_t _writeBuf(const char* buf, size_t len);
+    size_t _readBuf(void* buf, size_t len);
+    size_t _writeBuf(const void* buf, size_t len);
     void _closePipe();
 public:
     BlenderConnection(int verbosityLevel=1);
@@ -223,29 +223,197 @@ public:
             return ANIMOutStream(m_parent);
         }
     };
-    inline PyOutStream beginPythonOut(bool deleteOnError=false)
+    PyOutStream beginPythonOut(bool deleteOnError=false)
     {
         if (m_lock)
             BlenderLog.report(LogVisor::FatalError, "lock already held for BlenderConnection::beginPythonOut()");
         return PyOutStream(this, deleteOnError);
     }
 
+    class DataStream
+    {
+        friend class BlenderConnection;
+        BlenderConnection* m_parent;
+        DataStream(BlenderConnection* parent)
+        : m_parent(parent)
+        {
+            m_parent->m_lock = true;
+            m_parent->_writeLine("DATABEGIN");
+            char readBuf[16];
+            m_parent->_readLine(readBuf, 16);
+            if (strcmp(readBuf, "READY"))
+                BlenderLog.report(LogVisor::FatalError, "unable to open DataStream with blender");
+        }
+    public:
+        DataStream(const DataStream& other) = delete;
+        DataStream(DataStream&& other)
+        : m_parent(other.m_parent) {other.m_parent = nullptr;}
+        ~DataStream() {close();}
+        void close()
+        {
+            if (m_parent && m_parent->m_lock)
+            {
+                m_parent->_writeLine("DATAEND");
+                char readBuf[16];
+                m_parent->_readLine(readBuf, 16);
+                if (strcmp(readBuf, "DONE"))
+                    BlenderLog.report(LogVisor::FatalError, "unable to close DataStream with blender");
+                m_parent->m_lock = false;
+            }
+        }
+
+        std::vector<std::string> getMeshList()
+        {
+            m_parent->_writeLine("MESHLIST");
+            uint32_t count;
+            m_parent->_readBuf(&count, 4);
+            std::vector<std::string> retval;
+            retval.reserve(count);
+            for (int i=0 ; i<count ; ++i)
+            {
+                char name[128];
+                m_parent->_readLine(name, 128);
+                retval.push_back(name);
+            }
+            return retval;
+        }
+
+        /* Intermediate mesh representation prepared by blender from a single mesh object */
+        struct Mesh
+        {
+            /* HECL source of each material */
+            std::vector<std::string> materials;
+
+            /* Encapsulates mesh data up to maximum indexing space,
+             * overflowing to additional Submeshes as needed */
+            struct Submesh
+            {
+                /* Vertex buffer data */
+                struct Vector2f
+                {
+                    float val[2];
+                    Vector2f(BlenderConnection& conn) {conn._readBuf(val, 8);}
+                };
+                struct Vector3f
+                {
+                    float val[3];
+                    Vector3f(BlenderConnection& conn) {conn._readBuf(val, 12);}
+                };
+                struct Vector4f
+                {
+                    float val[4];
+                    Vector4f(BlenderConnection& conn) {conn._readBuf(val, 16);}
+                };
+                struct Index
+                {
+                    uint32_t val;
+                    Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
+                };
+                std::vector<Vector3f> pos;
+                std::vector<Vector3f> norm;
+                uint32_t colorLayerCount = 0;
+                std::vector<Vector4f> color[4];
+                uint32_t uvLayerCount = 0;
+                std::vector<Vector2f> uv[8];
+
+                /* Skinning data */
+                std::vector<std::string> boneNames;
+                struct SkinBind
+                {
+                    uint32_t boneIdx;
+                    float weight;
+                    SkinBind(BlenderConnection& conn) {conn._readBuf(&boneIdx, 8);}
+                };
+                std::vector<std::vector<SkinBind>> skins;
+                std::vector<std::vector<Index>> skinBanks;
+
+                /* Islands of the same material/skinBank are represented here */
+                struct Surface
+                {
+                    Vector3f centroid;
+                    Index materialIdx;
+                    Vector3f aabbMin;
+                    Vector3f aabbMax;
+                    Vector3f reflectionNormal;
+                    Index skinBankIdx;
+
+                    /* Vertex indexing data */
+                    struct Vert
+                    {
+                        uint32_t iPos;
+                        uint32_t iNorm;
+                        uint32_t iColor[4] = {uint32_t(-1)};
+                        uint32_t iUv[8] = {uint32_t(-1)};
+                        uint32_t iSkin;
+
+                        Vert(BlenderConnection& conn, const Submesh& parent);
+                    };
+                    std::vector<Vert> verts;
+
+                    Surface(BlenderConnection& conn, const Submesh& parent);
+                };
+                std::vector<Surface> surfaces;
+
+                Submesh(BlenderConnection& conn);
+            };
+            std::vector<Submesh> submeshes;
+
+            Mesh(BlenderConnection& conn);
+        };
+
+        /* Compile mesh by name */
+        Mesh compileMesh(const std::string& name, int maxIdx=65535, int maxSkinBanks=10)
+        {
+            char req[128];
+            snprintf(req, 128, "MESHCOMPILE %s %d %d", name.c_str(), maxIdx, maxSkinBanks);
+            m_parent->_writeLine(req);
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
+
+            return Mesh(*m_parent);
+        }
+
+        /* Compile all meshes into one */
+        Mesh compileAllMeshes(int maxIdx=65535, int maxSkinBanks=10)
+        {
+            char req[128];
+            snprintf(req, 128, "MESHCOMPILEALL %d %d", maxIdx, maxSkinBanks);
+            m_parent->_writeLine(req);
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
+
+            return Mesh(*m_parent);
+        }
+    };
+    DataStream beginData()
+    {
+        if (m_lock)
+            BlenderLog.report(LogVisor::FatalError, "lock already held for BlenderConnection::beginDataIn()");
+        return DataStream(this);
+    }
+
     void quitBlender();
 
-    static inline BlenderConnection& SharedConnection()
+    static BlenderConnection& SharedConnection()
     {
         if (!SharedBlenderConnection)
             SharedBlenderConnection = new BlenderConnection(HECL::VerbosityLevel);
         return *SharedBlenderConnection;
     }
 
-    inline void closeStream()
+    void closeStream()
     {
         if (m_lock)
             deleteBlend();
     }
 
-    static inline void Shutdown()
+    static void Shutdown()
     {
         if (SharedBlenderConnection)
         {

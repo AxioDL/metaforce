@@ -210,6 +210,22 @@ public:
     }
 };
 
+static HECL::SystemString MakePathArgAbsolute(const HECL::SystemString& arg,
+                                              const HECL::SystemString& cwd)
+{
+#if _WIN32
+    if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == _S(':'))
+        return arg;
+    if (arg[0] == _S('\\') || arg[0] == _S('/'))
+        return arg;
+    return cwd + _S('\\') + arg;
+#else
+    if (arg[0] == _S('/') || arg[0] == _S('\\'))
+        return arg;
+    return cwd + _S('/') + arg;
+#endif
+}
+
 void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* submessage,
                        int lidx, float factor, int& lineIdx)
 {

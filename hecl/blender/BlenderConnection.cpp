@@ -113,7 +113,7 @@ err:
     return 0;
 }
 
-size_t BlenderConnection::_readBuf(char* buf, size_t len)
+size_t BlenderConnection::_readBuf(void* buf, size_t len)
 {
     int ret = read(m_readpipe[0], buf, len);
     if (ret < 0)
@@ -124,7 +124,7 @@ err:
     return 0;
 }
 
-size_t BlenderConnection::_writeBuf(const char* buf, size_t len)
+size_t BlenderConnection::_writeBuf(const void* buf, size_t len)
 {
     int ret = write(m_writepipe[1], buf, len);
     if (ret < 0)
@@ -391,6 +391,8 @@ bool BlenderConnection::openBlend(const SystemString& path)
                           "BlenderConnection::openBlend() musn't be called with stream active");
         return false;
     }
+    if (path == m_loadedBlend)
+        return true;
     HECL::SystemUTF8View pathView(path);
     _writeLine(("OPEN \"" + pathView.str() + "\"").c_str());
     char lineBuf[256];
@@ -429,7 +431,8 @@ void BlenderConnection::deleteBlend()
     }
 }
 
-void BlenderConnection::PyOutStream::linkBlend(const std::string& target, const std::string& objName,
+void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
+                                               const std::string& objName,
                                                bool link)
 {
     format("if '%s' not in bpy.data.scenes:\n"
@@ -451,6 +454,121 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target, const 
            "\n",
            objName.c_str(), target.c_str(), link?"True":"False",
            objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
+}
+
+BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn)
+{
+    uint32_t matCount;
+    conn._readBuf(&matCount, 4);
+    materials.reserve(matCount);
+    for (int i=0 ; i<matCount ; ++i)
+    {
+        char mat[2048];
+        conn._readLine(mat, 2048);
+        materials.push_back(mat);
+    }
+
+    uint32_t submeshCount;
+    conn._readBuf(&submeshCount, 4);
+    submeshes.reserve(submeshCount);
+    for (int i=0 ; i<submeshCount ; ++i)
+        submeshes.emplace_back(conn);
+}
+
+BlenderConnection::DataStream::Mesh::Submesh::Submesh(BlenderConnection& conn)
+{
+    uint32_t count;
+    conn._readBuf(&count, 4);
+    pos.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        pos.emplace_back(conn);
+
+    conn._readBuf(&count, 4);
+    norm.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        norm.emplace_back(conn);
+
+    conn._readBuf(&colorLayerCount, 4);
+    for (int i=0 ; i<colorLayerCount ; ++i)
+    {
+        conn._readBuf(&count, 4);
+        color[i].reserve(count);
+        for (int j=0 ; j<count ; ++j)
+            color[i].emplace_back(conn);
+    }
+
+    conn._readBuf(&uvLayerCount, 4);
+    for (int i=0 ; i<uvLayerCount ; ++i)
+    {
+        conn._readBuf(&count, 4);
+        uv[i].reserve(count);
+        for (int j=0 ; j<count ; ++j)
+            uv[i].emplace_back(conn);
+    }
+
+    conn._readBuf(&count, 4);
+    boneNames.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+    {
+        char name[128];
+        conn._readLine(name, 128);
+        boneNames.emplace_back(name);
+    }
+
+    conn._readBuf(&count, 4);
+    skins.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+    {
+        skins.emplace_back();
+        std::vector<SkinBind>& binds = skins.back();
+        uint32_t bindCount;
+        conn._readBuf(&bindCount, 4);
+        binds.reserve(bindCount);
+        for (int j=0 ; j<bindCount ; ++j)
+            binds.emplace_back(conn);
+    }
+
+    conn._readBuf(&count, 4);
+    skinBanks.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+    {
+        skinBanks.emplace_back();
+        std::vector<Index>& bank = skinBanks.back();
+        uint32_t idxCount;
+        conn._readBuf(&idxCount, 4);
+        bank.reserve(idxCount);
+        for (int j=0 ; j<idxCount ; ++j)
+            bank.emplace_back(conn);
+    }
+
+    conn._readBuf(&count, 4);
+    surfaces.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        surfaces.emplace_back(conn, *this);
+}
+
+BlenderConnection::DataStream::Mesh::Submesh::Surface::Surface
+(BlenderConnection& conn, const Submesh& parent)
+: centroid(conn), materialIdx(conn), aabbMin(conn), aabbMax(conn),
+  reflectionNormal(conn), skinBankIdx(conn)
+{
+    uint32_t count;
+    conn._readBuf(&count, 4);
+    verts.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        verts.emplace_back(conn, parent);
+}
+
+BlenderConnection::DataStream::Mesh::Submesh::Surface::Vert::Vert
+(BlenderConnection& conn, const Submesh& parent)
+{
+    conn._readBuf(&iPos, 4);
+    conn._readBuf(&iNorm, 4);
+    if (parent.colorLayerCount)
+        conn._readBuf(iColor, 4 * parent.colorLayerCount);
+    if (parent.uvLayerCount)
+        conn._readBuf(iUv, 4 * parent.uvLayerCount);
+    conn._readBuf(&iSkin, 4);
 }
 
 void BlenderConnection::quitBlender()

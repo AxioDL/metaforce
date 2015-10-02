@@ -555,11 +555,27 @@ public:
     /**
      * @brief Return new ProjectPath with extension added
      * @param ext file extension to add
+     * @param replace remove existing extension (if any) before appending new extension
      * @return new path with extension
      */
-     ProjectPath getWithExtension(const SystemChar* ext) const
+     ProjectPath getWithExtension(const SystemChar* ext, bool replace=false) const
     {
         ProjectPath pp(*this);
+        if (replace)
+        {
+            auto relIt = pp.m_relPath.end();
+            auto absIt = pp.m_absPath.end();
+            while (relIt != pp.m_relPath.begin() && *relIt != _S('.') && *relIt != _S('/'))
+            {
+                --relIt;
+                --absIt;
+            }
+            if (*relIt == _S('.'))
+            {
+                pp.m_relPath.resize(relIt - pp.m_relPath.begin());
+                pp.m_absPath.resize(absIt - pp.m_absPath.begin());
+            }
+        }
         pp.m_relPath += ext;
         pp.m_absPath += ext;
         return pp;

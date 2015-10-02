@@ -34,7 +34,7 @@ public:
                     continue;
                 }
                 HECL::SystemString subPath;
-                HECL::ProjectRootPath root = HECL::SearchForProject(arg, subPath);
+                HECL::ProjectRootPath root = HECL::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
                 if (root)
                 {
                     if (!m_fallbackProj)
@@ -118,7 +118,6 @@ public:
 
     HECL::SystemString toolName() const {return _S("cook");}
 
-    using ProjectDataSpec = HECL::Database::Project::ProjectDataSpec;
     int run()
     {
         for (const HECL::ProjectPath& path : m_selectedItems)

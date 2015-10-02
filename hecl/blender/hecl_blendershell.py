@@ -75,6 +75,17 @@ def count_brackets(linestr):
             bracket_count -= 1
     return bracket_count
 
+# Read line of space-separated/quoted arguments
+def read_cmdargs():
+    cmdline = readpipeline()
+    if cmdline == b'':
+        print('HECL connection lost')
+        bpy.ops.wm.quit_blender()
+    cmdargs = []
+    for match in ARGS_PATTERN.finditer(cmdline.decode()):
+        cmdargs.append(match.group(match.lastindex))
+    return cmdargs
+
 # Complete sequences of statements compiled/executed here
 def exec_compbuf(compbuf, globals):
     if double_verbose:
@@ -82,7 +93,8 @@ def exec_compbuf(compbuf, globals):
     co = compile(compbuf, '<HECL>', 'exec')
     exec(co, globals)
 
-def anim_loop(globals):
+# Command loop for writing animation key data to blender
+def animin_loop(globals):
     writepipeline(b'ANIMREADY')
     while True:
         crv_type = struct.unpack('b', os.read(readfd, 1))
@@ -114,15 +126,35 @@ def anim_loop(globals):
                 pt.interpolation = 'LINEAR'
                 pt.co = (key_data[0], key_data[1])
 
+# Command loop for reading data from blender
+def dataout_loop():
+    writepipeline(b'READY')
+    while True:
+        cmdargs = read_cmdargs()
+        print(cmdargs)
+
+        if cmdargs[0] == 'DATAEND':
+            break
+
+        elif cmdargs[0] == 'MESHLIST':
+            for meshobj in bpy.data.objects:
+                if meshobj.type == 'MESH':
+                    writepipeline(meshobj.name.encode())
+
+        elif cmdargs[0] == 'MESHCOMPILE':
+            meshName = cmdargs[1]
+            maxIdx = int(cmdargs[2])
+            maxSkinBanks = int(cmdargs[3])
+
+            if meshName not in bpy.data.objects:
+                writepipeline(b'mesh not found')
+                continue
+
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName])
+
 # Command loop
 while True:
-    cmdline = readpipeline()
-    if cmdline == b'':
-        print('HECL connection lost')
-        bpy.ops.wm.quit_blender()
-    cmdargs = []
-    for match in ARGS_PATTERN.finditer(cmdline.decode()):
-        cmdargs.append(match.group(match.lastindex))
+    cmdargs = read_cmdargs()
     print(cmdargs)
 
     if cmdargs[0] == 'QUIT':
@@ -172,7 +204,7 @@ while True:
                     if len(compbuf):
                         exec_compbuf(compbuf, globals)
                         compbuf = str()
-                    anim_loop(globals)
+                    animin_loop(globals)
                     continue
 
                 # End check
@@ -215,6 +247,13 @@ while True:
             writepipeline(b'OK')
 
     elif cmdargs[0] == 'PYEND':
+        writepipeline(b'ERROR')
+
+    elif cmdargs[0] == 'DATABEGIN':
+        writepipeline(b'READY')
+        dataout_loop()
+
+    elif cmdargs[0] == 'DATAEND':
         writepipeline(b'ERROR')
 
     else:
