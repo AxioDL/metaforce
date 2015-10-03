@@ -6,7 +6,6 @@ list(APPEND PY_SOURCES
      hecl/hmdl/HMDLMesh.py
      hecl/hmdl/HMDLShader.py
      hecl/hmdl/HMDLSkin.py
-     hecl/hmdl/HMDLTxtr.py
      hecl/sact/__init__.py
      hecl/sact/SACTAction.py
      hecl/sact/SACTEvent.py

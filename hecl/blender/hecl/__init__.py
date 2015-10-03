@@ -19,10 +19,10 @@ from bpy.app.handlers import persistent
 
 # Appendable list allowing external addons to register additional resource types
 hecl_typeS = [
-('NONE', "None", "Active scene not using HECL", None, None),
-('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.draw, hmdl.cook),
-('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw, sact.cook),
-('AREA', "Area", "Active scene represents a HECL Area", srea.draw, srea.cook)]
+('NONE', "None", "Active scene not using HECL", None),
+('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.draw),
+('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw),
+('AREA', "Area", "Active scene represents a HECL Area", srea.draw)]
 
 # Main Scene Panel
 class hecl_scene_panel(bpy.types.Panel):
@@ -47,15 +47,6 @@ class hecl_scene_panel(bpy.types.Panel):
                 break
 
 
-# Blender-selected polymorphism cook
-def do_cook(writebuf, platform_type, endian_char):
-    for tp in hecl_typeS:
-        if tp[0] == bpy.context.scene.hecl_type:
-            if callable(tp[4]):
-                return tp[4](writefd, platform_type, endian_char)
-    return False
-
-
 # Blender export-type registration
 def register_export_type_enum():
     bpy.types.Scene.hecl_type = bpy.props.EnumProperty(items=
@@ -74,20 +65,7 @@ def add_export_type(type_tuple):
 
 # Shell command receiver (from HECL driver)
 def command(cmdline, writepipeline, writepipebuf):
-    if cmdline[0] == b'COOK':
-        resource_type = bpy.context.scene.hecl_type.encode()
-        writepipeline(resource_type)
-        ackbytes = readpipeline()
-        if ackbytes != b'ACK':
-            return
-        try:
-            result = do_cook(writepipebuf, cmdline[1].decode(), cmdline[2].decode())
-            if result == None or result == True:
-                writepipeline(b'SUCCESS')
-            else:
-                writepipeline(b'FAILURE')
-        except:
-            writepipeline(b'EXCEPTION')
+    pass
 
 # Load scene callback
 from bpy.app.handlers import persistent

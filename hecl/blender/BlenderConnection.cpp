@@ -456,27 +456,22 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
            objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
 }
 
-BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn)
+BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int maxSkinBanks)
 {
-    uint32_t matCount;
-    conn._readBuf(&matCount, 4);
-    materials.reserve(matCount);
-    for (int i=0 ; i<matCount ; ++i)
+    uint32_t matSetCount;
+    conn._readBuf(&matSetCount, 4);
+    materialSets.reserve(matSetCount);
+    for (int i=0 ; i<matSetCount ; ++i)
     {
-        char mat[2048];
-        conn._readLine(mat, 2048);
-        materials.push_back(mat);
+        materialSets.emplace_back();
+        std::vector<Material>& materials = materialSets.back();
+        uint32_t matCount;
+        conn._readBuf(&matCount, 4);
+        materials.reserve(matCount);
+        for (int i=0 ; i<matCount ; ++i)
+            materials.emplace_back(conn);
     }
 
-    uint32_t submeshCount;
-    conn._readBuf(&submeshCount, 4);
-    submeshes.reserve(submeshCount);
-    for (int i=0 ; i<submeshCount ; ++i)
-        submeshes.emplace_back(conn);
-}
-
-BlenderConnection::DataStream::Mesh::Submesh::Submesh(BlenderConnection& conn)
-{
     uint32_t count;
     conn._readBuf(&count, 4);
     pos.reserve(count);
@@ -528,39 +523,53 @@ BlenderConnection::DataStream::Mesh::Submesh::Submesh(BlenderConnection& conn)
             binds.emplace_back(conn);
     }
 
-    conn._readBuf(&count, 4);
-    skinBanks.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    uint8_t isSurf;
+    conn._readBuf(&isSurf, 1);
+    while (isSurf)
     {
-        skinBanks.emplace_back();
-        std::vector<Index>& bank = skinBanks.back();
-        uint32_t idxCount;
-        conn._readBuf(&idxCount, 4);
-        bank.reserve(idxCount);
-        for (int j=0 ; j<idxCount ; ++j)
-            bank.emplace_back(conn);
+        surfaces.emplace_back(conn, *this);
+        conn._readBuf(&isSurf, 1);
     }
 
-    conn._readBuf(&count, 4);
-    surfaces.reserve(count);
-    for (int i=0 ; i<count ; ++i)
-        surfaces.emplace_back(conn, *this);
+    /* Resolve skin banks here */
+    if (boneNames.size())
+        for (Surface& surf : surfaces)
+            skinBanks.addSurface(surf);
 }
 
-BlenderConnection::DataStream::Mesh::Submesh::Surface::Surface
-(BlenderConnection& conn, const Submesh& parent)
-: centroid(conn), materialIdx(conn), aabbMin(conn), aabbMax(conn),
-  reflectionNormal(conn), skinBankIdx(conn)
+BlenderConnection::DataStream::Mesh::Material::Material
+(BlenderConnection& conn)
 {
-    uint32_t count;
-    conn._readBuf(&count, 4);
-    verts.reserve(count);
-    for (int i=0 ; i<count ; ++i)
-        verts.emplace_back(conn, parent);
+    char buf[4096];
+    conn._readLine(buf, 4096);
+    source.assign(buf);
+
+    uint32_t texCount;
+    conn._readBuf(&texCount, 4);
+    texs.reserve(texCount);
+    for (int i=0 ; i<texCount ; ++i)
+    {
+        conn._readLine(buf, 4096);
+        texs.emplace_back(buf);
+    }
 }
 
-BlenderConnection::DataStream::Mesh::Submesh::Surface::Vert::Vert
-(BlenderConnection& conn, const Submesh& parent)
+BlenderConnection::DataStream::Mesh::Surface::Surface
+(BlenderConnection& conn, const Mesh& parent)
+: centroid(conn), materialIdx(conn), aabbMin(conn), aabbMax(conn),
+  reflectionNormal(conn)
+{
+    uint8_t isVert;
+    conn._readBuf(&isVert, 1);
+    while (isVert)
+    {
+        verts.emplace_back(conn, parent);
+        conn._readBuf(&isVert, 1);
+    }
+}
+
+BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
+(BlenderConnection& conn, const Mesh& parent)
 {
     conn._readBuf(&iPos, 4);
     conn._readBuf(&iNorm, 4);

@@ -143,14 +143,31 @@ def dataout_loop():
 
         elif cmdargs[0] == 'MESHCOMPILE':
             meshName = cmdargs[1]
-            maxIdx = int(cmdargs[2])
-            maxSkinBanks = int(cmdargs[3])
+            maxSkinBanks = int(cmdargs[2])
 
             if meshName not in bpy.data.objects:
                 writepipeline(b'mesh not found')
                 continue
 
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName])
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], maxSkinBanks)
+
+        elif cmdargs[0] == 'MESHCOMPILEALL':
+            maxSkinBanks = int(cmdargs[1])
+
+            bpy.ops.object.select_all(action='DESELECT')
+            join_mesh = bpy.data.meshes.new('JOIN_MESH')
+            join_obj = bpy.data.object.new(join_mesh.name, join_mesh)
+            bpy.context.scene.objects.link(join_obj)
+            bpy.ops.object.select_by_type(type='MESH')
+            bpy.context.scene.objects.active = join_obj
+            bpy.ops.object.join()
+
+            hecl.hmdl.cook(writepipebuf, join_obj, maxSkinBanks)
+
+            bpy.context.scene.objects.unlink(join_obj)
+            bpy.data.objects.remove(join_obj)
+            bpy.data.meshes.remove(join_mesh)
+
 
 # Command loop
 while True:
@@ -250,7 +267,6 @@ while True:
         writepipeline(b'ERROR')
 
     elif cmdargs[0] == 'DATABEGIN':
-        writepipeline(b'READY')
         dataout_loop()
 
     elif cmdargs[0] == 'DATAEND':

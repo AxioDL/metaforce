@@ -282,90 +282,93 @@ public:
         struct Mesh
         {
             /* HECL source of each material */
-            std::vector<std::string> materials;
-
-            /* Encapsulates mesh data up to maximum indexing space,
-             * overflowing to additional Submeshes as needed */
-            struct Submesh
+            struct Material
             {
-                /* Vertex buffer data */
-                struct Vector2f
-                {
-                    float val[2];
-                    Vector2f(BlenderConnection& conn) {conn._readBuf(val, 8);}
-                };
-                struct Vector3f
-                {
-                    float val[3];
-                    Vector3f(BlenderConnection& conn) {conn._readBuf(val, 12);}
-                };
-                struct Vector4f
-                {
-                    float val[4];
-                    Vector4f(BlenderConnection& conn) {conn._readBuf(val, 16);}
-                };
-                struct Index
-                {
-                    uint32_t val;
-                    Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
-                };
-                std::vector<Vector3f> pos;
-                std::vector<Vector3f> norm;
-                uint32_t colorLayerCount = 0;
-                std::vector<Vector4f> color[4];
-                uint32_t uvLayerCount = 0;
-                std::vector<Vector2f> uv[8];
+                std::string source;
+                std::vector<std::string> texs;
 
-                /* Skinning data */
-                std::vector<std::string> boneNames;
-                struct SkinBind
-                {
-                    uint32_t boneIdx;
-                    float weight;
-                    SkinBind(BlenderConnection& conn) {conn._readBuf(&boneIdx, 8);}
-                };
-                std::vector<std::vector<SkinBind>> skins;
-                std::vector<std::vector<Index>> skinBanks;
-
-                /* Islands of the same material/skinBank are represented here */
-                struct Surface
-                {
-                    Vector3f centroid;
-                    Index materialIdx;
-                    Vector3f aabbMin;
-                    Vector3f aabbMax;
-                    Vector3f reflectionNormal;
-                    Index skinBankIdx;
-
-                    /* Vertex indexing data */
-                    struct Vert
-                    {
-                        uint32_t iPos;
-                        uint32_t iNorm;
-                        uint32_t iColor[4] = {uint32_t(-1)};
-                        uint32_t iUv[8] = {uint32_t(-1)};
-                        uint32_t iSkin;
-
-                        Vert(BlenderConnection& conn, const Submesh& parent);
-                    };
-                    std::vector<Vert> verts;
-
-                    Surface(BlenderConnection& conn, const Submesh& parent);
-                };
-                std::vector<Surface> surfaces;
-
-                Submesh(BlenderConnection& conn);
+                Material(BlenderConnection& conn);
             };
-            std::vector<Submesh> submeshes;
+            std::vector<std::vector<Material>> materialSets;
 
-            Mesh(BlenderConnection& conn);
+            /* Vertex buffer data */
+            struct Vector2f
+            {
+                float val[2];
+                Vector2f(BlenderConnection& conn) {conn._readBuf(val, 8);}
+            };
+            struct Vector3f
+            {
+                float val[3];
+                Vector3f(BlenderConnection& conn) {conn._readBuf(val, 12);}
+            };
+            struct Index
+            {
+                uint32_t val;
+                Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
+            };
+            std::vector<Vector3f> pos;
+            std::vector<Vector3f> norm;
+            uint32_t colorLayerCount = 0;
+            std::vector<Vector3f> color[4];
+            uint32_t uvLayerCount = 0;
+            std::vector<Vector2f> uv[8];
+
+            /* Skinning data */
+            std::vector<std::string> boneNames;
+            struct SkinBind
+            {
+                uint32_t boneIdx;
+                float weight;
+                SkinBind(BlenderConnection& conn) {conn._readBuf(&boneIdx, 8);}
+            };
+            std::vector<std::vector<SkinBind>> skins;
+
+            /* Islands of the same material/skinBank are represented here */
+            struct Surface
+            {
+                Vector3f centroid;
+                Index materialIdx;
+                Vector3f aabbMin;
+                Vector3f aabbMax;
+                Vector3f reflectionNormal;
+                uint32_t skinBankIdx;
+
+                /* Vertex indexing data (all primitives joined as degenerate tri-strip) */
+                struct Vert
+                {
+                    uint32_t iPos;
+                    uint32_t iNorm;
+                    uint32_t iColor[4] = {uint32_t(-1)};
+                    uint32_t iUv[8] = {uint32_t(-1)};
+                    uint32_t iSkin;
+
+                    Vert(BlenderConnection& conn, const Mesh& parent);
+                };
+                std::vector<Vert> verts;
+
+                Surface(BlenderConnection& conn, const Mesh& parent);
+            };
+            std::vector<Surface> surfaces;
+
+            class SkinBanks
+            {
+                std::vector<std::vector<uint32_t>> banks;
+            public:
+                uint32_t addSurface(const Surface& surf)
+                {
+                    return 0;
+                }
+            } skinBanks;
+
+            Mesh(BlenderConnection& conn, int maxSkinBanks);
         };
 
         /* Compile mesh by name */
-        Mesh compileMesh(const std::string& name, int maxIdx=65535, int maxSkinBanks=10)
+        Mesh compileMesh(const std::string& name, int maxSkinBanks=10)
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILE %s %d %d", name.c_str(), maxIdx, maxSkinBanks);
+            snprintf(req, 128, "MESHCOMPILE %s %d", name.c_str(), maxSkinBanks);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -373,14 +376,14 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
-            return Mesh(*m_parent);
+            return Mesh(*m_parent, maxSkinBanks);
         }
 
         /* Compile all meshes into one */
-        Mesh compileAllMeshes(int maxIdx=65535, int maxSkinBanks=10)
+        Mesh compileAllMeshes(int maxSkinBanks=10)
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILEALL %d %d", maxIdx, maxSkinBanks);
+            snprintf(req, 128, "MESHCOMPILEALL %d", maxSkinBanks);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -388,7 +391,7 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
 
-            return Mesh(*m_parent);
+            return Mesh(*m_parent, maxSkinBanks);
         }
     };
     DataStream beginData()

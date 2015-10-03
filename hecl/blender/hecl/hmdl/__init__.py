@@ -23,7 +23,7 @@ Positions, Normals, UV coordinates, and Weight Vectors
 
 import struct, bpy, bmesh
 from mathutils import Vector
-from . import HMDLShader, HMDLSkin, HMDLMesh, HMDLTxtr
+from . import HMDLShader, HMDLSkin, HMDLMesh
 
 def get_3d_context(object_):
     window = bpy.context.window_manager.windows[0]
@@ -91,21 +91,9 @@ def generate_skeleton_info(armature, endian_char='<'):
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL; packaging
 # into the HECL data-pipeline and returning a hash once complete
-def cook(writebuffunc, platform, endianchar):
-    print('COOKING HMDL')
-    return True
-    mesh_obj = bpy.data.objects[bpy.context.scene.hecl_mesh_obj]
+def cook(writebuffunc, mesh_obj, max_skin_banks):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
-
-    # Partial meshes
-    part_meshes = set()
-    
-    # Start with shader, mesh and rigging-info generation.
-    # Use SHA1 hashing to determine what the ID-hash will be when
-    # shaders are packaged; strip out duplicates
-    shader_set = []
-    rigger = None
     
     # Normalize all vertex weights
     override = get_3d_context(mesh_obj)
@@ -121,21 +109,12 @@ def cook(writebuffunc, platform, endianchar):
     copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
     copy_obj.scale = mesh_obj.scale
     bpy.context.scene.objects.link(copy_obj)
-    
-    # If skinned, establish rigging generator
-    if len(mesh_obj.vertex_groups):
-        rigger = hmdl_skin.hmdl_skin(max_bone_count, mesh_obj.vertex_groups)
 
-    # Determine count of transformation matricies to deliver to shader set
-    actual_max_bone_counts = [1] * len(mesh_obj.data.materials)
-    max_bone_count = 1
-    for mat_idx in range(len(mesh_obj.data.materials)):
-        mat = mesh_obj.data.materials[mat_idx]
-        count = hmdl_shader.max_transform_counter(mat, mesh_obj)
-        if count > 1:
-            actual_max_bone_counts[mat_idx] = count
-            if count > max_bone_count:
-                max_bone_count = count
+    # Create master triangulated BMesh and VertPool
+    bm_master = bmesh.new()
+    bm_master.from_mesh(copy_obj.data)
+    bmesh.ops.triangulate(bm_master, faces=bm_master.faces)
+    vert_pool = HMDLMesh.VertPool(bm_master)
 
     # Sort materials by pass index first
     sorted_material_idxs = []
@@ -150,133 +129,78 @@ def cook(writebuffunc, platform, endianchar):
         source_mat_set.discard(min_mat_idx)
 
     # Generate shaders
-    actual_max_texmtx_count = 0
-    for mat_idx in sorted_material_idxs:
-        
-        shader_hashes = []
-        shader_uv_count = 0
-        
-        if mesh_obj.data.hecl_material_count > 0:
-            for grp_idx in range(mesh_obj.data.hecl_material_count):
+    if mesh_obj.data.hecl_material_count > 0:
+        writebuffunc(struct.pack('I', len(mesh_obj.data.hecl_material_count)))
+        for grp_idx in range(mesh_obj.data.hecl_material_count):
+            writebuffunc(struct.pack('I', len(sorted_material_idxs)))
+            for mat_idx in sorted_material_idxs:
+                found = False
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
-                        hecl_str = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
-    
-        else:
+                        hecl_str, texs = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
+                        writebuffunc((hecl_str + '\n').encode())
+                        writebuffunc(struct.pack('I', len(texs)))
+                        for tex in texs:
+                            writebuffunc((tex + '\n').encode())
+                        found = True
+                        break
+                if not found:
+                    raise RuntimeError('uneven material set %d in %s' % (grp_idx, mesh_obj.name))
+    else:
+        writebuffunc(struct.pack('II', 1, len(sorted_material_idxs)))
+        for mat_idx in sorted_material_idxs:
             mat = mesh_obj.data.materials[mat_idx]
-            hecl_str = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
+            hecl_str, texs = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
+            writebuffunc((hecl_str + '\n').encode())
+            writebuffunc(struct.pack('I', len(texs)))
+            for tex in texs:
+                writebuffunc((tex + '\n').encode())
 
-        mesh_maker = hmdl_mesh.hmdl_mesh()
+    # Output vert pool
+    vert_pool.write_out(writebuffunc, mesh_obj.vertex_groups)
         
-        # Make special version of mesh with just the relevant material;
-        # Also perform triangulation
-        mesh = bpy.data.meshes.new(copy_obj.name + '_' + str(mat_idx))
-        part_meshes.add(mesh)
-        bm = bmesh.new()
-        bm.from_mesh(copy_obj.data)
+    # Generate island meshes
+    for mat_idx in sorted_material_idxs:
+        # Make special version of mesh with just the relevant material
+        bm = bm_master.copy()
         to_remove = []
-        shader_center = Vector((0,0,0))
-        shader_center_count = 0
         for face in bm.faces:
             if face.material_index != mat_idx:
                 to_remove.append(face)
-            else:
-                shader_center += face.calc_center_bounds()
-                shader_center_count += 1
-        shader_center /= shader_center_count
         bmesh.ops.delete(bm, geom=to_remove, context=5)
-        bmesh.ops.triangulate(bm, faces=bm.faces)
+        vert_pool.set_bm_layers(bm)
+
+        dlay = None
+        if len(bm.verts.layers.deform):
+            dlay = bm.verts.layers.deform[0]
+
+        mat_faces_rem = list(bm.faces)
+        while len(mat_faces_rem):
+            the_list = []
+            skin_slot_set = set()
+            HMDLMesh.recursive_faces_islands(dlay, the_list, mat_faces_rem, skin_slot_set,
+                                             max_skin_banks, mat_faces_rem[0])
+            writebuffunc(struct.pack('B', 1))
+            HMDLMesh.write_out_surface(writebuffunc, vert_pool, bm, the_list, mat_idx)
+
         bm.to_mesh(mesh)
         bm.free()
 
-        # Optimise mesh
-        if rigger:
-            mesh_maker.add_mesh(mesh, rigger, shader_uv_count)
-        else:
-            mesh_maker.add_mesh(mesh, None, shader_uv_count)
-
-        shader_set.append((shader_hashes, mesh_maker, shader_center))
+    # No more surfaces
+    writebuffunc(struct.pack('B', 0))
 
     # Filter out useless AABB points and generate data array
     aabb = bytearray()
     for comp in copy_obj.bound_box[0]:
-        aabb += struct.pack(endian_char + 'f', comp)
+        aabb += struct.pack('f', comp)
     for comp in copy_obj.bound_box[6]:
-        aabb += struct.pack(endian_char + 'f', comp)
+        aabb += struct.pack('f', comp)
 
     # Delete copied mesh from scene
     bpy.context.scene.objects.unlink(copy_obj)
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)
 
-    # Count total collections
-    total_collections = 0
-    for shader in shader_set:
-        total_collections += len(shader[1].collections)
-
-    # Start writing master buffer
-    output_data = bytearray()
-    output_data += aabb
-    output_data += struct.pack(endian_char + 'III', mesh_obj.data.hecl_material_count, len(shader_set), total_collections)
-
-    # Shader Reference Data (truncated SHA1 hashes)
-    if mesh_obj.data.hecl_material_count > 0:
-        for grp_idx in range(mesh_obj.data.hecl_material_count):
-            for shader in shader_set:
-                output_data += shader[0][grp_idx]
-    else:
-        for shader in shader_set:
-            for subshader in shader[0]:
-                output_data += subshader
-
-    # Generate mesh data
-    for shader in shader_set:
-        mesh_maker = shader[1]
-        output_data += struct.pack(endian_char + 'Ifff', len(mesh_maker.collections), shader[2][0], shader[2][1], shader[2][2])
-        for coll_idx in range(len(mesh_maker.collections)):
-        
-            # Vert Buffer
-            uv_count, max_bones, vert_bytes, vert_arr = mesh_maker.generate_vertex_buffer(coll_idx, endian_char)
-            output_data += struct.pack(endian_char + 'III', uv_count, max_bones // 4, len(vert_bytes))
-            output_data += vert_bytes
-
-            # Elem Buffer
-            collection_primitives, element_bytes, elem_arr = mesh_maker.generate_element_buffer(coll_idx, endian_char)
-            output_data += struct.pack(endian_char + 'I', len(element_bytes))
-            output_data += element_bytes
-
-            # Index Buffer
-            index_bytes = mesh_maker.generate_index_buffer(collection_primitives, endian_char, rigger)
-            output_data += struct.pack(endian_char + 'I', len(index_bytes))
-            output_data += index_bytes
-
-    # Generate rigging data
-    skin_info = None
-    if rigger:
-        skin_info = rigger.generate_rigging_info(endian_char)
-
-    # Write final buffer
-    final_data = bytearray()
-    final_data = b'HMDL'
-    if rigger:
-        final_data += struct.pack(endian_char + 'IIII', 1, actual_max_texmtx_count, max_bone_count, len(skin_info))
-        final_data += skin_info
-    else:
-        final_data += struct.pack(endian_char + 'II', 0, actual_max_texmtx_count)
-    final_data += output_data
-
-    # Clean up
-    for mesh in part_meshes:
-        bpy.data.meshes.remove(mesh)
-
-    # Write final mesh object
-    if area_db_id is not None:
-        new_hash = 0
-    else:
-        new_hash = heclpak.add_object(final_data, b'HMDL', resource_name)
-        res_db.update_resource_stats(db_id, new_hash)
-
-    return db_id, new_hash, final_data
 
 def draw(layout, context):
     layout.prop_search(context.scene, 'hecl_mesh_obj', context.scene, 'objects')
