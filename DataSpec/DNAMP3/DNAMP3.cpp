@@ -25,7 +25,7 @@ static bool GetNoShare(const std::string& name)
 }
 
 PAKBridge::PAKBridge(HECL::Database::Project& project,
-                     const NOD::DiscBase::IPartition::Node& node,
+                     const NOD::Node& node,
                      bool doExtract)
 : m_project(project), m_node(node), m_pak(GetNoShare(node.getName())), m_doExtract(doExtract)
 {

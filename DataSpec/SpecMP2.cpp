@@ -21,7 +21,7 @@ struct SpecMP2 : SpecBase
         return false;
     }
 
-    std::vector<const NOD::DiscBase::IPartition::Node*> m_nonPaks;
+    std::vector<const NOD::Node*> m_nonPaks;
     std::vector<DNAMP2::PAKBridge> m_paks;
     std::map<std::string, DNAMP2::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
@@ -35,13 +35,13 @@ struct SpecMP2 : SpecBase
       m_cookPath(project.getProjectCookedPath(SpecEntMP2), _S("MP2")),
       m_pakRouter(*this, m_workPath, m_cookPath) {}
 
-    void buildPaks(NOD::DiscBase::IPartition::Node& root,
-                   const std::list<HECL::SystemString>& args,
+    void buildPaks(NOD::Node& root,
+                   const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep)
     {
         m_nonPaks.clear();
         m_paks.clear();
-        for (const NOD::DiscBase::IPartition::Node& child : root)
+        for (const NOD::Node& child : root)
         {
             bool isPak = false;
             const std::string& name = child.getName();
@@ -118,10 +118,10 @@ struct SpecMP2 : SpecBase
 
     bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
-                                 const std::list<HECL::SystemString>& args,
-                                 std::list<ExtractReport>& reps)
+                                 const std::vector<HECL::SystemString>& args,
+                                 std::vector<ExtractReport>& reps)
     {
-        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
+        NOD::Partition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
         if (!buildInfo)
@@ -137,7 +137,7 @@ struct SpecMP2 : SpecBase
         rep.desc += _S(" (") + buildView + _S(")");
 
         /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
+        NOD::Node& root = partition->getFSTRoot();
         buildPaks(root, args, rep);
 
         return true;
@@ -145,10 +145,10 @@ struct SpecMP2 : SpecBase
 
     bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
-                              const std::list<HECL::SystemString>& args,
-                              std::list<ExtractReport>& reps)
+                              const std::vector<HECL::SystemString>& args,
+                              std::vector<ExtractReport>& reps)
     {
-        std::list<HECL::SystemString> mp2args;
+        std::vector<HECL::SystemString> mp2args;
         bool doExtract = false;
         if (args.size())
         {
@@ -160,6 +160,7 @@ struct SpecMP2 : SpecBase
                 if (!lowerArg.compare(0, 3, _S("mp2")))
                 {
                     doExtract = true;
+                    mp2args.reserve(args.size());
                     size_t slashPos = arg.find(_S('/'));
                     if (slashPos == HECL::SystemString::npos)
                         slashPos = arg.find(_S('\\'));
@@ -174,9 +175,9 @@ struct SpecMP2 : SpecBase
         if (!doExtract)
             return false;
 
-        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
-        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
-        NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5mp2_p.dol");
+        NOD::Partition* partition = disc.getDataPartition();
+        NOD::Node& root = partition->getFSTRoot();
+        NOD::Node::DirectoryIterator dolIt = root.find("rs5mp2_p.dol");
         if (dolIt == root.end())
             return false;
 
@@ -196,7 +197,7 @@ struct SpecMP2 : SpecBase
         }
 
         /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node::DirectoryIterator mp2It = root.find("MP2");
+        NOD::Node::DirectoryIterator mp2It = root.find("MP2");
         if (mp2It == root.end())
             return false;
         buildPaks(*mp2It, mp2args, rep);
@@ -221,7 +222,7 @@ struct SpecMP2 : SpecBase
             HECL::SystemStringView nameView(name);
             progress(_S("MP2 Root"), nameView.sys_str().c_str(), 3, prog / (float)m_nonPaks.size());
         };
-        for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+        for (const NOD::Node* node : m_nonPaks)
         {
             node->extractToDirectory(m_workPath.getAbsolutePath(), ctx);
             prog++;
@@ -255,6 +256,11 @@ struct SpecMP2 : SpecBase
         return true;
     }
 
+    bool checkPathPrefix(const HECL::ProjectPath& path)
+    {
+        return path.getRelativePath().compare(0, 4, "MP2/") == 0;
+    }
+
     bool validateYAMLDNAType(FILE* fp) const
     {
         if (BigYAML::ValidateFromYAMLFile<DNAMP2::MLVL>(fp))
@@ -262,6 +268,22 @@ struct SpecMP2 : SpecBase
         if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
             return true;
         return false;
+    }
+
+    void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookYAML(FILE* in, const HECL::ProjectPath& out) const
+    {
     }
 };
 

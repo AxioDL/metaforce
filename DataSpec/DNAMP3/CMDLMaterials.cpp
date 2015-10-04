@@ -116,7 +116,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     if (txtrId)
     {
         std::string texName = pakRouter.getBestEntryName(txtrId);
-        const NOD::DiscBase::IPartition::Node* node;
+        const NOD::Node* node;
         const PAK::Entry* texEntry = pakRouter.lookupEntry(txtrId, &node);
         HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
         if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)

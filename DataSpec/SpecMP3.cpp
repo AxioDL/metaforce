@@ -24,7 +24,7 @@ struct SpecMP3 : SpecBase
     }
 
     bool doMP3 = false;
-    std::vector<const NOD::DiscBase::IPartition::Node*> m_nonPaks;
+    std::vector<const NOD::Node*> m_nonPaks;
     std::vector<DNAMP3::PAKBridge> m_paks;
     std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
 
@@ -34,7 +34,7 @@ struct SpecMP3 : SpecBase
 
     /* These are populated when extracting MPT's frontend (uses MP3's DataSpec) */
     bool doMPTFE = false;
-    std::vector<const NOD::DiscBase::IPartition::Node*> m_feNonPaks;
+    std::vector<const NOD::Node*> m_feNonPaks;
     std::vector<DNAMP3::PAKBridge> m_fePaks;
     std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_feOrderedPaks;
 
@@ -51,8 +51,8 @@ struct SpecMP3 : SpecBase
       m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _S("fe")),
       m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {}
 
-    void buildPaks(NOD::DiscBase::IPartition::Node& root,
-                   const std::list<HECL::SystemString>& args,
+    void buildPaks(NOD::Node& root,
+                   const std::vector<HECL::SystemString>& args,
                    ExtractReport& rep,
                    bool fe)
     {
@@ -66,7 +66,7 @@ struct SpecMP3 : SpecBase
             m_nonPaks.clear();
             m_paks.clear();
         }
-        for (const NOD::DiscBase::IPartition::Node& child : root)
+        for (const NOD::Node& child : root)
         {
             bool isPak = false;
             const std::string& name = child.getName();
@@ -174,11 +174,11 @@ struct SpecMP3 : SpecBase
 
     bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                  const HECL::SystemString& regstr,
-                                 const std::list<HECL::SystemString>& args,
-                                 std::list<ExtractReport>& reps)
+                                 const std::vector<HECL::SystemString>& args,
+                                 std::vector<ExtractReport>& reps)
     {
         doMP3 = true;
-        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
+        NOD::Partition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
         if (!buildInfo)
@@ -198,7 +198,7 @@ struct SpecMP3 : SpecBase
         rep.desc += _S(" (") + buildView + _S(")");
 
         /* Iterate PAKs and build level options */
-        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
+        NOD::Node& root = partition->getFSTRoot();
         buildPaks(root, args, rep, false);
 
         return true;
@@ -206,11 +206,11 @@ struct SpecMP3 : SpecBase
 
     bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                               const HECL::SystemString& regstr,
-                              const std::list<HECL::SystemString>& args,
-                              std::list<ExtractReport>& reps)
+                              const std::vector<HECL::SystemString>& args,
+                              std::vector<ExtractReport>& reps)
     {
-        std::list<HECL::SystemString> mp3args;
-        std::list<HECL::SystemString> feargs;
+        std::vector<HECL::SystemString> mp3args;
+        std::vector<HECL::SystemString> feargs;
         if (args.size())
         {
             /* Needs filter */
@@ -221,6 +221,7 @@ struct SpecMP3 : SpecBase
                 if (!lowerArg.compare(0, 3, _S("mp3")))
                 {
                     doMP3 = true;
+                    mp3args.reserve(args.size());
                     size_t slashPos = arg.find(_S('/'));
                     if (slashPos == HECL::SystemString::npos)
                         slashPos = arg.find(_S('\\'));
@@ -236,6 +237,7 @@ struct SpecMP3 : SpecBase
                 if (!lowerArg.compare(0, 2, _S("fe")))
                 {
                     doMPTFE = true;
+                    feargs.reserve(args.size());
                     size_t slashPos = arg.find(_S('/'));
                     if (slashPos == HECL::SystemString::npos)
                         slashPos = arg.find(_S('\\'));
@@ -253,13 +255,13 @@ struct SpecMP3 : SpecBase
         if (!doMP3 && !doMPTFE)
             return false;
 
-        NOD::DiscGCN::IPartition* partition = disc.getDataPartition();
-        NOD::DiscBase::IPartition::Node& root = partition->getFSTRoot();
+        NOD::Partition* partition = disc.getDataPartition();
+        NOD::Node& root = partition->getFSTRoot();
 
         /* MP3 extract */
         if (doMP3)
         {
-            NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5mp3_p.dol");
+            NOD::Node::DirectoryIterator dolIt = root.find("rs5mp3_p.dol");
             if (dolIt == root.end())
                 return false;
 
@@ -285,7 +287,7 @@ struct SpecMP3 : SpecBase
 
 
             /* Iterate PAKs and build level options */
-            NOD::DiscBase::IPartition::Node::DirectoryIterator mp3It = root.find("MP3");
+            NOD::Node::DirectoryIterator mp3It = root.find("MP3");
             if (mp3It == root.end())
                 return false;
             buildPaks(*mp3It, mp3args, rep, false);
@@ -294,7 +296,7 @@ struct SpecMP3 : SpecBase
         /* MPT Frontend extract */
         if (doMPTFE)
         {
-            NOD::DiscBase::IPartition::Node::DirectoryIterator dolIt = root.find("rs5fe_p.dol");
+            NOD::Node::DirectoryIterator dolIt = root.find("rs5fe_p.dol");
             if (dolIt == root.end())
                 return false;
 
@@ -314,7 +316,7 @@ struct SpecMP3 : SpecBase
             }
 
             /* Iterate PAKs and build level options */
-            NOD::DiscBase::IPartition::Node::DirectoryIterator feIt = root.find("fe");
+            NOD::Node::DirectoryIterator feIt = root.find("fe");
             if (feIt == root.end())
                 return false;
             buildPaks(*feIt, feargs, rep, true);
@@ -352,7 +354,7 @@ struct SpecMP3 : SpecBase
 
             nodeCount = m_nonPaks.size();
             // TODO: Make this more granular
-            for (const NOD::DiscBase::IPartition::Node* node : m_nonPaks)
+            for (const NOD::Node* node : m_nonPaks)
             {
                 node->extractToDirectory(mp3WorkPath.getAbsolutePath(), ctx);
                 prog++;
@@ -402,7 +404,7 @@ struct SpecMP3 : SpecBase
             nodeCount = m_feNonPaks.size();
 
             // TODO: Make this more granular
-            for (const NOD::DiscBase::IPartition::Node* node : m_feNonPaks)
+            for (const NOD::Node* node : m_feNonPaks)
             {
                 node->extractToDirectory(m_feWorkPath.getAbsolutePath(), ctx);
                 prog++;
@@ -435,6 +437,11 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
+    bool checkPathPrefix(const HECL::ProjectPath& path)
+    {
+        return path.getRelativePath().compare(0, 4, "MP3/") == 0;
+    }
+
     bool validateYAMLDNAType(FILE* fp) const
     {
         if (BigYAML::ValidateFromYAMLFile<DNAMP3::MLVL>(fp))
@@ -444,6 +451,22 @@ struct SpecMP3 : SpecBase
         if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
             return true;
         return false;
+    }
+
+    void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    {
+    }
+
+    void cookYAML(FILE* in, const HECL::ProjectPath& out) const
+    {
     }
 };
 

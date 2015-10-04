@@ -246,7 +246,7 @@ private:
     HECL::ProjectPath m_sharedWorking;
     HECL::ProjectPath m_sharedCooked;
     const PAKType* m_pak = nullptr;
-    const NOD::DiscBase::IPartition::Node* m_node = nullptr;
+    const NOD::Node* m_node = nullptr;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
@@ -549,7 +549,7 @@ public:
     }
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
-                                                           const NOD::DiscBase::IPartition::Node** nodeOut=nullptr,
+                                                           const NOD::Node** nodeOut=nullptr,
                                                            bool silenceWarnings=false) const
     {
         if (!m_bridges)
@@ -586,7 +586,7 @@ public:
     template <typename DNA>
     bool lookupAndReadDNA(const IDType& id, DNA& out, bool silenceWarnings=false)
     {
-        const NOD::DiscBase::IPartition::Node* node;
+        const NOD::Node* node;
         const EntryType* entry = lookupEntry(id, &node, silenceWarnings);
         if (!entry)
             return false;

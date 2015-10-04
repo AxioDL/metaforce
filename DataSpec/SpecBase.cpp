@@ -7,7 +7,7 @@ namespace Retro
 
 static LogVisor::LogModule Log("Retro::SpecBase");
 
-bool SpecBase::canExtract(const ExtractPassInfo& info, std::list<ExtractReport>& reps)
+bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
     m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
@@ -54,7 +54,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     {
         /* Extract update partition for repacking later */
         const HECL::SystemString& target = m_project.getProjectWorkingPath().getAbsolutePath();
-        NOD::DiscBase::IPartition* update = m_disc->getUpdatePartition();
+        NOD::Partition* update = m_disc->getUpdatePartition();
         NOD::ExtractionContext ctx = {true, info.force, nullptr};
 
         if (update)
@@ -75,10 +75,10 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
         if (!m_standalone)
         {
             progress(_S("Trilogy Files"), _S(""), 1, 0.0);
-            NOD::DiscBase::IPartition* data = m_disc->getDataPartition();
-            const NOD::DiscBase::IPartition::Node& root = data->getFSTRoot();
-            for (const NOD::DiscBase::IPartition::Node& child : root)
-                if (child.getKind() == NOD::DiscBase::IPartition::Node::NODE_FILE)
+            NOD::Partition* data = m_disc->getDataPartition();
+            const NOD::Node& root = data->getFSTRoot();
+            for (const NOD::Node& child : root)
+                if (child.getKind() == NOD::Node::NODE_FILE)
                     child.extractToDirectory(target, ctx);
             progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
@@ -88,6 +88,8 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 
 bool SpecBase::canCook(const HECL::ProjectPath& path)
 {
+    if (!checkPathPrefix(path))
+        return false;
     if (HECL::IsPathBlend(path))
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
@@ -110,8 +112,22 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
     return false;
 }
 
+using Mesh = HECL::BlenderConnection::DataStream::Mesh;
+
 void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath)
 {
+    if (HECL::IsPathBlend(path))
+    {
+        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        if (!conn.openBlend(path.getAbsolutePath()))
+            return;
+        if (conn.getBlendType() == HECL::BlenderConnection::TypeMesh)
+        {
+            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            Mesh mesh = ds.compileMesh();
+            ds.close();
+        }
+    }
 }
 
 bool SpecBase::canPackage(const PackagePassInfo& info)
