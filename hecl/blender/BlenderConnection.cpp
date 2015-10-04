@@ -366,24 +366,10 @@ bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
     if (!strcmp(lineBuf, "FINISHED"))
     {
         m_loadedBlend = path;
+        m_loadedType = type;
         return true;
     }
     return false;
-}
-
-BlenderConnection::BlendType BlenderConnection::getBlendType()
-{
-    _writeLine("GETTYPE");
-    char lineBuf[256];
-    _readLine(lineBuf, sizeof(lineBuf));
-    unsigned idx = 0;
-    while (BlendTypeStrs[idx])
-    {
-        if (!strcmp(BlendTypeStrs[idx], lineBuf))
-            return BlendType(idx);
-        ++idx;
-    }
-    return TypeNone;
 }
 
 bool BlenderConnection::openBlend(const SystemString& path)
@@ -403,6 +389,19 @@ bool BlenderConnection::openBlend(const SystemString& path)
     if (!strcmp(lineBuf, "FINISHED"))
     {
         m_loadedBlend = path;
+        _writeLine("GETTYPE");
+        _readLine(lineBuf, sizeof(lineBuf));
+        m_loadedType = TypeNone;
+        unsigned idx = 0;
+        while (BlendTypeStrs[idx])
+        {
+            if (!strcmp(BlendTypeStrs[idx], lineBuf))
+            {
+                m_loadedType = BlendType(idx);
+                break;
+            }
+            ++idx;
+        }
         return true;
     }
     return false;
@@ -487,12 +486,16 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
         norm.emplace_back(conn);
 
     conn._readBuf(&colorLayerCount, 4);
+    if (colorLayerCount > 4)
+        LogModule.report(LogVisor::FatalError, "mesh has %u color-layers; max 4", colorLayerCount);
     conn._readBuf(&count, 4);
     color.reserve(count);
     for (int i=0 ; i<count ; ++i)
         color.emplace_back(conn);
 
     conn._readBuf(&uvLayerCount, 4);
+    if (uvLayerCount > 8)
+        LogModule.report(LogVisor::FatalError, "mesh has %u UV-layers; max 8", uvLayerCount);
     conn._readBuf(&count, 4);
     uv.reserve(count);
     for (int i=0 ; i<count ; ++i)
@@ -595,13 +598,11 @@ BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
 {
     conn._readBuf(&iPos, 4);
     conn._readBuf(&iNorm, 4);
-    if (parent.colorLayerCount)
-        conn._readBuf(iColor, 4 * parent.colorLayerCount);
-    if (parent.uvLayerCount)
-        conn._readBuf(iUv, 4 * parent.uvLayerCount);
+    for (int i=0 ; i<parent.colorLayerCount ; ++i)
+        conn._readBuf(&iColor[i], 4);
+    for (int i=0 ; i<parent.uvLayerCount ; ++i)
+        conn._readBuf(&iUv[i], 4);
     conn._readBuf(&iSkin, 4);
-    if (parent.pos.size() == 1250)
-        printf("");
 }
 
 static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx)

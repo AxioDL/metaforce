@@ -28,6 +28,15 @@ extern class BlenderConnection* SharedBlenderConnection;
 
 class BlenderConnection
 {
+public:
+    enum BlendType
+    {
+        TypeNone,
+        TypeMesh,
+        TypeActor,
+        TypeArea
+    };
+private:
     bool m_lock = false;
 #if _WIN32
     HANDLE m_blenderProc;
@@ -36,6 +45,7 @@ class BlenderConnection
 #endif
     int m_readpipe[2];
     int m_writepipe[2];
+    BlendType m_loadedType = TypeNone;
     SystemString m_loadedBlend;
     std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
@@ -47,16 +57,8 @@ public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
 
-    enum BlendType
-    {
-        TypeNone,
-        TypeMesh,
-        TypeActor,
-        TypeArea
-    };
-
     bool createBlend(const SystemString& path, BlendType type);
-    BlendType getBlendType();
+    BlendType getBlendType() const {return m_loadedType;}
     bool openBlend(const SystemString& path);
     bool saveBlend();
     void deleteBlend();

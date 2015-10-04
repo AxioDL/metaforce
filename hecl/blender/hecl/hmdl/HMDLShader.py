@@ -79,14 +79,14 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 soc = soc_from.node.inputs[s+1]
                 if len(soc.links):
                     raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
-                ncomps = len(soc.default_value)
-                if ncomps > 1:
+                if soc.type == 'VALUE':
+                    matrix_str += '%g' % soc.default_value
+                else:
+                    ncomps = len(soc.default_value)
                     matrix_str += 'vec%d(' % ncomps
                     for c in ncomps-1:
                         matrix_str += '%g, ' % soc.default_value[c]
                     matrix_str += '%g)' % soc.default_value[ncomps-1]
-                else:
-                    matrix_str += '%g' % soc.default_value
 
                 if s == len(soc_from.node.inputs)-2:
                     matrix_str += ')'
@@ -223,14 +223,14 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 soc = soc_from.node.inputs[s+1]
                 if len(soc.links):
                     raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
-                ncomps = len(soc.default_value)
-                if ncomps > 1:
+                if soc.type == 'VALUE':
+                    matrix_str += '%g' % soc.default_value
+                else:
+                    ncomps = len(soc.default_value)
                     matrix_str += 'vec%d(' % ncomps
                     for c in ncomps-1:
                         matrix_str += '%g, ' % soc.default_value[c]
                     matrix_str += '%g)' % soc.default_value[ncomps-1]
-                else:
-                    matrix_str += '%g' % soc.default_value
 
                 if s == len(soc_from.node.inputs)-2:
                     matrix_str += ')'

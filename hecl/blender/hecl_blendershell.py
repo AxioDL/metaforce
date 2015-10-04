@@ -24,7 +24,7 @@ def readpipeline():
         retval += ch
 
 def writepipeline(linebytes):
-    print('LINE', linebytes)
+    #print('LINE', linebytes)
     os.write(writefd, linebytes + b'\n')
 
 def writepipebuf(linebytes):

@@ -180,7 +180,7 @@ Time ProjectPath::getModtime() const
             return Time(latestTime);
         }
     }
-    LogModule.report(LogVisor::Error, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
+    LogModule.report(LogVisor::FatalError, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
 }
 

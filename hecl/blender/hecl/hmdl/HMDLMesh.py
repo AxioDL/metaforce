@@ -122,7 +122,6 @@ class VertPool:
         for ul in range(len(self.ulays)):
             writebuffunc(struct.pack('I', self.get_uv_idx(loop, ul)))
         sp = struct.pack('I', self.get_skin_idx(loop.vert))
-        print(sp)
         writebuffunc(sp)
 
 def recursive_faces_islands(dlay, list_out, rem_list, skin_slot_set, skin_slot_count, face):
@@ -273,7 +272,6 @@ def write_out_surface(writebuffunc, vert_pool, island_faces, mat_idx):
 
     # Count estimate
     writebuffunc(struct.pack('I', len(island_faces) * 3))
-    print('EST', len(island_faces) * 3)
 
     # Verts themselves
     last_loop = None
