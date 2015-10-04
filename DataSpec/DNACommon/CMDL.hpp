@@ -151,7 +151,7 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
     for (const UniqueID32& tex : matSet.head.textureIDs)
     {
         std::string texName = pakRouter.getBestEntryName(tex);
-        const NOD::DiscBase::IPartition::Node* node;
+        const NOD::Node* node;
         const typename PAKRouter::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);
         HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
         if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)

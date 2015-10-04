@@ -15,7 +15,7 @@ extern LogVisor::LogModule Log;
 class PAKBridge
 {
     HECL::Database::Project& m_project;
-    const NOD::DiscBase::IPartition::Node& m_node;
+    const NOD::Node& m_node;
     PAK m_pak;
 public:
     bool m_doExtract;
@@ -24,7 +24,7 @@ public:
     HECL::SystemString m_levelString;
 
     PAKBridge(HECL::Database::Project& project,
-              const NOD::DiscBase::IPartition::Node& node,
+              const NOD::Node& node,
               bool doExtract=true);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);
@@ -33,7 +33,7 @@ public:
 
     using PAKType = PAK;
     inline const PAKType& getPAK() const {return m_pak;}
-    inline const NOD::DiscBase::IPartition::Node& getNode() const {return m_node;}
+    inline const NOD::Node& getNode() const {return m_node;}
 
     void addCMDLRigPairs(std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo) const;
 };

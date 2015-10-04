@@ -5,13 +5,15 @@
 
 #include <HECL/Database.hpp>
 #include <NOD/NOD.hpp>
+#include "BlenderConnection.hpp"
 
 namespace Retro
 {
 
 struct SpecBase : HECL::Database::IDataSpec
 {
-    bool canExtract(const ExtractPassInfo& info, std::list<ExtractReport>& reps);
+    /* HECL Adaptors */
+    bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 
     bool canCook(const HECL::ProjectPath& path);
@@ -22,19 +24,32 @@ struct SpecBase : HECL::Database::IDataSpec
                             std::unordered_set<HECL::ProjectPath>& implicitsOut);
     void doPackage(const PackagePassInfo& info);
 
+    /* Extract handlers */
     virtual bool checkStandaloneID(const char* id) const=0;
     virtual bool checkFromStandaloneDisc(NOD::DiscBase& disc,
                                          const HECL::SystemString& regstr,
-                                         const std::list<HECL::SystemString>& args,
-                                         std::list<ExtractReport>& reps)=0;
+                                         const std::vector<HECL::SystemString>& args,
+                                         std::vector<ExtractReport>& reps)=0;
     virtual bool checkFromTrilogyDisc(NOD::DiscBase& disc,
                                       const HECL::SystemString& regstr,
-                                      const std::list<HECL::SystemString>& args,
-                                      std::list<ExtractReport>& reps)=0;
+                                      const std::vector<HECL::SystemString>& args,
+                                      std::vector<ExtractReport>& reps)=0;
     virtual bool extractFromDisc(NOD::DiscBase& disc, bool force,
                                  FProgress progress)=0;
 
+    /* Basic path check (game directory matching) */
+    virtual bool checkPathPrefix(const HECL::ProjectPath& path)=0;
+
+    /* Pre-cook handlers */
     virtual bool validateYAMLDNAType(FILE* fp) const=0;
+
+    /* Cook handlers */
+    using BlendStream = HECL::BlenderConnection::DataStream;
+    virtual void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
+    virtual void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
+    virtual void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
+    virtual void cookYAML(FILE* in, const HECL::ProjectPath& out) const=0;
+
 
     const HECL::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

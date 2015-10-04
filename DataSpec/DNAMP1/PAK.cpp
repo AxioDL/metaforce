@@ -73,7 +73,7 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
 }
 
 std::unique_ptr<atUint8[]>
-PAK::Entry::getBuffer(const NOD::DiscBase::IPartition::Node& pak, atUint64& szOut) const
+PAK::Entry::getBuffer(const NOD::Node& pak, atUint64& szOut) const
 {
     if (compressed)
     {

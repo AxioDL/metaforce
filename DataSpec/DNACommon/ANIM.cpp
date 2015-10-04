@@ -440,8 +440,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                     QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
                     quantizeBit(newData, qrCur.w);
                     quantize(newData, chan.q[0], qrCur.v[0] - qrLast.v[0]);
-                    quantize(newData, chan.q[1], qrCur.v[1] - qrLast.v[0]);
-                    quantize(newData, chan.q[2], qrCur.v[2] - qrLast.v[0]);
+                    quantize(newData, chan.q[1], qrCur.v[1] - qrLast.v[1]);
+                    quantize(newData, chan.q[2], qrCur.v[2] - qrLast.v[2]);
                     qrLast = qrCur;
                 }
                 break;
@@ -459,8 +459,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                                           atInt16(it->v3.vec[1] / transMultOut),
                                           atInt16(it->v3.vec[2] / transMultOut)};
                     quantize(newData, chan.q[0], cur[0] - last[0]);
-                    quantize(newData, chan.q[1], cur[1] - last[0]);
-                    quantize(newData, chan.q[2], cur[2] - last[0]);
+                    quantize(newData, chan.q[1], cur[1] - last[1]);
+                    quantize(newData, chan.q[2], cur[2] - last[2]);
                     last = cur;
                 }
                 break;
@@ -478,8 +478,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                                           atInt16(it->v3.vec[1] * rotDivOut),
                                           atInt16(it->v3.vec[2] * rotDivOut)};
                     quantize(newData, chan.q[0], cur[0] - last[0]);
-                    quantize(newData, chan.q[1], cur[1] - last[0]);
-                    quantize(newData, chan.q[2], cur[2] - last[0]);
+                    quantize(newData, chan.q[1], cur[1] - last[1]);
+                    quantize(newData, chan.q[2], cur[2] - last[2]);
                     last = cur;
                 }
                 break;

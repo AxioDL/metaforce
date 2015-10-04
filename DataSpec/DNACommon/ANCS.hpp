@@ -44,7 +44,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     ancs.getCharacterResInfo(chResInfo);
     for (const auto& info : chResInfo)
     {
-        const NOD::DiscBase::IPartition::Node* node;
+        const NOD::Node* node;
         const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true);
         if (cmdlE)
         {
