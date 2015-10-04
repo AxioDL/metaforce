@@ -48,7 +48,7 @@ Project::ConfigFile::ConfigFile(const Project& project, const SystemString& name
     m_filepath = project.m_rootPath.getAbsolutePath() + subdir + name;
 }
 
-std::list<std::string>& Project::ConfigFile::lockAndRead()
+std::vector<std::string>& Project::ConfigFile::lockAndRead()
 {
     if (m_lockedFile)
         return m_lines;
@@ -122,10 +122,8 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
     }
 
     for (const std::string& line : m_lines)
-    {
         if (!line.compare(refLine))
             return true;
-    }
     return false;
 }
 
@@ -262,7 +260,7 @@ bool Project::addPaths(const std::vector<ProjectPath>& paths)
 
 bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
 {
-    std::list<std::string>& existingPaths = m_paths.lockAndRead();
+    std::vector<std::string>& existingPaths = m_paths.lockAndRead();
     if (recursive)
     {
         for (const ProjectPath& path : paths)
@@ -306,7 +304,8 @@ void Project::rescanDataSpecs()
     m_specs.lockAndRead();
     for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
-        SystemUTF8View specUTF8(spec->m_name);
+        HECL::SystemString specStr(spec->m_name);
+        SystemUTF8View specUTF8(specStr);
         m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, HECL::SystemString(spec->m_name) + _S(".spec")),
                                    m_specs.checkForLine(specUTF8) ? true : false});
     }
@@ -339,115 +338,197 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
     return result;
 }
 
-static void InsertPath(std::list<std::pair<ProjectPath, std::list<ProjectPath>>>& dirs,
-                       ProjectPath&& path)
+class CookProgress
 {
-    ProjectPath thisDir = path.getParentPath();
-    for (std::pair<ProjectPath, std::list<ProjectPath>>& dir : dirs)
+    FProgress& m_progFunc;
+    const SystemChar* m_dir = nullptr;
+    const SystemChar* m_file = nullptr;
+    int lidx = 0;
+    float m_prog = 0.0;
+public:
+    CookProgress(FProgress& progFunc) : m_progFunc(progFunc) {}
+    void changeDir(const SystemChar* dir) {m_dir = dir; ++lidx;}
+    void changeFile(const SystemChar* file, float prog) {m_file = file; m_prog = prog;}
+    void reportFile(const DataSpecEntry* specEnt)
     {
-        if (dir.first == thisDir)
+        SystemString submsg(m_file);
+        submsg += _S(" (");
+        submsg += specEnt->m_name;
+        submsg += _S(')');
+        m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+    }
+    void reportDirComplete() {m_progFunc(m_dir, nullptr, lidx, 1.0);}
+};
+
+using SpecInst = std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>;
+
+static void VisitFile(const ProjectPath& path,
+                      std::vector<SpecInst>& specInsts,
+                      CookProgress& progress)
+{
+    for (SpecInst& spec : specInsts)
+    {
+        if (spec.second->canCook(path))
         {
-            dir.second.push_back(std::move(path));
-            return;
+            ProjectPath cooked = path.getCookedPath(*spec.first);
+            if (path.getModtime() > cooked.getModtime())
+            {
+                progress.reportFile(spec.first);
+                spec.second->doCook(path, cooked);
+            }
         }
     }
-    dirs.emplace_back(std::move(thisDir), std::list<ProjectPath>(std::move(path)));
 }
 
-static void VisitDirectory(std::list<std::pair<ProjectPath, std::list<ProjectPath>>>& allDirs,
-                           const ProjectPath& dir, bool recursive)
+static void VisitDirectory(const ProjectPath& dir, bool recursive,
+                           std::vector<SpecInst>& specInsts,
+                           CookProgress& progress)
 {
-    std::list<ProjectPath> children;
+    std::vector<ProjectPath> children;
     dir.getDirChildren(children);
-    allDirs.emplace_back(dir, std::list<ProjectPath>());
-    std::list<ProjectPath>& ch = allDirs.back().second;
+
+    /* Pass 1: child file count */
+    int childFileCount = 0;
     for (ProjectPath& child : children)
     {
         switch (child.getPathType())
         {
         case ProjectPath::PT_FILE:
         {
-            ch.push_back(std::move(child));
-            break;
-        }
-        case ProjectPath::PT_DIRECTORY:
-        {
-            if (recursive)
-                VisitDirectory(allDirs, child, recursive);
+            ++childFileCount;
             break;
         }
         default: break;
         }
     }
-}
 
-bool Project::cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive)
-{
-    /* Construct DataSpec instances for cooking */
-    std::list<std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>> specInsts;
-    for (const ProjectDataSpec& spec : m_compiledSpecs)
-        if (spec.active)
-            specInsts.emplace_back(&spec.spec, std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, TOOL_COOK)));
-
-    /* Gather complete directory/file list */
-    std::list<std::pair<ProjectPath, std::list<ProjectPath>>> allDirs;
-    switch (path.getPathType())
+    /* Pass 2: child files */
+    int progNum = 0;
+    float progDenom = childFileCount;
+    progress.changeDir(dir.getLastComponent());
+    for (ProjectPath& child : children)
     {
-    case ProjectPath::PT_FILE:
-    {
-        InsertPath(allDirs, std::move(ProjectPath(path)));
-        break;
-    }
-    case ProjectPath::PT_DIRECTORY:
-    {
-        VisitDirectory(allDirs, path, recursive);
-        break;
-    }
-    case ProjectPath::PT_GLOB:
-    {
-        std::list<ProjectPath> results;
-        path.getGlobResults(results);
-        for (ProjectPath& result : results)
+        switch (child.getPathType())
         {
-            switch (result.getPathType())
+        case ProjectPath::PT_FILE:
+        {
+            progress.changeFile(child.getLastComponent(), progNum++/progDenom);
+            VisitFile(child, specInsts, progress);
+            break;
+        }
+        default: break;
+        }
+    }
+    progress.reportDirComplete();
+
+    /* Pass 3: child directories */
+    if (recursive)
+    {
+        for (ProjectPath& child : children)
+        {
+            switch (child.getPathType())
             {
-            case ProjectPath::PT_FILE:
-            {
-                InsertPath(allDirs, std::move(result));
-                break;
-            }
             case ProjectPath::PT_DIRECTORY:
             {
-                VisitDirectory(allDirs, path, recursive);
+                VisitDirectory(child, recursive, specInsts, progress);
                 break;
             }
             default: break;
             }
         }
     }
-    default: break;
+}
+
+static void VisitGlob(const ProjectPath& path, bool recursive,
+                      std::vector<SpecInst>& specInsts,
+                      CookProgress& progress)
+{
+    std::vector<ProjectPath> children;
+    path.getGlobResults(children);
+
+    /* Pass 1: child file count */
+    int childFileCount = 0;
+    for (ProjectPath& child : children)
+    {
+        switch (child.getPathType())
+        {
+        case ProjectPath::PT_FILE:
+        {
+            ++childFileCount;
+            break;
+        }
+        default: break;
+        }
     }
 
-    /* Iterate and cook */
-    int lidx = 0;
-    for (const std::pair<ProjectPath, std::list<ProjectPath>>& dir : allDirs)
+    /* Pass 2: child files */
+    int progNum = 0;
+    float progDenom = childFileCount;
+    progress.changeDir(path.getLastComponent());
+    for (ProjectPath& child : children)
     {
-        float dirSz = dir.second.size();
-        int pidx = 0;
-        for (const ProjectPath& path : dir.second)
+        switch (child.getPathType())
         {
-            feedbackCb(dir.first.getLastComponent(), path.getLastComponent(), lidx, pidx++/dirSz);
-            for (std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>& spec : specInsts)
+        case ProjectPath::PT_FILE:
+        {
+            progress.changeFile(child.getLastComponent(), progNum++/progDenom);
+            VisitFile(child, specInsts, progress);
+            break;
+        }
+        default: break;
+        }
+    }
+    progress.reportDirComplete();
+
+    /* Pass 3: child directories */
+    if (recursive)
+    {
+        for (ProjectPath& child : children)
+        {
+            switch (child.getPathType())
             {
-                if (spec.second->canCook(path))
-                {
-                    ProjectPath cooked = path.getCookedPath(*spec.first);
-                    if (path.getModtime() > cooked.getModtime())
-                        spec.second->doCook(path, cooked);
-                }
+            case ProjectPath::PT_DIRECTORY:
+            {
+                VisitDirectory(child, recursive, specInsts, progress);
+                break;
+            }
+            default: break;
             }
         }
-        feedbackCb(dir.first.getLastComponent(), nullptr, lidx++, 1.0);
+    }
+}
+
+bool Project::cookPath(const ProjectPath& path, FProgress progress, bool recursive)
+{
+    /* Construct DataSpec instances for cooking */
+    std::vector<SpecInst> specInsts;
+    specInsts.reserve(m_compiledSpecs.size());
+    for (const ProjectDataSpec& spec : m_compiledSpecs)
+        if (spec.active)
+            specInsts.emplace_back(&spec.spec,
+            std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, TOOL_COOK)));
+
+    /* Iterate complete directory/file/glob list */
+    CookProgress cookProg(progress);
+    switch (path.getPathType())
+    {
+    case ProjectPath::PT_FILE:
+    {
+        cookProg.changeFile(path.getLastComponent(), 0.0);
+        VisitFile(path, specInsts, cookProg);
+        break;
+    }
+    case ProjectPath::PT_DIRECTORY:
+    {
+        VisitDirectory(path, recursive, specInsts, cookProg);
+        break;
+    }
+    case ProjectPath::PT_GLOB:
+    {
+        VisitGlob(path, recursive, specInsts, cookProg);
+        break;
+    }
+    default: break;
     }
 
     return true;

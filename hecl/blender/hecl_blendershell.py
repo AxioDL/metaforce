@@ -24,11 +24,12 @@ def readpipeline():
         retval += ch
 
 def writepipeline(linebytes):
+    print('LINE', linebytes)
     os.write(writefd, linebytes + b'\n')
 
 def writepipebuf(linebytes):
-    writepipeline(b'BUF')
-    os.write(writefd, struct.pack('I', len(linebytes)) + linebytes)
+    #print('BUF', linebytes)
+    os.write(writefd, linebytes)
 
 def quitblender():
     writepipeline(b'QUITTING')
@@ -134,7 +135,8 @@ def dataout_loop():
         print(cmdargs)
 
         if cmdargs[0] == 'DATAEND':
-            break
+            writepipeline(b'DONE')
+            return
 
         elif cmdargs[0] == 'MESHLIST':
             for meshobj in bpy.data.objects:
@@ -142,13 +144,25 @@ def dataout_loop():
                     writepipeline(meshobj.name.encode())
 
         elif cmdargs[0] == 'MESHCOMPILE':
+            maxSkinBanks = int(cmdargs[1])
+
+            meshName = bpy.context.scene.hecl_mesh_obj
+            if meshName not in bpy.data.objects:
+                writepipeline(('mesh %s not found' % meshName).encode())
+                continue
+
+            writepipeline(b'OK')
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], maxSkinBanks)
+
+        elif cmdargs[0] == 'MESHCOMPILENAME':
             meshName = cmdargs[1]
             maxSkinBanks = int(cmdargs[2])
 
             if meshName not in bpy.data.objects:
-                writepipeline(b'mesh not found')
+                writepipeline(('mesh %s not found' % meshName).encode())
                 continue
 
+            writepipeline(b'OK')
             hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], maxSkinBanks)
 
         elif cmdargs[0] == 'MESHCOMPILEALL':
@@ -162,6 +176,7 @@ def dataout_loop():
             bpy.context.scene.objects.active = join_obj
             bpy.ops.object.join()
 
+            writepipeline(b'OK')
             hecl.hmdl.cook(writepipebuf, join_obj, maxSkinBanks)
 
             bpy.context.scene.objects.unlink(join_obj)

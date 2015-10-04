@@ -22,8 +22,8 @@ class ToolExtract final : public ToolBase
         SpecExtractPass(const SpecExtractPass& other) = delete;
         SpecExtractPass(SpecExtractPass&& other) = default;
     };
-    std::list<SpecExtractPass> m_specPasses;
-    std::list<HECL::Database::IDataSpec::ExtractReport> m_reps;
+    std::vector<SpecExtractPass> m_specPasses;
+    std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
     std::unique_ptr<HECL::Database::Project> m_fallbackProj;
     HECL::Database::Project* m_useProj;
 public:
@@ -64,12 +64,13 @@ public:
 
         m_einfo.srcpath = m_info.args.front();
         m_einfo.force = info.force;
-        std::list<HECL::SystemString>::const_iterator it=info.args.begin();
+        m_einfo.extractArgs.reserve(info.args.size());
+        auto it=info.args.cbegin();
         ++it;
-        for (;it != info.args.end();
-             ++it)
+        for (; it != info.args.cend(); ++it)
             m_einfo.extractArgs.push_back(*it);
 
+        m_specPasses.reserve(HECL::Database::DATA_SPEC_REGISTRY.size());
         for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
         {
             HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::TOOL_EXTRACT);
@@ -187,11 +188,10 @@ public:
 
             int lineIdx = 0;
             ds.m_instance->doExtract(m_einfo,
-            [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
+            [&lineIdx](const HECL::SystemChar* message,
+                       const HECL::SystemChar* submessage,
                        int lidx, float factor)
-            {
-                ToolPrintProgress(message, submessage, lidx, factor, lineIdx);
-            });
+            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);});
             HECL::Printf(_S("\n\n"));
         }
 

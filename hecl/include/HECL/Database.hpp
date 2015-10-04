@@ -77,7 +77,7 @@ public:
     struct ExtractPassInfo
     {
         SystemString srcpath;
-        std::list<SystemString> extractArgs;
+        std::vector<SystemString> extractArgs;
         bool force;
     };
 
@@ -94,8 +94,8 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
-    virtual bool canExtract(const ExtractPassInfo& info, std::list<ExtractReport>& reps)
-    {(void)info;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
+    {(void)info;(void)reps;LogModule.report(LogVisor::Error, "not implemented");return false;}
     virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
     {(void)info;(void)progress;}
 
@@ -271,12 +271,12 @@ public:
     class ConfigFile
     {
         SystemString m_filepath;
-        std::list<std::string> m_lines;
+        std::vector<std::string> m_lines;
         FILE* m_lockedFile = NULL;
     public:
         ConfigFile(const Project& project, const SystemString& name,
                    const SystemString& subdir=_S("/.hecl/"));
-        std::list<std::string>& lockAndRead();
+        std::vector<std::string>& lockAndRead();
         void addLine(const std::string& line);
         void removeLine(const std::string& refLine);
         bool checkForLine(const std::string& refLine);

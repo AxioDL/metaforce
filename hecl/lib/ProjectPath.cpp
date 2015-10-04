@@ -32,7 +32,7 @@ static SystemString canonRelPath(const SystemString& path)
             if (comps.empty())
             {
                 /* Unable to resolve outside project */
-                LogModule.report(LogVisor::Error, _S("Unable to resolve outside project root in %s"), path.c_str());
+                LogModule.report(LogVisor::FatalError, _S("Unable to resolve outside project root in %s"), path.c_str());
                 return _S(".");
             }
             comps.pop_back();
@@ -118,7 +118,8 @@ void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 
 ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) const
 {
-    return ProjectPath(m_proj->getProjectCookedPath(spec), m_relPath);
+    ProjectPath woExt = getWithExtension(nullptr, true);
+    return ProjectPath(m_proj->getProjectCookedPath(spec), woExt.getRelativePath());
 }
 
 ProjectPath::PathType ProjectPath::getPathType() const
@@ -141,7 +142,7 @@ Time ProjectPath::getModtime() const
     time_t latestTime = 0;
     if (std::regex_search(m_absPath, regGLOB))
     {
-        std::list<ProjectPath> globResults;
+        std::vector<ProjectPath> globResults;
         getGlobResults(globResults);
         for (ProjectPath& path : globResults)
         {
@@ -179,12 +180,12 @@ Time ProjectPath::getModtime() const
             return Time(latestTime);
         }
     }
-    LogModule.report(LogVisor::Error, _S("invalid path type for computing modtime"));
+    LogModule.report(LogVisor::Error, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
 }
 
 static void _recursiveGlob(Database::Project& proj,
-                           std::list<ProjectPath>& outPaths,
+                           std::vector<ProjectPath>& outPaths,
                            size_t level,
                            const SystemRegexMatch& pathCompMatches,
                            const SystemString& itStr,
@@ -241,10 +242,11 @@ static void _recursiveGlob(Database::Project& proj,
 #endif
 }
 
-void ProjectPath::getDirChildren(std::list<ProjectPath>& outPaths) const
+void ProjectPath::getDirChildren(std::vector<ProjectPath>& outPaths) const
 {
 #if _WIN32
 #else
+    struct dirent* de;
     DIR* dir = opendir(m_absPath.c_str());
     if (!dir)
     {
@@ -252,15 +254,34 @@ void ProjectPath::getDirChildren(std::list<ProjectPath>& outPaths) const
         return;
     }
 
-    struct dirent* de;
+    /* Count elements */
+    size_t count = 0;
     while ((de = readdir(dir)))
+    {
+        if (!strcmp(de->d_name, "."))
+            continue;
+        if (!strcmp(de->d_name, ".."))
+            continue;
+        ++count;
+    }
+    outPaths.reserve(outPaths.size() + count);
+
+    /* Add elements */
+    rewinddir(dir);
+    while ((de = readdir(dir)))
+    {
+        if (!strcmp(de->d_name, "."))
+            continue;
+        if (!strcmp(de->d_name, ".."))
+            continue;
         outPaths.emplace_back(*this, de->d_name);
+    }
 
     closedir(dir);
 #endif
 }
 
-void ProjectPath::getGlobResults(std::list<ProjectPath>& outPaths) const
+void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
 {
 #if _WIN32
     SystemString itStr;
@@ -338,8 +359,7 @@ ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpath
                 fclose(fp);
                 if (readSize != 4)
                     continue;
-                static const HECL::FourCC hecl("HECL");
-                if (HECL::FourCC(magic) != hecl)
+                if (HECL::FourCC(magic) != FOURCC('HECL'))
                     continue;
                 ProjectRootPath newRootPath = ProjectRootPath(testPath);
                 SystemString::const_iterator origEnd = testRoot.getAbsolutePath().end();

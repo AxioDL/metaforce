@@ -20,7 +20,7 @@ struct ToolPassInfo
 {
     HECL::SystemString pname;
     HECL::SystemString cwd;
-    std::list<HECL::SystemString> args;
+    std::vector<HECL::SystemString> args;
     HECL::SystemString output;
     HECL::Database::Project* project = nullptr;
     unsigned verbosityLevel = 0;
@@ -229,6 +229,7 @@ static HECL::SystemString MakePathArgAbsolute(const HECL::SystemString& arg,
 void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* submessage,
                        int lidx, float factor, int& lineIdx)
 {
+    bool blocks = factor >= 0.0;
     factor = std::max(0.0f, std::min(1.0f, factor));
     int iFactor = factor * 100.0;
     if (XTERM_COLOR)
@@ -243,7 +244,11 @@ void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* 
         HECL::Printf(_S("  "));
 
     int width = HECL::ConsoleWidth();
-    int half = width / 2 - 2;
+    int half;
+    if (blocks)
+        half = width / 2 - 2;
+    else
+        half = width - 4;
 
     if (!message)
         message = _S("");
@@ -278,29 +283,32 @@ void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* 
         }
     }
 
-    if (XTERM_COLOR)
+    if (blocks)
     {
-        size_t blocks = half - 7;
-        size_t filled = blocks * factor;
-        size_t rem = blocks - filled;
-        HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
-        for (int b=0 ; b<filled ; ++b)
-            HECL::Printf(_S("#"));
-        for (int b=0 ; b<rem ; ++b)
-            HECL::Printf(_S("-"));
-        HECL::Printf(_S("]" NORMAL ""));
-    }
-    else
-    {
-        size_t blocks = half - 7;
-        size_t filled = blocks * factor;
-        size_t rem = blocks - filled;
-        HECL::Printf(_S("%3d%% ["), iFactor);
-        for (int b=0 ; b<filled ; ++b)
-            HECL::Printf(_S("#"));
-        for (int b=0 ; b<rem ; ++b)
-            HECL::Printf(_S("-"));
-        HECL::Printf(_S("]"));
+        if (XTERM_COLOR)
+        {
+            size_t blocks = half - 7;
+            size_t filled = blocks * factor;
+            size_t rem = blocks - filled;
+            HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
+            for (int b=0 ; b<filled ; ++b)
+                HECL::Printf(_S("#"));
+            for (int b=0 ; b<rem ; ++b)
+                HECL::Printf(_S("-"));
+            HECL::Printf(_S("]" NORMAL ""));
+        }
+        else
+        {
+            size_t blocks = half - 7;
+            size_t filled = blocks * factor;
+            size_t rem = blocks - filled;
+            HECL::Printf(_S("%3d%% ["), iFactor);
+            for (int b=0 ; b<filled ; ++b)
+                HECL::Printf(_S("#"));
+            for (int b=0 ; b<rem ; ++b)
+                HECL::Printf(_S("-"));
+            HECL::Printf(_S("]"));
+        }
     }
 
     HECL::Printf(_S("\r"));

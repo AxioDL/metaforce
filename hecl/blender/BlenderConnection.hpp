@@ -310,9 +310,9 @@ public:
             std::vector<Vector3f> pos;
             std::vector<Vector3f> norm;
             uint32_t colorLayerCount = 0;
-            std::vector<Vector3f> color[4];
+            std::vector<Vector3f> color;
             uint32_t uvLayerCount = 0;
-            std::vector<Vector2f> uv[8];
+            std::vector<Vector2f> uv;
 
             /* Skinning data */
             std::vector<std::string> boneNames;
@@ -342,33 +342,51 @@ public:
                     uint32_t iColor[4] = {uint32_t(-1)};
                     uint32_t iUv[8] = {uint32_t(-1)};
                     uint32_t iSkin;
+                    uint32_t iBankSkin = -1;
 
                     Vert(BlenderConnection& conn, const Mesh& parent);
                 };
                 std::vector<Vert> verts;
 
-                Surface(BlenderConnection& conn, const Mesh& parent);
+                Surface(BlenderConnection& conn, Mesh& parent, int skinSlotCount);
             };
             std::vector<Surface> surfaces;
 
-            class SkinBanks
+            struct SkinBanks
             {
                 std::vector<std::vector<uint32_t>> banks;
-            public:
-                uint32_t addSurface(const Surface& surf)
+                std::vector<std::vector<uint32_t>>::iterator addSkinBank(int skinSlotCount)
                 {
-                    return 0;
+                    banks.emplace_back();
+                    banks.back().reserve(skinSlotCount);
+                    return banks.end() - 1;
                 }
+                uint32_t addSurface(const Surface& surf, int skinSlotCount);
             } skinBanks;
 
-            Mesh(BlenderConnection& conn, int maxSkinBanks);
+            Mesh(BlenderConnection& conn, int skinSlotCount);
         };
 
-        /* Compile mesh by name */
-        Mesh compileMesh(const std::string& name, int maxSkinBanks=10)
+        /* Compile mesh by context */
+        Mesh compileMesh(int skinSlotCount=10)
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILE %s %d", name.c_str(), maxSkinBanks);
+            snprintf(req, 128, "MESHCOMPILE %d", skinSlotCount);
+            m_parent->_writeLine(req);
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(LogVisor::FatalError, "unable to cook mesh: %s", readBuf);
+
+            return Mesh(*m_parent, skinSlotCount);
+        }
+
+        /* Compile mesh by name */
+        Mesh compileMesh(const std::string& name, int skinSlotCount=10)
+        {
+            char req[128];
+            snprintf(req, 128, "MESHCOMPILENAME %s %d", name.c_str(), skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -376,14 +394,14 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
-            return Mesh(*m_parent, maxSkinBanks);
+            return Mesh(*m_parent, skinSlotCount);
         }
 
         /* Compile all meshes into one */
-        Mesh compileAllMeshes(int maxSkinBanks=10)
+        Mesh compileAllMeshes(int skinSlotCount=10)
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILEALL %d", maxSkinBanks);
+            snprintf(req, 128, "MESHCOMPILEALL %d", skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -391,7 +409,7 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
 
-            return Mesh(*m_parent, maxSkinBanks);
+            return Mesh(*m_parent, skinSlotCount);
         }
     };
     DataStream beginData()

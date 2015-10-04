@@ -129,14 +129,15 @@ public:
         std::vector<HECL::SystemString> opSpecs;
         auto it = m_info.args.begin();
         ++it;
-        for (;it != m_info.args.end();
-             ++it)
+        for (; it != m_info.args.end() ; ++it)
         {
             HECL::SystemString itName = *it;
             HECL::ToLower(itName);
             for (auto& spec : specs)
             {
-                if (!itName.compare(spec.spec.m_name))
+                HECL::SystemString compName(spec.spec.m_name);
+                HECL::ToLower(compName);
+                if (!itName.compare(compName))
                 {
                     opSpecs.push_back(spec.spec.m_name);
                     break;

@@ -149,14 +149,15 @@ int main(int argc, const char** argv)
     }
 
     /* Concatenate args */
-    std::list<HECL::SystemString> args;
+    std::vector<HECL::SystemString> args;
+    args.reserve(argc-2);
     for (int i=2 ; i<argc ; ++i)
         args.push_back(HECL::SystemString(argv[i]));
 
     if (!args.empty())
     {
         /* Extract output argument */
-        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const HECL::SystemString& arg = *it;
             HECL::SystemRegexMatch oMatch;
@@ -184,7 +185,7 @@ int main(int argc, const char** argv)
         }
 
         /* Count verbosity */
-        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const HECL::SystemString& arg = *it;
             HECL::SystemRegexMatch vMatch;
@@ -199,7 +200,7 @@ int main(int argc, const char** argv)
         }
 
         /* Check force argument */
-        for (std::list<HECL::SystemString>::const_iterator it = args.begin() ; it != args.end() ;)
+        for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const HECL::SystemString& arg = *it;
             if (std::regex_search(arg, regFORCE))
@@ -212,6 +213,7 @@ int main(int argc, const char** argv)
         }
 
         /* Gather remaining args */
+        info.args.reserve(args.size());
         for (const HECL::SystemString& arg : args)
             info.args.push_back(arg);
     }
@@ -270,7 +272,7 @@ int main(int argc, const char** argv)
         {
             /* Shortcut-case: implicit extract */
             fclose(fp);
-            info.args.push_front(argv[1]);
+            info.args.insert(info.args.begin(), argv[1]);
             tool.reset(new ToolExtract(info));
         }
     }

@@ -34,25 +34,25 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if node.inputs['Color'].is_linked:
             return recursive_color_trace(mat_obj, mesh_obj, tex_list, node.inputs['Color'].links[0].from_node, node.inputs['Color'].links[0].from_socket)
         else:
-            return 'vec3(%f, %f, %f)' % (node.inputs['Color'].default_value[0],
-                                         node.inputs['Color'].default_value[1],
-                                         node.inputs['Color'].default_value[2])
+            return 'vec3(%g,%g,%g)' % (node.inputs['Color'].default_value[0],
+                                       node.inputs['Color'].default_value[1],
+                                       node.inputs['Color'].default_value[2])
 
     elif node.type == 'MIX_RGB':
     
         if node.inputs[1].is_linked:
             a_input = recursive_color_trace(mat_obj, mesh_obj, tex_list, node.inputs[1].links[0].from_node, node.inputs[1].links[0].from_socket)
         else:
-            a_input = 'vec3(%f, %f, %f)' % (node.inputs[1].default_value[0],
-                                            node.inputs[1].default_value[1],
-                                            node.inputs[1].default_value[2])
+            a_input = 'vec3(%g,%g,%g)' % (node.inputs[1].default_value[0],
+                                          node.inputs[1].default_value[1],
+                                          node.inputs[1].default_value[2])
 
         if node.inputs[2].is_linked:
             b_input = recursive_color_trace(mat_obj, mesh_obj, tex_list, node.inputs[2].links[0].from_node, node.inputs[2].links[0].from_socket)
         else:
-            b_input = 'vec3(%f, %f, %f)' % (node.inputs[2].default_value[0],
-                                            node.inputs[2].default_value[1],
-                                            node.inputs[2].default_value[2])
+            b_input = 'vec3(%g,%g,%g)' % (node.inputs[2].default_value[0],
+                                          node.inputs[2].default_value[1],
+                                          node.inputs[2].default_value[2])
 
         if node.blend_type == 'MULTIPLY':
             return '(%s * %s)' % (a_input, b_input)
@@ -83,10 +83,10 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 if ncomps > 1:
                     matrix_str += 'vec%d(' % ncomps
                     for c in ncomps-1:
-                        matrix_str += '%f, ' % soc.default_value[c]
-                    matrix_str += '%f)' % soc.default_value[ncomps-1]
+                        matrix_str += '%g, ' % soc.default_value[c]
+                    matrix_str += '%g)' % soc.default_value[ncomps-1]
                 else:
-                    matrix_str += '%f' % soc.default_value
+                    matrix_str += '%g' % soc.default_value
 
                 if s == len(soc_from.node.inputs)-2:
                     matrix_str += ')'
@@ -108,20 +108,20 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         # Resolve map and matrix index
         node_label = soc_from.node.label
         if not matrix_str and node_label.startswith('MTX_'):
-            matrix_str = 'HECLTexMtx(%%s, %d)' % int(node_label[4:])
+            matrix_str = 'TexMtx(%%s, %d)' % int(node_label[4:])
 
         if soc_from.name == 'UV':
             uv_name = soc_from.node.uv_layer
             uv_idx = mesh_obj.data.uv_layers.find(uv_name)
             if uv_idx == -1:
                 raise RuntimeError('UV Layer "%s" doesn\'t exist' % uv_name)
-            uvsource_str = 'HECLUV(%d)' % uv_idx
+            uvsource_str = 'UV(%d)' % uv_idx
 
         elif soc_from.name == 'Normal':
-            uvsource_str = 'HECLNormal()'
+            uvsource_str = 'Normal()'
 
         elif soc_from.name == 'View':
-            uvsource_str = 'HECLView()'
+            uvsource_str = 'View()'
 
         else:
             raise RuntimeError("Only the 'UV', 'Normal' and 'View' sockets may be used from 'Geometry' nodes")
@@ -148,9 +148,9 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 if input.is_linked:
                     group_str += recursive_color_trace(mat_obj, mesh_obj, tex_list, input.links[0].from_node, input.links[0].from_socket)
                 else:
-                    group_str += 'vec3(%f, %f, %f)' % (input.default_value[0],
-                                                       input.default_value[1],
-                                                       input.default_value[2])
+                    group_str += 'vec3(%g,%g,%g)' % (input.default_value[0],
+                                                     input.default_value[1],
+                                                     input.default_value[2])
                 did_first = True
         group_str += ')'
         return group_str
@@ -159,16 +159,18 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
 
         if node.label.startswith('DYNAMIC_'):
             dynamic_index = int(node.label[8:])
-            return 'HECLColorReg(%d)' % dynamic_index
+            return 'ColorReg(%d)' % dynamic_index
 
-        return '%f' % node.outputs['Color'].default_value
+        return 'vec3(%g,%g,%g)' % (node.outputs['Color'].default_value[0],
+                                   node.outputs['Color'].default_value[1],
+                                   node.outputs['Color'].default_value[2])
 
     elif node.type == 'MATERIAL':
         
         if mat_obj.use_shadeless:
             return 'vec3(1.0)'
         else:
-            return 'HECLLighting()'
+            return 'Lighting()'
 
     else:
         raise RuntimeError("HMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
@@ -182,19 +184,19 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if node.inputs['Alpha'].is_linked:
             return recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node.inputs['Alpha'].links[0].from_node, node.inputs['Alpha'].links[0].from_socket)
         else:
-            return '%f' % node.inputs['Alpha'].default_value
+            return '%g' % node.inputs['Alpha'].default_value
     
     elif node.type == 'MATH':
     
         if node.inputs[0].is_linked:
             a_input = recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node.inputs[0].links[0].from_node, node.inputs[0].links[0].from_socket)
         else:
-            a_input = '%f' % node.inputs[0].default_value
+            a_input = '%g' % node.inputs[0].default_value
 
         if node.inputs[1].is_linked:
             b_input = recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node.inputs[1].links[0].from_node, node.inputs[1].links[0].from_socket)
         else:
-            b_input = '%f' % node.inputs[1].default_value
+            b_input = '%g' % node.inputs[1].default_value
         
         if node.operation == 'MULTIPLY':
             return '(%s * %s)' % (a_input, b_input)
@@ -225,10 +227,10 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 if ncomps > 1:
                     matrix_str += 'vec%d(' % ncomps
                     for c in ncomps-1:
-                        matrix_str += '%f, ' % soc.default_value[c]
-                    matrix_str += '%f)' % soc.default_value[ncomps-1]
+                        matrix_str += '%g, ' % soc.default_value[c]
+                    matrix_str += '%g)' % soc.default_value[ncomps-1]
                 else:
-                    matrix_str += '%f' % soc.default_value
+                    matrix_str += '%g' % soc.default_value
 
                 if s == len(soc_from.node.inputs)-2:
                     matrix_str += ')'
@@ -250,20 +252,20 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         # Resolve map and matrix index
         node_label = soc_from.node.label
         if not matrix_str and node_label.startswith('MTX_'):
-            matrix_str = 'HECLTexMtx(%%s, %d)' % int(node_label[4:])
+            matrix_str = 'TexMtx(%%s, %d)' % int(node_label[4:])
 
         if soc_from.name == 'UV':
             uv_name = soc_from.node.uv_layer
             uv_idx = mesh_obj.data.uv_layers.find(uv_name)
             if uv_idx == -1:
                 raise RuntimeError('UV Layer "%s" doesn\'t exist' % uv_name)
-            uvsource_str = 'HECLUV(%d)' % uv_idx
+            uvsource_str = 'UV(%d)' % uv_idx
             
         elif soc_from.name == 'Normal':
-            uvsource_str = 'HECLNormal()'
+            uvsource_str = 'Normal()'
 
         elif soc_from.name == 'View':
-            uvsource_str = 'HECLView()'
+            uvsource_str = 'View()'
 
         else:
             raise RuntimeError("Only the 'UV', 'Normal' and 'View' sockets may be used from 'Geometry' nodes")
@@ -286,7 +288,7 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                 if input.is_linked:
                     group_str += recursive_alpha_trace(mat_obj, mesh_obj, tex_list, input.links[0].from_node, input.links[0].from_socket)
                 else:
-                    group_str += '%f' % input.default_value
+                    group_str += '%g' % input.default_value
                 did_first = True
         group_str += ')'
         return group_str
@@ -295,9 +297,9 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
 
         if node.label.startswith('DYNAMIC_'):
             dynamic_index = int(node.label[8:])
-            return 'HECLColorReg(%d).a' % dynamic_index
+            return 'ColorReg(%d).a' % dynamic_index
 
-        return '%f' % node.outputs['Value'].default_value
+        return '%g' % node.outputs['Value'].default_value
 
     elif node.type == 'MATERIAL':
     

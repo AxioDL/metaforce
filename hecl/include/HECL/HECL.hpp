@@ -554,7 +554,7 @@ public:
 
     /**
      * @brief Return new ProjectPath with extension added
-     * @param ext file extension to add
+     * @param ext file extension to add (nullptr may be passed to remove the extension)
      * @param replace remove existing extension (if any) before appending new extension
      * @return new path with extension
      */
@@ -570,14 +570,17 @@ public:
                 --relIt;
                 --absIt;
             }
-            if (*relIt == _S('.'))
+            if (*relIt == _S('.') && relIt != pp.m_relPath.begin())
             {
                 pp.m_relPath.resize(relIt - pp.m_relPath.begin());
                 pp.m_absPath.resize(absIt - pp.m_absPath.begin());
             }
         }
-        pp.m_relPath += ext;
-        pp.m_absPath += ext;
+        if (ext)
+        {
+            pp.m_relPath += ext;
+            pp.m_absPath += ext;
+        }
         return pp;
     }
 
@@ -706,13 +709,13 @@ public:
      * @brief Insert directory children into list
      * @param outPaths list to append children to
      */
-    void getDirChildren(std::list<ProjectPath>& outPaths) const;
+    void getDirChildren(std::vector<ProjectPath>& outPaths) const;
 
     /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
      */
-    void getGlobResults(std::list<ProjectPath>& outPaths) const;
+    void getGlobResults(std::vector<ProjectPath>& outPaths) const;
 
     /**
      * @brief Count how many directory levels deep in project path is

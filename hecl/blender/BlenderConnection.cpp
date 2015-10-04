@@ -342,13 +342,13 @@ BlenderConnection::~BlenderConnection()
     _closePipe();
 }
 
-static std::string BlendTypeStrs[] =
+static const char* BlendTypeStrs[] =
 {
     "NONE",
     "MESH",
     "ACTOR",
     "AREA",
-    ""
+    nullptr
 };
 
 bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
@@ -377,9 +377,12 @@ BlenderConnection::BlendType BlenderConnection::getBlendType()
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     unsigned idx = 0;
-    while (BlendTypeStrs[idx].size())
-        if (!BlendTypeStrs[idx].compare(lineBuf))
+    while (BlendTypeStrs[idx])
+    {
+        if (!strcmp(BlendTypeStrs[idx], lineBuf))
             return BlendType(idx);
+        ++idx;
+    }
     return TypeNone;
 }
 
@@ -456,7 +459,7 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
            objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
 }
 
-BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int maxSkinBanks)
+BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotCount)
 {
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);
@@ -484,22 +487,16 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int maxSkinBa
         norm.emplace_back(conn);
 
     conn._readBuf(&colorLayerCount, 4);
-    for (int i=0 ; i<colorLayerCount ; ++i)
-    {
-        conn._readBuf(&count, 4);
-        color[i].reserve(count);
-        for (int j=0 ; j<count ; ++j)
-            color[i].emplace_back(conn);
-    }
+    conn._readBuf(&count, 4);
+    color.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        color.emplace_back(conn);
 
     conn._readBuf(&uvLayerCount, 4);
-    for (int i=0 ; i<uvLayerCount ; ++i)
-    {
-        conn._readBuf(&count, 4);
-        uv[i].reserve(count);
-        for (int j=0 ; j<count ; ++j)
-            uv[i].emplace_back(conn);
-    }
+    conn._readBuf(&count, 4);
+    uv.reserve(count);
+    for (int i=0 ; i<count ; ++i)
+        uv.emplace_back(conn);
 
     conn._readBuf(&count, 4);
     boneNames.reserve(count);
@@ -523,18 +520,36 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int maxSkinBa
             binds.emplace_back(conn);
     }
 
+    /* Assume 16 islands per material for reserve */
+    if (materialSets.size())
+        surfaces.reserve(materialSets.front().size() * 16);
     uint8_t isSurf;
     conn._readBuf(&isSurf, 1);
     while (isSurf)
     {
-        surfaces.emplace_back(conn, *this);
+        surfaces.emplace_back(conn, *this, skinSlotCount);
         conn._readBuf(&isSurf, 1);
     }
 
-    /* Resolve skin banks here */
+    /* Connect skinned verts to bank slots */
     if (boneNames.size())
+    {
         for (Surface& surf : surfaces)
-            skinBanks.addSurface(surf);
+        {
+            std::vector<uint32_t>& bank = skinBanks.banks[surf.skinBankIdx];
+            for (Surface::Vert& vert : surf.verts)
+            {
+                for (uint32_t i=0 ; i<bank.size() ; ++i)
+                {
+                    if (bank[i] == vert.iSkin)
+                    {
+                        vert.iBankSkin = i;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 BlenderConnection::DataStream::Mesh::Material::Material
@@ -555,10 +570,14 @@ BlenderConnection::DataStream::Mesh::Material::Material
 }
 
 BlenderConnection::DataStream::Mesh::Surface::Surface
-(BlenderConnection& conn, const Mesh& parent)
+(BlenderConnection& conn, Mesh& parent, int skinSlotCount)
 : centroid(conn), materialIdx(conn), aabbMin(conn), aabbMax(conn),
   reflectionNormal(conn)
 {
+    uint32_t countEstimate;
+    conn._readBuf(&countEstimate, 4);
+    verts.reserve(countEstimate);
+
     uint8_t isVert;
     conn._readBuf(&isVert, 1);
     while (isVert)
@@ -566,6 +585,9 @@ BlenderConnection::DataStream::Mesh::Surface::Surface
         verts.emplace_back(conn, parent);
         conn._readBuf(&isVert, 1);
     }
+
+    if (parent.boneNames.size())
+        skinBankIdx = parent.skinBanks.addSurface(*this, skinSlotCount);
 }
 
 BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
@@ -578,6 +600,63 @@ BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
     if (parent.uvLayerCount)
         conn._readBuf(iUv, 4 * parent.uvLayerCount);
     conn._readBuf(&iSkin, 4);
+    if (parent.pos.size() == 1250)
+        printf("");
+}
+
+static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx)
+{
+    for (uint32_t idx : bank)
+        if (sIdx == idx)
+            return true;
+    return false;
+}
+
+uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
+(const Surface& surf, int skinSlotCount)
+{
+    if (banks.empty())
+        addSkinBank(skinSlotCount);
+    std::vector<uint32_t> toAdd;
+    toAdd.reserve(skinSlotCount);
+    std::vector<std::vector<uint32_t>>::iterator bankIt = banks.begin();
+    for (;;)
+    {
+        bool done = true;
+        for (; bankIt != banks.end() ; ++bankIt)
+        {
+            std::vector<uint32_t>& bank = *bankIt;
+            done = true;
+            for (const Surface::Vert& v : surf.verts)
+            {
+                if (!VertInBank(bank, v.iSkin) && !VertInBank(toAdd, v.iSkin))
+                {
+                    toAdd.push_back(v.iSkin);
+                    if (bank.size() + toAdd.size() > skinSlotCount)
+                    {
+                        toAdd.clear();
+                        done = false;
+                        break;
+                    }
+                }
+            }
+            if (toAdd.size())
+            {
+                for (uint32_t a : toAdd)
+                    bank.push_back(a);
+                toAdd.clear();
+            }
+            if (done)
+                return uint32_t(bankIt - banks.begin());
+        }
+        if (!done)
+        {
+            bankIt = addSkinBank(skinSlotCount);
+            continue;
+        }
+        break;
+    }
+    return uint32_t(-1);
 }
 
 void BlenderConnection::quitBlender()

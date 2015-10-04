@@ -8,17 +8,18 @@ from mathutils import Vector
 
 # Class for building unique sets of vertex attributes for VBO generation
 class VertPool:
-    pos = {}
-    norm = {}
-    skin = {}
-    color = []
-    uv = []
-    dlay = None
-    clays = []
-    ulays = []
 
     # Initialize hash-unique index for each available attribute
     def __init__(self, bm):
+        self.pos = {}
+        self.norm = {}
+        self.skin = {}
+        self.color = {}
+        self.uv = {}
+        self.dlay = None
+        self.clays = []
+        self.ulays = []
+
         dlay = None
         if len(bm.verts.layers.deform):
             dlay = bm.verts.layers.deform[0]
@@ -27,13 +28,11 @@ class VertPool:
         clays = []
         for cl in range(len(bm.loops.layers.color)):
             clays.append(bm.loops.layers.color[cl])
-            self.color.append([])
         self.clays = clays
 
         ulays = []
         for ul in range(len(bm.loops.layers.uv)):
             ulays.append(bm.loops.layers.uv[ul])
-            self.uv.append([])
         self.ulays = ulays
 
         # Per-vert pool attributes
@@ -54,12 +53,12 @@ class VertPool:
             for l in f.loops:
                 for cl in range(len(clays)):
                     cf = l[clays[cl]].copy().freeze()
-                    if cf not in self.color[cl]:
-                        self.color[cl][cf] = len(self.color[cl])
+                    if cf not in self.color:
+                        self.color[cf] = len(self.color)
                 for ul in range(len(ulays)):
                     uf = l[ulays[ul]].uv.copy().freeze()
-                    if uf not in self.uv[ul]:
-                        self.uv[ul][uf] = len(self.uv[ul])
+                    if uf not in self.uv:
+                        self.uv[uf] = len(self.uv)
 
     def write_out(self, writebuffunc, vert_groups):
         writebuffunc(struct.pack('I', len(self.pos)))
@@ -70,17 +69,13 @@ class VertPool:
         for n in sorted(self.norm.items(), key=operator.itemgetter(1)):
             writebuffunc(struct.pack('fff', n[0][0], n[0][1], n[0][2]))
 
-        writebuffunc(struct.pack('I', len(self.color)))
-        for clay in self.color:
-            writebuffunc(struct.pack('I', len(clay)))
-            for c in sorted(clay.items(), key=operator.itemgetter(1)):
-                writebuffunc(struct.pack('fff', c[0][0], c[0][1], c[0][2]))
+        writebuffunc(struct.pack('II', len(self.clays), len(self.color)))
+        for c in sorted(self.color.items(), key=operator.itemgetter(1)):
+            writebuffunc(struct.pack('fff', c[0][0], c[0][1], c[0][2]))
 
-        writebuffunc(struct.pack('I', len(self.uv)))
-        for ulay in self.uv:
-            writebuffunc(struct.pack('I', len(ulay)))
-            for u in sorted(ulay.items(), key=operator.itemgetter(1)):
-                writebuffunc(struct.pack('ff', u[0][0], u[0][1]))
+        writebuffunc(struct.pack('II', len(self.ulays), len(self.uv)))
+        for u in sorted(self.uv.items(), key=operator.itemgetter(1)):
+            writebuffunc(struct.pack('ff', u[0][0], u[0][1]))
 
         writebuffunc(struct.pack('I', len(vert_groups)))
         for vgrp in vert_groups:
@@ -90,23 +85,12 @@ class VertPool:
         for s in sorted(self.skin.items(), key=operator.itemgetter(1)):
             entries = s[0]
             writebuffunc(struct.pack('I', len(entries)))
-            for ent in entries:
-                writebuffunc(struct.pack('If', ent[0], ent[1]))
-
-    def set_bm_layers(self, bm):
-        self.dlay = None
-        if len(bm.verts.layers.deform):
-            self.dlay = bm.verts.layers.deform[0]
-
-        clays = []
-        for cl in range(len(bm.loops.layers.color)):
-            clays.append(bm.loops.layers.color[cl])
-        self.clays = clays
-
-        ulays = []
-        for ul in range(len(bm.loops.layers.uv)):
-            ulays.append(bm.loops.layers.uv[ul])
-        self.ulays = ulays
+            if len(entries):
+                total_len = 0.0
+                for ent in entries:
+                    total_len += ent[1]
+                for ent in entries:
+                    writebuffunc(struct.pack('If', ent[0], ent[1] / total_len))
 
     def get_pos_idx(self, vert):
         pf = vert.co.copy().freeze()
@@ -117,24 +101,29 @@ class VertPool:
         return self.norm[nf]
 
     def get_skin_idx(self, vert):
+        if not self.dlay:
+            return 0
         sf = tuple(sorted(vert[self.dlay].items()))
         return self.skin[sf]
 
     def get_color_idx(self, loop, cidx):
-        cf = tuple(sorted(loop[self.clays[cidx]].items()))
-        return self.color[cidx][cf]
+        cf = loop[self.clays[cidx]].copy().freeze()
+        return self.color[cf]
 
     def get_uv_idx(self, loop, uidx):
-        uf = tuple(sorted(loop[self.ulays[uidx]].items()))
-        return self.uv[uidx][uf]
+        uf = loop[self.ulays[uidx]].uv.copy().freeze()
+        return self.uv[uf]
 
     def loop_out(self, writebuffunc, loop):
-        writebuffunc(struct.pack('BII', 1, self.get_pos_idx(loop.vert), self.get_norm_idx(loop.vert)))
+        writebuffunc(struct.pack('B', 1))
+        writebuffunc(struct.pack('II', self.get_pos_idx(loop.vert), self.get_norm_idx(loop.vert)))
         for cl in range(len(self.clays)):
-            writebuffunc('I', self.get_color_idx(loop, cl))
+            writebuffunc(struct.pack('I', self.get_color_idx(loop, cl)))
         for ul in range(len(self.ulays)):
-            writebuffunc('I', self.get_uv_idx(loop, ul))
-        writebuffunc(struct.pack('I', self.get_skin_idx(loop.vert)))
+            writebuffunc(struct.pack('I', self.get_uv_idx(loop, ul)))
+        sp = struct.pack('I', self.get_skin_idx(loop.vert))
+        print(sp)
+        writebuffunc(sp)
 
 def recursive_faces_islands(dlay, list_out, rem_list, skin_slot_set, skin_slot_count, face):
     if face not in rem_list:
@@ -250,7 +239,7 @@ def stripify_primitive(writebuffunc, vert_pool, prim_faces, last_loop, last_idx)
     return last_loop, last_idx
 
 
-def write_out_surface(writebuffunc, vert_pool, bm, island_faces, mat_idx):
+def write_out_surface(writebuffunc, vert_pool, island_faces, mat_idx):
 
     # Centroid of surface
     centroid = Vector()
@@ -281,6 +270,10 @@ def write_out_surface(writebuffunc, vert_pool, bm, island_faces, mat_idx):
         avg_norm += f.normal
     avg_norm.normalize()
     writebuffunc(struct.pack('fff', avg_norm[0], avg_norm[1], avg_norm[2]))
+
+    # Count estimate
+    writebuffunc(struct.pack('I', len(island_faces) * 3))
+    print('EST', len(island_faces) * 3)
 
     # Verts themselves
     last_loop = None

@@ -25,28 +25,6 @@ import struct, bpy, bmesh
 from mathutils import Vector
 from . import HMDLShader, HMDLSkin, HMDLMesh
 
-def get_3d_context(object_):
-    window = bpy.context.window_manager.windows[0]
-    screen = window.screen
-    for area in screen.areas:
-        if area.type == "VIEW_3D":
-            area3d = area
-            break
-    for region in area3d.regions:
-        if region.type == "WINDOW":
-            region3d = region
-            break
-    override = {
-        "window": window,
-        "screen": screen,
-        "area": area3d,
-        "region": region3d,
-        "object": object_
-    }
-    
-    return override
-
-
 # Generate Skeleton Info structure (free-form tree structure)
 def generate_skeleton_info(armature, endian_char='<'):
     
@@ -95,13 +73,6 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
     
-    # Normalize all vertex weights
-    override = get_3d_context(mesh_obj)
-    try:
-        bpy.ops.object.vertex_group_normalize_all(override, lock_active=False)
-    except:
-        pass
-    
     # Copy mesh (and apply mesh modifiers)
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
@@ -130,14 +101,14 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
 
     # Generate shaders
     if mesh_obj.data.hecl_material_count > 0:
-        writebuffunc(struct.pack('I', len(mesh_obj.data.hecl_material_count)))
+        writebuffunc(struct.pack('I', mesh_obj.data.hecl_material_count))
         for grp_idx in range(mesh_obj.data.hecl_material_count):
             writebuffunc(struct.pack('I', len(sorted_material_idxs)))
             for mat_idx in sorted_material_idxs:
                 found = False
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
-                        hecl_str, texs = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
+                        hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
                         writebuffunc((hecl_str + '\n').encode())
                         writebuffunc(struct.pack('I', len(texs)))
                         for tex in texs:
@@ -150,7 +121,7 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
         writebuffunc(struct.pack('II', 1, len(sorted_material_idxs)))
         for mat_idx in sorted_material_idxs:
             mat = mesh_obj.data.materials[mat_idx]
-            hecl_str, texs = hmdl_shader.shader(mat, mesh_obj, bpy.data.filepath)
+            hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
             writebuffunc((hecl_str + '\n').encode())
             writebuffunc(struct.pack('I', len(texs)))
             for tex in texs:
@@ -158,45 +129,37 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
 
     # Output vert pool
     vert_pool.write_out(writebuffunc, mesh_obj.vertex_groups)
-        
+
+    dlay = None
+    if len(bm_master.verts.layers.deform):
+        dlay = bm_master.verts.layers.deform[0]
+
     # Generate island meshes
     for mat_idx in sorted_material_idxs:
-        # Make special version of mesh with just the relevant material
-        bm = bm_master.copy()
-        to_remove = []
-        for face in bm.faces:
-            if face.material_index != mat_idx:
-                to_remove.append(face)
-        bmesh.ops.delete(bm, geom=to_remove, context=5)
-        vert_pool.set_bm_layers(bm)
-
-        dlay = None
-        if len(bm.verts.layers.deform):
-            dlay = bm.verts.layers.deform[0]
-
-        mat_faces_rem = list(bm.faces)
+        mat_faces_rem = []
+        for face in bm_master.faces:
+            if face.material_index == mat_idx:
+                mat_faces_rem.append(face)
         while len(mat_faces_rem):
             the_list = []
             skin_slot_set = set()
             HMDLMesh.recursive_faces_islands(dlay, the_list, mat_faces_rem, skin_slot_set,
                                              max_skin_banks, mat_faces_rem[0])
             writebuffunc(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuffunc, vert_pool, bm, the_list, mat_idx)
-
-        bm.to_mesh(mesh)
-        bm.free()
+            HMDLMesh.write_out_surface(writebuffunc, vert_pool, the_list, mat_idx)
 
     # No more surfaces
     writebuffunc(struct.pack('B', 0))
 
     # Filter out useless AABB points and generate data array
-    aabb = bytearray()
-    for comp in copy_obj.bound_box[0]:
-        aabb += struct.pack('f', comp)
-    for comp in copy_obj.bound_box[6]:
-        aabb += struct.pack('f', comp)
+    #aabb = bytearray()
+    #for comp in copy_obj.bound_box[0]:
+    #    aabb += struct.pack('f', comp)
+    #for comp in copy_obj.bound_box[6]:
+    #    aabb += struct.pack('f', comp)
 
     # Delete copied mesh from scene
+    bm_master.free()
     bpy.context.scene.objects.unlink(copy_obj)
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)

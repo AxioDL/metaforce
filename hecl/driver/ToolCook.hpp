@@ -6,7 +6,7 @@
 
 class ToolCook final : public ToolBase
 {
-    std::list<HECL::ProjectPath> m_selectedItems;
+    std::vector<HECL::ProjectPath> m_selectedItems;
     std::unique_ptr<HECL::Database::Project> m_fallbackProj;
     HECL::Database::Project* m_useProj;
     bool m_recursive = false;
@@ -18,6 +18,7 @@ public:
         if (info.args.size())
         {
             /* See if project path is supplied via args and use that over the getcwd one */
+            m_selectedItems.reserve(info.args.size());
             for (const HECL::SystemString& arg : info.args)
             {
                 if (arg.empty())
@@ -59,7 +60,11 @@ public:
 
         /* Default case: recursive at root */
         if (m_selectedItems.empty())
-            m_selectedItems.push_back({HECL::ProjectPath(*m_useProj, _S("."))});
+        {
+            m_selectedItems.reserve(1);
+            m_selectedItems.push_back({HECL::ProjectPath(*m_useProj, _S(""))});
+            m_recursive = true;
+        }
     }
 
     static void Help(HelpOutput& help)
@@ -124,11 +129,10 @@ public:
         {
             int lineIdx = 0;
             m_useProj->cookPath(path,
-            [&lineIdx](const HECL::SystemChar* message, const HECL::SystemChar* submessage,
+            [&lineIdx](const HECL::SystemChar* message,
+                       const HECL::SystemChar* submessage,
                        int lidx, float factor)
-            {
-                ToolPrintProgress(message, submessage, lidx, factor, lineIdx);
-            }, m_recursive);
+            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);}, m_recursive);
         }
         return 0;
     }
