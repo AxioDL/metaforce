@@ -139,7 +139,7 @@ struct ScriptObjectSpec
     std::function<IScriptObject*()> a;
 };
 
-extern std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
+extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
 }
 }
 #endif
