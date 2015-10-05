@@ -1,8 +1,6 @@
 #ifndef _DNAMP2_DEAFBABE_HPP_
 #define _DNAMP2_DEAFBABE_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "BlenderConnection.hpp"
 #include "../DNAMP1/DeafBabe.hpp"
 
 namespace Retro
@@ -86,7 +84,7 @@ struct DeafBabe : BigDNA
     }
     void sendToBlender(HECL::BlenderConnection::PyOutStream& os) const
     {
-        DNAMP1::DeafBabeSendToBlender(os, *this);
+        DeafBabeSendToBlender(os, *this);
     }
 };
 
