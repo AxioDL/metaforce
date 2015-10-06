@@ -468,6 +468,28 @@ public:
     const SystemString& getAbsolutePath() const {return m_projRoot;}
 
     /**
+     * @brief Make absolute path project relative
+     * @param absPath
+     * @return
+     */
+    const SystemString getProjectRelativeFromAbsolute(const SystemString& absPath) const
+    {
+        if (absPath.size() > m_projRoot.size())
+        {
+            if (!absPath.compare(0, m_projRoot.size(), m_projRoot))
+            {
+                auto beginIt = absPath.cbegin() + m_projRoot.size();
+                while (*beginIt == _S('/') || *beginIt == _S('\\'))
+                    ++beginIt;
+                return SystemString(beginIt, absPath.cend());
+            }
+        }
+        LogModule.report(LogVisor::FatalError, "unable to resolve '%s' as project relative '%s'",
+                         absPath.c_str(), m_projRoot.c_str());
+        return SystemString();
+    }
+
+    /**
      * @brief Create directory at path
      *
      * Fatal log report is issued if directory is not able to be created or doesn't already exist.
@@ -686,7 +708,8 @@ public:
         PT_NONE, /**< If path doesn't reference a valid filesystem entity, this is returned */
         PT_FILE, /**< Singular file path (confirmed with filesystem) */
         PT_DIRECTORY, /**< Singular directory path (confirmed with filesystem) */
-        PT_GLOB /**< Glob-path (whenever one or more '*' occurs in syntax) */
+        PT_GLOB, /**< Glob-path (whenever one or more '*' occurs in syntax) */
+        PT_LINK /**< Link (symlink on POSIX, ShellLink on Windows) */
     };
 
     /**
@@ -704,6 +727,12 @@ public:
      * Glob-paths return the latest modtime of all matched regular files
      */
     Time getModtime() const;
+
+    /**
+     * @brief For link paths, get the target path
+     * @return Target path
+     */
+    ProjectPath resolveLink() const;
 
     /**
      * @brief Insert directory children into list

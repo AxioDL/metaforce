@@ -8,15 +8,22 @@ static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex:
 static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
-static SystemString canonRelPath(const SystemString& path)
+static bool IsAbsolute(const SystemString& path)
 {
-    /* Absolute paths not allowed */
-    if (path[0] == _S('/') || path[0] == _S('\\'))
-    {
-        LogModule.report(LogVisor::Error, "Absolute path provided; expected relative: %s", path.c_str());
-        return _S(".");
-    }
+#if WIN32
+    if (path.size() && (path[0] == _S('\\') || path[0] == _S('/')))
+        return true;
+    if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _S(':'))
+        return true;
+#else
+    if (path[0] == _S('/'))
+        return true;
+#endif
+    return false;
+}
 
+static SystemString CanonRelPath(const SystemString& path)
+{
     /* Tokenize Path */
     std::vector<SystemString> comps;
     HECL::SystemRegexMatch matches;
@@ -48,18 +55,29 @@ static SystemString canonRelPath(const SystemString& path)
         SystemString retval = *it;
         for (++it ; it != comps.end() ; ++it)
         {
-            retval += _S('/');
-            retval += *it;
+            if ((*it).size())
+            {
+                retval += _S('/');
+                retval += *it;
+            }
         }
         return retval;
     }
     return _S(".");
 }
 
+static SystemString CanonRelPath(const SystemString& path, const ProjectRootPath& projectRoot)
+{
+    /* Absolute paths not allowed; attempt to make project-relative */
+    if (IsAbsolute(path))
+        return CanonRelPath(projectRoot.getProjectRelativeFromAbsolute(path));
+    return CanonRelPath(path);
+}
+
 void ProjectPath::assign(Database::Project& project, const SystemString& path)
 {
     m_proj = &project;
-    m_relPath = canonRelPath(path);
+    m_relPath = CanonRelPath(path);
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -89,7 +107,7 @@ void ProjectPath::assign(Database::Project& project, const std::string& path)
 void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path)
 {
     m_proj = parentPath.m_proj;
-    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + path);
+    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + path);
     m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -124,6 +142,16 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 
 ProjectPath::PathType ProjectPath::getPathType() const
 {
+#if WIN32
+    if (TestShellLink(m_absPath.c_str()))
+        return PT_LINK;
+#else
+    HECL::Sstat lnStat;
+    if (lstat(m_absPath.c_str(), &lnStat))
+        return PT_NONE;
+    if (S_ISLNK(lnStat.st_mode))
+        return PT_LINK;
+#endif
     if (std::regex_search(m_absPath, regGLOB))
         return PT_GLOB;
     Sstat theStat;
@@ -182,6 +210,22 @@ Time ProjectPath::getModtime() const
     }
     LogModule.report(LogVisor::FatalError, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
+}
+
+ProjectPath ProjectPath::resolveLink() const
+{
+#if WIN32
+    wchar_t target[2048];
+    if (FAILED(ResolveShellLink(m_absPath.c_str(), target, 2048)))
+        LogModule.report(LogVisor::FatalError, _S("unable to resolve link '%s'"), m_absPath.c_str());
+#else
+    char target[2048];
+    ssize_t targetSz;
+    if ((targetSz = readlink(m_absPath.c_str(), target, 2048)) < 0)
+        LogModule.report(LogVisor::FatalError, _S("unable to resolve link '%s': %s"), m_absPath.c_str(), strerror(errno));
+    target[targetSz] = '\0';
+#endif
+    return ProjectPath(*this, target);
 }
 
 static void _recursiveGlob(Database::Project& proj,

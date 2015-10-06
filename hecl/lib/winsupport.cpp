@@ -106,8 +106,6 @@ HRESULT ResolveShellLink(LPCWSTR lpszLinkFile, LPWSTR lpszPath, int iPathBufferS
 
     *lpszPath = 0; // Assume failure 
 
-                   // Get a pointer to the IShellLink interface. It is assumed that CoInitialize
-                   // has already been called. 
     hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
     if (SUCCEEDED(hres))
     {
@@ -155,6 +153,48 @@ HRESULT ResolveShellLink(LPCWSTR lpszLinkFile, LPWSTR lpszPath, int iPathBufferS
         psl->Release();
     }
     return hres;
+}
+
+bool TestShellLink(LPCWSTR lpszLinkFile)
+{
+    HRESULT hres;
+    IShellLink* psl;
+
+    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
+    if (SUCCEEDED(hres))
+    {
+        IPersistFile* ppf;
+
+        // Get a pointer to the IPersistFile interface. 
+        hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
+
+        if (SUCCEEDED(hres))
+        {
+            // Load the shortcut. 
+            hres = ppf->Load(lpszLinkFile, STGM_READ);
+
+            if (SUCCEEDED(hres))
+            {
+                // Resolve the link. 
+                HWND hwnd = GetConsoleWindow();
+                if (!hwnd)
+                    hwnd = GetTopWindow(nullptr);
+                hres = psl->Resolve(hwnd, 0);
+
+                if (SUCCEEDED(hres))
+                {
+                    return true;
+                }
+            }
+
+            // Release the pointer to the IPersistFile interface. 
+            ppf->Release();
+        }
+
+        // Release the pointer to the IShellLink interface. 
+        psl->Release();
+    }
+    return false;
 }
 
 
