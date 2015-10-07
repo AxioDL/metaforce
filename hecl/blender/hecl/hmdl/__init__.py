@@ -69,23 +69,35 @@ def generate_skeleton_info(armature, endian_char='<'):
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL; packaging
 # into the HECL data-pipeline and returning a hash once complete
-def cook(writebuffunc, mesh_obj, max_skin_banks):
+def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
     
-    # Copy mesh (and apply mesh modifiers)
+    # Copy mesh (and apply mesh modifiers with triangulation)
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
     copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
+    copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
     bpy.context.scene.objects.link(copy_obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.scene.objects.active = copy_obj
+    copy_obj.select = True
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.quads_convert_to_tris()
+    bpy.context.scene.update()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    rna_loops = None
+    if copy_mesh.has_custom_normals:
+        copy_mesh.calc_normals_split()
+        rna_loops = copy_mesh.loops
 
-    # Create master triangulated BMesh and VertPool
+    # Create master BMesh and VertPool
     bm_master = bmesh.new()
     bm_master.from_mesh(copy_obj.data)
-    bmesh.ops.triangulate(bm_master, faces=bm_master.faces)
-    vert_pool = HMDLMesh.VertPool(bm_master)
+    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
 
     # Sort materials by pass index first
     sorted_material_idxs = []
@@ -101,34 +113,34 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
 
     # Generate shaders
     if mesh_obj.data.hecl_material_count > 0:
-        writebuffunc(struct.pack('I', mesh_obj.data.hecl_material_count))
+        writebuf(struct.pack('I', mesh_obj.data.hecl_material_count))
         for grp_idx in range(mesh_obj.data.hecl_material_count):
-            writebuffunc(struct.pack('I', len(sorted_material_idxs)))
+            writebuf(struct.pack('I', len(sorted_material_idxs)))
             for mat_idx in sorted_material_idxs:
                 found = False
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
                         hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-                        writebuffunc((hecl_str + '\n').encode())
-                        writebuffunc(struct.pack('I', len(texs)))
+                        writebuf((hecl_str + '\n').encode())
+                        writebuf(struct.pack('I', len(texs)))
                         for tex in texs:
-                            writebuffunc((tex + '\n').encode())
+                            writebuf((tex + '\n').encode())
                         found = True
                         break
                 if not found:
                     raise RuntimeError('uneven material set %d in %s' % (grp_idx, mesh_obj.name))
     else:
-        writebuffunc(struct.pack('II', 1, len(sorted_material_idxs)))
+        writebuf(struct.pack('II', 1, len(sorted_material_idxs)))
         for mat_idx in sorted_material_idxs:
             mat = mesh_obj.data.materials[mat_idx]
             hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-            writebuffunc((hecl_str + '\n').encode())
-            writebuffunc(struct.pack('I', len(texs)))
+            writebuf((hecl_str + '\n').encode())
+            writebuf(struct.pack('I', len(texs)))
             for tex in texs:
-                writebuffunc((tex + '\n').encode())
+                writebuf((tex + '\n').encode())
 
     # Output vert pool
-    vert_pool.write_out(writebuffunc, mesh_obj.vertex_groups)
+    vert_pool.write_out(writebuf, mesh_obj.vertex_groups)
 
     dlay = None
     if len(bm_master.verts.layers.deform):
@@ -143,13 +155,27 @@ def cook(writebuffunc, mesh_obj, max_skin_banks):
         while len(mat_faces_rem):
             the_list = []
             skin_slot_set = set()
-            HMDLMesh.recursive_faces_islands(dlay, the_list, mat_faces_rem, skin_slot_set,
-                                             max_skin_banks, mat_faces_rem[0])
-            writebuffunc(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuffunc, vert_pool, the_list, mat_idx)
+            faces = [mat_faces_rem[0]]
+            while len(faces):
+                next_faces = []
+                ret_faces = None
+                for f in faces:
+                    ret_faces = HMDLMesh.recursive_faces_islands(dlay, the_list,
+                                                                 mat_faces_rem,
+                                                                 skin_slot_set,
+                                                                 max_skin_banks, f)
+                    if ret_faces == False:
+                        break
+                    next_faces.extend(ret_faces)
+                if ret_faces == False:
+                    break
+                faces = next_faces
+
+            writebuf(struct.pack('B', 1))
+            HMDLMesh.write_out_surface(writebuf, vert_pool, the_list, mat_idx)
 
     # No more surfaces
-    writebuffunc(struct.pack('B', 0))
+    writebuf(struct.pack('B', 0))
 
     # Filter out useless AABB points and generate data array
     #aabb = bytearray()

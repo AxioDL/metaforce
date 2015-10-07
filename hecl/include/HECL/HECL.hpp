@@ -469,10 +469,10 @@ public:
 
     /**
      * @brief Make absolute path project relative
-     * @param absPath
-     * @return
+     * @param absPath Absolute path
+     * @return SystemString of path relative to project root
      */
-    const SystemString getProjectRelativeFromAbsolute(const SystemString& absPath) const
+    SystemString getProjectRelativeFromAbsolute(const SystemString& absPath) const
     {
         if (absPath.size() > m_projRoot.size())
         {
@@ -780,6 +780,18 @@ public:
         relTarget += target.m_relPath;
         MakeLink(relTarget.c_str(), m_absPath.c_str());
     }
+
+    /**
+     * @brief Fetch project that contains path
+     * @return Project
+     */
+    Database::Project& getProject() const
+    {
+        if (!m_proj)
+            LogModule.report(LogVisor::FatalError, "ProjectPath::getProject() called on unqualified path");
+        return *m_proj;
+    }
+
     /**
      * @brief HECL-specific xxhash
      * @return unique hash value

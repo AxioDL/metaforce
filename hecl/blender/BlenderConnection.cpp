@@ -7,6 +7,7 @@
 #include <string>
 
 #include <HECL/HECL.hpp>
+#include <HECL/Database.hpp>
 #include <LogVisor/LogVisor.hpp>
 #include "BlenderConnection.hpp"
 
@@ -351,7 +352,7 @@ static const char* BlendTypeStrs[] =
     nullptr
 };
 
-bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
+bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
 {
     if (m_lock)
     {
@@ -359,8 +360,7 @@ bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
                           "BlenderConnection::createBlend() musn't be called with stream active");
         return false;
     }
-    HECL::SystemUTF8View pathView(path);
-    _writeLine(("CREATE \"" + pathView.str() + "\" " + BlendTypeStrs[type] + " \"" + m_startupBlend + "\"").c_str());
+    _writeLine(("CREATE \"" + path.getAbsolutePathUTF8() + "\" " + BlendTypeStrs[type] + " \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
@@ -372,7 +372,7 @@ bool BlenderConnection::createBlend(const SystemString& path, BlendType type)
     return false;
 }
 
-bool BlenderConnection::openBlend(const SystemString& path)
+bool BlenderConnection::openBlend(const ProjectPath& path)
 {
     if (m_lock)
     {
@@ -382,8 +382,7 @@ bool BlenderConnection::openBlend(const SystemString& path)
     }
     if (path == m_loadedBlend)
         return true;
-    HECL::SystemUTF8View pathView(path);
-    _writeLine(("OPEN \"" + pathView.str() + "\"").c_str());
+    _writeLine(("OPEN \"" + path.getAbsolutePathUTF8() + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
@@ -425,11 +424,11 @@ bool BlenderConnection::saveBlend()
 
 void BlenderConnection::deleteBlend()
 {
-    if (m_loadedBlend.size())
+    if (m_loadedBlend)
     {
-        HECL::Unlink(m_loadedBlend.c_str());
-        BlenderLog.report(LogVisor::Info, _S("Deleted '%s'"), m_loadedBlend.c_str());
-        m_loadedBlend.clear();
+        HECL::Unlink(m_loadedBlend.getAbsolutePath().c_str());
+        BlenderLog.report(LogVisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().c_str());
+        m_loadedBlend = ProjectPath();
     }
 }
 
@@ -568,7 +567,14 @@ BlenderConnection::DataStream::Mesh::Material::Material
     for (int i=0 ; i<texCount ; ++i)
     {
         conn._readLine(buf, 4096);
-        texs.emplace_back(buf);
+#if HECL_UCS2
+        SystemString absolute = HECL::UTF8ToWide(buf);
+#else
+        SystemString absolute(buf);
+#endif
+        SystemString relative =
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+        texs.emplace_back(conn.m_loadedBlend.getProject().getProjectWorkingPath(), relative);
     }
 }
 

@@ -225,7 +225,7 @@ ProjectPath ProjectPath::resolveLink() const
         LogModule.report(LogVisor::FatalError, _S("unable to resolve link '%s': %s"), m_absPath.c_str(), strerror(errno));
     target[targetSz] = '\0';
 #endif
-    return ProjectPath(*this, target);
+    return ProjectPath(getParentPath(), target);
 }
 
 static void _recursiveGlob(Database::Project& proj,

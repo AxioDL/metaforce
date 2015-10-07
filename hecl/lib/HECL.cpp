@@ -49,6 +49,9 @@ bool IsPathPNG(const HECL::ProjectPath& path)
 
 bool IsPathBlend(const HECL::ProjectPath& path)
 {
+    const SystemChar* lastCompExt = path.getLastComponentExt();
+    if (!lastCompExt || HECL::StrCmp(lastCompExt, _S("blend")))
+        return false;
     FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;

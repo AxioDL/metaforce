@@ -262,7 +262,7 @@ void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* 
     if (submessageLen)
     {
         if (messageLen > half-submessageLen-1)
-            HECL::Printf(_S("%.*s... "), half-int(submessageLen)-4, message);
+            HECL::Printf(_S("%.*s... %s "), half-int(submessageLen)-4, message, submessage);
         else
         {
             HECL::Printf(_S("%s"), message);

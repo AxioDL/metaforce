@@ -46,7 +46,7 @@ private:
     int m_readpipe[2];
     int m_writepipe[2];
     BlendType m_loadedType = TypeNone;
-    SystemString m_loadedBlend;
+    ProjectPath m_loadedBlend;
     std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
     size_t _writeLine(const char* buf);
@@ -57,9 +57,9 @@ public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
 
-    bool createBlend(const SystemString& path, BlendType type);
+    bool createBlend(const ProjectPath& path, BlendType type);
     BlendType getBlendType() const {return m_loadedType;}
-    bool openBlend(const SystemString& path);
+    bool openBlend(const ProjectPath& path);
     bool saveBlend();
     void deleteBlend();
 
@@ -287,7 +287,7 @@ public:
             struct Material
             {
                 std::string source;
-                std::vector<std::string> texs;
+                std::vector<ProjectPath> texs;
 
                 Material(BlenderConnection& conn);
             };
@@ -400,10 +400,10 @@ public:
         }
 
         /* Compile all meshes into one */
-        Mesh compileAllMeshes(int skinSlotCount=10)
+        Mesh compileAllMeshes(int skinSlotCount=10, float maxOctantLength=5.0)
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILEALL %d", skinSlotCount);
+            snprintf(req, 128, "MESHCOMPILEALL %d %f", skinSlotCount, maxOctantLength);
             m_parent->_writeLine(req);
 
             char readBuf[256];

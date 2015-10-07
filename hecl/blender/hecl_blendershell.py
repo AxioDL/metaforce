@@ -167,6 +167,7 @@ def dataout_loop():
 
         elif cmdargs[0] == 'MESHCOMPILEALL':
             maxSkinBanks = int(cmdargs[1])
+            maxOctantLength = float(cmdargs[2])
 
             bpy.ops.object.select_all(action='DESELECT')
             join_mesh = bpy.data.meshes.new('JOIN_MESH')
@@ -177,7 +178,7 @@ def dataout_loop():
             bpy.ops.object.join()
 
             writepipeline(b'OK')
-            hecl.hmdl.cook(writepipebuf, join_obj, maxSkinBanks)
+            hecl.hmdl.cook(writepipebuf, join_obj, maxSkinBanks, maxOctantLength)
 
             bpy.context.scene.objects.unlink(join_obj)
             bpy.data.objects.remove(join_obj)

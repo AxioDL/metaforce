@@ -371,7 +371,8 @@ static void VisitFile(const ProjectPath& path,
         if (spec.second->canCook(path))
         {
             ProjectPath cooked = path.getCookedPath(*spec.first);
-            if (path.getModtime() > cooked.getModtime())
+            if (cooked.getPathType() == ProjectPath::PT_NONE ||
+                path.getModtime() > cooked.getModtime())
             {
                 progress.reportFile(spec.first);
                 spec.second->doCook(path, cooked);
@@ -398,6 +399,13 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
             ++childFileCount;
             break;
         }
+        case ProjectPath::PT_LINK:
+        {
+            ProjectPath target = child.resolveLink();
+            if (target.getPathType() == ProjectPath::PT_FILE)
+                ++childFileCount;
+            break;
+        }
         default: break;
         }
     }
@@ -414,6 +422,16 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
         {
             progress.changeFile(child.getLastComponent(), progNum++/progDenom);
             VisitFile(child, specInsts, progress);
+            break;
+        }
+        case ProjectPath::PT_LINK:
+        {
+            ProjectPath target = child.resolveLink();
+            if (target.getPathType() == ProjectPath::PT_FILE)
+            {
+                progress.changeFile(target.getLastComponent(), progNum++/progDenom);
+                VisitFile(target, specInsts, progress);
+            }
             break;
         }
         default: break;
@@ -457,6 +475,13 @@ static void VisitGlob(const ProjectPath& path, bool recursive,
             ++childFileCount;
             break;
         }
+        case ProjectPath::PT_LINK:
+        {
+            ProjectPath target = path.resolveLink();
+            if (target.getPathType() == ProjectPath::PT_FILE)
+                ++childFileCount;
+            break;
+        }
         default: break;
         }
     }
@@ -473,6 +498,16 @@ static void VisitGlob(const ProjectPath& path, bool recursive,
         {
             progress.changeFile(child.getLastComponent(), progNum++/progDenom);
             VisitFile(child, specInsts, progress);
+            break;
+        }
+        case ProjectPath::PT_LINK:
+        {
+            ProjectPath target = path.resolveLink();
+            if (target.getPathType() == ProjectPath::PT_FILE)
+            {
+                progress.changeFile(target.getLastComponent(), progNum++/progDenom);
+                VisitFile(target, specInsts, progress);
+            }
             break;
         }
         default: break;
@@ -516,6 +551,16 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress, bool recursi
     {
         cookProg.changeFile(path.getLastComponent(), 0.0);
         VisitFile(path, specInsts, cookProg);
+        break;
+    }
+    case ProjectPath::PT_LINK:
+    {
+        ProjectPath target = path.resolveLink();
+        if (target.getPathType() == ProjectPath::PT_FILE)
+        {
+            cookProg.changeFile(target.getLastComponent(), 0.0);
+            VisitFile(target, specInsts, cookProg);
+        }
         break;
     }
     case ProjectPath::PT_DIRECTORY:
