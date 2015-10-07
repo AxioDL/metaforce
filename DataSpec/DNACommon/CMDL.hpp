@@ -11,6 +11,8 @@ namespace Retro
 namespace DNACMDL
 {
 
+using Mesh = HECL::BlenderConnection::DataStream::Mesh;
+
 struct Header : BigDNA
 {
     DECL_DNA

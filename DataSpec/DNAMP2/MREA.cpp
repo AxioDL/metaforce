@@ -186,7 +186,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Start up blender connection */
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(outPath.getAbsolutePath(), HECL::BlenderConnection::TypeArea))
+    if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeArea))
         return false;
 
     /* Open Py Stream and read sections */

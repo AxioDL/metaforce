@@ -45,6 +45,7 @@ struct SpecBase : HECL::Database::IDataSpec
 
     /* Cook handlers */
     using BlendStream = HECL::BlenderConnection::DataStream;
+    using Mesh = BlendStream::Mesh;
     virtual void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
     virtual void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
     virtual void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;

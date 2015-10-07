@@ -512,15 +512,6 @@ public:
                 float thisFac = ++count / fsz;
                 progress(bestNameView.sys_str().c_str(), thisFac);
 
-                HECL::ProjectPath cooked = getCooked(item.second);
-                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
-                {
-                    PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                    FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
-                    fwrite(s.data(), 1, s.length(), fout);
-                    fclose(fout);
-                }
-
                 HECL::ProjectPath working = getWorking(item.second, extractor);
                 if (extractor.func_a) /* Doesn't need PAKRouter access */
                 {
@@ -541,6 +532,17 @@ public:
                                              progress(update, thisFac);
                                          });
                     }
+                }
+
+                /* Extract original cooked copy AFTER working so timestamps make
+                 * the original a valid cached item */
+                HECL::ProjectPath cooked = getCooked(item.second);
+                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
+                {
+                    PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                    FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
+                    fwrite(s.data(), 1, s.length(), fout);
+                    fclose(fout);
                 }
             }
         }

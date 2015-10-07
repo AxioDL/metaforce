@@ -7,6 +7,7 @@
 
 #include "DNAMP1/MLVL.hpp"
 #include "DNAMP1/STRG.hpp"
+#include "DNAMP1/CMDL.hpp"
 
 namespace Retro
 {
@@ -281,6 +282,8 @@ struct SpecMP1 : SpecBase
 
     void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
     {
+        Mesh mesh = ds.compileMesh();
+        DNAMP1::CMDL::Cook(mesh, out);
     }
 
     void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const

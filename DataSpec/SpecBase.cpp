@@ -93,7 +93,7 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
     if (HECL::IsPathBlend(path))
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        if (!conn.openBlend(path.getAbsolutePath()))
+        if (!conn.openBlend(path))
             return false;
         if (conn.getBlendType() != HECL::BlenderConnection::TypeNone)
             return true;
@@ -112,21 +112,40 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
     return false;
 }
 
-using Mesh = HECL::BlenderConnection::DataStream::Mesh;
-
 void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath)
 {
     if (HECL::IsPathBlend(path))
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        if (!conn.openBlend(path.getAbsolutePath()))
+        if (!conn.openBlend(path))
             return;
-        if (conn.getBlendType() == HECL::BlenderConnection::TypeMesh)
+        switch (conn.getBlendType())
+        {
+        case HECL::BlenderConnection::TypeMesh:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
-            Mesh mesh = ds.compileMesh();
-            ds.close();
+            cookMesh(path, ds, cookedPath);
+            break;
         }
+        case HECL::BlenderConnection::TypeActor:
+        {
+            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            cookActor(path, ds, cookedPath);
+            break;
+        }
+        case HECL::BlenderConnection::TypeArea:
+        {
+            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            cookArea(path, ds, cookedPath);
+            break;
+        }
+        default: break;
+        }
+    }
+    else if (HECL::IsPathYAML(path))
+    {
+        FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+        cookYAML(fp, cookedPath);
     }
 }
 

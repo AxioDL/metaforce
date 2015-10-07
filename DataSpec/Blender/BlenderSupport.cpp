@@ -13,7 +13,7 @@ namespace Blender
 bool BuildMasterShader(const HECL::ProjectPath& path)
 {
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(path.getAbsolutePath(), HECL::BlenderConnection::TypeNone))
+    if (!conn.createBlend(path, HECL::BlenderConnection::TypeNone))
         return false;
     {
         HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);

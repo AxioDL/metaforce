@@ -38,11 +38,17 @@ struct CMDL
 
         /* Do extract */
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        if (!conn.createBlend(outPath.getAbsolutePath(), HECL::BlenderConnection::TypeMesh))
+        if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeMesh))
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);
         return conn.saveBlend();
+    }
+
+    static bool Cook(const DNACMDL::Mesh& mesh,
+                     const HECL::ProjectPath& outPath)
+    {
+        return true;
     }
 };
 
