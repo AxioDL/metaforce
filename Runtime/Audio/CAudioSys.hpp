@@ -12,8 +12,8 @@ class CAudioSys
 public:
     struct C3DEmitterParmData
     {
-        CVector3f pos;
-        CVector3f dir;
+        Zeus::CVector3f pos;
+        Zeus::CVector3f dir;
         float maxDist;
         float distComp;
         u32 flags;
