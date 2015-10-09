@@ -94,6 +94,13 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
         copy_mesh.calc_normals_split()
         rna_loops = copy_mesh.loops
 
+    # Filter out useless AABB points and send data
+    aabb = bytearray()
+    for comp in copy_obj.bound_box[0]:
+        writebuf(struct.pack('f', comp))
+    for comp in copy_obj.bound_box[6]:
+        writebuf(struct.pack('f', comp))
+
     # Create master BMesh and VertPool
     bm_master = bmesh.new()
     bm_master.from_mesh(copy_obj.data)
@@ -176,13 +183,6 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
 
     # No more surfaces
     writebuf(struct.pack('B', 0))
-
-    # Filter out useless AABB points and generate data array
-    #aabb = bytearray()
-    #for comp in copy_obj.bound_box[0]:
-    #    aabb += struct.pack('f', comp)
-    #for comp in copy_obj.bound_box[6]:
-    #    aabb += struct.pack('f', comp)
 
     # Delete copied mesh from scene
     bm_master.free()

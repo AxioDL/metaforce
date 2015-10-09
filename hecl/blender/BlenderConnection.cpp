@@ -458,6 +458,7 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
 }
 
 BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotCount)
+: aabbMin(conn), aabbMax(conn)
 {
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);

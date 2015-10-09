@@ -19,6 +19,7 @@
 #include <functional>
 
 #include "HECL/HECL.hpp"
+#include <Athena/Types.hpp>
 
 namespace HECL
 {
@@ -283,6 +284,26 @@ public:
         /* Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
         {
+            struct Vector2f
+            {
+                atVec2f val;
+                Vector2f(BlenderConnection& conn) {conn._readBuf(&val, 8);}
+            };
+            struct Vector3f
+            {
+                atVec3f val;
+                Vector3f(BlenderConnection& conn) {conn._readBuf(&val, 12);}
+            };
+            struct Index
+            {
+                uint32_t val;
+                Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
+            };
+
+            /* Cumulative AABB */
+            Vector3f aabbMin;
+            Vector3f aabbMax;
+
             /* HECL source of each material */
             struct Material
             {
@@ -294,21 +315,6 @@ public:
             std::vector<std::vector<Material>> materialSets;
 
             /* Vertex buffer data */
-            struct Vector2f
-            {
-                float val[2];
-                Vector2f(BlenderConnection& conn) {conn._readBuf(val, 8);}
-            };
-            struct Vector3f
-            {
-                float val[3];
-                Vector3f(BlenderConnection& conn) {conn._readBuf(val, 12);}
-            };
-            struct Index
-            {
-                uint32_t val;
-                Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
-            };
             std::vector<Vector3f> pos;
             std::vector<Vector3f> norm;
             uint32_t colorLayerCount = 0;

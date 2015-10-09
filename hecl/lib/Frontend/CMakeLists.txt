@@ -1,3 +1,4 @@
 add_library(HECLFrontend
-            CHECLIR.cpp
-            CHECLLexer.cpp)
+            Parser.cpp
+            Lexer.cpp
+            Diagnostics.cpp)
