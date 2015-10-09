@@ -81,19 +81,7 @@ struct IR
         OpSwizzle     /**< Vector insertion/extraction/swizzling operation */
     };
 
-    enum RegType
-    {
-        RegNone,
-        RegFloat,
-        RegVec3,
-        RegVec4
-    };
-
-    struct RegID
-    {
-        RegType m_type = RegNone;
-        unsigned m_idx = 0;
-    };
+    using RegID = int;
 
     struct Instruction
     {
@@ -101,7 +89,7 @@ struct IR
 
         struct
         {
-            std::vector<RegID> m_callRegs;
+            std::string m_name;
             RegID m_target;
         } m_call;
 
@@ -111,16 +99,18 @@ struct IR
             RegID m_target;
         } m_loadImm;
 
+        enum ArithmeticOpType
+        {
+            ArithmeticOpNone,
+            ArithmeticOpAdd,
+            ArithmeticOpSubtract,
+            ArithmeticOpMultiply,
+            ArithmeticOpDivide
+        };
+
         struct
         {
-            enum ArithmeticOpType
-            {
-                ArithmeticOpNone,
-                ArithmeticOpAdd,
-                ArithmeticOpSubtract,
-                ArithmeticOpMultiply,
-                ArithmeticOpDivide
-            } m_op = ArithmeticOpNone;
+            ArithmeticOpType m_op = ArithmeticOpNone;
             RegID m_a;
             RegID m_b;
             RegID m_target;
@@ -128,16 +118,15 @@ struct IR
 
         struct
         {
-            RegID m_source;
-            int m_sourceIdxs[4] = {-1};
+            RegID m_reg;
+            int m_idxs[4] = {-1};
             RegID m_target;
-            int m_targetIdxs[4] = {-1};
         } m_swizzle;
+
+        Instruction(OpType type) : m_op(type) {}
     };
 
-    unsigned m_floatRegCount = 0;
-    unsigned m_vec3RegCount = 0;
-    unsigned m_vec4RegCount = 0;
+    int m_regCount = 0;
     std::vector<Instruction> m_instructions;
 };
 
@@ -163,6 +152,17 @@ class Lexer
 
     /* Final lexed root function (IR comes from this) */
     OperationNode* m_root = nullptr;
+
+    /* Helper for relinking operator precedence */
+    static void ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, OperationNode** newSub);
+
+    /* Recursive IR compile funcs */
+    static void RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
+    static void RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode, IR::RegID target);
+    static void EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
+    static void EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
+    static void EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target);
+    static void EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target);
 
 public:
     void reset();

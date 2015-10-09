@@ -1,6 +1,7 @@
 #include "HECL/HECL.hpp"
 #include "HECL/Frontend.hpp"
-#include <math.h>
+
+/* Syntatical token parsing system */
 
 namespace HECL
 {
