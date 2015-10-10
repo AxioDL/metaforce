@@ -1,4 +1,0 @@
-#ifndef CEXPRROOT_HPP
-#define CEXPRROOT_HPP
-
-#endif // CEXPRROOT_HPP

@@ -1,1 +1,2 @@
-add_library(HECLBackend HECLBackend.cpp)
+add_library(HECLBackend
+            GX.cpp)

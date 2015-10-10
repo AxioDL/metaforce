@@ -345,7 +345,7 @@ void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
         vec.vec[0] = imms[0]->m_tokenFloat;
         vec.vec[1] = imms[1]->m_tokenFloat;
         vec.vec[2] = imms[2]->m_tokenFloat;
-        vec.vec[3] = 0.0;
+        vec.vec[3] = 1.0;
         return;
     }
 
@@ -569,7 +569,7 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
             eval.vec[0] = opt->vec[SwizzleCompIdx(str[0])];
             eval.vec[1] = opt->vec[SwizzleCompIdx(str[1])];
             eval.vec[2] = opt->vec[SwizzleCompIdx(str[2])];
-            eval.vec[3] = 0.0;
+            eval.vec[3] = 1.0;
             break;
         case 4:
             eval.vec[0] = opt->vec[SwizzleCompIdx(str[0])];

@@ -12,7 +12,8 @@ add_library(HECLCommon
             ProjectPath.cpp
             WideStringConvert.cpp
             ../include/HECL/HECL.hpp
-            ../include/HECL/Backend.hpp
+            ../include/HECL/Backend/Backend.hpp
+            ../include/HECL/Backend/GX.hpp
             ../include/HECL/Frontend.hpp
             ../include/HECL/Database.hpp
             ../include/HECL/Runtime.hpp
