@@ -305,7 +305,7 @@ static void AddColorCombiner(Stream& out, CombinerType type,
     if (v)
         out.format("new_nodetree.links.new(combiner_node.outputs['Color'], %s)\n", v);
 
-    out << "color_combiner_nodes.append(combiner_node)\n\n";
+    out << "color_combiner_sockets.append(combiner_node.outputs['Color'])\n\n";
 }
 
 static void AddAlphaCombiner(Stream& out, enum CombinerType type,
@@ -347,7 +347,7 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
     if (v)
         out.format("new_nodetree.links.new(combiner_node.outputs[0], %s)\n", v);
 
-    out << "alpha_combiner_nodes.append(combiner_node)\n\n";
+    out << "alpha_combiner_sockets.append(combiner_node.outputs[0])\n\n";
 }
 
 static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg,
@@ -486,30 +486,36 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(c_tev_opts & 1))
     {
         /* A nodes */
-        AddColorCombiner(out, COMB_SUB, "ONE", ca, NULL);
+        AddColorCombiner(out, COMB_SUB, "ONE", ca, nullptr);
         ++c_combiner_idx;
-        AddColorCombiner(out, COMB_MULT, "color_combiner_nodes[-1].outputs[0]", cc, NULL);
-        ++c_combiner_idx;
+        if (strcmp(cc, "ONE"))
+        {
+            AddColorCombiner(out, COMB_MULT, cc, "color_combiner_sockets[-1]", nullptr);
+            ++c_combiner_idx;
+        }
     }
 
     if (!(c_tev_opts & 2))
     {
         /* B nodes */
-        AddColorCombiner(out, COMB_MULT, cb, cc, NULL);
+        if (!strcmp(cc, "ONE"))
+            out.format("color_combiner_sockets.append(%s)\n", cb);
+        else
+            AddColorCombiner(out, COMB_MULT, cc, cb, nullptr);
         ++c_combiner_idx;
     }
 
     if (!(c_tev_opts & 4))
     {
         /* A+B node */
-        AddColorCombiner(out, COMB_ADD, "color_combiner_nodes[-2].outputs[0]", "color_combiner_nodes[-1].outputs[0]", NULL);
+        AddColorCombiner(out, COMB_ADD, "color_combiner_sockets[-1]", "color_combiner_sockets[-2]", nullptr);
         ++c_combiner_idx;
     }
 
     if (!(c_tev_opts & 8))
     {
         /* +D node */
-        AddColorCombiner(out, COMB_ADD, "color_combiner_nodes[-1].outputs[0]", cd, NULL);
+        AddColorCombiner(out, COMB_ADD, cd, "color_combiner_sockets[-1]", nullptr);
         ++c_combiner_idx;
     }
 
@@ -527,30 +533,36 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(a_tev_opts & 1))
     {
         /* A nodes */
-        AddAlphaCombiner(out, COMB_SUB, "ONE", aa, NULL);
+        AddAlphaCombiner(out, COMB_SUB, "ONE", aa, nullptr);
         ++a_combiner_idx;
-        AddAlphaCombiner(out, COMB_MULT, "alpha_combiner_nodes[-1].outputs[0]", ac, NULL);
-        ++a_combiner_idx;
+        if (strcmp(ac, "ONE"))
+        {
+            AddAlphaCombiner(out, COMB_MULT, ac, "alpha_combiner_sockets[-1]", nullptr);
+            ++a_combiner_idx;
+        }
     }
 
     if (!(a_tev_opts & 2))
     {
         /* B nodes */
-        AddAlphaCombiner(out, COMB_MULT, ab, ac, NULL);
+        if (!strcmp(ac, "ONE"))
+            out.format("alpha_combiner_sockets.append(%s)\n", ab);
+        else
+            AddAlphaCombiner(out, COMB_MULT, ac, ab, nullptr);
         ++a_combiner_idx;
     }
 
     if (!(a_tev_opts & 4))
     {
         /* A+B node */
-        AddAlphaCombiner(out, COMB_ADD, "alpha_combiner_nodes[-2].outputs[0]", "alpha_combiner_nodes[-1].outputs[0]", NULL);
+        AddAlphaCombiner(out, COMB_ADD, "alpha_combiner_sockets[-1]", "alpha_combiner_sockets[-2]", nullptr);
         ++a_combiner_idx;
     }
 
     if (!(a_tev_opts & 8))
     {
         /* +D node */
-        AddAlphaCombiner(out, COMB_ADD, "alpha_combiner_nodes[-1].outputs[0]", ad, NULL);
+        AddAlphaCombiner(out, COMB_ADD, ad, "alpha_combiner_sockets[-1]", nullptr);
         ++a_combiner_idx;
     }
 
@@ -561,14 +573,14 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
             strncpy(c_regs[stage.colorOpOutReg()], cd, 64);
     }
     else
-        snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_nodes[%u].outputs[0]", c_combiner_idx - 1);
+        snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_sockets[%u]", c_combiner_idx - 1);
     if (a_tev_opts == 0xf)
     {
         if (stage.alphaInD() != GX::CA_ZERO)
             strncpy(a_regs[stage.alphaOpOutReg()], ad, 64);
     }
     else
-        snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_nodes[%u].outputs[0]", a_combiner_idx - 1);
+        snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_sockets[%u]", a_combiner_idx - 1);
 
     /* Row Break in gridder */
     out << "gridder.row_break(2)\n";
@@ -601,8 +613,8 @@ void _ConstructMaterial(Stream& out,
                "\n"
                "texture_nodes = []\n"
                "kcolor_nodes = []\n"
-               "color_combiner_nodes = []\n"
-               "alpha_combiner_nodes = []\n"
+               "color_combiner_sockets = []\n"
+               "alpha_combiner_sockets = []\n"
                "tex_links = []\n"
                "tev_reg_sockets = [None]*4\n"
                "\n", groupIdx, matIdx);

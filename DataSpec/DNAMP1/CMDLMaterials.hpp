@@ -221,11 +221,11 @@ struct MaterialSet : BigDNA
             void setType(GX::TexGenType val) {flags &= ~0xf; flags |= atUint32(val);}
             GX::TexGenSrc source() const {return GX::TexGenSrc(flags >> 4 & 0x1f);}
             void setSource(GX::TexGenSrc val) {flags &= ~0x1f0; flags |= atUint32(val) << 4;}
-            GX::TexMtx mtx() const {return GX::TexMtx(flags >> 9 & 0x1f + 30);}
+            GX::TexMtx mtx() const {return GX::TexMtx((flags >> 9 & 0x1f) + 30);}
             void setMtx(GX::TexMtx val) {flags &= ~0x3e00; flags |= (atUint32(val)-30) << 9;}
             bool normalize() const {return flags >> 14 & 0x1;}
             void setNormalize(bool val) {flags &= ~0x4000; flags |= atUint32(val) << 14;}
-            GX::PTTexMtx postMtx() const {return GX::PTTexMtx(flags >> 15 & 0x3f + 64);}
+            GX::PTTexMtx postMtx() const {return GX::PTTexMtx((flags >> 15 & 0x3f) + 64);}
             void setPostMtx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
         };
         Vector<TexCoordGen, DNA_COUNT(tcgCount)> tcgs;

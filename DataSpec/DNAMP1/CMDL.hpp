@@ -48,6 +48,7 @@ struct CMDL
     static bool Cook(const DNACMDL::Mesh& mesh,
                      const HECL::ProjectPath& outPath)
     {
+
         return true;
     }
 };

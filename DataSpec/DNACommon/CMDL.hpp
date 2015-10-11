@@ -1,6 +1,9 @@
 #ifndef _DNACOMMON_CMDL_HPP_
 #define _DNACOMMON_CMDL_HPP_
 
+#include <Athena/FileWriter.hpp>
+#include <HECL/Frontend.hpp>
+#include <HECL/Backend/GX.hpp>
 #include "PAK.hpp"
 #include "BlenderConnection.hpp"
 #include "GX.hpp"
@@ -1017,6 +1020,46 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
             (os, reader, pakRouter, entry, rp, head.flags.shortNormals(),
              head.flags.shortUVs(), vertAttribs, -1,
              head.secCount, head.matSetCount, head.secSizes.data());
+
+    return true;
+}
+
+template <class MaterialSet, class SurfaceHeader, atUint32 Version>
+bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
+{
+    Athena::io::FileWriter writer(outPath.getAbsolutePath());
+
+    Header head;
+    head.magic = 0xDEADBABE;
+    head.version = Version;
+    head.flags.flags = 0;
+    head.aabbMin = mesh.aabbMin.val;
+    head.aabbMax = mesh.aabbMax.val;
+    head.matSetCount = mesh.materialSets.size();
+    head.secCount = head.matSetCount + 5 + mesh.surfaces.size();
+    head.secSizes.reserve(head.secCount);
+
+    /* Build material sets */
+    {
+        HECL::Frontend::Frontend FE;
+        int setIdx = 0;
+        for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
+        {
+            int matIdx = 0;
+            for (const Mesh::Material& mat : mset)
+            {
+                std::string diagName = HECL::SysFormat(_S("%s:%d:%d"), inPath.getLastComponent(), setIdx, matIdx);
+                HECL::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
+                HECL::Backend::GX matGX;
+                matGX.reset(matIR);
+                ++matIdx;
+            }
+            ++setIdx;
+        }
+    }
+
+    head.write(writer);
+
 
     return true;
 }
