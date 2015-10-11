@@ -1,6 +1,5 @@
 #include <LogVisor/LogVisor.hpp>
 #include "HECL/Backend/GX.hpp"
-#include "HECL/Frontend.hpp"
 
 static LogVisor::LogModule Log("HECL::GX");
 
@@ -18,6 +17,28 @@ unsigned GX::addKColor(const Color& color)
         Log.report(LogVisor::FatalError, "GX KColor overflow");
     m_kcolors[m_kcolorCount] = color;
     return m_kcolorCount++;
+}
+
+void GX::RecursiveTraceColor(const Frontend::IR::Instruction& inst)
+{
+    switch (inst.m_op)
+    {
+    case Frontend::IR::OpCall:
+    {
+        if (!inst.m_call.m_name.compare("texture"))
+        {
+
+        }
+    }
+    case Frontend::IR::OpArithmetic:
+    default:
+        Log.report(LogVisor::FatalError, "invalid color op");
+    }
+}
+
+void GX::RecursiveTraceAlpha(const Frontend::IR::Instruction& inst)
+{
+
 }
 
 void GX::reset(const Frontend::IR& ir)
@@ -47,26 +68,17 @@ void GX::reset(const Frontend::IR& ir)
         doAlpha = true;
     }
 
-    for (const Frontend::IR::Instruction& inst : ir.m_instructions)
+    /* Follow Color Chain */
+    const Frontend::IR::Instruction& colorRoot =
+    ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
+    RecursiveTraceColor(colorRoot);
+
+    /* Follow Alpha Chain */
+    if (doAlpha)
     {
-        switch (inst.m_op)
-        {
-        case Frontend::IR::OpCall:
-        {
-            const std::string& name = inst.m_call.m_name;
-            if (!name.compare("ColorReg"))
-            {
-            }
-            break;
-        }
-        case Frontend::IR::OpLoadImm:
-        {
-            addKColor(inst.m_loadImm.m_immVec);
-            break;
-        }
-        default:
-            Log.report(LogVisor::FatalError, "invalid inst op");
-        }
+        const Frontend::IR::Instruction& alphaRoot =
+        ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));
+        RecursiveTraceAlpha(alphaRoot);
     }
 }
 

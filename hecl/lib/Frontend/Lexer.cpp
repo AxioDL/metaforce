@@ -399,6 +399,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
     size_t instCount = ir.m_instructions.size();
     const Lexer::OperationNode* on = arithNode->m_sub;
     IR::RegID tgt = target;
+    size_t argInsts[2];
     for (int i=0 ; i<2 ; ++i, ++tgt)
     {
         const Parser::Token& tok = on->m_tok;
@@ -419,7 +420,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
         {
             ir.m_instructions.emplace_back(IR::OpLoadImm);
             IR::Instruction& inst = ir.m_instructions.back();
-            inst.m_loadImm.m_target = tgt;
+            inst.m_target = tgt;
             inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
             inst.m_loadImm.m_immVec.vec[1] = tok.m_tokenFloat;
             inst.m_loadImm.m_immVec.vec[2] = tok.m_tokenFloat;
@@ -433,6 +434,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
             LogModule.report(LogVisor::FatalError, "invalid lexer node for IR");
             break;
         };
+        argInsts[i] = ir.m_instructions.size() - 1;
         if (ir.m_instructions.back().m_op == IR::OpLoadImm)
             opt[i] = &ir.m_instructions.back().m_loadImm.m_immVec;
         on = on->m_next;
@@ -476,16 +478,16 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
         ir.m_instructions.pop_back();
         ir.m_instructions.emplace_back(IR::OpLoadImm);
         IR::Instruction& inst = ir.m_instructions.back();
-        inst.m_loadImm.m_target = target;
+        inst.m_target = target;
         inst.m_loadImm.m_immVec = eval;
     }
     else
     {
         ir.m_instructions.emplace_back(IR::OpArithmetic);
         IR::Instruction& inst = ir.m_instructions.back();
-        inst.m_arithmetic.m_target = target;
-        inst.m_arithmetic.m_a = target;
-        inst.m_arithmetic.m_b = target + 1;
+        inst.m_target = target;
+        inst.m_arithmetic.m_instIdxs[0] = argInsts[0];
+        inst.m_arithmetic.m_instIdxs[1] = argInsts[1];
         inst.m_arithmetic.m_op = ArithType(arithNode->m_tok.m_tokenInt);
         if (tgt > ir.m_regCount)
             ir.m_regCount = tgt;
@@ -540,7 +542,7 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
     {
         ir.m_instructions.emplace_back(IR::OpLoadImm);
         IR::Instruction& inst = ir.m_instructions.back();
-        inst.m_loadImm.m_target = target;
+        inst.m_target = target;
         inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
         inst.m_loadImm.m_immVec.vec[1] = tok.m_tokenFloat;
         inst.m_loadImm.m_immVec.vec[2] = tok.m_tokenFloat;
@@ -584,15 +586,15 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
         ir.m_instructions.pop_back();
         ir.m_instructions.emplace_back(IR::OpLoadImm);
         IR::Instruction& inst = ir.m_instructions.back();
-        inst.m_loadImm.m_target = target;
+        inst.m_target = target;
         inst.m_loadImm.m_immVec = eval;
     }
     else
     {
         ir.m_instructions.emplace_back(IR::OpSwizzle);
         IR::Instruction& inst = ir.m_instructions.back();
-        inst.m_swizzle.m_reg = target;
-        inst.m_swizzle.m_target = target;
+        inst.m_swizzle.m_instIdx = ir.m_instructions.size() - 2;
+        inst.m_target = target;
         for (int i=0 ; i<str.size() ; ++i)
             inst.m_swizzle.m_idxs[i] = SwizzleCompIdx(str[i]);
     }
@@ -621,7 +623,7 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
         {
             ir.m_instructions.emplace_back(IR::OpLoadImm);
             IR::Instruction& inst = ir.m_instructions.back();
-            inst.m_loadImm.m_target = tgt;
+            inst.m_target = tgt;
             inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
             inst.m_loadImm.m_immVec.vec[1] = tok.m_tokenFloat;
             inst.m_loadImm.m_immVec.vec[2] = tok.m_tokenFloat;
@@ -646,12 +648,17 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
 void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target)
 {
     IR::RegID tgt = target;
+    std::vector<size_t> instIdxs;
     for (const Lexer::OperationNode* gn = funcNode->m_sub ; gn ; gn = gn->m_next, ++tgt)
+    {
         RecursiveGroupCompile(ir, gn, tgt);
+        instIdxs.push_back(ir.m_instructions.size() - 1);
+    }
     ir.m_instructions.emplace_back(IR::OpCall);
     IR::Instruction& inst = ir.m_instructions.back();
     inst.m_call.m_name = funcNode->m_tok.m_tokenString;
-    inst.m_call.m_target = target;
+    inst.m_call.m_argInstIdxs = std::move(instIdxs);
+    inst.m_target = target;
     if (tgt > ir.m_regCount)
         ir.m_regCount = tgt;
 }

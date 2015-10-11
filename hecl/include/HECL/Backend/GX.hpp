@@ -2,6 +2,7 @@
 #define HECLBACKEND_GX_HPP
 
 #include "Backend.hpp"
+#include "HECL/Frontend.hpp"
 #include <Athena/Types.hpp>
 #include <stdint.h>
 #include <stdlib.h>
@@ -247,6 +248,8 @@ struct GX : IBackend
 
 private:
     unsigned addKColor(const Color& color);
+    void RecursiveTraceColor(const Frontend::IR::Instruction& inst);
+    void RecursiveTraceAlpha(const Frontend::IR::Instruction& inst);
 };
 
 }

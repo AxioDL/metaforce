@@ -55,8 +55,16 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
                                           node.inputs[2].default_value[2])
 
         if node.blend_type == 'MULTIPLY':
+            if a_input == 'vec3(1,1,1)':
+                return b_input
+            elif b_input == 'vec3(1,1,1)':
+                return a_input
             return '(%s * %s)' % (a_input, b_input)
         elif node.blend_type == 'ADD':
+            if a_input == 'vec3(0,0,0)':
+                return b_input
+            elif b_input == 'vec3(0,0,0)':
+                return a_input
             return '(%s + %s)' % (a_input, b_input)
         else:
             raise RuntimeError("HMDL does not support shaders with '{0}' blending modes".format(node.blend_type))
@@ -74,24 +82,28 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         soc_from = node.inputs['Vector'].links[0].from_socket
 
         if soc_from.node.type == 'GROUP':
-            matrix_str = '%s(%%s, ' % soc_from.node.node_tree.name
-            for s in range(len(soc_from.node.inputs)-1):
-                soc = soc_from.node.inputs[s+1]
-                if len(soc.links):
-                    raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
-                if soc.type == 'VALUE':
-                    matrix_str += '%g' % soc.default_value
-                else:
-                    ncomps = len(soc.default_value)
-                    matrix_str += 'vec%d(' % ncomps
-                    for c in ncomps-1:
-                        matrix_str += '%g, ' % soc.default_value[c]
-                    matrix_str += '%g)' % soc.default_value[ncomps-1]
+            matrix_str = '%s(%%s' % soc_from.node.node_tree.name
+            if len(soc_from.node.inputs)-1:
+                matrix_str += ', '
+                for s in range(len(soc_from.node.inputs)-1):
+                    soc = soc_from.node.inputs[s+1]
+                    if len(soc.links):
+                        raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
+                    if soc.type == 'VALUE':
+                        matrix_str += '%g' % soc.default_value
+                    else:
+                        ncomps = len(soc.default_value)
+                        matrix_str += 'vec%d(' % ncomps
+                        for c in range(ncomps-1):
+                            matrix_str += '%g,' % soc.default_value[c]
+                        matrix_str += '%g)' % soc.default_value[ncomps-1]
 
-                if s == len(soc_from.node.inputs)-2:
-                    matrix_str += ')'
-                else:
-                    matrix_str += ', '
+                    if s == len(soc_from.node.inputs)-2:
+                        matrix_str += ')'
+                    else:
+                        matrix_str += ', '
+            else:
+                matrix_str += ')'
 
             soc_from = soc_from.node.inputs[0].links[0].from_socket
 
@@ -129,11 +141,11 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if socket.name == 'Value':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return 'Texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         if socket.name == 'Color':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'texture(%d, %s)' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return 'Texture(%d, %s)' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         else:
             raise RuntimeError("Only the 'Value' or 'Color' output sockets may be used from Texture nodes")
 
@@ -198,9 +210,17 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         else:
             b_input = '%g' % node.inputs[1].default_value
         
-        if node.operation == 'MULTIPLY':
+        if node.blend_type == 'MULTIPLY':
+            if a_input == '1':
+                return b_input
+            elif b_input == '1':
+                return a_input
             return '(%s * %s)' % (a_input, b_input)
-        elif node.operation == 'ADD':
+        elif node.blend_type == 'ADD':
+            if a_input == '0':
+                return b_input
+            elif b_input == '0':
+                return a_input
             return '(%s + %s)' % (a_input, b_input)
         else:
             raise RuntimeError("HMDL does not support shaders with '{0}' blending modes".format(node.operation))
@@ -218,24 +238,28 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         soc_from = node.inputs['Vector'].links[0].from_socket
 
         if soc_from.node.type == 'GROUP':
-            matrix_str = '%s(%%s, ' % soc_from.node.node_tree.name
-            for s in range(len(soc_from.node.inputs)-1):
-                soc = soc_from.node.inputs[s+1]
-                if len(soc.links):
-                    raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
-                if soc.type == 'VALUE':
-                    matrix_str += '%g' % soc.default_value
-                else:
-                    ncomps = len(soc.default_value)
-                    matrix_str += 'vec%d(' % ncomps
-                    for c in ncomps-1:
-                        matrix_str += '%g, ' % soc.default_value[c]
-                    matrix_str += '%g)' % soc.default_value[ncomps-1]
+            matrix_str = '%s(%%s' % soc_from.node.node_tree.name
+            if len(soc_from.node.inputs)-1:
+                matrix_str += ', '
+                for s in range(len(soc_from.node.inputs)-1):
+                    soc = soc_from.node.inputs[s+1]
+                    if len(soc.links):
+                        raise RuntimeError("UV Modifier nodes may not have parameter links (default values only)")
+                    if soc.type == 'VALUE':
+                        matrix_str += '%g' % soc.default_value
+                    else:
+                        ncomps = len(soc.default_value)
+                        matrix_str += 'vec%d(' % ncomps
+                        for c in range(ncomps-1):
+                            matrix_str += '%g,' % soc.default_value[c]
+                        matrix_str += '%g)' % soc.default_value[ncomps-1]
 
-                if s == len(soc_from.node.inputs)-2:
-                    matrix_str += ')'
-                else:
-                    matrix_str += ', '
+                    if s == len(soc_from.node.inputs)-2:
+                        matrix_str += ')'
+                    else:
+                        matrix_str += ', '
+            else:
+                matrix_str += ')'
 
             soc_from = soc_from.node.inputs[0].links[0].from_socket
 
@@ -273,7 +297,7 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if socket.name == 'Value':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return 'Texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         else:
             raise RuntimeError("Only the 'Value' output sockets may be used from Texture nodes")
 
@@ -348,7 +372,7 @@ class hecl_shader_operator(bpy.types.Operator):
         return context.object and context.object.type == 'MESH'
 
     def execute(self, context):
-        shad, texs = shader(context.object.active_material, context.object, bpy.data.filepath)
+        shad, texs = shader(context.object.active_material, context.object)
         
         vs = bpy.data.texts.new('HECL SHADER')
         vs.write((shad + '\n'))

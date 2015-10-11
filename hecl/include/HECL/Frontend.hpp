@@ -81,22 +81,22 @@ struct IR
         OpSwizzle     /**< Vector insertion/extraction/swizzling operation */
     };
 
-    using RegID = int;
+    using RegID = ssize_t;
 
     struct Instruction
     {
         OpType m_op = OpNone;
+        RegID m_target = -1;
 
         struct
         {
             std::string m_name;
-            RegID m_target;
+            std::vector<size_t> m_argInstIdxs;
         } m_call;
 
         struct
         {
             atVec4f m_immVec;
-            RegID m_target;
         } m_loadImm;
 
         enum ArithmeticOpType
@@ -111,22 +111,19 @@ struct IR
         struct
         {
             ArithmeticOpType m_op = ArithmeticOpNone;
-            RegID m_a;
-            RegID m_b;
-            RegID m_target;
+            size_t m_instIdxs[2];
         } m_arithmetic;
 
         struct
         {
-            RegID m_reg;
-            int m_idxs[4] = {-1};
-            RegID m_target;
+            ssize_t m_idxs[4] = {-1};
+            size_t m_instIdx;
         } m_swizzle;
 
         Instruction(OpType type) : m_op(type) {}
     };
 
-    int m_regCount = 0;
+    size_t m_regCount = 0;
     std::vector<Instruction> m_instructions;
 };
 
