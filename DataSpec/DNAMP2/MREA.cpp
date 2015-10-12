@@ -73,7 +73,7 @@ MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source, atUint32 blk
   m_source(source), m_blkCount(blkCount)
 {
     m_blockInfos.reserve(blkCount);
-    for (int i=0 ; i<blkCount ; ++i)
+    for (atUint32 i=0 ; i<blkCount ; ++i)
     {
         m_blockInfos.emplace_back();
         BlockInfo& info = m_blockInfos.back();
@@ -228,7 +228,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Read meshes */
     atUint32 curSec = 1;
-    for (int m=0 ; m<head.meshCount ; ++m)
+    for (atUint32 m=0 ; m<head.meshCount ; ++m)
     {
         MeshHeader mHeader;
         secStart = drs.position();

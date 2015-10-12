@@ -3,7 +3,9 @@
 #include "DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
 
-#define _USE_MATH_DEFINES
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES 1
+#endif
 #include <math.h>
 
 namespace Retro
@@ -92,7 +94,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Read meshes */
     atUint32 curSec = 1;
-    for (int m=0 ; m<head.meshCount ; ++m)
+    for (atUint32 m=0 ; m<head.meshCount ; ++m)
     {
         MeshHeader mHeader;
         secStart = rs.position();
