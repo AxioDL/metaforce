@@ -33,11 +33,7 @@ struct PlayerActor : IScriptObject
     {
         DECL_YAML
         Value<atUint32> propertyCount;
-        Value<bool> unknown1;
-        Value<bool> unknown2;
-        Value<bool> unknown3;
-        Value<bool> unknown4;
-        Value<bool> unknown5;
+        Vector<bool, DNA_COUNT(propertyCount)> bools;
     } playerParameters;
     Value<atUint32> unknown8;
 };
