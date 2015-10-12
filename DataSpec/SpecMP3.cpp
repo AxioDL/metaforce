@@ -439,7 +439,7 @@ struct SpecMP3 : SpecBase
 
     bool checkPathPrefix(const HECL::ProjectPath& path)
     {
-        return path.getRelativePath().compare(0, 4, "MP3/") == 0;
+        return path.getRelativePath().compare(0, 4, _S("MP3/")) == 0;
     }
 
     bool validateYAMLDNAType(FILE* fp) const

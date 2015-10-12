@@ -494,28 +494,43 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
             ++c_combiner_idx;
         }
     }
+    
+    const char* c_soc_log[2] = {"color_combiner_sockets[-1]", "color_combiner_sockets[-2]"};
 
     if (!(c_tev_opts & 2))
     {
         /* B nodes */
         if (!strcmp(cc, "ONE"))
-            out.format("color_combiner_sockets.append(%s)\n", cb);
+        {
+            if (strcmp(cb, "ZERO") && strcmp(cb, "HALF") && strcmp(cb, "ONE"))
+            {
+                out.format("color_combiner_sockets.append(%s)\n", cb);
+                ++c_combiner_idx;
+            }
+            else
+            {
+                c_soc_log[1] = c_soc_log[0];
+                c_soc_log[0] = cb;
+            }
+        }
         else
+        {
             AddColorCombiner(out, COMB_MULT, cc, cb, nullptr);
-        ++c_combiner_idx;
+            ++c_combiner_idx;
+        }
     }
 
     if (!(c_tev_opts & 4))
     {
         /* A+B node */
-        AddColorCombiner(out, COMB_ADD, "color_combiner_sockets[-1]", "color_combiner_sockets[-2]", nullptr);
+        AddColorCombiner(out, COMB_ADD, c_soc_log[0], c_soc_log[1], nullptr);
         ++c_combiner_idx;
     }
 
     if (!(c_tev_opts & 8))
     {
         /* +D node */
-        AddColorCombiner(out, COMB_ADD, cd, "color_combiner_sockets[-1]", nullptr);
+        AddColorCombiner(out, COMB_ADD, cd, c_soc_log[0], nullptr);
         ++c_combiner_idx;
     }
 
@@ -541,28 +556,43 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
             ++a_combiner_idx;
         }
     }
+    
+    const char* a_soc_log[2] = {"alpha_combiner_sockets[-1]", "alpha_combiner_sockets[-2]"};
 
     if (!(a_tev_opts & 2))
     {
         /* B nodes */
         if (!strcmp(ac, "ONE"))
-            out.format("alpha_combiner_sockets.append(%s)\n", ab);
+        {
+            if (strcmp(ab, "ZERO") && strcmp(ab, "HALF") && strcmp(ab, "ONE"))
+            {
+                out.format("alpha_combiner_sockets.append(%s)\n", ab);
+                ++a_combiner_idx;
+            }
+            else
+            {
+                a_soc_log[1] = a_soc_log[0];
+                a_soc_log[0] = ab;
+            }
+        }
         else
+        {
             AddAlphaCombiner(out, COMB_MULT, ac, ab, nullptr);
-        ++a_combiner_idx;
+            ++a_combiner_idx;
+        }
     }
 
     if (!(a_tev_opts & 4))
     {
         /* A+B node */
-        AddAlphaCombiner(out, COMB_ADD, "alpha_combiner_sockets[-1]", "alpha_combiner_sockets[-2]", nullptr);
+        AddAlphaCombiner(out, COMB_ADD, a_soc_log[0], a_soc_log[1], nullptr);
         ++a_combiner_idx;
     }
 
     if (!(a_tev_opts & 8))
     {
         /* +D node */
-        AddAlphaCombiner(out, COMB_ADD, ad, "alpha_combiner_sockets[-1]", nullptr);
+        AddAlphaCombiner(out, COMB_ADD, ad, a_soc_log[0], nullptr);
         ++a_combiner_idx;
     }
 

@@ -14,7 +14,7 @@ MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source,
 {
     m_blkCount = blkCount;
     m_blockInfos.reserve(blkCount);
-    for (int i=0 ; i<blkCount ; ++i)
+    for (atUint32 i=0 ; i<blkCount ; ++i)
     {
         m_blockInfos.emplace_back();
         BlockInfo& info = m_blockInfos.back();
@@ -23,7 +23,7 @@ MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source,
     }
     source.seekAlign32();
     m_secIdxs.reserve(secIdxCount);
-    for (int i=0 ; i<secIdxCount ; ++i)
+    for (atUint32 i=0 ; i<secIdxCount ; ++i)
     {
         m_secIdxs.emplace_back();
         std::pair<DNAFourCC, atUint32>& idx = m_secIdxs.back();
@@ -136,7 +136,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint32 curSec = 1;
     std::vector<atUint32> surfaceCounts;
     surfaceCounts.reserve(head.meshCount);
-    for (int m=0 ; m<head.meshCount ; ++m)
+    for (atUint32 m=0 ; m<head.meshCount ; ++m)
     {
         /* Mesh header */
         MeshHeader mHeader;
@@ -176,7 +176,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     /* Now the meshes themselves */
     if (secIdxIt->first == FOURCC('GPUD'))
     {
-        for (int m=0 ; m<head.meshCount ; ++m)
+        for (atUint32 m=0 ; m<head.meshCount ; ++m)
         {
             curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_3>
                           (os, drs, pakRouter, entry, dummy, true,
@@ -195,7 +195,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     /* Skip SOBJ (SCLY) */
     if (secIdxIt->first == FOURCC('SOBJ'))
     {
-        for (int l=0 ; l<head.sclyLayerCount ; ++l)
+        for (atUint32 l=0 ; l<head.sclyLayerCount ; ++l)
             drs.seek(head.secSizes[curSec++], Athena::Current);
         ++secIdxIt;
     }

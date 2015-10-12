@@ -268,7 +268,7 @@ struct SpecMP1 : SpecBase
 
     bool checkPathPrefix(const HECL::ProjectPath& path)
     {
-        return path.getRelativePath().compare(0, 4, "MP1/") == 0;
+        return path.getRelativePath().compare(0, 4, _S("MP1/")) == 0;
     }
 
     bool validateYAMLDNAType(FILE* fp) const
