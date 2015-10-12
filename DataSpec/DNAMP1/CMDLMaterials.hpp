@@ -328,6 +328,8 @@ struct MaterialSet : BigDNA
                                    unsigned idx, const float* vals);
         static void AddKcolor(HECL::BlenderConnection::PyOutStream& out,
                               const GX::Color& col, unsigned idx);
+        static void AddDynamicColor(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
+        static void AddDynamicAlpha(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 

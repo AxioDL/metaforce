@@ -254,6 +254,34 @@ void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
                (float)col.a / (float)0xff);
 }
 
+void Material::AddDynamicColor(Stream& out, unsigned idx)
+{
+    out.format("# Dynamic Color\n"
+               "node_name = 'DYNAMIC_C_%u'\n"
+               "if node_name not in new_nodetree.nodes:\n"
+               "    dyn_c_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
+               "    dyn_c_node.name = node_name\n"
+               "    dyn_c_node.label = 'DYNAMIC_%u'\n"
+               "    dyn_c_node.outputs['Color'].default_value = (1.0,1.0,1.0,1.0)\n"
+               "    gridder.place_node(dyn_c_node, 1)\n"
+               "\n",
+               idx, idx);
+}
+
+void Material::AddDynamicAlpha(Stream& out, unsigned idx)
+{
+    out.format("# Dynamic Alpha\n"
+               "node_name = 'DYNAMIC_A_%u'\n"
+               "if node_name not in new_nodetree.nodes:\n"
+               "    dyn_a_node = new_nodetree.nodes.new('ShaderNodeValue')\n"
+               "    dyn_a_node.name = node_name\n"
+               "    dyn_a_node.label = 'DYNAMIC_%u'\n"
+               "    dyn_a_node.outputs['Value'].default_value = 1.0\n"
+               "    gridder.place_node(dyn_a_node, 1)\n"
+               "\n",
+               idx, idx);
+}
+
 
 enum CombinerType
 {
@@ -282,6 +310,21 @@ static void AddColorCombiner(Stream& out, CombinerType type,
             out << "combiner_node.inputs['Color1'].default_value = (0.5, 0.5, 0.5, 0.5)\n";
         else if (!strcmp(a, "ONE"))
             out << "combiner_node.inputs['Color1'].default_value = (1.0, 1.0, 1.0, 1.0)\n";
+        else if (!strcmp(a, "D0"))
+        {
+            Material::AddDynamicColor(out, 0);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_0'].outputs['Color'], combiner_node.inputs['Color1'])\n";
+        }
+        else if (!strcmp(a, "D1"))
+        {
+            Material::AddDynamicColor(out, 1);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_1'].outputs['Color'], combiner_node.inputs['Color1'])\n";
+        }
+        else if (!strcmp(a, "D2"))
+        {
+            Material::AddDynamicColor(out, 2);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_2'].outputs['Color'], combiner_node.inputs['Color1'])\n";
+        }
         else if (!strlen(a))
         {}
         else
@@ -296,6 +339,21 @@ static void AddColorCombiner(Stream& out, CombinerType type,
             out << "combiner_node.inputs['Color2'].default_value = (0.5, 0.5, 0.5, 0.5)\n";
         else if (!strcmp(b, "ONE"))
             out << "combiner_node.inputs['Color2'].default_value = (1.0, 1.0, 1.0, 1.0)\n";
+        else if (!strcmp(b, "D0"))
+        {
+            Material::AddDynamicColor(out, 0);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_0'].outputs['Color'], combiner_node.inputs['Color2'])\n";
+        }
+        else if (!strcmp(b, "D1"))
+        {
+            Material::AddDynamicColor(out, 1);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_1'].outputs['Color'], combiner_node.inputs['Color2'])\n";
+        }
+        else if (!strcmp(b, "D2"))
+        {
+            Material::AddDynamicColor(out, 2);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_2'].outputs['Color'], combiner_node.inputs['Color2'])\n";
+        }
         else if (!strlen(b))
         {}
         else
@@ -328,6 +386,21 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
             out << "combiner_node.inputs[0].default_value = 0.5\n";
         else if (!strcmp(a, "ONE"))
             out << "combiner_node.inputs[0].default_value = 1.0\n";
+        else if (!strcmp(a, "D0"))
+        {
+            Material::AddDynamicAlpha(out, 0);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_0'].outputs[0], combiner_node.inputs[0])\n";
+        }
+        else if (!strcmp(a, "D1"))
+        {
+            Material::AddDynamicAlpha(out, 1);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_1'].outputs[0], combiner_node.inputs[0])\n";
+        }
+        else if (!strcmp(a, "D2"))
+        {
+            Material::AddDynamicAlpha(out, 2);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_2'].outputs[0], combiner_node.inputs[0])\n";
+        }
         else
             out.format("new_nodetree.links.new(%s, combiner_node.inputs[0])\n", a);
     }
@@ -340,6 +413,21 @@ static void AddAlphaCombiner(Stream& out, enum CombinerType type,
             out << "combiner_node.inputs[1].default_value = 0.5\n";
         else if (!strcmp(b, "ONE"))
             out << "combiner_node.inputs[1].default_value = 1.0\n";
+        else if (!strcmp(b, "D0"))
+        {
+            Material::AddDynamicAlpha(out, 0);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_0'].outputs[0], combiner_node.inputs[1])\n";
+        }
+        else if (!strcmp(b, "D1"))
+        {
+            Material::AddDynamicAlpha(out, 1);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_1'].outputs[0], combiner_node.inputs[1])\n";
+        }
+        else if (!strcmp(b, "D2"))
+        {
+            Material::AddDynamicAlpha(out, 2);
+            out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_2'].outputs[0], combiner_node.inputs[1])\n";
+        }
         else
             out.format("new_nodetree.links.new(%s, combiner_node.inputs[1])\n", b);
     }
@@ -728,20 +816,15 @@ void _ConstructMaterial(Stream& out,
     unsigned a_combiner_idx = 0;
 
     /* Initialze TEV register sockets */
-    char c_regs[4][64] = {"ONE", "ONE", "ONE", "ONE"};
-    char a_regs[4][64] = {"ONE", "ONE", "ONE", "ONE"};
+    char c_regs[4][64] = {"ONE", "D0", "D1", "D2"};
+    char a_regs[4][64] = {"ONE", "D0", "D1", "D2"};
 
     /* Has Lightmap? */
-    if (material.flags.lightmap() && material.tevStages[0].colorInB() == GX::CC_C1)
+    if (material.flags.lightmap())
     {
         if (material.tevStageTexInfo[0].texSlot != 0xff)
             out << "new_material.hecl_lightmap = tex_maps[0].name\n"
                    "tex_maps[0].image.use_fake_user = True\n";
-        out << "world_light_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
-               "gridder.place_node(world_light_node, 1)\n"
-               "world_light_node.label = 'WORLD_LIGHTING'\n"
-               "world_light_node.outputs[0].default_value = (1.0,1.0,1.0,1.0)\n";
-        strncpy(c_regs[GX::TEVREG1], "world_light_node.outputs[0]", 64);
     }
 
     /* Add TEV stages */
