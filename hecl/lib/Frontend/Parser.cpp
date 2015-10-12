@@ -58,7 +58,7 @@ Parser::Token Parser::consumeToken()
     /* Check for numeric literal */
     {
         char* strEnd;
-        float val = std::strtof(&*m_sourceIt, &strEnd);
+        float val = strtof(&*m_sourceIt, &strEnd);
         if (&*m_sourceIt != strEnd)
         {
             Parser::Token tok(TokenNumLiteral, getLocation());

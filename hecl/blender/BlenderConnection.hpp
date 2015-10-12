@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string>
 #include <functional>
+#include <iostream>
 
 #include "HECL/HECL.hpp"
 #include <Athena/Types.hpp>
