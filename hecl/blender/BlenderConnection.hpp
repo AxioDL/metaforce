@@ -272,7 +272,7 @@ public:
             m_parent->_readBuf(&count, 4);
             std::vector<std::string> retval;
             retval.reserve(count);
-            for (int i=0 ; i<count ; ++i)
+            for (uint32_t i=0 ; i<count ; ++i)
             {
                 char name[128];
                 m_parent->_readLine(name, 128);

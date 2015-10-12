@@ -94,7 +94,7 @@ void ProjectPath::assign(Database::Project& project, const std::string& path)
 {
     m_proj = &project;
     std::wstring wpath = UTF8ToWide(path);
-    m_relPath = canonRelPath(wpath);
+    m_relPath = CanonRelPath(wpath);
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -122,9 +122,9 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
 #if HECL_UCS2
 void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 {
-    m_projRoot = parentPath.m_projRoot;
+    m_proj = parentPath.m_proj;
     std::wstring wpath = UTF8ToWide(path);
-    m_relPath = canonRelPath(parentPath.m_relPath + _S('/') + wpath);
+    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + wpath);
     m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);

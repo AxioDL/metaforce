@@ -81,7 +81,7 @@ struct IR
         OpSwizzle     /**< Vector insertion/extraction/swizzling operation */
     };
 
-    using RegID = ssize_t;
+    using RegID = int;
 
     struct Instruction
     {
@@ -116,7 +116,7 @@ struct IR
 
         struct
         {
-            ssize_t m_idxs[4] = {-1};
+            int m_idxs[4] = {-1};
             size_t m_instIdx;
         } m_swizzle;
 

@@ -38,7 +38,7 @@ namespace HECL
 namespace Database
 {
 class Project;
-class DataSpecEntry;
+struct DataSpecEntry;
 }
 
 

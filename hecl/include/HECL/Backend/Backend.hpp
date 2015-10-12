@@ -3,7 +3,7 @@
 
 namespace HECL
 {
-namespace Frontend {class IR;}
+namespace Frontend {struct IR;}
 namespace Backend
 {
 

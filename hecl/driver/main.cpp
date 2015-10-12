@@ -1,4 +1,7 @@
 #if _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #define WIN_PAUSE 1
 #include <objbase.h>
 #endif

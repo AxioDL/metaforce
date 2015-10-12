@@ -463,26 +463,26 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);
     materialSets.reserve(matSetCount);
-    for (int i=0 ; i<matSetCount ; ++i)
+    for (uint32_t i=0 ; i<matSetCount ; ++i)
     {
         materialSets.emplace_back();
         std::vector<Material>& materials = materialSets.back();
         uint32_t matCount;
         conn._readBuf(&matCount, 4);
         materials.reserve(matCount);
-        for (int i=0 ; i<matCount ; ++i)
+        for (uint32_t i=0 ; i<matCount ; ++i)
             materials.emplace_back(conn);
     }
 
     uint32_t count;
     conn._readBuf(&count, 4);
     pos.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
         pos.emplace_back(conn);
 
     conn._readBuf(&count, 4);
     norm.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
         norm.emplace_back(conn);
 
     conn._readBuf(&colorLayerCount, 4);
@@ -490,7 +490,7 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
         LogModule.report(LogVisor::FatalError, "mesh has %u color-layers; max 4", colorLayerCount);
     conn._readBuf(&count, 4);
     color.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
         color.emplace_back(conn);
 
     conn._readBuf(&uvLayerCount, 4);
@@ -498,12 +498,12 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
         LogModule.report(LogVisor::FatalError, "mesh has %u UV-layers; max 8", uvLayerCount);
     conn._readBuf(&count, 4);
     uv.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
         uv.emplace_back(conn);
 
     conn._readBuf(&count, 4);
     boneNames.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
     {
         char name[128];
         conn._readLine(name, 128);
@@ -512,14 +512,14 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
 
     conn._readBuf(&count, 4);
     skins.reserve(count);
-    for (int i=0 ; i<count ; ++i)
+    for (uint32_t i=0 ; i<count ; ++i)
     {
         skins.emplace_back();
         std::vector<SkinBind>& binds = skins.back();
         uint32_t bindCount;
         conn._readBuf(&bindCount, 4);
         binds.reserve(bindCount);
-        for (int j=0 ; j<bindCount ; ++j)
+        for (uint32_t j=0 ; j<bindCount ; ++j)
             binds.emplace_back(conn);
     }
 
@@ -565,7 +565,7 @@ BlenderConnection::DataStream::Mesh::Material::Material
     uint32_t texCount;
     conn._readBuf(&texCount, 4);
     texs.reserve(texCount);
-    for (int i=0 ; i<texCount ; ++i)
+    for (uint32_t i=0 ; i<texCount ; ++i)
     {
         conn._readLine(buf, 4096);
 #if HECL_UCS2
@@ -605,9 +605,9 @@ BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
 {
     conn._readBuf(&iPos, 4);
     conn._readBuf(&iNorm, 4);
-    for (int i=0 ; i<parent.colorLayerCount ; ++i)
+    for (uint32_t i=0 ; i<parent.colorLayerCount ; ++i)
         conn._readBuf(&iColor[i], 4);
-    for (int i=0 ; i<parent.uvLayerCount ; ++i)
+    for (uint32_t i=0 ; i<parent.uvLayerCount ; ++i)
         conn._readBuf(&iUv[i], 4);
     conn._readBuf(&iSkin, 4);
 }
