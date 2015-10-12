@@ -183,6 +183,8 @@ bool TestShellLink(LPCWSTR lpszLinkFile)
 
                 if (SUCCEEDED(hres))
                 {
+                    ppf->Release();
+                    psl->Release();
                     return true;
                 }
             }
