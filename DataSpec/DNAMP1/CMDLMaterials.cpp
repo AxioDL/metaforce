@@ -590,7 +590,8 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         /* B nodes */
         if (!strcmp(cc, "ONE"))
         {
-            if (strcmp(cb, "ZERO") && strcmp(cb, "HALF") && strcmp(cb, "ONE"))
+            if (strcmp(cb, "ZERO") && strcmp(cb, "HALF") && strcmp(cb, "ONE") &&
+                strcmp(cb, "D0") && strcmp(cb, "D1") && strcmp(cb, "D2"))
             {
                 out.format("color_combiner_sockets.append(%s)\n", cb);
                 ++c_combiner_idx;
@@ -652,7 +653,8 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         /* B nodes */
         if (!strcmp(ac, "ONE"))
         {
-            if (strcmp(ab, "ZERO") && strcmp(ab, "HALF") && strcmp(ab, "ONE"))
+            if (strcmp(ab, "ZERO") && strcmp(ab, "HALF") && strcmp(ab, "ONE") &&
+                strcmp(ab, "D0") && strcmp(ab, "D1") && strcmp(ab, "D2"))
             {
                 out.format("alpha_combiner_sockets.append(%s)\n", ab);
                 ++a_combiner_idx;

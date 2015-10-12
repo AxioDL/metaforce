@@ -146,6 +146,7 @@ void PAKBridge::build()
                         areaDeps.layers.emplace_back();
                         Level::Area::Layer& layer = areaDeps.layers.back();
                         layer.name = LayerName(mlvl.layerNames[layerIdx++]);
+                        layer.active = areaLayers.flags >> l & 0x1;
                         /* Trim possible trailing whitespace */
 #if HECL_UCS2
                         while (layer.name.size() && iswblank(layer.name.back()))
@@ -154,6 +155,8 @@ void PAKBridge::build()
                         while (layer.name.size() && isblank(layer.name.back()))
                             layer.name.pop_back();
 #endif
+                        HECL::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
+                        layer.name = num + layer.name;
                     }
                 }
 

@@ -219,6 +219,7 @@ struct Level
         struct Layer
         {
             HECL::SystemString name;
+            bool active;
             std::unordered_set<IDType> resources;
         };
         std::vector<Layer> layers;
