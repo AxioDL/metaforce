@@ -92,7 +92,7 @@ void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
             objects.push_back(obj);
             size_t actualLen = rs.position() - start;
             if (actualLen != len)
-                Log.report(LogVisor::Warning, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
+                Log.report(LogVisor::FatalError, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
             rs.seek(start + len, Athena::Begin);
         }
         else
