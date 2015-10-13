@@ -35,11 +35,11 @@ struct WorldTeleporter : IScriptObject
     Value<float> unknown12;
     
     /* Trilogy additions (property count 26) */
+    String<-1> audioStream;
     Value<bool> unknown13;
-    Value<bool> unknown14;
+    Value<float> unknown14;
     Value<float> unknown15;
     Value<float> unknown16;
-    Value<float> unknown17;
     
     void read(Athena::io::IStreamReader& __dna_reader)
     {
@@ -89,19 +89,18 @@ struct WorldTeleporter : IScriptObject
         
         if (propertyCount == 26)
         {
+            audioStream = __dna_reader.readString();
             unknown13 = __dna_reader.readBool();
-            unknown14 = __dna_reader.readBool();
+            unknown14 = __dna_reader.readFloatBig();
             unknown15 = __dna_reader.readFloatBig();
             unknown16 = __dna_reader.readFloatBig();
-            unknown17 = __dna_reader.readFloatBig();
         }
         else
         {
             unknown13 = false;
-            unknown14 = false;
+            unknown14 = 0.0;
             unknown15 = 0.0;
             unknown16 = 0.0;
-            unknown17 = 0.0;
         }
     }
     
@@ -153,11 +152,11 @@ struct WorldTeleporter : IScriptObject
         
         if (propertyCount == 26)
         {
+            __dna_writer.writeString(audioStream);
             __dna_writer.writeBool(unknown13);
-            __dna_writer.writeBool(unknown14);
+            __dna_writer.writeFloatBig(unknown14);
             __dna_writer.writeFloatBig(unknown15);
             __dna_writer.writeFloatBig(unknown16);
-            __dna_writer.writeFloatBig(unknown17);
         }
     }
     
@@ -209,19 +208,18 @@ struct WorldTeleporter : IScriptObject
         
         if (propertyCount == 26)
         {
+            audioStream = __dna_docin.readString("audioStream");
             unknown13 = __dna_docin.readBool("unknown13");
-            unknown14 = __dna_docin.readBool("unknown14");
+            unknown14 = __dna_docin.readFloat("unknown14");
             unknown15 = __dna_docin.readFloat("unknown15");
             unknown16 = __dna_docin.readFloat("unknown16");
-            unknown17 = __dna_docin.readFloat("unknown17");
         }
         else
         {
             unknown13 = false;
-            unknown14 = false;
+            unknown14 = 0.0;
             unknown15 = 0.0;
             unknown16 = 0.0;
-            unknown17 = 0.0;
         }
     }
     
@@ -273,11 +271,11 @@ struct WorldTeleporter : IScriptObject
         
         if (propertyCount == 26)
         {
+            __dna_docout.writeString("audioStream", audioStream);
             __dna_docout.writeBool("unknown13", unknown13);
-            __dna_docout.writeBool("unknown14", unknown14);
+            __dna_docout.writeFloat("unknown14", unknown14);
             __dna_docout.writeFloat("unknown15", unknown15);
             __dna_docout.writeFloat("unknown16", unknown16);
-            __dna_docout.writeFloat("unknown17", unknown17);
         }
     }
     
