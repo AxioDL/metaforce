@@ -47,6 +47,28 @@ void Lexer::ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, Oper
         *newSub = sn;
 }
 
+void Lexer::PrintChain(const Lexer::OperationNode* begin, const Lexer::OperationNode* end)
+{
+    for (const Lexer::OperationNode* n = begin ; n != end ; n = n->m_next)
+    {
+        printf("%3d %s %s\n", n->m_tok.m_location.col, n->m_tok.typeString(),
+               n->m_tok.m_tokenString.c_str());
+    }
+}
+
+void Lexer::PrintTree(const Lexer::OperationNode* node, int indent)
+{
+    for (const Lexer::OperationNode* n = node ; n ; n = n->m_next)
+    {
+        for (int i=0 ; i<indent ; ++i)
+            printf("  ");
+        printf("%3d %s %s\n", n->m_tok.m_location.col, n->m_tok.typeString(),
+               n->m_tok.m_tokenString.c_str());
+        if (n->m_sub)
+            PrintTree(n->m_sub, indent + 1);
+    }
+}
+
 void Lexer::reset()
 {
     m_root = nullptr;
@@ -157,7 +179,7 @@ void Lexer::consumeAllTokens(Parser& parser)
         }
         else if (n->m_tok.m_type == Parser::TokenFunctionEnd)
         {
-            if (n->m_prev->m_tok.m_type != Parser::TokenEvalGroupStart)
+            if (n->m_prev->m_tok.m_type != Parser::TokenFunctionStart)
             {
                 m_pool.emplace_front(std::move(
                 Parser::Token(Parser::TokenEvalGroupEnd, n->m_tok.m_location)));
@@ -230,10 +252,15 @@ void Lexer::consumeAllTokens(Parser& parser)
                 if (sn->m_tok.m_type == Parser::TokenFunctionEnd)
                 {
                     n.m_sub = n.m_next;
+                    if (n.m_next == sn)
+                        n.m_sub = nullptr;
                     n.m_next = sn->m_next;
-                    sn->m_next->m_prev = &n;
-                    n.m_sub->m_prev = nullptr;
-                    sn->m_prev->m_next = nullptr;
+                    if (sn->m_next)
+                        sn->m_next->m_prev = &n;
+                    if (n.m_sub)
+                        n.m_sub->m_prev = nullptr;
+                    if (sn->m_prev)
+                        sn->m_prev->m_next = nullptr;
                     break;
                 }
             }
@@ -308,6 +335,13 @@ void Lexer::consumeAllTokens(Parser& parser)
             if (newSub)
                 n.m_sub = newSub;
         }
+    }
+
+    if (HECL::VerbosityLevel)
+    {
+        printf("%s\n", m_diag.getSource().c_str());
+        PrintTree(firstNode);
+        printf("\n");
     }
 
     /* Done! */

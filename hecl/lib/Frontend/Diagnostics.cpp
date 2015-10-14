@@ -17,6 +17,32 @@ namespace HECL
 namespace Frontend
 {
 
+std::string Diagnostics::sourceDiagString(const SourceLocation& l, bool ansi) const
+{
+    std::string::const_iterator it = m_source.begin();
+    for (int i=1 ; i<l.line ; ++i)
+    {
+        while (*it != '\n' && it != m_source.end())
+            ++it;
+        if (*it == '\n')
+            ++it;
+    }
+    std::string::const_iterator begin = it;
+    while (*it != '\n' && it != m_source.end())
+        ++it;
+    std::string::const_iterator end = it;
+
+    std::string retval(begin, end);
+    retval += '\n';
+    for (int i=1 ; i<l.col ; ++i)
+        retval += ' ';
+    if (ansi)
+        retval += GREEN "^" NORMAL;
+    else
+        retval += '^';
+    return retval;
+}
+
 void Diagnostics::reportParserErr(const SourceLocation& l, const char* fmt, ...)
 {
     va_list ap;
@@ -31,11 +57,11 @@ void Diagnostics::reportParserErr(const SourceLocation& l, const char* fmt, ...)
 #endif
     va_end(ap);
     if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, RED "Error parsing" NORMAL " '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, CYAN "[Parser]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "Error parsing '%s' @%d:%d\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, "[Parser] %s @%d:%d\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
 
@@ -53,11 +79,11 @@ void Diagnostics::reportLexerErr(const SourceLocation& l, const char* fmt, ...)
 #endif
     va_end(ap);
     if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, RED "Error lexing" NORMAL " '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, CYAN "[Lexer]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "Error lexing '%s' @%d:%d\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, "[Lexer] %s @%d:%d\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
 
@@ -75,11 +101,11 @@ void Diagnostics::reportCompileErr(const SourceLocation& l, const char* fmt, ...
 #endif
     va_end(ap);
     if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, RED "Error compiling" NORMAL " '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, CYAN "[Compiler]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "Error compiling '%s' @%d:%d\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, "[Compiler] %s @%d:%d\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
 
@@ -97,11 +123,11 @@ void Diagnostics::reportBackendErr(const SourceLocation& l, const char* fmt, ...
 #endif
     va_end(ap);
     if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, RED "Backend error" NORMAL " in '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, CYAN "[Backend]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "Backend error in '%s' @%d:%d\n%s",
-                         m_name.c_str(), l.line, l.col, result);
+        LogModule.report(LogVisor::FatalError, "[Backend] %s @%d:%d\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
 

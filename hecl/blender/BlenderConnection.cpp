@@ -558,21 +558,25 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
 BlenderConnection::DataStream::Mesh::Material::Material
 (BlenderConnection& conn)
 {
-    char buf[4096];
-    conn._readLine(buf, 4096);
-    source.assign(buf);
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    conn._readBuf(&bufSz, 4);
+    source.assign(bufSz, ' ');
+    conn._readBuf(&source[0], bufSz);
 
     uint32_t texCount;
     conn._readBuf(&texCount, 4);
     texs.reserve(texCount);
     for (uint32_t i=0 ; i<texCount ; ++i)
     {
-        conn._readLine(buf, 4096);
-#if HECL_UCS2
-        SystemString absolute = HECL::UTF8ToWide(buf);
-#else
-        SystemString absolute(buf);
-#endif
+        conn._readBuf(&bufSz, 4);
+        std::string readStr(bufSz, ' ');
+        conn._readBuf(&readStr[0], bufSz);
+        SystemStringView absolute(readStr);
+
         SystemString relative =
         conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
         texs.emplace_back(conn.m_loadedBlend.getProject().getProjectWorkingPath(), relative);

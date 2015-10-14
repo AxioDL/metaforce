@@ -169,6 +169,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
                     diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
+                b->m_color[3] = CC_CPREV;
                 return TraceResult(b);
             }
             break;
@@ -183,6 +184,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 if (b->m_prev != a)
                     diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
                 b->m_op = TEV_SUB;
+                b->m_color[3] = CC_CPREV;
                 return TraceResult(b);
             }
             break;
@@ -203,6 +205,14 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 b->m_color[2] = CC_CPREV;
                 b->m_color[3] = CC_ZERO;
                 return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
+                     bTrace.type == TraceResult::TraceTEVColorArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_color[1] = aTrace.tevColorArg;
+                stage.m_color[2] = bTrace.tevColorArg;
+                return TraceResult(&stage);
             }
             else if (aTrace.type == TraceResult::TraceTEVStage &&
                      bTrace.type == TraceResult::TraceTEVColorArg)
@@ -262,6 +272,19 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
 
         diag.reportBackendErr(inst.m_loc, "unable to convert arithmetic to TEV stage");
     }
+    case IR::OpSwizzle:
+    {
+        if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == -1 &&
+            inst.m_swizzle.m_idxs[2] == -1 && inst.m_swizzle.m_idxs[3] == -1)
+        {
+            const IR::Instruction& cInst = inst.getChildInst(ir, 0);
+            if (cInst.m_op != IR::OpCall || cInst.m_call.m_name.compare("Texture"))
+                diag.reportBackendErr(inst.m_loc, "only Texture() accepted for alpha swizzle");
+            return TraceResult(CC_TEXA);
+        }
+        else
+            diag.reportBackendErr(inst.m_loc, "only alpha extract may be performed with swizzle operation");
+    }
     default:
         diag.reportBackendErr(inst.m_loc, "invalid color op");
     }
@@ -305,6 +328,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             }
 
             TEVStage& newStage = addTEVStage(diag, inst.m_loc);
+            newStage.m_color[3] = CC_CPREV;
 
             newStage.m_texMapIdx = mapIdx;
             newStage.m_alpha[0] = CA_TEXA;
@@ -355,6 +379,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
                     diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
+                b->m_alpha[3] = CA_APREV;
                 return TraceResult(b);
             }
             break;
@@ -370,6 +395,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                     diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
                 if (b->m_op != TEV_SUB)
                     diag.reportBackendErr(inst.m_loc, "unable to integrate alpha subtraction into stage chain");
+                b->m_alpha[3] = CA_APREV;
                 return TraceResult(b);
             }
             break;
@@ -390,6 +416,15 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 b->m_alpha[2] = CA_APREV;
                 b->m_alpha[3] = CA_ZERO;
                 return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
+                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_color[3] = CC_CPREV;
+                stage.m_alpha[1] = aTrace.tevAlphaArg;
+                stage.m_alpha[2] = bTrace.tevAlphaArg;
+                return TraceResult(&stage);
             }
             else if (aTrace.type == TraceResult::TraceTEVStage &&
                      bTrace.type == TraceResult::TraceTEVColorArg)
@@ -484,6 +519,12 @@ void GX::reset(const IR& ir, Diagnostics& diag)
         m_blendDst = BL_ONE;
         doAlpha = true;
     }
+    else
+    {
+        diag.reportBackendErr(rootCall.m_loc, "GX backend doesn't handle '%s' root",
+                              rootCall.m_call.m_name.c_str());
+        return;
+    }
 
     /* Follow Color Chain */
     const IR::Instruction& colorRoot =
@@ -496,6 +537,11 @@ void GX::reset(const IR& ir, Diagnostics& diag)
         const IR::Instruction& alphaRoot =
         ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));
         RecursiveTraceAlpha(ir, diag, alphaRoot);
+
+        /* Ensure Alpha reaches end of chain */
+        if (m_alphaTraceStage >= 0)
+            for (int i=m_alphaTraceStage+1 ; i<m_tevCount ; ++i)
+                m_tevs[i].m_alpha[3] = CA_APREV;
     }
 }
 

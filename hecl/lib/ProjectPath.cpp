@@ -286,7 +286,7 @@ static void _recursiveGlob(Database::Project& proj,
 #endif
 }
 
-void ProjectPath::getDirChildren(std::vector<ProjectPath>& outPaths) const
+void ProjectPath::getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const
 {
 #if _WIN32
 #else
@@ -298,18 +298,6 @@ void ProjectPath::getDirChildren(std::vector<ProjectPath>& outPaths) const
         return;
     }
 
-    /* Count elements */
-    size_t count = 0;
-    while ((de = readdir(dir)))
-    {
-        if (!strcmp(de->d_name, "."))
-            continue;
-        if (!strcmp(de->d_name, ".."))
-            continue;
-        ++count;
-    }
-    outPaths.reserve(outPaths.size() + count);
-
     /* Add elements */
     rewinddir(dir);
     while ((de = readdir(dir)))
@@ -318,7 +306,7 @@ void ProjectPath::getDirChildren(std::vector<ProjectPath>& outPaths) const
             continue;
         if (!strcmp(de->d_name, ".."))
             continue;
-        outPaths.emplace_back(*this, de->d_name);
+        outPaths[de->d_name] = ProjectPath(*this, de->d_name);
     }
 
     closedir(dir);

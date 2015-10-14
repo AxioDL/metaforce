@@ -354,7 +354,7 @@ def shader(mat_obj, mesh_obj):
     tex_paths = [get_texture_path(name) for name in tex_list]
 
     if mat_obj.game_settings.alpha_blend == 'ALPHA' or mat_obj.game_settings.alpha_blend == 'ALPHA_SORT':
-        return "HECLBlend(%s, %s)" % (color_trace_result, alpha_trace_result), tex_paths
+        return "HECLAlpha(%s, %s)" % (color_trace_result, alpha_trace_result), tex_paths
     elif mat_obj.game_settings.alpha_blend == 'ADD':
         return "HECLAdditive(%s, %s)" % (color_trace_result, alpha_trace_result), tex_paths
     else:

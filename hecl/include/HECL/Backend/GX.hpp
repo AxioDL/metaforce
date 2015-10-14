@@ -201,8 +201,8 @@ struct GX : IBackend
     struct TEVStage
     {
         TevOp m_op = TEV_ADD;
-        TevColorArg m_color[4] = {CC_ZERO, CC_ZERO, CC_ZERO, CC_CPREV};
-        TevAlphaArg m_alpha[4] = {CA_ZERO, CA_ZERO, CA_ZERO, CA_APREV};
+        TevColorArg m_color[4] = {CC_ZERO, CC_ZERO, CC_ZERO, CC_ZERO};
+        TevAlphaArg m_alpha[4] = {CA_ZERO, CA_ZERO, CA_ZERO, CA_ZERO};
         TevKColorSel m_kColor = TEV_KCSEL_1;
         TevKAlphaSel m_kAlpha = TEV_KASEL_1;
         TevRegID m_regOut = TEVPREV;

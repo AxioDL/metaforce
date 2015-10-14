@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <regex>
 #include <list>
+#include <map>
 #include <LogVisor/LogVisor.hpp>
 #include "../extern/xxhash/xxhash.h"
 
@@ -658,6 +659,19 @@ public:
             return m_relPath.c_str() + m_relPath.size();
         return m_relPath.c_str() + pos + 1;
     }
+    const char* getLastComponentUTF8() const
+    {
+        size_t pos = m_relPath.rfind(_S('/'));
+#if HECL_UCS2
+        if (pos == SystemString::npos)
+            return m_utf8RelPath.c_str() + m_utf8RelPath.size();
+        return m_utf8RelPath.c_str() + pos + 1;
+#else
+        if (pos == SystemString::npos)
+            return m_relPath.c_str() + m_relPath.size();
+        return m_relPath.c_str() + pos + 1;
+#endif
+    }
 
     /**
      * @brief Obtain c-string of extension of final path component (stored within relative path)
@@ -738,7 +752,7 @@ public:
      * @brief Insert directory children into list
      * @param outPaths list to append children to
      */
-    void getDirChildren(std::vector<ProjectPath>& outPaths) const;
+    void getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const;
 
     /**
      * @brief Insert glob matches into existing vector

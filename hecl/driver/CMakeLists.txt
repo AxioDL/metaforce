@@ -26,5 +26,5 @@ endif()
 
 target_link_libraries(hecl
     ${DATA_SPEC_LIBS}
-    HECLDatabase HECLBlender HECLCommon AthenaCore NOD
+    HECLDatabase HECLBackend HECLFrontend HECLBlender HECLCommon AthenaCore NOD
     LogVisor AthenaLibYaml ${PNG_LIB} squish xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS})

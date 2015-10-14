@@ -308,6 +308,7 @@ public:
             /* HECL source of each material */
             struct Material
             {
+                std::string name;
                 std::string source;
                 std::vector<ProjectPath> texs;
 

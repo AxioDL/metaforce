@@ -95,11 +95,10 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
         rna_loops = copy_mesh.loops
 
     # Filter out useless AABB points and send data
-    aabb = bytearray()
-    for comp in copy_obj.bound_box[0]:
-        writebuf(struct.pack('f', comp))
-    for comp in copy_obj.bound_box[6]:
-        writebuf(struct.pack('f', comp))
+    pt = copy_obj.bound_box[0]
+    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+    pt = copy_obj.bound_box[6]
+    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
 
     # Create master BMesh and VertPool
     bm_master = bmesh.new()
@@ -128,10 +127,14 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
                         hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-                        writebuf((hecl_str + '\n').encode())
+                        writebuf(struct.pack('I', len(mat.name)))
+                        writebuf(mat.name.encode())
+                        writebuf(struct.pack('I', len(hecl_str)))
+                        writebuf(hecl_str.encode())
                         writebuf(struct.pack('I', len(texs)))
                         for tex in texs:
-                            writebuf((tex + '\n').encode())
+                            writebuf(struct.pack('I', len(tex)))
+                            writebuf(tex.encode())
                         found = True
                         break
                 if not found:
@@ -141,10 +144,14 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
         for mat_idx in sorted_material_idxs:
             mat = mesh_obj.data.materials[mat_idx]
             hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-            writebuf((hecl_str + '\n').encode())
+            writebuf(struct.pack('I', len(mat.name)))
+            writebuf(mat.name.encode())
+            writebuf(struct.pack('I', len(hecl_str)))
+            writebuf(hecl_str.encode())
             writebuf(struct.pack('I', len(texs)))
             for tex in texs:
-                writebuf((tex + '\n').encode())
+                writebuf(struct.pack('I', len(tex)))
+                writebuf(tex.encode())
 
     # Output vert pool
     vert_pool.write_out(writebuf, mesh_obj.vertex_groups)

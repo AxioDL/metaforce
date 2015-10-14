@@ -23,12 +23,17 @@ struct SourceLocation
 class Diagnostics
 {
     std::string m_name;
+    std::string m_source;
+    std::string sourceDiagString(const SourceLocation& l, bool ansi=false) const;
 public:
-    void setName(const std::string& name) {m_name = name;}
+    void reset(const std::string& name, const std::string& source) {m_name = name; m_source = source;}
     void reportParserErr(const SourceLocation& l, const char* format, ...);
     void reportLexerErr(const SourceLocation& l, const char* format, ...);
     void reportCompileErr(const SourceLocation& l, const char* format, ...);
     void reportBackendErr(const SourceLocation& l, const char* format, ...);
+
+    const std::string& getName() const {return m_name;}
+    const std::string& getSource() const {return m_source;}
 };
 
 class Parser
@@ -65,6 +70,36 @@ public:
         float m_tokenFloat = 0.0;
         Token() : m_type(TokenNone) {}
         Token(TokenType type, SourceLocation loc) : m_type(type), m_location(loc) {}
+        const char* typeString() const
+        {
+            switch (m_type)
+            {
+            case TokenNone:
+                return "None";
+            case TokenSourceBegin:
+                return "SourceBegin";
+            case TokenSourceEnd:
+                return "SourceEnd";
+            case TokenNumLiteral:
+                return "NumLiteral";
+            case TokenVectorSwizzle:
+                return "VectorSwizzle";
+            case TokenEvalGroupStart:
+                return "EvalGroupStart";
+            case TokenEvalGroupEnd:
+                return "EvalGroupEnd";
+            case TokenFunctionStart:
+                return "FunctionStart";
+            case TokenFunctionEnd:
+                return "FunctionEnd";
+            case TokenFunctionArgDelim:
+                return "FunctionArgDelim";
+            case TokenArithmeticOp:
+                return "ArithmeticOp";
+            default: break;
+            }
+            return nullptr;
+        }
     };
     void reset(const std::string& source);
     Token consumeToken();
@@ -120,7 +155,7 @@ struct IR
 
         struct
         {
-            int m_idxs[4] = {-1};
+            int m_idxs[4] = {-1, -1, -1, -1};
             size_t m_instIdx;
         } m_swizzle;
 
@@ -208,6 +243,9 @@ class Lexer
     void EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target) const;
     void EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target) const;
 
+    static void PrintChain(const Lexer::OperationNode* begin, const Lexer::OperationNode* end);
+    static void PrintTree(const Lexer::OperationNode* node, int indent=0);
+
 public:
     void reset();
     void consumeAllTokens(Parser& parser);
@@ -224,7 +262,7 @@ class Frontend
 public:
     IR compileSource(const std::string& source, const std::string& diagName)
     {
-        m_diag.setName(diagName);
+        m_diag.reset(diagName, source);
         m_parser.reset(source);
         m_lexer.consumeAllTokens(m_parser);
         return m_lexer.compileIR();

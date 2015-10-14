@@ -385,14 +385,14 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
                            std::vector<SpecInst>& specInsts,
                            CookProgress& progress)
 {
-    std::vector<ProjectPath> children;
+    std::map<SystemString, ProjectPath> children;
     dir.getDirChildren(children);
 
     /* Pass 1: child file count */
     int childFileCount = 0;
-    for (ProjectPath& child : children)
+    for (auto& child : children)
     {
-        switch (child.getPathType())
+        switch (child.second.getPathType())
         {
         case ProjectPath::PT_FILE:
         {
@@ -401,7 +401,7 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
         }
         case ProjectPath::PT_LINK:
         {
-            ProjectPath target = child.resolveLink();
+            ProjectPath target = child.second.resolveLink();
             if (target.getPathType() == ProjectPath::PT_FILE)
                 ++childFileCount;
             break;
@@ -414,19 +414,19 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
     int progNum = 0;
     float progDenom = childFileCount;
     progress.changeDir(dir.getLastComponent());
-    for (ProjectPath& child : children)
+    for (auto& child : children)
     {
-        switch (child.getPathType())
+        switch (child.second.getPathType())
         {
         case ProjectPath::PT_FILE:
         {
-            progress.changeFile(child.getLastComponent(), progNum++/progDenom);
-            VisitFile(child, specInsts, progress);
+            progress.changeFile(child.first.c_str(), progNum++/progDenom);
+            VisitFile(child.second, specInsts, progress);
             break;
         }
         case ProjectPath::PT_LINK:
         {
-            ProjectPath target = child.resolveLink();
+            ProjectPath target = child.second.resolveLink();
             if (target.getPathType() == ProjectPath::PT_FILE)
             {
                 progress.changeFile(target.getLastComponent(), progNum++/progDenom);
@@ -442,13 +442,13 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive,
     /* Pass 3: child directories */
     if (recursive)
     {
-        for (ProjectPath& child : children)
+        for (auto& child : children)
         {
-            switch (child.getPathType())
+            switch (child.second.getPathType())
             {
             case ProjectPath::PT_DIRECTORY:
             {
-                VisitDirectory(child, recursive, specInsts, progress);
+                VisitDirectory(child.second, recursive, specInsts, progress);
                 break;
             }
             default: break;
