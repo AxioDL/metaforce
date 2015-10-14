@@ -45,10 +45,11 @@ struct CMDL
         return conn.saveBlend();
     }
 
-    static bool Cook(const DNACMDL::Mesh& mesh,
-                     const HECL::ProjectPath& outPath)
+    static bool Cook(const HECL::ProjectPath& outPath,
+                     const HECL::ProjectPath& inPath,
+                     const DNACMDL::Mesh& mesh)
     {
-        return true;
+        return DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(outPath, inPath, mesh);
     }
 };
 

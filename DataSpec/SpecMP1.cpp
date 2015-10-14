@@ -280,21 +280,21 @@ struct SpecMP1 : SpecBase
         return false;
     }
 
-    void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
     {
         Mesh mesh = ds.compileMesh();
-        DNAMP1::CMDL::Cook(mesh, out);
+        DNAMP1::CMDL::Cook(out, in, mesh);
     }
 
-    void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
     {
     }
 
-    void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const
+    void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
     {
     }
 
-    void cookYAML(FILE* in, const HECL::ProjectPath& out) const
+    void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in, FILE* fin) const
     {
     }
 };

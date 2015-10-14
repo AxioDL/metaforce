@@ -1027,7 +1027,7 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
 {
-    Athena::io::FileWriter writer(outPath.getAbsolutePath());
+    //Athena::io::FileWriter writer(outPath.getAbsolutePath());
 
     Header head;
     head.magic = 0xDEADBABE;
@@ -1042,23 +1042,19 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     /* Build material sets */
     {
         HECL::Frontend::Frontend FE;
-        int setIdx = 0;
         for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
         {
-            int matIdx = 0;
             for (const Mesh::Material& mat : mset)
             {
-                std::string diagName = HECL::SysFormat(_S("%s:%d:%d"), inPath.getLastComponent(), setIdx, matIdx);
+                std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
                 HECL::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
                 HECL::Backend::GX matGX;
-                matGX.reset(matIR);
-                ++matIdx;
+                matGX.reset(matIR, FE.getDiagnostics());
             }
-            ++setIdx;
         }
     }
 
-    head.write(writer);
+    //head.write(writer);
 
 
     return true;

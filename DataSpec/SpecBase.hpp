@@ -46,11 +46,11 @@ struct SpecBase : HECL::Database::IDataSpec
     /* Cook handlers */
     using BlendStream = HECL::BlenderConnection::DataStream;
     using Mesh = BlendStream::Mesh;
-    virtual void cookMesh(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
-    virtual void cookActor(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
-    virtual void cookArea(const HECL::ProjectPath& in, BlendStream& ds, const HECL::ProjectPath& out) const=0;
-    virtual void cookYAML(FILE* in, const HECL::ProjectPath& out) const=0;
 
+    virtual void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
+    virtual void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
+    virtual void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
+    virtual void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in, FILE* fin) const=0;
 
     const HECL::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 
