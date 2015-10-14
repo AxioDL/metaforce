@@ -61,5 +61,49 @@ void Diagnostics::reportLexerErr(const SourceLocation& l, const char* fmt, ...)
     free(result);
 }
 
+void Diagnostics::reportCompileErr(const SourceLocation& l, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char* result = nullptr;
+#ifdef _WIN32
+    int length = _vscprintf(fmt, ap);
+    result = (char*)malloc(length);
+    vsnprintf(result, length, fmt, ap);
+#else
+    vasprintf(&result, fmt, ap);
+#endif
+    va_end(ap);
+    if (LogVisor::XtermColor)
+        LogModule.report(LogVisor::FatalError, RED "Error compiling" NORMAL " '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
+                         m_name.c_str(), l.line, l.col, result);
+    else
+        LogModule.report(LogVisor::FatalError, "Error compiling '%s' @%d:%d\n%s",
+                         m_name.c_str(), l.line, l.col, result);
+    free(result);
+}
+
+void Diagnostics::reportBackendErr(const SourceLocation& l, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char* result = nullptr;
+#ifdef _WIN32
+    int length = _vscprintf(fmt, ap);
+    result = (char*)malloc(length);
+    vsnprintf(result, length, fmt, ap);
+#else
+    vasprintf(&result, fmt, ap);
+#endif
+    va_end(ap);
+    if (LogVisor::XtermColor)
+        LogModule.report(LogVisor::FatalError, RED "Backend error" NORMAL " in '%s' " YELLOW "@%d:%d " NORMAL "\n%s",
+                         m_name.c_str(), l.line, l.col, result);
+    else
+        LogModule.report(LogVisor::FatalError, "Backend error in '%s' @%d:%d\n%s",
+                         m_name.c_str(), l.line, l.col, result);
+    free(result);
+}
+
 }
 }

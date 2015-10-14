@@ -25,7 +25,7 @@ static IR::Instruction::ArithmeticOpType ArithType(int aChar)
     }
 }
 
-void Lexer::ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, OperationNode** newSub)
+void Lexer::ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, OperationNode** newSub) const
 {
     sn->m_sub = sn->m_prev;
     sn->m_prev = nullptr;
@@ -314,13 +314,13 @@ void Lexer::consumeAllTokens(Parser& parser)
     m_root = firstNode->m_next;
 }
 
-void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target)
+void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const
 {
     /* Optimization case: if empty call, emit zero imm load */
     const Lexer::OperationNode* gn = funcNode->m_sub;
     if (!gn)
     {
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
         ir.m_instructions.back().m_loadImm.m_immVec = {};
         return;
     }
@@ -340,7 +340,7 @@ void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     }
     if (opt)
     {
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
         atVec4f& vec = ir.m_instructions.back().m_loadImm.m_immVec;
         vec.vec[0] = imms[0]->m_tokenFloat;
         vec.vec[1] = imms[1]->m_tokenFloat;
@@ -353,13 +353,13 @@ void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     RecursiveFuncCompile(ir, funcNode, target);
 }
 
-void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target)
+void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const
 {
     /* Optimization case: if empty call, emit zero imm load */
     const Lexer::OperationNode* gn = funcNode->m_sub;
     if (!gn)
     {
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
         ir.m_instructions.back().m_loadImm.m_immVec = {};
         return;
     }
@@ -379,7 +379,7 @@ void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     }
     if (opt)
     {
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
         atVec4f& vec = ir.m_instructions.back().m_loadImm.m_immVec;
         vec.vec[0] = imms[0]->m_tokenFloat;
         vec.vec[1] = imms[1]->m_tokenFloat;
@@ -392,7 +392,7 @@ void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     RecursiveFuncCompile(ir, funcNode, target);
 }
 
-void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target)
+void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target) const
 {
     /* Evaluate operands */
     atVec4f* opt[2] = {nullptr};
@@ -418,7 +418,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
             break;
         case Parser::TokenNumLiteral:
         {
-            ir.m_instructions.emplace_back(IR::OpLoadImm);
+            ir.m_instructions.emplace_back(IR::OpLoadImm, arithNode->m_tok.m_location);
             IR::Instruction& inst = ir.m_instructions.back();
             inst.m_target = tgt;
             inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
@@ -431,7 +431,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
             EmitVectorSwizzle(ir, on, tgt);
             break;
         default:
-            LogModule.report(LogVisor::FatalError, "invalid lexer node for IR");
+            m_diag.reportCompileErr(tok.m_location, "invalid lexer node for IR");
             break;
         };
         argInsts[i] = ir.m_instructions.size() - 1;
@@ -471,19 +471,19 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
             eval.vec[3] = opt[0]->vec[3] / opt[1]->vec[3];
             break;
         default:
-            LogModule.report(LogVisor::FatalError, "invalid arithmetic type");
+            m_diag.reportCompileErr(arithNode->m_tok.m_location, "invalid arithmetic type");
             break;
         }
         ir.m_instructions.pop_back();
         ir.m_instructions.pop_back();
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, arithNode->m_tok.m_location);
         IR::Instruction& inst = ir.m_instructions.back();
         inst.m_target = target;
         inst.m_loadImm.m_immVec = eval;
     }
     else
     {
-        ir.m_instructions.emplace_back(IR::OpArithmetic);
+        ir.m_instructions.emplace_back(IR::OpArithmetic, arithNode->m_tok.m_location);
         IR::Instruction& inst = ir.m_instructions.back();
         inst.m_target = target;
         inst.m_arithmetic.m_instIdxs[0] = argInsts[0];
@@ -494,7 +494,7 @@ void Lexer::EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::Re
     }
 }
 
-static int SwizzleCompIdx(char aChar)
+static int SwizzleCompIdx(char aChar, Diagnostics& diag, const SourceLocation& loc)
 {
     switch (aChar)
     {
@@ -511,16 +511,16 @@ static int SwizzleCompIdx(char aChar)
     case 'a':
         return 3;
     default:
-        LogModule.report(LogVisor::FatalError, "invalid swizzle char %c", aChar);
+        diag.reportCompileErr(loc, "invalid swizzle char %c", aChar);
     }
     return -1;
 }
 
-void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target)
+void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target) const
 {
     const std::string& str = swizNode->m_tok.m_tokenString;
     if (str.size() != 1 && str.size() != 3 && str.size() != 4)
-        LogModule.report(LogVisor::FatalError, "%d component swizzles not supported", int(str.size()));
+        m_diag.reportCompileErr(swizNode->m_tok.m_location, "%d component swizzles not supported", int(str.size()));
 
     size_t instCount = ir.m_instructions.size();
     const Lexer::OperationNode* on = swizNode->m_sub;
@@ -540,7 +540,7 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
         break;
     case Parser::TokenNumLiteral:
     {
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, swizNode->m_tok.m_location);
         IR::Instruction& inst = ir.m_instructions.back();
         inst.m_target = target;
         inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
@@ -553,7 +553,7 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
         EmitVectorSwizzle(ir, on, target);
         break;
     default:
-        LogModule.report(LogVisor::FatalError, "invalid lexer node for IR");
+        m_diag.reportCompileErr(tok.m_location, "invalid lexer node for IR");
         break;
     };
 
@@ -561,46 +561,47 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
     if (ir.m_instructions.back().m_op == IR::OpLoadImm && (ir.m_instructions.size() - instCount == 1))
     {
         atVec4f* opt = &ir.m_instructions.back().m_loadImm.m_immVec;
+        const SourceLocation& loc = ir.m_instructions.back().m_loc;
         atVec4f eval;
         switch (str.size())
         {
         case 1:
-            eval = {opt->vec[SwizzleCompIdx(str[0])]};
+            eval = {opt->vec[SwizzleCompIdx(str[0], m_diag, loc)]};
             break;
         case 3:
-            eval.vec[0] = opt->vec[SwizzleCompIdx(str[0])];
-            eval.vec[1] = opt->vec[SwizzleCompIdx(str[1])];
-            eval.vec[2] = opt->vec[SwizzleCompIdx(str[2])];
+            eval.vec[0] = opt->vec[SwizzleCompIdx(str[0], m_diag, loc)];
+            eval.vec[1] = opt->vec[SwizzleCompIdx(str[1], m_diag, loc)];
+            eval.vec[2] = opt->vec[SwizzleCompIdx(str[2], m_diag, loc)];
             eval.vec[3] = 1.0;
             break;
         case 4:
-            eval.vec[0] = opt->vec[SwizzleCompIdx(str[0])];
-            eval.vec[1] = opt->vec[SwizzleCompIdx(str[1])];
-            eval.vec[2] = opt->vec[SwizzleCompIdx(str[2])];
-            eval.vec[3] = opt->vec[SwizzleCompIdx(str[3])];
+            eval.vec[0] = opt->vec[SwizzleCompIdx(str[0], m_diag, loc)];
+            eval.vec[1] = opt->vec[SwizzleCompIdx(str[1], m_diag, loc)];
+            eval.vec[2] = opt->vec[SwizzleCompIdx(str[2], m_diag, loc)];
+            eval.vec[3] = opt->vec[SwizzleCompIdx(str[3], m_diag, loc)];
             break;
         default:
             break;
         }
 
         ir.m_instructions.pop_back();
-        ir.m_instructions.emplace_back(IR::OpLoadImm);
+        ir.m_instructions.emplace_back(IR::OpLoadImm, swizNode->m_tok.m_location);
         IR::Instruction& inst = ir.m_instructions.back();
         inst.m_target = target;
         inst.m_loadImm.m_immVec = eval;
     }
     else
     {
-        ir.m_instructions.emplace_back(IR::OpSwizzle);
+        ir.m_instructions.emplace_back(IR::OpSwizzle, swizNode->m_tok.m_location);
         IR::Instruction& inst = ir.m_instructions.back();
         inst.m_swizzle.m_instIdx = ir.m_instructions.size() - 2;
         inst.m_target = target;
         for (int i=0 ; i<str.size() ; ++i)
-            inst.m_swizzle.m_idxs[i] = SwizzleCompIdx(str[i]);
+            inst.m_swizzle.m_idxs[i] = SwizzleCompIdx(str[i], m_diag, swizNode->m_tok.m_location);
     }
 }
 
-void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode, IR::RegID target)
+void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode, IR::RegID target) const
 {
     IR::RegID tgt = target;
     for (const Lexer::OperationNode* sn = groupNode->m_sub ; sn ; sn = sn->m_next, ++tgt)
@@ -621,7 +622,7 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
             break;
         case Parser::TokenNumLiteral:
         {
-            ir.m_instructions.emplace_back(IR::OpLoadImm);
+            ir.m_instructions.emplace_back(IR::OpLoadImm, tok.m_location);
             IR::Instruction& inst = ir.m_instructions.back();
             inst.m_target = tgt;
             inst.m_loadImm.m_immVec.vec[0] = tok.m_tokenFloat;
@@ -637,7 +638,7 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
             EmitVectorSwizzle(ir, sn, tgt);
             break;
         default:
-            LogModule.report(LogVisor::FatalError, "invalid lexer node for IR");
+            m_diag.reportCompileErr(tok.m_location, "invalid lexer node for IR");
             break;
         };
     }
@@ -645,7 +646,7 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
         ir.m_regCount = tgt;
 }
 
-void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target)
+void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const
 {
     IR::RegID tgt = target;
     std::vector<size_t> instIdxs;
@@ -654,7 +655,7 @@ void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, I
         RecursiveGroupCompile(ir, gn, tgt);
         instIdxs.push_back(ir.m_instructions.size() - 1);
     }
-    ir.m_instructions.emplace_back(IR::OpCall);
+    ir.m_instructions.emplace_back(IR::OpCall, funcNode->m_tok.m_location);
     IR::Instruction& inst = ir.m_instructions.back();
     inst.m_call.m_name = funcNode->m_tok.m_tokenString;
     inst.m_call.m_argInstIdxs = std::move(instIdxs);
@@ -666,7 +667,7 @@ void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, I
 IR Lexer::compileIR() const
 {
     if (!m_root)
-        LogModule.report(LogVisor::FatalError, "unable to compile HECL-IR for invalid source");
+        m_diag.reportCompileErr(SourceLocation(), "unable to compile HECL-IR for invalid source");
 
     IR ir;
     RecursiveFuncCompile(ir, m_root, 0);

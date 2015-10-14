@@ -2,7 +2,6 @@
 #define HECLBACKEND_GX_HPP
 
 #include "Backend.hpp"
-#include "HECL/Frontend.hpp"
 #include <Athena/Types.hpp>
 #include <stdint.h>
 #include <stdlib.h>
@@ -185,25 +184,37 @@ struct GX : IBackend
 
     struct TexCoordGen
     {
-        TexGenSrc m_src;
-        TexMtx m_mtx;
+        TexGenSrc m_src = TG_TEX0;
+        TexMtx m_mtx = IDENTITY;
+
+        /* Not actually part of GX, but a way to relate out-of-band
+         * texmtx animation parameters */
+        std::string m_gameFunction;
+        std::vector<atVec4f> m_gameArgs;
     };
     unsigned m_tcgCount = 0;
-    TexCoordGen m_tcgs;
+    TexCoordGen m_tcgs[8];
+
+    unsigned m_texMtxCount = 0;
+    TexCoordGen* m_texMtxRefs[8];
 
     struct TEVStage
     {
-        TevOp m_op;
-        TevColorArg m_color[4];
-        TevAlphaArg m_alpha[4];
-        TevKColorSel m_kColor;
-        TevKAlphaSel m_kAlpha;
-        TevRegID m_regOut;
-        unsigned m_texMapIdx;
-        unsigned m_texGenIdx;
+        TevOp m_op = TEV_ADD;
+        TevColorArg m_color[4] = {CC_ZERO, CC_ZERO, CC_ZERO, CC_CPREV};
+        TevAlphaArg m_alpha[4] = {CA_ZERO, CA_ZERO, CA_ZERO, CA_APREV};
+        TevKColorSel m_kColor = TEV_KCSEL_1;
+        TevKAlphaSel m_kAlpha = TEV_KASEL_1;
+        TevRegID m_regOut = TEVPREV;
+        int m_texMapIdx = -1;
+        int m_texGenIdx = -1;
+
+        /* Convenience Links */
+        TEVStage* m_prev = nullptr;
+        TEVStage* m_next = nullptr;
     };
     unsigned m_tevCount = 0;
-    TEVStage m_tevs;
+    TEVStage m_tevs[16];
 
     enum BlendFactor
     {
@@ -232,10 +243,19 @@ struct GX : IBackend
             color[0] = uint8_t(std::min(std::max(vec.vec[0] * 255.f, 0.f), 255.f));
             color[1] = uint8_t(std::min(std::max(vec.vec[1] * 255.f, 0.f), 255.f));
             color[2] = uint8_t(std::min(std::max(vec.vec[2] * 255.f, 0.f), 255.f));
-            color[3] = uint8_t(std::min(std::max(vec.vec[3] * 255.f, 0.f), 255.f));
+            color[3] = 0;
+            return *this;
+        }
+        Color& operator=(uint8_t val)
+        {
+            color[0] = val;
+            color[1] = val;
+            color[2] = val;
+            color[3] = val;
             return *this;
         }
         Color(const atVec4f& vec) {*this = vec;}
+        Color(uint8_t val) {*this = val;}
         bool operator==(const Color& other) const {return num == other.num;}
         bool operator!=(const Color& other) const {return num != other.num;}
         uint8_t operator[](size_t idx) const {return color[idx];}
@@ -244,12 +264,48 @@ struct GX : IBackend
     unsigned m_kcolorCount = 0;
     Color m_kcolors[4];
 
-    void reset(const Frontend::IR& ir);
+    int m_alphaTraceStage = -1;
+
+    void reset(const IR& ir, Diagnostics& diag);
 
 private:
-    unsigned addKColor(const Color& color);
-    void RecursiveTraceColor(const Frontend::IR::Instruction& inst);
-    void RecursiveTraceAlpha(const Frontend::IR::Instruction& inst);
+    struct TraceResult
+    {
+        enum
+        {
+            TraceInvalid,
+            TraceTEVStage,
+            TraceTEVColorArg,
+            TraceTEVAlphaArg,
+            TraceTEVKColorSel,
+            TraceTEVKAlphaSel
+        } type;
+        union
+        {
+            GX::TEVStage* tevStage;
+            GX::TevColorArg tevColorArg;
+            GX::TevAlphaArg tevAlphaArg;
+            GX::TevKColorSel tevKColorSel;
+            GX::TevKAlphaSel tevKAlphaSel;
+        };
+        TraceResult() : type(TraceInvalid) {}
+        TraceResult(GX::TEVStage* stage) : type(TraceTEVStage), tevStage(stage) {}
+        TraceResult(GX::TevColorArg arg) : type(TraceTEVColorArg), tevColorArg(arg) {}
+        TraceResult(GX::TevAlphaArg arg) : type(TraceTEVAlphaArg), tevAlphaArg(arg) {}
+        TraceResult(GX::TevKColorSel arg) : type(TraceTEVKColorSel), tevKColorSel(arg) {}
+        TraceResult(GX::TevKAlphaSel arg) : type(TraceTEVKAlphaSel), tevKAlphaSel(arg) {}
+    };
+
+    unsigned addKColor(Diagnostics& diag, const SourceLocation& loc, const Color& color);
+    unsigned addKAlpha(Diagnostics& diag, const SourceLocation& loc, float alpha);
+    unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
+                            TexGenSrc src, TexMtx mtx);
+    TEVStage& addTEVStage(Diagnostics& diag, const SourceLocation& loc);
+    TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
+                                    const IR::Instruction& inst);
+    TraceResult RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
+                                    const IR::Instruction& inst);
+    unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx);
 };
 
 }

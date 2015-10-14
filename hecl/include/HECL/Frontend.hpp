@@ -5,6 +5,7 @@
 #include <vector>
 #include <forward_list>
 #include <Athena/Types.hpp>
+#include <HECL/HECL.hpp>
 
 namespace HECL
 {
@@ -26,6 +27,8 @@ public:
     void setName(const std::string& name) {m_name = name;}
     void reportParserErr(const SourceLocation& l, const char* format, ...);
     void reportLexerErr(const SourceLocation& l, const char* format, ...);
+    void reportCompileErr(const SourceLocation& l, const char* format, ...);
+    void reportBackendErr(const SourceLocation& l, const char* format, ...);
 };
 
 class Parser
@@ -87,6 +90,7 @@ struct IR
     {
         OpType m_op = OpNone;
         RegID m_target = -1;
+        SourceLocation m_loc;
 
         struct
         {
@@ -120,7 +124,50 @@ struct IR
             size_t m_instIdx;
         } m_swizzle;
 
-        Instruction(OpType type) : m_op(type) {}
+        Instruction(OpType type, const SourceLocation& loc) : m_op(type), m_loc(loc) {}
+
+        ssize_t getChildCount() const
+        {
+            switch (m_op)
+            {
+            case OpCall:
+                return m_call.m_argInstIdxs.size();
+            case OpArithmetic:
+                return 2;
+            case OpSwizzle:
+                return 1;
+            default:
+                LogModule.report(LogVisor::FatalError, "invalid op type");
+            }
+            return -1;
+        }
+
+        const IR::Instruction& getChildInst(const IR& ir, size_t idx) const
+        {
+            switch (m_op)
+            {
+            case OpCall:
+                return ir.m_instructions.at(m_call.m_argInstIdxs.at(idx));
+            case OpArithmetic:
+                if (idx > 1)
+                    LogModule.report(LogVisor::FatalError, "arithmetic child idx must be 0 or 1");
+                return ir.m_instructions.at(m_arithmetic.m_instIdxs[idx]);
+            case OpSwizzle:
+                if (idx > 0)
+                    LogModule.report(LogVisor::FatalError, "swizzle child idx must be 0");
+                return ir.m_instructions.at(m_swizzle.m_instIdx);
+            default:
+                LogModule.report(LogVisor::FatalError, "invalid op type");
+            }
+            return *this;
+        }
+
+        const atVec4f& getImmVec() const
+        {
+            if (m_op != OpLoadImm)
+                LogModule.report(LogVisor::FatalError, "invalid op type");
+            return m_loadImm.m_immVec;
+        }
     };
 
     size_t m_regCount = 0;
@@ -151,15 +198,15 @@ class Lexer
     OperationNode* m_root = nullptr;
 
     /* Helper for relinking operator precedence */
-    static void ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, OperationNode** newSub);
+    void ReconnectArithmetic(OperationNode* sn, OperationNode** lastSub, OperationNode** newSub) const;
 
     /* Recursive IR compile funcs */
-    static void RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
-    static void RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode, IR::RegID target);
-    static void EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
-    static void EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target);
-    static void EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target);
-    static void EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target);
+    void RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const;
+    void RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode, IR::RegID target) const;
+    void EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const;
+    void EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const;
+    void EmitArithmetic(IR& ir, const Lexer::OperationNode* arithNode, IR::RegID target) const;
+    void EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::RegID target) const;
 
 public:
     void reset();
@@ -182,6 +229,8 @@ public:
         m_lexer.consumeAllTokens(m_parser);
         return m_lexer.compileIR();
     }
+
+    Diagnostics& getDiagnostics() {return m_diag;}
 
     Frontend() : m_parser(m_diag), m_lexer(m_diag) {}
 };
