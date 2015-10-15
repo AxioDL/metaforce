@@ -208,6 +208,7 @@ struct SpecMP2 : SpecBase
     bool extractFromDisc(NOD::DiscBase&, bool force, FProgress progress)
     {
         NOD::ExtractionContext ctx = {true, force, nullptr};
+
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {
