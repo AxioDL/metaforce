@@ -161,7 +161,7 @@ struct IR
 
         Instruction(OpType type, const SourceLocation& loc) : m_op(type), m_loc(loc) {}
 
-        ssize_t getChildCount() const
+        int getChildCount() const
         {
             switch (m_op)
             {

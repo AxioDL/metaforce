@@ -604,6 +604,10 @@ public:
             pp.m_relPath += ext;
             pp.m_absPath += ext;
         }
+#if HECL_UCS2
+        pp.m_utf8AbsPath = WideToUTF8(pp.m_absPath);
+        pp.m_utf8RelPath = WideToUTF8(pp.m_relPath);
+#endif
         return pp;
     }
 
