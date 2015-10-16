@@ -355,6 +355,7 @@ public:
                 return HECL::ProjectPath(pakPath, entName);
             }
         }
+
         auto uniqueSearch = m_uniqueEntries.find(entry->id);
         if (uniqueSearch != m_uniqueEntries.end())
         {
@@ -370,6 +371,7 @@ public:
                 entName += extractor.fileExts[0];
             return HECL::ProjectPath(uniquePath, entName);
         }
+
         auto sharedSearch = m_sharedEntries.find(entry->id);
         if (sharedSearch != m_sharedEntries.end())
         {
@@ -405,6 +407,7 @@ public:
             m_sharedWorking.makeDir();
             return sharedPath;
         }
+
         LogDNACommon.report(LogVisor::FatalError, "Unable to find entry %s", entry->id.toString().c_str());
         return HECL::ProjectPath();
     }
@@ -553,11 +556,13 @@ public:
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
                                                            const NOD::Node** nodeOut=nullptr,
-                                                           bool silenceWarnings=false) const
+                                                           bool silenceWarnings=false,
+                                                           bool currentPAK=false) const
     {
         if (!m_bridges)
             LogDNACommon.report(LogVisor::FatalError,
             "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
+
         if (m_pak)
         {
             const EntryType* ent = m_pak->lookupEntry(entry);
@@ -568,6 +573,14 @@ public:
                 return ent;
             }
         }
+
+        if (currentPAK)
+        {
+            if (!silenceWarnings)
+                LogDNACommon.report(LogVisor::Warning, "unable to find PAK entry %s in current PAK", entry.toString().c_str());
+            return nullptr;
+        }
+
         for (const BRIDGETYPE& bridge : *m_bridges)
         {
             const PAKType& pak = bridge.getPAK();
@@ -579,6 +592,7 @@ public:
                 return ent;
             }
         }
+
         if (!silenceWarnings)
             LogDNACommon.report(LogVisor::Warning, "unable to find PAK entry %s", entry.toString().c_str());
         if (nodeOut)

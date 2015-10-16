@@ -1042,6 +1042,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     /* Build material sets */
     {
         HECL::Frontend::Frontend FE;
+        FE.getDiagnostics().setBackend("GX");
         for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
         {
             for (const Mesh::Material& mat : mset)

@@ -345,6 +345,9 @@ struct MaterialSet : BigDNA
     {
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
     }
+
+    MaterialSet() = default;
+    MaterialSet(const HECL::Backend::GX& gx);
 };
 
 }

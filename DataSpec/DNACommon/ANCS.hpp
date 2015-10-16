@@ -45,7 +45,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     for (const auto& info : chResInfo)
     {
         const NOD::Node* node;
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true);
+        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true, true);
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -119,7 +119,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         os << "actor_subtype.linked_armature = arm_obj.name\n";
 
         /* Link CMDL */
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true);
+        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true, true);
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -140,7 +140,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
             os.format("overlay.name = '%s'\n", overlay.first.toString().c_str());
 
             /* Link CMDL */
-            const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true);
+            const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true, true);
             if (cmdlE)
             {
                 HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
