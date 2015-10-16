@@ -210,13 +210,13 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         else:
             b_input = '%g' % node.inputs[1].default_value
         
-        if node.blend_type == 'MULTIPLY':
+        if node.operation == 'MULTIPLY':
             if a_input == '1':
                 return b_input
             elif b_input == '1':
                 return a_input
             return '(%s * %s)' % (a_input, b_input)
-        elif node.blend_type == 'ADD':
+        elif node.operation == 'ADD':
             if a_input == '0':
                 return b_input
             elif b_input == '0':

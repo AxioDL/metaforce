@@ -62,8 +62,8 @@ void Lexer::PrintTree(const Lexer::OperationNode* node, int indent)
     {
         for (int i=0 ; i<indent ; ++i)
             printf("  ");
-        printf("%3d %s %s\n", n->m_tok.m_location.col, n->m_tok.typeString(),
-               n->m_tok.m_tokenString.c_str());
+        printf("%3d %s %s %c %g\n", n->m_tok.m_location.col, n->m_tok.typeString(),
+               n->m_tok.m_tokenString.c_str(), n->m_tok.m_tokenInt, n->m_tok.m_tokenFloat);
         if (n->m_sub)
             PrintTree(n->m_sub, indent + 1);
     }
@@ -281,7 +281,13 @@ void Lexer::consumeAllTokens(Parser& parser)
             Lexer::OperationNode* func = n.m_prev;
             n.m_sub = func;
             n.m_prev = func->m_prev;
-            func->m_prev->m_next = &n;
+            if (func->m_prev)
+            {
+                if (func->m_prev->m_sub == func)
+                    func->m_prev->m_sub = &n;
+                else
+                    func->m_prev->m_next = &n;
+            }
             func->m_next = nullptr;
             func->m_prev = nullptr;
         }

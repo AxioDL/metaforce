@@ -229,19 +229,44 @@ struct GX : IBackend
     unsigned m_tevCount = 0;
     TEVStage m_tevs[16];
 
+    int getStageIdx(const TEVStage* stage) const
+    {
+        for (int i=0 ; i<m_tevCount ; ++i)
+            if (&m_tevs[i] == stage)
+                return i;
+        return -1;
+    }
+
     int m_cRegMask = 0;
     int m_cRegLazy = 0;
 
-    int pickCLazy(Diagnostics& diag, const SourceLocation& loc)
+    int pickCLazy(Diagnostics& diag, const SourceLocation& loc, int stageIdx) const
     {
-        for (int i=0 ; i<3 ; ++i)
+        int regMask = m_cRegMask;
+        for (int i=stageIdx+1 ; i<m_tevCount ; ++i)
         {
-            if (!(m_cRegMask & (1 << i)))
+            const TEVStage& stage = m_tevs[i];
+            for (int c=0 ; c<4 ; ++c)
             {
-                m_cRegMask |= 1 << i;
-                return i;
+                if (stage.m_color[c] == CC_C0 ||
+                    stage.m_color[c] == CC_A0 ||
+                    stage.m_alpha[c] == CA_A0)
+                    regMask |= 1;
+                if (stage.m_color[c] == CC_C1 ||
+                    stage.m_color[c] == CC_A1 ||
+                    stage.m_alpha[c] == CA_A1)
+                    regMask |= 2;
+                if (stage.m_color[c] == CC_C2 ||
+                    stage.m_color[c] == CC_A2 ||
+                    stage.m_alpha[c] == CA_A2)
+                    regMask |= 4;
             }
         }
+
+        for (int i=0 ; i<3 ; ++i)
+            if (!(regMask & (1 << i)))
+                return i;
+
         diag.reportBackendErr(loc, "TEV C Register overflow");
         return -1;
     }
@@ -336,7 +361,8 @@ private:
     void PreTraceAlpha(const IR& ir, Diagnostics& diag,
                        const IR::Instruction& inst);
     TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
-                                    const IR::Instruction& inst);
+                                    const IR::Instruction& inst,
+                                    bool swizzleAlpha=false);
     TraceResult RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst);
     unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,

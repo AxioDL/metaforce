@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <system_error>
 #include <string>
+#include <algorithm>
 
 #include <HECL/HECL.hpp>
 #include <HECL/Database.hpp>
@@ -77,12 +78,18 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
         }
         int ret = read(m_readpipe[0], buf, 1);
         if (ret < 0)
-            goto err;
+        {
+            BlenderLog.report(LogVisor::FatalError, strerror(errno));
+            return 0;
+        }
         else if (ret == 1)
         {
             if (*buf == '\n')
             {
                 *buf = '\0';
+                if (readBytes >= 4)
+                    if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
+                        BlenderLog.report(LogVisor::FatalError, "Blender exception");
                 return readBytes;
             }
             ++readBytes;
@@ -91,12 +98,12 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
         else
         {
             *buf = '\0';
+            if (readBytes >= 4)
+                if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
+                    BlenderLog.report(LogVisor::FatalError, "Blender exception");
             return readBytes;
         }
     }
-err:
-    BlenderLog.report(LogVisor::FatalError, strerror(errno));
-    return 0;
 }
 
 size_t BlenderConnection::_writeLine(const char* buf)
@@ -119,6 +126,9 @@ size_t BlenderConnection::_readBuf(void* buf, size_t len)
     int ret = read(m_readpipe[0], buf, len);
     if (ret < 0)
         goto err;
+    if (len >= 4)
+        if (!memcmp((char*)buf, "EXCEPTION", std::min(len, size_t(9))))
+            BlenderLog.report(LogVisor::FatalError, "Blender exception");
     return ret;
 err:
     BlenderLog.report(LogVisor::FatalError, strerror(errno));
@@ -372,7 +382,7 @@ bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
     return false;
 }
 
-bool BlenderConnection::openBlend(const ProjectPath& path)
+bool BlenderConnection::openBlend(const ProjectPath& path, bool force)
 {
     if (m_lock)
     {
@@ -380,6 +390,8 @@ bool BlenderConnection::openBlend(const ProjectPath& path)
                           "BlenderConnection::openBlend() musn't be called with stream active");
         return false;
     }
+    if (!force && path == m_loadedBlend)
+        return true;
     _writeLine(("OPEN \"" + path.getAbsolutePathUTF8() + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));

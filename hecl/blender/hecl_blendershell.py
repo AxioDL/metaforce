@@ -283,7 +283,11 @@ while True:
         writepipeline(b'ERROR')
 
     elif cmdargs[0] == 'DATABEGIN':
-        dataout_loop()
+        try:
+            dataout_loop()
+        except Exception as e:
+            writepipeline(b'EXCEPTION')
+            raise
 
     elif cmdargs[0] == 'DATAEND':
         writepipeline(b'ERROR')

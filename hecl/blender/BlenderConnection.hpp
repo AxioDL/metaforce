@@ -61,7 +61,7 @@ public:
 
     bool createBlend(const ProjectPath& path, BlendType type);
     BlendType getBlendType() const {return m_loadedType;}
-    bool openBlend(const ProjectPath& path);
+    bool openBlend(const ProjectPath& path, bool force=false);
     bool saveBlend();
     void deleteBlend();
 
