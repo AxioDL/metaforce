@@ -94,7 +94,7 @@ unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Ins
     ++m_texMtxCount;
     tcg.m_gameFunction = tcgName;
     tcg.m_gameArgs.clear();
-    for (ssize_t i=1 ; i<inst.getChildCount() ; ++i)
+    for (int i=1 ; i<inst.getChildCount() ; ++i)
     {
         const IR::Instruction& ci = inst.getChildInst(ir, i);
         tcg.m_gameArgs.push_back(ci.getImmVec());
@@ -361,7 +361,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             unsigned mapIdx = unsigned(mapImm.vec[0]);
 
             int foundStage = -1;
-            for (int i=0 ; i<m_tevCount ; ++i)
+            for (int i=0 ; i<int(m_tevCount) ; ++i)
             {
                 TEVStage& testStage = m_tevs[i];
                 if (testStage.m_texMapIdx == mapIdx && i > m_alphaTraceStage)
@@ -657,7 +657,7 @@ void GX::reset(const IR& ir, Diagnostics& diag)
 
         /* Ensure Alpha reaches end of chain */
         if (m_alphaTraceStage >= 0)
-            for (int i=m_alphaTraceStage+1 ; i<m_tevCount ; ++i)
+            for (unsigned i=m_alphaTraceStage+1 ; i<m_tevCount ; ++i)
                 m_tevs[i].m_alpha[3] = CA_APREV;
     }
 

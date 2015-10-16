@@ -380,8 +380,6 @@ bool BlenderConnection::openBlend(const ProjectPath& path)
                           "BlenderConnection::openBlend() musn't be called with stream active");
         return false;
     }
-    if (path == m_loadedBlend)
-        return true;
     _writeLine(("OPEN \"" + path.getAbsolutePathUTF8() + "\"").c_str());
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
