@@ -40,7 +40,6 @@ struct SCAN : BigYAML
         Value<float> appearanceRange;
         enum Position
         {
-            Invalid = -1,
             Pane0,
             Pane1,
             Pane2,
@@ -60,13 +59,14 @@ struct SCAN : BigYAML
             Pane67,
             Pane456,
             Pane567,
-            Pane4567
+            Pane4567,
+            Invalid = -1
         };
         Value<Position> position;
-        Value<atUint32> unknown1;
-        Value<atUint32> unknown2;
-        Value<float>    scanAnimationSpeed; // 0.0 - 1.0
-        Value<float>    unknown3;
+        Value<atUint32> width;        // width of animation cell
+        Value<atUint32> height;       // height of animation cell
+        Value<float>    interval;     // 0.0 - 1.0
+        Value<float>    fadeDuration; // 0.0 - 1.0
     };
 
     Texture textures[4];
