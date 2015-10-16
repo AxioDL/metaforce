@@ -222,6 +222,9 @@ struct GX : IBackend
         /* Convenience Links */
         TEVStage* m_prev = nullptr;
         TEVStage* m_next = nullptr;
+
+        /* Remember this for debugging */
+        SourceLocation m_loc;
     };
     unsigned m_tevCount = 0;
     TEVStage m_tevs[16];

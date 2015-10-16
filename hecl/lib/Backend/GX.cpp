@@ -58,6 +58,7 @@ GX::TEVStage& GX::addTEVStage(Diagnostics& diag, const SourceLocation& loc)
     if (m_tevCount >= 16)
         diag.reportBackendErr(loc, "GX TEV stage overflow");
     GX::TEVStage& newTEV = m_tevs[m_tevCount];
+    newTEV.m_loc = loc;
     if (m_tevCount)
     {
         newTEV.m_prev = &m_tevs[m_tevCount-1];
@@ -669,7 +670,7 @@ void GX::reset(const IR& ir, Diagnostics& diag)
             TEVStage& stage = m_tevs[i];
             if (stage.m_regOut == TEVLAZY)
             {
-                int picked = pickCLazy(diag, SourceLocation());
+                int picked = pickCLazy(diag, stage.m_loc);
                 stage.m_regOut = TevRegID(TEVREG0 + picked);
                 for (int j=i+1 ; j<m_tevCount ; ++j)
                 {
