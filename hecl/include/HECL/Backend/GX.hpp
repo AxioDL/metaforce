@@ -35,7 +35,8 @@ struct GX : IBackend
         TEVPREV       = 0,
         TEVREG0       = 1,
         TEVREG1       = 2,
-        TEVREG2       = 3
+        TEVREG2       = 3,
+        TEVLAZY       = 5
     };
 
     enum TevColorArg
@@ -55,7 +56,10 @@ struct GX : IBackend
         CC_ONE           = 12,
         CC_HALF          = 13,
         CC_KONST         = 14,
-        CC_ZERO          = 15                /*!< Use to pass zero value */
+        CC_ZERO          = 15,               /*!< Use to pass zero value */
+
+        /* Non-GX */
+        CC_LAZY                              /*!< Lazy register allocation */
     };
 
     enum TevAlphaArg
@@ -67,7 +71,10 @@ struct GX : IBackend
         CA_TEXA          = 4,                /*!< Use the alpha value from texture */
         CA_RASA          = 5,                /*!< Use the alpha value from rasterizer */
         CA_KONST         = 6,
-        CA_ZERO          = 7                 /*!< Use to pass zero value */
+        CA_ZERO          = 7,                /*!< Use to pass zero value */
+
+        /* Non-GX */
+        CA_LAZY                              /*!< Lazy register allocation */
     };
 
     enum TevKColorSel
@@ -206,6 +213,9 @@ struct GX : IBackend
         TevKColorSel m_kColor = TEV_KCSEL_1;
         TevKAlphaSel m_kAlpha = TEV_KASEL_1;
         TevRegID m_regOut = TEVPREV;
+        int m_lazyCInIdx = -1;
+        int m_lazyAInIdx = -1;
+        int m_lazyOutIdx = -1;
         int m_texMapIdx = -1;
         int m_texGenIdx = -1;
 
@@ -215,6 +225,23 @@ struct GX : IBackend
     };
     unsigned m_tevCount = 0;
     TEVStage m_tevs[16];
+
+    int m_cRegMask = 0;
+    int m_cRegLazy = 0;
+
+    int pickCLazy(Diagnostics& diag, const SourceLocation& loc)
+    {
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (!(m_cRegMask & (1 << i)))
+            {
+                m_cRegMask |= 1 << i;
+                return i;
+            }
+        }
+        diag.reportBackendErr(loc, "TEV C Register overflow");
+        return -1;
+    }
 
     enum BlendFactor
     {
@@ -301,11 +328,17 @@ private:
     unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
                             TexGenSrc src, TexMtx mtx);
     TEVStage& addTEVStage(Diagnostics& diag, const SourceLocation& loc);
+    void PreTraceColor(const IR& ir, Diagnostics& diag,
+                       const IR::Instruction& inst);
+    void PreTraceAlpha(const IR& ir, Diagnostics& diag,
+                       const IR::Instruction& inst);
     TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst);
     TraceResult RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst);
-    unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx);
+    unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
+                                  const IR::Instruction& inst,
+                                  TexMtx mtx);
 };
 
 }

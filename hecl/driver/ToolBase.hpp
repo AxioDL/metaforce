@@ -21,6 +21,7 @@ struct ToolPassInfo
     HECL::SystemString pname;
     HECL::SystemString cwd;
     std::vector<HECL::SystemString> args;
+    std::vector<HECL::SystemChar> flags;
     HECL::SystemString output;
     HECL::Database::Project* project = nullptr;
     unsigned verbosityLevel = 0;

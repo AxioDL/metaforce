@@ -64,8 +64,6 @@ static void printHelp(const HECL::SystemChar* pname)
 
 /* Regex patterns */
 static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
-static const HECL::SystemRegex regVERBOSE(_S("-v(v*)"), std::regex::ECMAScript|std::regex::optimize);
-static const HECL::SystemRegex regFORCE(_S("-f"), std::regex::ECMAScript|std::regex::optimize);
 
 /* SIGINT will gracefully close blender connections and delete blends in progress */
 static void SIGINTHandler(int sig)
@@ -187,32 +185,27 @@ int main(int argc, const char** argv)
             ++it;
         }
 
-        /* Count verbosity */
+        /* Iterate flags */
         for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const HECL::SystemString& arg = *it;
-            HECL::SystemRegexMatch vMatch;
-            if (std::regex_search(arg, vMatch, regVERBOSE))
+            if (arg.empty() || arg[0] != _S('-'))
             {
-                ++info.verbosityLevel;
-                info.verbosityLevel += vMatch[1].str().size();
-                it = args.erase(it);
+                ++it;
                 continue;
             }
-            ++it;
-        }
 
-        /* Check force argument */
-        for (auto it = args.cbegin() ; it != args.cend() ;)
-        {
-            const HECL::SystemString& arg = *it;
-            if (std::regex_search(arg, regFORCE))
+            for (auto chit = arg.cbegin() + 1 ; chit != arg.cend() ; ++chit)
             {
-                info.force = true;
-                it = args.erase(it);
-                continue;
+                if (*chit == _S('v'))
+                    ++info.verbosityLevel;
+                else if (*chit == _S('f'))
+                    info.force = true;
+                else
+                    info.flags.push_back(*chit);
             }
-            ++it;
+
+            it = args.erase(it);
         }
 
         /* Gather remaining args */

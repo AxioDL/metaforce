@@ -123,11 +123,11 @@ void Diagnostics::reportBackendErr(const SourceLocation& l, const char* fmt, ...
 #endif
     va_end(ap);
     if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, CYAN "[Backend]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
+        LogModule.report(LogVisor::FatalError, CYAN "[%s]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_backend.c_str(), m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "[Backend] %s @%d:%d\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
+        LogModule.report(LogVisor::FatalError, "[%s] %s @%d:%d\n%s\n%s",
+                         m_backend.c_str(), m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
 

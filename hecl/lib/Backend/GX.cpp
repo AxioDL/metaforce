@@ -130,6 +130,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            m_cRegMask |= 1 << idx;
             return TraceResult(GX::TevColorArg(CC_C0 + idx * 2));
         }
         else if (!name.compare("Lighting"))
@@ -154,9 +155,36 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
-        TraceResult aTrace = RecursiveTraceColor(ir, diag, aInst);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
-        TraceResult bTrace = RecursiveTraceColor(ir, diag, bInst);
+        TraceResult aTrace;
+        TraceResult bTrace;
+        if (aInst.m_op != IR::OpArithmetic && bInst.m_op == IR::OpArithmetic)
+        {
+            bTrace = RecursiveTraceColor(ir, diag, bInst);
+            aTrace = RecursiveTraceColor(ir, diag, aInst);
+        }
+        else
+        {
+            aTrace = RecursiveTraceColor(ir, diag, aInst);
+            bTrace = RecursiveTraceColor(ir, diag, bInst);
+        }
+
+        TevKColorSel newKColor = TEV_KCSEL_1;
+        if (aTrace.type == TraceResult::TraceTEVKColorSel &&
+            bTrace.type == TraceResult::TraceTEVKColorSel)
+            diag.reportBackendErr(inst.m_loc, "unable to handle 2 KColors in one stage");
+        else if (aTrace.type == TraceResult::TraceTEVKColorSel)
+        {
+            newKColor = aTrace.tevKColorSel;
+            aTrace.type = TraceResult::TraceTEVColorArg;
+            aTrace.tevColorArg = CC_KONST;
+        }
+        else if (bTrace.type == TraceResult::TraceTEVKColorSel)
+        {
+            newKColor = bTrace.tevKColorSel;
+            bTrace.type = TraceResult::TraceTEVColorArg;
+            bTrace.tevColorArg = CC_KONST;
+        }
 
         switch (op)
         {
@@ -168,8 +196,34 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
-                b->m_color[3] = CC_CPREV;
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_color[3] = CC_LAZY;
+                    b->m_lazyCInIdx = m_cRegLazy;
+                    a->m_lazyOutIdx = m_cRegLazy++;
+                }
+                else
+                    b->m_color[3] = CC_APREV;
+                return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVStage &&
+                     bTrace.type == TraceResult::TraceTEVColorArg)
+            {
+                TEVStage* a = aTrace.tevStage;
+                if (a->m_color[3] != CC_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
+                a->m_color[3] = bTrace.tevColorArg;
+                a->m_kColor = newKColor;
+                return TraceResult(a);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
+                     bTrace.type == TraceResult::TraceTEVStage)
+            {
+                TEVStage* b = bTrace.tevStage;
+                if (b->m_color[3] != CC_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
+                b->m_color[3] = aTrace.tevColorArg;
+                b->m_kColor = newKColor;
                 return TraceResult(b);
             }
             break;
@@ -182,10 +236,27 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_color[3] = CC_LAZY;
+                    b->m_lazyCInIdx = m_cRegLazy;
+                    a->m_lazyOutIdx = m_cRegLazy++;
+                }
+                else
+                    b->m_color[3] = CC_APREV;
                 b->m_op = TEV_SUB;
-                b->m_color[3] = CC_CPREV;
                 return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVStage &&
+                     bTrace.type == TraceResult::TraceTEVColorArg)
+            {
+                TEVStage* a = aTrace.tevStage;
+                if (a->m_color[3] != CC_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for subtract combine");
+                a->m_color[3] = bTrace.tevColorArg;
+                a->m_kColor = newKColor;
+                a->m_op = TEV_SUB;
+                return TraceResult(a);
             }
             break;
         }
@@ -197,12 +268,18 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_color[2] = CC_LAZY;
+                    b->m_lazyCInIdx = m_cRegLazy;
+                    a->m_lazyOutIdx = m_cRegLazy++;
+                }
+                else
+                    b->m_color[2] = CC_CPREV;
                 if (a->m_color[2] != CC_ZERO)
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                 b->m_color[1] = b->m_color[0];
                 b->m_color[0] = CC_ZERO;
-                b->m_color[2] = CC_CPREV;
                 b->m_color[3] = CC_ZERO;
                 return TraceResult(b);
             }
@@ -212,6 +289,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage& stage = addTEVStage(diag, inst.m_loc);
                 stage.m_color[1] = aTrace.tevColorArg;
                 stage.m_color[2] = bTrace.tevColorArg;
+                stage.m_kColor = newKColor;
                 return TraceResult(&stage);
             }
             else if (aTrace.type == TraceResult::TraceTEVStage &&
@@ -223,6 +301,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 a->m_color[1] = a->m_color[0];
                 a->m_color[0] = CC_ZERO;
                 a->m_color[2] = bTrace.tevColorArg;
+                a->m_kColor = newKColor;
                 return TraceResult(a);
             }
             else if (aTrace.type == TraceResult::TraceTEVColorArg &&
@@ -234,34 +313,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 b->m_color[1] = b->m_color[0];
                 b->m_color[0] = CC_ZERO;
                 b->m_color[2] = bTrace.tevColorArg;
-                return TraceResult(b);
-            }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVKColorSel)
-            {
-                TEVStage* a = aTrace.tevStage;
-                if (a->m_kColor != TEV_KCSEL_1)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for KColor combine");
-                if (a->m_color[1] != CC_ZERO)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                a->m_color[1] = a->m_color[0];
-                a->m_color[0] = CC_ZERO;
-                a->m_color[2] = CC_KONST;
-                a->m_kColor = bTrace.tevKColorSel;
-                return TraceResult(a);
-            }
-            else if (aTrace.type == TraceResult::TraceTEVKColorSel &&
-                     bTrace.type == TraceResult::TraceTEVStage)
-            {
-                TEVStage* b = bTrace.tevStage;
-                if (b->m_kColor != TEV_KCSEL_1)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for KColor combine");
-                if (b->m_color[1] != CC_ZERO)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                b->m_color[1] = b->m_color[0];
-                b->m_color[0] = CC_ZERO;
-                b->m_color[2] = CC_KONST;
-                b->m_kColor = aTrace.tevKColorSel;
+                b->m_kColor = newKColor;
                 return TraceResult(b);
             }
             break;
@@ -342,6 +394,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            m_cRegMask |= 1 << idx;
             return TraceResult(GX::TevAlphaArg(CA_A0 + idx));
         }
         else if (!name.compare("Lighting"))
@@ -364,9 +417,36 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
-        TraceResult aTrace = RecursiveTraceAlpha(ir, diag, aInst);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
-        TraceResult bTrace = RecursiveTraceAlpha(ir, diag, bInst);
+        TraceResult aTrace;
+        TraceResult bTrace;
+        if (aInst.m_op != IR::OpArithmetic && bInst.m_op == IR::OpArithmetic)
+        {
+            bTrace = RecursiveTraceAlpha(ir, diag, bInst);
+            aTrace = RecursiveTraceAlpha(ir, diag, aInst);
+        }
+        else
+        {
+            aTrace = RecursiveTraceAlpha(ir, diag, aInst);
+            bTrace = RecursiveTraceAlpha(ir, diag, bInst);
+        }
+
+        TevKAlphaSel newKAlpha = TEV_KASEL_1;
+        if (aTrace.type == TraceResult::TraceTEVKAlphaSel &&
+            bTrace.type == TraceResult::TraceTEVKAlphaSel)
+            diag.reportBackendErr(inst.m_loc, "unable to handle 2 KAlphas in one stage");
+        else if (aTrace.type == TraceResult::TraceTEVKAlphaSel)
+        {
+            newKAlpha = aTrace.tevKAlphaSel;
+            aTrace.type = TraceResult::TraceTEVAlphaArg;
+            aTrace.tevAlphaArg = CA_KONST;
+        }
+        else if (bTrace.type == TraceResult::TraceTEVKAlphaSel)
+        {
+            newKAlpha = bTrace.tevKAlphaSel;
+            bTrace.type = TraceResult::TraceTEVAlphaArg;
+            bTrace.tevAlphaArg = CA_KONST;
+        }
 
         switch (op)
         {
@@ -378,8 +458,39 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
-                b->m_alpha[3] = CA_APREV;
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_alpha[3] = CA_LAZY;
+                    if (a->m_lazyOutIdx != -1)
+                        b->m_lazyAInIdx = a->m_lazyOutIdx;
+                    else
+                    {
+                        b->m_lazyAInIdx = m_cRegLazy;
+                        a->m_lazyOutIdx = m_cRegLazy++;
+                    }
+                }
+                else
+                    b->m_alpha[3] = CA_APREV;
+                return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVStage &&
+                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            {
+                TEVStage* a = aTrace.tevStage;
+                if (a->m_alpha[3] != CA_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
+                a->m_alpha[3] = bTrace.tevAlphaArg;
+                a->m_kAlpha = newKAlpha;
+                return TraceResult(a);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
+                     bTrace.type == TraceResult::TraceTEVStage)
+            {
+                TEVStage* b = bTrace.tevStage;
+                if (b->m_alpha[3] != CA_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
+                b->m_alpha[3] = aTrace.tevAlphaArg;
+                b->m_kAlpha = newKAlpha;
                 return TraceResult(b);
             }
             break;
@@ -391,12 +502,35 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
-                if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
                 if (b->m_op != TEV_SUB)
                     diag.reportBackendErr(inst.m_loc, "unable to integrate alpha subtraction into stage chain");
-                b->m_alpha[3] = CA_APREV;
+                if (b->m_prev != a)
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_alpha[3] = CA_LAZY;
+                    if (a->m_lazyOutIdx != -1)
+                        b->m_lazyAInIdx = a->m_lazyOutIdx;
+                    else
+                    {
+                        b->m_lazyAInIdx = m_cRegLazy;
+                        a->m_lazyOutIdx = m_cRegLazy++;
+                    }
+                }
+                else
+                    b->m_alpha[3] = CA_APREV;
                 return TraceResult(b);
+            }
+            else if (aTrace.type == TraceResult::TraceTEVStage &&
+                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            {
+                TEVStage* a = aTrace.tevStage;
+                if (a->m_op != TEV_SUB)
+                    diag.reportBackendErr(inst.m_loc, "unable to integrate alpha subtraction into stage chain");
+                if (a->m_alpha[3] != CA_ZERO)
+                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
+                a->m_alpha[3] = bTrace.tevAlphaArg;
+                a->m_kAlpha = newKAlpha;
+                return TraceResult(a);
             }
             break;
         }
@@ -408,12 +542,18 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
-                    diag.reportBackendErr(inst.m_loc, "TEV stages must have monotonic progression");
+                {
+                    a->m_regOut = TEVLAZY;
+                    b->m_alpha[2] = CA_LAZY;
+                    b->m_lazyAInIdx = m_cRegLazy;
+                    a->m_lazyOutIdx = m_cRegLazy++;
+                }
+                else
+                    b->m_alpha[2] = CA_APREV;
                 if (a->m_alpha[2] != CA_ZERO)
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                 b->m_alpha[1] = b->m_alpha[0];
                 b->m_alpha[0] = CA_ZERO;
-                b->m_alpha[2] = CA_APREV;
                 b->m_alpha[3] = CA_ZERO;
                 return TraceResult(b);
             }
@@ -424,10 +564,11 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 stage.m_color[3] = CC_CPREV;
                 stage.m_alpha[1] = aTrace.tevAlphaArg;
                 stage.m_alpha[2] = bTrace.tevAlphaArg;
+                stage.m_kAlpha = newKAlpha;
                 return TraceResult(&stage);
             }
             else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVColorArg)
+                     bTrace.type == TraceResult::TraceTEVAlphaArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_alpha[1] != CA_ZERO)
@@ -435,9 +576,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 a->m_alpha[1] = a->m_alpha[0];
                 a->m_alpha[0] = CA_ZERO;
                 a->m_alpha[2] = bTrace.tevAlphaArg;
+                a->m_kAlpha = newKAlpha;
                 return TraceResult(a);
             }
-            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
+            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
                      bTrace.type == TraceResult::TraceTEVStage)
             {
                 TEVStage* b = bTrace.tevStage;
@@ -446,34 +588,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 b->m_alpha[1] = b->m_alpha[0];
                 b->m_alpha[0] = CA_ZERO;
                 b->m_alpha[2] = bTrace.tevAlphaArg;
-                return TraceResult(b);
-            }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVKColorSel)
-            {
-                TEVStage* a = aTrace.tevStage;
-                if (a->m_kAlpha != TEV_KASEL_1)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for KAlpha combine");
-                if (a->m_alpha[1] != CA_ZERO)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                a->m_alpha[1] = a->m_alpha[0];
-                a->m_alpha[0] = CA_ZERO;
-                a->m_alpha[2] = CA_KONST;
-                a->m_kAlpha = bTrace.tevKAlphaSel;
-                return TraceResult(a);
-            }
-            else if (aTrace.type == TraceResult::TraceTEVKColorSel &&
-                     bTrace.type == TraceResult::TraceTEVStage)
-            {
-                TEVStage* b = bTrace.tevStage;
-                if (b->m_kAlpha != TEV_KASEL_1)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for KAlpha combine");
-                if (b->m_alpha[1] != CA_ZERO)
-                    diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                b->m_alpha[1] = b->m_alpha[0];
-                b->m_alpha[0] = CA_ZERO;
-                b->m_alpha[2] = CA_KONST;
-                b->m_kAlpha = aTrace.tevKAlphaSel;
+                b->m_kAlpha = newKAlpha;
                 return TraceResult(b);
             }
             break;
@@ -497,6 +612,8 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     m_tcgCount = 0;
     m_texMtxCount = 0;
     m_kcolorCount = 0;
+    m_cRegMask = 0;
+    m_cRegLazy = 0;
     m_alphaTraceStage = -1;
 
     /* Final instruction is the root call by hecl convention */
@@ -542,6 +659,32 @@ void GX::reset(const IR& ir, Diagnostics& diag)
         if (m_alphaTraceStage >= 0)
             for (int i=m_alphaTraceStage+1 ; i<m_tevCount ; ++i)
                 m_tevs[i].m_alpha[3] = CA_APREV;
+    }
+
+    /* Resolve lazy color/alpha regs */
+    if (m_cRegLazy)
+    {
+        for (int i=0 ; i<m_tevCount ; ++i)
+        {
+            TEVStage& stage = m_tevs[i];
+            if (stage.m_regOut == TEVLAZY)
+            {
+                int picked = pickCLazy(diag, SourceLocation());
+                stage.m_regOut = TevRegID(TEVREG0 + picked);
+                for (int j=i+1 ; j<m_tevCount ; ++j)
+                {
+                    TEVStage& nstage = m_tevs[j];
+                    if (nstage.m_lazyCInIdx == stage.m_lazyOutIdx)
+                        for (int c=0 ; c<4 ; ++c)
+                            if (nstage.m_color[c] == CC_LAZY)
+                                nstage.m_color[c] = TevColorArg(CC_C0 + picked * 2);
+                    if (nstage.m_lazyAInIdx == stage.m_lazyOutIdx)
+                        for (int c=0 ; c<4 ; ++c)
+                            if (nstage.m_alpha[c] == CA_LAZY)
+                                nstage.m_alpha[c] = TevAlphaArg(CA_A0 + picked);
+                }
+            }
+        }
     }
 }
 

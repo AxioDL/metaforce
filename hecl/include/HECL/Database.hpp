@@ -412,7 +412,7 @@ public:
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    bool cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive=false);
+    bool cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive=false, bool force=false);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)

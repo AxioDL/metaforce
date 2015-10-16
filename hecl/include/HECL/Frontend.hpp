@@ -24,9 +24,12 @@ class Diagnostics
 {
     std::string m_name;
     std::string m_source;
+    std::string m_backend = "Backend";
     std::string sourceDiagString(const SourceLocation& l, bool ansi=false) const;
 public:
     void reset(const std::string& name, const std::string& source) {m_name = name; m_source = source;}
+    void setBackend(const std::string& backend) {m_backend = backend;}
+    void setBackend(const char* backend) {m_backend = backend;}
     void reportParserErr(const SourceLocation& l, const char* format, ...);
     void reportLexerErr(const SourceLocation& l, const char* format, ...);
     void reportCompileErr(const SourceLocation& l, const char* format, ...);

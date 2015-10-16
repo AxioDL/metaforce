@@ -14,6 +14,11 @@ public:
     ToolCook(const ToolPassInfo& info)
     : ToolBase(info), m_useProj(info.project)
     {
+        /* Check for recursive flag */
+        for (HECL::SystemChar arg : info.flags)
+            if (arg == _S('r'))
+                m_recursive = true;
+
         /* Scan args */
         if (info.args.size())
         {
@@ -23,17 +28,6 @@ public:
             {
                 if (arg.empty())
                     continue;
-                if (arg.size() >= 2 && arg[0] == _S('-'))
-                {
-                    switch (arg[1])
-                    {
-                    case _S('r'):
-                        m_recursive = true;
-                        break;
-                    default: break;
-                    }
-                    continue;
-                }
                 HECL::SystemString subPath;
                 HECL::ProjectRootPath root = HECL::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
                 if (root)
@@ -76,7 +70,7 @@ public:
 
         help.secHead(_S("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl cook [-r] [<pathspec>...]\n"));
+        help.wrap(_S("hecl cook [-rf] [<pathspec>...]\n"));
         help.endWrap();
 
         help.secHead(_S("DESCRIPTION"));
@@ -119,6 +113,10 @@ public:
         help.beginWrap();
         help.wrap(_S("Enables recursive file-matching for cooking entire directories of working files.\n"));
         help.endWrap();
+        help.optionHead(_S("-f"), _S("force"));
+        help.beginWrap();
+        help.wrap(_S("Forces cooking of all matched files, ignoring timestamp differences.\n"));
+        help.endWrap();
     }
 
     HECL::SystemString toolName() const {return _S("cook");}
@@ -132,7 +130,8 @@ public:
             [&lineIdx](const HECL::SystemChar* message,
                        const HECL::SystemChar* submessage,
                        int lidx, float factor)
-            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);}, m_recursive);
+            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);},
+            m_recursive, m_info.force);
         }
         return 0;
     }
