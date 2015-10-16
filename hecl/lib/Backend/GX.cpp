@@ -727,14 +727,14 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     /* Resolve lazy color/alpha regs */
     if (m_cRegLazy)
     {
-        for (int i=0 ; i<m_tevCount ; ++i)
+        for (int i=0 ; i<int(m_tevCount) ; ++i)
         {
             TEVStage& stage = m_tevs[i];
             if (stage.m_regOut == TEVLAZY)
             {
                 int picked = pickCLazy(diag, stage.m_loc, i);
                 stage.m_regOut = TevRegID(TEVREG0 + picked);
-                for (int j=i+1 ; j<m_tevCount ; ++j)
+                for (int j=i+1 ; j<int(m_tevCount) ; ++j)
                 {
                     TEVStage& nstage = m_tevs[j];
                     if (nstage.m_lazyCInIdx == stage.m_lazyOutIdx)

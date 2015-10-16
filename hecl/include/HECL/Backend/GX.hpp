@@ -231,7 +231,7 @@ struct GX : IBackend
 
     int getStageIdx(const TEVStage* stage) const
     {
-        for (int i=0 ; i<m_tevCount ; ++i)
+        for (int i=0 ; i<int(m_tevCount) ; ++i)
             if (&m_tevs[i] == stage)
                 return i;
         return -1;
@@ -243,7 +243,7 @@ struct GX : IBackend
     int pickCLazy(Diagnostics& diag, const SourceLocation& loc, int stageIdx) const
     {
         int regMask = m_cRegMask;
-        for (int i=stageIdx+1 ; i<m_tevCount ; ++i)
+        for (int i=stageIdx+1 ; i<int(m_tevCount) ; ++i)
         {
             const TEVStage& stage = m_tevs[i];
             for (int c=0 ; c<4 ; ++c)
