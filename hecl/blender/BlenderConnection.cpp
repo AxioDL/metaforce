@@ -591,6 +591,20 @@ BlenderConnection::DataStream::Mesh::Material::Material
         conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
         texs.emplace_back(conn.m_loadedBlend.getProject().getProjectWorkingPath(), relative);
     }
+
+    uint32_t iPropCount;
+    conn._readBuf(&iPropCount, 4);
+    iprops.reserve(iPropCount);
+    for (uint32_t i=0 ; i<iPropCount ; ++i)
+    {
+        conn._readBuf(&bufSz, 4);
+        std::string readStr(bufSz, ' ');
+        conn._readBuf(&readStr[0], bufSz);
+
+        int32_t val;
+        conn._readBuf(&val, 4);
+        iprops[readStr] = val;
+    }
 }
 
 BlenderConnection::DataStream::Mesh::Surface::Surface

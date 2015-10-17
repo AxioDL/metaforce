@@ -65,6 +65,28 @@ def generate_skeleton_info(armature, endian_char='<'):
             
     return info_bytes
 
+def write_out_material(writebuf, mat, mesh_obj):
+    hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
+    writebuf(struct.pack('I', len(mat.name)))
+    writebuf(mat.name.encode())
+    writebuf(struct.pack('I', len(hecl_str)))
+    writebuf(hecl_str.encode())
+    writebuf(struct.pack('I', len(texs)))
+    for tex in texs:
+        writebuf(struct.pack('I', len(tex)))
+        writebuf(tex.encode())
+
+    prop_count = 0
+    for prop in mat.items():
+        if isinstance(prop[1], int):
+            prop_count += 1
+    writebuf(struct.pack('I', prop_count))
+    prop_count = 0
+    for prop in mat.items():
+        if isinstance(prop[1], int):
+            writebuf(struct.pack('I', len(prop[0])))
+            writebuf(prop[0].encode())
+            writebuf(struct.pack('i', prop[1]))
 
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL; packaging
@@ -126,15 +148,7 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
                 found = False
                 for mat in bpy.data.materials:
                     if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
-                        hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-                        writebuf(struct.pack('I', len(mat.name)))
-                        writebuf(mat.name.encode())
-                        writebuf(struct.pack('I', len(hecl_str)))
-                        writebuf(hecl_str.encode())
-                        writebuf(struct.pack('I', len(texs)))
-                        for tex in texs:
-                            writebuf(struct.pack('I', len(tex)))
-                            writebuf(tex.encode())
+                        write_out_material(writebuf, mat, mesh_obj)
                         found = True
                         break
                 if not found:
@@ -143,15 +157,7 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
         writebuf(struct.pack('II', 1, len(sorted_material_idxs)))
         for mat_idx in sorted_material_idxs:
             mat = mesh_obj.data.materials[mat_idx]
-            hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
-            writebuf(struct.pack('I', len(mat.name)))
-            writebuf(mat.name.encode())
-            writebuf(struct.pack('I', len(hecl_str)))
-            writebuf(hecl_str.encode())
-            writebuf(struct.pack('I', len(texs)))
-            for tex in texs:
-                writebuf(struct.pack('I', len(tex)))
-                writebuf(tex.encode())
+            write_out_material(writebuf, mat, mesh_obj)
 
     # Output vert pool
     vert_pool.write_out(writebuf, mesh_obj.vertex_groups)

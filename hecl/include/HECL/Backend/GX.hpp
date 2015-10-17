@@ -2,7 +2,7 @@
 #define HECLBACKEND_GX_HPP
 
 #include "Backend.hpp"
-#include <Athena/Types.hpp>
+#include <Athena/DNA.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -14,6 +14,14 @@ namespace Backend
 
 struct GX : IBackend
 {
+    enum AttrType
+    {
+        NONE,
+        DIRECT,
+        INDEX8,
+        INDEX16
+    };
+
     enum TevOp
     {
         TEV_ADD              = 0,
@@ -28,6 +36,36 @@ struct GX : IBackend
         TEV_COMP_RGB8_EQ     = 15,
         TEV_COMP_A8_GT       = TEV_COMP_RGB8_GT,     // for alpha channel
         TEV_COMP_A8_EQ       = TEV_COMP_RGB8_EQ  // for alpha channel
+    };
+
+    enum TevBias
+    {
+        TB_ZERO          = 0,
+        TB_ADDHALF       = 1,
+        TB_SUBHALF       = 2,
+    };
+
+    enum TevScale
+    {
+        CS_SCALE_1       = 0,
+        CS_SCALE_2       = 1,
+        CS_SCALE_4       = 2,
+        CS_DIVIDE_2      = 3
+    };
+
+    enum TexGenType
+    {
+        TG_MTX3x4 = 0,
+        TG_MTX2x4,
+        TG_BUMP0,
+        TG_BUMP1,
+        TG_BUMP2,
+        TG_BUMP3,
+        TG_BUMP4,
+        TG_BUMP5,
+        TG_BUMP6,
+        TG_BUMP7,
+        TG_SRTG
     };
 
     enum TevRegID
@@ -189,6 +227,56 @@ struct GX : IBackend
         IDENTITY = 60
     };
 
+    enum PTTexMtx
+    {
+        PTTEXMTX0  = 64,
+        PTTEXMTX1  = 67,
+        PTTEXMTX2  = 70,
+        PTTEXMTX3  = 73,
+        PTTEXMTX4  = 76,
+        PTTEXMTX5  = 79,
+        PTTEXMTX6  = 82,
+        PTTEXMTX7  = 85,
+        PTTEXMTX8  = 88,
+        PTTEXMTX9  = 91,
+        PTTEXMTX10 = 94,
+        PTTEXMTX11 = 97,
+        PTTEXMTX12 = 100,
+        PTTEXMTX13 = 103,
+        PTTEXMTX14 = 106,
+        PTTEXMTX15 = 109,
+        PTTEXMTX16 = 112,
+        PTTEXMTX17 = 115,
+        PTTEXMTX18 = 118,
+        PTTEXMTX19 = 121,
+        PTIDENTITY = 125
+    };
+
+    enum DiffuseFn
+    {
+        DF_NONE = 0,
+        DF_SIGN,
+        DF_CLAMP
+    };
+
+    enum AttnFn
+    {
+        AF_SPEC = 0,
+        AF_SPOT = 1,
+        AF_NONE
+    };
+
+    enum Primitive
+    {
+        POINTS        = 0xb8,
+        LINES         = 0xa8,
+        LINESTRIP     = 0xb0,
+        TRIANGLES     = 0x90,
+        TRIANGLESTRIP = 0x98,
+        TRIANGLEFAN   = 0xa0,
+        QUADS         = 0x80
+    };
+
     struct TexCoordGen
     {
         TexGenSrc m_src = TG_TEX0;
@@ -207,15 +295,18 @@ struct GX : IBackend
 
     struct TEVStage
     {
-        TevOp m_op = TEV_ADD;
+        TevOp m_cop = TEV_ADD;
+        TevOp m_aop = TEV_ADD;
         TevColorArg m_color[4] = {CC_ZERO, CC_ZERO, CC_ZERO, CC_ZERO};
         TevAlphaArg m_alpha[4] = {CA_ZERO, CA_ZERO, CA_ZERO, CA_ZERO};
         TevKColorSel m_kColor = TEV_KCSEL_1;
         TevKAlphaSel m_kAlpha = TEV_KASEL_1;
-        TevRegID m_regOut = TEVPREV;
+        TevRegID m_cRegOut = TEVPREV;
+        TevRegID m_aRegOut = TEVPREV;
         int m_lazyCInIdx = -1;
         int m_lazyAInIdx = -1;
-        int m_lazyOutIdx = -1;
+        int m_lazyCOutIdx = -1;
+        int m_lazyAOutIdx = -1;
         int m_texMapIdx = -1;
         int m_texGenIdx = -1;
 
@@ -240,6 +331,9 @@ struct GX : IBackend
     int m_cRegMask = 0;
     int m_cRegLazy = 0;
 
+    int m_aRegMask = 0;
+    int m_aRegLazy = 0;
+
     int pickCLazy(Diagnostics& diag, const SourceLocation& loc, int stageIdx) const
     {
         int regMask = m_cRegMask;
@@ -248,17 +342,11 @@ struct GX : IBackend
             const TEVStage& stage = m_tevs[i];
             for (int c=0 ; c<4 ; ++c)
             {
-                if (stage.m_color[c] == CC_C0 ||
-                    stage.m_color[c] == CC_A0 ||
-                    stage.m_alpha[c] == CA_A0)
+                if (stage.m_color[c] == CC_C0)
                     regMask |= 1;
-                if (stage.m_color[c] == CC_C1 ||
-                    stage.m_color[c] == CC_A1 ||
-                    stage.m_alpha[c] == CA_A1)
+                if (stage.m_color[c] == CC_C1)
                     regMask |= 2;
-                if (stage.m_color[c] == CC_C2 ||
-                    stage.m_color[c] == CC_A2 ||
-                    stage.m_alpha[c] == CA_A2)
+                if (stage.m_color[c] == CC_C2)
                     regMask |= 4;
             }
         }
@@ -268,6 +356,34 @@ struct GX : IBackend
                 return i;
 
         diag.reportBackendErr(loc, "TEV C Register overflow");
+        return -1;
+    }
+
+    int pickALazy(Diagnostics& diag, const SourceLocation& loc, int stageIdx) const
+    {
+        int regMask = m_aRegMask;
+        for (int i=stageIdx+1 ; i<int(m_tevCount) ; ++i)
+        {
+            const TEVStage& stage = m_tevs[i];
+            for (int c=0 ; c<4 ; ++c)
+            {
+                if (stage.m_color[c] == CC_A0 ||
+                    stage.m_alpha[c] == CA_A0)
+                    regMask |= 1;
+                if (stage.m_color[c] == CC_A1 ||
+                    stage.m_alpha[c] == CA_A1)
+                    regMask |= 2;
+                if (stage.m_color[c] == CC_A2 ||
+                    stage.m_alpha[c] == CA_A2)
+                    regMask |= 4;
+            }
+        }
+
+        for (int i=0 ; i<3 ; ++i)
+            if (!(regMask & (1 << i)))
+                return i;
+
+        diag.reportBackendErr(loc, "TEV A Register overflow");
         return -1;
     }
 
@@ -285,7 +401,7 @@ struct GX : IBackend
     BlendFactor m_blendSrc;
     BlendFactor m_blendDst;
 
-    struct Color
+    struct Color : Athena::io::DNA<Athena::BigEndian>
     {
         union
         {
@@ -315,6 +431,11 @@ struct GX : IBackend
         bool operator!=(const Color& other) const {return num != other.num;}
         uint8_t operator[](size_t idx) const {return color[idx];}
         uint8_t& operator[](size_t idx) {return color[idx];}
+
+        void read(Athena::io::IStreamReader& reader)
+        {reader.readUBytesToBuf(&num, 4);}
+        void write(Athena::io::IStreamWriter& writer) const
+        {writer.writeUBytes(reinterpret_cast<const atUint8*>(&num), 4);}
     };
     unsigned m_kcolorCount = 0;
     Color m_kcolors[4];

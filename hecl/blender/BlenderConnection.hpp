@@ -18,6 +18,7 @@
 #include <string>
 #include <functional>
 #include <iostream>
+#include <unordered_map>
 
 #include "HECL/HECL.hpp"
 #include <Athena/Types.hpp>
@@ -311,6 +312,7 @@ public:
                 std::string name;
                 std::string source;
                 std::vector<ProjectPath> texs;
+                std::unordered_map<std::string, int32_t> iprops;
 
                 Material(BlenderConnection& conn);
             };

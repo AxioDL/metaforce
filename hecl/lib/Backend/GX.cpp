@@ -132,7 +132,10 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
-            m_cRegMask |= 1 << idx;
+            if (swizzleAlpha)
+                m_aRegMask |= 1 << idx;
+            else
+                m_cRegMask |= 1 << idx;
             return TraceResult(TevColorArg((swizzleAlpha ? CC_A0 : CC_C0) + idx * 2));
         }
         else if (!name.compare("Lighting"))
@@ -207,10 +210,10 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_cRegOut = TEVLAZY;
                     b->m_color[3] = CC_LAZY;
                     b->m_lazyCInIdx = m_cRegLazy;
-                    a->m_lazyOutIdx = m_cRegLazy++;
+                    a->m_lazyCOutIdx = m_cRegLazy++;
                 }
                 else if (b == &m_tevs[m_tevCount-1] &&
                          a->m_texMapIdx == b->m_texMapIdx && a->m_texGenIdx == b->m_texGenIdx &&
@@ -255,14 +258,14 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_cRegOut = TEVLAZY;
                     b->m_color[3] = CC_LAZY;
                     b->m_lazyCInIdx = m_cRegLazy;
-                    a->m_lazyOutIdx = m_cRegLazy++;
+                    a->m_lazyCOutIdx = m_cRegLazy++;
                 }
                 else
                     b->m_color[3] = CC_CPREV;
-                b->m_op = TEV_SUB;
+                b->m_cop = TEV_SUB;
                 return TraceResult(b);
             }
             else if (aTrace.type == TraceResult::TraceTEVStage &&
@@ -273,7 +276,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for subtract combine");
                 a->m_color[3] = bTrace.tevColorArg;
                 a->m_kColor = newKColor;
-                a->m_op = TEV_SUB;
+                a->m_cop = TEV_SUB;
                 return TraceResult(a);
             }
             break;
@@ -289,10 +292,10 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_cRegOut = TEVLAZY;
                     b->m_color[2] = CC_LAZY;
                     b->m_lazyCInIdx = m_cRegLazy;
-                    a->m_lazyOutIdx = m_cRegLazy++;
+                    a->m_lazyCOutIdx = m_cRegLazy++;
                 }
                 else
                     b->m_color[2] = CC_CPREV;
@@ -316,7 +319,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_color[1] != CC_ZERO)
                 {
-                    if (a->m_regOut != TEVPREV)
+                    if (a->m_cRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                     TEVStage& stage = addTEVStage(diag, inst.m_loc);
                     stage.m_color[1] = CC_CPREV;
@@ -336,7 +339,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_color[1] != CC_ZERO)
                 {
-                    if (b->m_regOut != TEVPREV)
+                    if (b->m_cRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                     TEVStage& stage = addTEVStage(diag, inst.m_loc);
                     stage.m_color[1] = aTrace.tevColorArg;
@@ -360,8 +363,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
     }
     case IR::OpSwizzle:
     {
-        if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == -1 &&
-            inst.m_swizzle.m_idxs[2] == -1 && inst.m_swizzle.m_idxs[3] == -1)
+        if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 &&
+            inst.m_swizzle.m_idxs[2] == 3 && inst.m_swizzle.m_idxs[3] == -1)
         {
             const IR::Instruction& cInst = inst.getChildInst(ir, 0);
             if (cInst.m_op != IR::OpCall)
@@ -428,7 +431,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
-            m_cRegMask |= 1 << idx;
+            m_aRegMask |= 1 << idx;
             return TraceResult(TevAlphaArg(CA_A0 + idx));
         }
         else if (!name.compare("Lighting"))
@@ -493,14 +496,14 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_aRegOut = TEVLAZY;
                     b->m_alpha[3] = CA_LAZY;
-                    if (a->m_lazyOutIdx != -1)
-                        b->m_lazyAInIdx = a->m_lazyOutIdx;
+                    if (a->m_lazyAOutIdx != -1)
+                        b->m_lazyAInIdx = a->m_lazyAOutIdx;
                     else
                     {
-                        b->m_lazyAInIdx = m_cRegLazy;
-                        a->m_lazyOutIdx = m_cRegLazy++;
+                        b->m_lazyAInIdx = m_aRegLazy;
+                        a->m_lazyAOutIdx = m_aRegLazy++;
                     }
                 }
                 else
@@ -536,18 +539,18 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
-                if (b->m_op != TEV_SUB)
+                if (b->m_aop != TEV_SUB)
                     diag.reportBackendErr(inst.m_loc, "unable to integrate alpha subtraction into stage chain");
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_aRegOut = TEVLAZY;
                     b->m_alpha[3] = CA_LAZY;
-                    if (a->m_lazyOutIdx != -1)
-                        b->m_lazyAInIdx = a->m_lazyOutIdx;
+                    if (a->m_lazyAOutIdx != -1)
+                        b->m_lazyAInIdx = a->m_lazyAOutIdx;
                     else
                     {
-                        b->m_lazyAInIdx = m_cRegLazy;
-                        a->m_lazyOutIdx = m_cRegLazy++;
+                        b->m_lazyAInIdx = m_aRegLazy;
+                        a->m_lazyAOutIdx = m_aRegLazy++;
                     }
                 }
                 else
@@ -558,7 +561,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                      bTrace.type == TraceResult::TraceTEVAlphaArg)
             {
                 TEVStage* a = aTrace.tevStage;
-                if (a->m_op != TEV_SUB)
+                if (a->m_aop != TEV_SUB)
                     diag.reportBackendErr(inst.m_loc, "unable to integrate alpha subtraction into stage chain");
                 if (a->m_alpha[3] != CA_ZERO)
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for add combine");
@@ -579,10 +582,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                     diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                 if (b->m_prev != a)
                 {
-                    a->m_regOut = TEVLAZY;
+                    a->m_aRegOut = TEVLAZY;
                     b->m_alpha[2] = CA_LAZY;
-                    b->m_lazyAInIdx = m_cRegLazy;
-                    a->m_lazyOutIdx = m_cRegLazy++;
+                    b->m_lazyAInIdx = m_aRegLazy;
+                    a->m_lazyAOutIdx = m_aRegLazy++;
                 }
                 else
                     b->m_alpha[2] = CA_APREV;
@@ -607,7 +610,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_alpha[1] != CA_ZERO)
                 {
-                    if (a->m_regOut != TEVPREV)
+                    if (a->m_aRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                     TEVStage& stage = addTEVStage(diag, inst.m_loc);
                     stage.m_alpha[1] = CA_APREV;
@@ -627,7 +630,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_alpha[1] != CA_ZERO)
                 {
-                    if (b->m_regOut != TEVPREV)
+                    if (b->m_aRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
                     TEVStage& stage = addTEVStage(diag, inst.m_loc);
                     stage.m_alpha[1] = aTrace.tevAlphaArg;
@@ -651,8 +654,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
     }
     case IR::OpSwizzle:
     {
-        if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == -1 &&
-            inst.m_swizzle.m_idxs[2] == -1 && inst.m_swizzle.m_idxs[3] == -1)
+        if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 &&
+            inst.m_swizzle.m_idxs[2] == 3 && inst.m_swizzle.m_idxs[3] == -1)
         {
             const IR::Instruction& cInst = inst.getChildInst(ir, 0);
             if (cInst.m_op != IR::OpCall)
@@ -671,12 +674,16 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
 
 void GX::reset(const IR& ir, Diagnostics& diag)
 {
+    diag.setBackend("GX");
+
     m_tevCount = 0;
     m_tcgCount = 0;
     m_texMtxCount = 0;
     m_kcolorCount = 0;
     m_cRegMask = 0;
     m_cRegLazy = 0;
+    m_aRegMask = 0;
+    m_aRegLazy = 0;
     m_alphaTraceStage = -1;
 
     /* Final instruction is the root call by hecl convention */
@@ -730,18 +737,28 @@ void GX::reset(const IR& ir, Diagnostics& diag)
         for (int i=0 ; i<int(m_tevCount) ; ++i)
         {
             TEVStage& stage = m_tevs[i];
-            if (stage.m_regOut == TEVLAZY)
+            if (stage.m_cRegOut == TEVLAZY)
             {
                 int picked = pickCLazy(diag, stage.m_loc, i);
-                stage.m_regOut = TevRegID(TEVREG0 + picked);
+                stage.m_cRegOut = TevRegID(TEVREG0 + picked);
                 for (int j=i+1 ; j<int(m_tevCount) ; ++j)
                 {
                     TEVStage& nstage = m_tevs[j];
-                    if (nstage.m_lazyCInIdx == stage.m_lazyOutIdx)
+                    if (nstage.m_lazyCInIdx == stage.m_lazyCOutIdx)
                         for (int c=0 ; c<4 ; ++c)
                             if (nstage.m_color[c] == CC_LAZY)
                                 nstage.m_color[c] = TevColorArg(CC_C0 + picked * 2);
-                    if (nstage.m_lazyAInIdx == stage.m_lazyOutIdx)
+                }
+            }
+
+            if (stage.m_aRegOut == TEVLAZY)
+            {
+                int picked = pickALazy(diag, stage.m_loc, i);
+                stage.m_aRegOut = TevRegID(TEVREG0 + picked);
+                for (int j=i+1 ; j<int(m_tevCount) ; ++j)
+                {
+                    TEVStage& nstage = m_tevs[j];
+                    if (nstage.m_lazyAInIdx == stage.m_lazyAOutIdx)
                         for (int c=0 ; c<4 ; ++c)
                             if (nstage.m_alpha[c] == CA_LAZY)
                                 nstage.m_alpha[c] = TevAlphaArg(CA_A0 + picked);
@@ -749,8 +766,6 @@ void GX::reset(const IR& ir, Diagnostics& diag)
             }
         }
     }
-
-    printf("");
 }
 
 }

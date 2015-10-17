@@ -141,7 +141,7 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if socket.name == 'Value':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'Texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return 'Texture(%d, %s).aaa' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         if socket.name == 'Color':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
@@ -297,7 +297,7 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         if socket.name == 'Value':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'Texture(%d, %s).a' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return 'Texture(%d, %s).aaa' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         else:
             raise RuntimeError("Only the 'Value' output sockets may be used from Texture nodes")
 
@@ -321,7 +321,7 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
 
         if node.label.startswith('DYNAMIC_'):
             dynamic_index = int(node.label[8:])
-            return 'ColorReg(%d).a' % dynamic_index
+            return 'ColorReg(%d).aaa' % dynamic_index
 
         return '%g' % node.outputs['Value'].default_value
 
