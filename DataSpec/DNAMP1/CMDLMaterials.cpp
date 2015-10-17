@@ -248,10 +248,10 @@ void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx)
                "kcolor_nodes.append((kc_node,ka_node))\n"
                "\n",
                idx,
-               (float)col.r / (float)0xff, (float)col.g / (float)0xff,
-               (float)col.b / (float)0xff, (float)col.a / (float)0xff,
+               (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff,
+               (float)col.color[2] / (float)0xff, (float)col.color[3] / (float)0xff,
                idx,
-               (float)col.a / (float)0xff);
+               (float)col.color[3] / (float)0xff);
 }
 
 void Material::AddDynamicColor(Stream& out, unsigned idx)
@@ -859,6 +859,296 @@ void MaterialSet::ConstructMaterial(Stream& out,
                                     unsigned groupIdx,
                                     unsigned matIdx)
 {_ConstructMaterial(out, material, groupIdx, matIdx);}
+
+MaterialSet::Material::Material(const HECL::Backend::GX& gx,
+                                const std::unordered_map<std::string, int32_t>& iprops,
+                                const std::vector<HECL::ProjectPath>& texPathsIn,
+                                std::vector<HECL::ProjectPath>& texPathsOut,
+                                int colorCount,
+                                int uvCount,
+                                bool lightmapUVs,
+                                bool matrixSkinning,
+                                atUint32 setIdxIn)
+{
+    if (gx.m_kcolorCount)
+    {
+        flags.setKonstValuesEnabled(true);
+        konstCount.push_back(gx.m_kcolorCount);
+    }
+
+    auto search = iprops.find("retro_depth_sort");
+    if (search != iprops.end())
+        flags.setDepthSorting(search->second != 0);
+
+    search = iprops.find("retro_punchthrough_alpha");
+    if (search != iprops.end())
+        flags.setPunchthroughAlpha(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection");
+    if (search != iprops.end())
+        flags.setSamusReflection(search->second != 0);
+
+    search = iprops.find("retro_depth_write");
+    if (search != iprops.end())
+        flags.setDepthWrite(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection_persp");
+    if (search != iprops.end())
+        flags.setSamusReflectionSurfaceEye(search->second != 0);
+
+    search = iprops.find("retro_shadow_occluder");
+    if (search != iprops.end())
+        flags.setShadowOccluderMesh(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection_indirect");
+    if (search != iprops.end())
+        flags.setSamusReflectionIndirectTexture(search->second != 0);
+
+    search = iprops.find("retro_lightmapped");
+    if (search != iprops.end())
+        flags.setLightmap(search->second != 0);
+
+    flags.setLightmapUVArray(lightmapUVs);
+
+    atUint16 texFlags = 0;
+    for (int i=0 ; i<gx.m_tevCount ; ++i)
+        if (gx.m_tevs[i].m_texMapIdx != -1)
+        {
+            const HECL::ProjectPath& texPath = texPathsIn.at(gx.m_tevs[i].m_texMapIdx);
+            texFlags |= 1 << i;
+            ++textureCount;
+            bool found = false;
+            for (size_t t=0 ; t<texPathsOut.size() ; ++t)
+            {
+                if (texPath == texPathsOut[t])
+                {
+                    found = true;
+                    texureIdxs.push_back(t);
+                    break;
+                }
+            }
+            if (!found)
+            {
+                texureIdxs.push_back(texPathsOut.size());
+                texPathsOut.push_back(texPath);
+            }
+        }
+    flags.setTextureSlots(texFlags);
+
+    vaFlags.setPosition(GX::INDEX16);
+    vaFlags.setNormal(GX::INDEX16);
+
+    if (0 < colorCount)
+        vaFlags.setColor0(GX::INDEX16);
+    if (1 < colorCount)
+        vaFlags.setColor1(GX::INDEX16);
+
+    if (0 < uvCount)
+        vaFlags.setTex0(GX::INDEX16);
+    if (1 < uvCount)
+        vaFlags.setTex1(GX::INDEX16);
+    if (2 < uvCount)
+        vaFlags.setTex2(GX::INDEX16);
+    if (3 < uvCount)
+        vaFlags.setTex3(GX::INDEX16);
+    if (4 < uvCount)
+        vaFlags.setTex4(GX::INDEX16);
+    if (5 < uvCount)
+        vaFlags.setTex5(GX::INDEX16);
+    if (6 < uvCount)
+        vaFlags.setTex6(GX::INDEX16);
+
+    if (matrixSkinning)
+    {
+        vaFlags.setPnMatIdx(GX::DIRECT);
+        if (0 < uvCount)
+            vaFlags.setTex0MatIdx(GX::DIRECT);
+        if (1 < uvCount)
+            vaFlags.setTex1MatIdx(GX::DIRECT);
+        if (2 < uvCount)
+            vaFlags.setTex2MatIdx(GX::DIRECT);
+        if (3 < uvCount)
+            vaFlags.setTex3MatIdx(GX::DIRECT);
+        if (4 < uvCount)
+            vaFlags.setTex4MatIdx(GX::DIRECT);
+        if (5 < uvCount)
+            vaFlags.setTex5MatIdx(GX::DIRECT);
+        if (6 < uvCount)
+            vaFlags.setTex6MatIdx(GX::DIRECT);
+    }
+
+    groupIdx = setIdxIn;
+
+    for (int i=0 ; i<gx.m_kcolorCount ; ++i)
+        konstColors.emplace_back(gx.m_kcolors[i]);
+
+    blendDstFac = BlendFactor(gx.m_blendDst);
+    blendSrcFac = BlendFactor(gx.m_blendSrc);
+    if (flags.samusReflectionIndirectTexture())
+        indTexSlot.push_back(texureIdxs.size());
+
+    colorChannelCount = 1;
+    colorChannels.emplace_back();
+    ColorChannel& ch = colorChannels.back();
+    for (int i=0 ; i<gx.m_tevCount ; ++i)
+    {
+        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        for (int c=0 ; c<4 ; ++c)
+            if (stage.m_color[c] == HECL::Backend::GX::CC_RASC ||
+                stage.m_color[c] == HECL::Backend::GX::CC_RASA ||
+                stage.m_alpha[c] == HECL::Backend::GX::CA_RASA)
+            {
+                ch.setLighting(true);
+                break;
+            }
+        if (ch.lighting())
+            break;
+    }
+    ch.setDiffuseFn(GX::DF_CLAMP);
+    ch.setAttenuationFn(GX::AF_SPOT);
+
+    tevStageCount = gx.m_tevCount;
+    for (int i=0 ; i<gx.m_tevCount ; ++i)
+    {
+        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        tevStages.emplace_back();
+        TEVStage& target = tevStages.back();
+
+        target.setColorInA(stage.m_color[0]);
+        target.setColorInB(stage.m_color[1]);
+        target.setColorInC(stage.m_color[2]);
+        target.setColorInD(stage.m_color[3]);
+        target.setAlphaInA(stage.m_alpha[0]);
+        target.setAlphaInB(stage.m_alpha[1]);
+        target.setAlphaInC(stage.m_alpha[2]);
+        target.setAlphaInD(stage.m_alpha[3]);
+        target.setColorOp(stage.m_cop);
+        target.setColorOpBias(GX::TB_ZERO);
+        target.setColorOpScale(GX::CS_SCALE_1);
+        target.setColorOpClamp(true);
+        target.setColorOpOutReg(stage.m_cRegOut);
+        target.setAlphaOp(stage.m_aop);
+        target.setAlphaOpBias(GX::TB_ZERO);
+        target.setAlphaOpScale(GX::CS_SCALE_1);
+        target.setAlphaOpClamp(true);
+        target.setAlphaOpOutReg(stage.m_aRegOut);
+        target.setKColorIn(stage.m_kColor);
+        target.setKAlphaIn(stage.m_kAlpha);
+
+        tevStageTexInfo.emplace_back();
+        TEVStageTexInfo& texInfo = tevStageTexInfo.back();
+        texInfo.texSlot = -1;
+        if (stage.m_texMapIdx != -1)
+            texInfo.texSlot = stage.m_texMapIdx;
+        texInfo.tcgSlot = -1;
+        if (stage.m_texGenIdx != -1)
+            texInfo.tcgSlot = stage.m_texGenIdx;
+    }
+
+    tcgCount = gx.m_tcgCount;
+    for (int i=0 ; i<gx.m_tcgCount ; ++i)
+    {
+        const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[i];
+        tcgs.emplace_back();
+        TexCoordGen& target = tcgs.back();
+        target.setType(GX::TG_MTX3x4);
+        target.setSource(tcg.m_src);
+        target.setMtx(tcg.m_mtx);
+        target.setPostMtx(GX::PTIDENTITY);
+
+        if (tcg.m_gameFunction.size() && tcg.m_mtx != GX::IDENTITY)
+        {
+            if (!tcg.m_gameFunction.compare("RetroUVMode0Node") ||
+                !tcg.m_gameFunction.compare("RetroUVMode1Node") ||
+                !tcg.m_gameFunction.compare("RetroUVMode7Node"))
+            {
+                target.setNormalize(true);
+                target.setPostMtx(GX::PTTexMtx(GX::PTTEXMTX0 - GX::TEXMTX0 + tcg.m_mtx));
+            }
+        }
+    }
+
+    uvAnimsSize = 4;
+    uvAnimsCount = 0;
+    for (; uvAnimsCount<8 ;)
+    {
+        bool found = false;
+        for (int t=0 ; t<gx.m_tcgCount ; ++t)
+        {
+            const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[t];
+            if (tcg.m_mtx == GX::IDENTITY)
+                continue;
+            if ((tcg.m_mtx - GX::TEXMTX0) / 3 == uvAnimsCount)
+            {
+                found = true;
+                ++uvAnimsCount;
+                uvAnims.emplace_back(tcg);
+                uvAnimsSize += uvAnims.back().binarySize();
+                break;
+            }
+        }
+        if (!found)
+            break;
+    }
+}
+
+MaterialSet::Material::UVAnimation::UVAnimation(const HECL::Backend::GX::TexCoordGen& tcg)
+{
+    if (!tcg.m_gameFunction.compare("RetroUVMode0Node"))
+        mode = ANIM_MV_INV_NOTRANS;
+    else if (!tcg.m_gameFunction.compare("RetroUVMode1Node"))
+        mode = ANIM_MV_INV;
+    else if (!tcg.m_gameFunction.compare("RetroUVMode2Node"))
+    {
+        mode = ANIM_SCROLL;
+        if (tcg.m_gameArgs.size() < 4)
+            Log.report(LogVisor::FatalError, "Mode2 UV anim requires 4 arguments");
+        vals[0] = tcg.m_gameArgs[0].vec[0];
+        vals[1] = tcg.m_gameArgs[1].vec[0];
+        vals[2] = tcg.m_gameArgs[2].vec[0];
+        vals[3] = tcg.m_gameArgs[3].vec[0];
+    }
+    else if (!tcg.m_gameFunction.compare("RetroUVMode3Node"))
+    {
+        mode = ANIM_ROTATION;
+        if (tcg.m_gameArgs.size() < 2)
+            Log.report(LogVisor::FatalError, "Mode3 UV anim requires 2 arguments");
+        vals[0] = tcg.m_gameArgs[0].vec[0];
+        vals[1] = tcg.m_gameArgs[1].vec[0];
+    }
+    else if (!tcg.m_gameFunction.compare("RetroUVMode4Node"))
+    {
+        mode = ANIM_HSTRIP;
+        if (tcg.m_gameArgs.size() < 4)
+            Log.report(LogVisor::FatalError, "Mode4 UV anim requires 4 arguments");
+        vals[0] = tcg.m_gameArgs[0].vec[0];
+        vals[1] = tcg.m_gameArgs[1].vec[0];
+        vals[2] = tcg.m_gameArgs[2].vec[0];
+        vals[3] = tcg.m_gameArgs[3].vec[0];
+    }
+    else if (!tcg.m_gameFunction.compare("RetroUVMode5Node"))
+    {
+        mode = ANIM_VSTRIP;
+        if (tcg.m_gameArgs.size() < 4)
+            Log.report(LogVisor::FatalError, "Mode5 UV anim requires 4 arguments");
+        vals[0] = tcg.m_gameArgs[0].vec[0];
+        vals[1] = tcg.m_gameArgs[1].vec[0];
+        vals[2] = tcg.m_gameArgs[2].vec[0];
+        vals[3] = tcg.m_gameArgs[3].vec[0];
+    }
+    else if (!tcg.m_gameFunction.compare("RetroUVMode6Node"))
+        mode = ANIM_MODEL;
+    else if (!tcg.m_gameFunction.compare("RetroUVMode7Node"))
+    {
+        mode = ANIM_MODE_WHO_MUST_NOT_BE_NAMED;
+        if (tcg.m_gameArgs.size() < 2)
+            Log.report(LogVisor::FatalError, "Mode7 UV anim requires 2 arguments");
+        vals[0] = tcg.m_gameArgs[0].vec[0];
+        vals[1] = tcg.m_gameArgs[1].vec[0];
+    }
+    else
+        Log.report(LogVisor::FatalError, "unsupported UV anim '%s'", tcg.m_gameFunction.c_str());
+}
 
 }
 }

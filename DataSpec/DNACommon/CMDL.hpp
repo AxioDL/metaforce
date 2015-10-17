@@ -1040,17 +1040,25 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     head.secSizes.reserve(head.secCount);
 
     /* Build material sets */
+    std::vector<MaterialSet> matSets;
+    matSets.reserve(mesh.materialSets.size());
     {
         HECL::Frontend::Frontend FE;
-        FE.getDiagnostics().setBackend("GX");
         for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
         {
+            matSets.emplace_back();
+            MaterialSet& targetMSet = matSets.back();
+            std::vector<HECL::ProjectPath> texPaths;
+
             for (const Mesh::Material& mat : mset)
             {
                 std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
                 HECL::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
                 HECL::Backend::GX matGX;
                 matGX.reset(matIR, FE.getDiagnostics());
+                targetMSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
+                                                  mesh.colorLayerCount, mesh.uvLayerCount,
+                                                  false, false, 0);
             }
         }
     }

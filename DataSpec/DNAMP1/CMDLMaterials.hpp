@@ -32,7 +32,7 @@ struct MaterialSet : BigDNA
         struct Flags : BigDNA
         {
             DECL_DNA
-            Value<atUint32> flags;
+            Value<atUint32> flags = 0;
             bool konstValuesEnabled() const {return (flags & 0x8) != 0;}
             void setKonstValuesEnabled(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
             bool depthSorting() const {return (flags & 0x10) != 0;}
@@ -58,12 +58,12 @@ struct MaterialSet : BigDNA
         } flags;
         const Flags& getFlags() const {return flags;}
 
-        Value<atUint32> textureCount;
+        Value<atUint32> textureCount = 0;
         Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
         struct VAFlags : BigDNA
         {
             DECL_DNA
-            Value<atUint32> vaFlags;
+            Value<atUint32> vaFlags = 0;
             GX::AttrType position() const {return GX::AttrType(vaFlags & 0x3);}
             void setPosition(GX::AttrType val) {vaFlags &= ~0x3; vaFlags |= atUint32(val);}
             GX::AttrType normal() const {return GX::AttrType(vaFlags >> 2 & 0x3);}
@@ -125,11 +125,11 @@ struct MaterialSet : BigDNA
         Value<BlendFactor> blendSrcFac;
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
-        Value<atUint32> colorChannelCount;
+        Value<atUint32> colorChannelCount = 0;
         struct ColorChannel : BigDNA
         {
             DECL_DNA
-            Value<atUint32> flags;
+            Value<atUint32> flags = 0;
             bool lighting() const {return (flags & 0x1) != 0;}
             void setLighting(bool enabled) {flags &= ~0x1; flags |= atUint32(enabled);}
             bool useAmbient() const {return (flags & 0x2) != 0;}
@@ -138,25 +138,25 @@ struct MaterialSet : BigDNA
             void setUseMaterial(bool enabled) {flags &= ~0x4; flags |= atUint32(enabled) << 2;}
             atUint8 lightmask() const {return atUint8(flags >> 3 & 0xff);}
             void setLightmask(atUint8 mask) {flags &= ~0x7f8; flags |= atUint32(mask) << 3;}
-            atUint8 diffuseFn() const {return atUint8(flags >> 11 & 0x3);}
-            void setDiffuseFn(atUint8 fn) {flags &= ~0x1800; flags |= atUint32(fn) << 11;}
-            atUint8 attenuationFn() const {return atUint8(flags >> 13 & 0x3);}
-            void setAttenuationFn(atUint8 fn) {flags &= ~0x6000; flags |= atUint32(fn) << 13;}
+            GX::DiffuseFn diffuseFn() const {return GX::DiffuseFn(flags >> 11 & 0x3);}
+            void setDiffuseFn(GX::DiffuseFn fn) {flags &= ~0x1800; flags |= atUint32(fn) << 11;}
+            GX::AttnFn attenuationFn() const {return GX::AttnFn(flags >> 13 & 0x3);}
+            void setAttenuationFn(GX::AttnFn fn) {flags &= ~0x6000; flags |= atUint32(fn) << 13;}
         };
         Vector<ColorChannel, DNA_COUNT(colorChannelCount)> colorChannels;
 
-        Value<atUint32> tevStageCount;
+        Value<atUint32> tevStageCount = 0;
         struct TEVStage : BigDNA
         {
             DECL_DNA
-            Value<atUint32> ciFlags;
-            Value<atUint32> aiFlags;
-            Value<atUint32> ccFlags;
-            Value<atUint32> acFlags;
-            Value<atUint8> pad;
-            Value<atUint8> kaInput;
-            Value<atUint8> kcInput;
-            Value<atUint8> rascInput;
+            Value<atUint32> ciFlags = 0;
+            Value<atUint32> aiFlags = 0;
+            Value<atUint32> ccFlags = 0;
+            Value<atUint32> acFlags = 0;
+            Value<atUint8> pad = 0;
+            Value<atUint8> kaInput = 0;
+            Value<atUint8> kcInput = 0;
+            Value<atUint8> rascInput = 0;
 
             GX::TevColorArg colorInA() const {return GX::TevColorArg(ciFlags & 0xf);}
             void setColorInA(GX::TevColorArg val) {ciFlags &= ~0x1f; ciFlags |= atUint32(val);}
@@ -199,23 +199,25 @@ struct MaterialSet : BigDNA
             void setAlphaOpOutReg(GX::TevRegID val) {acFlags &= ~0x600; acFlags |= atUint32(val) << 9;}
 
             GX::TevKColorSel kColorIn() const {return GX::TevKColorSel(kcInput);}
+            void setKColorIn(GX::TevKColorSel val) {kcInput = val;}
             GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
+            void setKAlphaIn(GX::TevKAlphaSel val) {kaInput = val;}
         };
         Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
         {
             DECL_DNA
-            Value<atUint16> pad;
-            Value<atUint8> texSlot;
-            Value<atUint8> tcgSlot;
+            Value<atUint16> pad = 0;
+            Value<atUint8> texSlot = 0;
+            Value<atUint8> tcgSlot = 0;
         };
         Vector<TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
 
-        Value<atUint32> tcgCount;
+        Value<atUint32> tcgCount = 0;
         struct TexCoordGen : BigDNA
         {
             DECL_DNA
-            Value<atUint32> flags;
+            Value<atUint32> flags = 0;
 
             GX::TexGenType type() const {return GX::TexGenType(flags & 0xf);}
             void setType(GX::TexGenType val) {flags &= ~0xf; flags |= atUint32(val);}
@@ -230,8 +232,8 @@ struct MaterialSet : BigDNA
         };
         Vector<TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
 
-        Value<atUint32> uvAnimsSize;
-        Value<atUint32> uvAnimsCount;
+        Value<atUint32> uvAnimsSize = 4;
+        Value<atUint32> uvAnimsCount = 0;
         struct UVAnimation : BigDNA
         {
             Delete expl;
@@ -318,6 +320,30 @@ struct MaterialSet : BigDNA
                     break;
                 }
             }
+            atUint32 binarySize() const
+            {
+                switch (mode)
+                {
+                case ANIM_MV_INV_NOTRANS:
+                case ANIM_MV_INV:
+                case ANIM_MODEL:
+                    return 4;
+                case ANIM_SCROLL:
+                case ANIM_HSTRIP:
+                case ANIM_VSTRIP:
+                    return 20;
+                    break;
+                case ANIM_ROTATION:
+                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                    return 12;
+                case ANIM_MODE_8:
+                    return 40;
+                }
+                return 4;
+            }
+
+            UVAnimation() = default;
+            UVAnimation(const HECL::Backend::GX::TexCoordGen& tcg);
         };
         Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
 
@@ -330,6 +356,17 @@ struct MaterialSet : BigDNA
                               const GX::Color& col, unsigned idx);
         static void AddDynamicColor(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
         static void AddDynamicAlpha(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
+
+        Material() = default;
+        Material(const HECL::Backend::GX& gx,
+                 const std::unordered_map<std::string, int32_t>& iprops,
+                 const std::vector<HECL::ProjectPath>& texPathsIn,
+                 std::vector<HECL::ProjectPath>& texPathsOut,
+                 int colorCount,
+                 int uvCount,
+                 bool lightmapUVs,
+                 bool matrixSkinning,
+                 atUint32 grpIdx);
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
@@ -346,8 +383,6 @@ struct MaterialSet : BigDNA
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
     }
 
-    MaterialSet() = default;
-    MaterialSet(const HECL::Backend::GX& gx);
 };
 
 }
