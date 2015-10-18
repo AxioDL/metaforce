@@ -436,6 +436,8 @@ struct GX : IBackend
         {reader.readUBytesToBuf(&num, 4);}
         void write(Athena::io::IStreamWriter& writer) const
         {writer.writeUBytes(reinterpret_cast<const atUint8*>(&num), 4);}
+        size_t binarySize(size_t __isz) const
+        {return __isz + 4;}
     };
     unsigned m_kcolorCount = 0;
     Color m_kcolors[4];
