@@ -211,6 +211,38 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
+size_t STRG::binarySize(size_t __isz) const
+{
+    __isz += 24;
+    __isz += names.size() * 8;
+    for (const auto& name : names)
+        __isz += name.first.size() + 1;
+
+    __isz += langs.size() * 4;
+
+    for (const auto& lang : langs)
+        __isz += 4 + lang.second.size() * 4;
+
+    size_t strCount = STRG::count();
+    for (atUint32 s=0 ; s<strCount ; ++s)
+    {
+        for (const auto& lang : langs)
+        {
+            if (s >= lang.second.size())
+            {
+                __isz += 5;
+            }
+            else
+            {
+                const std::string& str = lang.second[s];
+                __isz += str.size() + 5;
+            }
+        }
+    }
+
+    return __isz;
+}
+
 void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& item : langs)

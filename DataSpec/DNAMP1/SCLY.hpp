@@ -28,11 +28,13 @@ struct SCLY : BigYAML
         Vector<std::shared_ptr<IScriptObject>, DNA_COUNT(objectCount)> objects;
         void read(Athena::io::IStreamReader &rs);
         void write(Athena::io::IStreamWriter &ws) const;
+        size_t binarySize(size_t __isz) const;
     };
     Vector<ScriptLayer, DNA_COUNT(layerCount)> layers;
 
     void read(Athena::io::IStreamReader &rs);
     void write(Athena::io::IStreamWriter &ws) const;
+    size_t binarySize(size_t __isz) const;
 
     void exportToLayerDirectories(const PAK::Entry &, PAKRouter<PAKBridge>&, bool);
 };

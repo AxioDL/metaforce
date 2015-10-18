@@ -1083,7 +1083,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
                 found = true;
                 ++uvAnimsCount;
                 uvAnims.emplace_back(tcg);
-                uvAnimsSize += uvAnims.back().binarySize();
+                uvAnimsSize = uvAnims.back().binarySize(uvAnimsSize);
                 break;
             }
         }
@@ -1101,12 +1101,12 @@ MaterialSet::Material::UVAnimation::UVAnimation(const HECL::Backend::GX::TexCoor
     else if (!tcg.m_gameFunction.compare("RetroUVMode2Node"))
     {
         mode = ANIM_SCROLL;
-        if (tcg.m_gameArgs.size() < 4)
-            Log.report(LogVisor::FatalError, "Mode2 UV anim requires 4 arguments");
+        if (tcg.m_gameArgs.size() < 2)
+            Log.report(LogVisor::FatalError, "Mode2 UV anim requires 2 vector arguments");
         vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[1].vec[0];
-        vals[2] = tcg.m_gameArgs[2].vec[0];
-        vals[3] = tcg.m_gameArgs[3].vec[0];
+        vals[1] = tcg.m_gameArgs[0].vec[1];
+        vals[2] = tcg.m_gameArgs[1].vec[0];
+        vals[3] = tcg.m_gameArgs[1].vec[1];
     }
     else if (!tcg.m_gameFunction.compare("RetroUVMode3Node"))
     {

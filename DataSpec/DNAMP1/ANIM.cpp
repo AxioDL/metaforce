@@ -216,6 +216,29 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
     evnt.write(writer);
 }
 
+size_t ANIM::ANIM0::binarySize(size_t __isz) const
+{
+    Header head;
+
+    atUint32 maxId = 0;
+    for (const std::pair<atUint32, bool>& bone : bones)
+        maxId = std::max(maxId, bone.first);
+
+    __isz = head.binarySize(__isz);
+    __isz += maxId + 1;
+    __isz += bones.size() + 4;
+
+    __isz += 8;
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        __isz += head.keyCount * 16;
+        if (bone.second)
+            __isz += head.keyCount * 12;
+    }
+
+    return __isz + 4;
+}
+
 void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
 {
     Header head;
@@ -345,6 +368,31 @@ void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
     }
 
     writer.writeUBytes(bsData.get(), bsSize);
+}
+
+size_t ANIM::ANIM2::binarySize(size_t __isz) const
+{
+    Header head;
+
+    WordBitmap keyBmp;
+    for (atUint32 frame : frames)
+    {
+        while (keyBmp.getBit(frame))
+            ++frame;
+        keyBmp.setBit(frame);
+    }
+
+    __isz = head.binarySize(__isz);
+    __isz = keyBmp.binarySize(__isz);
+    __isz += 8;
+    for (const std::pair<atUint32, bool>& bone : bones)
+    {
+        __isz += 17;
+        if (bone.second)
+            __isz += 9;
+    }
+
+    return __isz + DNAANIM::ComputeBitstreamSize(frames.size(), channels);
 }
 
 }

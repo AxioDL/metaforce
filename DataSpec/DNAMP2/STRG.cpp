@@ -137,6 +137,35 @@ void STRG::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
+size_t STRG::binarySize(size_t __isz) const
+{
+    __isz += 16;
+
+    __isz += langs.size() * 12;
+
+    __isz += 8;
+    __isz += names.size() * 8;
+    for (const std::pair<std::string, int32_t>& name : names)
+        __isz += name.first.size() + 1;
+
+    size_t strCount = STRG::count();
+    for (const std::pair<DNAFourCC, std::vector<std::wstring>>& lang : langs)
+    {
+        atUint32 langStrCount = lang.second.size();
+        __isz += strCount * 4;
+
+        for (atUint32 s=0 ; s<strCount ; ++s)
+        {
+            if (s < langStrCount)
+                __isz += (lang.second[s].size() + 1) * 2;
+            else
+                __isz += 1;
+        }
+    }
+
+    return __isz;
+}
+
 void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     const Athena::io::YAMLNode* root = reader.getRootNode();

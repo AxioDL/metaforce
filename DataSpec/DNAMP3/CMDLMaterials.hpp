@@ -199,6 +199,10 @@ struct MaterialSet : BigDNA
                 writer.writeUBytes((atUint8*)&section->m_type, 4);
                 section->write(writer);
             }
+            size_t binarySize(size_t __isz) const
+            {
+                return section->binarySize(__isz + 4);
+            }
         };
         std::vector<SectionFactory> sections;
         void read(Athena::io::IStreamReader& reader)
@@ -217,6 +221,13 @@ struct MaterialSet : BigDNA
             for (const SectionFactory& section : sections)
                 section.write(writer);
             writer.writeUBytes((atUint8*)"END ", 4);
+        }
+        size_t binarySize(size_t __isz) const
+        {
+            __isz = header.binarySize(__isz);
+            for (const SectionFactory& section : sections)
+                __isz = section.binarySize(__isz);
+            return __isz + 4;
         }
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;

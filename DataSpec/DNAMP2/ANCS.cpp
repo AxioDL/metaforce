@@ -163,6 +163,81 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
     }
 }
 
+size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
+{
+    atUint16 sectionCount;
+    if (unk4 || unk5 || extents.size())
+        sectionCount = 10;
+    else if (partResData.elsc.size())
+        sectionCount = 6;
+    else if (animIdxs.size())
+        sectionCount = 5;
+    else if (cmdlOverlay)
+        sectionCount = 4;
+    else if (effects.size())
+        sectionCount = 3;
+    else if (animAABBs.size())
+        sectionCount = 2;
+    else
+        sectionCount = 1;
+
+    __isz += 6;
+
+    __isz += name.size() + 1;
+    __isz += 12;
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, animations);
+
+    __isz = pasDatabase.binarySize(__isz);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.part);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.swhc);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.unk);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.elsc);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.spsc);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.unk2);
+
+    __isz += 4;
+
+    if (sectionCount > 1)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, animAABBs);
+    }
+
+    if (sectionCount > 2)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, effects);
+    }
+
+    if (sectionCount > 3)
+        __isz += 8;
+
+    if (sectionCount > 4)
+        __isz += 4 + animIdxs.size() * 4;
+
+    if (sectionCount > 9)
+    {
+        __isz += 9;
+        __isz = __EnumerateSize(__isz, extents);
+    }
+
+    return __isz;
+}
+
 void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
@@ -400,6 +475,47 @@ void ANCS::AnimationSet::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
+size_t ANCS::AnimationSet::binarySize(size_t __isz) const
+{
+    atUint16 sectionCount;
+    if (evnts.size())
+        sectionCount = 4;
+    else if (halfTransitions.size())
+        sectionCount = 3;
+    else if (additiveAnims.size())
+        sectionCount = 2;
+    else
+        sectionCount = 1;
+
+    __isz += 6;
+    __isz = __EnumerateSize(__isz, animations);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, transitions);
+    __isz = defaultTransition.binarySize(__isz);
+
+    if (sectionCount > 1)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, additiveAnims);
+        __isz += 8;
+    }
+
+    if (sectionCount > 2)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, halfTransitions);
+    }
+
+    if (sectionCount > 3)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, evnts);
+    }
+
+    return __isz;
+}
+
 void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -521,6 +637,28 @@ void ANCS::AnimationSet::EVNT::write(Athena::io::IStreamWriter& writer) const
 
     writer.writeUint32Big(sfxEvents.size());
     writer.enumerate(sfxEvents);
+}
+
+size_t ANCS::AnimationSet::EVNT::binarySize(size_t __isz) const
+{
+    __isz += 4;
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, loopEvents);
+
+    if (version == 2)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, uevtEvents);
+    }
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, effectEvents);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, sfxEvents);
+
+    return __isz;
 }
 
 void ANCS::AnimationSet::EVNT::fromYAML(Athena::io::YAMLDocReader& reader)

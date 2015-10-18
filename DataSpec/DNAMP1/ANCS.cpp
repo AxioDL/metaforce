@@ -59,6 +59,24 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(
     }
 }
 
+size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::binarySize(size_t __isz) const
+{
+    __isz += 12;
+    switch (DataType(parmType))
+    {
+    case DataType::DTInt32:
+    case DataType::DTUInt32:
+    case DataType::DTEnum:
+    case DataType::DTFloat:
+        __isz += 8;
+        break;
+    case DataType::DTBool:
+        __isz += 2;
+        break;
+    }
+    return __isz;
+}
+
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     parmType = reader.readUint32("parmType");
@@ -198,6 +216,32 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io
             }
         }
     }
+}
+
+size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(size_t __isz) const
+{
+    __isz += 12;
+    __isz = __EnumerateSize(__isz, parmInfos);
+
+    __isz += animInfos.size() * 4;
+    for (const ParmInfo& pi : parmInfos)
+    {
+        switch (ParmInfo::DataType(pi.parmType))
+        {
+        case ParmInfo::DTInt32:
+        case ParmInfo::DTUInt32:
+        case ParmInfo::DTEnum:
+        case ParmInfo::DTFloat:
+            __isz += animInfos.size() * 4;
+            break;
+        case ParmInfo::DTBool:
+            __isz += animInfos.size();
+            break;
+        default: break;
+        }
+    }
+
+    return __isz;
 }
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::fromYAML(Athena::io::YAMLDocReader& reader)
@@ -416,6 +460,70 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer)
     }
 }
 
+size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
+{
+    __isz += 6;
+
+    atUint16 sectionCount;
+    if (partResData.elsc.size())
+        sectionCount = 6;
+    else if (animIdxs.size())
+        sectionCount = 5;
+    else if (cmdlOverlay)
+        sectionCount = 4;
+    else if (effects.size())
+        sectionCount = 3;
+    else if (animAABBs.size())
+        sectionCount = 2;
+    else
+        sectionCount = 1;
+
+    __isz += name.size() + 1;
+    __isz += 12;
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, animations);
+
+    __isz = pasDatabase.binarySize(__isz);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.part);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.swhc);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, partResData.unk);
+
+    if (sectionCount > 5)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, partResData.elsc);
+    }
+
+    __isz += 4;
+
+    if (sectionCount > 1)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, animAABBs);
+    }
+
+    if (sectionCount > 2)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, effects);
+    }
+
+    if (sectionCount > 3)
+        __isz += 8;
+
+    if (sectionCount > 4)
+        __isz += 4 + animIdxs.size() * 4;
+
+    return __isz;
+}
+
 void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
@@ -591,6 +699,13 @@ void ANCS::AnimationSet::MetaAnimFactory::write(Athena::io::IStreamWriter& write
     m_anim->write(writer);
 }
 
+size_t ANCS::AnimationSet::MetaAnimFactory::binarySize(size_t __isz) const
+{
+    if (!m_anim)
+        return __isz;
+    return m_anim->binarySize(__isz + 4);
+}
+
 void ANCS::AnimationSet::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
@@ -673,6 +788,13 @@ void ANCS::AnimationSet::MetaTransFactory::write(Athena::io::IStreamWriter& writ
     }
     writer.writeInt32Big(m_trans->m_type);
     m_trans->write(writer);
+}
+
+size_t ANCS::AnimationSet::MetaTransFactory::binarySize(size_t __isz) const
+{
+    if (!m_trans)
+        return __isz + 4;
+    return m_trans->binarySize(__isz + 4);
 }
 
 void ANCS::AnimationSet::MetaTransFactory::fromYAML(Athena::io::YAMLDocReader& reader)
@@ -792,6 +914,47 @@ void ANCS::AnimationSet::write(Athena::io::IStreamWriter& writer) const
         writer.writeUint32Big(animResources.size());
         writer.enumerate(animResources);
     }
+}
+
+size_t ANCS::AnimationSet::binarySize(size_t __isz) const
+{
+    atUint16 sectionCount;
+    if (animResources.size())
+        sectionCount = 4;
+    else if (halfTransitions.size())
+        sectionCount = 3;
+    else if (additiveAnims.size())
+        sectionCount = 2;
+    else
+        sectionCount = 1;
+
+    __isz += 6;
+    __isz = __EnumerateSize(__isz, animations);
+
+    __isz += 4;
+    __isz = __EnumerateSize(__isz, transitions);
+    __isz = defaultTransition.binarySize(__isz);
+
+    if (sectionCount > 1)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, additiveAnims);
+        __isz += 8;
+    }
+
+    if (sectionCount > 2)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, halfTransitions);
+    }
+
+    if (sectionCount > 3)
+    {
+        __isz += 4;
+        __isz = __EnumerateSize(__isz, animResources);
+    }
+
+    return __isz;
 }
 
 void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)

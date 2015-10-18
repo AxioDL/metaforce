@@ -29,6 +29,13 @@ void SCLY::write(Athena::io::IStreamWriter& ws) const
     ws.enumerate(layers);
 }
 
+size_t SCLY::binarySize(size_t __isz) const
+{
+    __isz += 12;
+    __isz += layerSizes.size() * 4;
+    return __EnumerateSize(__isz, layers);
+}
+
 void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge> &pakRouter, bool force)
 {
     for (atUint32 i = 0; i < layerCount; i++)
@@ -137,6 +144,17 @@ void SCLY::ScriptLayer::write(Athena::io::IStreamWriter& ws) const
         ws.writeByte(obj->type);
         obj->write(ws);
     }
+}
+
+size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
+{
+    __isz += 5;
+    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    {
+        __isz += 1;
+        __isz = obj->binarySize(__isz);
+    }
+    return __isz;
 }
 
 void SCLY::ScriptLayer::toYAML(Athena::io::YAMLDocWriter& ws) const

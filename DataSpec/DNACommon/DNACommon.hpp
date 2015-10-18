@@ -38,6 +38,8 @@ public:
     {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
     void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
+    size_t binarySize(size_t __isz) const
+    {return __isz + 4;}
 };
 
 using FourCC = HECL::FourCC;
@@ -57,6 +59,8 @@ public:
     {m_id = reader.readUint32(nullptr);}
     void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeUint32(nullptr, m_id);}
+    size_t binarySize(size_t __isz) const
+    {return __isz + 4;}
 
     bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
@@ -84,6 +88,8 @@ public:
     {m_id = reader.readUint64(nullptr);}
     void toYAML(Athena::io::YAMLDocWriter& writer) const
     {writer.writeUint64(nullptr, m_id);}
+    size_t binarySize(size_t __isz) const
+    {return __isz + 8;}
 
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
@@ -135,6 +141,8 @@ public:
     {
         writer.writeString(nullptr, toString().c_str());
     }
+    size_t binarySize(size_t __isz) const
+    {return __isz + 16;}
 
     bool operator!=(const UniqueID128& other) const
     {
@@ -209,6 +217,10 @@ public:
     {
         for (atUint32 word : m_words)
             writer.writeUint32(word);
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        return __isz + m_words.size() * 4;
     }
     size_t getBitCount() const {return m_bitCount;}
     bool getBit(size_t idx) const

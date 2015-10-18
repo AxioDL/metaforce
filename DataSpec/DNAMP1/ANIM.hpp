@@ -132,6 +132,13 @@ struct ANIM : BigDNA
                     writer.writeUByte(qTZ);
                 }
             }
+            size_t binarySize(size_t __isz) const
+            {
+                __isz += 17;
+                if (keyCount2)
+                    __isz += 9;
+                return __isz;
+            }
         };
     };
 
@@ -159,6 +166,11 @@ struct ANIM : BigDNA
     {
         writer.writeUint32Big(m_anim->m_version);
         m_anim->write(writer);
+    }
+
+    size_t binarySize(size_t __isz) const
+    {
+        return m_anim->binarySize(__isz + 4);
     }
 
     void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool) const

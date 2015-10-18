@@ -105,6 +105,11 @@ struct ANIM : BigDNA
         m_anim->write(writer);
     }
 
+    size_t binarySize(size_t __isz) const
+    {
+        return m_anim->binarySize(__isz + 4);
+    }
+
     void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
     {
         m_anim->sendANIMToBlender(os, cinf, additive);

@@ -35,6 +35,19 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::IStreamWriter& write
         writer.seek(35, Athena::Current);
 }
 
+size_t CHAR::AnimationInfo::EVNT::SFXEvent::binarySize(size_t __isz) const
+{
+    __isz = EventBase::binarySize(__isz);
+    __isz = caudId.binarySize(__isz);
+    __isz += 16;
+    __isz += unk3Vals.size() * 4;
+    if (extraType == 1)
+        __isz += 4;
+    else if (extraType == 2)
+        __isz += 35;
+    return __isz;
+}
+
 void CHAR::AnimationInfo::EVNT::SFXEvent::fromYAML(Athena::io::YAMLDocReader& reader)
 {
     EventBase::fromYAML(reader);
@@ -103,6 +116,13 @@ void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::IStreamWriter& writ
         return;
     writer.writeInt32Big(m_anim->m_type);
     m_anim->write(writer);
+}
+
+size_t CHAR::AnimationInfo::MetaAnimFactory::binarySize(size_t __isz) const
+{
+    if (!m_anim)
+        return __isz;
+    return m_anim->binarySize(__isz + 4);
 }
 
 void CHAR::AnimationInfo::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& reader)

@@ -58,8 +58,9 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     writer.writeUint32Big((atUint32)m_nameEntries.size());
     for (const NameEntry& entry : m_nameEntries)
     {
-        ((NameEntry&)entry).nameLen = entry.name.size();
-        entry.write(writer);
+        NameEntry copy = entry;
+        copy.nameLen = copy.name.size();
+        copy.write(writer);
     }
 
     writer.writeUint32Big(m_entries.size());
@@ -70,6 +71,18 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
             tmp.compressed = 1;
         tmp.write(writer);
     }
+}
+
+size_t PAK::binarySize(size_t __isz) const
+{
+    __isz += 12;
+
+    for (const NameEntry& entry : m_nameEntries)
+        __isz += 12 + entry.name.size();
+
+    __isz += m_entries.size() * 20 + 4;
+
+    return __isz;
 }
 
 std::unique_ptr<atUint8[]>

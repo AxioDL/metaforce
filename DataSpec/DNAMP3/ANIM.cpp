@@ -366,6 +366,32 @@ void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
+size_t ANIM::ANIM0::binarySize(size_t __isz) const
+{
+    Header head;
+
+    atUint32 maxId = 0;
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+        maxId = std::max(maxId, bone.first);
+
+    __isz = head.binarySize(__isz);
+    __isz += maxId + 1;
+    __isz += bones.size() * 3 + 12;
+
+    __isz += 12;
+    for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
+    {
+        if (std::get<0>(bone.second))
+            __isz += head.keyCount * 16;
+        if (std::get<1>(bone.second))
+            __isz += head.keyCount * 12;
+        if (std::get<2>(bone.second))
+            __isz += head.keyCount * 12;
+    }
+
+    return __isz;
+}
+
 static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUint32>& framesOut)
 {
     if (keyTimes.size() <= 1)
@@ -498,6 +524,11 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
 
 void ANIM::ANIM1::write(Athena::io::IStreamWriter& writer) const
 {
+}
+
+size_t ANIM::ANIM1::binarySize(size_t __isz) const
+{
+    return __isz;
 }
 
 }

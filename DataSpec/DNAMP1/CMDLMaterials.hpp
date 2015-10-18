@@ -320,26 +320,26 @@ struct MaterialSet : BigDNA
                     break;
                 }
             }
-            atUint32 binarySize() const
+            size_t binarySize(size_t __isz) const
             {
                 switch (mode)
                 {
                 case ANIM_MV_INV_NOTRANS:
                 case ANIM_MV_INV:
                 case ANIM_MODEL:
-                    return 4;
+                    return __isz + 4;
                 case ANIM_SCROLL:
                 case ANIM_HSTRIP:
                 case ANIM_VSTRIP:
-                    return 20;
+                    return __isz + 20;
                     break;
                 case ANIM_ROTATION:
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
-                    return 12;
+                    return __isz + 12;
                 case ANIM_MODE_8:
-                    return 40;
+                    return __isz + 40;
                 }
-                return 4;
+                return __isz + 4;
             }
 
             UVAnimation() = default;

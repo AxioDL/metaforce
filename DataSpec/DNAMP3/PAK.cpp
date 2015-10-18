@@ -97,6 +97,32 @@ void PAK::write(Athena::io::IStreamWriter& writer) const
     }
     writer.seek(rshdPad, Athena::Current);
 }
+size_t PAK::binarySize(size_t __isz) const
+{
+    __isz = m_header.binarySize(__isz);
+
+    size_t strgSz = 4;
+    for (const NameEntry& entry : m_nameEntries)
+        strgSz += entry.name.size() + 13;
+    size_t strgPad = ((strgSz + 63) & ~63) - strgSz;
+
+    size_t rshdSz = 4 + 24 * m_entries.size();
+    size_t rshdPad = ((rshdSz + 63) & ~63) - rshdSz;
+
+    __isz += 60;
+
+    __isz += 4;
+    for (const NameEntry& entry : m_nameEntries)
+        __isz = entry.binarySize(__isz);
+    __isz += strgPad;
+
+    __isz += 4;
+    for (const Entry& entry : m_entries)
+        __isz = entry.binarySize(__isz);
+    __isz += rshdPad;
+
+    return __isz;
+}
 
 std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const NOD::Node& pak, atUint64& szOut) const
 {
