@@ -71,6 +71,15 @@ public:
         snprintf(buf, 9, "%08X", m_id);
         return std::string(buf);
     }
+
+    UniqueID32() = default;
+    UniqueID32(const char* hexStr)
+    {
+        char copy[9];
+        strncpy(copy, hexStr, 8);
+        copy[8] = '\0';
+        m_id = strtoul(copy, nullptr, 16);
+    }
 };
 
 /* PAK 64-bit Unique ID */
@@ -99,6 +108,15 @@ public:
         char buf[17];
         snprintf(buf, 17, "%016" PRIX64, m_id);
         return std::string(buf);
+    }
+
+    UniqueID64() = default;
+    UniqueID64(const char* hexStr)
+    {
+        char copy[17];
+        strncpy(copy, hexStr, 16);
+        copy[16] = '\0';
+        m_id = strtouq(copy, nullptr, 16);
     }
 };
 

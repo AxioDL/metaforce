@@ -24,7 +24,7 @@ struct Header : BigDNA
     struct Flags : BigDNA
     {
         DECL_DNA
-        Value<atUint32> flags;
+        Value<atUint32> flags = 0;
         bool shortNormals() const {return (flags & 0x2) != 0;}
         void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
         bool shortUVs() const {return (flags & 0x4) != 0;}
@@ -42,12 +42,12 @@ struct SurfaceHeader_1_2 : BigDNA
 {
     DECL_DNA
     Value<atVec3f> centroid;
-    Value<atUint32> matIdx;
-    Value<atInt16> qDiv;
-    Value<atUint16> dlSize;
-    Value<atUint32> unk1;
-    Value<atUint32> unk2;
-    Value<atUint32> aabbSz;
+    Value<atUint32> matIdx = 0;
+    Value<atUint16> qDiv = 0x8000;
+    Value<atUint16> dlSize = 0;
+    Value<atUint32> unk1 = 0;
+    Value<atUint32> unk2 = 0;
+    Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
     Align<32> align;
@@ -60,12 +60,12 @@ struct SurfaceHeader_3 : BigDNA
 {
     DECL_DNA
     Value<atVec3f> centroid;
-    Value<atUint32> matIdx;
-    Value<atInt16> qDiv;
-    Value<atUint16> dlSize;
-    Value<atUint32> unk1;
-    Value<atUint32> unk2;
-    Value<atUint32> aabbSz;
+    Value<atUint32> matIdx = 0;
+    Value<atUint16> qDiv = 0x8000;
+    Value<atUint16> dlSize = 0;
+    Value<atUint32> unk1 = 0;
+    Value<atUint32> unk2 = 0;
+    Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
     Value<atUint16> unk3;
@@ -1024,20 +1024,38 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
     return true;
 }
 
+static void WriteDLVal(Athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)
+{
+    switch (type)
+    {
+    case GX::DIRECT:
+    case GX::INDEX8:
+        writer.writeUByte(atUint8(val));
+        break;
+    case GX::INDEX16:
+        writer.writeUint16Big(atUint16(val));
+        break;
+    default: break;
+    }
+}
+
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
 {
-    //Athena::io::FileWriter writer(outPath.getAbsolutePath());
+    Athena::io::FileWriter writer(outPath.getWithExtension(_S(".recook")).getAbsolutePath());
 
     Header head;
     head.magic = 0xDEADBABE;
     head.version = Version;
-    head.flags.flags = 0;
     head.aabbMin = mesh.aabbMin.val;
     head.aabbMax = mesh.aabbMax.val;
     head.matSetCount = mesh.materialSets.size();
     head.secCount = head.matSetCount + 5 + mesh.surfaces.size();
     head.secSizes.reserve(head.secCount);
+
+    /* Lengths of padding to insert while writing */
+    std::vector<size_t> paddingSizes;
+    paddingSizes.reserve(head.secCount);
 
     /* Build material sets */
     std::vector<MaterialSet> matSets;
@@ -1049,23 +1067,213 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
             std::vector<HECL::ProjectPath> texPaths;
+            std::vector<HECL::Backend::GX> setBackends;
+            setBackends.reserve(mset.size());
 
+            size_t endOff = 0;
+            atUint32 nextGroupIdx = 0;
             for (const Mesh::Material& mat : mset)
             {
                 std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
                 HECL::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
-                HECL::Backend::GX matGX;
+                setBackends.emplace_back();
+                HECL::Backend::GX& matGX = setBackends.back();
                 matGX.reset(matIR, FE.getDiagnostics());
+
+                atUint32 groupIdx = -1;
+                if (matSets.size() == 1)
+                {
+                    for (size_t i=0 ; i<setBackends.size()-1 ; ++i)
+                    {
+                        const HECL::Backend::GX& other = setBackends[i];
+                        if (matGX == other)
+                        {
+                            groupIdx = i;
+                            break;
+                        }
+                    }
+                    if (groupIdx == -1)
+                        groupIdx = nextGroupIdx++;
+                }
+
                 targetMSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  false, false, 0);
+                                                  false, false, groupIdx);
+
+                endOff = targetMSet.materials.back().binarySize(endOff);
+                targetMSet.addMaterialEndOff(endOff);
             }
+
+            for (const HECL::ProjectPath& path : texPaths)
+            {
+                const HECL::SystemString& relPath = path.getRelativePath();
+
+                /* TODO: incorporate hecl hashes */
+                size_t search = relPath.find("TXTR_");
+                if (search != HECL::SystemString::npos)
+                    targetMSet.addTexture(relPath.c_str() + search + 5);
+                else
+                    LogDNACommon.report(LogVisor::FatalError, "unable to get hash from path");
+            }
+
+            size_t secSz = targetMSet.binarySize(0);
+            size_t secSz32 = ROUND_UP_32(secSz);
+            head.secSizes.push_back(secSz32);
+            paddingSizes.push_back(secSz32 - secSz);
         }
     }
 
-    //head.write(writer);
+    /* Vertex Positions */
+    size_t secSz = mesh.pos.size() * 12;
+    size_t secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
 
+    /* Vertex Normals */
+    secSz = mesh.norm.size() * 12;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
 
+    /* Vertex Colors */
+    secSz = mesh.color.size() * 4;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* UV coords */
+    secSz = mesh.uv.size() * 8;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* Surface index */
+    std::vector<size_t> surfEndOffs;
+    surfEndOffs.reserve(mesh.surfaces.size());
+    secSz = mesh.surfaces.size() * 4 + 4;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* Surfaces */
+    size_t endOff = 0;
+    for (const Mesh::Surface& surf : mesh.surfaces)
+    {
+        size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
+        if (surf.verts.size() > 65536)
+            LogDNACommon.report(LogVisor::FatalError, "GX DisplayList overflow");
+        size_t secSz = 67 + surf.verts.size() * vertSz;
+        secSz32 = ROUND_UP_32(secSz);
+        if (secSz32 == 0)
+            secSz32 = 32;
+        head.secSizes.push_back(secSz32);
+        paddingSizes.push_back(secSz32 - secSz);
+        endOff += secSz32;
+        surfEndOffs.push_back(endOff);
+    }
+
+    /* Write sections */
+    head.write(writer);
+    std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
+
+    /* Material Sets */
+    for (const MaterialSet& mset : matSets)
+    {
+        mset.write(writer);
+        writer.fill(atUint8(0), *padIt);
+        ++padIt;
+    }
+
+    /* Vertex Positions */
+    for (const atVec3f& pos : mesh.pos)
+        writer.writeVec3fBig(pos);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Vertex Normals */
+    for (const atVec3f& norm : mesh.norm)
+        writer.writeVec3fBig(norm);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Vertex Colors */
+    for (const atVec3f& col : mesh.color)
+    {
+        GX::Color qCol(col);
+        qCol.write(writer);
+    }
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* UV coords */
+    for (const atVec2f& uv : mesh.uv)
+        writer.writeVec2fBig(uv);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Surface index */
+    writer.writeUint32Big(surfEndOffs.size());
+    for (size_t off : surfEndOffs)
+        writer.writeUint32Big(off);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Surfaces */
+    for (const Mesh::Surface& surf : mesh.surfaces)
+    {
+        const typename MaterialSet::Material::VAFlags& vaFlags =
+        matSets.at(0).materials.at(surf.materialIdx).getVAFlags();
+        size_t vertSz = vaFlags.vertDLSize();
+
+        SurfaceHeader header;
+        header.centroid = surf.centroid;
+        header.matIdx = surf.materialIdx;
+        header.dlSize = 3 + surf.verts.size() * vertSz;
+        header.reflectionNormal = surf.reflectionNormal;
+        header.write(writer);
+
+        writer.writeUByte(GX::TRIANGLESTRIP);
+        writer.writeUint16Big(surf.verts.size());
+
+        for (const Mesh::Surface::Vert& vert : surf.verts)
+        {
+            atUint32 skinIdx = vert.iBankSkin * 3;
+            WriteDLVal(writer, vaFlags.pnMatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex0MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex1MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex2MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex3MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex4MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex5MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.tex6MatIdx(), skinIdx);
+            WriteDLVal(writer, vaFlags.position(), vert.iPos);
+            WriteDLVal(writer, vaFlags.normal(), vert.iNorm);
+            WriteDLVal(writer, vaFlags.color0(), vert.iColor[0]);
+            WriteDLVal(writer, vaFlags.color1(), vert.iColor[1]);
+            WriteDLVal(writer, vaFlags.tex0(), vert.iUv[0]);
+            WriteDLVal(writer, vaFlags.tex1(), vert.iUv[1]);
+            WriteDLVal(writer, vaFlags.tex2(), vert.iUv[2]);
+            WriteDLVal(writer, vaFlags.tex3(), vert.iUv[3]);
+            WriteDLVal(writer, vaFlags.tex4(), vert.iUv[4]);
+            WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
+            WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
+        }
+
+        writer.fill(atUint8(0), *padIt);
+        ++padIt;
+    }
+
+    writer.close();
     return true;
 }
 

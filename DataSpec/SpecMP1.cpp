@@ -282,7 +282,7 @@ struct SpecMP1 : SpecBase
 
     void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
     {
-        Mesh mesh = ds.compileMesh();
+        Mesh mesh = ds.compileMesh(-1);
         DNAMP1::CMDL::Cook(out, in, mesh);
     }
 

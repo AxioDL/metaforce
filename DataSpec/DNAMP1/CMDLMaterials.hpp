@@ -20,11 +20,13 @@ struct MaterialSet : BigDNA
     struct MaterialSetHead : BigDNA
     {
         DECL_DNA
-        Value<atUint32> textureCount;
+        Value<atUint32> textureCount = 0;
         Vector<UniqueID32, DNA_COUNT(textureCount)> textureIDs;
-        Value<atUint32> materialCount;
+        Value<atUint32> materialCount = 0;
         Vector<atUint32, DNA_COUNT(materialCount)> materialEndOffs;
     } head;
+    void addTexture(const UniqueID32& id) {head.textureIDs.push_back(id); ++head.textureCount;}
+    void addMaterialEndOff(atUint32 off) {head.materialEndOffs.push_back(off); ++head.materialCount;}
 
     struct Material : BigDNA
     {
@@ -102,6 +104,32 @@ struct MaterialSet : BigDNA
             void setTex5MatIdx(GX::AttrType val) {vaFlags &= ~0x40000000; vaFlags |= atUint32(val & 0x1) << 30;}
             GX::AttrType tex6MatIdx() const {return GX::AttrType(vaFlags >> 31 & 0x1);}
             void setTex6MatIdx(GX::AttrType val) {vaFlags &= ~0x80000000; vaFlags |= atUint32(val & 0x1) << 31;}
+
+            size_t vertDLSize() const
+            {
+                static size_t ATTR_SZ[] = {0,1,1,2};
+                size_t ret = 0;
+                ret += ATTR_SZ[position()];
+                ret += ATTR_SZ[normal()];
+                ret += ATTR_SZ[color0()];
+                ret += ATTR_SZ[color1()];
+                ret += ATTR_SZ[tex0()];
+                ret += ATTR_SZ[tex1()];
+                ret += ATTR_SZ[tex2()];
+                ret += ATTR_SZ[tex3()];
+                ret += ATTR_SZ[tex4()];
+                ret += ATTR_SZ[tex5()];
+                ret += ATTR_SZ[tex6()];
+                ret += ATTR_SZ[pnMatIdx()];
+                ret += ATTR_SZ[tex0MatIdx()];
+                ret += ATTR_SZ[tex1MatIdx()];
+                ret += ATTR_SZ[tex2MatIdx()];
+                ret += ATTR_SZ[tex3MatIdx()];
+                ret += ATTR_SZ[tex4MatIdx()];
+                ret += ATTR_SZ[tex5MatIdx()];
+                ret += ATTR_SZ[tex6MatIdx()];
+                return ret;
+            }
         } vaFlags;
         const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> groupIdx;

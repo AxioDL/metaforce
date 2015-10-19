@@ -18,6 +18,10 @@ struct MaterialSet : BigDNA
     DECL_DNA
     Value<atUint32> materialCount;
 
+    /* Dummy methods from MP1/2 */
+    void addTexture(const UniqueID32&) {}
+    void addMaterialEndOff(atUint32) {++materialCount;}
+
     struct Material : BigDNA
     {
         Delete expl;
