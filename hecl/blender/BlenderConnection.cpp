@@ -654,7 +654,8 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
     if (banks.empty())
         addSkinBank(skinSlotCount);
     std::vector<uint32_t> toAdd;
-    toAdd.reserve(skinSlotCount);
+    if (skinSlotCount > 0)
+        toAdd.reserve(skinSlotCount);
     std::vector<std::vector<uint32_t>>::iterator bankIt = banks.begin();
     for (;;)
     {
@@ -668,7 +669,7 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
                 if (!VertInBank(bank, v.iSkin) && !VertInBank(toAdd, v.iSkin))
                 {
                     toAdd.push_back(v.iSkin);
-                    if (bank.size() + toAdd.size() > skinSlotCount)
+                    if (skinSlotCount > 0 && bank.size() + toAdd.size() > skinSlotCount)
                     {
                         toAdd.clear();
                         done = false;

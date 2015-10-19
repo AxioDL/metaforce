@@ -290,16 +290,19 @@ public:
             {
                 atVec2f val;
                 Vector2f(BlenderConnection& conn) {conn._readBuf(&val, 8);}
+                operator const atVec2f&() const {return val;}
             };
             struct Vector3f
             {
                 atVec3f val;
                 Vector3f(BlenderConnection& conn) {conn._readBuf(&val, 12);}
+                operator const atVec3f&() const {return val;}
             };
             struct Index
             {
                 uint32_t val;
                 Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
+                operator const uint32_t&() const {return val;}
             };
 
             /* Cumulative AABB */
@@ -370,7 +373,8 @@ public:
                 std::vector<std::vector<uint32_t>>::iterator addSkinBank(int skinSlotCount)
                 {
                     banks.emplace_back();
-                    banks.back().reserve(skinSlotCount);
+                    if (skinSlotCount > 0)
+                        banks.back().reserve(skinSlotCount);
                     return banks.end() - 1;
                 }
                 uint32_t addSurface(const Surface& surf, int skinSlotCount);

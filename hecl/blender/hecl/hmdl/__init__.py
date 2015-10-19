@@ -166,12 +166,52 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     if len(bm_master.verts.layers.deform):
         dlay = bm_master.verts.layers.deform[0]
 
-    # Generate island meshes
+    # Generate material meshes (if opaque)
     for mat_idx in sorted_material_idxs:
+        mat = mesh_obj.data.materials[mat_idx]
+        if mat.game_settings.alpha_blend != 'OPAQUE':
+            continue
         mat_faces_rem = []
         for face in bm_master.faces:
             if face.material_index == mat_idx:
                 mat_faces_rem.append(face)
+        if dlay:
+            mat_faces_rem = HMDLMesh.sort_faces_by_skin_group(dlay, mat_faces_rem)
+        while len(mat_faces_rem):
+            the_list = []
+            skin_slot_set = set()
+            faces = list(mat_faces_rem)
+            for f in faces:
+                ret_faces = None
+                for v in f.verts:
+                    sg = tuple(sorted(v[dlay].items()))
+                    if sg not in skin_slot_set:
+                        if max_skin_banks > 0 and len(skin_slot_set) == max_skin_banks:
+                            ret_faces = False
+                            break
+                        skin_slot_set.add(sg)
+
+                if ret_faces == False:
+                    break
+
+                the_list.append(f)
+                mat_faces_rem.remove(f)
+
+            writebuf(struct.pack('B', 1))
+            HMDLMesh.write_out_surface(writebuf, vert_pool, the_list, mat_idx)
+
+
+    # Generate island meshes (if transparent)
+    for mat_idx in sorted_material_idxs:
+        mat = mesh_obj.data.materials[mat_idx]
+        if mat.game_settings.alpha_blend == 'OPAQUE':
+            continue
+        mat_faces_rem = []
+        for face in bm_master.faces:
+            if face.material_index == mat_idx:
+                mat_faces_rem.append(face)
+        if dlay:
+            mat_faces_rem = HMDLMesh.sort_faces_by_skin_group(dlay, mat_faces_rem)
         while len(mat_faces_rem):
             the_list = []
             skin_slot_set = set()

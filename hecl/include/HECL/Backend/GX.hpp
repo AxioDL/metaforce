@@ -414,7 +414,15 @@ struct GX : IBackend
             color[0] = uint8_t(std::min(std::max(vec.vec[0] * 255.f, 0.f), 255.f));
             color[1] = uint8_t(std::min(std::max(vec.vec[1] * 255.f, 0.f), 255.f));
             color[2] = uint8_t(std::min(std::max(vec.vec[2] * 255.f, 0.f), 255.f));
-            color[3] = 0;
+            color[3] = uint8_t(std::min(std::max(vec.vec[3] * 255.f, 0.f), 255.f));
+            return *this;
+        }
+        Color& operator=(const atVec3f& vec)
+        {
+            color[0] = uint8_t(std::min(std::max(vec.vec[0] * 255.f, 0.f), 255.f));
+            color[1] = uint8_t(std::min(std::max(vec.vec[1] * 255.f, 0.f), 255.f));
+            color[2] = uint8_t(std::min(std::max(vec.vec[2] * 255.f, 0.f), 255.f));
+            color[3] = 0xff;
             return *this;
         }
         Color& operator=(uint8_t val)
@@ -426,6 +434,7 @@ struct GX : IBackend
             return *this;
         }
         Color(const atVec4f& vec) {*this = vec;}
+        Color(const atVec3f& vec) {*this = vec;}
         Color(uint8_t val) {*this = val;}
         bool operator==(const Color& other) const {return num == other.num;}
         bool operator!=(const Color& other) const {return num != other.num;}
@@ -443,6 +452,68 @@ struct GX : IBackend
     Color m_kcolors[4];
 
     int m_alphaTraceStage = -1;
+
+    bool operator==(const GX& other) const
+    {
+        if (m_tcgCount != other.m_tcgCount)
+            return false;
+        if (m_tevCount != other.m_tevCount)
+            return false;
+        if (m_blendSrc != other.m_blendSrc)
+            return false;
+        if (m_blendDst != other.m_blendDst)
+            return false;
+        if (m_kcolorCount != other.m_kcolorCount)
+            return false;
+        for (unsigned i=0 ; i<m_tcgCount ; ++i)
+        {
+            const TexCoordGen& a = m_tcgs[i];
+            const TexCoordGen& b = other.m_tcgs[i];
+            if (a.m_src != b.m_src)
+                return false;
+            if (a.m_mtx != b.m_mtx)
+                return false;
+        }
+        for (unsigned i=0 ; i<m_tevCount ; ++i)
+        {
+            const TEVStage& a = m_tevs[i];
+            const TEVStage& b = other.m_tevs[i];
+            for (unsigned j=0 ; j<4 ; ++j)
+                if (a.m_color[j] != b.m_color[j])
+                    return false;
+            for (unsigned j=0 ; j<4 ; ++j)
+                if (a.m_alpha[j] != b.m_alpha[j])
+                    return false;
+            if (a.m_cop != b.m_cop)
+                return false;
+            if (a.m_aop != b.m_aop)
+                return false;
+            if (a.m_kColor != b.m_kColor)
+                return false;
+            if (a.m_kAlpha != b.m_kAlpha)
+                return false;
+            if (a.m_cRegOut != b.m_cRegOut)
+                return false;
+            if (a.m_aRegOut != b.m_aRegOut)
+                return false;
+            if (a.m_texMapIdx != b.m_texMapIdx)
+                return false;
+            if (a.m_texGenIdx != b.m_texGenIdx)
+                return false;
+        }
+        for (unsigned i=0 ; i<m_kcolorCount ; ++i)
+        {
+            const Color& a = m_kcolors[i];
+            const Color& b = other.m_kcolors[i];
+            if (a.num != b.num)
+                return false;
+        }
+        return true;
+    }
+    bool operator!=(const GX& other) const
+    {
+        return !(*this == other);
+    }
 
     void reset(const IR& ir, Diagnostics& diag);
 

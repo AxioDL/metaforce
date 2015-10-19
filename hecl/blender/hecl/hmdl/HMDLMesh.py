@@ -133,6 +133,34 @@ class VertPool:
         sp = struct.pack('I', self.get_skin_idx(loop.vert))
         writebuf(sp)
 
+def sort_faces_by_skin_group(dlay, faces):
+    faces_out = []
+    done_sg = set()
+    ref_sg = None
+    while len(faces_out) < len(faces):
+        for f in faces:
+            found = False
+            for v in f.verts:
+                sg = tuple(sorted(v[dlay].items()))
+                if sg not in done_sg:
+                    ref_sg = sg
+                    done_sg.add(ref_sg)
+                    found = True
+                    break
+            if found:
+                break
+
+        for f in faces:
+            if f in faces_out:
+                continue
+            for v in f.verts:
+                sg = tuple(sorted(v[dlay].items()))
+                if sg == ref_sg:
+                    faces_out.append(f)
+                    break
+
+    return faces_out
+
 def recursive_faces_islands(dlay, list_out, rem_list, skin_slot_set, skin_slot_count, face):
     if face not in rem_list:
         return []
@@ -140,9 +168,10 @@ def recursive_faces_islands(dlay, list_out, rem_list, skin_slot_set, skin_slot_c
     if dlay:
         for v in face.verts:
             sg = tuple(sorted(v[dlay].items()))
-            if sg not in skin_slot_set and len(skin_slot_set) == skin_slot_count:
-                return False
-            skin_slot_set.add(sg)
+            if sg not in skin_slot_set:
+                if skin_slot_count > 0 and len(skin_slot_set) == skin_slot_count:
+                    return False
+                skin_slot_set.add(sg)
 
     list_out.append(face)
     rem_list.remove(face)
@@ -321,5 +350,6 @@ def write_out_surface(writebuf, vert_pool, island_faces, mat_idx):
         for f in max_sl:
             island_faces.remove(f)
         last_loop, next_idx = stripify_primitive(writebuf, vert_pool, max_sl, last_loop, next_idx)
+
     writebuf(struct.pack('B', 0))
 

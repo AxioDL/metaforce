@@ -14,6 +14,7 @@ unsigned GX::addKColor(Diagnostics& diag, const SourceLocation& loc, const Color
     if (m_kcolorCount >= 4)
         diag.reportBackendErr(loc, "GX KColor overflow");
     m_kcolors[m_kcolorCount] = color;
+    m_kcolors[m_kcolorCount].color[3] = 0;
     return m_kcolorCount++;
 }
 
