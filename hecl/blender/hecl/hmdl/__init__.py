@@ -109,6 +109,7 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()
+    bpy.ops.mesh.select_all(action='DESELECT')
     bpy.context.scene.update()
     bpy.ops.object.mode_set(mode='OBJECT')
     rna_loops = None
@@ -124,8 +125,28 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
 
     # Create master BMesh and VertPool
     bm_master = bmesh.new()
-    bm_master.from_mesh(copy_obj.data)
+    bm_master.from_mesh(copy_mesh)
     vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
+
+    # Split edges where there are distinctive loops
+    splittable_edges = []
+    for e in bm_master.edges:
+        if vert_pool.splitable_edge(e):
+            #splittable_edges.append(e)
+            e.seam = True
+    #bmesh.ops.split(bm_master, geom=splittable_edges)
+    bm_master.to_mesh(copy_mesh)
+
+    bpy.context.scene.objects.active = copy_obj
+    return
+
+    if copy_mesh.has_custom_normals:
+        copy_mesh.calc_normals_split()
+        rna_loops = copy_mesh.loops
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm_master = bmesh.from_edit_mesh(copy_mesh)
+    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
+
 
     # Sort materials by pass index first
     sorted_material_idxs = []
@@ -143,20 +164,23 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     if mesh_obj.data.hecl_material_count > 0:
         writebuf(struct.pack('I', mesh_obj.data.hecl_material_count))
         for grp_idx in range(mesh_obj.data.hecl_material_count):
-            writebuf(struct.pack('I', len(sorted_material_idxs)))
-            for mat_idx in sorted_material_idxs:
+            writebuf(struct.pack('I', len(mesh_obj.data.materials)))
+            for ref_mat in mesh_obj.data.materials:
+                ref_mat_split = ref_mat.name.split('_')
+                if len(ref_mat_split) != 3:
+                    raise RuntimeError('material names must follow MAT_%u_%u format')
+                ref_mat_idx = int(ref_mat_split[2])
                 found = False
                 for mat in bpy.data.materials:
-                    if mat.name.endswith('_%u_%u' % (grp_idx, mat_idx)):
+                    if mat.name.endswith('_%u_%u' % (grp_idx, ref_mat_idx)):
                         write_out_material(writebuf, mat, mesh_obj)
                         found = True
                         break
                 if not found:
                     raise RuntimeError('uneven material set %d in %s' % (grp_idx, mesh_obj.name))
     else:
-        writebuf(struct.pack('II', 1, len(sorted_material_idxs)))
-        for mat_idx in sorted_material_idxs:
-            mat = mesh_obj.data.materials[mat_idx]
+        writebuf(struct.pack('II', 1, len(mesh_obj.data.materials)))
+        for mat in mesh_obj.data.materials:
             write_out_material(writebuf, mat, mesh_obj)
 
     # Output vert pool
@@ -238,10 +262,12 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     writebuf(struct.pack('B', 0))
 
     # Delete copied mesh from scene
-    bm_master.free()
-    bpy.context.scene.objects.unlink(copy_obj)
-    bpy.data.objects.remove(copy_obj)
-    bpy.data.meshes.remove(copy_mesh)
+    #bm_master.free()
+    #bpy.context.scene.objects.unlink(copy_obj)
+    #bpy.data.objects.remove(copy_obj)
+    #bpy.data.meshes.remove(copy_mesh)
+
+    bpy.context.scene.objects.active = copy_obj
 
 
 def draw(layout, context):
@@ -268,6 +294,25 @@ def material_update(self, context):
             if mat.name.endswith('_%u_%u' % (target_idx, mat_idx)):
                 self.materials[mat_idx] = mat
 
+
+def fake_writebuf(by):
+    pass
+
+# DEBUG operator
+import bpy
+class hecl_mesh_operator(bpy.types.Operator):
+    bl_idname = "scene.hecl_mesh"
+    bl_label = "DEBUG HECL mesh maker"
+    bl_description = "Test mesh generation utility"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object and context.object.type == 'MESH'
+
+    def execute(self, context):
+        cook(fake_writebuf, context.object, -1)
+        return {'FINISHED'}
+
 import bpy
 def register():
     bpy.types.Scene.hecl_mesh_obj = bpy.props.StringProperty(
@@ -279,7 +324,9 @@ def register():
     bpy.types.Mesh.hecl_material_count = bpy.props.IntProperty(name='HECL Material Count', default=0, min=0)
     bpy.types.Mesh.hecl_active_material = bpy.props.IntProperty(name='HECL Active Material', default=0, min=0, update=material_update)
     bpy.utils.register_class(HMDLShader.hecl_shader_operator)
+    bpy.utils.register_class(hecl_mesh_operator)
     pass
 def unregister():
     bpy.utils.unregister_class(HMDLShader.hecl_shader_operator)
+    bpy.utils.unregister_class(hecl_mesh_operator)
     pass

@@ -11,6 +11,7 @@ class VertPool:
 
     # Initialize hash-unique index for each available attribute
     def __init__(self, bm, rna_loops):
+        self.bm = bm
         self.rna_loops = rna_loops
         self.pos = {}
         self.norm = {}
@@ -123,6 +124,36 @@ class VertPool:
         uf = loop[self.ulays[uidx]].uv.copy().freeze()
         return self.uv[uf]
 
+    def loops_contiguous(self, la, lb):
+        if la.vert != lb.vert:
+            return False
+        if self.get_norm_idx(la) != self.get_norm_idx(lb):
+            return False
+        for cl in range(len(self.clays)):
+            if self.get_color_idx(la, cl) != self.get_color_idx(lb, cl):
+                return False
+        for ul in range(len(self.ulays)):
+            if self.get_uv_idx(la, ul) != self.get_uv_idx(lb, ul):
+                return False
+        return True
+
+    def splitable_edge(self, edge):
+        if len(edge.link_faces) < 2:
+            return False
+        for v in edge.verts:
+            found = None
+            for f in edge.link_faces:
+                for l in f.loops:
+                    if l.vert == v:
+                        if not found:
+                            found = l
+                            break
+                        else:
+                            if not self.loops_contiguous(found, l):
+                                return True
+                            break
+        return False
+
     def loop_out(self, writebuf, loop):
         writebuf(struct.pack('B', 1))
         writebuf(struct.pack('II', self.get_pos_idx(loop.vert), self.get_norm_idx(loop)))
@@ -204,6 +235,7 @@ def recursive_faces_strip(list_out, rem_list, face, boot_edge, boot_edge_2, last
     edge = find_opposite_edge(face, boot_edge, boot_edge_2, last_edge, last_edge_2)
     if not edge:
         return None, None, None
+    edge.select = True
     for f in edge.link_faces:
         if f == face:
             continue
@@ -269,6 +301,11 @@ def stripify_primitive(writebuf, vert_pool, prim_faces, last_loop, next_idx):
             loop = loop.link_loop_next
 
     for i in range(1, len(prim_faces)):
+        if prim_faces[i].index == 688:
+            print(prim_faces[i], prim_faces[i-1], prim_faces[i-2])
+            #prim_faces[i].select = True
+            #prim_faces[i-1].select = True
+            #prim_faces[i-2].select = True
         loop = find_loop_opposite_from_other_face(prim_faces[i], prim_faces[i-1])
         vert_pool.loop_out(writebuf, loop)
         last_loop = loop
