@@ -128,25 +128,10 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     bm_master.from_mesh(copy_mesh)
     vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
 
-    # Split edges where there are distinctive loops
+    # Tag edges where there are distinctive loops
     splittable_edges = []
     for e in bm_master.edges:
-        if vert_pool.splitable_edge(e):
-            #splittable_edges.append(e)
-            e.seam = True
-    #bmesh.ops.split(bm_master, geom=splittable_edges)
-    bm_master.to_mesh(copy_mesh)
-
-    bpy.context.scene.objects.active = copy_obj
-    return
-
-    if copy_mesh.has_custom_normals:
-        copy_mesh.calc_normals_split()
-        rna_loops = copy_mesh.loops
-    bpy.ops.object.mode_set(mode='EDIT')
-    bm_master = bmesh.from_edit_mesh(copy_mesh)
-    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
-
+        e.tag = vert_pool.splitable_edge(e)
 
     # Sort materials by pass index first
     sorted_material_idxs = []
@@ -262,12 +247,10 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
     writebuf(struct.pack('B', 0))
 
     # Delete copied mesh from scene
-    #bm_master.free()
-    #bpy.context.scene.objects.unlink(copy_obj)
-    #bpy.data.objects.remove(copy_obj)
-    #bpy.data.meshes.remove(copy_mesh)
-
-    bpy.context.scene.objects.active = copy_obj
+    bm_master.free()
+    bpy.context.scene.objects.unlink(copy_obj)
+    bpy.data.objects.remove(copy_obj)
+    bpy.data.meshes.remove(copy_mesh)
 
 
 def draw(layout, context):

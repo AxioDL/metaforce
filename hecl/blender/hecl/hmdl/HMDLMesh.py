@@ -216,103 +216,15 @@ def recursive_faces_islands(dlay, list_out, rem_list, skin_slot_set, skin_slot_c
             next_faces.append(f)
     return next_faces
 
-def find_opposite_edge(face, boot_edge, boot_edge2, last_edge, last_edge_2):
-    if last_edge_2:
-        for e in face.edges:
-            if e.verts[0] in last_edge_2.verts or e.verts[1] in last_edge_2.verts:
-                continue
-            return e
-    elif last_edge:
-        return boot_edge2
+def strip_next_loop(prev_loop, out_count):
+    if out_count & 1:
+        radial_loop = prev_loop.link_loop_radial_next
+        loop = radial_loop.link_loop_prev
+        return loop, loop
     else:
-        return boot_edge
-
-def recursive_faces_strip(list_out, rem_list, face, boot_edge, boot_edge_2, last_edge, last_edge_2):
-    if face not in rem_list:
-        return None, None, None
-    list_out.append(face)
-    rem_list.remove(face)
-    edge = find_opposite_edge(face, boot_edge, boot_edge_2, last_edge, last_edge_2)
-    if not edge:
-        return None, None, None
-    edge.select = True
-    for f in edge.link_faces:
-        if f == face:
-            continue
-        return f, edge, last_edge
-    return None, None, None
-
-def count_contiguous_edges(face):
-    retval = 0
-    for e in face.edges:
-        if e.is_contiguous:
-            retval += 1
-    return retval
-
-def find_loop_opposite_from_other_face(face, other_face):
-    for e in face.edges:
-        if e in other_face.edges:
-            edge = e
-            break
-    for l in face.loops:
-        if l.vert in edge.verts:
-            continue
-        return l
-
-def stripify_primitive(writebuf, vert_pool, prim_faces, last_loop, next_idx):
-    if last_loop:
-        vert_pool.loop_out(writebuf, last_loop)
-        next_idx += 1
-
-    if len(prim_faces) == 1:
-        loop = prim_faces[0].loops[0]
-        if last_loop:
-            vert_pool.loop_out(writebuf, loop)
-            next_idx += 1
-        if next_idx & 1:
-            rev = True
-        else:
-            rev = False
-        for i in range(3):
-            vert_pool.loop_out(writebuf, loop)
-            last_loop = loop
-            next_idx += 1
-            if rev:
-                loop = loop.link_loop_prev
-            else:
-                loop = loop.link_loop_next
-        return last_loop, next_idx
-
-    loop = find_loop_opposite_from_other_face(prim_faces[0], prim_faces[1])
-    if last_loop:
-        vert_pool.loop_out(writebuf, loop)
-        next_idx += 1
-    if next_idx & 1:
-        rev = True
-    else:
-        rev = False
-    for i in range(3):
-        vert_pool.loop_out(writebuf, loop)
-        last_loop = loop
-        next_idx += 1
-        if rev:
-            loop = loop.link_loop_prev
-        else:
-            loop = loop.link_loop_next
-
-    for i in range(1, len(prim_faces)):
-        if prim_faces[i].index == 688:
-            print(prim_faces[i], prim_faces[i-1], prim_faces[i-2])
-            #prim_faces[i].select = True
-            #prim_faces[i-1].select = True
-            #prim_faces[i-2].select = True
-        loop = find_loop_opposite_from_other_face(prim_faces[i], prim_faces[i-1])
-        vert_pool.loop_out(writebuf, loop)
-        last_loop = loop
-        next_idx += 1
-
-    return last_loop, next_idx
-
+        radial_loop = prev_loop.link_loop_radial_prev
+        loop = radial_loop.link_loop_next
+        return loop.link_loop_next, loop
 
 def write_out_surface(writebuf, vert_pool, island_faces, mat_idx):
 
@@ -350,43 +262,53 @@ def write_out_surface(writebuf, vert_pool, island_faces, mat_idx):
     writebuf(struct.pack('I', len(island_faces) * 3))
 
     # Verts themselves
-    last_loop = None
-    next_idx = 0
+    prev_loop_emit = None
+    out_count = 0
     while len(island_faces):
         sel_lists_local = []
+        restore_out_count = out_count
         for start_face in island_faces:
-            for e in start_face.edges:
-                next_edges = []
-                for f in e.link_faces:
-                    if f == start_face:
-                        continue
-                    for eg in f.edges:
-                        if eg == e:
-                            continue
-                        next_edges.append(eg)
-                    break
-                if len(next_edges) == 0:
-                    next_edges.append(None)
-                for e2 in next_edges:
-                    island_local = list(island_faces)
-                    sel_list = []
-                    next_face = start_face
-                    last_edge = None
-                    last_edge_2 = None
-                    while next_face is not None:
-                        next_face, last_edge, last_edge_2 = recursive_faces_strip(sel_list, island_local, next_face,
-                                                                                  e, e2, last_edge, last_edge_2)
-                    if len(sel_list):
-                        sel_lists_local.append(sel_list)
+            for l in start_face.loops:
+                out_count = restore_out_count
+                island_local = list(island_faces)
+                if out_count & 1:
+                    prev_loop = l.link_loop_prev
+                    loop = prev_loop.link_loop_prev
+                    sel_list = [l, prev_loop, loop]
+                    prev_loop = loop
+                else:
+                    prev_loop = l.link_loop_next
+                    loop = prev_loop.link_loop_next
+                    sel_list = [l, prev_loop, loop]
+                out_count += 3
+                island_local.remove(start_face)
+                while True:
+                    if not prev_loop.edge.is_contiguous or prev_loop.edge.tag:
+                        break
+                    loop, prev_loop = strip_next_loop(prev_loop, out_count)
+                    face = loop.face
+                    if face not in island_local:
+                        break
+                    sel_list.append(loop)
+                    island_local.remove(face)
+                    out_count += 1
+                sel_lists_local.append((sel_list, island_local, out_count))
         max_count = 0
         max_sl = None
+        max_island_faces = None
         for sl in sel_lists_local:
-            if len(sl) > max_count:
-                max_count = len(sl)
-                max_sl = sl
-        for f in max_sl:
-            island_faces.remove(f)
-        last_loop, next_idx = stripify_primitive(writebuf, vert_pool, max_sl, last_loop, next_idx)
+            if len(sl[0]) > max_count:
+                max_count = len(sl[0])
+                max_sl = sl[0]
+                max_island_faces = sl[1]
+                out_count = sl[2]
+        island_faces = max_island_faces
+        if prev_loop_emit:
+            vert_pool.loop_out(writebuf, prev_loop_emit)
+            vert_pool.loop_out(writebuf, max_sl[0])
+        for loop in max_sl:
+            vert_pool.loop_out(writebuf, loop)
+            prev_loop_emit = loop
 
     writebuf(struct.pack('B', 0))
 
