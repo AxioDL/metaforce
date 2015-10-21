@@ -166,7 +166,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.remove(link)\n"
                    "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
-                   idx, vals[0], vals[1], vals[3], vals[2]);
+                   idx, vals[0], vals[1], vals[2], vals[3]);
         break;
     case UVAnimation::ANIM_MODEL:
         out.format("for link in list(tex_links):\n"
@@ -571,6 +571,17 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (stage.colorInD() == GX::CC_ZERO || (c_tev_opts & 7) == 7)
         c_tev_opts |= 8;
 
+    /* Special A/D (additive) optimization */
+    if (stage.colorInA() != GX::CC_ZERO &&
+        stage.colorInB() == GX::CC_ZERO &&
+        stage.colorInC() == GX::CC_ZERO &&
+        stage.colorInD() != GX::CC_ZERO)
+    {
+        c_tev_opts |= 0x1f;
+        AddColorCombiner(out, COMB_ADD, cd, ca, nullptr);
+        ++c_combiner_idx;
+    }
+
     if (!(c_tev_opts & 1))
     {
         /* A nodes */
@@ -633,6 +644,17 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         a_tev_opts |= 4;
     if (stage.alphaInD() == GX::CA_ZERO || (a_tev_opts & 7) == 7)
         a_tev_opts |= 8;
+
+    /* Special A/D (additive) optimization */
+    if (stage.alphaInA() != GX::CA_ZERO &&
+        stage.alphaInB() == GX::CA_ZERO &&
+        stage.alphaInC() == GX::CA_ZERO &&
+        stage.alphaInD() != GX::CA_ZERO)
+    {
+        a_tev_opts |= 0x1f;
+        AddAlphaCombiner(out, COMB_ADD, ad, aa, nullptr);
+        ++a_combiner_idx;
+    }
 
     if (!(a_tev_opts & 1))
     {
@@ -762,7 +784,7 @@ void _ConstructMaterial(Stream& out,
 
     /* Texture Indices */
     out << "tex_maps = []\n";
-    for (atUint32 idx : material.texureIdxs)
+    for (atUint32 idx : material.textureIdxs)
         out.format("tex_maps.append(texmap_list[%u])\n", idx);
 
     /* KColor entries */
@@ -911,10 +933,19 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     flags.setLightmapUVArray(lightmapUVs);
 
     atUint16 texFlags = 0;
+    tevStageTexInfo.reserve(gx.m_tevCount);
+    textureIdxs.reserve(gx.m_tevCount);
     for (int i=0 ; i<gx.m_tevCount ; ++i)
-        if (gx.m_tevs[i].m_texMapIdx != -1)
+    {
+        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        tevStageTexInfo.emplace_back();
+        TEVStageTexInfo& texInfo = tevStageTexInfo.back();
+        if (stage.m_texGenIdx != -1)
+            texInfo.tcgSlot = stage.m_texGenIdx;
+        if (stage.m_texMapIdx != -1)
         {
-            const HECL::ProjectPath& texPath = texPathsIn.at(gx.m_tevs[i].m_texMapIdx);
+            texInfo.texSlot = textureIdxs.size();
+            const HECL::ProjectPath& texPath = texPathsIn.at(stage.m_texMapIdx);
             texFlags |= 1 << i;
             ++textureCount;
             bool found = false;
@@ -923,16 +954,17 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
                 if (texPath == texPathsOut[t])
                 {
                     found = true;
-                    texureIdxs.push_back(t);
+                    textureIdxs.push_back(t);
                     break;
                 }
             }
             if (!found)
             {
-                texureIdxs.push_back(texPathsOut.size());
+                textureIdxs.push_back(texPathsOut.size());
                 texPathsOut.push_back(texPath);
             }
         }
+    }
     flags.setTextureSlots(texFlags);
 
     vaFlags.setPosition(GX::INDEX16);
@@ -985,7 +1017,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     blendDstFac = BlendFactor(gx.m_blendDst);
     blendSrcFac = BlendFactor(gx.m_blendSrc);
     if (flags.samusReflectionIndirectTexture())
-        indTexSlot.push_back(texureIdxs.size());
+        indTexSlot.push_back(textureIdxs.size());
 
     colorChannelCount = 1;
     colorChannels.emplace_back();
@@ -1008,6 +1040,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     ch.setAttenuationFn(GX::AF_SPOT);
 
     tevStageCount = gx.m_tevCount;
+    tevStages.reserve(gx.m_tevCount);
     for (int i=0 ; i<gx.m_tevCount ; ++i)
     {
         const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
@@ -1034,15 +1067,6 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
         target.setAlphaOpOutReg(stage.m_aRegOut);
         target.setKColorIn(stage.m_kColor);
         target.setKAlphaIn(stage.m_kAlpha);
-
-        tevStageTexInfo.emplace_back();
-        TEVStageTexInfo& texInfo = tevStageTexInfo.back();
-        texInfo.texSlot = -1;
-        if (stage.m_texMapIdx != -1)
-            texInfo.texSlot = stage.m_texMapIdx;
-        texInfo.tcgSlot = -1;
-        if (stage.m_texGenIdx != -1)
-            texInfo.tcgSlot = stage.m_texGenIdx;
     }
 
     tcgCount = gx.m_tcgCount;
@@ -1060,6 +1084,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
         {
             if (!tcg.m_gameFunction.compare("RetroUVMode0Node") ||
                 !tcg.m_gameFunction.compare("RetroUVMode1Node") ||
+                !tcg.m_gameFunction.compare("RetroUVMode6Node") ||
                 !tcg.m_gameFunction.compare("RetroUVMode7Node"))
             {
                 target.setNormalize(true);

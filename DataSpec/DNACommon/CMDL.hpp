@@ -1042,8 +1042,6 @@ static void WriteDLVal(Athena::io::FileWriter& writer, GX::AttrType type, atUint
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
 {
-    Athena::io::FileWriter writer(outPath.getWithExtension(_S(".recook")).getAbsolutePath());
-
     Header head;
     head.magic = 0xDEADBABE;
     head.version = Version;
@@ -1183,6 +1181,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     }
 
     /* Write sections */
+    Athena::io::FileWriter writer(outPath.getAbsolutePath());
     head.write(writer);
     std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
 

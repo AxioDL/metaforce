@@ -27,7 +27,7 @@ struct MaterialSet : BigDNA
         const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount;
-        Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
+        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
         using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
         DNAMP1::MaterialSet::Material::VAFlags vaFlags;
         const VAFlags& getVAFlags() const {return vaFlags;}

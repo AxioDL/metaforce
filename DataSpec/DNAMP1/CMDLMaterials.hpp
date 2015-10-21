@@ -61,7 +61,7 @@ struct MaterialSet : BigDNA
         const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount = 0;
-        Vector<atUint32, DNA_COUNT(textureCount)> texureIdxs;
+        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
         struct VAFlags : BigDNA
         {
             DECL_DNA
@@ -236,8 +236,8 @@ struct MaterialSet : BigDNA
         {
             DECL_DNA
             Value<atUint16> pad = 0;
-            Value<atUint8> texSlot = 0;
-            Value<atUint8> tcgSlot = 0;
+            Value<atUint8> texSlot = 0xff;
+            Value<atUint8> tcgSlot = 0xff;
         };
         Vector<TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
 

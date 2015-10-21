@@ -8,6 +8,8 @@
 #include "CINF.hpp"
 #include "CSKR.hpp"
 
+#include <Athena/FileReader.hpp>
+
 namespace Retro
 {
 namespace DNAMP1
@@ -42,6 +44,25 @@ struct CMDL
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);
+        conn.saveBlend();
+
+#if 1
+        return true;
+#endif
+
+        /* Cook and re-extract test */
+        HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"), true);
+        HECL::BlenderConnection::DataStream ds = conn.beginData();
+        HECL::BlenderConnection::DataStream::Mesh mesh = ds.compileMesh(-1);
+        ds.close();
+        DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
+
+        Athena::io::FileReader reader(tempOut.getAbsolutePath());
+        HECL::ProjectPath tempBlend = outPath.getWithExtension(_S(".recook.blend"), true);
+        if (!conn.createBlend(tempBlend, HECL::BlenderConnection::TypeMesh))
+            return false;
+        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
+                (conn, reader, pakRouter, entry, dataSpec, loadRp);
         return conn.saveBlend();
     }
 
@@ -49,7 +70,8 @@ struct CMDL
                      const HECL::ProjectPath& inPath,
                      const DNACMDL::Mesh& mesh)
     {
-        return DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(outPath, inPath, mesh);
+        HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
+        return DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh);
     }
 };
 
