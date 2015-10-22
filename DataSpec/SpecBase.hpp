@@ -17,7 +17,7 @@ struct SpecBase : HECL::Database::IDataSpec
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 
     bool canCook(const HECL::ProjectPath& path);
-    void doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath);
+    void doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath, bool fast, FCookProgress progress);
 
     bool canPackage(const PackagePassInfo& info);
     void gatherDependencies(const PackagePassInfo& info,
@@ -47,10 +47,10 @@ struct SpecBase : HECL::Database::IDataSpec
     using BlendStream = HECL::BlenderConnection::DataStream;
     using Mesh = BlendStream::Mesh;
 
-    virtual void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
-    virtual void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
-    virtual void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const=0;
-    virtual void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in, FILE* fin) const=0;
+    virtual void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in, FILE* fin, FCookProgress progress) const=0;
 
     const HECL::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

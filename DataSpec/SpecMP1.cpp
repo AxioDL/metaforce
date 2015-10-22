@@ -280,21 +280,29 @@ struct SpecMP1 : SpecBase
         return false;
     }
 
-    void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
+    void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
+                  BlendStream& ds, bool fast, FCookProgress progress) const
     {
-        Mesh mesh = ds.compileMesh(-1);
+        Mesh mesh = ds.compileMesh(fast ? Mesh::OutputTriangles : Mesh::OutputTriStrips, -1,
+        [&progress](int surfCount)
+        {
+            progress(HECL::SysFormat(_S("%d"), surfCount).c_str());
+        });
         DNAMP1::CMDL::Cook(out, in, mesh);
     }
 
-    void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
+    void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
+                   BlendStream& ds, bool fast, FCookProgress progress) const
     {
     }
 
-    void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in, BlendStream& ds) const
+    void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
+                  BlendStream& ds, bool fast, FCookProgress progress) const
     {
     }
 
-    void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in, FILE* fin) const
+    void cookYAML(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
+                  FILE* fin, FCookProgress progress) const
     {
     }
 };

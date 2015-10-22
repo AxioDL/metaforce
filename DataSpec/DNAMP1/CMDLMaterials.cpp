@@ -581,6 +581,20 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         AddColorCombiner(out, COMB_ADD, cd, ca, nullptr);
         ++c_combiner_idx;
     }
+    else if (stage.colorInA() != GX::CC_ZERO &&
+             stage.colorInB() == GX::CC_ZERO &&
+             stage.colorInC() == GX::CC_ZERO &&
+             stage.colorInD() == GX::CC_ZERO)
+    {
+        c_tev_opts |= 0xf;
+    }
+    else if (stage.colorInA() == GX::CC_ZERO &&
+             stage.colorInB() == GX::CC_ZERO &&
+             stage.colorInC() == GX::CC_ZERO &&
+             stage.colorInD() != GX::CC_ZERO)
+    {
+        c_tev_opts |= 0xf;
+    }
 
     if (!(c_tev_opts & 1))
     {
@@ -655,6 +669,20 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         AddAlphaCombiner(out, COMB_ADD, ad, aa, nullptr);
         ++a_combiner_idx;
     }
+    else if (stage.alphaInA() != GX::CA_ZERO &&
+             stage.alphaInB() == GX::CA_ZERO &&
+             stage.alphaInC() == GX::CA_ZERO &&
+             stage.alphaInD() == GX::CA_ZERO)
+    {
+        a_tev_opts |= 0xf;
+    }
+    else if (stage.alphaInA() == GX::CA_ZERO &&
+             stage.alphaInB() == GX::CA_ZERO &&
+             stage.alphaInC() == GX::CA_ZERO &&
+             stage.alphaInD() != GX::CA_ZERO)
+    {
+        a_tev_opts |= 0xf;
+    }
 
     if (!(a_tev_opts & 1))
     {
@@ -713,6 +741,8 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     {
         if (stage.colorInD() != GX::CC_ZERO)
             strncpy(c_regs[stage.colorOpOutReg()], cd, 64);
+        else if (stage.colorInA() != GX::CC_ZERO)
+            strncpy(c_regs[stage.colorOpOutReg()], ca, 64);
     }
     else
         snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_sockets[%u]", c_combiner_idx - 1);
@@ -720,6 +750,8 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     {
         if (stage.alphaInD() != GX::CA_ZERO)
             strncpy(a_regs[stage.alphaOpOutReg()], ad, 64);
+        else if (stage.alphaInA() != GX::CA_ZERO)
+            strncpy(a_regs[stage.alphaOpOutReg()], aa, 64);
     }
     else
         snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_sockets[%u]", a_combiner_idx - 1);

@@ -1228,6 +1228,13 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     ++padIt;
 
     /* Surfaces */
+    GX::Primitive prim;
+    if (mesh.outputMode == Mesh::OutputTriangles)
+        prim = GX::TRIANGLES;
+    else if (mesh.outputMode == Mesh::OutputTriStrips)
+        prim = GX::TRIANGLESTRIP;
+    else
+        LogDNACommon.report(LogVisor::FatalError, "unrecognized mesh output mode");
     for (const Mesh::Surface& surf : mesh.surfaces)
     {
         const typename MaterialSet::Material::VAFlags& vaFlags =
@@ -1241,7 +1248,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
         header.reflectionNormal = surf.reflectionNormal;
         header.write(writer);
 
-        writer.writeUByte(GX::TRIANGLESTRIP);
+        writer.writeUByte(prim);
         writer.writeUint16Big(surf.verts.size());
 
         for (const Mesh::Surface::Vert& vert : surf.verts)

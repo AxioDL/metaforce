@@ -112,7 +112,8 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
     return false;
 }
 
-void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath)
+void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath,
+                      bool fast, FCookProgress progress)
 {
     if (HECL::IsPathBlend(path))
     {
@@ -124,19 +125,19 @@ void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& co
         case HECL::BlenderConnection::TypeMesh:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
-            cookMesh(cookedPath, path, ds);
+            cookMesh(cookedPath, path, ds, fast, progress);
             break;
         }
         case HECL::BlenderConnection::TypeActor:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
-            cookActor(cookedPath, path, ds);
+            cookActor(cookedPath, path, ds, fast, progress);
             break;
         }
         case HECL::BlenderConnection::TypeArea:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
-            cookArea(cookedPath, path, ds);
+            cookArea(cookedPath, path, ds, fast, progress);
             break;
         }
         default: break;
@@ -145,7 +146,7 @@ void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& co
     else if (HECL::IsPathYAML(path))
     {
         FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("r"));
-        cookYAML(cookedPath, path, fp);
+        cookYAML(cookedPath, path, fp, progress);
     }
 }
 

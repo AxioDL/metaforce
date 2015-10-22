@@ -53,7 +53,7 @@ struct CMDL
         /* Cook and re-extract test */
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"), true);
         HECL::BlenderConnection::DataStream ds = conn.beginData();
-        HECL::BlenderConnection::DataStream::Mesh mesh = ds.compileMesh(-1);
+        DNACMDL::Mesh mesh = ds.compileMesh(DNACMDL::Mesh::OutputTriStrips, -1);
         ds.close();
         DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
 
@@ -71,7 +71,33 @@ struct CMDL
                      const DNACMDL::Mesh& mesh)
     {
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
-        return DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh);
+        if (mesh.skins.size())
+        {
+            DNACMDL::Mesh skinMesh = mesh.getContiguousSkinningVersion();
+            if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, skinMesh))
+                return false;
+
+            /* Output skinning intermediate */
+            auto vertCountIt = skinMesh.contiguousSkinVertCounts.cbegin();
+            Athena::io::FileWriter writer(outPath.getWithExtension(_S(".skin")).getAbsolutePath());
+            writer.writeUint32Big(skinMesh.skins.size());
+            for (const std::vector<DNACMDL::Mesh::SkinBind> skin : skinMesh.skins)
+            {
+                writer.writeUint32Big(skin.size());
+                for (const DNACMDL::Mesh::SkinBind& bind : skin)
+                {
+                    writer.writeUint32Big(bind.boneIdx);
+                    writer.writeFloatBig(bind.weight);
+                }
+                writer.writeUint32Big(*vertCountIt++);
+            }
+            writer.writeUint32Big(skinMesh.boneNames.size());
+            for (const std::string& boneName : skinMesh.boneNames)
+                writer.writeString(boneName);
+        }
+        else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+            return false;
+        return true;
     }
 };
 
