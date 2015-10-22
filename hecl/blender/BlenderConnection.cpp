@@ -17,6 +17,19 @@
 #include <fcntl.h>
 #endif
 
+namespace std
+{
+template <> struct hash<std::pair<uint32_t,uint32_t>>
+{
+    size_t operator()(const std::pair<uint32_t,uint32_t>& val) const NOEXCEPT
+    {
+        /* this will potentially truncate the second value if 32-bit size_t,
+         * however, its application here is intended to operate in 16-bit indices */
+        return val.first | (val.second << 16);
+    }
+};
+}
+
 namespace HECL
 {
 
@@ -219,7 +232,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         wchar_t cmdLine[2048];
         _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " %d \"%s\"",
                    blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle),
-                   verbosityLevel > 1 ? 1 : 0, blenderAddonPath.c_str());
+                   verbosityLevel, blenderAddonPath.c_str());
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
         HANDLE nulHandle = NULL;
@@ -266,15 +279,15 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             snprintf(readfds, 32, "%d", m_writepipe[0]);
             char writefds[32];
             snprintf(writefds, 32, "%d", m_readpipe[1]);
-            char dverbose[32];
-            snprintf(dverbose, 32, "%d", verbosityLevel > 1 ? 1 : 0);
+            char vLevel[32];
+            snprintf(vLevel, 32, "%d", verbosityLevel);
 
             /* Try user-specified blender first */
             if (blenderBin)
             {
                 execlp(blenderBin, blenderBin,
                     "--background", "-P", blenderShellPath.c_str(),
-                    "--", readfds, writefds, dverbose, blenderAddonPath.c_str(), NULL);
+                    "--", readfds, writefds, vLevel, blenderAddonPath.c_str(), NULL);
                 if (errno != ENOENT)
                 {
                     snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));
@@ -286,7 +299,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             /* Otherwise default blender */
             execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
                 "--background", "-P", blenderShellPath.c_str(),
-                "--", readfds, writefds, dverbose, blenderAddonPath.c_str(), NULL);
+                "--", readfds, writefds, vLevel, blenderAddonPath.c_str(), NULL);
             if (errno != ENOENT)
             {
                 snprintf(errbuf, 256, "NOLAUNCH %s\n", strerror(errno));
@@ -467,8 +480,9 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
            objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
 }
 
-BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotCount)
-: aabbMin(conn), aabbMax(conn)
+BlenderConnection::DataStream::Mesh::Mesh
+(BlenderConnection& conn, OutputMode outMode, int skinSlotCount, SurfProgFunc& surfProg)
+: outputMode(outMode), aabbMin(conn), aabbMax(conn)
 {
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);
@@ -538,9 +552,11 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
         surfaces.reserve(materialSets.front().size() * 16);
     uint8_t isSurf;
     conn._readBuf(&isSurf, 1);
+    int prog = 0;
     while (isSurf)
     {
         surfaces.emplace_back(conn, *this, skinSlotCount);
+        surfProg(++prog);
         conn._readBuf(&isSurf, 1);
     }
 
@@ -563,6 +579,48 @@ BlenderConnection::DataStream::Mesh::Mesh(BlenderConnection& conn, int skinSlotC
             }
         }
     }
+}
+
+BlenderConnection::DataStream::Mesh
+BlenderConnection::DataStream::Mesh::getContiguousSkinningVersion() const
+{
+    Mesh newMesh = *this;
+    newMesh.pos.clear();
+    newMesh.norm.clear();
+    newMesh.contiguousSkinVertCounts.reserve(skins.size());
+    for (size_t i=0 ; i<skins.size() ; ++i)
+    {
+        std::unordered_map<std::pair<uint32_t,uint32_t>, uint32_t> contigMap;
+        size_t vertCount = 0;
+        for (Surface& surf : newMesh.surfaces)
+        {
+            for (Surface::Vert& vert : surf.verts)
+            {
+                if (vert.iSkin == i)
+                {
+                    auto key = std::make_pair(vert.iPos, vert.iNorm);
+                    auto search = contigMap.find(key);
+                    if (search != contigMap.end())
+                    {
+                        vert.iPos = search->second;
+                        vert.iNorm = search->second;
+                    }
+                    else
+                    {
+                        uint32_t newIdx = newMesh.pos.size();
+                        contigMap[key] = newIdx;
+                        newMesh.pos.push_back(pos.at(vert.iPos));
+                        newMesh.norm.push_back(norm.at(vert.iNorm));
+                        vert.iPos = newIdx;
+                        vert.iNorm = newIdx;
+                        ++vertCount;
+                    }
+                }
+            }
+        }
+        newMesh.contiguousSkinVertCounts.push_back(vertCount);
+    }
+    return newMesh;
 }
 
 BlenderConnection::DataStream::Mesh::Material::Material

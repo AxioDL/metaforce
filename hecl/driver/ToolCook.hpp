@@ -10,6 +10,7 @@ class ToolCook final : public ToolBase
     std::unique_ptr<HECL::Database::Project> m_fallbackProj;
     HECL::Database::Project* m_useProj;
     bool m_recursive = false;
+    bool m_fast = false;
 public:
     ToolCook(const ToolPassInfo& info)
     : ToolBase(info), m_useProj(info.project)
@@ -28,6 +29,14 @@ public:
             {
                 if (arg.empty())
                     continue;
+                else if (!arg.compare("--fast"))
+                {
+                    m_fast = true;
+                    continue;
+                }
+                else if (arg.size() >= 2 && arg[0] == _S('-') && arg[1] == _S('-'))
+                    continue;
+
                 HECL::SystemString subPath;
                 HECL::ProjectRootPath root = HECL::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
                 if (root)
@@ -70,7 +79,7 @@ public:
 
         help.secHead(_S("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl cook [-rf] [<pathspec>...]\n"));
+        help.wrap(_S("hecl cook [-rf] [--fast] [<pathspec>...]\n"));
         help.endWrap();
 
         help.secHead(_S("DESCRIPTION"));
@@ -117,6 +126,10 @@ public:
         help.beginWrap();
         help.wrap(_S("Forces cooking of all matched files, ignoring timestamp differences.\n"));
         help.endWrap();
+        help.optionHead(_S("--fast"), _S("fast cook"));
+        help.beginWrap();
+        help.wrap(_S("Performs draft-optimization cooking for supported data types.\n"));
+        help.endWrap();
     }
 
     HECL::SystemString toolName() const {return _S("cook");}
@@ -131,7 +144,7 @@ public:
                        const HECL::SystemChar* submessage,
                        int lidx, float factor)
             {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);},
-            m_recursive, m_info.force);
+            m_recursive, m_info.force, m_fast);
         }
         return 0;
     }

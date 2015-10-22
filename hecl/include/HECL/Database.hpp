@@ -67,6 +67,7 @@ class IDataSpec
 public:
     virtual ~IDataSpec() {}
     using FProgress = FProgress;
+    using FCookProgress = std::function<void(const SystemChar*)>;
 
     /**
      * @brief Extract Pass Info
@@ -101,8 +102,9 @@ public:
 
     virtual bool canCook(const ProjectPath& path)
     {(void)path;LogModule.report(LogVisor::Error, "not implemented");return false;}
-    virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath)
-    {(void)path;(void)cookedPath;}
+    virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
+                        bool fast, FCookProgress progress)
+    {(void)path;(void)cookedPath;(void)fast;(void)progress;}
 
     /**
      * @brief Package Pass Info
@@ -406,13 +408,15 @@ public:
      * @param path directory of intermediates to cook
      * @param feedbackCb a callback to run reporting cook-progress
      * @param recursive traverse subdirectories to cook as well
+     * @param fast enables faster (draft) extraction for supported data types
      * @return true on success
      *
      * Object cooking is generally an expensive process for large projects.
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    bool cookPath(const ProjectPath& path, FProgress feedbackCb, bool recursive=false, bool force=false);
+    bool cookPath(const ProjectPath& path, FProgress feedbackCb,
+                  bool recursive=false, bool force=false, bool fast=false);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)

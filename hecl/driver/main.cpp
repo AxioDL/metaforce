@@ -189,7 +189,7 @@ int main(int argc, const char** argv)
         for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const HECL::SystemString& arg = *it;
-            if (arg.empty() || arg[0] != _S('-'))
+            if (arg.size() < 2 || arg[0] != _S('-') || arg[1] == _S('-'))
             {
                 ++it;
                 continue;

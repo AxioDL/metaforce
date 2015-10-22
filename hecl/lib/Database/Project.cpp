@@ -357,12 +357,22 @@ public:
         submsg += _S(')');
         m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
     }
+    void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra)
+    {
+        SystemString submsg(m_file);
+        submsg += _S(" (");
+        submsg += specEnt->m_name;
+        submsg += _S(", ");
+        submsg += extra;
+        submsg += _S(')');
+        m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+    }
     void reportDirComplete() {m_progFunc(m_dir, nullptr, lidx, 1.0);}
 };
 
 using SpecInst = std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>;
 
-static void VisitFile(const ProjectPath& path, bool force,
+static void VisitFile(const ProjectPath& path, bool force, bool fast,
                       std::vector<SpecInst>& specInsts,
                       CookProgress& progress)
 {
@@ -371,17 +381,24 @@ static void VisitFile(const ProjectPath& path, bool force,
         if (spec.second->canCook(path))
         {
             ProjectPath cooked = path.getCookedPath(*spec.first);
+            if (fast)
+                cooked = cooked.getWithExtension(".fast");
             if (force || cooked.getPathType() == ProjectPath::PT_NONE ||
                 path.getModtime() > cooked.getModtime())
             {
                 progress.reportFile(spec.first);
-                spec.second->doCook(path, cooked);
+                spec.second->doCook(path, cooked, fast,
+                [&](const SystemChar* extra)
+                {
+                    progress.reportFile(spec.first, extra);
+                });
             }
         }
     }
 }
 
-static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force,
+static void VisitDirectory(const ProjectPath& dir,
+                           bool recursive, bool force, bool fast,
                            std::vector<SpecInst>& specInsts,
                            CookProgress& progress)
 {
@@ -421,7 +438,7 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force,
         case ProjectPath::PT_FILE:
         {
             progress.changeFile(child.first.c_str(), progNum++/progDenom);
-            VisitFile(child.second, force, specInsts, progress);
+            VisitFile(child.second, force, fast, specInsts, progress);
             break;
         }
         case ProjectPath::PT_LINK:
@@ -430,7 +447,7 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force,
             if (target.getPathType() == ProjectPath::PT_FILE)
             {
                 progress.changeFile(target.getLastComponent(), progNum++/progDenom);
-                VisitFile(target, force, specInsts, progress);
+                VisitFile(target, force, fast, specInsts, progress);
             }
             break;
         }
@@ -448,7 +465,7 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force,
             {
             case ProjectPath::PT_DIRECTORY:
             {
-                VisitDirectory(child.second, recursive, force, specInsts, progress);
+                VisitDirectory(child.second, recursive, force, fast, specInsts, progress);
                 break;
             }
             default: break;
@@ -457,7 +474,8 @@ static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force,
     }
 }
 
-static void VisitGlob(const ProjectPath& path, bool recursive, bool force,
+static void VisitGlob(const ProjectPath& path,
+                      bool recursive, bool force, bool fast,
                       std::vector<SpecInst>& specInsts,
                       CookProgress& progress)
 {
@@ -497,7 +515,7 @@ static void VisitGlob(const ProjectPath& path, bool recursive, bool force,
         case ProjectPath::PT_FILE:
         {
             progress.changeFile(child.getLastComponent(), progNum++/progDenom);
-            VisitFile(child, force, specInsts, progress);
+            VisitFile(child, force, fast, specInsts, progress);
             break;
         }
         case ProjectPath::PT_LINK:
@@ -506,7 +524,7 @@ static void VisitGlob(const ProjectPath& path, bool recursive, bool force,
             if (target.getPathType() == ProjectPath::PT_FILE)
             {
                 progress.changeFile(target.getLastComponent(), progNum++/progDenom);
-                VisitFile(target, force, specInsts, progress);
+                VisitFile(target, force, fast, specInsts, progress);
             }
             break;
         }
@@ -524,7 +542,7 @@ static void VisitGlob(const ProjectPath& path, bool recursive, bool force,
             {
             case ProjectPath::PT_DIRECTORY:
             {
-                VisitDirectory(child, recursive, force, specInsts, progress);
+                VisitDirectory(child, recursive, force, fast, specInsts, progress);
                 break;
             }
             default: break;
@@ -533,7 +551,8 @@ static void VisitGlob(const ProjectPath& path, bool recursive, bool force,
     }
 }
 
-bool Project::cookPath(const ProjectPath& path, FProgress progress, bool recursive, bool force)
+bool Project::cookPath(const ProjectPath& path, FProgress progress,
+                       bool recursive, bool force, bool fast)
 {
     /* Construct DataSpec instances for cooking */
     std::vector<SpecInst> specInsts;
@@ -550,7 +569,7 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress, bool recursi
     case ProjectPath::PT_FILE:
     {
         cookProg.changeFile(path.getLastComponent(), 0.0);
-        VisitFile(path, force, specInsts, cookProg);
+        VisitFile(path, force, fast, specInsts, cookProg);
         break;
     }
     case ProjectPath::PT_LINK:
@@ -559,18 +578,18 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress, bool recursi
         if (target.getPathType() == ProjectPath::PT_FILE)
         {
             cookProg.changeFile(target.getLastComponent(), 0.0);
-            VisitFile(target, force, specInsts, cookProg);
+            VisitFile(target, force, fast, specInsts, cookProg);
         }
         break;
     }
     case ProjectPath::PT_DIRECTORY:
     {
-        VisitDirectory(path, recursive, force, specInsts, cookProg);
+        VisitDirectory(path, recursive, force, fast, specInsts, cookProg);
         break;
     }
     case ProjectPath::PT_GLOB:
     {
-        VisitGlob(path, recursive, force, specInsts, cookProg);
+        VisitGlob(path, recursive, force, fast, specInsts, cookProg);
         break;
     }
     default: break;

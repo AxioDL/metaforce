@@ -226,7 +226,7 @@ def strip_next_loop(prev_loop, out_count):
         loop = radial_loop.link_loop_next
         return loop.link_loop_next, loop
 
-def write_out_surface(writebuf, vert_pool, island_faces, mat_idx):
+def write_out_surface(writebuf, output_mode, vert_pool, island_faces, mat_idx):
 
     # Centroid of surface
     centroid = Vector()
@@ -258,57 +258,63 @@ def write_out_surface(writebuf, vert_pool, island_faces, mat_idx):
     avg_norm.normalize()
     writebuf(struct.pack('fff', avg_norm[0], avg_norm[1], avg_norm[2]))
 
-    # Count estimate
+    # Count estimate (as raw triangles)
     writebuf(struct.pack('I', len(island_faces) * 3))
 
     # Verts themselves
-    prev_loop_emit = None
-    out_count = 0
-    while len(island_faces):
-        sel_lists_local = []
-        restore_out_count = out_count
-        for start_face in island_faces:
-            for l in start_face.loops:
-                out_count = restore_out_count
-                island_local = list(island_faces)
-                if out_count & 1:
-                    prev_loop = l.link_loop_prev
-                    loop = prev_loop.link_loop_prev
-                    sel_list = [l, prev_loop, loop]
-                    prev_loop = loop
-                else:
-                    prev_loop = l.link_loop_next
-                    loop = prev_loop.link_loop_next
-                    sel_list = [l, prev_loop, loop]
-                out_count += 3
-                island_local.remove(start_face)
-                while True:
-                    if not prev_loop.edge.is_contiguous or prev_loop.edge.tag:
-                        break
-                    loop, prev_loop = strip_next_loop(prev_loop, out_count)
-                    face = loop.face
-                    if face not in island_local:
-                        break
-                    sel_list.append(loop)
-                    island_local.remove(face)
-                    out_count += 1
-                sel_lists_local.append((sel_list, island_local, out_count))
-        max_count = 0
-        max_sl = None
-        max_island_faces = None
-        for sl in sel_lists_local:
-            if len(sl[0]) > max_count:
-                max_count = len(sl[0])
-                max_sl = sl[0]
-                max_island_faces = sl[1]
-                out_count = sl[2]
-        island_faces = max_island_faces
-        if prev_loop_emit:
-            vert_pool.loop_out(writebuf, prev_loop_emit)
-            vert_pool.loop_out(writebuf, max_sl[0])
-        for loop in max_sl:
-            vert_pool.loop_out(writebuf, loop)
-            prev_loop_emit = loop
+    if output_mode == 'TRIANGLES':
+        for f in island_faces:
+            for l in f.loops:
+                vert_pool.loop_out(writebuf, l)
+
+    elif output_mode == 'TRISTRIPS':
+        prev_loop_emit = None
+        out_count = 0
+        while len(island_faces):
+            sel_lists_local = []
+            restore_out_count = out_count
+            for start_face in island_faces:
+                for l in start_face.loops:
+                    out_count = restore_out_count
+                    island_local = list(island_faces)
+                    if out_count & 1:
+                        prev_loop = l.link_loop_prev
+                        loop = prev_loop.link_loop_prev
+                        sel_list = [l, prev_loop, loop]
+                        prev_loop = loop
+                    else:
+                        prev_loop = l.link_loop_next
+                        loop = prev_loop.link_loop_next
+                        sel_list = [l, prev_loop, loop]
+                    out_count += 3
+                    island_local.remove(start_face)
+                    while True:
+                        if not prev_loop.edge.is_contiguous or prev_loop.edge.tag:
+                            break
+                        loop, prev_loop = strip_next_loop(prev_loop, out_count)
+                        face = loop.face
+                        if face not in island_local:
+                            break
+                        sel_list.append(loop)
+                        island_local.remove(face)
+                        out_count += 1
+                    sel_lists_local.append((sel_list, island_local, out_count))
+            max_count = 0
+            max_sl = None
+            max_island_faces = None
+            for sl in sel_lists_local:
+                if len(sl[0]) > max_count:
+                    max_count = len(sl[0])
+                    max_sl = sl[0]
+                    max_island_faces = sl[1]
+                    out_count = sl[2]
+            island_faces = max_island_faces
+            if prev_loop_emit:
+                vert_pool.loop_out(writebuf, prev_loop_emit)
+                vert_pool.loop_out(writebuf, max_sl[0])
+            for loop in max_sl:
+                vert_pool.loop_out(writebuf, loop)
+                prev_loop_emit = loop
 
     writebuf(struct.pack('B', 0))
 

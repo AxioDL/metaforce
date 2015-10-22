@@ -9,7 +9,7 @@ if '--' not in sys.argv:
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
-double_verbose = int(args[2])
+verbosity_level = int(args[2])
 if sys.platform == "win32":
     import msvcrt
     readfd = msvcrt.open_osfhandle(readfd, os.O_RDONLY | os.O_BINARY)
@@ -89,7 +89,7 @@ def read_cmdargs():
 
 # Complete sequences of statements compiled/executed here
 def exec_compbuf(compbuf, globals):
-    if double_verbose:
+    if verbosity_level >= 3:
         print('EXEC', compbuf)
     co = compile(compbuf, '<HECL>', 'exec')
     exec(co, globals)
@@ -144,7 +144,7 @@ def dataout_loop():
                     writepipeline(meshobj.name.encode())
 
         elif cmdargs[0] == 'MESHCOMPILE':
-            maxSkinBanks = int(cmdargs[1])
+            maxSkinBanks = int(cmdargs[2])
 
             meshName = bpy.context.scene.hecl_mesh_obj
             if meshName not in bpy.data.objects:
@@ -152,22 +152,22 @@ def dataout_loop():
                 continue
 
             writepipeline(b'OK')
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], maxSkinBanks)
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[1], maxSkinBanks)
 
         elif cmdargs[0] == 'MESHCOMPILENAME':
             meshName = cmdargs[1]
-            maxSkinBanks = int(cmdargs[2])
+            maxSkinBanks = int(cmdargs[3])
 
             if meshName not in bpy.data.objects:
                 writepipeline(('mesh %s not found' % meshName).encode())
                 continue
 
             writepipeline(b'OK')
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], maxSkinBanks)
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks)
 
         elif cmdargs[0] == 'MESHCOMPILEALL':
-            maxSkinBanks = int(cmdargs[1])
-            maxOctantLength = float(cmdargs[2])
+            maxSkinBanks = int(cmdargs[2])
+            maxOctantLength = float(cmdargs[3])
 
             bpy.ops.object.select_all(action='DESELECT')
             join_mesh = bpy.data.meshes.new('JOIN_MESH')
@@ -178,7 +178,7 @@ def dataout_loop():
             bpy.ops.object.join()
 
             writepipeline(b'OK')
-            hecl.hmdl.cook(writepipebuf, join_obj, maxSkinBanks, maxOctantLength)
+            hecl.hmdl.cook(writepipebuf, join_obj, cmdargs[1], maxSkinBanks, maxOctantLength)
 
             bpy.context.scene.objects.unlink(join_obj)
             bpy.data.objects.remove(join_obj)

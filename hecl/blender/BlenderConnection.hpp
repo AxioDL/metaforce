@@ -305,6 +305,12 @@ public:
                 operator const uint32_t&() const {return val;}
             };
 
+            enum OutputMode
+            {
+                OutputTriangles,
+                OutputTriStrips,
+            } outputMode;
+
             /* Cumulative AABB */
             Vector3f aabbMin;
             Vector3f aabbMax;
@@ -338,6 +344,7 @@ public:
                 SkinBind(BlenderConnection& conn) {conn._readBuf(&boneIdx, 8);}
             };
             std::vector<std::vector<SkinBind>> skins;
+            std::vector<size_t> contiguousSkinVertCounts;
 
             /* Islands of the same material/skinBank are represented here */
             struct Surface
@@ -380,14 +387,27 @@ public:
                 uint32_t addSurface(const Surface& surf, int skinSlotCount);
             } skinBanks;
 
-            Mesh(BlenderConnection& conn, int skinSlotCount);
+            using SurfProgFunc = std::function<void(int)>;
+            Mesh(BlenderConnection& conn, OutputMode outMode, int skinSlotCount, SurfProgFunc& surfProg);
+
+            Mesh getContiguousSkinningVersion() const;
         };
 
+
+        static const char* MeshOutputModeString(Mesh::OutputMode mode)
+        {
+            static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
+            return STRS[mode];
+        }
+
+
         /* Compile mesh by context */
-        Mesh compileMesh(int skinSlotCount=10)
+        Mesh compileMesh(Mesh::OutputMode outMode, int skinSlotCount=10,
+                         Mesh::SurfProgFunc surfProg=[](int){})
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILE %d", skinSlotCount);
+            snprintf(req, 128, "MESHCOMPILE %s %d",
+                     MeshOutputModeString(outMode), skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -395,14 +415,16 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh: %s", readBuf);
 
-            return Mesh(*m_parent, skinSlotCount);
+            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
         }
 
         /* Compile mesh by name */
-        Mesh compileMesh(const std::string& name, int skinSlotCount=10)
+        Mesh compileMesh(const std::string& name, Mesh::OutputMode outMode, int skinSlotCount=10,
+                         Mesh::SurfProgFunc surfProg=[](int){})
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILENAME %s %d", name.c_str(), skinSlotCount);
+            snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.c_str(),
+                     MeshOutputModeString(outMode), skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -410,14 +432,17 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
-            return Mesh(*m_parent, skinSlotCount);
+            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
         }
 
         /* Compile all meshes into one */
-        Mesh compileAllMeshes(int skinSlotCount=10, float maxOctantLength=5.0)
+        Mesh compileAllMeshes(Mesh::OutputMode outMode, int skinSlotCount=10, float maxOctantLength=5.0,
+                              Mesh::SurfProgFunc surfProg=[](int){})
         {
             char req[128];
-            snprintf(req, 128, "MESHCOMPILEALL %d %f", skinSlotCount, maxOctantLength);
+            snprintf(req, 128, "MESHCOMPILEALL %s %d %f",
+                     MeshOutputModeString(outMode),
+                     skinSlotCount, maxOctantLength);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -425,7 +450,7 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
 
-            return Mesh(*m_parent, skinSlotCount);
+            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
         }
     };
     DataStream beginData()

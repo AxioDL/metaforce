@@ -91,7 +91,7 @@ def write_out_material(writebuf, mat, mesh_obj):
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL; packaging
 # into the HECL data-pipeline and returning a hash once complete
-def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
+def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
     
@@ -207,7 +207,7 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
                 mat_faces_rem.remove(f)
 
             writebuf(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuf, vert_pool, the_list, mat_idx)
+            HMDLMesh.write_out_surface(writebuf, output_mode, vert_pool, the_list, mat_idx)
 
 
     # Generate island meshes (if transparent)
@@ -241,7 +241,7 @@ def cook(writebuf, mesh_obj, max_skin_banks, max_octant_length=None):
                 faces = next_faces
 
             writebuf(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuf, vert_pool, the_list, mat_idx)
+            HMDLMesh.write_out_surface(writebuf, output_mode, vert_pool, the_list, mat_idx)
 
     # No more surfaces
     writebuf(struct.pack('B', 0))
