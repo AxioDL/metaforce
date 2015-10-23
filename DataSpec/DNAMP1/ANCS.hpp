@@ -413,6 +413,13 @@ struct ANCS : BigYAML
 
         return true;
     }
+
+    static bool Cook(const HECL::ProjectPath& outPath,
+                     const HECL::ProjectPath& inPath,
+                     const DNAANCS::Actor& actor)
+    {
+        return true;
+    }
 };
 
 }

@@ -77,7 +77,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveRotate, c, rotKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::CurveRotate, c, rotKeys.size());
                 for (const DNAANIM::Value& val : rotKeys)
                     ao.write(*frameit++, val.v4.vec[c]);
             }
@@ -89,7 +89,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveTranslate, c, transKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::CurveTranslate, c, transKeys.size());
                 for (const DNAANIM::Value& val : transKeys)
                     ao.write(*frameit++, val.v3.vec[c]);
             }
@@ -101,7 +101,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveScale, c, scaleKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::CurveScale, c, scaleKeys.size());
                 for (const DNAANIM::Value& val : scaleKeys)
                     ao.write(*frameit++, val.v3.vec[c]);
             }

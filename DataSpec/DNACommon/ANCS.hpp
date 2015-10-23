@@ -11,6 +11,8 @@ namespace Retro
 namespace DNAANCS
 {
 
+using Actor = HECL::BlenderConnection::DataStream::Actor;
+
 template <typename IDTYPE>
 struct CharacterResInfo
 {

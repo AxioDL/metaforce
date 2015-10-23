@@ -8,6 +8,7 @@
 #include "DNAMP1/MLVL.hpp"
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/CMDL.hpp"
+#include "DNAMP1/ANCS.hpp"
 
 namespace Retro
 {
@@ -294,6 +295,8 @@ struct SpecMP1 : SpecBase
     void cookActor(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
                    BlendStream& ds, bool fast, FCookProgress progress) const
     {
+        Actor actor = ds.compileActor();
+        DNAMP1::ANCS::Cook(out, in, actor);
     }
 
     void cookArea(const HECL::ProjectPath& out, const HECL::ProjectPath& in,

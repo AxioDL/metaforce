@@ -91,6 +91,7 @@ struct CMDL
                 }
                 writer.writeUint32Big(*vertCountIt++);
             }
+            writer.writeUint32Big(skinMesh.pos.size());
             writer.writeUint32Big(skinMesh.boneNames.size());
             for (const std::string& boneName : skinMesh.boneNames)
                 writer.writeString(boneName);
