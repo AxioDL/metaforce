@@ -184,6 +184,10 @@ def dataout_loop():
             bpy.data.objects.remove(join_obj)
             bpy.data.meshes.remove(join_mesh)
 
+        elif cmdargs[0] == 'ACTORCOMPILE':
+            writepipeline(b'OK')
+            hecl.sact.cook(writepipebuf)
+
 
 # Command loop
 while True:

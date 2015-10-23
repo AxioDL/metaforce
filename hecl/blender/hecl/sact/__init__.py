@@ -2,11 +2,12 @@ from . import SACTSubtype, SACTAction, ANIM
 from .. import hmdl
 
 import bpy
+import bpy.path
 import re
 import os.path
 import posixpath
 import struct
-from mathutils import Vector
+from mathutils import Vector, Quaternion, Euler
 
 # Actor data class
 class SACTData(bpy.types.PropertyGroup):
@@ -25,217 +26,289 @@ class SACTData(bpy.types.PropertyGroup):
     show_actions =\
     bpy.props.BoolProperty()
 
-    #show_events =\
-    #bpy.props.BoolProperty()
+# Regex RNA path matchers
+scale_matcher = re.compile(r'pose.bones\["(\S+)"\].scale')
+rotation_matcher = re.compile(r'pose.bones\["(\S+)"\].rotation')
+location_matcher = re.compile(r'pose.bones\["(\S+)"\].location')
 
-# A Routine to resolve HECL DAG-relative paths while ensuring database path-constraints
-def resolve_local_path(blend_path, rel_path):
-    if not rel_path.startswith('//'):
-        raise RuntimeError("Files must have relative paths")
-    blend_dir = os.path.split(blend_path)[0]
-    image_comps = re.split('/|\\\\', rel_path[2:])
-    start_idx = 0
-    for comp in image_comps:
-        if comp == '..':
-            start_idx += 1
-            if not blend_dir:
-                raise RuntimeError("Relative file path has exceeded DAG root")
-            blend_dir = os.path.split(blend_dir)[0]
+def write_action_channels(writebuf, action):
+    # Set of frame indices
+    frame_set = set()
+
+    # Set of unique bone names
+    bone_set = []
+
+    # Scan through all fcurves to build animated bone set
+    for fcurve in action.fcurves:
+        data_path = fcurve.data_path
+        scale_match = scale_matcher.match(data_path)
+        rotation_match = rotation_matcher.match(data_path)
+        location_match = location_matcher.match(data_path)
+
+        if scale_match:
+            if scale_match.group(1) not in bone_set:
+                bone_set.append(scale_match.group(1))
+        elif rotation_match:
+            if rotation_match.group(1) not in bone_set:
+                bone_set.append(rotation_match.group(1))
+        elif location_match:
+            if location_match.group(1) not in bone_set:
+                bone_set.append(location_match.group(1))
         else:
-            break
-    retval = blend_dir
-    for i in range(len(image_comps)-start_idx):
-        if retval:
-            retval += '/'
-        retval += image_comps[start_idx+i]
-    return posixpath.relpath(retval)
+            continue
+
+        # Count unified keyframes for interleaving channel data
+        for key in fcurve.keyframe_points:
+            frame_set.add(int(key.co[0]))
+
+    # Build bone table
+    bone_list = []
+    for bone in bone_set:
+        fc_dict = dict()
+        rotation_mode = None
+        property_bits = 0
+        for fcurve in action.fcurves:
+            if fcurve.data_path == 'pose.bones["'+bone+'"].scale':
+                if 'scale' not in fc_dict:
+                    fc_dict['scale'] = [None, None, None]
+                    property_bits |= 4
+                fc_dict['scale'][fcurve.array_index] = fcurve
+            elif fcurve.data_path == 'pose.bones["'+bone+'"].rotation_euler':
+                if 'rotation_euler' not in fc_dict:
+                    fc_dict['rotation_euler'] = [None, None, None]
+                    rotation_mode = 'rotation_euler'
+                    property_bits |= 1
+                fc_dict['rotation_euler'][fcurve.array_index] = fcurve
+            elif fcurve.data_path == 'pose.bones["'+bone+'"].rotation_quaternion':
+                if 'rotation_quaternion' not in fc_dict:
+                    fc_dict['rotation_quaternion'] = [None, None, None, None]
+                    rotation_mode = 'rotation_quaternion'
+                    property_bits |= 1
+                fc_dict['rotation_quaternion'][fcurve.array_index] = fcurve
+            elif fcurve.data_path == 'pose.bones["'+bone+'"].rotation_axis_angle':
+                if 'rotation_axis_angle' not in fc_dict:
+                    fc_dict['rotation_axis_angle'] = [None, None, None, None]
+                    rotation_mode = 'rotation_axis_angle'
+                    property_bits |= 1
+                fc_dict['rotation_axis_angle'][fcurve.array_index] = fcurve
+            elif fcurve.data_path == 'pose.bones["'+bone+'"].location':
+                if 'location' not in fc_dict:
+                    fc_dict['location'] = [None, None, None]
+                    property_bits |= 2
+                fc_dict['location'][fcurve.array_index] = fcurve
+        bone_list.append((bone, rotation_mode, fc_dict, property_bits))
+
+    # Write out frame indices
+    sorted_frames = sorted(frame_set)
+    writebuf(struct.pack('I', len(sorted_frames)))
+    for frame in sorted_frames:
+        writebuf(struct.pack('i', frame))
+
+    # Interleave / interpolate keyframe data
+    writebuf(struct.pack('I', len(bone_list)))
+    for bone in bone_list:
+
+        bone_name = bone[0]
+        rotation_mode = bone[1]
+        fc_dict = bone[2]
+        property_bits = bone[3]
+
+        writebuf(struct.pack('I', len(bone_name)))
+        writebuf(bone_name.encode())
+
+        writebuf(struct.pack('I', property_bits))
+
+        writebuf(struct.pack('I', len(sorted_frames)))
+        for frame in sorted_frames:
+
+            # Rotation curves
+            if rotation_mode == 'rotation_quaternion':
+                writevec = [0.0]*4
+                for comp in range(4):
+                    if fc_dict['rotation_quaternion'][comp]:
+                        writevec[comp] = fc_dict['rotation_quaternion'][comp].evaluate(frame)
+                writebuf(struct.pack('ffff', writevec[0], writevec[1], writevec[2], writevec[3]))
+
+            elif rotation_mode == 'rotation_euler':
+                euler = [0.0, 0.0, 0.0]
+                for comp in range(3):
+                    if fc_dict['rotation_euler'][comp]:
+                        euler[comp] = fc_dict['rotation_euler'][comp].evaluate(frame)
+                euler_o = Euler(euler, 'XYZ')
+                quat = euler_o.to_quaternion()
+                writebuf(struct.pack('ffff', quat[0], quat[1], quat[2], quat[3]))
+
+            elif rotation_mode == 'rotation_axis_angle':
+                axis_angle = [0.0, 0.0, 0.0, 0.0]
+                for comp in range(4):
+                    if fc_dict['rotation_axis_angle'][comp]:
+                        axis_angle[comp] = fc_dict['rotation_axis_angle'][comp].evaluate(frame)
+                quat = Quaternion(axis_angle[1:4], axis_angle[0])
+                writebuf(struct.pack('ffff', quat[0], quat[1], quat[2], quat[3]))
+
+            # Location curves
+            if 'location' in fc_dict:
+                writevec = [0.0]*3
+                for comp in range(3):
+                    if fc_dict['location'][comp]:
+                        writevec[comp] = fc_dict['location'][comp].evaluate(frame)
+                writebuf(struct.pack('fff', writevec[0], writevec[1], writevec[2]))
+
+            # Scale curves
+            if 'scale' in fc_dict:
+                writevec = [1.0]*3
+                for comp in range(3):
+                    if fc_dict['scale'][comp]:
+                        writevec[comp] = fc_dict['scale'][comp].evaluate(frame)
+                writebuf(struct.pack('fff', writevec[0], writevec[1], writevec[2]))
 
 
-# RARM Generator
-def package_rarm(arm_obj, res_db, heclpak, arg_path, arg_package):
+def write_action_aabb(writebuf, arm_obj, mesh_obj):
+    scene = bpy.context.scene
 
-    rarm_db_id, rarm_hash = res_db.register_resource(arg_path, arm_obj.name, arg_package)
-    if not rarm_hash:
+    # Frame 1
+    scene.frame_set(1)
 
-        skeleton_data = hecl_rmdl.generate_skeleton_info(arm_obj)
-        rarm_hash = heclpak.add_object(skeleton_data, b'RARM')
-        res_db.update_resource_stats(rarm_db_id, rarm_hash)
+    # Transform against root
+    root_bone = arm_obj.pose.bones['root']
+    root_bone.location = (0.0,0.0,0.0)
+    if root_bone.rotation_mode == 'QUATERNION':
+        root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
+    else:
+        root_bone.rotation_euler = (0.0,0.0,0.0)
+    root_aabb_min = Vector(mesh_obj.bound_box[0])
+    root_aabb_max = Vector(mesh_obj.bound_box[6])
 
-    return rarm_db_id, rarm_hash
+    # Accumulate AABB for each frame
+    for frame_idx in range(2, scene.frame_end + 1):
+        scene.frame_set(frame_idx)
 
-# RANI Generator
-def package_rani(action_obj, res_db, heclpak, arg_path, arg_package):
+        root_bone.location = (0.0,0.0,0.0)
+        scene.update()
+        if root_bone.rotation_mode == 'QUATERNION':
+            root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
+        else:
+            root_bone.rotation_euler = (0.0,0.0,0.0)
+        test_aabb_min = Vector(mesh_obj.bound_box[0])
+        test_aabb_max = Vector(mesh_obj.bound_box[6])
 
-    rani_db_id, rani_hash = res_db.register_resource(arg_path, action_obj.name, arg_package)
-    if not rani_hash:
+        for comp in range(3):
+            if test_aabb_min[comp] < root_aabb_min[comp]:
+                root_aabb_min[comp] = test_aabb_min[comp]
+        for comp in range(3):
+            if test_aabb_max[comp] > root_aabb_max[comp]:
+                root_aabb_max[comp] = test_aabb_max[comp]
 
-        res_db.clear_dependencies(rani_db_id)
-        rani_hash = heclpak.add_object(hecl_rmdl.rmdl_anim.generate_animation_info(action_obj, res_db, rani_db_id, arg_package), b'RANI')
-        res_db.update_resource_stats(rani_db_id, rani_hash)
-
-    return rani_db_id, rani_hash
-
-
-# Actor Ticket Generator
-def package_actor(scene, res_db, heclpak, arg_path, arg_package, arg_res_name):
-    actor_data = scene.hecl_sact_data
-
-    act_db_id, act_hash = res_db.register_resource(arg_path, None, arg_package)
-    res_db.clear_dependencies(act_db_id)
-
-    with open(os.path.splitext(bpy.data.filepath)[0] + '.heclticket', 'wb') as ticket:
-
-        # Subtypes
-        ticket.write(struct.pack('I', len(actor_data.subtypes)))
-        for subtype_idx in range(len(actor_data.subtypes)):
-            subtype = actor_data.subtypes[subtype_idx]
-            scene.hecl_sact_data.active_subtype = subtype_idx
-
-            # Subtype name
-            ticket.write(subtype.name.encode() + b'\0')
-
-            # Mesh
-            if subtype.linked_mesh in bpy.data.objects:
-                mesh_obj = bpy.data.objects[subtype.linked_mesh]
-                if mesh_obj.library:
-                    path = resolve_local_path(arg_path.split(';')[-1], mesh_obj.library.filepath)
-                    mesh_db_id, mesh_hash = res_db.search_for_resource(path, arg_package)
-                    if not mesh_hash:
-                        raise RuntimeError("Error - unable to load mesh library '{0}'".format(path))
-                    res_db.register_dependency(act_db_id, mesh_db_id)
-                    ticket.write(mesh_hash)
-                else:
-                    mesh_db_id, mesh_hash, _final_data = hecl_rmdl.to_rmdl(mesh_obj, mesh_obj.name, res_db, heclpak, arg_path, arg_package)
-                    res_db.register_dependency(act_db_id, mesh_db_id)
-                    ticket.write(mesh_hash)
-            else:
-                raise RuntimeError("Error - unable to load mesh '{0}'".format(mesh))
-
-            # Armature
-            if subtype.linked_armature in bpy.data.objects:
-                arm_obj = bpy.data.objects[subtype.linked_armature]
-                rarm_db_id, rarm_hash = package_rarm(arm_obj, res_db, heclpak, arg_path, arg_package)
-                res_db.register_dependency(act_db_id, rarm_db_id)
-                ticket.write(rarm_hash)
-            else:
-                raise RuntimeError("Error - unable to load armature '{0}'".format(subtype.linked_armature))
-
-            # Action AABBs
-            print('\nComputing Action AABBs for', subtype.name)
-            scene.hecl_auto_remap = False
-            ticket.write(struct.pack('I', len(actor_data.actions)))
-            for action_idx in range(len(actor_data.actions)):
-                action = actor_data.actions[action_idx]
-                print(action.name)
-                scene.hecl_sact_data.active_action = action_idx
-                bpy.ops.scene.SACTAction_load()
-
-                # Action name
-                ticket.write(action.name.encode() + b'\0')
-
-                # Frame 1
-                scene.frame_set(1)
-
-                # Transform against root
-                root_bone = arm_obj.pose.bones['root']
-                root_bone.location = (0.0,0.0,0.0)
-                if root_bone.rotation_mode == 'QUATERNION':
-                    root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
-                else:
-                    root_bone.rotation_euler = (0.0,0.0,0.0)
-                root_aabb_min = Vector(mesh_obj.bound_box[0])
-                root_aabb_max = Vector(mesh_obj.bound_box[6])
-
-                # Accumulate AABB for each frame
-                for frame_idx in range(2, scene.frame_end + 1):
-                    scene.frame_set(frame_idx)
-
-                    root_bone.location = (0.0,0.0,0.0)
-                    scene.update()
-                    if root_bone.rotation_mode == 'QUATERNION':
-                        root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
-                    else:
-                        root_bone.rotation_euler = (0.0,0.0,0.0)
-                    test_aabb_min = Vector(mesh_obj.bound_box[0])
-                    test_aabb_max = Vector(mesh_obj.bound_box[6])
-
-                    for comp in range(3):
-                        if test_aabb_min[comp] < root_aabb_min[comp]:
-                            root_aabb_min[comp] = test_aabb_min[comp]
-                    for comp in range(3):
-                        if test_aabb_max[comp] > root_aabb_max[comp]:
-                            root_aabb_max[comp] = test_aabb_max[comp]
-
-                ticket.write(struct.pack('ffffff',
-                                         root_aabb_min[0], root_aabb_min[1], root_aabb_min[2],
-                                         root_aabb_max[0], root_aabb_max[1], root_aabb_max[2]))
-
-
-        # Actions
-        anim_hashes = dict()
-        ticket.write(struct.pack('I', len(actor_data.actions)))
-        for action in actor_data.actions:
-
-            # Action name
-            ticket.write(action.name.encode() + b'\0')
-
-            if action.type == 'SINGLE':
-                ticket.write(struct.pack('I', 0))
-                action_name = action.subactions[0].name
-                if action_name not in bpy.data.actions:
-                    raise RuntimeError("Error - unable to load action '{0}'".format(action_name))
-                if action_name in anim_hashes:
-                    rani_hash = anim_hashes[action_name]
-                else:
-                    action_obj = bpy.data.actions[action_name]
-                    rani_db_id, rani_hash = package_rani(action_obj, res_db, heclpak, arg_path, arg_package)
-                    res_db.register_dependency(act_db_id, rani_db_id)
-                    anim_hashes[action_name] = rani_hash
-                ticket.write(rani_hash)
-
-            elif action.type == 'SEQUENCE':
-                ticket.write(struct.pack('II', 1, len(action.subactions)))
-                for subaction in action.subactions:
-                    action_name = subaction.name
-                    if action_name not in bpy.data.actions:
-                        raise RuntimeError("Error - unable to load action '{0}'".format(action_name))
-                    if action_name in anim_hashes:
-                        rani_hash = anim_hashes[action_name]
-                    else:
-                        action_obj = bpy.data.actions[action_name]
-                        rani_db_id, rani_hash = package_rani(action_obj,
-                                                             res_db, heclpak, arg_path, arg_package)
-                        res_db.register_dependency(act_db_id, rani_db_id)
-                        anim_hashes[action_name] = rani_hash
-                    ticket.write(rani_hash)
-
-            elif action.type == 'RANDOM':
-                ticket.write(struct.pack('III', 2, len(action.subactions), action.random_val))
-                for subaction in action.subactions:
-                    action_name = subaction.name
-                    if action_name not in bpy.data.actions:
-                        raise RuntimeError("Error - unable to load action '{0}'".format(action_name))
-                    if action_name in anim_hashes:
-                        rani_hash = anim_hashes[action_name]
-                    else:
-                        action_obj = bpy.data.actions[action_name]
-                        rani_db_id, rani_hash = package_rani(action_obj,
-                                                             res_db, heclpak, arg_path, arg_package)
-                        res_db.register_dependency(act_db_id, rani_db_id)
-                        anim_hashes[action_name] = rani_hash
-                    ticket.write(rani_hash)
-
+    writebuf(struct.pack('ffffff',
+                         root_aabb_min[0], root_aabb_min[1], root_aabb_min[2],
+                         root_aabb_max[0], root_aabb_max[1], root_aabb_max[2]))
 
 # Cook
-def cook(writebuffunc, platform, endianchar):
-    print('COOKING SACT')
+def cook(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
+
+    # Output armatures
+    writebuf(struct.pack('I', len(bpy.data.armatures)))
+    for arm in bpy.data.armatures:
+        writebuf(struct.pack('I', len(arm.name)))
+        writebuf(arm.name.encode())
+
+        writebuf(struct.pack('I', len(arm.bones)))
+        for bone in arm.bones:
+            writebuf(struct.pack('I', len(bone.name)))
+            writebuf(bone.name.encode())
+
+            writebuf(struct.pack('fff', bone.head_local[0], bone.head_local[1], bone.head_local[2]))
+
+            if bone.parent:
+                writebuf(struct.pack('i', arm.bones.find(bone.parent.name)))
+            else:
+                writebuf(struct.pack('i', -1))
+
+            writebuf(struct.pack('I', len(bone.children)))
+            for child in bone.children:
+                writebuf(struct.pack('i', arm.bones.find(child.name)))
+
+    # Output subtypes
+    writebuf(struct.pack('I', len(sact_data.subtypes)))
+    for subtype in sact_data.subtypes:
+        writebuf(struct.pack('I', len(subtype.name)))
+        writebuf(subtype.name.encode())
+
+        mesh = None
+        if subtype.linked_mesh in bpy.data.objects:
+            mesh = bpy.data.objects[subtype.linked_mesh]
+
+        if mesh and mesh.library:
+            mesh_path = bpy.path.abspath(mesh.library.filepath)
+            writebuf(struct.pack('I', len(mesh_path)))
+            writebuf(mesh_path.encode())
+        else:
+            writebuf(struct.pack('I', 0))
+
+        arm = None
+        if subtype.linked_armature in bpy.data.objects:
+            arm = bpy.data.objects[subtype.linked_armature]
+
+        arm_idx = -1
+        if arm:
+            arm_idx = bpy.data.armatures.find(arm.name)
+        writebuf(struct.pack('i', arm_idx))
+
+        writebuf(struct.pack('I', len(subtype.overlays)))
+        for overlay in subtype.overlays:
+            writebuf(struct.pack('I', len(overlay.name)))
+            writebuf(overlay.name.encode())
+
+            mesh = None
+            if overlay.linked_mesh in bpy.data.objects:
+                mesh = bpy.data.objects[overlay.linked_mesh]
+
+            if mesh and mesh.library:
+                mesh_path = bpy.path.abspath(mesh.library.filepath)
+                writebuf(struct.pack('I', len(mesh_path)))
+                writebuf(mesh_path.encode())
+            else:
+                writebuf(struct.pack('I', 0))
+
+
+    # Output actions
+    writebuf(struct.pack('I', len(sact_data.actions)))
+    for action_idx in range(len(sact_data.actions)):
+        sact_data.active_action = action_idx
+        action = sact_data.actions[action_idx]
+        writebuf(struct.pack('I', len(action.name)))
+        writebuf(action.name.encode())
+
+        bact = None
+        if action.name in bpy.data.actions:
+            bact = bpy.data.actions[action.name]
+        if not bact:
+            raise RuntimeError('action %s not found' % action.name)
+
+        writebuf(struct.pack('f', 1.0 / bact.hecl_fps))
+        writebuf(struct.pack('b', int(bact.hecl_additive)))
+
+        write_action_channels(writebuf, bact)
+        writebuf(struct.pack('I', len(sact_data.subtypes)))
+        for subtype_idx in range(len(sact_data.subtypes)):
+            subtype = sact_data.subtypes[subtype_idx]
+            sact_data.active_subtype = subtype_idx
+            bpy.ops.scene.sactaction_load()
+            if subtype.linked_armature not in bpy.data.objects:
+                raise RuntimeError('armature %s not found' % subtype.linked_armature)
+            arm = bpy.data.objects[subtype.linked_armature]
+            if subtype.linked_mesh not in bpy.data.objects:
+                raise RuntimeError('mesh %s not found' % subtype.linked_mesh)
+            mesh = bpy.data.objects[subtype.linked_mesh]
+            write_action_aabb(writebuf, arm, mesh)
+
 
 
 # Panel draw
 def draw(layout, context):
     SACTSubtype.draw(layout.box(), context)
     SACTAction.draw(layout.box(), context)
-    #SACTEvent.draw(layout.box(), context)
 
 
 # Time-remap option update
@@ -247,7 +320,6 @@ def time_remap_update(self, context):
 # Registration
 def register():
     SACTSubtype.register()
-    #SACTEvent.register()
     SACTAction.register()
     bpy.utils.register_class(SACTData)
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
@@ -261,4 +333,3 @@ def unregister():
     bpy.utils.unregister_class(SACTData)
     SACTSubtype.unregister()
     SACTAction.unregister()
-    #SACTEvent.unregister()

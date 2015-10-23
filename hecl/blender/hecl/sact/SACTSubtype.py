@@ -236,15 +236,15 @@ class SACTSubtypeOverlay_add(bpy.types.Operator):
     def execute(self, context):
         actor_data = context.scene.hecl_sact_data
         subtype = actor_data.subtypes[actor_data.active_subtype]
-        overlay_name = 'ActorMesh'
+        overlay_name = 'ActorOverlay'
         if overlay_name in subtype.overlays:
-            overlay_name = 'ActorMesh.001'
+            overlay_name = 'ActorOverlay.001'
             overlay_idx = 1
             while overlay_name in subtype.overlays:
                 overlay_idx += 1
-                overlay_name = 'ActorMesh.{:0>3}'.format(overlay_idx)
+                overlay_name = 'ActorOverlay.{:0>3}'.format(overlay_idx)
         overlay = subtype.overlays.add()
-        mesh.name = overlay_name
+        overlay.name = overlay_name
         subtype.active_overlay = len(subtype.overlays)-1
 
         return {'FINISHED'}

@@ -1,11 +1,3 @@
-'''
-HMDL Export Blender Addon
-By Jack Andersen <jackoalan@gmail.com>
-
-Traces the 'Blender Internal' shader node structure to generate a
-HECL combiner string
-'''
-
 import bpy, bpy.path, os.path
 
 def get_texmap_idx(tex_list, name):

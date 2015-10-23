@@ -587,6 +587,7 @@ BlenderConnection::DataStream::Mesh::getContiguousSkinningVersion() const
     Mesh newMesh = *this;
     newMesh.pos.clear();
     newMesh.norm.clear();
+    newMesh.contiguousSkinVertCounts.clear();
     newMesh.contiguousSkinVertCounts.reserve(skins.size());
     for (size_t i=0 ; i<skins.size() ; ++i)
     {
@@ -752,6 +753,174 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
         break;
     }
     return uint32_t(-1);
+}
+
+BlenderConnection::DataStream::Actor::Actor(BlenderConnection& conn)
+{
+    uint32_t armCount;
+    conn._readBuf(&armCount, 4);
+    armatures.reserve(armCount);
+    for (uint32_t i=0 ; i<armCount ; ++i)
+        armatures.emplace_back(conn);
+
+    uint32_t subtypeCount;
+    conn._readBuf(&subtypeCount, 4);
+    subtypes.reserve(subtypeCount);
+    for (uint32_t i=0 ; i<subtypeCount ; ++i)
+        subtypes.emplace_back(conn);
+
+    uint32_t actionCount;
+    conn._readBuf(&actionCount, 4);
+    actions.reserve(actionCount);
+    for (uint32_t i=0 ; i<actionCount ; ++i)
+        actions.emplace_back(conn);
+}
+
+BlenderConnection::DataStream::Actor::Armature::Armature(BlenderConnection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    uint32_t boneCount;
+    conn._readBuf(&boneCount, 4);
+    bones.reserve(boneCount);
+    for (uint32_t i=0 ; i<boneCount ; ++i)
+        bones.emplace_back(conn);
+}
+
+BlenderConnection::DataStream::Actor::Armature::Bone::Bone(BlenderConnection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    origin.read(conn);
+
+    conn._readBuf(&parent, 4);
+
+    uint32_t childCount;
+    conn._readBuf(&childCount, 4);
+    children.reserve(childCount);
+    for (uint32_t i=0 ; i<childCount ; ++i)
+    {
+        children.emplace_back(0);
+        conn._readBuf(&children.back(), 4);
+    }
+}
+
+BlenderConnection::DataStream::Actor::Subtype::Subtype(BlenderConnection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    std::string meshPath;
+    conn._readBuf(&bufSz, 4);
+    if (bufSz)
+    {
+        meshPath.assign(bufSz, ' ');
+        conn._readBuf(&meshPath[0], bufSz);
+        SystemStringView meshPathAbs(meshPath);
+
+        SystemString meshPathRel =
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs);
+        mesh.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), meshPathRel);
+    }
+
+    conn._readBuf(&armature, 4);
+
+    uint32_t overlayCount;
+    conn._readBuf(&overlayCount, 4);
+    overlayMeshes.reserve(overlayCount);
+    for (uint32_t i=0 ; i<overlayCount ; ++i)
+    {
+        std::string overlayName;
+        conn._readBuf(&bufSz, 4);
+        overlayName.assign(bufSz, ' ');
+        conn._readBuf(&overlayName[0], bufSz);
+
+        std::string meshPath;
+        conn._readBuf(&bufSz, 4);
+        if (bufSz)
+        {
+            meshPath.assign(bufSz, ' ');
+            conn._readBuf(&meshPath[0], bufSz);
+            SystemStringView meshPathAbs(meshPath);
+
+            SystemString meshPathRel =
+            conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs);
+            overlayMeshes.emplace_back(std::move(overlayName),
+            ProjectPath(conn.m_loadedBlend.getProject().getProjectWorkingPath(), meshPathRel));
+        }
+    }
+}
+
+BlenderConnection::DataStream::Actor::Action::Action(BlenderConnection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    conn._readBuf(&interval, 4);
+    conn._readBuf(&additive, 1);
+
+    uint32_t frameCount;
+    conn._readBuf(&frameCount, 4);
+    frames.reserve(frameCount);
+    for (uint32_t i=0 ; i<frameCount ; ++i)
+    {
+        frames.emplace_back();
+        conn._readBuf(&frames.back(), 4);
+    }
+
+    uint32_t chanCount;
+    conn._readBuf(&chanCount, 4);
+    channels.reserve(chanCount);
+    for (uint32_t i=0 ; i<chanCount ; ++i)
+        channels.emplace_back(conn);
+
+    uint32_t aabbCount;
+    conn._readBuf(&aabbCount, 4);
+    subtypeAABBs.reserve(aabbCount);
+    for (uint32_t i=0 ; i<aabbCount ; ++i)
+    {
+        subtypeAABBs.emplace_back();
+        subtypeAABBs.back().first.read(conn);
+        subtypeAABBs.back().second.read(conn);
+    }
+}
+
+BlenderConnection::DataStream::Actor::Action::Channel::Channel(BlenderConnection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    boneName.assign(bufSz, ' ');
+    conn._readBuf(&boneName[0], bufSz);
+
+    conn._readBuf(&attrMask, 4);
+
+    uint32_t keyCount;
+    conn._readBuf(&keyCount, 4);
+    keys.reserve(keyCount);
+    for (uint32_t i=0 ; i<keyCount ; ++i)
+        keys.emplace_back(conn, attrMask);
+}
+
+BlenderConnection::DataStream::Actor::Action::Channel::Key::Key(BlenderConnection& conn, uint32_t attrMask)
+{
+    if (attrMask & 1)
+        rotation.read(conn);
+
+    if (attrMask & 2)
+        position.read(conn);
+
+    if (attrMask & 4)
+        scale.read(conn);
 }
 
 void BlenderConnection::quitBlender()

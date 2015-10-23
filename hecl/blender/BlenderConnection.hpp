@@ -66,6 +66,13 @@ public:
     bool saveBlend();
     void deleteBlend();
 
+    enum ANIMCurveType
+    {
+        CurveRotate,
+        CurveTranslate,
+        CurveScale
+    };
+
     class PyOutStream : public std::ostream
     {
         friend class BlenderConnection;
@@ -165,12 +172,7 @@ public:
             unsigned m_totalCount = 0;
             bool m_inCurve = false;
         public:
-            enum CurveType
-            {
-                CurveRotate,
-                CurveTranslate,
-                CurveScale
-            };
+            using CurveType = ANIMCurveType;
             ANIMOutStream(BlenderConnection* parent)
             : m_parent(parent)
             {
@@ -283,28 +285,43 @@ public:
             return retval;
         }
 
-        /* Intermediate mesh representation prepared by blender from a single mesh object */
+        /* Vector types with integrated stream reading constructor */
+        struct Vector2f
+        {
+            atVec2f val;
+            Vector2f() = default;
+            void read(BlenderConnection& conn) {conn._readBuf(&val, 8);}
+            Vector2f(BlenderConnection& conn) {read(conn);}
+            operator const atVec2f&() const {return val;}
+        };
+        struct Vector3f
+        {
+            atVec3f val;
+            Vector3f() = default;
+            void read(BlenderConnection& conn) {conn._readBuf(&val, 12);}
+            Vector3f(BlenderConnection& conn) {read(conn);}
+            operator const atVec3f&() const {return val;}
+        };
+        struct Vector4f
+        {
+            atVec4f val;
+            Vector4f() = default;
+            void read(BlenderConnection& conn) {conn._readBuf(&val, 16);}
+            Vector4f(BlenderConnection& conn) {read(conn);}
+            operator const atVec4f&() const {return val;}
+        };
+        struct Index
+        {
+            uint32_t val;
+            Index() = default;
+            void read(BlenderConnection& conn) {conn._readBuf(&val, 4);}
+            Index(BlenderConnection& conn) {read(conn);}
+            operator const uint32_t&() const {return val;}
+        };
+
+        /** Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
         {
-            struct Vector2f
-            {
-                atVec2f val;
-                Vector2f(BlenderConnection& conn) {conn._readBuf(&val, 8);}
-                operator const atVec2f&() const {return val;}
-            };
-            struct Vector3f
-            {
-                atVec3f val;
-                Vector3f(BlenderConnection& conn) {conn._readBuf(&val, 12);}
-                operator const atVec3f&() const {return val;}
-            };
-            struct Index
-            {
-                uint32_t val;
-                Index(BlenderConnection& conn) {conn._readBuf(&val, 4);}
-                operator const uint32_t&() const {return val;}
-            };
-
             enum OutputMode
             {
                 OutputTriangles,
@@ -401,10 +418,14 @@ public:
         }
 
 
-        /* Compile mesh by context */
+        /** Compile mesh by context (MESH blends only) */
         Mesh compileMesh(Mesh::OutputMode outMode, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
+            if (m_parent->m_loadedType != TypeMesh)
+                BlenderLog.report(LogVisor::FatalError, _S("%s is not a MESH blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
             char req[128];
             snprintf(req, 128, "MESHCOMPILE %s %d",
                      MeshOutputModeString(outMode), skinSlotCount);
@@ -418,10 +439,14 @@ public:
             return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
         }
 
-        /* Compile mesh by name */
+        /** Compile mesh by name (AREA blends only) */
         Mesh compileMesh(const std::string& name, Mesh::OutputMode outMode, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
+            if (m_parent->m_loadedType != TypeArea)
+                BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
             char req[128];
             snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.c_str(),
                      MeshOutputModeString(outMode), skinSlotCount);
@@ -435,10 +460,14 @@ public:
             return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
         }
 
-        /* Compile all meshes into one */
+        /** Compile all meshes into one (AREA blends only) */
         Mesh compileAllMeshes(Mesh::OutputMode outMode, int skinSlotCount=10, float maxOctantLength=5.0,
                               Mesh::SurfProgFunc surfProg=[](int){})
         {
+            if (m_parent->m_loadedType != TypeArea)
+                BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
             char req[128];
             snprintf(req, 128, "MESHCOMPILEALL %s %d %f",
                      MeshOutputModeString(outMode),
@@ -451,6 +480,87 @@ public:
                 BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
 
             return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
+        }
+
+        /** Intermediate actor representation prepared by blender from a single HECL actor blend */
+        struct Actor
+        {
+            struct Armature
+            {
+                std::string name;
+                struct Bone
+                {
+                    std::string name;
+                    Vector3f origin;
+                    int32_t parent = -1;
+                    std::vector<int32_t> children;
+                    Bone(BlenderConnection& conn);
+                };
+                std::vector<Bone> bones;
+                Bone* lookupBone(const char* name)
+                {
+                    for (Bone& b : bones)
+                        if (!b.name.compare(name))
+                            return &b;
+                    return nullptr;
+                }
+                Armature(BlenderConnection& conn);
+            };
+            std::vector<Armature> armatures;
+
+            struct Subtype
+            {
+                std::string name;
+                ProjectPath mesh;
+                int32_t armature = -1;
+                std::vector<std::pair<std::string, ProjectPath>> overlayMeshes;
+                Subtype(BlenderConnection& conn);
+            };
+            std::vector<Subtype> subtypes;
+
+            struct Action
+            {
+                std::string name;
+                float interval;
+                bool additive;
+                std::vector<int32_t> frames;
+                struct Channel
+                {
+                    std::string boneName;
+                    uint32_t attrMask;
+                    struct Key
+                    {
+                        Vector4f rotation;
+                        Vector3f position;
+                        Vector3f scale;
+                        Key(BlenderConnection& conn, uint32_t attrMask);
+                    };
+                    std::vector<Key> keys;
+                    Channel(BlenderConnection& conn);
+                };
+                std::vector<Channel> channels;
+                std::vector<std::pair<Vector3f, Vector3f>> subtypeAABBs;
+                Action(BlenderConnection& conn);
+            };
+            std::vector<Action> actions;
+
+            Actor(BlenderConnection& conn);
+        };
+
+        Actor compileActor()
+        {
+            if (m_parent->m_loadedType != TypeActor)
+                BlenderLog.report(LogVisor::FatalError, _S("%s is not an ACTOR blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+            m_parent->_writeLine("ACTORCOMPILE");
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(LogVisor::FatalError, "unable to compile actor: %s", readBuf);
+
+            return Actor(*m_parent);
         }
     };
     DataStream beginData()

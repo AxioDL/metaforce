@@ -1,8 +1,3 @@
-'''
-HMDL Export Blender Addon
-By Jack Andersen <jackoalan@gmail.com>
-'''
-
 import bpy, bmesh, operator, struct
 from mathutils import Vector
 
