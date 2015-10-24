@@ -5,7 +5,9 @@ add_library(DNACommon
             ${liblist}
             PAK.hpp
             GX.hpp
+            MLVL.hpp
             CMDL.cpp
+            MAPA.hpp
             STRG.hpp STRG.cpp
             TXTR.hpp TXTR.cpp
             ANCS.hpp

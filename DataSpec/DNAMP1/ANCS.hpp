@@ -9,6 +9,7 @@
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
+#include "Athena/FileReader.hpp"
 
 namespace Retro
 {
@@ -418,6 +419,20 @@ struct ANCS : BigYAML
                      const HECL::ProjectPath& inPath,
                      const DNAANCS::Actor& actor)
     {
+        /* Search for yaml */
+        HECL::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
+        if (yamlPath.getPathType() != HECL::ProjectPath::PT_FILE)
+            Log.report(LogVisor::FatalError, _S("'%s' not found as file"),
+                       yamlPath.getRelativePath().c_str());
+
+        Athena::io::FileReader yamlReader(yamlPath.getAbsolutePath());
+        if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlReader))
+            Log.report(LogVisor::FatalError, _S("'%s' is not Retro::DNAMP1::ANCS type"),
+                       yamlPath.getRelativePath().c_str());
+        ANCS ancs;
+        ancs.read(yamlReader);
+
+
         return true;
     }
 };

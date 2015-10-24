@@ -235,18 +235,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
           "bpy.ops.object.select_all(action='DESELECT')\n"
           "bpy.context.scene.layers[1] = False\n";
 
-    /* Center view */
-    os << "bpy.context.user_preferences.view.smooth_view = 0\n"
-          "for window in bpy.context.window_manager.windows:\n"
-          "    screen = window.screen\n"
-          "    for area in screen.areas:\n"
-          "        if area.type == 'VIEW_3D':\n"
-          "            for region in area.regions:\n"
-          "                if region.type == 'WINDOW':\n"
-          "                    override = {'scene': bpy.context.scene, 'window': window, 'screen': screen, 'area': area, 'region': region}\n"
-          "                    bpy.ops.view3d.view_all(override)\n"
-          "                    break\n";
-
+    os.centerView();
     os.close();
     return conn.saveBlend();
 }
