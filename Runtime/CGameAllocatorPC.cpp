@@ -246,7 +246,6 @@ bool CGameAllocator::Initialize()
     xc_infoHead->x10_prev = nullptr;
     xc_infoHead->x14_next = reinterpret_cast<SGameMemInfo*>(reinterpret_cast<u8*>(x54_heap) + x8_heapSize - sizeof(SGameMemInfo));
     xc_infoHead->x18_ctx = xc_infoHead->x14_next;
-    /* Initialize tail */
     memset(xc_infoHead->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
     x10_infoTail = xc_infoHead->x14_next;
     x10_infoTail->x0_sentinel = skSentinel;
@@ -271,7 +270,7 @@ bool CGameAllocator::Initialize()
     xa0_unknown = 0;
     xa4_unknown = 0;
     xa8_unknown = 0;
-    x4_unknown = 1;
+    x4_unknown  = 1;
 
     /* Report our allocation information */
     AllocLog.report(LogVisor::Info, _S("TotalMem: %d Head: %p Tail: %p"), x8_heapSize, xc_infoHead, x10_infoTail);
@@ -280,7 +279,6 @@ bool CGameAllocator::Initialize()
     x64_smallAllocMainData    = Alloc(0x00000D, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocMainData   ", " - Ignore"));
     x68_smallAllocBookKeeping = Alloc(0x1A0000, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocBookKeeping", " - Ignore"));
     void* smallAlloc          = Alloc(sizeof(CSmallAllocPool), HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocClass      ", " - Ignore"));
-
 
     return true;
 }
