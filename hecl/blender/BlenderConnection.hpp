@@ -37,7 +37,8 @@ public:
         TypeNone,
         TypeMesh,
         TypeActor,
-        TypeArea
+        TypeArea,
+        TypeWorld
     };
 private:
     bool m_lock = false;
@@ -163,7 +164,56 @@ public:
                 this->write(result, length);
             free(result);
         }
-        void linkBlend(const std::string& target, const std::string& objName, bool link=true);
+        void linkBlend(const char* target, const char* objName, bool link=true);
+        void linkBackground(const char* target, const char* sceneName);
+
+        void AABBToBMesh(const atVec3f& min, const atVec3f& max)
+        {
+            format("bm = bmesh.new()\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.new((%f,%f,%f))\n"
+                   "bm.verts.ensure_lookup_table()\n"
+                   "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
+                   "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
+                   "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
+                   "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
+                   "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
+                   "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
+                   "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
+                   "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
+                   "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
+                   "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
+                   "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
+                   "bm.edges.new((bm.verts[6], bm.verts[7]))\n",
+                   min.vec[0], min.vec[1], min.vec[2],
+                   max.vec[0], min.vec[1], min.vec[2],
+                   min.vec[0], max.vec[1], min.vec[2],
+                   max.vec[0], max.vec[1], min.vec[2],
+                   min.vec[0], min.vec[1], max.vec[2],
+                   max.vec[0], min.vec[1], max.vec[2],
+                   min.vec[0], max.vec[1], max.vec[2],
+                   max.vec[0], max.vec[1], max.vec[2]);
+        }
+
+        void centerView()
+        {
+            *this << "bpy.context.user_preferences.view.smooth_view = 0\n"
+                     "for window in bpy.context.window_manager.windows:\n"
+                     "    screen = window.screen\n"
+                     "    for area in screen.areas:\n"
+                     "        if area.type == 'VIEW_3D':\n"
+                     "            for region in area.regions:\n"
+                     "                if region.type == 'WINDOW':\n"
+                     "                    override = {'scene': bpy.context.scene, 'window': window, 'screen': screen, 'area': area, 'region': region}\n"
+                     "                    bpy.ops.view3d.view_all(override)\n"
+                     "                    break\n";
+        }
 
         class ANIMOutStream
         {

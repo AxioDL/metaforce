@@ -372,6 +372,7 @@ static const char* BlendTypeStrs[] =
     "MESH",
     "ACTOR",
     "AREA",
+    "WORLD",
     nullptr
 };
 
@@ -455,8 +456,8 @@ void BlenderConnection::deleteBlend()
     }
 }
 
-void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
-                                               const std::string& objName,
+void BlenderConnection::PyOutStream::linkBlend(const char* target,
+                                               const char* objName,
                                                bool link)
 {
     format("if '%s' not in bpy.data.scenes:\n"
@@ -476,8 +477,27 @@ void BlenderConnection::PyOutStream::linkBlend(const std::string& target,
            "else:\n"
            "    obj = bpy.data.objects['%s']\n"
            "\n",
-           objName.c_str(), target.c_str(), link?"True":"False",
-           objName.c_str(), objName.c_str(), target.c_str(), objName.c_str());
+           objName, target, link?"True":"False",
+           objName, objName, target, objName);
+}
+
+void BlenderConnection::PyOutStream::linkBackground(const char* target,
+                                                    const char* sceneName)
+{
+    format("if '%s' not in bpy.data.scenes:\n"
+           "    with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
+           "        data_to.scenes = data_from.scenes\n"
+           "    obj_scene = None\n"
+           "    for scene in data_to.scenes:\n"
+           "        if scene.name == '%s':\n"
+           "            obj_scene = scene\n"
+           "            break\n"
+           "    if not obj_scene:\n"
+           "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
+           "\n"
+           "bpy.context.scene.background_set = bpy.data.scenes['%s']\n",
+           sceneName, target,
+           sceneName, sceneName, target, sceneName);
 }
 
 BlenderConnection::DataStream::Mesh::Mesh
