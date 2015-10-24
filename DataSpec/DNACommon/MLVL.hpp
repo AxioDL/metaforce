@@ -38,6 +38,7 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
+              "from mathutils import Matrix\n"
               "\n"
               "bpy.context.scene.name = 'World'\n"
               "\n"
@@ -54,16 +55,21 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
         HECL::SystemUTF8View areaDirName(*mreaEntry->unique.m_areaName);
 
         os.AABBToBMesh(area.aabb[0], area.aabb[1]);
-        os.format("box_mesh = bpy.data.meshes.new('%s')\n"
+        os.format("box_mesh = bpy.data.meshes.new('''%s''')\n"
                   "bm.to_mesh(box_mesh)\n"
                   "bm.free()\n"
                   "box = bpy.data.objects.new(box_mesh.name, box_mesh)\n"
                   "bpy.context.scene.objects.link(box)\n"
-                  "box.location = (%f,%f,%f)\n"
-                  "box.scale = (%f,%f,%f)\n",
+                  "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+                  "mtxd = mtx.decompose()\n"
+                  "box.rotation_mode = 'QUATERNION'\n"
+                  "box.location = mtxd[0]\n"
+                  "box.rotation_quaternion = mtxd[1]\n"
+                  "box.scale = mtxd[2]\n",
                   areaDirName.str().c_str(),
-                  area.transformMtx[0].vec[3], area.transformMtx[1].vec[3], area.transformMtx[2].vec[3],
-                  area.transformMtx[0].vec[0], area.transformMtx[1].vec[1], area.transformMtx[2].vec[2]);
+                  area.transformMtx[0].vec[0], area.transformMtx[0].vec[1], area.transformMtx[0].vec[2], area.transformMtx[0].vec[3],
+                  area.transformMtx[1].vec[0], area.transformMtx[1].vec[1], area.transformMtx[1].vec[2], area.transformMtx[1].vec[3],
+                  area.transformMtx[2].vec[0], area.transformMtx[2].vec[1], area.transformMtx[2].vec[2], area.transformMtx[2].vec[3]);
 
         /* Insert dock planes */
         int dockIdx = 0;
