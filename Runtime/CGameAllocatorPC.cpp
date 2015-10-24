@@ -80,54 +80,13 @@ CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlockFromTopOfHeap(u32 siz
         bin = tmp;
     }
 
-    if (!ret)
-        return nullptr;
-
     RemoveFreeEntryFromFreeList(ret);
     return ret;
 }
 
 u32 CGameAllocator::FixupAllocPtrs(SGameMemInfo* memInfo, u32 size, u32 roundedSize, EHint hint, const CCallStack& cs)
 {
-    u32 blockSize = memInfo->x4_size;
-    u32 ret = 0;
-    if ((roundedSize + 32 /*sizeof(SGameMemInfo)*/) == memInfo->x4_size)
-    {
-        ret = 32 /*sizeof(SGameMemInfo)*/;
-        roundedSize += 32 /*sizeof(SGameMemInfo)*/;
-    }
-
-    SGameMemInfo* tmp = memInfo;
-
-    if (memInfo->x4_size == roundedSize)
-    {
-        const char* fileAndLine = cs.GetFileAndLineText();
-        memInfo->x8_fileAndLine = &fileAndLine;
-        const char* typeText = cs.GetTypeText();
-        memInfo->xc_type = &typeText;
-    }
-    else
-    {
-        SGameMemInfo* next = memInfo->x14_next;
-        if (hint == HintNone)
-        {
-            SGameMemInfo* tmpCtx = memInfo->x18_ctx;
-            u32 tmpSize = memInfo->x4_size;
-            SGameMemInfo* newMemInf = (SGameMemInfo*)(((u8*)memInfo) + roundedSize + 32 /*sizeof(SGameMemInfo)*/);
-            newMemInf->x0_sentinel = skSentinel;
-            newMemInf->x4_size = roundedSize - tmpSize;
-            newMemInf->x8_fileAndLine = nullptr;
-            newMemInf->xc_type = nullptr;
-            newMemInf->x10_prev = memInfo;
-            newMemInf->x14_next = next;
-            newMemInf->x18_ctx = tmpCtx;
-            AddFreeEntryToFreeList(newMemInf);
-        }
-    }
-
-    SGameMemInfo* tmp2 = tmp->x10_prev;
-
-    return 32 /*sizeof(SGameMemInfo)*/;
+    return 0;
 }
 
 void CGameAllocator::UpdateAllocDebugStats(u32, u32, u32)
@@ -136,14 +95,56 @@ void CGameAllocator::UpdateAllocDebugStats(u32, u32, u32)
 
 bool CGameAllocator::FreeNormalAllocation(void* ptr)
 {
-    return false;
-    SGameMemInfo* memInfo = GetMemInfoFromBlockPtr(ptr);
-    SGameMemInfo* next = memInfo->x14_next;
-    if (next)
+    SGameMemInfo* block = GetMemInfoFromBlockPtr(ptr);
+    SGameMemInfo* next = block->x14_next;
+    SGameMemInfo* prev = block->x10_prev;
+    SGameMemInfo* tmp = block;
+
+    u32 offset = 0;
+    u32 oldSize = block->x4_size;
+    u32 newSize = 0;
+
+    if (block->x14_next)
+        newSize = (block->x14_next - block) - 0x20;
+
+    block->x4_size = newSize;
+    if (prev && prev->x10_prev)
     {
-        u32 size = next->x4_size;
-        next->x10_prev = next->x14_next;
+        RemoveFreeEntryFromFreeList(prev);
+
+        prev->x14_next = reinterpret_cast<SGameMemInfo*>((size_t)next | (((size_t)prev->x14_next) & 0x1F)); // replace with sizeof(SGameMemInfo) - 1;
+        if (next)
+            next->x10_prev = reinterpret_cast<SGameMemInfo*>((size_t)prev | (((size_t)next->x10_prev) & 0x1F)); // replace with sizeof(SGameMemInfo) - 1;
+
+        prev->x4_size += tmp->x4_size + 0x20;
+        tmp = prev;
     }
+
+    if (next && next->x14_next)
+    {
+        RemoveFreeEntryFromFreeList(next);
+
+        tmp->x14_next = reinterpret_cast<SGameMemInfo*>((size_t)next->x14_next | (((size_t)tmp->x14_next) & 0x1F));
+        SGameMemInfo* tmpNext = tmp->x14_next;
+        if (tmpNext)
+            tmpNext->x10_prev = reinterpret_cast<SGameMemInfo*>((size_t)tmpNext->x10_prev | (((size_t)tmpNext->x10_prev) & 0x1F));
+
+        offset += 0x20;
+        tmp->x4_size += next->x4_size + 0x20;
+    }
+
+
+    AddFreeEntryToFreeList(tmp);
+
+    x84_unknown--;
+    x88_unknown = oldSize - x88_unknown;
+    x8c_unknown -= newSize + offset;
+    x90_unknown += newSize + offset;
+    if (oldSize > 0x38)
+        return true;
+    xa8_unknown--;
+
+    return true;
 }
 
 u32 CGameAllocator::GetFreeBinEntryForSize(u32 size)
@@ -236,16 +237,17 @@ bool CGameAllocator::Initialize()
         return false;
     }
 
-    xc_infoHead = (SGameMemInfo*)(x54_heap);
+    /* Initialize head */
+    xc_infoHead = reinterpret_cast<SGameMemInfo*>(x54_heap);
     xc_infoHead->x0_sentinel = skSentinel;
     xc_infoHead->x4_size = 0x0116d280;
     xc_infoHead->x8_fileAndLine = &skMemHead;
     xc_infoHead->xc_type = &skMemHead;
     xc_infoHead->x10_prev = nullptr;
-    xc_infoHead->x14_next = (SGameMemInfo*)(((u8*)x54_heap) + x8_heapSize - sizeof(SGameMemInfo));
+    xc_infoHead->x14_next = reinterpret_cast<SGameMemInfo*>(reinterpret_cast<u8*>(x54_heap) + x8_heapSize - sizeof(SGameMemInfo));
     xc_infoHead->x18_ctx = xc_infoHead->x14_next;
-    memset(xc_infoHead->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));\
-    AllocLog.report(LogVisor::Info, _S("TotalMem: %d\tHead: %p\n"), x8_heapSize, &xc_infoHead);
+    /* Initialize tail */
+    memset(xc_infoHead->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
     x10_infoTail = xc_infoHead->x14_next;
     x10_infoTail->x0_sentinel = skSentinel;
     x10_infoTail->x4_size = 0;
@@ -253,62 +255,52 @@ bool CGameAllocator::Initialize()
     x10_infoTail->xc_type = &skMemTail;
     x10_infoTail->x10_prev = xc_infoHead;
     x10_infoTail->x14_next = nullptr;
-    x10_infoTail->x18_ctx = xc_infoHead;
+    x10_infoTail->x18_ctx = nullptr;
     memset(x10_infoTail->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
 
+    /* Add head to our list of free bins */
     AddFreeEntryToFreeList(xc_infoHead);
 
-    Alloc(0x000d0000, HintNone, ScopeDefault, TypePrimitive, CCallStack(__FILE__, "Test"));
+    /* TODO: Figure out what's going on here */
+    x80_unknown = 0;
+    x88_unknown = 0;
+    x8c_unknown = 0;
+    x90_unknown = (u8*)x54_heap;
+    x94_unknown = 0;
+    x98_unknown = 0;
+    xa0_unknown = 0;
+    xa4_unknown = 0;
+    xa8_unknown = 0;
+    x4_unknown = 1;
+
+    /* Report our allocation information */
+    AllocLog.report(LogVisor::Info, _S("TotalMem: %d Head: %p Tail: %p"), x8_heapSize, xc_infoHead, x10_infoTail);
+
+    /* Allocate memory for CSmallAllocPool */
+    x64_smallAllocMainData    = Alloc(0x00000D, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocMainData   ", " - Ignore"));
+    x68_smallAllocBookKeeping = Alloc(0x1A0000, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocBookKeeping", " - Ignore"));
+    void* smallAlloc          = Alloc(sizeof(CSmallAllocPool), HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocClass      ", " - Ignore"));
+
     return true;
 }
 
 void CGameAllocator::Shutdown()
 {
     ReleaseAll();
-    _mm_free((void*)x54_heap);
+    _mm_free(reinterpret_cast<void*>(x54_heap));
     x54_heap = nullptr;
     x8_heapSize = 0;
 }
 
 void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, const CCallStack& cs)
 {
-    SGameMemInfo* ret = nullptr;
-    u32 roundedSize = ALLOC_ROUNDUP(size);
-    switch(hint)
-    {
-        case HintNone:
-        {
-            if (x60_smallAllocPool && size <= 0x38)
-            {
-                ret = x60_smallAllocPool->Alloc(size);
-                break;
-            }
-        }
-        case HintLarge:
-        {
-            if (x70_mediumAllocPool && size <= 0x400)
-            {
-                ret = x70_mediumAllocPool->Alloc(size);
-                break;
-            }
-        }
-        case HintTopOfHeap:
-            ret = FindFreeBlockFromTopOfHeap(roundedSize);
-            break;
-    }
+    u32 r27 = size;
+    EHint r28 = hint;
+    EScope r26 = scope;
+    EType r25 = type;
+    CCallStack r29 = cs;
 
-    if (!ret)
-        ret = FindFreeBlock(size);
-
-    if (!ret)
-    {
-        AllocLog.report(LogVisor::FatalError, "Unable to acquire memory!");
-        return nullptr;
-    }
-
-    u32 offset = FixupAllocPtrs(ret, size, roundedSize, hint, cs);
-
-    return (void*)((u8*)(ret) + offset);
+    return nullptr;
 }
 
 bool CGameAllocator::Free(void* buf)
