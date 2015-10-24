@@ -5,6 +5,11 @@
 #include <objbase.h>
 #endif
 
+#define NEW(sz, type) new(sizeof(type), __FILE__, #type) type
+#define STRX(x) #x
+#define STR(x) STRX(x)
+#define NEW_ARRAY(sz, type) new(__FILE__ "(" STR(__LINE__) ")", #type) type[sz]
+
 #include <clocale>
 #include <memory>
 #include <boo/boo.hpp>
@@ -157,8 +162,12 @@ int CMain::RsMain(int argc, const boo::SystemChar* argv[])
     g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
     TOneStatic<CGameArchitectureSupport> archSupport;
+    u8* tmp;
+    tmp = NEW_ARRAY(256, u8);
+    delete[] tmp;
     while (!xe8_b24_finished)
     {
+        break;
         xe8_b24_finished = archSupport->Update();
     }
 
@@ -180,6 +189,7 @@ int main(int argc, const char* argv[])
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
     
+    LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
     std::unique_ptr<boo::IApplication> app =
         boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *main,

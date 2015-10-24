@@ -31,15 +31,37 @@ public:
     };
 
 private:
+    u32                  x4_unknown          = 0; // The game stores a byte here
     u32                  x8_heapSize         = 0;
     SGameMemInfo*        xc_infoHead         = nullptr;
     SGameMemInfo*        x10_infoTail        = nullptr;
-    SGameMemInfo*        x14_bins[0x10]      = {nullptr};
-    void*                x54_heap            = nullptr;
-    TOutOfMemoryCallback x58_oomCb           = nullptr;
-    void*                x5c_oomCtx          = nullptr;
-    CSmallAllocPool*     x60_smallAllocPool  = nullptr;
+    SGameMemInfo*        x14_bins[0x10]         = {nullptr};
+    void*                x54_heap               = nullptr;
+    TOutOfMemoryCallback x58_oomCb              = nullptr;
+    void*                x5c_oomCtx             = nullptr;
+    CSmallAllocPool*     x60_smallAllocPool     = nullptr;
+    void*                x64_smallAllocMainData = nullptr;
+    void*                x68_smallAllocBookKeeping = nullptr;
+    u32                  x6c_unknown         = 0;
     CMediumAllocPool*    x70_mediumAllocPool = nullptr;
+    u32                  x74_unknown         = 0;
+    u32                  x78_unknown         = 0;
+    u32                  x7c_unknown         = 0;
+    u32                  x80_unknown         = 0;
+    u32                  x84_unknown         = 0;
+    u32                  x88_unknown         = 0;
+    u32                  x8c_unknown         = 0;
+    u8*                  x90_unknown         = nullptr;
+    u32                  x94_unknown         = 0;
+    u32                  x98_unknown         = 0;
+    u32                  x9c_unknown         = 0;
+    u32                  xa0_unknown         = 0;
+    u32                  xa4_unknown         = 0;
+    u32                  xa8_unknown         = 0;
+    u32                  xac_unknown         = 0;
+    u32                  xb0_unknown         = 0;
+    u32                  xb4_unknown         = 0;
+    u32                  xb8_unknown         = 0;
     u32                  xbc_fakeStaticOff   = 0;
 public:
     SGameMemInfo* FindFreeBlock(u32);
@@ -103,6 +125,7 @@ public:
 
     void* FindFree(int size)
     {
+        return nullptr;
     }
 
     bool  Free(const void* buf)

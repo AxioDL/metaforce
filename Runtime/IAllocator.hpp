@@ -30,6 +30,12 @@ public:
     };
     struct SAllocInfo
     {
+        void* x0_memInfo;
+        u32   x4_size;
+        u8    x8_unk1; // Retro puts memInfo's prev pointer here o.o
+        u8    x9_unk2; // this is always set to 0
+        const char**    xc_fileAndLine;
+        const char**    x10_type;
     };
     struct SMetrics
     {
