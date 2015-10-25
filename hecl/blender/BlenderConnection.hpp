@@ -38,7 +38,9 @@ public:
         TypeMesh,
         TypeActor,
         TypeArea,
-        TypeWorld
+        TypeWorld,
+        TypeMapArea,
+        TypeMapUniverse
     };
 private:
     bool m_lock = false;

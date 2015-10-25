@@ -9,7 +9,9 @@ list(APPEND PY_SOURCES
      hecl/sact/SACTAction.py
      hecl/sact/SACTSubtype.py
      hecl/srea/__init__.py
-     hecl/swld/__init__.py)
+     hecl/swld/__init__.py
+     hecl/mapa.py
+     hecl/mapu.py)
 
 bintoc(hecl_blendershell.c hecl_blendershell.py HECL_BLENDERSHELL)
 

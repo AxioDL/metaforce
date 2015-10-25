@@ -373,6 +373,8 @@ static const char* BlendTypeStrs[] =
     "ACTOR",
     "AREA",
     "WORLD",
+    "MAPAREA",
+    "MAPUNIVERSE",
     nullptr
 };
 
