@@ -309,43 +309,6 @@ public:
             progress(++count / bridgesSz);
             ++bridgeIdx;
         }
-
-        /* TEMP: CSV dump */
-        FILE* fp = HECL::Fopen(_S("/home/jacko/Desktop/mp_res.txt"), _S("w"));
-        for (const auto& entry : m_uniqueEntries)
-        {
-            const EntryType* ent = entry.second.second;
-            fprintf(fp, "%s\t0x%s\t\t", ent->type.toString().c_str(), entry.first.toString().c_str());
-            switch (ent->unique.m_type)
-            {
-            case UniqueResult::UNIQUE_NOTFOUND:
-            case UniqueResult::UNIQUE_PAK:
-            {
-                const HECL::ProjectPath& pakPath = m_bridgePaths[entry.second.first].first;
-                fprintf(fp, _S("%s\n"), pakPath.getLastComponent());
-                break;
-            }
-            case UniqueResult::UNIQUE_LEVEL:
-                fprintf(fp, _S("%s\n"), ent->unique.m_levelName->c_str());
-                break;
-            case UniqueResult::UNIQUE_AREA:
-                fprintf(fp, _S("%s/%s\n"), ent->unique.m_levelName->c_str(), ent->unique.m_areaName->c_str());
-                break;
-            case UniqueResult::UNIQUE_LAYER:
-                fprintf(fp, _S("%s/%s/%s\n"), ent->unique.m_levelName->c_str(), ent->unique.m_areaName->c_str(), ent->unique.m_layerName->c_str());
-                break;
-            default:
-                fprintf(fp, "\n");
-                break;
-            }
-        }
-        fprintf(fp, "\n");
-        for (const auto& entry : m_sharedEntries)
-        {
-            const EntryType* ent = entry.second.second;
-            fprintf(fp, "%s\t0x%s\t\t\n", ent->type.toString().c_str(), entry.first.toString().c_str());
-        }
-        fclose(fp);
     }
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge)
