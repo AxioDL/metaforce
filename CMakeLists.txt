@@ -33,9 +33,9 @@ set(HECL_DATASPEC_PUSHES
 add_subdirectory(hecl)
 add_subdirectory(NODLib)
 set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
+add_definitions(-DZE_ATHENA_TYPES=1)
 add_subdirectory(MathLib)
 set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
-add_definitions(-DZE_ATHENA_TYPES=1)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
