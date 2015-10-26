@@ -35,6 +35,8 @@ void PAK::read(Athena::io::IStreamReader& reader)
     atUint32 count = reader.readUint32Big();
     m_entries.clear();
     m_entries.reserve(count);
+    m_firstEntries.clear();
+    m_firstEntries.reserve(count);
     m_idMap.clear();
     m_idMap.reserve(count);
     for (atUint32 e=0 ; e<count ; ++e)
@@ -44,7 +46,14 @@ void PAK::read(Athena::io::IStreamReader& reader)
         m_entries.back().offset += dataOffset;
     }
     for (Entry& entry : m_entries)
-        m_idMap[entry.id] = &entry;
+    {
+        auto search = m_idMap.find(entry.id);
+        if (search == m_idMap.end())
+        {
+            m_firstEntries.push_back(&entry);
+            m_idMap[entry.id] = &entry;
+        }
+    }
 
     m_nameMap.clear();
     m_nameMap.reserve(nameCount);

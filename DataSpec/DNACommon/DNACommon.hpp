@@ -73,6 +73,7 @@ public:
     }
 
     UniqueID32() = default;
+    UniqueID32(Athena::io::IStreamReader& reader) {read(reader);}
     UniqueID32(const char* hexStr)
     {
         char copy[9];
@@ -111,6 +112,7 @@ public:
     }
 
     UniqueID64() = default;
+    UniqueID64(Athena::io::IStreamReader& reader) {read(reader);}
     UniqueID64(const char* hexStr)
     {
         char copy[17];

@@ -83,9 +83,11 @@ void PAKBridge::build()
         {
             Level& level = m_levelDeps[entry.id];
 
-            PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
-            mlvl.read(rs);
+            {
+                PAKEntryReadStream rs = entry.beginReadStream(m_node);
+                mlvl.read(rs);
+            }
 #if HECL_UCS2
             level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry));
 #else
@@ -93,6 +95,19 @@ void PAKBridge::build()
 #endif
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
+
+            /* Make MAPW available to lookup MAPAs */
+            const PAK::Entry* worldMapEnt = m_pak.lookupEntry(mlvl.worldMap);
+            std::vector<UniqueID64> mapw;
+            if (worldMapEnt)
+            {
+                PAKEntryReadStream rs = worldMapEnt->beginReadStream(m_node);
+                rs.seek(8, Athena::Current);
+                atUint32 areaCount = rs.readUint32Big();
+                mapw.reserve(areaCount);
+                for (atUint32 i=0 ; i<areaCount ; ++i)
+                    mapw.emplace_back(rs);
+            }
 
             /* Index areas */
             unsigned ai = 0;
@@ -104,16 +119,18 @@ void PAKBridge::build()
                 if (areaNameEnt)
                 {
                     STRG areaName;
-                    PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
-                    areaName.read(rs);
+                    {
+                        PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
+                        areaName.read(rs);
+                    }
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
 
                     /* Trim possible trailing whitespace */
 #if HECL_UCS2
-                    while (areaDeps.name.size() && iswblank(areaDeps.name.back()))
+                    while (areaDeps.name.size() && iswspace(areaDeps.name.back()))
                         areaDeps.name.pop_back();
 #else
-                    while (areaDeps.name.size() && isblank(areaDeps.name.back()))
+                    while (areaDeps.name.size() && isspace(areaDeps.name.back()))
                         areaDeps.name.pop_back();
 #endif
                 }
@@ -134,7 +151,7 @@ void PAKBridge::build()
                     }
                 }
                 HECL::SystemChar num[16];
-                HECL::SNPrintf(num, 16, _S("%02u "), ai++);
+                HECL::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
                 const MLVL::LayerFlags& areaLayers = *layerFlagsIt++;
@@ -149,10 +166,10 @@ void PAKBridge::build()
                         layer.active = areaLayers.flags >> l & 0x1;
                         /* Trim possible trailing whitespace */
 #if HECL_UCS2
-                        while (layer.name.size() && iswblank(layer.name.back()))
+                        while (layer.name.size() && iswspace(layer.name.back()))
                             layer.name.pop_back();
 #else
-                        while (layer.name.size() && isblank(layer.name.back()))
+                        while (layer.name.size() && isspace(layer.name.back()))
                             layer.name.pop_back();
 #endif
                         HECL::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
@@ -166,8 +183,11 @@ void PAKBridge::build()
                 {
                     PAKEntryReadStream ars = areaEntry->beginReadStream(m_node);
                     MREA::ExtractLayerDeps(ars, areaDeps);
-                    areaDeps.resources.emplace(area.areaMREAId);
                 }
+                areaDeps.resources.emplace(area.areaMREAId);
+                if (mapw.size() > ai)
+                    areaDeps.resources.emplace(mapw[ai]);
+                ++ai;
             }
         }
     }

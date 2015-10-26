@@ -33,7 +33,7 @@ public:
             m_pos += pos;
         else if (origin == Athena::End)
             m_pos = m_sz + pos;
-        if (m_pos >= m_sz)
+        if (m_pos > m_sz)
             LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
     }
     atUint64 position() const {return m_pos;}
@@ -309,6 +309,43 @@ public:
             progress(++count / bridgesSz);
             ++bridgeIdx;
         }
+
+        /* TEMP: CSV dump */
+        FILE* fp = HECL::Fopen(_S("/home/jacko/Desktop/mp_res.txt"), _S("w"));
+        for (const auto& entry : m_uniqueEntries)
+        {
+            const EntryType* ent = entry.second.second;
+            fprintf(fp, "%s\t0x%s\t\t", ent->type.toString().c_str(), entry.first.toString().c_str());
+            switch (ent->unique.m_type)
+            {
+            case UniqueResult::UNIQUE_NOTFOUND:
+            case UniqueResult::UNIQUE_PAK:
+            {
+                const HECL::ProjectPath& pakPath = m_bridgePaths[entry.second.first].first;
+                fprintf(fp, _S("%s\n"), pakPath.getLastComponent());
+                break;
+            }
+            case UniqueResult::UNIQUE_LEVEL:
+                fprintf(fp, _S("%s\n"), ent->unique.m_levelName->c_str());
+                break;
+            case UniqueResult::UNIQUE_AREA:
+                fprintf(fp, _S("%s/%s\n"), ent->unique.m_levelName->c_str(), ent->unique.m_areaName->c_str());
+                break;
+            case UniqueResult::UNIQUE_LAYER:
+                fprintf(fp, _S("%s/%s/%s\n"), ent->unique.m_levelName->c_str(), ent->unique.m_areaName->c_str(), ent->unique.m_layerName->c_str());
+                break;
+            default:
+                fprintf(fp, "\n");
+                break;
+            }
+        }
+        fprintf(fp, "\n");
+        for (const auto& entry : m_sharedEntries)
+        {
+            const EntryType* ent = entry.second.second;
+            fprintf(fp, "%s\t0x%s\t\t\n", ent->type.toString().c_str(), entry.first.toString().c_str());
+        }
+        fclose(fp);
     }
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge)
@@ -505,23 +542,33 @@ public:
         float fsz = sz;
         for (unsigned w=0 ; count<sz ; ++w)
         {
-            for (const auto& item : m_pak->m_idMap)
+            for (const auto& item : m_pak->m_firstEntries)
             {
-                ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item.second);
+                ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item);
                 if (extractor.weight != w)
                     continue;
                 
-                std::string bestName = getBestEntryName(*item.second);
+                std::string bestName = getBestEntryName(*item);
                 HECL::SystemStringView bestNameView(bestName);
                 float thisFac = ++count / fsz;
                 progress(bestNameView.sys_str().c_str(), thisFac);
 
-                HECL::ProjectPath working = getWorking(item.second, extractor);
+                /* TODO: Position after extracted item */
+                HECL::ProjectPath cooked = getCooked(item);
+                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
+                {
+                    PAKEntryReadStream s = item->beginReadStream(*m_node);
+                    FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
+                    fwrite(s.data(), 1, s.length(), fout);
+                    fclose(fout);
+                }
+
+                HECL::ProjectPath working = getWorking(item, extractor);
                 if (extractor.func_a) /* Doesn't need PAKRouter access */
                 {
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
-                        PAKEntryReadStream s = item.second->beginReadStream(*m_node);
+                        PAKEntryReadStream s = item->beginReadStream(*m_node);
                         extractor.func_a(s, working);
                     }
                 }
@@ -529,24 +576,13 @@ public:
                 {
                     if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
                     {
-                        PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                        extractor.func_b(m_dataSpec, s, working, *this, *item.second, force,
+                        PAKEntryReadStream s = item->beginReadStream(*m_node);
+                        extractor.func_b(m_dataSpec, s, working, *this, *item, force,
                                          [&progress, thisFac](const HECL::SystemChar* update)
                                          {
                                              progress(update, thisFac);
                                          });
                     }
-                }
-
-                /* Extract original cooked copy AFTER working so timestamps make
-                 * the original a valid cached item */
-                HECL::ProjectPath cooked = getCooked(item.second);
-                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
-                {
-                    PAKEntryReadStream s = item.second->beginReadStream(*m_node);
-                    FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
-                    fwrite(s.data(), 1, s.length(), fout);
-                    fclose(fout);
                 }
             }
         }

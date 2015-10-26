@@ -46,13 +46,18 @@ bool MREA::Extract(const SpecBase& dataSpec,
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
+    /* Rename MREA for consistency */
+    HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    if (!force && mreaPath.getPathType() == HECL::ProjectPath::PT_FILE)
+        return true;
+
     /* Do extract */
     Header head;
     head.read(rs);
     rs.seekAlign32();
 
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeArea))
+    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::TypeArea))
         return false;
 
     /* Open Py Stream and read sections */

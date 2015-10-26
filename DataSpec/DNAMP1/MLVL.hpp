@@ -116,6 +116,9 @@ struct MLVL : BigYAML
     {
         MLVL mlvl;
         mlvl.read(rs);
+        FILE* fp = HECL::Fopen(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath().c_str(), _S("w"));
+        mlvl.toYAMLFile(fp);
+        fclose(fp);
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);

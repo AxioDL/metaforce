@@ -57,6 +57,7 @@ struct PAK : BigDNA
 
     std::vector<NameEntry> m_nameEntries;
     std::vector<Entry> m_entries;
+    std::vector<Entry*> m_firstEntries;
     std::unordered_map<UniqueID64, Entry*> m_idMap;
     std::unordered_map<std::string, Entry*> m_nameMap;
 

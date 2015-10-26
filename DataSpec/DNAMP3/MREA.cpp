@@ -71,11 +71,16 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    const HECL::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
-                   bool,
+                   bool force,
                    std::function<void(const HECL::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
+
+    /* Rename MREA for consistency */
+    HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    if (!force && mreaPath.getPathType() == HECL::ProjectPath::PT_FILE)
+        return true;
 
     /* Do extract */
     Header head;
@@ -99,7 +104,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Start up blender connection */
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeArea))
+    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::TypeArea))
         return false;
 
     /* Open Py Stream and read sections */
@@ -267,7 +272,7 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
                 for (; r<deps.depLayers[l] ; ++r)
                     layer.resources.emplace(deps.deps[r].id);
             }
-            areaOut.resources.reserve(deps.depCount - r);
+            areaOut.resources.reserve(deps.depCount - r + 2);
             for (; r<deps.depCount ; ++r)
                 areaOut.resources.emplace(deps.deps[r].id);
 
