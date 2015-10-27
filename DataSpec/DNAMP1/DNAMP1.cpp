@@ -239,6 +239,11 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             {
                 PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
                 animEnt->name = HECL::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
+                if (ae.second.evntId)
+                {
+                    PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.evntId);
+                    evntEnt->name = HECL::Format("ANCS_%08X_%s_evnt", entry.first.toUint32(), ae.second.name.c_str());
+                }
             }
         }
         else if (entry.second->type == FOURCC('MREA'))
