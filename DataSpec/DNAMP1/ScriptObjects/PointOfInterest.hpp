@@ -18,6 +18,11 @@ struct PointOfInterest : IScriptObject
     Value<bool> unknown1;
     ScannableParameters scannableParameters;
     Value<float> unknown2;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        scannableParameters.nameIDs(pakRouter, name + "_scanp");
+    }
 };
 }
 }

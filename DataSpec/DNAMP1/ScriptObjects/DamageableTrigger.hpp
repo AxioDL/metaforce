@@ -24,6 +24,25 @@ struct DamageableTrigger : IScriptObject
     Value<bool> lockOn;
     Value<bool> active;
     VisorParameters visorParameters;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (texture1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+            ent->name = name + "_texture1";
+        }
+        if (texture2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+            ent->name = name + "_texture2";
+        }
+        if (texture3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture3);
+            ent->name = name + "_texture3";
+        }
+    }
 };
 }
 }

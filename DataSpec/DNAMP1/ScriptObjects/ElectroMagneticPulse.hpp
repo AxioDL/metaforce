@@ -24,6 +24,15 @@ struct ElectroMagneticPulse : IScriptObject
     Value<float> unknown7;
     Value<float> unknown8;
     UniqueID32 particle;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+    }
 };
 }
 }

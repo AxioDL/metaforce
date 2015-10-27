@@ -50,7 +50,7 @@ class UniqueID32 : public BigYAML
     uint32_t m_id = 0xffffffff;
 public:
     Delete expl;
-    operator bool() const {return m_id != 0xffffffff;}
+    operator bool() const {return m_id != 0xffffffff && m_id != 0;}
     void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint32Big();}
     void write(Athena::io::IStreamWriter& writer) const
@@ -89,7 +89,7 @@ class UniqueID64 : public BigYAML
     uint64_t m_id = 0xffffffffffffffff;
 public:
     Delete expl;
-    operator bool() const {return m_id != 0xffffffffffffffff;}
+    operator bool() const {return m_id != 0xffffffffffffffff && m_id != 0;}
     void read(Athena::io::IStreamReader& reader)
     {m_id = reader.readUint64Big();}
     void write(Athena::io::IStreamWriter& writer) const
@@ -136,7 +136,7 @@ public:
     Delete expl;
     UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
     operator bool() const
-    {return m_id[0] != 0xffffffffffffffff && m_id[1] != 0xffffffffffffffff;}
+    {return m_id[0] != 0xffffffffffffffff && m_id[0] != 0 && m_id[1] != 0xffffffffffffffff && m_id[1] != 0;}
     void read(Athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64Big();

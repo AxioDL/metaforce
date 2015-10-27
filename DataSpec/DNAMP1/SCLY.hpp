@@ -29,6 +29,9 @@ struct SCLY : BigYAML
         void read(Athena::io::IStreamReader &rs);
         void write(Athena::io::IStreamWriter &ws) const;
         size_t binarySize(size_t __isz) const;
+        void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+                std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
+        void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
     };
     Vector<ScriptLayer, DNA_COUNT(layerCount)> layers;
 
@@ -36,7 +39,10 @@ struct SCLY : BigYAML
     void write(Athena::io::IStreamWriter &ws) const;
     size_t binarySize(size_t __isz) const;
 
-    void exportToLayerDirectories(const PAK::Entry &, PAKRouter<PAKBridge>&, bool);
+    void exportToLayerDirectories(const PAK::Entry &, PAKRouter<PAKBridge>&, bool) const;
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
 };
 }
 }

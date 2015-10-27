@@ -190,7 +190,7 @@ struct ANCS : BigYAML
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
-                out[animIdx] = {animName, animId, false};
+                out[animIdx] = {animName, animId, UniqueID32(), false};
             }
         };
         struct MetaAnimBlend : IMetaAnim
@@ -375,6 +375,17 @@ struct ANCS : BigYAML
         out.clear();
         for (const AnimationSet::Animation& ai : animationSet.animations)
             ai.metaAnim.m_anim->gatherPrimitives(out);
+        for (auto& anim : out)
+        {
+            for (const AnimationSet::AnimationResources& res : animationSet.animResources)
+            {
+                if (res.animId == anim.second.animId)
+                {
+                    anim.second.evntId = res.evntId;
+                    break;
+                }
+            }
+        }
     }
 
     static bool Extract(const SpecBase& dataSpec,

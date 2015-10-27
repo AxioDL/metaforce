@@ -36,7 +36,7 @@ size_t SCLY::binarySize(size_t __isz) const
     return __EnumerateSize(__isz, layers);
 }
 
-void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge> &pakRouter, bool force)
+void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge> &pakRouter, bool force) const
 {
     for (atUint32 i = 0; i < layerCount; i++)
     {
@@ -52,6 +52,32 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
             fclose(yaml);
         }
     }
+}
+
+void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+{
+    for (const ScriptLayer& layer : layers)
+        layer.addCMDLRigPairs(pakRouter, addTo);
+}
+
+void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+{
+    for (const std::shared_ptr<IScriptObject>& obj : objects)
+        obj->addCMDLRigPairs(pakRouter, addTo);
+}
+
+void SCLY::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+{
+    for (const ScriptLayer& layer : layers)
+        layer.nameIDs(pakRouter);
+}
+
+void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+{
+    for (const std::shared_ptr<IScriptObject>& obj : objects)
+        obj->nameIDs(pakRouter);
 }
 
 void SCLY::fromYAML(Athena::io::YAMLDocReader& docin)

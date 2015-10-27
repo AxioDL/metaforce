@@ -57,6 +57,28 @@ struct Drone : IScriptObject
     Value<float> unknon29;
     Value<atUint32> sound; // verification needed
     Value<bool> unknown30;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (crsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(crsc);
+            ent->name = name + "_crsc";
+        }
+        flareDefinition1.nameIDs(pakRouter, name + "_flare1");
+        flareDefinition2.nameIDs(pakRouter, name + "_flare2");
+        flareDefinition3.nameIDs(pakRouter, name + "_flare3");
+        flareDefinition4.nameIDs(pakRouter, name + "_flare4");
+        flareDefinition5.nameIDs(pakRouter, name + "_flare5");
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

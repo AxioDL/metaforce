@@ -22,6 +22,15 @@ struct VisorFlare : IScriptObject
     Value<float> unknown6;
     Value<atUint32> unknown7;
     FlareDefinition flareDefinitions[5];
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        flareDefinitions[0].nameIDs(pakRouter, name + "_flare1");
+        flareDefinitions[1].nameIDs(pakRouter, name + "_flare2");
+        flareDefinitions[2].nameIDs(pakRouter, name + "_flare3");
+        flareDefinitions[3].nameIDs(pakRouter, name + "_flare4");
+        flareDefinitions[4].nameIDs(pakRouter, name + "_flare5");
+    }
 };
 }
 }

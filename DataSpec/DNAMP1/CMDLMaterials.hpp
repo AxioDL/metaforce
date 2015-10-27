@@ -360,7 +360,6 @@ struct MaterialSet : BigDNA
                 case ANIM_HSTRIP:
                 case ANIM_VSTRIP:
                     return __isz + 20;
-                    break;
                 case ANIM_ROTATION:
                 case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
                     return __isz + 12;
@@ -409,6 +408,49 @@ struct MaterialSet : BigDNA
                        unsigned setIdx)
     {
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
+    }
+
+    template <class PAKRouter>
+    void nameTextures(PAKRouter& pakRouter, const char* prefix, int setIdx) const
+    {
+        int matIdx = 0;
+        for (const Material& mat : materials)
+        {
+            int stageIdx = 0;
+            for (const Material::TEVStage& stage : mat.tevStages)
+            {
+                const Material::TEVStageTexInfo& texInfo = mat.tevStageTexInfo[stageIdx];
+                if (texInfo.texSlot == 0xff)
+                {
+                    ++stageIdx;
+                    continue;
+                }
+                const NOD::Node* node;
+                typename PAKRouter::EntryType* texEntry = (typename PAKRouter::EntryType*)
+                pakRouter.lookupEntry(head.textureIDs[mat.textureIdxs[texInfo.texSlot]], &node);
+                if (texEntry->name.size())
+                {
+                    if (texEntry->name.size() < 5 || texEntry->name.compare(0, 5, "mult_"))
+                        texEntry->name = "mult_" + texEntry->name;
+                    ++stageIdx;
+                    continue;
+                }
+                if (setIdx < 0)
+                    texEntry->name = HECL::Format("%s_%d_%d", prefix, matIdx, stageIdx);
+                else
+                    texEntry->name = HECL::Format("%s_%d_%d_%d", prefix, setIdx, matIdx, stageIdx);
+
+                if (mat.flags.lightmap() && stageIdx == 0)
+                {
+                    texEntry->name += "light";
+                    ++stageIdx;
+                    continue;
+                }
+
+                ++stageIdx;
+            }
+            ++matIdx;
+        }
     }
 
 };

@@ -48,6 +48,28 @@ struct SpacePirate : IScriptObject
     Value<atUint32> soundID5;
     Value<float> unknown19;
     Value<float> unknown20;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (wpsc1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+            ent->name = name + "_wpsc1";
+        }
+        if (wpsc2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
+            ent->name = name + "_wpsc2";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

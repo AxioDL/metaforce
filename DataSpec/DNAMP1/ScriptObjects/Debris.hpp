@@ -30,6 +30,21 @@ struct Debris : IScriptObject
     Value<atVec3f> unknown9;
     Value<bool> unknown10;
     Value<bool> unknown11;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

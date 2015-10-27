@@ -31,6 +31,28 @@ struct Platform : IScriptObject
     Value<bool> unknown5;
     Value<atUint32> unknown6;
     Value<atUint32> unknown7;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (dcln)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dcln);
+            ent->name = name + "_dcln";
+        }
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

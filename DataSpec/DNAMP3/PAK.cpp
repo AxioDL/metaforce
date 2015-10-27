@@ -61,7 +61,10 @@ void PAK::read(Athena::io::IStreamReader& reader)
     {
         auto search = m_idMap.find(entry.id);
         if (search != m_idMap.end())
+        {
             m_nameMap[entry.name] = search->second;
+            search->second->name = entry.name;
+        }
     }
 }
 void PAK::write(Athena::io::IStreamWriter& writer) const

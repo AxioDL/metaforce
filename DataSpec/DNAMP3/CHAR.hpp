@@ -162,7 +162,7 @@ struct CHAR : BigYAML
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out)
             {
-                out[animIdx] = {animName, animId, false};
+                out[animIdx] = {animName, animId, UniqueID64(), false};
             }
         };
         struct MetaAnimBlend : IMetaAnim

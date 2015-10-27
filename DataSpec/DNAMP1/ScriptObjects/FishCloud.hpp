@@ -48,6 +48,16 @@ struct FishCloud : IScriptObject
     Value<atUint32> unknown28;
     Value<bool> unknown29;
     Value<bool> unknown30;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+    }
 };
 }
 }

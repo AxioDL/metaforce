@@ -80,6 +80,29 @@ struct SCAN : BigYAML
         fclose(fp);
         return true;
     }
+
+    static void Name(const SpecBase& dataSpec,
+                     PAKEntryReadStream& rs,
+                     PAKRouter<PAKBridge>& pakRouter,
+                     PAK::Entry& entry)
+    {
+        SCAN scan;
+        scan.read(rs);
+        if (scan.string)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(scan.string);
+            ent->name = HECL::Format("SCAN_%s_strg", entry.id.toString().c_str());
+        }
+        for (int i=0 ; i<4 ; ++i)
+        {
+            const Texture& tex = scan.textures[i];
+            if (tex.texture)
+            {
+                PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tex.texture);
+                ent->name = HECL::Format("SCAN_%s_tex%d", entry.id.toString().c_str(), i+1);
+            }
+        }
+    }
 };
 }
 }

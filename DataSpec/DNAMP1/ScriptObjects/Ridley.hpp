@@ -57,6 +57,30 @@ struct Ridley : IScriptObject
         Value<float> unknown11;
         Value<atVec4f> unknown12; //CColor
         Value<atVec4f> unknown13; //CColor
+
+        void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+        {
+            if (particle1)
+            {
+                PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+                ent->name = name + "_part1";
+            }
+            if (particle2)
+            {
+                PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+                ent->name = name + "_part2";
+            }
+            if (texture1)
+            {
+                PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+                ent->name = name + "_tex1";
+            }
+            if (texture2)
+            {
+                PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+                ent->name = name + "_tex2";
+            }
+        }
     } ridleyStruct1;
 
     Value<atUint32> soundID1;
@@ -543,6 +567,109 @@ struct Ridley : IScriptObject
     static const char* DNAType()
     {
         return "Retro::DNAMP1::Ridley";
+    }
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        if (model1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
+            ent->name = name + "_model1";
+        }
+        if (model2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
+            ent->name = name + "_model2";
+        }
+        if (model3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model3);
+            ent->name = name + "_model3";
+        }
+        if (model4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model4);
+            ent->name = name + "_model4";
+        }
+        if (model5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model5);
+            ent->name = name + "_model5";
+        }
+        if (model6)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model6);
+            ent->name = name + "_model6";
+        }
+        if (model7)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model7);
+            ent->name = name + "_model7";
+        }
+        if (model8)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model8);
+            ent->name = name + "_model8";
+        }
+        if (model9)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model9);
+            ent->name = name + "_model9";
+        }
+        if (model10)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model10);
+            ent->name = name + "_model10";
+        }
+        if (model11)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model11);
+            ent->name = name + "_model11";
+        }
+        if (model12)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model12);
+            ent->name = name + "_model12";
+        }
+        if (wpsc1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+            ent->name = name + "_wpsc1";
+        }
+        if (wpsc2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
+            ent->name = name + "_wpsc2";
+        }
+        if (wpsc3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc3);
+            ent->name = name + "_wpsc3";
+        }
+        if (wpsc4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc4);
+            ent->name = name + "_wpsc4";
+        }
+        if (elsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
+            ent->name = name + "_elsc";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+        ridleyStruct1.nameIDs(pakRouter, name + "_ridley1");
     }
 };
 }

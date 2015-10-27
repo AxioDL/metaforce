@@ -18,6 +18,15 @@ struct Midi : IScriptObject
     Value<float> unknown2;
     Value<float> unknown3;
     Value<atUint32> unknown4;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (song)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(song);
+            ent->name = name + "_song";
+        }
+    }
 };
 }
 }

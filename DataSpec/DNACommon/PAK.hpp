@@ -206,6 +206,8 @@ struct ResExtractor
                        std::function<void(const HECL::SystemChar*)>)> func_b;
     const HECL::SystemChar* fileExts[4];
     unsigned weight;
+    std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
+                       typename PAKBRIDGE::PAKType::Entry&)> func_name;
 };
 
 /* Level hierarchy representation */
@@ -304,7 +306,7 @@ public:
             }
 
             /* Add RigPairs to global map */
-            bridge.addCMDLRigPairs(m_cmdlRigs);
+            bridge.addCMDLRigPairs(*this, m_cmdlRigs);
 
             progress(++count / bridgesSz);
             ++bridgeIdx;

@@ -28,6 +28,7 @@ struct AnimationResInfo
 {
     std::string name;
     IDTYPE animId;
+    IDTYPE evntId;
     bool additive;
 };
 

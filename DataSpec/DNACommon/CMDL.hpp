@@ -1024,6 +1024,36 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
     return true;
 }
 
+template <class PAKRouter, class MaterialSet>
+void NameCMDL(Athena::io::IStreamReader& reader,
+              PAKRouter& pakRouter,
+              typename PAKRouter::EntryType& entry,
+              const SpecBase& dataspec)
+{
+    Header head;
+    head.read(reader);
+    std::string bestName = HECL::Format("CMDL_%s", entry.id.toString().c_str());
+
+    /* Pre-read pass to determine maximum used vert indices */
+    atUint32 matSecCount = 0;
+    if (head.matSetCount)
+        matSecCount = MaterialSet::OneSection() ? 1 : head.matSetCount;
+    atUint32 lastDlSec = head.secCount;
+    for (size_t s=0 ; s<lastDlSec ; ++s)
+    {
+        atUint64 secStart = reader.position();
+        if (s < matSecCount)
+        {
+            MaterialSet matSet;
+            matSet.read(reader);
+            matSet.nameTextures(pakRouter, bestName.c_str(), s);
+        }
+
+        if (s < head.secCount - 1)
+            reader.seek(secStart + head.secSizes[s], Athena::Begin);
+    }
+}
+
 static void WriteDLVal(Athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)
 {
     switch (type)

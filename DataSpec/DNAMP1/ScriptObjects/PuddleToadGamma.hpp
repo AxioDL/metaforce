@@ -29,6 +29,23 @@ struct PuddleToadGamma : IScriptObject
     DamageInfo damageInfo1;
     DamageInfo damageInfo2;
     UniqueID32 dcln;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (dcln)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dcln);
+            ent->name = name + "_dcln";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

@@ -283,6 +283,25 @@ struct WorldTeleporter : IScriptObject
     {
         return "Retro::DNAMP1::WorldTeleporter";
     }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (model1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
+            ent->name = name + "_model1";
+        }
+        if (model2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
+            ent->name = name + "_model2";
+        }
+        if (strg)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(strg);
+            ent->name = name + "_strg";
+        }
+    }
 };
 
 }

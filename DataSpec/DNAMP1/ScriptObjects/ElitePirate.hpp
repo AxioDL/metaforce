@@ -54,6 +54,66 @@ struct ElitePirate : IScriptObject
     Value<atUint32> soundID5;
     Value<bool> unknown17;
     Value<bool> unknown18;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+        actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        if (particle3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
+            ent->name = name + "_part3";
+        }
+        if (particle4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
+            ent->name = name + "_part4";
+        }
+        if (particle5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
+            ent->name = name + "_part5";
+        }
+        if (particle6)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
+            ent->name = name + "_part6";
+        }
+        if (particle7)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
+            ent->name = name + "_part7";
+        }
+        if (elsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
+            ent->name = name + "_elsc";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters1.nameIDs(pakRouter, name + "_actp1");
+        actorParameters2.nameIDs(pakRouter, name + "_actp2");
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+    }
 };
 }
 }

@@ -33,6 +33,33 @@ struct AtomicBeta : IScriptObject
     Value<atUint32> unknown8;
     Value<atUint32> unknown9;
     Value<float> unknown10;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (elsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
+            ent->name = name + "_elsc";
+        }
+        if (wpsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
+            ent->name = name + "_wpsc";
+        }
+        if (part)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part);
+            ent->name = name + "_part";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }
