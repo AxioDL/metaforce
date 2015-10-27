@@ -42,9 +42,10 @@ PAKBridge::PAKBridge(HECL::Database::Project& project,
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
             MLVL mlvl;
             mlvl.read(rs);
-            const PAK::Entry* nameEnt = m_pak.lookupEntry(mlvl.worldNameId);
+            PAK::Entry* nameEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.worldNameId);
             if (nameEnt)
             {
+                nameEnt->name = entry.name + "_name";
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
                 STRG mlvlName;
                 mlvlName.read(rs);
@@ -92,10 +93,11 @@ void PAKBridge::build()
             unsigned layerIdx = 0;
 
             /* Make MAPW available to lookup MAPAs */
-            const PAK::Entry* worldMapEnt = m_pak.lookupEntry(mlvl.worldMap);
+            PAK::Entry* worldMapEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.worldMap);
             std::vector<UniqueID32> mapw;
             if (worldMapEnt)
             {
+                worldMapEnt->name = entry.name + "_mapw";
                 PAKEntryReadStream rs = worldMapEnt->beginReadStream(m_node);
                 rs.seek(8, Athena::Current);
                 atUint32 areaCount = rs.readUint32Big();
@@ -104,13 +106,21 @@ void PAKBridge::build()
                     mapw.emplace_back(rs);
             }
 
+            PAK::Entry* savwEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.saveWorldId);
+            if (savwEnt)
+                savwEnt->name = entry.name + "_savw";
+
+            PAK::Entry* skyEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.worldSkyboxId);
+            if (skyEnt)
+                skyEnt->name = entry.name + "_skybox";
+
             /* Index areas */
             unsigned ai = 0;
             for (const MLVL::Area& area : mlvl.areas)
             {
                 Level::Area& areaDeps = level.areas[area.areaMREAId];
                 MLVL::LayerFlags& layerFlags = mlvl.layerFlags[ai];
-                const PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
+                PAK::Entry* areaNameEnt = (PAK::Entry*)m_pak.lookupEntry(area.areaNameId);
                 if (areaNameEnt)
                 {
                     STRG areaName;
@@ -140,6 +150,19 @@ void PAKBridge::build()
                 HECL::SystemChar num[16];
                 HECL::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
+
+                std::string lowerName(areaDeps.name);
+                for (char& ch : lowerName)
+                {
+                    ch = tolower(ch);
+                    if (ch == ' ')
+                        ch = '_';
+                }
+                if (areaNameEnt)
+                    areaNameEnt->name = lowerName + "_name";
+                PAK::Entry* areaEnt = (PAK::Entry*)m_pak.lookupEntry(area.areaMREAId);
+                if (areaEnt)
+                    areaEnt->name = lowerName;
 
                 areaDeps.layers.reserve(area.depLayerCount-1);
                 unsigned r=0;
@@ -182,7 +205,8 @@ void PAKBridge::build()
     }
 }
 
-void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
 {
     for (const std::pair<UniqueID32, PAK::Entry*>& entry : m_pak.m_idMap)
     {
@@ -194,9 +218,33 @@ void PAKBridge::addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueI
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
                 addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-                if (ci.cmdlOverlay)
+                PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
+                PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
+                PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
+                cmdlEnt->name = HECL::Format("ANCS_%08X_%s_model", entry.first.toUint32(), ci.name.c_str());
+                cskrEnt->name = HECL::Format("ANCS_%08X_%s_skin", entry.first.toUint32(), ci.name.c_str());
+                cinfEnt->name = HECL::Format("ANCS_%08X_%s_skel", entry.first.toUint32(), ci.name.c_str());
+                if (ci.cmdlOverlay && ci.cskrOverlay)
+                {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
+                    PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
+                    PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
+                    cmdlEnt->name = HECL::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
+                    cskrEnt->name = HECL::Format("ANCS_%08X_%s_overskin", entry.first.toUint32(), ci.name.c_str());
+                }
             }
+            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
+            ancs.getAnimationResInfo(animInfo);
+            for (auto& ae : animInfo)
+            {
+                PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
+                animEnt->name = HECL::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
+            }
+        }
+        else if (entry.second->type == FOURCC('MREA'))
+        {
+            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            MREA::AddCMDLRigPairs(rs, pakRouter, addTo);
         }
     }
 }
@@ -208,17 +256,17 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('SCAN'):
-        return {SCAN::Extract, nullptr, {_S(".yaml")}};
+        return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
+        return {nullptr, CMDL::Extract, {_S(".blend")}, 1, CMDL::Name};
     case SBIG('ANCS'):
         return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
         return {nullptr, MLVL::Extract, {_S(".blend")}, 3};
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 4};
+        return {nullptr, MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
     }

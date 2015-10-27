@@ -37,6 +37,18 @@ struct SnakeWeedSwarm : IScriptObject
     Value<atUint32> unknown17;
     Value<atUint32> unknown18;
     Value<atUint32> unknown19;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

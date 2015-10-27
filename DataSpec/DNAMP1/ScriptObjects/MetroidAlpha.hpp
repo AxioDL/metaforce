@@ -32,6 +32,22 @@ struct MetroidAlpha : IScriptObject
     AnimationParameters animationParameters3;
     AnimationParameters animationParameters4;
     Value<bool> unknown8;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+        animationParameters1.nameANCS(pakRouter, name + "_animp1");
+        animationParameters2.nameANCS(pakRouter, name + "_animp2");
+        animationParameters3.nameANCS(pakRouter, name + "_animp3");
+        animationParameters4.nameANCS(pakRouter, name + "_animp4");
+    }
 };
 }
 }

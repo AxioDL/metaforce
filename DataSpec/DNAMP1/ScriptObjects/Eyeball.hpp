@@ -33,6 +33,43 @@ struct Eyeball : IScriptObject
     Value<atUint32> unknown7; // always ff
     Value<atUint32> unknown8;
     Value<bool> unknown9;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (wpsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
+            ent->name = name + "_wpsc";
+        }
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (texture1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+            ent->name = name + "_tex1";
+        }
+        if (texture2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+            ent->name = name + "_tex2";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

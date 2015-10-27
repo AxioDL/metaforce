@@ -66,6 +66,14 @@ struct CMDL
         return conn.saveBlend();
     }
 
+    static void Name(const SpecBase& dataSpec,
+                     PAKEntryReadStream& rs,
+                     PAKRouter<PAKBridge>& pakRouter,
+                     PAK::Entry& entry)
+    {
+        DNACMDL::NameCMDL<PAKRouter<PAKBridge>, MaterialSet>(rs, pakRouter, entry, dataSpec);
+    }
+
     static bool Cook(const HECL::ProjectPath& outPath,
                      const HECL::ProjectPath& inPath,
                      const DNACMDL::Mesh& mesh)

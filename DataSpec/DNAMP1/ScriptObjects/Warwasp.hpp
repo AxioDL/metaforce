@@ -25,6 +25,28 @@ struct Warwasp : IScriptObject
     DamageInfo damageInfo2;
     UniqueID32 particle;
     Value<atUint32> unknown3;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (wpsc1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+            ent->name = name + "_wpsc";
+        }
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

@@ -44,6 +44,36 @@ struct Magdolite : IScriptObject
     Value<float> unknown7;
     Value<float> unknown8;
     Value<float> unknown9;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        UniqueID32 cinf = patternedInfo.animationParameters.getCINF(pakRouter);
+        actorParameters.addCMDLRigPairs(addTo, cinf);
+        if (model && skin)
+            addTo[model] = std::make_pair(skin, cinf);
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_emodel";
+        }
+        if (skin)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(skin);
+            ent->name = name + "_eskin";
+        }
+        if (magdoliteParameters.particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(magdoliteParameters.particle);
+            ent->name = name + "_part";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

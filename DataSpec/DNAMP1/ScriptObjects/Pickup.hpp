@@ -30,6 +30,28 @@ struct Pickup : IScriptObject
     Value<bool> active;
     Value<float> unknown1;
     UniqueID32 particle;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

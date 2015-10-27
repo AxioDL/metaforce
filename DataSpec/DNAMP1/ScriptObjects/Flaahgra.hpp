@@ -35,6 +35,41 @@ struct Flaahgra : IScriptObject
     Value<float> unknown7;
     AnimationParameters animationParameters;
     UniqueID32 dependencyGroup;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+        actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (wpsc1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+            ent->name = name + "_wpsc1";
+        }
+        if (wpsc2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
+            ent->name = name + "_wpsc2";
+        }
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        if (dependencyGroup)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dependencyGroup);
+            ent->name = name + "_dgrp";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters1.nameIDs(pakRouter, name + "_actp1");
+        actorParameters2.nameIDs(pakRouter, name + "_actp2");
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+    }
 };
 }
 }

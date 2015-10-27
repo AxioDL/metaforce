@@ -25,6 +25,15 @@ struct Steam : IScriptObject
     Value<float> unknown6;
     Value<float> unknown7;
     Value<bool> unknown8;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (texture)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
+            ent->name = name + "_texture";
+        }
+    }
 };
 }
 }

@@ -30,6 +30,30 @@ struct PhazonPool : IScriptObject
     Value<float> unknown7;
     Value<bool> unknown8;
     Value<float> unknown9;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (model1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
+            ent->name = name + "_model1";
+        }
+        if (model2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
+            ent->name = name + "_model2";
+        }
+    }
 };
 }
 }

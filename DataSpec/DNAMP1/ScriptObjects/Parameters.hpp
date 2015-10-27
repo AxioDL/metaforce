@@ -2,6 +2,7 @@
 #define _DNAMP1_PARAMETERS_HPP_
 
 #include "../../DNACommon/DNACommon.hpp"
+#include "../ANCS.hpp"
 
 namespace Retro
 {
@@ -92,6 +93,29 @@ struct AnimationParameters : BigYAML
     UniqueID32 animationCharacterSet;
     Value<atUint32> character;
     Value<atUint32> defaultAnimation;
+
+    UniqueID32 getCINF(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (!animationCharacterSet)
+            return UniqueID32();
+        const NOD::Node* node;
+        const PAK::Entry* ancsEnt = pakRouter.lookupEntry(animationCharacterSet, &node);
+        ANCS ancs;
+        {
+            PAKEntryReadStream rs = ancsEnt->beginReadStream(*node);
+            ancs.read(rs);
+        }
+        return ancs.characterSet.characters.at(character).cinf;
+    }
+
+    void nameANCS(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+    {
+        if (!animationCharacterSet)
+            return;
+        PAK::Entry* ancsEnt = (PAK::Entry*)pakRouter.lookupEntry(animationCharacterSet);
+        if (ancsEnt->name.empty())
+            ancsEnt->name = name;
+    }
 };
 
 struct BehaveChance : BigYAML
@@ -168,6 +192,15 @@ struct FlareDefinition : BigYAML
     Value<float>    unknown1;
     Value<float>    unknown2;
     Value<atVec4f>  unknown4; // CColor
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+    {
+        if (texture)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
+            ent->name = name + "_texture";
+        }
+    }
 };
 
 struct GrappleParameters : BigYAML
@@ -194,18 +227,6 @@ struct HealthInfo : BigYAML
     Value<atUint32> propertyCount;
     Value<float>    health;
     Value<float>    knockbackResistence;
-};
-
-struct HudColor : BigYAML
-{
-    DECL_YAML
-    Value<atVec4f> unknown1;
-    Value<atVec4f> unknown2;
-    Value<atVec4f> unknown3;
-    Value<atVec4f> unknown4;
-    Value<atVec4f> unknown5;
-    Value<atVec4f> unknown6;
-    Value<atVec4f> unknown7;
 };
 
 struct LightParameters : BigYAML
@@ -270,6 +291,26 @@ struct PatternedInfo : BigYAML
     Value<atVec3f>  unknown14;
     UniqueID32      particle2;
     Value<atUint32> soundID2;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+    {
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        if (stateMachine)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(stateMachine);
+            ent->name = name + "_fsm";
+        }
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+    }
 };
 
 struct PlayerHintParameters : BigYAML
@@ -298,6 +339,15 @@ struct ScannableParameters : BigYAML
     DECL_YAML
     Value<atUint32> propertyCount;
     UniqueID32      scanId;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+    {
+        if (scanId)
+        {
+            PAK::Entry* scanEnt = (PAK::Entry*)pakRouter.lookupEntry(scanId);
+            scanEnt->name = name + "_scan";
+        }
+    }
 };
 
 struct VisorParameters : BigYAML
@@ -327,6 +377,40 @@ struct ActorParameters : BigYAML
     Value<bool>  unknown4;
     Value<bool>  unknown5;
     Value<float> unknown6;
+
+    void addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
+                         const UniqueID32& cinf) const
+    {
+        if (xrayModel && xraySkin)
+            addTo[xrayModel] = std::make_pair(xraySkin, cinf);
+        if (thermalModel && thermalSkin)
+            addTo[thermalModel] = std::make_pair(thermalSkin, cinf);
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
+    {
+        scannableParameters.nameIDs(pakRouter, name);
+        if (xrayModel)
+        {
+            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(xrayModel);
+            xmEnt->name = name + "_xraymodel";
+        }
+        if (xraySkin)
+        {
+            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(xraySkin);
+            xsEnt->name = name + "_xrayskin";
+        }
+        if (thermalModel)
+        {
+            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(thermalModel);
+            xmEnt->name = name + "_thermalmodel";
+        }
+        if (thermalSkin)
+        {
+            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(thermalSkin);
+            xsEnt->name = name + "_thermalskin";
+        }
+    }
 };
 }
 }

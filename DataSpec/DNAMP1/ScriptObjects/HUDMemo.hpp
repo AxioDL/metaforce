@@ -18,6 +18,15 @@ struct HUDMemo : IScriptObject
     Value<atUint32> memoType;
     UniqueID32 message;
     Value<bool> active;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (message)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(message);
+            ent->name = name + "_message";
+        }
+    }
 };
 }
 }

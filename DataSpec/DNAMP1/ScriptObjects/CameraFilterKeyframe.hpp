@@ -22,6 +22,15 @@ struct CameraFilterKeyframe : IScriptObject
     Value<float> unknown7;
     Value<float> unknown8;
     UniqueID32 texture;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (texture)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
+            ent->name = name + "_texture";
+        }
+    }
 };
 }
 }

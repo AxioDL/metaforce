@@ -57,6 +57,83 @@ struct OmegaPirate : IScriptObject
     UniqueID32 model2;
     UniqueID32 skin;
     UniqueID32 rig;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+        actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+        if (model2 && skin && rig)
+            addTo[model2] = std::make_pair(skin, rig);
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (particle3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
+            ent->name = name + "_part3";
+        }
+        if (particle4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
+            ent->name = name + "_part4";
+        }
+        if (particle5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
+            ent->name = name + "_part5";
+        }
+        if (particle6)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
+            ent->name = name + "_part6";
+        }
+        if (particle7)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
+            ent->name = name + "_part7";
+        }
+        if (elsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
+            ent->name = name + "_elsc";
+        }
+        if (model1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
+            ent->name = name + "_model1";
+        }
+        if (model2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
+            ent->name = name + "_model2";
+        }
+        if (skin)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(skin);
+            ent->name = name + "_skin";
+        }
+        if (rig)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(rig);
+            ent->name = name + "_rig";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters1.nameIDs(pakRouter, name + "_actp1");
+        actorParameters2.nameIDs(pakRouter, name + "_actp2");
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+    }
 };
 }
 }

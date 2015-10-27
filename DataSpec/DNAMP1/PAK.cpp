@@ -55,7 +55,10 @@ void PAK::read(Athena::io::IStreamReader& reader)
     {
         std::unordered_map<UniqueID32, Entry*>::iterator found = m_idMap.find(entry.id);
         if (found != m_idMap.end())
+        {
             m_nameMap[entry.name] = found->second;
+            found->second->name = entry.name;
+        }
     }
 }
 

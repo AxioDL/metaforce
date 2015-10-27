@@ -36,6 +36,20 @@ struct Effect : IScriptObject
     Value<bool> unknown16;
     Value<bool> unknown17;
     LightParameters lightParameters;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (part)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part);
+            ent->name = name + "_part";
+        }
+        if (elsc)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
+            ent->name = name + "_elsc";
+        }
+    }
 };
 }
 }

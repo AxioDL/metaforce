@@ -60,6 +60,63 @@ struct GunTurret : IScriptObject
     Value<atUint32> unknown28;
     Value<float> unknown29;
     Value<bool> unknown30;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (unknown18)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown18);
+            ent->name = name + "_unknown18";
+        }
+        if (model)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            ent->name = name + "_model";
+        }
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (particle3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
+            ent->name = name + "_part3";
+        }
+        if (particle4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
+            ent->name = name + "_part4";
+        }
+        if (particle5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
+            ent->name = name + "_part5";
+        }
+        if (particle6)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
+            ent->name = name + "_part6";
+        }
+        if (particle7)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
+            ent->name = name + "_part7";
+        }
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

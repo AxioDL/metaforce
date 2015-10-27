@@ -28,6 +28,28 @@ struct Puffer : IScriptObject
     Value<bool> unknown5;
     DamageInfo damageInfo2;
     Value<atUint32> unknown6;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        if (texture)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
+            ent->name = name + "_texture";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

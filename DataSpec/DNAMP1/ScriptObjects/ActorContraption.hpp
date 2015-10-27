@@ -27,6 +27,23 @@ struct ActorContraption : IScriptObject
     UniqueID32          particle;
     DamageInfo          damageInfo;
     Value<bool>         active; // needs verification
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        animationParameters.nameANCS(pakRouter, name + "_animp");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

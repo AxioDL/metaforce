@@ -35,6 +35,26 @@ void MREA::ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
     }
 }
 
+void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
+                           PAKRouter<PAKBridge>& pakRouter,
+                           std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo)
+{
+    /* Do extract */
+    Header head;
+    head.read(rs);
+    rs.seekAlign32();
+
+    /* Skip to SCLY */
+    atUint32 curSec = 0;
+    atUint64 secStart = rs.position();
+    while (curSec != head.sclySecIdx)
+        secStart += head.secSizes[curSec++];
+    rs.seek(secStart, Athena::Begin);
+    SCLY scly;
+    scly.read(rs);
+    scly.addCMDLRigPairs(pakRouter, addTo);
+}
+
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
                    const HECL::ProjectPath& outPath,
@@ -157,6 +177,44 @@ bool MREA::Extract(const SpecBase& dataSpec,
     os.centerView();
     os.close();
     return conn.saveBlend();
+}
+
+void MREA::Name(const SpecBase& dataSpec,
+                PAKEntryReadStream& rs,
+                PAKRouter<PAKBridge>& pakRouter,
+                PAK::Entry& entry)
+{
+    /* Do extract */
+    Header head;
+    head.read(rs);
+    rs.seekAlign32();
+
+    /* One shared material set for all meshes */
+    atUint64 secStart = rs.position();
+    MaterialSet matSet;
+    matSet.read(rs);
+    matSet.nameTextures(pakRouter, HECL::Format("MREA_%s", entry.id.toString().c_str()).c_str(), -1);
+    rs.seek(secStart + head.secSizes[0], Athena::Begin);
+
+    /* Skip to SCLY */
+    atUint32 curSec = 1;
+    secStart = rs.position();
+    while (curSec != head.sclySecIdx)
+        secStart += head.secSizes[curSec++];
+    rs.seek(secStart, Athena::Begin);
+    SCLY scly;
+    scly.read(rs);
+    scly.nameIDs(pakRouter);
+
+    /* Skip to PATH */
+    while (curSec != head.pathSecIdx)
+        secStart += head.secSizes[curSec++];
+    rs.seek(secStart, Athena::Begin);
+
+    UniqueID32 pathID(rs);
+    const NOD::Node* node;
+    PAK::Entry* pathEnt = (PAK::Entry*)pakRouter.lookupEntry(pathID, &node);
+    pathEnt->name = entry.name + "_path";
 }
 
 }

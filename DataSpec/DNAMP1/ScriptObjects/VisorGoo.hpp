@@ -23,6 +23,15 @@ struct VisorGoo : IScriptObject
     Value<atVec4f> unknown6; // CColor
     Value<atUint32> unknown7;
     Value<bool> unknown8;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+    }
 };
 }
 }

@@ -94,6 +94,70 @@ struct Water : IScriptObject
     Value<atUint32> unknown38;
     Value<atUint32> unknown39;
     Value<bool> unknown40;
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (texture1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+            ent->name = name + "_tex1";
+        }
+        if (texture2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+            ent->name = name + "_tex2";
+        }
+        if (texture3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture3);
+            ent->name = name + "_tex3";
+        }
+        if (texture4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture4);
+            ent->name = name + "_tex4";
+        }
+        if (texture5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture5);
+            ent->name = name + "_tex5";
+        }
+        if (texture6)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture6);
+            ent->name = name + "_tex6";
+        }
+        if (texture34)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture34);
+            ent->name = name + "_tex34";
+        }
+        if (particle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            ent->name = name + "_part1";
+        }
+        if (particle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            ent->name = name + "_part2";
+        }
+        if (particle3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
+            ent->name = name + "_part3";
+        }
+        if (particle4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
+            ent->name = name + "_part4";
+        }
+        if (particle5)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
+            ent->name = name + "_part5";
+        }
+    }
 };
 }
 }

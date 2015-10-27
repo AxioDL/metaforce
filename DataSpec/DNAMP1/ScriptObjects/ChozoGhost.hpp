@@ -43,6 +43,33 @@ struct ChozoGhost : IScriptObject
     Value<float>    unknown11;
     Value<atUint32> unknown12;
     Value<atUint32> unknown13;
+
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    {
+        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+    }
+
+    void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        if (wpsc1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+            ent->name = name + "_wpsc1";
+        }
+        if (wpsc2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
+            ent->name = name + "_wpsc2";
+        }
+        if (particle)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+            ent->name = name + "_part";
+        }
+        patternedInfo.nameIDs(pakRouter, name + "_patterned");
+        actorParameters.nameIDs(pakRouter, name + "_actp");
+    }
 };
 }
 }

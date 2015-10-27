@@ -206,6 +206,8 @@ struct ResExtractor
                        std::function<void(const HECL::SystemChar*)>)> func_b;
     const HECL::SystemChar* fileExts[4];
     unsigned weight;
+    std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
+                       typename PAKBRIDGE::PAKType::Entry&)> func_name;
 };
 
 /* Level hierarchy representation */
@@ -304,18 +306,41 @@ public:
             }
 
             /* Add RigPairs to global map */
-            bridge.addCMDLRigPairs(m_cmdlRigs);
+            bridge.addCMDLRigPairs(*this, m_cmdlRigs);
 
             progress(++count / bridgesSz);
             ++bridgeIdx;
         }
 
         /* TEMP: CSV dump */
+        for (auto& entry : m_uniqueEntries)
+        {
+            const NOD::Node* node;
+            EntryType* ent = (EntryType*)lookupEntry(entry.first, &node);
+            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*ent);
+            if (extractor.func_name)
+            {
+                PAKEntryReadStream s = ent->beginReadStream(*node);
+                extractor.func_name(m_dataSpec, s, *this, *ent);
+            }
+        }
+        for (const auto& entry : m_sharedEntries)
+        {
+            const NOD::Node* node;
+            EntryType* ent = (EntryType*)lookupEntry(entry.first, &node);
+            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*ent);
+            if (extractor.func_name)
+            {
+                PAKEntryReadStream s = ent->beginReadStream(*node);
+                extractor.func_name(m_dataSpec, s, *this, *ent);
+            }
+        }
+
         FILE* fp = HECL::Fopen(_S("/home/jacko/Desktop/mp_res.txt"), _S("w"));
-        for (const auto& entry : m_uniqueEntries)
+        for (auto& entry : m_uniqueEntries)
         {
             const EntryType* ent = entry.second.second;
-            fprintf(fp, "%s\t0x%s\t\t", ent->type.toString().c_str(), entry.first.toString().c_str());
+            fprintf(fp, "%s\t0x%s\t%s\t", ent->type.toString().c_str(), entry.first.toString().c_str(), ent->name.c_str());
             switch (ent->unique.m_type)
             {
             case UniqueResult::UNIQUE_NOTFOUND:
@@ -343,7 +368,7 @@ public:
         for (const auto& entry : m_sharedEntries)
         {
             const EntryType* ent = entry.second.second;
-            fprintf(fp, "%s\t0x%s\t\t\n", ent->type.toString().c_str(), entry.first.toString().c_str());
+            fprintf(fp, "%s\t0x%s\t%s\t\n", ent->type.toString().c_str(), entry.first.toString().c_str(), ent->name.c_str());
         }
         fclose(fp);
     }

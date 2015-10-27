@@ -36,6 +36,7 @@ struct PAK : BigDNA
         Value<atUint32> size;
         Value<atUint32> offset;
         UniqueResult unique;
+        std::string name;
 
         std::unique_ptr<atUint8[]> getBuffer(const NOD::Node& pak, atUint64& szOut) const;
         inline PAKEntryReadStream beginReadStream(const NOD::Node& pak, atUint64 off=0) const
@@ -52,7 +53,7 @@ struct PAK : BigDNA
     std::unordered_map<UniqueID32, Entry*> m_idMap;
     std::unordered_map<std::string, Entry*> m_nameMap;
 
-    inline const Entry* lookupEntry(const UniqueID32& id) const
+    const Entry* lookupEntry(const UniqueID32& id) const
     {
         std::unordered_map<UniqueID32, Entry*>::const_iterator result = m_idMap.find(id);
         if (result != m_idMap.end())
@@ -60,7 +61,7 @@ struct PAK : BigDNA
         return nullptr;
     }
 
-    inline const Entry* lookupEntry(const std::string& name) const
+    const Entry* lookupEntry(const std::string& name) const
     {
         std::unordered_map<std::string, Entry*>::const_iterator result = m_nameMap.find(name);
         if (result != m_nameMap.end())
@@ -68,7 +69,7 @@ struct PAK : BigDNA
         return nullptr;
     }
 
-    inline std::string bestEntryName(const Entry& entry) const
+    std::string bestEntryName(const Entry& entry) const
     {
         /* Prefer named entries first */
         for (const NameEntry& nentry : m_nameEntries)
@@ -79,7 +80,7 @@ struct PAK : BigDNA
         return entry.type.toString() + '_' + entry.id.toString();
     }
 
-    typedef UniqueID32 IDType;
+    using IDType = UniqueID32;
 };
 
 }
