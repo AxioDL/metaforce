@@ -26,6 +26,7 @@ static const SObjectTag& IDFromFactory(CResFactory& factory, const char* name)
 
 void CTweaks::RegisterTweaks()
 {
+#if 0
     CResFactory& factory = *g_ResFactory;
     CResLoader& loader = factory.GetLoader();
     std::unique_ptr<CInputStream> strm;
@@ -37,6 +38,7 @@ void CTweaks::RegisterTweaks()
     strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "PlayerControls"), nullptr));
     TOneStatic<DNAMP1::CTweakPlayerControl> playerControl(*strm);
     g_tweakPlayerControl = playerControl.GetAllocSpace();
+#endif
 }
 
 void CTweaks::RegisterResourceTweaks()

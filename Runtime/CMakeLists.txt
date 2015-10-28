@@ -48,6 +48,7 @@ add_library(RuntimeCommon
             CArchitectureQueue.hpp CArchitectureQueue.cpp
             IObj.hpp
             IVParamObj.hpp
+            CTimeProvider.hpp CTimeProvider.cpp
             CToken.hpp
             CAreaOctTree.hpp CAreaOctTree.cpp
             CActor.hpp CActor.cpp

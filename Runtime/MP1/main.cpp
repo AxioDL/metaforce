@@ -109,8 +109,8 @@ class CGameArchitectureSupport
 public:
     CGameArchitectureSupport()
         : m_audioSys(0,0,0,0,0),
-          m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
-                           g_tweakPlayer->GetRightLogicalThreshold())
+          m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
+                           0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/)
     {
     }
     bool Update()
@@ -179,6 +179,7 @@ int main(int argc, const char* argv[])
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
     
+    LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
     std::unique_ptr<boo::IApplication> app =
         boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *main,

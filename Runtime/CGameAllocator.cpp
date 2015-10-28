@@ -3,6 +3,8 @@
 namespace Retro
 {
 
+LogVisor::LogModule AllocLog("CGameAllocator");
+
 CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlock(u32)
 {
     return nullptr;
@@ -51,19 +53,21 @@ bool CGameAllocator::Initialize()
 void CGameAllocator::Shutdown()
 {
 }
-void* CGameAllocator::Alloc(size_t, EHint, EScope, EType, const CCallStack&)
+void* CGameAllocator::Alloc(size_t sz, EHint, EScope, EType, const CCallStack&)
 {
-    return nullptr;
+    AllocLog.report(LogVisor::Warning, _S("Remind Phil to reimplement Alloc!!!!"));
+    return malloc(sz);
 }
-void CGameAllocator::Free(void*)
+void CGameAllocator::Free(void* ptr)
 {
+    free(ptr);
 }
 void CGameAllocator::ReleaseAll()
 {
 }
-void* CGameAllocator::AllocSecondary(size_t, EHint, EScope, EType, const CCallStack&)
+void* CGameAllocator::AllocSecondary(size_t sz, EHint, EScope, EType, const CCallStack&)
 {
-    return nullptr;
+    return malloc(sz);
 }
 void CGameAllocator::FreeSecondary(void*)
 {
