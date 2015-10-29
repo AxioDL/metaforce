@@ -100,13 +100,13 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
     return newStrm;
 }
 
-CDvdRequest* CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
+IDvdRequest* CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
                                                       OriginBegin, x50_cachedResInfo->x4_offset + offset);
 }
 
-CDvdRequest* CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
+IDvdRequest* CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->x8_size),
                                                       OriginBegin, x50_cachedResInfo->x4_offset);

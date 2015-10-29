@@ -30,7 +30,7 @@ private:
         PakAsyncDataLoad = 2,
         PakAsyncLoaded = 3
     } x2c_asyncLoadPhase;
-    CDvdRequest* x34_dvdReq;
+    IDvdRequest* x34_dvdReq;
     std::vector<std::pair<std::string, SObjectTag>> x4c_nameList;
     std::vector<u32> x5c_depList;
     std::vector<std::pair<u32, SResInfo>> x6c_resList;

@@ -16,7 +16,7 @@ enum ESeekOrigin
 };
 
 struct DVDFileInfo;
-class CDvdRequest;
+class IDvdRequest;
 
 class CDvdFile
 {
@@ -29,9 +29,9 @@ public:
     static void internalCallback(s32, DVDFileInfo*) {}
     static bool FileExists(const char*) {return false;}
     void CloseFile() {}
-    CDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int) {return nullptr;}
+    IDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int) {return nullptr;}
     void SyncSeekRead(void*, u32, ESeekOrigin, int) {}
-    CDvdRequest* AsyncRead(void*, u32) {return nullptr;}
+    IDvdRequest* AsyncRead(void*, u32) {return nullptr;}
     void SyncRead(void*, u32) {}
     void StallForARAMFile() {}
     void StartARAMFileLoad() {}

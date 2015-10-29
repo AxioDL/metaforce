@@ -16,6 +16,8 @@ public:
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
            const CTransform&, const CModelData&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
+
+    virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
 };
 
 }

@@ -7,7 +7,7 @@
 
 namespace Retro
 {
-class CDvdRequest;
+class IDvdRequest;
 
 class CResFactory : public IFactory
 {
@@ -16,7 +16,7 @@ public:
     struct SLoadingData
     {
         SObjectTag tag;
-        CDvdRequest* dvdReq;
+        IDvdRequest* dvdReq;
         IObj** targetPtr;
         void* loadBuffer;
         u32 resSize;

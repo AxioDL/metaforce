@@ -4,7 +4,7 @@
 namespace Retro
 {
 
-class CDvdRequest
+class IDvdRequest
 {
 public:
     virtual void WaitUntilComplete()=0;
@@ -20,13 +20,21 @@ public:
     virtual EMediaType GetMediaType() const=0;
 };
 
-class CNODDvdRequest : public CDvdRequest
+class CNODDvdRequest : public IDvdRequest
 {
 public:
     void WaitUntilComplete();
     bool IsComplete();
     void PostCancelRequest();
     EMediaType GetMediaType() const {return MediaNOD;}
+};
+
+class CDvdRequest : public IDvdRequest
+{
+    void WaitUntilComplete();
+    bool IsComplete();
+    void PostCancelRequest();
+    EMediaType GetMediaType() const { return MediaReal; }
 };
 
 }

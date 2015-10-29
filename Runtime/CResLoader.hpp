@@ -10,7 +10,7 @@
 namespace Retro
 {
 struct SObjectTag;
-class CDvdRequest;
+class IDvdRequest;
 
 class CResLoader
 {
@@ -28,8 +28,8 @@ public:
     void LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut);
     CInputStream* LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);
     CInputStream* LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
-    CDvdRequest* LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf);
-    CDvdRequest* LoadResourceAsync(const SObjectTag& tag, void* buf);
+    IDvdRequest* LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf);
+    IDvdRequest* LoadResourceAsync(const SObjectTag& tag, void* buf);
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
