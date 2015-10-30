@@ -1,5 +1,7 @@
 add_subdirectory(libSquish)
 add_subdirectory(xxhash)
+if (NOT TARGET LogVisor)
 add_subdirectory(LogVisor)
+endif()
 add_subdirectory(Athena)
 add_subdirectory(libpng)

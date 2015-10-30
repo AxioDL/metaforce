@@ -34,7 +34,27 @@ def preview_update(self, context):
                             bpy.data.textures[material.hecl_lightmap].image = bpy.data.images[img_name]
                         else:
                             bpy.data.textures[material.hecl_lightmap].image = None
+        # White Lightmaps
+        elif area_data.lightmap_mode == 'NONE':
+            img_name = 'NONE'
+            img = None
+            if img_name in bpy.data.images:
+                img = bpy.data.images[img_name]
+            else:
+                img = bpy.data.images.new(img_name, width=1, height=1)
+                pixels = [1.0] * (4 * 1 * 1)
+                img.pixels = pixels
+                img.use_fake_user = True
+                img.file_format = 'PNG'
 
+            for material in bpy.data.materials:
+                if material.hecl_lightmap != '':
+                    material.use_shadeless = False
+
+                    # Reference NONE
+                    if material.hecl_lightmap in bpy.data.textures:
+                        bpy.data.textures[material.hecl_lightmap].image = img
+                            
 
 # Update lightmap output-resolution
 def set_lightmap_resolution(self, context):
@@ -79,6 +99,7 @@ class SREAData(bpy.types.PropertyGroup):
     lightmap_mode = bpy.props.EnumProperty(name="HECL Area Lightmap Mode",
             description="Simple way to manipulate all lightmap-using materials",
             items=[
+            ('NONE', "None", "Pure white lightmaps"),
             ('ORIGINAL', "Original", "Original extracted lightmaps"),
             ('CYCLES', "Cycles", "Blender-rendered lightmaps")],
             update=preview_update,
@@ -393,6 +414,7 @@ def draw(layout, context):
 
     layout.label("Lighting:", icon='LAMP_SPOT')
     light_row = layout.row(align=True)
+    light_row.prop_enum(context.scene.hecl_srea_data, 'lightmap_mode', 'NONE')
     light_row.prop_enum(context.scene.hecl_srea_data, 'lightmap_mode', 'ORIGINAL')
     light_row.prop_enum(context.scene.hecl_srea_data, 'lightmap_mode', 'CYCLES')
     layout.prop(context.scene.hecl_srea_data, 'lightmap_resolution', text="Resolution")
