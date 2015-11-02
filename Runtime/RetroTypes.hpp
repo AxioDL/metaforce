@@ -66,6 +66,17 @@ using TAreaId = u32;
 
 }
 
+template <typename T>
+T GetAverageValue(const T* v, int count)
+{
+    u32 unk = count * sizeof(T);
+}
+
+template <typename T, int Count>
+class TReservedAverage
+{
+};
+
 namespace std
 {
 template<>

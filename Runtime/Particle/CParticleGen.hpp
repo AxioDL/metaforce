@@ -11,6 +11,9 @@ namespace Retro
 {
 class CWarp;
 class CLight;
+class CGenDescription
+{
+};
 
 class CParticleGen
 {

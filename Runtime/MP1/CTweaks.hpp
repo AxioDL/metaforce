@@ -2,16 +2,15 @@
 #define __RETRO_CTWEAKS_HPP__
 
 #include "RetroTypes.hpp"
-#include "CTweakParticle.hpp"
 
 namespace Retro
 {
+
 namespace MP1
 {
 
 class CTweaks
 {
-    TOneStatic<CTweakParticle> m_particle;
 public:
     void RegisterTweaks();
     void RegisterResourceTweaks();

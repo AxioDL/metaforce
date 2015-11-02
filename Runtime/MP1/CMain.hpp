@@ -5,6 +5,7 @@
 #include "CMemory.hpp"
 #include "CTweaks.hpp"
 #include "CPlayMovie.hpp"
+#include "IOStreams.hpp"
 
 namespace Retro
 {
@@ -21,19 +22,16 @@ enum EGameplayResult
     GameplayResultPlaying
 };
 
+class WindowCallback : public boo::IWindowCallback
+{
+};
+
 class CMain : public boo::IApplicationCallback
 {    
-    boo::IWindow* mainWindow = NULL;
-#if 0
-    ApplicationDeviceFinder devFinder;
+    boo::IWindow* mainWindow;
+    //ApplicationDeviceFinder devFinder;
     WindowCallback windowCallback;
-    void appLaunched(boo::IApplication* app)
-    {
-        mainWindow = app->newWindow("YAY!");
-        mainWindow->setCallback(&windowCallback);
-        mainWindow->showWindow();
-        devFinder.startScanning();
-    }
+    int appMain(boo::IApplication* app);
     void appQuitting(boo::IApplication*)
     {}
     void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths)
@@ -43,7 +41,6 @@ class CMain : public boo::IApplicationCallback
             fprintf(stderr, "%s ", path.c_str());
         fprintf(stderr, "\n");
     }
-#endif
 
     CMemorySys x6c_memSys;
     CTweaks x70_tweaks;

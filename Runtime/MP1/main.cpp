@@ -8,6 +8,7 @@
 #include <clocale>
 #include <memory>
 #include <boo/boo.hpp>
+#include <boo/graphicsdev/GL.hpp>
 #include "CBasics.hpp"
 #include "CMemoryCardSys.hpp"
 #include "CResFactory.hpp"
@@ -33,11 +34,12 @@
 #include "CMain.hpp"
 
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 
 namespace Retro
 {
 CMemoryCardSys* g_MemoryCardSys = nullptr;
-CResFactory* g_ResFactory = nullptr;
+CResFactory*  g_ResFactory = nullptr;
 CSimplePool* g_SimplePool = nullptr;
 CCharacterFactoryBuilder* g_CharFactoryBuilder = nullptr;
 CAiFuncMap* g_AiFuncMap = nullptr;
@@ -132,6 +134,7 @@ void CMain::RegisterResourceTweaks()
 void CMain::ResetGameState()
 {
 }
+
 void CMain::InitializeSubsystems()
 {
     CElementGen::Initialize();
@@ -140,15 +143,37 @@ void CMain::InitializeSubsystems()
 }
 void CMain::AddWorldPaks()
 {
+#if 0
+    u32 i = 0;
+    while (i <= 255)
+    {
+        std::string pakName = CBasics::Stringize("%s%i.pak", g_tweakGame->GetWorldPrefix().c_str(), i);
+        if (!CDvdFile::FileExists(pakName.c_str()))
+        {
+            i++;
+            continue;
+        }
+
+        g_ResFactory->GetLoader().AddPakFile(pakName, false);
+        i++;
+    }
+#endif
 }
+
 void CMain::FillInAssetIDs()
 {
 }
 void CMain::LoadAudio()
 {
 }
-int CMain::RsMain(int argc, const boo::SystemChar* argv[])
+
+int CMain::appMain(boo::IApplication* app)
 {
+    Zeus::detectCPU();
+    mainWindow = app->newWindow("Metroid Prime 1 Reimplementation vZygote");
+    mainWindow->setCallback(&windowCallback);
+    mainWindow->showWindow();
+    //devFinder.startScanning();
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();
     globalObjs->PostInitialize(x6c_memSys);
@@ -157,9 +182,19 @@ int CMain::RsMain(int argc, const boo::SystemChar* argv[])
     g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
     TOneStatic<CGameArchitectureSupport> archSupport;
+
+    boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
+    float rgba[4] = { 0.5f, 0.5f, 0.5f, 1.0f};
+    gfxQ->setClearColor(rgba);
+
     while (!xe8_b24_finished)
     {
+        mainWindow->waitForRetrace();
         xe8_b24_finished = archSupport->Update();
+        gfxQ->clearTarget();
+
+        gfxQ->present();
+        gfxQ->execute();
     }
     return 0;
 }
@@ -178,11 +213,10 @@ int main(int argc, const char* argv[])
 #else
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
-    
+
     LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
-    std::unique_ptr<boo::IApplication> app =
-        boo::ApplicationBootstrap(boo::IApplication::PLAT_AUTO, *main,
+    int ret = boo::ApplicationRun(boo::IApplication::PLAT_AUTO, *main,
                                   _S("mp1"), _S("MP1"), argc, argv);
-    return main->RsMain(argc, argv);
+    return ret;
 }

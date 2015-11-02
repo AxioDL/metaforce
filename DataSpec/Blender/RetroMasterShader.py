@@ -166,7 +166,7 @@ def make_uva4():
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
-    mod1.inputs[1].default_value = 1.0
+    mod1.inputs[1].default_value = 900.0
     mod1.location = (-400, 0)
     
     # Multiply3
@@ -236,7 +236,7 @@ def make_uva5():
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
-    mod1.inputs[1].default_value = 1.0
+    mod1.inputs[1].default_value = 900.0
     mod1.location = (-400, 0)
     
     # Multiply3

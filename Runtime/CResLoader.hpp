@@ -14,6 +14,7 @@ class IDvdRequest;
 
 class CResLoader
 {
+    std::string m_loaderPath;
     //std::list<std::unique_ptr<CPakFile>> x4_unusedList;
     std::list<std::unique_ptr<CPakFile>> x1c_pakLoadedList;
     std::list<std::unique_ptr<CPakFile>> x34_pakLoadingList;

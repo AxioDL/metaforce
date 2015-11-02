@@ -34,6 +34,7 @@ add_library(RuntimeCommon
             CResLoader.hpp CResLoader.cpp
             CDvdRequest.hpp CNODDvdRequest.cpp
             CDvdFile.hpp CNODDvdFile.cpp
+            CVirtualDvdFile.hpp CVirtualDvdFile.cpp
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
             CAi.hpp CAi.cpp

@@ -3,11 +3,13 @@
 #include "CResFactory.hpp"
 #include "CResLoader.hpp"
 #include "GameGlobalObjects.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
 
 namespace Retro
 {
+ITweakGame*   g_tweakGame = nullptr;
 ITweakPlayer* g_tweakPlayer = nullptr;
 ITweakPlayerControl* g_tweakPlayerControl = nullptr;
 
@@ -31,6 +33,9 @@ void CTweaks::RegisterTweaks()
     CResLoader& loader = factory.GetLoader();
     std::unique_ptr<CInputStream> strm;
 
+    strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "Game"), nullptr));
+    TOneStatic<DNAMP1::CTweakGame> game(*strm);
+    g_tweakGame = game.GetAllocSpace();
     strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "Player"), nullptr));
     TOneStatic<DNAMP1::CTweakPlayer> player(*strm);
     g_tweakPlayer = player.GetAllocSpace();

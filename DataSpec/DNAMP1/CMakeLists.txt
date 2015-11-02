@@ -13,6 +13,7 @@ make_dnalist(liblist
              MREA
              DeafBabe
              SCAN
+             Tweaks/CTweakGame
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
              Tweaks/CTweakPlayerControl)

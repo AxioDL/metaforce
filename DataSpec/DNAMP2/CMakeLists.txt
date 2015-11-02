@@ -14,4 +14,5 @@ add_library(DNAMP2
             ANCS.cpp
             CMDL.hpp
             MREA.cpp
+            MAPA.hpp
             STRG.hpp STRG.cpp)

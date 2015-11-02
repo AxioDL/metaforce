@@ -5,6 +5,7 @@
 #include "CMDL.hpp"
 #include "ANCS.hpp"
 #include "MREA.hpp"
+#include "MAPA.hpp"
 #include "../DNACommon/TXTR.hpp"
 
 namespace Retro
@@ -222,6 +223,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
         return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     case SBIG('MLVL'):
         return {MLVL::Extract, nullptr, {_S(".yaml")}};
+//    case SBIG('MAPA'):
+//        return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
     }
     return {};
 }
