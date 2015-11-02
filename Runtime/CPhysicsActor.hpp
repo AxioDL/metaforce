@@ -92,7 +92,7 @@ public:
 
     Zeus::CTransform GetPrimitiveTransform()
     {
-        return Zeus::CTransform;
+        return Zeus::CTransform();
     }
 
     const CCollisionPrimitive& GetCollisionPrimitive() const
