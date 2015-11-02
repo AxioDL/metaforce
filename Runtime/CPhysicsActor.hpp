@@ -92,12 +92,13 @@ public:
 
     Zeus::CTransform GetPrimitiveTransform()
     {
+        return Zeus::CTransform;
     }
 
     const CCollisionPrimitive& GetCollisionPrimitive() const
     { return x1b0_collisionPrimitive; }
 
-    void SetInterialTensorScalar(float tensor)
+    void SetInertiaTensorScalar(float tensor)
     {
         if (tensor <= 0.0f)
             tensor = 1.0f;
@@ -113,7 +114,7 @@ public:
             tensor = 1.0f / mass;
 
         xdc_massRecip = tensor;
-        SetInterialTensorScalar(mass * tensor);
+        SetInertiaTensorScalar(mass * tensor);
     }
 };
 
