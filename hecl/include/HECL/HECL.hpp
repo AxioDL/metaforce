@@ -399,7 +399,9 @@ public:
     Hash(unsigned long long hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
-    unsigned long long val() const {return hash;}
+    uint32_t val32() const {return uint32_t(hash);}
+    uint64_t val64() const {return uint64_t(hash);}
+    size_t valSizeT() const {return size_t(hash);}
     Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
     bool operator==(const Hash& other) const {return hash == other.hash;}
     bool operator!=(const Hash& other) const {return hash != other.hash;}
@@ -502,7 +504,7 @@ public:
      * @brief HECL-specific xxhash
      * @return unique hash value
      */
-    size_t hash() const {return m_hash.val();}
+    Hash hash() const {return m_hash;}
     bool operator==(const ProjectRootPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectRootPath& other) const {return m_hash != other.m_hash;}
 };
@@ -542,6 +544,21 @@ public:
      * @brief Tests for non-empty project path
      */
     operator bool() const {return m_absPath.size() != 0;}
+
+    /**
+     * @brief Clears path
+     */
+    void clear()
+    {
+        m_proj = nullptr;
+        m_absPath.clear();
+        m_relPath.clear();
+        m_hash = 0;
+#if HECL_UCS2
+        m_utf8AbsPath.clear();
+        m_utf8RelPath.clear();
+#endif
+    }
 
     /**
      * @brief Construct a project subpath representation within a project's root path
@@ -814,7 +831,7 @@ public:
      * @brief HECL-specific xxhash
      * @return unique hash value
      */
-    size_t hash() const {return m_hash.val();}
+    Hash hash() const {return m_hash;}
     bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
@@ -961,7 +978,7 @@ template <> struct hash<HECL::FourCC>
 template <> struct hash<HECL::ProjectPath>
 {
     size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
-    {return val.hash();}
+    {return val.hash().valSizeT();}
 };
 }
 

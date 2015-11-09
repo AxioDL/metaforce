@@ -384,7 +384,7 @@ public:
             Vector3f aabbMin;
             Vector3f aabbMax;
 
-            /* HECL source of each material */
+            /** HECL source and metadata of each material */
             struct Material
             {
                 std::string name;
@@ -415,7 +415,7 @@ public:
             std::vector<std::vector<SkinBind>> skins;
             std::vector<size_t> contiguousSkinVertCounts;
 
-            /* Islands of the same material/skinBank are represented here */
+            /** Islands of the same material/skinBank are represented here */
             struct Surface
             {
                 Vector3f centroid;
@@ -425,7 +425,7 @@ public:
                 Vector3f reflectionNormal;
                 uint32_t skinBankIdx;
 
-                /* Vertex indexing data (all primitives joined as degenerate tri-strip) */
+                /** Vertex indexing data (all primitives joined as degenerate tri-strip) */
                 struct Vert
                 {
                     uint32_t iPos;
