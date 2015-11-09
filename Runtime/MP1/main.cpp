@@ -32,6 +32,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"
 #include "CMain.hpp"
+#include "CTimeProvider.hpp"
 
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
@@ -114,6 +115,7 @@ public:
           m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
                            0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/)
     {
+        m_inputGenerator.startScanning();
     }
     bool Update()
     {
@@ -148,13 +150,8 @@ void CMain::AddWorldPaks()
     while (i <= 255)
     {
         std::string pakName = CBasics::Stringize("%s%i.pak", g_tweakGame->GetWorldPrefix().c_str(), i);
-        if (!CDvdFile::FileExists(pakName.c_str()))
-        {
-            i++;
-            continue;
-        }
-
-        g_ResFactory->GetLoader().AddPakFile(pakName, false);
+        if (CDvdFile::FileExists(pakName.c_str()))
+            g_ResFactory->GetLoader().AddPakFile(pakName, false);
         i++;
     }
 #endif
@@ -171,9 +168,7 @@ int CMain::appMain(boo::IApplication* app)
 {
     Zeus::detectCPU();
     mainWindow = app->newWindow("Metroid Prime 1 Reimplementation vZygote");
-    mainWindow->setCallback(&windowCallback);
     mainWindow->showWindow();
-    //devFinder.startScanning();
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();
     globalObjs->PostInitialize(x6c_memSys);
@@ -187,14 +182,20 @@ int CMain::appMain(boo::IApplication* app)
     float rgba[4] = { 0.5f, 0.5f, 0.5f, 1.0f};
     gfxQ->setClearColor(rgba);
 
+    float time = 0.0f;
+    int frame = 0;
+    CTimeProvider test(time);
+
     while (!xe8_b24_finished)
     {
         mainWindow->waitForRetrace();
         xe8_b24_finished = archSupport->Update();
         gfxQ->clearTarget();
 
-        gfxQ->present();
         gfxQ->execute();
+
+        time = (frame++) / 60.f;
+        //fprintf(stderr, "%f\n", test.x0_currentTime);
     }
     return 0;
 }

@@ -29,11 +29,9 @@ class WindowCallback : public boo::IWindowCallback
 class CMain : public boo::IApplicationCallback
 {    
     boo::IWindow* mainWindow;
-    //ApplicationDeviceFinder devFinder;
-    WindowCallback windowCallback;
     int appMain(boo::IApplication* app);
     void appQuitting(boo::IApplication*)
-    {}
+    { xe8_b24_finished = true; }
     void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths)
     {
         fprintf(stderr, "OPENING: ");

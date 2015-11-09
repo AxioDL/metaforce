@@ -39,52 +39,52 @@ public:
     {
         CKeyboardMouseControllerData m_data;
 
-        void mouseDown(const SWindowCoord&, EMouseButton button, EModifierKey)
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
         {
             m_data.m_mouseButtons[button] = true;
         }
-        void mouseUp(const SWindowCoord&, EMouseButton button, EModifierKey)
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
         {
             m_data.m_mouseButtons[button] = false;
         }
-        void mouseMove(const SWindowCoord& coord)
+        void mouseMove(const boo::SWindowCoord& coord)
         {
             m_data.m_mouseCoord = coord;
         }
-        void scroll(const SWindowCoord&, const SScrollDelta& scroll)
+        void scroll(const boo::SWindowCoord&, const boo::SScrollDelta& scroll)
         {
             m_data.m_accumScroll += scroll;
         }
 
-        void charKeyDown(unsigned long charCode, EModifierKey, bool)
+        void charKeyDown(unsigned long charCode, boo::EModifierKey, bool)
         {
             charCode = tolower(charCode);
             if (charCode > 255)
                 return;
             m_data.m_charKeys[charCode] = true;
         }
-        void charKeyUp(unsigned long charCode, EModifierKey mods)
+        void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
         {
             charCode = tolower(charCode);
             if (charCode > 255)
                 return;
             m_data.m_charKeys[charCode] = false;
         }
-        void specialKeyDown(ESpecialKey key, EModifierKey, bool)
+        void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool)
         {
             m_data.m_specialKeys[key] = true;
         }
-        void specialKeyUp(ESpecialKey key, EModifierKey)
+        void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey)
         {
             m_data.m_specialKeys[key] = false;
         }
-        void modKeyDown(EModifierKey mod, bool)
+        void modKeyDown(boo::EModifierKey mod, bool)
         {
-            m_data.m_modMask = EModifierKey(m_data.m_modMask | mod);
+            m_data.m_modMask = boo::EModifierKey(m_data.m_modMask | mod);
         }
-        void modKeyUp(EModifierKey mod)
+        void modKeyUp(boo::EModifierKey mod)
         {
-            m_data.m_modMask = EModifierKey(m_data.m_modMask & ~mod);
+            m_data.m_modMask = boo::EModifierKey(m_data.m_modMask & ~mod);
         }
 
         void reset()

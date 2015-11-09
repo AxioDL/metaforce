@@ -12,7 +12,6 @@ class CElementGen : public CParticleGen
     float x78_generatorRate;
     Zeus::CVector3f x88_globalTranslation;
     Zeus::CTransform x1d8_globalOrientation;
-    std::vector<CElementGen> x238_children;
     std::vector<CElementGen> x240_children;
     std::vector<CElementGen> x254_children;
 public:

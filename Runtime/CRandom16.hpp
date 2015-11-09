@@ -1,7 +1,7 @@
 #ifndef RETRO_CRANDOM16_HPP
 #define RETRO_CRANDOM16_HPP
 
-#include <stdint.h>
+#include "GCNTypes.hpp"
 
 namespace Retro
 {
@@ -11,22 +11,22 @@ extern class CGlobalRandom* GLOBAL_RANDOM_TOKEN;
 
 class CRandom16
 {
-    uint32_t m_seed;
+    u32 m_seed;
 public:
-    CRandom16(uint32_t p) : m_seed(p) {}
+    CRandom16(u32 p) : m_seed(p) {}
 
-    inline uint32_t Next()
+    inline u32 Next()
     {
         m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
         return m_seed >> 16;
     }
 
-    inline uint32_t GetSeed() const
+    inline u32 GetSeed() const
     {
         return m_seed;
     }
 
-    inline void SetSeed(uint32_t p)
+    inline void SetSeed(u32 p)
     {
         m_seed = p;
     }
@@ -41,12 +41,12 @@ public:
         return min + Float() * (max - min);
     }
 
-    inline int32_t Range(int32_t min, int32_t max)
+    inline s32 Range(s32 min, s32 max)
     {
-        int64_t diff = max - min;
-        int64_t rand = -1;
+        s32 diff = max - min;
+        s32 rand = -1;
         while (rand < 0)
-            rand = int32_t((Next() << 16) | Next());
+            rand = s32((Next() << 16) | Next());
         return rand % diff + min;
     }
 
