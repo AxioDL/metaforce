@@ -382,7 +382,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
         {
             ProjectPath cooked = path.getCookedPath(*spec.first);
             if (fast)
-                cooked = cooked.getWithExtension(".fast");
+                cooked = cooked.getWithExtension(_S(".fast"));
             if (force || cooked.getPathType() == ProjectPath::PT_NONE ||
                 path.getModtime() > cooked.getModtime())
             {

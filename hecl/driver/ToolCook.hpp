@@ -29,7 +29,7 @@ public:
             {
                 if (arg.empty())
                     continue;
-                else if (!arg.compare("--fast"))
+                else if (!arg.compare(_S("--fast")))
                 {
                     m_fast = true;
                     continue;
