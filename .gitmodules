@@ -7,6 +7,3 @@
 [submodule "MathLib"]
 	path = MathLib
 	url = https://github.com/AxioDL/MathLib.git
-[submodule "libBoo"]
-	path = libBoo
-	url = https://github.com/AxioDL/libBoo.git

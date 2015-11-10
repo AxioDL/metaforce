@@ -55,9 +55,14 @@ struct SpecBase : HECL::Database::IDataSpec
 
     const HECL::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 
-    SpecBase(HECL::Database::Project& project)
-    : m_project(project),
-      m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
+    /* Support functions for resolving paths from IDs */
+    virtual HECL::ProjectPath getWorking(class UniqueID32&) {return HECL::ProjectPath();}
+    virtual HECL::ProjectPath getWorking(class UniqueID64&) {return HECL::ProjectPath();}
+
+    /* Project accessor */
+    HECL::Database::Project& getProject() {return m_project;}
+
+    SpecBase(HECL::Database::Project& project);
 protected:
     HECL::Database::Project& m_project;
     HECL::ProjectPath m_masterShader;

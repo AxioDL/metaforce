@@ -267,6 +267,11 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
+    virtual HECL::ProjectPath getWorking(class UniqueID32& id)
+    {
+        return m_pakRouter.getWorking(id);
+    }
+
     bool checkPathPrefix(const HECL::ProjectPath& path)
     {
         return path.getRelativePath().compare(0, 4, _S("MP1/")) == 0;

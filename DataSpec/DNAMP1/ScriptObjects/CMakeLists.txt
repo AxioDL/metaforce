@@ -131,4 +131,5 @@ make_dnalist(liblist
 add_library(ScriptObjectsMP1
             ${liblist}
             ScriptTypes.hpp
-            IScriptObject.cpp)
+            IScriptObject.cpp
+            Parameters.cpp)

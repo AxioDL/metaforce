@@ -258,6 +258,7 @@ public:
     : m_dataSpec(dataSpec),
       m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
+
     void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
         m_bridges = &bridges;

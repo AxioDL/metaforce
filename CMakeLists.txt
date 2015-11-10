@@ -11,11 +11,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 include_directories(/usr/local/include)
 endif()
 
-#disable libBoo for FreeBSD for the time being
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-add_subdirectory(libBoo)
-set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libBoo/include)
-endif()
+set(BOO_INCLUDE_DIR hecl/extern/libBoo/include)
 
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
@@ -37,7 +33,7 @@ add_definitions(-DZE_ATHENA_TYPES=1)
 add_subdirectory(MathLib)
 set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR}
+                    ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 #disable Runtime on FreeBSD for now

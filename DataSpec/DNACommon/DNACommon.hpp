@@ -12,12 +12,13 @@ namespace Retro
 {
 
 extern LogVisor::LogModule LogDNACommon;
+extern SpecBase* g_curSpec;
 
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
 typedef Athena::io::DNAYaml<Athena::BigEndian> BigYAML;
 
-/* FourCC with DNA read/write */
+/** FourCC with DNA read/write */
 class DNAFourCC final : public BigYAML, public HECL::FourCC
 {
 public:
@@ -44,7 +45,7 @@ public:
 
 using FourCC = HECL::FourCC;
 
-/* PAK 32-bit Unique ID */
+/** PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
 {
     uint32_t m_id = 0xffffffff;
@@ -62,6 +63,9 @@ public:
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
 
+    UniqueID32& operator=(const HECL::ProjectPath& path)
+    {m_id = path.hash().val32(); return *this;}
+
     bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
     uint32_t toUint32() const {return m_id;}
@@ -71,9 +75,11 @@ public:
         snprintf(buf, 9, "%08X", m_id);
         return std::string(buf);
     }
+    void clear() {m_id = 0xffffffff;}
 
     UniqueID32() = default;
     UniqueID32(Athena::io::IStreamReader& reader) {read(reader);}
+    UniqueID32(const HECL::ProjectPath& path) {*this = path;}
     UniqueID32(const char* hexStr)
     {
         char copy[9];
@@ -81,9 +87,11 @@ public:
         copy[8] = '\0';
         m_id = strtoul(copy, nullptr, 16);
     }
+
+    static constexpr size_t BinarySize() {return 4;}
 };
 
-/* PAK 64-bit Unique ID */
+/** PAK 64-bit Unique ID */
 class UniqueID64 : public BigYAML
 {
     uint64_t m_id = 0xffffffffffffffff;
@@ -101,6 +109,9 @@ public:
     size_t binarySize(size_t __isz) const
     {return __isz + 8;}
 
+    UniqueID64& operator=(const HECL::ProjectPath& path)
+    {m_id = path.hash().val64(); return *this;}
+
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
     uint64_t toUint64() const {return m_id;}
@@ -110,9 +121,11 @@ public:
         snprintf(buf, 17, "%016" PRIX64, m_id);
         return std::string(buf);
     }
+    void clear() {m_id = 0xffffffffffffffff;}
 
     UniqueID64() = default;
     UniqueID64(Athena::io::IStreamReader& reader) {read(reader);}
+    UniqueID64(const HECL::ProjectPath& path) {*this = path;}
     UniqueID64(const char* hexStr)
     {
         char copy[17];
@@ -120,9 +133,11 @@ public:
         copy[16] = '\0';
         m_id = strtouq(copy, nullptr, 16);
     }
+
+    static constexpr size_t BinarySize() {return 8;}
 };
 
-/* PAK 128-bit Unique ID */
+/** PAK 128-bit Unique ID */
 class UniqueID128 : public BigYAML
 {
     union
@@ -184,6 +199,7 @@ public:
         return (m_id[0] == other.m_id[0]) && (m_id[1] == other.m_id[1]);
 #endif
     }
+    void clear() {m_id[0] = 0xffffffffffffffff; m_id[1] = 0xffffffffffffffff;}
     uint64_t toHighUint64() const {return m_id[0];}
     uint64_t toLowUint64() const {return m_id[1];}
     std::string toString() const
@@ -192,9 +208,11 @@ public:
         snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id[0], m_id[1]);
         return std::string(buf);
     }
+
+    static constexpr size_t BinarySize() {return 16;}
 };
 
-/* Case-insensitive comparator for std::map sorting */
+/** Case-insensitive comparator for std::map sorting */
 struct CaseInsensitiveCompare
 {
     bool operator()(const std::string& lhs, const std::string& rhs) const
@@ -218,7 +236,62 @@ struct CaseInsensitiveCompare
 #endif
 };
 
-/* Word Bitmap reader/writer */
+/** Class that automatically converts between hash and path for DNA usage */
+template <class IDTYPE>
+class PAKPath : public BigYAML
+{
+    HECL::ProjectPath m_path;
+    IDTYPE m_id;
+public:
+    HECL::ProjectPath getPath() const
+    {
+        if (m_path)
+            return m_path;
+        if (!g_curSpec)
+            LogDNACommon.report(LogVisor::FatalError, "current DataSpec not set for PAKPath");
+        if (m_id)
+            return g_curSpec->getWorking(m_id);
+        return HECL::ProjectPath();
+    }
+    operator HECL::ProjectPath() const {return getPath();}
+    operator const IDTYPE&() const {return m_id;}
+
+    Delete _d;
+    void read(Athena::io::IStreamReader& reader)
+    {m_id.read(reader);}
+    void write(Athena::io::IStreamWriter& writer) const
+    {m_id.write(writer);}
+    void fromYAML(Athena::io::YAMLDocReader& reader)
+    {
+        if (!g_curSpec)
+            LogDNACommon.report(LogVisor::FatalError, "current DataSpec not set for PAKPath");
+        std::string path = reader.readString(nullptr);
+        if (path.empty())
+        {
+            m_path.clear();
+            m_id.clear();
+            return;
+        }
+        m_path.assign(g_curSpec->getProject(), path);
+        m_id = m_path;
+    }
+    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    {
+        if (m_path)
+        {
+            writer.writeString(nullptr, m_path.getRelativePathUTF8());
+            return;
+        }
+        writer.writeString(nullptr, getPath().getRelativePathUTF8());
+    }
+
+    size_t binarySize(size_t __isz) const
+    {return __isz + IDTYPE::BinarySize();}
+};
+using PAKPath32 = PAKPath<UniqueID32>;
+using PAKPath64 = PAKPath<UniqueID64>;
+
+/** Word Bitmap reader/writer */
 class WordBitmap
 {
     std::vector<atUint32> m_words;
@@ -267,10 +340,7 @@ public:
         size_t wordCur = idx % 32;
         m_words[wordIdx] &= ~(1 << wordCur);
     }
-    void clear()
-    {
-        m_words.clear();
-    }
+    void clear() {m_words.clear();}
 
     class Iterator : public std::iterator<std::forward_iterator_tag, bool>
     {
@@ -287,7 +357,7 @@ public:
     Iterator end() const {return Iterator(*this, m_bitCount);}
 };
 
-/* Resource cooker function */
+/** Resource cooker function */
 typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
 
 }

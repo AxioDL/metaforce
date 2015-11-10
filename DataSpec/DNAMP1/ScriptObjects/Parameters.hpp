@@ -2,7 +2,7 @@
 #define _DNAMP1_PARAMETERS_HPP_
 
 #include "../../DNACommon/DNACommon.hpp"
-#include "../ANCS.hpp"
+#include "../DNAMP1.hpp"
 
 namespace Retro
 {
@@ -94,19 +94,7 @@ struct AnimationParameters : BigYAML
     Value<atUint32> character;
     Value<atUint32> defaultAnimation;
 
-    UniqueID32 getCINF(PAKRouter<PAKBridge>& pakRouter) const
-    {
-        if (!animationCharacterSet)
-            return UniqueID32();
-        const NOD::Node* node;
-        const PAK::Entry* ancsEnt = pakRouter.lookupEntry(animationCharacterSet, &node);
-        ANCS ancs;
-        {
-            PAKEntryReadStream rs = ancsEnt->beginReadStream(*node);
-            ancs.read(rs);
-        }
-        return ancs.characterSet.characters.at(character).cinf;
-    }
+    UniqueID32 getCINF(PAKRouter<PAKBridge>& pakRouter) const;
 
     void nameANCS(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
     {

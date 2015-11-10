@@ -36,7 +36,7 @@ struct PAK : BigDNA
         Value<atUint32> size;
         Value<atUint32> offset;
         UniqueResult unique;
-        std::string name;
+        std::string name; /* backreferencing name for RE purposes */
 
         std::unique_ptr<atUint8[]> getBuffer(const NOD::Node& pak, atUint64& szOut) const;
         inline PAKEntryReadStream beginReadStream(const NOD::Node& pak, atUint64 off=0) const
