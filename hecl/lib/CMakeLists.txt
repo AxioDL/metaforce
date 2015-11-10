@@ -16,6 +16,7 @@ add_library(HECLCommon
             ../include/HECL/HECL.hpp
             ../include/HECL/Backend/Backend.hpp
             ../include/HECL/Backend/GX.hpp
+            ../include/HECL/Backend/ProgrammableCommon.hpp
             ../include/HECL/Backend/GLSL.hpp
             ../include/HECL/Frontend.hpp
             ../include/HECL/Database.hpp

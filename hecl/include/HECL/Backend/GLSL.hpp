@@ -1,59 +1,36 @@
 #ifndef HECLBACKEND_GLSL_HPP
 #define HECLBACKEND_GLSL_HPP
 
-#include "Backend.hpp"
-#include <Athena/DNA.hpp>
-#include <boo/graphicsdev/GL.hpp>
-#include <stdint.h>
-#include <stdlib.h>
-#include <algorithm>
+#include "ProgrammableCommon.hpp"
 
 namespace HECL
 {
 namespace Backend
 {
 
-struct GLSL : IBackend
+struct GLSL : ProgrammableCommon
 {
-    boo::BlendFactor m_blendSrc;
-    boo::BlendFactor m_blendDst;
-    std::string m_vertSource;
-    std::string m_fragSource;
-
-    size_t m_texSamplingCount = 0;
-    std::string m_texSamplings;
-
-    enum TexGenSrc
-    {
-        TG_POS,
-        TG_NRM,
-        TG_UV
-    };
-
-    struct TexCoordGen
-    {
-        TexGenSrc m_src;
-        int m_uvIdx = 0;
-        int m_mtx = -1;
-        std::string m_gameFunction;
-        std::vector<atVec4f> m_gameArgs;
-    };
-    std::vector<TexCoordGen> m_tcgs;
-    std::vector<size_t> m_texMtxRefs;
-
     void reset(const IR& ir, Diagnostics& diag);
+    std::string makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
+                         unsigned skinSlots, unsigned texMtxs) const;
+    std::string makeFrag(const char* glslVer,
+                         const char* lightingSource, const char* lightingEntry) const;
+    std::string makeFrag(const char* glslVer,
+                         const char* lightingSource, const char* lightingEntry,
+                         const char* postSource, const char* postEntry) const;
 
 private:
-    unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
-                            TexGenSrc src, int uvIdx, int mtx);
-    std::string RecursiveTraceColor(const IR& ir, Diagnostics& diag,
-                                    const IR::Instruction& inst,
-                                    bool swizzleAlpha=false);
-    std::string RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
-                                    const IR::Instruction& inst);
-    unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
-                                  const IR::Instruction& inst,
-                                  int mtx);
+    std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
+    std::string GenerateVertToFragStruct() const;
+    std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const;
+
+    std::string EmitVec3(const atVec4f& vec) const
+    {
+        return HECL::Format("vec3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
+    }
+
+    std::string EmitTexGenSource2(TexGenSrc src, int uvIdx) const;
+    std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };
 
 }
