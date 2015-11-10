@@ -7,6 +7,8 @@ if(WIN32)
 list(APPEND PLAT_SRCS winsupport.cpp ../include/HECL/winsupport.hpp)
 endif()
 
+atdna(atdna_Frontend.cpp ../include/HECL/Frontend.hpp)
+
 add_library(HECLCommon
             HECL.cpp
             ProjectPath.cpp
@@ -14,8 +16,10 @@ add_library(HECLCommon
             ../include/HECL/HECL.hpp
             ../include/HECL/Backend/Backend.hpp
             ../include/HECL/Backend/GX.hpp
+            ../include/HECL/Backend/GLSL.hpp
             ../include/HECL/Frontend.hpp
             ../include/HECL/Database.hpp
             ../include/HECL/Runtime.hpp
+            atdna_Frontend.cpp
             ${PLAT_SRCS})
 

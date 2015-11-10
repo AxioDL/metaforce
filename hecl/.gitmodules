@@ -7,3 +7,6 @@
 [submodule "extern/LogVisor"]
 	path = extern/LogVisor
 	url = https://github.com/AxioDL/LogVisor.git
+[submodule "extern/libBoo"]
+	path = extern/libBoo
+	url = https://github.com/AxioDL/libBoo.git

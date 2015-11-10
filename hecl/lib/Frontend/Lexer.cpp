@@ -689,7 +689,7 @@ void Lexer::RecursiveGroupCompile(IR& ir, const Lexer::OperationNode* groupNode,
 void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID target) const
 {
     IR::RegID tgt = target;
-    std::vector<size_t> instIdxs;
+    std::vector<atUint16> instIdxs;
     for (const Lexer::OperationNode* gn = funcNode->m_sub ; gn ; gn = gn->m_next, ++tgt)
     {
         RecursiveGroupCompile(ir, gn, tgt);

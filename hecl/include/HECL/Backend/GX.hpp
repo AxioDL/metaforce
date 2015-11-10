@@ -550,10 +550,6 @@ private:
     unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
                             TexGenSrc src, TexMtx mtx);
     TEVStage& addTEVStage(Diagnostics& diag, const SourceLocation& loc);
-    void PreTraceColor(const IR& ir, Diagnostics& diag,
-                       const IR::Instruction& inst);
-    void PreTraceAlpha(const IR& ir, Diagnostics& diag,
-                       const IR::Instruction& inst);
     TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst,
                                     bool swizzleAlpha=false);

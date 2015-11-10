@@ -5,6 +5,7 @@
 #include <vector>
 #include <forward_list>
 #include <Athena/Types.hpp>
+#include <Athena/DNA.hpp>
 #include <HECL/HECL.hpp>
 
 namespace HECL
@@ -111,9 +112,13 @@ public:
     Parser(Diagnostics& diag) : m_diag(diag) {}
 };
 
-struct IR
+using BigDNA = Athena::io::DNA<Athena::BigEndian>;
+
+struct IR : BigDNA
 {
-    enum OpType
+    Delete _d;
+
+    enum OpType : uint8_t
     {
         OpNone,       /**< NOP */
         OpCall,       /**< Deferred function insertion for HECL backend using specified I/O regs */
@@ -122,26 +127,31 @@ struct IR
         OpSwizzle     /**< Vector insertion/extraction/swizzling operation */
     };
 
-    using RegID = int;
+    using RegID = atUint16;
 
-    struct Instruction
+    struct Instruction : BigDNA
     {
+        Delete _d;
+
         OpType m_op = OpNone;
-        RegID m_target = -1;
+        RegID m_target = RegID(-1);
         SourceLocation m_loc;
 
-        struct
+        struct Call : BigDNA
         {
-            std::string m_name;
-            std::vector<size_t> m_argInstIdxs;
+            DECL_DNA
+            String<-1> m_name;
+            Value<atUint16> m_argInstCount;
+            Vector<atUint16, DNA_COUNT(m_argInstCount)> m_argInstIdxs;
         } m_call;
 
-        struct
+        struct LoadImm : BigDNA
         {
-            atVec4f m_immVec;
+            DECL_DNA
+            Value<atVec4f> m_immVec;
         } m_loadImm;
 
-        enum ArithmeticOpType
+        enum ArithmeticOpType : uint8_t
         {
             ArithmeticOpNone,
             ArithmeticOpAdd,
@@ -150,16 +160,18 @@ struct IR
             ArithmeticOpDivide
         };
 
-        struct
+        struct Arithmetic : BigDNA
         {
-            ArithmeticOpType m_op = ArithmeticOpNone;
-            size_t m_instIdxs[2];
+            DECL_DNA
+            Value<ArithmeticOpType> m_op = ArithmeticOpNone;
+            Value<atUint16> m_instIdxs[2];
         } m_arithmetic;
 
-        struct
+        struct Swizzle : BigDNA
         {
-            int m_idxs[4] = {-1, -1, -1, -1};
-            size_t m_instIdx;
+            DECL_DNA
+            Value<atInt8> m_idxs[4] = {-1, -1, -1, -1};
+            Value<atUint16> m_instIdx;
         } m_swizzle;
 
         Instruction(OpType type, const SourceLocation& loc) : m_op(type), m_loc(loc) {}
@@ -206,10 +218,104 @@ struct IR
                 LogModule.report(LogVisor::FatalError, "invalid op type");
             return m_loadImm.m_immVec;
         }
+
+        void read(Athena::io::IStreamReader& reader)
+        {
+            m_op = OpType(reader.readUByte());
+            m_target = reader.readUint16Big();
+            switch (m_op)
+            {
+            default: break;
+            case OpCall:
+                m_call.read(reader);
+                break;
+            case OpLoadImm:
+                m_loadImm.read(reader);
+                break;
+            case OpArithmetic:
+                m_arithmetic.read(reader);
+                break;
+            case OpSwizzle:
+                m_swizzle.read(reader);
+                break;
+            }
+        }
+
+        void write(Athena::io::IStreamWriter& writer) const
+        {
+            writer.writeUByte(m_op);
+            writer.writeUint16Big(m_target);
+            switch (m_op)
+            {
+            default: break;
+            case OpCall:
+                m_call.write(writer);
+                break;
+            case OpLoadImm:
+                m_loadImm.write(writer);
+                break;
+            case OpArithmetic:
+                m_arithmetic.write(writer);
+                break;
+            case OpSwizzle:
+                m_swizzle.write(writer);
+                break;
+            }
+        }
+
+        size_t binarySize(size_t sz) const
+        {
+            sz += 3;
+            switch (m_op)
+            {
+            default: break;
+            case OpCall:
+                sz = m_call.binarySize(sz);
+                break;
+            case OpLoadImm:
+                sz = m_loadImm.binarySize(sz);
+                break;
+            case OpArithmetic:
+                sz = m_arithmetic.binarySize(sz);
+                break;
+            case OpSwizzle:
+                sz = m_swizzle.binarySize(sz);
+                break;
+            }
+            return sz;
+        }
+
+        Instruction(Athena::io::IStreamReader& reader) {read(reader);}
     };
 
-    size_t m_regCount = 0;
+    atUint16 m_regCount = 0;
     std::vector<Instruction> m_instructions;
+
+    void read(Athena::io::IStreamReader& reader)
+    {
+        m_regCount = reader.readUint16Big();
+        atUint16 instCount = reader.readUint16Big();
+        m_instructions.clear();
+        m_instructions.reserve(instCount);
+        for (atUint16 i=0 ; i<instCount ; ++i)
+            m_instructions.emplace_back(reader);
+    }
+
+    void write(Athena::io::IStreamWriter& writer) const
+    {
+        writer.writeUint16Big(m_regCount);
+        writer.writeUint16Big(m_instructions.size());
+        for (const Instruction& inst : m_instructions)
+            inst.write(writer);
+    }
+
+    size_t binarySize(size_t sz) const
+    {
+        sz += 4;
+        for (const Instruction& inst : m_instructions)
+            sz = inst.binarySize(sz);
+        return sz;
+    }
 };
 
 class Lexer
