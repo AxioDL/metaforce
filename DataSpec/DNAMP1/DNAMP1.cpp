@@ -151,7 +151,11 @@ void PAKBridge::build()
                 HECL::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
+#if HECL_UCS2
+                std::string lowerName = HECL::WideToUTF8(areaDeps.name);
+#else
                 std::string lowerName(areaDeps.name);
+#endif
                 for (char& ch : lowerName)
                 {
                     ch = tolower(ch);

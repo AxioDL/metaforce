@@ -167,7 +167,7 @@ void CMain::LoadAudio()
 int CMain::appMain(boo::IApplication* app)
 {
     Zeus::detectCPU();
-    mainWindow = app->newWindow("Metroid Prime 1 Reimplementation vZygote");
+    mainWindow = app->newWindow(_S("Metroid Prime 1 Reimplementation vZygote"));
     mainWindow->showWindow();
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();

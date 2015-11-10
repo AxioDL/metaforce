@@ -87,6 +87,13 @@ public:
         copy[8] = '\0';
         m_id = strtoul(copy, nullptr, 16);
     }
+    UniqueID32(const wchar_t* hexStr)
+    {
+        wchar_t copy[9];
+        wcsncpy(copy, hexStr, 8);
+        copy[8] = L'\0';
+        m_id = wcstoul(copy, nullptr, 16);
+    }
 
     static constexpr size_t BinarySize() {return 4;}
 };
@@ -131,7 +138,22 @@ public:
         char copy[17];
         strncpy(copy, hexStr, 16);
         copy[16] = '\0';
+#if _WIN32
+        m_id = _strtoui64(copy, nullptr, 16);
+#else
         m_id = strtouq(copy, nullptr, 16);
+#endif
+    }
+    UniqueID64(const wchar_t* hexStr)
+    {
+        wchar_t copy[17];
+        wcsncpy(copy, hexStr, 16);
+        copy[16] = L'\0';
+#if _WIN32
+        m_id = _wcstoui64(copy, nullptr, 16);
+#else
+        m_id = wcstouq(copy, nullptr, 16);
+#endif
     }
 
     static constexpr size_t BinarySize() {return 8;}

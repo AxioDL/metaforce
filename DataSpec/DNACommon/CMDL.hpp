@@ -1137,7 +1137,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
                 const HECL::SystemString& relPath = path.getRelativePath();
 
                 /* TODO: incorporate hecl hashes */
-                size_t search = relPath.find("TXTR_");
+                size_t search = relPath.find(_S("TXTR_"));
                 if (search != HECL::SystemString::npos)
                     targetMSet.addTexture(relPath.c_str() + search + 5);
                 else
