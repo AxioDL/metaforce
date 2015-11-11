@@ -15,14 +15,18 @@ void SanitizePath(std::string& path)
     bool ic = false;
     std::transform(path.begin(), path.end(), path.begin(), [&](const char a) -> char {
         ++p1;
+        static const std::string illegals {"<>?*\"|"};
+        if (illegals.find_first_of(a) != std::string::npos)
+        {
+            ic = false;
+            return '_';
+        }
+
         if (ic)
         {
             ic = false;
             return a;
         }
-        static const std::string illegals {"<>?*\"|"};
-        if (illegals.find_first_of(a) != std::string::npos)
-            return '_';
         if (a == '\\' && (p1 == path.end() || *p1 != '\\'))
         {
             ic = true;
@@ -42,14 +46,18 @@ void SanitizePath(std::wstring& path)
     bool ic = false;
     std::transform(path.begin(), path.end(), path.begin(), [&](const wchar_t a) -> wchar_t {
         ++p1;
+        static const std::wstring illegals {L"<>?*\"|"};
+        if (illegals.find_first_of(a) != std::wstring::npos)
+        {
+            ic = false;
+            return L'_';
+        }
+
         if (ic)
         {
             ic = false;
             return a;
         }
-        static const std::wstring illegals {L"<>?*\"|"};
-        if (illegals.find_first_of(a) != std::wstring::npos)
-            return L'_';
         if (a == L'\\' && (p1 == path.end() || *p1 != L'\\'))
         {
             ic = true;
