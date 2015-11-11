@@ -152,7 +152,7 @@ public:
 #if _WIN32
         m_id = _wcstoui64(copy, nullptr, 16);
 #else
-        m_id = wcstouq(copy, nullptr, 16);
+        m_id = wcstoull(copy, nullptr, 16);
 #endif
     }
 
