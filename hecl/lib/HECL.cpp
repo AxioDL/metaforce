@@ -7,24 +7,36 @@ LogVisor::LogModule LogModule("HECL");
 
 void SanitizePath(std::string& path)
 {
+    if (path.empty())
+        return;
     path.erase(std::remove(path.begin(), path.end(), '\n'), path.end());
     path.erase(std::remove(path.begin(), path.end(), '\r'), path.end());
-    std::transform(path.begin(), path.end(), path.begin(), [](const char a) -> char {
+    std::string::iterator p1 = path.begin();
+    std::transform(path.begin(), path.end(), path.begin(), [&](const char a) -> char {
+        ++p1;
         static const std::string illegals {"<>?*\"|"};
         if (illegals.find_first_of(a) != std::string::npos)
             return '_';
+        if (a == '\\' && (p1 == path.end() || *p1 != '\\'))
+            return '/';
         return a;
     });
 }
 
 void SanitizePath(std::wstring& path)
 {
+    if (path.empty())
+        return;
     path.erase(std::remove(path.begin(), path.end(), L'\n'), path.end());
     path.erase(std::remove(path.begin(), path.end(), L'\r'), path.end());
-    std::transform(path.begin(), path.end(), path.begin(), [](const wchar_t a) -> wchar_t {
+    std::wstring::iterator p1 = path.begin();
+    std::transform(path.begin(), path.end(), path.begin(), [&](const wchar_t a) -> wchar_t {
+        ++p1;
         static const std::wstring illegals {L"<>?*\"|"};
         if (illegals.find_first_of(a) != std::wstring::npos)
             return L'_';
+        if (a == L'\\' && (p1 == path.end() || *p1 != L'\\'))
+            return L'/';
         return a;
     });
 }
