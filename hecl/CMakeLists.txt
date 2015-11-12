@@ -27,3 +27,6 @@ add_subdirectory(lib)
 add_subdirectory(blender)
 add_subdirectory(driver)
 install(DIRECTORY include/HECL DESTINATION include/HECL)
+
+# Runtime test
+add_subdirectory(test)
