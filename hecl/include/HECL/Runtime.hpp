@@ -1,204 +1,136 @@
 #ifndef HECLRUNTIME_HPP
 #define HECLRUNTIME_HPP
 
-#include <memory>
-#include <vector>
-#include <atomic>
-
 #include "HECL.hpp"
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <Athena/DNA.hpp>
+#include <Athena/FileReader.hpp>
+#include <unordered_map>
 
 namespace HECL
 {
 namespace Runtime
 {
 
-class Entity
+/**
+ * @brief Per-platform file store resolution
+ */
+class FileStoreManager
 {
+    SystemString m_domain;
+    SystemString m_storeRoot;
 public:
-    enum Type
+    FileStoreManager(const SystemString& domain);
+    const SystemString& getDomain() const {return m_domain;}
+    const SystemString& getStoreRoot() const {return m_storeRoot;}
+};
+
+/**
+ * @brief Shader formats that may be identified within ShaderHash
+ */
+enum ShaderFormat : uint8_t
+{
+    ShaderFormatNone,
+    ShaderFormatGLSL,
+    ShaderFormatHLSL,
+    ShaderFormatMetal,
+    ShaderFormatSpirV
+};
+
+/**
+ * @brief Hash subclass for identifying shaders and their metadata
+ */
+class ShaderTag : public Hash
+{
+    union
     {
-        ENTITY_NONE,
-        ENTITY_OBJECT,
-        ENTITY_GROUP
+        uint64_t m_meta = 0;
+        struct
+        {
+            ShaderFormat m_fmt;
+            uint8_t m_colorCount;
+            uint8_t m_uvCount;
+            uint8_t m_weightCount;
+        };
     };
-
-private:
-    Type m_type;
-    const std::string& m_path;
-    bool m_loaded = false;
-
-    friend class Group;
-    friend class ObjectBase;
-    Entity(Type type, const std::string& path)
-    : m_type(type), m_path(path) {}
-
 public:
-    /**
-     * @brief Get type of runtime object
-     * @return Type enum
-     */
-    inline Type getType() const {return m_type;}
-
-    /**
-     * @brief Get database entity path
-     * @return Path string
-     */
-    inline const std::string& getPath() const {return m_path;}
-
-    /**
-     * @brief Determine if object is fully loaded and constructed
-     * @return true if so
-     */
-    inline bool isLoaded() const {return m_loaded;}
+    ShaderTag() = default;
+    ShaderTag(const void* buf, size_t len, ShaderFormat fmt, uint8_t c, uint8_t u, uint8_t w)
+    : Hash(buf, len), m_fmt(fmt), m_colorCount(c), m_uvCount(u), m_weightCount(w) {}
+    ShaderTag(unsigned long long hashin, uint64_t meta)
+    : Hash(hashin), m_meta(meta) {}
+    ShaderTag(const ShaderTag& other) : Hash(other) {}
+    ShaderFormat getShaderFormat() const {return m_fmt;}
+    uint8_t getColorCount() const {return m_colorCount;}
+    uint8_t getUvCount() const {return m_uvCount;}
+    uint8_t getWeightCount() const {return m_weightCount;}
+    uint64_t getMetaData() const {return m_meta;}
 };
 
 /**
- * @brief Interface representing a load-ordered group of runtime objects
- *
- * HLPK files perform all data retrieval using the notion of 'groups'
- * Groups are a collection of data objects that have been sequentially packed
- * in the package file and are constructed in the indexed order of the group.
- *
- * RuntimeGroup objects are internally created and weakly-referenced by CRuntime.
- * RuntimeObject objects are weakly-referenced by RuntimeGroup; they're strongly
- * referenced by application systems as long as they're needed.
- *
- * DO NOT CONSTRUCT THIS DIRECTLY!!
+ * @brief Maintains index/data file pair containing platform-dependent cached shader data
  */
-class Group : public Entity
+class ShaderCacheManager
 {
-public:
-    typedef std::vector<std::weak_ptr<const class RuntimeObjectBase>> GroupObjectsVector;
-private:
-    friend class HECLRuntime;
-    GroupObjectsVector m_objects;
-    Group(const std::string& path)
-    : Entity(ENTITY_GROUP, path) {}
-public:
-    inline const GroupObjectsVector& getObjects() const {return m_objects;}
-};
-
-/**
- * @brief Base object to subclass for integrating with key runtime operations
- *
- * All runtime objects are provided with IDataObject pointers to their database
- * entries. Subclasses register themselves with a type registry so instances
- * are automatically constructed when performing operations like runtime-integration.
- *
- * DO NOT CONSTRUCT THIS OR SUBCLASSES DIRECTLY!!
- */
-class ObjectBase : public Entity
-{
-    std::shared_ptr<const Group> m_parent;
-protected:
-
-    /**
-     * @brief Optional subclass method called on background thread or in response to interrupt when data is ready
-     * @param data fully-loaded data buffer
-     * @param len length of buffer
-     * @return true when data is successfully integrated into the runtime
-     */
-    virtual bool _objectFinishedLoading(const void* data, size_t len)
-    {(void)data;(void)len;return true;}
-
-    /**
-     * @brief Optional subclass method called in response to reference-count dropping to 0
-     */
-    virtual void _objectWillUnload() {}
-
-public:
-    ObjectBase(const Group* group, const std::string& path)
-    : Entity(ENTITY_OBJECT, path), m_parent(group) {}
-
-    /**
-     * @brief Get parent group of object
-     * @return Borrowed pointer of parent RuntimeGroup
-     */
-    inline const Group* getParentGroup() {return m_parent.get();}
-};
-
-/**
- * @brief Loadable/Bindable runtime texture class
- */
-class Texture
-{
-};
-
-/**
- * @brief Bindable runtime material class
- */
-class Material
-{
-};
-
-/**
- * @brief Bindable runtime mesh surface
- */
-class MeshSurface
-{
-};
-
-/**
- * @brief Loadable data representation containing vertex buffers, surfaces and shader refs
- */
-class MeshObject
-{
-public:
-};
-
-/**
- * @brief HLPK Runtime data-management root
- *
- * Interface for controlling runtime data-operations like object lookup
- * and burst load-transactions using HLPK packages. The runtime's
- * implementation automatically constructs RuntimeObjectBase and
- * RuntimeGroup instances as needed.
- */
-class Runtime
-{
-public:
-    /**
-     * @brief Constructs the HECL runtime root
-     * @param hlpkDirectory directory to search for .hlpk files
-     */
-    Runtime(const SystemString& hlpkDirectory);
-    ~Runtime();
-
-    /**
-     * @brief Structure indicating the load status of an object group
-     */
-    struct SGroupLoadStatus
+    const FileStoreManager& m_storeMgr;
+    Athena::io::FileReader m_idxFr;
+    Athena::io::FileReader m_datFr;
+    struct IndexEntry : Athena::io::DNA<Athena::BigEndian>
     {
-        std::atomic_bool done;
-        std::atomic_size_t completedObjects;
-        std::atomic_size_t totalObjects;
+        DECL_DNA
+        Value<atUint64> m_hash;
+        Value<atUint64> m_meta;
+        Value<atUint64> m_compOffset;
+        Value<atUint32> m_compSize;
+        Value<atUint32> m_decompSize;
     };
+    std::vector<IndexEntry> m_entries;
+    std::unordered_map<Hash, size_t> m_entryLookup;
+    uint64_t m_loadedRand = 0;
+    void BootstrapIndex();
+public:
+    ShaderCacheManager(const FileStoreManager& storeMgr)
+    : m_storeMgr(storeMgr),
+      m_idxFr(storeMgr.getStoreRoot() + _S("/shadercache.idx")),
+      m_datFr(storeMgr.getStoreRoot() + _S("/shadercache.dat"))
+    {reload();}
+    void reload();
 
-    /**
-     * @brief Begin a synchronous group-load transaction
-     * @param pathHash Hashed path string to perform lookup
-     * @return Shared reference to the loading/loaded object
-     *
-     * This method blocks until the entire containing-group is loaded.
-     * Paths to groups or individual objects are accepted.
-     */
-    std::shared_ptr<Entity> loadSync(const Hash& pathHash);
+    class CachedData
+    {
+        friend class ShaderCacheManager;
+        CachedData() = default;
+        CachedData(unsigned long long hashin, uint64_t meta, size_t decompSz)
+        : m_tag(hashin, meta), m_data(new uint8_t[decompSz]), m_sz(decompSz) {}
+    public:
+        ShaderTag m_tag;
+        std::unique_ptr<uint8_t[]> m_data;
+        size_t m_sz;
+        operator bool() const {return m_tag.operator bool();}
+    };
+    CachedData lookupData(const Hash& hash);
+    bool addData(const ShaderTag& hash, const void* data, size_t sz);
+};
 
-    /**
-     * @brief Begin an asynchronous group-load transaction
-     * @param pathHash Hashed path string to perform lookup
-     * @param statusOut Optional atomically-pollable structure updated with status fields
-     * @return Shared reference to the loading/loaded object
-     *
-     * This method returns once all group entity stubs are constructed.
-     * Paths to groups or individual objects are accepted.
-     */
-    std::shared_ptr<Entity> loadAsync(const Hash& pathHash,
-                                      SGroupLoadStatus* statusOut=NULL);
-
+/**
+ * @brief Integrated reader/constructor/container for HMDL data
+ */
+class HMDLData
+{
+public:
+    HMDLData(boo::IGraphicsDataFactory* factory, const void* data);
 };
 
 }
+}
+
+namespace std
+{
+template <> struct hash<HECL::Runtime::ShaderTag>
+{
+    size_t operator()(const HECL::Runtime::ShaderTag& val) const NOEXCEPT
+    {return val.valSizeT();}
+};
 }
 
 #endif // HECLRUNTIME_HPP

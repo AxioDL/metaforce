@@ -8,6 +8,7 @@ list(APPEND PLAT_SRCS winsupport.cpp ../include/HECL/winsupport.hpp)
 endif()
 
 atdna(atdna_Frontend.cpp ../include/HECL/Frontend.hpp)
+atdna(atdna_Runtime.cpp ../include/HECL/Runtime.hpp)
 
 add_library(HECLCommon
             HECL.cpp
@@ -22,5 +23,6 @@ add_library(HECLCommon
             ../include/HECL/Database.hpp
             ../include/HECL/Runtime.hpp
             atdna_Frontend.cpp
+            atdna_Runtime.cpp
             ${PLAT_SRCS})
 

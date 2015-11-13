@@ -1,2 +1,4 @@
 add_library(HECLRuntime
-            HECLRuntime.cpp)
+            FileStoreManager.cpp
+            ShaderCacheManager.cpp
+            HMDL.cpp)

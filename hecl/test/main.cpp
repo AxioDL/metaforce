@@ -1,5 +1,6 @@
 #include <boo/boo.hpp>
 #include <LogVisor/LogVisor.hpp>
+#include "HECL/Runtime.hpp"
 
 struct HECLWindowCallback : boo::IWindowCallback
 {
@@ -10,6 +11,12 @@ struct HECLWindowCallback : boo::IWindowCallback
         m_sizeDirty = true;
         m_latestSize = rect;
     }
+
+    bool m_destroyed = false;
+    void destroyed()
+    {
+        m_destroyed = true;
+    }
 };
 
 struct HECLApplicationCallback : boo::IApplicationCallback
@@ -19,6 +26,9 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     bool m_running = true;
     int appMain(boo::IApplication* app)
     {
+        HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
+        HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr);
+
         m_mainWindow = app->newWindow(_S("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
@@ -29,6 +39,12 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         while (m_running)
         {
             m_mainWindow->waitForRetrace();
+
+            if (m_windowCb.m_destroyed)
+            {
+                m_running = false;
+                break;
+            }
 
             if (m_windowCb.m_sizeDirty)
             {

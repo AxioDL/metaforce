@@ -386,10 +386,12 @@ public:
  * Hashes are used within HECL to avoid redundant storage of objects;
  * providing a rapid mechanism to compare for equality.
  */
-class Hash final
+class Hash
 {
-    unsigned long long hash;
+    unsigned long long hash = 0;
 public:
+    Hash() = default;
+    operator bool() const {return hash != 0;}
     Hash(const void* buf, size_t len)
     : hash(XXH64((uint8_t*)buf, len, 0)) {}
     Hash(const std::string& str)
@@ -979,6 +981,11 @@ template <> struct hash<HECL::ProjectPath>
 {
     size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
     {return val.hash().valSizeT();}
+};
+template <> struct hash<HECL::Hash>
+{
+    size_t operator()(const HECL::Hash& val) const NOEXCEPT
+    {return val.valSizeT();}
 };
 }
 
