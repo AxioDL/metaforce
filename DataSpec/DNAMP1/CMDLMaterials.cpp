@@ -1224,8 +1224,8 @@ HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
             continue;
 
         std::vector<atVec4f> gameArgs;
-        gameArgs.reserve(inst.getChildCount() - 1);
-        for (int i=1 ; i<inst.getChildCount() ; ++i)
+        gameArgs.reserve(sourceInst.getChildCount() - 1);
+        for (int i=1 ; i<sourceInst.getChildCount() ; ++i)
         {
             const HECL::Frontend::IR::Instruction& ci = sourceInst.getChildInst(heclIr, i);
             gameArgs.push_back(ci.getImmVec());

@@ -53,7 +53,7 @@ struct SurfaceHeader_1_2 : BigDNA
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return false;}
-    constexpr atInt16 skinMatrixBankIdx() const {return -1;}
+    static constexpr atInt16 skinMatrixBankIdx() {return -1;}
 };
 
 struct SurfaceHeader_3 : BigDNA
@@ -1322,7 +1322,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     head.aabbMin = mesh.aabbMin.val;
     head.aabbMax = mesh.aabbMax.val;
     head.matSetCount = mesh.materialSets.size();
-    head.secCount = head.matSetCount + 5 + mesh.surfaces.size();
+    head.secCount = head.matSetCount + 4 + mesh.surfaces.size();
     head.secSizes.reserve(head.secCount);
 
     /* Lengths of padding to insert while writing */
@@ -1484,6 +1484,9 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
         ++padIt;
     }
 
+    /* Ensure final surface's alignment writes zeros */
+    writer.seek(-1, Athena::Current);
+    writer.writeUByte(0);
     writer.close();
     return true;
 }

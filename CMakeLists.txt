@@ -4,6 +4,10 @@ if(MSVC)
   # Shaddup MSVC
   add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1 /wd4267 /wd4244 /wd4305)
 else()
+  if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+    message(WARNING "GCC needs -fpermissive for nested type redeclarations; expect lotsa warnings!!")
+  endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wno-multichar -fno-exceptions")
 endif()
 
