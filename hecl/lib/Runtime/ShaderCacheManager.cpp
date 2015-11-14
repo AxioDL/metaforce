@@ -10,8 +10,8 @@ namespace HECL
 namespace Runtime
 {
 static LogVisor::LogModule Log("ShaderCacheManager");
-static uint64_t IDX_MAGIC = SBIG(0xDEADFEEDC001D00D);
-static uint64_t DAT_MAGIC = SBIG(0xC001D00DDEADBABE);
+static uint64_t IDX_MAGIC = SBig(0xDEADFEEDC001D00D);
+static uint64_t DAT_MAGIC = SBig(0xC001D00DDEADBABE);
 static uint64_t ZERO64 = 0;
 
 static uint64_t timeHash()
@@ -49,7 +49,13 @@ void ShaderCacheManager::BootstrapIndex()
     fwrite(&ZERO64, 1, 8, idxFp);
     fclose(idxFp);
 
-    FILE* datFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
+#if _WIN32
+    SystemString datFilename = m_datFr.wfilename();
+#else
+    SystemString datFilename = m_datFr.filename();
+#endif
+
+    FILE* datFp = HECL::Fopen(datFilename.c_str(), _S("wb"));
     if (!datFp)
         Log.report(LogVisor::FatalError, _S("unable to write shader cache data at %s"),
                    idxFilename.c_str());
