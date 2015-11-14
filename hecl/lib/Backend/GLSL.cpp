@@ -115,12 +115,9 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
         retval += "    vec4 posAccum = vec4(0.0,0.0,0.0,0.0);\n"
                   "    vec4 normAccum = vec4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<skinSlots ; ++i)
-            retval += HECL::Format("    posAccum += (vu.mv[%u] * vec4(posIn, 1.0)) * weightIn[%u][%u]\n"
-                                   "    normAccum += (vu.mvInv[%u] * vec4(normIn, 1.0)) * weightIn[%u][%u]\n",
+            retval += HECL::Format("    posAccum += (vu.mv[%" PRISize "] * vec4(posIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "]\n"
+                                   "    normAccum += (vu.mvInv[%" PRISize "] * vec4(normIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "]\n",
                                    i, i/4, i%4, i, i/4, i%4);
-        retval += HECL::Format("    posAccum /= %u;\n"
-                               "    normAccum /= %u;\n",
-                               skinSlots, skinSlots);
         retval += "    posAccum[3] = 1.0\n"
                   "    vtf.mvPos = posAccum;\n"
                   "    vtf.mvNorm = vec4(normalize(normAccum.xyz), 0.0);\n"
