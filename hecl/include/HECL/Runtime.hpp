@@ -86,7 +86,7 @@ class ShaderCacheManager
     };
     std::vector<IndexEntry> m_entries;
     std::unordered_map<Hash, size_t> m_entryLookup;
-    uint64_t m_loadedRand = 0;
+    uint64_t m_timeHash = 0;
     void BootstrapIndex();
 public:
     ShaderCacheManager(const FileStoreManager& storeMgr)

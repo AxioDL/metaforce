@@ -3,6 +3,7 @@
 #include <Athena/FileWriter.hpp>
 #include <zlib.h>
 #include <algorithm>
+#include <ctime>
 
 namespace HECL
 {
@@ -13,40 +14,47 @@ static uint64_t IDX_MAGIC = SBIG(0xDEADFEEDC001D00D);
 static uint64_t DAT_MAGIC = SBIG(0xC001D00DDEADBABE);
 static uint64_t ZERO64 = 0;
 
-static uint64_t Random64()
+static uint64_t timeHash()
 {
-    uint64_t ret;
-#if _WIN32
-#else
-    FILE* fp = fopen("/dev/urandom", "rb");
-    fread(&ret, 1, 8, fp);
-    fclose(fp);
-#endif
-    return ret;
+    char buf[80];
+    time_t now;
+    struct tm* timeinfo;
+
+    time(&now);
+    timeinfo = localtime(&now);
+    strftime(buf, 80, "%Y-%m-%dT%H:%M:%S+%H:%M", timeinfo);
+    Hash tmp(buf, 80);
+    return tmp.val64();
 }
 
 void ShaderCacheManager::BootstrapIndex()
 {
-    m_loadedRand = Random64();
+    m_timeHash = timeHash();
     m_idxFr.close();
     m_datFr.close();
 
-    FILE* idxFp = HECL::Fopen(m_idxFr.filename().c_str(), _S("wb"));
+#if _WIN32
+    SystemString idxFilename = m_idxFr.wfilename();
+#else
+    SystemString idxFilename = m_idxFr.filename();
+#endif
+
+    FILE* idxFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
     if (!idxFp)
         Log.report(LogVisor::FatalError, _S("unable to write shader cache index at %s"),
-                   m_idxFr.filename().c_str());
+                   idxFilename.c_str());
     fwrite(&IDX_MAGIC, 1, 8, idxFp);
-    fwrite(&m_loadedRand, 1, 8, idxFp);
+    fwrite(&m_timeHash, 1, 8, idxFp);
     fwrite(&ZERO64, 1, 8, idxFp);
     fwrite(&ZERO64, 1, 8, idxFp);
     fclose(idxFp);
 
-    FILE* datFp = HECL::Fopen(m_datFr.filename().c_str(), _S("wb"));
+    FILE* datFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
     if (!datFp)
         Log.report(LogVisor::FatalError, _S("unable to write shader cache data at %s"),
-                   m_datFr.filename().c_str());
+                   idxFilename.c_str());
     fwrite(&DAT_MAGIC, 1, 8, datFp);
-    fwrite(&m_loadedRand, 1, 8, datFp);
+    fwrite(&m_timeHash, 1, 8, datFp);
     fclose(datFp);
 
     m_idxFr.open();
@@ -57,7 +65,7 @@ void ShaderCacheManager::reload()
 {
     m_entries.clear();
     m_entryLookup.clear();
-    m_loadedRand = 0;
+    m_timeHash = 0;
 
     /* Attempt to open existing index */
     m_idxFr.seek(0, Athena::Begin);
@@ -93,7 +101,7 @@ void ShaderCacheManager::reload()
             BootstrapIndex();
             return;
         }
-        m_loadedRand = idxRand;
+        m_timeHash = idxRand;
     }
 
     /* Read existing entries */
