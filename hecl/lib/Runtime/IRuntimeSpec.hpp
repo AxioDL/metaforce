@@ -1,4 +1,0 @@
-#ifndef IRUNTIMESPEC_HPP
-#define IRUNTIMESPEC_HPP
-
-#endif // IRUNTIMESPEC_HPP

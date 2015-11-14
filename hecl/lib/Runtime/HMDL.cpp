@@ -16,7 +16,7 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory* factory,
         Athena::io::MemoryReader r((atUint8*)metaData, HECL_HMDL_META_SZ);
         meta.read(r);
     }
-    if (meta.magic != FOURCC('TACO'))
+    if (meta.magic != 'TACO')
         Log.report(LogVisor::FatalError, "invalid HMDL magic");
 
     m_vbo = factory->newStaticBuffer(boo::BufferUseVertex, vbo, meta.vertStride, meta.vertCount);

@@ -128,17 +128,18 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
             skin_slot_set = set()
             faces = list(mat_faces_rem)
             for f in faces:
-                ret_faces = None
-                for v in f.verts:
-                    sg = tuple(sorted(v[dlay].items()))
-                    if sg not in skin_slot_set:
-                        if max_skin_banks > 0 and len(skin_slot_set) == max_skin_banks:
-                            ret_faces = False
-                            break
-                        skin_slot_set.add(sg)
+                if dlay:
+                    ret_faces = None
+                    for v in f.verts:
+                        sg = tuple(sorted(v[dlay].items()))
+                        if sg not in skin_slot_set:
+                            if max_skin_banks > 0 and len(skin_slot_set) == max_skin_banks:
+                                ret_faces = False
+                                break
+                            skin_slot_set.add(sg)
 
-                if ret_faces == False:
-                    break
+                    if ret_faces == False:
+                        break
 
                 the_list.append(f)
                 mat_faces_rem.remove(f)

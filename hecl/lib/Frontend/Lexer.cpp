@@ -361,7 +361,6 @@ void Lexer::EmitVec3(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     if (!gn)
     {
         ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
-        ir.m_instructions.back().m_loadImm.m_immVec = {};
         return;
     }
 
@@ -400,7 +399,6 @@ void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     if (!gn)
     {
         ir.m_instructions.emplace_back(IR::OpLoadImm, funcNode->m_tok.m_location);
-        ir.m_instructions.back().m_loadImm.m_immVec = {};
         return;
     }
 
@@ -602,11 +600,14 @@ void Lexer::EmitVectorSwizzle(IR& ir, const Lexer::OperationNode* swizNode, IR::
     {
         atVec4f* opt = &ir.m_instructions.back().m_loadImm.m_immVec;
         const SourceLocation& loc = ir.m_instructions.back().m_loc;
-        atVec4f eval;
+        atVec4f eval = {};
         switch (str.size())
         {
         case 1:
-            eval = {opt->vec[SwizzleCompIdx(str[0], m_diag, loc)]};
+            eval.vec[0] = opt->vec[SwizzleCompIdx(str[0], m_diag, loc)];
+            eval.vec[1] = eval.vec[0];
+            eval.vec[2] = eval.vec[0];
+            eval.vec[3] = eval.vec[0];
             break;
         case 3:
             eval.vec[0] = opt->vec[SwizzleCompIdx(str[0], m_diag, loc)];
@@ -698,6 +699,7 @@ void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, I
     ir.m_instructions.emplace_back(IR::OpCall, funcNode->m_tok.m_location);
     IR::Instruction& inst = ir.m_instructions.back();
     inst.m_call.m_name = funcNode->m_tok.m_tokenString;
+    inst.m_call.m_argInstCount = instIdxs.size();
     inst.m_call.m_argInstIdxs = std::move(instIdxs);
     inst.m_target = target;
     if (tgt > ir.m_regCount)

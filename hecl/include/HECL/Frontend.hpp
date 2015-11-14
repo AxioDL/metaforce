@@ -148,7 +148,7 @@ struct IR : BigDNA
         struct LoadImm : BigDNA
         {
             DECL_DNA
-            Value<atVec4f> m_immVec;
+            Value<atVec4f> m_immVec = {};
         } m_loadImm;
 
         enum ArithmeticOpType : uint8_t

@@ -18,7 +18,7 @@ enum HMDLTopology : atUint32
 struct HMDLMeta : Athena::io::DNA<Athena::BigEndian>
 {
     DECL_DNA
-    Value<atUint32> magic = SBIG('TACO');
+    Value<atUint32> magic = 'TACO';
     Value<HMDLTopology> topology;
     Value<atUint32> vertStride;
     Value<atUint32> vertCount;
