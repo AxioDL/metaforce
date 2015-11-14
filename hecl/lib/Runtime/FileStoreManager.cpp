@@ -1,5 +1,8 @@
 #include "HECL/Runtime.hpp"
 #include <LogVisor/LogVisor.hpp>
+#if _WIN32
+#include <ShlObj.h>
+#endif
 
 namespace HECL
 {
@@ -11,6 +14,19 @@ FileStoreManager::FileStoreManager(const SystemString& domain)
 : m_domain(domain)
 {
 #if _WIN32
+    WCHAR home[MAX_PATH];
+    if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
+        Log.report(LogVisor::FatalError, _S("unable to locate profile for file store"));
+
+    SystemString path(home);
+
+    path += _S("/.heclrun");
+
+    HECL::MakeDir(path.c_str());
+    path += _S('/') + domain;
+
+    HECL::MakeDir(path.c_str());
+    m_storeRoot = path;
 #elif __APPLE__
 #else
     const char* home = getenv("HOME");

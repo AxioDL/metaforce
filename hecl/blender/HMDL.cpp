@@ -78,7 +78,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
         vboW.writeVec3fLittle(pos[v.iPos]);
         vboW.writeVec3fLittle(norm[v.iNorm]);
 
-        for (int i=0 ; i<colorLayerCount ; ++i)
+        for (size_t i=0 ; i<colorLayerCount ; ++i)
         {
             const Vector3f& c = color[v.iColor[i]];
             vboW.writeUByte(std::max(0, std::min(255, int(c.val.vec[0] * 255))));
@@ -87,7 +87,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
             vboW.writeUByte(255);
         }
 
-        for (int i=0 ; i<uvLayerCount ; ++i)
+        for (size_t i=0 ; i<uvLayerCount ; ++i)
             vboW.writeVec2fLittle(uv[v.iUv[i]]);
 
         if (weightVecCount)
@@ -95,10 +95,10 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
             const SkinBanks::Bank& bank = skinBanks.banks[s.skinBankIdx];
             const std::vector<SkinBind>& binds = skins[v.iSkin];
             auto it = bank.m_boneIdxs.cbegin();
-            for (int i=0 ; i<weightVecCount ; ++i)
+            for (size_t i=0 ; i<weightVecCount ; ++i)
             {
                 atVec4f vec = {};
-                for (int j=0 ; j<4 ; ++j)
+                for (size_t j=0 ; j<4 ; ++j)
                 {
                     if (it == bank.m_boneIdxs.cend())
                         break;

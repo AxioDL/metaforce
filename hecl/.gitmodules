@@ -4,9 +4,6 @@
 [submodule "extern/libSquish"]
 	path = extern/libSquish
 	url = https://github.com/jackoalan/libSquish.git
-[submodule "extern/LogVisor"]
-	path = extern/LogVisor
-	url = https://github.com/AxioDL/LogVisor.git
 [submodule "extern/libBoo"]
 	path = extern/libBoo
 	url = https://github.com/AxioDL/libBoo.git

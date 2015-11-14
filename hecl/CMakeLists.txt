@@ -15,18 +15,17 @@ endif()
 
 configure_file(DataSpecRegistry.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/DataSpecRegistry.hpp @ONLY)
 
-list(APPEND HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/blender)
-set(HECL_INCLUDE_DIR ${HECL_INCLUDE_DIR} PARENT_SCOPE)
+set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/blender CACHE PATH "HECL include path" FORCE)
 set(ATHENA_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/Athena/include)
 set(ATHENA_INCLUDE_DIR ${ATHENA_INCLUDE_DIR} PARENT_SCOPE)
-set(LOG_VISOR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/LogVisor/include)
-set(LOG_VISOR_INCLUDE_DIR ${LOG_VISOR_INCLUDE_DIR} PARENT_SCOPE)
 set(SQUISH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/libSquish)
 set(SQUISH_INCLUDE_DIR ${SQUISH_INCLUDE_DIR} PARENT_SCOPE)
+
 set(BOO_INCLUDE_DIR extern/libBoo/include)
+
 add_subdirectory(bintoc)
 add_subdirectory(extern)
-include_directories(include ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR} ${BOO_INCLUDE_DIR})
+include_directories(include ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR} ${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_subdirectory(lib)
 add_subdirectory(blender)
 add_subdirectory(driver)

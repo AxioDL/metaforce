@@ -31,6 +31,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
         m_mainWindow = app->newWindow(_S("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
+        m_mainWindow->showWindow();
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
         boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
