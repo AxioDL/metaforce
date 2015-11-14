@@ -289,7 +289,7 @@ struct SpecMP1 : SpecBase
     void cookMesh(const HECL::ProjectPath& out, const HECL::ProjectPath& in,
                   BlendStream& ds, bool fast, FCookProgress progress) const
     {
-        Mesh mesh = ds.compileMesh(fast ? Mesh::OutputTriangles : Mesh::OutputTriStrips, -1,
+        Mesh mesh = ds.compileMesh(fast ? HECL::TopologyTriangles : HECL::TopologyTriStrips, -1,
         [&progress](int surfCount)
         {
             progress(HECL::SysFormat(_S("%d"), surfCount).c_str());

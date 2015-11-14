@@ -53,7 +53,7 @@ struct CMDL
         /* Cook and re-extract test */
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"), true);
         HECL::BlenderConnection::DataStream ds = conn.beginData();
-        DNACMDL::Mesh mesh = ds.compileMesh(DNACMDL::Mesh::OutputTriStrips, -1);
+        DNACMDL::Mesh mesh = ds.compileMesh(HECL::TopologyTriStrips, -1);
         ds.close();
         DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
 
@@ -105,6 +105,34 @@ struct CMDL
                 writer.writeString(boneName);
         }
         else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+            return false;
+        return true;
+    }
+
+    static bool HMDLCook(const HECL::ProjectPath& outPath,
+                         const HECL::ProjectPath& inPath,
+                         const DNACMDL::Mesh& mesh)
+    {
+        HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
+        if (mesh.skins.size())
+        {
+            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+                return false;
+
+            /* Output skinning intermediate */
+            Athena::io::FileWriter writer(outPath.getWithExtension(_S(".skin")).getAbsolutePath());
+            writer.writeUint32Big(mesh.skinBanks.banks.size());
+            for (const DNACMDL::Mesh::SkinBanks::Bank& sb : mesh.skinBanks.banks)
+            {
+                writer.writeUint32Big(sb.m_boneIdxs.size());
+                for (uint32_t bind : sb.m_boneIdxs)
+                    writer.writeUint32Big(bind);
+            }
+            writer.writeUint32Big(mesh.boneNames.size());
+            for (const std::string& boneName : mesh.boneNames)
+                writer.writeString(boneName);
+        }
+        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
             return false;
         return true;
     }

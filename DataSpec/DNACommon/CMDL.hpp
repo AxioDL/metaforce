@@ -1129,7 +1129,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
                                                   false, false, groupIdx);
 
                 endOff = targetMSet.materials.back().binarySize(endOff);
-                targetMSet.addMaterialEndOff(endOff);
+                targetMSet.head.addMaterialEndOff(endOff);
             }
 
             for (const HECL::ProjectPath& path : texPaths)
@@ -1139,7 +1139,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
                 /* TODO: incorporate hecl hashes */
                 size_t search = relPath.find(_S("TXTR_"));
                 if (search != HECL::SystemString::npos)
-                    targetMSet.addTexture(relPath.c_str() + search + 5);
+                    targetMSet.head.addTexture(relPath.c_str() + search + 5);
                 else
                     LogDNACommon.report(LogVisor::FatalError, "unable to get hash from path");
             }
@@ -1259,9 +1259,9 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
 
     /* Surfaces */
     GX::Primitive prim;
-    if (mesh.outputMode == Mesh::OutputTriangles)
+    if (mesh.topology == HECL::TopologyTriangles)
         prim = GX::TRIANGLES;
-    else if (mesh.outputMode == Mesh::OutputTriStrips)
+    else if (mesh.topology == HECL::TopologyTriStrips)
         prim = GX::TRIANGLESTRIP;
     else
         LogDNACommon.report(LogVisor::FatalError, "unrecognized mesh output mode");
@@ -1304,6 +1304,181 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
             WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
             WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
         }
+
+        writer.fill(atUint8(0), *padIt);
+        ++padIt;
+    }
+
+    writer.close();
+    return true;
+}
+
+template <class MaterialSet, class SurfaceHeader, atUint32 Version>
+bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
+{
+    Header head;
+    head.magic = 0xDEADBABE;
+    head.version = 0x10000 | Version;
+    head.aabbMin = mesh.aabbMin.val;
+    head.aabbMax = mesh.aabbMax.val;
+    head.matSetCount = mesh.materialSets.size();
+    head.secCount = head.matSetCount + 5 + mesh.surfaces.size();
+    head.secSizes.reserve(head.secCount);
+
+    /* Lengths of padding to insert while writing */
+    std::vector<size_t> paddingSizes;
+    paddingSizes.reserve(head.secCount);
+
+    /* Build material sets */
+    std::vector<MaterialSet> matSets;
+    matSets.reserve(mesh.materialSets.size());
+    {
+        HECL::Frontend::Frontend FE;
+        for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
+        {
+            matSets.emplace_back();
+            MaterialSet& targetMSet = matSets.back();
+            std::vector<HECL::ProjectPath> texPaths;
+            texPaths.reserve(mset.size()*4);
+            for (const Mesh::Material& mat : mset)
+            {
+                for (const HECL::ProjectPath& path : mat.texs)
+                {
+                    bool found = false;
+                    for (const HECL::ProjectPath& ePath : texPaths)
+                    {
+                        if (path == ePath)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        texPaths.push_back(path);
+                }
+            }
+
+            size_t endOff = 0;
+            for (const Mesh::Material& mat : mset)
+            {
+                std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
+                endOff = targetMSet.materials.back().binarySize(endOff);
+                targetMSet.head.addMaterialEndOff(endOff);
+            }
+
+            for (const HECL::ProjectPath& path : texPaths)
+            {
+                const HECL::SystemString& relPath = path.getRelativePath();
+
+                /* TODO: incorporate hecl hashes */
+                size_t search = relPath.find(_S("TXTR_"));
+                if (search != HECL::SystemString::npos)
+                    targetMSet.head.addTexture(relPath.c_str() + search + 5);
+                else
+                    LogDNACommon.report(LogVisor::FatalError, "unable to get hash from path");
+            }
+
+            size_t secSz = targetMSet.binarySize(0);
+            size_t secSz32 = ROUND_UP_32(secSz);
+            head.secSizes.push_back(secSz32);
+            paddingSizes.push_back(secSz32 - secSz);
+        }
+    }
+
+    HECL::HMDLBuffers bufs = mesh.getHMDLBuffers();
+
+    /* Metadata */
+    size_t secSz = bufs.m_metaSz;
+    size_t secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* VBO */
+    secSz = bufs.m_vboSz;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* IBO */
+    secSz = bufs.m_iboSz;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* Surface index */
+    std::vector<size_t> surfEndOffs;
+    surfEndOffs.reserve(bufs.m_surfaces.size());
+    secSz = bufs.m_surfaces.size() * 4 + 4;
+    secSz32 = ROUND_UP_32(secSz);
+    if (secSz32 == 0)
+        secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* Surfaces */
+    size_t endOff = 0;
+    for (const HECL::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    {
+        head.secSizes.push_back(64);
+        paddingSizes.push_back(0);
+        endOff += 64;
+        surfEndOffs.push_back(endOff);
+    }
+
+    /* Write sections */
+    Athena::io::FileWriter writer(outPath.getAbsolutePath());
+    head.write(writer);
+    std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
+
+    /* Material Sets */
+    for (const MaterialSet& mset : matSets)
+    {
+        mset.write(writer);
+        writer.fill(atUint8(0), *padIt);
+        ++padIt;
+    }
+
+    /* Metadata */
+    writer.writeUBytes(bufs.m_metaData.get(), bufs.m_metaSz);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* VBO */
+    writer.writeUBytes(bufs.m_vboData.get(), bufs.m_vboSz);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* IBO */
+    writer.writeUBytes(bufs.m_iboData.get(), bufs.m_iboSz);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Surface index */
+    writer.writeUint32Big(surfEndOffs.size());
+    for (size_t off : surfEndOffs)
+        writer.writeUint32Big(off);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* Surfaces */
+    for (const HECL::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    {
+        const Mesh::Surface& osurf = surf.m_origSurf;
+
+        SurfaceHeader header;
+        header.centroid = osurf.centroid;
+        header.matIdx = osurf.materialIdx;
+        header.reflectionNormal = osurf.reflectionNormal;
+        header.unk1 = surf.m_start;
+        header.unk2 = surf.m_count;
+        header.write(writer);
 
         writer.fill(atUint8(0), *padIt);
         ++padIt;

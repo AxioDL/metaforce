@@ -1139,7 +1139,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
             {
                 found = true;
                 ++uvAnimsCount;
-                uvAnims.emplace_back(tcg);
+                uvAnims.emplace_back(tcg.m_gameFunction, tcg.m_gameArgs);
                 uvAnimsSize = uvAnims.back().binarySize(uvAnimsSize);
                 break;
             }
@@ -1149,62 +1149,151 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     }
 }
 
-MaterialSet::Material::UVAnimation::UVAnimation(const HECL::Backend::GX::TexCoordGen& tcg)
+HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
+                                    const std::string& diagName,
+                                    const HECL::BlenderConnection::DataStream::Mesh::Material& mat,
+                                    const std::unordered_map<std::string, int32_t>& iprops,
+                                    const std::vector<HECL::ProjectPath>& texPaths)
 {
-    if (!tcg.m_gameFunction.compare("RetroUVMode0Node"))
+    auto search = iprops.find("retro_depth_sort");
+    if (search != iprops.end())
+        flags.setDepthSorting(search->second != 0);
+
+    search = iprops.find("retro_punchthrough_alpha");
+    if (search != iprops.end())
+        flags.setPunchthroughAlpha(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection");
+    if (search != iprops.end())
+        flags.setSamusReflection(search->second != 0);
+
+    search = iprops.find("retro_depth_write");
+    if (search != iprops.end())
+        flags.setDepthWrite(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection_persp");
+    if (search != iprops.end())
+        flags.setSamusReflectionSurfaceEye(search->second != 0);
+
+    search = iprops.find("retro_shadow_occluder");
+    if (search != iprops.end())
+        flags.setShadowOccluderMesh(search->second != 0);
+
+    search = iprops.find("retro_samus_reflection_indirect");
+    if (search != iprops.end())
+        flags.setSamusReflectionIndirectTexture(search->second != 0);
+
+    search = iprops.find("retro_lightmapped");
+    if (search != iprops.end())
+        flags.setLightmap(search->second != 0);
+
+    for (const HECL::ProjectPath& path : mat.texs)
+    {
+        size_t idx = 0;
+        for (const HECL::ProjectPath& tPath : texPaths)
+        {
+            if (path == tPath)
+            {
+                textureIdxs.push_back(idx);
+                ++textureCount;
+                break;
+            }
+            ++idx;
+        }
+    }
+
+    if (flags.samusReflectionIndirectTexture())
+        indTexSlot.push_back(textureIdxs.size());
+
+    heclSource = mat.source;
+    heclIr = FE.compileSource(mat.source, diagName);
+
+    uvAnimsSize = 4;
+    uvAnimsCount = 0;
+    for (const HECL::Frontend::IR::Instruction& inst : heclIr.m_instructions)
+    {
+        if (inst.m_op != HECL::Frontend::IR::OpCall)
+            continue;
+        if (inst.m_call.m_name.compare("Texture"))
+            continue;
+
+        const HECL::Frontend::IR::Instruction& sourceInst = inst.getChildInst(heclIr, 1);
+        if (sourceInst.m_op != HECL::Frontend::IR::OpCall)
+            continue;
+        if (sourceInst.m_call.m_name.compare(0, 11, "RetroUVMode"))
+            continue;
+
+        std::vector<atVec4f> gameArgs;
+        gameArgs.reserve(inst.getChildCount() - 1);
+        for (int i=1 ; i<inst.getChildCount() ; ++i)
+        {
+            const HECL::Frontend::IR::Instruction& ci = sourceInst.getChildInst(heclIr, i);
+            gameArgs.push_back(ci.getImmVec());
+        }
+
+        ++uvAnimsCount;
+        uvAnims.emplace_back(sourceInst.m_call.m_name, gameArgs);
+        uvAnimsSize = uvAnims.back().binarySize(uvAnimsSize);
+    }
+}
+
+MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
+                                                const std::vector<atVec4f>& gameArgs)
+{
+    if (!gameFunction.compare("RetroUVMode0Node"))
         mode = ANIM_MV_INV_NOTRANS;
-    else if (!tcg.m_gameFunction.compare("RetroUVMode1Node"))
+    else if (!gameFunction.compare("RetroUVMode1Node"))
         mode = ANIM_MV_INV;
-    else if (!tcg.m_gameFunction.compare("RetroUVMode2Node"))
+    else if (!gameFunction.compare("RetroUVMode2Node"))
     {
         mode = ANIM_SCROLL;
-        if (tcg.m_gameArgs.size() < 2)
+        if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode2 UV anim requires 2 vector arguments");
-        vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[0].vec[1];
-        vals[2] = tcg.m_gameArgs[1].vec[0];
-        vals[3] = tcg.m_gameArgs[1].vec[1];
+        vals[0] = gameArgs[0].vec[0];
+        vals[1] = gameArgs[0].vec[1];
+        vals[2] = gameArgs[1].vec[0];
+        vals[3] = gameArgs[1].vec[1];
     }
-    else if (!tcg.m_gameFunction.compare("RetroUVMode3Node"))
+    else if (!gameFunction.compare("RetroUVMode3Node"))
     {
         mode = ANIM_ROTATION;
-        if (tcg.m_gameArgs.size() < 2)
+        if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode3 UV anim requires 2 arguments");
-        vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[1].vec[0];
+        vals[0] = gameArgs[0].vec[0];
+        vals[1] = gameArgs[1].vec[0];
     }
-    else if (!tcg.m_gameFunction.compare("RetroUVMode4Node"))
+    else if (!gameFunction.compare("RetroUVMode4Node"))
     {
         mode = ANIM_HSTRIP;
-        if (tcg.m_gameArgs.size() < 4)
+        if (gameArgs.size() < 4)
             Log.report(LogVisor::FatalError, "Mode4 UV anim requires 4 arguments");
-        vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[1].vec[0];
-        vals[2] = tcg.m_gameArgs[2].vec[0];
-        vals[3] = tcg.m_gameArgs[3].vec[0];
+        vals[0] = gameArgs[0].vec[0];
+        vals[1] = gameArgs[1].vec[0];
+        vals[2] = gameArgs[2].vec[0];
+        vals[3] = gameArgs[3].vec[0];
     }
-    else if (!tcg.m_gameFunction.compare("RetroUVMode5Node"))
+    else if (!gameFunction.compare("RetroUVMode5Node"))
     {
         mode = ANIM_VSTRIP;
-        if (tcg.m_gameArgs.size() < 4)
+        if (gameArgs.size() < 4)
             Log.report(LogVisor::FatalError, "Mode5 UV anim requires 4 arguments");
-        vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[1].vec[0];
-        vals[2] = tcg.m_gameArgs[2].vec[0];
-        vals[3] = tcg.m_gameArgs[3].vec[0];
+        vals[0] = gameArgs[0].vec[0];
+        vals[1] = gameArgs[1].vec[0];
+        vals[2] = gameArgs[2].vec[0];
+        vals[3] = gameArgs[3].vec[0];
     }
-    else if (!tcg.m_gameFunction.compare("RetroUVMode6Node"))
+    else if (!gameFunction.compare("RetroUVMode6Node"))
         mode = ANIM_MODEL;
-    else if (!tcg.m_gameFunction.compare("RetroUVMode7Node"))
+    else if (!gameFunction.compare("RetroUVMode7Node"))
     {
         mode = ANIM_MODE_WHO_MUST_NOT_BE_NAMED;
-        if (tcg.m_gameArgs.size() < 2)
+        if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode7 UV anim requires 2 arguments");
-        vals[0] = tcg.m_gameArgs[0].vec[0];
-        vals[1] = tcg.m_gameArgs[1].vec[0];
+        vals[0] = gameArgs[0].vec[0];
+        vals[1] = gameArgs[1].vec[0];
     }
     else
-        Log.report(LogVisor::FatalError, "unsupported UV anim '%s'", tcg.m_gameFunction.c_str());
+        Log.report(LogVisor::FatalError, "unsupported UV anim '%s'", gameFunction.c_str());
 }
 
 }

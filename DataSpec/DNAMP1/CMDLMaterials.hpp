@@ -24,9 +24,10 @@ struct MaterialSet : BigDNA
         Vector<UniqueID32, DNA_COUNT(textureCount)> textureIDs;
         Value<atUint32> materialCount = 0;
         Vector<atUint32, DNA_COUNT(materialCount)> materialEndOffs;
+
+        void addTexture(const UniqueID32& id) {textureIDs.push_back(id); ++textureCount;}
+        void addMaterialEndOff(atUint32 off) {materialEndOffs.push_back(off); ++materialCount;}
     } head;
-    void addTexture(const UniqueID32& id) {head.textureIDs.push_back(id); ++head.textureCount;}
-    void addMaterialEndOff(atUint32 off) {head.materialEndOffs.push_back(off); ++head.materialCount;}
 
     struct Material : BigDNA
     {
@@ -370,7 +371,8 @@ struct MaterialSet : BigDNA
             }
 
             UVAnimation() = default;
-            UVAnimation(const HECL::Backend::GX::TexCoordGen& tcg);
+            UVAnimation(const std::string& gameFunction,
+                        const std::vector<atVec4f>& gameArgs);
         };
         Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
 
@@ -453,6 +455,40 @@ struct MaterialSet : BigDNA
         }
     }
 
+};
+
+struct HMDLMaterialSet : BigDNA
+{
+    static constexpr bool OneSection() {return false;}
+
+    DECL_DNA
+    MaterialSet::MaterialSetHead head;
+
+    struct Material : BigDNA
+    {
+        DECL_DNA
+        MaterialSet::Material::Flags flags;
+
+        Value<atUint32> textureCount = 0;
+        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
+
+        Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+
+        Value<atUint32> uvAnimsSize = 4;
+        Value<atUint32> uvAnimsCount = 0;
+        Vector<MaterialSet::Material::UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+
+        String<-1> heclSource;
+        HECL::Frontend::IR heclIr;
+
+        Material() = default;
+        Material(HECL::Frontend::Frontend& FE,
+                 const std::string& diagName,
+                 const HECL::BlenderConnection::DataStream::Mesh::Material& mat,
+                 const std::unordered_map<std::string, int32_t>& iprops,
+                 const std::vector<HECL::ProjectPath>& texPaths);
+    };
+    Vector<Material, DNA_COUNT(head.materialCount)> materials;
 };
 
 }
