@@ -21,13 +21,16 @@
 #include <unordered_map>
 
 #include "HECL/HECL.hpp"
+#include "HECL/HMDLMeta.hpp"
 #include <Athena/Types.hpp>
+#include <Athena/MemoryWriter.hpp>
 
 namespace HECL
 {
 
 extern LogVisor::LogModule BlenderLog;
 extern class BlenderConnection* SharedBlenderConnection;
+class HMDLBuffers;
 
 class BlenderConnection
 {
@@ -374,11 +377,7 @@ public:
         /** Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
         {
-            enum OutputMode
-            {
-                OutputTriangles,
-                OutputTriStrips,
-            } outputMode;
+            enum HMDLTopology topology;
 
             /* Cumulative AABB */
             Vector3f aabbMin;
@@ -436,6 +435,23 @@ public:
                     uint32_t iBankSkin = -1;
 
                     Vert(BlenderConnection& conn, const Mesh& parent);
+
+                    bool operator==(const Vert& other) const
+                    {
+                        if (iPos != other.iPos)
+                            return false;
+                        if (iNorm != other.iNorm)
+                            return false;
+                        for (int i=0 ; i<4 ; ++i)
+                            if (iColor[i] != other.iColor[i])
+                                return false;
+                        for (int i=0 ; i<8 ; ++i)
+                            if (iUv[i] != other.iUv[i])
+                                return false;
+                        if (iSkin != other.iSkin)
+                            return false;
+                        return true;
+                    }
                 };
                 std::vector<Vert> verts;
 
@@ -445,33 +461,73 @@ public:
 
             struct SkinBanks
             {
-                std::vector<std::vector<uint32_t>> banks;
-                std::vector<std::vector<uint32_t>>::iterator addSkinBank(int skinSlotCount)
+                struct Bank
+                {
+                    std::vector<uint32_t> m_skinIdxs;
+                    std::vector<uint32_t> m_boneIdxs;
+
+                    void addSkins(const Mesh& parent, const std::vector<uint32_t>& skinIdxs)
+                    {
+                        for (uint32_t sidx : skinIdxs)
+                        {
+                            m_skinIdxs.push_back(sidx);
+                            for (const SkinBind& bind : parent.skins[sidx])
+                            {
+                                bool found = false;
+                                for (uint32_t bidx : m_boneIdxs)
+                                {
+                                    if (bidx == bind.boneIdx)
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found)
+                                    m_boneIdxs.push_back(bind.boneIdx);
+                            }
+                        }
+                    }
+
+                    size_t lookupLocalBoneIdx(uint32_t boneIdx) const
+                    {
+                        for (size_t i=0 ; i<m_boneIdxs.size() ; ++i)
+                            if (m_boneIdxs[i] == boneIdx)
+                                return i;
+                        return -1;
+                    }
+                };
+                std::vector<Bank> banks;
+                std::vector<Bank>::iterator addSkinBank(int skinSlotCount)
                 {
                     banks.emplace_back();
                     if (skinSlotCount > 0)
-                        banks.back().reserve(skinSlotCount);
+                        banks.back().m_skinIdxs.reserve(skinSlotCount);
                     return banks.end() - 1;
                 }
-                uint32_t addSurface(const Surface& surf, int skinSlotCount);
+                uint32_t addSurface(const Mesh& mesh, const Surface& surf, int skinSlotCount);
             } skinBanks;
 
             using SurfProgFunc = std::function<void(int)>;
-            Mesh(BlenderConnection& conn, OutputMode outMode, int skinSlotCount, SurfProgFunc& surfProg);
+            Mesh(BlenderConnection& conn, HMDLTopology topology, int skinSlotCount, SurfProgFunc& surfProg);
 
             Mesh getContiguousSkinningVersion() const;
+
+            /** Prepares mesh representation for indexed access on modern APIs.
+             *  Mesh must remain resident for accessing reference members
+             */
+            HMDLBuffers getHMDLBuffers() const;
         };
 
 
-        static const char* MeshOutputModeString(Mesh::OutputMode mode)
+        static const char* MeshOutputModeString(HMDLTopology topology)
         {
             static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
-            return STRS[mode];
+            return STRS[topology];
         }
 
 
         /** Compile mesh by context (MESH blends only) */
-        Mesh compileMesh(Mesh::OutputMode outMode, int skinSlotCount=10,
+        Mesh compileMesh(HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != TypeMesh)
@@ -480,7 +536,7 @@ public:
 
             char req[128];
             snprintf(req, 128, "MESHCOMPILE %s %d",
-                     MeshOutputModeString(outMode), skinSlotCount);
+                     MeshOutputModeString(topology), skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -488,11 +544,11 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh: %s", readBuf);
 
-            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
+            return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
 
         /** Compile mesh by name (AREA blends only) */
-        Mesh compileMesh(const std::string& name, Mesh::OutputMode outMode, int skinSlotCount=10,
+        Mesh compileMesh(const std::string& name, HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != TypeArea)
@@ -501,7 +557,7 @@ public:
 
             char req[128];
             snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.c_str(),
-                     MeshOutputModeString(outMode), skinSlotCount);
+                     MeshOutputModeString(topology), skinSlotCount);
             m_parent->_writeLine(req);
 
             char readBuf[256];
@@ -509,11 +565,11 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
-            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
+            return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
 
         /** Compile all meshes into one (AREA blends only) */
-        Mesh compileAllMeshes(Mesh::OutputMode outMode, int skinSlotCount=10, float maxOctantLength=5.0,
+        Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,
                               Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != TypeArea)
@@ -522,7 +578,7 @@ public:
 
             char req[128];
             snprintf(req, 128, "MESHCOMPILEALL %s %d %f",
-                     MeshOutputModeString(outMode),
+                     MeshOutputModeString(topology),
                      skinSlotCount, maxOctantLength);
             m_parent->_writeLine(req);
 
@@ -531,7 +587,7 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
 
-            return Mesh(*m_parent, outMode, skinSlotCount, surfProg);
+            return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
 
         /** Intermediate actor representation prepared by blender from a single HECL actor blend */
@@ -649,6 +705,52 @@ public:
         }
     }
 
+};
+
+class HMDLBuffers
+{
+public:
+    struct Surface;
+private:
+    friend struct BlenderConnection::DataStream::Mesh;
+    HMDLBuffers(const HMDLMeta& meta,
+                size_t vboSz, const std::vector<atUint32>& iboData,
+                std::vector<Surface>&& surfaces,
+                const BlenderConnection::DataStream::Mesh::SkinBanks& skinBanks)
+    : m_metaSz(HECL_HMDL_META_SZ), m_metaData(new uint8_t[HECL_HMDL_META_SZ]),
+      m_vboSz(vboSz), m_vboData(new uint8_t[vboSz]),
+      m_iboSz(iboData.size()*4), m_iboData(new uint8_t[iboData.size()*4]),
+      m_surfaces(std::move(surfaces)), m_skinBanks(skinBanks)
+    {
+        {
+            Athena::io::MemoryWriter w(m_metaData.get(), HECL_HMDL_META_SZ);
+            meta.write(w);
+        }
+        {
+            Athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
+            w.enumerateLittle(iboData);
+        }
+    }
+public:
+    size_t m_metaSz;
+    std::unique_ptr<uint8_t[]> m_metaData;
+    size_t m_vboSz;
+    std::unique_ptr<uint8_t[]> m_vboData;
+    size_t m_iboSz;
+    std::unique_ptr<uint8_t[]> m_iboData;
+
+    struct Surface
+    {
+        Surface(const BlenderConnection::DataStream::Mesh::Surface& origSurf,
+                atUint32 start, atUint32 count)
+        : m_origSurf(origSurf), m_start(start), m_count(count) {}
+        const BlenderConnection::DataStream::Mesh::Surface& m_origSurf;
+        atUint32 m_start;
+        atUint32 m_count;
+    };
+    std::vector<Surface> m_surfaces;
+
+    const BlenderConnection::DataStream::Mesh::SkinBanks& m_skinBanks;
 };
 
 }

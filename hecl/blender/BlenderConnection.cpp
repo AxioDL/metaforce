@@ -503,8 +503,8 @@ void BlenderConnection::PyOutStream::linkBackground(const char* target,
 }
 
 BlenderConnection::DataStream::Mesh::Mesh
-(BlenderConnection& conn, OutputMode outMode, int skinSlotCount, SurfProgFunc& surfProg)
-: outputMode(outMode), aabbMin(conn), aabbMax(conn)
+(BlenderConnection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfProgFunc& surfProg)
+: topology(topologyIn), aabbMin(conn), aabbMax(conn)
 {
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);
@@ -587,12 +587,12 @@ BlenderConnection::DataStream::Mesh::Mesh
     {
         for (Surface& surf : surfaces)
         {
-            std::vector<uint32_t>& bank = skinBanks.banks[surf.skinBankIdx];
+            SkinBanks::Bank& bank = skinBanks.banks[surf.skinBankIdx];
             for (Surface::Vert& vert : surf.verts)
             {
-                for (uint32_t i=0 ; i<bank.size() ; ++i)
+                for (uint32_t i=0 ; i<bank.m_skinIdxs.size() ; ++i)
                 {
-                    if (bank[i] == vert.iSkin)
+                    if (bank.m_skinIdxs[i] == vert.iSkin)
                     {
                         vert.iBankSkin = i;
                         break;
@@ -706,7 +706,7 @@ BlenderConnection::DataStream::Mesh::Surface::Surface
     }
 
     if (parent.boneNames.size())
-        skinBankIdx = parent.skinBanks.addSurface(*this, skinSlotCount);
+        skinBankIdx = parent.skinBanks.addSurface(parent, *this, skinSlotCount);
 }
 
 BlenderConnection::DataStream::Mesh::Surface::Vert::Vert
@@ -730,27 +730,27 @@ static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx)
 }
 
 uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
-(const Surface& surf, int skinSlotCount)
+(const Mesh& mesh, const Surface& surf, int skinSlotCount)
 {
     if (banks.empty())
         addSkinBank(skinSlotCount);
     std::vector<uint32_t> toAdd;
     if (skinSlotCount > 0)
         toAdd.reserve(skinSlotCount);
-    std::vector<std::vector<uint32_t>>::iterator bankIt = banks.begin();
+    std::vector<Bank>::iterator bankIt = banks.begin();
     for (;;)
     {
         bool done = true;
         for (; bankIt != banks.end() ; ++bankIt)
         {
-            std::vector<uint32_t>& bank = *bankIt;
+            Bank& bank = *bankIt;
             done = true;
             for (const Surface::Vert& v : surf.verts)
             {
-                if (!VertInBank(bank, v.iSkin) && !VertInBank(toAdd, v.iSkin))
+                if (!VertInBank(bank.m_skinIdxs, v.iSkin) && !VertInBank(toAdd, v.iSkin))
                 {
                     toAdd.push_back(v.iSkin);
-                    if (skinSlotCount > 0 && bank.size() + toAdd.size() > skinSlotCount)
+                    if (skinSlotCount > 0 && bank.m_skinIdxs.size() + toAdd.size() > skinSlotCount)
                     {
                         toAdd.clear();
                         done = false;
@@ -760,8 +760,7 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
             }
             if (toAdd.size())
             {
-                for (uint32_t a : toAdd)
-                    bank.push_back(a);
+                bank.addSkins(mesh, toAdd);
                 toAdd.clear();
             }
             if (done)

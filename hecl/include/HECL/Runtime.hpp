@@ -115,10 +115,14 @@ public:
 /**
  * @brief Integrated reader/constructor/container for HMDL data
  */
-class HMDLData
+struct HMDLData
 {
-public:
-    HMDLData(boo::IGraphicsDataFactory* factory, const void* data);
+    boo::IGraphicsBufferS* m_vbo;
+    boo::IGraphicsBufferS* m_ibo;
+    boo::IVertexFormat* m_vtxFmt;
+
+    HMDLData(boo::IGraphicsDataFactory* factory,
+             const void* metaData, const void* vbo, const void* ibo);
 };
 
 }

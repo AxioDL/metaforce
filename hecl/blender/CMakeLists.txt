@@ -25,6 +25,7 @@ bintoc(hecl_startup.c hecl_startup.blend HECL_STARTUP)
 add_library(HECLBlender
             BlenderConnection.cpp
             BlenderConnection.hpp
+            HMDL.cpp
             hecl_blendershell.py
             hecl_blendershell.c
             zip_package.py
