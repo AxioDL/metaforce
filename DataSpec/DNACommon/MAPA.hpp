@@ -108,7 +108,7 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
             if (GX::Primitive(prim.type) == GX::TRIANGLESTRIP)
             {
                 atUint8 flip = 0;
-                for (int v=0 ; v<prim.indexCount-2 ; ++v)
+                for (size_t v=0 ; v<prim.indexCount-2 ; ++v)
                 {
                     if (flip)
                     {
@@ -138,7 +138,7 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
             }
             else if (GX::Primitive(prim.type) == GX::TRIANGLES)
             {
-                for (int v=0 ; v<prim.indexCount ; v+=3)
+                for (size_t v=0 ; v<prim.indexCount ; v+=3)
                 {
                     os.format("add_triangle(bm, (%u,%u,%u))\n",
                               primVerts[0],
@@ -159,7 +159,7 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
         for (const typename MAPA::Surface::Border& border : surf.borders)
         {
             auto iit = border.indices.cbegin();
-            for (int i=0 ; i<border.indexCount-1 ; ++i)
+            for (size_t i=0 ; i<border.indexCount-1 ; ++i)
             {
                 os.format("add_border(bm, (%u,%u))\n",
                           *iit, *(iit+1));
