@@ -1,6 +1,10 @@
 #include <boo/boo.hpp>
 #include <LogVisor/LogVisor.hpp>
+#include <Athena/MemoryWriter.hpp>
 #include "HECL/Runtime.hpp"
+#include "HECL/HMDLMeta.hpp"
+
+#include <math.h>
 
 struct HECLWindowCallback : boo::IWindowCallback
 {
@@ -26,9 +30,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     bool m_running = true;
     int appMain(boo::IApplication* app)
     {
-        HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
-        HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr);
-
+        /* Setup boo window */
         m_mainWindow = app->newWindow(_S("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
         m_mainWindow->showWindow();
@@ -36,7 +38,99 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
         boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
         boo::ITextureR* renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], 1);
+
+        /* HECL managers */
+        HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
+        HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
+
+        /* Compile HECL shader */
+        static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
+        HECL::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
+        boo::IShaderPipeline* testShaderObj =
+        shaderMgr.buildShader(testShaderTag, testShader, "testShader");
+
+        /* Generate meta structure (usually statically serialized) */
+        HECL::HMDLMeta testMeta;
+        testMeta.topology = HECL::TopologyTriStrips;
+        testMeta.vertStride = 32;
+        testMeta.vertCount = 4;
+        testMeta.indexCount = 4;
+        testMeta.colorCount = 0;
+        testMeta.uvCount = 1;
+        testMeta.weightCount = 0;
+
+        /* Binary form of meta structure */
+        atUint8 testMetaBuf[HECL_HMDL_META_SZ];
+        Athena::io::MemoryWriter testMetaWriter(testMetaBuf, HECL_HMDL_META_SZ);
+        testMeta.write(testMetaWriter);
+
+        /* Make Tri-strip VBO */
+        struct Vert
+        {
+            float pos[3];
+            float norm[3];
+            float uv[2];
+        };
+        static const Vert quad[4] =
+        {
+            {{0.5,0.5},{},{1.0,1.0}},
+            {{-0.5,0.5},{},{0.0,1.0}},
+            {{0.5,-0.5},{},{1.0,0.0}},
+            {{-0.5,-0.5},{},{0.0,0.0}}
+        };
+
+        /* Now simple IBO */
+        static const uint32_t ibo[4] = {0,1,2,3};
+
+        /* Construct quad mesh against boo factory */
+        HECL::Runtime::HMDLData testData(gfxF, testMetaBuf, quad, ibo);
+
+        /* Make ramp texture */
+        using Pixel = uint8_t[4];
+        static Pixel tex[256][256];
+        for (int i=0 ; i<256 ; ++i)
+            for (int j=0 ; j<256 ; ++j)
+            {
+                tex[i][j][0] = i;
+                tex[i][j][1] = j;
+                tex[i][j][2] = 0;
+                tex[i][j][3] = 0xff;
+            }
+        boo::ITexture* texture =
+        gfxF->newStaticTexture(256, 256, 1, boo::TextureFormatRGBA8, tex, 256*256*4);
+
+        /* Make vertex uniform buffer */
+        struct VertexUBO
+        {
+            float modelview[4][4] = {};
+            float modelviewInv[4][4] = {};
+            float projection[4][4] = {};
+            VertexUBO()
+            {
+                modelview[0][0] = 1.0;
+                modelview[1][1] = 1.0;
+                modelview[2][2] = 1.0;
+                modelview[3][3] = 1.0;
+                modelviewInv[0][0] = 1.0;
+                modelviewInv[1][1] = 1.0;
+                modelviewInv[2][2] = 1.0;
+                modelviewInv[3][3] = 1.0;
+                projection[0][0] = 1.0;
+                projection[1][1] = 1.0;
+                projection[2][2] = 1.0;
+                projection[3][3] = 1.0;
+            }
+        } vuboData;
+        boo::IGraphicsBufferD* vubo =
+        gfxF->newDynamicBuffer(boo::BufferUseUniform, sizeof(VertexUBO), 1);
+
+        /* Assemble data binding */
+        boo::IShaderDataBinding* binding =
+        testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
+
         gfxF->commit();
+
+        size_t frameIdx = 0;
         while (m_running)
         {
             m_mainWindow->waitForRetrace();
@@ -56,9 +150,23 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             }
 
             gfxQ->setRenderTarget(renderTex);
+            boo::SWindowRect r = m_windowCb.m_latestSize;
+            r.location[0] = 0;
+            r.location[1] = 0;
+            gfxQ->setViewport(r);
+            float rgba[] = {sinf(frameIdx / 60.0), cosf(frameIdx / 60.0), 0.0, 1.0};
+            gfxQ->setClearColor(rgba);
             gfxQ->clearTarget();
+            gfxQ->setDrawPrimitive(boo::PrimitiveTriStrips);
+
+            vubo->load(&vuboData, sizeof(vuboData));
+
+            gfxQ->setShaderDataBinding(binding);
+            gfxQ->draw(0, 4);
             gfxQ->resolveDisplay(renderTex);
             gfxQ->execute();
+
+            ++frameIdx;
         }
         return 0;
     }
@@ -68,16 +176,22 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     }
 };
 
+void AthenaExcHandler(const Athena::error::Level& level,
+                      const char* file, const char* function,
+                      int line, const char* fmt, ...)
+{}
+
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
 #else
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
+    atSetExceptionHandler(AthenaExcHandler);
     LogVisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
     int ret = boo::ApplicationRun(boo::IApplication::PLAT_AUTO,
-        appCb, _S("hecl"), _S("HECL"), argc, argv);
+        appCb, _S("heclTest"), _S("HECL Test"), argc, argv);
     printf("IM DYING!!\n");
     return ret;
 }

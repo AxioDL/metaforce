@@ -706,12 +706,13 @@ void Lexer::RecursiveFuncCompile(IR& ir, const Lexer::OperationNode* funcNode, I
         ir.m_regCount = tgt;
 }
 
-IR Lexer::compileIR() const
+IR Lexer::compileIR(atUint64 hash) const
 {
     if (!m_root)
         m_diag.reportCompileErr(SourceLocation(), "unable to compile HECL-IR for invalid source");
 
     IR ir;
+    ir.m_hash = hash;
     RecursiveFuncCompile(ir, m_root, 0);
     return ir;
 }

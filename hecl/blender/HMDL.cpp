@@ -68,7 +68,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
     metaOut.indexCount = iboData.size();
 
     size_t vboSz = metaOut.vertCount * metaOut.vertStride;
-    HMDLBuffers ret(metaOut, vboSz, iboData, std::move(outSurfaces), skinBanks);
+    HMDLBuffers ret(std::move(metaOut), vboSz, iboData, std::move(outSurfaces), skinBanks);
     Athena::io::MemoryWriter vboW(ret.m_vboData.get(), vboSz);
     for (const std::pair<const Surface*, const Surface::Vert*>& sv : vertPool)
     {

@@ -29,6 +29,7 @@ class Diagnostics
     std::string sourceDiagString(const SourceLocation& l, bool ansi=false) const;
 public:
     void reset(const std::string& name, const std::string& source) {m_name = name; m_source = source;}
+    void reset(const std::string& name) {m_name = name; m_source.clear();}
     void setBackend(const std::string& backend) {m_backend = backend;}
     void setBackend(const char* backend) {m_backend = backend;}
     void reportParserErr(const SourceLocation& l, const char* format, ...);
@@ -288,11 +289,13 @@ struct IR : BigDNA
         Instruction(Athena::io::IStreamReader& reader) {read(reader);}
     };
 
+    atUint64 m_hash = 0;
     atUint16 m_regCount = 0;
     std::vector<Instruction> m_instructions;
 
     void read(Athena::io::IStreamReader& reader)
     {
+        m_hash = reader.readUint64Big();
         m_regCount = reader.readUint16Big();
         atUint16 instCount = reader.readUint16Big();
         m_instructions.clear();
@@ -303,6 +306,7 @@ struct IR : BigDNA
 
     void write(Athena::io::IStreamWriter& writer) const
     {
+        writer.writeUint64Big(m_hash);
         writer.writeUint16Big(m_regCount);
         writer.writeUint16Big(m_instructions.size());
         for (const Instruction& inst : m_instructions)
@@ -311,7 +315,7 @@ struct IR : BigDNA
 
     size_t binarySize(size_t sz) const
     {
-        sz += 4;
+        sz += 12;
         for (const Instruction& inst : m_instructions)
             sz = inst.binarySize(sz);
         return sz;
@@ -358,7 +362,7 @@ class Lexer
 public:
     void reset();
     void consumeAllTokens(Parser& parser);
-    IR compileIR() const;
+    IR compileIR(atUint64 hash) const;
 
     Lexer(Diagnostics& diag) : m_diag(diag) {}
 };
@@ -371,10 +375,11 @@ class Frontend
 public:
     IR compileSource(const std::string& source, const std::string& diagName)
     {
+        Hash hash(source);
         m_diag.reset(diagName, source);
         m_parser.reset(source);
         m_lexer.consumeAllTokens(m_parser);
-        return m_lexer.compileIR();
+        return m_lexer.compileIR(hash);
     }
 
     Diagnostics& getDiagnostics() {return m_diag;}

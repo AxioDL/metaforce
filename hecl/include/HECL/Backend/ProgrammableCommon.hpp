@@ -2,6 +2,7 @@
 #define HECLBACKEND_PROGCOMMON_HPP
 
 #include "Backend.hpp"
+#include "HECL/Runtime.hpp"
 #include <Athena/DNA.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <stdint.h>
@@ -15,6 +16,8 @@ namespace Backend
 
 struct ProgrammableCommon : IBackend
 {
+    using ShaderFunction = Runtime::ShaderCacheExtensions::Function;
+
     std::string m_colorExpr;
     std::string m_alphaExpr;
     boo::BlendFactor m_blendSrc;
@@ -27,6 +30,7 @@ struct ProgrammableCommon : IBackend
         int tcgIdx = -1;
     };
     std::vector<TexSampling> m_texSamplings;
+    unsigned m_texMapEnd = 0;
 
     enum TexGenSrc
     {
@@ -59,9 +63,14 @@ private:
                                   const IR::Instruction& inst,
                                   int mtx);
 
-    std::string EmitSamplingUse(unsigned samplingIdx) const
+    std::string EmitSamplingUseRGB(unsigned samplingIdx) const
     {
-        return HECL::Format("sampling%u", samplingIdx);
+        return HECL::Format("sampling%u.rgb", samplingIdx);
+    }
+
+    std::string EmitSamplingUseAlpha(unsigned samplingIdx) const
+    {
+        return HECL::Format("sampling%u.a", samplingIdx);
     }
 
     std::string EmitColorRegUse(unsigned idx) const

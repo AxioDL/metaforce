@@ -14,10 +14,10 @@ struct GLSL : ProgrammableCommon
     std::string makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
                          unsigned skinSlots, unsigned texMtxs) const;
     std::string makeFrag(const char* glslVer,
-                         const char* lightingSource, const char* lightingEntry) const;
+                         const ShaderFunction& lighting=ShaderFunction()) const;
     std::string makeFrag(const char* glslVer,
-                         const char* lightingSource, const char* lightingEntry,
-                         const char* postSource, const char* postEntry) const;
+                         const ShaderFunction& lighting,
+                         const ShaderFunction& post) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;

@@ -388,7 +388,8 @@ public:
  */
 class Hash
 {
-    unsigned long long hash = 0;
+protected:
+    uint64_t hash = 0;
 public:
     Hash() = default;
     operator bool() const {return hash != 0;}
@@ -398,7 +399,7 @@ public:
     : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
     Hash(const std::wstring& str)
     : hash(XXH64((uint8_t*)str.data(), str.size()*2, 0)) {}
-    Hash(unsigned long long hashin)
+    Hash(uint64_t hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
     uint32_t val32() const {return uint32_t(hash);}

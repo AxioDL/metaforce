@@ -28,16 +28,27 @@ FileStoreManager::FileStoreManager(const SystemString& domain)
     HECL::MakeDir(path.c_str());
     m_storeRoot = path;
 #elif __APPLE__
+    const char* home = getenv("HOME");
+    if (!home)
+        Log.report(LogVisor::FatalError, "unable to locate $HOME for file store");
+    std::string path(home);
+    path += "/Library/Application Support/HECL Runtime";
+    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
+        Log.report(LogVisor::FatalError, "unable to mkdir at %s", path.c_str());
+    path += '/' + domain;
+    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
+        Log.report(LogVisor::FatalError, "unable to mkdir at %s", path.c_str());
+    m_storeRoot = path;
 #else
     const char* home = getenv("HOME");
     if (!home)
         Log.report(LogVisor::FatalError, "unable to locate $HOME for file store");
     std::string path(home);
     path += "/.heclrun";
-    if (mkdir(path.c_str(), 0755))
+    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
         Log.report(LogVisor::FatalError, "unable to mkdir at %s", path.c_str());
     path += '/' + domain;
-    if (mkdir(path.c_str(), 0755))
+    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
         Log.report(LogVisor::FatalError, "unable to mkdir at %s", path.c_str());
     m_storeRoot = path;
 #endif

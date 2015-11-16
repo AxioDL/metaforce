@@ -34,6 +34,8 @@ unsigned ProgrammableCommon::addTexSampling(unsigned mapIdx, unsigned tcgIdx)
     TexSampling& samp = m_texSamplings.back();
     samp.mapIdx = mapIdx;
     samp.tcgIdx = tcgIdx;
+    if (m_texMapEnd < mapIdx + 1)
+        m_texMapEnd = mapIdx + 1;
     return m_texSamplings.size() - 1;
 }
 
@@ -92,7 +94,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
 
-            return EmitSamplingUse(addTexSampling(mapIdx, texGenIdx));
+            return EmitSamplingUseRGB(addTexSampling(mapIdx, texGenIdx));
         }
         else if (!name.compare("ColorReg"))
         {
@@ -177,7 +179,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
 
-            return EmitSamplingUse(addTexSampling(mapIdx, texGenIdx));
+            return EmitSamplingUseAlpha(addTexSampling(mapIdx, texGenIdx));
         }
         else if (!name.compare("ColorReg"))
         {

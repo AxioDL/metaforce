@@ -5,10 +5,14 @@
 #include <algorithm>
 #include <ctime>
 
+#include "HECL/Backend/GLSL.hpp"
+
 namespace HECL
 {
 namespace Runtime
 {
+IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+
 static LogVisor::LogModule Log("ShaderCacheManager");
 static uint64_t IDX_MAGIC = SBig(0xDEADFEEDC001D00D);
 static uint64_t DAT_MAGIC = SBig(0xC001D00DDEADBABE);
@@ -27,7 +31,26 @@ static uint64_t timeHash()
     return tmp.val64();
 }
 
-void ShaderCacheManager::BootstrapIndex()
+static void UpdateFunctionHash(XXH64_state_t* st, const ShaderCacheExtensions::Function& func)
+{
+    if (func.m_source)
+        XXH64_update(st, func.m_source, strlen(func.m_source));
+    if (func.m_entry)
+        XXH64_update(st, func.m_entry, strlen(func.m_entry));
+}
+uint64_t ShaderCacheExtensions::hashExtensions() const
+{
+    XXH64_state_t st;
+    XXH64_reset(&st, 0);
+    for (const ExtensionSlot& slot : m_extensionSlots)
+    {
+        UpdateFunctionHash(&st, slot.lighting);
+        UpdateFunctionHash(&st, slot.post);
+    }
+    return XXH64_digest(&st);
+}
+
+void ShaderCacheManager::bootstrapIndex()
 {
     m_timeHash = timeHash();
     m_idxFr.close();
@@ -45,7 +68,7 @@ void ShaderCacheManager::BootstrapIndex()
                    idxFilename.c_str());
     fwrite(&IDX_MAGIC, 1, 8, idxFp);
     fwrite(&m_timeHash, 1, 8, idxFp);
-    fwrite(&ZERO64, 1, 8, idxFp);
+    fwrite(&m_extensionsHash, 1, 8, idxFp);
     fwrite(&ZERO64, 1, 8, idxFp);
     fclose(idxFp);
 
@@ -67,6 +90,32 @@ void ShaderCacheManager::BootstrapIndex()
     m_datFr.open();
 }
 
+ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
+                                       boo::IGraphicsDataFactory* gfxFactory,
+                                       ShaderCacheExtensions&& extension)
+: m_storeMgr(storeMgr),
+  m_extensions(std::move(extension)),
+  m_idxFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".idx")),
+  m_datFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".dat"))
+{   
+    boo::IGraphicsDataFactory::Platform plat = gfxFactory->platform();
+    if (m_extensions && m_extensions.m_plat != plat)
+        Log.report(LogVisor::FatalError, "ShaderCacheExtension backend mismatch (should be %s)",
+                   gfxFactory->platformName());
+    m_extensionsHash = m_extensions.hashExtensions();
+
+    switch (plat)
+    {
+    case boo::IGraphicsDataFactory::PlatformOGL:
+        m_factory.reset(_NewGLSLBackendFactory(gfxFactory));
+        break;
+    default:
+        Log.report(LogVisor::FatalError, "unsupported backend %s", gfxFactory->platformName());
+    }
+
+    reload();
+}
+
 void ShaderCacheManager::reload()
 {
     m_entries.clear();
@@ -78,7 +127,7 @@ void ShaderCacheManager::reload()
     m_datFr.seek(0, Athena::Begin);
     if (m_idxFr.hasError() || m_datFr.hasError())
     {
-        BootstrapIndex();
+        bootstrapIndex();
         return;
     }
     else
@@ -87,7 +136,7 @@ void ShaderCacheManager::reload()
         size_t rb = m_idxFr.readUBytesToBuf(&idxMagic, 8);
         if (rb != 8 || idxMagic != IDX_MAGIC)
         {
-            BootstrapIndex();
+            bootstrapIndex();
             return;
         }
 
@@ -95,7 +144,7 @@ void ShaderCacheManager::reload()
         rb = m_datFr.readUBytesToBuf(&datMagic, 8);
         if (rb != 8 || datMagic != DAT_MAGIC)
         {
-            BootstrapIndex();
+            bootstrapIndex();
             return;
         }
 
@@ -104,47 +153,58 @@ void ShaderCacheManager::reload()
         size_t rb2 = m_datFr.readUBytesToBuf(&datRand, 8);
         if (rb != 8 || rb2 != 8 || idxRand != datRand)
         {
-            BootstrapIndex();
+            bootstrapIndex();
             return;
         }
         m_timeHash = idxRand;
     }
 
-    /* Read existing entries */
-    atUint64 idxCount = m_idxFr.readUint64Big();
-    if (m_idxFr.position() != 24)
+    atUint64 extensionsHash;
+    size_t rb = m_idxFr.readUBytesToBuf(&extensionsHash, 8);
+    if (rb != 8 || extensionsHash != m_extensionsHash)
     {
-        BootstrapIndex();
+        bootstrapIndex();
         return;
     }
 
-    m_entries.reserve(idxCount);
-    m_entryLookup.reserve(idxCount);
-    for (atUint64 i=0 ; i<idxCount ; ++i)
+    atUint64 idxCount = m_idxFr.readUint64Big();
+    if (m_idxFr.position() != 32)
     {
-        m_entries.emplace_back();
-        IndexEntry& ent = m_entries.back();
-        ent.read(m_idxFr);
-        m_entryLookup[ent.m_hash] = m_entries.size() - 1;
+        bootstrapIndex();
+        return;
+    }
+
+    /* Read existing entries */
+    if (idxCount)
+    {
+        m_entries.reserve(idxCount);
+        m_entryLookup.reserve(idxCount);
+        for (atUint64 i=0 ; i<idxCount ; ++i)
+        {
+            m_entries.emplace_back();
+            IndexEntry& ent = m_entries.back();
+            ent.read(m_idxFr);
+            m_entryLookup[ent.m_hash] = m_entries.size() - 1;
+        }
     }
 }
 
-ShaderCacheManager::CachedData ShaderCacheManager::lookupData(const Hash& hash)
+ShaderCachedData ShaderCacheManager::lookupData(const Hash& hash)
 {
     auto search = m_entryLookup.find(hash);
     if (search == m_entryLookup.cend())
-        return CachedData();
+        return ShaderCachedData();
 
     const IndexEntry& ent = m_entries[search->second];
     if (ent.m_compOffset + ent.m_compSize > m_datFr.length())
     {
         Log.report(LogVisor::Warning, "shader cache not long enough to read entry, might be corrupt");
-        return CachedData();
+        return ShaderCachedData();
     }
 
     /* File-streamed decompression */
     m_datFr.seek(ent.m_compOffset, Athena::Begin);
-    CachedData ret(ent.m_hash, ent.m_meta, ent.m_decompSize);
+    ShaderCachedData ret(ShaderTag(ent.m_hash, ent.m_meta), ent.m_decompSize);
     uint8_t compDat[2048];
     z_stream z = {};
     inflateInit(&z);
@@ -161,15 +221,15 @@ ShaderCacheManager::CachedData ShaderCacheManager::lookupData(const Hash& hash)
     return ret;
 }
 
-bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t sz)
+bool ShaderCacheManager::addData(const ShaderCachedData& data)
 {
     m_idxFr.close();
     m_datFr.close();
 
     /* Perform one-shot buffer compression */
-    uLong cBound = compressBound(sz);
+    uLong cBound = compressBound(data.m_sz);
     void* compBuf = malloc(cBound);
-    if (compress((Bytef*)compBuf, &cBound, (Bytef*)data, sz) != Z_OK)
+    if (compress((Bytef*)compBuf, &cBound, (Bytef*)data.m_data.get(), data.m_sz) != Z_OK)
         Log.report(LogVisor::FatalError, "unable to deflate data");
 
     /* Open index for writing (non overwriting) */
@@ -185,7 +245,7 @@ bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t 
                    m_datFr.filename().c_str());
 
     size_t targetOffset = 0;
-    auto search = m_entryLookup.find(tag);
+    auto search = m_entryLookup.find(data.m_tag);
     if (search != m_entryLookup.cend())
     {
         /* Hash already present, attempt to replace data */
@@ -193,9 +253,9 @@ bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t 
         if (search->second == m_entries.size() - 1)
         {
             /* Replacing final entry; simply write-over */
-            ent.m_meta = tag.getMetaData();
+            ent.m_meta = data.m_tag.getMetaData();
             ent.m_compSize = cBound;
-            ent.m_decompSize = sz;
+            ent.m_decompSize = data.m_sz;
             targetOffset = ent.m_compOffset;
             idxFw.seek(search->second * 32 + 32);
             ent.write(idxFw);
@@ -207,9 +267,9 @@ bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t 
             size_t space = nent.m_compOffset - ent.m_compOffset;
             if (cBound <= space)
             {
-                ent.m_meta = tag.getMetaData();
+                ent.m_meta = data.m_tag.getMetaData();
                 ent.m_compSize = cBound;
-                ent.m_decompSize = sz;
+                ent.m_decompSize = data.m_sz;
                 targetOffset = ent.m_compOffset;
                 idxFw.seek(search->second * 32 + 32);
                 ent.write(idxFw);
@@ -235,15 +295,15 @@ bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t 
         idxFw.writeUint64Big(m_entries.size() + 1);
         idxFw.seek(m_entries.size() * 32 + 32, Athena::Begin);
         datFw.seek(0, Athena::End);
-        m_entryLookup[tag] = m_entries.size();
+        m_entryLookup[data.m_tag] = m_entries.size();
         m_entries.emplace_back();
 
         IndexEntry& ent = m_entries.back();
-        ent.m_hash = tag.val64();
-        ent.m_meta = tag.getMetaData();
+        ent.m_hash = data.m_tag.val64();
+        ent.m_meta = data.m_tag.getMetaData();
         ent.m_compOffset = datFw.position();
         ent.m_compSize = cBound;
-        ent.m_decompSize = sz;
+        ent.m_decompSize = data.m_sz;
         ent.write(idxFw);
 
         datFw.writeUBytes((atUint8*)compBuf, cBound);
@@ -264,6 +324,80 @@ bool ShaderCacheManager::addData(const ShaderTag& tag, const void* data, size_t 
     m_datFr.open();
 
     return true;
+}
+
+boo::IShaderPipeline*
+ShaderCacheManager::buildFromCache(const ShaderCachedData& foundData)
+{
+    return m_factory->buildShaderFromCache(foundData);
+}
+
+boo::IShaderPipeline*
+ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
+                                const std::string& diagName)
+{
+    ShaderCachedData foundData = lookupData(tag);
+    if (foundData)
+        return buildFromCache(foundData);
+    HECL::Frontend::IR ir = FE.compileSource(source, diagName);
+    return buildShader(tag, ir, diagName);
+}
+
+boo::IShaderPipeline*
+ShaderCacheManager::buildShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+                                const std::string& diagName)
+{
+    ShaderCachedData foundData = lookupData(tag);
+    if (foundData)
+        return buildFromCache(foundData);
+    FE.getDiagnostics().reset(diagName);
+    boo::IShaderPipeline* ret;
+    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), &ret));
+    return ret;
+}
+
+std::vector<boo::IShaderPipeline*>
+ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData)
+{
+    std::vector<boo::IShaderPipeline*> shaders;
+    shaders.reserve(m_extensions.m_extensionSlots.size());
+    m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots,
+    [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
+    if (shaders.size() != m_extensions.m_extensionSlots.size())
+        Log.report(LogVisor::FatalError, "buildShaderFromCache returned %" PRISize " times, expected %" PRISize,
+                   shaders.size(), m_extensions.m_extensionSlots.size());
+    return shaders;
+}
+
+std::vector<boo::IShaderPipeline*>
+ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string& source,
+                                        const std::string& diagName)
+{
+    ShaderCachedData foundData = lookupData(tag);
+    if (foundData)
+        return buildExtendedFromCache(foundData);
+    HECL::Frontend::IR ir = FE.compileSource(source, diagName);
+    return buildExtendedShader(tag, ir, diagName);
+}
+
+std::vector<boo::IShaderPipeline*>
+ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+                                        const std::string& diagName)
+{
+    ShaderCachedData foundData = lookupData(tag);
+    if (foundData)
+        return buildExtendedFromCache(foundData);
+    std::vector<boo::IShaderPipeline*> shaders;
+    shaders.reserve(m_extensions.m_extensionSlots.size());
+    FE.getDiagnostics().reset(diagName);
+    ShaderCachedData data =
+    m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots,
+    [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
+    if (shaders.size() != m_extensions.m_extensionSlots.size())
+        Log.report(LogVisor::FatalError, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
+                   shaders.size(), m_extensions.m_extensionSlots.size());
+    addData(data);
+    return shaders;
 }
 
 }

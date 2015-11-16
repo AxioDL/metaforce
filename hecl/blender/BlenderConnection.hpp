@@ -713,27 +713,22 @@ public:
     struct Surface;
 private:
     friend struct BlenderConnection::DataStream::Mesh;
-    HMDLBuffers(const HMDLMeta& meta,
+    HMDLBuffers(HMDLMeta&& meta,
                 size_t vboSz, const std::vector<atUint32>& iboData,
                 std::vector<Surface>&& surfaces,
                 const BlenderConnection::DataStream::Mesh::SkinBanks& skinBanks)
-    : m_metaSz(HECL_HMDL_META_SZ), m_metaData(new uint8_t[HECL_HMDL_META_SZ]),
+    : m_meta(std::move(meta)),
       m_vboSz(vboSz), m_vboData(new uint8_t[vboSz]),
       m_iboSz(iboData.size()*4), m_iboData(new uint8_t[iboData.size()*4]),
       m_surfaces(std::move(surfaces)), m_skinBanks(skinBanks)
     {
-        {
-            Athena::io::MemoryWriter w(m_metaData.get(), HECL_HMDL_META_SZ);
-            meta.write(w);
-        }
         {
             Athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
             w.enumerateLittle(iboData);
         }
     }
 public:
-    size_t m_metaSz;
-    std::unique_ptr<uint8_t[]> m_metaData;
+    HMDLMeta m_meta;
     size_t m_vboSz;
     std::unique_ptr<uint8_t[]> m_vboData;
     size_t m_iboSz;
