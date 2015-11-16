@@ -291,7 +291,7 @@ bool ShaderCacheManager::addData(const ShaderCachedData& data)
     if (!targetOffset)
     {
         /* New index entry at end */
-        idxFw.seek(16, Athena::Begin);
+        idxFw.seek(24, Athena::Begin);
         idxFw.writeUint64Big(m_entries.size() + 1);
         idxFw.seek(m_entries.size() * 32 + 32, Athena::Begin);
         datFw.seek(0, Athena::End);
