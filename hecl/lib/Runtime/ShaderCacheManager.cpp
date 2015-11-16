@@ -14,8 +14,8 @@ namespace Runtime
 IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
 
 static LogVisor::LogModule Log("ShaderCacheManager");
-static uint64_t IDX_MAGIC = SBig(0xDEADFEEDC001D00D);
-static uint64_t DAT_MAGIC = SBig(0xC001D00DDEADBABE);
+static uint64_t IDX_MAGIC = SBig(uint64_t(0xDEADFEEDC001D00D));
+static uint64_t DAT_MAGIC = SBig(uint64_t(0xC001D00DDEADBABE));
 static uint64_t ZERO64 = 0;
 
 static uint64_t timeHash()
