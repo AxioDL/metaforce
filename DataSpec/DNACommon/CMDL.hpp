@@ -1389,7 +1389,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     HECL::HMDLBuffers bufs = mesh.getHMDLBuffers();
 
     /* Metadata */
-    size_t secSz = bufs.m_metaSz;
+    size_t secSz = bufs.m_meta.binarySize(0);
     size_t secSz32 = ROUND_UP_32(secSz);
     if (secSz32 == 0)
         secSz32 = 32;
@@ -1446,7 +1446,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     }
 
     /* Metadata */
-    writer.writeUBytes(bufs.m_metaData.get(), bufs.m_metaSz);
+    bufs.m_meta.write(writer);
     writer.fill(atUint8(0), *padIt);
     ++padIt;
 
