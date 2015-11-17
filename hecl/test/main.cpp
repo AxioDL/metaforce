@@ -5,6 +5,9 @@
 #include "HECL/HMDLMeta.hpp"
 
 #include <math.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 struct HECLWindowCallback : boo::IWindowCallback
 {
@@ -28,78 +31,17 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     HECLWindowCallback m_windowCb;
     boo::IWindow* m_mainWindow = nullptr;
     bool m_running = true;
+
     int appMain(boo::IApplication* app)
     {
         /* Setup boo window */
         m_mainWindow = app->newWindow(_S("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
-        m_mainWindow->showWindow();
-        boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
-        boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
-        boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
-        boo::ITextureR* renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], 1);
 
-        /* HECL managers */
-        HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
-        HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
+        boo::ITextureR* renderTex = nullptr;
+        boo::IGraphicsBufferD* vubo = nullptr;
+        boo::IShaderDataBinding* binding = nullptr;
 
-        /* Compile HECL shader */
-        static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
-        HECL::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
-        boo::IShaderPipeline* testShaderObj =
-        shaderMgr.buildShader(testShaderTag, testShader, "testShader");
-
-        /* Generate meta structure (usually statically serialized) */
-        HECL::HMDLMeta testMeta;
-        testMeta.topology = HECL::TopologyTriStrips;
-        testMeta.vertStride = 32;
-        testMeta.vertCount = 4;
-        testMeta.indexCount = 4;
-        testMeta.colorCount = 0;
-        testMeta.uvCount = 1;
-        testMeta.weightCount = 0;
-
-        /* Binary form of meta structure */
-        atUint8 testMetaBuf[HECL_HMDL_META_SZ];
-        Athena::io::MemoryWriter testMetaWriter(testMetaBuf, HECL_HMDL_META_SZ);
-        testMeta.write(testMetaWriter);
-
-        /* Make Tri-strip VBO */
-        struct Vert
-        {
-            float pos[3];
-            float norm[3];
-            float uv[2];
-        };
-        static const Vert quad[4] =
-        {
-            {{0.5,0.5},{},{1.0,1.0}},
-            {{-0.5,0.5},{},{0.0,1.0}},
-            {{0.5,-0.5},{},{1.0,0.0}},
-            {{-0.5,-0.5},{},{0.0,0.0}}
-        };
-
-        /* Now simple IBO */
-        static const uint32_t ibo[4] = {0,1,2,3};
-
-        /* Construct quad mesh against boo factory */
-        HECL::Runtime::HMDLData testData(gfxF, testMetaBuf, quad, ibo);
-
-        /* Make ramp texture */
-        using Pixel = uint8_t[4];
-        static Pixel tex[256][256];
-        for (int i=0 ; i<256 ; ++i)
-            for (int j=0 ; j<256 ; ++j)
-            {
-                tex[i][j][0] = i;
-                tex[i][j][1] = j;
-                tex[i][j][2] = 0;
-                tex[i][j][3] = 0xff;
-            }
-        boo::ITexture* texture =
-        gfxF->newStaticTexture(256, 256, 1, boo::TextureFormatRGBA8, tex, 256*256*4);
-
-        /* Make vertex uniform buffer */
         struct VertexUBO
         {
             float modelview[4][4] = {};
@@ -121,14 +63,105 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 projection[3][3] = 1.0;
             }
         } vuboData;
-        boo::IGraphicsBufferD* vubo =
-        gfxF->newDynamicBuffer(boo::BufferUseUniform, sizeof(VertexUBO), 1);
 
-        /* Assemble data binding */
-        boo::IShaderDataBinding* binding =
-        testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
+        std::mutex initmt;
+        std::condition_variable initcv;
+        std::mutex loadmt;
+        std::condition_variable loadcv;
+        std::unique_lock<std::mutex> outerLk(initmt);
+        std::thread loaderThr([&]()
+        {
+            std::unique_lock<std::mutex> innerLk(initmt);
+            boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
 
-        gfxF->commit();
+            boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
+            renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], 1);
+
+            /* HECL managers */
+            HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
+            HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
+
+            /* Compile HECL shader */
+            static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
+            HECL::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
+            boo::IShaderPipeline* testShaderObj =
+            shaderMgr.buildShader(testShaderTag, testShader, "testShader");
+
+            /* Generate meta structure (usually statically serialized) */
+            HECL::HMDLMeta testMeta;
+            testMeta.topology = HECL::TopologyTriStrips;
+            testMeta.vertStride = 32;
+            testMeta.vertCount = 4;
+            testMeta.indexCount = 4;
+            testMeta.colorCount = 0;
+            testMeta.uvCount = 1;
+            testMeta.weightCount = 0;
+
+            /* Binary form of meta structure */
+            atUint8 testMetaBuf[HECL_HMDL_META_SZ];
+            Athena::io::MemoryWriter testMetaWriter(testMetaBuf, HECL_HMDL_META_SZ);
+            testMeta.write(testMetaWriter);
+
+            /* Make Tri-strip VBO */
+            struct Vert
+            {
+                float pos[3];
+                float norm[3];
+                float uv[2];
+            };
+            static const Vert quad[4] =
+            {
+                {{0.5,0.5},{},{1.0,1.0}},
+                {{-0.5,0.5},{},{0.0,1.0}},
+                {{0.5,-0.5},{},{1.0,0.0}},
+                {{-0.5,-0.5},{},{0.0,0.0}}
+            };
+
+            /* Now simple IBO */
+            static const uint32_t ibo[4] = {0,1,2,3};
+
+            /* Construct quad mesh against boo factory */
+            HECL::Runtime::HMDLData testData(gfxF, testMetaBuf, quad, ibo);
+
+            /* Make ramp texture */
+            using Pixel = uint8_t[4];
+            static Pixel tex[256][256];
+            for (int i=0 ; i<256 ; ++i)
+                for (int j=0 ; j<256 ; ++j)
+                {
+                    tex[i][j][0] = i;
+                    tex[i][j][1] = j;
+                    tex[i][j][2] = 0;
+                    tex[i][j][3] = 0xff;
+                }
+            boo::ITexture* texture =
+            gfxF->newStaticTexture(256, 256, 1, boo::TextureFormatRGBA8, tex, 256*256*4);
+
+            /* Make vertex uniform buffer */
+            vubo = gfxF->newDynamicBuffer(boo::BufferUseUniform, sizeof(VertexUBO), 1);
+
+            /* Assemble data binding */
+            binding = testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
+
+            gfxF->commit();
+
+            /* Return control to main thread */
+            innerLk.unlock();
+            initcv.notify_one();
+
+            /* Wait for exit */
+            std::unique_lock<std::mutex> lk(loadmt);
+            while (m_running)
+            {
+                loadcv.wait(lk);
+            }
+        });
+        initcv.wait(outerLk);
+
+        m_mainWindow->showWindow();
+        m_windowCb.m_latestSize = m_mainWindow->getWindowFrame();
+        boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
+        m_mainWindow->getMainContextDataFactory();
 
         size_t frameIdx = 0;
         while (m_running)
@@ -162,6 +195,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
             vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;
             vubo->load(&vuboData, sizeof(vuboData));
+            gfxQ->flushBufferUpdates();
 
             gfxQ->setShaderDataBinding(binding);
             gfxQ->draw(0, 4);
@@ -170,6 +204,11 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
             ++frameIdx;
         }
+
+        std::unique_lock<std::mutex> finallk(loadmt);
+        finallk.unlock();
+        loadcv.notify_one();
+        loaderThr.join();
         return 0;
     }
     void appQuitting(boo::IApplication* app)
