@@ -967,7 +967,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     atUint16 texFlags = 0;
     tevStageTexInfo.reserve(gx.m_tevCount);
     textureIdxs.reserve(gx.m_tevCount);
-    for (int i=0 ; i<gx.m_tevCount ; ++i)
+    for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
         const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         tevStageTexInfo.emplace_back();
@@ -1043,7 +1043,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
 
     groupIdx = setIdxIn;
 
-    for (int i=0 ; i<gx.m_kcolorCount ; ++i)
+    for (unsigned i=0 ; i<gx.m_kcolorCount ; ++i)
         konstColors.emplace_back(gx.m_kcolors[i]);
 
     blendDstFac = BlendFactor(gx.m_blendDst);
@@ -1054,7 +1054,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     colorChannelCount = 1;
     colorChannels.emplace_back();
     ColorChannel& ch = colorChannels.back();
-    for (int i=0 ; i<gx.m_tevCount ; ++i)
+    for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
         const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         for (int c=0 ; c<4 ; ++c)
@@ -1073,7 +1073,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
 
     tevStageCount = gx.m_tevCount;
     tevStages.reserve(gx.m_tevCount);
-    for (int i=0 ; i<gx.m_tevCount ; ++i)
+    for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
         const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         tevStages.emplace_back();
@@ -1102,7 +1102,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     }
 
     tcgCount = gx.m_tcgCount;
-    for (int i=0 ; i<gx.m_tcgCount ; ++i)
+    for (unsigned i=0 ; i<gx.m_tcgCount ; ++i)
     {
         const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[i];
         tcgs.emplace_back();
@@ -1130,7 +1130,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     for (; uvAnimsCount<8 ;)
     {
         bool found = false;
-        for (int t=0 ; t<gx.m_tcgCount ; ++t)
+        for (unsigned t=0 ; t<gx.m_tcgCount ; ++t)
         {
             const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[t];
             if (tcg.m_mtx == GX::IDENTITY)
