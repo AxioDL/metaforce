@@ -149,6 +149,7 @@ class IShaderBackendFactory
 {
     friend class ShaderCacheManager;
 protected:
+    boo::ITextureR* m_rtHint = nullptr;
     using FReturnExtensionShader = std::function<void(boo::IShaderPipeline*)>;
     virtual ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                                const HECL::Frontend::IR& ir,
@@ -205,6 +206,10 @@ public:
     : ShaderCacheManager(storeMgr, gfxFactory, ShaderCacheExtensions()) {}
     void reload();
 
+    /* Some platforms (like Metal) require information about the render target
+     * for encoding the pipeline state. This must be called before building shaders */
+    void setRenderTargetHint(boo::ITextureR* tex) {m_factory->m_rtHint = tex;}
+    
     boo::IShaderPipeline* buildShader(const ShaderTag& tag, const std::string& source,
                                       const std::string& diagName);
     boo::IShaderPipeline* buildShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,

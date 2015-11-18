@@ -94,7 +94,7 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       skinSlots, skinSlots);
     if (texMtxs)
         retval += HECL::Format("    mat4 texMtxs[%u];\n", texMtxs);
-    return retval + "} vu;\n";
+    return retval + "};\n";
 }
 
 void GLSL::reset(const IR& ir, Diagnostics& diag)
@@ -119,20 +119,20 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
         retval += "    vec4 posAccum = vec4(0.0,0.0,0.0,0.0);\n"
                   "    vec4 normAccum = vec4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += HECL::Format("    posAccum += (vu.mv[%" PRISize "] * vec4(posIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n"
-                                   "    normAccum += (vu.mvInv[%" PRISize "] * vec4(normIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n",
+            retval += HECL::Format("    posAccum += (mv[%" PRISize "] * vec4(posIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n"
+                                   "    normAccum += (mvInv[%" PRISize "] * vec4(normIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
         retval += "    posAccum[3] = 1.0;\n"
                   "    vtf.mvPos = posAccum;\n"
                   "    vtf.mvNorm = vec4(normalize(normAccum.xyz), 0.0);\n"
-                  "    gl_Position = vu.proj * posAccum;\n";
+                  "    gl_Position = proj * posAccum;\n";
     }
     else
     {
         /* non-skinned */
-        retval += "    vtf.mvPos = vu.mv[0] * vec4(posIn, 1.0);\n"
-                  "    vtf.mvNorm = vu.mvInv[0] * vec4(normIn, 0.0);\n"
-                  "    gl_Position = vu.proj * vtf.mvPos;\n";
+        retval += "    vtf.mvPos = mv[0] * vec4(posIn, 1.0);\n"
+                  "    vtf.mvNorm = mvInv[0] * vec4(normIn, 0.0);\n"
+                  "    gl_Position = proj * vtf.mvPos;\n";
     }
 
     int tcgIdx = 0;
@@ -142,7 +142,7 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             retval += HECL::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += HECL::Format("    vtf.tcgs[%u] = (vu.texMtxs[%u] * %s).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += HECL::Format("    vtf.tcgs[%u] = (texMtxs[%u] * %s).xy;\n", tcgIdx, tcg.m_mtx,
                                    EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
