@@ -13,12 +13,12 @@ struct ActorKeyframe : IScriptObject
 {
     DECL_YAML
     String<-1>      name;
-    Value<atUint32> unknown1;
-    Value<bool>     unknown2;
-    Value<float>    unknown3;
-    Value<bool>     unknown4;
-    Value<atUint32> unknown5;
-    Value<float>    unknown6;
+    Value<atUint32> animationId;
+    Value<bool>     unknown1;
+    Value<float>    unknown2;
+    Value<bool>     active;
+    Value<atUint32> unknown3;
+    Value<float>    totalPlayback;
 };
 }
 }
