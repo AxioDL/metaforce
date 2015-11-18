@@ -10,17 +10,17 @@ namespace Frontend
 
 void Parser::skipWhitespace(std::string::const_iterator& it)
 {
-    while (true)
+    while (it != m_source->cend())
     {
-        while (isspace(*it) && it != m_source->cend())
+        while (it != m_source->cend() && isspace(*it))
             ++it;
 
         /* Skip comment line */
-        if (*it == '#')
+        if (it != m_source->cend() && *it == '#')
         {
-            while (*it != '\n' && it != m_source->cend())
+            while (it != m_source->cend() && *it != '\n')
                 ++it;
-            if (*it == '\n')
+            if (it != m_source->cend() && *it == '\n')
                 ++it;
             continue;
         }

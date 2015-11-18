@@ -351,7 +351,9 @@ struct GX : IBackend
             }
         }
 
-        for (int i=0 ; i<3 ; ++i)
+        /* Allocate from back for compatibility with Retro's
+         * extended shader arithmetic use */
+        for (int i=2 ; i>=0 ; --i)
             if (!(regMask & (1 << i)))
                 return i;
 
@@ -379,7 +381,9 @@ struct GX : IBackend
             }
         }
 
-        for (int i=0 ; i<3 ; ++i)
+        /* Allocate from back for compatibility with Retro's
+         * extended shader arithmetic use */
+        for (int i=2 ; i>=0 ; --i)
             if (!(regMask & (1 << i)))
                 return i;
 

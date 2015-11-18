@@ -10,6 +10,8 @@
 
 namespace HECL
 {
+struct HMDLMeta;
+
 namespace Runtime
 {
 
@@ -75,6 +77,9 @@ public:
     bool getDepthWrite() const {return m_depthWrite;}
     bool getBackfaceCulling() const {return m_backfaceCulling;}
     uint64_t getMetaData() const {return m_meta;}
+
+    /* For shader constructors that require vertex format up-front (HLSL) */
+    boo::IVertexFormat* newVertexFormat(boo::IGraphicsDataFactory* factory) const;
 };
 
 /**
@@ -217,10 +222,14 @@ struct HMDLData
 {
     boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferS* m_ibo;
-    boo::IVertexFormat* m_vtxFmt;
+    boo::IVertexFormat* m_vtxFmt = nullptr;
 
     HMDLData(boo::IGraphicsDataFactory* factory,
              const void* metaData, const void* vbo, const void* ibo);
+
+    /* For binding constructors that require vertex format up front (GLSL) */
+    static boo::IVertexFormat* NewVertexFormat(boo::IGraphicsDataFactory* factory, const HMDLMeta& meta,
+                                               boo::IGraphicsBuffer* vbo=nullptr, boo::IGraphicsBuffer* ibo=nullptr);
 
     boo::IShaderDataBinding* newShaderDataBindng(boo::IGraphicsDataFactory* factory,
                                                  boo::IShaderPipeline* shader,

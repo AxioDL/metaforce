@@ -12,6 +12,7 @@ namespace HECL
 namespace Runtime
 {
 IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+IShaderBackendFactory* _NewHLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
 
 static LogVisor::LogModule Log("ShaderCacheManager");
 static uint64_t IDX_MAGIC = SBig(uint64_t(0xDEADFEEDC001D00D));
@@ -109,8 +110,12 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
     case boo::IGraphicsDataFactory::PlatformOGL:
         m_factory.reset(_NewGLSLBackendFactory(gfxFactory));
         break;
+    case boo::IGraphicsDataFactory::PlatformD3D11:
+    case boo::IGraphicsDataFactory::PlatformD3D12:
+        m_factory.reset(_NewHLSLBackendFactory(gfxFactory));
+        break;
     default:
-        Log.report(LogVisor::FatalError, "unsupported backend %s", gfxFactory->platformName());
+        Log.report(LogVisor::FatalError, _S("unsupported backend %s"), gfxFactory->platformName());
     }
 
     reload();
