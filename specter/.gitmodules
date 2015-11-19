@@ -1,0 +1,3 @@
+[submodule "freetype2"]
+	path = freetype2
+	url = https://github.com/AxioDL/freetype2
