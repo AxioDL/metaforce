@@ -123,7 +123,7 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
         m_factory.reset(_NewHLSLBackendFactory(gfxFactory));
         break;
 #elif __APPLE__ && HECL_HAS_METAL
-    case boo::IGraphicsDataFactory::PlatformMetal:
+    case boo::IGraphicsDataFactory::Platform::Metal:
         m_factory.reset(_NewMetalBackendFactory(gfxFactory));
         break;
 #endif
