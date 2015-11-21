@@ -10,12 +10,16 @@ if(NOT DEFINED BOO_INCLUDE_DIR)
                        BOO_INCLUDE_DIR set")
 endif()
 
-include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR})
+add_subdirectory(resources/fonts)
+
+include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include)
 
 list(APPEND SPECTER_HEADERS
      include/Specter/Specter.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
+     include/Specter/TextView.hpp
      include/Specter/Space.hpp
      include/Specter/Table.hpp
      include/Specter/Outliner.hpp
@@ -26,12 +30,14 @@ list(APPEND SPECTER_HEADERS
      include/Specter/NumericField.hpp
      include/Specter/Menu.hpp
      include/Specter/Node.hpp
-     include/Specter/NodeSocket.hpp)
+     include/Specter/NodeSocket.hpp
+     include/Specter/FontCache.hpp)
 
 list(APPEND SPECTER_SOURCES
      lib/Specter.cpp
      lib/View.cpp
      lib/RootView.cpp
+     lib/TextView.cpp
      lib/Space.cpp
      lib/Table.cpp
      lib/Outliner.cpp
@@ -42,6 +48,7 @@ list(APPEND SPECTER_SOURCES
      lib/NumericField.cpp
      lib/Menu.cpp
      lib/Node.cpp
-     lib/NodeSocket.cpp)
+     lib/NodeSocket.cpp
+     lib/FontCache.cpp)
 
 add_library(Specter ${SPECTER_SOURCES} ${SPECTER_HEADERS})

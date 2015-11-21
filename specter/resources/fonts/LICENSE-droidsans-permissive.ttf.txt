@@ -1,0 +1,72 @@
+Specter Main font based on Blender main font with GPLv3 licensed glyphs removed.
+
+Specter Main I18n font ("droidsans-permissive.ttf") includes glyphs imported from the following fonts:
+
+1. DejaVu Sans
+2. Droid Sans Regular
+4. Droid Sans Hebrew Regular
+5. Droid Sans Ethiopic Regular
+6. KhmerOSsys
+
+These were merged using FontForge in (approximately) the above order. For each glyph,
+a license of the font from which it was imported is applied.
+
+----------------------------------------------------------------------
+Summary of Copyrights and Licenses
+
+(1) DejaVu Sans
+
+Copyright: 2003 Bitstream, Inc. (Bitstream font glyphs)
+           2006 Tavmjong Bah (Arev font glyphs)
+           DejaVu changes are in public domain
+
+License:
+ DejaVu font glyphs are same as bfont.ttf. See LICENSE-bfont.ttf.txt.
+
+(2), (4), (5) Droid Sans Fonts family
+
+Copyright:
+    Copyright © 2006, 2007, 2008, 2009, 2010 Google Corp.
+    Droid is a trademark of Google Corp.
+
+License: Apache-2.0
+ See Appendix A.
+
+(6) KhmerOSsys
+Copyright: 2005, 2006 Danh Hong
+           2005, 2006 Open Forum of Cambodia
+
+License: GPL-2.1+
+ See Appendices B.
+
+----------------------------------------------------------------------
+Appendix A. Apache License Version 2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License"); you
+ may not use this file except in compliance with the License. You may
+ obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied. See the License for the specific language governing
+ permissions and limitations under the License.
+
+----------------------------------------------------------------------
+Appendix B. GNU GPL Version 2.1
+
+This font is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+License for more details.
+
+On Debian systems, the complete text of the GNU Lesser General Public
+License can be found in the file /usr/share/common-licenses/LGPL-2.
+

@@ -1,6 +1,8 @@
 #ifndef SPECTER_HPP
 #define SPECTER_HPP
 
+#include "View.hpp"
+#include "RootView.hpp"
 #include "Space.hpp"
 #include "Table.hpp"
 #include "Outliner.hpp"

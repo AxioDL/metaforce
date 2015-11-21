@@ -3,12 +3,19 @@
 
 #include "View.hpp"
 #include <boo/boo.hpp>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace Specter
 {
 
-class RootView : public View, boo::IWindowCallback
+class RootView : public View, public boo::IWindowCallback
 {
+    boo::IWindow* m_window = nullptr;
+    FT_Library m_ftLib;
+
+    void setWindow(boo::IWindow* window);
+
     void resized(const boo::SWindowRect& rect);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
@@ -27,6 +34,8 @@ class RootView : public View, boo::IWindowCallback
     void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
+
+    void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 
 }
