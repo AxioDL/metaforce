@@ -62,7 +62,6 @@ struct SCAN : BigYAML
         Delete __delete;
         UniqueID32 texture;
         Value<float> appearanceRange;
-<<<<<<< HEAD
         enum class Position : atInt32
         {
             Pane0,
@@ -88,9 +87,6 @@ struct SCAN : BigYAML
             Invalid = -1
         };
         Value<Position> position;
-=======
-        Value<atUint32> position;
->>>>>>> 18c4b1aa6d84fcf828f474c100f880569c7b9d04
         Value<atUint32> width;        // width of animation cell
         Value<atUint32> height;       // height of animation cell
         Value<float>    interval;     // 0.0 - 1.0
@@ -103,7 +99,7 @@ struct SCAN : BigYAML
             /* appearanceRange */
             appearanceRange = __dna_reader.readFloatBig();
             /* position */
-            position = __dna_reader.readUint32Big();
+            position = Position(__dna_reader.readUint32Big());
             /* width */
             width = __dna_reader.readUint32Big();
             /* height */
@@ -121,7 +117,7 @@ struct SCAN : BigYAML
             /* appearanceRange */
             __dna_writer.writeFloatBig(appearanceRange);
             /* position */
-            __dna_writer.writeUint32Big(position);
+            __dna_writer.writeUint32Big(atUint32(position));
             /* width */
             __dna_writer.writeUint32Big(width);
             /* height */
@@ -143,9 +139,9 @@ struct SCAN : BigYAML
 
             auto idx = std::find(PaneNames.begin(), PaneNames.end(), tmp);
             if (idx != PaneNames.end())
-                position = idx - PaneNames.begin();
+                position = Position(idx - PaneNames.begin());
             else
-                position = -1;
+                position = Position::Invalid;
 
             /* width */
             width = __dna_docin.readUint32("width");
@@ -164,8 +160,8 @@ struct SCAN : BigYAML
             /* appearanceRange */
             __dna_docout.writeFloat("appearanceRange", appearanceRange);
             /* position */
-            if (position != -1)
-                __dna_docout.writeString("position", PaneNames.at(position));
+            if (position != Position::Invalid)
+                __dna_docout.writeString("position", PaneNames.at(atUint32(position)));
             else
                 __dna_docout.writeString("position", "undefined");
             /* width */
