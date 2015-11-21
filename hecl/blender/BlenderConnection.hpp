@@ -377,7 +377,7 @@ public:
         /** Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
         {
-            enum HMDLTopology topology;
+            HMDLTopology topology;
 
             /* Cumulative AABB */
             Vector3f aabbMin;

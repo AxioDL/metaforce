@@ -118,8 +118,8 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
         m_factory.reset(_NewGLSLBackendFactory(gfxFactory));
         break;
 #if _WIN32
-    case boo::IGraphicsDataFactory::PlatformD3D11:
-    case boo::IGraphicsDataFactory::PlatformD3D12:
+    case boo::IGraphicsDataFactory::Platform::D3D11:
+    case boo::IGraphicsDataFactory::Platform::D3D12:
         m_factory.reset(_NewHLSLBackendFactory(gfxFactory));
         break;
 #elif __APPLE__ && HECL_HAS_METAL

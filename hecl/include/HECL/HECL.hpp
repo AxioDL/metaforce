@@ -216,7 +216,7 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     {
 #if _WIN32
         OVERLAPPED ov = {};
-        LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
+        LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == FileLockType::Write) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
         if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
             LogModule.report(LogVisor::FatalError, "flock %s: %s", path, strerror(errno));
