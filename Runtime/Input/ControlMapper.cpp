@@ -193,7 +193,7 @@ static bool skCommandFilterFlag[kCommandFilterCount];
 
 void ControlMapper::SetCommandFiltered(ECommands cmd, bool filtered)
 {
-    skCommandFilterFlag[cmd] = filtered;
+    skCommandFilterFlag[int(cmd)] = filtered;
 }
 
 void ControlMapper::ResetCommandFilters()
@@ -204,12 +204,12 @@ void ControlMapper::ResetCommandFilters()
 
 bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input)
 {
-    if (!skCommandFilterFlag[cmd])
+    if (!skCommandFilterFlag[int(cmd)])
         return false;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(cmd));
-    if (func > FuncMAX)
+    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    if (func > EFunctionList::MAX)
         return false;
-    BoolReturnFn fn = skPressFuncs[func];
+    BoolReturnFn fn = skPressFuncs[int(func)];
     if (!fn)
         return false;
     return (input.*fn)();
@@ -217,12 +217,12 @@ bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input)
 
 bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input)
 {
-    if (!skCommandFilterFlag[cmd])
+    if (!skCommandFilterFlag[int(cmd)])
         return false;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(cmd));
-    if (func > FuncMAX)
+    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    if (func > EFunctionList::MAX)
         return false;
-    BoolReturnFn fn = skDigitalFuncs[func];
+    BoolReturnFn fn = skDigitalFuncs[int(func)];
     if (!fn)
         return false;
     return (input.*fn)();
@@ -230,12 +230,12 @@ bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input)
 
 float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input)
 {
-    if (!skCommandFilterFlag[cmd])
+    if (!skCommandFilterFlag[int(cmd)])
         return 0.0;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(cmd));
-    if (func > FuncMAX)
+    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    if (func > EFunctionList::MAX)
         return 0.0;
-    FloatReturnFn fn = skAnalogFuncs[func];
+    FloatReturnFn fn = skAnalogFuncs[int(func)];
     if (!fn)
         return 0.0;
     return (input.*fn)();
@@ -243,16 +243,16 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input)
 
 const char* ControlMapper::GetDescriptionForCommand(ECommands cmd)
 {
-    if (cmd > CmdMAX)
+    if (cmd > ECommands::MAX)
         return nullptr;
-    return skCommandDescs[cmd];
+    return skCommandDescs[int(cmd)];
 }
 
 const char* ControlMapper::GetDescriptionForFunction(EFunctionList func)
 {
-    if (func > FuncMAX)
+    if (func > EFunctionList::MAX)
         return nullptr;
-    return skFunctionDescs[func];
+    return skFunctionDescs[int(func)];
 }
 
 }

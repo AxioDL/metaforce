@@ -9,11 +9,11 @@ namespace Retro
 class IController
 {
 public:
-    enum EMotorState
+    enum class EMotorState
     {
-        MotorStop = 0,
-        MotorRumble = 1,
-        MotorStopHard = 2
+        Stop = 0,
+        Rumble = 1,
+        StopHard = 2
     };
     virtual void Poll()=0;
     virtual void SetMotorState(EMotorState state)=0;

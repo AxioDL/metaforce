@@ -68,7 +68,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Rename MREA for consistency */
     HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
-    if (!force && mreaPath.getPathType() == HECL::ProjectPath::PT_FILE)
+    if (!force && mreaPath.getPathType() == HECL::ProjectPath::Type::File)
         return true;
 
     /* Do extract */
@@ -77,7 +77,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     rs.seekAlign32();
 
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::TypeArea))
+    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */

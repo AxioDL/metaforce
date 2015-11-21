@@ -16,11 +16,11 @@ struct SCAN : BigYAML
     UniqueID32      frame;
     UniqueID32      string;
 
-    enum ScanSpeed
+    enum class ScanSpeed : atUint32
     { Normal, Slow };
     Value<ScanSpeed> scanSpeed;
 
-    enum Category
+    enum class Category : atUint32
     {
         None,
         SpacePirateData,
@@ -38,7 +38,7 @@ struct SCAN : BigYAML
         DECL_YAML
         UniqueID32 texture;
         Value<float> appearanceRange;
-        enum Position
+        enum class Position : atInt32
         {
             Pane0,
             Pane1,

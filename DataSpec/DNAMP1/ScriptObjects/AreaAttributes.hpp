@@ -12,7 +12,7 @@ namespace DNAMP1
 struct AreaAttributes : IScriptObject
 {
     DECL_YAML
-    enum EWeatherType
+    enum class EWeatherType : atUint32
     {
         None,
         Snow,

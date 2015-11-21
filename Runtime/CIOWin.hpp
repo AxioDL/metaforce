@@ -14,12 +14,12 @@ class CIOWin
     std::string m_name;
     size_t m_nameHash;
 public:
-    enum EMessageReturn
+    enum class EMessageReturn
     {
-        MsgRetNormal = 0,
-        MsgRetExit = 1,
-        MsgRetRemoveIOWinAndExit = 2,
-        MsgRetRemoveIOWin = 3
+        Normal = 0,
+        Exit = 1,
+        RemoveIOWinAndExit = 2,
+        RemoveIOWin = 3
     };
     virtual ~CIOWin() {}
     CIOWin(const char* name) : m_name(name) {m_nameHash = std::hash<std::string>()(m_name);}

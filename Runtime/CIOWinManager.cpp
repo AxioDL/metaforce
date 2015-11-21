@@ -9,7 +9,7 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
 {
     switch (msg.GetType())
     {
-    case MsgRemoveIOWin:
+    case EArchMsgType::RemoveIOWin:
     {
         const CArchMsgParmVoidPtr& parm = MakeMsg::GetParmDeleteIOWin(msg);
         CIOWin* iow = FindIOWin(*static_cast<const std::string*>(parm.x4_parm1));
@@ -17,14 +17,14 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
             RemoveIOWin(iow);
         return false;
     }
-    case MsgCreateIOWin:
+    case EArchMsgType::CreateIOWin:
     {
         const CArchMsgParmInt32Int32VoidPtr& parm = MakeMsg::GetParmCreateIOWin(msg);
         rstl::rc_ptr<CIOWin> iow(static_cast<CIOWin*>(parm.xc_parm3));
         AddIOWin(iow, parm.x4_parm1, parm.x8_parm2);
         return false;
     }
-    case MsgChangeIOWinPriority:
+    case EArchMsgType::ChangeIOWinPriority:
     {
         const CArchMsgParmInt32Int32VoidPtr& parm = MakeMsg::GetParmChangeIOWinPriority(msg);
         CIOWin* iow = FindIOWin(*static_cast<const std::string*>(parm.xc_parm3));
@@ -32,7 +32,7 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
             ChangeIOWinPriority(iow, parm.x4_parm1, parm.x8_parm2);
         return false;
     }
-    case MsgRemoveAllIOWins:
+    case EArchMsgType::RemoveAllIOWins:
     {
         RemoveAllIOWins();
         return true;
@@ -76,7 +76,7 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
         while (x8_localGatherQueue)
         {
             CArchitectureMessage msg = x8_localGatherQueue.Pop();
-            if (msg.GetTarget() == TargetIOWinManager)
+            if (msg.GetTarget() == EArchMsgTarget::IOWinManager)
             {
                 if (OnIOWinMessage(msg))
                 {
@@ -91,16 +91,16 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
 
         switch (mret)
         {
-        case CIOWin::MsgRetRemoveIOWinAndExit:
-        case CIOWin::MsgRetRemoveIOWin:
+        case CIOWin::EMessageReturn::RemoveIOWinAndExit:
+        case CIOWin::EMessageReturn::RemoveIOWin:
             RemoveIOWin(iow);
         default: break;
         }
 
         switch (mret)
         {
-        case CIOWin::MsgRetExit:
-        case CIOWin::MsgRetRemoveIOWinAndExit:
+        case CIOWin::EMessageReturn::Exit:
+        case CIOWin::EMessageReturn::RemoveIOWinAndExit:
             return false;
         default: break;
         }

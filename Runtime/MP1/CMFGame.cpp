@@ -12,14 +12,14 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 {
     switch (msg.GetType())
     {
-    case MsgTimerTick:
+    case EArchMsgType::TimerTick:
     {
         const CArchMsgParmReal32& tick = MakeMsg::GetParmTimerTick(msg);
         g_GameState->WorldTransitionManager();
     }
     default: break;
     }
-    return MsgRetExit;
+    return EMessageReturn::Exit;
 }
 
 void CMFGameLoader::Draw() const

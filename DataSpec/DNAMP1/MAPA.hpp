@@ -27,30 +27,30 @@ struct MAPA : BigDNA
     struct MappableObject : BigDNA
     {
         DECL_DNA
-        enum Type : atUint32
+        enum class Type : atUint32
         {
-            MOBlueDoor         = 0,
-            MOShieldDoor       = 1,
-            MOIceDoor          = 2,
-            MOWaveDoor         = 3,
-            MOPlasmaDoor       = 4,
-            MOBigDoor1         = 5,
-            MOBigDoor2         = 6,
-            MOIceDoorCeiling   = 7,
-            MOIceDoorFloor     = 8,
-            MOWaveDoorCeiling  = 9,
-            MOWaveDoorFloor    = 10,
-            MOIceDoorFloor2    = 13,
-            MOWaveDoorFloor2   = 14,
-            MODownArrowYellow  = 27, /* Maintenance Tunnel */
-            MOUpArrowYellow    = 28, /* Phazon Processing Center */
-            MODownArrowGreen   = 29, /* Elevator A */
-            MOUpArrowGreen     = 30, /* Elite Control Access */
-            MODownArrowRed     = 31, /* Elevator B */
-            MOUpArrowRed       = 32, /* Fungal Hall Access */
-            MOTransportLift    = 33,
-            MOSaveStation      = 34,
-            MOMissileStation   = 37
+            BlueDoor         = 0,
+            ShieldDoor       = 1,
+            IceDoor          = 2,
+            WaveDoor         = 3,
+            PlasmaDoor       = 4,
+            BigDoor1         = 5,
+            BigDoor2         = 6,
+            IceDoorCeiling   = 7,
+            IceDoorFloor     = 8,
+            WaveDoorCeiling  = 9,
+            WaveDoorFloor    = 10,
+            IceDoorFloor2    = 13,
+            WaveDoorFloor2   = 14,
+            DownArrowYellow  = 27, /* Maintenance Tunnel */
+            UpArrowYellow    = 28, /* Phazon Processing Center */
+            DownArrowGreen   = 29, /* Elevator A */
+            UpArrowGreen     = 30, /* Elite Control Access */
+            DownArrowRed     = 31, /* Elevator B */
+            UpArrowRed       = 32, /* Fungal Hall Access */
+            TransportLift    = 33,
+            SaveStation      = 34,
+            MissileStation   = 37
         };
         Value<Type> type;
         Value<atUint32> unknown1;

@@ -7,16 +7,16 @@
 namespace Retro
 {
 
-enum EGameObjectList
+enum class EGameObjectList
 {
-    ListAll,
-    ListActor,
-    ListPhysicsActor,
-    ListGameCamera,
-    ListGameLight,
-    ListListeningAi,
-    ListAiWaypoint,
-    ListPlatformAndDoor,
+    All,
+    Actor,
+    PhysicsActor,
+    GameCamera,
+    GameLight,
+    ListeningAi,
+    AiWaypoint,
+    PlatformAndDoor,
 };
 
 class CObjectList

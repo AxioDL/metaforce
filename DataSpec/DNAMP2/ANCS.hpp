@@ -220,25 +220,25 @@ struct ANCS : BigYAML
                         std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
+        HECL::ProjectPath::Type yamlType = yamlPath.getPathType();
         HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        HECL::ProjectPath::PathType blendType = blendPath.getPathType();
+        HECL::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
-            yamlType == HECL::ProjectPath::PT_NONE ||
-            blendType == HECL::ProjectPath::PT_NONE)
+            yamlType == HECL::ProjectPath::Type::None ||
+            blendType == HECL::ProjectPath::Type::None)
         {
             ANCS ancs;
             ancs.read(rs);
 
-            if (force || yamlType == HECL::ProjectPath::PT_NONE)
+            if (force || yamlType == HECL::ProjectPath::Type::None)
             {
                 FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
                 ancs.toYAMLFile(fp);
                 fclose(fp);
             }
 
-            if (force || blendType == HECL::ProjectPath::PT_NONE)
+            if (force || blendType == HECL::ProjectPath::Type::None)
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1_2, 4>

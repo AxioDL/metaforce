@@ -9,15 +9,15 @@ class CFinalInput;
 
 const char* StringForControlOption(int);
 
-enum EDebugMenu
+enum class EDebugMenu
 {
 };
 
-enum EDebugOptions
+enum class EDebugOptions
 {
 };
 
-enum EDebugMainMenu
+enum class EDebugMainMenu
 {
 };
 
@@ -31,7 +31,7 @@ public:
 class CGameDebug
 {
 public:
-    enum EReturnValue
+    enum class EReturnValue
     {
     };
 

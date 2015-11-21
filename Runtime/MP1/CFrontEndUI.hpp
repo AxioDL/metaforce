@@ -16,10 +16,10 @@ namespace MP1
 class CFrontEndUI : public CIOWin
 {
 public:
-    enum EMenuMovie
+    enum class EMenuMovie
     {
     };
-    enum EScreen
+    enum class EScreen
     {
     };
 

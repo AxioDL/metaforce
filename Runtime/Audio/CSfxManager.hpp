@@ -12,11 +12,11 @@ namespace Retro
 
 class CSfxManager
 {
-    enum ESfxChannels
+    enum class ESfxChannels
     {
     };
 
-    enum ESfxAudibility
+    enum class ESfxAudibility
     {
         Aud0,
         Aud1,

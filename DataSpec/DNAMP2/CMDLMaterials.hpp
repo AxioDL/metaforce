@@ -38,7 +38,7 @@ struct MaterialSet : BigDNA
         Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
         Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
-        using BlendFactor = DNAMP1::MaterialSet::Material::BlendFactor;
+        using BlendFactor = GX::BlendFactor;
         Value<BlendFactor> blendDstFac;
         Value<BlendFactor> blendSrcFac;
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;

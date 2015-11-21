@@ -12,21 +12,21 @@ class IAllocator
 {
 public:
     virtual ~IAllocator() {}
-    enum EHint
+    enum class EHint
     {
-        HintNone = 0x0,
-        HintTopOfHeap = 0x1,
-        HintLarge = 0x2
+        None = 0x0,
+        TopOfHeap = 0x1,
+        Large = 0x2
     };
-    enum EScope
+    enum class EScope
     {
-        ScopeNone = 0,
-        ScopeDefault = 1
+        None = 0,
+        Default = 1
     };
-    enum EType
+    enum class EType
     {
-        TypePrimitive = 0,
-        TypeArray = 1
+        Primitive = 0,
+        Array = 1
     };
     struct SAllocInfo
     {

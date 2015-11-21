@@ -41,11 +41,11 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
     for (atUint32 i = 0; i < layerCount; i++)
     {
         HECL::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i);
-        if (layerPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        if (layerPath.getPathType() == HECL::ProjectPath::Type::None)
             layerPath.makeDir();
 
         HECL::ProjectPath yamlFile = HECL::ProjectPath(layerPath, _S("objects.yaml"));
-        if (force || yamlFile.getPathType() == HECL::ProjectPath::PT_NONE)
+        if (force || yamlFile.getPathType() == HECL::ProjectPath::Type::None)
         {
             FILE* yaml = HECL::Fopen(yamlFile.getAbsolutePath().c_str(), _S("wb"));
             layers[i].toYAMLFile(yaml);

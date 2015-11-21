@@ -90,7 +90,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
     {
         factory.section->constructNode(out, pakRouter, entry, prevSection, i++, texMapIdx, texMtxIdx, kColorIdx);
         Material::SectionPASS* pass = dynamic_cast<Material::SectionPASS*>(factory.section.get());
-        if (!pass || (pass && pass->subtype.toUint32() != Material::SectionPASS::RFLV))
+        if (!pass || (pass && Material::SectionPASS::Subtype(pass->subtype.toUint32()) != Material::SectionPASS::Subtype::RFLV))
             prevSection = factory.section.get();
     }
 
@@ -119,7 +119,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
         const NOD::Node* node;
         const PAK::Entry* texEntry = pakRouter.lookupEntry(txtrId, &node);
         HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-        if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
         {
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
@@ -148,7 +148,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     }
 
     /* Special case for RFLV (environment UV mask) */
-    if (subtype.toUint32() == RFLV)
+    if (Subtype(subtype.toUint32()) == Subtype::RFLV)
     {
         if (txtrId)
             out << "rflv_tex_node = texture_nodes[-1]\n";
@@ -159,63 +159,63 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     bool linkRAS = false;
     out << "prev_pnode = pnode\n"
            "pnode = new_nodetree.nodes.new('ShaderNodeGroup')\n";
-    switch (subtype)
+    switch (Subtype(subtype.toUint32()))
     {
-    case DIFF:
+    case Subtype::DIFF:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassDIFF']\n";
         linkRAS = true;
         break;
-    case RIML:
+    case Subtype::RIML:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRIML']\n";
         if (idx == 0)
             linkRAS = true;
         break;
-    case BLOL:
+    case Subtype::BLOL:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOL']\n";
         if (idx == 0)
             linkRAS = true;
         break;
-    case BLOD:
+    case Subtype::BLOD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOD']\n";
         if (idx == 0)
             linkRAS = true;
         break;
-    case CLR:
+    case Subtype::CLR:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassCLR']\n";
         if (idx == 0)
             linkRAS = true;
         break;
-    case TRAN:
+    case Subtype::TRAN:
         if (flags.TRANInvert())
             out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRANInv']\n";
         else
             out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRAN']\n";
         break;
-    case INCA:
+    case Subtype::INCA:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassINCA']\n";
         break;
-    case RFLV:
+    case Subtype::RFLV:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLV']\n";
         break;
-    case RFLD:
+    case Subtype::RFLD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLD']\n"
                "if rflv_tex_node:\n"
                "    new_nodetree.links.new(rflv_tex_node.outputs['Color'], pnode.inputs['Mask Color'])\n"
                "    new_nodetree.links.new(rflv_tex_node.outputs['Value'], pnode.inputs['Mask Alpha'])\n";
         break;
-    case LRLD:
+    case Subtype::LRLD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassLRLD']\n";
         break;
-    case LURD:
+    case Subtype::LURD:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassLURD']\n";
         break;
-    case BLOI:
+    case Subtype::BLOI:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOI']\n";
         break;
-    case XRAY:
+    case Subtype::XRAY:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassXRAY']\n";
         break;
-    case TOON:
+    case Subtype::TOON:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassTOON']\n";
         break;
     default: break;
@@ -233,11 +233,11 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
                "new_nodetree.links.new(material_node.outputs['Alpha'], pnode.inputs['Prev Alpha'])\n";
     else if (prevSection)
     {
-        if (prevSection->m_type == ISection::PASS &&
-            static_cast<const SectionPASS*>(prevSection)->subtype.toUint32() != RFLV)
+        if (prevSection->m_type == ISection::Type::PASS &&
+            Subtype(static_cast<const SectionPASS*>(prevSection)->subtype.toUint32()) != Subtype::RFLV)
             out << "new_nodetree.links.new(prev_pnode.outputs['Next Color'], pnode.inputs['Prev Color'])\n"
                    "new_nodetree.links.new(prev_pnode.outputs['Next Alpha'], pnode.inputs['Prev Alpha'])\n";
-        else if (prevSection->m_type == ISection::CLR)
+        else if (prevSection->m_type == ISection::Type::CLR)
             out << "new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], pnode.inputs['Prev Color'])\n"
                    "new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], pnode.inputs['Prev Alpha'])\n";
     }
@@ -256,9 +256,9 @@ void Material::SectionCLR::constructNode(HECL::BlenderConnection::PyOutStream& o
                                          unsigned& kColorIdx) const
 {
     DNAMP1::MaterialSet::Material::AddKcolor(out, color, kColorIdx++);
-    switch (subtype)
+    switch (Subtype(subtype.toUint32()))
     {
-    case DIFB:
+    case Subtype::DIFB:
         out << "kc_node.label += ' DIFB'\n"
                "ka_node.label += ' DIFB'\n";
         break;
@@ -275,21 +275,21 @@ void Material::SectionINT::constructNode(HECL::BlenderConnection::PyOutStream& o
                                          unsigned& texMtxIdx,
                                          unsigned& kColorIdx) const
 {
-    switch (subtype)
+    switch (Subtype(subtype.toUint32()))
     {
-    case OPAC:
+    case Subtype::OPAC:
         out.format("new_material.retro_opac = %d\n", value);
         break;
-    case BLOD:
+    case Subtype::BLOD:
         out.format("new_material.retro_blod = %d\n", value);
         break;
-    case BLOI:
+    case Subtype::BLOI:
         out.format("new_material.retro_bloi = %d\n", value);
         break;
-    case BNIF:
+    case Subtype::BNIF:
         out.format("new_material.retro_bnif = %d\n", value);
         break;
-    case XRBR:
+    case Subtype::XRBR:
         out.format("new_material.retro_xrbr = %d\n", value);
         break;
     default: break;

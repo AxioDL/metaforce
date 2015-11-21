@@ -57,7 +57,7 @@ void CFrontEndUI::UpdateMovies(float dt)
 void CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {}
 CIOWin::EMessageReturn CFrontEndUI::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
-{return MsgRetNormal;}
+{return EMessageReturn::Normal;}
 void CFrontEndUI::StartGame()
 {}
 void CFrontEndUI::InitializeFrame()

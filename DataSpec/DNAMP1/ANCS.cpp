@@ -12,20 +12,20 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(A
     unk2 = reader.readFloatBig();
     switch (DataType(parmType))
     {
-    case DataType::DTInt32:
+    case DataType::Int32:
         parmVals[0].int32 = reader.readInt32Big();
         parmVals[1].int32 = reader.readInt32Big();
         break;
-    case DataType::DTUInt32:
-    case DataType::DTEnum:
+    case DataType::UInt32:
+    case DataType::Enum:
         parmVals[0].uint32 = reader.readUint32Big();
         parmVals[1].uint32 = reader.readUint32Big();
         break;
-    case DataType::DTFloat:
+    case DataType::Float:
         parmVals[0].float32 = reader.readFloatBig();
         parmVals[1].float32 = reader.readFloatBig();
         break;
-    case DataType::DTBool:
+    case DataType::Bool:
         parmVals[0].bool1 = reader.readBool();
         parmVals[1].bool1 = reader.readBool();
         break;
@@ -39,20 +39,20 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(
     writer.writeFloatBig(unk2);
     switch (DataType(parmType))
     {
-    case DataType::DTInt32:
+    case DataType::Int32:
         writer.writeInt32Big(parmVals[0].int32);
         writer.writeInt32Big(parmVals[1].int32);
         break;
-    case DataType::DTUInt32:
-    case DataType::DTEnum:
+    case DataType::UInt32:
+    case DataType::Enum:
         writer.writeUint32Big(parmVals[0].uint32);
         writer.writeUint32Big(parmVals[0].uint32);
         break;
-    case DataType::DTFloat:
+    case DataType::Float:
         writer.writeFloatBig(parmVals[0].float32);
         writer.writeFloatBig(parmVals[0].float32);
         break;
-    case DataType::DTBool:
+    case DataType::Bool:
         writer.writeBool(parmVals[0].bool1);
         writer.writeBool(parmVals[0].bool1);
         break;
@@ -64,13 +64,13 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::bina
     __isz += 12;
     switch (DataType(parmType))
     {
-    case DataType::DTInt32:
-    case DataType::DTUInt32:
-    case DataType::DTEnum:
-    case DataType::DTFloat:
+    case DataType::Int32:
+    case DataType::UInt32:
+    case DataType::Enum:
+    case DataType::Float:
         __isz += 8;
         break;
-    case DataType::DTBool:
+    case DataType::Bool:
         __isz += 2;
         break;
     }
@@ -85,20 +85,20 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::fromYA
     reader.enterSubVector("parmVals");
     switch (DataType(parmType))
     {
-    case DataType::DTInt32:
+    case DataType::Int32:
         parmVals[0].int32 = reader.readInt32(nullptr);
         parmVals[1].int32 = reader.readInt32(nullptr);
         break;
-    case DataType::DTUInt32:
-    case DataType::DTEnum:
+    case DataType::UInt32:
+    case DataType::Enum:
         parmVals[0].uint32 = reader.readUint32(nullptr);
         parmVals[1].uint32 = reader.readUint32(nullptr);
         break;
-    case DataType::DTFloat:
+    case DataType::Float:
         parmVals[0].float32 = reader.readFloat(nullptr);
         parmVals[1].float32 = reader.readFloat(nullptr);
         break;
-    case DataType::DTBool:
+    case DataType::Bool:
         parmVals[0].bool1 = reader.readBool(nullptr);
         parmVals[1].bool1 = reader.readBool(nullptr);
         break;
@@ -115,20 +115,20 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::toYAML
     writer.enterSubVector("parmVals");
     switch (DataType(parmType))
     {
-    case DataType::DTInt32:
+    case DataType::Int32:
         writer.writeInt32(nullptr, parmVals[0].int32);
         writer.writeInt32(nullptr, parmVals[1].int32);
         break;
-    case DataType::DTUInt32:
-    case DataType::DTEnum:
+    case DataType::UInt32:
+    case DataType::Enum:
         writer.writeUint32(nullptr, parmVals[0].uint32);
         writer.writeUint32(nullptr, parmVals[0].uint32);
         break;
-    case DataType::DTFloat:
+    case DataType::Float:
         writer.writeFloat(nullptr, parmVals[0].float32);
         writer.writeFloat(nullptr, parmVals[0].float32);
         break;
-    case DataType::DTBool:
+    case DataType::Bool:
         writer.writeBool(nullptr, parmVals[0].bool1);
         writer.writeBool(nullptr, parmVals[0].bool1);
         break;
@@ -160,17 +160,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io:
         {
             switch (ParmInfo::DataType(pi.parmType))
             {
-            case ParmInfo::DTInt32:
+            case ParmInfo::DataType::Int32:
                 ai.parmVals.emplace_back(reader.readInt32Big());
                 break;
-            case ParmInfo::DTUInt32:
-            case ParmInfo::DTEnum:
+            case ParmInfo::DataType::UInt32:
+            case ParmInfo::DataType::Enum:
                 ai.parmVals.emplace_back(reader.readUint32Big());
                 break;
-            case ParmInfo::DTFloat:
+            case ParmInfo::DataType::Float:
                 ai.parmVals.emplace_back(reader.readFloatBig());
                 break;
-            case ParmInfo::DTBool:
+            case ParmInfo::DataType::Bool:
                 ai.parmVals.emplace_back(reader.readBool());
                 break;
             default: break;
@@ -199,17 +199,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io
                 pVal = *it++;
             switch (ParmInfo::DataType(pi.parmType))
             {
-            case ParmInfo::DTInt32:
+            case ParmInfo::DataType::Int32:
                 writer.writeInt32Big(pVal.int32);
                 break;
-            case ParmInfo::DTUInt32:
-            case ParmInfo::DTEnum:
+            case ParmInfo::DataType::UInt32:
+            case ParmInfo::DataType::Enum:
                 writer.writeUint32Big(pVal.uint32);
                 break;
-            case ParmInfo::DTFloat:
+            case ParmInfo::DataType::Float:
                 writer.writeFloatBig(pVal.float32);
                 break;
-            case ParmInfo::DTBool:
+            case ParmInfo::DataType::Bool:
                 writer.writeBool(pVal.bool1);
                 break;
             default: break;
@@ -228,13 +228,13 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(siz
     {
         switch (ParmInfo::DataType(pi.parmType))
         {
-        case ParmInfo::DTInt32:
-        case ParmInfo::DTUInt32:
-        case ParmInfo::DTEnum:
-        case ParmInfo::DTFloat:
+        case ParmInfo::DataType::Int32:
+        case ParmInfo::DataType::UInt32:
+        case ParmInfo::DataType::Enum:
+        case ParmInfo::DataType::Float:
             __isz += animInfos.size() * 4;
             break;
-        case ParmInfo::DTBool:
+        case ParmInfo::DataType::Bool:
             __isz += animInfos.size();
             break;
         default: break;
@@ -262,17 +262,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::fromYAML(Athena:
         {
             switch (ParmInfo::DataType(pi.parmType))
             {
-            case ParmInfo::DTInt32:
+            case ParmInfo::DataType::Int32:
                 ai.parmVals.emplace_back(reader.readInt32(nullptr));
                 break;
-            case ParmInfo::DTUInt32:
-            case ParmInfo::DTEnum:
+            case ParmInfo::DataType::UInt32:
+            case ParmInfo::DataType::Enum:
                 ai.parmVals.emplace_back(reader.readUint32(nullptr));
                 break;
-            case ParmInfo::DTFloat:
+            case ParmInfo::DataType::Float:
                 ai.parmVals.emplace_back(reader.readFloat(nullptr));
                 break;
-            case ParmInfo::DTBool:
+            case ParmInfo::DataType::Bool:
                 ai.parmVals.emplace_back(reader.readBool(nullptr));
                 break;
             default: break;
@@ -303,17 +303,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::toYAML(Athena::i
                 pVal = *it++;
             switch (ParmInfo::DataType(pi.parmType))
             {
-            case ParmInfo::DTInt32:
+            case ParmInfo::DataType::Int32:
                 writer.writeInt32(nullptr, pVal.int32);
                 break;
-            case ParmInfo::DTUInt32:
-            case ParmInfo::DTEnum:
+            case ParmInfo::DataType::UInt32:
+            case ParmInfo::DataType::Enum:
                 writer.writeUint32(nullptr, pVal.uint32);
                 break;
-            case ParmInfo::DTFloat:
+            case ParmInfo::DataType::Float:
                 writer.writeFloat(nullptr, pVal.float32);
                 break;
-            case ParmInfo::DTBool:
+            case ParmInfo::DataType::Bool:
                 writer.writeBool(nullptr, pVal.bool1);
                 break;
             default: break;
@@ -665,23 +665,23 @@ void ANCS::AnimationSet::MetaAnimFactory::read(Athena::io::IStreamReader& reader
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
     {
-    case IMetaAnim::MAPrimitive:
+    case IMetaAnim::Type::Primitive:
         m_anim.reset(new struct MetaAnimPrimitive);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MABlend:
+    case IMetaAnim::Type::Blend:
         m_anim.reset(new struct MetaAnimBlend);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MAPhaseBlend:
+    case IMetaAnim::Type::PhaseBlend:
         m_anim.reset(new struct MetaAnimPhaseBlend);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MARandom:
+    case IMetaAnim::Type::Random:
         m_anim.reset(new struct MetaAnimRandom);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MASequence:
+    case IMetaAnim::Type::Sequence:
         m_anim.reset(new struct MetaAnimSequence);
         m_anim->read(reader);
         break;
@@ -695,7 +695,7 @@ void ANCS::AnimationSet::MetaAnimFactory::write(Athena::io::IStreamWriter& write
 {
     if (!m_anim)
         return;
-    writer.writeInt32Big(m_anim->m_type);
+    writer.writeInt32Big(atUint32(m_anim->m_type));
     m_anim->write(writer);
 }
 
@@ -760,19 +760,19 @@ void ANCS::AnimationSet::MetaTransFactory::read(Athena::io::IStreamReader& reade
     IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32Big()));
     switch (type)
     {
-    case IMetaTrans::MTMetaAnim:
+    case IMetaTrans::Type::MetaAnim:
         m_trans.reset(new struct MetaTransMetaAnim);
         m_trans->read(reader);
         break;
-    case IMetaTrans::MTTrans:
+    case IMetaTrans::Type::Trans:
         m_trans.reset(new struct MetaTransTrans);
         m_trans->read(reader);
         break;
-    case IMetaTrans::MTPhaseTrans:
+    case IMetaTrans::Type::PhaseTrans:
         m_trans.reset(new struct MetaTransPhaseTrans);
         m_trans->read(reader);
         break;
-    case IMetaTrans::MTNoTrans:
+    case IMetaTrans::Type::NoTrans:
     default:
         m_trans.reset(nullptr);
         break;
@@ -783,10 +783,10 @@ void ANCS::AnimationSet::MetaTransFactory::write(Athena::io::IStreamWriter& writ
 {
     if (!m_trans)
     {
-        writer.writeInt32Big(IMetaTrans::MTNoTrans);
+        writer.writeInt32Big(atUint32(IMetaTrans::Type::NoTrans));
         return;
     }
-    writer.writeInt32Big(m_trans->m_type);
+    writer.writeInt32Big(atUint32(m_trans->m_type));
     m_trans->write(writer);
 }
 

@@ -13,15 +13,15 @@ extern const char* kMovies[];
 class CPlayMovie : public CPlayMovieBase
 {
 public:
-    enum EWhichMovie
+    enum class EWhichMovie
     {
-        MovieWinGame,
-        MovieLoseGame
+        WinGame,
+        LoseGame
     };
 private:
     EWhichMovie x14_which;
 public:
-    CPlayMovie(EWhichMovie which) : CPlayMovieBase("CPlayMovie", kMovies[which]), x14_which(which) {}
+    CPlayMovie(EWhichMovie which) : CPlayMovieBase("CPlayMovie", kMovies[int(which)]), x14_which(which) {}
 };
 
 }

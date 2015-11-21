@@ -11,11 +11,11 @@ public:
     virtual bool IsComplete()=0;
     virtual void PostCancelRequest()=0;
 
-    enum EMediaType
+    enum class EMediaType
     {
-        MediaARAM = 0,
-        MediaReal = 1,
-        MediaNOD = 2
+        ARAM = 0,
+        Real = 1,
+        NOD = 2
     };
     virtual EMediaType GetMediaType() const=0;
 };
@@ -26,7 +26,7 @@ public:
     void WaitUntilComplete();
     bool IsComplete();
     void PostCancelRequest();
-    EMediaType GetMediaType() const {return MediaNOD;}
+    EMediaType GetMediaType() const {return EMediaType::NOD;}
 };
 
 class CDvdRequest : public IDvdRequest
@@ -34,7 +34,7 @@ class CDvdRequest : public IDvdRequest
     void WaitUntilComplete();
     bool IsComplete();
     void PostCancelRequest();
-    EMediaType GetMediaType() const { return MediaReal; }
+    EMediaType GetMediaType() const { return EMediaType::Real; }
 };
 
 }

@@ -138,18 +138,7 @@ struct MaterialSet : BigDNA
         Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
         Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
-        /** Slightly modified blend enums in Retro's implementation */
-        enum BlendFactor : atUint16
-        {
-            GX_BL_ZERO,
-            GX_BL_ONE,
-            GX_BL_SRCCLR,
-            GX_BL_INVSRCCLR,
-            GX_BL_SRCALPHA,
-            GX_BL_INVSRCALPHA,
-            GX_BL_DSTALPHA,
-            GX_BL_INVDSTALPHA
-        };
+        using BlendFactor = GX::BlendFactor;
         Value<BlendFactor> blendDstFac;
         Value<BlendFactor> blendSrcFac;
         Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
@@ -266,17 +255,17 @@ struct MaterialSet : BigDNA
         struct UVAnimation : BigDNA
         {
             Delete expl;
-            enum Mode : atUint32
+            enum class Mode
             {
-                ANIM_MV_INV_NOTRANS,
-                ANIM_MV_INV,
-                ANIM_SCROLL,
-                ANIM_ROTATION,
-                ANIM_HSTRIP,
-                ANIM_VSTRIP,
-                ANIM_MODEL,
-                ANIM_MODE_WHO_MUST_NOT_BE_NAMED,
-                ANIM_MODE_8
+                MvInvNoTranslation,
+                MvInv,
+                Scroll,
+                Rotation,
+                HStrip,
+                VStrip,
+                Model,
+                WhoMustNotBeNamed,
+                Eight
             } mode;
             float vals[9];
             void read(Athena::io::IStreamReader& reader)
@@ -284,24 +273,24 @@ struct MaterialSet : BigDNA
                 mode = Mode(reader.readUint32Big());
                 switch (mode)
                 {
-                case ANIM_MV_INV_NOTRANS:
-                case ANIM_MV_INV:
-                case ANIM_MODEL:
+                case Mode::MvInvNoTranslation:
+                case Mode::MvInv:
+                case Mode::Model:
                     break;
-                case ANIM_SCROLL:
-                case ANIM_HSTRIP:
-                case ANIM_VSTRIP:
+                case Mode::Scroll:
+                case Mode::HStrip:
+                case Mode::VStrip:
                     vals[0] = reader.readFloatBig();
                     vals[1] = reader.readFloatBig();
                     vals[2] = reader.readFloatBig();
                     vals[3] = reader.readFloatBig();
                     break;
-                case ANIM_ROTATION:
-                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                case Mode::Rotation:
+                case Mode::WhoMustNotBeNamed:
                     vals[0] = reader.readFloatBig();
                     vals[1] = reader.readFloatBig();
                     break;
-                case ANIM_MODE_8:
+                case Mode::Eight:
                     vals[0] = reader.readFloatBig();
                     vals[1] = reader.readFloatBig();
                     vals[2] = reader.readFloatBig();
@@ -316,27 +305,27 @@ struct MaterialSet : BigDNA
             }
             void write(Athena::io::IStreamWriter& writer) const
             {
-                writer.writeUint32Big(mode);
+                writer.writeUint32Big(atUint32(mode));
                 switch (mode)
                 {
-                case ANIM_MV_INV_NOTRANS:
-                case ANIM_MV_INV:
-                case ANIM_MODEL:
+                case Mode::MvInvNoTranslation:
+                case Mode::MvInv:
+                case Mode::Model:
                     break;
-                case ANIM_SCROLL:
-                case ANIM_HSTRIP:
-                case ANIM_VSTRIP:
+                case Mode::Scroll:
+                case Mode::HStrip:
+                case Mode::VStrip:
                     writer.writeFloatBig(vals[0]);
                     writer.writeFloatBig(vals[1]);
                     writer.writeFloatBig(vals[2]);
                     writer.writeFloatBig(vals[3]);
                     break;
-                case ANIM_ROTATION:
-                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                case Mode::Rotation:
+                case Mode::WhoMustNotBeNamed:
                     writer.writeFloatBig(vals[0]);
                     writer.writeFloatBig(vals[1]);
                     break;
-                case ANIM_MODE_8:
+                case Mode::Eight:
                     writer.writeFloatBig(vals[0]);
                     writer.writeFloatBig(vals[1]);
                     writer.writeFloatBig(vals[2]);
@@ -353,18 +342,18 @@ struct MaterialSet : BigDNA
             {
                 switch (mode)
                 {
-                case ANIM_MV_INV_NOTRANS:
-                case ANIM_MV_INV:
-                case ANIM_MODEL:
+                case Mode::MvInvNoTranslation:
+                case Mode::MvInv:
+                case Mode::Model:
                     return __isz + 4;
-                case ANIM_SCROLL:
-                case ANIM_HSTRIP:
-                case ANIM_VSTRIP:
+                case Mode::Scroll:
+                case Mode::HStrip:
+                case Mode::VStrip:
                     return __isz + 20;
-                case ANIM_ROTATION:
-                case ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+                case Mode::Rotation:
+                case Mode::WhoMustNotBeNamed:
                     return __isz + 12;
-                case ANIM_MODE_8:
+                case Mode::Eight:
                     return __isz + 40;
                 }
                 return __isz + 4;

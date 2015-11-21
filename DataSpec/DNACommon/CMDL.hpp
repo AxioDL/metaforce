@@ -159,7 +159,7 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
         const NOD::Node* node;
         const typename PAKRouter::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);
         HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-        if (txtrPath.getPathType() == HECL::ProjectPath::PT_NONE)
+        if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
         {
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
@@ -1259,9 +1259,9 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
 
     /* Surfaces */
     GX::Primitive prim;
-    if (mesh.topology == HECL::TopologyTriangles)
+    if (mesh.topology == HECL::HMDLTopology::Triangles)
         prim = GX::TRIANGLES;
-    else if (mesh.topology == HECL::TopologyTriStrips)
+    else if (mesh.topology == HECL::HMDLTopology::TriStrips)
         prim = GX::TRIANGLESTRIP;
     else
         LogDNACommon.report(LogVisor::FatalError, "unrecognized mesh output mode");

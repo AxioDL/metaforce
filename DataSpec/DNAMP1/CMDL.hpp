@@ -40,7 +40,7 @@ struct CMDL
 
         /* Do extract */
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeMesh))
+        if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Mesh))
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);
@@ -65,7 +65,7 @@ struct CMDL
         /* HMDL cook test */
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"), true);
         HECL::BlenderConnection::DataStream ds = conn.beginData();
-        DNACMDL::Mesh mesh = ds.compileMesh(HECL::TopologyTriStrips, 16);
+        DNACMDL::Mesh mesh = ds.compileMesh(HECL::HMDLTopology::TriStrips, 16);
         ds.close();
         DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
 #endif

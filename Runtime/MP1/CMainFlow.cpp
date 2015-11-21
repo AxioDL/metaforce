@@ -16,15 +16,15 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
 {
     switch (x14_gameState)
     {
-    case ClientFlowFrontEnd:
-        CMainFlow::SetGameState(ClientFlowGameLoad, queue);
+    case EClientFlowStates::FrontEnd:
+        CMainFlow::SetGameState(EClientFlowStates::GameLoad, queue);
         break;
-    case ClientFlowUnspecified:
-    case ClientFlowGameLoad:
-        CMainFlow::SetGameState(ClientFlowMoviePlay, queue);
+    case EClientFlowStates::Unspecified:
+    case EClientFlowStates::GameLoad:
+        CMainFlow::SetGameState(EClientFlowStates::MoviePlay, queue);
         break;
-    case ClientFlowMoviePlay:
-        CMainFlow::SetGameState(ClientFlowFrontEnd, queue);
+    case EClientFlowStates::MoviePlay:
+        CMainFlow::SetGameState(EClientFlowStates::FrontEnd, queue);
         break;
     }
 }
@@ -33,11 +33,11 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
 {
     switch (state)
     {
-    case ClientFlowFrontEnd:
+    case EClientFlowStates::FrontEnd:
     {
-        if (g_main->GetGameplayResult() == GameplayResultNone)
+        if (g_main->GetGameplayResult() == EGameplayResult::None)
         {
-            g_main->SetGameplayResult(GameplayResultPlaying);
+            g_main->SetGameplayResult(EGameplayResult::Playing);
             break;
         }
         CResLoader& loader = g_ResFactory->GetLoader();
@@ -45,23 +45,23 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
             loader.AsyncIdlePakLoading();
         g_main->LoadAudio();
         g_main->RegisterResourceTweaks();
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 12, 11, new CFrontEndUI(queue))));
+        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI(queue))));
         break;
     }
-    case ClientFlowGameLoad:
+    case EClientFlowStates::GameLoad:
     {
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 10, 1000, new CMFGameLoader())));
+        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000, new CMFGameLoader())));
         break;
     }
-    case ClientFlowMoviePlay:
+    case EClientFlowStates::MoviePlay:
     {
         switch (g_main->GetGameplayResult())
         {
-        case GameplayResultWin:
-            queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 12, 11, new CPlayMovie(CPlayMovie::MovieWinGame))));
+        case EGameplayResult::Win:
+            queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::WinGame))));
             break;
-        case GameplayResultLose:
-            queue.Push(std::move(MakeMsg::CreateCreateIOWin(TargetIOWinManager, 12, 11, new CPlayMovie(CPlayMovie::MovieLoseGame))));
+        case EGameplayResult::Lose:
+            queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::LoseGame))));
             break;
         default: break;
         }

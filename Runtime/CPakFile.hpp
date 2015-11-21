@@ -23,12 +23,12 @@ public:
     };
 private:
     bool x28_b24_ctFlag;
-    enum EAsyncPhase
+    enum class EAsyncPhase
     {
-        PakAsyncWarmup = 0,
-        PakAsyncInitialHeader = 1,
-        PakAsyncDataLoad = 2,
-        PakAsyncLoaded = 3
+        Warmup = 0,
+        InitialHeader = 1,
+        DataLoad = 2,
+        Loaded = 3
     } x2c_asyncLoadPhase;
     IDvdRequest* x34_dvdReq;
     std::vector<std::pair<std::string, SObjectTag>> x4c_nameList;
@@ -52,19 +52,19 @@ public:
     void Warmup() {}
     void AsyncIdle()
     {
-        if (x2c_asyncLoadPhase == PakAsyncLoaded)
+        if (x2c_asyncLoadPhase == EAsyncPhase::Loaded)
             return;
         if (x34_dvdReq && x34_dvdReq->IsComplete())
             return;
         switch (x2c_asyncLoadPhase)
         {
-        case PakAsyncWarmup:
+        case EAsyncPhase::Warmup:
             Warmup();
             break;
-        case PakAsyncInitialHeader:
+        case EAsyncPhase::InitialHeader:
             InitialHeaderLoad();
             break;
-        case PakAsyncDataLoad:
+        case EAsyncPhase::DataLoad:
             DataLoad();
             break;
         default: break;

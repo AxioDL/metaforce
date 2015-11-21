@@ -66,13 +66,13 @@ struct ANCS : BigYAML
                     {
                         DECL_YAML
                         Delete expl;
-                        enum DataType
+                        enum class DataType
                         {
-                            DTInt32 = 0,
-                            DTUInt32 = 1,
-                            DTFloat = 2,
-                            DTBool = 3,
-                            DTEnum = 4
+                            Int32 = 0,
+                            UInt32 = 1,
+                            Float = 2,
+                            Bool = 3,
+                            Enum = 4
                         };
                         union Parm
                         {
@@ -159,13 +159,13 @@ struct ANCS : BigYAML
         {
             Delete expl;
             virtual ~IMetaAnim() {}
-            enum Type
+            enum class Type
             {
-                MAPrimitive = 0,
-                MABlend = 1,
-                MAPhaseBlend = 2,
-                MARandom = 3,
-                MASequence = 4
+                Primitive = 0,
+                Blend = 1,
+                PhaseBlend = 2,
+                Random = 3,
+                Sequence = 4
             } m_type;
             const char* m_typeStr;
             IMetaAnim(Type type, const char* typeStr)
@@ -180,7 +180,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
-            MetaAnimPrimitive() : IMetaAnim(MAPrimitive, "Primitive") {}
+            MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
             DECL_YAML
             UniqueID32 animId;
             Value<atUint32> animIdx;
@@ -195,7 +195,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimBlend : IMetaAnim
         {
-            MetaAnimBlend() : IMetaAnim(MABlend, "Blend") {}
+            MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -210,7 +210,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimPhaseBlend : IMetaAnim
         {
-            MetaAnimPhaseBlend() : IMetaAnim(MAPhaseBlend, "PhaseBlend") {}
+            MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -225,7 +225,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimRandom : IMetaAnim
         {
-            MetaAnimRandom() : IMetaAnim(MARandom, "Random") {}
+            MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
             DECL_YAML
             Value<atUint32> animCount;
             struct Child : BigYAML
@@ -244,7 +244,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimSequence : IMetaAnim
         {
-            MetaAnimSequence() : IMetaAnim(MASequence, "Sequence") {}
+            MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
             DECL_YAML
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
@@ -268,12 +268,12 @@ struct ANCS : BigYAML
         {
             Delete expl;
             virtual ~IMetaTrans() {}
-            enum Type
+            enum class Type
             {
-                MTMetaAnim = 0,
-                MTTrans = 1,
-                MTPhaseTrans = 2,
-                MTNoTrans = 3,
+                MetaAnim = 0,
+                Trans = 1,
+                PhaseTrans = 2,
+                NoTrans = 3,
             } m_type;
             const char* m_typeStr;
             IMetaTrans(Type type, const char* typeStr)
@@ -287,13 +287,13 @@ struct ANCS : BigYAML
         };
         struct MetaTransMetaAnim : IMetaTrans
         {
-            MetaTransMetaAnim() : IMetaTrans(MTMetaAnim, "MetaAnim") {}
+            MetaTransMetaAnim() : IMetaTrans(Type::MetaAnim, "MetaAnim") {}
             DECL_YAML
             MetaAnimFactory anim;
         };
         struct MetaTransTrans : IMetaTrans
         {
-            MetaTransTrans() : IMetaTrans(MTTrans, "Trans") {}
+            MetaTransTrans() : IMetaTrans(Type::Trans, "Trans") {}
             DECL_YAML
             Value<float> time;
             Value<atUint32> unk1;
@@ -303,7 +303,7 @@ struct ANCS : BigYAML
         };
         struct MetaTransPhaseTrans : IMetaTrans
         {
-            MetaTransPhaseTrans() : IMetaTrans(MTPhaseTrans, "PhaseTrans") {}
+            MetaTransPhaseTrans() : IMetaTrans(Type::PhaseTrans, "PhaseTrans") {}
             DECL_YAML
             Value<float> time;
             Value<atUint32> unk1;
@@ -397,25 +397,25 @@ struct ANCS : BigYAML
                         std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
+        HECL::ProjectPath::Type yamlType = yamlPath.getPathType();
         HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        HECL::ProjectPath::PathType blendType = blendPath.getPathType();
+        HECL::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
-            yamlType == HECL::ProjectPath::PT_NONE ||
-            blendType == HECL::ProjectPath::PT_NONE)
+            yamlType == HECL::ProjectPath::Type::None ||
+            blendType == HECL::ProjectPath::Type::None)
         {
             ANCS ancs;
             ancs.read(rs);
 
-            if (force || yamlType == HECL::ProjectPath::PT_NONE)
+            if (force || yamlType == HECL::ProjectPath::Type::None)
             {
                 FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
                 ancs.toYAMLFile(fp);
                 fclose(fp);
             }
 
-            if (force || blendType == HECL::ProjectPath::PT_NONE)
+            if (force || blendType == HECL::ProjectPath::Type::None)
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>
@@ -432,7 +432,7 @@ struct ANCS : BigYAML
     {
         /* Search for yaml */
         HECL::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
-        if (yamlPath.getPathType() != HECL::ProjectPath::PT_FILE)
+        if (yamlPath.getPathType() != HECL::ProjectPath::Type::File)
             Log.report(LogVisor::FatalError, _S("'%s' not found as file"),
                        yamlPath.getRelativePath().c_str());
 

@@ -19,10 +19,10 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
 {
     /* Rename MAPA for consistency */
     HECL::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
-    if (!force && mapaPath.getPathType() == HECL::ProjectPath::PT_FILE)
+    if (!force && mapaPath.getPathType() == HECL::ProjectPath::Type::File)
         return true;
 
-    if (!conn.createBlend(mapaPath, HECL::BlenderConnection::TypeMapArea))
+    if (!conn.createBlend(mapaPath, HECL::BlenderConnection::BlendType::MapArea))
         return false;
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
@@ -177,7 +177,7 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
 
     /* World background */
     HECL::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
-    if (worldBlend.getPathType() == HECL::ProjectPath::PT_FILE)
+    if (worldBlend.getPathType() == HECL::ProjectPath::Type::File)
         os.linkBackground("//../!world.blend", "World");
 
     os.centerView();

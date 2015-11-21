@@ -7,12 +7,12 @@
 namespace Retro
 {
 
-enum ECollisionResponseType
+enum class ECollisionResponseType
 {
-    CR_Unknown12 = 0xC,
+    Unknown12 = 0xC,
 };
 
-enum EMaterialTypes
+enum class EMaterialTypes
 {
 };
 
@@ -24,7 +24,7 @@ class CWeaponMode;
 class CActor : public CEntity
 {
 protected:
-    enum Flags
+    enum class Flags
     {
         Unknown5 = (1 << 5),
         Unknown6 = (1 << 6),
@@ -55,7 +55,7 @@ public:
     virtual Zeus::CVector3f GetOrbitPosition()
     { return Zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
 
-    virtual ECollisionResponseType GetCollisionResponseType(const Zeus::CVector3f&, const Zeus::CVector3f&, CWeaponMode&, int) { return CR_Unknown12; }
+    virtual ECollisionResponseType GetCollisionResponseType(const Zeus::CVector3f&, const Zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){}
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){ }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&){ }

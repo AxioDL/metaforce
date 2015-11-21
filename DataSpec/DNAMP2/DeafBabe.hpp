@@ -20,7 +20,7 @@ struct DeafBabe : BigDNA
         bool fireThrough() const {return material >> 18 & 0x1;}
         void setFireThrough(bool v) {material &= ~0x40000; material |= v << 18;}
 
-        enum Type
+        enum class Type
         {
             Mat0,
             MatGround,
@@ -34,7 +34,7 @@ struct DeafBabe : BigDNA
             MatLeaves
         };
         Type type() const {return Type(material & 0xff);}
-        void setType(Type t) {material &= ~0xff; material |= t;}
+        void setType(Type t) {material &= ~0xff; material |= atUint64(t);}
     };
 
     using Edge = DNAMP1::DeafBabe::Edge;

@@ -77,7 +77,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::CurveRotate, c, rotKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::Rotate, c, rotKeys.size());
                 for (const DNAANIM::Value& val : rotKeys)
                     ao.write(*frameit++, val.v4.vec[c]);
             }
@@ -89,7 +89,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::CurveTranslate, c, transKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, transKeys.size());
                 for (const DNAANIM::Value& val : transKeys)
                     ao.write(*frameit++, val.v3.vec[c]);
             }
@@ -101,7 +101,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::CurveScale, c, scaleKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::Scale, c, scaleKeys.size());
                 for (const DNAANIM::Value& val : scaleKeys)
                     ao.write(*frameit++, val.v3.vec[c]);
             }
@@ -159,7 +159,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     channels.clear();
     chanKeys.clear();
     channels.emplace_back();
-    channels.back().type = DNAANIM::Channel::KF_HEAD;
+    channels.back().type = DNAANIM::Channel::Type::KfHead;
     chanKeys.emplace_back();
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
@@ -167,21 +167,21 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::ROTATION;
+            chan.type = DNAANIM::Channel::Type::Rotation;
             chanKeys.emplace_back();
         }
         if (std::get<1>(bone.second))
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::TRANSLATION;
+            chan.type = DNAANIM::Channel::Type::Translation;
             chanKeys.emplace_back();
         }
         if (std::get<2>(bone.second))
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::SCALE;
+            chan.type = DNAANIM::Channel::Type::Scale;
             chanKeys.emplace_back();
         }
     }
@@ -469,7 +469,7 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
     channels.clear();
     channels.reserve(boneChannelCount + 1);
     channels.emplace_back();
-    channels.back().type = DNAANIM::Channel::KF_HEAD;
+    channels.back().type = DNAANIM::Channel::Type::KfHead;
     auto initsIt = initBlock.begin();
     auto bitsIt = chanBitCounts.begin();
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
@@ -478,7 +478,7 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::ROTATION_MP3;
+            chan.type = DNAANIM::Channel::Type::RotationMP3;
             chan.i[0] = *initsIt++;
             chan.q[0] = *bitsIt++;
             chan.i[1] = *initsIt++;
@@ -493,7 +493,7 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::TRANSLATION;
+            chan.type = DNAANIM::Channel::Type::Translation;
             chan.i[0] = *initsIt++;
             chan.q[0] = *bitsIt++;
             chan.i[1] = *initsIt++;
@@ -506,7 +506,7 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::SCALE;
+            chan.type = DNAANIM::Channel::Type::Scale;
             chan.i[0] = *initsIt++;
             chan.q[0] = *bitsIt++;
             chan.i[1] = *initsIt++;

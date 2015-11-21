@@ -8,11 +8,11 @@ namespace Retro
 
 const char* DecodeARAMFile(const char* name);
 
-enum ESeekOrigin
+enum class ESeekOrigin
 {
-    OriginBegin = 0,
-    OriginCur = 1,
-    OriginEnd = 2
+    Begin = 0,
+    Cur = 1,
+    End = 2
 };
 
 struct DVDFileInfo;

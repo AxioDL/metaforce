@@ -44,13 +44,13 @@ struct QuantizedRot
 };
 struct Channel
 {
-    enum Type
+    enum class Type
     {
-        ROTATION,
-        TRANSLATION,
-        SCALE,
-        KF_HEAD,
-        ROTATION_MP3
+        Rotation,
+        Translation,
+        Scale,
+        KfHead,
+        RotationMP3
     } type;
     QuantizedValue i = {};
     atUint8 q[4] = {};

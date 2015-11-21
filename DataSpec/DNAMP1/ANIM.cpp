@@ -49,7 +49,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
         for (int c=0 ; c<4 ; ++c)
         {
             auto frameit = frames.begin();
-            ao.changeCurve(ANIMOutStream::CurveType::CurveRotate, c, rotKeys.size());
+            ao.changeCurve(ANIMOutStream::CurveType::Rotate, c, rotKeys.size());
             for (const DNAANIM::Value& val : rotKeys)
                 ao.write(*frameit++, val.v4.vec[c]);
         }
@@ -60,7 +60,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::CurveTranslate, c, transKeys.size());
+                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, transKeys.size());
                 for (const DNAANIM::Value& val : transKeys)
                     ao.write(*frameit++, val.v3.vec[c]);
             }
@@ -98,13 +98,13 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
         atUint8 idx = reader.readUByte();
         channels.emplace_back();
         DNAANIM::Channel& chan = channels.back();
-        chan.type = DNAANIM::Channel::ROTATION;
+        chan.type = DNAANIM::Channel::Type::Rotation;
         if (idx != 0xff)
         {
             bones.back().second = true;
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::TRANSLATION;
+            chan.type = DNAANIM::Channel::Type::Translation;
         }
     }
 
@@ -273,7 +273,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::ROTATION;
+            chan.type = DNAANIM::Channel::Type::Rotation;
             chan.i[0] = desc.initRX;
             chan.q[0] = desc.qRX;
             chan.i[1] = desc.initRY;
@@ -287,7 +287,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
         {
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::TRANSLATION;
+            chan.type = DNAANIM::Channel::Type::Translation;
             chan.i[0] = desc.initTX;
             chan.q[0] = desc.qTX;
             chan.i[1] = desc.initTY;

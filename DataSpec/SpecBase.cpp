@@ -84,7 +84,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
             NOD::Partition* data = m_disc->getDataPartition();
             const NOD::Node& root = data->getFSTRoot();
             for (const NOD::Node& child : root)
-                if (child.getKind() == NOD::Node::NODE_FILE)
+                if (child.getKind() == NOD::Node::Kind::File)
                     child.extractToDirectory(target, ctx);
             progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
@@ -101,7 +101,7 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.openBlend(path))
             return false;
-        if (conn.getBlendType() != HECL::BlenderConnection::TypeNone)
+        if (conn.getBlendType() != HECL::BlenderConnection::BlendType::None)
             return true;
     }
     else if (HECL::IsPathPNG(path))
@@ -129,19 +129,19 @@ void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& co
             return;
         switch (conn.getBlendType())
         {
-        case HECL::BlenderConnection::TypeMesh:
+        case HECL::BlenderConnection::BlendType::Mesh:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
             cookMesh(cookedPath, path, ds, fast, progress);
             break;
         }
-        case HECL::BlenderConnection::TypeActor:
+        case HECL::BlenderConnection::BlendType::Actor:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
             cookActor(cookedPath, path, ds, fast, progress);
             break;
         }
-        case HECL::BlenderConnection::TypeArea:
+        case HECL::BlenderConnection::BlendType::Area:
         {
             HECL::BlenderConnection::DataStream ds = conn.beginData();
             cookArea(cookedPath, path, ds, fast, progress);

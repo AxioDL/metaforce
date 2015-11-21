@@ -9,25 +9,25 @@ namespace Retro
 {
 class CIOWin;
 
-enum EArchMsgTarget
+enum class EArchMsgTarget
 {
-    TargetIOWinManager = 0,
-    TargetGame = 1
+    IOWinManager = 0,
+    Game = 1
 };
 
-enum EArchMsgType
+enum class EArchMsgType
 {
-    MsgRemoveIOWin = 0,
-    MsgCreateIOWin = 1,
-    MsgChangeIOWinPriority = 2,
-    MsgRemoveAllIOWins = 3,
-    MsgTimerTick = 4,
-    MsgUserInput = 5,
-    MsgSetGameState = 6,
-    MsgControllerStatus = 7,
-    MsgQuitGameplay = 8,
-    MsgUpdateBegin = 10,
-    MsgFrameBegin = 11,
+    RemoveIOWin = 0,
+    CreateIOWin = 1,
+    ChangeIOWinPriority = 2,
+    RemoveAllIOWins = 3,
+    TimerTick = 4,
+    UserInput = 5,
+    SetGameState = 6,
+    ControllerStatus = 7,
+    QuitGameplay = 8,
+    UpdateBegin = 10,
+    FrameBegin = 11,
 };
 
 struct IArchMsgParm
@@ -101,11 +101,11 @@ class MakeMsg
 public:
     static CArchitectureMessage CreateQuitGameplay(EArchMsgTarget target)
     {
-        return CArchitectureMessage(target, MsgQuitGameplay, new CArchMsgParmNull());
+        return CArchitectureMessage(target, EArchMsgType::QuitGameplay, new CArchMsgParmNull());
     }
     static CArchitectureMessage CreateControllerStatus(EArchMsgTarget target, u16 a, bool b)
     {
-        return CArchitectureMessage(target, MsgControllerStatus, new CArchMsgParmControllerStatus(a, b));
+        return CArchitectureMessage(target, EArchMsgType::ControllerStatus, new CArchMsgParmControllerStatus(a, b));
     }
     static const CArchMsgParmInt32& GetParmNewGameflowState(const CArchitectureMessage& msg)
     {
@@ -117,7 +117,7 @@ public:
     }
     static CArchitectureMessage CreateUserInput(EArchMsgTarget target, const CFinalInput& input)
     {
-        return CArchitectureMessage(target, MsgUserInput, new CArchMsgParmUserInput(input));
+        return CArchitectureMessage(target, EArchMsgType::UserInput, new CArchMsgParmUserInput(input));
     }
     static const CArchMsgParmReal32& GetParmTimerTick(const CArchitectureMessage& msg)
     {
@@ -125,7 +125,7 @@ public:
     }
     static CArchitectureMessage CreateTimerTick(EArchMsgTarget target, float val)
     {
-        return CArchitectureMessage(target, MsgTimerTick, new CArchMsgParmReal32(val));
+        return CArchitectureMessage(target, EArchMsgType::TimerTick, new CArchMsgParmReal32(val));
     }
     static const CArchMsgParmInt32Int32VoidPtr& GetParmChangeIOWinPriority(const CArchitectureMessage& msg)
     {
@@ -137,7 +137,7 @@ public:
     }
     static CArchitectureMessage CreateCreateIOWin(EArchMsgTarget target, int pmin, int pmax, CIOWin* iowin)
     {
-        return CArchitectureMessage(target, MsgCreateIOWin, new CArchMsgParmInt32Int32VoidPtr(pmin, pmax, iowin));
+        return CArchitectureMessage(target, EArchMsgType::CreateIOWin, new CArchMsgParmInt32Int32VoidPtr(pmin, pmax, iowin));
     }
     static const CArchMsgParmVoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg)
     {

@@ -14,18 +14,18 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
     {
         switch (chan.type)
         {
-        case Channel::ROTATION:
+        case Channel::Type::Rotation:
             bitsPerKeyFrame += 1;
-        case Channel::TRANSLATION:
-        case Channel::SCALE:
+        case Channel::Type::Translation:
+        case Channel::Type::Scale:
             bitsPerKeyFrame += chan.q[0];
             bitsPerKeyFrame += chan.q[1];
             bitsPerKeyFrame += chan.q[2];
             break;
-        case Channel::KF_HEAD:
+        case Channel::Type::KfHead:
             bitsPerKeyFrame += 1;
             break;
-        case Channel::ROTATION_MP3:
+        case Channel::Type::RotationMP3:
             bitsPerKeyFrame += chan.q[0];
             bitsPerKeyFrame += chan.q[1];
             bitsPerKeyFrame += chan.q[2];
@@ -153,27 +153,27 @@ BitstreamReader::read(const atUint8* data,
         keys.reserve(keyFrameCount);
         switch (chan.type)
         {
-        case Channel::ROTATION:
+        case Channel::Type::Rotation:
         {
             QuantizedRot qr = {{chan.i[0], chan.i[1], chan.i[2]}, false};
             keys.emplace_back(DequantizeRotation(qr, rotDiv));
             break;
         }
-        case Channel::TRANSLATION:
+        case Channel::Type::Translation:
         {
             keys.push_back({chan.i[0] * transMult, chan.i[1] * transMult, chan.i[2] * transMult});
             break;
         }
-        case Channel::SCALE:
+        case Channel::Type::Scale:
         {
             keys.push_back({chan.i[0] / float(rotDiv), chan.i[1] / float(rotDiv), chan.i[2] / float(rotDiv)});
             break;
         }
-        case Channel::KF_HEAD:
+        case Channel::Type::KfHead:
         {
             break;
         }
-        case Channel::ROTATION_MP3:
+        case Channel::Type::RotationMP3:
         {
             QuantizedRot qr = {{chan.i[1], chan.i[2], chan.i[3]}, bool(chan.i[0] & 0x1)};
             keys.emplace_back(DequantizeRotation_3(qr, rotDiv));
@@ -191,7 +191,7 @@ BitstreamReader::read(const atUint8* data,
             QuantizedValue& p = *ait;
             switch (chan.type)
             {
-            case Channel::ROTATION:
+            case Channel::Type::Rotation:
             {
                 bool wBit = dequantizeBit(data);
                 p[0] += dequantize(data, chan.q[0]);
@@ -201,7 +201,7 @@ BitstreamReader::read(const atUint8* data,
                 kit->emplace_back(DequantizeRotation(qr, rotDiv));
                 break;
             }
-            case Channel::TRANSLATION:
+            case Channel::Type::Translation:
             {
                 atInt16 val1 = dequantize(data, chan.q[0]);
                 p[0] += val1;
@@ -212,7 +212,7 @@ BitstreamReader::read(const atUint8* data,
                 kit->push_back({p[0] * transMult, p[1] * transMult, p[2] * transMult});
                 break;
             }
-            case Channel::SCALE:
+            case Channel::Type::Scale:
             {
                 p[0] += dequantize(data, chan.q[0]);
                 p[1] += dequantize(data, chan.q[1]);
@@ -220,12 +220,12 @@ BitstreamReader::read(const atUint8* data,
                 kit->push_back({p[0] / float(rotDiv), p[1] / float(rotDiv), p[2] / float(rotDiv)});
                 break;
             }
-            case Channel::KF_HEAD:
+            case Channel::Type::KfHead:
             {
                 bool aBit = dequantizeBit(data);
                 break;
             }
-            case Channel::ROTATION_MP3:
+            case Channel::Type::RotationMP3:
             {
                 atInt16 val1 = dequantize(data, chan.q[0]);
                 p[0] += val1;
@@ -301,7 +301,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     {
         switch (chan.type)
         {
-        case Channel::TRANSLATION:
+        case Channel::Type::Translation:
         {
             const Value* last = &(*kit)[0];
             for (auto it=kit->begin() + 1;
@@ -331,20 +331,20 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         chan.q[2] = 1;
         switch (chan.type)
         {
-        case Channel::ROTATION:
+        case Channel::Type::Rotation:
         {
             QuantizedRot qr = QuantizeRotation((*kit)[0], rotDivOut);
             chan.i = qr.v;
             break;
         }
-        case Channel::TRANSLATION:
+        case Channel::Type::Translation:
         {
             chan.i = {atInt16((*kit)[0].v3.vec[0] / transMultOut),
                       atInt16((*kit)[0].v3.vec[1] / transMultOut),
                       atInt16((*kit)[0].v3.vec[2] / transMultOut)};
             break;
         }
-        case Channel::SCALE:
+        case Channel::Type::Scale:
         {
             chan.i = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
                       atInt16((*kit)[0].v3.vec[1] * rotDivOut),
@@ -362,7 +362,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     {
         switch (chan.type)
         {
-        case Channel::ROTATION:
+        case Channel::Type::Rotation:
         {
             QuantizedRot qrLast = QuantizeRotation((*kit)[0], rotDivOut);
             for (auto it=kit->begin() + 1;
@@ -377,7 +377,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             break;
         }
-        case Channel::TRANSLATION:
+        case Channel::Type::Translation:
         {
             QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] / transMultOut),
                                    atInt16((*kit)[0].v3.vec[1] / transMultOut),
@@ -396,7 +396,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             break;
         }
-        case Channel::SCALE:
+        case Channel::Type::Scale:
         {
             QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
                                    atInt16((*kit)[0].v3.vec[1] * rotDivOut),
@@ -430,7 +430,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         {
             switch (chan.type)
             {
-            case Channel::ROTATION:
+            case Channel::Type::Rotation:
             {
                 QuantizedRot qrLast = QuantizeRotation((*kit)[0], rotDivOut);
                 for (auto it=kit->begin() + 1;
@@ -446,7 +446,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 }
                 break;
             }
-            case Channel::TRANSLATION:
+            case Channel::Type::Translation:
             {
                 QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] / transMultOut),
                                        atInt16((*kit)[0].v3.vec[1] / transMultOut),
@@ -465,7 +465,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 }
                 break;
             }
-            case Channel::SCALE:
+            case Channel::Type::Scale:
             {
                 QuantizedValue last = {atInt16((*kit)[0].v3.vec[0] * rotDivOut),
                                        atInt16((*kit)[0].v3.vec[1] * rotDivOut),

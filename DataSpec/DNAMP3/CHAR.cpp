@@ -84,23 +84,23 @@ void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::IStreamReader& reade
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
     {
-    case IMetaAnim::MAPrimitive:
+    case IMetaAnim::Type::Primitive:
         m_anim.reset(new struct MetaAnimPrimitive);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MABlend:
+    case IMetaAnim::Type::Blend:
         m_anim.reset(new struct MetaAnimBlend);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MAPhaseBlend:
+    case IMetaAnim::Type::PhaseBlend:
         m_anim.reset(new struct MetaAnimPhaseBlend);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MARandom:
+    case IMetaAnim::Type::Random:
         m_anim.reset(new struct MetaAnimRandom);
         m_anim->read(reader);
         break;
-    case IMetaAnim::MASequence:
+    case IMetaAnim::Type::Sequence:
         m_anim.reset(new struct MetaAnimSequence);
         m_anim->read(reader);
         break;
@@ -114,7 +114,7 @@ void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::IStreamWriter& writ
 {
     if (!m_anim)
         return;
-    writer.writeInt32Big(m_anim->m_type);
+    writer.writeInt32Big(atInt32(m_anim->m_type));
     m_anim->write(writer);
 }
 

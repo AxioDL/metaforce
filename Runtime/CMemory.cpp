@@ -75,9 +75,9 @@ void* operator new(std::size_t sz)
 {
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::HintNone,
-                                 Retro::IAllocator::ScopeDefault,
-                                 Retro::IAllocator::TypePrimitive,
+                                 Retro::IAllocator::EHint::None,
+                                 Retro::IAllocator::EScope::Default,
+                                 Retro::IAllocator::EType::Primitive,
                                  cs);
 }
 
@@ -86,9 +86,9 @@ void* operator new(std::size_t sz,
 {
     Retro::CCallStack cs(funcName, typeName);
     return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::HintNone,
-                                 Retro::IAllocator::ScopeDefault,
-                                 Retro::IAllocator::TypePrimitive,
+                                 Retro::IAllocator::EHint::None,
+                                 Retro::IAllocator::EScope::Default,
+                                 Retro::IAllocator::EType::Primitive,
                                  cs);
 }
 
@@ -101,9 +101,9 @@ void* operator new[](std::size_t sz)
 {
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::HintNone,
-                                 Retro::IAllocator::ScopeDefault,
-                                 Retro::IAllocator::TypeArray,
+                                 Retro::IAllocator::EHint::None,
+                                 Retro::IAllocator::EScope::Default,
+                                 Retro::IAllocator::EType::Array,
                                  cs);
 }
 
@@ -112,9 +112,9 @@ void* operator new[](std::size_t sz,
 {
     Retro::CCallStack cs(funcName, typeName);
     return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::HintNone,
-                                 Retro::IAllocator::ScopeDefault,
-                                 Retro::IAllocator::TypeArray,
+                                 Retro::IAllocator::EHint::None,
+                                 Retro::IAllocator::EScope::Default,
+                                 Retro::IAllocator::EType::Array,
                                  cs);
 }
 

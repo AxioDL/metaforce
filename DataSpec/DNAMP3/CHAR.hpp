@@ -131,13 +131,13 @@ struct CHAR : BigYAML
         {
             Delete expl;
             virtual ~IMetaAnim() {}
-            enum Type
+            enum class Type
             {
-                MAPrimitive = 0,
-                MABlend = 1,
-                MAPhaseBlend = 2,
-                MARandom = 3,
-                MASequence = 4
+                Primitive = 0,
+                Blend = 1,
+                PhaseBlend = 2,
+                Random = 3,
+                Sequence = 4
             } m_type;
             const char* m_typeStr;
             IMetaAnim(Type type, const char* typeStr)
@@ -152,7 +152,7 @@ struct CHAR : BigYAML
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
-            MetaAnimPrimitive() : IMetaAnim(MAPrimitive, "Primitive") {}
+            MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
             DECL_YAML
             UniqueID64 animId;
             Value<atUint32> animIdx;
@@ -167,7 +167,7 @@ struct CHAR : BigYAML
         };
         struct MetaAnimBlend : IMetaAnim
         {
-            MetaAnimBlend() : IMetaAnim(MABlend, "Blend") {}
+            MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -182,7 +182,7 @@ struct CHAR : BigYAML
         };
         struct MetaAnimPhaseBlend : IMetaAnim
         {
-            MetaAnimPhaseBlend() : IMetaAnim(MAPhaseBlend, "PhaseBlend") {}
+            MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -197,7 +197,7 @@ struct CHAR : BigYAML
         };
         struct MetaAnimRandom : IMetaAnim
         {
-            MetaAnimRandom() : IMetaAnim(MARandom, "Random") {}
+            MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
             DECL_YAML
             Value<atUint32> animCount;
             struct Child : BigYAML
@@ -216,7 +216,7 @@ struct CHAR : BigYAML
         };
         struct MetaAnimSequence : IMetaAnim
         {
-            MetaAnimSequence() : IMetaAnim(MASequence, "Sequence") {}
+            MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
             DECL_YAML
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
@@ -315,25 +315,25 @@ struct CHAR : BigYAML
                         std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        HECL::ProjectPath::PathType yamlType = yamlPath.getPathType();
+        HECL::ProjectPath::Type yamlType = yamlPath.getPathType();
         HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        HECL::ProjectPath::PathType blendType = blendPath.getPathType();
+        HECL::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
-            yamlType == HECL::ProjectPath::PT_NONE ||
-            blendType == HECL::ProjectPath::PT_NONE)
+            yamlType == HECL::ProjectPath::Type::None ||
+            blendType == HECL::ProjectPath::Type::None)
         {
             CHAR aChar;
             aChar.read(rs);
 
-            if (force || yamlType == HECL::ProjectPath::PT_NONE)
+            if (force || yamlType == HECL::ProjectPath::Type::None)
             {
                 FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
                 aChar.toYAMLFile(fp);
                 fclose(fp);
             }
 
-            if (force || blendType == HECL::ProjectPath::PT_NONE)
+            if (force || blendType == HECL::ProjectPath::Type::None)
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, CHAR, MaterialSet, DNACMDL::SurfaceHeader_3, 4>

@@ -23,16 +23,16 @@ class IRenderer
 public:
     typedef void(*TDrawableCallback)(const void*, const void*, int);
     typedef void(*TReflectionCallback)(void*, const CVector3f&);
-    enum EDrawableSorting
+    enum class EDrawableSorting
     {
     };
-    enum EDebugOption
+    enum class EDebugOption
     {
     };
-    enum EPrimitiveType
+    enum class EPrimitiveType
     {
     };
-    enum ERglFogMode
+    enum class ERglFogMode
     {
     };
 

@@ -66,7 +66,7 @@ void Material::AddTextureAnim(Stream& out,
 {
     switch (type)
     {
-    case UVAnimation::ANIM_MV_INV_NOTRANS:
+    case UVAnimation::Mode::MvInvNoTranslation:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -81,7 +81,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case UVAnimation::ANIM_MV_INV:
+    case UVAnimation::Mode::MvInv:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -96,7 +96,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case UVAnimation::ANIM_SCROLL:
+    case UVAnimation::Mode::Scroll:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -113,7 +113,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[2], vals[3]);
         break;
-    case UVAnimation::ANIM_ROTATION:
+    case UVAnimation::Mode::Rotation:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -130,7 +130,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1]);
         break;
-    case UVAnimation::ANIM_HSTRIP:
+    case UVAnimation::Mode::HStrip:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -149,7 +149,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[2], vals[3]);
         break;
-    case UVAnimation::ANIM_VSTRIP:
+    case UVAnimation::Mode::VStrip:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -168,7 +168,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1], vals[2], vals[3]);
         break;
-    case UVAnimation::ANIM_MODEL:
+    case UVAnimation::Mode::Model:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -183,7 +183,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case UVAnimation::ANIM_MODE_WHO_MUST_NOT_BE_NAMED:
+    case UVAnimation::Mode::WhoMustNotBeNamed:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -200,7 +200,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx, vals[0], vals[1]);
         break;
-    case UVAnimation::ANIM_MODE_8:
+    case UVAnimation::Mode::Eight:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -283,23 +283,23 @@ void Material::AddDynamicAlpha(Stream& out, unsigned idx)
 }
 
 
-enum CombinerType
+enum class Combiner
 {
-    COMB_ADD,
-    COMB_SUB,
-    COMB_MULT
+    Add,
+    Sub,
+    Mult
 };
-static void AddColorCombiner(Stream& out, CombinerType type,
+static void AddColorCombiner(Stream& out, Combiner type,
                              const char* a, const char* b, const char* v)
 {
     out << "combiner_node = new_nodetree.nodes.new('ShaderNodeMixRGB')\n"
            "combiner_node.inputs[0].default_value = 1.0\n"
            "gridder.place_node_right(combiner_node, 2, 0)\n";
-    if (type == COMB_ADD)
+    if (type == Combiner::Add)
         out << "combiner_node.blend_type = 'ADD'\n";
-    else if (type == COMB_SUB)
+    else if (type == Combiner::Sub)
         out << "combiner_node.blend_type = 'SUBTRACT'\n";
-    else if (type == COMB_MULT)
+    else if (type == Combiner::Mult)
         out << "combiner_node.blend_type = 'MULTIPLY'\n";
 
     if (a)
@@ -366,16 +366,16 @@ static void AddColorCombiner(Stream& out, CombinerType type,
     out << "color_combiner_sockets.append(combiner_node.outputs['Color'])\n\n";
 }
 
-static void AddAlphaCombiner(Stream& out, enum CombinerType type,
+static void AddAlphaCombiner(Stream& out, Combiner type,
                              const char* a, const char* b, const char* v)
 {
     out << "combiner_node = new_nodetree.nodes.new('ShaderNodeMath')\n"
            "gridder.place_node_right(combiner_node, 2, 1)\n";
-    if (type == COMB_ADD)
+    if (type == Combiner::Add)
         out << "combiner_node.operation = 'ADD'\n";
-    else if (type == COMB_SUB)
+    else if (type == Combiner::Sub)
         out << "combiner_node.operation = 'SUBTRACT'\n";
-    else if (type == COMB_MULT)
+    else if (type == Combiner::Mult)
         out << "combiner_node.operation = 'MULTIPLY'\n";
 
     if (a)
@@ -578,7 +578,7 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         stage.colorInD() != GX::CC_ZERO)
     {
         c_tev_opts |= 0x1f;
-        AddColorCombiner(out, COMB_ADD, cd, ca, nullptr);
+        AddColorCombiner(out, Combiner::Add, cd, ca, nullptr);
         ++c_combiner_idx;
     }
     else if (stage.colorInA() != GX::CC_ZERO &&
@@ -599,11 +599,11 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(c_tev_opts & 1))
     {
         /* A nodes */
-        AddColorCombiner(out, COMB_SUB, "ONE", ca, nullptr);
+        AddColorCombiner(out, Combiner::Sub, "ONE", ca, nullptr);
         ++c_combiner_idx;
         if (strcmp(cc, "ONE"))
         {
-            AddColorCombiner(out, COMB_MULT, cc, "color_combiner_sockets[-1]", nullptr);
+            AddColorCombiner(out, Combiner::Mult, cc, "color_combiner_sockets[-1]", nullptr);
             ++c_combiner_idx;
         }
     }
@@ -629,7 +629,7 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         }
         else
         {
-            AddColorCombiner(out, COMB_MULT, cc, cb, nullptr);
+            AddColorCombiner(out, Combiner::Mult, cc, cb, nullptr);
             ++c_combiner_idx;
         }
     }
@@ -637,14 +637,14 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(c_tev_opts & 4))
     {
         /* A+B node */
-        AddColorCombiner(out, COMB_ADD, c_soc_log[0], c_soc_log[1], nullptr);
+        AddColorCombiner(out, Combiner::Add, c_soc_log[0], c_soc_log[1], nullptr);
         ++c_combiner_idx;
     }
 
     if (!(c_tev_opts & 8))
     {
         /* +D node */
-        AddColorCombiner(out, COMB_ADD, cd, c_soc_log[0], nullptr);
+        AddColorCombiner(out, Combiner::Add, cd, c_soc_log[0], nullptr);
         ++c_combiner_idx;
     }
 
@@ -666,7 +666,7 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         stage.alphaInD() != GX::CA_ZERO)
     {
         a_tev_opts |= 0x1f;
-        AddAlphaCombiner(out, COMB_ADD, ad, aa, nullptr);
+        AddAlphaCombiner(out, Combiner::Add, ad, aa, nullptr);
         ++a_combiner_idx;
     }
     else if (stage.alphaInA() != GX::CA_ZERO &&
@@ -687,11 +687,11 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(a_tev_opts & 1))
     {
         /* A nodes */
-        AddAlphaCombiner(out, COMB_SUB, "ONE", aa, nullptr);
+        AddAlphaCombiner(out, Combiner::Sub, "ONE", aa, nullptr);
         ++a_combiner_idx;
         if (strcmp(ac, "ONE"))
         {
-            AddAlphaCombiner(out, COMB_MULT, ac, "alpha_combiner_sockets[-1]", nullptr);
+            AddAlphaCombiner(out, Combiner::Mult, ac, "alpha_combiner_sockets[-1]", nullptr);
             ++a_combiner_idx;
         }
     }
@@ -717,7 +717,7 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
         }
         else
         {
-            AddAlphaCombiner(out, COMB_MULT, ac, ab, nullptr);
+            AddAlphaCombiner(out, Combiner::Mult, ac, ab, nullptr);
             ++a_combiner_idx;
         }
     }
@@ -725,14 +725,14 @@ static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stag
     if (!(a_tev_opts & 4))
     {
         /* A+B node */
-        AddAlphaCombiner(out, COMB_ADD, a_soc_log[0], a_soc_log[1], nullptr);
+        AddAlphaCombiner(out, Combiner::Add, a_soc_log[0], a_soc_log[1], nullptr);
         ++a_combiner_idx;
     }
 
     if (!(a_tev_opts & 8))
     {
         /* +D node */
-        AddAlphaCombiner(out, COMB_ADD, ad, a_soc_log[0], nullptr);
+        AddAlphaCombiner(out, Combiner::Add, ad, a_soc_log[0], nullptr);
         ++a_combiner_idx;
     }
 
@@ -829,9 +829,9 @@ void _ConstructMaterial(Stream& out,
 
     /* Blend factors */
     using BlendFactor = Material::BlendFactor;
-    if (material.blendDstFac != BlendFactor::GX_BL_ZERO)
+    if (material.blendDstFac != BlendFactor::BL_ZERO)
     {
-        if (material.blendDstFac == BlendFactor::GX_BL_ONE)
+        if (material.blendDstFac == BlendFactor::BL_ONE)
             out << "new_material.game_settings.alpha_blend = 'ADD'\n"
                    "new_material.use_transparency = True\n"
                    "new_material.transparency_method = 'RAYTRACE'\n"
@@ -1212,13 +1212,13 @@ HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
     uvAnimsCount = 0;
     for (const HECL::Frontend::IR::Instruction& inst : heclIr.m_instructions)
     {
-        if (inst.m_op != HECL::Frontend::IR::OpCall)
+        if (inst.m_op != HECL::Frontend::IR::OpType::Call)
             continue;
         if (inst.m_call.m_name.compare("Texture"))
             continue;
 
         const HECL::Frontend::IR::Instruction& sourceInst = inst.getChildInst(heclIr, 1);
-        if (sourceInst.m_op != HECL::Frontend::IR::OpCall)
+        if (sourceInst.m_op != HECL::Frontend::IR::OpType::Call)
             continue;
         if (sourceInst.m_call.m_name.compare(0, 11, "RetroUVMode"))
             continue;
@@ -1241,12 +1241,12 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
                                                 const std::vector<atVec4f>& gameArgs)
 {
     if (!gameFunction.compare("RetroUVMode0Node"))
-        mode = ANIM_MV_INV_NOTRANS;
+        mode = Mode::MvInvNoTranslation;
     else if (!gameFunction.compare("RetroUVMode1Node"))
-        mode = ANIM_MV_INV;
+        mode = Mode::MvInv;
     else if (!gameFunction.compare("RetroUVMode2Node"))
     {
-        mode = ANIM_SCROLL;
+        mode = Mode::Scroll;
         if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode2 UV anim requires 2 vector arguments");
         vals[0] = gameArgs[0].vec[0];
@@ -1256,7 +1256,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     }
     else if (!gameFunction.compare("RetroUVMode3Node"))
     {
-        mode = ANIM_ROTATION;
+        mode = Mode::Rotation;
         if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode3 UV anim requires 2 arguments");
         vals[0] = gameArgs[0].vec[0];
@@ -1264,7 +1264,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     }
     else if (!gameFunction.compare("RetroUVMode4Node"))
     {
-        mode = ANIM_HSTRIP;
+        mode = Mode::HStrip;
         if (gameArgs.size() < 4)
             Log.report(LogVisor::FatalError, "Mode4 UV anim requires 4 arguments");
         vals[0] = gameArgs[0].vec[0];
@@ -1274,7 +1274,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     }
     else if (!gameFunction.compare("RetroUVMode5Node"))
     {
-        mode = ANIM_VSTRIP;
+        mode = Mode::VStrip;
         if (gameArgs.size() < 4)
             Log.report(LogVisor::FatalError, "Mode5 UV anim requires 4 arguments");
         vals[0] = gameArgs[0].vec[0];
@@ -1283,10 +1283,10 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
         vals[3] = gameArgs[3].vec[0];
     }
     else if (!gameFunction.compare("RetroUVMode6Node"))
-        mode = ANIM_MODEL;
+        mode = Mode::Model;
     else if (!gameFunction.compare("RetroUVMode7Node"))
     {
-        mode = ANIM_MODE_WHO_MUST_NOT_BE_NAMED;
+        mode = Mode::WhoMustNotBeNamed;
         if (gameArgs.size() < 2)
             Log.report(LogVisor::FatalError, "Mode7 UV anim requires 2 arguments");
         vals[0] = gameArgs[0].vec[0];

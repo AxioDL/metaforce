@@ -21,7 +21,7 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
 {
     /* Rename MLVL for consistency */
     HECL::ProjectPath mlvlPath(outPath.getParentPath(), _S("!world.blend"));
-    if (!force && mlvlPath.getPathType() == HECL::ProjectPath::PT_FILE)
+    if (!force && mlvlPath.getPathType() == HECL::ProjectPath::Type::File)
         return true;
 
     /* Link Skybox CMDL */
@@ -33,7 +33,7 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
     }
 
     /* Create World Blend */
-    if (!conn.createBlend(mlvlPath, HECL::BlenderConnection::TypeWorld))
+    if (!conn.createBlend(mlvlPath, HECL::BlenderConnection::BlendType::World))
         return false;
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"

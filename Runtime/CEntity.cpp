@@ -11,30 +11,30 @@ void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateM
 {
     switch (msg)
     {
-    case MsgActivate:
+    case EScriptObjectMessage::Activate:
         if (!GetActive())
         {
             SetActive(true);
-            SendScriptMsgs(StActive, stateMgr, MsgNone);
+            SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
         }
         break;
-    case MsgDeactivate:
+    case EScriptObjectMessage::Deactivate:
         if (GetActive())
         {
             SetActive(false);
-            SendScriptMsgs(StInactive, stateMgr, MsgNone);
+            SendScriptMsgs(EScriptObjectState::Inactive, stateMgr, EScriptObjectMessage::None);
         }
         break;
-    case MsgToggleActive:
+    case EScriptObjectMessage::ToggleActive:
         if (GetActive())
         {
             SetActive(false);
-            SendScriptMsgs(StInactive, stateMgr, MsgNone);
+            SendScriptMsgs(EScriptObjectState::Inactive, stateMgr, EScriptObjectMessage::None);
         }
         else
         {
             SetActive(true);
-            SendScriptMsgs(StActive, stateMgr, MsgNone);
+            SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
         }
         break;
     default: break;

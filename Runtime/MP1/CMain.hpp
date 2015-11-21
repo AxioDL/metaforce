@@ -14,12 +14,12 @@ class CStopwatch;
 namespace MP1
 {
 
-enum EGameplayResult
+enum class EGameplayResult
 {
-    GameplayResultNone,
-    GameplayResultWin,
-    GameplayResultLose,
-    GameplayResultPlaying
+    None,
+    Win,
+    Lose,
+    Playing
 };
 
 class WindowCallback : public boo::IWindowCallback

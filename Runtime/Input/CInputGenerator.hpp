@@ -12,11 +12,11 @@ class CArchitectureQueue;
 
 class CInputGenerator : public boo::DeviceFinder
 {
-    enum EStatusChange
+    enum class EStatusChange
     {
-        StatusNoChange = 0,
-        StatusConnected = 1,
-        StatusDisconnected = 2
+        NoChange = 0,
+        Connected = 1,
+        Disconnected = 2
     };
 
     /* When the sticks are used as logical (digital) input,
@@ -41,11 +41,11 @@ public:
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
         {
-            m_data.m_mouseButtons[button] = true;
+            m_data.m_mouseButtons[int(button)] = true;
         }
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
         {
-            m_data.m_mouseButtons[button] = false;
+            m_data.m_mouseButtons[int(button)] = false;
         }
         void mouseMove(const boo::SWindowCoord& coord)
         {
@@ -72,19 +72,19 @@ public:
         }
         void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool)
         {
-            m_data.m_specialKeys[key] = true;
+            m_data.m_specialKeys[int(key)] = true;
         }
         void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey)
         {
-            m_data.m_specialKeys[key] = false;
+            m_data.m_specialKeys[int(key)] = false;
         }
         void modKeyDown(boo::EModifierKey mod, bool)
         {
-            m_data.m_modMask = boo::EModifierKey(m_data.m_modMask | mod);
+            m_data.m_modMask = m_data.m_modMask | mod;
         }
         void modKeyUp(boo::EModifierKey mod)
         {
-            m_data.m_modMask = boo::EModifierKey(m_data.m_modMask & ~mod);
+            m_data.m_modMask = m_data.m_modMask & ~mod;
         }
 
         void reset()
@@ -112,13 +112,13 @@ public:
         void controllerConnected(unsigned idx, boo::EDolphinControllerType)
         {
             /* Controller thread */
-            m_statusChanges[idx].store(StatusConnected);
+            m_statusChanges[idx].store(EStatusChange::Connected);
         }
         void controllerDisconnected(unsigned idx, boo::EDolphinControllerType)
         {
             /* Controller thread */
             std::unique_lock<std::mutex> lk(m_stateLock);
-            m_statusChanges[idx].store(StatusDisconnected);
+            m_statusChanges[idx].store(EStatusChange::Disconnected);
             m_states[idx].reset();
         }
         void controllerUpdate(unsigned idx, boo::EDolphinControllerType,
@@ -144,10 +144,10 @@ public:
         EStatusChange getStatusChange(unsigned idx, bool& connected)
         {
             /* Game thread */
-            EStatusChange ch = m_statusChanges[idx].exchange(StatusNoChange);
-            if (ch == StatusConnected)
+            EStatusChange ch = m_statusChanges[idx].exchange(EStatusChange::NoChange);
+            if (ch == EStatusChange::Connected)
                 m_connected[idx] = true;
-            else if (ch == StatusDisconnected)
+            else if (ch == EStatusChange::Disconnected)
                 m_connected[idx] = false;
             connected = m_connected[idx];
             return ch;

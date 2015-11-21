@@ -40,12 +40,12 @@ CInputStream* CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, int off
     {
         CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
         buf = CMemory::Alloc(length,
-                             IAllocator::HintLarge,
-                             IAllocator::ScopeDefault,
-                             IAllocator::TypePrimitive,
+                             IAllocator::EHint::Large,
+                             IAllocator::EScope::Default,
+                             IAllocator::EType::Primitive,
                              cs);
     }
-    file->SyncSeekRead(buf, length, OriginBegin, x50_cachedResInfo->x4_offset + offset);
+    file->SyncSeekRead(buf, length, ESeekOrigin::Begin, x50_cachedResInfo->x4_offset + offset);
     return new CMemoryInStream((atUint8*)buf, length, !extBuf);
 }
 
@@ -54,11 +54,11 @@ void CResLoader::LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* 
     CPakFile* file = FindResourceForLoad(tag);
     CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
     void* buf = CMemory::Alloc(x50_cachedResInfo->x8_size,
-                               IAllocator::HintLarge,
-                               IAllocator::ScopeDefault,
-                               IAllocator::TypePrimitive,
+                               IAllocator::EHint::Large,
+                               IAllocator::EScope::Default,
+                               IAllocator::EType::Primitive,
                                cs);
-    file->SyncSeekRead(buf, x50_cachedResInfo->x8_size, OriginBegin,
+    file->SyncSeekRead(buf, x50_cachedResInfo->x8_size, ESeekOrigin::Begin,
                        x50_cachedResInfo->x4_offset);
     *bufOut = buf;
     *sizeOut = x50_cachedResInfo->x8_size;
@@ -85,12 +85,12 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
     {
         CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
         buf = CMemory::Alloc(resSz,
-                             IAllocator::HintLarge,
-                             IAllocator::ScopeDefault,
-                             IAllocator::TypePrimitive,
+                             IAllocator::EHint::Large,
+                             IAllocator::EScope::Default,
+                             IAllocator::EType::Primitive,
                              cs);
     }
-    file->SyncSeekRead(buf, resSz, OriginBegin, x50_cachedResInfo->x4_offset);
+    file->SyncSeekRead(buf, resSz, ESeekOrigin::Begin, x50_cachedResInfo->x4_offset);
     CInputStream* newStrm = new CMemoryInStream((atUint8*)buf, resSz, !extBuf);
     if (x50_cachedResInfo->xb_compressed)
     {
@@ -103,13 +103,13 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
 IDvdRequest* CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
-                                                      OriginBegin, x50_cachedResInfo->x4_offset + offset);
+                                                      ESeekOrigin::Begin, x50_cachedResInfo->x4_offset + offset);
 }
 
 IDvdRequest* CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->x8_size),
-                                                      OriginBegin, x50_cachedResInfo->x4_offset);
+                                                      ESeekOrigin::Begin, x50_cachedResInfo->x4_offset);
 }
 
 bool CResLoader::GetResourceCompression(const SObjectTag& tag)
@@ -161,7 +161,7 @@ void CResLoader::AsyncIdlePakLoading()
          ++it)
     {
         (*it)->AsyncIdle();
-        if ((*it)->x2c_asyncLoadPhase == CPakFile::PakAsyncLoaded)
+        if ((*it)->x2c_asyncLoadPhase == CPakFile::EAsyncPhase::Loaded)
         {
             MoveToCorrectLoadedList(std::move(*it));
             it = x34_pakLoadingList.erase(it);

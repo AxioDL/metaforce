@@ -128,7 +128,7 @@ CMain::CMain()
 : x6c_memSys(CMemorySys::GetGameAllocator())
 {
     g_main = this;
-    xe4_gameplayResult = GameplayResultPlaying;
+    xe4_gameplayResult = EGameplayResult::Playing;
 }
 void CMain::RegisterResourceTweaks()
 {
@@ -217,7 +217,7 @@ int main(int argc, const char* argv[])
 
     LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
-    int ret = boo::ApplicationRun(boo::IApplication::PLAT_AUTO, *main,
+    int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,
                                   _S("mp1"), _S("MP1"), argc, argv);
     return ret;
 }

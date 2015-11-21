@@ -52,9 +52,9 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         if (cmdlE)
         {
             HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-            if (force || cmdlPath.getPathType() == HECL::ProjectPath::PT_NONE)
+            if (force || cmdlPath.getPathType() == HECL::ProjectPath::Type::None)
             {
-                if (!conn.createBlend(cmdlPath, HECL::BlenderConnection::TypeMesh))
+                if (!conn.createBlend(cmdlPath, HECL::BlenderConnection::BlendType::Mesh))
                     return false;
 
                 HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(*cmdlE));
@@ -80,7 +80,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     fileChanged(bestNameView.sys_str().c_str());
 
     /* Establish ANCS blend */
-    if (!conn.createBlend(outPath, HECL::BlenderConnection::TypeActor))
+    if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Actor))
         return false;
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 

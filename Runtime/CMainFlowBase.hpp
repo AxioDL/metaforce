@@ -6,12 +6,12 @@
 namespace Retro
 {
 
-enum EClientFlowStates
+enum class EClientFlowStates
 {
-    ClientFlowUnspecified = -1,
-    ClientFlowFrontEnd = 7,
-    ClientFlowGameLoad = 13,
-    ClientFlowMoviePlay = 14
+    Unspecified = -1,
+    FrontEnd = 7,
+    GameLoad = 13,
+    MoviePlay = 14
 };
 
 class CMainFlowBase : public CIOWin

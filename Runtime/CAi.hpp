@@ -13,11 +13,11 @@ namespace Retro
 {
 
 /* TODO: Figure out what all this is for and move it somewhere appropriate */
-enum EStateMsg
+enum class EStateMsg
 {
 };
 
-enum EListenNoiseType
+enum class EListenNoiseType
 {
 };
 

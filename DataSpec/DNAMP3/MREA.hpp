@@ -80,20 +80,20 @@ struct MREA
     struct BabeDeadLight : BigDNA
     {
         DECL_DNA
-        enum LightType : atUint32
+        enum class LightType : atUint32
         {
-            LightLocalAmbient,
-            LightDirectional,
-            LightCustom,
-            LightSpot,
-            LightSpot2,
-            LightLocalAmbient2
+            LocalAmbient,
+            Directional,
+            Custom,
+            Spot,
+            Spot2,
+            LocalAmbient2
         };
-        enum Falloff : atUint32
+        enum class Falloff : atUint32
         {
-            FalloffConstant,
-            FalloffLinear,
-            FalloffQuadratic
+            Constant,
+            Linear,
+            Quadratic
         };
         Value<LightType> lightType;
         Value<atVec4f> color;

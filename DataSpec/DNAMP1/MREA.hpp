@@ -38,19 +38,19 @@ struct MREA
         {
             DECL_DNA
             Value<atUint32> flags;
-            enum ThermalLevel
+            enum class ThermalLevel
             {
-                ThermalCool,
-                ThermalHot,
-                ThermalWarm
+                Cool,
+                Hot,
+                Warm
             };
             static const char* GetThermalLevelStr(ThermalLevel t)
             {
                 switch (t)
                 {
-                case ThermalCool: return "COOL";
-                case ThermalHot: return "HOT";
-                case ThermalWarm: return "WARM";
+                case ThermalLevel::Cool: return "COOL";
+                case ThermalLevel::Hot: return "HOT";
+                case ThermalLevel::Warm: return "WARM";
                 default: break;
                 }
                 return nullptr;
@@ -62,7 +62,7 @@ struct MREA
             bool disableXray() const {return flags >> 3 & 0x1;}
             void setDisableXray(bool v) {flags &= ~0x8; flags |= v << 3;}
             ThermalLevel thermalLevel() const {return ThermalLevel(flags >> 4 & 0x3);}
-            void setThermalLevel(ThermalLevel v) {flags &= ~0x30; flags |= v << 4;}
+            void setThermalLevel(ThermalLevel v) {flags &= ~0x30; flags |= atUint32(v) << 4;}
             const char* thermalLevelStr() const {return GetThermalLevelStr(thermalLevel());}
         } visorFlags;
         Value<atVec4f> xfMtx[3];
@@ -72,20 +72,20 @@ struct MREA
     struct BabeDeadLight : BigDNA
     {
         DECL_DNA
-        enum LightType : atUint32
+        enum class LightType : atUint32
         {
-            LightLocalAmbient,
-            LightDirectional,
-            LightCustom,
-            LightSpot,
-            LightSpot2,
-            LightLocalAmbient2
+            LocalAmbient,
+            Directional,
+            Custom,
+            Spot,
+            Spot2,
+            LocalAmbient2
         };
-        enum Falloff : atUint32
+        enum class Falloff : atUint32
         {
-            FalloffConstant,
-            FalloffLinear,
-            FalloffQuadratic
+            Constant,
+            Linear,
+            Quadratic
         };
         Value<LightType> lightType;
         Value<atVec3f> color;

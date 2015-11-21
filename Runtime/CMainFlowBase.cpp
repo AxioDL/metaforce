@@ -8,19 +8,19 @@ CIOWin::EMessageReturn CMainFlowBase::OnMessage(const CArchitectureMessage& msg,
 {
     switch (msg.GetType())
     {
-    case MsgTimerTick:
+    case EArchMsgType::TimerTick:
         AdvanceGameState(queue);
         break;
-    case MsgSetGameState:
+    case EArchMsgType::SetGameState:
     {
         const CArchMsgParmInt32& state = MakeMsg::GetParmNewGameflowState(msg);
         x14_gameState = EClientFlowStates(state.x4_parm);
         SetGameState(x14_gameState, queue);
-        return MsgRetExit;
+        return EMessageReturn::Exit;
     }
     default: break;
     }
-    return MsgRetNormal;
+    return EMessageReturn::Normal;
 }
 
 }

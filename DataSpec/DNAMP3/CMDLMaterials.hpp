@@ -57,7 +57,7 @@ struct MaterialSet : BigDNA
         struct ISection : BigDNA
         {
             Delete expl;
-            enum Type
+            enum class Type : atUint32
             {
                 PASS = SBIG('PASS'),
                 CLR = SBIG('CLR '),
@@ -75,10 +75,10 @@ struct MaterialSet : BigDNA
         };
         struct SectionPASS : ISection
         {
-            SectionPASS() : ISection(ISection::PASS) {}
+            SectionPASS() : ISection(ISection::Type::PASS) {}
             DECL_DNA
             Value<atUint32> size;
-            enum Subtype
+            enum class Subtype : atUint32
             {
                 DIFF = SBIG('DIFF'),
                 RIML = SBIG('RIML'),
@@ -126,9 +126,9 @@ struct MaterialSet : BigDNA
         };
         struct SectionCLR : ISection
         {
-            SectionCLR() : ISection(ISection::CLR) {}
+            SectionCLR() : ISection(ISection::Type::CLR) {}
             DECL_DNA
-            enum Subtype
+            enum class Subtype : atUint32
             {
                 CLR = SBIG('CLR '),
                 DIFB = SBIG('DIFB')
@@ -147,9 +147,9 @@ struct MaterialSet : BigDNA
         };
         struct SectionINT : ISection
         {
-            SectionINT() : ISection(ISection::INT) {}
+            SectionINT() : ISection(ISection::Type::INT) {}
             DECL_DNA
-            enum Subtype
+            enum class Subtype : atUint32
             {
                 OPAC = SBIG('OPAC'),
                 BLOD = SBIG('BLOD'),
@@ -177,17 +177,17 @@ struct MaterialSet : BigDNA
             {
                 DNAFourCC type;
                 type.read(reader);
-                switch (type)
+                switch (ISection::Type(type.toUint32()))
                 {
-                case ISection::PASS:
+                case ISection::Type::PASS:
                     section.reset(new struct SectionPASS);
                     section->read(reader);
                     break;
-                case ISection::CLR:
+                case ISection::Type::CLR:
                     section.reset(new struct SectionCLR);
                     section->read(reader);
                     break;
-                case ISection::INT:
+                case ISection::Type::INT:
                     section.reset(new struct SectionINT);
                     section->read(reader);
                     break;

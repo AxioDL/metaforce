@@ -15,7 +15,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 include_directories(/usr/local/include)
 endif()
 
-set(BOO_INCLUDE_DIR hecl/extern/libBoo/include)
+set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/libBoo/include)
+set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
+                     ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)
 
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
@@ -31,6 +33,8 @@ set(HECL_DATASPEC_PUSHES
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP2);
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);")
 add_subdirectory(hecl)
+add_subdirectory(libSpecter)
+set(SPECTER_INCLUDE_DIR libSpecter/include)
 add_subdirectory(NODLib)
 set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_definitions(-DZE_ATHENA_TYPES=1)
@@ -38,9 +42,10 @@ add_subdirectory(MathLib)
 set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR})
+                    ${SPECTER_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 #disable Runtime on FreeBSD for now
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+add_subdirectory(Editor)
 add_subdirectory(Runtime)
 endif()

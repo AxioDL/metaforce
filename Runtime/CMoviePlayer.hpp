@@ -11,7 +11,7 @@ class CVector3f;
 class CMoviePlayer : public CDvdFile
 {
 public:
-    enum EPlayMode
+    enum class EPlayMode
     {
     };
 

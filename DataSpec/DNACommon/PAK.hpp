@@ -52,14 +52,14 @@ public:
 
 struct UniqueResult
 {
-    enum Type
+    enum class Type
     {
-        UNIQUE_NOTFOUND,
-        UNIQUE_PAK,
-        UNIQUE_LEVEL,
-        UNIQUE_AREA,
-        UNIQUE_LAYER
-    } m_type = UNIQUE_NOTFOUND;
+        NotFound,
+        Pak,
+        Level,
+        Area,
+        Layer
+    } m_type = Type::NotFound;
     const HECL::SystemString* m_levelName = nullptr;
     const HECL::SystemString* m_areaName = nullptr;
     const HECL::SystemString* m_layerName = nullptr;
@@ -69,7 +69,7 @@ struct UniqueResult
     template<class PAKBRIDGE>
     void checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRIDGE::PAKType::Entry& entry)
     {
-        UniqueResult::Type resultType = UniqueResult::UNIQUE_NOTFOUND;
+        UniqueResult::Type resultType = UniqueResult::Type::NotFound;
         bool foundOneLayer = false;
         const HECL::SystemString* levelName = nullptr;
         typename PAKBRIDGE::PAKType::IDType levelId;
@@ -80,7 +80,7 @@ struct UniqueResult
             if (entry.id == lpair.first)
             {
                 levelName = &lpair.second.name;
-                resultType = UniqueResult::UNIQUE_LEVEL;
+                resultType = UniqueResult::Type::Level;
                 break;
             }
 
@@ -95,22 +95,22 @@ struct UniqueResult
                         {
                             if (areaId == pair.first)
                             {
-                                resultType = UniqueResult::UNIQUE_AREA;
+                                resultType = UniqueResult::Type::Area;
                             }
                             else if (levelId == lpair.first)
                             {
-                                resultType = UniqueResult::UNIQUE_LEVEL;
+                                resultType = UniqueResult::Type::Level;
                                 break;
                             }
                             else
                             {
-                                m_type = UniqueResult::UNIQUE_PAK;
+                                m_type = UniqueResult::Type::Pak;
                                 return;
                             }
                             continue;
                         }
                         else
-                            resultType = UniqueResult::UNIQUE_LAYER;
+                            resultType = UniqueResult::Type::Layer;
                         levelName = &lpair.second.name;
                         levelId = lpair.first;
                         areaId = pair.first;
@@ -125,22 +125,22 @@ struct UniqueResult
                     {
                         if (areaId == pair.first)
                         {
-                            resultType = UniqueResult::UNIQUE_AREA;
+                            resultType = UniqueResult::Type::Area;
                         }
                         else if (levelId == lpair.first)
                         {
-                            resultType = UniqueResult::UNIQUE_LEVEL;
+                            resultType = UniqueResult::Type::Level;
                             break;
                         }
                         else
                         {
-                            m_type = UniqueResult::UNIQUE_PAK;
+                            m_type = UniqueResult::Type::Pak;
                             return;
                         }
                         continue;
                     }
                     else
-                        resultType = UniqueResult::UNIQUE_AREA;
+                        resultType = UniqueResult::Type::Area;
                     levelName = &lpair.second.name;
                     levelId = lpair.first;
                     areaId = pair.first;
@@ -150,11 +150,11 @@ struct UniqueResult
         }
         m_type = resultType;
         m_levelName = levelName;
-        if (resultType == UniqueResult::UNIQUE_LAYER || resultType == UniqueResult::UNIQUE_AREA)
+        if (resultType == UniqueResult::Type::Layer || resultType == UniqueResult::Type::Area)
         {
             const typename PAKBRIDGE::Level::Area& area = pakBridge.m_levelDeps.at(levelId).areas.at(areaId);
             m_areaName = &area.name;
-            if (resultType == UniqueResult::UNIQUE_LAYER)
+            if (resultType == UniqueResult::Type::Layer)
             {
                 const typename PAKBRIDGE::Level::Area::Layer& layer = area.layers[layerIdx];
                 m_layerName = &layer.name;
@@ -164,7 +164,7 @@ struct UniqueResult
 
     HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const
     {
-        if (m_type == UNIQUE_PAK)
+        if (m_type == Type::Pak)
             return pakPath;
 
         HECL::ProjectPath levelDir;
@@ -174,13 +174,13 @@ struct UniqueResult
             levelDir = pakPath;
         levelDir.makeDir();
 
-        if (m_type == UNIQUE_AREA)
+        if (m_type == Type::Area)
         {
             HECL::ProjectPath areaDir(levelDir, *m_areaName);
             areaDir.makeDir();
             return areaDir;
         }
-        else if (m_type == UNIQUE_LAYER)
+        else if (m_type == Type::Layer)
         {
             HECL::ProjectPath areaDir(levelDir, *m_areaName);
             areaDir.makeDir();
@@ -521,7 +521,7 @@ public:
 
                 /* TODO: Position after extracted item */
                 HECL::ProjectPath cooked = getCooked(item);
-                if (force || cooked.getPathType() == HECL::ProjectPath::PT_NONE)
+                if (force || cooked.getPathType() == HECL::ProjectPath::Type::None)
                 {
                     PAKEntryReadStream s = item->beginReadStream(*m_node);
                     FILE* fout = HECL::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
@@ -532,7 +532,7 @@ public:
                 HECL::ProjectPath working = getWorking(item, extractor);
                 if (extractor.func_a) /* Doesn't need PAKRouter access */
                 {
-                    if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
+                    if (force || working.getPathType() == HECL::ProjectPath::Type::None)
                     {
                         PAKEntryReadStream s = item->beginReadStream(*m_node);
                         extractor.func_a(s, working);
@@ -540,7 +540,7 @@ public:
                 }
                 else if (extractor.func_b) /* Needs PAKRouter access */
                 {
-                    if (force || working.getPathType() == HECL::ProjectPath::PT_NONE)
+                    if (force || working.getPathType() == HECL::ProjectPath::Type::None)
                     {
                         PAKEntryReadStream s = item->beginReadStream(*m_node);
                         extractor.func_b(m_dataSpec, s, working, *this, *item, force,
