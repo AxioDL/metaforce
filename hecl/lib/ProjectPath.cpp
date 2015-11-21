@@ -140,28 +140,28 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
     return ProjectPath(m_proj->getProjectCookedPath(spec), woExt.getRelativePath());
 }
 
-ProjectPath::PathType ProjectPath::getPathType() const
+ProjectPath::Type ProjectPath::getPathType() const
 {
 #if WIN32
     if (TestShellLink(m_absPath.c_str()))
-        return PT_LINK;
+        return Type::Link;
 #else
     HECL::Sstat lnStat;
     if (lstat(m_absPath.c_str(), &lnStat))
-        return PT_NONE;
+        return Type::None;
     if (S_ISLNK(lnStat.st_mode))
-        return PT_LINK;
+        return Type::Link;
 #endif
     if (std::regex_search(m_absPath, regGLOB))
-        return PT_GLOB;
+        return Type::Glob;
     Sstat theStat;
     if (HECL::Stat(m_absPath.c_str(), &theStat))
-        return PT_NONE;
+        return Type::None;
     if (S_ISDIR(theStat.st_mode))
-        return PT_DIRECTORY;
+        return Type::Directory;
     if (S_ISREG(theStat.st_mode))
-        return PT_FILE;
-    return PT_NONE;
+        return Type::File;
+    return Type::None;
 }
 
 Time ProjectPath::getModtime() const

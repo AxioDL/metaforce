@@ -15,11 +15,11 @@ std::string GLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
 {
     switch (src)
     {
-    case TG_POS:
+    case TexGenSrc::Position:
         return "posIn.xy\n";
-    case TG_NRM:
+    case TexGenSrc::Normal:
         return "normIn.xy\n";
-    case TG_UV:
+    case TexGenSrc::UV:
         return HECL::Format("uvIn[%u]", uvIdx);
     default: break;
     }
@@ -30,11 +30,11 @@ std::string GLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
 {
     switch (src)
     {
-    case TG_POS:
+    case TexGenSrc::Position:
         return "vec4(posIn, 1.0)\n";
-    case TG_NRM:
+    case TexGenSrc::Normal:
         return "vec4(normIn, 1.0)\n";
-    case TG_UV:
+    case TexGenSrc::UV:
         return HECL::Format("vec4(uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
     }
@@ -284,8 +284,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
         ShaderCachedData dataOut(tag, cachedSz);
         Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(m_backend.m_texMapEnd);
-        w.writeUByte(m_backend.m_blendSrc);
-        w.writeUByte(m_backend.m_blendDst);
+        w.writeUByte(atUint8(m_backend.m_blendSrc));
+        w.writeUByte(atUint8(m_backend.m_blendDst));
         w.writeString(vertSource);
         w.writeString(fragSource);
 
@@ -349,8 +349,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
         ShaderCachedData dataOut(tag, cachedSz);
         Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(m_backend.m_texMapEnd);
-        w.writeUByte(m_backend.m_blendSrc);
-        w.writeUByte(m_backend.m_blendDst);
+        w.writeUByte(atUint8(m_backend.m_blendSrc));
+        w.writeUByte(atUint8(m_backend.m_blendDst));
         w.writeString(vertSource);
         for (const std::string src : fragSources)
             w.writeString(src);

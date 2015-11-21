@@ -71,7 +71,7 @@ GX::TEVStage& GX::addTEVStage(Diagnostics& diag, const SourceLocation& loc)
 
 unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx)
 {
-    if (inst.m_op != IR::OpCall)
+    if (inst.m_op != IR::OpType::Call)
         diag.reportBackendErr(inst.m_loc, "TexCoordGen resolution requires function");
 
     const std::string& tcgName = inst.m_call.m_name;
@@ -109,7 +109,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
 {
     switch (inst.m_op)
     {
-    case IR::OpCall:
+    case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
         if (!name.compare("Texture"))
@@ -147,7 +147,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
             diag.reportBackendErr(inst.m_loc, "GX backend unable to interpret '%s'", name.c_str());
         break;
     }
-    case IR::OpLoadImm:
+    case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
         if (vec.vec[0] == 0.f && vec.vec[1] == 0.f && vec.vec[2] == 0.f)
@@ -157,14 +157,14 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         unsigned idx = addKColor(diag, inst.m_loc, vec);
         return TraceResult(TevKColorSel(TEV_KCSEL_K0 + idx));
     }
-    case IR::OpArithmetic:
+    case IR::OpType::Arithmetic:
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
         TraceResult aTrace;
         TraceResult bTrace;
-        if (aInst.m_op != IR::OpArithmetic && bInst.m_op == IR::OpArithmetic)
+        if (aInst.m_op != IR::OpType::Arithmetic && bInst.m_op == IR::OpType::Arithmetic)
         {
             bTrace = RecursiveTraceColor(ir, diag, bInst);
             aTrace = RecursiveTraceColor(ir, diag, aInst);
@@ -174,8 +174,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
             aTrace = RecursiveTraceColor(ir, diag, aInst);
             bTrace = RecursiveTraceColor(ir, diag, bInst);
         }
-        if (aTrace.type == TraceResult::TraceTEVStage &&
-            bTrace.type == TraceResult::TraceTEVStage &&
+        if (aTrace.type == TraceResult::Type::TEVStage &&
+            bTrace.type == TraceResult::Type::TEVStage &&
             getStageIdx(aTrace.tevStage) > getStageIdx(bTrace.tevStage))
         {
             TraceResult tmp = aTrace;
@@ -184,28 +184,28 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         }
 
         TevKColorSel newKColor = TEV_KCSEL_1;
-        if (aTrace.type == TraceResult::TraceTEVKColorSel &&
-            bTrace.type == TraceResult::TraceTEVKColorSel)
+        if (aTrace.type == TraceResult::Type::TEVKColorSel &&
+            bTrace.type == TraceResult::Type::TEVKColorSel)
             diag.reportBackendErr(inst.m_loc, "unable to handle 2 KColors in one stage");
-        else if (aTrace.type == TraceResult::TraceTEVKColorSel)
+        else if (aTrace.type == TraceResult::Type::TEVKColorSel)
         {
             newKColor = aTrace.tevKColorSel;
-            aTrace.type = TraceResult::TraceTEVColorArg;
+            aTrace.type = TraceResult::Type::TEVColorArg;
             aTrace.tevColorArg = CC_KONST;
         }
-        else if (bTrace.type == TraceResult::TraceTEVKColorSel)
+        else if (bTrace.type == TraceResult::Type::TEVKColorSel)
         {
             newKColor = bTrace.tevKColorSel;
-            bTrace.type = TraceResult::TraceTEVColorArg;
+            bTrace.type = TraceResult::Type::TEVColorArg;
             bTrace.tevColorArg = CC_KONST;
         }
 
         switch (op)
         {
-        case ArithmeticOp::ArithmeticOpAdd:
+        case ArithmeticOp::Add:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -228,8 +228,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                     b->m_color[3] = CC_CPREV;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVColorArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_color[3] != CC_ZERO)
@@ -238,8 +238,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 a->m_kColor = newKColor;
                 return TraceResult(a);
             }
-            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
-                     bTrace.type == TraceResult::TraceTEVStage)
+            else if (aTrace.type == TraceResult::Type::TEVColorArg &&
+                     bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_color[3] != CC_ZERO)
@@ -250,10 +250,10 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
             }
             break;
         }
-        case ArithmeticOp::ArithmeticOpSubtract:
+        case ArithmeticOp::Subtract:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -269,8 +269,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 b->m_cop = TEV_SUB;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVColorArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_color[3] != CC_ZERO)
@@ -282,10 +282,10 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
             }
             break;
         }
-        case ArithmeticOp::ArithmeticOpMultiply:
+        case ArithmeticOp::Multiply:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -305,8 +305,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 b->m_color[3] = CC_ZERO;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
-                     bTrace.type == TraceResult::TraceTEVColorArg)
+            else if (aTrace.type == TraceResult::Type::TEVColorArg &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
             {
                 TEVStage& stage = addTEVStage(diag, inst.m_loc);
                 stage.m_color[1] = aTrace.tevColorArg;
@@ -314,8 +314,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 stage.m_kColor = newKColor;
                 return TraceResult(&stage);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVColorArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_color[1] != CC_ZERO)
@@ -334,8 +334,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 a->m_kColor = newKColor;
                 return TraceResult(a);
             }
-            else if (aTrace.type == TraceResult::TraceTEVColorArg &&
-                     bTrace.type == TraceResult::TraceTEVStage)
+            else if (aTrace.type == TraceResult::Type::TEVColorArg &&
+                     bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_color[1] != CC_ZERO)
@@ -362,13 +362,13 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
 
         diag.reportBackendErr(inst.m_loc, "unable to convert arithmetic to TEV stage");
     }
-    case IR::OpSwizzle:
+    case IR::OpType::Swizzle:
     {
         if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 &&
             inst.m_swizzle.m_idxs[2] == 3 && inst.m_swizzle.m_idxs[3] == -1)
         {
             const IR::Instruction& cInst = inst.getChildInst(ir, 0);
-            if (cInst.m_op != IR::OpCall)
+            if (cInst.m_op != IR::OpType::Call)
                 diag.reportBackendErr(inst.m_loc, "only functions accepted for alpha swizzle");
             return RecursiveTraceColor(ir, diag, cInst, true);
         }
@@ -386,7 +386,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
 {
     switch (inst.m_op)
     {
-    case IR::OpCall:
+    case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
         if (!name.compare("Texture"))
@@ -443,7 +443,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             diag.reportBackendErr(inst.m_loc, "GX backend unable to interpret '%s'", name.c_str());
         break;
     }
-    case IR::OpLoadImm:
+    case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
         if (vec.vec[0] == 0.f)
@@ -451,14 +451,14 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         unsigned idx = addKAlpha(diag, inst.m_loc, vec.vec[0]);
         return TraceResult(TevKAlphaSel(TEV_KASEL_K0_A + idx));
     }
-    case IR::OpArithmetic:
+    case IR::OpType::Arithmetic:
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
         TraceResult aTrace;
         TraceResult bTrace;
-        if (aInst.m_op != IR::OpArithmetic && bInst.m_op == IR::OpArithmetic)
+        if (aInst.m_op != IR::OpType::Arithmetic && bInst.m_op == IR::OpType::Arithmetic)
         {
             bTrace = RecursiveTraceAlpha(ir, diag, bInst);
             aTrace = RecursiveTraceAlpha(ir, diag, aInst);
@@ -470,28 +470,28 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         }
 
         TevKAlphaSel newKAlpha = TEV_KASEL_1;
-        if (aTrace.type == TraceResult::TraceTEVKAlphaSel &&
-            bTrace.type == TraceResult::TraceTEVKAlphaSel)
+        if (aTrace.type == TraceResult::Type::TEVKAlphaSel &&
+            bTrace.type == TraceResult::Type::TEVKAlphaSel)
             diag.reportBackendErr(inst.m_loc, "unable to handle 2 KAlphas in one stage");
-        else if (aTrace.type == TraceResult::TraceTEVKAlphaSel)
+        else if (aTrace.type == TraceResult::Type::TEVKAlphaSel)
         {
             newKAlpha = aTrace.tevKAlphaSel;
-            aTrace.type = TraceResult::TraceTEVAlphaArg;
+            aTrace.type = TraceResult::Type::TEVAlphaArg;
             aTrace.tevAlphaArg = CA_KONST;
         }
-        else if (bTrace.type == TraceResult::TraceTEVKAlphaSel)
+        else if (bTrace.type == TraceResult::Type::TEVKAlphaSel)
         {
             newKAlpha = bTrace.tevKAlphaSel;
-            bTrace.type = TraceResult::TraceTEVAlphaArg;
+            bTrace.type = TraceResult::Type::TEVAlphaArg;
             bTrace.tevAlphaArg = CA_KONST;
         }
 
         switch (op)
         {
-        case ArithmeticOp::ArithmeticOpAdd:
+        case ArithmeticOp::Add:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -511,8 +511,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                     b->m_alpha[3] = CA_APREV;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_alpha[3] != CA_ZERO)
@@ -521,8 +521,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 a->m_kAlpha = newKAlpha;
                 return TraceResult(a);
             }
-            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
-                     bTrace.type == TraceResult::TraceTEVStage)
+            else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
+                     bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_alpha[3] != CA_ZERO)
@@ -533,10 +533,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             }
             break;
         }
-        case ArithmeticOp::ArithmeticOpSubtract:
+        case ArithmeticOp::Subtract:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -558,8 +558,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                     b->m_alpha[3] = CA_APREV;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_aop != TEV_SUB)
@@ -572,10 +572,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             }
             break;
         }
-        case ArithmeticOp::ArithmeticOpMultiply:
+        case ArithmeticOp::Multiply:
         {
-            if (aTrace.type == TraceResult::TraceTEVStage &&
-                bTrace.type == TraceResult::TraceTEVStage)
+            if (aTrace.type == TraceResult::Type::TEVStage &&
+                bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* a = aTrace.tevStage;
                 TEVStage* b = bTrace.tevStage;
@@ -595,8 +595,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 b->m_alpha[3] = CA_ZERO;
                 return TraceResult(b);
             }
-            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
-                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
                 TEVStage& stage = addTEVStage(diag, inst.m_loc);
                 stage.m_color[3] = CC_CPREV;
@@ -605,8 +605,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 stage.m_kAlpha = newKAlpha;
                 return TraceResult(&stage);
             }
-            else if (aTrace.type == TraceResult::TraceTEVStage &&
-                     bTrace.type == TraceResult::TraceTEVAlphaArg)
+            else if (aTrace.type == TraceResult::Type::TEVStage &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
                 TEVStage* a = aTrace.tevStage;
                 if (a->m_alpha[1] != CA_ZERO)
@@ -625,8 +625,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 a->m_kAlpha = newKAlpha;
                 return TraceResult(a);
             }
-            else if (aTrace.type == TraceResult::TraceTEVAlphaArg &&
-                     bTrace.type == TraceResult::TraceTEVStage)
+            else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
+                     bTrace.type == TraceResult::Type::TEVStage)
             {
                 TEVStage* b = bTrace.tevStage;
                 if (b->m_alpha[1] != CA_ZERO)
@@ -653,13 +653,13 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
 
         diag.reportBackendErr(inst.m_loc, "unable to convert arithmetic to TEV stage");
     }
-    case IR::OpSwizzle:
+    case IR::OpType::Swizzle:
     {
         if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 &&
             inst.m_swizzle.m_idxs[2] == 3 && inst.m_swizzle.m_idxs[3] == -1)
         {
             const IR::Instruction& cInst = inst.getChildInst(ir, 0);
-            if (cInst.m_op != IR::OpCall)
+            if (cInst.m_op != IR::OpType::Call)
                 diag.reportBackendErr(inst.m_loc, "only functions accepted for alpha swizzle");
             return RecursiveTraceAlpha(ir, diag, cInst);
         }

@@ -39,13 +39,13 @@ void Parser::reset(const std::string& source)
 Parser::Token Parser::consumeToken()
 {
     if (!m_source)
-        return Parser::Token(TokenNone, SourceLocation());
+        return Parser::Token(TokenType::None, SourceLocation());
 
     /* If parser has just been reset, emit begin token */
     if (m_reset)
     {
         m_reset = false;
-        return Parser::Token(TokenSourceBegin, getLocation());
+        return Parser::Token(TokenType::SourceBegin, getLocation());
     }
 
     /* Skip whitespace */
@@ -53,7 +53,7 @@ Parser::Token Parser::consumeToken()
 
     /* Check for source end */
     if (m_sourceIt == m_source->cend())
-        return Parser::Token(TokenSourceEnd, getLocation());
+        return Parser::Token(TokenType::SourceEnd, getLocation());
 
     /* Check for numeric literal */
     {
@@ -61,7 +61,7 @@ Parser::Token Parser::consumeToken()
         float val = strtof(&*m_sourceIt, &strEnd);
         if (&*m_sourceIt != strEnd)
         {
-            Parser::Token tok(TokenNumLiteral, getLocation());
+            Parser::Token tok(TokenType::NumLiteral, getLocation());
             tok.m_tokenFloat = val;
             m_sourceIt += (strEnd - &*m_sourceIt);
             return tok;
@@ -91,7 +91,7 @@ Parser::Token Parser::consumeToken()
         }
         if (count)
         {
-            Parser::Token tok(TokenVectorSwizzle, getLocation());
+            Parser::Token tok(TokenType::VectorSwizzle, getLocation());
             for (int i=0 ; i<count ; ++i)
             {
                 std::string::const_iterator tmp2 = tmp + i;
@@ -105,7 +105,7 @@ Parser::Token Parser::consumeToken()
     /* Check for arithmetic op */
     if (*m_sourceIt == '+' || *m_sourceIt == '-' || *m_sourceIt == '*' || *m_sourceIt == '/')
     {
-        Parser::Token tok(TokenArithmeticOp, getLocation());
+        Parser::Token tok(TokenType::ArithmeticOp, getLocation());
         tok.m_tokenInt = *m_sourceIt;
         ++m_sourceIt;
         return tok;
@@ -117,7 +117,7 @@ Parser::Token Parser::consumeToken()
         if (m_parenStack.empty())
         {
             m_diag.reportParserErr(getLocation(), "unexpected ')' while parsing");
-            return Parser::Token(TokenNone, SourceLocation());
+            return Parser::Token(TokenType::None, SourceLocation());
         }
         Parser::Token tok(m_parenStack.back(), getLocation());
         ++m_sourceIt;
@@ -128,8 +128,8 @@ Parser::Token Parser::consumeToken()
     /* Check for group start */
     if (*m_sourceIt == '(')
     {
-        m_parenStack.push_back(TokenEvalGroupEnd);
-        Parser::Token tok(TokenEvalGroupStart, getLocation());
+        m_parenStack.push_back(TokenType::EvalGroupEnd);
+        Parser::Token tok(TokenType::EvalGroupStart, getLocation());
         ++m_sourceIt;
         return tok;
     }
@@ -144,10 +144,10 @@ Parser::Token Parser::consumeToken()
         skipWhitespace(tmp);
         if (*tmp == '(')
         {
-            Parser::Token tok(TokenFunctionStart, getLocation());
+            Parser::Token tok(TokenType::FunctionStart, getLocation());
             tok.m_tokenString.assign(m_sourceIt, nameEnd);
             m_sourceIt = tmp + 1;
-            m_parenStack.push_back(TokenFunctionEnd);
+            m_parenStack.push_back(TokenType::FunctionEnd);
             return tok;
         }
     }
@@ -155,19 +155,19 @@ Parser::Token Parser::consumeToken()
     /* Check for function arg delimitation */
     if (*m_sourceIt == ',')
     {
-        if (m_parenStack.empty() || m_parenStack.back() != TokenFunctionEnd)
+        if (m_parenStack.empty() || m_parenStack.back() != TokenType::FunctionEnd)
         {
             m_diag.reportParserErr(getLocation(), "unexpected ',' while parsing");
-            return Parser::Token(TokenNone, SourceLocation());
+            return Parser::Token(TokenType::None, SourceLocation());
         }
-        Parser::Token tok(TokenFunctionArgDelim, getLocation());
+        Parser::Token tok(TokenType::FunctionArgDelim, getLocation());
         ++m_sourceIt;
         return tok;
     }
 
     /* Error condition if reached */
     m_diag.reportParserErr(getLocation(), "unexpected token while parsing");
-    return Parser::Token(TokenNone, SourceLocation());
+    return Parser::Token(TokenType::None, SourceLocation());
 }
 
 SourceLocation Parser::getLocation() const

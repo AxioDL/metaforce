@@ -44,19 +44,19 @@ public:
 class Parser
 {
 public:
-    enum TokenType
+    enum class TokenType
     {
-        TokenNone,
-        TokenSourceBegin,
-        TokenSourceEnd,
-        TokenNumLiteral,
-        TokenVectorSwizzle,
-        TokenEvalGroupStart,
-        TokenEvalGroupEnd,
-        TokenFunctionStart,
-        TokenFunctionEnd,
-        TokenFunctionArgDelim,
-        TokenArithmeticOp,
+        None,
+        SourceBegin,
+        SourceEnd,
+        NumLiteral,
+        VectorSwizzle,
+        EvalGroupStart,
+        EvalGroupEnd,
+        FunctionStart,
+        FunctionEnd,
+        FunctionArgDelim,
+        ArithmeticOp,
     };
 private:
     Diagnostics& m_diag;
@@ -73,33 +73,33 @@ public:
         std::string m_tokenString;
         int m_tokenInt = 0;
         float m_tokenFloat = 0.0;
-        Token() : m_type(TokenNone) {}
+        Token() : m_type(TokenType::None) {}
         Token(TokenType type, SourceLocation loc) : m_type(type), m_location(loc) {}
         const char* typeString() const
         {
             switch (m_type)
             {
-            case TokenNone:
+            case TokenType::None:
                 return "None";
-            case TokenSourceBegin:
+            case TokenType::SourceBegin:
                 return "SourceBegin";
-            case TokenSourceEnd:
+            case TokenType::SourceEnd:
                 return "SourceEnd";
-            case TokenNumLiteral:
+            case TokenType::NumLiteral:
                 return "NumLiteral";
-            case TokenVectorSwizzle:
+            case TokenType::VectorSwizzle:
                 return "VectorSwizzle";
-            case TokenEvalGroupStart:
+            case TokenType::EvalGroupStart:
                 return "EvalGroupStart";
-            case TokenEvalGroupEnd:
+            case TokenType::EvalGroupEnd:
                 return "EvalGroupEnd";
-            case TokenFunctionStart:
+            case TokenType::FunctionStart:
                 return "FunctionStart";
-            case TokenFunctionEnd:
+            case TokenType::FunctionEnd:
                 return "FunctionEnd";
-            case TokenFunctionArgDelim:
+            case TokenType::FunctionArgDelim:
                 return "FunctionArgDelim";
-            case TokenArithmeticOp:
+            case TokenType::ArithmeticOp:
                 return "ArithmeticOp";
             default: break;
             }
@@ -121,11 +121,11 @@ struct IR : BigDNA
 
     enum OpType : uint8_t
     {
-        OpNone,       /**< NOP */
-        OpCall,       /**< Deferred function insertion for HECL backend using specified I/O regs */
-        OpLoadImm,    /**< Load a constant (numeric literal) into register */
-        OpArithmetic, /**< Perform binary arithmetic between registers */
-        OpSwizzle     /**< Vector insertion/extraction/swizzling operation */
+        None,       /**< NOP */
+        Call,       /**< Deferred function insertion for HECL backend using specified I/O regs */
+        LoadImm,    /**< Load a constant (numeric literal) into register */
+        Arithmetic, /**< Perform binary arithmetic between registers */
+        Swizzle     /**< Vector insertion/extraction/swizzling operation */
     };
 
     using RegID = atUint16;
@@ -134,7 +134,7 @@ struct IR : BigDNA
     {
         Delete _d;
 
-        OpType m_op = OpNone;
+        OpType m_op = OpType::None;
         RegID m_target = RegID(-1);
         SourceLocation m_loc;
 
@@ -154,17 +154,17 @@ struct IR : BigDNA
 
         enum ArithmeticOpType : uint8_t
         {
-            ArithmeticOpNone,
-            ArithmeticOpAdd,
-            ArithmeticOpSubtract,
-            ArithmeticOpMultiply,
-            ArithmeticOpDivide
+            None,
+            Add,
+            Subtract,
+            Multiply,
+            Divide
         };
 
         struct Arithmetic : BigDNA
         {
             DECL_DNA
-            Value<ArithmeticOpType> m_op = ArithmeticOpNone;
+            Value<ArithmeticOpType> m_op = ArithmeticOpType::None;
             Value<atUint16> m_instIdxs[2];
         } m_arithmetic;
 
@@ -181,11 +181,11 @@ struct IR : BigDNA
         {
             switch (m_op)
             {
-            case OpCall:
+            case OpType::Call:
                 return m_call.m_argInstIdxs.size();
-            case OpArithmetic:
+            case OpType::Arithmetic:
                 return 2;
-            case OpSwizzle:
+            case OpType::Swizzle:
                 return 1;
             default:
                 LogModule.report(LogVisor::FatalError, "invalid op type");
@@ -197,13 +197,13 @@ struct IR : BigDNA
         {
             switch (m_op)
             {
-            case OpCall:
+            case OpType::Call:
                 return ir.m_instructions.at(m_call.m_argInstIdxs.at(idx));
-            case OpArithmetic:
+            case OpType::Arithmetic:
                 if (idx > 1)
                     LogModule.report(LogVisor::FatalError, "arithmetic child idx must be 0 or 1");
                 return ir.m_instructions.at(m_arithmetic.m_instIdxs[idx]);
-            case OpSwizzle:
+            case OpType::Swizzle:
                 if (idx > 0)
                     LogModule.report(LogVisor::FatalError, "swizzle child idx must be 0");
                 return ir.m_instructions.at(m_swizzle.m_instIdx);
@@ -215,7 +215,7 @@ struct IR : BigDNA
 
         const atVec4f& getImmVec() const
         {
-            if (m_op != OpLoadImm)
+            if (m_op != OpType::LoadImm)
                 LogModule.report(LogVisor::FatalError, "invalid op type");
             return m_loadImm.m_immVec;
         }
@@ -227,16 +227,16 @@ struct IR : BigDNA
             switch (m_op)
             {
             default: break;
-            case OpCall:
+            case OpType::Call:
                 m_call.read(reader);
                 break;
-            case OpLoadImm:
+            case OpType::LoadImm:
                 m_loadImm.read(reader);
                 break;
-            case OpArithmetic:
+            case OpType::Arithmetic:
                 m_arithmetic.read(reader);
                 break;
-            case OpSwizzle:
+            case OpType::Swizzle:
                 m_swizzle.read(reader);
                 break;
             }
@@ -249,16 +249,16 @@ struct IR : BigDNA
             switch (m_op)
             {
             default: break;
-            case OpCall:
+            case OpType::Call:
                 m_call.write(writer);
                 break;
-            case OpLoadImm:
+            case OpType::LoadImm:
                 m_loadImm.write(writer);
                 break;
-            case OpArithmetic:
+            case OpType::Arithmetic:
                 m_arithmetic.write(writer);
                 break;
-            case OpSwizzle:
+            case OpType::Swizzle:
                 m_swizzle.write(writer);
                 break;
             }
@@ -270,16 +270,16 @@ struct IR : BigDNA
             switch (m_op)
             {
             default: break;
-            case OpCall:
+            case OpType::Call:
                 sz = m_call.binarySize(sz);
                 break;
-            case OpLoadImm:
+            case OpType::LoadImm:
                 sz = m_loadImm.binarySize(sz);
                 break;
-            case OpArithmetic:
+            case OpType::Arithmetic:
                 sz = m_arithmetic.binarySize(sz);
                 break;
-            case OpSwizzle:
+            case OpType::Swizzle:
                 sz = m_swizzle.binarySize(sz);
                 break;
             }

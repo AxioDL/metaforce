@@ -42,7 +42,7 @@ unsigned ProgrammableCommon::addTexSampling(unsigned mapIdx, unsigned tcgIdx)
 unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
                                                   const IR::Instruction& inst, int mtx)
 {
-    if (inst.m_op != IR::OpCall)
+    if (inst.m_op != IR::OpType::Call)
         diag.reportBackendErr(inst.m_loc, "TexCoordGen resolution requires function");
 
     const std::string& tcgName = inst.m_call.m_name;
@@ -52,12 +52,12 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
         const atVec4f& idxImm = idxInst.getImmVec();
-        return addTexCoordGen(TG_UV, idxImm.vec[0], mtx);
+        return addTexCoordGen(TexGenSrc::UV, idxImm.vec[0], mtx);
     }
     else if (!tcgName.compare("Normal"))
-        return addTexCoordGen(TG_NRM, -1, mtx);
+        return addTexCoordGen(TexGenSrc::Normal, -1, mtx);
     else if (!tcgName.compare("View"))
-        return addTexCoordGen(TG_POS, -1, mtx);
+        return addTexCoordGen(TexGenSrc::Position, -1, mtx);
 
     /* Otherwise treat as game-specific function */
     const IR::Instruction& tcgSrcInst = inst.getChildInst(ir, 0);
@@ -79,7 +79,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
 {
     switch (inst.m_op)
     {
-    case IR::OpCall:
+    case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
         if (!name.compare("Texture"))
@@ -111,12 +111,12 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());
         break;
     }
-    case IR::OpLoadImm:
+    case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
         return EmitVec3(vec);
     }
-    case IR::OpArithmetic:
+    case IR::OpType::Arithmetic:
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
@@ -126,19 +126,19 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
 
         switch (op)
         {
-        case ArithmeticOp::ArithmeticOpAdd:
+        case ArithmeticOp::Add:
         {
             return EmitAdd(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpSubtract:
+        case ArithmeticOp::Subtract:
         {
             return EmitSub(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpMultiply:
+        case ArithmeticOp::Multiply:
         {
             return EmitMult(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpDivide:
+        case ArithmeticOp::Divide:
         {
             return EmitDiv(aTrace, bTrace);
         }
@@ -146,7 +146,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
             diag.reportBackendErr(inst.m_loc, "invalid arithmetic op");
         }
     }
-    case IR::OpSwizzle:
+    case IR::OpType::Swizzle:
     {
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         std::string aTrace = RecursiveTraceColor(ir, diag, aInst);
@@ -164,7 +164,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
 {
     switch (inst.m_op)
     {
-    case IR::OpCall:
+    case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
         if (!name.compare("Texture"))
@@ -196,12 +196,12 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());
         break;
     }
-    case IR::OpLoadImm:
+    case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
         return EmitVal(vec.vec[0]);
     }
-    case IR::OpArithmetic:
+    case IR::OpType::Arithmetic:
     {
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
@@ -211,19 +211,19 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
 
         switch (op)
         {
-        case ArithmeticOp::ArithmeticOpAdd:
+        case ArithmeticOp::Add:
         {
             return EmitAdd(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpSubtract:
+        case ArithmeticOp::Subtract:
         {
             return EmitSub(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpMultiply:
+        case ArithmeticOp::Multiply:
         {
             return EmitMult(aTrace, bTrace);
         }
-        case ArithmeticOp::ArithmeticOpDivide:
+        case ArithmeticOp::Divide:
         {
             return EmitDiv(aTrace, bTrace);
         }
@@ -231,7 +231,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
             diag.reportBackendErr(inst.m_loc, "invalid arithmetic op");
         }
     }
-    case IR::OpSwizzle:
+    case IR::OpType::Swizzle:
     {
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         std::string aTrace = RecursiveTraceAlpha(ir, diag, aInst);
@@ -253,19 +253,19 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
     bool doAlpha = false;
     if (!rootCall.m_call.m_name.compare("HECLOpaque"))
     {
-        m_blendSrc = boo::BlendFactorOne;
-        m_blendDst = boo::BlendFactorZero;
+        m_blendSrc = boo::BlendFactor::One;
+        m_blendDst = boo::BlendFactor::Zero;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAlpha"))
     {
-        m_blendSrc = boo::BlendFactorSrcAlpha;
-        m_blendDst = boo::BlendFactorInvSrcAlpha;
+        m_blendSrc = boo::BlendFactor::SrcAlpha;
+        m_blendDst = boo::BlendFactor::InvSrcAlpha;
         doAlpha = true;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAdditive"))
     {
-        m_blendSrc = boo::BlendFactorSrcAlpha;
-        m_blendDst = boo::BlendFactorOne;
+        m_blendSrc = boo::BlendFactor::SrcAlpha;
+        m_blendDst = boo::BlendFactor::One;
         doAlpha = true;
     }
     else

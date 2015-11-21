@@ -53,7 +53,7 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead()
     if (m_lockedFile)
         return m_lines;
 
-    m_lockedFile = HECL::Fopen(m_filepath.c_str(), _S("a+"), LWRITE);
+    m_lockedFile = HECL::Fopen(m_filepath.c_str(), _S("a+"), FileLockType::Write);
 
     std::string mainString;
     char readBuf[1024];
@@ -151,7 +151,7 @@ bool Project::ConfigFile::unlockAndCommit()
     }
 
     SystemString newPath = m_filepath + _S(".part");
-    FILE* newFile = HECL::Fopen(newPath.c_str(), _S("w"), LWRITE);
+    FILE* newFile = HECL::Fopen(newPath.c_str(), _S("w"), FileLockType::Write);
     bool fail = false;
     for (const std::string& line : m_lines)
     {
@@ -383,7 +383,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
             ProjectPath cooked = path.getCookedPath(*spec.first);
             if (fast)
                 cooked = cooked.getWithExtension(_S(".fast"));
-            if (force || cooked.getPathType() == ProjectPath::PT_NONE ||
+            if (force || cooked.getPathType() == ProjectPath::Type::None ||
                 path.getModtime() > cooked.getModtime())
             {
                 progress.reportFile(spec.first);
@@ -411,15 +411,15 @@ static void VisitDirectory(const ProjectPath& dir,
     {
         switch (child.second.getPathType())
         {
-        case ProjectPath::PT_FILE:
+        case ProjectPath::Type::File:
         {
             ++childFileCount;
             break;
         }
-        case ProjectPath::PT_LINK:
+        case ProjectPath::Type::Link:
         {
             ProjectPath target = child.second.resolveLink();
-            if (target.getPathType() == ProjectPath::PT_FILE)
+            if (target.getPathType() == ProjectPath::Type::File)
                 ++childFileCount;
             break;
         }
@@ -435,16 +435,16 @@ static void VisitDirectory(const ProjectPath& dir,
     {
         switch (child.second.getPathType())
         {
-        case ProjectPath::PT_FILE:
+        case ProjectPath::Type::File:
         {
             progress.changeFile(child.first.c_str(), progNum++/progDenom);
             VisitFile(child.second, force, fast, specInsts, progress);
             break;
         }
-        case ProjectPath::PT_LINK:
+        case ProjectPath::Type::Link:
         {
             ProjectPath target = child.second.resolveLink();
-            if (target.getPathType() == ProjectPath::PT_FILE)
+            if (target.getPathType() == ProjectPath::Type::File)
             {
                 progress.changeFile(target.getLastComponent(), progNum++/progDenom);
                 VisitFile(target, force, fast, specInsts, progress);
@@ -463,7 +463,7 @@ static void VisitDirectory(const ProjectPath& dir,
         {
             switch (child.second.getPathType())
             {
-            case ProjectPath::PT_DIRECTORY:
+            case ProjectPath::Type::Directory:
             {
                 VisitDirectory(child.second, recursive, force, fast, specInsts, progress);
                 break;
@@ -488,15 +488,15 @@ static void VisitGlob(const ProjectPath& path,
     {
         switch (child.getPathType())
         {
-        case ProjectPath::PT_FILE:
+        case ProjectPath::Type::File:
         {
             ++childFileCount;
             break;
         }
-        case ProjectPath::PT_LINK:
+        case ProjectPath::Type::Link:
         {
             ProjectPath target = path.resolveLink();
-            if (target.getPathType() == ProjectPath::PT_FILE)
+            if (target.getPathType() == ProjectPath::Type::File)
                 ++childFileCount;
             break;
         }
@@ -512,16 +512,16 @@ static void VisitGlob(const ProjectPath& path,
     {
         switch (child.getPathType())
         {
-        case ProjectPath::PT_FILE:
+        case ProjectPath::Type::File:
         {
             progress.changeFile(child.getLastComponent(), progNum++/progDenom);
             VisitFile(child, force, fast, specInsts, progress);
             break;
         }
-        case ProjectPath::PT_LINK:
+        case ProjectPath::Type::Link:
         {
             ProjectPath target = path.resolveLink();
-            if (target.getPathType() == ProjectPath::PT_FILE)
+            if (target.getPathType() == ProjectPath::Type::File)
             {
                 progress.changeFile(target.getLastComponent(), progNum++/progDenom);
                 VisitFile(target, force, fast, specInsts, progress);
@@ -540,7 +540,7 @@ static void VisitGlob(const ProjectPath& path,
         {
             switch (child.getPathType())
             {
-            case ProjectPath::PT_DIRECTORY:
+            case ProjectPath::Type::Directory:
             {
                 VisitDirectory(child, recursive, force, fast, specInsts, progress);
                 break;
@@ -560,34 +560,34 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     for (const ProjectDataSpec& spec : m_compiledSpecs)
         if (spec.active)
             specInsts.emplace_back(&spec.spec,
-            std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, TOOL_COOK)));
+            std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, DataSpecTool::Cook)));
 
     /* Iterate complete directory/file/glob list */
     CookProgress cookProg(progress);
     switch (path.getPathType())
     {
-    case ProjectPath::PT_FILE:
+    case ProjectPath::Type::File:
     {
         cookProg.changeFile(path.getLastComponent(), 0.0);
         VisitFile(path, force, fast, specInsts, cookProg);
         break;
     }
-    case ProjectPath::PT_LINK:
+    case ProjectPath::Type::Link:
     {
         ProjectPath target = path.resolveLink();
-        if (target.getPathType() == ProjectPath::PT_FILE)
+        if (target.getPathType() == ProjectPath::Type::File)
         {
             cookProg.changeFile(target.getLastComponent(), 0.0);
             VisitFile(target, force, fast, specInsts, cookProg);
         }
         break;
     }
-    case ProjectPath::PT_DIRECTORY:
+    case ProjectPath::Type::Directory:
     {
         VisitDirectory(path, recursive, force, fast, specInsts, cookProg);
         break;
     }
-    case ProjectPath::PT_GLOB:
+    case ProjectPath::Type::Glob:
     {
         VisitGlob(path, recursive, force, fast, specInsts, cookProg);
         break;

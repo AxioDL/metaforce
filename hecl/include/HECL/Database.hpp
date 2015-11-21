@@ -38,10 +38,10 @@ class PackageDepsgraph
 public:
     struct Node
     {
-        enum
+        enum class Type
         {
-            NODE_DATA,
-            NODE_GROUP
+            Data,
+            Group
         } type;
         ProjectPath path;
         ProjectPath cookedPath;
@@ -132,11 +132,11 @@ public:
 /**
  * @brief Pre-emptive indication of what the constructed DataSpec is used for
  */
-enum DataSpecTool
+enum class DataSpecTool
 {
-    TOOL_EXTRACT,
-    TOOL_COOK,
-    TOOL_PACKAGE
+    Extract,
+    Cook,
+    Package
 };
 
 extern std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
@@ -175,22 +175,22 @@ protected:
     /**
      * @brief Byte-order of target system
      */
-    enum DataEndianness
+    enum class DataEndianness
     {
-        DE_NONE,
-        DE_BIG, /**< Big-endian (PowerPC) */
-        DE_LITTLE /**< Little-endian (Intel) */
+        None,
+        Big, /**< Big-endian (PowerPC) */
+        Little /**< Little-endian (Intel) */
     };
 
     /**
      * @brief Data-formats of target system
      */
-    enum DataPlatform
+    enum class DataPlatform
     {
-        DP_NONE,
-        DP_GENERIC, /**< Scanline textures and 3-way shader bundle (GLSL, HLSL, SPIR-V) */
-        DP_REVOLUTION, /**< Tiled textures and GX register buffers */
-        DP_CAFE /**< Swizzled textures and R700 shader objects */
+        None,
+        Generic, /**< Scanline textures and 3-way shader bundle (GLSL, HLSL, SPIR-V) */
+        Revolution, /**< Tiled textures and GX register buffers */
+        Cafe /**< Swizzled textures and R700 shader objects */
     };
 
     typedef std::function<void(const void* data, size_t len)> FDataAppender;
@@ -294,12 +294,12 @@ public:
      *
      * This is used to provide pretty colors during the cook operation
      */
-    enum Cost
+    enum class Cost
     {
-        C_NONE,
-        C_LIGHT,
-        C_MEDIUM,
-        C_HEAVY
+        None,
+        Light,
+        Medium,
+        Heavy
     };
 
     /**

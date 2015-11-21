@@ -35,15 +35,15 @@ class HMDLBuffers;
 class BlenderConnection
 {
 public:
-    enum BlendType
+    enum class BlendType
     {
-        TypeNone,
-        TypeMesh,
-        TypeActor,
-        TypeArea,
-        TypeWorld,
-        TypeMapArea,
-        TypeMapUniverse
+        None,
+        Mesh,
+        Actor,
+        Area,
+        World,
+        MapArea,
+        MapUniverse
     };
 private:
     bool m_lock = false;
@@ -54,7 +54,7 @@ private:
 #endif
     int m_readpipe[2];
     int m_writepipe[2];
-    BlendType m_loadedType = TypeNone;
+    BlendType m_loadedType = BlendType::None;
     ProjectPath m_loadedBlend;
     std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
@@ -72,11 +72,11 @@ public:
     bool saveBlend();
     void deleteBlend();
 
-    enum ANIMCurveType
+    enum class ANIMCurveType
     {
-        CurveRotate,
-        CurveTranslate,
-        CurveScale
+        Rotate,
+        Translate,
+        Scale
     };
 
     class PyOutStream : public std::ostream
@@ -522,7 +522,7 @@ public:
         static const char* MeshOutputModeString(HMDLTopology topology)
         {
             static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
-            return STRS[topology];
+            return STRS[int(topology)];
         }
 
 
@@ -530,7 +530,7 @@ public:
         Mesh compileMesh(HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
-            if (m_parent->m_loadedType != TypeMesh)
+            if (m_parent->m_loadedType != BlendType::Mesh)
                 BlenderLog.report(LogVisor::FatalError, _S("%s is not a MESH blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
@@ -551,7 +551,7 @@ public:
         Mesh compileMesh(const std::string& name, HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
-            if (m_parent->m_loadedType != TypeArea)
+            if (m_parent->m_loadedType != BlendType::Area)
                 BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
@@ -572,7 +572,7 @@ public:
         Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,
                               Mesh::SurfProgFunc surfProg=[](int){})
         {
-            if (m_parent->m_loadedType != TypeArea)
+            if (m_parent->m_loadedType != BlendType::Area)
                 BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
@@ -657,7 +657,7 @@ public:
 
         Actor compileActor()
         {
-            if (m_parent->m_loadedType != TypeActor)
+            if (m_parent->m_loadedType != BlendType::Actor)
                 BlenderLog.report(LogVisor::FatalError, _S("%s is not an ACTOR blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 

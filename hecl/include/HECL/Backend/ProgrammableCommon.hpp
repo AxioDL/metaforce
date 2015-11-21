@@ -32,11 +32,11 @@ struct ProgrammableCommon : IBackend
     std::vector<TexSampling> m_texSamplings;
     unsigned m_texMapEnd = 0;
 
-    enum TexGenSrc
+    enum class TexGenSrc
     {
-        TG_POS,
-        TG_NRM,
-        TG_UV
+        Position,
+        Normal,
+        UV
     };
 
     struct TexCoordGen

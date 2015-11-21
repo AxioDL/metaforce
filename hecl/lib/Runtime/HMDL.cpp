@@ -19,8 +19,8 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory* factory,
     if (meta.magic != 'TACO')
         Log.report(LogVisor::FatalError, "invalid HMDL magic");
 
-    m_vbo = factory->newStaticBuffer(boo::BufferUseVertex, vbo, meta.vertStride, meta.vertCount);
-    m_ibo = factory->newStaticBuffer(boo::BufferUseIndex, ibo, 4, meta.indexCount);
+    m_vbo = factory->newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
+    m_ibo = factory->newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
 
     if (factory->bindingNeedsVertexFormat())
         m_vtxFmt = NewVertexFormat(factory, meta, m_vbo, m_ibo);
@@ -38,25 +38,25 @@ boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory* factory
         vdescs[i].indexBuffer = ibo;
     }
 
-    vdescs[0].semantic = boo::VertexSemanticPosition;
-    vdescs[1].semantic = boo::VertexSemanticNormal;
+    vdescs[0].semantic = boo::VertexSemantic::Position;
+    vdescs[1].semantic = boo::VertexSemantic::Normal;
     size_t e = 2;
 
     for (size_t i=0 ; i<meta.colorCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticColor;
+        vdescs[e].semantic = boo::VertexSemantic::Color;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<meta.uvCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticUV;
+        vdescs[e].semantic = boo::VertexSemantic::UV;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<meta.weightCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticWeight;
+        vdescs[e].semantic = boo::VertexSemantic::Weight;
         vdescs[e].semanticIdx = i;
     }
 
@@ -74,25 +74,25 @@ boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory *factor
         vdescs[i].indexBuffer = nullptr;
     }
 
-    vdescs[0].semantic = boo::VertexSemanticPosition;
-    vdescs[1].semantic = boo::VertexSemanticNormal;
+    vdescs[0].semantic = boo::VertexSemantic::Position;
+    vdescs[1].semantic = boo::VertexSemantic::Normal;
     size_t e = 2;
 
     for (size_t i=0 ; i<m_colorCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticColor;
+        vdescs[e].semantic = boo::VertexSemantic::Color;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<m_uvCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticUV;
+        vdescs[e].semantic = boo::VertexSemantic::UV;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<m_weightCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemanticWeight;
+        vdescs[e].semantic = boo::VertexSemantic::Weight;
         vdescs[e].semanticIdx = i;
     }
 

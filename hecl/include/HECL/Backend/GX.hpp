@@ -391,7 +391,7 @@ struct GX : IBackend
         return -1;
     }
 
-    enum BlendFactor
+    enum BlendFactor : uint16_t
     {
         BL_ZERO,
         BL_ONE,
@@ -524,14 +524,14 @@ struct GX : IBackend
 private:
     struct TraceResult
     {
-        enum
+        enum class Type
         {
-            TraceInvalid,
-            TraceTEVStage,
-            TraceTEVColorArg,
-            TraceTEVAlphaArg,
-            TraceTEVKColorSel,
-            TraceTEVKAlphaSel
+            Invalid,
+            TEVStage,
+            TEVColorArg,
+            TEVAlphaArg,
+            TEVKColorSel,
+            TEVKAlphaSel
         } type;
         union
         {
@@ -541,12 +541,12 @@ private:
             GX::TevKColorSel tevKColorSel;
             GX::TevKAlphaSel tevKAlphaSel;
         };
-        TraceResult() : type(TraceInvalid) {}
-        TraceResult(GX::TEVStage* stage) : type(TraceTEVStage), tevStage(stage) {}
-        TraceResult(GX::TevColorArg arg) : type(TraceTEVColorArg), tevColorArg(arg) {}
-        TraceResult(GX::TevAlphaArg arg) : type(TraceTEVAlphaArg), tevAlphaArg(arg) {}
-        TraceResult(GX::TevKColorSel arg) : type(TraceTEVKColorSel), tevKColorSel(arg) {}
-        TraceResult(GX::TevKAlphaSel arg) : type(TraceTEVKAlphaSel), tevKAlphaSel(arg) {}
+        TraceResult() : type(Type::Invalid) {}
+        TraceResult(GX::TEVStage* stage) : type(Type::TEVStage), tevStage(stage) {}
+        TraceResult(GX::TevColorArg arg) : type(Type::TEVColorArg), tevColorArg(arg) {}
+        TraceResult(GX::TevAlphaArg arg) : type(Type::TEVAlphaArg), tevAlphaArg(arg) {}
+        TraceResult(GX::TevKColorSel arg) : type(Type::TEVKColorSel), tevKColorSel(arg) {}
+        TraceResult(GX::TevKAlphaSel arg) : type(Type::TEVKAlphaSel), tevKAlphaSel(arg) {}
     };
 
     unsigned addKColor(Diagnostics& diag, const SourceLocation& loc, const Color& color);

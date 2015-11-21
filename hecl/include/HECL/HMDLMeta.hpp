@@ -7,10 +7,10 @@
 namespace HECL
 {
 
-enum HMDLTopology : atUint32
+enum class HMDLTopology : atUint32
 {
-    TopologyTriangles,
-    TopologyTriStrips,
+    Triangles,
+    TriStrips,
 };
 
 #define HECL_HMDL_META_SZ 32

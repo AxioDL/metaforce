@@ -105,7 +105,7 @@ class ShaderCacheExtensions
 {
     friend class ShaderCacheManager;
     boo::IGraphicsDataFactory::Platform m_plat;
-    ShaderCacheExtensions() : m_plat(boo::IGraphicsDataFactory::PlatformNull) {}
+    ShaderCacheExtensions() : m_plat(boo::IGraphicsDataFactory::Platform::Null) {}
 
     uint64_t hashExtensions() const;
 public:
@@ -130,7 +130,7 @@ public:
         /* Index-0 has special default-meaning */
         m_extensionSlots.emplace_back();
     }
-    operator bool() const {return m_plat != boo::IGraphicsDataFactory::PlatformNull;}
+    operator bool() const {return m_plat != boo::IGraphicsDataFactory::Platform::Null;}
 
     /* Strings must remain resident!! (intended to be stored static const) */
     unsigned registerExtensionSlot(Function lighting, Function post)

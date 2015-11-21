@@ -90,7 +90,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
             /* Generate meta structure (usually statically serialized) */
             HECL::HMDLMeta testMeta;
-            testMeta.topology = HECL::TopologyTriStrips;
+            testMeta.topology = HECL::HMDLTopology::TriStrips;
             testMeta.vertStride = 32;
             testMeta.vertCount = 4;
             testMeta.indexCount = 4;
@@ -136,10 +136,10 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                     tex[i][j][3] = 0xff;
                 }
             boo::ITexture* texture =
-            gfxF->newStaticTexture(256, 256, 1, boo::TextureFormatRGBA8, tex, 256*256*4);
+            gfxF->newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, tex, 256*256*4);
 
             /* Make vertex uniform buffer */
-            vubo = gfxF->newDynamicBuffer(boo::BufferUseUniform, sizeof(VertexUBO), 1);
+            vubo = gfxF->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1);
 
             /* Assemble data binding */
             binding = testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
@@ -191,7 +191,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             float rgba[] = {sinf(frameIdx / 60.0), cosf(frameIdx / 60.0), 0.0, 1.0};
             gfxQ->setClearColor(rgba);
             gfxQ->clearTarget();
-            gfxQ->setDrawPrimitive(boo::PrimitiveTriStrips);
+            gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
 
             vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
             vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;
@@ -232,7 +232,7 @@ int main(int argc, const boo::SystemChar** argv)
     atSetExceptionHandler(AthenaExcHandler);
     LogVisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
-    int ret = boo::ApplicationRun(boo::IApplication::PLAT_AUTO,
+    int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("heclTest"), _S("HECL Test"), argc, argv);
     printf("IM DYING!!\n");
     return ret;

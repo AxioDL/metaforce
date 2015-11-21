@@ -73,7 +73,7 @@ public:
         m_specPasses.reserve(HECL::Database::DATA_SPEC_REGISTRY.size());
         for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
         {
-            HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::TOOL_EXTRACT);
+            HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::DataSpecTool::Extract);
             if (ds)
             {
                 if (ds->canExtract(m_einfo, m_reps))

@@ -194,13 +194,13 @@ static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 #endif
 }
 
-enum FileLockType
+enum class FileLockType
 {
-    LNONE = 0,
-    LREAD,
-    LWRITE
+    None = 0,
+    Read,
+    Write
 };
-static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock=LNONE)
+static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock=FileLockType::None)
 {
 #if HECL_UCS2
     FILE* fp = _wfopen(path, mode);
@@ -212,13 +212,13 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
         LogModule.report(LogVisor::FatalError, "fopen %s: %s", path, strerror(errno));
 #endif
 
-    if (lock)
+    if (lock != FileLockType::None)
     {
 #if _WIN32
         OVERLAPPED ov = {};
         LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == LWRITE) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
-        if (flock(fileno(fp), ((lock == LWRITE) ? LOCK_EX : LOCK_SH) | LOCK_NB))
+        if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
             LogModule.report(LogVisor::FatalError, "flock %s: %s", path, strerror(errno));
 #endif
     }
@@ -741,20 +741,20 @@ public:
     /**
      * @brief Type of path
      */
-    enum PathType
+    enum class Type
     {
-        PT_NONE, /**< If path doesn't reference a valid filesystem entity, this is returned */
-        PT_FILE, /**< Singular file path (confirmed with filesystem) */
-        PT_DIRECTORY, /**< Singular directory path (confirmed with filesystem) */
-        PT_GLOB, /**< Glob-path (whenever one or more '*' occurs in syntax) */
-        PT_LINK /**< Link (symlink on POSIX, ShellLink on Windows) */
+        None, /**< If path doesn't reference a valid filesystem entity, this is returned */
+        File, /**< Singular file path (confirmed with filesystem) */
+        Directory, /**< Singular directory path (confirmed with filesystem) */
+        Glob, /**< Glob-path (whenever one or more '*' occurs in syntax) */
+        Link /**< Link (symlink on POSIX, ShellLink on Windows) */
     };
 
     /**
      * @brief Get type of path based on syntax and filesystem queries
      * @return Type of path
      */
-    PathType getPathType() const;
+    Type getPathType() const;
 
     /**
      * @brief Get time of last modification with special behaviors for directories and glob-paths
