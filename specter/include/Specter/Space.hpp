@@ -1,0 +1,4 @@
+#ifndef SPECTER_SPACE_HPP
+#define SPECTER_SPACE_HPP
+
+#endif // SPECTER_SPACE_HPP

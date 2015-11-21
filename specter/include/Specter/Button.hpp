@@ -1,0 +1,4 @@
+#ifndef SPECTER_BUTTON_HPP
+#define SPECTER_BUTTON_HPP
+
+#endif // SPECTER_BUTTON_HPP

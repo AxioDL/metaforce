@@ -1,0 +1,4 @@
+#ifndef SPECTER_MENU_HPP
+#define SPECTER_MENU_HPP
+
+#endif // SPECTER_MENU_HPP

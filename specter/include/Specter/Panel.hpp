@@ -1,0 +1,4 @@
+#ifndef SPECTER_PANEL_HPP
+#define SPECTER_PANEL_HPP
+
+#endif // SPECTER_PANEL_HPP

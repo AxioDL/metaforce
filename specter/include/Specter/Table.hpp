@@ -1,0 +1,4 @@
+#ifndef SPECTER_TABLE_HPP
+#define SPECTER_TABLE_HPP
+
+#endif // SPECTER_TABLE_HPP
