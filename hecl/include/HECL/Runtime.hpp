@@ -25,6 +25,10 @@ class FileStoreManager
 public:
     FileStoreManager(const SystemString& domain);
     const SystemString& getDomain() const {return m_domain;}
+    /**
+     * @brief Returns the full path to the file store, including domain
+     * @return Full path to store e.g /home/foo/.hecl/bar
+     */
     const SystemString& getStoreRoot() const {return m_storeRoot;}
 };
 
