@@ -3,10 +3,11 @@
 namespace Specter
 {
 
-void RootView::setWindow(boo::IWindow* window)
+void RootView::setWindow(boo::IWindow* window, float userScale)
 {
+    window->setCallback(this);
     m_window = window;
-    float pf = window->getVirtualPixelFactor();
+    m_scale = window->getVirtualPixelFactor() * userScale;
 }
 
 void RootView::resized(const boo::SWindowRect& rect)

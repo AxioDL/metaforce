@@ -14,5 +14,6 @@
 #include "Menu.hpp"
 #include "Node.hpp"
 #include "NodeSocket.hpp"
+#include "FontCache.hpp"
 
 #endif // SPECTER_HPP

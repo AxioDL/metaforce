@@ -10,9 +10,20 @@ if(NOT DEFINED BOO_INCLUDE_DIR)
                        BOO_INCLUDE_DIR set")
 endif()
 
+if(NOT DEFINED ATHENA_INCLUDE_DIR)
+  message(FATAL_ERROR "Specter may only be built as a sub-project containing Athena with
+                       ATHENA_INCLUDE_DIR set")
+endif()
+
+if(NOT DEFINED LOG_VISOR_INCLUDE_DIR)
+  message(FATAL_ERROR "Specter may only be built as a sub-project containing LogVisor with
+                       LOG_VISOR_INCLUDE_DIR set")
+endif()
+
 add_subdirectory(resources/fonts)
 
 include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
+                    ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include)
 
 list(APPEND SPECTER_HEADERS
