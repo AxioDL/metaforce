@@ -15,8 +15,6 @@ else()
   list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp CCallStackNix.cpp)
 endif()
 
-make_dnalist(CVarManager.hpp)
-
 add_library(RuntimeCommon
             CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
@@ -70,7 +68,7 @@ add_library(RuntimeCommon
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             CVar.hpp CVar.cpp
-            CVarManager.cpp
+            CVarManager.hpp CVarManager.cpp
             RetroTypes.hpp
             GCNTypes.hpp
             ${PLAT_SRCS})
