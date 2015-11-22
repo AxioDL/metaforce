@@ -1,6 +1,7 @@
-The MIT License (MIT)
+The AxioDL License
 
-Copyright (c) 2015 Jack Andersen
+Copyright (c) 2015 HECL Contributors
+Original Authors: Jack Andersen and Phillip "Antidote" Stephens
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11,6 +12,12 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+Redistributions of the Software may not embed or fetch 3rd-party promotions or
+advertising ("adware") that are unrelated to the redistribution's content.
+The Software may not be modified to connect to 3rd-party advertising sources
+("ad-networks"). Self-promotions of distribution-extensions are permissible
+(e.g. microtransactions).
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
