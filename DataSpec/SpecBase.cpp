@@ -3,10 +3,25 @@
 #include "BlenderConnection.hpp"
 #include "DNACommon/DNACommon.hpp"
 
+#include <time.h>
+
 namespace Retro
 {
 
 static LogVisor::LogModule Log("Retro::SpecBase");
+
+static const HECL::SystemChar* MomErr[] =
+{
+    _S("Your metroid is in another castle"),
+    _S("HECL is experiencing a PTSD attack"),
+    _S("Unable to freeze metroids"),
+    _S("Ridley ate your homework"),
+    _S("Expected 0 maternal symbolisms, found ∞"),
+    _S("Contradictive narratives unsupported"),
+    _S("Wiimote profile \"NES + Zapper\" not recognized"),
+    _S("Unable to find Waldo"),
+    _S("Expected Ridley, found furby")
+};
 
 SpecBase::SpecBase(HECL::Database::Project& project)
 : m_project(project),
@@ -18,6 +33,13 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     if (!m_disc)
         return false;
     const char* gameID = m_disc->getHeader().gameID;
+
+    if (!memcmp(gameID, "R3O", 3))
+    {
+        unsigned int t = time(nullptr);
+        int r = rand_r(&t) % 9;
+        Log.report(LogVisor::FatalError, MomErr[r]);
+    }
 
     m_standalone = true;
     if (m_isWii && !memcmp(gameID, "R3M", 3))
