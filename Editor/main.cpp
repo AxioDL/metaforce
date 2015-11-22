@@ -7,19 +7,37 @@ namespace RUDE
 
 struct Application : boo::IApplicationCallback
 {
+    HECL::Runtime::FileStoreManager m_fileMgr;
+    Specter::FontCache m_fontCache;
+    Specter::RootView m_rootView;
     boo::IWindow* m_mainWindow;
+    bool m_running = true;
+
+    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache) {}
+
     int appMain(boo::IApplication* app)
     {
         m_mainWindow = app->newWindow(_S("RUDE"));
+        m_rootView.setWindow(m_mainWindow, 1.0f);
+
+        while (m_running)
+        {
+            m_mainWindow->waitForRetrace();
+
+        }
+
         return 0;
     }
     void appQuitting(boo::IApplication*)
     {
+        m_running = false;
     }
     void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&)
     {
 
     }
+
+
 };
 
 }

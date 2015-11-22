@@ -34,7 +34,7 @@ set(HECL_DATASPEC_PUSHES
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);")
 add_subdirectory(hecl)
 add_subdirectory(libSpecter)
-set(SPECTER_INCLUDE_DIR libSpecter/include)
+set(SPECTER_INCLUDE_DIR libSpecter/include libSpecter/freetype2/include)
 add_subdirectory(NODLib)
 set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_definitions(-DZE_ATHENA_TYPES=1)

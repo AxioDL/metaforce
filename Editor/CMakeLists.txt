@@ -6,8 +6,8 @@ target_link_libraries(rude
                       RuntimeCommonInput
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
-                      DNACommon Specter
-                      HECLDatabase HECLBlender HECLCommon AthenaCore NOD
+                      DNACommon Specter SpecterFonts freetype
+                      HECLDatabase HECLBlender HECLRuntime HECLCommon AthenaCore NOD
                       LogVisor AthenaLibYaml Boo ${PNG_LIB} squish xxhash Math
                       ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
