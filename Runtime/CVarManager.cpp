@@ -20,12 +20,22 @@ CVarManager::CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary)
 {
     com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
     com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::Cheat | CVar::EFlags::ReadOnly));
-    com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System  | CVar::EFlags::Archive | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
+    com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
     r_clearColor = newCVar("r_clearcolor", "Sets the clear color for the frame buffer", Zeus::CColor{Zeus::Comp8(255), 255, 255}, (CVar::EFlags::System  | CVar::EFlags::Archive));
 }
 
 CVarManager::~CVarManager()
 {
+}
+
+void CVarManager::update()
+{
+    for (const std::pair<std::string, CVar*> pair : m_cvars)
+        if (pair.second->isModified())
+        {
+            pair.second->dispatch();
+            pair.second->clearModified();
+        }
 }
 
 bool CVarManager::registerCVar(CVar* cvar)

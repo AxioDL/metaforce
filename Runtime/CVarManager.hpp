@@ -24,7 +24,8 @@ class CVarManager
         CVar* ret(new CVar(name, value, help, flags, *this));
         if (registerCVar(ret))
         {
-            deserialize(ret);
+            if (ret->isArchive())
+                deserialize(ret);
             return ret;
         }
         delete ret;
@@ -37,6 +38,7 @@ public:
     CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary = false);
     ~CVarManager();
 
+    void update();
     CVar* newCVar(const std::string& name, const std::string& help, const Zeus::CColor& value, CVar::EFlags flags)
     { return _newCVar<Zeus::CColor>(name, help, value, flags); }
     CVar* newCVar(const std::string& name, const std::string& help, const std::string& value, CVar::EFlags flags)
@@ -50,7 +52,7 @@ public:
 
     bool registerCVar(CVar* cvar);
 
-    CVar*findCVar(const std::string& name);
+    CVar* findCVar(const std::string& name);
 
     std::vector<CVar*> archivedCVars() const;
     std::vector<CVar*> cvars() const;

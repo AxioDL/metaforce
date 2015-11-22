@@ -216,7 +216,7 @@ int CVar::toInteger(bool* isValid) const
 
 const std::string CVar::toLiteral(bool* isValid) const
 {
-    if (m_type != EType::Literal  /*&& (com_developer && com_developer->toBoolean())*/)
+    if (m_type != EType::Literal && (com_developer && com_developer->toBoolean()))
     {
         if (isValid != nullptr)
             *isValid = false;
@@ -230,7 +230,7 @@ const std::string CVar::toLiteral(bool* isValid) const
 
 const std::wstring CVar::toWideLiteral(bool* isValid) const
 {
-    if (m_type != EType::Literal  /*&& (com_developer && com_developer->toBoolean())*/)
+    if (m_type != EType::Literal && (com_developer && com_developer->toBoolean()))
     {
         if (isValid != nullptr)
             *isValid = false;
@@ -244,13 +244,15 @@ const std::wstring CVar::toWideLiteral(bool* isValid) const
 
 bool CVar::fromColor(const Zeus::CColor& val)
 {
-    if (isCheat())
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Color)
         return false;
 
-    if (isReadOnly())
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     m_value.assign(CBasics::Stringize("%i %i %i %i", unsigned(val.r), unsigned(val.g), unsigned(val.b), unsigned(val.a)));
@@ -260,13 +262,15 @@ bool CVar::fromColor(const Zeus::CColor& val)
 
 bool CVar::fromFloat(float val)
 {
-    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Float)
         return false;
 
-    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     m_value.assign(CBasics::Stringize("%f", val));
@@ -276,13 +280,15 @@ bool CVar::fromFloat(float val)
 
 bool CVar::fromBoolean(bool val)
 {
-    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Boolean)
         return false;
 
-    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     if (val)
@@ -296,13 +302,15 @@ bool CVar::fromBoolean(bool val)
 
 bool CVar::fromInteger(int val)
 {
-    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Integer)
         return false;
 
-    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     m_value = CBasics::Stringize("%i", val);
@@ -312,13 +320,15 @@ bool CVar::fromInteger(int val)
 
 bool CVar::fromLiteral(const std::string& val)
 {
-    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Literal)
         return false;
 
-    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     m_value.assign(val);
@@ -328,13 +338,15 @@ bool CVar::fromLiteral(const std::string& val)
 
 bool CVar::fromLiteral(const std::wstring& val)
 {
-    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+    if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
+        return false;
+    else if (isCheat())
         return false;
 
     if (m_type != EType::Literal)
         return false;
 
-    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+    if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
     m_value.assign(HECL::WideToUTF8(val));
@@ -379,6 +391,12 @@ void CVar::lock()
         m_allowedWrite = false;
         clearModified();
     }
+}
+
+void CVar::dispatch()
+{
+    for (const ListenerFunc& listen : m_listeners)
+        listen(this);
 }
 }
 

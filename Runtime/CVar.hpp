@@ -2,6 +2,7 @@
 #define CVAR_HPP
 
 #include <string>
+#include <functional>
 #include "CColor.hpp"
 #include "DataSpec/DNACommon/CVar.hpp"
 
@@ -14,6 +15,8 @@ class CVar : protected DNACVAR::CVar
     friend class CVarManager;
 
 public:
+    typedef std::function<void(CVar*)> ListenerFunc;
+
     using EType = DNACVAR::EType;
     using EFlags = DNACVAR::EFlags;
 
@@ -46,7 +49,6 @@ public:
     bool isBoolean()  const { return m_type == EType::Boolean; }
     bool isInteger()  const { return m_type == EType::Integer; }
     bool isLiteral()  const { return m_type == EType::Literal; }
-    bool isBinding()  const { return m_type == EType::Bind; }
     bool isColor()    const { return m_type == EType::Color; }
     bool isModified() const;
     bool isReadOnly() const;
@@ -73,13 +75,19 @@ public:
      * \see unlock
      */
     void lock();
+
+    void addListener(ListenerFunc func) { m_listeners.push_back(func); }
+
 private:
+    void dispatch();
     std::string m_help;
     std::string m_defaultValue;
     EFlags      m_flags;
     bool        m_allowedWrite;
 
     CVarManager& m_mgr;
+
+    std::vector<ListenerFunc> m_listeners;
 };
 
 
