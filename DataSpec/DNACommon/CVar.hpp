@@ -2,21 +2,19 @@
 #define _DNACOMMON_CVAR_HPP_
 
 #include <Athena/Global.hpp>
-#include <type_traits>
 #include "DNACommon.hpp"
 
 namespace Retro
 {
 namespace DNACVAR
 {
-enum class EType
+enum class EType : atUint8
 {
     Boolean,
     Integer,
     Float,
     Literal,
-    Color,
-    Bind
+    Color
 };
 
 enum EFlags
@@ -24,12 +22,13 @@ enum EFlags
     All      = -1, // NOTE: is this really necessary? It seems rather overkill
     System   = (1 << 0),
     Game     = (1 << 1),
-    Gui      = (1 << 2),
-    Cheat    = (1 << 3),
-    Hidden   = (1 << 4),
-    ReadOnly = (1 << 5),
-    Archive  = (1 << 6),
-    Modified = (1 << 7)
+    Editor   = (1 << 2),
+    Gui      = (1 << 3),
+    Cheat    = (1 << 4),
+    Hidden   = (1 << 5),
+    ReadOnly = (1 << 6),
+    Archive  = (1 << 7),
+    Modified = (1 << 8)
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
@@ -40,7 +39,14 @@ public:
     String<-1>    m_name;
     String<-1>    m_value;
     Value<EType>  m_type;
-    Value<EFlags> m_flags;
+};
+
+struct CVarContainer : BigYAML
+{
+    DECL_YAML
+    Value<atUint32> magic = 'CVAR';
+    Value<atUint32> cvarCount;
+    Vector<CVar, DNA_COUNT(cvarCount)> cvars;
 };
 
 }

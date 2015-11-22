@@ -1,23 +1,34 @@
 #include "CVarManager.hpp"
 #include "CVar.hpp"
+#include <Athena/FileWriter.hpp>
 #include <Athena/Utility.hpp>
+#include <HECL/Runtime.hpp>
 #include <memory>
 
 namespace Retro
 {
-CVarManager::CVarManager()
+
+CVar* com_developer = nullptr;
+CVar* com_configfile = nullptr;
+CVar* com_enableCheats = nullptr;
+CVar* r_clearColor = nullptr;
+
+LogVisor::LogModule CVarLog("CVarManager");
+CVarManager::CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary)
+    : m_store(store),
+      m_useBinary(useBinary)
 {
+    com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
+    com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::Cheat | CVar::EFlags::ReadOnly));
+    com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System  | CVar::EFlags::Archive | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
+    r_clearColor = newCVar("r_clearcolor", "Sets the clear color for the frame buffer", Zeus::CColor{Zeus::Comp8(255), 255, 255}, (CVar::EFlags::System  | CVar::EFlags::Archive));
 }
 
 CVarManager::~CVarManager()
 {
 }
 
-void CVarManager::initialize()
-{
-}
-
-bool CVarManager::registerCVar(std::shared_ptr<CVar> cvar)
+bool CVarManager::registerCVar(CVar* cvar)
 {
     std::string tmp = cvar->name();
     Athena::utility::tolower(tmp);
@@ -28,7 +39,7 @@ bool CVarManager::registerCVar(std::shared_ptr<CVar> cvar)
     return true;
 }
 
-std::shared_ptr<CVar> CVarManager::findCVar(const std::string &name)
+CVar* CVarManager::findCVar(const std::string &name)
 {
     std::string tmp = std::string(name);
     Athena::utility::tolower(tmp);
@@ -38,40 +49,124 @@ std::shared_ptr<CVar> CVarManager::findCVar(const std::string &name)
     return m_cvars[tmp];
 }
 
-std::vector<std::shared_ptr<CVar>> CVarManager::archivedCVars() const
+std::vector<CVar*> CVarManager::archivedCVars() const
 {
-    std::vector<std::shared_ptr<CVar>> ret;
-    for (std::pair<std::string, std::shared_ptr<CVar>> pair : m_cvars)
-    {
-        if (int(pair.second->flags() & CVar::EFlags::Archive) != 0)
+    std::vector<CVar*> ret;
+    for (std::pair<std::string, CVar*> pair : m_cvars)
+        if (pair.second->isArchive())
             ret.push_back(pair.second);
-    }
 
     return ret;
 }
 
-std::vector<std::shared_ptr<CVar>> CVarManager::cvars() const
+std::vector<CVar*> CVarManager::cvars() const
 {
-    std::vector<std::shared_ptr<CVar>> ret;
-    for (std::pair<std::string, std::shared_ptr<CVar>> pair : m_cvars)
+    std::vector<CVar*> ret;
+    for (std::pair<std::string, CVar*> pair : m_cvars)
         ret.push_back(pair.second);
 
     return ret;
 }
 
+void CVarManager::deserialize(CVar* cvar)
+{
+    if (!cvar || !cvar->isArchive())
+        return;
+
+    CVarContainer container;
+#if _WIN32
+    HECL::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toWideLiteral();
+#else
+    HECL::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toLiteral();
+#endif
+    HECL::Sstat st;
+    if (HECL::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+        return;
+
+    if (m_useBinary)
+    {
+        filename += _S(".bin");
+        Athena::io::FileReader reader(filename);
+        if (reader.isOpen())
+            container.read(reader);
+    }
+    else
+    {
+        filename += _S(".yaml");
+        FILE* f = HECL::Fopen(filename.c_str(), _S("rb"));
+        if (f)
+            container.fromYAMLFile(f);
+        fclose(f);
+    }
+
+
+    if (container.cvars.size() > 0)
+    {
+        auto serialized = std::find_if(container.cvars.begin(), container.cvars.end(), [&cvar](const DNACVAR::CVar& c) -> bool
+        { return c.m_name == cvar->name(); });
+
+        if (serialized != container.cvars.end())
+        {
+            DNACVAR::CVar tmp = *serialized;
+            if (tmp.m_type != cvar->type())
+            {
+                CVarLog.report(LogVisor::Error, _S("Stored type for %s does not match actual type!"), tmp.m_name.c_str());
+                return;
+            }
+
+            cvar->m_value = tmp.m_value;
+        }
+    }
+}
+
+void CVarManager::serialize()
+{
+    CVarContainer container;
+    for (const std::pair<std::string, CVar*>& pair : m_cvars)
+        if (pair.second->isArchive())
+        {
+            CVar tmp = *pair.second;
+            container.cvars.push_back(tmp);
+        }
+
+    container.cvarCount = container.cvars.size();
+
+#if _WIN32
+    HECL::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toWideLiteral();
+#else
+    HECL::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toLiteral();
+#endif
+
+    if (m_useBinary)
+    {
+        filename += _S(".bin");
+        Athena::io::FileWriter writer(filename);
+        if (writer.isOpen())
+            container.write(writer);
+    }
+    else
+    {
+        filename += _S(".yaml");
+        FILE* f = HECL::Fopen(filename.c_str(), _S("wb"));
+        if (f)
+            container.toYAMLFile(f);
+        fclose(f);
+    }
+}
+
 bool CVarManager::suppressDeveloper()
 {
-    /*bool oldDeveloper = com_developer->toBoolean();
+    bool oldDeveloper = com_developer->toBoolean();
     CVarUnlocker unlock(com_developer);
-    com_developer->fromBoolean(false);*/
+    com_developer->fromBoolean(false);
 
-    return false; //oldDeveloper;
+    return oldDeveloper;
 }
 
 void CVarManager::restoreDeveloper(bool oldDeveloper)
 {
-//    CVarUnlocker unlock(com_developer);
-//    com_developer->fromBoolean(oldDeveloper);
+    CVarUnlocker unlock(com_developer);
+    com_developer->fromBoolean(oldDeveloper);
 }
 
 }

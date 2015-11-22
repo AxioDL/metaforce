@@ -7,7 +7,11 @@
 
 namespace Retro
 {
-CVar::CVar(const std::string& name, const std::string &value, const std::string &help, EType type, EFlags flags, CVarManager* parent)
+extern CVar* com_developer;
+extern CVar* com_enableCheats;
+
+CVar::CVar(const std::string& name, const std::string &value, const std::string &help, EType type, EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     m_name= name;
     m_value = value;
@@ -16,10 +20,10 @@ CVar::CVar(const std::string& name, const std::string &value, const std::string 
     m_type = type;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 }
 
-CVar::CVar(const std::string& name, const std::string& value, const std::string& help, CVar::EFlags flags, CVarManager* parent)
+CVar::CVar(const std::string& name, const std::string& value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     // Unlock the cvar for writing if readonly
     unlock();
@@ -29,7 +33,6 @@ CVar::CVar(const std::string& name, const std::string& value, const std::string&
     m_type = EType::Literal;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 
     fromLiteral(value);
     m_defaultValue = m_value;
@@ -40,7 +43,8 @@ CVar::CVar(const std::string& name, const std::string& value, const std::string&
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, const Zeus::CColor& value, const std::string& help, EFlags flags, CVarManager* parent)
+CVar::CVar(const std::string& name, const Zeus::CColor& value, const std::string& help, EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     // Unlock the cvar for writing if readonly
     unlock();
@@ -50,7 +54,6 @@ CVar::CVar(const std::string& name, const Zeus::CColor& value, const std::string
     m_type = EType::Color;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 
     fromColor(value);
     m_defaultValue = m_value;
@@ -61,7 +64,8 @@ CVar::CVar(const std::string& name, const Zeus::CColor& value, const std::string
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager* parent)
+CVar::CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     // Unlock the cvar for writing if readonly
     unlock();
@@ -71,7 +75,6 @@ CVar::CVar(const std::string& name, float value, const std::string& help, EFlags
     m_type = EType::Float;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 
     fromFloat(value);
     m_defaultValue = m_value;
@@ -82,7 +85,8 @@ CVar::CVar(const std::string& name, float value, const std::string& help, EFlags
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::EFlags flags, CVarManager* parent)
+CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     // Unlock the cvar for writing if readonly
     unlock();
@@ -92,7 +96,6 @@ CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::E
     m_type = EType::Boolean;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 
     fromBoolean(value);
     m_defaultValue = m_value;
@@ -103,7 +106,8 @@ CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::E
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, int value, const std::string& help, CVar::EFlags flags, CVarManager* parent)
+CVar::CVar(const std::string& name, int value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+    : m_mgr(parent)
 {
     // Unlock the cvar for writing if readonly
     unlock();
@@ -113,7 +117,6 @@ CVar::CVar(const std::string& name, int value, const std::string& help, CVar::EF
     m_type = EType::Integer;
     m_flags = flags;
     m_allowedWrite = false;
-    m_mgr = parent;
 
     fromInteger(value);
     m_defaultValue = m_value;
@@ -211,8 +214,7 @@ int CVar::toInteger(bool* isValid) const
     return strtol(m_value.c_str(), nullptr, 0);
 }
 
-
-const std::string& CVar::toLiteral(bool* isValid) const
+const std::string CVar::toLiteral(bool* isValid) const
 {
     if (m_type != EType::Literal  /*&& (com_developer && com_developer->toBoolean())*/)
     {
@@ -224,6 +226,20 @@ const std::string& CVar::toLiteral(bool* isValid) const
 
     // Even if it's not a literal, it's still safe to return
     return m_value;
+}
+
+const std::wstring CVar::toWideLiteral(bool* isValid) const
+{
+    if (m_type != EType::Literal  /*&& (com_developer && com_developer->toBoolean())*/)
+    {
+        if (isValid != nullptr)
+            *isValid = false;
+    }
+    else if (isValid != nullptr)
+        *isValid = true;
+
+    // Even if it's not a literal, it's still safe to return
+    return HECL::UTF8ToWide(m_value);
 }
 
 bool CVar::fromColor(const Zeus::CColor& val)
@@ -306,6 +322,22 @@ bool CVar::fromLiteral(const std::string& val)
         return false;
 
     m_value.assign(val);
+    setModified();
+    return true;
+}
+
+bool CVar::fromLiteral(const std::wstring& val)
+{
+    if (isCheat() /*&& (!com_developer->toBoolean() && !com_enableCheats->toBoolean())*/)
+        return false;
+
+    if (m_type != EType::Literal)
+        return false;
+
+    if (isReadOnly() /*&& (com_developer && !com_developer->toBoolean())*/)
+        return false;
+
+    m_value.assign(HECL::WideToUTF8(val));
     setModified();
     return true;
 }

@@ -11,16 +11,18 @@ namespace Retro
 class CVarManager;
 class CVar : protected DNACVAR::CVar
 {
+    friend class CVarManager;
+
 public:
     using EType = DNACVAR::EType;
     using EFlags = DNACVAR::EFlags;
 
-    CVar(const std::string& name, const std::string& value, const std::string& help, EType type, EFlags flags, CVarManager* parent);
-    CVar(const std::string& name, const std::string& value, const std::string& help, EFlags flags, CVarManager* parent);
-    CVar(const std::string& name, const Zeus::CColor& value, const std::string& help, EFlags flags, CVarManager* parent);
-    CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager* parent);
-    CVar(const std::string& name, bool  value, const std::string& help, EFlags flags, CVarManager* parent);
-    CVar(const std::string& name, int   value, const std::string& help, EFlags flags, CVarManager* parent);
+    CVar(const std::string& name, const std::string& value, const std::string& help, EType type, EFlags flags, CVarManager& parent);
+    CVar(const std::string& name, const std::string& value, const std::string& help, EFlags flags, CVarManager& parent);
+    CVar(const std::string& name, const Zeus::CColor& value, const std::string& help, EFlags flags, CVarManager& parent);
+    CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager& parent);
+    CVar(const std::string& name, bool  value, const std::string& help, EFlags flags, CVarManager& parent);
+    CVar(const std::string& name, int   value, const std::string& help, EFlags flags, CVarManager& parent);
 
 
     std::string  name() const;
@@ -30,13 +32,15 @@ public:
     float toFloat(bool* isValid = nullptr) const;
     bool  toBoolean(bool* isValid = nullptr) const;
     int   toInteger(bool* isValid = nullptr) const;
-    const std::string& toLiteral(bool* isValid = nullptr) const;
+    const std::wstring toWideLiteral(bool* isValid = nullptr) const;
+    const std::string toLiteral(bool* isValid = nullptr) const;
 
     bool fromColor(const Zeus::CColor& val);
     bool fromFloat(float val);
     bool fromBoolean(bool val);
     bool fromInteger(int val);
     bool fromLiteral(const std::string& val);
+    bool fromLiteral(const std::wstring& val);
 
     bool isFloat()    const { return m_type == EType::Float; }
     bool isBoolean()  const { return m_type == EType::Boolean; }
@@ -72,9 +76,10 @@ public:
 private:
     std::string m_help;
     std::string m_defaultValue;
+    EFlags      m_flags;
     bool        m_allowedWrite;
 
-    const CVarManager* m_mgr;
+    CVarManager& m_mgr;
 };
 
 

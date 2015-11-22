@@ -3,51 +3,65 @@
 
 #include <unordered_map>
 #include <vector>
-#include <fstream>
 #include "CVar.hpp"
 
+namespace HECL
+{
+namespace Runtime
+{
+class FileStoreManager;
+}
+}
 namespace Retro
 {
 
 class CVarManager
 {
+    using CVarContainer = DNACVAR::CVarContainer;
     template <typename T>
-    std::shared_ptr<CVar> _newCVar(const std::string& name, const std::string& help, const T& value, CVar::EFlags flags)
+    CVar* _newCVar(const std::string& name, const std::string& help, const T& value, CVar::EFlags flags)
     {
-        std::shared_ptr<CVar> ret(new CVar(name, value, help, flags, this));
+        CVar* ret(new CVar(name, value, help, flags, *this));
         if (registerCVar(ret))
+        {
+            deserialize(ret);
             return ret;
+        }
+        delete ret;
         return nullptr;
     }
+
+    HECL::Runtime::FileStoreManager& m_store;
+    bool m_useBinary;
 public:
-    CVarManager();
+    CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary = false);
     ~CVarManager();
 
-    void initialize();
-
-    std::shared_ptr<CVar> newCVar(const std::string& name, const std::string& help, const Zeus::CColor& value, CVar::EFlags flags)
+    CVar* newCVar(const std::string& name, const std::string& help, const Zeus::CColor& value, CVar::EFlags flags)
     { return _newCVar<Zeus::CColor>(name, help, value, flags); }
-    std::shared_ptr<CVar> newCVar(const std::string& name, const std::string& help, const std::string& value, CVar::EFlags flags)
+    CVar* newCVar(const std::string& name, const std::string& help, const std::string& value, CVar::EFlags flags)
     { return _newCVar<std::string>(name, help, value, flags); }
-    std::shared_ptr<CVar> newCVar(const std::string& name, const std::string& help, bool value, CVar::EFlags flags)
+    CVar* newCVar(const std::string& name, const std::string& help, bool value, CVar::EFlags flags)
     { return _newCVar<bool>(name, help, value, flags); }
-    std::shared_ptr<CVar> newCVar(const std::string& name, const std::string& help, float value, CVar::EFlags flags)
+    CVar* newCVar(const std::string& name, const std::string& help, float value, CVar::EFlags flags)
     { return _newCVar<float>(name, help, value, flags); }
-    std::shared_ptr<CVar> newCVar(const std::string& name, const std::string& help, int value, CVar::EFlags flags)
+    CVar* newCVar(const std::string& name, const std::string& help, int value, CVar::EFlags flags)
     { return _newCVar<int>(name, help, value, flags); }
 
-    bool registerCVar(std::shared_ptr<CVar> cvar);
+    bool registerCVar(CVar* cvar);
 
-    std::shared_ptr<CVar>findCVar(const std::string& name);
+    CVar*findCVar(const std::string& name);
 
-    std::vector<std::shared_ptr<CVar>> archivedCVars() const;
-    std::vector<std::shared_ptr<CVar>> cvars() const;
+    std::vector<CVar*> archivedCVars() const;
+    std::vector<CVar*> cvars() const;
 
+    void deserialize(CVar* cvar);
+    void serialize();
 private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);
 
-    std::unordered_map<std::string, std::shared_ptr<CVar>> m_cvars;
+    std::unordered_map<std::string, CVar*> m_cvars;
 };
 }
 

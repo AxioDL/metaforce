@@ -1,30 +1,37 @@
 #include <LogVisor/LogVisor.hpp>
 #include <boo/boo.hpp>
 #include <Specter/Specter.hpp>
+#include <Runtime/CVarManager.hpp>
+#include <Runtime/CGameAllocator.hpp>
 
 namespace RUDE
 {
 
 struct Application : boo::IApplicationCallback
 {
+    Retro::CGameAllocator m_allocator;
     HECL::Runtime::FileStoreManager m_fileMgr;
     Specter::FontCache m_fontCache;
     Specter::RootView m_rootView;
+    Retro::CVarManager m_cvarManager;
     boo::IWindow* m_mainWindow;
     bool m_running = true;
 
-    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache) {}
+    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache), m_cvarManager(m_fileMgr, true){}
 
     int appMain(boo::IApplication* app)
     {
+        m_allocator.Initialize();
         m_mainWindow = app->newWindow(_S("RUDE"));
         m_rootView.setWindow(m_mainWindow, 1.0f);
+        m_cvarManager.serialize();
 
         while (m_running)
         {
             m_mainWindow->waitForRetrace();
 
         }
+
 
         return 0;
     }
