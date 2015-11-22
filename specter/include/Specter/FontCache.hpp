@@ -10,6 +10,17 @@
 namespace Specter
 {
 
+class FreeTypeGZipMemFace
+{
+    FT_StreamRec m_comp = {};
+    FT_StreamRec m_decomp = {};
+    FT_Face m_face;
+public:
+    FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, size_t sz);
+    ~FreeTypeGZipMemFace();
+    operator FT_Face() {return m_face;}
+};
+
 class FontHandle
 {
 };
@@ -24,8 +35,8 @@ class FontCache
 {
     const HECL::Runtime::FileStoreManager& m_fileMgr;
     FT_Library m_fontLib;
-    FT_Face m_regFace;
-    FT_Face m_monoFace;
+    FreeTypeGZipMemFace m_regFace;
+    FreeTypeGZipMemFace m_monoFace;
 public:
     FontCache(const HECL::Runtime::FileStoreManager& fileMgr);
     ~FontCache();
