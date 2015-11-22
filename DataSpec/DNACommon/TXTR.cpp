@@ -343,7 +343,7 @@ static void DecodeC4(png_structrp png, png_infop info,
 static void DecodeC8(png_structrp png, png_infop info,
                      const uint8_t* data, int width, int height)
 {
-    png_set_IHDR(png, info, width, height, 4,
+    png_set_IHDR(png, info, width, height, 8,
                  PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     const uint8_t* texels = DecodePalette(png, info, 256, data);
