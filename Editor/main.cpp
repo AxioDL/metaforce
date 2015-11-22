@@ -3,33 +3,43 @@
 #include <Specter/Specter.hpp>
 #include <Runtime/CVarManager.hpp>
 #include <Runtime/CGameAllocator.hpp>
+#include <functional>
 
 namespace RUDE
 {
-
 struct Application : boo::IApplicationCallback
 {
-    Retro::CGameAllocator m_allocator;
     HECL::Runtime::FileStoreManager m_fileMgr;
     Specter::FontCache m_fontCache;
     Specter::RootView m_rootView;
     Retro::CVarManager m_cvarManager;
     boo::IWindow* m_mainWindow;
+    Zeus::CColor m_clearColor;
     bool m_running = true;
 
-    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache), m_cvarManager(m_fileMgr, true){}
+
+    void onCVarModified(Retro::CVar* cvar)
+    {
+        if (cvar == m_cvarManager.findCVar("r_clearColor"))
+            m_clearColor = cvar->toColor();
+    }
+
+    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache), m_cvarManager(m_fileMgr){}
 
     int appMain(boo::IApplication* app)
     {
-        m_allocator.Initialize();
         m_mainWindow = app->newWindow(_S("RUDE"));
         m_rootView.setWindow(m_mainWindow, 1.0f);
         m_cvarManager.serialize();
+        Retro::CVar* tmp = m_cvarManager.findCVar("r_clearcolor");
+        Retro::CVar::ListenerFunc listen = std::bind(&Application::onCVarModified, this, std::placeholders::_1);
+        if (tmp)
+            tmp->addListener(listen);
 
         while (m_running)
         {
+            m_cvarManager.update();
             m_mainWindow->waitForRetrace();
-
         }
 
 

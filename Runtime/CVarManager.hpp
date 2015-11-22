@@ -52,7 +52,7 @@ public:
 
     bool registerCVar(CVar* cvar);
 
-    CVar* findCVar(const std::string& name);
+    CVar* findCVar(std::string name);
 
     std::vector<CVar*> archivedCVars() const;
     std::vector<CVar*> cvars() const;

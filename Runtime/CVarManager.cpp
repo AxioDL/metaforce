@@ -30,7 +30,7 @@ CVarManager::~CVarManager()
 
 void CVarManager::update()
 {
-    for (const std::pair<std::string, CVar*> pair : m_cvars)
+    for (const std::pair<std::string, CVar*>& pair : m_cvars)
         if (pair.second->isModified())
         {
             pair.second->dispatch();
@@ -49,20 +49,19 @@ bool CVarManager::registerCVar(CVar* cvar)
     return true;
 }
 
-CVar* CVarManager::findCVar(const std::string &name)
+CVar* CVarManager::findCVar(std::string name)
 {
-    std::string tmp = std::string(name);
-    Athena::utility::tolower(tmp);
-    if (m_cvars.find(tmp) == m_cvars.end())
+    Athena::utility::tolower(name);
+    if (m_cvars.find(name) == m_cvars.end())
         return nullptr;
 
-    return m_cvars[tmp];
+    return m_cvars[name];
 }
 
 std::vector<CVar*> CVarManager::archivedCVars() const
 {
     std::vector<CVar*> ret;
-    for (std::pair<std::string, CVar*> pair : m_cvars)
+    for (const std::pair<std::string, CVar*>& pair : m_cvars)
         if (pair.second->isArchive())
             ret.push_back(pair.second);
 
@@ -72,7 +71,7 @@ std::vector<CVar*> CVarManager::archivedCVars() const
 std::vector<CVar*> CVarManager::cvars() const
 {
     std::vector<CVar*> ret;
-    for (std::pair<std::string, CVar*> pair : m_cvars)
+    for (const std::pair<std::string, CVar*>& pair : m_cvars)
         ret.push_back(pair.second);
 
     return ret;
@@ -90,12 +89,12 @@ void CVarManager::deserialize(CVar* cvar)
     HECL::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toLiteral();
 #endif
     HECL::Sstat st;
-    if (HECL::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
-        return;
 
     if (m_useBinary)
     {
         filename += _S(".bin");
+        if (HECL::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+            return;
         Athena::io::FileReader reader(filename);
         if (reader.isOpen())
             container.read(reader);
@@ -103,6 +102,8 @@ void CVarManager::deserialize(CVar* cvar)
     else
     {
         filename += _S(".yaml");
+        if (HECL::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+            return;
         FILE* f = HECL::Fopen(filename.c_str(), _S("rb"));
         if (f)
             container.fromYAMLFile(f);
@@ -117,7 +118,7 @@ void CVarManager::deserialize(CVar* cvar)
 
         if (serialized != container.cvars.end())
         {
-            DNACVAR::CVar tmp = *serialized;
+            DNACVAR::CVar& tmp = *serialized;
             if (tmp.m_type != cvar->type())
             {
                 CVarLog.report(LogVisor::Error, _S("Stored type for %s does not match actual type!"), tmp.m_name.c_str());
