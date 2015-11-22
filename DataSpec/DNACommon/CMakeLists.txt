@@ -1,5 +1,6 @@
 make_dnalist(liblist
-             CMDL)
+             CMDL
+             CVar)
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
             ${liblist}
