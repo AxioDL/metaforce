@@ -36,17 +36,23 @@ FreeTypeGZipMemFace::FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, si
 
     if (FT_Open_Face(lib, &args, 0, &m_face))
         Log.report(LogVisor::FatalError, "unable to open FreeType gzip face");
-
-    FT_Done_Face(m_face);
-    if (m_decomp.close)
-        m_decomp.close(&m_decomp);
 }
 
 FreeTypeGZipMemFace::~FreeTypeGZipMemFace()
 {
     FT_Done_Face(m_face);
-    if (m_decomp.close)
-        m_decomp.close(&m_decomp);
+}
+
+FontCache::Library::Library()
+{
+    FT_Error err = FT_Init_FreeType(&m_lib);
+    if (err)
+        Log.report(LogVisor::FatalError, "unable to FT_Init_FreeType");
+}
+
+FontCache::Library::~Library()
+{
+    FT_Done_FreeType(m_lib);
 }
 
 static FT_Library InitLib()
@@ -60,13 +66,8 @@ static FT_Library InitLib()
 
 FontCache::FontCache(const HECL::Runtime::FileStoreManager& fileMgr)
 : m_fileMgr(fileMgr),
-  m_fontLib(InitLib()),
   m_regFace(m_fontLib, DROIDSANS_PERMISSIVE, DROIDSANS_PERMISSIVE_SZ),
   m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ) {}
 
-FontCache::~FontCache()
-{
-    FT_Done_FreeType(m_fontLib);
-}
 
 }

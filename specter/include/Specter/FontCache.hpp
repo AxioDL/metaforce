@@ -34,12 +34,17 @@ class FontAtlas
 class FontCache
 {
     const HECL::Runtime::FileStoreManager& m_fileMgr;
-    FT_Library m_fontLib;
+    struct Library
+    {
+        FT_Library m_lib;
+        Library();
+        ~Library();
+        operator FT_Library() {return m_lib;}
+    } m_fontLib;
     FreeTypeGZipMemFace m_regFace;
     FreeTypeGZipMemFace m_monoFace;
 public:
     FontCache(const HECL::Runtime::FileStoreManager& fileMgr);
-    ~FontCache();
 
     FontHandle prepMainFont(float points=10.0);
     FontHandle prepMonoFont(float points=10.0);
