@@ -103,8 +103,8 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
                                        ShaderCacheExtensions&& extension)
 : m_storeMgr(storeMgr),
   m_extensions(std::move(extension)),
-  m_idxFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".idx")),
-  m_datFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".dat"))
+  m_idxFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".idx"), 32*1024, false),
+  m_datFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".dat"), 32*1024, false)
 {   
     boo::IGraphicsDataFactory::Platform plat = gfxFactory->platform();
     if (m_extensions && m_extensions.m_plat != plat)

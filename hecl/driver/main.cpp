@@ -76,7 +76,7 @@ static void SIGINTHandler(int sig)
 static void SIGWINCHHandler(int sig) {}
 
 static LogVisor::LogModule AthenaLog("Athena");
-static void AthenaExc(const Athena::error::Level& level, const char* file,
+static void AthenaExc(Athena::error::Level level, const char* file,
                       const char*, int line, const char* fmt, ...)
 {
     va_list ap;

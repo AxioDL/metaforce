@@ -218,10 +218,16 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     }
 };
 
-void AthenaExcHandler(const Athena::error::Level& level,
+void AthenaExcHandler(Athena::error::Level level,
                       const char* file, const char* function,
                       int line, const char* fmt, ...)
-{}
+{
+    static LogVisor::LogModule Log("heclTest::AthenaExcHandler");
+    va_list ap;
+    va_start(ap, fmt);
+    Log.reportSource(LogVisor::Level(level), file, line, fmt, ap);
+    va_end(ap);
+}
 
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
