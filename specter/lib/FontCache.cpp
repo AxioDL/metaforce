@@ -29,10 +29,18 @@ FontTag::FontTag(const std::string& name, bool subpixel, float points, uint32_t 
 }
 
 FreeTypeGZipMemFace::FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, size_t sz)
+: m_lib(lib)
 {
     m_comp.base = (unsigned char*)data;
     m_comp.size = sz;
     m_comp.memory = lib->memory;
+}
+
+void FreeTypeGZipMemFace::open()
+{
+    if (m_face)
+        return;
+
     if (FT_Stream_OpenGzip(&m_decomp, &m_comp))
         Log.report(LogVisor::FatalError, "unable to open FreeType gzip stream");
 
@@ -45,13 +53,16 @@ FreeTypeGZipMemFace::FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, si
         &m_decomp
     };
 
-    if (FT_Open_Face(lib, &args, 0, &m_face))
+    if (FT_Open_Face(m_lib, &args, 0, &m_face))
         Log.report(LogVisor::FatalError, "unable to open FreeType gzip face");
 }
 
-FreeTypeGZipMemFace::~FreeTypeGZipMemFace()
+void FreeTypeGZipMemFace::close()
 {
+    if (!m_face)
+        return;
     FT_Done_Face(m_face);
+    m_face = nullptr;
 }
 
 #define TEXMAP_DIM 1024
@@ -75,7 +86,7 @@ static void MemcpyRect(GreyPixel* img, const FT_Bitmap* bmp, unsigned slice, uns
     for (unsigned i=0 ; i<bmp->rows ; ++i)
     {
         const unsigned char* s = &bmp->buffer[bmp->pitch*i];
-        GreyPixel* t = &img[TEXMAP_DIM*sy+x];
+        GreyPixel* t = &img[TEXMAP_DIM*(sy+i)+x];
         memcpy(t, s, bmp->width);
     }
 }
@@ -91,7 +102,7 @@ static void MemcpyRect(RgbaPixel* img, const FT_Bitmap* bmp, unsigned slice, uns
     for (unsigned i=0 ; i<bmp->rows ; ++i)
     {
         const unsigned char* s = &bmp->buffer[bmp->pitch*i];
-        RgbaPixel* t = &img[TEXMAP_DIM*sy+x];
+        RgbaPixel* t = &img[TEXMAP_DIM*(sy+i)+x];
         for (unsigned j=0 ; j<bmp->width/3 ; ++j)
         {
             t[j].rgba[0] = s[j*3];
@@ -103,7 +114,8 @@ static void MemcpyRect(RgbaPixel* img, const FT_Bitmap* bmp, unsigned slice, uns
 }
 
 
-FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel, Athena::io::FileWriter& writer)
+FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
+                     bool subpixel, Athena::io::FileWriter& writer)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)
@@ -115,37 +127,38 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
     size_t glyphCount = 0;
     FT_UInt gindex;
     FT_ULong charcode = FT_Get_First_Char(face, &gindex);
-    unsigned curLineWidth = 0;
+    unsigned curLineWidth = 1;
     unsigned curLineHeight = 0;
-    unsigned totalHeight = 0;
-    unsigned fullTexmap = 0;
+    unsigned totalHeight = 1;
+    unsigned fullTexmapLayers = 0;
     while (gindex != 0)
     {
         ++glyphCount;
         FT_Load_Glyph(face, gindex, baseFlags);
-        unsigned width = face->glyph->bitmap.width;
+        unsigned width = face->glyph->metrics.width / 64;
         if (subpixel)
             width /= 3;
-        if (curLineWidth + width > TEXMAP_DIM)
+        curLineHeight = std::max(curLineHeight, unsigned(face->glyph->metrics.height / 64));
+        if (curLineWidth + width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
         {
-            if (totalHeight + curLineHeight > TEXMAP_DIM)
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
             {
-                totalHeight = 0;
-                ++fullTexmap;
+                totalHeight = 1;
+                ++fullTexmapLayers;
             }
             else
-                totalHeight += curLineHeight;
+                totalHeight += curLineHeight + 1;
             curLineHeight = 0;
-            curLineWidth = 0;
+            curLineWidth = 1;
         }
-        curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+        curLineWidth += width + 1;
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
     }
     m_glyphs.reserve(glyphCount);
 
     totalHeight = RoundUpPow2(totalHeight);
-    unsigned finalHeight = fullTexmap ? TEXMAP_DIM : totalHeight;
-    writer.writeUint32Big(fullTexmap);
+    unsigned finalHeight = fullTexmapLayers ? TEXMAP_DIM : totalHeight;
+    writer.writeUint32Big(fullTexmapLayers + 1);
     writer.writeUint32Big(TEXMAP_DIM);
     writer.writeUint32Big(finalHeight);
 
@@ -154,9 +167,9 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
         /* Allocate texmap */
         std::unique_ptr<RgbaPixel[]> texmap;
         size_t bufSz;
-        if (fullTexmap)
+        if (fullTexmapLayers)
         {
-            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmap + 1);
+            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
             texmap.reset(new RgbaPixel[count]);
             bufSz = count * sizeof(RgbaPixel);
             memset(texmap.get(), 0, bufSz);
@@ -171,17 +184,17 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
 
         /* Assemble glyph texmaps and internal data structures */
         charcode = FT_Get_First_Char(face, &gindex);
-        curLineWidth = 0;
+        curLineWidth = 1;
         curLineHeight = 0;
-        totalHeight = 0;
-        fullTexmap = 0;
+        totalHeight = 1;
+        fullTexmapLayers = 0;
         while (gindex != 0)
         {
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
-            g.m_layerIdx = fullTexmap;
+            g.m_layerIdx = fullTexmapLayers;
             g.m_width = face->glyph->bitmap.width / 3;
             g.m_height = face->glyph->bitmap.rows;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -191,27 +204,29 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
             g.m_leftPadding = 0;
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY;
+            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
             g.m_kernIdx = 0;
-            MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmap, curLineWidth, totalHeight);
-            if (curLineWidth + g.m_width > TEXMAP_DIM)
+            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
             {
-                if (totalHeight + curLineHeight > TEXMAP_DIM)
+                if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
                 {
-                    totalHeight = 0;
-                    ++fullTexmap;
+                    totalHeight = 1;
+                    ++fullTexmapLayers;
                 }
                 else
-                    totalHeight += curLineHeight;
+                    totalHeight += curLineHeight + 1;
                 curLineHeight = 0;
-                curLineWidth = 0;
+                curLineWidth = 1;
             }
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmapLayers, curLineWidth, totalHeight);
+            curLineWidth += g.m_width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
+        writer.writeUBytes((atUint8*)texmap.get(), bufSz);
         m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmap + 1,
+        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
     }
     else
@@ -219,9 +234,9 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
         /* Allocate texmap */
         std::unique_ptr<GreyPixel[]> texmap;
         size_t bufSz;
-        if (fullTexmap)
+        if (fullTexmapLayers)
         {
-            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmap + 1);
+            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
             texmap.reset(new GreyPixel[count]);
             bufSz = count * sizeof(GreyPixel);
             memset(texmap.get(), 0, bufSz);
@@ -236,17 +251,17 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
 
         /* Assemble glyph texmaps and internal data structures */
         charcode = FT_Get_First_Char(face, &gindex);
-        curLineWidth = 0;
+        curLineWidth = 1;
         curLineHeight = 0;
-        totalHeight = 0;
-        fullTexmap = 0;
+        totalHeight = 1;
+        fullTexmapLayers = 0;
         while (gindex != 0)
         {
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
-            g.m_layerIdx = fullTexmap;
+            g.m_layerIdx = fullTexmapLayers;
             g.m_width = face->glyph->bitmap.width;
             g.m_height = face->glyph->bitmap.rows;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -256,27 +271,29 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel,
             g.m_leftPadding = 0;
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY;
+            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
             g.m_kernIdx = 0;
-            MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmap, curLineWidth, totalHeight);
-            if (curLineWidth + g.m_width > TEXMAP_DIM)
+            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
             {
-                if (totalHeight + curLineHeight > TEXMAP_DIM)
+                if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
                 {
-                    totalHeight = 0;
-                    ++fullTexmap;
+                    totalHeight = 1;
+                    ++fullTexmapLayers;
                 }
                 else
-                    totalHeight += curLineHeight;
+                    totalHeight += curLineHeight + 1;
                 curLineHeight = 0;
-                curLineWidth = 0;
+                curLineWidth = 1;
             }
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmapLayers, curLineWidth, totalHeight);
+            curLineWidth += g.m_width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
+        writer.writeUBytes((atUint8*)texmap.get(), bufSz);
         m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmap + 1,
+        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
     }
 }
@@ -325,7 +342,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
         Log.report(LogVisor::FatalError, "font does not contain a unicode char map");
 
     /* Set size with FreeType */
-    FT_Set_Char_Size(face, points * 64.0, 0, dpi, 0);
+    FT_Set_Char_Size(face, 0, points * 64.0, 0, dpi);
 
     /* Make tag and search for cached version */
     FontTag tag(name, subpixel, points, dpi);

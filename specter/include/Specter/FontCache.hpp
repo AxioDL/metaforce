@@ -36,13 +36,16 @@ namespace Specter
 
 class FreeTypeGZipMemFace
 {
+    FT_Library m_lib;
     FT_StreamRec m_comp = {};
     FT_StreamRec m_decomp = {};
-    FT_Face m_face;
+    FT_Face m_face = nullptr;
 public:
     FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, size_t sz);
-    ~FreeTypeGZipMemFace();
-    operator FT_Face() {return m_face;}
+    ~FreeTypeGZipMemFace() {close();}
+    void open();
+    void close();
+    operator FT_Face() {open(); return m_face;}
 };
 
 class FontAtlas
@@ -93,12 +96,16 @@ public:
     FontTag prepCustomFont(boo::IGraphicsDataFactory* gf,
                            const std::string& name, FT_Face face, bool subpixel=false,
                            float points=10.0, uint32_t dpi=72);
+
     FontTag prepMainFont(boo::IGraphicsDataFactory* gf,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
     {return prepCustomFont(gf, "droidsans-permissive", m_regFace, subpixel, points, dpi);}
+
     FontTag prepMonoFont(boo::IGraphicsDataFactory* gf,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
     {return prepCustomFont(gf, "bmonofont", m_monoFace, subpixel, points, dpi);}
+
+    void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close();}
 };
 
 }
