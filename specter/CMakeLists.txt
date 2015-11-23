@@ -44,6 +44,8 @@ list(APPEND SPECTER_HEADERS
      include/Specter/NodeSocket.hpp
      include/Specter/FontCache.hpp)
 
+atdna(atdna_FontCache.cpp include/Specter/FontCache.hpp)
+
 list(APPEND SPECTER_SOURCES
      lib/Specter.cpp
      lib/View.cpp
@@ -60,6 +62,7 @@ list(APPEND SPECTER_SOURCES
      lib/Menu.cpp
      lib/Node.cpp
      lib/NodeSocket.cpp
-     lib/FontCache.cpp)
+     lib/FontCache.cpp
+     atdna_FontCache.cpp)
 
 add_library(Specter ${SPECTER_SOURCES} ${SPECTER_HEADERS})
