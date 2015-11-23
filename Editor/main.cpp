@@ -41,7 +41,8 @@ struct Application : boo::IApplicationCallback
             tmp->addListener(listen);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_fontCache.prepMainFont(gf);
+        m_fontCache.prepMainFont(gf, true, 20.0, 72);
+        m_fontCache.closeBuiltinFonts();
 
         while (m_running)
         {
