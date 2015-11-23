@@ -24,7 +24,11 @@ struct Application : boo::IApplicationCallback
             m_clearColor = cvar->toColor();
     }
 
-    Application() : m_fileMgr(_S("rude")), m_fontCache(m_fileMgr), m_rootView(m_fontCache), m_cvarManager(m_fileMgr){}
+    Application() :
+        m_fileMgr(_S("rude")),
+        m_fontCache(m_fileMgr),
+        m_rootView(m_fontCache),
+        m_cvarManager(m_fileMgr){}
 
     int appMain(boo::IApplication* app)
     {
@@ -35,6 +39,9 @@ struct Application : boo::IApplicationCallback
         Retro::CVar::ListenerFunc listen = std::bind(&Application::onCVarModified, this, std::placeholders::_1);
         if (tmp)
             tmp->addListener(listen);
+
+        boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
+        m_fontCache.prepMainFont(gf);
 
         while (m_running)
         {
