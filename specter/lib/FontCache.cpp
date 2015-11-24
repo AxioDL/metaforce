@@ -4,6 +4,7 @@
 
 #include FT_GZIP_H
 #include FT_SYSTEM_H
+#include FT_OUTLINE_H
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftstream.h>
 
@@ -113,6 +114,12 @@ static void MemcpyRect(RgbaPixel* img, const FT_Bitmap* bmp, unsigned slice, uns
     }
 }
 
+    
+static inline void GridFitGlyph(FT_GlyphSlot slot, FT_UInt& width, FT_UInt& height)
+{
+    width = slot->metrics.width >> 6;
+    height = slot->metrics.height >> 6;
+}
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
                      bool subpixel, Athena::io::FileWriter& writer)
@@ -135,19 +142,20 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
     {
         ++glyphCount;
         FT_Load_Glyph(face, gindex, baseFlags);
-        unsigned width = face->glyph->metrics.width / 64;
-        if (subpixel)
-            width /= 3;
-        curLineHeight = std::max(curLineHeight, unsigned(face->glyph->metrics.height / 64));
-        if (curLineWidth + width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+        FT_UInt width, height;
+        GridFitGlyph(face->glyph, width, height);
+        if (curLineWidth + width + 1 > TEXMAP_DIM)
         {
-            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
-            {
-                totalHeight = 1;
-                ++fullTexmapLayers;
-            }
-            else
-                totalHeight += curLineHeight + 1;
+            totalHeight += curLineHeight + 1;
+            curLineHeight = 0;
+            curLineWidth = 1;
+        }
+        curLineHeight = std::max(curLineHeight, height);
+        if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+        {
+            totalHeight = 1;
+            ++fullTexmapLayers;
+            //printf("StagedB: %u\n", gindex);
             curLineHeight = 0;
             curLineWidth = 1;
         }
@@ -169,6 +177,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
         size_t bufSz;
         if (fullTexmapLayers)
         {
+            //printf("ALLOC: %u\n", fullTexmapLayers + 1);
             size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
             texmap.reset(new RgbaPixel[count]);
             bufSz = count * sizeof(RgbaPixel);
@@ -206,16 +215,18 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
             g.m_rightPadding = 0;
             g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
             g.m_kernIdx = 0;
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
-                if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
-                {
-                    totalHeight = 1;
-                    ++fullTexmapLayers;
-                }
-                else
-                    totalHeight += curLineHeight + 1;
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
@@ -236,6 +247,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
         size_t bufSz;
         if (fullTexmapLayers)
         {
+            //printf("ALLOC: %u\n", fullTexmapLayers + 1);
             size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
             texmap.reset(new GreyPixel[count]);
             bufSz = count * sizeof(GreyPixel);
@@ -271,18 +283,20 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
             g.m_leftPadding = 0;
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
+            g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
             g.m_kernIdx = 0;
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM || totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
-                if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
-                {
-                    totalHeight = 1;
-                    ++fullTexmapLayers;
-                }
-                else
-                    totalHeight += curLineHeight + 1;
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
@@ -312,15 +326,6 @@ FontCache::Library::Library()
 FontCache::Library::~Library()
 {
     FT_Done_FreeType(m_lib);
-}
-
-static FT_Library InitLib()
-{
-    FT_Library ret;
-    FT_Error err = FT_Init_FreeType(&ret);
-    if (err)
-        Log.report(LogVisor::FatalError, "unable to FT_Init_FreeType");
-    return ret;
 }
 
 FontCache::FontCache(const HECL::Runtime::FileStoreManager& fileMgr)
