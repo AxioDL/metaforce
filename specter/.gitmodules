@@ -1,3 +1,6 @@
 [submodule "freetype2"]
 	path = freetype2
 	url = https://github.com/AxioDL/freetype2
+[submodule "MathLib"]
+	path = MathLib
+	url = https://github.com/AxioDL/MathLib.git

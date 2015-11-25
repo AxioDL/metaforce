@@ -42,6 +42,8 @@ class FreeTypeGZipMemFace
     FT_Face m_face = nullptr;
 public:
     FreeTypeGZipMemFace(FT_Library lib, const uint8_t* data, size_t sz);
+    FreeTypeGZipMemFace(const FreeTypeGZipMemFace& other) = delete;
+    FreeTypeGZipMemFace& operator=(const FreeTypeGZipMemFace& other) = delete;
     ~FreeTypeGZipMemFace() {close();}
     void open();
     void close();
@@ -53,7 +55,9 @@ class FontAtlas
     friend class FontCache;
     FT_Face m_face;
     boo::ITextureS* m_tex;
+    uint32_t m_dpi;
 
+public:
     struct Glyph
     {
         atUint32 m_unicodePoint;
@@ -65,14 +69,30 @@ class FontAtlas
         atUint8 m_width;
         atUint8 m_height;
         atInt8 m_verticalOffset;
-        atUint16 m_kernIdx;
+        atInt16 m_kernIdx = -1;
     };
+
+    struct KernAdj
+    {
+        atUint32 a;
+        atUint32 b;
+        atInt8 adj;
+    };
+
+private:
     std::vector<Glyph> m_glyphs;
-    std::map<atUint32, size_t> m_glyphLookup;
+    std::vector<KernAdj> m_kernAdjs;
+    std::unordered_map<atUint32, size_t> m_glyphLookup;
 
 public:
-    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel, Athena::io::FileWriter& writer);
-    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel, Athena::io::FileReader& reader);
+    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
+              bool subpixel, Athena::io::FileWriter& writer);
+    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
+              bool subpixel, Athena::io::FileReader& reader);
+    FontAtlas(const FontAtlas& other) = delete;
+    FontAtlas& operator=(const FontAtlas& other) = delete;
+
+    uint32_t dpi() const {return m_dpi;}
 };
 
 class FontCache
@@ -92,6 +112,8 @@ class FontCache
     std::unordered_map<FontTag, std::unique_ptr<FontAtlas>> m_cachedAtlases;
 public:
     FontCache(const HECL::Runtime::FileStoreManager& fileMgr);
+    FontCache(const FontCache& other) = delete;
+    FontCache& operator=(const FontCache& other) = delete;
 
     FontTag prepCustomFont(boo::IGraphicsDataFactory* gf,
                            const std::string& name, FT_Face face, bool subpixel=false,
@@ -106,6 +128,8 @@ public:
     {return prepCustomFont(gf, "bmonofont", m_monoFace, subpixel, points, dpi);}
 
     void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close();}
+
+    const FontAtlas& lookupAtlas(FontTag tag) const;
 };
 
 }

@@ -1,4 +1,6 @@
 add_subdirectory(freetype2)
+add_subdirectory(MathLib)
+set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
 
 if(NOT DEFINED HECL_INCLUDE_DIR)
   message(FATAL_ERROR "Specter may only be built as a sub-project containing hecl with
@@ -24,7 +26,8 @@ add_subdirectory(resources/fonts)
 
 include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include
+                    ${MATHLIB_INCLUDE_DIR})
 
 list(APPEND SPECTER_HEADERS
      include/Specter/Specter.hpp
