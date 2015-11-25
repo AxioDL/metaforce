@@ -2,6 +2,8 @@
 #define __DNAMP3_MLVL_HPP__
 
 #include "../DNACommon/PAK.hpp"
+#include "../DNACommon/MLVL.hpp"
+#include "DNAMP3.hpp"
 
 namespace Retro
 {
@@ -75,14 +77,23 @@ struct MLVL : BigYAML
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+
+    static bool Extract(const SpecBase& dataSpec,
+                        PAKEntryReadStream& rs,
+                        const HECL::ProjectPath& outPath,
+                        PAKRouter<PAKBridge>& pakRouter,
+                        const PAK::Entry& entry,
+                        bool force,
+                        std::function<void(const HECL::SystemChar*)> fileChanged)
     {
         MLVL mlvl;
         mlvl.read(rs);
         FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         mlvl.toYAMLFile(fp);
         fclose(fp);
-        return true;
+        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
+                                          entry, force, fileChanged);
     }
 };
 
