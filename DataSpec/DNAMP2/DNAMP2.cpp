@@ -219,12 +219,12 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('ANCS'):
         return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
-    case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     case SBIG('MLVL'):
-        return {MLVL::Extract, nullptr, {_S(".yaml")}};
-//    case SBIG('MAPA'):
-//        return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+        return {nullptr, MLVL::Extract, {_S(".blend")}, 3};
+    case SBIG('MREA'):
+        return {nullptr, MREA::Extract, {_S(".blend")}, 4};
+    case SBIG('MAPA'):
+        return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
     }
     return {};
 }

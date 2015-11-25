@@ -154,24 +154,24 @@ void PAKBridge::build()
                 HECL::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
-                const MLVL::LayerFlags& areaLayers = *layerFlagsIt++;
-                if (areaLayers.layerCount)
+                const MLVL::LayerFlags& layerFlags = *layerFlagsIt++;
+                if (layerFlags.layerCount)
                 {
-                    areaDeps.layers.reserve(areaLayers.layerCount);
-                    for (unsigned l=0 ; l<areaLayers.layerCount ; ++l)
+                    areaDeps.layers.reserve(layerFlags.layerCount);
+                    for (unsigned l=1 ; l<layerFlags.layerCount ; ++l)
                     {
                         areaDeps.layers.emplace_back();
                         Level::Area::Layer& layer = areaDeps.layers.back();
                         layer.name = LayerName(mlvl.layerNames[layerIdx++]);
-                        layer.active = areaLayers.flags >> l & 0x1;
+                        layer.active = layerFlags.flags >> (l-1) & 0x1;
                         /* Trim possible trailing whitespace */
-#if HECL_UCS2
+    #if HECL_UCS2
                         while (layer.name.size() && iswspace(layer.name.back()))
                             layer.name.pop_back();
-#else
+    #else
                         while (layer.name.size() && isspace(layer.name.back()))
                             layer.name.pop_back();
-#endif
+    #endif
                         HECL::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
                         layer.name = num + layer.name;
                     }
@@ -229,10 +229,10 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('CHAR'):
         return {nullptr, CHAR::Extract, {_S(".yaml"), _S(".blend")}, 2};
-    case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 3};
     case SBIG('MLVL'):
-        return {MLVL::Extract, nullptr, {_S(".yaml")}};
+        return {nullptr, MLVL::Extract, {_S(".blend")}, 3};
+    case SBIG('MREA'):
+        return {nullptr, MREA::Extract, {_S(".blend")}, 4};
     }
     return {};
 }
