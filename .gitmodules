@@ -4,9 +4,6 @@
 [submodule "hecl"]
 	path = hecl
 	url = https://github.com/AxioDL/hecl.git
-[submodule "MathLib"]
-	path = MathLib
-	url = https://github.com/AxioDL/MathLib.git
 [submodule "libSpecter"]
 	path = libSpecter
 	url = https://github.com/AxioDL/libSpecter.git

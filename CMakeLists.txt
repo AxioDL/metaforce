@@ -38,8 +38,7 @@ set(SPECTER_INCLUDE_DIR libSpecter/include libSpecter/freetype2/include)
 add_subdirectory(NODLib)
 set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
 add_definitions(-DZE_ATHENA_TYPES=1)
-add_subdirectory(MathLib)
-set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
+set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libSpecter/MathLib/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${SPECTER_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
