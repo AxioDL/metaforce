@@ -244,7 +244,8 @@ struct HMDLData
                                                  boo::IShaderPipeline* shader,
                                                  size_t ubufCount, boo::IGraphicsBuffer** ubufs,
                                                  size_t texCount, boo::ITexture** texs)
-    {return factory->newShaderDataBinding(shader, m_vtxFmt, m_vbo, m_ibo, ubufCount, ubufs, texCount, texs);}
+    {return factory->newShaderDataBinding(shader, m_vtxFmt, m_vbo, nullptr, m_ibo,
+                                          ubufCount, ubufs, texCount, texs);}
 };
 
 }
