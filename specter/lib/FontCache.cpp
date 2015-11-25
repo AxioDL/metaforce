@@ -121,8 +121,9 @@ static inline void GridFitGlyph(FT_GlyphSlot slot, FT_UInt& width, FT_UInt& heig
     height = slot->metrics.height >> 6;
 }
 
-FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
+FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, Athena::io::FileWriter& writer)
+: m_dpi(dpi)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)
@@ -163,6 +164,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
     }
     m_glyphs.reserve(glyphCount);
+    m_glyphLookup.reserve(glyphCount);
 
     totalHeight = RoundUpPow2(totalHeight);
     unsigned finalHeight = fullTexmapLayers ? TEXMAP_DIM : totalHeight;
@@ -200,6 +202,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
         while (gindex != 0)
         {
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
+            m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
@@ -270,6 +273,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
         while (gindex != 0)
         {
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
+            m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
@@ -312,8 +316,174 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face,
     }
 }
 
-FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, bool subpixel, Athena::io::FileReader& reader)
+FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
+                     bool subpixel, Athena::io::FileReader& reader)
+: m_dpi(dpi)
 {
+    FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
+    if (subpixel)
+        baseFlags |= FT_LOAD_TARGET_LCD;
+    else
+        baseFlags |= FT_LOAD_TARGET_NORMAL;
+
+    /* First count glyphs exposed by unicode charmap */
+    size_t glyphCount = 0;
+    FT_UInt gindex;
+    FT_ULong charcode = FT_Get_First_Char(face, &gindex);
+    while (gindex != 0)
+    {
+        ++glyphCount;
+        charcode = FT_Get_Next_Char(face, charcode, &gindex);
+    }
+    m_glyphs.reserve(glyphCount);
+    m_glyphLookup.reserve(glyphCount);
+
+    unsigned fullTexmapLayers = reader.readUint32Big() - 1;
+    reader.readUint32Big();
+    unsigned finalHeight = reader.readUint32Big();
+
+    if (subpixel)
+    {
+        /* Allocate texmap */
+        std::unique_ptr<RgbaPixel[]> texmap;
+        size_t bufSz;
+        if (fullTexmapLayers)
+        {
+            //printf("ALLOC: %u\n", fullTexmapLayers + 1);
+            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
+            texmap.reset(new RgbaPixel[count]);
+            bufSz = count * sizeof(RgbaPixel);
+            memset(texmap.get(), 0, bufSz);
+        }
+        else
+        {
+            size_t count = TEXMAP_DIM * finalHeight;
+            texmap.reset(new RgbaPixel[TEXMAP_DIM * finalHeight]);
+            bufSz = count * sizeof(RgbaPixel);
+            memset(texmap.get(), 0, bufSz);
+        }
+
+        /* Assemble glyph texmaps and internal data structures */
+        charcode = FT_Get_First_Char(face, &gindex);
+        unsigned curLineWidth = 1;
+        unsigned curLineHeight = 0;
+        unsigned totalHeight = 1;
+        fullTexmapLayers = 0;
+        while (gindex != 0)
+        {
+            FT_Load_Glyph(face, gindex, baseFlags);
+            FT_UInt width, height;
+            GridFitGlyph(face->glyph, width, height);
+            m_glyphs.emplace_back();
+            Glyph& g = m_glyphs.back();
+            g.m_unicodePoint = charcode;
+            g.m_layerIdx = fullTexmapLayers;
+            g.m_width = width;
+            g.m_height = height;
+            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
+            g.m_uv[1] = totalHeight / float(finalHeight);
+            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
+            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
+            g.m_leftPadding = 0;
+            g.m_advance = face->glyph->advance.x;
+            g.m_rightPadding = 0;
+            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
+            g.m_kernIdx = 0;
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
+            {
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, height);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineWidth += g.m_width + 1;
+            charcode = FT_Get_Next_Char(face, charcode, &gindex);
+        }
+
+        reader.readUBytesToBuf((atUint8*)texmap.get(), bufSz);
+        m_tex =
+        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                  boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+    }
+    else
+    {
+        /* Allocate texmap */
+        std::unique_ptr<GreyPixel[]> texmap;
+        size_t bufSz;
+        if (fullTexmapLayers)
+        {
+            //printf("ALLOC: %u\n", fullTexmapLayers + 1);
+            size_t count = TEXMAP_DIM * TEXMAP_DIM * (fullTexmapLayers + 1);
+            texmap.reset(new GreyPixel[count]);
+            bufSz = count * sizeof(GreyPixel);
+            memset(texmap.get(), 0, bufSz);
+        }
+        else
+        {
+            size_t count = TEXMAP_DIM * totalHeight;
+            texmap.reset(new GreyPixel[TEXMAP_DIM * totalHeight]);
+            bufSz = count * sizeof(GreyPixel);
+            memset(texmap.get(), 0, bufSz);
+        }
+
+        /* Assemble glyph texmaps and internal data structures */
+        charcode = FT_Get_First_Char(face, &gindex);
+        unsigned curLineWidth = 1;
+        unsigned curLineHeight = 0;
+        unsigned totalHeight = 1;
+        fullTexmapLayers = 0;
+        while (gindex != 0)
+        {
+            FT_Load_Glyph(face, gindex, baseFlags);
+            FT_UInt width, height;
+            GridFitGlyph(face->glyph, width, height);
+            m_glyphs.emplace_back();
+            Glyph& g = m_glyphs.back();
+            g.m_unicodePoint = charcode;
+            g.m_layerIdx = fullTexmapLayers;
+            g.m_width = width;
+            g.m_height = height;
+            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
+            g.m_uv[1] = totalHeight / float(finalHeight);
+            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
+            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
+            g.m_leftPadding = 0;
+            g.m_advance = face->glyph->advance.x;
+            g.m_rightPadding = 0;
+            g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
+            g.m_kernIdx = 0;
+            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
+            {
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, height);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineWidth += g.m_width + 1;
+            charcode = FT_Get_Next_Char(face, charcode, &gindex);
+        }
+
+        reader.readUBytesToBuf((atUint8*)texmap.get(), bufSz);
+        m_tex =
+        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                  boo::TextureFormat::I8, texmap.get(), bufSz);
+    }
 }
 
 FontCache::Library::Library()
@@ -367,7 +537,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
             atUint32 magic = r.readUint32Big();
             if (r.position() == 4 && magic == 'FONT')
             {
-                m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, subpixel, r));
+                m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, r));
                 return tag;
             }
         }
@@ -379,8 +549,16 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
     if (w.hasError())
         Log.report(LogVisor::FatalError, "unable to open '%s' for writing", cachePath.c_str());
     w.writeUint32Big('FONT');
-    m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, subpixel, w));
+    m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, w));
     return tag;
+}
+
+const FontAtlas& FontCache::lookupAtlas(FontTag tag) const
+{
+    auto search = m_cachedAtlases.find(tag);
+    if (search == m_cachedAtlases.cend())
+        Log.report(LogVisor::FatalError, "invalid font");
+    return *search->second.get();
 }
 
 }

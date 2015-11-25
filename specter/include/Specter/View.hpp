@@ -2,18 +2,20 @@
 #define SPECTER_VIEW_HPP
 
 #include <boo/boo.hpp>
+#include "CVector3f.hpp"
+#include "CMatrix4f.hpp"
+#include "CTransform.hpp"
+#include "CColor.hpp"
 
 namespace Specter
 {
 
 class View
 {
-    boo::SWindowRect m_rect;
+protected:
+    boo::SWindowRect m_viewport;
+    void bindViewport(boo::IGraphicsCommandQueue* gfxQ) {gfxQ->setViewport(m_viewport);}
 public:
-    void bindViewport(boo::IGraphicsCommandQueue* gfxQ)
-    {
-        gfxQ->setViewport(m_rect);
-    }
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ)=0;
 };
 
