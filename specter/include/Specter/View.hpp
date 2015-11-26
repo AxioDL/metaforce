@@ -29,6 +29,13 @@ protected:
     struct VertexBlock
     {
         Zeus::CMatrix4f m_mv;
+        void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+        {
+            m_mv[0][0] = 2.0f / root.size[0];
+            m_mv[1][1] = 2.0f / root.size[1];
+            m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
+            m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
+        }
     } m_viewVertBlock;
 #define SPECTER_VIEW_VERT_BLOCK_GLSL\
     "uniform SpecterViewBlock\n"\
@@ -57,8 +64,9 @@ protected:
     View(ViewSystem& system);
 
 public:
+    View() = delete;
     void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValidSlots = 0;}
-    virtual void resized(const boo::SWindowRect& rect);
+    virtual void resized(const boo::SWindowRect &root, const boo::SWindowRect& sub);
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

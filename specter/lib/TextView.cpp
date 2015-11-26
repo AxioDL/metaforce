@@ -71,12 +71,12 @@ void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
     m_regular =
     factory->newShaderPipeline(VS, FSReg, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               true, true, false);
+                               false, false, false);
 
     m_subpixel =
     factory->newShaderPipeline(VS, FSSubpixel, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
-                               true, true, false);
+                               false, false, false);
 }
 
 TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
@@ -143,7 +143,7 @@ static int DoKern(FT_Pos val, const FontAtlas& atlas)
     if (atlas.FT_XPPem() < 25)
         val = FT_MulDiv(orig_x, atlas.FT_XPPem(), 25);
 
-    return FT_PIX_ROUND(val);
+    return FT_PIX_ROUND(val) >> 6;
 }
 
 void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& defaultColor)
@@ -174,7 +174,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
 
         if (lCh != -1)
         {
-            adv += m_fontAtlas.lookupKern(lCh, ch);
+            adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
             m_glyphs.emplace_back(adv, *glyph, defaultColor);
         }
         else
@@ -246,6 +246,7 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_validSlots |= pendingSlot;
     }
     gfxQ->setShaderDataBinding(m_shaderBinding);
+    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->drawInstances(0, 4, m_glyphs.size());
 }
 

@@ -19,7 +19,7 @@ void View::System::init(boo::GLDataFactory* factory)
     "void main()\n"
     "{\n"
     "    vtf.color = colorIn;\n"
-    "    gl_Position = mv * vec4(posIn[gl_VertexID], 1.0);\n"
+    "    gl_Position = mv * vec4(posIn, 1.0);\n"
     "}\n";
 
     static const char* FS =
@@ -73,13 +73,13 @@ View::View(ViewSystem& system)
 
 }
 
-void View::resized(const boo::SWindowRect& rect)
+void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
-    m_viewVertBlock.m_mv[3].assign(rect.location[0], rect.location[1], 0.f, 1.f);
-    m_bgRect[0].assign(0.f, rect.size[1], 0.f);
-    m_bgRect[1].assign(0.f, rect.size[1], 0.f);
-    m_bgRect[2].assign(0.f, rect.size[1], 0.f);
-    m_bgRect[3].assign(0.f, rect.size[1], 0.f);
+    m_viewVertBlock.setViewRect(root, sub);
+    m_bgRect[0].assign(0.f, sub.size[1], 0.f);
+    m_bgRect[1].assign(0.f, 0.f, 0.f);
+    m_bgRect[2].assign(sub.size[0], sub.size[1], 0.f);
+    m_bgRect[3].assign(sub.size[0], 0.f, 0.f);
     m_bgValidSlots = 0;
 }
 
@@ -94,6 +94,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_bgValidSlots |= pendingSlot;
     }
     gfxQ->setShaderDataBinding(m_bgShaderBinding);
+    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
 }
 

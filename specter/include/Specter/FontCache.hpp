@@ -56,7 +56,7 @@ class FontAtlas
 {
     friend class FontCache;
     FT_Face m_face;
-    boo::ITextureS* m_tex;
+    boo::ITextureSA* m_tex;
     uint32_t m_dpi;
     FT_Fixed m_ftXscale;
     FT_UShort m_ftXPpem;
@@ -68,12 +68,12 @@ public:
         atUint32 m_layerIdx;
         float m_layerFloat;
         float m_uv[4];
-        atInt8 m_leftPadding;
-        atInt8 m_advance;
-        atInt8 m_rightPadding;
-        atUint8 m_width;
-        atUint8 m_height;
-        atInt8 m_verticalOffset;
+        atInt32 m_leftPadding;
+        atInt32 m_advance;
+        atInt32 m_rightPadding;
+        atUint32 m_width;
+        atUint32 m_height;
+        atInt32 m_verticalOffset;
     };
 
 private:

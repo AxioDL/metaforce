@@ -17,9 +17,14 @@ class RootView : public View, public boo::IWindowCallback
     TextView m_textView;
     boo::SWindowRect m_rootRect;
     bool m_resizeRTDirty = false;
+    bool m_destroyed = false;
 
 public:
+    void destroyed();
+    bool isDestroyed() const {return m_destroyed;}
+
     void resized(const boo::SWindowRect& rect);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseMove(const boo::SWindowCoord& coord);
@@ -40,7 +45,6 @@ public:
 
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-public:
     RootView(ViewSystem& system, boo::IWindow* window);
 };
 

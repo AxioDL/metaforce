@@ -256,10 +256,10 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[1] = totalHeight / float(finalHeight);
             g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = 0;
-            g.m_advance = face->glyph->advance.x;
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -327,10 +327,10 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[1] = totalHeight / float(finalHeight);
             g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = 0;
-            g.m_advance = face->glyph->advance.x;
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -431,10 +431,10 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[1] = totalHeight / float(finalHeight);
             g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = 0;
-            g.m_advance = face->glyph->advance.x;
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -502,10 +502,10 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[1] = totalHeight / float(finalHeight);
             g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = 0;
-            g.m_advance = face->glyph->advance.x;
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
             g.m_rightPadding = 0;
-            g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
