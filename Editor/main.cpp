@@ -11,9 +11,9 @@ struct Application : boo::IApplicationCallback
 {
     HECL::Runtime::FileStoreManager m_fileMgr;
     Specter::FontCache m_fontCache;
-    Specter::RootView m_rootView;
-    Retro::CVarManager m_cvarManager;
     boo::IWindow* m_mainWindow;
+    Specter::ViewSystem m_viewSystem;
+    Retro::CVarManager m_cvarManager;
     Zeus::CColor m_clearColor;
     bool m_running = true;
 
@@ -27,13 +27,11 @@ struct Application : boo::IApplicationCallback
     Application() :
         m_fileMgr(_S("rude")),
         m_fontCache(m_fileMgr),
-        m_rootView(m_fontCache),
         m_cvarManager(m_fileMgr){}
 
     int appMain(boo::IApplication* app)
     {
         m_mainWindow = app->newWindow(_S("RUDE"));
-        m_rootView.setWindow(m_mainWindow, 1.0f);
         m_cvarManager.serialize();
         Retro::CVar* tmp = m_cvarManager.findCVar("r_clearcolor");
         Retro::CVar::ListenerFunc listen = std::bind(&Application::onCVarModified, this, std::placeholders::_1);
@@ -41,8 +39,14 @@ struct Application : boo::IApplicationCallback
             tmp->addListener(listen);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_fontCache.prepMainFont(gf, false, 10.0, 72);
+        m_viewSystem.init(gf, &m_fontCache);
+        Specter::FontTag mainFont = m_fontCache.prepMainFont(gf, false, 10.0, 72);
         m_fontCache.closeBuiltinFonts();
+
+        Specter::RootView rootView(m_viewSystem, m_mainWindow);
+
+        Specter::TextView textView(m_viewSystem, mainFont);
+        textView.typesetGlyphs("Hello, World!");
 
         while (m_running)
         {
