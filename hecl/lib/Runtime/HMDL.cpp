@@ -38,19 +38,19 @@ boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory* factory
         vdescs[i].indexBuffer = ibo;
     }
 
-    vdescs[0].semantic = boo::VertexSemantic::Position;
-    vdescs[1].semantic = boo::VertexSemantic::Normal;
+    vdescs[0].semantic = boo::VertexSemantic::Position3;
+    vdescs[1].semantic = boo::VertexSemantic::Normal3;
     size_t e = 2;
 
     for (size_t i=0 ; i<meta.colorCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemantic::Color;
+        vdescs[e].semantic = boo::VertexSemantic::ColorUNorm;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<meta.uvCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemantic::UV;
+        vdescs[e].semantic = boo::VertexSemantic::UV2;
         vdescs[e].semanticIdx = i;
     }
 
@@ -74,19 +74,19 @@ boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory *factor
         vdescs[i].indexBuffer = nullptr;
     }
 
-    vdescs[0].semantic = boo::VertexSemantic::Position;
-    vdescs[1].semantic = boo::VertexSemantic::Normal;
+    vdescs[0].semantic = boo::VertexSemantic::Position3;
+    vdescs[1].semantic = boo::VertexSemantic::Normal3;
     size_t e = 2;
 
     for (size_t i=0 ; i<m_colorCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemantic::Color;
+        vdescs[e].semantic = boo::VertexSemantic::ColorUNorm;
         vdescs[e].semanticIdx = i;
     }
 
     for (size_t i=0 ; i<m_uvCount ; ++i, ++e)
     {
-        vdescs[e].semantic = boo::VertexSemantic::UV;
+        vdescs[e].semantic = boo::VertexSemantic::UV2;
         vdescs[e].semanticIdx = i;
     }
 
