@@ -2,6 +2,9 @@
 #include "Specter/ViewSystem.hpp"
 #include "utf8proc.h"
 
+#include <freetype/internal/internal.h>
+#include <freetype/internal/ftobjs.h>
+
 namespace Specter
 {
 static LogVisor::LogModule Log("Specter::TextView");
@@ -76,13 +79,14 @@ void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
                                true, true, false);
 }
 
-TextView::TextView(ViewSystem& system, FontTag font, size_t initGlyphCapacity)
+TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
 : View(system),
+  m_capacity(capacity),
   m_fontAtlas(system.m_textSystem.m_fcache->lookupAtlas(font))
 {
     m_glyphBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                       sizeof(RenderGlyph), initGlyphCapacity);
+                                       sizeof(RenderGlyph), capacity);
 
     if (!system.m_textSystem.m_vtxFmt)
     {
@@ -102,13 +106,18 @@ TextView::TextView(ViewSystem& system, FontTag font, size_t initGlyphCapacity)
             {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
             {m_glyphBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
         };
-        m_bgVtxFmt = system.m_factory->newVertexFormat(13, vdescs);
+        m_vtxFmt = system.m_factory->newVertexFormat(13, vdescs);
+        boo::ITexture* texs[] = {m_fontAtlas.texture()};
+        m_shaderBinding = system.m_factory->newShaderDataBinding(system.m_textSystem.m_regular, m_vtxFmt,
+                                                                 nullptr, m_glyphBuf, nullptr, 1,
+                                                                 (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                                 1, texs);
     }
 
-    m_glyphs.reserve(initGlyphCapacity);
+    m_glyphs.reserve(capacity);
 }
 
-TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, Zeus::CColor defaultColor)
+TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
 {
     m_pos[0].assign(adv + glyph.m_leftPadding, glyph.m_verticalOffset + glyph.m_height, 0.f);
     m_pos[1].assign(adv + glyph.m_leftPadding, glyph.m_verticalOffset, 0.f);
@@ -122,7 +131,22 @@ TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, Zeus
     adv += glyph.m_advance;
 }
 
-void TextView::typesetGlyphs(const std::string& str, Zeus::CColor defaultColor)
+static int DoKern(FT_Pos val, const FontAtlas& atlas)
+{
+    val = FT_MulFix(val, atlas.FT_Xscale());
+
+    FT_Pos  orig_x = val;
+
+    /* we scale down kerning values for small ppem values */
+    /* to avoid that rounding makes them too big.         */
+    /* `25' has been determined heuristically.            */
+    if (atlas.FT_XPPem() < 25)
+        val = FT_MulDiv(orig_x, atlas.FT_XPPem(), 25);
+
+    return FT_PIX_ROUND(val);
+}
+
+void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& defaultColor)
 {
     size_t rem = str.size();
     const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
@@ -159,11 +183,14 @@ void TextView::typesetGlyphs(const std::string& str, Zeus::CColor defaultColor)
         lCh = ch;
         rem -= sz;
         it += sz;
+
+        if (m_glyphs.size() == m_capacity)
+            break;
     }
 
-    m_validDynamicSlots = 0;
+    m_validSlots = 0;
 }
-void TextView::typesetGlyphs(const std::wstring& str, Zeus::CColor defaultColor)
+void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
 {
     wchar_t lCh = -1;
     m_glyphs.clear();
@@ -181,22 +208,28 @@ void TextView::typesetGlyphs(const std::wstring& str, Zeus::CColor defaultColor)
 
         if (lCh != -1)
         {
-            adv += m_fontAtlas.lookupKern(lCh, ch);
+            adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
             m_glyphs.emplace_back(adv, *glyph, defaultColor);
         }
         else
             m_glyphs.emplace_back(adv, *glyph, defaultColor);
 
         lCh = ch;
+
+        if (m_glyphs.size() == m_capacity)
+            break;
     }
 
-    m_validDynamicSlots = 0;
+    m_validSlots = 0;
 }
 
-void TextView::colorGlyphs(Zeus::CColor newColor)
+void TextView::colorGlyphs(const Zeus::CColor& newColor)
 {
+    for (RenderGlyph& glyph : m_glyphs)
+        glyph.m_color = newColor;
+    m_validSlots = 0;
 }
-void TextView::colorGlyphsTypeOn(Zeus::CColor newColor, float startInterval, float fadeTime)
+void TextView::colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval, float fadeTime)
 {
 }
 void TextView::think()
@@ -205,13 +238,14 @@ void TextView::think()
 
 void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    bindScissor(gfxQ);
+    View::draw(gfxQ);
     int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-    if ((m_validDynamicSlots & pendingSlot) == 0)
+    if ((m_validSlots & pendingSlot) == 0)
     {
         m_glyphBuf->load(m_glyphs.data(), m_glyphs.size() * sizeof(RenderGlyph));
-        m_validDynamicSlots |= pendingSlot;
+        m_validSlots |= pendingSlot;
     }
+    gfxQ->setShaderDataBinding(m_shaderBinding);
     gfxQ->drawInstances(0, 4, m_glyphs.size());
 }
 

@@ -14,9 +14,11 @@ namespace Specter
 class FontTag
 {
     friend class FontCache;
-    uint64_t m_hash;
+    uint64_t m_hash = 0;
     FontTag(const std::string& name, bool subpixel, float points, unsigned dpi);
 public:
+    FontTag() = default;
+    operator bool() const {return m_hash != 0;}
     uint64_t hash() const {return m_hash;}
     bool operator==(const FontTag& other) const {return m_hash == other.m_hash;}
 };
@@ -56,6 +58,8 @@ class FontAtlas
     FT_Face m_face;
     boo::ITextureS* m_tex;
     uint32_t m_dpi;
+    FT_Fixed m_ftXscale;
+    FT_UShort m_ftXPpem;
 
 public:
     struct Glyph
@@ -113,6 +117,9 @@ public:
     FontAtlas& operator=(const FontAtlas& other) = delete;
 
     uint32_t dpi() const {return m_dpi;}
+    FT_Fixed FT_Xscale() const {return m_ftXscale;}
+    FT_UShort FT_XPPem() const {return m_ftXPpem;}
+    boo::ITexture* texture() const {return m_tex;}
 
     const Glyph* lookupGlyph(atUint32 charcode) const
     {

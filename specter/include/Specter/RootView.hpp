@@ -2,6 +2,7 @@
 #define SPECTER_ROOTVIEW_HPP
 
 #include "View.hpp"
+#include "TextView.hpp"
 #include "FontCache.hpp"
 #include <boo/boo.hpp>
 
@@ -12,7 +13,12 @@ class ViewSystem;
 class RootView : public View, public boo::IWindowCallback
 {
     boo::IWindow* m_window = nullptr;
+    boo::ITextureR* m_renderTex = nullptr;
+    TextView m_textView;
+    boo::SWindowRect m_rootRect;
+    bool m_resizeRTDirty = false;
 
+public:
     void resized(const boo::SWindowRect& rect);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);

@@ -19,6 +19,9 @@ public:
     View::System m_viewSystem;
     TextView::System m_textSystem;
 
+    Specter::FontTag m_mainFont;
+    Specter::FontTag m_monoFont;
+
     ViewSystem() = default;
     ViewSystem(const ViewSystem& other) = delete;
     ViewSystem(ViewSystem&& other) = default;

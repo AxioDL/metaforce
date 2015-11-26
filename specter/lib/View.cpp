@@ -52,7 +52,7 @@ View::View(ViewSystem& system)
     system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
                                        sizeof(Zeus::CColor), 1);
 
-    m_specterVertBlock =
+    m_viewVertBlockBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
                                        sizeof(VertexBlock), 1);
 
@@ -67,22 +67,33 @@ View::View(ViewSystem& system)
         m_bgShaderBinding =
         system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, m_bgVtxFmt,
                                                m_bgVertBuf, m_bgInstBuf, nullptr, 1,
-                                               (boo::IGraphicsBuffer**)&m_specterVertBlock,
+                                               (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
     }
 
 }
 
+void View::resized(const boo::SWindowRect& rect)
+{
+    m_viewVertBlock.m_mv[3].assign(rect.location[0], rect.location[1], 0.f, 1.f);
+    m_bgRect[0].assign(0.f, rect.size[1], 0.f);
+    m_bgRect[1].assign(0.f, rect.size[1], 0.f);
+    m_bgRect[2].assign(0.f, rect.size[1], 0.f);
+    m_bgRect[3].assign(0.f, rect.size[1], 0.f);
+    m_bgValidSlots = 0;
+}
+
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    bindScissor(gfxQ);
     int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-    if ((m_validDynamicSlots & pendingSlot) == 0)
+    if ((m_bgValidSlots & pendingSlot) == 0)
     {
+        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(VertexBlock));
         m_bgVertBuf->load(m_bgRect, sizeof(Zeus::CVector3f) * 4);
         m_bgInstBuf->load(&m_bgColor, sizeof(Zeus::CColor));
-        m_validDynamicSlots |= pendingSlot;
+        m_bgValidSlots |= pendingSlot;
     }
+    gfxQ->setShaderDataBinding(m_bgShaderBinding);
     gfxQ->draw(0, 4);
 }
 

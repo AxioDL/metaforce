@@ -1,16 +1,34 @@
 #include "Specter/RootView.hpp"
+#include "Specter/ViewSystem.hpp"
 
 namespace Specter
 {
 
 RootView::RootView(ViewSystem& system, boo::IWindow* window)
-: View(system), m_window(window)
+: View(system), m_window(window), m_textView(system, system.m_mainFont)
 {
-
+    boo::SWindowRect rect = window->getWindowFrame();
+    m_renderTex = system.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
+    system.m_factory->commit();
+    resized(rect);
+    m_textView.typesetGlyphs("Hello, World!");
 }
 
 void RootView::resized(const boo::SWindowRect& rect)
 {
+    m_rootRect = rect;
+    m_rootRect.location[0] = 0;
+    m_rootRect.location[1] = 0;
+    View::resized(m_rootRect);
+    boo::SWindowRect textRect = m_rootRect;
+    textRect.location[0] = 10;
+    textRect.location[1] = 10;
+    textRect.size[0] -= 20;
+    if (textRect.size[0] < 0)
+        textRect.size[0] = 0;
+    textRect.size[1] = 10;
+    m_textView.resized(textRect);
+    m_resizeRTDirty = true;
 }
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
@@ -75,7 +93,13 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
+    if (m_resizeRTDirty)
+        gfxQ->resizeRenderTexture(m_renderTex, m_rootRect.size[0], m_rootRect.size[1]);
+    gfxQ->setRenderTarget(m_renderTex);
+    gfxQ->setViewport(m_rootRect);
     View::draw(gfxQ);
+    m_textView.draw(gfxQ);
+    gfxQ->resolveDisplay(m_renderTex);
 }
 
 }

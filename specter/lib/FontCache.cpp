@@ -130,6 +130,8 @@ void FontAtlas::buildKernTable(FT_Face face)
     if (face->driver->clazz == &tt_driver_class)
     {
         TT_Face ttface = reinterpret_cast<TT_Face>(face);
+        if (!ttface->kern_table)
+            return;
         Athena::io::MemoryReader r(ttface->kern_table, ttface->kern_table_size);
         std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>>::iterator it = m_kernAdjs.end();
         atUint32 nSubs = r.readUint32Big();
@@ -161,7 +163,9 @@ void FontAtlas::buildKernTable(FT_Face face)
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, Athena::io::FileWriter& writer)
-: m_dpi(dpi)
+: m_dpi(dpi),
+  m_ftXscale(face->size->metrics.x_scale),
+  m_ftXPpem(face->size->metrics.x_ppem)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)
@@ -358,7 +362,9 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, Athena::io::FileReader& reader)
-: m_dpi(dpi)
+: m_dpi(dpi),
+  m_ftXscale(face->size->metrics.x_scale),
+  m_ftXPpem(face->size->metrics.x_ppem)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)

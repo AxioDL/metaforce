@@ -23,6 +23,20 @@ class View
     boo::IShaderDataBinding* m_bgShaderBinding;
     Zeus::CVector3f m_bgRect[4];
     Zeus::CColor m_bgColor;
+    int m_bgValidSlots = 0;
+
+protected:
+    struct VertexBlock
+    {
+        Zeus::CMatrix4f m_mv;
+    } m_viewVertBlock;
+#define SPECTER_VIEW_VERT_BLOCK_GLSL\
+    "uniform SpecterViewBlock\n"\
+    "{\n"\
+    "    mat4 mv;\n"\
+    "};\n"
+    boo::IGraphicsBufferD* m_viewVertBlockBuf;
+
 public:
     class System
     {
@@ -39,26 +53,12 @@ public:
 #endif
     };
 
-    struct VertexBlock
-    {
-        Zeus::CMatrix4f m_mv;
-    };
-#define SPECTER_VIEW_VERT_BLOCK_GLSL\
-    "uniform SpecterViewBlock\n"\
-    "{\n"\
-    "    mat4 mv;\n"\
-    "};\n"
-
 protected:
     View(ViewSystem& system);
-    int m_validDynamicSlots = 0;
-    boo::IGraphicsBufferD* m_specterVertBlock;
-
-    boo::SWindowRect m_absWindowRect;
-    void bindScissor(boo::IGraphicsCommandQueue* gfxQ) {gfxQ->setScissor(m_absWindowRect);}
 
 public:
-    void setBackground(Zeus::CColor color) {m_bgColor = color; m_validDynamicSlots = 0;}
+    void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValidSlots = 0;}
+    virtual void resized(const boo::SWindowRect& rect);
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

@@ -7,6 +7,8 @@ static LogVisor::LogModule Log("Specter");
 void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
 {
     m_factory = factory;
+    m_mainFont = fcache->prepMainFont(factory, false, 10.0, 72);
+    m_monoFont = fcache->prepMonoFont(factory, false, 10.0, 72);
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
@@ -25,6 +27,7 @@ void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
     default:
         Log.report(LogVisor::FatalError, _S("unable to init view system for %s"), factory->platformName());
     }
+    fcache->closeBuiltinFonts();
 }
 
 }
