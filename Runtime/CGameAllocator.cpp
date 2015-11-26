@@ -55,7 +55,7 @@ void CGameAllocator::Shutdown()
 }
 void* CGameAllocator::Alloc(size_t sz, EHint, EScope, EType, const CCallStack&)
 {
-    AllocLog.report(LogVisor::Warning, _S("Remind Phil to reimplement Alloc!!!!"));
+    //AllocLog.report(LogVisor::Warning, _S("Remind Phil to reimplement Alloc!!!!"));
     return malloc(sz);
 }
 void CGameAllocator::Free(void* ptr)

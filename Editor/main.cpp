@@ -17,7 +17,6 @@ struct Application : boo::IApplicationCallback
     Zeus::CColor m_clearColor;
     bool m_running = true;
 
-
     void onCVarModified(Retro::CVar* cvar)
     {
         if (cvar == m_cvarManager.findCVar("r_clearColor"))
@@ -27,7 +26,7 @@ struct Application : boo::IApplicationCallback
     Application() :
         m_fileMgr(_S("rude")),
         m_fontCache(m_fileMgr),
-        m_cvarManager(m_fileMgr){}
+        m_cvarManager(m_fileMgr) {}
 
     int appMain(boo::IApplication* app)
     {
@@ -40,20 +39,17 @@ struct Application : boo::IApplicationCallback
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
         m_viewSystem.init(gf, &m_fontCache);
-        Specter::FontTag mainFont = m_fontCache.prepMainFont(gf, false, 10.0, 72);
-        m_fontCache.closeBuiltinFonts();
-
         Specter::RootView rootView(m_viewSystem, m_mainWindow);
 
-        Specter::TextView textView(m_viewSystem, mainFont);
-        textView.typesetGlyphs("Hello, World!");
-
+        boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         while (m_running)
         {
             m_cvarManager.update();
             m_mainWindow->waitForRetrace();
+            rootView.draw(gfxQ);
+            gfxQ->flushBufferUpdates();
+            gfxQ->execute();
         }
-
 
         return 0;
     }
