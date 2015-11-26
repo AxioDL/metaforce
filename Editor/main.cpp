@@ -44,6 +44,8 @@ struct Application : boo::IApplicationCallback
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         while (m_running)
         {
+            if (rootView.isDestroyed())
+                break;
             m_cvarManager.update();
             m_mainWindow->waitForRetrace();
             rootView.draw(gfxQ);
