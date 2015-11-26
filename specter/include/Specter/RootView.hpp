@@ -7,12 +7,11 @@
 
 namespace Specter
 {
+class ViewSystem;
 
 class RootView : public View, public boo::IWindowCallback
 {
-    FontCache& m_fontCache;
     boo::IWindow* m_window = nullptr;
-    float m_scale = 1.0;
 
     void resized(const boo::SWindowRect& rect);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
@@ -36,8 +35,7 @@ class RootView : public View, public boo::IWindowCallback
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
 public:
-    RootView(FontCache& fontCache) : m_fontCache(fontCache) {}
-    void setWindow(boo::IWindow* window, float userScale);
+    RootView(ViewSystem& system, boo::IWindow* window);
 };
 
 }

@@ -3,11 +3,10 @@
 namespace Specter
 {
 
-void RootView::setWindow(boo::IWindow* window, float userScale)
+RootView::RootView(ViewSystem& system, boo::IWindow* window)
+: View(system), m_window(window)
 {
-    window->setCallback(this);
-    m_window = window;
-    m_scale = window->getVirtualPixelFactor() * userScale;
+
 }
 
 void RootView::resized(const boo::SWindowRect& rect)
@@ -76,6 +75,7 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
+    View::draw(gfxQ);
 }
 
 }

@@ -3,6 +3,7 @@
 
 #include "View.hpp"
 #include "RootView.hpp"
+#include "TextView.hpp"
 #include "Space.hpp"
 #include "Table.hpp"
 #include "Outliner.hpp"
@@ -15,5 +16,6 @@
 #include "Node.hpp"
 #include "NodeSocket.hpp"
 #include "FontCache.hpp"
+#include "ViewSystem.hpp"
 
 #endif // SPECTER_HPP

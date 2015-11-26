@@ -1,5 +1,6 @@
 #include "Specter/FontCache.hpp"
 #include <LogVisor/LogVisor.hpp>
+#include <Athena/MemoryReader.hpp>
 #include <stdint.h>
 
 #include FT_GZIP_H
@@ -7,12 +8,15 @@
 #include FT_OUTLINE_H
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftstream.h>
+#include <freetype/internal/tttypes.h>
 
 extern "C" const uint8_t DROIDSANS_PERMISSIVE[];
 extern "C" size_t DROIDSANS_PERMISSIVE_SZ;
 
 extern "C" const uint8_t BMONOFONT[];
 extern "C" size_t BMONOFONT_SZ;
+
+extern const FT_Driver_ClassRec tt_driver_class;
 
 namespace Specter
 {
@@ -121,6 +125,40 @@ static inline void GridFitGlyph(FT_GlyphSlot slot, FT_UInt& width, FT_UInt& heig
     height = slot->metrics.height >> 6;
 }
 
+void FontAtlas::buildKernTable(FT_Face face)
+{
+    if (face->driver->clazz == &tt_driver_class)
+    {
+        TT_Face ttface = reinterpret_cast<TT_Face>(face);
+        Athena::io::MemoryReader r(ttface->kern_table, ttface->kern_table_size);
+        std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>>::iterator it = m_kernAdjs.end();
+        atUint32 nSubs = r.readUint32Big();
+        for (atUint32 i=0 ; i<nSubs ; ++i)
+        {
+            TT_KernHead kernHead;
+            kernHead.read(r);
+            if (kernHead.coverage >> 8 != 0)
+            {
+                r.seek(kernHead.length - 6, Athena::Current);
+                continue;
+            }
+
+            TT_KernSubHead subHead;
+            subHead.read(r);
+
+            for (atUint16 p=0 ; p<subHead.nPairs ; ++p)
+            {
+                TT_KernPair pair;
+                pair.read(r);
+                if (it == m_kernAdjs.end() || it->first != pair.left)
+                    if ((it = m_kernAdjs.find(pair.left)) == m_kernAdjs.end())
+                        it = m_kernAdjs.insert(std::make_pair(pair.left, std::vector<std::pair<atUint16, atInt16>>())).first;
+                it->second.emplace_back(pair.right, pair.value);
+            }
+        }
+    }
+}
+
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, Athena::io::FileWriter& writer)
 : m_dpi(dpi)
@@ -207,6 +245,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = face->glyph->bitmap.width / 3;
             g.m_height = face->glyph->bitmap.rows;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -217,7 +256,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
             g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
-            g.m_kernIdx = 0;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -278,6 +316,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = face->glyph->bitmap.width;
             g.m_height = face->glyph->bitmap.rows;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -288,7 +327,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
             g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
-            g.m_kernIdx = 0;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -314,6 +352,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
     }
+
+    buildKernTable(face);
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
@@ -378,6 +418,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = width;
             g.m_height = height;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -388,7 +429,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
             g.m_verticalOffset = face->glyph->metrics.horiBearingY / 64;
-            g.m_kernIdx = 0;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -428,8 +468,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         }
         else
         {
-            size_t count = TEXMAP_DIM * totalHeight;
-            texmap.reset(new GreyPixel[TEXMAP_DIM * totalHeight]);
+            size_t count = TEXMAP_DIM * finalHeight;
+            texmap.reset(new GreyPixel[TEXMAP_DIM * finalHeight]);
             bufSz = count * sizeof(GreyPixel);
             memset(texmap.get(), 0, bufSz);
         }
@@ -449,6 +489,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = width;
             g.m_height = height;
             g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
@@ -459,7 +500,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_advance = face->glyph->advance.x;
             g.m_rightPadding = 0;
             g.m_verticalOffset = face->glyph->metrics.horiBearingY >> 6;
-            g.m_kernIdx = 0;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -484,6 +524,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
     }
+
+    buildKernTable(face);
 }
 
 FontCache::Library::Library()
@@ -513,7 +555,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
     if (!face)
         Log.report(LogVisor::FatalError, "invalid freetype face");
 
-    if (!face->charmap || face->charmap->encoding != ft_encoding_unicode)
+    if (!face->charmap || face->charmap->encoding != FT_ENCODING_UNICODE)
         Log.report(LogVisor::FatalError, "font does not contain a unicode char map");
 
     /* Set size with FreeType */

@@ -62,6 +62,7 @@ public:
     {
         atUint32 m_unicodePoint;
         atUint32 m_layerIdx;
+        float m_layerFloat;
         float m_uv[4];
         atInt8 m_leftPadding;
         atInt8 m_advance;
@@ -69,19 +70,38 @@ public:
         atUint8 m_width;
         atUint8 m_height;
         atInt8 m_verticalOffset;
-        atInt16 m_kernIdx = -1;
-    };
-
-    struct KernAdj
-    {
-        atUint32 a;
-        atUint32 b;
-        atInt8 adj;
     };
 
 private:
     std::vector<Glyph> m_glyphs;
-    std::vector<KernAdj> m_kernAdjs;
+    std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>> m_kernAdjs;
+
+    struct TT_KernHead : Athena::io::DNA<Athena::BigEndian>
+    {
+        DECL_DNA
+        Value<atUint32> length;
+        Value<atUint16> coverage;
+    };
+
+    struct TT_KernSubHead : Athena::io::DNA<Athena::BigEndian>
+    {
+        DECL_DNA
+        Value<atUint16> nPairs;
+        Value<atUint16> searchRange;
+        Value<atUint16> entrySelector;
+        Value<atUint16> rangeShift;
+    };
+
+    struct TT_KernPair : Athena::io::DNA<Athena::BigEndian>
+    {
+        DECL_DNA
+        Value<atUint16> left;
+        Value<atUint16> right;
+        Value<atInt16> value;
+    };
+
+    void buildKernTable(FT_Face face);
+
     std::unordered_map<atUint32, size_t> m_glyphLookup;
 
 public:
@@ -93,6 +113,32 @@ public:
     FontAtlas& operator=(const FontAtlas& other) = delete;
 
     uint32_t dpi() const {return m_dpi;}
+
+    const Glyph* lookupGlyph(atUint32 charcode) const
+    {
+        auto search = m_glyphLookup.find(charcode);
+        if (search == m_glyphLookup.end())
+            return nullptr;
+        return &m_glyphs[search->second];
+    }
+    atInt16 lookupKern(atUint32 left, atUint32 right) const
+    {
+        auto leftSearch = m_glyphLookup.find(left);
+        if (leftSearch == m_glyphLookup.cend())
+            return 0;
+        size_t leftIdx = leftSearch->second;
+        auto rightSearch = m_glyphLookup.find(right);
+        if (rightSearch == m_glyphLookup.cend())
+            return 0;
+        size_t rightIdx = rightSearch->second;
+        auto pairSearch = m_kernAdjs.find(leftIdx);
+        if (pairSearch == m_kernAdjs.cend())
+            return 0;
+        for (const std::pair<atUint16, atInt16>& p : pairSearch->second)
+            if (p.first == rightIdx)
+                return p.second;
+        return 0;
+    }
 };
 
 class FontCache
