@@ -79,6 +79,107 @@ void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
                                false, false, false);
 }
 
+void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
+{
+    m_fcache = fcache;
+
+    static const char* VS =
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn[4] : POSITION;\n"
+    "    float4x4 mvMtx : MODELVIEW;\n"
+    "    float3 uvIn[4] : UV;\n"
+    "    float4 colorIn : COLOR;\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_HLSL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float3 uv : UV;\n"
+    "    float4 color : COLOR;\n"
+    "};\n"
+    "VertToFrag main(in VertData v, in uint vertId : SV_VertexID)\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    vtf.uv = v.uvIn[vertId];\n"
+    "    vtf.color = v.colorIn;\n"
+    "    vtf.position = mul(mv, mul(v.mvMtx, float4(v.posIn[vertId], 1.0)));\n"
+    "    return vtf;\n"
+    "}\n";
+
+    static const char* FSReg =
+    "Texture2DArray fontTex : register(t0);\n"
+    "SamplerState samp : register(s0);\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float3 uv : UV;\n"
+    "    float4 color : COLOR;\n"
+    "};\n"
+    "float4 main(in VertToFrag vtf) : SV_Target0\n"
+    "{\n"
+    "    float4 colorOut = vtf.color;\n"
+    "    colorOut.a = fontTex.Sample(samp, vtf.uv).r;\n"
+    "    return colorOut;\n"
+    "}\n";
+
+    static const char* FSSubpixel =
+    "Texture2DArray fontTex : register(t0);\n"
+    "SamplerState samp : register(s0);\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float3 uv : UV;\n"
+    "    float4 color : COLOR;\n"
+    "};\n"
+    "struct BlendOut\n"
+    "{\n"
+    "    float4 colorOut : SV_Target0;\n"
+    "    float4 blendOut : SV_Target1;\n"
+    "};\n"
+    "BlendOut main(in VertToFrag vtf)\n"
+    "{\n"
+    "    BlendOut ret;\n"
+    "    ret.colorOut = vtf.color;\n"
+    "    ret.blendOut = fontTex.Sample(samp, vtf.uv);\n"
+    "    return ret;\n"
+    "}\n";
+
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFmt = factory->newVertexFormat(13, vdescs);
+
+    ComPtr<ID3DBlob> blobVert;
+    ComPtr<ID3DBlob> blobFrag;
+    ComPtr<ID3DBlob> blobPipe;
+    m_regular =
+    factory->newShaderPipeline(VS, FSReg, blobVert, blobFrag, blobPipe, m_vtxFmt,
+                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                               false, false, false);
+
+    blobVert.Reset();
+    blobFrag.Reset();
+    blobPipe.Reset();
+    m_subpixel =
+    factory->newShaderPipeline(VS, FSSubpixel, blobVert, blobFrag, blobPipe, m_vtxFmt,
+                               boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
+                               false, false, false);
+}
+
 TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
 : View(system),
   m_capacity(capacity),
@@ -109,6 +210,14 @@ TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
         m_vtxFmt = system.m_factory->newVertexFormat(13, vdescs);
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
         m_shaderBinding = system.m_factory->newShaderDataBinding(system.m_textSystem.m_regular, m_vtxFmt,
+                                                                 nullptr, m_glyphBuf, nullptr, 1,
+                                                                 (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                                 1, texs);
+    }
+    else
+    {
+        boo::ITexture* texs[] = {m_fontAtlas.texture()};
+        m_shaderBinding = system.m_factory->newShaderDataBinding(system.m_textSystem.m_regular, system.m_textSystem.m_vtxFmt,
                                                                  nullptr, m_glyphBuf, nullptr, 1,
                                                                  (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                                  1, texs);

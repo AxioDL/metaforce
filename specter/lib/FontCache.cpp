@@ -1,3 +1,7 @@
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif
+
 #include "Specter/FontCache.hpp"
 #include <LogVisor/LogVisor.hpp>
 #include <Athena/MemoryReader.hpp>
@@ -16,7 +20,7 @@ extern "C" size_t DROIDSANS_PERMISSIVE_SZ;
 extern "C" const uint8_t BMONOFONT[];
 extern "C" size_t BMONOFONT_SZ;
 
-extern const FT_Driver_ClassRec tt_driver_class;
+extern "C" const FT_Driver_ClassRec tt_driver_class;
 
 namespace Specter
 {
@@ -574,7 +578,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
         return tag;
 
     /* Now check filesystem cache */
-    HECL::SystemString cachePath = m_cacheRoot + _S('/') + HECL::Format("%" PRIx64, tag.hash());
+    HECL::SystemString cachePath = m_cacheRoot + _S('/') + HECL::SysFormat(_S("%" PRIx64), tag.hash());
 #if 0
     HECL::Sstat st;
     if (!HECL::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode))
@@ -582,7 +586,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
         Athena::io::FileReader r(cachePath);
         if (!r.hasError())
         {
-            atUint32 magic = r.readUint32Big();
+            atUint32 magic = r.readUint32Big();b
             if (r.position() == 4 && magic == 'FONT')
             {
                 m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, r));

@@ -28,7 +28,7 @@ void RootView::resized(const boo::SWindowRect& rect)
     resized(rect, rect);
 }
 
-void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 {
     m_rootRect = root;
     m_rootRect.location[0] = 0;
@@ -114,6 +114,7 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
     }
     gfxQ->setRenderTarget(m_renderTex);
     gfxQ->setViewport(m_rootRect);
+    gfxQ->setScissor(m_rootRect);
     View::draw(gfxQ);
     m_textView.draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);

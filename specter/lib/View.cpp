@@ -42,6 +42,54 @@ void View::System::init(boo::GLDataFactory* factory)
                                                false, false, false);
 }
 
+void View::System::init(boo::ID3DDataFactory* factory)
+{
+    static const char* VS =
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn : POSITION;\n"
+    "    float4 colorIn : COLOR;\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_HLSL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float4 color : COLOR;\n"
+    "};\n"
+    "VertToFrag main(in VertData v)\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    vtf.color = v.colorIn;\n"
+    "    vtf.position = mul(mv, float4(v.posIn, 1.0));\n"
+    "    return vtf;\n"
+    "}\n";
+
+    static const char* FS =
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float4 color : COLOR;\n"
+    "};\n"
+    "float4 main(in VertToFrag vtf) : SV_Target0\n"
+    "{\n"
+    "    return vtf.color;\n"
+    "}\n";
+
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFmt = factory->newVertexFormat(2, vdescs);
+
+    ComPtr<ID3DBlob> vertBlob;
+    ComPtr<ID3DBlob> fragBlob;
+    ComPtr<ID3DBlob> pipeBlob;
+    m_solidShader = factory->newShaderPipeline(VS, FS, vertBlob, fragBlob, pipeBlob, m_vtxFmt,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               false, false, false);
+}
+
 View::View(ViewSystem& system)
 {
     m_bgVertBuf =
@@ -60,12 +108,20 @@ View::View(ViewSystem& system)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
-            {m_bgVertBuf, nullptr, boo::VertexSemantic::Position4, 0},
+            {m_bgVertBuf, nullptr, boo::VertexSemantic::Position4},
             {m_bgInstBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
         };
         m_bgVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
         m_bgShaderBinding =
         system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, m_bgVtxFmt,
+                                               m_bgVertBuf, m_bgInstBuf, nullptr, 1,
+                                               (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                               0, nullptr);
+    }
+    else
+    {
+        m_bgShaderBinding =
+        system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, system.m_viewSystem.m_vtxFmt,
                                                m_bgVertBuf, m_bgInstBuf, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
