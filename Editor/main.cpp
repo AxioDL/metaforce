@@ -41,6 +41,7 @@ struct Application : boo::IApplicationCallback
         m_viewSystem.init(gf, &m_fontCache);
         Specter::RootView rootView(m_viewSystem, m_mainWindow);
 
+        m_mainWindow->showWindow();
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         while (m_running)
         {

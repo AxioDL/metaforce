@@ -1,3 +1,8 @@
+#if _WIN32
+#define _CRT_RAND_S
+#include <stdlib.h>
+#endif
+
 #include "SpecBase.hpp"
 #include "Blender/BlenderSupport.hpp"
 #include "BlenderConnection.hpp"
@@ -37,7 +42,12 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     if (!memcmp(gameID, "R3O", 3))
     {
         unsigned int t = time(nullptr);
+#if _WIN32
+        rand_s(&t);
+        int r = t % 9;
+#else
         int r = rand_r(&t) % 9;
+#endif
         Log.report(LogVisor::FatalError, MomErr[r]);
     }
 
