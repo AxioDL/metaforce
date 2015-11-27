@@ -188,6 +188,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             r.location[0] = 0;
             r.location[1] = 0;
             gfxQ->setViewport(r);
+            gfxQ->setScissor(r);
             float rgba[] = {sinf(frameIdx / 60.0), cosf(frameIdx / 60.0), 0.0, 1.0};
             gfxQ->setClearColor(rgba);
             gfxQ->clearTarget();
