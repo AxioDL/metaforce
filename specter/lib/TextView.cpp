@@ -171,11 +171,10 @@ void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                false, false, false);
 
-    blobVert.Reset();
     blobFrag.Reset();
     blobPipe.Reset();
     m_subpixel =
-    factory->newShaderPipeline(VS, FSSubpixel, blobVert, blobFrag, blobPipe, m_vtxFmt,
+    factory->newShaderPipeline(nullptr, FSSubpixel, blobVert, blobFrag, blobPipe, m_vtxFmt,
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                                false, false, false);
 }
