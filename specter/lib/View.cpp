@@ -41,6 +41,8 @@ void View::System::init(boo::GLDataFactory* factory)
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 }
+    
+#if _WIN32
 
 void View::System::init(boo::ID3DDataFactory* factory)
 {
@@ -89,6 +91,59 @@ void View::System::init(boo::ID3DDataFactory* factory)
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 }
+    
+#elif BOO_HAS_METAL
+    
+void View::System::init(boo::MetalDataFactory* factory)
+{
+    static const char* VS =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn [[ attribute(0) ]];\n"
+    "    float4 colorIn [[ attribute(1) ]];\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_METAL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float4 color;\n"
+    "};\n"
+    "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SpecterViewBlock& view [[ buffer(2) ]])\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    vtf.color = v.colorIn;\n"
+    "    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
+    "    return vtf;\n"
+    "}\n";
+    
+    static const char* FS =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float4 color;\n"
+    "};\n"
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]])\n"
+    "{\n"
+    "    return vtf.color;\n"
+    "}\n";
+    
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFmt = factory->newVertexFormat(2, vdescs);
+    
+    m_solidShader = factory->newShaderPipeline(VS, FS, m_vtxFmt, 1,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               false, false, false);
+}
+    
+#endif
 
 View::View(ViewSystem& system)
 {
