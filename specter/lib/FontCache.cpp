@@ -6,6 +6,7 @@
 #include <LogVisor/LogVisor.hpp>
 #include <Athena/MemoryReader.hpp>
 #include <stdint.h>
+#include <zlib.h>
 
 #include FT_GZIP_H
 #include FT_SYSTEM_H
@@ -165,8 +166,59 @@ void FontAtlas::buildKernTable(FT_Face face)
     }
 }
 
+static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data, size_t sz)
+{
+    atUint8 compBuf[8192];
+    z_stream z = {};
+    deflateInit(&z, Z_DEFAULT_COMPRESSION);
+    z.next_in = (Bytef*)data;
+    z.avail_in = sz;
+    writer.writeUint32Big(sz);
+    while (z.avail_in)
+    {
+        z.next_out = compBuf;
+        z.avail_out = 8192;
+        deflate(&z, Z_NO_FLUSH);
+        writer.writeUBytes(compBuf, 8192 - z.avail_out);
+    }
+
+    int finishCycle = Z_OK;
+    while (finishCycle != Z_STREAM_END)
+    {
+        z.next_out = compBuf;
+        z.avail_out = 8192;
+        finishCycle = deflate(&z, Z_FINISH);
+        writer.writeUBytes(compBuf, 8192 - z.avail_out);
+    }
+
+    deflateEnd(&z);
+}
+
+static void ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size_t sz)
+{
+    atUint8 compBuf[8192];
+    z_stream z = {};
+    inflateInit(&z);
+    z.next_out = data;
+    atUint32 targetSz = reader.readUint32Big();
+    z.avail_out = std::min(sz, size_t(targetSz));
+    size_t readSz;
+    while ((readSz = reader.readUBytesToBuf(compBuf, 8192)))
+    {
+        z.next_in = compBuf;
+        z.avail_in = readSz;
+        inflate(&z, Z_NO_FLUSH);
+    }
+
+    int finishCycle = Z_OK;
+    while (finishCycle != Z_STREAM_END)
+        finishCycle = inflate(&z, Z_FINISH);
+
+    inflateEnd(&z);
+}
+
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-                     bool subpixel, Athena::io::FileWriter& writer)
+                     bool subpixel, FCharFilter& filter, Athena::io::FileWriter& writer)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
   m_ftXPpem(face->size->metrics.x_ppem)
@@ -187,6 +239,11 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
     unsigned fullTexmapLayers = 0;
     while (gindex != 0)
     {
+        if (!filter(charcode))
+        {
+            charcode = FT_Get_Next_Char(face, charcode, &gindex);
+            continue;
+        }
         ++glyphCount;
         FT_Load_Glyph(face, gindex, baseFlags);
         FT_UInt width, height;
@@ -247,6 +304,11 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
+            if (!filter(charcode))
+            {
+                charcode = FT_Get_Next_Char(face, charcode, &gindex);
+                continue;
+            }
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
@@ -262,7 +324,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
-            g.m_rightPadding = 0;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
@@ -284,7 +345,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        writer.writeUBytes((atUint8*)texmap.get(), bufSz);
+        WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
@@ -318,6 +379,11 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
+            if (!filter(charcode))
+            {
+                charcode = FT_Get_Next_Char(face, charcode, &gindex);
+                continue;
+            }
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
@@ -333,7 +399,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
-            g.m_rightPadding = 0;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
@@ -355,7 +420,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        writer.writeUBytes((atUint8*)texmap.get(), bufSz);
+        WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
@@ -365,7 +430,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-                     bool subpixel, Athena::io::FileReader& reader)
+                     bool subpixel, FCharFilter& filter, Athena::io::FileReader& reader)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
   m_ftXPpem(face->size->metrics.x_ppem)
@@ -382,6 +447,11 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
     FT_ULong charcode = FT_Get_First_Char(face, &gindex);
     while (gindex != 0)
     {
+        if (!filter(charcode))
+        {
+            charcode = FT_Get_Next_Char(face, charcode, &gindex);
+            continue;
+        }
         ++glyphCount;
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
     }
@@ -421,9 +491,15 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
+            if (!filter(charcode))
+            {
+                charcode = FT_Get_Next_Char(face, charcode, &gindex);
+                continue;
+            }
             FT_Load_Glyph(face, gindex, baseFlags);
             FT_UInt width, height;
             GridFitGlyph(face->glyph, width, height);
+            m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
@@ -437,7 +513,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
-            g.m_rightPadding = 0;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
@@ -458,7 +533,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        reader.readUBytesToBuf((atUint8*)texmap.get(), bufSz);
+        ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz);
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
@@ -492,9 +567,15 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
+            if (!filter(charcode))
+            {
+                charcode = FT_Get_Next_Char(face, charcode, &gindex);
+                continue;
+            }
             FT_Load_Glyph(face, gindex, baseFlags);
             FT_UInt width, height;
             GridFitGlyph(face->glyph, width, height);
+            m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
             g.m_unicodePoint = charcode;
@@ -508,7 +589,6 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
-            g.m_rightPadding = 0;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
             if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
             {
@@ -529,7 +609,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        reader.readUBytesToBuf((atUint8*)texmap.get(), bufSz);
+        ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz);
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
@@ -557,8 +637,8 @@ FontCache::FontCache(const HECL::Runtime::FileStoreManager& fileMgr)
   m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ)
 {HECL::MakeDir(m_cacheRoot.c_str());}
 
-FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
-                                  const std::string& name, FT_Face face, bool subpixel,
+FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
+                                  FCharFilter filter, bool subpixel,
                                   float points, uint32_t dpi)
 {
     /* Quick validation */
@@ -579,29 +659,27 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf,
 
     /* Now check filesystem cache */
     HECL::SystemString cachePath = m_cacheRoot + _S('/') + HECL::SysFormat(_S("%" PRIx64), tag.hash());
-#if 0
     HECL::Sstat st;
     if (!HECL::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode))
     {
         Athena::io::FileReader r(cachePath);
         if (!r.hasError())
         {
-            atUint32 magic = r.readUint32Big();b
+            atUint32 magic = r.readUint32Big();
             if (r.position() == 4 && magic == 'FONT')
             {
-                m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, r));
+                m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, filter, r));
                 return tag;
             }
         }
     }
-#endif
 
     /* Nada, build and cache now */
     Athena::io::FileWriter w(cachePath);
     if (w.hasError())
         Log.report(LogVisor::FatalError, "unable to open '%s' for writing", cachePath.c_str());
     w.writeUint32Big('FONT');
-    m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, w));
+    m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, filter, w));
     return tag;
 }
 

@@ -361,12 +361,8 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
         }
 
         if (lCh != -1)
-        {
             adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
-            m_glyphs.emplace_back(adv, *glyph, defaultColor);
-        }
-        else
-            m_glyphs.emplace_back(adv, *glyph, defaultColor);
+        m_glyphs.emplace_back(adv, *glyph, defaultColor);
 
         lCh = ch;
         rem -= sz;
@@ -395,12 +391,8 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
             continue;
 
         if (lCh != -1)
-        {
             adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
-            m_glyphs.emplace_back(adv, *glyph, defaultColor);
-        }
-        else
-            m_glyphs.emplace_back(adv, *glyph, defaultColor);
+        m_glyphs.emplace_back(adv, *glyph, defaultColor);
 
         lCh = ch;
 

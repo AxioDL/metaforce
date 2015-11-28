@@ -7,8 +7,8 @@ static LogVisor::LogModule Log("Specter");
 void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
 {
     m_factory = factory;
-    m_mainFont = fcache->prepMainFont(factory, false, 10.0, 72);
-    m_monoFont = fcache->prepMonoFont(factory, false, 10.0, 72);
+    m_mainFont = fcache->prepMainFont(factory, FontCache::DefaultCharFilter, false, 10.0, 72);
+    m_monoFont = fcache->prepMonoFont(factory, FontCache::DefaultCharFilter, false, 10.0, 72);
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:

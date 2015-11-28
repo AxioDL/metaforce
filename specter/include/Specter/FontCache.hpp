@@ -52,6 +52,8 @@ public:
     operator FT_Face() {open(); return m_face;}
 };
 
+using FCharFilter = std::function<bool(uint32_t)>;
+
 class FontAtlas
 {
     friend class FontCache;
@@ -70,7 +72,6 @@ public:
         float m_uv[4];
         atInt32 m_leftPadding;
         atInt32 m_advance;
-        atInt32 m_rightPadding;
         atUint32 m_width;
         atUint32 m_height;
         atInt32 m_verticalOffset;
@@ -110,9 +111,9 @@ private:
 
 public:
     FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-              bool subpixel, Athena::io::FileWriter& writer);
+              bool subpixel, FCharFilter& filter, Athena::io::FileWriter& writer);
     FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-              bool subpixel, Athena::io::FileReader& reader);
+              bool subpixel, FCharFilter& filter, Athena::io::FileReader& reader);
     FontAtlas(const FontAtlas& other) = delete;
     FontAtlas& operator=(const FontAtlas& other) = delete;
 
@@ -168,17 +169,19 @@ public:
     FontCache(const FontCache& other) = delete;
     FontCache& operator=(const FontCache& other) = delete;
 
-    FontTag prepCustomFont(boo::IGraphicsDataFactory* gf,
-                           const std::string& name, FT_Face face, bool subpixel=false,
+    static bool DefaultCharFilter(uint32_t ch) {return true;}
+
+    FontTag prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
+                           FCharFilter filter=DefaultCharFilter, bool subpixel=false,
                            float points=10.0, uint32_t dpi=72);
 
-    FontTag prepMainFont(boo::IGraphicsDataFactory* gf,
+    FontTag prepMainFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=DefaultCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
-    {return prepCustomFont(gf, "droidsans-permissive", m_regFace, subpixel, points, dpi);}
+    {return prepCustomFont(gf, "droidsans-permissive", m_regFace, filter, subpixel, points, dpi);}
 
-    FontTag prepMonoFont(boo::IGraphicsDataFactory* gf,
+    FontTag prepMonoFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=DefaultCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
-    {return prepCustomFont(gf, "bmonofont", m_monoFace, subpixel, points, dpi);}
+    {return prepCustomFont(gf, "bmonofont", m_monoFace, filter, subpixel, points, dpi);}
 
     void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close();}
 
