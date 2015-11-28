@@ -80,7 +80,6 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             /* HECL managers */
             HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
             HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
-            shaderMgr.setRenderTargetHint(renderTex);
 
             /* Compile HECL shader */
             static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";

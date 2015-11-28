@@ -118,7 +118,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
     GenerateVertInStruct(col, uv, w) + "\n" +
     GenerateVertToFragStruct() + "\n" +
     GenerateVertUniformStruct(s, tm) +
-    "\nvertex VertToFrag vmain(VertData v [[ stage_in ]], constant HECLVertUniform& vu [[ buffer(1) ]])\n{\n"
+    "\nvertex VertToFrag vmain(VertData v [[ stage_in ]], constant HECLVertUniform& vu [[ buffer(2) ]])\n{\n"
     "    VertToFrag vtf;\n";
     
     if (s)
