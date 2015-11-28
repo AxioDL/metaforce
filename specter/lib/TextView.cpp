@@ -80,6 +80,7 @@ void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
 }
 
 #if _WIN32
+
 void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
@@ -179,6 +180,83 @@ void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                                false, false, false);
 }
+    
+#elif BOO_HAS_METAL
+    
+void TextView::System::init(boo::MetalDataFactory* factory, FontCache* fcache)
+{
+    m_fcache = fcache;
+    
+    static const char* VS =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn[4];\n"
+    "    float4x4 mvMtx;\n"
+    "    float3 uvIn[4];\n"
+    "    float4 colorIn;\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_METAL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float3 uv;\n"
+    "    float4 color;\n"
+    "};\n"
+    "vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],\n"
+    "                        uint vertId [[ vertex_id ]], uint instId [[ instance_id ]],\n"
+    "                        constant SpecterViewBlock& view [[ buffer(2) ]])\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    constant VertData& v = va[instId];\n"
+    "    vtf.uv = v.uvIn[vertId];\n"
+    "    vtf.color = v.colorIn;\n"
+    "    vtf.position = view.mv * v.mvMtx * float4(v.posIn[vertId], 1.0);\n"
+    "    return vtf;\n"
+    "}\n";
+    
+    static const char* FSReg =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "constexpr sampler samp(address::repeat);\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float3 uv;\n"
+    "    float4 color;\n"
+    "};\n"
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d_array<float> fontTex [[ texture(0) ]])\n"
+    "{\n"
+    "    float4 colorOut = vtf.color;\n"
+    "    colorOut.a = fontTex.sample(samp, vtf.uv.xy, vtf.uv.z).r;\n"
+    "    return colorOut;\n"
+    "}\n";
+    
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFmt = factory->newVertexFormat(13, vdescs);
+    
+    m_regular =
+    factory->newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
+                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                               false, false, false);
+}
+    
 #endif
 
 TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)

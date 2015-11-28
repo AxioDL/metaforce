@@ -47,6 +47,11 @@ protected:
     "{\n"\
     "    float4x4 mv;\n"\
     "};\n"
+#define SPECTER_VIEW_VERT_BLOCK_METAL\
+    "struct SpecterViewBlock\n"\
+    "{\n"\
+    "    float4x4 mv;\n"\
+    "};\n"
     boo::IGraphicsBufferD* m_viewVertBlockBuf;
 
 public:
