@@ -79,6 +79,7 @@ void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
                                false, false, false);
 }
 
+#if _WIN32
 void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
@@ -178,6 +179,7 @@ void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                                false, false, false);
 }
+#endif
 
 TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
 : View(system),

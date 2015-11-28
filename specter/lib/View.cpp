@@ -42,6 +42,7 @@ void View::System::init(boo::GLDataFactory* factory)
                                                false, false, false);
 }
 
+#ifdef _WIN32
 void View::System::init(boo::ID3DDataFactory* factory)
 {
     static const char* VS =
@@ -89,6 +90,7 @@ void View::System::init(boo::ID3DDataFactory* factory)
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 }
+#endif
 
 View::View(ViewSystem& system)
 {
