@@ -259,14 +259,20 @@ void TextView::System::init(boo::MetalDataFactory* factory, FontCache* fcache)
     
 #endif
 
-TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
-: View(system),
+TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, size_t capacity)
+: View(system, parentView),
   m_capacity(capacity),
-  m_fontAtlas(system.m_textSystem.m_fcache->lookupAtlas(font))
+  m_fontAtlas(font)
 {
     m_glyphBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
                                        sizeof(RenderGlyph), capacity);
+
+    boo::IShaderPipeline* shader;
+    if (font.subpixel())
+        shader = system.m_textSystem.m_subpixel;
+    else
+        shader = system.m_textSystem.m_regular;
 
     if (!system.m_textSystem.m_vtxFmt)
     {
@@ -288,7 +294,7 @@ TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
         };
         m_vtxFmt = system.m_factory->newVertexFormat(13, vdescs);
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = system.m_factory->newShaderDataBinding(system.m_textSystem.m_regular, m_vtxFmt,
+        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, m_vtxFmt,
                                                                  nullptr, m_glyphBuf, nullptr, 1,
                                                                  (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                                  1, texs);
@@ -296,7 +302,7 @@ TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
     else
     {
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = system.m_factory->newShaderDataBinding(system.m_textSystem.m_regular, system.m_textSystem.m_vtxFmt,
+        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, system.m_textSystem.m_vtxFmt,
                                                                  nullptr, m_glyphBuf, nullptr, 1,
                                                                  (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                                  1, texs);
@@ -304,6 +310,9 @@ TextView::TextView(ViewSystem& system, FontTag font, size_t capacity)
 
     m_glyphs.reserve(capacity);
 }
+
+TextView::TextView(ViewSystem& system, View& parentView, FontTag font, size_t capacity)
+: TextView(system, parentView, system.m_textSystem.m_fcache->lookupAtlas(font), capacity) {}
 
 TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
 {

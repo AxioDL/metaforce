@@ -14,9 +14,13 @@
 namespace Specter
 {
 class ViewSystem;
+class RootView;
 
 class View
 {
+    RootView& m_rootView;
+    View& m_parentView;
+    boo::SWindowRect m_subRect;
     boo::IGraphicsBufferD* m_bgVertBuf;
     boo::IGraphicsBufferD* m_bgInstBuf;
     boo::IVertexFormat* m_bgVtxFmt = nullptr; /* OpenGL only */
@@ -24,6 +28,10 @@ class View
     Zeus::CVector3f m_bgRect[4];
     Zeus::CColor m_bgColor;
     int m_bgValidSlots = 0;
+
+    friend class RootView;
+    void buildResources(ViewSystem& system);
+    View(ViewSystem& system, RootView& parentView);
 
 protected:
     struct VertexBlock
@@ -71,10 +79,15 @@ public:
     };
 
 protected:
-    View(ViewSystem& system);
+    View(ViewSystem& system, View& parentView);
 
 public:
     View() = delete;
+
+    View& parent() {return m_parentView;}
+    RootView& root() {return m_rootView;}
+    void updateSize();
+
     void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValidSlots = 0;}
     virtual void resized(const boo::SWindowRect &root, const boo::SWindowRect& sub);
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);

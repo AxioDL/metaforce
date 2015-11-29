@@ -221,7 +221,9 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, FCharFilter& filter, Athena::io::FileWriter& writer)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
-  m_ftXPpem(face->size->metrics.x_ppem)
+  m_ftXPpem(face->size->metrics.x_ppem),
+  m_lineHeight(face->size->metrics.height),
+  m_subpixel(subpixel)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)
@@ -433,7 +435,9 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                      bool subpixel, FCharFilter& filter, Athena::io::FileReader& reader)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
-  m_ftXPpem(face->size->metrics.x_ppem)
+  m_ftXPpem(face->size->metrics.x_ppem),
+  m_lineHeight(face->size->metrics.height),
+  m_subpixel(subpixel)
 {
     FT_Int32 baseFlags = FT_LOAD_NO_BITMAP;
     if (subpixel)

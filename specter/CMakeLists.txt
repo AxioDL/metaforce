@@ -34,7 +34,9 @@ list(APPEND SPECTER_HEADERS
      include/Specter/ViewSystem.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
+     include/Specter/ScrollView.hpp
      include/Specter/TextView.hpp
+     include/Specter/MultiLineTextView.hpp
      include/Specter/Space.hpp
      include/Specter/Table.hpp
      include/Specter/Outliner.hpp
@@ -54,7 +56,9 @@ list(APPEND SPECTER_SOURCES
      lib/Specter.cpp
      lib/View.cpp
      lib/RootView.cpp
+     lib/ScrollView.cpp
      lib/TextView.cpp
+     lib/MultiLineTextView.cpp
      lib/Space.cpp
      lib/Table.cpp
      lib/Outliner.cpp

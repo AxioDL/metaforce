@@ -1,5 +1,6 @@
 #include "Specter/View.hpp"
 #include "Specter/ViewSystem.hpp"
+#include "Specter/RootView.hpp"
 
 namespace Specter
 {
@@ -145,8 +146,10 @@ void View::System::init(boo::MetalDataFactory* factory)
     
 #endif
 
-View::View(ViewSystem& system)
+void View::buildResources(ViewSystem& system)
 {
+    m_bgColor = Zeus::CColor::skClear;
+
     m_bgVertBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
                                        sizeof(Zeus::CVector3f), 4);
@@ -181,11 +184,30 @@ View::View(ViewSystem& system)
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
     }
+}
 
+View::View(ViewSystem& system, RootView& rootView)
+: m_rootView(rootView),
+  m_parentView(rootView)
+{
+    buildResources(system);
+}
+
+View::View(ViewSystem& system, View& parentView)
+: m_rootView(parentView.root()),
+  m_parentView(parentView)
+{
+    buildResources(system);
+}
+
+void View::updateSize()
+{
+    resized(m_rootView.rootRect(), m_subRect);
 }
 
 void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
+    m_subRect = sub;
     m_viewVertBlock.setViewRect(root, sub);
     m_bgRect[0].assign(0.f, sub.size[1], 0.f);
     m_bgRect[1].assign(0.f, 0.f, 0.f);

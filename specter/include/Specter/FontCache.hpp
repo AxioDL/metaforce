@@ -62,6 +62,8 @@ class FontAtlas
     uint32_t m_dpi;
     FT_Fixed m_ftXscale;
     FT_UShort m_ftXPpem;
+    FT_Pos m_lineHeight;
+    bool m_subpixel;
 
 public:
     struct Glyph
@@ -120,7 +122,9 @@ public:
     uint32_t dpi() const {return m_dpi;}
     FT_Fixed FT_Xscale() const {return m_ftXscale;}
     FT_UShort FT_XPPem() const {return m_ftXPpem;}
+    FT_Pos FT_LineHeight() const {return m_lineHeight;}
     boo::ITexture* texture() const {return m_tex;}
+    bool subpixel() const {return m_subpixel;}
 
     const Glyph* lookupGlyph(atUint32 charcode) const
     {

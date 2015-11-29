@@ -26,6 +26,7 @@ public:
     {
         friend class ViewSystem;
         friend class TextView;
+        friend class MultiLineTextView;
         FontCache* m_fcache = nullptr;
         boo::IShaderPipeline* m_regular = nullptr;
         boo::IShaderPipeline* m_subpixel = nullptr;
@@ -39,7 +40,8 @@ public:
 #endif
     };
 
-    TextView(ViewSystem& system, FontTag font, size_t capacity=256);
+    TextView(ViewSystem& system, View& parentView, const FontAtlas& font, size_t capacity=256);
+    TextView(ViewSystem& system, View& parentView, FontTag font, size_t capacity=256);
 
     struct RenderGlyph
     {

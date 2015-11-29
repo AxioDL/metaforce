@@ -2,7 +2,7 @@
 #define SPECTER_ROOTVIEW_HPP
 
 #include "View.hpp"
-#include "TextView.hpp"
+#include "MultiLineTextView.hpp"
 #include "FontCache.hpp"
 #include <boo/boo.hpp>
 
@@ -14,7 +14,7 @@ class RootView : public View, public boo::IWindowCallback
 {
     boo::IWindow* m_window = nullptr;
     boo::ITextureR* m_renderTex = nullptr;
-    TextView m_textView;
+    MultiLineTextView m_textView;
     boo::SWindowRect m_rootRect;
     bool m_resizeRTDirty = false;
     bool m_destroyed = false;
@@ -46,6 +46,8 @@ public:
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     RootView(ViewSystem& system, boo::IWindow* window);
+
+    const boo::SWindowRect& rootRect() const {return m_rootRect;}
 };
 
 }

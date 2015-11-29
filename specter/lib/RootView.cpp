@@ -5,17 +5,17 @@ namespace Specter
 {
 
 RootView::RootView(ViewSystem& system, boo::IWindow* window)
-: View(system), m_window(window), m_textView(system, system.m_mainFont)
+: View(system, *this), m_window(window), m_textView(system, *this, system.m_mainFont)
 {
     window->setCallback(this);
     boo::SWindowRect rect = window->getWindowFrame();
     m_renderTex = system.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     system.m_factory->commit();
     resized(rect);
-    m_textView.typesetGlyphs("Hello, World! — こんにちは世界！", Zeus::CColor::skGreen);
+    m_textView.typesetGlyphs("Hello, World!\nこんにちは世界！\n\n", Zeus::CColor::skWhite);
     Zeus::CColor transBlack(0.f, 0.f, 0.f, 0.5f);
     m_textView.setBackground(transBlack);
-    setBackground(Zeus::CColor::skBlue);
+    setBackground(Zeus::CColor::skGrey);
 }
 
 void RootView::destroyed()
@@ -34,14 +34,16 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
     View::resized(m_rootRect, m_rootRect);
+
     boo::SWindowRect textRect = m_rootRect;
     textRect.location[0] = 10;
     textRect.location[1] = 10;
     textRect.size[0] -= 20;
     if (textRect.size[0] < 0)
         textRect.size[0] = 0;
-    textRect.size[1] = 10;
+    textRect.size[1] = 100;
     m_textView.resized(m_rootRect, textRect);
+
     m_resizeRTDirty = true;
 }
 
