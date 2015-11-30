@@ -13,6 +13,7 @@ struct Application : boo::IApplicationCallback
     Specter::FontCache m_fontCache;
     boo::IWindow* m_mainWindow;
     Specter::ViewSystem m_viewSystem;
+    std::unique_ptr<Specter::RootView> m_rootView;
     Retro::CVarManager m_cvarManager;
     Zeus::CColor m_clearColor;
     bool m_running = true;
@@ -31,6 +32,7 @@ struct Application : boo::IApplicationCallback
     int appMain(boo::IApplication* app)
     {
         m_mainWindow = app->newWindow(_S("RUDE"));
+        m_mainWindow->setWaitCursor(true);
         m_cvarManager.serialize();
         Retro::CVar* tmp = m_cvarManager.findCVar("r_clearcolor");
         Retro::CVar::ListenerFunc listen = std::bind(&Application::onCVarModified, this, std::placeholders::_1);
@@ -39,17 +41,18 @@ struct Application : boo::IApplicationCallback
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
         m_viewSystem.init(gf, &m_fontCache);
-        Specter::RootView rootView(m_viewSystem, m_mainWindow);
+        m_rootView.reset(new Specter::RootView(m_viewSystem, m_mainWindow));
 
         m_mainWindow->showWindow();
+        m_mainWindow->setWaitCursor(false);
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         while (m_running)
         {
-            if (rootView.isDestroyed())
+            if (m_rootView->isDestroyed())
                 break;
             m_cvarManager.update();
             m_mainWindow->waitForRetrace();
-            rootView.draw(gfxQ);
+            m_rootView->draw(gfxQ);
             gfxQ->flushBufferUpdates();
             gfxQ->execute();
         }
