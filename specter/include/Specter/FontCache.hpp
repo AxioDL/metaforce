@@ -58,7 +58,7 @@ class FontAtlas
 {
     friend class FontCache;
     FT_Face m_face;
-    boo::ITextureSA* m_tex;
+    boo::ITextureSA* m_tex = nullptr;
     uint32_t m_dpi;
     FT_Fixed m_ftXscale;
     FT_UShort m_ftXPpem;

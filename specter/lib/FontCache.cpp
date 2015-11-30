@@ -174,6 +174,8 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
     z.next_in = (Bytef*)data;
     z.avail_in = sz;
     writer.writeUint32Big(sz);
+    atUint64 adlerPos = writer.position();
+    writer.writeUint32Big(0); /* Space for adler32 */
     while (z.avail_in)
     {
         z.next_out = compBuf;
@@ -191,30 +193,35 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
         writer.writeUBytes(compBuf, 8192 - z.avail_out);
     }
 
+    writer.seek(adlerPos, Athena::Begin);
+    writer.writeUint32Big(z.adler);
+
     deflateEnd(&z);
 }
 
-static void ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size_t sz)
+static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size_t sz)
 {
     atUint8 compBuf[8192];
     z_stream z = {};
     inflateInit(&z);
     z.next_out = data;
     atUint32 targetSz = reader.readUint32Big();
+    atUint32 adler32 = reader.readUint32Big();
     z.avail_out = std::min(sz, size_t(targetSz));
     size_t readSz;
     while ((readSz = reader.readUBytesToBuf(compBuf, 8192)))
     {
         z.next_in = compBuf;
         z.avail_in = readSz;
-        inflate(&z, Z_NO_FLUSH);
+        if (inflate(&z, Z_NO_FLUSH) == Z_STREAM_END)
+            break;
     }
 
-    int finishCycle = Z_OK;
-    while (finishCycle != Z_STREAM_END)
-        finishCycle = inflate(&z, Z_FINISH);
-
     inflateEnd(&z);
+
+    if (adler32 != z.adler)
+        return false;
+    return true;
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
@@ -537,7 +544,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz);
+        if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
+            return;
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
@@ -613,7 +621,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
-        ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz);
+        if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
+            return;
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
@@ -672,8 +681,12 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::stri
             atUint32 magic = r.readUint32Big();
             if (r.position() == 4 && magic == 'FONT')
             {
-                m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, filter, r));
-                return tag;
+                std::unique_ptr<FontAtlas> fa = std::make_unique<FontAtlas>(gf, face, dpi, subpixel, filter, r);
+                if (fa->m_tex)
+                {
+                    m_cachedAtlases.emplace(tag, std::move(fa));
+                    return tag;
+                }
             }
         }
     }
