@@ -145,12 +145,12 @@ void View::System::init(boo::ID3DDataFactory* factory)
     "    return tex.Sample(samp, vtf.uv);\n"
     "}\n";
 
-    boo::VertexElementDescriptor vdescs[] =
+    boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_solidVtxFmt = factory->newVertexFormat(2, vdescs);
+    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
 
     ComPtr<ID3DBlob> vertBlob;
     ComPtr<ID3DBlob> fragBlob;
@@ -159,12 +159,12 @@ void View::System::init(boo::ID3DDataFactory* factory)
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 
-    boo::VertexElementDescriptor vdescs[] =
+    boo::VertexElementDescriptor texvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory->newVertexFormat(2, vdescs);
+    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
 
     vertBlob.Reset();
     fragBlob.Reset();
@@ -249,23 +249,23 @@ void View::System::init(boo::MetalDataFactory* factory)
     "    return tex.sample(samp, vtf.uv);\n"
     "}\n";
     
-    boo::VertexElementDescriptor vdescs[] =
+    boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_solidVtxFmt = factory->newVertexFormat(2, vdescs);
+    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
     
     m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 
-    boo::VertexElementDescriptor vdescs[] =
+    boo::VertexElementDescriptor texvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory->newVertexFormat(2, vdescs);
+    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
 
     m_texShader = factory->newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,

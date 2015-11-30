@@ -437,7 +437,8 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
     }
     gfxQ->setShaderDataBinding(m_shaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
-    gfxQ->drawInstances(0, 4, m_glyphs.size());
+    if (m_glyphs.size())
+        gfxQ->drawInstances(0, 4, m_glyphs.size());
 }
 
 
