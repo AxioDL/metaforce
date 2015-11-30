@@ -28,6 +28,7 @@ class View
     Zeus::CVector3f m_bgRect[4];
     Zeus::CColor m_bgColor;
     int m_bgValidSlots = 0;
+    std::unique_ptr<boo::IGraphicsData> m_gfxData;
 
     friend class RootView;
     void buildResources(ViewSystem& system);
@@ -63,12 +64,13 @@ protected:
     boo::IGraphicsBufferD* m_viewVertBlockBuf;
 
 public:
-    class System
+    struct System
     {
-        friend class ViewSystem;
-        friend class View;
         boo::IShaderPipeline* m_solidShader = nullptr;
-        boo::IVertexFormat* m_vtxFmt = nullptr; /* Not OpenGL */
+        boo::IVertexFormat* m_solidVtxFmt = nullptr; /* Not OpenGL */
+
+        boo::IShaderPipeline* m_texShader = nullptr;
+        boo::IVertexFormat* m_texVtxFmt = nullptr; /* Not OpenGL */
 
         void init(boo::GLDataFactory* factory);
 #if _WIN32
@@ -80,15 +82,24 @@ public:
 
 protected:
     View(ViewSystem& system, View& parentView);
+    void commitResources(ViewSystem& system);
 
 public:
+    virtual ~View() {}
     View() = delete;
+    View(const View& other) = delete;
+    View& operator=(const View& other) = delete;
 
     View& parent() {return m_parentView;}
     RootView& root() {return m_rootView;}
+    const boo::SWindowRect& subRect() const {return m_subRect;}
     void updateSize();
 
     void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValidSlots = 0;}
+
+    virtual void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
+    virtual void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
+    virtual void mouseMove(const boo::SWindowCoord&) {}
     virtual void resized(const boo::SWindowRect &root, const boo::SWindowRect& sub);
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

@@ -11,7 +11,7 @@ namespace Specter
 class MultiLineTextView : public View
 {
     ViewSystem& m_viewSystem;
-    std::vector<TextView> m_lines;
+    std::vector<std::unique_ptr<TextView>> m_lines;
     const FontAtlas& m_fontAtlas;
     size_t m_lineCapacity;
     float m_lineHeight;

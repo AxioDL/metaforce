@@ -14,7 +14,10 @@ MultiLineTextView::MultiLineTextView(ViewSystem& system,
   m_viewSystem(system),
   m_fontAtlas(font),
   m_lineCapacity(lineCapacity),
-  m_lineHeight(lineHeight) {}
+  m_lineHeight(lineHeight)
+{
+    commitResources(system);
+}
 
 MultiLineTextView::MultiLineTextView(ViewSystem& system,
                                      View& parentView,
@@ -58,8 +61,8 @@ void MultiLineTextView::typesetGlyphs(const std::string& str,
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (ch == '\n' || ch == '\0')
         {
-            m_lines.emplace_back(m_viewSystem, *this, m_fontAtlas, m_lineCapacity);
-            m_lines.back().typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
+            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_lineCapacity));
+            m_lines.back()->typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
             beginIt = it + 1;
         }
         rem -= sz;
@@ -94,8 +97,8 @@ void MultiLineTextView::typesetGlyphs(const std::wstring& str,
     {
         if (*it == L'\n' || *it == L'\0')
         {
-            m_lines.emplace_back(m_viewSystem, *this, m_fontAtlas, m_lineCapacity);
-            m_lines.back().typesetGlyphs(std::wstring(beginIt, it), defaultColor);
+            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_lineCapacity));
+            m_lines.back()->typesetGlyphs(std::wstring(beginIt, it), defaultColor);
             beginIt = it + 1;
         }
         --rem;
@@ -113,18 +116,18 @@ void MultiLineTextView::resized(const boo::SWindowRect& root, const boo::SWindow
     boo::SWindowRect tsub = sub;
     tsub.location[1] += decumHeight;
     tsub.size[1] = 10;
-    for (TextView& tv : m_lines)
+    for (std::unique_ptr<TextView>& tv : m_lines)
     {
         tsub.location[1] -= lHeight;
-        tv.resized(root, tsub);
+        tv->resized(root, tsub);
     }
 }
 
 void MultiLineTextView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
-    for (TextView& tv : m_lines)
-        tv.draw(gfxQ);
+    for (std::unique_ptr<TextView>& tv : m_lines)
+        tv->draw(gfxQ);
 }
 
 }

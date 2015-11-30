@@ -2,6 +2,7 @@
 #define SPECTER_VIEWSYSTEM_HPP
 
 #include "TextView.hpp"
+#include "RootView.hpp"
 
 namespace Specter
 {
@@ -12,12 +13,15 @@ class ViewSystem
     {
         m_viewSystem.init(factory);
         m_textSystem.init(factory, fcache);
+        m_splitViewSystem.init(factory);
     }
 
 public:
     boo::IGraphicsDataFactory* m_factory = nullptr;
     View::System m_viewSystem;
     TextView::System m_textSystem;
+    RootView::SplitView::System m_splitViewSystem;
+    std::unique_ptr<boo::IGraphicsData> m_sysData;
 
     Specter::FontTag m_mainFont;
     Specter::FontTag m_monoFont;

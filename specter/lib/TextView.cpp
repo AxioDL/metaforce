@@ -309,6 +309,7 @@ TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, 
     }
 
     m_glyphs.reserve(capacity);
+    commitResources(system);
 }
 
 TextView::TextView(ViewSystem& system, View& parentView, FontTag font, size_t capacity)

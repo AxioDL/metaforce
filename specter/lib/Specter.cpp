@@ -28,6 +28,7 @@ void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
         Log.report(LogVisor::FatalError, _S("unable to init view system for %s"), factory->platformName());
     }
     fcache->closeBuiltinFonts();
+    m_sysData.reset(factory->commit());
 }
 
 }

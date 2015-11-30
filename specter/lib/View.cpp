@@ -7,7 +7,7 @@ namespace Specter
 
 void View::System::init(boo::GLDataFactory* factory)
 {
-    static const char* VS =
+    static const char* SolidVS =
     "#version 330\n"
     "layout(location=0) in vec3 posIn;\n"
     "layout(location=1) in vec4 colorIn;\n"
@@ -23,7 +23,7 @@ void View::System::init(boo::GLDataFactory* factory)
     "    gl_Position = mv * vec4(posIn, 1.0);\n"
     "}\n";
 
-    static const char* FS =
+    static const char* SolidFS =
     "#version 330\n"
     "struct VertToFrag\n"
     "{\n"
@@ -36,18 +36,52 @@ void View::System::init(boo::GLDataFactory* factory)
     "    colorOut = vtf.color;\n"
     "}\n";
 
+    static const char* TexVS =
+    "#version 330\n"
+    "layout(location=0) in vec3 posIn;\n"
+    "layout(location=1) in vec2 uvIn;\n"
+    SPECTER_VIEW_VERT_BLOCK_GLSL
+    "struct VertToFrag\n"
+    "{\n"
+    "    vec2 uv;\n"
+    "};\n"
+    "out VertToFrag vtf;\n"
+    "void main()\n"
+    "{\n"
+    "    vtf.uv = uvIn;\n"
+    "    gl_Position = mv * vec4(posIn, 1.0);\n"
+    "}\n";
+
+    static const char* TexFS =
+    "#version 330\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    vec2 uv;\n"
+    "};\n"
+    "in VertToFrag vtf;\n"
+    "uniform sampler2D tex;\n"
+    "layout(location=0) out vec4 colorOut;\n"
+    "void main()\n"
+    "{\n"
+    "    colorOut = texture(tex, vtf.uv);\n"
+    "}\n";
+
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
-    m_solidShader = factory->newShaderPipeline(VS, FS, 0, nullptr, 1, BlockNames,
+    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, 0, nullptr, 1, BlockNames,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
+
+    m_texShader = factory->newShaderPipeline(TexVS, TexFS, 1, "tex", 1, BlockNames,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             false, false, false);
 }
     
 #if _WIN32
 
 void View::System::init(boo::ID3DDataFactory* factory)
 {
-    static const char* VS =
+    static const char* SolidVS =
     "struct VertData\n"
     "{\n"
     "    float3 posIn : POSITION;\n"
@@ -67,7 +101,7 @@ void View::System::init(boo::ID3DDataFactory* factory)
     "    return vtf;\n"
     "}\n";
 
-    static const char* FS =
+    static const char* SolidFS =
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
@@ -78,17 +112,64 @@ void View::System::init(boo::ID3DDataFactory* factory)
     "    return vtf.color;\n"
     "}\n";
 
+    static const char* TexVS =
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn : POSITION;\n"
+    "    float2 uvIn : UV;\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_HLSL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float2 uv : UV;\n"
+    "};\n"
+    "VertToFrag main(in VertData v)\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    vtf.uv = v.uvIn;\n"
+    "    vtf.position = mul(mv, float4(v.posIn, 1.0));\n"
+    "    return vtf;\n"
+    "}\n";
+
+    static const char* TexFS =
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position : SV_Position;\n"
+    "    float2 uv : UV;\n"
+    "};\n"
+    "Texture2D tex : register(t0);\n"
+    "SamplerState samp : register(s0);\n"
+    "float4 main(in VertToFrag vtf) : SV_Target0\n"
+    "{\n"
+    "    return tex.Sample(samp, vtf.uv);\n"
+    "}\n";
+
     boo::VertexElementDescriptor vdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_vtxFmt = factory->newVertexFormat(2, vdescs);
+    m_solidVtxFmt = factory->newVertexFormat(2, vdescs);
 
     ComPtr<ID3DBlob> vertBlob;
     ComPtr<ID3DBlob> fragBlob;
     ComPtr<ID3DBlob> pipeBlob;
-    m_solidShader = factory->newShaderPipeline(VS, FS, vertBlob, fragBlob, pipeBlob, m_vtxFmt,
+    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, vertBlob, fragBlob, pipeBlob, m_solidVtxFmt,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               false, false, false);
+
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::UV4}
+    };
+    m_texVtxFmt = factory->newVertexFormat(2, vdescs);
+
+    vertBlob.Reset();
+    fragBlob.Reset();
+    pipeBlob.Reset();
+    m_solidShader = factory->newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 }
@@ -97,7 +178,7 @@ void View::System::init(boo::ID3DDataFactory* factory)
     
 void View::System::init(boo::MetalDataFactory* factory)
 {
-    static const char* VS =
+    static const char* SolidVS =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
     "struct VertData\n"
@@ -119,7 +200,7 @@ void View::System::init(boo::MetalDataFactory* factory)
     "    return vtf;\n"
     "}\n";
     
-    static const char* FS =
+    static const char* SolidFS =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
     "struct VertToFrag\n"
@@ -131,17 +212,64 @@ void View::System::init(boo::MetalDataFactory* factory)
     "{\n"
     "    return vtf.color;\n"
     "}\n";
+
+    static const char* TexVS =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "struct VertData\n"
+    "{\n"
+    "    float3 posIn [[ attribute(0) ]];\n"
+    "    float2 uvIn [[ attribute(1) ]];\n"
+    "};\n"
+    SPECTER_VIEW_VERT_BLOCK_METAL
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float2 uv;\n"
+    "};\n"
+    "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SpecterViewBlock& view [[ buffer(2) ]])\n"
+    "{\n"
+    "    VertToFrag vtf;\n"
+    "    vtf.uv = v.uvIn;\n"
+    "    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
+    "    return vtf;\n"
+    "}\n";
+
+    static const char* TexFS =
+    "#include <metal_stdlib>\n"
+    "using namespace metal;\n"
+    "constexpr sampler samp(address::repeat);\n"
+    "struct VertToFrag\n"
+    "{\n"
+    "    float4 position [[ position ]];\n"
+    "    float2 uv;\n"
+    "};\n"
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
+    "{\n"
+    "    return tex.sample(samp, vtf.uv);\n"
+    "}\n";
     
     boo::VertexElementDescriptor vdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_vtxFmt = factory->newVertexFormat(2, vdescs);
+    m_solidVtxFmt = factory->newVertexFormat(2, vdescs);
     
-    m_solidShader = factory->newShaderPipeline(VS, FS, m_vtxFmt, 1,
+    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
+
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::UV4}
+    };
+    m_texVtxFmt = factory->newVertexFormat(2, vdescs);
+
+    m_texShader = factory->newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             false, false, false);
 }
     
 #endif
@@ -162,7 +290,7 @@ void View::buildResources(ViewSystem& system)
     system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
                                        sizeof(VertexBlock), 1);
 
-    if (!system.m_viewSystem.m_vtxFmt)
+    if (!system.m_viewSystem.m_solidVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
@@ -179,7 +307,7 @@ void View::buildResources(ViewSystem& system)
     else
     {
         m_bgShaderBinding =
-        system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, system.m_viewSystem.m_vtxFmt,
+        system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, system.m_viewSystem.m_solidVtxFmt,
                                                m_bgVertBuf, m_bgInstBuf, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
@@ -229,6 +357,11 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setShaderDataBinding(m_bgShaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
+}
+
+void View::commitResources(ViewSystem& system)
+{
+    m_gfxData.reset(system.m_factory->commit());
 }
 
 }
