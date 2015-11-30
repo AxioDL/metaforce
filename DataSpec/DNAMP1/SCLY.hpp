@@ -25,7 +25,7 @@ struct SCLY : BigYAML
         Delete _d;
         Value<atUint8> unknown;
         Value<atUint32> objectCount;
-        Vector<std::shared_ptr<IScriptObject>, DNA_COUNT(objectCount)> objects;
+        Vector<std::unique_ptr<IScriptObject>, DNA_COUNT(objectCount)> objects;
         void read(Athena::io::IStreamReader &rs);
         void write(Athena::io::IStreamWriter &ws) const;
         size_t binarySize(size_t __isz) const;

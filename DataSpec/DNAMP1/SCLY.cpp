@@ -64,7 +64,7 @@ void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
 void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
 {
-    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    for (const std::unique_ptr<IScriptObject>& obj : objects)
         obj->addCMDLRigPairs(pakRouter, addTo);
 }
 
@@ -76,7 +76,7 @@ void SCLY::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
 
 void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
 {
-    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    for (const std::unique_ptr<IScriptObject>& obj : objects)
         obj->nameIDs(pakRouter);
 }
 
@@ -119,10 +119,10 @@ void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
 
         if (iter != SCRIPT_OBJECT_DB.end())
         {
-            std::shared_ptr<IScriptObject> obj((*iter)->a());
+            std::unique_ptr<IScriptObject> obj((*iter)->a());
             obj->type = type;
             obj->read(rs);
-            objects.push_back(obj);
+            objects.push_back(std::move(obj));
             size_t actualLen = rs.position() - start;
             if (actualLen != len)
                 Log.report(LogVisor::FatalError, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
@@ -148,10 +148,10 @@ void SCLY::ScriptLayer::fromYAML(Athena::io::YAMLDocReader& rs)
 
         if (iter != SCRIPT_OBJECT_DB.end())
         {
-            std::shared_ptr<IScriptObject> obj((*iter)->a());
+            std::unique_ptr<IScriptObject> obj((*iter)->a());
             obj->fromYAML(rs);
             obj->type = type;
-            objects.push_back(obj);
+            objects.push_back(std::move(obj));
         }
         else
             Log.report(LogVisor::FatalError, _S("Unable to find type 0x%X in object database"), (atUint32)type);
@@ -165,7 +165,7 @@ void SCLY::ScriptLayer::write(Athena::io::IStreamWriter& ws) const
 {
     ws.writeUByte(unknown);
     ws.writeUint32Big(objectCount);
-    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         ws.writeByte(obj->type);
         obj->write(ws);
@@ -175,7 +175,7 @@ void SCLY::ScriptLayer::write(Athena::io::IStreamWriter& ws) const
 size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
 {
     __isz += 5;
-    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         __isz += 1;
         __isz = obj->binarySize(__isz);
@@ -188,7 +188,7 @@ void SCLY::ScriptLayer::toYAML(Athena::io::YAMLDocWriter& ws) const
     ws.writeUByte("unknown", unknown);
     ws.writeUint32("objectCount", objectCount);
     ws.enterSubVector("objects");
-    for (const std::shared_ptr<IScriptObject>& obj : objects)
+    for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         ws.enterSubRecord(nullptr);
         ws.writeUByte("type", obj->type);
