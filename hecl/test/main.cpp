@@ -196,7 +196,6 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
             vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;
             vubo->load(&vuboData, sizeof(vuboData));
-            gfxQ->flushBufferUpdates();
 
             gfxQ->setShaderDataBinding(binding);
             gfxQ->draw(0, 4);
