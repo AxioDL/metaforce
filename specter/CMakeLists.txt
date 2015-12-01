@@ -27,10 +27,11 @@ add_subdirectory(resources/fonts)
 include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include
-                    ${MATHLIB_INCLUDE_DIR})
+                    ${MATHLIB_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 list(APPEND SPECTER_HEADERS
      include/Specter/Specter.hpp
+     include/Specter/DeferredWindowEvents.hpp
      include/Specter/ViewSystem.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp

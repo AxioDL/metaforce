@@ -6,9 +6,9 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::RootView");
 
 RootView::RootView(ViewSystem& system, boo::IWindow* window)
-: View(system, *this), m_window(window)
+: View(system, *this), m_window(window), m_events(*this)
 {
-    window->setCallback(this);
+    window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
     m_renderTex = system.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(system);
@@ -17,7 +17,7 @@ RootView::RootView(ViewSystem& system, boo::IWindow* window)
     MultiLineTextView* textView2 = new MultiLineTextView(system, *this, system.m_mainFont);
     m_splitView->setContentView(0, std::unique_ptr<MultiLineTextView>(textView1));
     m_splitView->setContentView(1, std::unique_ptr<MultiLineTextView>(textView2));
-    resized(rect);
+    resized(rect, rect);
     textView1->typesetGlyphs("Hello, World!\n\n", Zeus::CColor::skWhite);
     textView2->typesetGlyphs("こんにちは世界！\n\n", Zeus::CColor::skWhite);
     Zeus::CColor transBlack(0.f, 0.f, 0.f, 0.5f);
@@ -31,19 +31,16 @@ void RootView::destroyed()
     m_destroyed = true;
 }
 
-void RootView::resized(const boo::SWindowRect& rect)
-{
-    resized(rect, rect);
-}
-
 void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 {
+    boo::SWindowRect old = m_rootRect;
     m_rootRect = root;
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
     View::resized(m_rootRect, m_rootRect);
     m_splitView->resized(m_rootRect, m_rootRect);
-    m_resizeRTDirty = true;
+    if (old != m_rootRect)
+        m_resizeRTDirty = true;
 }
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
@@ -152,17 +149,17 @@ RootView::SplitView::SplitView(ViewSystem& system, View& parentView, Axis axis)
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
         boo::ITexture* texs[] = {system.m_splitViewSystem.m_shadingTex};
         m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewSystem.m_texShader,
-                                                                 m_splitVtxFmt, m_splitVertsBuf, nullptr,
-                                                                 nullptr, 1, bufs, 1, texs);
+                                                                      m_splitVtxFmt, m_splitVertsBuf, nullptr,
+                                                                      nullptr, 1, bufs, 1, texs);
     }
     else
     {
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
         boo::ITexture* texs[] = {system.m_splitViewSystem.m_shadingTex};
         m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewSystem.m_texShader,
-                                                                 system.m_viewSystem.m_texVtxFmt,
-                                                                 m_splitVertsBuf, nullptr,
-                                                                 nullptr, 1, bufs, 1, texs);
+                                                                      system.m_viewSystem.m_texVtxFmt,
+                                                                      m_splitVertsBuf, nullptr,
+                                                                      nullptr, 1, bufs, 1, texs);
     }
 
     commitResources(system);

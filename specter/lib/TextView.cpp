@@ -429,16 +429,18 @@ void TextView::think()
 void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
-    int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-    if ((m_validSlots & pendingSlot) == 0)
-    {
-        m_glyphBuf->load(m_glyphs.data(), m_glyphs.size() * sizeof(RenderGlyph));
-        m_validSlots |= pendingSlot;
-    }
-    gfxQ->setShaderDataBinding(m_shaderBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     if (m_glyphs.size())
+    {
+        int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
+        if ((m_validSlots & pendingSlot) == 0)
+        {
+            m_glyphBuf->load(m_glyphs.data(), m_glyphs.size() * sizeof(RenderGlyph));
+            m_validSlots |= pendingSlot;
+        }
+        gfxQ->setShaderDataBinding(m_shaderBinding);
+        gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
         gfxQ->drawInstances(0, 4, m_glyphs.size());
+    }
 }
 
 

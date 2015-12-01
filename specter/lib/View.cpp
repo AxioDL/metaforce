@@ -169,9 +169,9 @@ void View::System::init(boo::ID3DDataFactory* factory)
     vertBlob.Reset();
     fragBlob.Reset();
     pipeBlob.Reset();
-    m_solidShader = factory->newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               false, false, false);
+    m_texShader = factory->newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             false, false, false);
 }
     
 #elif BOO_HAS_METAL

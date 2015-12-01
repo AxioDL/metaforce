@@ -4,19 +4,22 @@
 #include "View.hpp"
 #include "MultiLineTextView.hpp"
 #include "FontCache.hpp"
+#include "DeferredWindowEvents.hpp"
 #include <boo/boo.hpp>
 
 namespace Specter
 {
 class ViewSystem;
 
-class RootView : public View, public boo::IWindowCallback
+class RootView : public View
 {
     boo::IWindow* m_window = nullptr;
     boo::ITextureR* m_renderTex = nullptr;
-    boo::SWindowRect m_rootRect;
+    boo::SWindowRect m_rootRect = {};
     bool m_resizeRTDirty = false;
     bool m_destroyed = false;
+
+    DeferredWindowEvents<RootView> m_events;
 
 public:
     RootView(ViewSystem& system, boo::IWindow* window);
@@ -24,7 +27,6 @@ public:
     void destroyed();
     bool isDestroyed() const {return m_destroyed;}
 
-    void resized(const boo::SWindowRect& rect);
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
@@ -44,6 +46,7 @@ public:
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
 
+    void dispatchEvents() {m_events.dispatchEvents();}
     void draw(boo::IGraphicsCommandQueue* gfxQ);
     const boo::SWindowRect& rootRect() const {return m_rootRect;}
 
