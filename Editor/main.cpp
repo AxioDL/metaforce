@@ -32,6 +32,7 @@ struct Application : boo::IApplicationCallback
     int appMain(boo::IApplication* app)
     {
         m_mainWindow = app->newWindow(_S("RUDE"));
+        m_mainWindow->showWindow();
         m_mainWindow->setWaitCursor(true);
         m_cvarManager.serialize();
         Retro::CVar* tmp = m_cvarManager.findCVar("r_clearcolor");
@@ -43,7 +44,6 @@ struct Application : boo::IApplicationCallback
         m_viewSystem.init(gf, &m_fontCache);
         m_rootView.reset(new Specter::RootView(m_viewSystem, m_mainWindow));
 
-        m_mainWindow->showWindow();
         m_mainWindow->setWaitCursor(false);
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
         while (m_running)
@@ -51,10 +51,10 @@ struct Application : boo::IApplicationCallback
             if (m_rootView->isDestroyed())
                 break;
             m_cvarManager.update();
-            m_mainWindow->waitForRetrace();
+            m_rootView->dispatchEvents();
             m_rootView->draw(gfxQ);
-            gfxQ->flushBufferUpdates();
             gfxQ->execute();
+            m_mainWindow->waitForRetrace();
         }
 
         return 0;
