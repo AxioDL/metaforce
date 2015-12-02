@@ -10,7 +10,7 @@
 
 namespace Specter
 {
-class ViewSystem;
+class ViewResources;
 
 class TextView : public View
 {
@@ -22,9 +22,9 @@ class TextView : public View
     int m_validSlots = 0;
 
 public:
-    class System
+    class Resources
     {
-        friend class ViewSystem;
+        friend class ViewResources;
         friend class TextView;
         friend class MultiLineTextView;
         FontCache* m_fcache = nullptr;
@@ -40,8 +40,8 @@ public:
 #endif
     };
 
-    TextView(ViewSystem& system, View& parentView, const FontAtlas& font, size_t capacity=256);
-    TextView(ViewSystem& system, View& parentView, FontTag font, size_t capacity=256);
+    TextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t capacity=256);
+    TextView(ViewResources& res, View& parentView, FontTag font, size_t capacity=256);
 
     struct RenderGlyph
     {

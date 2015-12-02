@@ -13,7 +13,7 @@
 
 namespace Specter
 {
-class ViewSystem;
+class ViewResources;
 class RootView;
 
 class View
@@ -31,8 +31,8 @@ class View
     std::unique_ptr<boo::IGraphicsData> m_gfxData;
 
     friend class RootView;
-    void buildResources(ViewSystem& system);
-    View(ViewSystem& system, RootView& parentView);
+    void buildResources(ViewResources& res);
+    View(ViewResources& res, RootView& parentView);
 
 protected:
     struct VertexBlock
@@ -64,7 +64,7 @@ protected:
     boo::IGraphicsBufferD* m_viewVertBlockBuf;
 
 public:
-    struct System
+    struct Resources
     {
         boo::IShaderPipeline* m_solidShader = nullptr;
         boo::IVertexFormat* m_solidVtxFmt = nullptr; /* Not OpenGL */
@@ -81,8 +81,8 @@ public:
     };
 
 protected:
-    View(ViewSystem& system, View& parentView);
-    void commitResources(ViewSystem& system);
+    View(ViewResources& res, View& parentView);
+    void commitResources(ViewResources& res);
 
 public:
     virtual ~View() {}

@@ -10,14 +10,14 @@ namespace Specter
 
 class MultiLineTextView : public View
 {
-    ViewSystem& m_viewSystem;
+    ViewResources& m_viewSystem;
     std::vector<std::unique_ptr<TextView>> m_lines;
     const FontAtlas& m_fontAtlas;
     size_t m_lineCapacity;
     float m_lineHeight;
 public:
-    MultiLineTextView(ViewSystem& system, View& parentView, const FontAtlas& font, size_t lineCapacity=256, float lineHeight=1.0);
-    MultiLineTextView(ViewSystem& system, View& parentView, FontTag font, size_t lineCapacity=256, float lineHeight=1.0);
+    MultiLineTextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t lineCapacity=256, float lineHeight=1.0);
+    MultiLineTextView(ViewResources& res, View& parentView, FontTag font, size_t lineCapacity=256, float lineHeight=1.0);
 
     void typesetGlyphs(const std::string& str,
                        const Zeus::CColor& defaultColor=Zeus::CColor::skWhite);

@@ -1,5 +1,5 @@
 #include "Specter/TextView.hpp"
-#include "Specter/ViewSystem.hpp"
+#include "Specter/ViewResources.hpp"
 #include "utf8proc.h"
 
 #include <freetype/internal/internal.h>
@@ -9,7 +9,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::TextView");
 
-void TextView::System::init(boo::GLDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
 
@@ -259,7 +259,7 @@ void TextView::System::init(boo::MetalDataFactory* factory, FontCache* fcache)
     
 #endif
 
-TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, size_t capacity)
+TextView::TextView(ViewResources& system, View& parentView, const FontAtlas& font, size_t capacity)
 : View(system, parentView),
   m_capacity(capacity),
   m_fontAtlas(font)
@@ -270,11 +270,11 @@ TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, 
 
     boo::IShaderPipeline* shader;
     if (font.subpixel())
-        shader = system.m_textSystem.m_subpixel;
+        shader = system.m_textRes.m_subpixel;
     else
-        shader = system.m_textSystem.m_regular;
+        shader = system.m_textRes.m_regular;
 
-    if (!system.m_textSystem.m_vtxFmt)
+    if (!system.m_textRes.m_vtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
@@ -302,7 +302,7 @@ TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, 
     else
     {
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, system.m_textSystem.m_vtxFmt,
+        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, system.m_textRes.m_vtxFmt,
                                                                  nullptr, m_glyphBuf, nullptr, 1,
                                                                  (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                                  1, texs);
@@ -312,8 +312,8 @@ TextView::TextView(ViewSystem& system, View& parentView, const FontAtlas& font, 
     commitResources(system);
 }
 
-TextView::TextView(ViewSystem& system, View& parentView, FontTag font, size_t capacity)
-: TextView(system, parentView, system.m_textSystem.m_fcache->lookupAtlas(font), capacity) {}
+TextView::TextView(ViewResources& system, View& parentView, FontTag font, size_t capacity)
+: TextView(system, parentView, system.m_textRes.m_fcache->lookupAtlas(font), capacity) {}
 
 TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
 {

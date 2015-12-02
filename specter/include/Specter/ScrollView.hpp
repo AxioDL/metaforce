@@ -5,13 +5,13 @@
 
 namespace Specter
 {
-class ViewSystem;
+class ViewResources;
 
 class ScrollView : public View
 {
     View& m_contentView;
 public:
-    ScrollView(ViewSystem& system, View& parentView, View& contentView);
+    ScrollView(ViewResources& res, View& parentView, View& contentView);
 };
 
 }

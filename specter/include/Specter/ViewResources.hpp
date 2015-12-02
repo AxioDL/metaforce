@@ -1,0 +1,42 @@
+#ifndef SPECTER_VIEWRESOURCES_HPP
+#define SPECTER_VIEWRESOURCES_HPP
+
+#include "TextView.hpp"
+#include "RootView.hpp"
+
+namespace Specter
+{
+class ViewResources
+{
+    template <class Factory>
+    void init(Factory* factory, FontCache* fcache)
+    {
+        m_viewRes.init(factory);
+        m_textRes.init(factory, fcache);
+        m_splitViewRes.init(factory);
+    }
+
+public:
+    boo::IGraphicsDataFactory* m_factory = nullptr;
+    View::Resources m_viewRes;
+    TextView::Resources m_textRes;
+    SplitView::Resources m_splitViewRes;
+    std::unique_ptr<boo::IGraphicsData> m_resData;
+
+    Specter::FontTag m_mainFont;
+    Specter::FontTag m_monoFont;
+
+    Specter::FontTag m_heading14;
+    Specter::FontTag m_heading18;
+
+    ViewResources() = default;
+    ViewResources(const ViewResources& other) = delete;
+    ViewResources(ViewResources&& other) = default;
+    ViewResources& operator=(const ViewResources& other) = delete;
+    ViewResources& operator=(ViewResources&& other) = default;
+
+    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, float pixelScale);
+};
+}
+
+#endif // SPECTER_VIEWRESOURCES_HPP

@@ -1,32 +1,32 @@
 #include "Specter/MultiLineTextView.hpp"
-#include "Specter/ViewSystem.hpp"
+#include "Specter/ViewResources.hpp"
 
 namespace Specter
 {
 static LogVisor::LogModule Log("Specter::MultiLineTextView");
 
-MultiLineTextView::MultiLineTextView(ViewSystem& system,
+MultiLineTextView::MultiLineTextView(ViewResources& res,
                                      View& parentView,
                                      const FontAtlas& font,
                                      size_t lineCapacity,
                                      float lineHeight)
-: View(system, parentView),
-  m_viewSystem(system),
+: View(res, parentView),
+  m_viewSystem(res),
   m_fontAtlas(font),
   m_lineCapacity(lineCapacity),
   m_lineHeight(lineHeight)
 {
-    commitResources(system);
+    commitResources(res);
 }
 
-MultiLineTextView::MultiLineTextView(ViewSystem& system,
+MultiLineTextView::MultiLineTextView(ViewResources& res,
                                      View& parentView,
                                      FontTag font,
                                      size_t lineCapacity,
                                      float lineHeight)
-: MultiLineTextView(system,
+: MultiLineTextView(res,
                     parentView,
-                    system.m_textSystem.m_fcache->lookupAtlas(font),
+                    res.m_textRes.m_fcache->lookupAtlas(font),
                     lineCapacity,
                     lineHeight) {}
 

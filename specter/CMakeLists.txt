@@ -31,9 +31,10 @@ include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
 
 list(APPEND SPECTER_HEADERS
      include/Specter/Specter.hpp
-     include/Specter/ViewSystem.hpp
+     include/Specter/ViewResources.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
+     include/Specter/SplitView.hpp
      include/Specter/ScrollView.hpp
      include/Specter/TextView.hpp
      include/Specter/MultiLineTextView.hpp
@@ -56,6 +57,7 @@ list(APPEND SPECTER_SOURCES
      lib/Specter.cpp
      lib/View.cpp
      lib/RootView.cpp
+     lib/SplitView.cpp
      lib/ScrollView.cpp
      lib/TextView.cpp
      lib/MultiLineTextView.cpp

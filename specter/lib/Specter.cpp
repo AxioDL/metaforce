@@ -1,14 +1,16 @@
-#include "Specter/ViewSystem.hpp"
+#include "Specter/ViewResources.hpp"
 
 namespace Specter
 {
 static LogVisor::LogModule Log("Specter");
 
-void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
+void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, float pixelScale)
 {
     m_factory = factory;
-    m_mainFont = fcache->prepMainFont(factory, FontCache::DefaultCharFilter, false, 10.0, 72);
-    m_monoFont = fcache->prepMonoFont(factory, FontCache::DefaultCharFilter, false, 10.0, 72);
+    m_mainFont = fcache->prepMainFont(factory, AllCharFilter, false, 10.0, 72 * pixelScale);
+    m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.0, 72 * pixelScale);
+    m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.0, 72 * pixelScale);
+    m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.0, 72 * pixelScale);
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
@@ -28,7 +30,7 @@ void ViewSystem::init(boo::IGraphicsDataFactory* factory, FontCache* fcache)
         Log.report(LogVisor::FatalError, _S("unable to init view system for %s"), factory->platformName());
     }
     fcache->closeBuiltinFonts();
-    m_sysData.reset(factory->commit());
+    m_resData.reset(factory->commit());
 }
 
 }

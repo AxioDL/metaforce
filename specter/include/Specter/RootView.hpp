@@ -3,12 +3,13 @@
 
 #include "View.hpp"
 #include "MultiLineTextView.hpp"
+#include "SplitView.hpp"
 #include "FontCache.hpp"
 #include <boo/boo.hpp>
 
 namespace Specter
 {
-class ViewSystem;
+class ViewResources;
 
 class RootView : public View, public boo::IWindowCallback
 {
@@ -19,7 +20,7 @@ class RootView : public View, public boo::IWindowCallback
     bool m_destroyed = false;
 
 public:
-    RootView(ViewSystem& system, boo::IWindow* window);
+    RootView(ViewResources& res, boo::IWindow* window);
 
     void destroyed();
     bool isDestroyed() const {return m_destroyed;}
@@ -48,82 +49,6 @@ public:
     const boo::SWindowRect& rootRect() const {return m_rootRect;}
 
     boo::IWindow* window() const {return m_window;}
-
-    class SplitView : public View
-    {
-    public:
-        class System
-        {
-            friend class ViewSystem;
-            friend class SplitView;
-            boo::ITextureS* m_shadingTex;
-
-            void init(boo::IGraphicsDataFactory* factory);
-        };
-
-        enum class Axis
-        {
-            Horizontal,
-            Vertical
-        };
-    private:
-        Axis m_axis;
-        float m_slide = 0.5;
-        bool m_dragging = false;
-
-        void setSlide(float slide)
-        {
-            m_slide = std::min(std::max(slide, 0.0f), 1.0f);
-            updateSize();
-        }
-
-        std::unique_ptr<View> m_views[2];
-        VertexBlock m_splitBlock;
-        boo::IGraphicsBufferD* m_splitBlockBuf;
-        struct SplitVert
-        {
-            Zeus::CVector3f m_pos;
-            Zeus::CVector2f m_uv;
-        } m_splitVerts[4];
-
-        void setHorizontalVerts(int width)
-        {
-            m_splitVerts[0].m_pos.assign(0, 1, 0);
-            m_splitVerts[0].m_uv.assign(0, 0);
-            m_splitVerts[1].m_pos.assign(0, -1, 0);
-            m_splitVerts[1].m_uv.assign(1, 0);
-            m_splitVerts[2].m_pos.assign(width, 1, 0);
-            m_splitVerts[2].m_uv.assign(0, 0);
-            m_splitVerts[3].m_pos.assign(width, -1, 0);
-            m_splitVerts[3].m_uv.assign(1, 0);
-        }
-
-        void setVerticalVerts(int height)
-        {
-            m_splitVerts[0].m_pos.assign(-1, height, 0);
-            m_splitVerts[0].m_uv.assign(0, 0);
-            m_splitVerts[1].m_pos.assign(-1, 0, 0);
-            m_splitVerts[1].m_uv.assign(0, 0);
-            m_splitVerts[2].m_pos.assign(1, height, 0);
-            m_splitVerts[2].m_uv.assign(1, 0);
-            m_splitVerts[3].m_pos.assign(1, 0, 0);
-            m_splitVerts[3].m_uv.assign(1, 0);
-        }
-
-        boo::IGraphicsBufferD* m_splitVertsBuf;
-        boo::IVertexFormat* m_splitVtxFmt; /* OpenGL only */
-        boo::IShaderDataBinding* m_splitShaderBinding;
-        int m_splitValidSlots = 0;
-    public:
-        SplitView(ViewSystem& system, View& parentView, Axis axis);
-        void setContentView(int slot, std::unique_ptr<View>&& view);
-        std::unique_ptr<View> releaseContentView(int slot);
-        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-        void mouseMove(const boo::SWindowCoord&);
-        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-        void draw(boo::IGraphicsCommandQueue* gfxQ);
-    };
 
 private:
     std::unique_ptr<SplitView> m_splitView;

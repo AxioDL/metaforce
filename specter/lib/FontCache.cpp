@@ -248,7 +248,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
     unsigned fullTexmapLayers = 0;
     while (gindex != 0)
     {
-        if (!filter(charcode))
+        if (!filter.second(charcode))
         {
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
             continue;
@@ -313,7 +313,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
-            if (!filter(charcode))
+            if (!filter.second(charcode))
             {
                 charcode = FT_Get_Next_Char(face, charcode, &gindex);
                 continue;
@@ -388,7 +388,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
-            if (!filter(charcode))
+            if (!filter.second(charcode))
             {
                 charcode = FT_Get_Next_Char(face, charcode, &gindex);
                 continue;
@@ -458,7 +458,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
     FT_ULong charcode = FT_Get_First_Char(face, &gindex);
     while (gindex != 0)
     {
-        if (!filter(charcode))
+        if (!filter.second(charcode))
         {
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
             continue;
@@ -502,7 +502,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
-            if (!filter(charcode))
+            if (!filter.second(charcode))
             {
                 charcode = FT_Get_Next_Char(face, charcode, &gindex);
                 continue;
@@ -579,7 +579,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         fullTexmapLayers = 0;
         while (gindex != 0)
         {
-            if (!filter(charcode))
+            if (!filter.second(charcode))
             {
                 charcode = FT_Get_Next_Char(face, charcode, &gindex);
                 continue;
@@ -665,7 +665,7 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::stri
     FT_Set_Char_Size(face, 0, points * 64.0, 0, dpi);
 
     /* Make tag and search for cached version */
-    FontTag tag(name, subpixel, points, dpi);
+    FontTag tag(name + '_' + filter.first, subpixel, points, dpi);
     auto search = m_cachedAtlases.find(tag);
     if (search != m_cachedAtlases.end())
         return tag;

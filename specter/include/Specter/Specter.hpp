@@ -16,6 +16,6 @@
 #include "Node.hpp"
 #include "NodeSocket.hpp"
 #include "FontCache.hpp"
-#include "ViewSystem.hpp"
+#include "ViewResources.hpp"
 
 #endif // SPECTER_HPP

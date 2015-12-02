@@ -1,11 +1,11 @@
 #include "Specter/View.hpp"
-#include "Specter/ViewSystem.hpp"
+#include "Specter/ViewResources.hpp"
 #include "Specter/RootView.hpp"
 
 namespace Specter
 {
 
-void View::System::init(boo::GLDataFactory* factory)
+void View::Resources::init(boo::GLDataFactory* factory)
 {
     static const char* SolidVS =
     "#version 330\n"
@@ -274,7 +274,7 @@ void View::System::init(boo::MetalDataFactory* factory)
     
 #endif
 
-void View::buildResources(ViewSystem& system)
+void View::buildResources(ViewResources& system)
 {
     m_bgColor = Zeus::CColor::skClear;
 
@@ -290,7 +290,7 @@ void View::buildResources(ViewSystem& system)
     system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
                                        sizeof(VertexBlock), 1);
 
-    if (!system.m_viewSystem.m_solidVtxFmt)
+    if (!system.m_viewRes.m_solidVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
@@ -299,7 +299,7 @@ void View::buildResources(ViewSystem& system)
         };
         m_bgVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
         m_bgShaderBinding =
-        system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, m_bgVtxFmt,
+        system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, m_bgVtxFmt,
                                                m_bgVertBuf, m_bgInstBuf, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
@@ -307,21 +307,21 @@ void View::buildResources(ViewSystem& system)
     else
     {
         m_bgShaderBinding =
-        system.m_factory->newShaderDataBinding(system.m_viewSystem.m_solidShader, system.m_viewSystem.m_solidVtxFmt,
+        system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, system.m_viewRes.m_solidVtxFmt,
                                                m_bgVertBuf, m_bgInstBuf, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
     }
 }
 
-View::View(ViewSystem& system, RootView& rootView)
+View::View(ViewResources& system, RootView& rootView)
 : m_rootView(rootView),
   m_parentView(rootView)
 {
     buildResources(system);
 }
 
-View::View(ViewSystem& system, View& parentView)
+View::View(ViewResources& system, View& parentView)
 : m_rootView(parentView.root()),
   m_parentView(parentView)
 {
@@ -359,7 +359,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->draw(0, 4);
 }
 
-void View::commitResources(ViewSystem& system)
+void View::commitResources(ViewResources& system)
 {
     m_gfxData.reset(system.m_factory->commit());
 }

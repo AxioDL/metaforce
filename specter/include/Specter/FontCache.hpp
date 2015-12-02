@@ -52,7 +52,7 @@ public:
     operator FT_Face() {open(); return m_face;}
 };
 
-using FCharFilter = std::function<bool(uint32_t)>;
+using FCharFilter = std::pair<std::string, std::function<bool(uint32_t)>>;
 
 class FontAtlas
 {
@@ -153,6 +153,18 @@ public:
     }
 };
 
+static FCharFilter const AllCharFilter =
+std::make_pair("all-glyphs", [](uint32_t)->bool
+{return true;});
+
+static FCharFilter const LatinCharFilter =
+std::make_pair("latin-glyphs", [](uint32_t c)->bool
+{return c <= 0xff || ((c - 0x2200) <= (0x23FF - 0x2200));});
+
+static FCharFilter const LatinAndJapaneseCharFilter =
+std::make_pair("latin-and-jp-glyphs", [](uint32_t c)->bool
+{return LatinCharFilter.second(c) || ((c - 0x2E00) <= (0x30FF - 0x2E00));});
+
 class FontCache
 {
     const HECL::Runtime::FileStoreManager& m_fileMgr;
@@ -173,17 +185,15 @@ public:
     FontCache(const FontCache& other) = delete;
     FontCache& operator=(const FontCache& other) = delete;
 
-    static bool DefaultCharFilter(uint32_t ch) {return true;}
-
     FontTag prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
-                           FCharFilter filter=DefaultCharFilter, bool subpixel=false,
+                           FCharFilter filter=AllCharFilter, bool subpixel=false,
                            float points=10.0, uint32_t dpi=72);
 
-    FontTag prepMainFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=DefaultCharFilter,
+    FontTag prepMainFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
     {return prepCustomFont(gf, "droidsans-permissive", m_regFace, filter, subpixel, points, dpi);}
 
-    FontTag prepMonoFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=DefaultCharFilter,
+    FontTag prepMonoFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
     {return prepCustomFont(gf, "bmonofont", m_monoFace, filter, subpixel, points, dpi);}
 
