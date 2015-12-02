@@ -19,7 +19,7 @@ class TextView : public View
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding;
     const FontAtlas& m_fontAtlas;
-    int m_validSlots = 0;
+    bool m_valid = false;
 
 public:
     class Resources
@@ -53,7 +53,7 @@ public:
         RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor);
     };
     std::vector<RenderGlyph>& accessGlyphs() {return m_glyphs;}
-    void updateGlyphs() {m_validSlots = 0;}
+    void updateGlyphs() {m_valid = false;}
 
     void typesetGlyphs(const std::string& str,
                        const Zeus::CColor& defaultColor=Zeus::CColor::skWhite);

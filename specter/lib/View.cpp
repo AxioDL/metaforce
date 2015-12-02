@@ -341,18 +341,17 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[1].assign(0.f, 0.f, 0.f);
     m_bgRect[2].assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].assign(sub.size[0], 0.f, 0.f);
-    m_bgValidSlots = 0;
+    m_bgValid = false;
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-    if ((m_bgValidSlots & pendingSlot) == 0)
+    if (!m_bgValid)
     {
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(VertexBlock));
         m_bgVertBuf->load(m_bgRect, sizeof(Zeus::CVector3f) * 4);
         m_bgInstBuf->load(&m_bgColor, sizeof(Zeus::CColor));
-        m_bgValidSlots |= pendingSlot;
+        m_bgValid = true;
     }
     gfxQ->setShaderDataBinding(m_bgShaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);

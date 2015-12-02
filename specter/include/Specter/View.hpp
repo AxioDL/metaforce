@@ -6,6 +6,7 @@
 #include "CMatrix4f.hpp"
 #include "CTransform.hpp"
 #include "CColor.hpp"
+#include "HECL/CVar.hpp"
 
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
@@ -27,7 +28,7 @@ class View
     boo::IShaderDataBinding* m_bgShaderBinding;
     Zeus::CVector3f m_bgRect[4];
     Zeus::CColor m_bgColor;
-    int m_bgValidSlots = 0;
+    bool m_bgValid = false;
     std::unique_ptr<boo::IGraphicsData> m_gfxData;
 
     friend class RootView;
@@ -95,12 +96,14 @@ public:
     const boo::SWindowRect& subRect() const {return m_subRect;}
     void updateSize();
 
-    void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValidSlots = 0;}
+    void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValid = false;}
 
+    virtual void updateCVar(HECL::CVar* cvar) {}
     virtual void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseMove(const boo::SWindowCoord&) {}
     virtual void resized(const boo::SWindowRect &root, const boo::SWindowRect& sub);
+    virtual void resetResources(ViewResources& res) {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

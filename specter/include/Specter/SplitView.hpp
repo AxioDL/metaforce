@@ -70,7 +70,7 @@ private:
     boo::IGraphicsBufferD* m_splitVertsBuf;
     boo::IVertexFormat* m_splitVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_splitShaderBinding;
-    int m_splitValidSlots = 0;
+    bool m_splitValid = false;
 public:
     SplitView(ViewResources& res, View& parentView, Axis axis);
     std::unique_ptr<View> setContentView(int slot, std::unique_ptr<View>&& view);
@@ -78,6 +78,7 @@ public:
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

@@ -35,7 +35,7 @@ public:
     ViewResources& operator=(const ViewResources& other) = delete;
     ViewResources& operator=(ViewResources&& other) = default;
 
-    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, float pixelScale);
+    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, unsigned dpi);
 };
 }
 

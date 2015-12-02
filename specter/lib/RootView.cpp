@@ -108,6 +108,11 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 {
 }
 
+void RootView::resetResources(ViewResources& res)
+{
+    m_splitView->resetResources(res);
+}
+
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     if (m_resizeRTDirty)

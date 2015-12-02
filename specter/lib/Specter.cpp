@@ -4,13 +4,13 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter");
 
-void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, float pixelScale)
+void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, unsigned dpi)
 {
     m_factory = factory;
-    m_mainFont = fcache->prepMainFont(factory, AllCharFilter, false, 10.0, 72 * pixelScale);
-    m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.0, 72 * pixelScale);
-    m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.0, 72 * pixelScale);
-    m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.0, 72 * pixelScale);
+    m_mainFont = fcache->prepMainFont(factory, AllCharFilter, false, 10.0, dpi);
+    m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.0, dpi);
+    m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.0, dpi);
+    m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.0, dpi);
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:

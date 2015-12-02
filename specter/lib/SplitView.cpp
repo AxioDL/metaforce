@@ -103,6 +103,14 @@ void SplitView::mouseMove(const boo::SWindowCoord& coord)
     }
 }
 
+void SplitView::resetResources(ViewResources& res)
+{
+    if (m_views[0])
+        m_views[0]->resetResources(res);
+    if (m_views[1])
+        m_views[1]->resetResources(res);
+}
+
 void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
@@ -132,7 +140,7 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }
-    m_splitValidSlots = 0;
+    m_splitValid = false;
 }
 
 void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -143,12 +151,11 @@ void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
     if (m_views[1])
         m_views[1]->draw(gfxQ);
 
-    int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-    if ((m_splitValidSlots & pendingSlot) == 0)
+    if (!m_splitValid)
     {
         m_splitBlockBuf->load(&m_splitBlock, sizeof(VertexBlock));
         m_splitVertsBuf->load(m_splitVerts, sizeof(SplitVert) * 4);
-        m_splitValidSlots |= pendingSlot;
+        m_splitValid = true;
     }
     gfxQ->setShaderDataBinding(m_splitShaderBinding);
     gfxQ->draw(0, 4);

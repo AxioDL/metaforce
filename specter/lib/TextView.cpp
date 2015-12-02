@@ -383,7 +383,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
             break;
     }
 
-    m_validSlots = 0;
+    m_valid = false;
 }
 void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
 {
@@ -411,14 +411,14 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
             break;
     }
 
-    m_validSlots = 0;
+    m_valid = false;
 }
 
 void TextView::colorGlyphs(const Zeus::CColor& newColor)
 {
     for (RenderGlyph& glyph : m_glyphs)
         glyph.m_color = newColor;
-    m_validSlots = 0;
+    m_valid = false;
 }
 void TextView::colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval, float fadeTime)
 {
@@ -432,11 +432,10 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
     View::draw(gfxQ);
     if (m_glyphs.size())
     {
-        int pendingSlot = 1 << gfxQ->pendingDynamicSlot();
-        if ((m_validSlots & pendingSlot) == 0)
+        if (!m_valid)
         {
             m_glyphBuf->load(m_glyphs.data(), m_glyphs.size() * sizeof(RenderGlyph));
-            m_validSlots |= pendingSlot;
+            m_valid = true;
         }
         gfxQ->setShaderDataBinding(m_shaderBinding);
         gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
