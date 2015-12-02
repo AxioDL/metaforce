@@ -81,7 +81,7 @@ void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
 
 #if _WIN32
 
-void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
 
@@ -183,7 +183,7 @@ void TextView::System::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     
 #elif BOO_HAS_METAL
     
-void TextView::System::init(boo::MetalDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
     

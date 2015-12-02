@@ -163,7 +163,10 @@ std::make_pair("latin-glyphs", [](uint32_t c)->bool
 
 static FCharFilter const LatinAndJapaneseCharFilter =
 std::make_pair("latin-and-jp-glyphs", [](uint32_t c)->bool
-{return LatinCharFilter.second(c) || ((c - 0x2E00) <= (0x30FF - 0x2E00));});
+{return LatinCharFilter.second(c) ||
+((c - 0x2E00) <= (0x30FF - 0x2E00)) ||
+((c - 0x4E00) <= (0x9FFF - 0x4E00)) ||
+((c - 0xFF00) <= (0xFFEF - 0xFF00));});
 
 class FontCache
 {

@@ -165,9 +165,16 @@ void FontAtlas::buildKernTable(FT_Face face)
         }
     }
 }
+    
+#define NO_ZLIB 0
 
 static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data, size_t sz)
 {
+#if NO_ZLIB
+    writer.writeUBytes(data, sz);
+    return;
+#endif
+    
     atUint8 compBuf[8192];
     z_stream z = {};
     deflateInit(&z, Z_DEFAULT_COMPRESSION);
@@ -201,6 +208,11 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
 
 static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size_t sz)
 {
+#if NO_ZLIB
+    reader.readUBytesToBuf(data, sz);
+    return true;
+#endif
+    
     atUint8 compBuf[8192];
     z_stream z = {};
     inflateInit(&z);
@@ -234,7 +246,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         baseFlags |= FT_LOAD_TARGET_LCD;
     else
         baseFlags |= FT_LOAD_TARGET_NORMAL;
-
+    
     /* First count glyphs exposed by unicode charmap and tally required area */
     size_t glyphCount = 0;
     FT_UInt gindex;
@@ -316,9 +328,28 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 continue;
             }
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
+            FT_UInt width, height;
+            GridFitGlyph(face->glyph, width, height);
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
+            
+            if (curLineWidth + width + 1 > TEXMAP_DIM)
+            {
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, height);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
@@ -331,23 +362,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
-            {
-                totalHeight += curLineHeight + 1;
-                curLineHeight = 0;
-                curLineWidth = 1;
-            }
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
-            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
-            {
-                totalHeight = 1;
-                ++fullTexmapLayers;
-                //printf("RealB: %u\n", gindex);
-                curLineHeight = 0;
-                curLineWidth = 1;
-            }
             MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmapLayers, curLineWidth, totalHeight);
-            curLineWidth += g.m_width + 1;
+            curLineWidth += width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
@@ -391,9 +407,28 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 continue;
             }
             FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
+            FT_UInt width, height;
+            GridFitGlyph(face->glyph, width, height);
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
+
+            if (curLineWidth + width + 1 > TEXMAP_DIM)
+            {
+                totalHeight += curLineHeight + 1;
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            curLineHeight = std::max(curLineHeight, height);
+            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
+            {
+                totalHeight = 1;
+                ++fullTexmapLayers;
+                //printf("RealB: %u\n", gindex);
+                curLineHeight = 0;
+                curLineWidth = 1;
+            }
+            
             g.m_unicodePoint = charcode;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
@@ -406,23 +441,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
-            {
-                totalHeight += curLineHeight + 1;
-                curLineHeight = 0;
-                curLineWidth = 1;
-            }
-            curLineHeight = std::max(curLineHeight, face->glyph->bitmap.rows);
-            if (totalHeight + curLineHeight + 1 > TEXMAP_DIM)
-            {
-                totalHeight = 1;
-                ++fullTexmapLayers;
-                //printf("RealB: %u\n", gindex);
-                curLineHeight = 0;
-                curLineWidth = 1;
-            }
             MemcpyRect(texmap.get(), &face->glyph->bitmap, fullTexmapLayers, curLineWidth, totalHeight);
-            curLineWidth += g.m_width + 1;
+            curLineWidth += width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
@@ -510,19 +530,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
-            g.m_unicodePoint = charcode;
-            g.m_layerIdx = fullTexmapLayers;
-            g.m_layerFloat = float(g.m_layerIdx);
-            g.m_width = width;
-            g.m_height = height;
-            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
-            g.m_uv[1] = totalHeight / float(finalHeight);
-            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
-            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
-            g.m_advance = face->glyph->advance.x >> 6;
-            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
+
+            if (curLineWidth + width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
                 curLineHeight = 0;
@@ -537,7 +546,20 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            curLineWidth += g.m_width + 1;
+            
+            g.m_unicodePoint = charcode;
+            g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
+            g.m_width = width;
+            g.m_height = height;
+            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
+            g.m_uv[1] = totalHeight / float(finalHeight);
+            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
+            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
+            curLineWidth += width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 
@@ -587,19 +609,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
-            g.m_unicodePoint = charcode;
-            g.m_layerIdx = fullTexmapLayers;
-            g.m_layerFloat = float(g.m_layerIdx);
-            g.m_width = width;
-            g.m_height = height;
-            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
-            g.m_uv[1] = totalHeight / float(finalHeight);
-            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
-            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
-            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
-            g.m_advance = face->glyph->advance.x >> 6;
-            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
-            if (curLineWidth + g.m_width + 1 > TEXMAP_DIM)
+
+            if (curLineWidth + width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
                 curLineHeight = 0;
@@ -614,7 +625,20 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            curLineWidth += g.m_width + 1;
+            
+            g.m_unicodePoint = charcode;
+            g.m_layerIdx = fullTexmapLayers;
+            g.m_layerFloat = float(g.m_layerIdx);
+            g.m_width = width;
+            g.m_height = height;
+            g.m_uv[0] = curLineWidth / float(TEXMAP_DIM);
+            g.m_uv[1] = totalHeight / float(finalHeight);
+            g.m_uv[2] = g.m_uv[0] + g.m_width / float(TEXMAP_DIM);
+            g.m_uv[3] = g.m_uv[1] + g.m_height / float(finalHeight);
+            g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
+            g.m_advance = face->glyph->advance.x >> 6;
+            g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
+            curLineWidth += width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
 

@@ -79,7 +79,7 @@ void View::Resources::init(boo::GLDataFactory* factory)
     
 #if _WIN32
 
-void View::System::init(boo::ID3DDataFactory* factory)
+void View::Resources::init(boo::ID3DDataFactory* factory)
 {
     static const char* SolidVS =
     "struct VertData\n"
@@ -176,7 +176,7 @@ void View::System::init(boo::ID3DDataFactory* factory)
     
 #elif BOO_HAS_METAL
     
-void View::System::init(boo::MetalDataFactory* factory)
+void View::Resources::init(boo::MetalDataFactory* factory)
 {
     static const char* SolidVS =
     "#include <metal_stdlib>\n"
