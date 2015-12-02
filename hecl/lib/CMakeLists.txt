@@ -10,11 +10,16 @@ endif()
 atdna(atdna_HMDLMeta.cpp ../include/HECL/HMDLMeta.hpp)
 atdna(atdna_Frontend.cpp ../include/HECL/Frontend.hpp)
 atdna(atdna_Runtime.cpp ../include/HECL/Runtime.hpp)
+atdna(atdna_CVar.cpp ../include/HECL/CVar.hpp)
 
 add_library(HECLCommon
             HECL.cpp
             ProjectPath.cpp
             WideStringConvert.cpp
+            CVar.cpp
+            CVarManager.cpp
+            ../include/HECL/CVar.hpp
+            ../include/HECL/CVarManager.hpp
             ../include/HECL/HECL.hpp
             ../include/HECL/HMDLMeta.hpp
             ../include/HECL/Backend/Backend.hpp
@@ -29,5 +34,6 @@ add_library(HECLCommon
             atdna_HMDLMeta.cpp
             atdna_Frontend.cpp
             atdna_Runtime.cpp
+            atdna_CVar.cpp
             ${PLAT_SRCS})
 
