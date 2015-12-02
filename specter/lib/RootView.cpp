@@ -92,6 +92,8 @@ void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods)
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
 {
+    if (key == boo::ESpecialKey::Enter && (mods & boo::EModifierKey::Alt) != boo::EModifierKey::None)
+        m_window->setFullscreen(!m_window->isFullscreen());
 }
 
 void RootView::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)

@@ -45,11 +45,11 @@ private:
 
     void setHorizontalVerts(int width)
     {
-        m_splitVerts[0].m_pos.assign(0, 1, 0);
+        m_splitVerts[0].m_pos.assign(0, 2, 0);
         m_splitVerts[0].m_uv.assign(0, 0);
         m_splitVerts[1].m_pos.assign(0, -1, 0);
         m_splitVerts[1].m_uv.assign(1, 0);
-        m_splitVerts[2].m_pos.assign(width, 1, 0);
+        m_splitVerts[2].m_pos.assign(width, 2, 0);
         m_splitVerts[2].m_uv.assign(0, 0);
         m_splitVerts[3].m_pos.assign(width, -1, 0);
         m_splitVerts[3].m_uv.assign(1, 0);
@@ -61,9 +61,9 @@ private:
         m_splitVerts[0].m_uv.assign(0, 0);
         m_splitVerts[1].m_pos.assign(-1, 0, 0);
         m_splitVerts[1].m_uv.assign(0, 0);
-        m_splitVerts[2].m_pos.assign(1, height, 0);
+        m_splitVerts[2].m_pos.assign(2, height, 0);
         m_splitVerts[2].m_uv.assign(1, 0);
-        m_splitVerts[3].m_pos.assign(1, 0, 0);
+        m_splitVerts[3].m_pos.assign(2, 0, 0);
         m_splitVerts[3].m_uv.assign(1, 0);
     }
 

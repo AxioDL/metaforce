@@ -351,6 +351,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             }
             
             g.m_unicodePoint = charcode;
+            g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = face->glyph->bitmap.width / 3;
@@ -430,6 +431,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             }
             
             g.m_unicodePoint = charcode;
+            g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = face->glyph->bitmap.width;
@@ -548,6 +550,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             }
             
             g.m_unicodePoint = charcode;
+            g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = width;
@@ -627,6 +630,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             }
             
             g.m_unicodePoint = charcode;
+            g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
             g.m_layerFloat = float(g.m_layerIdx);
             g.m_width = width;

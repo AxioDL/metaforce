@@ -69,6 +69,7 @@ public:
     struct Glyph
     {
         atUint32 m_unicodePoint;
+        atUint32 m_glyphIdx;
         atUint32 m_layerIdx;
         float m_layerFloat;
         float m_uv[4];
@@ -133,16 +134,8 @@ public:
             return nullptr;
         return &m_glyphs[search->second];
     }
-    atInt16 lookupKern(atUint32 left, atUint32 right) const
+    atInt16 lookupKern(atUint32 leftIdx, atUint32 rightIdx) const
     {
-        auto leftSearch = m_glyphLookup.find(left);
-        if (leftSearch == m_glyphLookup.cend())
-            return 0;
-        size_t leftIdx = leftSearch->second;
-        auto rightSearch = m_glyphLookup.find(right);
-        if (rightSearch == m_glyphLookup.cend())
-            return 0;
-        size_t rightIdx = rightSearch->second;
         auto pairSearch = m_kernAdjs.find(leftIdx);
         if (pairSearch == m_kernAdjs.cend())
             return 0;

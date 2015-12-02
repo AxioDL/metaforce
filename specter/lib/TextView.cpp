@@ -331,6 +331,7 @@ TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, cons
 
 static int DoKern(FT_Pos val, const FontAtlas& atlas)
 {
+    if (!val) return 0;
     val = FT_MulFix(val, atlas.FT_Xscale());
 
     FT_Pos  orig_x = val;
@@ -348,7 +349,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
 {
     size_t rem = str.size();
     const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
-    utf8proc_int32_t lCh = -1;
+    uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
     int adv = 0;
@@ -371,10 +372,10 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
         }
 
         if (lCh != -1)
-            adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
+            adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
 
-        lCh = ch;
+        lCh = glyph->m_glyphIdx;
         rem -= sz;
         it += sz;
 
@@ -386,7 +387,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
 }
 void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
 {
-    wchar_t lCh = -1;
+    uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
     int adv = 0;
@@ -401,10 +402,10 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
             continue;
 
         if (lCh != -1)
-            adv += DoKern(m_fontAtlas.lookupKern(lCh, ch), m_fontAtlas);
+            adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
 
-        lCh = ch;
+        lCh = glyph->m_glyphIdx;
 
         if (m_glyphs.size() == m_capacity)
             break;
