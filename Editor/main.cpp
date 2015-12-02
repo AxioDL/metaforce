@@ -12,7 +12,7 @@ struct Application : boo::IApplicationCallback
     HECL::Runtime::FileStoreManager m_fileMgr;
     Specter::FontCache m_fontCache;
     boo::IWindow* m_mainWindow;
-    Specter::ViewSystem m_viewSystem;
+    Specter::ViewResources m_viewResources;
     std::unique_ptr<Specter::RootView> m_rootView;
     Retro::CVarManager m_cvarManager;
     Zeus::CColor m_clearColor;
@@ -41,8 +41,8 @@ struct Application : boo::IApplicationCallback
             tmp->addListener(listen);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_viewSystem.init(gf, &m_fontCache);
-        m_rootView.reset(new Specter::RootView(m_viewSystem, m_mainWindow));
+        m_viewResources.init(gf, &m_fontCache, m_mainWindow->getVirtualPixelFactor());
+        m_rootView.reset(new Specter::RootView(m_viewResources, m_mainWindow));
 
         m_mainWindow->setWaitCursor(false);
         boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
