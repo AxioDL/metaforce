@@ -5,19 +5,19 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::RootView");
 
-RootView::RootView(ViewResources& system, boo::IWindow* window)
-: View(system, *this), m_window(window)
+RootView::RootView(ViewResources& res, boo::IWindow* window)
+: View(res, *this), m_window(window), m_events(*this)
 {
-    window->setCallback(this);
+    window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
-    m_renderTex = system.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
-    commitResources(system);
-    m_splitView.reset(new SplitView(system, *this, SplitView::Axis::Horizontal));
-    MultiLineTextView* textView1 = new MultiLineTextView(system, *this, system.m_heading18);
-    MultiLineTextView* textView2 = new MultiLineTextView(system, *this, system.m_heading18);
+    m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
+    commitResources(res);
+    m_splitView.reset(new SplitView(res, *this, SplitView::Axis::Horizontal));
+    MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
+    MultiLineTextView* textView2 = new MultiLineTextView(res, *this, res.m_heading18);
     m_splitView->setContentView(0, std::unique_ptr<MultiLineTextView>(textView1));
     m_splitView->setContentView(1, std::unique_ptr<MultiLineTextView>(textView2));
-    resized(rect);
+    resized(rect, rect);
     textView1->typesetGlyphs("Hello, World!\n\n", Zeus::CColor::skWhite);
     textView2->typesetGlyphs("こんにちは世界！\n\n", Zeus::CColor::skWhite);
     Zeus::CColor transBlack(0.f, 0.f, 0.f, 0.5f);
@@ -31,19 +31,16 @@ void RootView::destroyed()
     m_destroyed = true;
 }
 
-void RootView::resized(const boo::SWindowRect& rect)
-{
-    resized(rect, rect);
-}
-
 void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 {
+    boo::SWindowRect old = m_rootRect;
     m_rootRect = root;
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
     View::resized(m_rootRect, m_rootRect);
     m_splitView->resized(m_rootRect, m_rootRect);
-    m_resizeRTDirty = true;
+    if (old != m_rootRect)
+        m_resizeRTDirty = true;
 }
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)

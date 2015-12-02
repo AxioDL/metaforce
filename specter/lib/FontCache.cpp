@@ -218,10 +218,7 @@ static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size
     }
 
     inflateEnd(&z);
-
-    if (adler32 != z.adler)
-        return false;
-    return true;
+    return adler32 == z.adler;
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
@@ -300,7 +297,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         else
         {
             size_t count = TEXMAP_DIM * totalHeight;
-            texmap.reset(new RgbaPixel[TEXMAP_DIM * totalHeight]);
+            texmap.reset(new RgbaPixel[count]);
             bufSz = count * sizeof(RgbaPixel);
             memset(texmap.get(), 0, bufSz);
         }
@@ -375,7 +372,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         else
         {
             size_t count = TEXMAP_DIM * totalHeight;
-            texmap.reset(new GreyPixel[TEXMAP_DIM * totalHeight]);
+            texmap.reset(new GreyPixel[count]);
             bufSz = count * sizeof(GreyPixel);
             memset(texmap.get(), 0, bufSz);
         }
