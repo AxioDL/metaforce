@@ -67,8 +67,6 @@ add_library(RuntimeCommon
             CGameDebug.hpp CGameDebug.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
-            CVar.hpp CVar.cpp
-            CVarManager.hpp CVarManager.cpp
             RetroTypes.hpp
             GCNTypes.hpp
             ${PLAT_SRCS})

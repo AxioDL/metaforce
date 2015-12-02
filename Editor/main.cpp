@@ -1,7 +1,7 @@
 #include <LogVisor/LogVisor.hpp>
 #include <boo/boo.hpp>
 #include <Specter/Specter.hpp>
-#include <Runtime/CVarManager.hpp>
+#include <HECL/CVarManager.hpp>
 #include <Runtime/CGameAllocator.hpp>
 #include <functional>
 
@@ -14,15 +14,8 @@ struct Application : boo::IApplicationCallback
     boo::IWindow* m_mainWindow;
     Specter::ViewResources m_viewResources;
     std::unique_ptr<Specter::RootView> m_rootView;
-    Retro::CVarManager m_cvarManager;
-    Zeus::CColor m_clearColor;
+    HECL::CVarManager m_cvarManager;
     bool m_running = true;
-
-    void onCVarModified(Retro::CVar* cvar)
-    {
-        if (cvar == m_cvarManager.findCVar("r_clearColor"))
-            m_clearColor = cvar->toColor();
-    }
 
     Application() :
         m_fileMgr(_S("rude")),
@@ -35,13 +28,13 @@ struct Application : boo::IApplicationCallback
         m_mainWindow->showWindow();
         m_mainWindow->setWaitCursor(true);
         m_cvarManager.serialize();
-        Retro::CVar* tmp = m_cvarManager.findCVar("r_clearcolor");
-        Retro::CVar::ListenerFunc listen = std::bind(&Application::onCVarModified, this, std::placeholders::_1);
-        if (tmp)
-            tmp->addListener(listen);
+
+        unsigned dpi = m_mainWindow->getVirtualPixelFactor() * 72;
+        HECL::CVar* cvDPI = m_cvarManager.newCVar("ed_dpi", "User-selected UI DPI",
+                                                  int(dpi), HECL::CVar::EFlags::Editor);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_viewResources.init(gf, &m_fontCache, m_mainWindow->getVirtualPixelFactor());
+        m_viewResources.init(gf, &m_fontCache, dpi);
         m_rootView.reset(new Specter::RootView(m_viewResources, m_mainWindow));
 
         m_mainWindow->setWaitCursor(false);
@@ -50,7 +43,12 @@ struct Application : boo::IApplicationCallback
         {
             if (m_rootView->isDestroyed())
                 break;
-            m_cvarManager.update();
+            if (cvDPI->isModified())
+            {
+                dpi = cvDPI->toInteger();
+                m_viewResources.init(gf, &m_fontCache, dpi);
+                cvDPI->clearModified();
+            }
             m_rootView->dispatchEvents();
             m_rootView->draw(gfxQ);
             gfxQ->execute();
