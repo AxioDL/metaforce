@@ -73,6 +73,8 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 void* operator new(std::size_t sz)
 {
+    if (!Retro::g_memoryAllocatorReady)
+        return malloc(sz);
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
@@ -84,6 +86,8 @@ void* operator new(std::size_t sz)
 void* operator new(std::size_t sz,
                    const char* funcName, const char* typeName)
 {
+    if (!Retro::g_memoryAllocatorReady)
+        return malloc(sz);
     Retro::CCallStack cs(funcName, typeName);
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
@@ -94,11 +98,18 @@ void* operator new(std::size_t sz,
 
 void operator delete(void* ptr) noexcept
 {
+    if (!Retro::g_memoryAllocatorReady)
+    {
+        free(ptr);
+        return;
+    }
     Retro::CMemory::Free(ptr);
 }
 
 void* operator new[](std::size_t sz)
 {
+    if (!Retro::g_memoryAllocatorReady)
+        return malloc(sz);
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
@@ -110,6 +121,8 @@ void* operator new[](std::size_t sz)
 void* operator new[](std::size_t sz,
                      const char* funcName, const char* typeName)
 {
+    if (!Retro::g_memoryAllocatorReady)
+        return malloc(sz);
     Retro::CCallStack cs(funcName, typeName);
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
@@ -120,5 +133,10 @@ void* operator new[](std::size_t sz,
 
 void operator delete[](void* ptr) noexcept
 {
+    if (!Retro::g_memoryAllocatorReady)
+    {
+        free(ptr);
+        return;
+    }
     Retro::CMemory::Free(ptr);
 }
