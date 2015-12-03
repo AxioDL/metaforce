@@ -40,6 +40,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/TextView.hpp
      include/Specter/MultiLineTextView.hpp
      include/Specter/Space.hpp
+     include/Specter/Toolbar.hpp
      include/Specter/Table.hpp
      include/Specter/Outliner.hpp
      include/Specter/Panel.hpp
@@ -56,6 +57,7 @@ atdna(atdna_FontCache.cpp include/Specter/FontCache.hpp)
 
 list(APPEND SPECTER_SOURCES
      lib/Specter.cpp
+     lib/ViewResources.cpp
      lib/View.cpp
      lib/RootView.cpp
      lib/SplitView.cpp
@@ -63,6 +65,7 @@ list(APPEND SPECTER_SOURCES
      lib/TextView.cpp
      lib/MultiLineTextView.cpp
      lib/Space.cpp
+     lib/Toolbar.cpp
      lib/Table.cpp
      lib/Outliner.cpp
      lib/Panel.cpp

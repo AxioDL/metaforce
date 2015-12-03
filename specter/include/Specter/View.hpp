@@ -28,15 +28,14 @@ class View
     boo::IShaderDataBinding* m_bgShaderBinding;
     Zeus::CVector3f m_bgRect[4];
     Zeus::CColor m_bgColor;
-    bool m_bgValid = false;
     std::unique_ptr<boo::IGraphicsData> m_gfxData;
 
     friend class RootView;
     void buildResources(ViewResources& res);
-    View(ViewResources& res, RootView& parentView);
+    View(ViewResources& res);
 
 protected:
-    struct VertexBlock
+    struct ViewBlock
     {
         Zeus::CMatrix4f m_mv;
         void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -96,7 +95,11 @@ public:
     const boo::SWindowRect& subRect() const {return m_subRect;}
     void updateSize();
 
-    void setBackground(Zeus::CColor color) {m_bgColor = color; m_bgValid = false;}
+    void setBackground(Zeus::CColor color)
+    {
+        m_bgColor = color;
+        m_bgInstBuf->load(&m_bgColor, sizeof(Zeus::CColor));
+    }
 
     virtual void updateCVar(HECL::CVar* cvar) {}
     virtual void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}

@@ -35,7 +35,7 @@ private:
     }
 
     std::unique_ptr<View> m_views[2];
-    VertexBlock m_splitBlock;
+    ViewBlock m_splitBlock;
     boo::IGraphicsBufferD* m_splitBlockBuf;
     struct SplitVert
     {
@@ -70,7 +70,6 @@ private:
     boo::IGraphicsBufferD* m_splitVertsBuf;
     boo::IVertexFormat* m_splitVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_splitShaderBinding;
-    bool m_splitValid = false;
 public:
     SplitView(ViewResources& res, View& parentView, Axis axis);
     std::unique_ptr<View> setContentView(int slot, std::unique_ptr<View>&& view);

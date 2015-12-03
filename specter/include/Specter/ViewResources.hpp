@@ -3,6 +3,7 @@
 
 #include "TextView.hpp"
 #include "RootView.hpp"
+#include "Toolbar.hpp"
 
 namespace Specter
 {
@@ -13,14 +14,15 @@ class ViewResources
     {
         m_viewRes.init(factory);
         m_textRes.init(factory, fcache);
-        m_splitViewRes.init(factory);
+        m_splitRes.init(factory);
     }
 
 public:
     boo::IGraphicsDataFactory* m_factory = nullptr;
     View::Resources m_viewRes;
     TextView::Resources m_textRes;
-    SplitView::Resources m_splitViewRes;
+    SplitView::Resources m_splitRes;
+    Toolbar::Resources m_toolbarRes;
     std::unique_ptr<boo::IGraphicsData> m_resData;
 
     Specter::FontTag m_mainFont;
@@ -36,6 +38,9 @@ public:
     ViewResources& operator=(ViewResources&& other) = default;
 
     void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, unsigned dpi);
+
+    float m_pixelFactor = 0;
+    float pixelFactor() const {return m_pixelFactor;}
 };
 }
 

@@ -20,7 +20,7 @@ void SplitView::Resources::init(boo::IGraphicsDataFactory* factory)
 SplitView::SplitView(ViewResources& system, View& parentView, Axis axis)
 : View(system, parentView), m_axis(axis)
 {
-    m_splitBlockBuf = system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexBlock), 1);
+    m_splitBlockBuf = system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
     m_splitVertsBuf = system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SplitVert), 4);
 
     if (!system.m_viewRes.m_texVtxFmt)
@@ -32,7 +32,7 @@ SplitView::SplitView(ViewResources& system, View& parentView, Axis axis)
         };
         m_splitVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
-        boo::ITexture* texs[] = {system.m_splitViewRes.m_shadingTex};
+        boo::ITexture* texs[] = {system.m_splitRes.m_shadingTex};
         m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewRes.m_texShader,
                                                                  m_splitVtxFmt, m_splitVertsBuf, nullptr,
                                                                  nullptr, 1, bufs, 1, texs);
@@ -40,7 +40,7 @@ SplitView::SplitView(ViewResources& system, View& parentView, Axis axis)
     else
     {
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
-        boo::ITexture* texs[] = {system.m_splitViewRes.m_shadingTex};
+        boo::ITexture* texs[] = {system.m_splitRes.m_shadingTex};
         m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewRes.m_texShader,
                                                                  system.m_viewRes.m_texVtxFmt,
                                                                  m_splitVertsBuf, nullptr,
@@ -140,7 +140,8 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }
-    m_splitValid = false;
+    m_splitBlockBuf->load(&m_splitBlock, sizeof(ViewBlock));
+    m_splitVertsBuf->load(m_splitVerts, sizeof(SplitVert) * 4);
 }
 
 void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -150,13 +151,6 @@ void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_views[0]->draw(gfxQ);
     if (m_views[1])
         m_views[1]->draw(gfxQ);
-
-    if (!m_splitValid)
-    {
-        m_splitBlockBuf->load(&m_splitBlock, sizeof(VertexBlock));
-        m_splitVertsBuf->load(m_splitVerts, sizeof(SplitVert) * 4);
-        m_splitValid = true;
-    }
     gfxQ->setShaderDataBinding(m_splitShaderBinding);
     gfxQ->draw(0, 4);
 

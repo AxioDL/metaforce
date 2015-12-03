@@ -288,7 +288,7 @@ void View::buildResources(ViewResources& system)
 
     m_viewVertBlockBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
-                                       sizeof(VertexBlock), 1);
+                                       sizeof(ViewBlock), 1);
 
     if (!system.m_viewRes.m_solidVtxFmt)
     {
@@ -314,9 +314,9 @@ void View::buildResources(ViewResources& system)
     }
 }
 
-View::View(ViewResources& system, RootView& rootView)
-: m_rootView(rootView),
-  m_parentView(rootView)
+View::View(ViewResources& system)
+: m_rootView(*static_cast<RootView*>(this)),
+  m_parentView(*static_cast<RootView*>(this))
 {
     buildResources(system);
 }
@@ -341,18 +341,12 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[1].assign(0.f, 0.f, 0.f);
     m_bgRect[2].assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].assign(sub.size[0], 0.f, 0.f);
-    m_bgValid = false;
+    m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+    m_bgVertBuf->load(m_bgRect, sizeof(Zeus::CVector3f) * 4);
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    if (!m_bgValid)
-    {
-        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(VertexBlock));
-        m_bgVertBuf->load(m_bgRect, sizeof(Zeus::CVector3f) * 4);
-        m_bgInstBuf->load(&m_bgColor, sizeof(Zeus::CColor));
-        m_bgValid = true;
-    }
     gfxQ->setShaderDataBinding(m_bgShaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);

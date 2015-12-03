@@ -6,7 +6,7 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::RootView");
 
 RootView::RootView(ViewResources& res, boo::IWindow* window)
-: View(res, *this), m_window(window), m_events(*this)
+: View(res), m_window(window), m_events(*this)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
