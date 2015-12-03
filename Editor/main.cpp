@@ -31,7 +31,7 @@ struct Application : boo::IApplicationCallback
 
         unsigned dpi = m_mainWindow->getVirtualPixelFactor() * 72;
         HECL::CVar* cvDPI = m_cvarManager.newCVar("ed_dpi", "User-selected UI DPI",
-                                                  int(dpi), HECL::CVar::EFlags::Editor);
+                                                  int(dpi), HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
         m_viewResources.init(gf, &m_fontCache, dpi);
