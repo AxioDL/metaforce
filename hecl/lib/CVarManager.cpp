@@ -123,7 +123,11 @@ void CVarManager::deserialize(CVar* cvar)
                 return;
             }
 
-            cvar->m_value = tmp.m_value;
+            if (cvar->m_value != tmp.m_value)
+            {
+                cvar->m_value = tmp.m_value;
+                cvar->m_flags |= CVar::EFlags::Modified;
+            }
         }
     }
 }
