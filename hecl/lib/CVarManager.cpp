@@ -12,11 +12,14 @@ CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 
+CVarManager* CVarManager::m_instance = nullptr;
+
 LogVisor::LogModule CVarLog("CVarManager");
 CVarManager::CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary)
     : m_store(store),
       m_useBinary(useBinary)
 {
+    m_instance = this;
     com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
     com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::Cheat | CVar::EFlags::ReadOnly));
     com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
@@ -165,6 +168,11 @@ void CVarManager::serialize()
             container.toYAMLFile(f);
         fclose(f);
     }
+}
+
+CVarManager* CVarManager::instance()
+{
+    return m_instance;
 }
 
 bool CVarManager::suppressDeveloper()

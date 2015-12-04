@@ -31,7 +31,12 @@ class CVarManager
 
     HECL::Runtime::FileStoreManager& m_store;
     bool m_useBinary;
+    static CVarManager* m_instance;
 public:
+    CVarManager() = delete;
+    CVarManager(const CVarManager&) = delete;
+    CVarManager& operator=(const CVarManager&) = delete;
+    CVarManager& operator=(const CVarManager&&) = delete;
     CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary = false);
     ~CVarManager();
 
@@ -56,6 +61,9 @@ public:
 
     void deserialize(CVar* cvar);
     void serialize();
+
+    static CVarManager* instance();
+
 private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);
