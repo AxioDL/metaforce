@@ -239,21 +239,26 @@ struct DeferredWindowEvents : public boo::IWindowCallback
     void dispatchEvents()
     {
         std::unique_lock<std::mutex> lk(m_mt);
-        if (m_destroyed)
+        bool destroyed = m_destroyed;
+        bool hasResize = m_hasResize;
+        if (hasResize)
+            m_hasResize = false;
+        boo::SWindowRect latestResize = m_latestResize;
+        std::vector<Command> cmds;
+        m_cmds.swap(cmds);
+        lk.unlock();
+
+        if (destroyed)
         {
             m_rec.destroyed();
             return;
         }
 
-        if (m_hasResize)
-        {
-            m_rec.resized(m_latestResize, m_latestResize);
-            m_hasResize = false;
-        }
+        if (hasResize)
+            m_rec.resized(latestResize, latestResize);
 
-        for (const Command& cmd : m_cmds)
+        for (const Command& cmd : cmds)
             cmd.dispatch(m_rec);
-        m_cmds.clear();
     }
 };
 

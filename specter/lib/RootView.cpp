@@ -1,5 +1,6 @@
 #include "Specter/RootView.hpp"
 #include "Specter/ViewResources.hpp"
+#include "Specter/Space.hpp"
 
 namespace Specter
 {
@@ -13,16 +14,19 @@ RootView::RootView(ViewResources& res, boo::IWindow* window)
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     m_splitView.reset(new SplitView(res, *this, SplitView::Axis::Horizontal));
+    Space* space1 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
     MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
+    space1->setContentView(std::unique_ptr<MultiLineTextView>(textView1));
+    Space* space2 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
     MultiLineTextView* textView2 = new MultiLineTextView(res, *this, res.m_heading18);
-    m_splitView->setContentView(0, std::unique_ptr<MultiLineTextView>(textView1));
-    m_splitView->setContentView(1, std::unique_ptr<MultiLineTextView>(textView2));
+    space2->setContentView(std::unique_ptr<MultiLineTextView>(textView2));
+    m_splitView->setContentView(0, std::unique_ptr<Space>(space1));
+    m_splitView->setContentView(1, std::unique_ptr<Space>(space2));
     resized(rect, rect);
-    textView1->typesetGlyphs("Hello, World!\n\n", Zeus::CColor::skWhite);
-    textView2->typesetGlyphs("こんにちは世界！\n\n", Zeus::CColor::skWhite);
-    Zeus::CColor transBlack(0.f, 0.f, 0.f, 0.5f);
-    textView1->setBackground(transBlack);
-    textView2->setBackground(transBlack);
+    textView1->typesetGlyphs("Hello, World!\n\n", res.themeData().uiText());
+    textView2->typesetGlyphs("こんにちは世界！\n\n", res.themeData().uiText());
+    textView1->setBackground(res.themeData().viewportBackground());
+    textView2->setBackground(res.themeData().viewportBackground());
     setBackground(Zeus::CColor::skGrey);
 }
 

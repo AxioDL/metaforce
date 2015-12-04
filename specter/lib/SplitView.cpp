@@ -6,7 +6,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::SplitView");
 
-void SplitView::Resources::init(boo::IGraphicsDataFactory* factory)
+void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData& theme)
 {
     static const Zeus::RGBA32 tex[3] =
     {

@@ -38,16 +38,32 @@ void Space::resetResources(ViewResources& res)
 {
     if (m_contentView)
         m_contentView->resetResources(res);
+    m_toolbar->resetResources(res);
 }
 
 void Space::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
+
+    boo::SWindowRect tbRect = sub;
+    tbRect.size[1] = m_toolbar->gauge();
+    m_toolbar->resized(root, tbRect);
+
+    if (m_contentView)
+    {
+        tbRect.location[1] += tbRect.size[1];
+        tbRect.size[1] = sub.size[1] - tbRect.size[1];
+        tbRect.size[1] = std::max(tbRect.size[1], 0);
+        m_contentView->resized(root, tbRect);
+    }
 }
 
 void Space::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
+    if (m_contentView)
+        m_contentView->draw(gfxQ);
+    m_toolbar->draw(gfxQ);
 }
 
 }

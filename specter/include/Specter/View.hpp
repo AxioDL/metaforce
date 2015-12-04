@@ -14,6 +14,7 @@
 
 namespace Specter
 {
+class ThemeData;
 class ViewResources;
 class RootView;
 
@@ -72,11 +73,11 @@ public:
         boo::IShaderPipeline* m_texShader = nullptr;
         boo::IVertexFormat* m_texVtxFmt = nullptr; /* Not OpenGL */
 
-        void init(boo::GLDataFactory* factory);
+        void init(boo::GLDataFactory* factory, const ThemeData& theme);
 #if _WIN32
-        void init(boo::ID3DDataFactory* factory);
+        void init(boo::ID3DDataFactory* factory, const ThemeData& theme);
 #elif BOO_HAS_METAL
-        void init(boo::MetalDataFactory* factory);
+        void init(boo::MetalDataFactory* factory, const ThemeData& theme);
 #endif
     };
 

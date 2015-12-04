@@ -15,7 +15,7 @@ public:
         friend class Toolbar;
         boo::ITextureS* m_shadingTex;
 
-        void init(boo::IGraphicsDataFactory* factory);
+        void init(boo::IGraphicsDataFactory* factory, const ThemeData& theme);
     };
 
     enum class Position
@@ -27,7 +27,7 @@ private:
     Position m_tbPos;
 
     std::unique_ptr<View> m_contentView;
-    ViewBlock m_splitBlock;
+    ViewBlock m_tbBlock;
     boo::IGraphicsBufferD* m_tbBlockBuf;
     struct ToolbarVert
     {
@@ -98,6 +98,8 @@ public:
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+    int gauge() const {return m_gauge;}
 };
 
 }

@@ -5,7 +5,7 @@
 namespace Specter
 {
 
-void View::Resources::init(boo::GLDataFactory* factory)
+void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
 {
     static const char* SolidVS =
     "#version 330\n"

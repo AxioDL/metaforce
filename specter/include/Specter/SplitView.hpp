@@ -15,7 +15,7 @@ public:
         friend class SplitView;
         boo::ITextureS* m_shadingTex;
 
-        void init(boo::IGraphicsDataFactory* factory);
+        void init(boo::IGraphicsDataFactory* factory, const ThemeData& theme);
     };
 
     enum class Axis
