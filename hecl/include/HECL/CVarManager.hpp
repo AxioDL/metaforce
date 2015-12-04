@@ -12,7 +12,7 @@ namespace Runtime
 class FileStoreManager;
 }
 
-class CVarManager
+class CVarManager final
 {
     using CVarContainer = DNACVAR::CVarContainer;
     template <typename T>
