@@ -26,7 +26,7 @@ struct MLVL : BigYAML
         Value<atUint32> memRelayId;
         Value<atUint32> targetId;
         Value<atUint16> msg;
-        Value<atUint8> unk;
+        Value<bool> active;
     };
     Vector<MemRelayLink, DNA_COUNT(memRelayLinkCount)> memRelayLinks;
 
