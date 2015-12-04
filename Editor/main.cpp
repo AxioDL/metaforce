@@ -34,7 +34,7 @@ struct Application : boo::IApplicationCallback
                                                   int(dpi), HECL::CVar::EFlags::Editor);
 
         boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_viewResources.init(gf, &m_fontCache, dpi);
+        m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), dpi);
         m_rootView.reset(new Specter::RootView(m_viewResources, m_mainWindow));
 
         m_mainWindow->setWaitCursor(false);
@@ -46,7 +46,8 @@ struct Application : boo::IApplicationCallback
             if (cvDPI->isModified())
             {
                 dpi = cvDPI->toInteger();
-                m_viewResources.init(gf, &m_fontCache, dpi);
+                m_viewResources.resetDPI(dpi);
+                m_rootView->resetResources(m_viewResources);
                 cvDPI->clearModified();
             }
             m_rootView->dispatchEvents();
@@ -80,7 +81,7 @@ int main(int argc, const boo::SystemChar** argv)
     LogVisor::RegisterConsoleLogger();
     RUDE::Application appCb;
     int ret = ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("rude"), _S("RUDE"), argc, argv);
+        appCb, _S("rude"), _S("RUDE"), argc, argv, false);
     printf("IM DYING!!\n");
     return ret;
 }
