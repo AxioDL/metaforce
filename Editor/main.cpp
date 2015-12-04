@@ -27,7 +27,6 @@ struct Application : boo::IApplicationCallback
         m_mainWindow = app->newWindow(_S("RUDE"));
         m_mainWindow->showWindow();
         m_mainWindow->setWaitCursor(true);
-        m_cvarManager.serialize();
 
         unsigned dpi = m_mainWindow->getVirtualPixelFactor() * 72;
         HECL::CVar* cvDPI = m_cvarManager.newCVar("ed_dpi", "User-selected UI DPI",
@@ -56,6 +55,7 @@ struct Application : boo::IApplicationCallback
             m_mainWindow->waitForRetrace();
         }
 
+        m_cvarManager.serialize();
         return 0;
     }
     void appQuitting(boo::IApplication*)
