@@ -19,6 +19,7 @@ RootView::RootView(ViewResources& res, boo::IWindow* window)
     MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
     space1->setContentView(std::unique_ptr<MultiLineTextView>(textView1));
     Space* space2 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
+    space2->toolbar().push_back(std::make_unique<Button>(res, space2->toolbar(), "こんにちはボタン"));
     MultiLineTextView* textView2 = new MultiLineTextView(res, *this, res.m_heading18);
     space2->setContentView(std::unique_ptr<MultiLineTextView>(textView2));
     m_splitView->setContentView(0, std::unique_ptr<Space>(space1));

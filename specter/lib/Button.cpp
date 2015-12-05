@@ -137,6 +137,8 @@ void Button::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button,
 
 void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    if (m_pressed && m_hovered)
+        Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
     m_pressed = false;
     if (m_hovered)
         setHover();
@@ -181,7 +183,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bBlockBuf->load(&m_bBlock, sizeof(ViewBlock));
     float pf = rootView().window()->getVirtualPixelFactor();
     textRect.location[0] += 5 * pf;
-    textRect.location[1] = 11 * pf;
+    textRect.location[1] += 8 * pf;
     m_text->resized(root, textRect);
 }
 
