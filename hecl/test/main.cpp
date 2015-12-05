@@ -143,7 +143,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             /* Assemble data binding */
             binding = testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
 
-            gfxF->commit();
+            boo::IGraphicsDataToken data = gfxF->commit();
 
             /* Return control to main thread */
             innerLk.unlock();
@@ -207,6 +207,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
         std::unique_lock<std::mutex> finallk(loadmt);
         finallk.unlock();
+        gfxQ->stopRenderer();
         loadcv.notify_one();
         loaderThr.join();
         return 0;
