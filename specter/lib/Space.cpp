@@ -126,12 +126,17 @@ void Space::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     View::resized(root, sub);
 
     boo::SWindowRect tbRect = sub;
-    tbRect.size[1] = m_toolbar->gauge();
+    tbRect.size[1] = m_toolbar->nominalHeight();
+    if (m_tbPos == Toolbar::Position::Top)
+        tbRect.location[1] += sub.size[1] - tbRect.size[1];
     m_toolbar->resized(root, tbRect);
 
     if (m_contentView)
     {
-        tbRect.location[1] += tbRect.size[1];
+        if (m_tbPos == Toolbar::Position::Top)
+            tbRect.location[1] = sub.location[1];
+        else
+            tbRect.location[1] += tbRect.size[1];
         tbRect.size[1] = sub.size[1] - tbRect.size[1];
         tbRect.size[1] = std::max(tbRect.size[1], 0);
         m_contentView->resized(root, tbRect);

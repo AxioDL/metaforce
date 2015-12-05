@@ -14,7 +14,7 @@ RootView::RootView(ViewResources& res, boo::IWindow* window)
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     m_splitView.reset(new SplitView(res, *this, SplitView::Axis::Horizontal));
-    Space* space1 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
+    Space* space1 = new Space(res, *m_splitView, Toolbar::Position::Top);
     space1->toolbar().push_back(std::make_unique<Button>(res, space1->toolbar(), "Hello Button"));
     MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
     space1->setContentView(std::unique_ptr<MultiLineTextView>(textView1));

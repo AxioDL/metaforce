@@ -38,20 +38,20 @@ private:
     ViewBlock m_tbBlock;
     boo::IGraphicsBufferD* m_tbBlockBuf;
     TexShaderVert m_tbVerts[10];
-    int m_gauge = 25;
+    int m_nomHeight = 25;
     int m_padding = 10;
 
     void setHorizontalVerts(int width)
     {
-        m_tbVerts[0].m_pos.assign(0, 1 + m_gauge, 0);
+        m_tbVerts[0].m_pos.assign(0, 1 + m_nomHeight, 0);
         m_tbVerts[0].m_uv.assign(0, 0);
-        m_tbVerts[1].m_pos.assign(0, -1 + m_gauge, 0);
+        m_tbVerts[1].m_pos.assign(0, -1 + m_nomHeight, 0);
         m_tbVerts[1].m_uv.assign(0.5, 0);
-        m_tbVerts[2].m_pos.assign(width, 1 + m_gauge, 0);
+        m_tbVerts[2].m_pos.assign(width, 1 + m_nomHeight, 0);
         m_tbVerts[2].m_uv.assign(0, 0);
-        m_tbVerts[3].m_pos.assign(width, -1 + m_gauge, 0);
+        m_tbVerts[3].m_pos.assign(width, -1 + m_nomHeight, 0);
         m_tbVerts[3].m_uv.assign(0.5, 0);
-        m_tbVerts[4].m_pos.assign(width, -1 + m_gauge, 0);
+        m_tbVerts[4].m_pos.assign(width, -1 + m_nomHeight, 0);
         m_tbVerts[4].m_uv.assign(0.5, 0);
 
         m_tbVerts[5].m_pos.assign(0, 1, 0);
@@ -79,15 +79,15 @@ private:
         m_tbVerts[4].m_pos.assign(1, 0, 0);
         m_tbVerts[4].m_uv.assign(0.5, 0);
 
-        m_tbVerts[5].m_pos.assign(-1 + m_gauge, height, 0);
+        m_tbVerts[5].m_pos.assign(-1 + m_nomHeight, height, 0);
         m_tbVerts[5].m_uv.assign(0.5, 0);
-        m_tbVerts[6].m_pos.assign(-1 + m_gauge, height, 0);
+        m_tbVerts[6].m_pos.assign(-1 + m_nomHeight, height, 0);
         m_tbVerts[6].m_uv.assign(0.5, 0);
-        m_tbVerts[7].m_pos.assign(-1 + m_gauge, 0, 0);
+        m_tbVerts[7].m_pos.assign(-1 + m_nomHeight, 0, 0);
         m_tbVerts[7].m_uv.assign(0.5, 0);
-        m_tbVerts[8].m_pos.assign(1 + m_gauge, height, 0);
+        m_tbVerts[8].m_pos.assign(1 + m_nomHeight, height, 0);
         m_tbVerts[8].m_uv.assign(1, 0);
-        m_tbVerts[9].m_pos.assign(1 + m_gauge, 0, 0);
+        m_tbVerts[9].m_pos.assign(1 + m_nomHeight, 0, 0);
         m_tbVerts[9].m_uv.assign(1, 0);
     }
 
@@ -105,7 +105,7 @@ public:
     void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    int gauge() const {return m_gauge;}
+    int nominalHeight() const {return m_nomHeight;}
 
     void clear() {m_children.clear();}
     void push_back(std::unique_ptr<View>&& v) {m_children.push_back(std::move(v));}

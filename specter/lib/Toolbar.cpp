@@ -11,18 +11,19 @@ static LogVisor::LogModule Log("Specter::Space");
 
 void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData& theme)
 {
-    static const Zeus::RGBA32 tex[3] =
+    static const Zeus::RGBA32 tex[] =
     {
         {255,255,255,64},
         {255,255,255,64},
+        {0,0,0,64},
         {0,0,0,64}
     };
-    m_shadingTex = factory->newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, tex, 12);
+    m_shadingTex = factory->newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, tex, 16);
 }
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos)
 : View(res, parentView), m_tbPos(tbPos),
-  m_gauge(res.pixelFactor() * TOOLBAR_GAUGE),
+  m_nomHeight(res.pixelFactor() * TOOLBAR_GAUGE),
   m_padding(res.pixelFactor() * TOOLBAR_PADDING)
 {
     m_tbBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
@@ -65,7 +66,7 @@ void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2 - 1;
+        childRect.location[1] = subLoc1 + (m_nomHeight - childRect.size[1]) / 2 - 1;
         if (childRect.coordInRect(coord))
         {
             if (!c.m_mouseDown)
@@ -99,7 +100,7 @@ void Toolbar::mouseMove(const boo::SWindowCoord& coord)
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2 - 1;
+        childRect.location[1] = subLoc1 + (m_nomHeight - childRect.size[1]) / 2 - 1;
         if (childRect.coordInRect(coord))
         {
             if (!c.m_mouseIn)
@@ -139,7 +140,7 @@ void Toolbar::mouseLeave(const boo::SWindowCoord& coord)
 
 void Toolbar::resetResources(ViewResources& res)
 {
-    m_gauge = res.pixelFactor() * TOOLBAR_GAUGE;
+    m_nomHeight = res.pixelFactor() * TOOLBAR_GAUGE;
     m_padding = res.pixelFactor() * TOOLBAR_PADDING;
     setBackground(res.themeData().toolbarBackground());
     updateSize();
@@ -159,7 +160,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = sub.location[1] + (m_gauge - childRect.size[1]) / 2 - 1;
+        childRect.location[1] = sub.location[1] + (m_nomHeight - childRect.size[1]) / 2 - 1;
         c.m_view->resized(root, childRect);
         childRect.location[0] += childRect.size[0];
     }

@@ -69,12 +69,12 @@ void SplitView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     if (m_axis == Axis::Horizontal)
     {
         int slidePx = subRect().size[1] * m_slide;
-        if (abs(int(coord.pixel[1]) - slidePx) < 4)
+        if (abs(int(coord.pixel[1] + 2) - slidePx) < 4)
         {
             if (button == boo::EMouseButton::Primary)
             {
                 m_dragging = true;
-                setSlide(coord.pixel[1] / float(subRect().size[1]));
+                setSlide((coord.pixel[1] + 2) / float(subRect().size[1]));
             }
             else if (button == boo::EMouseButton::Secondary)
             {
@@ -86,12 +86,12 @@ void SplitView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     else if (m_axis == Axis::Vertical)
     {
         int slidePx = subRect().size[0] * m_slide;
-        if (abs(int(coord.pixel[0]) - slidePx) < 4)
+        if (abs(int(coord.pixel[0] + 2) - slidePx) < 4)
         {
             if (button == boo::EMouseButton::Primary)
             {
                 m_dragging = true;
-                setSlide(coord.pixel[0] / float(subRect().size[0]));
+                setSlide((coord.pixel[0] + 2) / float(subRect().size[0]));
             }
             else if (button == boo::EMouseButton::Secondary)
             {
@@ -135,9 +135,9 @@ void SplitView::mouseMove(const boo::SWindowCoord& coord)
     if (m_axis == Axis::Horizontal)
     {
         if (m_dragging)
-            setSlide(coord.pixel[1] / float(subRect().size[1]));
+            setSlide((coord.pixel[1] + 2) / float(subRect().size[1]));
         int slidePx = subRect().size[1] * m_slide;
-        if (abs(int(coord.pixel[1]) - slidePx) < 4)
+        if (abs(int(coord.pixel[1] + 2) - slidePx) < 4)
             rootView().window()->setCursor(boo::EMouseCursor::VerticalArrow);
         else
             rootView().window()->setCursor(boo::EMouseCursor::Pointer);
@@ -145,9 +145,9 @@ void SplitView::mouseMove(const boo::SWindowCoord& coord)
     else if (m_axis == Axis::Vertical)
     {
         if (m_dragging)
-            setSlide(coord.pixel[0] / float(subRect().size[0]));
+            setSlide((coord.pixel[0] + 2) / float(subRect().size[0]));
         int slidePx = subRect().size[0] * m_slide;
-        if (abs(int(coord.pixel[0]) - slidePx) < 4)
+        if (abs(int(coord.pixel[0] + 2) - slidePx) < 4)
             rootView().window()->setCursor(boo::EMouseCursor::HorizontalArrow);
         else
             rootView().window()->setCursor(boo::EMouseCursor::Pointer);
