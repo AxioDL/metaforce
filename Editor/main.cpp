@@ -55,6 +55,7 @@ struct Application : boo::IApplicationCallback
             m_mainWindow->waitForRetrace();
         }
 
+        gfxQ->stopRenderer();
         m_cvarManager.serialize();
         return 0;
     }
