@@ -234,6 +234,7 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         ssub.size[1] = sub.size[1] - ssub.size[1];
         if (m_views[1].m_view)
             m_views[1].m_view->resized(root, ssub);
+        ssub.location[1] -= 1;
         m_splitBlock.setViewRect(root, ssub);
         setHorizontalVerts(ssub.size[0]);
     }
@@ -247,6 +248,7 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         ssub.size[0] = sub.size[0] - ssub.size[0];
         if (m_views[1].m_view)
             m_views[1].m_view->resized(root, ssub);
+        ssub.location[0] -= 1;
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }

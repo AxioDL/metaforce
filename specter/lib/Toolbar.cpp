@@ -65,7 +65,7 @@ void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2;
+        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2 - 1;
         if (childRect.coordInRect(coord))
         {
             if (!c.m_mouseDown)
@@ -99,7 +99,7 @@ void Toolbar::mouseMove(const boo::SWindowCoord& coord)
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2;
+        childRect.location[1] = subLoc1 + (m_gauge - childRect.size[1]) / 2 - 1;
         if (childRect.coordInRect(coord))
         {
             if (!c.m_mouseIn)
@@ -159,7 +159,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
         childRect.location[0] += m_padding;
-        childRect.location[1] = sub.location[1] + (m_gauge - childRect.size[1]) / 2;
+        childRect.location[1] = sub.location[1] + (m_gauge - childRect.size[1]) / 2 - 1;
         c.m_view->resized(root, childRect);
         childRect.location[0] += childRect.size[0];
     }
