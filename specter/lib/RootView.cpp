@@ -7,7 +7,7 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::RootView");
 
 RootView::RootView(ViewResources& res, boo::IWindow* window)
-: View(res), m_window(window), m_events(*this)
+: View(res), m_window(window), m_events(*this), m_viewRes(&res)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
@@ -15,6 +15,7 @@ RootView::RootView(ViewResources& res, boo::IWindow* window)
     commitResources(res);
     m_splitView.reset(new SplitView(res, *this, SplitView::Axis::Horizontal));
     Space* space1 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
+    space1->toolbar().push_back(std::make_unique<Button>(res, space1->toolbar(), "Hello Button"));
     MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
     space1->setContentView(std::unique_ptr<MultiLineTextView>(textView1));
     Space* space2 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
@@ -64,10 +65,12 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
 
 void RootView::mouseEnter(const boo::SWindowCoord& coord)
 {
+    m_splitView->mouseEnter(coord);
 }
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
+    m_splitView->mouseLeave(coord);
 }
 
 void RootView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
@@ -114,6 +117,7 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 
 void RootView::resetResources(ViewResources& res)
 {
+    m_viewRes = &res;
     m_splitView->resetResources(res);
 }
 

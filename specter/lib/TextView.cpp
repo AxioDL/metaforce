@@ -259,22 +259,22 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     
 #endif
 
-TextView::TextView(ViewResources& system, View& parentView, const FontAtlas& font, size_t capacity)
-: View(system, parentView),
+TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t capacity)
+: View(res, parentView),
   m_capacity(capacity),
   m_fontAtlas(font)
 {
     m_glyphBuf =
-    system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                       sizeof(RenderGlyph), capacity);
+    res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
+                                    sizeof(RenderGlyph), capacity);
 
     boo::IShaderPipeline* shader;
     if (font.subpixel())
-        shader = system.m_textRes.m_subpixel;
+        shader = res.m_textRes.m_subpixel;
     else
-        shader = system.m_textRes.m_regular;
+        shader = res.m_textRes.m_regular;
 
-    if (!system.m_textRes.m_vtxFmt)
+    if (!res.m_textRes.m_vtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
@@ -292,28 +292,28 @@ TextView::TextView(ViewResources& system, View& parentView, const FontAtlas& fon
             {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
             {m_glyphBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
         };
-        m_vtxFmt = system.m_factory->newVertexFormat(13, vdescs);
+        m_vtxFmt = res.m_factory->newVertexFormat(13, vdescs);
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, m_vtxFmt,
-                                                                 nullptr, m_glyphBuf, nullptr, 1,
-                                                                 (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                                 1, texs);
+        m_shaderBinding = res.m_factory->newShaderDataBinding(shader, m_vtxFmt,
+                                                              nullptr, m_glyphBuf, nullptr, 1,
+                                                              (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                              1, texs);
     }
     else
     {
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = system.m_factory->newShaderDataBinding(shader, system.m_textRes.m_vtxFmt,
-                                                                 nullptr, m_glyphBuf, nullptr, 1,
-                                                                 (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                                 1, texs);
+        m_shaderBinding = res.m_factory->newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
+                                                              nullptr, m_glyphBuf, nullptr, 1,
+                                                              (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                              1, texs);
     }
 
     m_glyphs.reserve(capacity);
-    commitResources(system);
+    commitResources(res);
 }
 
-TextView::TextView(ViewResources& system, View& parentView, FontTag font, size_t capacity)
-: TextView(system, parentView, system.m_textRes.m_fcache->lookupAtlas(font), capacity) {}
+TextView::TextView(ViewResources& res, View& parentView, FontTag font, size_t capacity)
+: TextView(res, parentView, res.m_textRes.m_fcache->lookupAtlas(font), capacity) {}
 
 TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
 {
@@ -383,7 +383,9 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
             break;
     }
 
+    m_width = adv;
     m_valid = false;
+    updateSize();
 }
 void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
 {
@@ -411,7 +413,9 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
             break;
     }
 
+    m_width = adv;
     m_valid = false;
+    updateSize();
 }
 
 void TextView::colorGlyphs(const Zeus::CColor& newColor)
@@ -425,6 +429,11 @@ void TextView::colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterv
 }
 void TextView::think()
 {
+}
+
+void TextView::resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub)
+{
+    View::resized(rootView, sub);
 }
 
 void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)

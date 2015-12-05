@@ -148,7 +148,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme
     boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
-        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+        {nullptr, nullptr, boo::VertexSemantic::Color}
     };
     m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
 
@@ -252,7 +252,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
     boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
-        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+        {nullptr, nullptr, boo::VertexSemantic::Color}
     };
     m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
     
@@ -276,15 +276,9 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
 
 void View::buildResources(ViewResources& system)
 {
-    m_bgColor = Zeus::CColor::skClear;
-
     m_bgVertBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                       sizeof(Zeus::CVector3f), 4);
-
-    m_bgInstBuf =
-    system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                       sizeof(Zeus::CColor), 1);
+                                       sizeof(SolidShaderVert), 4);
 
     m_viewVertBlockBuf =
     system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
@@ -295,12 +289,12 @@ void View::buildResources(ViewResources& system)
         boo::VertexElementDescriptor vdescs[] =
         {
             {m_bgVertBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_bgInstBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+            {m_bgVertBuf, nullptr, boo::VertexSemantic::Color}
         };
         m_bgVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
         m_bgShaderBinding =
         system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, m_bgVtxFmt,
-                                               m_bgVertBuf, m_bgInstBuf, nullptr, 1,
+                                               m_bgVertBuf, nullptr, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
     }
@@ -308,7 +302,7 @@ void View::buildResources(ViewResources& system)
     {
         m_bgShaderBinding =
         system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, system.m_viewRes.m_solidVtxFmt,
-                                               m_bgVertBuf, m_bgInstBuf, nullptr, 1,
+                                               m_bgVertBuf, nullptr, nullptr, 1,
                                                (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
                                                0, nullptr);
     }
@@ -322,7 +316,7 @@ View::View(ViewResources& system)
 }
 
 View::View(ViewResources& system, View& parentView)
-: m_rootView(parentView.root()),
+: m_rootView(parentView.rootView()),
   m_parentView(parentView)
 {
     buildResources(system);
@@ -337,12 +331,12 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     m_subRect = sub;
     m_viewVertBlock.setViewRect(root, sub);
-    m_bgRect[0].assign(0.f, sub.size[1], 0.f);
-    m_bgRect[1].assign(0.f, 0.f, 0.f);
-    m_bgRect[2].assign(sub.size[0], sub.size[1], 0.f);
-    m_bgRect[3].assign(sub.size[0], 0.f, 0.f);
+    m_bgRect[0].m_pos.assign(0.f, sub.size[1], 0.f);
+    m_bgRect[1].m_pos.assign(0.f, 0.f, 0.f);
+    m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
+    m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
-    m_bgVertBuf->load(m_bgRect, sizeof(Zeus::CVector3f) * 4);
+    m_bgVertBuf->load(m_bgRect, sizeof(SolidShaderVert) * 4);
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -354,7 +348,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void View::commitResources(ViewResources& system)
 {
-    m_gfxData.reset(system.m_factory->commit());
+    m_gfxData = system.m_factory->commit();
 }
 
 }

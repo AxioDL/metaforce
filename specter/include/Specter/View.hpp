@@ -20,16 +20,26 @@ class RootView;
 
 class View
 {
+public:
+    struct SolidShaderVert
+    {
+        Zeus::CVector3f m_pos;
+        Zeus::CColor m_color = Zeus::CColor::skClear;
+    };
+    struct TexShaderVert
+    {
+        Zeus::CVector3f m_pos;
+        Zeus::CVector2f m_uv;
+    };
+private:
     RootView& m_rootView;
     View& m_parentView;
     boo::SWindowRect m_subRect;
     boo::IGraphicsBufferD* m_bgVertBuf;
-    boo::IGraphicsBufferD* m_bgInstBuf;
     boo::IVertexFormat* m_bgVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_bgShaderBinding;
-    Zeus::CVector3f m_bgRect[4];
-    Zeus::CColor m_bgColor;
-    std::unique_ptr<boo::IGraphicsData> m_gfxData;
+    SolidShaderVert m_bgRect[4];
+    boo::IGraphicsDataToken m_gfxData;
 
     friend class RootView;
     void buildResources(ViewResources& res);
@@ -91,22 +101,30 @@ public:
     View(const View& other) = delete;
     View& operator=(const View& other) = delete;
 
-    View& parent() {return m_parentView;}
-    RootView& root() {return m_rootView;}
+    View& parentView() {return m_parentView;}
+    RootView& rootView() {return m_rootView;}
     const boo::SWindowRect& subRect() const {return m_subRect;}
+    int width() const {return m_subRect.size[0];}
+    int height() const {return m_subRect.size[1];}
     void updateSize();
 
-    void setBackground(Zeus::CColor color)
+    void setBackground(const Zeus::CColor& color)
     {
-        m_bgColor = color;
-        m_bgInstBuf->load(&m_bgColor, sizeof(Zeus::CColor));
+        for (int i=0 ; i<4 ; ++i)
+            m_bgRect[i].m_color = color;
+        m_bgVertBuf->load(&m_bgRect, sizeof(SolidShaderVert) * 4);
     }
+
+    virtual int nominalWidth() const {return 0;}
+    virtual int nominalHeight() const {return 0;}
 
     virtual void updateCVar(HECL::CVar* cvar) {}
     virtual void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseMove(const boo::SWindowCoord&) {}
-    virtual void resized(const boo::SWindowRect &root, const boo::SWindowRect& sub);
+    virtual void mouseEnter(const boo::SWindowCoord&) {}
+    virtual void mouseLeave(const boo::SWindowCoord&) {}
+    virtual void resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub);
     virtual void resetResources(ViewResources& res) {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

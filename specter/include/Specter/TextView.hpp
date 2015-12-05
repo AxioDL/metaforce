@@ -20,6 +20,7 @@ class TextView : public View
     boo::IShaderDataBinding* m_shaderBinding;
     const FontAtlas& m_fontAtlas;
     bool m_valid = false;
+    int m_width = 0;
 
 public:
     class Resources
@@ -64,7 +65,11 @@ public:
     void colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval=0.2, float fadeTime=0.5);
     void think();
 
+    void resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+    int nominalWidth() const {return m_width;}
+    int nominalHeight() const {return m_fontAtlas.FT_LineHeight() >> 6;}
 
 private:
     std::vector<RenderGlyph> m_glyphs;

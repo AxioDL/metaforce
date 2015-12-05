@@ -34,14 +34,16 @@ private:
         updateSize();
     }
 
-    std::unique_ptr<View> m_views[2];
+    struct Child
+    {
+        std::unique_ptr<View> m_view;
+        bool m_mouseIn = false;
+        bool m_mouseDown = false;
+    };
+    Child m_views[2];
     ViewBlock m_splitBlock;
     boo::IGraphicsBufferD* m_splitBlockBuf;
-    struct SplitVert
-    {
-        Zeus::CVector3f m_pos;
-        Zeus::CVector2f m_uv;
-    } m_splitVerts[4];
+    TexShaderVert m_splitVerts[4];
 
     void setHorizontalVerts(int width)
     {
@@ -76,7 +78,9 @@ public:
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void mouseEnter(const boo::SWindowCoord&);
+    void mouseLeave(const boo::SWindowCoord&);
+    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

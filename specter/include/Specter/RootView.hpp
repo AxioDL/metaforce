@@ -2,6 +2,7 @@
 #define SPECTER_ROOTVIEW_HPP
 
 #include "View.hpp"
+#include "ViewResources.hpp"
 #include "MultiLineTextView.hpp"
 #include "SplitView.hpp"
 #include "FontCache.hpp"
@@ -10,7 +11,6 @@
 
 namespace Specter
 {
-class ViewResources;
 
 class RootView : public View
 {
@@ -19,6 +19,7 @@ class RootView : public View
     boo::SWindowRect m_rootRect = {};
     bool m_resizeRTDirty = false;
     bool m_destroyed = false;
+    ViewResources* m_viewRes;
 
     DeferredWindowEvents<RootView> m_events;
 
@@ -28,7 +29,7 @@ public:
     void destroyed();
     bool isDestroyed() const {return m_destroyed;}
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
     void mouseMove(const boo::SWindowCoord& coord);
@@ -53,6 +54,8 @@ public:
     const boo::SWindowRect& rootRect() const {return m_rootRect;}
 
     boo::IWindow* window() const {return m_window;}
+    const ViewResources& viewRes() const {return *m_viewRes;}
+    const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
 private:
     std::unique_ptr<SplitView> m_splitView;

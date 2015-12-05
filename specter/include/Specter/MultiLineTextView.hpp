@@ -24,7 +24,7 @@ public:
     void typesetGlyphs(const std::wstring& str,
                        const Zeus::CColor& defaultColor=Zeus::CColor::skWhite);
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

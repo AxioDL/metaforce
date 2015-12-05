@@ -2,6 +2,7 @@
 #define SPECTER_TOOLBAR_HPP
 
 #include "Specter/View.hpp"
+#include <bitset>
 
 namespace Specter
 {
@@ -25,16 +26,20 @@ public:
     };
 private:
     Position m_tbPos;
+    struct Child
+    {
+        std::unique_ptr<View> m_view;
+        bool m_mouseIn = false;
+        bool m_mouseDown = false;
+        Child(std::unique_ptr<View>&& v) : m_view(std::move(v)) {}
+    };
+    std::vector<Child> m_children;
 
-    std::unique_ptr<View> m_contentView;
     ViewBlock m_tbBlock;
     boo::IGraphicsBufferD* m_tbBlockBuf;
-    struct ToolbarVert
-    {
-        Zeus::CVector3f m_pos;
-        Zeus::CVector2f m_uv;
-    } m_tbVerts[10];
+    TexShaderVert m_tbVerts[10];
     int m_gauge = 25;
+    int m_padding = 10;
 
     void setHorizontalVerts(int width)
     {
@@ -89,17 +94,21 @@ private:
     boo::IGraphicsBufferD* m_tbVertsBuf;
     boo::IVertexFormat* m_tbVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_tbShaderBinding;
-    bool m_splitValid = false;
 public:
     Toolbar(ViewResources& res, View& parentView, Position toolbarPos);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void mouseEnter(const boo::SWindowCoord&);
+    void mouseLeave(const boo::SWindowCoord&coord);
+    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     int gauge() const {return m_gauge;}
+
+    void clear() {m_children.clear();}
+    void push_back(std::unique_ptr<View>&& v) {m_children.push_back(std::move(v));}
 };
 
 }

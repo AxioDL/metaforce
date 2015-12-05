@@ -15,7 +15,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
     m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
-    m_fontData.reset(factory->commit());
+    m_fontData = factory->commit();
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
@@ -35,7 +35,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
         Log.report(LogVisor::FatalError, _S("unable to init view system for %s"), factory->platformName());
     }
     fcache->closeBuiltinFonts();
-    m_resData.reset(factory->commit());
+    m_resData = factory->commit();
 }
 
 void ViewResources::resetDPI(unsigned dpi)
@@ -45,7 +45,7 @@ void ViewResources::resetDPI(unsigned dpi)
     m_monoFont = m_fcache->prepMonoFont(m_factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
     m_heading18 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
-    m_fontData.reset(m_factory->commit());
+    m_fontData = m_factory->commit();
     m_fcache->closeBuiltinFonts();
 }
 
