@@ -1,7 +1,11 @@
+add_subdirectory(locale)
+
 add_executable(rude WIN32
-               main.cpp)
+               main.cpp
+               ViewManager.hpp ViewManager.cpp)
 
 target_link_libraries(rude
+                      RudeLocales
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommon
