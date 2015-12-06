@@ -140,7 +140,7 @@ atVec4f CVar::toVec4f(bool* isValid) const
         if (isValid != nullptr)
             *isValid = false;
 
-        return {};
+        return atVec4f{};
     }
 
     if (isValid != NULL)
