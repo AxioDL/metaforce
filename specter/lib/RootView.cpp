@@ -6,30 +6,14 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::RootView");
 
-RootView::RootView(ViewResources& res, boo::IWindow* window)
-: View(res), m_window(window), m_events(*this), m_viewRes(&res)
+RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
+: View(res), m_window(window), m_events(*this), m_viewMan(viewMan), m_viewRes(&res)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
-    m_splitView.reset(new SplitView(res, *this, SplitView::Axis::Horizontal));
-    Space* space1 = new Space(res, *m_splitView, Toolbar::Position::Top);
-    space1->toolbar().push_back(std::make_unique<Button>(res, space1->toolbar(), "Hello Button"));
-    MultiLineTextView* textView1 = new MultiLineTextView(res, *this, res.m_heading18);
-    space1->setContentView(std::unique_ptr<MultiLineTextView>(textView1));
-    Space* space2 = new Space(res, *m_splitView, Toolbar::Position::Bottom);
-    space2->toolbar().push_back(std::make_unique<Button>(res, space2->toolbar(), "こんにちはボタン"));
-    MultiLineTextView* textView2 = new MultiLineTextView(res, *this, res.m_heading18);
-    space2->setContentView(std::unique_ptr<MultiLineTextView>(textView2));
-    m_splitView->setContentView(0, std::unique_ptr<Space>(space1));
-    m_splitView->setContentView(1, std::unique_ptr<Space>(space2));
     resized(rect, rect);
-    textView1->typesetGlyphs("Hello, World!\n\n", res.themeData().uiText());
-    textView2->typesetGlyphs("こんにちは世界！\n\n", res.themeData().uiText());
-    textView1->setBackground(res.themeData().viewportBackground());
-    textView2->setBackground(res.themeData().viewportBackground());
-    setBackground(Zeus::CColor::skGrey);
 }
 
 void RootView::destroyed()
@@ -44,34 +28,40 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
     View::resized(m_rootRect, m_rootRect);
-    m_splitView->resized(m_rootRect, m_rootRect);
+    if (m_view)
+        m_view->resized(m_rootRect, m_rootRect);
     if (old != m_rootRect)
         m_resizeRTDirty = true;
 }
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-    m_splitView->mouseDown(coord, button, mods);
+    if (m_view)
+        m_view->mouseDown(coord, button, mods);
 }
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-    m_splitView->mouseUp(coord, button, mods);
+    if (m_view)
+        m_view->mouseUp(coord, button, mods);
 }
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
-    m_splitView->mouseMove(coord);
+    if (m_view)
+        m_view->mouseMove(coord);
 }
 
 void RootView::mouseEnter(const boo::SWindowCoord& coord)
 {
-    m_splitView->mouseEnter(coord);
+    if (m_view)
+        m_view->mouseEnter(coord);
 }
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
-    m_splitView->mouseLeave(coord);
+    if (m_view)
+        m_view->mouseLeave(coord);
 }
 
 void RootView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
@@ -119,7 +109,18 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 void RootView::resetResources(ViewResources& res)
 {
     m_viewRes = &res;
-    m_splitView->resetResources(res);
+    if (m_view)
+        m_view->resetResources(res);
+}
+
+void RootView::setContentView(std::unique_ptr<View>&& view)
+{
+    m_view = std::move(view);
+    updateSize();
+}
+
+void RootView::displayTooltip(const std::string& name, const std::string& help)
+{
 }
 
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -133,7 +134,8 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setViewport(m_rootRect);
     gfxQ->setScissor(m_rootRect);
     View::draw(gfxQ);
-    m_splitView->draw(gfxQ);
+    if (m_view)
+        m_view->draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);
 }
 

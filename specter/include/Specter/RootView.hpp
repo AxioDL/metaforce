@@ -12,6 +12,10 @@
 namespace Specter
 {
 
+struct IViewManager
+{
+};
+
 class RootView : public View
 {
     boo::IWindow* m_window = nullptr;
@@ -19,12 +23,13 @@ class RootView : public View
     boo::SWindowRect m_rootRect = {};
     bool m_resizeRTDirty = false;
     bool m_destroyed = false;
+    IViewManager& m_viewMan;
     ViewResources* m_viewRes;
 
     DeferredWindowEvents<RootView> m_events;
 
 public:
-    RootView(ViewResources& res, boo::IWindow* window);
+    RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
 
     void destroyed();
     bool isDestroyed() const {return m_destroyed;}
@@ -54,11 +59,16 @@ public:
     const boo::SWindowRect& rootRect() const {return m_rootRect;}
 
     boo::IWindow* window() const {return m_window;}
+    IViewManager& viewManager() const {return m_viewMan;}
     const ViewResources& viewRes() const {return *m_viewRes;}
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
+    void setContentView(std::unique_ptr<View>&& view);
+
+    void displayTooltip(const std::string& name, const std::string& help);
+
 private:
-    std::unique_ptr<SplitView> m_splitView;
+    std::unique_ptr<View> m_view;
 };
 
 }

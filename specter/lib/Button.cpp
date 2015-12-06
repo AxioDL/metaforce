@@ -11,8 +11,9 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData
 {
 }
 
-Button::Button(ViewResources& res, View& parentView, const std::string& text)
-: View(res, parentView), m_textStr(text)
+Button::Button(ViewResources& res, View& parentView,
+               std::unique_ptr<IControlBinding>&& controlBinding, const std::string& text)
+: Control(res, parentView, std::move(controlBinding)), m_textStr(text)
 {
     m_bBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
     m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
@@ -131,12 +132,14 @@ void Button::setDisabled()
 
 void Button::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    Control::mouseDown(coord, button, mod);
     m_pressed = true;
     setPressed();
 }
 
 void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    Control::mouseUp(coord, button, mod);
     if (m_pressed && m_hovered)
         Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
     m_pressed = false;
@@ -148,6 +151,7 @@ void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, b
 
 void Button::mouseEnter(const boo::SWindowCoord& coord)
 {
+    Control::mouseEnter(coord);
     m_hovered = true;
     if (m_pressed)
         setPressed();
@@ -157,6 +161,7 @@ void Button::mouseEnter(const boo::SWindowCoord& coord)
 
 void Button::mouseLeave(const boo::SWindowCoord& coord)
 {
+    Control::mouseLeave(coord);
     m_hovered = false;
     setInactive();
 }

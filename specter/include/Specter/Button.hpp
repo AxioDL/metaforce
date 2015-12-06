@@ -2,12 +2,12 @@
 #define SPECTER_BUTTON_HPP
 
 #include "Specter/TextView.hpp"
-#include "Specter/Button.hpp"
+#include "Specter/Control.hpp"
 
 namespace Specter
 {
 
-class Button : public View
+class Button : public Control
 {
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
@@ -37,7 +37,8 @@ public:
         void init(boo::IGraphicsDataFactory* factory, const ThemeData& theme);
     };
 
-    Button(ViewResources& res, View& parentView, const std::string& text);
+    Button(ViewResources& res, View& parentView,
+           std::unique_ptr<IControlBinding>&& controlBinding, const std::string& text);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseEnter(const boo::SWindowCoord&);

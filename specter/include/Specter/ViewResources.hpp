@@ -73,6 +73,7 @@ public:
     void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, unsigned dpi);
     void resetDPI(unsigned dpi);
     void resetTheme(const ThemeData& theme);
+    void resetLanguage(const ThemeData& theme);
 
     float m_pixelFactor = 0;
     float pixelFactor() const {return m_pixelFactor;}
