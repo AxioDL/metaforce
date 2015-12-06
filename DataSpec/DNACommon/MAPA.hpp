@@ -8,8 +8,236 @@ namespace Retro
 {
 namespace DNAMAPA
 {
+struct MAPA : BigDNA
+{
+    Delete _d;
+    Value<atUint32> magic;
+    Value<atUint32> version;
+    struct IMAPAHeader : BigDNA
+    {
+        Delete _d;
+        virtual atUint32 mappableObjectCount() const=0;
+        virtual atUint32 vertexCount() const=0;
+        virtual atUint32 surfaceCount() const=0;
+    };
 
-template <typename PAKRouter, typename MAPA>
+    struct HeaderMP1 : IMAPAHeader
+    {
+        DECL_DNA
+        Value<atUint32> unknown1;
+        Value<atUint32> unknown2;
+        Value<atVec3f>  boundingBox[2];
+        Value<atUint32> moCount;
+        Value<atUint32> vtxCount;
+        Value<atUint32> surfCount;
+        virtual atUint32 mappableObjectCount() const { return moCount;}
+        virtual atUint32 vertexCount() const  { return vtxCount; }
+        virtual atUint32 surfaceCount() const { return surfCount; }
+    };
+
+    struct HeaderMP2 : IMAPAHeader
+    {
+        DECL_DNA
+        Value<atUint32> unknown1;
+        Value<atUint32> unknown2;
+        Value<atVec3f>  boundingBox[2];
+        Value<atUint32> unknown3;
+        Value<atUint32> unknown4;
+        Value<atUint32> unknown5;
+        Value<atUint32> moCount;
+        Value<atUint32> vtxCount;
+        Value<atUint32> surfCount;
+        atUint32 mappableObjectCount() const { return moCount;}
+        atUint32 vertexCount() const  { return vtxCount; }
+        atUint32 surfaceCount() const { return surfCount; }
+    };
+
+    struct HeaderMP3 : IMAPAHeader
+    {
+        DECL_DNA
+        Value<atUint32> unknown1;
+        Value<atUint32> unknown2;
+        Value<atVec3f>  boundingBox[2];
+        Value<atUint32> unknown3;
+        Value<atUint32> unknown4;
+        Value<atUint32> unknown5;
+        Value<atUint32> unknown6;
+        Value<atUint32> moCount;
+        Value<atUint32> vtxCount;
+        Value<atUint32> surfCount;
+        Value<atUint32> internalNameLength;
+        Value<atUint32> unknown7;
+        String<DNA_COUNT(internalNameLength)> internalName;
+        atUint32 mappableObjectCount() const { return moCount;}
+        atUint32 vertexCount() const  { return vtxCount; }
+        atUint32 surfaceCount() const { return surfCount; }
+    };
+
+
+    void read(Athena::io::IStreamReader& __dna_reader)
+    {
+        /* magic */
+        magic = __dna_reader.readUint32Big();
+        /* version */
+        version = __dna_reader.readUint32Big();
+        if (version == 2)
+            header.reset(new HeaderMP1);
+        else if (version == 3)
+            header.reset(new HeaderMP2);
+        else if (version == 5)
+            header.reset(new HeaderMP3);
+        header->read(__dna_reader);
+
+        for (int i = 0; i < header->mappableObjectCount(); i++)
+        {
+            std::unique_ptr<IMappableObject> mo = nullptr;
+            if (version != 5)
+                mo.reset(new MappableObjectMP1_2);
+            else
+                mo.reset(new MappableObjectMP3);
+            mo->read(__dna_reader);
+            mappableObjects.push_back(std::move(mo));
+        }
+
+        /* vertices */
+        __dna_reader.enumerateBig(vertices, header->vertexCount());
+        /* surfaceHeaders */
+        __dna_reader.enumerate(surfaceHeaders, header->surfaceCount());
+        /* surfaces */
+        __dna_reader.enumerate(surfaces, header->surfaceCount());
+    }
+
+    void write(Athena::io::IStreamWriter& __dna_writer) const
+    {
+        /* magic */
+        __dna_writer.writeUint32Big(magic);
+        /* version */
+        __dna_writer.writeUint32Big(version);
+        header->write(__dna_writer);
+
+        /* mappableObjects */
+        for (const std::unique_ptr<IMappableObject>& mo : mappableObjects)
+            mo->write(__dna_writer);
+        /* vertices */
+        __dna_writer.enumerateBig(vertices);
+        /* surfaceHeaders */
+        __dna_writer.enumerate(surfaceHeaders);
+        /* surfaces */
+        __dna_writer.enumerate(surfaces);
+    }
+
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = header->binarySize(__isz);
+
+        for (const std::unique_ptr<IMappableObject>& mo : mappableObjects)
+            __isz = mo->binarySize(__isz);
+
+        __isz += vertices.size() * 12;
+        __isz = __EnumerateSize(__isz, surfaceHeaders);
+        __isz = __EnumerateSize(__isz, surfaces);
+        return __isz + 8;
+    }
+
+    std::unique_ptr<IMAPAHeader> header;
+
+    struct IMappableObject : BigDNA
+    {
+        Delete _d;
+        enum class Type : atUint32
+        {
+            BlueDoor         = 0,
+            ShieldDoor       = 1,
+            IceDoor          = 2,
+            WaveDoor         = 3,
+            PlasmaDoor       = 4,
+            BigDoor1         = 5,
+            BigDoor2         = 6,
+            IceDoorCeiling   = 7,
+            IceDoorFloor     = 8,
+            WaveDoorCeiling  = 9,
+            WaveDoorFloor    = 10,
+            IceDoorFloor2    = 13,
+            WaveDoorFloor2   = 14,
+            DownArrowYellow  = 27, /* Maintenance Tunnel */
+            UpArrowYellow    = 28, /* Phazon Processing Center */
+            DownArrowGreen   = 29, /* Elevator A */
+            UpArrowGreen     = 30, /* Elite Control Access */
+            DownArrowRed     = 31, /* Elevator B */
+            UpArrowRed       = 32, /* Fungal Hall Access */
+            TransportLift    = 33,
+            SaveStation      = 34,
+            MissileStation   = 37
+        };
+    };
+
+    struct MappableObjectMP1_2 : IMappableObject
+    {
+        DECL_DNA
+        Value<Type> type;
+        Value<atUint32> unknown1;
+        Value<atUint32> sclyId;
+        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Value<atVec4f>  transformMtx[3];
+        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+    };
+
+    struct MappableObjectMP3 : IMappableObject
+    {
+        DECL_DNA
+        Value<Type> type;
+        Value<atUint32> unknown1;
+        Value<atUint32> sclyId;
+        Buffer<DNA_COUNT(0x10)> unknownHash;
+        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Value<atVec4f>  transformMtx[3];
+        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+    };
+
+    std::vector<std::unique_ptr<IMappableObject>> mappableObjects;
+    Vector<atVec3f, DNA_COUNT(header->vertexCount())> vertices;
+
+    struct SurfaceHeader : BigDNA
+    {
+        DECL_DNA
+        Value<atVec3f>  normal;
+        Value<atVec3f>  centroid;
+        Value<atUint32> polyOff;
+        Value<atUint32> edgeOff;
+    };
+
+    Vector<SurfaceHeader, DNA_COUNT(header->surfaceCount())> surfaceHeaders;
+
+    struct Surface : BigDNA
+    {
+        DECL_DNA
+        Value<atUint32> primitiveCount;
+        struct Primitive : BigDNA
+        {
+            DECL_DNA
+            Value<atUint32> type;
+            Value<atUint32> indexCount;
+            Vector<atUint8, DNA_COUNT(indexCount)> indices;
+            Align<4> align;
+        };
+        Vector<Primitive, DNA_COUNT(primitiveCount)> primitives;
+        Value<atUint32> borderCount;
+        struct Border : BigDNA
+        {
+            DECL_DNA
+            Value<atUint32> indexCount;
+            Vector<atUint8, DNA_COUNT(indexCount)> indices;
+            Align<4> align;
+        };
+        Vector<Border, DNA_COUNT(borderCount)> borders;
+    };
+
+    Vector<Surface, DNA_COUNT(header->surfaceCount())> surfaces;
+
+
+};
+
+template <typename PAKRouter>
 bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
                        const MAPA& mapa,
                        const HECL::ProjectPath& outPath,
@@ -59,24 +287,50 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
 
     /* Add empties representing MappableObjects */
     int moIdx = 0;
-    for (const typename MAPA::MappableObject& mo : mapa.mappableObjects)
+    for (const std::unique_ptr<MAPA::IMappableObject>& mo : mapa.mappableObjects)
     {
-        os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
-                  "bpy.context.scene.objects.link(obj)\n"
-                  "obj.retro_mappable_type = %d\n"
-                  "obj.retro_mappable_unk = %d\n"
-                  "obj.retro_mappable_sclyid = '%08X'\n"
-                  "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
-                  "mtxd = mtx.decompose()\n"
-                  "obj.rotation_mode = 'QUATERNION'\n"
-                  "obj.location = mtxd[0]\n"
-                  "obj.rotation_quaternion = mtxd[1]\n"
-                  "obj.scale = mtxd[2]\n",
-                  moIdx, mo.type, mo.unknown1, mo.sclyId,
-                  mo.transformMtx[0].vec[0], mo.transformMtx[0].vec[1], mo.transformMtx[0].vec[2], mo.transformMtx[0].vec[3],
-                  mo.transformMtx[1].vec[0], mo.transformMtx[1].vec[1], mo.transformMtx[1].vec[2], mo.transformMtx[1].vec[3],
-                  mo.transformMtx[2].vec[0], mo.transformMtx[2].vec[1], mo.transformMtx[2].vec[2], mo.transformMtx[2].vec[3]);
-        ++moIdx;
+        const MAPA::MappableObjectMP1_2* moMP12 = dynamic_cast<const MAPA::MappableObjectMP1_2*>(mo.get());
+        if (moMP12)
+        {
+            os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
+                      "bpy.context.scene.objects.link(obj)\n"
+                      "obj.retro_mappable_type = %d\n"
+                      "obj.retro_mappable_unk = %d\n"
+                      "obj.retro_mappable_sclyid = '%08X'\n"
+                      "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+                      "mtxd = mtx.decompose()\n"
+                      "obj.rotation_mode = 'QUATERNION'\n"
+                      "obj.location = mtxd[0]\n"
+                      "obj.rotation_quaternion = mtxd[1]\n"
+                      "obj.scale = mtxd[2]\n",
+                      moIdx, moMP12->type, moMP12->unknown1, moMP12->sclyId,
+                      moMP12->transformMtx[0].vec[0], moMP12->transformMtx[0].vec[1], moMP12->transformMtx[0].vec[2], moMP12->transformMtx[0].vec[3],
+                      moMP12->transformMtx[1].vec[0], moMP12->transformMtx[1].vec[1], moMP12->transformMtx[1].vec[2], moMP12->transformMtx[1].vec[3],
+                      moMP12->transformMtx[2].vec[0], moMP12->transformMtx[2].vec[1], moMP12->transformMtx[2].vec[2], moMP12->transformMtx[2].vec[3]);
+            ++moIdx;
+            continue;
+        }
+        const MAPA::MappableObjectMP3* moMP3 = dynamic_cast<const MAPA::MappableObjectMP3*>(mo.get());
+        if (moMP3)
+        {
+            os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
+                      "bpy.context.scene.objects.link(obj)\n"
+                      "obj.retro_mappable_type = %d\n"
+                      "obj.retro_mappable_unk = %d\n"
+                      "obj.retro_mappable_sclyid = '%08X'\n"
+                      "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+                      "mtxd = mtx.decompose()\n"
+                      "obj.rotation_mode = 'QUATERNION'\n"
+                      "obj.location = mtxd[0]\n"
+                      "obj.rotation_quaternion = mtxd[1]\n"
+                      "obj.scale = mtxd[2]\n",
+                      moIdx, moMP3->type, moMP3->unknown1, moMP3->sclyId,
+                      moMP3->transformMtx[0].vec[0], moMP3->transformMtx[0].vec[1], moMP3->transformMtx[0].vec[2], moMP3->transformMtx[0].vec[3],
+                      moMP3->transformMtx[1].vec[0], moMP3->transformMtx[1].vec[1], moMP3->transformMtx[1].vec[2], moMP3->transformMtx[1].vec[3],
+                      moMP3->transformMtx[2].vec[0], moMP3->transformMtx[2].vec[1], moMP3->transformMtx[2].vec[2], moMP3->transformMtx[2].vec[3]);
+            ++moIdx;
+            continue;
+        }
     }
 
     os << "# Begin bmesh\n"

@@ -1,5 +1,6 @@
 make_dnalist(liblist
-             CMDL)
+             CMDL
+             MAPA)
 
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
@@ -8,7 +9,6 @@ add_library(DNACommon
             GX.hpp
             MLVL.hpp
             CMDL.cpp
-            MAPA.hpp
             STRG.hpp STRG.cpp
             TXTR.hpp TXTR.cpp
             ANCS.hpp

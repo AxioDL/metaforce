@@ -2,14 +2,14 @@
 #define __DNAMP2_MAPA_HPP__
 
 #include "../DNACommon/PAK.hpp"
-#include "../DNAMP1/MAPA.hpp"
+#include "../DNACommon/MAPA.hpp"
 #include "DNAMP2.hpp"
 
 namespace Retro
 {
 namespace DNAMP2
 {
-struct MAPA : DNAMP1::MAPA
+struct MAPA : DNAMAPA::MAPA
 {
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
