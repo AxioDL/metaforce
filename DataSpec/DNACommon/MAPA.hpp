@@ -78,6 +78,11 @@ struct MAPA : BigDNA
     {
         /* magic */
         magic = __dna_reader.readUint32Big();
+        if (magic != 0xDEADD00D)
+        {
+            LogDNACommon.report(LogVisor::Error, "invalid MAPA magic");
+            return;
+        }
         /* version */
         version = __dna_reader.readUint32Big();
         if (version == 2)
@@ -86,6 +91,12 @@ struct MAPA : BigDNA
             header.reset(new HeaderMP2);
         else if (version == 5)
             header.reset(new HeaderMP3);
+        else
+        {
+            LogDNACommon.report(LogVisor::Error, "invalid MAPA version");
+            return;
+        }
+
         header->read(__dna_reader);
 
         for (int i = 0; i < header->mappableObjectCount(); i++)
@@ -282,6 +293,8 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
           "def add_border(bm, verts):\n"
           "    verts = [bm.verts[vi] for vi in verts]\n"
           "    edge = bm.edges.get(verts)\n"
+          "    if not edge:\n"
+          "        edge = bm.edges.new(verts)\n"
           "    edge.seam = True\n"
           "\n";
 
