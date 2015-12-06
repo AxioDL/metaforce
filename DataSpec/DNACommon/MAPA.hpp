@@ -169,6 +169,7 @@ struct MAPA : BigDNA
             SaveStation      = 34,
             MissileStation   = 37
         };
+        virtual ~IMappableObject()  {}
     };
 
     struct MappableObjectMP1_2 : IMappableObject
@@ -180,6 +181,7 @@ struct MAPA : BigDNA
         Seek<DNA_COUNT(4), Athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
         Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        virtual ~MappableObjectMP1_2()  {}
     };
 
     struct MappableObjectMP3 : IMappableObject
@@ -192,6 +194,7 @@ struct MAPA : BigDNA
         Seek<DNA_COUNT(4), Athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
         Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        virtual ~MappableObjectMP3()  {}
     };
 
     std::vector<std::unique_ptr<IMappableObject>> mappableObjects;
