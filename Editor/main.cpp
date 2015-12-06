@@ -4,58 +4,32 @@
 #include <HECL/CVarManager.hpp>
 #include <Runtime/CGameAllocator.hpp>
 #include <functional>
+#include "ViewManager.hpp"
 
 namespace RUDE
 {
 struct Application : boo::IApplicationCallback
 {
     HECL::Runtime::FileStoreManager m_fileMgr;
-    Specter::FontCache m_fontCache;
-    boo::IWindow* m_mainWindow;
-    Specter::ViewResources m_viewResources;
-    std::unique_ptr<Specter::RootView> m_rootView;
     HECL::CVarManager m_cvarManager;
+    ViewManager m_viewManager;
+
     bool m_running = true;
 
     Application() :
         m_fileMgr(_S("rude")),
-        m_fontCache(m_fileMgr),
-        m_cvarManager(m_fileMgr) {}
+        m_cvarManager(m_fileMgr),
+        m_viewManager(m_fileMgr, m_cvarManager) {}
 
     int appMain(boo::IApplication* app)
     {
-        m_mainWindow = app->newWindow(_S("RUDE"));
-        m_mainWindow->showWindow();
-        m_mainWindow->setWaitCursor(true);
-
-        unsigned dpi = m_mainWindow->getVirtualPixelFactor() * 72;
-        HECL::CVar* cvDPI = m_cvarManager.newCVar("ed_dpi", "User-selected UI DPI",
-                                                  int(dpi), HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
-
-        boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-        m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), dpi);
-        m_rootView.reset(new Specter::RootView(m_viewResources, m_mainWindow));
-
-        m_mainWindow->setWaitCursor(false);
-        boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
+        m_viewManager.init(app);
         while (m_running)
         {
-            if (m_rootView->isDestroyed())
+            if (!m_viewManager.proc())
                 break;
-            if (cvDPI->isModified())
-            {
-                dpi = cvDPI->toInteger();
-                m_viewResources.resetDPI(dpi);
-                m_rootView->resetResources(m_viewResources);
-                cvDPI->clearModified();
-            }
-            m_rootView->dispatchEvents();
-            m_rootView->draw(gfxQ);
-            gfxQ->execute();
-            m_mainWindow->waitForRetrace();
         }
-
-        gfxQ->stopRenderer();
+        m_viewManager.stop();
         m_cvarManager.serialize();
         return 0;
     }
@@ -67,8 +41,6 @@ struct Application : boo::IApplicationCallback
     {
 
     }
-
-
 };
 
 }
@@ -81,7 +53,7 @@ int main(int argc, const boo::SystemChar** argv)
 {
     LogVisor::RegisterConsoleLogger();
     RUDE::Application appCb;
-    int ret = ApplicationRun(boo::IApplication::EPlatformType::Auto,
+    int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("rude"), _S("RUDE"), argc, argv, false);
     printf("IM DYING!!\n");
     return ret;
