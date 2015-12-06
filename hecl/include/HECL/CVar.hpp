@@ -75,6 +75,7 @@ public:
 
 
     const std::string& name() const { return m_name; }
+    const std::string& rawHelp() const { return m_help; }
     std::string help() const;
 
     atVec4f toVec4f(bool* isValid = nullptr) const;
