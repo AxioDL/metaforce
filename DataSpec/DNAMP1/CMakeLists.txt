@@ -8,7 +8,6 @@ make_dnalist(liblist
              CINF
              CSKR
              EVNT
-             MAPA
              CMDLMaterials
              MREA
              DeafBabe
@@ -28,6 +27,7 @@ add_library(DNAMP1
             EVNT.cpp
             CMDL.hpp
             CMDLMaterials.cpp
+            MAPA.hpp
             MREA.cpp
             SCLY.hpp SCLY.cpp
             DeafBabe.cpp)

@@ -1,13 +1,13 @@
-#ifndef __DNAMP2_MAPA_HPP__
-#define __DNAMP2_MAPA_HPP__
+#ifndef __DNAMP3_MAPA_HPP__
+#define __DNAMP3_MAPA_HPP__
 
 #include "../DNACommon/PAK.hpp"
 #include "../DNACommon/MAPA.hpp"
-#include "DNAMP2.hpp"
+#include "DNAMP3.hpp"
 
 namespace Retro
 {
-namespace DNAMP2
+namespace DNAMP3
 {
 struct MAPA : DNAMAPA::MAPA
 {
@@ -15,7 +15,7 @@ struct MAPA : DNAMAPA::MAPA
                         PAKEntryReadStream& rs,
                         const HECL::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
-                        const DNAMP1::PAK::Entry& entry,
+                        const PAK::Entry& entry,
                         bool force,
                         std::function<void(const HECL::SystemChar*)> fileChanged)
     {

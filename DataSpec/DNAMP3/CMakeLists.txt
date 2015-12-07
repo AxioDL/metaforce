@@ -16,4 +16,5 @@ add_library(DNAMP3
             CMDL.hpp
             CMDLMaterials.cpp
             STRG.hpp STRG.cpp
+            MAPA.hpp
             MREA.cpp)
