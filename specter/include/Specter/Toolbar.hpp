@@ -2,7 +2,6 @@
 #define SPECTER_TOOLBAR_HPP
 
 #include "Specter/View.hpp"
-#include <bitset>
 
 namespace Specter
 {

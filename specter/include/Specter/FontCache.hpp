@@ -174,6 +174,7 @@ class FontCache
     } m_fontLib;
     FreeTypeGZipMemFace m_regFace;
     FreeTypeGZipMemFace m_monoFace;
+    FreeTypeGZipMemFace m_curvesFace;
 
     std::unordered_map<FontTag, std::unique_ptr<FontAtlas>> m_cachedAtlases;
 public:
@@ -193,7 +194,11 @@ public:
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
     {return prepCustomFont(gf, "bmonofont", m_monoFace, filter, subpixel, points, dpi);}
 
-    void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close();}
+    FontTag prepCurvesFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
+                           bool subpixel=false, float points=10.0, uint32_t dpi=72)
+    {return prepCustomFont(gf, "spectercurves", m_curvesFace, filter, subpixel, points, dpi);}
+
+    void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close(); m_curvesFace.close();}
 
     const FontAtlas& lookupAtlas(FontTag tag) const;
 };

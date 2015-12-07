@@ -21,6 +21,9 @@ extern "C" size_t DROIDSANS_PERMISSIVE_SZ;
 extern "C" const uint8_t BMONOFONT[];
 extern "C" size_t BMONOFONT_SZ;
 
+extern "C" const uint8_t SPECTERCURVES[];
+extern "C" size_t SPECTERCURVES_SZ;
+
 extern "C" const FT_Driver_ClassRec tt_driver_class;
 
 namespace Specter
@@ -284,6 +287,8 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         curLineWidth += width + 1;
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
     }
+    if (curLineHeight)
+        totalHeight += curLineHeight + 1;
     m_glyphs.reserve(glyphCount);
     m_glyphLookup.reserve(glyphCount);
 
@@ -672,7 +677,8 @@ FontCache::FontCache(const HECL::Runtime::FileStoreManager& fileMgr)
 : m_fileMgr(fileMgr),
   m_cacheRoot(m_fileMgr.getStoreRoot() + _S("/fontcache")),
   m_regFace(m_fontLib, DROIDSANS_PERMISSIVE, DROIDSANS_PERMISSIVE_SZ),
-  m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ)
+  m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ),
+  m_curvesFace(m_fontLib, SPECTERCURVES, SPECTERCURVES_SZ)
 {HECL::MakeDir(m_cacheRoot.c_str());}
 
 FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,

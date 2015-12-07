@@ -124,7 +124,7 @@ public:
     virtual void mouseMove(const boo::SWindowCoord&) {}
     virtual void mouseEnter(const boo::SWindowCoord&) {}
     virtual void mouseLeave(const boo::SWindowCoord&) {}
-    virtual void resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub);
+    virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     virtual void resetResources(ViewResources& res) {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

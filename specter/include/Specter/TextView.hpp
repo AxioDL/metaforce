@@ -22,6 +22,9 @@ class TextView : public View
     bool m_valid = false;
     int m_width = 0;
 
+    friend class MultiLineTextView;
+    static int DoKern(FT_Pos val, const FontAtlas& atlas);
+
 public:
     class Resources
     {

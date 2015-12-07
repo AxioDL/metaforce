@@ -14,6 +14,8 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     resized(rect, rect);
+
+    m_tooltip.reset(new Tooltip(res, *this, "Test", "Testing"));
 }
 
 void RootView::destroyed()
@@ -30,6 +32,8 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
     View::resized(m_rootRect, m_rootRect);
     if (m_view)
         m_view->resized(m_rootRect, m_rootRect);
+    if (m_tooltip)
+        m_tooltip->resized(m_rootRect, m_rootRect);
     if (old != m_rootRect)
         m_resizeRTDirty = true;
 }
@@ -50,6 +54,18 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
     if (m_view)
         m_view->mouseMove(coord);
+
+    boo::SWindowRect ttrect = m_rootRect;
+    ttrect.location[0] = coord.pixel[0];
+    ttrect.location[1] = coord.pixel[1];
+    if (m_tooltip)
+    {
+        if (coord.pixel[0] + m_tooltip->nominalWidth() > m_rootRect.size[0])
+            ttrect.location[0] -= m_tooltip->nominalWidth();
+        if (coord.pixel[1] + m_tooltip->nominalHeight() > m_rootRect.size[1])
+            ttrect.location[1] -= m_tooltip->nominalHeight();
+        m_tooltip->resized(m_rootRect, ttrect);
+    }
 }
 
 void RootView::mouseEnter(const boo::SWindowCoord& coord)
@@ -111,6 +127,8 @@ void RootView::resetResources(ViewResources& res)
     m_viewRes = &res;
     if (m_view)
         m_view->resetResources(res);
+    if (m_tooltip)
+        m_tooltip->resetResources(res);
 }
 
 void RootView::setContentView(std::unique_ptr<View>&& view)
@@ -136,6 +154,8 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
     View::draw(gfxQ);
     if (m_view)
         m_view->draw(gfxQ);
+    if (m_tooltip)
+        m_tooltip->draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);
 }
 

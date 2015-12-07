@@ -21,6 +21,7 @@ class ThemeData
     Zeus::CColor m_button2Press = {0.2823, 0.2823, 0.2823, 1.0};
     Zeus::CColor m_button1Disabled = {0.2823, 0.2823, 0.2823, 0.5};
     Zeus::CColor m_button2Disabled = {0.1725, 0.1725, 0.1725, 0.5};
+    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.5};
 public:
     virtual const Zeus::CColor& viewportBackground() const {return m_vpBg;}
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
@@ -33,6 +34,7 @@ public:
     virtual const Zeus::CColor& button2Press() const {return m_button2Press;}
     virtual const Zeus::CColor& button1Disabled() const {return m_button1Disabled;}
     virtual const Zeus::CColor& button2Disabled() const {return m_button2Disabled;}
+    virtual const Zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
 };
 
 class ViewResources
@@ -63,6 +65,8 @@ public:
 
     Specter::FontTag m_heading14;
     Specter::FontTag m_heading18;
+
+    Specter::FontTag m_curveFont;
 
     ViewResources() = default;
     ViewResources(const ViewResources& other) = delete;

@@ -46,7 +46,7 @@ void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
     "void main()\n"
     "{\n"
     "    colorOut = vtf.color;\n"
-    "    colorOut.a = texture(fontTex, vtf.uv).r;\n"
+    "    colorOut.a *= texture(fontTex, vtf.uv).r;\n"
     "}\n";
 
     static const char* FSSubpixel =
@@ -63,7 +63,7 @@ void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
     "void main()\n"
     "{\n"
     "    colorOut = vtf.color;\n"
-    "    blendOut = texture(fontTex, vtf.uv);\n"
+    "    blendOut = colorOut.a * texture(fontTex, vtf.uv);\n"
     "}\n";
 
     static const char* BlockNames[] = {"SpecterViewBlock"};
@@ -121,7 +121,7 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     "float4 main(in VertToFrag vtf) : SV_Target0\n"
     "{\n"
     "    float4 colorOut = vtf.color;\n"
-    "    colorOut.a = fontTex.Sample(samp, vtf.uv).r;\n"
+    "    colorOut.a *= fontTex.Sample(samp, vtf.uv).r;\n"
     "    return colorOut;\n"
     "}\n";
 
@@ -143,7 +143,7 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     "{\n"
     "    BlendOut ret;\n"
     "    ret.colorOut = vtf.color;\n"
-    "    ret.blendOut = fontTex.Sample(samp, vtf.uv);\n"
+    "    ret.blendOut = ret.colorOut.a * fontTex.Sample(samp, vtf.uv);\n"
     "    return ret;\n"
     "}\n";
 
@@ -229,7 +229,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d_array<float> fontTex [[ texture(0) ]])\n"
     "{\n"
     "    float4 colorOut = vtf.color;\n"
-    "    colorOut.a = fontTex.sample(samp, vtf.uv.xy, vtf.uv.z).r;\n"
+    "    colorOut.a *= fontTex.sample(samp, vtf.uv.xy, vtf.uv.z).r;\n"
     "    return colorOut;\n"
     "}\n";
     
@@ -329,7 +329,7 @@ TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, cons
     adv += glyph.m_advance;
 }
 
-static int DoKern(FT_Pos val, const FontAtlas& atlas)
+int TextView::DoKern(FT_Pos val, const FontAtlas& atlas)
 {
     if (!val) return 0;
     val = FT_MulFix(val, atlas.FT_Xscale());
@@ -387,6 +387,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
     m_valid = false;
     updateSize();
 }
+
 void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
 {
     uint32_t lCh = -1;

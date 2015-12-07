@@ -5,6 +5,7 @@
 #include "ViewResources.hpp"
 #include "MultiLineTextView.hpp"
 #include "SplitView.hpp"
+#include "Tooltip.hpp"
 #include "FontCache.hpp"
 #include "DeferredWindowEvents.hpp"
 #include <boo/boo.hpp>
@@ -69,6 +70,7 @@ public:
 
 private:
     std::unique_ptr<View> m_view;
+    std::unique_ptr<Tooltip> m_tooltip;
 };
 
 }

@@ -15,6 +15,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
     m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
+    m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 11.f, dpi);
     m_fontData = factory->commit();
     switch (factory->platform())
     {
@@ -45,6 +46,7 @@ void ViewResources::resetDPI(unsigned dpi)
     m_monoFont = m_fcache->prepMonoFont(m_factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
     m_heading18 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
+    m_curveFont = m_fcache->prepCurvesFont(m_factory, AllCharFilter, false, 11.f, dpi);
     m_fontData = m_factory->commit();
     m_fcache->closeBuiltinFonts();
 }

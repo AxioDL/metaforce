@@ -35,6 +35,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/DeferredWindowEvents.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
+     include/Specter/Tooltip.hpp
      include/Specter/SplitView.hpp
      include/Specter/ScrollView.hpp
      include/Specter/TextView.hpp
@@ -61,6 +62,7 @@ list(APPEND SPECTER_SOURCES
      lib/ViewResources.cpp
      lib/View.cpp
      lib/RootView.cpp
+     lib/Tooltip.cpp
      lib/SplitView.cpp
      lib/ScrollView.cpp
      lib/TextView.cpp
