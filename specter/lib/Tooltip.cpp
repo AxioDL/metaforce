@@ -6,6 +6,7 @@ namespace Specter
 {
 
 #define TOOLTIP_MAX_WIDTH 316
+#define TOOLTIP_MAX_TEXT_WIDTH 300
 #define TOOLTIP_MARGIN 8
 
 Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
@@ -123,7 +124,7 @@ void Tooltip::resetResources(ViewResources& res)
     m_title->typesetGlyphs(m_titleStr);
     m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
     m_message->typesetGlyphs(m_messageStr, Zeus::CColor::skWhite,
-                             int(TOOLTIP_MAX_WIDTH * rootView().viewRes().pixelFactor()));
+                             int(TOOLTIP_MAX_TEXT_WIDTH * rootView().viewRes().pixelFactor()));
 
     float pf = res.pixelFactor();
     m_nomWidth = std::min(int(TOOLTIP_MAX_WIDTH * pf),

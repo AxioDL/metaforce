@@ -21,7 +21,7 @@ class ThemeData
     Zeus::CColor m_button2Press = {0.2823, 0.2823, 0.2823, 1.0};
     Zeus::CColor m_button1Disabled = {0.2823, 0.2823, 0.2823, 0.5};
     Zeus::CColor m_button2Disabled = {0.1725, 0.1725, 0.1725, 0.5};
-    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.5};
+    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.65};
 public:
     virtual const Zeus::CColor& viewportBackground() const {return m_vpBg;}
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
