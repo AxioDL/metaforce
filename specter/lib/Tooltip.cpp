@@ -45,30 +45,32 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
     resetResources(res);
 }
 
+#define EDGE_EPSILON 0.25
+
 void Tooltip::setVerts(int width, int height, float pf)
 {
     int margin = TOOLTIP_MARGIN * pf;
     width = std::max(width, margin*2);
     height = std::max(height, margin*2);
 
-    m_ttVerts[0].m_pos.assign(0, height-margin, 0);
-    m_ttVerts[1].m_pos.assign(0, margin, 0);
-    m_ttVerts[2].m_pos.assign(width, height-margin, 0);
-    m_ttVerts[3].m_pos.assign(width, margin, 0);
-    m_ttVerts[4].m_pos.assign(width, margin, 0);
+    m_ttVerts[0].m_pos.assign(0, height-margin-EDGE_EPSILON, 0);
+    m_ttVerts[1].m_pos.assign(0, margin+EDGE_EPSILON, 0);
+    m_ttVerts[2].m_pos.assign(width, height-margin-EDGE_EPSILON, 0);
+    m_ttVerts[3].m_pos.assign(width, margin+EDGE_EPSILON, 0);
+    m_ttVerts[4].m_pos.assign(width, margin+EDGE_EPSILON, 0);
 
-    m_ttVerts[5].m_pos.assign(margin, height, 0);
-    m_ttVerts[6].m_pos.assign(margin, height, 0);
-    m_ttVerts[7].m_pos.assign(margin, height-margin, 0);
-    m_ttVerts[8].m_pos.assign(width-margin, height, 0);
-    m_ttVerts[9].m_pos.assign(width-margin, height-margin, 0);
-    m_ttVerts[10].m_pos.assign(width-margin, height-margin, 0);
+    m_ttVerts[5].m_pos.assign(margin+EDGE_EPSILON, height, 0);
+    m_ttVerts[6].m_pos.assign(margin+EDGE_EPSILON, height, 0);
+    m_ttVerts[7].m_pos.assign(margin+EDGE_EPSILON, height-margin+EDGE_EPSILON, 0);
+    m_ttVerts[8].m_pos.assign(width-margin-EDGE_EPSILON, height, 0);
+    m_ttVerts[9].m_pos.assign(width-margin-EDGE_EPSILON, height-margin+EDGE_EPSILON, 0);
+    m_ttVerts[10].m_pos.assign(width-margin-EDGE_EPSILON, height-margin+EDGE_EPSILON, 0);
 
-    m_ttVerts[11].m_pos.assign(margin, margin, 0);
-    m_ttVerts[12].m_pos.assign(margin, margin, 0);
-    m_ttVerts[13].m_pos.assign(margin, 0, 0);
-    m_ttVerts[14].m_pos.assign(width-margin, margin, 0);
-    m_ttVerts[15].m_pos.assign(width-margin, 0, 0);
+    m_ttVerts[11].m_pos.assign(margin+EDGE_EPSILON, margin-EDGE_EPSILON, 0);
+    m_ttVerts[12].m_pos.assign(margin+EDGE_EPSILON, margin-EDGE_EPSILON, 0);
+    m_ttVerts[13].m_pos.assign(margin+EDGE_EPSILON, 0, 0);
+    m_ttVerts[14].m_pos.assign(width-margin-EDGE_EPSILON, margin-EDGE_EPSILON, 0);
+    m_ttVerts[15].m_pos.assign(width-margin-EDGE_EPSILON, 0, 0);
 
     m_ttVertsBuf->load(m_ttVerts, sizeof(SolidShaderVert) * 16);
 }
