@@ -74,8 +74,8 @@ public:
     ViewResources& operator=(const ViewResources& other) = delete;
     ViewResources& operator=(ViewResources&& other) = default;
 
-    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, unsigned dpi);
-    void resetDPI(unsigned dpi);
+    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, float pixelFactor);
+    void resetPixelFactor(float pixelFactor);
     void resetTheme(const ThemeData& theme);
     void resetLanguage(const ThemeData& theme);
 

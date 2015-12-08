@@ -5,9 +5,10 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::ViewResources");
 
 void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
-                         const ThemeData& theme, unsigned dpi)
+                         const ThemeData& theme, float pf)
 {
-    m_pixelFactor = dpi / 72.f;
+    m_pixelFactor = pf;
+    unsigned dpi = 72.f * pf;
     m_theme = theme;
     m_factory = factory;
     m_fcache = fcache;
@@ -15,7 +16,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     m_monoFont = fcache->prepMonoFont(factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
     m_heading18 = fcache->prepMainFont(factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
-    m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 11.f, dpi);
+    m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 8.f, dpi);
     m_fontData = factory->commit();
     switch (factory->platform())
     {
@@ -39,9 +40,10 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     m_resData = factory->commit();
 }
 
-void ViewResources::resetDPI(unsigned dpi)
+void ViewResources::resetPixelFactor(float pf)
 {
-    m_pixelFactor = dpi / 72.f;
+    m_pixelFactor = pf;
+    unsigned dpi = 72.f * pf;
     m_mainFont = m_fcache->prepMainFont(m_factory, AllCharFilter, false, 10.f, dpi);
     m_monoFont = m_fcache->prepMonoFont(m_factory, AllCharFilter, false, 10.f, dpi);
     m_heading14 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);

@@ -74,8 +74,11 @@ public:
     int nominalWidth() const {return m_width;}
     int nominalHeight() const {return m_fontAtlas.FT_LineHeight() >> 6;}
 
+    std::pair<int,int> queryGlyphDimensions(size_t pos) const;
+
 private:
     std::vector<RenderGlyph> m_glyphs;
+    std::vector<std::pair<int,int>> m_glyphDims;
 };
 
 }

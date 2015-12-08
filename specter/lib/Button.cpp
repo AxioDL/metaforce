@@ -49,7 +49,7 @@ void Button::setText(const std::string& text)
     m_textStr = text;
 
     m_text->typesetGlyphs(text, rootView().themeData().uiText());
-    float pf = rootView().window()->getVirtualPixelFactor();
+    float pf = rootView().viewRes().pixelFactor();
     float width = m_text->nominalWidth() + 10 * pf;
     float height = 20 * pf;
     m_verts[0].m_pos.assign(1, height+1, 0);
@@ -186,7 +186,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     boo::SWindowRect textRect = sub;
     m_bBlock.setViewRect(root, sub);
     m_bBlockBuf->load(&m_bBlock, sizeof(ViewBlock));
-    float pf = rootView().window()->getVirtualPixelFactor();
+    float pf = rootView().viewRes().pixelFactor();
     textRect.location[0] += 5 * pf;
     textRect.location[1] += 8 * pf;
     m_text->resized(root, textRect);

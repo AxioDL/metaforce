@@ -352,6 +352,8 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
     uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
+    m_glyphDims.clear();
+    m_glyphDims.reserve(str.size());
     int adv = 0;
 
     while (rem)
@@ -374,6 +376,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
         if (lCh != -1)
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
+        m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
 
         lCh = glyph->m_glyphIdx;
         rem -= sz;
@@ -393,6 +396,8 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
     uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
+    m_glyphDims.clear();
+    m_glyphDims.reserve(str.size());
     int adv = 0;
 
     for (wchar_t ch : str)
@@ -407,6 +412,7 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
         if (lCh != -1)
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
+        m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
 
         lCh = glyph->m_glyphIdx;
 
@@ -451,6 +457,16 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
         gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
         gfxQ->drawInstances(0, 4, m_glyphs.size());
     }
+}
+
+std::pair<int,int> TextView::queryGlyphDimensions(size_t pos) const
+{
+    if (pos >= m_glyphDims.size())
+        Log.report(LogVisor::FatalError,
+                   "TextView::queryGlyphWidth(%" PRISize ") out of bounds: %" PRISize,
+                   pos, m_glyphDims.size());
+
+    return m_glyphDims[pos];
 }
 
 
