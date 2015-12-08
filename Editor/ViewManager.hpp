@@ -15,6 +15,9 @@ class ViewManager : Specter::IViewManager
     std::unique_ptr<boo::IWindow> m_mainWindow;
     std::unique_ptr<Specter::RootView> m_rootView;
 
+    Specter::Space* m_space1;
+    Specter::Space* m_space2;
+
     HECL::CVar* m_cvPixelFactor;
     HECL::CVar* m_test1;
     HECL::CVar* m_test2;
@@ -23,6 +26,9 @@ class ViewManager : Specter::IViewManager
 public:
     ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
     : m_cvarManager(cvarMgr), m_fontCache(fileMgr) {}
+
+    Specter::RootView& rootView() const {return *m_rootView;}
+    void ResetResources();
 
     void init(boo::IApplication* app);
     bool proc();
