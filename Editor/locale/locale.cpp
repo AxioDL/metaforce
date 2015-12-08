@@ -1,5 +1,6 @@
 #include "locale.hpp"
 #include <cstring>
+#include <clocale>
 
 extern "C" const uint8_t L_en_US[];
 extern "C" size_t L_en_US_SZ;

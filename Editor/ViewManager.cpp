@@ -87,7 +87,7 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 
-    float pixelFactor = 1.0;
+    float pixelFactor = 2.0;
     m_cvPixelFactor = m_cvarManager.newCVar("ed_pixelfactor", "User-selected UI Scale",
                                     pixelFactor, HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
 
