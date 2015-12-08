@@ -15,7 +15,7 @@ class ViewManager : Specter::IViewManager
     std::unique_ptr<boo::IWindow> m_mainWindow;
     std::unique_ptr<Specter::RootView> m_rootView;
 
-    HECL::CVar* m_cvDPI;
+    HECL::CVar* m_cvPixelFactor;
     HECL::CVar* m_test1;
     HECL::CVar* m_test2;
 

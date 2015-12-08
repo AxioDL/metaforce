@@ -42,12 +42,12 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 
-    unsigned dpi = m_mainWindow->getVirtualPixelFactor() * 72;
-    m_cvDPI = m_cvarManager.newCVar("ed_dpi", "User-selected UI DPI",
-                                    int(dpi), HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
+    float pixelFactor = 1.0;
+    m_cvPixelFactor = m_cvarManager.newCVar("ed_pixelfactor", "User-selected UI Scale",
+                                    pixelFactor, HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-    m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), dpi);
+    m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), pixelFactor);
     SetupRootView();
 
     m_mainWindow->setWaitCursor(false);
@@ -58,15 +58,15 @@ bool ViewManager::proc()
     boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
     if (m_rootView->isDestroyed())
         return false;
-
-    if (m_cvDPI->isModified())
+#if 0
+    if (m_cvPixelFactor->isModified())
     {
-        unsigned dpi = m_cvDPI->toInteger();
-        m_viewResources.resetDPI(dpi);
+        float pixelFactor = m_cvPixelFactor->toFloat();
+        m_viewResources.resetPixelFactor(pixelFactor);
         m_rootView->resetResources(m_viewResources);
-        m_cvDPI->clearModified();
+        m_cvPixelFactor->clearModified();
     }
-
+#endif
     m_rootView->dispatchEvents();
     m_rootView->draw(gfxQ);
     gfxQ->execute();
