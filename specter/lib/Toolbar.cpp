@@ -144,6 +144,8 @@ void Toolbar::resetResources(ViewResources& res)
     m_padding = res.pixelFactor() * TOOLBAR_PADDING;
     setBackground(res.themeData().toolbarBackground());
     updateSize();
+    for (Child& c : m_children)
+        c.m_view->resetResources(res);
 }
 
 void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

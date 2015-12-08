@@ -13,6 +13,25 @@ struct IControlBinding
     virtual const std::string& help() const=0;
 };
 
+struct IButtonBinding : IControlBinding
+{
+    virtual void pressed(const boo::SWindowCoord& coord)=0;
+};
+
+struct IFloatBinding : IControlBinding
+{
+    virtual float getDefault() const {return 0.0;}
+    virtual std::pair<float,float> getBounds() const {return std::make_pair(FLT_MIN, FLT_MAX);}
+    virtual void changed(float val)=0;
+};
+
+struct IIntBinding : IControlBinding
+{
+    virtual int getDefault() const {return 0;}
+    virtual std::pair<int,int> getBounds() const {return std::make_pair(INT_MIN, INT_MAX);}
+    virtual void changed(int val)=0;
+};
+
 struct CVarControlBinding : IControlBinding
 {
     HECL::CVar* m_cvar;

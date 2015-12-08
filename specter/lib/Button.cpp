@@ -12,7 +12,7 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData
 }
 
 Button::Button(ViewResources& res, View& parentView,
-               std::unique_ptr<IControlBinding>&& controlBinding, const std::string& text)
+               std::unique_ptr<IButtonBinding>&& controlBinding, const std::string& text)
 : Control(res, parentView, std::move(controlBinding)), m_textStr(text)
 {
     m_bBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
@@ -141,7 +141,11 @@ void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, b
 {
     Control::mouseUp(coord, button, mod);
     if (m_pressed && m_hovered)
+    {
         Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
+        if (m_controlBinding && dynamic_cast<IButtonBinding*>(m_controlBinding.get()))
+            static_cast<IButtonBinding&>(*m_controlBinding).pressed(coord);
+    }
     m_pressed = false;
     if (m_hovered)
         setHover();

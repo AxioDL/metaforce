@@ -61,7 +61,7 @@ public:
 
     boo::IWindow* window() const {return m_window;}
     IViewManager& viewManager() const {return m_viewMan;}
-    const ViewResources& viewRes() const {return *m_viewRes;}
+    ViewResources& viewRes() const {return *m_viewRes;}
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
     void setContentView(std::unique_ptr<View>&& view);
