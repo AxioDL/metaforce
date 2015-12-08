@@ -57,7 +57,6 @@ public:
     SplitView::Resources m_splitRes;
     Toolbar::Resources m_toolbarRes;
     Button::Resources m_buttonRes;
-    boo::IGraphicsDataToken m_fontData;
     boo::IGraphicsDataToken m_resData;
 
     Specter::FontTag m_mainFont;

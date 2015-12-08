@@ -377,6 +377,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+        m_token = gf->commit();
     }
     else
     {
@@ -457,6 +458,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
+        m_token = gf->commit();
     }
 
     buildKernTable(face);
@@ -576,6 +578,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+        m_token = gf->commit();
     }
     else
     {
@@ -656,6 +659,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_tex =
         gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
                                   boo::TextureFormat::I8, texmap.get(), bufSz);
+        m_token = gf->commit();
     }
 
     buildKernTable(face);
