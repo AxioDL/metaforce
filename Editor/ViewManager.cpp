@@ -15,10 +15,7 @@ struct SetTo1 : Specter::IButtonBinding
     const std::string& help() const {return m_help;}
     void pressed(const boo::SWindowCoord& coord)
     {
-        m_vm.rootView().viewRes().resetPixelFactor(1.0);
-        m_vm.rootView().resetResources(m_vm.rootView().viewRes());
-        m_vm.ResetResources();
-        m_vm.rootView().updateSize();
+        m_vm.RequestPixelFactor(1.0);
     }
 };
 
@@ -33,15 +30,29 @@ struct SetTo2 : Specter::IButtonBinding
     const std::string& help() const {return m_help;}
     void pressed(const boo::SWindowCoord& coord)
     {
-        m_vm.rootView().viewRes().resetPixelFactor(2.0);
-        m_vm.rootView().resetResources(m_vm.rootView().viewRes());
-        m_vm.ResetResources();
-        m_vm.rootView().updateSize();
+        m_vm.RequestPixelFactor(2.0);
     }
 };
 
-void ViewManager::ResetResources()
+void ViewManager::SetupRootView()
 {
+    m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
+    Specter::SplitView* splitView = new Specter::SplitView(m_viewResources, *m_rootView, Specter::SplitView::Axis::Horizontal);
+    m_rootView->setContentView(std::unique_ptr<Specter::SplitView>(splitView));
+
+    m_space1 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Top);
+    m_space1->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space1->toolbar(),
+        std::make_unique<SetTo1>(*this), "Hello Button"));
+
+    m_space2 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Bottom);
+    m_space2->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space2->toolbar(),
+        std::make_unique<SetTo2>(*this), "こんにちはボタン"));
+
+    splitView->setContentView(0, std::unique_ptr<Specter::Space>(m_space1));
+    splitView->setContentView(1, std::unique_ptr<Specter::Space>(m_space2));
+
+    m_rootView->setBackground(Zeus::CColor::skGrey);
+
     Specter::MultiLineTextView* textView1 = new Specter::MultiLineTextView(m_viewResources, *m_space1, m_viewResources.m_heading18);
     m_space1->setContentView(std::unique_ptr<Specter::MultiLineTextView>(textView1));
 
@@ -53,32 +64,8 @@ void ViewManager::ResetResources()
 
     textView1->setBackground(m_viewResources.themeData().viewportBackground());
     textView2->setBackground(m_viewResources.themeData().viewportBackground());
-}
 
-void ViewManager::SetupRootView()
-{
-    m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
-    Specter::SplitView* splitView = new Specter::SplitView(m_viewResources, *m_rootView, Specter::SplitView::Axis::Horizontal);
-    m_rootView->setContentView(std::unique_ptr<Specter::SplitView>(splitView));
-
-    m_test1 = m_cvarManager.newCVar("hello_button", "Help for Hello Button", false,
-                                    HECL::CVar::EFlags::Archive | HECL::CVar::EFlags::Editor);
-    m_space1 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Top);
-    m_space1->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space1->toolbar(),
-        std::make_unique<SetTo1>(*this), "Hello Button"));
-
-    m_test2 = m_cvarManager.newCVar("hello_button_jp", "Help for Japanese Hello Button", false,
-                                    HECL::CVar::EFlags::Archive | HECL::CVar::EFlags::Editor);
-    m_space2 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Bottom);
-    m_space2->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space2->toolbar(),
-        std::make_unique<SetTo2>(*this), "こんにちはボタン"));
-
-    splitView->setContentView(0, std::unique_ptr<Specter::Space>(m_space1));
-    splitView->setContentView(1, std::unique_ptr<Specter::Space>(m_space2));
-
-    m_rootView->setBackground(Zeus::CColor::skGrey);
-
-    ResetResources();
+    m_rootView->updateSize();
 }
 
 void ViewManager::init(boo::IApplication* app)
@@ -103,12 +90,17 @@ bool ViewManager::proc()
     boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
     if (m_rootView->isDestroyed())
         return false;
+    if (m_updatePf)
+    {
+        m_viewResources.resetPixelFactor(m_reqPf);
+        SetupRootView();
+        m_updatePf = false;
+    }
 #if 0
     if (m_cvPixelFactor->isModified())
     {
         float pixelFactor = m_cvPixelFactor->toFloat();
         m_viewResources.resetPixelFactor(pixelFactor);
-        m_rootView->resetResources(m_viewResources);
         m_cvPixelFactor->clearModified();
     }
 #endif

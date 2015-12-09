@@ -19,8 +19,9 @@ class ViewManager : Specter::IViewManager
     Specter::Space* m_space2;
 
     HECL::CVar* m_cvPixelFactor;
-    HECL::CVar* m_test1;
-    HECL::CVar* m_test2;
+
+    bool m_updatePf = false;
+    float m_reqPf;
 
     void SetupRootView();
 public:
@@ -28,7 +29,11 @@ public:
     : m_cvarManager(cvarMgr), m_fontCache(fileMgr) {}
 
     Specter::RootView& rootView() const {return *m_rootView;}
-    void ResetResources();
+    void RequestPixelFactor(float pf)
+    {
+        m_reqPf = pf;
+        m_updatePf = true;
+    }
 
     void init(boo::IApplication* app);
     bool proc();
