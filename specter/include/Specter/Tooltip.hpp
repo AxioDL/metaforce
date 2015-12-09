@@ -32,7 +32,6 @@ public:
     Tooltip(ViewResources& res, View& parentView, const std::string& title,
             const std::string& message);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-    void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     int nominalWidth() const {return m_nomWidth;}

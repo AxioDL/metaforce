@@ -41,7 +41,17 @@ Button::Button(ViewResources& res, View& parentView,
     }
 
     commitResources(res);
-    resetResources(res);
+
+    m_text.reset(new TextView(res, *this, res.m_mainFont));
+    setText(m_textStr);
+    m_verts[0].m_color = res.themeData().button1Inactive();
+    m_verts[1].m_color = res.themeData().button2Inactive();
+    m_verts[2].m_color = res.themeData().button1Inactive();
+    m_verts[3].m_color = res.themeData().button2Inactive();
+    m_verts[4].m_color = res.themeData().button2Inactive();
+    for (int i=5 ; i<28 ; ++i)
+        m_verts[i].m_color = res.themeData().button2Inactive();
+    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
 }
 
 void Button::setText(const std::string& text)
@@ -168,20 +178,6 @@ void Button::mouseLeave(const boo::SWindowCoord& coord)
     Control::mouseLeave(coord);
     m_hovered = false;
     setInactive();
-}
-
-void Button::resetResources(ViewResources& res)
-{
-    m_text.reset(new TextView(res, *this, res.m_mainFont));
-    setText(m_textStr);
-    m_verts[0].m_color = res.themeData().button1Inactive();
-    m_verts[1].m_color = res.themeData().button2Inactive();
-    m_verts[2].m_color = res.themeData().button1Inactive();
-    m_verts[3].m_color = res.themeData().button2Inactive();
-    m_verts[4].m_color = res.themeData().button2Inactive();
-    for (int i=5 ; i<28 ; ++i)
-        m_verts[i].m_color = res.themeData().button2Inactive();
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
 }
 
 void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

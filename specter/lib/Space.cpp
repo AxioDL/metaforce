@@ -114,13 +114,6 @@ void Space::mouseLeave(const boo::SWindowCoord& coord)
     }
 }
 
-void Space::resetResources(ViewResources& res)
-{
-    if (m_contentView)
-        m_contentView->resetResources(res);
-    m_toolbar->resetResources(res);
-}
-
 void Space::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);

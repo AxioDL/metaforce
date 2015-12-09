@@ -41,7 +41,32 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
         m_ttVerts[i].m_color = res.themeData().tooltipBackground();
 
     commitResources(res);
-    resetResources(res);
+
+    for (int i=0 ; i<4 ; ++i)
+    {
+        m_cornersOutline[i].reset(new TextView(res, *this, res.m_curveFont, 1));
+        m_cornersFilled[i].reset(new TextView(res, *this, res.m_curveFont, 1));
+    }
+    m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
+    m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().tooltipBackground());
+    m_cornersOutline[1]->typesetGlyphs(L"\xF4F2");
+    m_cornersFilled[1]->typesetGlyphs(L"\xF4F3", res.themeData().tooltipBackground());
+    m_cornersOutline[2]->typesetGlyphs(L"\xF4F4");
+    m_cornersFilled[2]->typesetGlyphs(L"\xF4F5", res.themeData().tooltipBackground());
+    m_cornersOutline[3]->typesetGlyphs(L"\xF4F6");
+    m_cornersFilled[3]->typesetGlyphs(L"\xF4F7", res.themeData().tooltipBackground());
+
+    m_title.reset(new TextView(res, *this, res.m_heading14));
+    m_title->typesetGlyphs(m_titleStr);
+    m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
+    m_message->typesetGlyphs(m_messageStr, Zeus::CColor::skWhite,
+                             int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
+
+    float pf = res.pixelFactor();
+    std::pair<int,int> margin = m_cornersOutline[0]->queryGlyphDimensions(0);
+    m_nomWidth = std::min(int(TOOLTIP_MAX_WIDTH * pf),
+                          int(std::max(m_title->nominalWidth(), m_message->nominalWidth()) + margin.first * 2));
+    m_nomHeight = m_title->nominalHeight() + m_message->nominalHeight() + margin.second * 3;
 }
 
 void Tooltip::setVerts(int width, int height, float pf)
@@ -103,35 +128,6 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     cornerRect.location[0] = sub.location[0]; // Lower left
     m_cornersOutline[3]->resized(root, cornerRect);
     m_cornersFilled[3]->resized(root, cornerRect);
-}
-
-void Tooltip::resetResources(ViewResources& res)
-{
-    for (int i=0 ; i<4 ; ++i)
-    {
-        m_cornersOutline[i].reset(new TextView(res, *this, res.m_curveFont, 1));
-        m_cornersFilled[i].reset(new TextView(res, *this, res.m_curveFont, 1));
-    }
-    m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
-    m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().tooltipBackground());
-    m_cornersOutline[1]->typesetGlyphs(L"\xF4F2");
-    m_cornersFilled[1]->typesetGlyphs(L"\xF4F3", res.themeData().tooltipBackground());
-    m_cornersOutline[2]->typesetGlyphs(L"\xF4F4");
-    m_cornersFilled[2]->typesetGlyphs(L"\xF4F5", res.themeData().tooltipBackground());
-    m_cornersOutline[3]->typesetGlyphs(L"\xF4F6");
-    m_cornersFilled[3]->typesetGlyphs(L"\xF4F7", res.themeData().tooltipBackground());
-
-    m_title.reset(new TextView(res, *this, res.m_heading14));
-    m_title->typesetGlyphs(m_titleStr);
-    m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
-    m_message->typesetGlyphs(m_messageStr, Zeus::CColor::skWhite,
-                             int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
-
-    float pf = res.pixelFactor();
-    std::pair<int,int> margin = m_cornersOutline[0]->queryGlyphDimensions(0);
-    m_nomWidth = std::min(int(TOOLTIP_MAX_WIDTH * pf),
-                          int(std::max(m_title->nominalWidth(), m_message->nominalWidth()) + margin.first * 2));
-    m_nomHeight = m_title->nominalHeight() + m_message->nominalHeight() + margin.second * 3;
 }
 
 void Tooltip::draw(boo::IGraphicsCommandQueue* gfxQ)

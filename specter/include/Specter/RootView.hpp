@@ -54,7 +54,6 @@ public:
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
 
-    void resetResources(ViewResources& res);
     void dispatchEvents() {m_events.dispatchEvents();}
     void draw(boo::IGraphicsCommandQueue* gfxQ);
     const boo::SWindowRect& rootRect() const {return m_rootRect;}

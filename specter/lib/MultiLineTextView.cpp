@@ -64,7 +64,7 @@ std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
             lastSpaceRem = rem - 1;
             rollbackPos = ret.size() + 1;
         }
-        for (size_t i=0 ; i<sz ; ++i)
+        for (utf8proc_ssize_t i=0 ; i<sz ; ++i)
             ret += it[i];
         lCh = glyph->m_glyphIdx;
         rem -= sz;

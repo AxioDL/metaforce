@@ -213,14 +213,6 @@ void SplitView::mouseLeave(const boo::SWindowCoord& coord)
     }
 }
 
-void SplitView::resetResources(ViewResources& res)
-{
-    if (m_views[0].m_view)
-        m_views[0].m_view->resetResources(res);
-    if (m_views[1].m_view)
-        m_views[1].m_view->resetResources(res);
-}
-
 void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);

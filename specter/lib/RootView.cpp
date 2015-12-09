@@ -122,15 +122,6 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 {
 }
 
-void RootView::resetResources(ViewResources& res)
-{
-    m_viewRes = &res;
-    if (m_view)
-        m_view->resetResources(res);
-    if (m_tooltip)
-        m_tooltip->resetResources(res);
-}
-
 void RootView::setContentView(std::unique_ptr<View>&& view)
 {
     m_view = std::move(view);

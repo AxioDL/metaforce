@@ -26,7 +26,6 @@ public:
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-    void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

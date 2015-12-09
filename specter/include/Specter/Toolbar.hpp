@@ -101,7 +101,6 @@ public:
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&coord);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-    void resetResources(ViewResources& res);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     int nominalHeight() const {return m_nomHeight;}

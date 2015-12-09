@@ -138,16 +138,6 @@ void Toolbar::mouseLeave(const boo::SWindowCoord& coord)
     }
 }
 
-void Toolbar::resetResources(ViewResources& res)
-{
-    m_nomHeight = res.pixelFactor() * TOOLBAR_GAUGE;
-    m_padding = res.pixelFactor() * TOOLBAR_PADDING;
-    setBackground(res.themeData().toolbarBackground());
-    updateSize();
-    for (Child& c : m_children)
-        c.m_view->resetResources(res);
-}
-
 void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
