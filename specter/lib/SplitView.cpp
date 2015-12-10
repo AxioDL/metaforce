@@ -51,13 +51,12 @@ SplitView::SplitView(ViewResources& system, View& parentView, Axis axis)
     commitResources(system);
 }
 
-std::unique_ptr<View> SplitView::setContentView(int slot, std::unique_ptr<View>&& view)
+View* SplitView::setContentView(int slot, View* view)
 {
     if (slot < 0 || slot > 1)
         Log.report(LogVisor::FatalError, "out-of-range slot to RootView::SplitView::setContentView");
-    std::unique_ptr<View> ret;
-    m_views[slot].m_view.swap(ret);
-    m_views[slot].m_view = std::move(view);
+    View* ret = m_views[slot].m_view;
+    m_views[slot].m_view = view;
     m_views[slot].m_mouseDown = false;
     m_views[slot].m_mouseIn = false;
     updateSize();

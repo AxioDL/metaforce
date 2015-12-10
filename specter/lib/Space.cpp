@@ -13,11 +13,10 @@ Space::Space(ViewResources& res, View& parentView, Toolbar::Position tbPos)
     m_toolbar.reset(new Toolbar(res, *this, tbPos));
 }
 
-std::unique_ptr<View> Space::setContentView(std::unique_ptr<View>&& view)
+View* Space::setContentView(View* view)
 {
-    std::unique_ptr<View> ret;
-    m_contentView.swap(ret);
-    m_contentView = std::move(view);
+    View* ret = m_contentView;
+    m_contentView = view;
     updateSize();
     return ret;
 }

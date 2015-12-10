@@ -122,10 +122,12 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 {
 }
 
-void RootView::setContentView(std::unique_ptr<View>&& view)
+View* RootView::setContentView(View* view)
 {
-    m_view = std::move(view);
+    View* ret = m_view;
+    m_view = view;
     updateSize();
+    return ret;
 }
 
 void RootView::displayTooltip(const std::string& name, const std::string& help)

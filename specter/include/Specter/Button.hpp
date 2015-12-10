@@ -38,7 +38,7 @@ public:
     };
 
     Button(ViewResources& res, View& parentView,
-           std::unique_ptr<IButtonBinding>&& controlBinding, const std::string& text);
+           IButtonBinding* controlBinding, const std::string& text);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseEnter(const boo::SWindowCoord&);

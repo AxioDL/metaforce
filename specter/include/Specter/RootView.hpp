@@ -63,12 +63,12 @@ public:
     ViewResources& viewRes() const {return *m_viewRes;}
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
-    void setContentView(std::unique_ptr<View>&& view);
+    View* setContentView(View* view);
 
     void displayTooltip(const std::string& name, const std::string& help);
 
 private:
-    std::unique_ptr<View> m_view;
+    View* m_view = nullptr;
     std::unique_ptr<Tooltip> m_tooltip;
 };
 

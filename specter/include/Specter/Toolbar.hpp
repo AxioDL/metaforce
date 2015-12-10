@@ -27,10 +27,10 @@ private:
     Position m_tbPos;
     struct Child
     {
-        std::unique_ptr<View> m_view;
+        View* m_view = nullptr;
         bool m_mouseIn = false;
         bool m_mouseDown = false;
-        Child(std::unique_ptr<View>&& v) : m_view(std::move(v)) {}
+        Child(View* v) : m_view(v) {}
     };
     std::vector<Child> m_children;
 
@@ -106,7 +106,7 @@ public:
     int nominalHeight() const {return m_nomHeight;}
 
     void clear() {m_children.clear();}
-    void push_back(std::unique_ptr<View>&& v) {m_children.push_back(std::move(v));}
+    void push_back(View* v) {m_children.push_back(v);}
 };
 
 }

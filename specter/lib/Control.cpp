@@ -4,12 +4,14 @@ namespace Specter
 {
 
 Control::Control(ViewResources& res, View& parentView,
-                 std::unique_ptr<IControlBinding>&& controlBinding)
-: View(res, parentView), m_controlBinding(std::move(controlBinding)) {}
+                 IControlBinding* controlBinding)
+: View(res, parentView), m_controlBinding(controlBinding) {}
 
-void Control::setControlBinding(std::unique_ptr<IControlBinding>&& controlBinding)
+IControlBinding* Control::setControlBinding(IControlBinding* controlBinding)
 {
-    m_controlBinding = std::move(controlBinding);
+    IControlBinding* ret = m_controlBinding;
+    m_controlBinding = controlBinding;
+    return ret;
 }
 
 void Control::mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey)

@@ -13,12 +13,12 @@ class Space : public View
     std::unique_ptr<Toolbar> m_toolbar;
     bool m_toolbarMouseIn = false;
     bool m_toolbarMouseDown = false;
-    std::unique_ptr<View> m_contentView;
+    View* m_contentView = nullptr;
     bool m_contentMouseIn = false;
     bool m_contentMouseDown = false;
 public:
     Space(ViewResources& res, View& parentView, Toolbar::Position toolbarPos);
-    std::unique_ptr<View> setContentView(std::unique_ptr<View>&& view);
+    View* setContentView(View* view);
     Toolbar& toolbar() {return *m_toolbar;}
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

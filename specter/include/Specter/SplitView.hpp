@@ -36,7 +36,7 @@ private:
 
     struct Child
     {
-        std::unique_ptr<View> m_view;
+        View* m_view = nullptr;
         bool m_mouseIn = false;
         bool m_mouseDown = false;
     };
@@ -74,7 +74,7 @@ private:
     boo::IShaderDataBinding* m_splitShaderBinding;
 public:
     SplitView(ViewResources& res, View& parentView, Axis axis);
-    std::unique_ptr<View> setContentView(int slot, std::unique_ptr<View>&& view);
+    View* setContentView(int slot, View* view);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);

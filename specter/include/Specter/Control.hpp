@@ -44,15 +44,15 @@ struct CVarControlBinding : IControlBinding
 class Control : public View
 {
 protected:
-    std::unique_ptr<IControlBinding> m_controlBinding;
+    IControlBinding* m_controlBinding = nullptr;
 public:
-    Control(ViewResources& res, View& parentView, std::unique_ptr<IControlBinding>&& controlBinding);
+    Control(ViewResources& res, View& parentView, IControlBinding* controlBinding);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
 
-    void setControlBinding(std::unique_ptr<IControlBinding>&& controlBinding);
+    IControlBinding* setControlBinding(IControlBinding* controlBinding);
 };
 
 }
