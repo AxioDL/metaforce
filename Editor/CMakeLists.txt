@@ -1,7 +1,15 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(locale)
 
+set(SPACE_HEADERS
+    ResourceOutliner/ResourceOutliner.hpp)
+
+set(SPACE_SOURCES
+    ResourceOutliner/ResourceOutliner.cpp)
+
 add_executable(rude WIN32
-               main.cpp
+               main.cpp ISpace.hpp
+               ${SPACE_HEADERS} ${SPACE_SOURCES}
                ViewManager.hpp ViewManager.cpp)
 
 target_link_libraries(rude

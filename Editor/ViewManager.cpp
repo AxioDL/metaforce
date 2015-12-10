@@ -4,66 +4,38 @@
 namespace RUDE
 {
 
-struct SetTo1 : Specter::IButtonBinding
-{
-    ViewManager& m_vm;
-    std::string m_name = "SetTo1";
-    std::string m_help = "Sets scale factor to 1.0";
-    SetTo1(ViewManager& vm) : m_vm(vm) {}
-
-    const std::string& name() const {return m_name;}
-    const std::string& help() const {return m_help;}
-    void pressed(const boo::SWindowCoord& coord)
-    {
-        m_vm.RequestPixelFactor(1.0);
-    }
-};
-
-struct SetTo2 : Specter::IButtonBinding
-{
-    ViewManager& m_vm;
-    std::string m_name = "SetTo2";
-    std::string m_help = "Sets scale factor to 2.0";
-    SetTo2(ViewManager& vm) : m_vm(vm) {}
-
-    const std::string& name() const {return m_name;}
-    const std::string& help() const {return m_help;}
-    void pressed(const boo::SWindowCoord& coord)
-    {
-        m_vm.RequestPixelFactor(2.0);
-    }
-};
-
 void ViewManager::SetupRootView()
 {
     m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
-    Specter::SplitView* splitView = new Specter::SplitView(m_viewResources, *m_rootView, Specter::SplitView::Axis::Horizontal);
-    m_rootView->setContentView(std::unique_ptr<Specter::SplitView>(splitView));
+    m_splitView.reset(new Specter::SplitView(m_viewResources, *m_rootView, Specter::SplitView::Axis::Horizontal));
+    m_rootView->setContentView(m_splitView.get());
 
-    m_space1 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Top);
-    m_space1->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space1->toolbar(),
-        std::make_unique<SetTo1>(*this), "Hello Button"));
+    m_space1.reset(new Specter::Space(m_viewResources, *m_splitView, Specter::Toolbar::Position::Top));
+    m_butt1.reset(new Specter::Button(m_viewResources, m_space1->toolbar(),
+                                      &m_setTo1, "Hello Button"));
+    m_space1->toolbar().push_back(m_butt1.get());
 
-    m_space2 = new Specter::Space(m_viewResources, *splitView, Specter::Toolbar::Position::Bottom);
-    m_space2->toolbar().push_back(std::make_unique<Specter::Button>(m_viewResources, m_space2->toolbar(),
-        std::make_unique<SetTo2>(*this), "こんにちはボタン"));
+    m_space2.reset(new Specter::Space(m_viewResources, *m_splitView, Specter::Toolbar::Position::Bottom));
+    m_butt2.reset(new Specter::Button(m_viewResources, m_space2->toolbar(),
+                                      &m_setTo2, "こんにちはボタン"));
+    m_space2->toolbar().push_back(m_butt2.get());
 
-    splitView->setContentView(0, std::unique_ptr<Specter::Space>(m_space1));
-    splitView->setContentView(1, std::unique_ptr<Specter::Space>(m_space2));
+    m_splitView->setContentView(0, m_space1.get());
+    m_splitView->setContentView(1, m_space2.get());
 
     m_rootView->setBackground(Zeus::CColor::skGrey);
 
-    Specter::MultiLineTextView* textView1 = new Specter::MultiLineTextView(m_viewResources, *m_space1, m_viewResources.m_heading18);
-    m_space1->setContentView(std::unique_ptr<Specter::MultiLineTextView>(textView1));
+    m_textView1.reset(new Specter::MultiLineTextView(m_viewResources, *m_space1, m_viewResources.m_heading18));
+    m_space1->setContentView(m_textView1.get());
 
-    Specter::MultiLineTextView* textView2 = new Specter::MultiLineTextView(m_viewResources, *m_space2, m_viewResources.m_heading18);
-    m_space2->setContentView(std::unique_ptr<Specter::MultiLineTextView>(textView2));
+    m_textView2.reset(new Specter::MultiLineTextView(m_viewResources, *m_space2, m_viewResources.m_heading18));
+    m_space2->setContentView(m_textView2.get());
 
-    textView1->typesetGlyphs("Hello, World!\n\n", m_viewResources.themeData().uiText());
-    textView2->typesetGlyphs("こんにちは世界！\n\n", m_viewResources.themeData().uiText());
+    m_textView1->typesetGlyphs("Hello, World!\n\n", m_viewResources.themeData().uiText());
+    m_textView2->typesetGlyphs("こんにちは世界！\n\n", m_viewResources.themeData().uiText());
 
-    textView1->setBackground(m_viewResources.themeData().viewportBackground());
-    textView2->setBackground(m_viewResources.themeData().viewportBackground());
+    m_textView1->setBackground(m_viewResources.themeData().viewportBackground());
+    m_textView2->setBackground(m_viewResources.themeData().viewportBackground());
 
     m_rootView->updateSize();
 }
