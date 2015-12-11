@@ -1,6 +1,8 @@
 #include "ViewManager.hpp"
 #include "Specter/Control.hpp"
 
+using YAMLNode = Athena::io::YAMLNode;
+
 namespace RUDE
 {
 

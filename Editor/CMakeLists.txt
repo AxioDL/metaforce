@@ -8,7 +8,8 @@ set(SPACE_SOURCES
     ResourceOutliner/ResourceOutliner.cpp)
 
 add_executable(rude WIN32
-               main.cpp ISpace.hpp
+               main.cpp
+               Space.hpp Space.cpp
                ${SPACE_HEADERS} ${SPACE_SOURCES}
                ViewManager.hpp ViewManager.cpp)
 

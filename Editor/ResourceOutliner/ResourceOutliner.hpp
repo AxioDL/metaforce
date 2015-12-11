@@ -1,13 +1,20 @@
 #ifndef RUDE_RESOURCE_OUTLINER_HPP
 #define RUDE_RESOURCE_OUTLINER_HPP
 
-#include "ISpace.hpp"
+#include "Space.hpp"
 
 namespace RUDE
 {
 
-class ResourceOutliner : public ISpace
+struct ResourceOutlinerState : SpaceState
 {
+    DECL_YAML
+};
+
+class ResourceOutliner : public Space
+{
+    ResourceOutlinerState m_state;
+    SpaceState& spaceState() {return m_state;}
 };
 
 }

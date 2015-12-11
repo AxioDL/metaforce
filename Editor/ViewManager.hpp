@@ -3,6 +3,7 @@
 
 #include <Specter/Specter.hpp>
 #include <HECL/CVarManager.hpp>
+#include "Space.hpp"
 
 namespace RUDE
 {
