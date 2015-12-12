@@ -1,6 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(locale)
 
+atdna(atdna_Space.cpp Space.hpp)
+
 set(SPACE_HEADERS
     ResourceOutliner/ResourceOutliner.hpp)
 
@@ -9,7 +11,7 @@ set(SPACE_SOURCES
 
 add_executable(rude WIN32
                main.cpp
-               Space.hpp Space.cpp
+               Space.hpp Space.cpp atdna_Space.cpp
                ${SPACE_HEADERS} ${SPACE_SOURCES}
                ViewManager.hpp ViewManager.cpp)
 

@@ -1,7 +1,6 @@
 #ifndef RUDE_VIEW_MANAGER_HPP
 #define RUDE_VIEW_MANAGER_HPP
 
-#include <Specter/Specter.hpp>
 #include <HECL/CVarManager.hpp>
 #include "Space.hpp"
 
@@ -15,36 +14,15 @@ class ViewManager : Specter::IViewManager
     Specter::ViewResources m_viewResources;
     std::unique_ptr<boo::IWindow> m_mainWindow;
     std::unique_ptr<Specter::RootView> m_rootView;
-    std::unique_ptr<Specter::SplitView> m_splitView;
-
-    std::unique_ptr<Specter::Space> m_space1;
-    std::unique_ptr<Specter::Button> m_butt1;
-    std::unique_ptr<Specter::MultiLineTextView> m_textView1;
-    std::unique_ptr<Specter::Space> m_space2;
-    std::unique_ptr<Specter::Button> m_butt2;
-    std::unique_ptr<Specter::MultiLineTextView> m_textView2;
 
     HECL::CVar* m_cvPixelFactor;
 
     bool m_updatePf = false;
     float m_reqPf;
 
+    Specter::View* BuildSpaceViews(RUDE::Space* space);
     void SetupRootView();
 public:
-    ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
-    : m_cvarManager(cvarMgr), m_fontCache(fileMgr), m_setTo1(*this), m_setTo2(*this) {}
-
-    Specter::RootView& rootView() const {return *m_rootView;}
-    void RequestPixelFactor(float pf)
-    {
-        m_reqPf = pf;
-        m_updatePf = true;
-    }
-
-    void init(boo::IApplication* app);
-    bool proc();
-    void stop();
-
     struct SetTo1 : Specter::IButtonBinding
     {
         ViewManager& m_vm;
@@ -76,6 +54,29 @@ public:
         }
     };
     SetTo2 m_setTo2;
+
+    SplitSpace m_split;
+    TestSpace m_space1;
+    TestSpace m_space2;
+
+    ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
+    : m_cvarManager(cvarMgr), m_fontCache(fileMgr),
+      m_setTo1(*this), m_setTo2(*this),
+      m_split(*this),
+      m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),
+      m_space2(*this, "こんにちは世界！\n\n", "こんにちはボタン", &m_setTo2)
+    {}
+
+    Specter::RootView& rootView() const {return *m_rootView;}
+    void RequestPixelFactor(float pf)
+    {
+        m_reqPf = pf;
+        m_updatePf = true;
+    }
+
+    void init(boo::IApplication* app);
+    bool proc();
+    void stop();
 };
 
 }

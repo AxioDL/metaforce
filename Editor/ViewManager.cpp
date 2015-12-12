@@ -1,44 +1,29 @@
 #include "ViewManager.hpp"
 #include "Specter/Control.hpp"
+#include "Specter/Space.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
 namespace RUDE
 {
 
+Specter::View* ViewManager::BuildSpaceViews(RUDE::Space* space)
+{
+    Specter::Space* sspace = space->buildSpace(m_viewResources);
+    Specter::View* sview = space->buildContent(m_viewResources);
+    sspace->setContentView(sview);
+    if (space->usesToolbar())
+        space->buildToolbar(m_viewResources, sspace->toolbar());
+    return sspace;
+}
+
 void ViewManager::SetupRootView()
 {
     m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
-    m_splitView.reset(new Specter::SplitView(m_viewResources, *m_rootView, Specter::SplitView::Axis::Horizontal));
-    m_rootView->setContentView(m_splitView.get());
-
-    m_space1.reset(new Specter::Space(m_viewResources, *m_splitView, Specter::Toolbar::Position::Top));
-    m_butt1.reset(new Specter::Button(m_viewResources, m_space1->toolbar(),
-                                      &m_setTo1, "Hello Button"));
-    m_space1->toolbar().push_back(m_butt1.get());
-
-    m_space2.reset(new Specter::Space(m_viewResources, *m_splitView, Specter::Toolbar::Position::Bottom));
-    m_butt2.reset(new Specter::Button(m_viewResources, m_space2->toolbar(),
-                                      &m_setTo2, "こんにちはボタン"));
-    m_space2->toolbar().push_back(m_butt2.get());
-
-    m_splitView->setContentView(0, m_space1.get());
-    m_splitView->setContentView(1, m_space2.get());
-
     m_rootView->setBackground(Zeus::CColor::skGrey);
-
-    m_textView1.reset(new Specter::MultiLineTextView(m_viewResources, *m_space1, m_viewResources.m_heading18));
-    m_space1->setContentView(m_textView1.get());
-
-    m_textView2.reset(new Specter::MultiLineTextView(m_viewResources, *m_space2, m_viewResources.m_heading18));
-    m_space2->setContentView(m_textView2.get());
-
-    m_textView1->typesetGlyphs("Hello, World!\n\n", m_viewResources.themeData().uiText());
-    m_textView2->typesetGlyphs("こんにちは世界！\n\n", m_viewResources.themeData().uiText());
-
-    m_textView1->setBackground(m_viewResources.themeData().viewportBackground());
-    m_textView2->setBackground(m_viewResources.themeData().viewportBackground());
-
+    m_rootView->setContentView(m_split.buildContent(m_viewResources));
+    m_split.m_splitView->setContentView(0, BuildSpaceViews(&m_space1));
+    m_split.m_splitView->setContentView(1, BuildSpaceViews(&m_space2));
     m_rootView->updateSize();
 }
 

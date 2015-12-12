@@ -6,15 +6,13 @@
 namespace RUDE
 {
 
-struct ResourceOutlinerState : SpaceState
-{
-    DECL_YAML
-};
-
 class ResourceOutliner : public Space
 {
-    ResourceOutlinerState m_state;
-    SpaceState& spaceState() {return m_state;}
+    struct State : SpaceState
+    {
+        DECL_YAML
+    } m_state;
+    SpaceState* spaceState() {return &m_state;}
 };
 
 }
