@@ -44,8 +44,8 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
 
     for (int i=0 ; i<4 ; ++i)
     {
-        m_cornersOutline[i].reset(new TextView(res, *this, res.m_curveFont, 1));
-        m_cornersFilled[i].reset(new TextView(res, *this, res.m_curveFont, 1));
+        m_cornersOutline[i].reset(new TextView(res, *this, res.m_curveFont, TextView::Alignment::Left, 1));
+        m_cornersFilled[i].reset(new TextView(res, *this, res.m_curveFont, TextView::Alignment::Left, 1));
     }
     m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
     m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().tooltipBackground());

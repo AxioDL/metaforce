@@ -14,11 +14,21 @@ class ViewResources;
 
 class TextView : public View
 {
+public:
+    enum class Alignment
+    {
+        Left,
+        Center,
+        Right
+    };
+
+private:
     size_t m_capacity;
     boo::IGraphicsBufferD* m_glyphBuf;
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding;
     const FontAtlas& m_fontAtlas;
+    Alignment m_align;
     bool m_valid = false;
     int m_width = 0;
 
@@ -44,8 +54,8 @@ public:
 #endif
     };
 
-    TextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t capacity=256);
-    TextView(ViewResources& res, View& parentView, FontTag font, size_t capacity=256);
+    TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align=Alignment::Left, size_t capacity=256);
+    TextView(ViewResources& res, View& parentView, FontTag font, Alignment align=Alignment::Left, size_t capacity=256);
 
     struct RenderGlyph
     {

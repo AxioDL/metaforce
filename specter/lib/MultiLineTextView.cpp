@@ -129,11 +129,13 @@ std::wstring MultiLineTextView::LineWrap(const std::wstring& str, int wrap)
 MultiLineTextView::MultiLineTextView(ViewResources& res,
                                      View& parentView,
                                      const FontAtlas& font,
+                                     TextView::Alignment align,
                                      size_t lineCapacity,
                                      float lineHeight)
 : View(res, parentView),
   m_viewSystem(res),
   m_fontAtlas(font),
+  m_align(align),
   m_lineCapacity(lineCapacity),
   m_lineHeight(lineHeight)
 {
@@ -143,11 +145,13 @@ MultiLineTextView::MultiLineTextView(ViewResources& res,
 MultiLineTextView::MultiLineTextView(ViewResources& res,
                                      View& parentView,
                                      FontTag font,
+                                     TextView::Alignment align,
                                      size_t lineCapacity,
                                      float lineHeight)
 : MultiLineTextView(res,
                     parentView,
                     res.m_textRes.m_fcache->lookupAtlas(font),
+                    align,
                     lineCapacity,
                     lineHeight) {}
 
@@ -190,7 +194,7 @@ void MultiLineTextView::typesetGlyphs(const std::string& str,
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (ch == '\n' || ch == '\0')
         {
-            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_lineCapacity));
+            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
             m_lines.back()->typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
             m_width = std::max(m_width, m_lines.back()->nominalWidth());
             beginIt = it + 1;
@@ -235,7 +239,7 @@ void MultiLineTextView::typesetGlyphs(const std::wstring& str,
     {
         if (*it == L'\n' || *it == L'\0')
         {
-            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_lineCapacity));
+            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
             m_lines.back()->typesetGlyphs(std::wstring(beginIt, it), defaultColor);
             m_width = std::max(m_width, m_lines.back()->nominalWidth());
             beginIt = it + 1;
@@ -245,6 +249,12 @@ void MultiLineTextView::typesetGlyphs(const std::wstring& str,
     }
 
     updateSize();
+}
+
+void MultiLineTextView::colorGlyphs(const Zeus::CColor& newColor)
+{
+    for (std::unique_ptr<TextView>& tv : m_lines)
+        tv->colorGlyphs(newColor);
 }
 
 void MultiLineTextView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

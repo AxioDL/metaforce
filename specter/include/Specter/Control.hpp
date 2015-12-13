@@ -9,8 +9,8 @@ namespace Specter
 
 struct IControlBinding
 {
-    virtual const std::string& name() const=0;
-    virtual const std::string& help() const=0;
+    virtual const char* name() const=0;
+    virtual const char* help() const=0;
 };
 
 struct IButtonBinding : IControlBinding
@@ -37,8 +37,8 @@ struct CVarControlBinding : IControlBinding
     HECL::CVar* m_cvar;
     CVarControlBinding(HECL::CVar* cvar)
     : m_cvar(cvar) {}
-    const std::string& name() const {return m_cvar->name();}
-    const std::string& help() const {return m_cvar->rawHelp();}
+    const char* name() const {return m_cvar->name().c_str();}
+    const char* help() const {return m_cvar->rawHelp().c_str();}
 };
 
 class Control : public View

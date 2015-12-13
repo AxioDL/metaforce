@@ -13,14 +13,20 @@ class MultiLineTextView : public View
     ViewResources& m_viewSystem;
     std::vector<std::unique_ptr<TextView>> m_lines;
     const FontAtlas& m_fontAtlas;
+    TextView::Alignment m_align;
     size_t m_lineCapacity;
     float m_lineHeight;
     int m_width;
     std::string LineWrap(const std::string& str, int wrap);
     std::wstring LineWrap(const std::wstring& str, int wrap);
+
 public:
-    MultiLineTextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t lineCapacity=256, float lineHeight=1.0);
-    MultiLineTextView(ViewResources& res, View& parentView, FontTag font, size_t lineCapacity=256, float lineHeight=1.0);
+    MultiLineTextView(ViewResources& res, View& parentView, const FontAtlas& font,
+                      TextView::Alignment align=TextView::Alignment::Left,
+                      size_t lineCapacity=256, float lineHeight=1.0);
+    MultiLineTextView(ViewResources& res, View& parentView, FontTag font,
+                      TextView::Alignment align=TextView::Alignment::Left,
+                      size_t lineCapacity=256, float lineHeight=1.0);
 
     void typesetGlyphs(const std::string& str,
                        const Zeus::CColor& defaultColor=Zeus::CColor::skWhite,
@@ -28,6 +34,8 @@ public:
     void typesetGlyphs(const std::wstring& str,
                        const Zeus::CColor& defaultColor=Zeus::CColor::skWhite,
                        unsigned wrap=0);
+
+    void colorGlyphs(const Zeus::CColor& newColor);
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

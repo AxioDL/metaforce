@@ -259,10 +259,11 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     
 #endif
 
-TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, size_t capacity)
+TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align, size_t capacity)
 : View(res, parentView),
   m_capacity(capacity),
-  m_fontAtlas(font)
+  m_fontAtlas(font),
+  m_align(align)
 {
     m_glyphBuf =
     res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
@@ -312,8 +313,8 @@ TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, 
     commitResources(res);
 }
 
-TextView::TextView(ViewResources& res, View& parentView, FontTag font, size_t capacity)
-: TextView(res, parentView, res.m_textRes.m_fcache->lookupAtlas(font), capacity) {}
+TextView::TextView(ViewResources& res, View& parentView, FontTag font, Alignment align, size_t capacity)
+: TextView(res, parentView, res.m_textRes.m_fcache->lookupAtlas(font), align, capacity) {}
 
 TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
 {
@@ -386,6 +387,29 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
             break;
     }
 
+    if (m_align == Alignment::Right)
+    {
+        int adj = -adv;
+        for (RenderGlyph& g : m_glyphs)
+        {
+            g.m_pos[0][0] += adj;
+            g.m_pos[1][0] += adj;
+            g.m_pos[2][0] += adj;
+            g.m_pos[3][0] += adj;
+        }
+    }
+    else if (m_align == Alignment::Center)
+    {
+        int adj = -adv / 2;
+        for (RenderGlyph& g : m_glyphs)
+        {
+            g.m_pos[0][0] += adj;
+            g.m_pos[1][0] += adj;
+            g.m_pos[2][0] += adj;
+            g.m_pos[3][0] += adj;
+        }
+    }
+
     m_width = adv;
     m_valid = false;
     updateSize();
@@ -418,6 +442,29 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
 
         if (m_glyphs.size() == m_capacity)
             break;
+    }
+
+    if (m_align == Alignment::Right)
+    {
+        int adj = -adv;
+        for (RenderGlyph& g : m_glyphs)
+        {
+            g.m_pos[0][0] += adj;
+            g.m_pos[1][0] += adj;
+            g.m_pos[2][0] += adj;
+            g.m_pos[3][0] += adj;
+        }
+    }
+    else if (m_align == Alignment::Center)
+    {
+        int adj = -adv / 2;
+        for (RenderGlyph& g : m_glyphs)
+        {
+            g.m_pos[0][0] += adj;
+            g.m_pos[1][0] += adj;
+            g.m_pos[2][0] += adj;
+            g.m_pos[3][0] += adj;
+        }
     }
 
     m_width = adv;
