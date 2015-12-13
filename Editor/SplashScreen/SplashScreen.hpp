@@ -37,17 +37,113 @@ class SplashScreen : public Specter::View
     boo::IVertexFormat* m_vertsVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_vertsShaderBinding;
 
-    std::string m_titleStr;
     std::unique_ptr<Specter::TextView> m_title;
-    std::string m_messageStr;
-    std::unique_ptr<Specter::MultiLineTextView> m_message;
+    std::unique_ptr<Specter::MultiLineTextView> m_buildInfo;
+
+    struct Child
+    {
+        std::unique_ptr<Specter::Button> m_button;
+        bool m_mouseIn = false;
+        bool m_mouseDown = false;
+
+        void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+        {
+            if (m_button->subRect().coordInRect(coord))
+            {
+                if (!m_mouseDown)
+                {
+                    m_button->mouseDown(coord, button, mod);
+                    m_mouseDown = true;
+                }
+            }
+        }
+
+        void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+        {
+            if (m_mouseDown)
+            {
+                m_button->mouseUp(coord, button, mod);
+                m_mouseDown = false;
+            }
+        }
+
+        void mouseMove(const boo::SWindowCoord& coord)
+        {
+            if (m_button->subRect().coordInRect(coord))
+            {
+                if (!m_mouseIn)
+                {
+                    m_button->mouseEnter(coord);
+                    m_mouseIn = true;
+                }
+                m_button->mouseMove(coord);
+            }
+            else
+            {
+                if (m_mouseIn)
+                {
+                    m_button->mouseLeave(coord);
+                    m_mouseIn = false;
+                }
+            }
+        }
+
+        void mouseEnter(const boo::SWindowCoord& coord)
+        {
+        }
+
+        void mouseLeave(const boo::SWindowCoord& coord)
+        {
+            if (m_mouseIn)
+            {
+                m_button->mouseLeave(coord);
+                m_mouseIn = false;
+            }
+        }
+    };
+    Child m_newButt;
+    Child m_openButt;
+    Child m_extractButt;
 
     std::unique_ptr<Specter::TextView> m_cornersOutline[4];
     std::unique_ptr<Specter::TextView> m_cornersFilled[4];
+
+    struct NewProjBinding : Specter::IButtonBinding
+    {
+        const char* name() const {return "New Project";}
+        const char* help() const {return "Creates an empty project at selected path";}
+        void pressed(const boo::SWindowCoord& coord)
+        {
+        }
+    } m_newProjBind;
+
+    struct OpenProjBinding : Specter::IButtonBinding
+    {
+        const char* name() const {return "Open Project";}
+        const char* help() const {return "Opens an existing project at selected path";}
+        void pressed(const boo::SWindowCoord& coord)
+        {
+        }
+    } m_openProjBind;
+
+    struct ExtractProjBinding : Specter::IButtonBinding
+    {
+        const char* name() const {return "Extract Game";}
+        const char* help() const {return "Extracts game image as project at selected path";}
+        void pressed(const boo::SWindowCoord& coord)
+        {
+        }
+    } m_extractProjBind;
+
 public:
     SplashScreen(ViewManager& vm, Specter::ViewResources& res);
     void think();
 
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseMove(const boo::SWindowCoord&);
+    void mouseEnter(const boo::SWindowCoord&);
+    void mouseLeave(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

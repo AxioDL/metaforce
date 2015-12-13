@@ -1,4 +1,5 @@
 #include "SplashScreen.hpp"
+#include "version.h"
 
 namespace RUDE
 {
@@ -13,6 +14,7 @@ namespace RUDE
 #define TEXT_START 80
 #define TEXT_FRAMES 40
 
+#define LINE_WIDTH 2
 #define TEXT_MARGIN 10
 
 void SplashScreen::setLineVerts(int width, int height, float pf, float t)
@@ -22,7 +24,7 @@ void SplashScreen::setLineVerts(int width, int height, float pf, float t)
     float t2 = Zeus::Math::clamp(0.f, t * 2.f - 1.f, 1.f);
 
     float lineLeft = 0;
-    float lineRight = pf*2;
+    float lineRight = pf*LINE_WIDTH;
     float lineTop = height-margin.second;
     float lineBottom = margin.second;
     m_verts.lineVerts[0].m_pos.assign(lineLeft, lineTop, 0);
@@ -34,7 +36,7 @@ void SplashScreen::setLineVerts(int width, int height, float pf, float t)
     lineLeft = margin.first;
     lineRight = width-margin.first;
     lineTop = height;
-    lineBottom = height-pf*2;
+    lineBottom = height-pf*LINE_WIDTH;
     m_verts.lineVerts[5].m_pos.assign(lineLeft, lineTop, 0);
     m_verts.lineVerts[6].m_pos = m_verts.lineVerts[5].m_pos;
     m_verts.lineVerts[7].m_pos.assign(lineLeft, lineBottom, 0);
@@ -42,7 +44,7 @@ void SplashScreen::setLineVerts(int width, int height, float pf, float t)
     m_verts.lineVerts[9].m_pos = Zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineRight, lineBottom, 0}, t1);
     m_verts.lineVerts[10].m_pos = m_verts.lineVerts[9].m_pos;
 
-    lineLeft = width-pf*2;
+    lineLeft = width-pf*LINE_WIDTH;
     lineRight = width;
     lineTop = height-margin.second;
     lineBottom = margin.second;
@@ -55,7 +57,7 @@ void SplashScreen::setLineVerts(int width, int height, float pf, float t)
 
     lineLeft = margin.first;
     lineRight = width-margin.first;
-    lineTop = pf*2;
+    lineTop = pf*LINE_WIDTH;
     lineBottom = 0;
     m_verts.lineVerts[17].m_pos.assign(lineLeft, lineTop, 0);
     m_verts.lineVerts[18].m_pos = m_verts.lineVerts[17].m_pos;
@@ -124,8 +126,8 @@ void SplashScreen::setFillVerts(int width, int height, float pf)
 {
     std::pair<int,int> margin = m_cornersFilled[0]->queryGlyphDimensions(0);
 
-    float fillLeft = pf;
-    float fillRight = width-pf;
+    float fillLeft = pf*LINE_WIDTH;
+    float fillRight = width-pf*LINE_WIDTH;
     float fillTop = height-margin.second;
     float fillBottom = margin.second;
     m_verts.fillVerts[0].m_pos.assign(fillLeft, fillTop, 0);
@@ -136,7 +138,7 @@ void SplashScreen::setFillVerts(int width, int height, float pf)
 
     fillLeft = margin.first;
     fillRight = width-margin.first;
-    fillTop = height-pf;
+    fillTop = height-pf*LINE_WIDTH;
     fillBottom = height-margin.second;
     m_verts.fillVerts[5].m_pos.assign(fillLeft, fillTop, 0);
     m_verts.fillVerts[6].m_pos = m_verts.fillVerts[5].m_pos;
@@ -148,7 +150,7 @@ void SplashScreen::setFillVerts(int width, int height, float pf)
     fillLeft = margin.first;
     fillRight = width-margin.first;
     fillTop = margin.second;
-    fillBottom = pf;
+    fillBottom = pf*LINE_WIDTH;
     m_verts.fillVerts[11].m_pos.assign(fillLeft, fillTop, 0);
     m_verts.fillVerts[12].m_pos = m_verts.fillVerts[11].m_pos;
     m_verts.fillVerts[13].m_pos.assign(fillLeft, fillBottom, 0);
@@ -206,8 +208,8 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
 
     for (int i=0 ; i<4 ; ++i)
     {
-        m_cornersOutline[i].reset(new Specter::TextView(res, *this, res.m_curveFont, 1));
-        m_cornersFilled[i].reset(new Specter::TextView(res, *this, res.m_curveFont, 1));
+        m_cornersOutline[i].reset(new Specter::TextView(res, *this, res.m_curveFont, Specter::TextView::Alignment::Left, 1));
+        m_cornersFilled[i].reset(new Specter::TextView(res, *this, res.m_curveFont, Specter::TextView::Alignment::Left, 1));
     }
     m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
     m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().splashBackground());
@@ -240,12 +242,22 @@ void SplashScreen::think()
     Specter::ViewResources& res = rootView().viewRes();
     float pf = res.pixelFactor();
 
-    if (!m_title && res.m_titleFont)
+    if (!m_title && res.m_fcacheReady)
     {
         m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
         Zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;
         m_title->typesetGlyphs("RUDE", clearColor);
+
+        m_buildInfo.reset(new Specter::MultiLineTextView(res, *this, res.m_mainFont, Specter::TextView::Alignment::Right));
+        m_buildInfo->typesetGlyphs(HECL::Format("Branch: %s\nCommit: %s\nDate: %s",
+                                                GIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE),
+                                   clearColor);
+
+        m_newButt.m_button.reset(new Specter::Button(res, *this, &m_newProjBind, "New Project", Specter::Button::Style::Text));
+        m_openButt.m_button.reset(new Specter::Button(res, *this, &m_openProjBind, "Open Project", Specter::Button::Style::Text));
+        m_extractButt.m_button.reset(new Specter::Button(res, *this, &m_extractProjBind, "Extract Game", Specter::Button::Style::Text));
+
         updateSize();
     }
 
@@ -275,12 +287,51 @@ void SplashScreen::think()
         clearColor[3] = 0.0;
         Zeus::CColor color = Zeus::CColor::lerp(clearColor, res.themeData().uiText(), tt);
         m_title->colorGlyphs(color);
+        m_buildInfo->colorGlyphs(color);
+        m_newButt.m_button->colorGlyphs(color);
+        m_openButt.m_button->colorGlyphs(color);
+        m_extractButt.m_button->colorGlyphs(color);
     }
 
     if (loadVerts)
         m_vertsBuf->load(&m_verts, sizeof(m_verts));
 
     ++m_frame;
+}
+
+void SplashScreen::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    m_newButt.mouseDown(coord, button, mod);
+    m_openButt.mouseDown(coord, button, mod);
+    m_extractButt.mouseDown(coord, button, mod);
+}
+
+void SplashScreen::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    m_newButt.mouseUp(coord, button, mod);
+    m_openButt.mouseUp(coord, button, mod);
+    m_extractButt.mouseUp(coord, button, mod);
+}
+
+void SplashScreen::mouseMove(const boo::SWindowCoord& coord)
+{
+    m_newButt.mouseMove(coord);
+    m_openButt.mouseMove(coord);
+    m_extractButt.mouseMove(coord);
+}
+
+void SplashScreen::mouseEnter(const boo::SWindowCoord& coord)
+{
+    m_newButt.mouseEnter(coord);
+    m_openButt.mouseEnter(coord);
+    m_extractButt.mouseEnter(coord);
+}
+
+void SplashScreen::mouseLeave(const boo::SWindowCoord& coord)
+{
+    m_newButt.mouseLeave(coord);
+    m_openButt.mouseLeave(coord);
+    m_extractButt.mouseLeave(coord);
 }
 
 void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -298,7 +349,31 @@ void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect&
     textRect.location[0] += TEXT_MARGIN * pf;
     textRect.location[1] += (SPLASH_HEIGHT - 36) * pf;
     if (m_title)
+    {
         m_title->resized(root, textRect);
+        textRect.location[0] = centerRect.location[0] + (SPLASH_WIDTH - TEXT_MARGIN) * pf;
+        textRect.location[1] -= 5 * pf;
+        m_buildInfo->resized(root, textRect);
+
+        textRect.size[0] = m_newButt.m_button->nominalWidth();
+        textRect.size[1] = m_newButt.m_button->nominalHeight();
+        textRect.location[1] = centerRect.location[1] + 20 * pf;
+        textRect.location[0] = centerRect.location[0] + SPLASH_WIDTH / 4 * pf - m_newButt.m_button->nominalWidth() / 2;
+        m_newButt.m_button->resized(root, textRect);
+
+        textRect.size[0] = m_openButt.m_button->nominalWidth();
+        textRect.size[1] = m_openButt.m_button->nominalHeight();
+        textRect.location[1] = centerRect.location[1] + 20 * pf;
+        textRect.location[0] = centerRect.location[0] + SPLASH_WIDTH * 2 / 4 * pf - m_openButt.m_button->nominalWidth() / 2;
+        m_openButt.m_button->resized(root, textRect);
+
+        textRect.size[0] = m_extractButt.m_button->nominalWidth();
+        textRect.size[1] = m_extractButt.m_button->nominalHeight();
+        textRect.location[1] = centerRect.location[1] + 20 * pf;
+        textRect.location[0] = centerRect.location[0] + SPLASH_WIDTH * 3 / 4 * pf - m_extractButt.m_button->nominalWidth() / 2;
+        m_extractButt.m_button->resized(root, textRect);
+    }
+
 
     boo::SWindowRect cornerRect = centerRect;
     cornerRect.size[0] = cornerRect.size[1] = 8 * pf;
@@ -325,7 +400,13 @@ void SplashScreen::draw(boo::IGraphicsCommandQueue* gfxQ)
     if (m_frame > SOLID_START)
         gfxQ->draw(22, 16);
     if (m_title && m_textStartFrame && m_frame > m_textStartFrame)
+    {
         m_title->draw(gfxQ);
+        m_buildInfo->draw(gfxQ);
+        m_newButt.m_button->draw(gfxQ);
+        m_openButt.m_button->draw(gfxQ);
+        m_extractButt.m_button->draw(gfxQ);
+    }
 
     m_cornersFilled[0]->draw(gfxQ);
     m_cornersFilled[1]->draw(gfxQ);

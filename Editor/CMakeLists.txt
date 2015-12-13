@@ -15,6 +15,7 @@ add_executable(rude WIN32
                main.cpp
                Space.hpp Space.cpp atdna_Space.cpp
                ${SPACE_HEADERS} ${SPACE_SOURCES}
+               ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp)
 
 target_link_libraries(rude
