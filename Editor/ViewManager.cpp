@@ -1,6 +1,7 @@
 #include "ViewManager.hpp"
 #include "Specter/Control.hpp"
 #include "Specter/Space.hpp"
+#include "SplashScreen/SplashScreen.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
@@ -20,6 +21,19 @@ Specter::View* ViewManager::BuildSpaceViews(RUDE::Space* space)
 void ViewManager::SetupRootView()
 {
     m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
+    m_rootView->setBackground(Zeus::CColor::skBlack);
+    m_rootView->updateSize();
+}
+
+void ViewManager::SetupSplashView()
+{
+    m_splash.reset(new SplashScreen(*this, m_viewResources));
+    m_rootView->setContentView(m_splash.get());
+    m_rootView->updateSize();
+}
+
+void ViewManager::SetupEditorView()
+{
     m_rootView->setBackground(Zeus::CColor::skGrey);
     m_rootView->setContentView(m_split.buildContent(m_viewResources));
     m_split.m_splitView->setContentView(0, BuildSpaceViews(&m_space1));
@@ -27,19 +41,32 @@ void ViewManager::SetupRootView()
     m_rootView->updateSize();
 }
 
+ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
+: m_cvarManager(cvarMgr), m_fontCache(fileMgr),
+  m_setTo1(*this), m_setTo2(*this),
+  m_split(*this),
+  m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),
+  m_space2(*this, "こんにちは世界！\n\n", "こんにちはボタン", &m_setTo2)
+{}
+
+ViewManager::~ViewManager() {}
+
 void ViewManager::init(boo::IApplication* app)
 {
     m_mainWindow = std::unique_ptr<boo::IWindow>(app->newWindow(_S("RUDE")));
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 
-    float pixelFactor = 2.0;
+    float pixelFactor = 1.0;
     m_cvPixelFactor = m_cvarManager.newCVar("ed_pixelfactor", "User-selected UI Scale",
                                     pixelFactor, HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
     m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), pixelFactor);
+    m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     SetupRootView();
+    SetupSplashView();
+    m_showSplash = true;
 
     m_mainWindow->setWaitCursor(false);
 }
@@ -64,6 +91,8 @@ bool ViewManager::proc()
     }
 #endif
     m_rootView->dispatchEvents();
+    if (m_showSplash)
+        m_splash->think();
     m_rootView->draw(gfxQ);
     gfxQ->execute();
     m_mainWindow->waitForRetrace();

@@ -6,6 +6,7 @@
 
 namespace RUDE
 {
+class SplashScreen;
 
 class ViewManager : Specter::IViewManager
 {
@@ -14,6 +15,7 @@ class ViewManager : Specter::IViewManager
     Specter::ViewResources m_viewResources;
     std::unique_ptr<boo::IWindow> m_mainWindow;
     std::unique_ptr<Specter::RootView> m_rootView;
+    std::unique_ptr<SplashScreen> m_splash;
 
     HECL::CVar* m_cvPixelFactor;
 
@@ -22,6 +24,10 @@ class ViewManager : Specter::IViewManager
 
     Specter::View* BuildSpaceViews(RUDE::Space* space);
     void SetupRootView();
+    void SetupSplashView();
+    void SetupEditorView();
+
+    bool m_showSplash = false;
 public:
     struct SetTo1 : Specter::IButtonBinding
     {
@@ -59,13 +65,8 @@ public:
     TestSpace m_space1;
     TestSpace m_space2;
 
-    ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
-    : m_cvarManager(cvarMgr), m_fontCache(fileMgr),
-      m_setTo1(*this), m_setTo2(*this),
-      m_split(*this),
-      m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),
-      m_space2(*this, "こんにちは世界！\n\n", "こんにちはボタン", &m_setTo2)
-    {}
+    ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);
+    ~ViewManager();
 
     Specter::RootView& rootView() const {return *m_rootView;}
     void RequestPixelFactor(float pf)

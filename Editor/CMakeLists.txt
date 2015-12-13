@@ -4,9 +4,11 @@ add_subdirectory(locale)
 atdna(atdna_Space.cpp Space.hpp)
 
 set(SPACE_HEADERS
+    SplashScreen/SplashScreen.hpp
     ResourceOutliner/ResourceOutliner.hpp)
 
 set(SPACE_SOURCES
+    SplashScreen/SplashScreen.cpp
     ResourceOutliner/ResourceOutliner.cpp)
 
 add_executable(rude WIN32

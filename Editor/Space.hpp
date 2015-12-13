@@ -44,8 +44,8 @@ protected:
     virtual bool usesToolbar() const {return false;}
     virtual void buildToolbar(Specter::ViewResources& res, Specter::Toolbar& tb) {}
     virtual Specter::View* buildContent(Specter::ViewResources& res)=0;
-public:
     Specter::Space* buildSpace(Specter::ViewResources& res);
+public:
 };
 
 class SplitSpace : public Space
