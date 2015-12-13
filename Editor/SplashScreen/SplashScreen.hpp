@@ -48,6 +48,8 @@ class SplashScreen : public Specter::View
 
         void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
         {
+            if (!m_button)
+                return;
             if (m_button->subRect().coordInRect(coord))
             {
                 if (!m_mouseDown)
@@ -60,6 +62,8 @@ class SplashScreen : public Specter::View
 
         void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
         {
+            if (!m_button)
+                return;
             if (m_mouseDown)
             {
                 m_button->mouseUp(coord, button, mod);
@@ -69,6 +73,8 @@ class SplashScreen : public Specter::View
 
         void mouseMove(const boo::SWindowCoord& coord)
         {
+            if (!m_button)
+                return;
             if (m_button->subRect().coordInRect(coord))
             {
                 if (!m_mouseIn)
@@ -90,10 +96,14 @@ class SplashScreen : public Specter::View
 
         void mouseEnter(const boo::SWindowCoord& coord)
         {
+            if (!m_button)
+                return;
         }
 
         void mouseLeave(const boo::SWindowCoord& coord)
         {
+            if (!m_button)
+                return;
             if (m_mouseIn)
             {
                 m_button->mouseLeave(coord);
