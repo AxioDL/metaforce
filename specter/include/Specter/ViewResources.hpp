@@ -85,6 +85,11 @@ public:
     ViewResources& operator=(const ViewResources& other) = delete;
     ViewResources& operator=(ViewResources&& other) = default;
 
+    ~ViewResources()
+    {
+        m_fcacheThread.detach();
+    }
+
     void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, float pixelFactor);
     void prepFontCacheSync();
     void prepFontCacheAsync(boo::IWindow* window);
