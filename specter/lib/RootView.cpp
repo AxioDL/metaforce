@@ -14,8 +14,6 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     resized(rect, rect);
-
-    m_tooltip.reset(new Tooltip(res, *this, "Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi hendrerit nisl quis lobortis mattis. Mauris efficitur, est a vestibulum iaculis, leo orci pellentesque nunc, non rutrum ipsum lectus eget nisl. Aliquam accumsan vestibulum turpis. Duis id lacus ac lectus sollicitudin posuere vel sit amet metus. Aenean nec tortor id enim efficitur accumsan vitae eu ante. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce magna eros, lacinia a leo eget, volutpat rhoncus urna."));
 }
 
 void RootView::destroyed()
@@ -128,6 +126,11 @@ View* RootView::setContentView(View* view)
     m_view = view;
     updateSize();
     return ret;
+}
+
+void RootView::resetTooltip(ViewResources& res)
+{
+    m_tooltip.reset(new Tooltip(res, *this, "Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi hendrerit nisl quis lobortis mattis. Mauris efficitur, est a vestibulum iaculis, leo orci pellentesque nunc, non rutrum ipsum lectus eget nisl. Aliquam accumsan vestibulum turpis. Duis id lacus ac lectus sollicitudin posuere vel sit amet metus. Aenean nec tortor id enim efficitur accumsan vitae eu ante. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce magna eros, lacinia a leo eget, volutpat rhoncus urna."));
 }
 
 void RootView::displayTooltip(const std::string& name, const std::string& help)

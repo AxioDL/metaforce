@@ -438,9 +438,9 @@ void TextView::think()
 {
 }
 
-void TextView::resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub)
+void TextView::resized(const boo::SWindowRect &root, const boo::SWindowRect& sub)
 {
-    View::resized(rootView, sub);
+    View::resized(root, sub);
 }
 
 void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)

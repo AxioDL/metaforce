@@ -65,6 +65,7 @@ public:
 
     View* setContentView(View* view);
 
+    void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
 
 private:
