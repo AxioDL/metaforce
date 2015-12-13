@@ -77,6 +77,7 @@ public:
     Specter::FontTag m_curveFont;
 
     std::thread m_fcacheThread;
+    bool m_fcacheInterrupt = false;
     bool m_fcacheReady = false;
 
     ViewResources() = default;
@@ -87,7 +88,11 @@ public:
 
     ~ViewResources()
     {
-        m_fcacheThread.detach();
+        if (m_fcacheThread.joinable())
+        {
+            m_fcacheInterrupt = true;
+            m_fcacheThread.join();
+        }
     }
 
     void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, float pixelFactor);
