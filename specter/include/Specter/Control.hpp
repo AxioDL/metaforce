@@ -15,7 +15,9 @@ struct IControlBinding
 
 struct IButtonBinding : IControlBinding
 {
-    virtual void pressed(const boo::SWindowCoord& coord)=0;
+    /** Pressed/Released while Hovering action,
+     *  cancellable by holding the button and releasing outside */
+    virtual void activated(const boo::SWindowCoord& coord)=0;
 };
 
 struct IFloatBinding : IControlBinding

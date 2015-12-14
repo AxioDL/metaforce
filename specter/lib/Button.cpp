@@ -240,7 +240,7 @@ void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, b
     {
         Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
         if (m_controlBinding && dynamic_cast<IButtonBinding*>(m_controlBinding))
-            static_cast<IButtonBinding&>(*m_controlBinding).pressed(coord);
+            static_cast<IButtonBinding&>(*m_controlBinding).activated(coord);
     }
     m_pressed = false;
     if (m_hovered)
