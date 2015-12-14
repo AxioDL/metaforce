@@ -122,7 +122,7 @@ class SplashScreen : public Specter::View
     {
         const char* name() const {return "New Project";}
         const char* help() const {return "Creates an empty project at selected path";}
-        void pressed(const boo::SWindowCoord& coord)
+        void activated(const boo::SWindowCoord& coord)
         {
         }
     } m_newProjBind;
@@ -131,7 +131,7 @@ class SplashScreen : public Specter::View
     {
         const char* name() const {return "Open Project";}
         const char* help() const {return "Opens an existing project at selected path";}
-        void pressed(const boo::SWindowCoord& coord)
+        void activated(const boo::SWindowCoord& coord)
         {
         }
     } m_openProjBind;
@@ -140,7 +140,7 @@ class SplashScreen : public Specter::View
     {
         const char* name() const {return "Extract Game";}
         const char* help() const {return "Extracts game image as project at selected path";}
-        void pressed(const boo::SWindowCoord& coord)
+        void activated(const boo::SWindowCoord& coord)
         {
         }
     } m_extractProjBind;

@@ -38,7 +38,7 @@ public:
 
         const char* name() const {return "SetTo1";}
         const char* help() const {return "Sets scale factor to 1.0";;}
-        void pressed(const boo::SWindowCoord& coord)
+        void activated(const boo::SWindowCoord& coord)
         {
             m_vm.RequestPixelFactor(1.0);
         }
@@ -52,7 +52,7 @@ public:
 
         const char* name() const {return "SetTo2";}
         const char* help() const {return "Sets scale factor to 2.0";}
-        void pressed(const boo::SWindowCoord& coord)
+        void activated(const boo::SWindowCoord& coord)
         {
             m_vm.RequestPixelFactor(2.0);
         }
