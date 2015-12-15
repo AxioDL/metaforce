@@ -19,7 +19,7 @@ void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
     "out VertToFrag vtf;\n"
     "void main()\n"
     "{\n"
-    "    vtf.color = colorIn;\n"
+    "    vtf.color = colorIn * mulColor;\n"
     "    gl_Position = mv * vec4(posIn, 1.0);\n"
     "}\n";
 
@@ -43,12 +43,14 @@ void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
     SPECTER_VIEW_VERT_BLOCK_GLSL
     "struct VertToFrag\n"
     "{\n"
+    "    vec4 color;\n"
     "    vec2 uv;\n"
     "};\n"
     "out VertToFrag vtf;\n"
     "void main()\n"
     "{\n"
     "    vtf.uv = uvIn;\n"
+    "    vtf.color = mulColor;\n"
     "    gl_Position = mv * vec4(posIn, 1.0);\n"
     "}\n";
 
@@ -56,6 +58,7 @@ void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
     "#version 330\n"
     "struct VertToFrag\n"
     "{\n"
+    "    vec4 color;\n"
     "    vec2 uv;\n"
     "};\n"
     "in VertToFrag vtf;\n"
@@ -63,7 +66,7 @@ void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
     "layout(location=0) out vec4 colorOut;\n"
     "void main()\n"
     "{\n"
-    "    colorOut = texture(tex, vtf.uv);\n"
+    "    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
     "}\n";
 
     static const char* BlockNames[] = {"SpecterViewBlock"};
@@ -96,7 +99,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme
     "VertToFrag main(in VertData v)\n"
     "{\n"
     "    VertToFrag vtf;\n"
-    "    vtf.color = v.colorIn;\n"
+    "    vtf.color = v.colorIn * mulColor;\n"
     "    vtf.position = mul(mv, float4(v.posIn, 1.0));\n"
     "    return vtf;\n"
     "}\n";
@@ -122,12 +125,14 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
+    "    float4 color : COLOR;\n"
     "    float2 uv : UV;\n"
     "};\n"
     "VertToFrag main(in VertData v)\n"
     "{\n"
     "    VertToFrag vtf;\n"
     "    vtf.uv = v.uvIn;\n"
+    "    vtf.color = mulColor;\n"
     "    vtf.position = mul(mv, float4(v.posIn, 1.0));\n"
     "    return vtf;\n"
     "}\n";
@@ -136,13 +141,14 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
+    "    float4 color : COLOR;\n"
     "    float2 uv : UV;\n"
     "};\n"
     "Texture2D tex : register(t0);\n"
     "SamplerState samp : register(s0);\n"
     "float4 main(in VertToFrag vtf) : SV_Target0\n"
     "{\n"
-    "    return tex.Sample(samp, vtf.uv);\n"
+    "    return tex.Sample(samp, vtf.uv) * vtf.color;\n"
     "}\n";
 
     boo::VertexElementDescriptor solidvdescs[] =
@@ -195,7 +201,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
     "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SpecterViewBlock& view [[ buffer(2) ]])\n"
     "{\n"
     "    VertToFrag vtf;\n"
-    "    vtf.color = v.colorIn;\n"
+    "    vtf.color = v.colorIn * view.mulColor;\n"
     "    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
     "    return vtf;\n"
     "}\n";
@@ -225,12 +231,14 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
+    "    float4 color;\n"
     "    float2 uv;\n"
     "};\n"
     "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SpecterViewBlock& view [[ buffer(2) ]])\n"
     "{\n"
     "    VertToFrag vtf;\n"
     "    vtf.uv = v.uvIn;\n"
+    "    vtf.color = view.mulColor;\n"
     "    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
     "    return vtf;\n"
     "}\n";
@@ -242,11 +250,12 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
+    "    float4 color;\n"
     "    float2 uv;\n"
     "};\n"
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
     "{\n"
-    "    return tex.sample(samp, vtf.uv);\n"
+    "    return tex.sample(samp, vtf.uv) * vtf.color;\n"
     "}\n";
     
     boo::VertexElementDescriptor solidvdescs[] =

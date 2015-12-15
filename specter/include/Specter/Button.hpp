@@ -63,9 +63,18 @@ public:
 
     void setText(const std::string& text, const Zeus::CColor& textColor);
     void setText(const std::string& text);
+    const std::string& getText() const {return m_textStr;}
     void colorGlyphs(const Zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}
     int nominalHeight() const {return m_nomHeight;}
+
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        View::setMultiplyColor(color);
+        m_bBlock.m_color = color;
+        m_bBlockBuf->load(&m_bBlock, sizeof(ViewBlock));
+        m_text->setMultiplyColor(color);
+    }
 };
 
 }

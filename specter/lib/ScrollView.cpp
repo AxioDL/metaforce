@@ -3,8 +3,8 @@
 namespace Specter
 {
 
-ScrollView::ScrollView(ViewResources& system, View& parentView, View& contentView)
-: View(system, parentView), m_contentView(contentView)
+ScrollView::ScrollView(ViewResources& system, View& parentView)
+: View(system, parentView)
 {
 }
 

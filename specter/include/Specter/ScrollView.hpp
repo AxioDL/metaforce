@@ -9,9 +9,17 @@ class ViewResources;
 
 class ScrollView : public View
 {
-    View& m_contentView;
 public:
-    ScrollView(ViewResources& res, View& parentView, View& contentView);
+    enum class Style
+    {
+
+    };
+
+private:
+    View* m_contentView = nullptr;
+
+public:
+    ScrollView(ViewResources& res, View& parentView);
 };
 
 }

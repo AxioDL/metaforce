@@ -35,6 +35,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/DeferredWindowEvents.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
+     include/Specter/ModalWindow.hpp
      include/Specter/Tooltip.hpp
      include/Specter/SplitView.hpp
      include/Specter/ScrollView.hpp
@@ -52,6 +53,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/Menu.hpp
      include/Specter/Node.hpp
      include/Specter/NodeSocket.hpp
+     include/Specter/FileBrowser.hpp
      include/Specter/FontCache.hpp
      include/Specter/Translator.hpp)
 
@@ -62,6 +64,7 @@ list(APPEND SPECTER_SOURCES
      lib/ViewResources.cpp
      lib/View.cpp
      lib/RootView.cpp
+     lib/ModalWindow.cpp
      lib/Tooltip.cpp
      lib/SplitView.cpp
      lib/ScrollView.cpp
@@ -79,6 +82,7 @@ list(APPEND SPECTER_SOURCES
      lib/Menu.cpp
      lib/Node.cpp
      lib/NodeSocket.cpp
+     lib/FileBrowser.cpp
      lib/FontCache.cpp
      lib/Translator.cpp
      atdna_FontCache.cpp)

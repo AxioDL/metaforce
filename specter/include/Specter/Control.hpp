@@ -10,7 +10,7 @@ namespace Specter
 struct IControlBinding
 {
     virtual const char* name() const=0;
-    virtual const char* help() const=0;
+    virtual const char* help() const {return nullptr;}
 };
 
 struct IButtonBinding : IControlBinding

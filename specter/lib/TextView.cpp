@@ -29,7 +29,7 @@ void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
     "void main()\n"
     "{\n"
     "    vtf.uv = uvIn[gl_VertexID];\n"
-    "    vtf.color = colorIn;\n"
+    "    vtf.color = colorIn * mulColor;\n"
     "    gl_Position = mv * mvMtx * vec4(posIn[gl_VertexID], 1.0);\n"
     "}\n";
 
@@ -104,7 +104,7 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     "{\n"
     "    VertToFrag vtf;\n"
     "    vtf.uv = v.uvIn[vertId];\n"
-    "    vtf.color = v.colorIn;\n"
+    "    vtf.color = v.colorIn * mulColor;\n"
     "    vtf.position = mul(mv, mul(v.mvMtx, float4(v.posIn[vertId], 1.0)));\n"
     "    return vtf;\n"
     "}\n";
@@ -211,7 +211,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     "    VertToFrag vtf;\n"
     "    constant VertData& v = va[instId];\n"
     "    vtf.uv = v.uvIn[vertId];\n"
-    "    vtf.color = v.colorIn;\n"
+    "    vtf.color = v.colorIn * view.mulColor;\n"
     "    vtf.position = view.mv * v.mvMtx * float4(v.posIn[vertId], 1.0);\n"
     "    return vtf;\n"
     "}\n";

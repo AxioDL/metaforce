@@ -49,6 +49,7 @@ protected:
     struct ViewBlock
     {
         Zeus::CMatrix4f m_mv;
+        Zeus::CColor m_color = Zeus::CColor::skWhite;
         void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         {
             m_mv[0][0] = 2.0f / root.size[0];
@@ -61,16 +62,19 @@ protected:
     "uniform SpecterViewBlock\n"\
     "{\n"\
     "    mat4 mv;\n"\
+    "    vec4 mulColor;\n"\
     "};\n"
 #define SPECTER_VIEW_VERT_BLOCK_HLSL\
     "cbuffer SpecterViewBlock : register(b0)\n"\
     "{\n"\
     "    float4x4 mv;\n"\
+    "    float4 mulColor;\n"\
     "};\n"
 #define SPECTER_VIEW_VERT_BLOCK_METAL\
     "struct SpecterViewBlock\n"\
     "{\n"\
     "    float4x4 mv;\n"\
+    "    float4 mulColor;\n"\
     "};\n"
     boo::IGraphicsBufferD* m_viewVertBlockBuf;
 
@@ -114,6 +118,11 @@ public:
             m_bgRect[i].m_color = color;
         m_bgVertBuf->load(&m_bgRect, sizeof(SolidShaderVert) * 4);
     }
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        m_viewVertBlock.m_color = color;
+        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+    }
 
     virtual int nominalWidth() const {return 0;}
     virtual int nominalHeight() const {return 0;}
@@ -126,6 +135,79 @@ public:
     virtual void mouseLeave(const boo::SWindowCoord&) {}
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
+};
+
+template <class ViewType>
+struct ViewChild
+{
+    std::unique_ptr<ViewType> m_view;
+    bool m_mouseIn = false;
+    bool m_mouseDown = false;
+
+    void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+    {
+        if (!m_view)
+            return;
+        if (m_view->subRect().coordInRect(coord))
+        {
+            if (!m_mouseDown)
+            {
+                m_view->mouseDown(coord, button, mod);
+                m_mouseDown = true;
+            }
+        }
+    }
+
+    void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+    {
+        if (!m_view)
+            return;
+        if (m_mouseDown)
+        {
+            m_view->mouseUp(coord, button, mod);
+            m_mouseDown = false;
+        }
+    }
+
+    void mouseMove(const boo::SWindowCoord& coord)
+    {
+        if (!m_view)
+            return;
+        if (m_view->subRect().coordInRect(coord))
+        {
+            if (!m_mouseIn)
+            {
+                m_view->mouseEnter(coord);
+                m_mouseIn = true;
+            }
+            m_view->mouseMove(coord);
+        }
+        else
+        {
+            if (m_mouseIn)
+            {
+                m_view->mouseLeave(coord);
+                m_mouseIn = false;
+            }
+        }
+    }
+
+    void mouseEnter(const boo::SWindowCoord& coord)
+    {
+        if (!m_view)
+            return;
+    }
+
+    void mouseLeave(const boo::SWindowCoord& coord)
+    {
+        if (!m_view)
+            return;
+        if (m_mouseIn)
+        {
+            m_view->mouseLeave(coord);
+            m_mouseIn = false;
+        }
+    }
 };
 
 }
