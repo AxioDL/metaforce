@@ -8,20 +8,6 @@ static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex:
 static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
-static bool IsAbsolute(const SystemString& path)
-{
-#if WIN32
-    if (path.size() && (path[0] == _S('\\') || path[0] == _S('/')))
-        return true;
-    if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _S(':'))
-        return true;
-#else
-    if (path[0] == _S('/'))
-        return true;
-#endif
-    return false;
-}
-
 static SystemString CanonRelPath(const SystemString& path)
 {
     /* Tokenize Path */
