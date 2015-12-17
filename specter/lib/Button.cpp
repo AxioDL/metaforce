@@ -21,7 +21,6 @@ Button::Button(ViewResources& res, View& parentView,
                const Zeus::CColor& textColor, Style style)
 : Control(res, parentView, controlBinding), m_style(style), m_textColor(textColor), m_textStr(text)
 {
-    m_bBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
     m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
 
     if (!res.m_viewRes.m_texVtxFmt)
@@ -29,17 +28,17 @@ Button::Button(ViewResources& res, View& parentView,
         boo::VertexElementDescriptor vdescs[] =
         {
             {m_bVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_bVertsBuf, nullptr, boo::VertexSemantic::UV4}
+            {m_bVertsBuf, nullptr, boo::VertexSemantic::Color}
         };
         m_bVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_bBlockBuf};
+        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
         m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                                m_bVtxFmt, m_bVertsBuf, nullptr,
                                                                nullptr, 1, bufs, 0, nullptr);
     }
     else
     {
-        boo::IGraphicsBuffer* bufs[] = {m_bBlockBuf};
+        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
         m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                                res.m_viewRes.m_texVtxFmt,
                                                                m_bVertsBuf, nullptr,
@@ -271,8 +270,6 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     View::resized(root, sub);
     boo::SWindowRect textRect = sub;
     float pf = rootView().viewRes().pixelFactor();
-    m_bBlock.setViewRect(root, sub);
-    m_bBlockBuf->load(&m_bBlock, sizeof(ViewBlock));
     if (m_style == Style::Block)
     {
         textRect.location[0] += 5 * pf;

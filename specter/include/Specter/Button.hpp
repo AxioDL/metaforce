@@ -21,11 +21,8 @@ private:
     Zeus::CColor m_textColor;
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
+
     SolidShaderVert m_verts[28];
-
-    ViewBlock m_bBlock;
-    boo::IGraphicsBufferD* m_bBlockBuf = nullptr;
-
     boo::IGraphicsBufferD* m_bVertsBuf = nullptr;
     boo::IVertexFormat* m_bVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_bShaderBinding = nullptr;
@@ -71,8 +68,8 @@ public:
     void setMultiplyColor(const Zeus::CColor& color)
     {
         View::setMultiplyColor(color);
-        m_bBlock.m_color = color;
-        m_bBlockBuf->load(&m_bBlock, sizeof(ViewBlock));
+        m_viewVertBlock.m_color = color;
+        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
     }
 };

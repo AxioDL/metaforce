@@ -42,6 +42,7 @@ public:
     FileBrowser(ViewResources& res, View& parentView)
     : FileBrowser(res, parentView, HECL::GetcwdStr()) {}
     FileBrowser(ViewResources& res, View& parentView, const HECL::SystemString& initialPath);
+
     void updateContentOpacity(float opacity);
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

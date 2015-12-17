@@ -50,6 +50,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const HECL::Syste
     for (const HECL::SystemString& c : m_comps)
         m_pathButtons.emplace_back(*this, res, idx++, c);
 
+    m_fileField.m_view.reset(new TextField(res, *this));
     updateContentOpacity(0.0);
 }
 
@@ -58,6 +59,7 @@ void FileBrowser::updateContentOpacity(float opacity)
     Zeus::CColor color = Zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
     for (PathButton& b : m_pathButtons)
         b.m_button.m_view->setMultiplyColor(color);
+    m_fileField.m_view->setMultiplyColor(color);
 }
 
 void FileBrowser::pathButtonActivated(size_t idx)
@@ -70,30 +72,35 @@ void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton bu
         return;
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseDown(coord, button, mod);
+    m_fileField.mouseDown(coord, button, mod);
 }
 
 void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseUp(coord, button, mod);
+    m_fileField.mouseUp(coord, button, mod);
 }
 
 void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
 {
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseMove(coord);
+    m_fileField.mouseMove(coord);
 }
 
 void FileBrowser::mouseEnter(const boo::SWindowCoord& coord)
 {
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseEnter(coord);
+    m_fileField.mouseEnter(coord);
 }
 
 void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
 {
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseLeave(coord);
+    m_fileField.mouseLeave(coord);
 }
 
 void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -117,6 +124,12 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
         b.m_button.m_view->resized(root, pathRect);
         pathRect.location[0] += pathRect.size[0];
     }
+
+    pathRect.location[0] = centerRect.location[0] + 10 * pf;
+    pathRect.location[1] -= 25 * pf;
+    pathRect.size[0] = centerRect.size[0] - 20 * pf;
+    pathRect.size[1] = m_fileField.m_view->nominalHeight();
+    m_fileField.m_view->resized(root, pathRect);
 }
 
 void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -124,6 +137,7 @@ void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)
     ModalWindow::draw(gfxQ);
     for (PathButton& b : m_pathButtons)
         b.m_button.m_view->draw(gfxQ);
+    m_fileField.m_view->draw(gfxQ);
 }
 
 }

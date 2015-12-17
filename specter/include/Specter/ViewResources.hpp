@@ -12,9 +12,17 @@ namespace Specter
 {
 class ThemeData
 {
+    Zeus::CColor m_uiText = Zeus::CColor::skWhite;
+    Zeus::CColor m_fieldText = Zeus::CColor::skBlack;
+
     Zeus::CColor m_vpBg = {0.2,0.2,0.2,1.0};
     Zeus::CColor m_tbBg = {0.4,0.4,0.4,1.0};
-    Zeus::CColor m_uiText = Zeus::CColor::skWhite;
+    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.65};
+    Zeus::CColor m_splashBg = {0.1, 0.1, 0.1, 0.65};
+
+    Zeus::CColor m_splash1 = {1.0, 1.0, 1.0, 1.0};
+    Zeus::CColor m_splash2 = {0.3, 0.3, 0.3, 1.0};
+
     Zeus::CColor m_button1Inactive = {0.2823, 0.2823, 0.2823, 1.0};
     Zeus::CColor m_button2Inactive = {0.1725, 0.1725, 0.1725, 1.0};
     Zeus::CColor m_button1Hover = {0.3523, 0.3523, 0.3523, 1.0};
@@ -23,14 +31,26 @@ class ThemeData
     Zeus::CColor m_button2Press = {0.2823, 0.2823, 0.2823, 1.0};
     Zeus::CColor m_button1Disabled = {0.2823, 0.2823, 0.2823, 0.5};
     Zeus::CColor m_button2Disabled = {0.1725, 0.1725, 0.1725, 0.5};
-    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.65};
-    Zeus::CColor m_splashBg = {0.1, 0.1, 0.1, 0.65};
-    Zeus::CColor m_splash1 = {1.0, 1.0, 1.0, 1.0};
-    Zeus::CColor m_splash2 = {0.3, 0.3, 0.3, 1.0};
+
+    Zeus::CColor m_textfield2Inactive = {0.7823, 0.7823, 0.7823, 1.0};
+    Zeus::CColor m_textfield1Inactive = {0.4725, 0.4725, 0.4725, 1.0};
+    Zeus::CColor m_textfield2Hover = {0.8523, 0.8523, 0.8523, 1.0};
+    Zeus::CColor m_textfield1Hover = {0.5425, 0.5425, 0.5425, 1.0};
+    Zeus::CColor m_textfield2Disabled = {0.7823, 0.7823, 0.7823, 0.5};
+    Zeus::CColor m_textfield1Disabled = {0.4725, 0.4725, 0.4725, 0.5};
+
 public:
+    virtual const Zeus::CColor& uiText() const {return m_uiText;}
+    virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
+
     virtual const Zeus::CColor& viewportBackground() const {return m_vpBg;}
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
-    virtual const Zeus::CColor& uiText() const {return m_uiText;}
+    virtual const Zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
+    virtual const Zeus::CColor& splashBackground() const {return m_splashBg;}
+
+    virtual const Zeus::CColor& splash1() const {return m_splash1;}
+    virtual const Zeus::CColor& splash2() const {return m_splash2;}
+
     virtual const Zeus::CColor& button1Inactive() const {return m_button1Inactive;}
     virtual const Zeus::CColor& button2Inactive() const {return m_button2Inactive;}
     virtual const Zeus::CColor& button1Hover() const {return m_button1Hover;}
@@ -39,10 +59,13 @@ public:
     virtual const Zeus::CColor& button2Press() const {return m_button2Press;}
     virtual const Zeus::CColor& button1Disabled() const {return m_button1Disabled;}
     virtual const Zeus::CColor& button2Disabled() const {return m_button2Disabled;}
-    virtual const Zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
-    virtual const Zeus::CColor& splashBackground() const {return m_splashBg;}
-    virtual const Zeus::CColor& splash1() const {return m_splash1;}
-    virtual const Zeus::CColor& splash2() const {return m_splash2;}
+
+    virtual const Zeus::CColor& textfield1Inactive() const {return m_textfield1Inactive;}
+    virtual const Zeus::CColor& textfield2Inactive() const {return m_textfield2Inactive;}
+    virtual const Zeus::CColor& textfield1Hover() const {return m_textfield1Hover;}
+    virtual const Zeus::CColor& textfield2Hover() const {return m_textfield2Hover;}
+    virtual const Zeus::CColor& textfield1Disabled() const {return m_textfield1Disabled;}
+    virtual const Zeus::CColor& textfield2Disabled() const {return m_textfield2Disabled;}
 };
 
 class ViewResources
