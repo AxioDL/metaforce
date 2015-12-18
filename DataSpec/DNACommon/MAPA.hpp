@@ -99,7 +99,7 @@ struct MAPA : BigDNA
 
         header->read(__dna_reader);
 
-        for (int i = 0; i < header->mappableObjectCount(); i++)
+        for (atUint32 i = 0; i < header->mappableObjectCount(); i++)
         {
             std::unique_ptr<IMappableObject> mo = nullptr;
             if (version != 5)
