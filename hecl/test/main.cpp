@@ -143,7 +143,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             /* Assemble data binding */
             binding = testData.newShaderDataBindng(gfxF, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
 
-            boo::IGraphicsDataToken data = gfxF->commit();
+            boo::GraphicsDataToken data = gfxF->commit();
 
             /* Return control to main thread */
             innerLk.unlock();
