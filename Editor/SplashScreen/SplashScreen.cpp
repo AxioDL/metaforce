@@ -18,7 +18,7 @@ namespace RUDE
 #define TEXT_MARGIN 10
 
 SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
-: ModalWindow(res, vm.rootView(), SPLASH_WIDTH, SPLASH_HEIGHT), m_vm(vm),
+: ModalWindow(res, vm.rootView(), SPLASH_WIDTH * res.pixelFactor(), SPLASH_HEIGHT * res.pixelFactor()), m_vm(vm),
   m_textColor(res.themeData().uiText()),
   m_textColorClear(m_textColor),
   m_newProjBind(*this),
