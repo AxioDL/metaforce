@@ -197,12 +197,12 @@ static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 static SystemString GetcwdStr()
 {
     /* http://stackoverflow.com/a/2869667 */
-    const size_t ChunkSize=255;
-    const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
+    //const size_t ChunkSize=255;
+    //const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
 
-    SystemChar stackBuffer[ChunkSize]; // Stack buffer for the "normal" case
-    if (Getcwd(stackBuffer, sizeof(stackBuffer)) != nullptr)
-        return stackBuffer;
+    SystemChar stackBuffer[255]; // Stack buffer for the "normal" case
+    if (Getcwd(stackBuffer, 255) != nullptr)
+        return SystemString(stackBuffer);
     if (errno != ERANGE)
     {
         // It's not ERANGE, so we don't know how to handle it
@@ -210,13 +210,13 @@ static SystemString GetcwdStr()
         // Of course you may choose a different error reporting method
     }
     // Ok, the stack buffer isn't long enough; fallback to heap allocation
-    for (int chunks=2 ; chunks<MaxChunks ; chunks++)
+    for (int chunks=2 ; chunks<10240 ; chunks++)
     {
         // With boost use scoped_ptr; in C++0x, use unique_ptr
         // If you want to be less C++ but more efficient you may want to use realloc
-        std::unique_ptr<SystemChar[]> cwd(new SystemChar[ChunkSize*chunks]);
-        if (Getcwd(cwd.get(), ChunkSize*chunks) != nullptr)
-            return cwd.get();
+        std::unique_ptr<SystemChar[]> cwd(new SystemChar[255*chunks]);
+        if (Getcwd(cwd.get(), 255*chunks) != nullptr)
+            return SystemString(cwd.get());
         if (errno != ERANGE)
         {
             // It's not ERANGE, so we don't know how to handle it
@@ -230,7 +230,7 @@ static SystemString GetcwdStr()
 
 static inline bool IsAbsolute(const SystemString& path)
 {
-#if WIN32
+#if _WIN32
     if (path.size() && (path[0] == _S('\\') || path[0] == _S('/')))
         return true;
     if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _S(':'))
