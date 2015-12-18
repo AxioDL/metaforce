@@ -35,6 +35,16 @@ class FileBrowser : public ModalWindow
     std::vector<PathButton> m_pathButtons;
 
     Specter::ViewChild<Specter::TextField> m_fileField;
+    struct FileFieldBind : Specter::IStringBinding
+    {
+        FileBrowser& m_browser;
+        FileFieldBind(FileBrowser& browser) : m_browser(browser) {}
+        const char* name() const {return "File Name";}
+        void changed(const std::string& val)
+        {
+        }
+    } m_fileFieldBind;
+
     Specter::ViewChild<Specter::ScrollView> m_fileScroll;
     Specter::ViewChild<Specter::Table> m_fileListing;
 

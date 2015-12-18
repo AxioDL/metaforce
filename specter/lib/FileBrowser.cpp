@@ -40,7 +40,9 @@ static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& 
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, const HECL::SystemString& initialPath)
-: ModalWindow(res, parentView), m_comps(PathComponents(initialPath))
+: ModalWindow(res, parentView),
+  m_comps(PathComponents(initialPath)),
+  m_fileFieldBind(*this)
 {
     commitResources(res);
     setBackground({0,0,0,0.5});
@@ -50,7 +52,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const HECL::Syste
     for (const HECL::SystemString& c : m_comps)
         m_pathButtons.emplace_back(*this, res, idx++, c);
 
-    m_fileField.m_view.reset(new TextField(res, *this));
+    m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
     updateContentOpacity(0.0);
 }
 
@@ -91,9 +93,6 @@ void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
 
 void FileBrowser::mouseEnter(const boo::SWindowCoord& coord)
 {
-    for (PathButton& b : m_pathButtons)
-        b.m_button.mouseEnter(coord);
-    m_fileField.mouseEnter(coord);
 }
 
 void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
@@ -122,7 +121,7 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
         pathRect.size[0] = b.m_button.m_view->nominalWidth();
         pathRect.size[1] = b.m_button.m_view->nominalHeight();
         b.m_button.m_view->resized(root, pathRect);
-        pathRect.location[0] += pathRect.size[0];
+        pathRect.location[0] += pathRect.size[0] + 2;
     }
 
     pathRect.location[0] = centerRect.location[0] + 10 * pf;

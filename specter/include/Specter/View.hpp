@@ -39,7 +39,7 @@ private:
     boo::IVertexFormat* m_bgVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_bgShaderBinding;
     SolidShaderVert m_bgRect[4];
-    boo::IGraphicsDataToken m_gfxData;
+    boo::GraphicsDataToken m_gfxData;
 
     friend class RootView;
     void buildResources(ViewResources& res);

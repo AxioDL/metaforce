@@ -5,8 +5,8 @@
 namespace Specter
 {
 
-TextField::TextField(ViewResources& res, View& parentView)
-: View(res, parentView)
+TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
+: Control(res, parentView, strBind)
 {
     m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
 
@@ -96,19 +96,22 @@ void TextField::mouseMove(const boo::SWindowCoord& coord)
 
 void TextField::mouseEnter(const boo::SWindowCoord& coord)
 {
+    setHover();
 }
 
 void TextField::mouseLeave(const boo::SWindowCoord& coord)
 {
+    setInactive();
 }
 
 void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
-    View::resized(root, sub);
-
     float pf = rootView().viewRes().pixelFactor();
     int width = sub.size[0];
     int height = 20 * pf;
+    boo::SWindowRect newRect = sub;
+    newRect.size[1] = height;
+    View::resized(root, newRect);
 
     m_verts[0].m_pos.assign(1, height+1, 0);
     m_verts[1].m_pos.assign(1, 1, 0);
@@ -150,7 +153,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
 
     boo::SWindowRect textRect = sub;
     textRect.location[0] += 5 * pf;
-    textRect.location[1] += 8 * pf;
+    textRect.location[1] += 7 * pf;
     m_text->resized(root, textRect);
 }
 

@@ -338,10 +338,8 @@ void ModalWindow::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_vertsShaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
-    if (m_frame > WIRE_START)
-        gfxQ->draw(0, 22);
-    if (m_frame > SOLID_START)
-        gfxQ->draw(22, 16);
+    gfxQ->draw(0, 22);
+    gfxQ->draw(22, 16);
 
     m_cornersFilled[0]->draw(gfxQ);
     m_cornersFilled[1]->draw(gfxQ);

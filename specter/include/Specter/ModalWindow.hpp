@@ -48,7 +48,7 @@ class ModalWindow : public View
     boo::IVertexFormat* m_vertsVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_vertsShaderBinding;
 
-    boo::IGraphicsDataToken m_windowGfxData;
+    boo::GraphicsDataToken m_windowGfxData;
 
     std::unique_ptr<TextView> m_cornersOutline[4];
     std::unique_ptr<TextView> m_cornersFilled[4];

@@ -15,8 +15,8 @@ class ThemeData
     Zeus::CColor m_uiText = Zeus::CColor::skWhite;
     Zeus::CColor m_fieldText = Zeus::CColor::skBlack;
 
-    Zeus::CColor m_vpBg = {0.2,0.2,0.2,1.0};
-    Zeus::CColor m_tbBg = {0.4,0.4,0.4,1.0};
+    Zeus::CColor m_vpBg = {0.2, 0.2, 0.2, 1.0};
+    Zeus::CColor m_tbBg = {0.4, 0.4, 0.4, 1.0};
     Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.65};
     Zeus::CColor m_splashBg = {0.1, 0.1, 0.1, 0.65};
 
@@ -33,11 +33,11 @@ class ThemeData
     Zeus::CColor m_button2Disabled = {0.1725, 0.1725, 0.1725, 0.5};
 
     Zeus::CColor m_textfield2Inactive = {0.7823, 0.7823, 0.7823, 1.0};
-    Zeus::CColor m_textfield1Inactive = {0.4725, 0.4725, 0.4725, 1.0};
+    Zeus::CColor m_textfield1Inactive = {0.5725, 0.5725, 0.5725, 1.0};
     Zeus::CColor m_textfield2Hover = {0.8523, 0.8523, 0.8523, 1.0};
-    Zeus::CColor m_textfield1Hover = {0.5425, 0.5425, 0.5425, 1.0};
+    Zeus::CColor m_textfield1Hover = {0.6425, 0.6425, 0.6425, 1.0};
     Zeus::CColor m_textfield2Disabled = {0.7823, 0.7823, 0.7823, 0.5};
-    Zeus::CColor m_textfield1Disabled = {0.4725, 0.4725, 0.4725, 0.5};
+    Zeus::CColor m_textfield1Disabled = {0.5725, 0.5725, 0.5725, 0.5};
 
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
@@ -88,7 +88,7 @@ public:
     SplitView::Resources m_splitRes;
     Toolbar::Resources m_toolbarRes;
     Button::Resources m_buttonRes;
-    boo::IGraphicsDataToken m_resData;
+    boo::GraphicsDataToken m_resData;
 
     Specter::FontTag m_mainFont;
     Specter::FontTag m_monoFont;

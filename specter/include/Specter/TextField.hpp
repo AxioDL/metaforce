@@ -1,13 +1,13 @@
 #ifndef SPECTER_TEXTFIELD_HPP
 #define SPECTER_TEXTFIELD_HPP
 
-#include "View.hpp"
+#include "Control.hpp"
 #include "TextView.hpp"
 
 namespace Specter
 {
 
-class TextField : public View
+class TextField : public Control
 {
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
@@ -25,7 +25,7 @@ class TextField : public View
     void setDisabled();
 
 public:
-    TextField(ViewResources& res, View& parentView);
+    TextField(ViewResources& res, View& parentView, IStringBinding* strBind);
 
     void setText(const std::string& str);
 

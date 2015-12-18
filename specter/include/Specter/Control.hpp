@@ -34,6 +34,12 @@ struct IIntBinding : IControlBinding
     virtual void changed(int val)=0;
 };
 
+struct IStringBinding : IControlBinding
+{
+    virtual std::string getDefault() const {return "";}
+    virtual void changed(const std::string& val)=0;
+};
+
 struct CVarControlBinding : IControlBinding
 {
     HECL::CVar* m_cvar;
