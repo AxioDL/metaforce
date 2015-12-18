@@ -18,7 +18,7 @@ static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& 
     auto it = sPath.cbegin();
     if (*it == _S('/'))
     {
-        ret.push_back("/");
+        ret.push_back(_S("/"));
         ++it;
     }
     HECL::SystemString comp;
