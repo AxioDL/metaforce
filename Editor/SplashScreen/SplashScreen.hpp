@@ -19,11 +19,11 @@ class SplashScreen : public Specter::ModalWindow
     std::unique_ptr<Specter::TextView> m_title;
     std::unique_ptr<Specter::MultiLineTextView> m_buildInfo;
 
-    Specter::ViewChild<Specter::Button> m_newButt;
-    Specter::ViewChild<Specter::Button> m_openButt;
-    Specter::ViewChild<Specter::Button> m_extractButt;
+    Specter::ViewChild<std::unique_ptr<Specter::Button>> m_newButt;
+    Specter::ViewChild<std::unique_ptr<Specter::Button>> m_openButt;
+    Specter::ViewChild<std::unique_ptr<Specter::Button>> m_extractButt;
 
-    Specter::ViewChild<Specter::FileBrowser> m_fileBrowser;
+    Specter::ViewChild<std::unique_ptr<Specter::FileBrowser>> m_fileBrowser;
 
     struct NewProjBinding : Specter::IButtonBinding
     {
