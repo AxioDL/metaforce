@@ -67,6 +67,7 @@ public:
         RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor);
     };
     std::vector<RenderGlyph>& accessGlyphs() {return m_glyphs;}
+    const std::vector<RenderGlyph>& accessGlyphs() const {return m_glyphs;}
     void updateGlyphs() {m_valid = false;}
 
     void typesetGlyphs(const std::string& str,
@@ -85,10 +86,13 @@ public:
     int nominalHeight() const {return m_fontAtlas.FT_LineHeight() >> 6;}
 
     std::pair<int,int> queryGlyphDimensions(size_t pos) const;
+    size_t reverseSelectGlyph(int x) const;
+    int queryReverseAdvance(size_t idx) const;
 
 private:
     std::vector<RenderGlyph> m_glyphs;
     std::vector<std::pair<int,int>> m_glyphDims;
+    std::vector<int> m_glyphAdvs;
 };
 
 }

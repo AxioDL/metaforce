@@ -8,7 +8,7 @@ namespace Specter
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
 : Control(res, parentView, strBind)
 {
-    m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
+    m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 32);
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
@@ -40,7 +40,9 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
     m_verts[4].m_color = rootView().themeData().textfield2Inactive();
     for (int i=5 ; i<28 ; ++i)
         m_verts[i].m_color = res.themeData().textfield2Inactive();
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+    for (int i=28 ; i<32 ; ++i)
+        m_verts[i].m_color = res.themeData().textfieldSelection();
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
     setText("Test");
@@ -48,8 +50,13 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
 
 void TextField::setText(const std::string& str)
 {
-    m_textStr = str;
-    m_text->typesetGlyphs(str, rootView().themeData().fieldText());
+    clearSelectionRange();
+    auto it = str.cbegin();
+    for (; it != str.cend() ; ++it)
+        if (*it == '\n')
+            break;
+    m_textStr.assign(str.cbegin(), it);
+    m_text->typesetGlyphs(m_textStr, rootView().themeData().fieldText());
 }
 
 void TextField::setInactive()
@@ -59,7 +66,7 @@ void TextField::setInactive()
     m_verts[2].m_color = rootView().themeData().textfield1Inactive();
     m_verts[3].m_color = rootView().themeData().textfield2Inactive();
     m_verts[4].m_color = rootView().themeData().textfield2Inactive();
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
 }
 
 void TextField::setHover()
@@ -69,7 +76,7 @@ void TextField::setHover()
     m_verts[2].m_color = rootView().themeData().textfield1Hover();
     m_verts[3].m_color = rootView().themeData().textfield2Hover();
     m_verts[4].m_color = rootView().themeData().textfield2Hover();
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
 }
 
 void TextField::setDisabled()
@@ -79,11 +86,19 @@ void TextField::setDisabled()
     m_verts[2].m_color = rootView().themeData().textfield1Disabled();
     m_verts[3].m_color = rootView().themeData().textfield2Disabled();
     m_verts[4].m_color = rootView().themeData().textfield2Disabled();
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
 }
 
 void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    if (!m_active)
+    {
+        rootView().setActiveTextView(this);
+        if (!m_selectionCount)
+            setSelectionRange(0, m_textStr.size());
+    }
+    else
+        setCursorPos(m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]));
 }
 
 void TextField::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -97,11 +112,120 @@ void TextField::mouseMove(const boo::SWindowCoord& coord)
 void TextField::mouseEnter(const boo::SWindowCoord& coord)
 {
     setHover();
+    rootView().window()->setCursor(boo::EMouseCursor::IBeam);
 }
 
 void TextField::mouseLeave(const boo::SWindowCoord& coord)
 {
     setInactive();
+    rootView().window()->setCursor(boo::EMouseCursor::Pointer);
+}
+
+void TextField::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
+{
+    if (m_selectionCount)
+    {
+        std::string newStr(m_textStr.cbegin(), m_textStr.cbegin() + m_selectionStart);
+        utf8proc_uint8_t theChar[5] = {};
+        utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
+        if (sz > 0)
+            newStr += (char*)theChar;
+        newStr.append(m_textStr.cbegin() + m_selectionStart + m_selectionCount, m_textStr.cend());
+        setText(newStr);
+    }
+    else
+    {
+        std::string newStr(m_textStr.cbegin(), m_textStr.cbegin() + m_cursorPos);
+        utf8proc_uint8_t theChar[5] = {};
+        utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
+        if (sz > 0)
+            newStr += (char*)theChar;
+        newStr.append(m_textStr.cbegin() + m_cursorPos, m_textStr.cend());
+        setText(newStr);
+    }
+}
+
+void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
+{
+    if (key == boo::ESpecialKey::Left)
+    {
+        if (m_selectionCount)
+            m_cursorPos = m_selectionStart;
+        setCursorPos(m_cursorPos==0 ? 0 : (m_cursorPos-1));
+    }
+    else if (key == boo::ESpecialKey::Right)
+    {
+        if (m_selectionCount)
+            m_cursorPos = m_selectionStart + m_selectionCount - 1;
+        setCursorPos(m_cursorPos+1);
+    }
+}
+
+void TextField::think()
+{
+    ++m_cursorFrames;
+}
+
+void TextField::setActive(bool active)
+{
+    m_active = active;
+    if (!active)
+        clearSelectionRange();
+}
+
+void TextField::setCursorPos(size_t pos)
+{
+    clearSelectionRange();
+    m_cursorPos = std::min(pos, m_textStr.size());
+    m_cursorFrames = 0;
+
+    float pf = rootView().viewRes().pixelFactor();
+    int offset1 = 4 * pf + m_text->queryReverseAdvance(m_cursorPos);
+    int offset2 = offset1 + 2 * pf;
+    m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
+    m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
+    m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
+    m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+}
+
+void TextField::setSelectionRange(size_t start, size_t count)
+{
+    m_selectionStart = std::min(start, m_textStr.size()-1);
+    m_selectionCount = std::min(count, m_textStr.size()-m_selectionStart);
+
+    ViewResources& res = rootView().viewRes();
+    float pf = res.pixelFactor();
+    int offset1 = 5 * pf;
+    int offset2 = offset1;
+    std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
+    offset1 += glyphs[m_selectionStart].m_pos[0][0];
+    offset2 += glyphs[m_selectionStart+m_selectionCount-1].m_pos[2][0];
+    for (size_t i=0 ; i<glyphs.size() ; ++i)
+    {
+        if (i >= m_selectionStart && i< m_selectionStart + m_selectionCount)
+            glyphs[i].m_color = rootView().themeData().selectedFieldText();
+        else
+            glyphs[i].m_color = rootView().themeData().fieldText();
+    }
+    m_text->updateGlyphs();
+
+    m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
+    m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
+    m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
+    m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+}
+
+void TextField::clearSelectionRange()
+{
+    m_selectionStart = 0;
+    m_selectionCount = 0;
+
+    std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
+    for (size_t i=0 ; i<glyphs.size() ; ++i)
+        glyphs[i].m_color = rootView().themeData().fieldText();
+    m_text->updateGlyphs();
 }
 
 void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -146,7 +270,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
     m_verts[26].m_pos.assign(width+1, 1, 0);
     m_verts[27].m_pos.assign(width+1, 0, 0);
 
-    m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+    m_bVertsBuf->load(m_verts, sizeof(m_verts));
 
     m_nomWidth = width;
     m_nomHeight = height;
@@ -163,6 +287,16 @@ void TextField::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setShaderDataBinding(m_bShaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 28);
+    if (m_active)
+    {
+        if (!m_selectionCount)
+        {
+            if (m_cursorFrames % 60 < 30)
+                gfxQ->draw(28, 4);
+        }
+        else
+            gfxQ->draw(28, 4);
+    }
     m_text->draw(gfxQ);
 }
 

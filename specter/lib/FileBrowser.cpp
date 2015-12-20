@@ -5,8 +5,8 @@ namespace Specter
 {
 
 #define BROWSER_MARGIN 30
-#define BROWSER_MIN_WIDTH 100
-#define BROWSER_MIN_HEIGHT 100
+#define BROWSER_MIN_WIDTH 600
+#define BROWSER_MIN_HEIGHT 300
 
 static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& path)
 {
@@ -40,7 +40,10 @@ static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& 
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, const HECL::SystemString& initialPath)
-: ModalWindow(res, parentView),
+: ModalWindow(res, parentView, RectangleConstraint(BROWSER_MIN_WIDTH * res.pixelFactor(),
+                                                   BROWSER_MIN_HEIGHT * res.pixelFactor(),
+                                                   RectangleConstraint::Test::Minimum,
+                                                   RectangleConstraint::Test::Minimum)),
   m_comps(PathComponents(initialPath)),
   m_fileFieldBind(*this)
 {
@@ -102,20 +105,34 @@ void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
     m_fileField.mouseLeave(coord);
 }
 
+void FileBrowser::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
+{
+}
+
+void FileBrowser::touchDown(const boo::STouchCoord& coord, uintptr_t tid)
+{
+}
+
+void FileBrowser::touchUp(const boo::STouchCoord& coord, uintptr_t tid)
+{
+}
+
+void FileBrowser::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
+{
+}
+
 void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     ModalWindow::resized(root, root);
     float pf = rootView().viewRes().pixelFactor();
 
-    boo::SWindowRect centerRect = sub;
-    centerRect.size[0] = std::max(root.size[0] - BROWSER_MARGIN * 2 * pf, BROWSER_MIN_WIDTH * pf);
-    centerRect.size[1] = std::max(root.size[1] - BROWSER_MARGIN * 2 * pf, BROWSER_MIN_HEIGHT * pf);
+    boo::SWindowRect centerRect = subRect();
     centerRect.location[0] = root.size[0] / 2 - (centerRect.size[0] / 2.0);
     centerRect.location[1] = root.size[1] / 2 - (centerRect.size[1] / 2.0);
 
     boo::SWindowRect pathRect = centerRect;
-    pathRect.location[0] += 10 * pf;
-    pathRect.location[1] += pathRect.size[1] - 20 * pf;
+    pathRect.location[0] += 25 * pf;
+    pathRect.location[1] += pathRect.size[1] - 50 * pf;
     for (PathButton& b : m_pathButtons)
     {
         pathRect.size[0] = b.m_button.m_view->nominalWidth();
@@ -124,11 +141,17 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
         pathRect.location[0] += pathRect.size[0] + 2;
     }
 
-    pathRect.location[0] = centerRect.location[0] + 10 * pf;
+    pathRect.location[0] = centerRect.location[0] + 25 * pf;
     pathRect.location[1] -= 25 * pf;
-    pathRect.size[0] = centerRect.size[0] - 20 * pf;
+    pathRect.size[0] = centerRect.size[0] - 50 * pf;
     pathRect.size[1] = m_fileField.m_view->nominalHeight();
     m_fileField.m_view->resized(root, pathRect);
+}
+
+void FileBrowser::think()
+{
+    ModalWindow::think();
+    m_fileField.m_view->think();
 }
 
 void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)

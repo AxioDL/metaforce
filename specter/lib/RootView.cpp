@@ -80,44 +80,79 @@ void RootView::mouseLeave(const boo::SWindowCoord& coord)
 
 void RootView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
+    if (m_view)
+        m_view->scroll(coord, scroll);
 }
 
 void RootView::touchDown(const boo::STouchCoord& coord, uintptr_t tid)
 {
+    if (m_view)
+        m_view->touchDown(coord, tid);
 }
 
 void RootView::touchUp(const boo::STouchCoord& coord, uintptr_t tid)
 {
+    if (m_view)
+        m_view->touchUp(coord, tid);
 }
 
 void RootView::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
 {
+    if (m_view)
+        m_view->touchMove(coord, tid);
 }
 
 void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
 {
+    if (m_view)
+        m_view->charKeyDown(charCode, mods, isRepeat);
+    if (m_activeTextView)
+        m_activeTextView->charKeyDown(charCode, mods, isRepeat);
 }
 
 void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods)
 {
+    if (m_view)
+        m_view->charKeyUp(charCode, mods);
+    if (m_activeTextView)
+        m_activeTextView->charKeyUp(charCode, mods);
 }
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
 {
     if (key == boo::ESpecialKey::Enter && (mods & boo::EModifierKey::Alt) != boo::EModifierKey::None)
+    {
         m_window->setFullscreen(!m_window->isFullscreen());
+        return;
+    }
+    if (m_view)
+        m_view->specialKeyDown(key, mods, isRepeat);
+    if (m_activeTextView)
+        m_activeTextView->specialKeyDown(key, mods, isRepeat);
 }
 
 void RootView::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
 {
+    if (m_view)
+        m_view->specialKeyUp(key, mods);
+    if (m_activeTextView)
+        m_activeTextView->specialKeyUp(key, mods);
 }
 
 void RootView::modKeyDown(boo::EModifierKey mod, bool isRepeat)
 {
+    if (m_view)
+        m_view->modKeyDown(mod, isRepeat);
+    if (m_activeTextView)
+        m_activeTextView->modKeyDown(mod, isRepeat);
 }
 
 void RootView::modKeyUp(boo::EModifierKey mod)
 {
+    if (m_view)
+        m_view->modKeyUp(mod);
+    if (m_activeTextView)
+        m_activeTextView->modKeyUp(mod);
 }
 
 View* RootView::setContentView(View* view)

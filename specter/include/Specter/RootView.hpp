@@ -4,6 +4,7 @@
 #include "View.hpp"
 #include "ViewResources.hpp"
 #include "MultiLineTextView.hpp"
+#include "TextField.hpp"
 #include "SplitView.hpp"
 #include "Tooltip.hpp"
 #include "FontCache.hpp"
@@ -26,6 +27,7 @@ class RootView : public View
     bool m_destroyed = false;
     IViewManager& m_viewMan;
     ViewResources* m_viewRes;
+    View* m_activeTextView = nullptr;
 
     DeferredWindowEvents<RootView> m_events;
 
@@ -64,6 +66,13 @@ public:
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
     View* setContentView(View* view);
+    void setActiveTextView(View* textView)
+    {
+        if (m_activeTextView)
+            m_activeTextView->setActive(false);
+        m_activeTextView = textView;
+        textView->setActive(true);
+    }
 
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);

@@ -355,6 +355,8 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
     m_glyphs.reserve(str.size());
     m_glyphDims.clear();
     m_glyphDims.reserve(str.size());
+    m_glyphAdvs.clear();
+    m_glyphAdvs.reserve(str.size());
     int adv = 0;
 
     while (rem)
@@ -378,6 +380,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
         m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
+        m_glyphAdvs.push_back(adv);
 
         lCh = glyph->m_glyphIdx;
         rem -= sz;
@@ -422,6 +425,8 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
     m_glyphs.reserve(str.size());
     m_glyphDims.clear();
     m_glyphDims.reserve(str.size());
+    m_glyphAdvs.clear();
+    m_glyphAdvs.reserve(str.size());
     int adv = 0;
 
     for (wchar_t ch : str)
@@ -437,6 +442,7 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
         m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
+        m_glyphAdvs.push_back(adv);
 
         lCh = glyph->m_glyphIdx;
 
@@ -516,5 +522,32 @@ std::pair<int,int> TextView::queryGlyphDimensions(size_t pos) const
     return m_glyphDims[pos];
 }
 
+size_t TextView::reverseSelectGlyph(int x) const
+{
+    size_t ret = 0;
+    size_t idx = 1;
+    int minDelta = abs(x);
+    for (int adv : m_glyphAdvs)
+    {
+        int thisDelta = abs(adv-x);
+        if (thisDelta < minDelta)
+        {
+            minDelta = thisDelta;
+            ret = idx;
+        }
+        ++idx;
+    }
+    return ret;
+}
+
+int TextView::queryReverseAdvance(size_t idx) const
+{
+    if (idx > m_glyphAdvs.size())
+        Log.report(LogVisor::FatalError,
+                   "TextView::queryReverseGlyph(%" PRISize ") out of inclusive bounds: %" PRISize,
+                   idx, m_glyphAdvs.size());
+    if (!idx) return 0;
+    return m_glyphAdvs[idx-1];
+}
 
 }

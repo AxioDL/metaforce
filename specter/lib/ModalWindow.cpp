@@ -168,10 +168,9 @@ void ModalWindow::setFillColors(float t)
         m_cornersFilled[i]->colorGlyphs(color);
 }
 
-ModalWindow::ModalWindow(ViewResources& res, View& parentView, int widthConstrain, int heightConstrain)
+ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint)
 : View(res, parentView),
-  m_widthConstrain(widthConstrain),
-  m_heightConstrain(heightConstrain),
+  m_constraint(constraint),
   m_windowBg(res.themeData().splashBackground()),
   m_windowBgClear(m_windowBg),
   m_line1(res.themeData().splash1()),
@@ -302,10 +301,10 @@ void ModalWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
     float pf = rootView().viewRes().pixelFactor();
 
     boo::SWindowRect centerRect = sub;
-    m_width = m_widthConstrain < 0 ? root.size[0] - CONTENT_MARGIN * pf * 2 : m_widthConstrain;
-    m_height = m_heightConstrain < 0 ? root.size[1] - CONTENT_MARGIN * pf * 2 : m_heightConstrain;
-    m_width = std::max(m_width, int(WINDOW_MIN_DIM * pf));
-    m_height = std::max(m_height, int(WINDOW_MIN_DIM * pf));
+    std::pair<int,int> constrained = m_constraint.solve(root.size[0] - CONTENT_MARGIN * pf * 2,
+                                                        root.size[1] - CONTENT_MARGIN * pf * 2);
+    m_width = std::max(constrained.first, int(WINDOW_MIN_DIM * pf));
+    m_height = std::max(constrained.second, int(WINDOW_MIN_DIM * pf));
     centerRect.size[0] = m_width;
     centerRect.size[1] = m_height;
     centerRect.location[0] = root.size[0] / 2 - m_width / 2.0;

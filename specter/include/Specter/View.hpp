@@ -18,6 +18,65 @@ class ThemeData;
 class ViewResources;
 class RootView;
 
+class RectangleConstraint
+{
+public:
+    enum class Test
+    {
+        Fixed,
+        Minimum,
+        Maximum
+    };
+private:
+    int m_x, m_y;
+    Test m_xtest, m_ytest;
+public:
+    RectangleConstraint(int x=-1, int y=-1, Test xtest=Test::Fixed, Test ytest=Test::Fixed)
+    : m_x(x), m_y(y), m_xtest(xtest), m_ytest(ytest) {}
+    std::pair<int,int> solve(int x, int y) const
+    {
+        std::pair<int,int> ret;
+
+        if (m_x < 0)
+            ret.first = x;
+        else
+        {
+            switch (m_xtest)
+            {
+            case Test::Fixed:
+                ret.first = m_x;
+                break;
+            case Test::Minimum:
+                ret.first = std::max(m_x, x);
+                break;
+            case Test::Maximum:
+                ret.first = std::min(m_x, x);
+                break;
+            }
+        }
+
+        if (m_y < 0)
+            ret.second = y;
+        else
+        {
+            switch (m_ytest)
+            {
+            case Test::Fixed:
+                ret.second = m_y;
+                break;
+            case Test::Minimum:
+                ret.second = std::max(m_y, y);
+                break;
+            case Test::Maximum:
+                ret.second = std::min(m_y, y);
+                break;
+            }
+        }
+
+        return ret;
+    }
+};
+
 class View
 {
 public:
@@ -127,13 +186,26 @@ public:
     virtual int nominalWidth() const {return 0;}
     virtual int nominalHeight() const {return 0;}
 
-    virtual void updateCVar(HECL::CVar* cvar) {}
+    virtual void setActive(bool) {}
+
     virtual void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) {}
     virtual void mouseMove(const boo::SWindowCoord&) {}
     virtual void mouseEnter(const boo::SWindowCoord&) {}
     virtual void mouseLeave(const boo::SWindowCoord&) {}
+    virtual void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&) {}
+    virtual void touchDown(const boo::STouchCoord&, uintptr_t) {}
+    virtual void touchUp(const boo::STouchCoord&, uintptr_t) {}
+    virtual void touchMove(const boo::STouchCoord&, uintptr_t) {}
+    virtual void charKeyDown(unsigned long, boo::EModifierKey, bool) {}
+    virtual void charKeyUp(unsigned long, boo::EModifierKey) {}
+    virtual void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool) {}
+    virtual void specialKeyUp(boo::ESpecialKey, boo::EModifierKey) {}
+    virtual void modKeyDown(boo::EModifierKey, bool) {}
+    virtual void modKeyUp(boo::EModifierKey) {}
+
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    virtual void think() {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 

@@ -23,8 +23,7 @@ class ModalWindow : public View
 
     int m_width = 0;
     int m_height = 0;
-    int m_widthConstrain;
-    int m_heightConstrain;
+    RectangleConstraint m_constraint;
 
     Zeus::CColor m_windowBg;
     Zeus::CColor m_windowBgClear;
@@ -57,7 +56,7 @@ protected:
     virtual void updateContentOpacity(float opacity) {}
 
 public:
-    ModalWindow(ViewResources& res, View& parentView, int widthConstrain=-1, int heightConstrain=-1);
+    ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
     void think();
     bool skipBuildInAnimation();
 

@@ -14,6 +14,7 @@ class ThemeData
 {
     Zeus::CColor m_uiText = Zeus::CColor::skWhite;
     Zeus::CColor m_fieldText = Zeus::CColor::skBlack;
+    Zeus::CColor m_selectedFieldText = Zeus::CColor::skWhite;
 
     Zeus::CColor m_vpBg = {0.2, 0.2, 0.2, 1.0};
     Zeus::CColor m_tbBg = {0.4, 0.4, 0.4, 1.0};
@@ -38,10 +39,12 @@ class ThemeData
     Zeus::CColor m_textfield1Hover = {0.6425, 0.6425, 0.6425, 1.0};
     Zeus::CColor m_textfield2Disabled = {0.7823, 0.7823, 0.7823, 0.5};
     Zeus::CColor m_textfield1Disabled = {0.5725, 0.5725, 0.5725, 0.5};
+    Zeus::CColor m_textfieldSelection = {0.2725, 0.2725, 0.2725, 1.0};
 
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
     virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
+    virtual const Zeus::CColor& selectedFieldText() const {return m_selectedFieldText;}
 
     virtual const Zeus::CColor& viewportBackground() const {return m_vpBg;}
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
@@ -66,6 +69,7 @@ public:
     virtual const Zeus::CColor& textfield2Hover() const {return m_textfield2Hover;}
     virtual const Zeus::CColor& textfield1Disabled() const {return m_textfield1Disabled;}
     virtual const Zeus::CColor& textfield2Disabled() const {return m_textfield2Disabled;}
+    virtual const Zeus::CColor& textfieldSelection() const {return m_textfieldSelection;}
 };
 
 class ViewResources
