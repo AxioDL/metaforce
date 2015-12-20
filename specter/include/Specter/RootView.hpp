@@ -28,6 +28,7 @@ class RootView : public View
     IViewManager& m_viewMan;
     ViewResources* m_viewRes;
     View* m_activeTextView = nullptr;
+    View* m_activeDragView = nullptr;
 
     DeferredWindowEvents<RootView> m_events;
 
@@ -71,7 +72,12 @@ public:
         if (m_activeTextView)
             m_activeTextView->setActive(false);
         m_activeTextView = textView;
-        textView->setActive(true);
+        if (textView)
+            textView->setActive(true);
+    }
+    void setActiveDragView(View* dragView)
+    {
+        m_activeDragView = dragView;
     }
 
     void resetTooltip(ViewResources& res);

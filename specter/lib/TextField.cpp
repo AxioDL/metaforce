@@ -45,17 +45,17 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
     m_bVertsBuf->load(m_verts, sizeof(m_verts));
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
-    setText("Test");
+    setText("テスト");
 }
 
 void TextField::setText(const std::string& str)
 {
     clearSelectionRange();
-    auto it = str.cbegin();
-    for (; it != str.cend() ; ++it)
-        if (*it == '\n')
+    UTF8Iterator it(str.cbegin());
+    for (; it.iter() != str.cend() ; ++it)
+        if (*it.iter() == '\n')
             break;
-    m_textStr.assign(str.cbegin(), it);
+    m_textStr.assign(str.cbegin(), it.iter());
     m_text->typesetGlyphs(m_textStr, rootView().themeData().fieldText());
 }
 
@@ -95,18 +95,49 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     {
         rootView().setActiveTextView(this);
         if (!m_selectionCount)
-            setSelectionRange(0, m_textStr.size());
+            setSelectionRange(0, m_text->accessGlyphs().size());
+    }
+    else if (m_clickFrames2 < 15)
+    {
+        setSelectionRange(0, m_text->accessGlyphs().size());
+    }
+    else if (m_clickFrames < 15)
+    {
+        size_t startPos = m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]);
+        std::pair<size_t,size_t> range = m_text->queryWholeWordRange(startPos);
+        setSelectionRange(range.first, range.second);
+        m_clickFrames2 = 0;
     }
     else
-        setCursorPos(m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]));
+    {
+        size_t startPos = m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]);
+        setCursorPos(startPos);
+        m_dragging |= 1 << int(button);
+        m_dragStart = startPos;
+        rootView().setActiveDragView(this);
+    }
+    m_clickFrames = 0;
 }
 
 void TextField::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    m_dragging &= ~(1 << int(button));
+    if (m_dragging == 0)
+        rootView().setActiveDragView(nullptr);
 }
 
 void TextField::mouseMove(const boo::SWindowCoord& coord)
 {
+    if (m_dragging != 0)
+    {
+        size_t thisPos = m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]);
+        size_t minPos = std::min(m_dragStart, thisPos);
+        size_t maxPos = std::max(m_dragStart, thisPos);
+        if (minPos != maxPos)
+            setSelectionRange(minPos, maxPos-minPos);
+        else
+            setCursorPos(minPos);
+    }
 }
 
 void TextField::mouseEnter(const boo::SWindowCoord& coord)
@@ -125,23 +156,26 @@ void TextField::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool
 {
     if (m_selectionCount)
     {
-        std::string newStr(m_textStr.cbegin(), m_textStr.cbegin() + m_selectionStart);
+        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
         utf8proc_uint8_t theChar[5] = {};
         utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
         if (sz > 0)
             newStr += (char*)theChar;
-        newStr.append(m_textStr.cbegin() + m_selectionStart + m_selectionCount, m_textStr.cend());
+        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+        size_t selStart = m_selectionStart;
         setText(newStr);
+        setCursorPos(selStart + 1);
     }
     else
     {
-        std::string newStr(m_textStr.cbegin(), m_textStr.cbegin() + m_cursorPos);
+        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
         utf8proc_uint8_t theChar[5] = {};
         utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
         if (sz > 0)
             newStr += (char*)theChar;
-        newStr.append(m_textStr.cbegin() + m_cursorPos, m_textStr.cend());
+        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
         setText(newStr);
+        setCursorPos(m_cursorPos + 1);
     }
 }
 
@@ -159,11 +193,49 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
             m_cursorPos = m_selectionStart + m_selectionCount - 1;
         setCursorPos(m_cursorPos+1);
     }
+    else if (key == boo::ESpecialKey::Backspace)
+    {
+        if (m_selectionCount)
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            size_t selStart = m_selectionStart;
+            setText(newStr);
+            setCursorPos(selStart);
+        }
+        else if (m_cursorPos > 0)
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + (m_cursorPos-1)).iter());
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
+            setText(newStr);
+            setCursorPos(m_cursorPos-1);
+        }
+    }
+    else if (key == boo::ESpecialKey::Delete)
+    {
+        if (m_selectionCount)
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            size_t selStart = m_selectionStart;
+            setText(newStr);
+            setCursorPos(selStart);
+        }
+        else if (m_cursorPos < m_text->accessGlyphs().size())
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + (m_cursorPos+1)).iter(), m_textStr.cend());
+            setText(newStr);
+            setCursorPos(m_cursorPos);
+        }
+    }
 }
 
 void TextField::think()
 {
     ++m_cursorFrames;
+    ++m_clickFrames;
+    ++m_clickFrames2;
 }
 
 void TextField::setActive(bool active)
@@ -176,7 +248,7 @@ void TextField::setActive(bool active)
 void TextField::setCursorPos(size_t pos)
 {
     clearSelectionRange();
-    m_cursorPos = std::min(pos, m_textStr.size());
+    m_cursorPos = std::min(pos, m_text->accessGlyphs().size());
     m_cursorFrames = 0;
 
     float pf = rootView().viewRes().pixelFactor();
@@ -191,8 +263,8 @@ void TextField::setCursorPos(size_t pos)
 
 void TextField::setSelectionRange(size_t start, size_t count)
 {
-    m_selectionStart = std::min(start, m_textStr.size()-1);
-    m_selectionCount = std::min(count, m_textStr.size()-m_selectionStart);
+    m_selectionStart = std::min(start, m_text->accessGlyphs().size()-1);
+    m_selectionCount = std::min(count, m_text->accessGlyphs().size()-m_selectionStart);
 
     ViewResources& res = rootView().viewRes();
     float pf = res.pixelFactor();

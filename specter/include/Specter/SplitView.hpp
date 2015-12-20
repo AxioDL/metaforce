@@ -34,13 +34,7 @@ private:
         updateSize();
     }
 
-    struct Child
-    {
-        View* m_view = nullptr;
-        bool m_mouseIn = false;
-        bool m_mouseDown = false;
-    };
-    Child m_views[2];
+    ViewChild<View*> m_views[2];
     ViewBlock m_splitBlock;
     boo::IGraphicsBufferD* m_splitBlockBuf;
     TexShaderVert m_splitVerts[4];

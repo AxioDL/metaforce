@@ -209,12 +209,12 @@ public:
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 
-template <class ViewType>
+template <class ViewPtrType>
 struct ViewChild
 {
-    std::unique_ptr<ViewType> m_view;
+    ViewPtrType m_view;
     bool m_mouseIn = false;
-    bool m_mouseDown = false;
+    int m_mouseDown = 0;
 
     void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
     {
@@ -222,10 +222,10 @@ struct ViewChild
             return;
         if (m_view->subRect().coordInRect(coord))
         {
-            if (!m_mouseDown)
+            if ((m_mouseDown & 1 << int(button)) == 0)
             {
                 m_view->mouseDown(coord, button, mod);
-                m_mouseDown = true;
+                m_mouseDown |= 1 << int(button);
             }
         }
     }
@@ -234,10 +234,10 @@ struct ViewChild
     {
         if (!m_view)
             return;
-        if (m_mouseDown)
+        if ((m_mouseDown & 1 << int(button)) != 0)
         {
             m_view->mouseUp(coord, button, mod);
-            m_mouseDown = false;
+            m_mouseDown &= ~(1 << int(button));
         }
     }
 

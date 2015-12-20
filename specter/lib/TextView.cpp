@@ -353,10 +353,8 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
     uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
-    m_glyphDims.clear();
-    m_glyphDims.reserve(str.size());
-    m_glyphAdvs.clear();
-    m_glyphAdvs.reserve(str.size());
+    m_glyphInfo.clear();
+    m_glyphInfo.reserve(str.size());
     int adv = 0;
 
     while (rem)
@@ -379,8 +377,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
         if (lCh != -1)
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
-        m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
-        m_glyphAdvs.push_back(adv);
+        m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);
 
         lCh = glyph->m_glyphIdx;
         rem -= sz;
@@ -423,10 +420,8 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
     uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
-    m_glyphDims.clear();
-    m_glyphDims.reserve(str.size());
-    m_glyphAdvs.clear();
-    m_glyphAdvs.reserve(str.size());
+    m_glyphInfo.clear();
+    m_glyphInfo.reserve(str.size());
     int adv = 0;
 
     for (wchar_t ch : str)
@@ -441,8 +436,7 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
         if (lCh != -1)
             adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
         m_glyphs.emplace_back(adv, *glyph, defaultColor);
-        m_glyphDims.emplace_back(glyph->m_width, glyph->m_height);
-        m_glyphAdvs.push_back(adv);
+        m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);
 
         lCh = glyph->m_glyphIdx;
 
@@ -514,12 +508,12 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 std::pair<int,int> TextView::queryGlyphDimensions(size_t pos) const
 {
-    if (pos >= m_glyphDims.size())
+    if (pos >= m_glyphInfo.size())
         Log.report(LogVisor::FatalError,
                    "TextView::queryGlyphWidth(%" PRISize ") out of bounds: %" PRISize,
-                   pos, m_glyphDims.size());
+                   pos, m_glyphInfo.size());
 
-    return m_glyphDims[pos];
+    return m_glyphInfo[pos].m_dims;
 }
 
 size_t TextView::reverseSelectGlyph(int x) const
@@ -527,9 +521,9 @@ size_t TextView::reverseSelectGlyph(int x) const
     size_t ret = 0;
     size_t idx = 1;
     int minDelta = abs(x);
-    for (int adv : m_glyphAdvs)
+    for (const RenderGlyphInfo& info : m_glyphInfo)
     {
-        int thisDelta = abs(adv-x);
+        int thisDelta = abs(info.m_adv-x);
         if (thisDelta < minDelta)
         {
             minDelta = thisDelta;
@@ -542,12 +536,35 @@ size_t TextView::reverseSelectGlyph(int x) const
 
 int TextView::queryReverseAdvance(size_t idx) const
 {
-    if (idx > m_glyphAdvs.size())
+    if (idx > m_glyphInfo.size())
         Log.report(LogVisor::FatalError,
                    "TextView::queryReverseGlyph(%" PRISize ") out of inclusive bounds: %" PRISize,
-                   idx, m_glyphAdvs.size());
+                   idx, m_glyphInfo.size());
     if (!idx) return 0;
-    return m_glyphAdvs[idx-1];
+    return m_glyphInfo[idx-1].m_adv;
+}
+
+std::pair<size_t,size_t> TextView::queryWholeWordRange(size_t idx) const
+{
+    if (idx > m_glyphInfo.size())
+        Log.report(LogVisor::FatalError,
+                   "TextView::queryWholeWordRange(%" PRISize ") out of inclusive bounds: %" PRISize,
+                   idx, m_glyphInfo.size());
+    if (m_glyphInfo.empty())
+        return {0,0};
+
+    if (idx == m_glyphInfo.size())
+        --idx;
+
+    size_t begin = idx;
+    while (begin > 0 && !m_glyphInfo[begin-1].m_space)
+        --begin;
+
+    size_t end = idx;
+    while (end < m_glyphInfo.size() && !m_glyphInfo[end].m_space)
+        ++end;
+
+    return {begin, end-begin};
 }
 
 }

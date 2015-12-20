@@ -24,6 +24,11 @@ class TextField : public Control
     size_t m_selectionCount = 0;
     size_t m_cursorPos = 0;
     size_t m_cursorFrames = 0;
+    size_t m_clickFrames = 15;
+    size_t m_clickFrames2 = 15;
+
+    size_t m_dragStart = 0;
+    size_t m_dragging = 0;
 
     bool m_active = false;
 

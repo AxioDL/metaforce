@@ -21,7 +21,7 @@ class FileBrowser : public ModalWindow
     {
         FileBrowser& m_fb;
         size_t m_idx;
-        Specter::ViewChild<Specter::Button> m_button;
+        Specter::ViewChild<std::unique_ptr<Specter::Button>> m_button;
         PathButton(FileBrowser& fb, ViewResources& res, size_t idx, const HECL::SystemString& str)
         : m_fb(fb), m_idx(idx)
         {
@@ -34,7 +34,7 @@ class FileBrowser : public ModalWindow
     friend struct PathButton;
     std::vector<PathButton> m_pathButtons;
 
-    Specter::ViewChild<Specter::TextField> m_fileField;
+    Specter::ViewChild<std::unique_ptr<Specter::TextField>> m_fileField;
     struct FileFieldBind : Specter::IStringBinding
     {
         FileBrowser& m_browser;
@@ -45,8 +45,8 @@ class FileBrowser : public ModalWindow
         }
     } m_fileFieldBind;
 
-    Specter::ViewChild<Specter::ScrollView> m_fileScroll;
-    Specter::ViewChild<Specter::Table> m_fileListing;
+    Specter::ViewChild<std::unique_ptr<Specter::ScrollView>> m_fileScroll;
+    Specter::ViewChild<std::unique_ptr<Specter::Table>> m_fileListing;
 
 public:
     FileBrowser(ViewResources& res, View& parentView)

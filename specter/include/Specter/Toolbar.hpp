@@ -25,14 +25,7 @@ public:
     };
 private:
     Position m_tbPos;
-    struct Child
-    {
-        View* m_view = nullptr;
-        bool m_mouseIn = false;
-        bool m_mouseDown = false;
-        Child(View* v) : m_view(v) {}
-    };
-    std::vector<Child> m_children;
+    std::vector<ViewChild<View*>> m_children;
 
     ViewBlock m_tbBlock;
     boo::IGraphicsBufferD* m_tbBlockBuf;
@@ -106,7 +99,11 @@ public:
     int nominalHeight() const {return m_nomHeight;}
 
     void clear() {m_children.clear();}
-    void push_back(View* v) {m_children.push_back(v);}
+    void push_back(View* v)
+    {
+        m_children.emplace_back();
+        m_children.back().m_view = v;
+    }
 };
 
 }

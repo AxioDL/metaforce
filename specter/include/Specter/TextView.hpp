@@ -66,6 +66,16 @@ public:
 
         RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor);
     };
+    struct RenderGlyphInfo
+    {
+        uint32_t m_char;
+        std::pair<int,int> m_dims;
+        int m_adv;
+        bool m_space = false;
+
+        RenderGlyphInfo(uint32_t ch, int width, int height, int adv)
+        : m_char(ch), m_dims(width, height), m_adv(adv), m_space(iswspace(ch)) {}
+    };
     std::vector<RenderGlyph>& accessGlyphs() {return m_glyphs;}
     const std::vector<RenderGlyph>& accessGlyphs() const {return m_glyphs;}
     void updateGlyphs() {m_valid = false;}
@@ -88,11 +98,11 @@ public:
     std::pair<int,int> queryGlyphDimensions(size_t pos) const;
     size_t reverseSelectGlyph(int x) const;
     int queryReverseAdvance(size_t idx) const;
+    std::pair<size_t,size_t> queryWholeWordRange(size_t idx) const;
 
 private:
     std::vector<RenderGlyph> m_glyphs;
-    std::vector<std::pair<int,int>> m_glyphDims;
-    std::vector<int> m_glyphAdvs;
+    std::vector<RenderGlyphInfo> m_glyphInfo;
 };
 
 }

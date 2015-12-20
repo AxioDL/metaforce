@@ -57,7 +57,7 @@ View* SplitView::setContentView(int slot, View* view)
         Log.report(LogVisor::FatalError, "out-of-range slot to RootView::SplitView::setContentView");
     View* ret = m_views[slot].m_view;
     m_views[slot].m_view = view;
-    m_views[slot].m_mouseDown = false;
+    m_views[slot].m_mouseDown = 0;
     m_views[slot].m_mouseIn = false;
     updateSize();
     return ret;
@@ -99,34 +99,16 @@ void SplitView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
             return;
         }
     }
-    if (m_views[0].m_view && !m_views[0].m_mouseDown &&
-        m_views[0].m_view->subRect().coordInRect(coord))
-    {
-        m_views[0].m_view->mouseDown(coord, button, mod);
-        m_views[0].m_mouseDown = true;
-    }
-    if (m_views[1].m_view && !m_views[1].m_mouseDown &&
-        m_views[1].m_view->subRect().coordInRect(coord))
-    {
-        m_views[1].m_view->mouseDown(coord, button, mod);
-        m_views[1].m_mouseDown = true;
-    }
+    m_views[0].mouseDown(coord, button, mod);
+    m_views[1].mouseDown(coord, button, mod);
 }
 
 void SplitView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     if (button == boo::EMouseButton::Primary)
         m_dragging = false;
-    if (m_views[0].m_view && m_views[0].m_mouseDown)
-    {
-        m_views[0].m_view->mouseUp(coord, button, mod);
-        m_views[0].m_mouseDown = false;
-    }
-    if (m_views[1].m_view && m_views[1].m_mouseDown)
-    {
-        m_views[1].m_view->mouseUp(coord, button, mod);
-        m_views[1].m_mouseDown = false;
-    }
+    m_views[0].mouseUp(coord, button, mod);
+    m_views[1].mouseUp(coord, button, mod);
 }
 
 void SplitView::mouseMove(const boo::SWindowCoord& coord)
@@ -152,64 +134,20 @@ void SplitView::mouseMove(const boo::SWindowCoord& coord)
             rootView().window()->setCursor(boo::EMouseCursor::Pointer);
     }
 
-    if (m_views[0].m_view)
-    {
-        if (m_views[0].m_view->subRect().coordInRect(coord))
-        {
-            if (!m_views[0].m_mouseIn)
-            {
-                m_views[0].m_view->mouseEnter(coord);
-                m_views[0].m_mouseIn = true;
-            }
-            m_views[0].m_view->mouseMove(coord);
-        }
-        else
-        {
-            if (m_views[0].m_mouseIn)
-            {
-                m_views[0].m_view->mouseLeave(coord);
-                m_views[0].m_mouseIn = false;
-            }
-        }
-    }
-    if (m_views[1].m_view)
-    {
-        if (m_views[1].m_view->subRect().coordInRect(coord))
-        {
-            if (!m_views[1].m_mouseIn)
-            {
-                m_views[1].m_view->mouseEnter(coord);
-                m_views[1].m_mouseIn = true;
-            }
-            m_views[1].m_view->mouseMove(coord);
-        }
-        else
-        {
-            if (m_views[1].m_mouseIn)
-            {
-                m_views[1].m_view->mouseLeave(coord);
-                m_views[1].m_mouseIn = false;
-            }
-        }
-    }
+    m_views[0].mouseMove(coord);
+    m_views[1].mouseMove(coord);
 }
 
 void SplitView::mouseEnter(const boo::SWindowCoord& coord)
 {
+    m_views[0].mouseEnter(coord);
+    m_views[1].mouseEnter(coord);
 }
 
 void SplitView::mouseLeave(const boo::SWindowCoord& coord)
 {
-    if (m_views[0].m_view && m_views[0].m_mouseIn)
-    {
-        m_views[0].m_view->mouseLeave(coord);
-        m_views[0].m_mouseIn = false;
-    }
-    if (m_views[1].m_view && m_views[1].m_mouseIn)
-    {
-        m_views[1].m_view->mouseLeave(coord);
-        m_views[1].m_mouseIn = false;
-    }
+    m_views[0].mouseLeave(coord);
+    m_views[1].mouseLeave(coord);
 }
 
 void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

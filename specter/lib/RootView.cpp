@@ -38,6 +38,8 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_activeTextView && !m_activeTextView->subRect().coordInRect(coord))
+        setActiveTextView(nullptr);
     if (m_view)
         m_view->mouseDown(coord, button, mods);
 }
@@ -52,6 +54,8 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
     if (m_view)
         m_view->mouseMove(coord);
+    if (m_activeDragView)
+        m_activeDragView->mouseMove(coord);
 
     boo::SWindowRect ttrect = m_rootRect;
     ttrect.location[0] = coord.pixel[0];

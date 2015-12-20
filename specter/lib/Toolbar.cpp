@@ -59,83 +59,32 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos)
 
 void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    boo::SWindowRect childRect = subRect();
-    int subLoc1 = childRect.location[1];
-    for (Child& c : m_children)
-    {
-        childRect.size[0] = c.m_view->nominalWidth();
-        childRect.size[1] = c.m_view->nominalHeight();
-        childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_nomHeight - childRect.size[1]) / 2 - 1;
-        if (childRect.coordInRect(coord))
-        {
-            if (!c.m_mouseDown)
-            {
-                c.m_view->mouseDown(coord, button, mod);
-                c.m_mouseDown = true;
-            }
-        }
-        childRect.location[0] += childRect.size[0];
-    }
+    for (ViewChild<View*>& c : m_children)
+        c.mouseDown(coord, button, mod);
 }
 
 void Toolbar::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    for (Child& c : m_children)
-    {
-        if (c.m_mouseDown)
-        {
-            c.m_view->mouseUp(coord, button, mod);
-            c.m_mouseDown = false;
-        }
-    }
+    for (ViewChild<View*>& c : m_children)
+        c.mouseUp(coord, button, mod);
 }
 
 void Toolbar::mouseMove(const boo::SWindowCoord& coord)
 {
-    boo::SWindowRect childRect = subRect();
-    int subLoc1 = childRect.location[1];
-    for (Child& c : m_children)
-    {
-        childRect.size[0] = c.m_view->nominalWidth();
-        childRect.size[1] = c.m_view->nominalHeight();
-        childRect.location[0] += m_padding;
-        childRect.location[1] = subLoc1 + (m_nomHeight - childRect.size[1]) / 2 - 1;
-        if (childRect.coordInRect(coord))
-        {
-            if (!c.m_mouseIn)
-            {
-                c.m_view->mouseEnter(coord);
-                c.m_mouseIn = true;
-            }
-            c.m_view->mouseMove(coord);
-        }
-        else
-        {
-            if (c.m_mouseIn)
-            {
-                c.m_view->mouseLeave(coord);
-                c.m_mouseIn = false;
-            }
-        }
-        childRect.location[0] += childRect.size[0];
-    }
+    for (ViewChild<View*>& c : m_children)
+        c.mouseMove(coord);
 }
 
 void Toolbar::mouseEnter(const boo::SWindowCoord& coord)
 {
+    for (ViewChild<View*>& c : m_children)
+        c.mouseEnter(coord);
 }
 
 void Toolbar::mouseLeave(const boo::SWindowCoord& coord)
 {
-    for (Child& c : m_children)
-    {
-        if (c.m_mouseIn)
-        {
-            c.m_view->mouseLeave(coord);
-            c.m_mouseIn = false;
-        }
-    }
+    for (ViewChild<View*>& c : m_children)
+        c.mouseLeave(coord);
 }
 
 void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -147,7 +96,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_tbBlockBuf->load(&m_tbBlock, sizeof(ViewBlock));
 
     boo::SWindowRect childRect = sub;
-    for (Child& c : m_children)
+    for (ViewChild<View*>& c : m_children)
     {
         childRect.size[0] = c.m_view->nominalWidth();
         childRect.size[1] = c.m_view->nominalHeight();
@@ -165,7 +114,7 @@ void Toolbar::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 10);
 
-    for (Child& c : m_children)
+    for (ViewChild<View*>& c : m_children)
         c.m_view->draw(gfxQ);
 }
 
