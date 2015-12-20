@@ -18,7 +18,10 @@ namespace RUDE
 #define TEXT_MARGIN 10
 
 SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
-: ModalWindow(res, vm.rootView(), SPLASH_WIDTH * res.pixelFactor(), SPLASH_HEIGHT * res.pixelFactor()), m_vm(vm),
+: ModalWindow(res, vm.rootView(),
+              Specter::RectangleConstraint(SPLASH_WIDTH * res.pixelFactor(),
+                                           SPLASH_HEIGHT * res.pixelFactor())),
+  m_vm(vm),
   m_textColor(res.themeData().uiText()),
   m_textColorClear(m_textColor),
   m_newProjBind(*this),
@@ -129,6 +132,35 @@ void SplashScreen::mouseLeave(const boo::SWindowCoord& coord)
         m_openButt.mouseLeave(coord);
         m_extractButt.mouseLeave(coord);
     }
+}
+
+void SplashScreen::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
+{
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->scroll(coord, scroll);
+}
+
+void SplashScreen::touchDown(const boo::STouchCoord& coord, uintptr_t tid)
+{
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->touchDown(coord, tid);
+}
+
+void SplashScreen::touchUp(const boo::STouchCoord& coord, uintptr_t tid)
+{
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->touchUp(coord, tid);
+}
+
+void SplashScreen::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
+{
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->touchMove(coord, tid);
+}
+
+void SplashScreen::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
+{
+    skipBuildInAnimation();
 }
 
 void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

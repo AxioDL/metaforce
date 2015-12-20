@@ -77,6 +77,12 @@ public:
     void mouseMove(const boo::SWindowCoord&);
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
+    void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
+    void touchDown(const boo::STouchCoord&, uintptr_t);
+    void touchUp(const boo::STouchCoord&, uintptr_t);
+    void touchMove(const boo::STouchCoord&, uintptr_t);
+    void charKeyDown(unsigned long, boo::EModifierKey, bool);
+
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
