@@ -2,6 +2,8 @@
 #define SPECTER_DEFERREDWINDOWEVENTS_HPP
 
 #include <boo/boo.hpp>
+#include <mutex>
+#include <condition_variable>
 
 namespace Specter
 {
