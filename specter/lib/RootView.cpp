@@ -23,7 +23,6 @@ void RootView::destroyed()
 
 void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 {
-    boo::SWindowRect old = m_rootRect;
     m_rootRect = root;
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
@@ -32,8 +31,7 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
         m_view->resized(m_rootRect, m_rootRect);
     if (m_tooltip)
         m_tooltip->resized(m_rootRect, m_rootRect);
-    if (old != m_rootRect)
-        m_resizeRTDirty = true;
+    m_resizeRTDirty = true;
 }
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
@@ -182,6 +180,7 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
     {
         gfxQ->resizeRenderTexture(m_renderTex, m_rootRect.size[0], m_rootRect.size[1]);
         m_resizeRTDirty = false;
+        gfxQ->schedulePostFrameHandler([&](){m_events.m_resizeCv.notify_one();});
     }
     gfxQ->setRenderTarget(m_renderTex);
     gfxQ->setViewport(m_rootRect);

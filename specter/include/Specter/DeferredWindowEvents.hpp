@@ -11,6 +11,7 @@ struct DeferredWindowEvents : public boo::IWindowCallback
 {
     Receiver& m_rec;
     std::mutex m_mt;
+    std::condition_variable m_resizeCv;
     DeferredWindowEvents(Receiver& rec) : m_rec(rec) {}
 
     bool m_destroyed = false;
@@ -26,6 +27,7 @@ struct DeferredWindowEvents : public boo::IWindowCallback
         std::unique_lock<std::mutex> lk(m_mt);
         m_latestResize = rect;
         m_hasResize = true;
+        m_resizeCv.wait_for(lk, std::chrono::milliseconds(500));
     }
 
     struct Command
