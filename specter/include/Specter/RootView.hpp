@@ -80,10 +80,41 @@ public:
         m_activeDragView = dragView;
     }
 
+    bool m_hSplitHover = false;
+    void setHorizontalSplitHover(bool hover)
+    {
+        m_hSplitHover = hover;
+        _updateCursor();
+    }
+    bool m_vSplitHover = false;
+    void setVerticalSplitHover(bool hover)
+    {
+        m_vSplitHover = hover;
+        _updateCursor();
+    }
+    bool m_textFieldHover = false;
+    void setTextFieldHover(bool hover)
+    {
+        m_textFieldHover = hover;
+        _updateCursor();
+    }
+
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
 
 private:
+    void _updateCursor()
+    {
+        if (m_vSplitHover)
+            m_window->setCursor(boo::EMouseCursor::HorizontalArrow);
+        else if (m_hSplitHover)
+            m_window->setCursor(boo::EMouseCursor::VerticalArrow);
+        else if (m_textFieldHover)
+            m_window->setCursor(boo::EMouseCursor::IBeam);
+        else
+            m_window->setCursor(boo::EMouseCursor::Pointer);
+    }
+
     View* m_view = nullptr;
     std::unique_ptr<Tooltip> m_tooltip;
 };

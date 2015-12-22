@@ -143,13 +143,13 @@ void TextField::mouseMove(const boo::SWindowCoord& coord)
 void TextField::mouseEnter(const boo::SWindowCoord& coord)
 {
     setHover();
-    rootView().window()->setCursor(boo::EMouseCursor::IBeam);
+    rootView().setTextFieldHover(true);
 }
 
 void TextField::mouseLeave(const boo::SWindowCoord& coord)
 {
     setInactive();
-    rootView().window()->setCursor(boo::EMouseCursor::Pointer);
+    rootView().setTextFieldHover(false);
 }
 
 void TextField::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)

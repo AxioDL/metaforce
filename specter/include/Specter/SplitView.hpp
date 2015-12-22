@@ -26,18 +26,15 @@ public:
 private:
     Axis m_axis;
     float m_slide = 0.5;
+    void _setSlide(float slide);
     bool m_dragging = false;
-
-    void setSlide(float slide)
-    {
-        m_slide = std::min(std::max(slide, 0.0f), 1.0f);
-        updateSize();
-    }
 
     ViewChild<View*> m_views[2];
     ViewBlock m_splitBlock;
     boo::IGraphicsBufferD* m_splitBlockBuf;
     TexShaderVert m_splitVerts[4];
+
+    int m_clearanceA, m_clearanceB;
 
     void setHorizontalVerts(int width)
     {
@@ -67,8 +64,9 @@ private:
     boo::IVertexFormat* m_splitVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_splitShaderBinding;
 public:
-    SplitView(ViewResources& res, View& parentView, Axis axis);
+    SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA=-1, int clearanceB=-1);
     View* setContentView(int slot, View* view);
+    void setSlide(float slide);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
@@ -76,6 +74,13 @@ public:
     void mouseLeave(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        View::setMultiplyColor(color);
+        m_splitBlock.m_color = color;
+        m_splitBlockBuf->load(&m_splitBlock, sizeof(m_splitBlock));
+    }
 };
 
 }

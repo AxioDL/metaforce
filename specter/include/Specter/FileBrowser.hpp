@@ -7,6 +7,7 @@
 #include "TextField.hpp"
 #include "ScrollView.hpp"
 #include "Table.hpp"
+#include "ViewResources.hpp"
 #include <HECL/HECL.hpp>
 
 namespace Specter
@@ -16,17 +17,68 @@ class FileBrowser : public ModalWindow
 {
     std::vector<HECL::SystemString> m_comps;
 
+    class LeftSide : public View
+    {
+        friend class FileBrowser;
+        FileBrowser& m_fb;
+        LeftSide(FileBrowser& fb, ViewResources& res) : View(res, fb), m_fb(fb) {}
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void draw(boo::IGraphicsCommandQueue* gfxQ);
+    } m_left;
+
+    class RightSide : public View
+    {
+        friend class FileBrowser;
+        FileBrowser& m_fb;
+        RightSide(FileBrowser& fb, ViewResources& res) : View(res, fb), m_fb(fb) {}
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void draw(boo::IGraphicsCommandQueue* gfxQ);
+    } m_right;
+
+    ViewChild<std::unique_ptr<SplitView>> m_split;
+
+    void okActivated();
+    struct OKButton : IButtonBinding
+    {
+        FileBrowser& m_fb;
+        ViewChild<std::unique_ptr<Button>> m_button;
+        std::string m_text;
+        OKButton(FileBrowser& fb, ViewResources& res, const std::string& text)
+        : m_fb(fb), m_text(text)
+        {
+            m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
+                RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
+        }
+        const char* name() const {return m_text.c_str();}
+        void activated(const boo::SWindowCoord&) {m_fb.okActivated();}
+    } m_ok;
+
+    void cancelActivated();
+    struct CancelButton : IButtonBinding
+    {
+        FileBrowser& m_fb;
+        ViewChild<std::unique_ptr<Button>> m_button;
+        CancelButton(FileBrowser& fb, ViewResources& res)
+        : m_fb(fb)
+        {
+            m_button.m_view.reset(new Button(res, fb, this, "Cancel", Button::Style::Block,
+                RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
+        }
+        const char* name() const {return "Cancel";}
+        void activated(const boo::SWindowCoord&) {m_fb.cancelActivated();}
+    } m_cancel;
+
     void pathButtonActivated(size_t idx);
-    struct PathButton : Specter::IButtonBinding
+    struct PathButton : IButtonBinding
     {
         FileBrowser& m_fb;
         size_t m_idx;
-        Specter::ViewChild<std::unique_ptr<Specter::Button>> m_button;
+        ViewChild<std::unique_ptr<Button>> m_button;
         PathButton(FileBrowser& fb, ViewResources& res, size_t idx, const HECL::SystemString& str)
         : m_fb(fb), m_idx(idx)
         {
             HECL::SystemUTF8View utf8View(str);
-            m_button.m_view.reset(new Specter::Button(res, fb, this, utf8View));
+            m_button.m_view.reset(new Button(res, fb, this, utf8View));
         }
         const char* name() const {return m_button.m_view->getText().c_str();}
         void activated(const boo::SWindowCoord&) {m_fb.pathButtonActivated(m_idx);}
@@ -34,8 +86,8 @@ class FileBrowser : public ModalWindow
     friend struct PathButton;
     std::vector<PathButton> m_pathButtons;
 
-    Specter::ViewChild<std::unique_ptr<Specter::TextField>> m_fileField;
-    struct FileFieldBind : Specter::IStringBinding
+    ViewChild<std::unique_ptr<TextField>> m_fileField;
+    struct FileFieldBind : IStringBinding
     {
         FileBrowser& m_browser;
         FileFieldBind(FileBrowser& browser) : m_browser(browser) {}
@@ -45,13 +97,13 @@ class FileBrowser : public ModalWindow
         }
     } m_fileFieldBind;
 
-    Specter::ViewChild<std::unique_ptr<Specter::ScrollView>> m_fileScroll;
-    Specter::ViewChild<std::unique_ptr<Specter::Table>> m_fileListing;
+    ViewChild<std::unique_ptr<ScrollView>> m_fileScroll;
+    ViewChild<std::unique_ptr<Table>> m_fileListing;
 
 public:
-    FileBrowser(ViewResources& res, View& parentView)
-    : FileBrowser(res, parentView, HECL::GetcwdStr()) {}
-    FileBrowser(ViewResources& res, View& parentView, const HECL::SystemString& initialPath);
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title)
+    : FileBrowser(res, parentView, title, HECL::GetcwdStr()) {}
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title, const HECL::SystemString& initialPath);
 
     void updateContentOpacity(float opacity);
 

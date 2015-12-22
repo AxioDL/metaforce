@@ -27,6 +27,7 @@ private:
     boo::IVertexFormat* m_bVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_bShaderBinding = nullptr;
 
+    RectangleConstraint m_constraint;
     int m_nomWidth, m_nomHeight;
     bool m_pressed = false;
     bool m_hovered = false;
@@ -47,15 +48,16 @@ public:
 
     Button(ViewResources& res, View& parentView,
            IButtonBinding* controlBinding, const std::string& text,
-           Style style=Style::Block);
+           Style style=Style::Block, RectangleConstraint constraint=RectangleConstraint());
     Button(ViewResources& res, View& parentView,
            IButtonBinding* controlBinding, const std::string& text,
-           const Zeus::CColor& textColor, Style style=Style::Block);
+           const Zeus::CColor& textColor, Style style=Style::Block,
+           RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     void setText(const std::string& text, const Zeus::CColor& textColor);

@@ -13,13 +13,15 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData
 
 Button::Button(ViewResources& res, View& parentView,
                IButtonBinding* controlBinding, const std::string& text,
-               Style style)
-: Button(res, parentView, controlBinding, text, res.themeData().uiText(), style) {}
+               Style style, RectangleConstraint constraint)
+: Button(res, parentView, controlBinding, text, res.themeData().uiText(), style, constraint) {}
 
 Button::Button(ViewResources& res, View& parentView,
                IButtonBinding* controlBinding, const std::string& text,
-               const Zeus::CColor& textColor, Style style)
-: Control(res, parentView, controlBinding), m_style(style), m_textColor(textColor), m_textStr(text)
+               const Zeus::CColor& textColor, Style style,
+               RectangleConstraint constraint)
+: Control(res, parentView, controlBinding),
+  m_style(style), m_textColor(textColor), m_textStr(text), m_constraint(constraint)
 {
     m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
 
@@ -64,7 +66,7 @@ Button::Button(ViewResources& res, View& parentView,
         m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
     }
 
-    m_text.reset(new TextView(res, *this, res.m_mainFont));
+    m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
     setText(m_textStr);
 }
 
@@ -84,8 +86,9 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
 
     if (m_style == Style::Block)
     {
-        width = m_text->nominalWidth() + 12 * pf;
-        height = 20 * pf;
+        std::pair<int,int> constraint = m_constraint.solve(m_text->nominalWidth() + 12 * pf, 20 * pf);
+        width = constraint.first;
+        height = constraint.second;
         m_verts[0].m_pos.assign(1, height+1, 0);
         m_verts[1].m_pos.assign(1, 1, 0);
         m_verts[2].m_pos.assign(width+1, height+1, 0);
@@ -271,10 +274,8 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     boo::SWindowRect textRect = sub;
     float pf = rootView().viewRes().pixelFactor();
     if (m_style == Style::Block)
-    {
-        textRect.location[0] += 5 * pf;
         textRect.location[1] += 7 * pf;
-    }
+    textRect.location[0] += sub.size[0] / 2;
     m_text->resized(root, textRect);
 }
 
