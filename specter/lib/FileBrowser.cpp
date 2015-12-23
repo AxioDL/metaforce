@@ -61,7 +61,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
         m_pathButtons.emplace_back(*this, res, idx++, c);
 
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
-    m_fileListing.m_view.reset(new Table(res, *this));
+    m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind));
     m_fileListing.m_view->setBackground(Zeus::CColor::skBlue);
 
     m_split.m_view.reset(new SplitView(res, *this, SplitView::Axis::Vertical,
@@ -91,6 +91,7 @@ void FileBrowser::okActivated()
 
 void FileBrowser::cancelActivated()
 {
+    close();
 }
 
 void FileBrowser::pathButtonActivated(size_t idx)
@@ -99,7 +100,7 @@ void FileBrowser::pathButtonActivated(size_t idx)
 
 void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    if (skipBuildInAnimation())
+    if (skipBuildInAnimation() || closed())
         return;
     m_split.mouseDown(coord, button, mod);
     for (PathButton& b : m_pathButtons)
@@ -112,6 +113,8 @@ void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton bu
 
 void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
+    if (closed())
+        return;
     m_split.mouseUp(coord, button, mod);
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseUp(coord, button, mod);
@@ -123,6 +126,8 @@ void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton butt
 
 void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
 {
+    if (closed())
+        return;
     m_split.mouseMove(coord);
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseMove(coord);
@@ -138,6 +143,8 @@ void FileBrowser::mouseEnter(const boo::SWindowCoord& coord)
 
 void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
 {
+    if (closed())
+        return;
     m_split.mouseLeave(coord);
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseLeave(coord);

@@ -97,7 +97,50 @@ class FileBrowser : public ModalWindow
         }
     } m_fileFieldBind;
 
-    ViewChild<std::unique_ptr<ScrollView>> m_fileScroll;
+    struct TableDataBind : ITableDataBinding
+    {
+        std::string m_nameCol = "Name";
+        std::vector<std::string> m_names = {"One", "Two", "Three"};
+
+        std::string m_typeCol = "Type";
+        std::vector<std::string> m_types = {"t1", "t2", "t3"};
+
+        std::string m_sizeCol = "Size";
+        std::vector<std::string> m_sizes = {"s1", "s2", "s3"};
+
+        size_t columnCount() const {return 3;}
+        size_t rowCount() const {return 3;}
+
+        const std::string* header(size_t cIdx) const
+        {
+            switch (cIdx)
+            {
+            case 0:
+                return &m_nameCol;
+            case 1:
+                return &m_typeCol;
+            case 2:
+                return &m_sizeCol;
+            default: break;
+            }
+            return nullptr;
+        }
+
+        const std::string* cell(size_t cIdx, size_t rIdx) const
+        {
+            switch (cIdx)
+            {
+            case 0:
+                return &m_names.at(rIdx);
+            case 1:
+                return &m_types.at(rIdx);
+            case 2:
+                return &m_sizes.at(rIdx);
+            default: break;
+            }
+            return nullptr;
+        }
+    } m_fileListingBind;
     ViewChild<std::unique_ptr<Table>> m_fileListing;
 
 public:

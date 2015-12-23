@@ -8,8 +8,8 @@ namespace Specter
 {
 class ModalWindow : public View
 {
-    unsigned m_frame = 0;
-    unsigned m_contentStartFrame = 0;
+    int m_frame = 0;
+    int m_contentStartFrame = 0;
     float m_lineTime = 0.0;
 
     enum class Phase
@@ -29,6 +29,7 @@ class ModalWindow : public View
     Zeus::CColor m_windowBgClear;
     Zeus::CColor m_line1;
     Zeus::CColor m_line2;
+    Zeus::CColor m_line2Clear;
 
     ViewBlock m_viewBlock;
     boo::IGraphicsBufferD* m_viewBlockBuf;
@@ -39,7 +40,9 @@ class ModalWindow : public View
     } m_verts;
 
     void setLineVerts(int width, int height, float pf, float t);
+    void setLineVertsOut(int width, int height, float pf, float t);
     void setLineColors(float t);
+    void setLineColorsOut(float t);
     void setFillVerts(int width, int height, float pf);
     void setFillColors(float t);
 
@@ -59,6 +62,8 @@ public:
     ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
     void think();
     bool skipBuildInAnimation();
+    void close();
+    bool closed() const {return m_phase >= Phase::BuildOut;}
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

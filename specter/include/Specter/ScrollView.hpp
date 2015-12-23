@@ -20,6 +20,11 @@ private:
 
 public:
     ScrollView(ViewResources& res, View& parentView);
+    void setContentView(View* v)
+    {
+        m_contentView = v;
+        updateSize();
+    }
 };
 
 }

@@ -212,7 +212,7 @@ public:
 template <class ViewPtrType>
 struct ViewChild
 {
-    ViewPtrType m_view;
+    ViewPtrType m_view = ViewPtrType();
     bool m_mouseIn = false;
     int m_mouseDown = 0;
 
@@ -279,6 +279,14 @@ struct ViewChild
             m_view->mouseLeave(coord);
             m_mouseIn = false;
         }
+    }
+
+    void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
+    {
+        if (!m_view)
+            return;
+        if (m_mouseIn)
+            m_view->scroll(coord, scroll);
     }
 };
 
