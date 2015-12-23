@@ -76,7 +76,7 @@ void SplashScreen::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton b
 {
     if (skipBuildInAnimation())
         return;
-    if (m_fileBrowser.m_view)
+    if (m_fileBrowser.m_view && !m_fileBrowser.m_view->closed())
         m_fileBrowser.m_view->mouseDown(coord, button, mod);
     else
     {
@@ -88,7 +88,7 @@ void SplashScreen::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton b
 
 void SplashScreen::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    if (m_fileBrowser.m_view)
+    if (m_fileBrowser.m_view && !m_fileBrowser.m_view->closed())
         m_fileBrowser.m_view->mouseUp(coord, button, mod);
     else
     {
@@ -100,7 +100,7 @@ void SplashScreen::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton but
 
 void SplashScreen::mouseMove(const boo::SWindowCoord& coord)
 {
-    if (m_fileBrowser.m_view)
+    if (m_fileBrowser.m_view && !m_fileBrowser.m_view->closed())
         m_fileBrowser.m_view->mouseMove(coord);
     else
     {
@@ -112,7 +112,7 @@ void SplashScreen::mouseMove(const boo::SWindowCoord& coord)
 
 void SplashScreen::mouseEnter(const boo::SWindowCoord& coord)
 {
-    if (m_fileBrowser.m_view)
+    if (m_fileBrowser.m_view && !m_fileBrowser.m_view->closed())
         m_fileBrowser.m_view->mouseEnter(coord);
     else
     {
@@ -124,7 +124,7 @@ void SplashScreen::mouseEnter(const boo::SWindowCoord& coord)
 
 void SplashScreen::mouseLeave(const boo::SWindowCoord& coord)
 {
-    if (m_fileBrowser.m_view)
+    if (m_fileBrowser.m_view && !m_fileBrowser.m_view->closed())
         m_fileBrowser.m_view->mouseLeave(coord);
     else
     {
