@@ -152,8 +152,72 @@ void TextField::mouseLeave(const boo::SWindowCoord& coord)
     rootView().setTextFieldHover(false);
 }
 
+void TextField::clipboardCopy()
+{
+    if (!m_selectionCount)
+        return;
+
+    UTF8Iterator begin(m_textStr.cbegin());
+    begin += m_selectionStart;
+    UTF8Iterator end(begin.iter());
+    end += m_selectionCount;
+
+    rootView().window()->clipboardCopy(boo::EClipboardType::UTF8String,
+                                       (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
+}
+
+void TextField::clipboardPaste()
+{
+    size_t retSz;
+    std::unique_ptr<uint8_t[]> retData =
+    rootView().window()->clipboardPaste(boo::EClipboardType::UTF8String, retSz);
+
+    if (retData && retSz)
+    {
+        if (m_selectionCount)
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+            newStr.append((char*)retData.get(), retSz);
+            UTF8Iterator countIt(newStr.cbegin());
+            size_t newSel = 0;
+            while (countIt.iter() < newStr.cend())
+            {
+                ++newSel;
+                ++countIt;
+            }
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            setText(newStr);
+            setCursorPos(newSel);
+        }
+        else
+        {
+            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
+            newStr.append((char*)retData.get(), retSz);
+            UTF8Iterator countIt(newStr.cbegin());
+            size_t newSel = 0;
+            while (countIt.iter() < newStr.cend())
+            {
+                ++newSel;
+                ++countIt;
+            }
+            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
+            setText(newStr);
+            setCursorPos(newSel);
+        }
+    }
+}
+
 void TextField::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
 {
+    if ((mods & (boo::EModifierKey::Ctrl|boo::EModifierKey::Command)) != boo::EModifierKey::None)
+    {
+        if (charCode == 'c' || charCode == 'C')
+            clipboardCopy();
+        else if (charCode == 'v' || charCode == 'V')
+            clipboardPaste();
+        return;
+    }
+
     if (m_selectionCount)
     {
         std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
@@ -183,15 +247,55 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
 {
     if (key == boo::ESpecialKey::Left)
     {
-        if (m_selectionCount)
-            m_cursorPos = m_selectionStart;
-        setCursorPos(m_cursorPos==0 ? 0 : (m_cursorPos-1));
+        if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None)
+        {
+            if (m_cursorPos)
+            {
+                size_t origPos = m_cursorPos;
+                if (m_selectionCount)
+                {
+                    if (m_cursorPos == m_selectionStart)
+                        setSelectionRange(m_cursorPos-1, m_selectionCount+1);
+                    else
+                        setSelectionRange(m_selectionStart, m_selectionCount-1);
+                }
+                else
+                    setSelectionRange(m_cursorPos-1, 1);
+                m_cursorPos = origPos - 1;
+            }
+        }
+        else
+        {
+            if (m_selectionCount)
+                m_cursorPos = m_selectionStart;
+            setCursorPos(m_cursorPos==0 ? 0 : (m_cursorPos-1));
+        }
     }
     else if (key == boo::ESpecialKey::Right)
     {
-        if (m_selectionCount)
-            m_cursorPos = m_selectionStart + m_selectionCount - 1;
-        setCursorPos(m_cursorPos+1);
+        if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None)
+        {
+            if (m_cursorPos < m_text->accessGlyphs().size())
+            {
+                size_t origPos = m_cursorPos;
+                if (m_selectionCount)
+                {
+                    if (m_cursorPos == m_selectionStart)
+                        setSelectionRange(m_cursorPos+1, m_selectionCount-1);
+                    else
+                        setSelectionRange(m_selectionStart, m_selectionCount+1);
+                }
+                else
+                    setSelectionRange(m_cursorPos, 1);
+                m_cursorPos = origPos + 1;
+            }
+        }
+        else
+        {
+            if (m_selectionCount)
+                m_cursorPos = m_selectionStart + m_selectionCount - 1;
+            setCursorPos(m_cursorPos+1);
+        }
     }
     else if (key == boo::ESpecialKey::Backspace)
     {
@@ -263,6 +367,12 @@ void TextField::setCursorPos(size_t pos)
 
 void TextField::setSelectionRange(size_t start, size_t count)
 {
+    if (!count)
+    {
+        setCursorPos(start);
+        return;
+    }
+
     m_selectionStart = std::min(start, m_text->accessGlyphs().size()-1);
     m_selectionCount = std::min(count, m_text->accessGlyphs().size()-m_selectionStart);
 
@@ -275,7 +385,7 @@ void TextField::setSelectionRange(size_t start, size_t count)
     offset2 += glyphs[m_selectionStart+m_selectionCount-1].m_pos[2][0];
     for (size_t i=0 ; i<glyphs.size() ; ++i)
     {
-        if (i >= m_selectionStart && i< m_selectionStart + m_selectionCount)
+        if (i >= m_selectionStart && i < m_selectionStart + m_selectionCount)
             glyphs[i].m_color = rootView().themeData().selectedFieldText();
         else
             glyphs[i].m_color = rootView().themeData().fieldText();

@@ -73,7 +73,10 @@ public:
             m_activeTextView->setActive(false);
         m_activeTextView = textView;
         if (textView)
+        {
             textView->setActive(true);
+            m_window->claimKeyboardFocus();
+        }
     }
     void setActiveDragView(View* dragView)
     {

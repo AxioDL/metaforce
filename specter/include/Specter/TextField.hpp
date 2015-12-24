@@ -42,6 +42,9 @@ public:
     const std::string& getText() const {return m_textStr;}
     void setText(const std::string& str);
 
+    void clipboardCopy();
+    void clipboardPaste();
+
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
