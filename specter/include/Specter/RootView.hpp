@@ -56,6 +56,7 @@ public:
     void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
+    void utf8FragmentDown(const std::string& str);
 
     void dispatchEvents() {m_events.dispatchEvents();}
     void draw(boo::IGraphicsCommandQueue* gfxQ);
@@ -73,10 +74,7 @@ public:
             m_activeTextView->setActive(false);
         m_activeTextView = textView;
         if (textView)
-        {
             textView->setActive(true);
-            m_window->claimKeyboardFocus();
-        }
     }
     void setActiveDragView(View* dragView)
     {

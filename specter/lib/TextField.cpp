@@ -94,8 +94,6 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     if (!m_active)
     {
         rootView().setActiveTextView(this);
-        if (!m_selectionCount)
-            setSelectionRange(0, m_text->accessGlyphs().size());
     }
     else if (m_clickFrames2 < 15)
     {
@@ -335,6 +333,40 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
     }
 }
 
+void TextField::utf8FragmentDown(const std::string& str)
+{
+    if (m_selectionCount)
+    {
+        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+        newStr += str;
+        UTF8Iterator countIt(newStr.cbegin());
+        size_t newSel = 0;
+        while (countIt.iter() < newStr.cend())
+        {
+            ++newSel;
+            ++countIt;
+        }
+        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+        setText(newStr);
+        setCursorPos(newSel);
+    }
+    else
+    {
+        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
+        newStr += str;
+        UTF8Iterator countIt(newStr.cbegin());
+        size_t newSel = 0;
+        while (countIt.iter() < newStr.cend())
+        {
+            ++newSel;
+            ++countIt;
+        }
+        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
+        setText(newStr);
+        setCursorPos(newSel);
+    }
+}
+
 void TextField::think()
 {
     ++m_cursorFrames;
@@ -346,7 +378,12 @@ void TextField::setActive(bool active)
 {
     m_active = active;
     if (!active)
+    {
         clearSelectionRange();
+        rootView().window()->claimKeyboardFocus(nullptr);
+    }
+    else if (!m_selectionCount)
+        setSelectionRange(0, m_text->accessGlyphs().size());
 }
 
 void TextField::setCursorPos(size_t pos)
@@ -363,6 +400,9 @@ void TextField::setCursorPos(size_t pos)
     m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_bVertsBuf->load(m_verts, sizeof(m_verts));
+
+    int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
+    rootView().window()->claimKeyboardFocus(focusRect);
 }
 
 void TextField::setSelectionRange(size_t start, size_t count)
@@ -397,6 +437,9 @@ void TextField::setSelectionRange(size_t start, size_t count)
     m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_bVertsBuf->load(m_verts, sizeof(m_verts));
+
+    int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
+    rootView().window()->claimKeyboardFocus(focusRect);
 }
 
 void TextField::clearSelectionRange()
@@ -408,6 +451,9 @@ void TextField::clearSelectionRange()
     for (size_t i=0 ; i<glyphs.size() ; ++i)
         glyphs[i].m_color = rootView().themeData().fieldText();
     m_text->updateGlyphs();
+
+    int focusRect[2] = {subRect().location[0], subRect().location[1]};
+    rootView().window()->claimKeyboardFocus(focusRect);
 }
 
 void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

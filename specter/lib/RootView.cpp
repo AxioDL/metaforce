@@ -157,6 +157,12 @@ void RootView::modKeyUp(boo::EModifierKey mod)
         m_activeTextView->modKeyUp(mod);
 }
 
+void RootView::utf8FragmentDown(const std::string& str)
+{
+    if (m_activeTextView)
+        m_activeTextView->utf8FragmentDown(str);
+}
+
 View* RootView::setContentView(View* view)
 {
     View* ret = m_view;

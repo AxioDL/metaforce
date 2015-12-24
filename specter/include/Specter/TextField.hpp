@@ -52,6 +52,7 @@ public:
     void mouseLeave(const boo::SWindowCoord&);
     void charKeyDown(unsigned long, boo::EModifierKey, bool);
     void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
+    void utf8FragmentDown(const std::string&);
     void think();
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
