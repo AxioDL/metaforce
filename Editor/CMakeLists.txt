@@ -3,18 +3,11 @@ add_subdirectory(locale)
 
 atdna(atdna_Space.cpp Space.hpp)
 
-set(SPACE_HEADERS
-    SplashScreen/SplashScreen.hpp
-    ResourceOutliner/ResourceOutliner.hpp)
-
-set(SPACE_SOURCES
-    SplashScreen/SplashScreen.cpp
-    ResourceOutliner/ResourceOutliner.cpp)
-
 add_executable(rude WIN32
                main.cpp
                Space.hpp Space.cpp atdna_Space.cpp
-               ${SPACE_HEADERS} ${SPACE_SOURCES}
+               SplashScreen.hpp SplashScreen.cpp
+               ResourceOutliner.hpp ResourceOutliner.cpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp)
 

@@ -1,7 +1,7 @@
 #include "ViewManager.hpp"
 #include "Specter/Control.hpp"
 #include "Specter/Space.hpp"
-#include "SplashScreen/SplashScreen.hpp"
+#include "SplashScreen.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
