@@ -110,7 +110,7 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     {
         size_t startPos = m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]);
         setCursorPos(startPos);
-        m_dragging |= 1 << int(button);
+        m_dragging |= size_t(1 << int(button));
         m_dragStart = startPos;
         rootView().setActiveDragView(this);
     }
@@ -451,9 +451,6 @@ void TextField::clearSelectionRange()
     for (size_t i=0 ; i<glyphs.size() ; ++i)
         glyphs[i].m_color = rootView().themeData().fieldText();
     m_text->updateGlyphs();
-
-    int focusRect[2] = {subRect().location[0], subRect().location[1]};
-    rootView().window()->claimKeyboardFocus(focusRect);
 }
 
 void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
