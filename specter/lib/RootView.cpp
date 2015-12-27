@@ -108,16 +108,22 @@ void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool 
 {
     if (m_view)
         m_view->charKeyDown(charCode, mods, isRepeat);
-    //if (m_activeTextView)
-    //    m_activeTextView->charKeyDown(charCode, mods, isRepeat);
+    if (m_activeTextView &&
+        (mods & (boo::EModifierKey::Ctrl|boo::EModifierKey::Command)) != boo::EModifierKey::None)
+    {
+        if (charCode == 'c' || charCode == 'C')
+            m_activeTextView->clipboardCopy();
+        else if (charCode == 'x' || charCode == 'X')
+            m_activeTextView->clipboardCut();
+        else if (charCode == 'v' || charCode == 'V')
+            m_activeTextView->clipboardPaste();
+    }
 }
 
 void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods)
 {
     if (m_view)
         m_view->charKeyUp(charCode, mods);
-    //if (m_activeTextView)
-    //    m_activeTextView->charKeyUp(charCode, mods);
 }
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
@@ -155,12 +161,6 @@ void RootView::modKeyUp(boo::EModifierKey mod)
         m_view->modKeyUp(mod);
     if (m_activeTextView)
         m_activeTextView->modKeyUp(mod);
-}
-
-void RootView::utf8FragmentDown(const std::string& str)
-{
-    //if (m_activeTextView)
-    //    m_activeTextView->utf8FragmentDown(str);
 }
 
 View* RootView::setContentView(View* view)

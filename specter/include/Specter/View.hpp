@@ -203,7 +203,6 @@ public:
     virtual void specialKeyUp(boo::ESpecialKey, boo::EModifierKey) {}
     virtual void modKeyDown(boo::EModifierKey, bool) {}
     virtual void modKeyUp(boo::EModifierKey) {}
-    virtual void utf8FragmentDown(const std::string&) {}
 
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     virtual void think() {}

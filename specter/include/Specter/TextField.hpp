@@ -72,9 +72,7 @@ public:
     void mouseMove(const boo::SWindowCoord&);
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
-    void charKeyDown(unsigned long, boo::EModifierKey, bool);
     void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
-    void utf8FragmentDown(const std::string&);
     
     bool hasMarkedText() const;
     std::pair<int,int> markedRange() const;

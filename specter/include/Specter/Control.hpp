@@ -70,6 +70,10 @@ protected:
     ITextInputView(ViewResources& res, View& parentView,
                    IControlBinding* controlBinding)
     : Control(res, parentView, controlBinding) {}
+public:
+    virtual void clipboardCopy() {}
+    virtual void clipboardCut() {}
+    virtual void clipboardPaste() {}
 };
 
 }

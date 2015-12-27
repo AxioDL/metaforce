@@ -50,8 +50,7 @@ struct DeferredWindowEvents : public boo::IWindowCallback
             SpecialKeyDown,
             SpecialKeyUp,
             ModKeyDown,
-            ModKeyUp,
-            UTF8FragmentDown
+            ModKeyUp
         } m_type;
 
         boo::SWindowCoord m_coord;
@@ -63,7 +62,6 @@ struct DeferredWindowEvents : public boo::IWindowCallback
         unsigned long m_charcode;
         boo::ESpecialKey m_special;
         bool m_isRepeat;
-        std::string m_fragment;
 
         void dispatch(Receiver& rec) const
         {
@@ -113,9 +111,6 @@ struct DeferredWindowEvents : public boo::IWindowCallback
                 break;
             case Type::ModKeyUp:
                 rec.modKeyUp(m_mods);
-                break;
-            case Type::UTF8FragmentDown:
-                rec.utf8FragmentDown(m_fragment);
                 break;
             default: break;
             }
@@ -243,13 +238,6 @@ struct DeferredWindowEvents : public boo::IWindowCallback
         std::unique_lock<std::mutex> lk(m_mt);
         m_cmds.emplace_back(Command::Type::ModKeyUp);
         m_cmds.back().m_mods = mod;
-    }
-
-    void utf8FragmentDown(const std::string& str)
-    {
-        std::unique_lock<std::mutex> lk(m_mt);
-        m_cmds.emplace_back(Command::Type::UTF8FragmentDown);
-        m_cmds.back().m_fragment = str;
     }
     
     boo::ITextInputCallback* getTextInputCallback() {return m_rec.getTextInputCallback();}

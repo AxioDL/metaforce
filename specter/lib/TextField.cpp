@@ -288,46 +288,6 @@ void TextField::clipboardPaste()
     }
 }
 
-void TextField::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
-{
-    if (charCode < 0x20)
-        return;
-    
-    if ((mods & (boo::EModifierKey::Ctrl|boo::EModifierKey::Command)) != boo::EModifierKey::None)
-    {
-        if (charCode == 'c' || charCode == 'C')
-            clipboardCopy();
-        else if (charCode == 'v' || charCode == 'V')
-            clipboardPaste();
-        return;
-    }
-
-    if (m_selectionCount)
-    {
-        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
-        utf8proc_uint8_t theChar[5] = {};
-        utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
-        if (sz > 0)
-            newStr += (char*)theChar;
-        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(),
-                      m_textStr.cend());
-        size_t selStart = m_selectionStart;
-        setText(newStr);
-        setCursorPos(selStart + 1);
-    }
-    else
-    {
-        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
-        utf8proc_uint8_t theChar[5] = {};
-        utf8proc_ssize_t sz = utf8proc_encode_char(charCode, theChar);
-        if (sz > 0)
-            newStr += (char*)theChar;
-        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
-        setText(newStr);
-        setCursorPos(m_cursorPos + 1);
-    }
-}
-
 void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
@@ -423,29 +383,6 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
             setText(newStr);
             setCursorPos(m_cursorPos);
         }
-    }
-}
-
-void TextField::utf8FragmentDown(const std::string& str)
-{
-    std::string saniStr = SanitizeUTF8TextLine(str.data(), str.size());
-    if (m_selectionCount)
-    {
-        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
-        newStr += saniStr;
-        size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
-        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
-        setText(newStr);
-        setCursorPos(newSel);
-    }
-    else
-    {
-        std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
-        newStr += saniStr;
-        size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
-        newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
-        setText(newStr);
-        setCursorPos(newSel);
     }
 }
     

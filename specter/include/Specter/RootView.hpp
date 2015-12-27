@@ -56,7 +56,6 @@ public:
     void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
-    void utf8FragmentDown(const std::string& str);
     boo::ITextInputCallback* getTextInputCallback() {return m_activeTextView;}
 
     void dispatchEvents() {m_events.dispatchEvents();}
