@@ -62,6 +62,15 @@ public:
 
     IControlBinding* setControlBinding(IControlBinding* controlBinding);
 };
+    
+class ITextInputView : public Control, public boo::ITextInputCallback
+{
+protected:
+    static std::recursive_mutex m_textInputLk;
+    ITextInputView(ViewResources& res, View& parentView,
+                   IControlBinding* controlBinding)
+    : Control(res, parentView, controlBinding) {}
+};
 
 }
 

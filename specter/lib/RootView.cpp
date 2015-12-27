@@ -7,7 +7,7 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
-: View(res), m_window(window), m_events(*this), m_viewMan(viewMan), m_viewRes(&res)
+: View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
@@ -108,16 +108,16 @@ void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool 
 {
     if (m_view)
         m_view->charKeyDown(charCode, mods, isRepeat);
-    if (m_activeTextView)
-        m_activeTextView->charKeyDown(charCode, mods, isRepeat);
+    //if (m_activeTextView)
+    //    m_activeTextView->charKeyDown(charCode, mods, isRepeat);
 }
 
 void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods)
 {
     if (m_view)
         m_view->charKeyUp(charCode, mods);
-    if (m_activeTextView)
-        m_activeTextView->charKeyUp(charCode, mods);
+    //if (m_activeTextView)
+    //    m_activeTextView->charKeyUp(charCode, mods);
 }
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
@@ -159,8 +159,8 @@ void RootView::modKeyUp(boo::EModifierKey mod)
 
 void RootView::utf8FragmentDown(const std::string& str)
 {
-    if (m_activeTextView)
-        m_activeTextView->utf8FragmentDown(str);
+    //if (m_activeTextView)
+    //    m_activeTextView->utf8FragmentDown(str);
 }
 
 View* RootView::setContentView(View* view)

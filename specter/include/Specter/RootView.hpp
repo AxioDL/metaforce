@@ -27,7 +27,7 @@ class RootView : public View
     bool m_destroyed = false;
     IViewManager& m_viewMan;
     ViewResources* m_viewRes;
-    View* m_activeTextView = nullptr;
+    ITextInputView* m_activeTextView = nullptr;
     View* m_activeDragView = nullptr;
 
     DeferredWindowEvents<RootView> m_events;
@@ -57,6 +57,7 @@ public:
     void modKeyDown(boo::EModifierKey mod, bool isRepeat);
     void modKeyUp(boo::EModifierKey mod);
     void utf8FragmentDown(const std::string& str);
+    boo::ITextInputCallback* getTextInputCallback() {return m_activeTextView;}
 
     void dispatchEvents() {m_events.dispatchEvents();}
     void draw(boo::IGraphicsCommandQueue* gfxQ);
@@ -68,7 +69,7 @@ public:
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
     View* setContentView(View* view);
-    void setActiveTextView(View* textView)
+    void setActiveTextView(ITextInputView* textView)
     {
         if (m_activeTextView)
             m_activeTextView->setActive(false);

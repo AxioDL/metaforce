@@ -251,6 +251,8 @@ struct DeferredWindowEvents : public boo::IWindowCallback
         m_cmds.emplace_back(Command::Type::UTF8FragmentDown);
         m_cmds.back().m_fragment = str;
     }
+    
+    boo::ITextInputCallback* getTextInputCallback() {return m_rec.getTextInputCallback();}
 
     void dispatchEvents()
     {

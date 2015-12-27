@@ -3,13 +3,18 @@
 
 #include "Control.hpp"
 #include "TextView.hpp"
+#include <boo/IWindow.hpp>
 
 namespace Specter
 {
 
-class TextField : public Control
+class TextField : public ITextInputView
 {
+    bool m_hasTextSet = false;
+    bool m_hasMarkSet = false;
     std::string m_textStr;
+    std::string m_deferredTextStr;
+    std::string m_deferredMarkStr;
     std::unique_ptr<TextView> m_text;
 
     SolidShaderVert m_verts[32];
@@ -20,9 +25,26 @@ class TextField : public Control
     int m_nomWidth = 0;
     int m_nomHeight = 0;
 
+    bool m_hasSelectionClear = false;
+    bool m_hasSelectionSet = false;
+    bool m_hasCursorSet = false;
     size_t m_selectionStart = 0;
+    size_t m_deferredSelectionStart = 0;
     size_t m_selectionCount = 0;
+    size_t m_deferredSelectionCount = 0;
+    
+    size_t m_markReplStart = 0;
+    size_t m_deferredMarkReplStart = 0;
+    size_t m_markReplCount = 0;
+    size_t m_deferredMarkReplCount = 0;
+    
+    size_t m_markSelStart = 0;
+    size_t m_deferredMarkSelStart = 0;
+    size_t m_markSelCount = 0;
+    size_t m_deferredMarkSelCount = 0;
+    
     size_t m_cursorPos = 0;
+    size_t m_deferredCursorPos = SIZE_MAX;
     size_t m_cursorFrames = 0;
     size_t m_clickFrames = 15;
     size_t m_clickFrames2 = 15;
@@ -53,6 +75,22 @@ public:
     void charKeyDown(unsigned long, boo::EModifierKey, bool);
     void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
     void utf8FragmentDown(const std::string&);
+    
+    bool hasMarkedText() const;
+    std::pair<int,int> markedRange() const;
+    std::pair<int,int> selectedRange() const;
+    void setMarkedText(const std::string& str,
+                       const std::pair<int,int>& selectedRange,
+                       const std::pair<int,int>& replacementRange);
+    void unmarkText();
+    
+    std::string substringForRange(const std::pair<int,int>& range,
+                                  std::pair<int,int>& actualRange) const;
+    void insertText(const std::string& str, const std::pair<int,int>& range);
+    int characterIndexAtPoint(const boo::SWindowCoord& point) const;
+    boo::SWindowRect rectForCharacterRange(const std::pair<int,int>& range,
+                                           std::pair<int,int>& actualRange) const;
+    
     void think();
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
@@ -73,6 +111,16 @@ public:
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
     }
+    
+private:
+    void _setCursorPos();
+    void _reallySetCursorPos(size_t pos);
+    void _setSelectionRange();
+    void _reallySetSelectionRange(size_t start, size_t len);
+    void _reallySetMarkRange(size_t start, size_t len);
+    void _clearSelectionRange();
+    void _setText();
+    void _setMarkedText();
 };
 
 }

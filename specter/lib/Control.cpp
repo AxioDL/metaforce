@@ -29,5 +29,7 @@ void Control::mouseEnter(const boo::SWindowCoord&)
 void Control::mouseLeave(const boo::SWindowCoord&)
 {
 }
+    
+std::recursive_mutex ITextInputView::m_textInputLk;
 
 }
