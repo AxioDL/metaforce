@@ -350,6 +350,7 @@ void ModalWindow::think()
     case Phase::BuildIn:
     {
         bool loadVerts = false;
+        int doneCount = 0;
         if (m_frame > WIRE_START)
         {
             float wt = (m_frame-WIRE_START) / float(WIRE_FRAMES);
@@ -357,6 +358,8 @@ void ModalWindow::think()
             m_lineTime = CubicEase(wt);
             setLineVerts(m_width, m_height, pf, m_lineTime);
             setLineColors(wt);
+            if (wt == 2.f)
+                ++doneCount;
             loadVerts = true;
         }
         if (m_frame > SOLID_START)
@@ -364,6 +367,8 @@ void ModalWindow::think()
             float ft = (m_frame-SOLID_START) / float(SOLID_FRAMES);
             ft = Zeus::Math::clamp(0.f, ft, 2.f);
             setFillColors(ft);
+            if (ft == 2.f)
+                ++doneCount;
             loadVerts = true;
         }
         if (res.fontCacheReady() && m_frame > CONTENT_START)
@@ -374,8 +379,10 @@ void ModalWindow::think()
             tt = Zeus::Math::clamp(0.f, tt, 1.f);
             updateContentOpacity(tt);
             if (tt == 1.f)
-                m_phase = Phase::Showing;
+                ++doneCount;
         }
+        if (doneCount == 3)
+            m_phase = Phase::Showing;
         if (loadVerts)
             m_vertsBuf->load(&m_verts, sizeof(m_verts));
         ++m_frame;
