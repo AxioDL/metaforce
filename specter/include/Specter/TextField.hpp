@@ -65,6 +65,7 @@ public:
     void setText(const std::string& str);
 
     void clipboardCopy();
+    void clipboardCut();
     void clipboardPaste();
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

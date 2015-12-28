@@ -237,6 +237,28 @@ void TextField::clipboardCopy()
                                        (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
 }
     
+void TextField::clipboardCut()
+{
+    std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
+    
+    if (!m_selectionCount)
+        return;
+    
+    UTF8Iterator begin(m_textStr.cbegin());
+    begin += m_selectionStart;
+    UTF8Iterator end(begin.iter());
+    end += m_selectionCount;
+    
+    rootView().window()->clipboardCopy(boo::EClipboardType::UTF8String,
+                                       (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
+    
+    std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+    newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+    size_t selStart = m_selectionStart;
+    setText(newStr);
+    setCursorPos(selStart);
+}
+    
 static std::string SanitizeUTF8TextLine(const char* string, size_t len)
 {
     const char* it = string;
