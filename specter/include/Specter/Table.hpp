@@ -51,20 +51,24 @@ class Table : public View
     std::vector<std::vector<std::unique_ptr<CellView>>> m_cellViews;
     bool m_header = false;
 
-    SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * 6];
-    boo::IGraphicsBufferD* m_vertsBuf = nullptr;
-    boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_shaderBinding = nullptr;
-    size_t m_visibleRows = 0;
-    void _setRowVerts(const boo::SWindowRect& rowsRect);
-
     ViewChild<std::unique_ptr<ScrollView>> m_scroll;
 
     struct RowsView : public View
     {
         Table& m_t;
-        RowsView(Table& t, ViewResources& res) : View(res, t), m_t(t) {}
+
+        SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * 6];
+        boo::IGraphicsBufferD* m_vertsBuf = nullptr;
+        boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
+        boo::IShaderDataBinding* m_shaderBinding = nullptr;
+        size_t m_visibleStart = 0;
+        size_t m_visibleRows = 0;
+        boo::SWindowRect m_scissorRect;
+        void _setRowVerts(const boo::SWindowRect& rowsRect, const boo::SWindowRect& scissor);
+
+        RowsView(Table& t, ViewResources& res);
         int nominalHeight() const;
+        int nominalWidth() const {return m_t.m_scroll.m_view->nominalWidth();}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
                      const boo::SWindowRect& scissor);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
@@ -82,6 +86,7 @@ public:
     void mouseLeave(const boo::SWindowCoord&);
     void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
 
+    void think();
     void updateData();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

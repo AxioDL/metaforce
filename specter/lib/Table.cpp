@@ -10,6 +10,16 @@ namespace Specter
 Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state)
 : View(res, parentView), m_data(data), m_state(state), m_rowsView(*this, res)
 {
+    commitResources(res);
+
+    m_scroll.m_view.reset(new ScrollView(res, *this));
+    m_scroll.m_view->setContentView(&m_rowsView);
+    updateData();
+}
+
+Table::RowsView::RowsView(Table& t, ViewResources& res)
+: View(res, t), m_t(t)
+{
     m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert),
                                                  SPECTER_TABLE_MAX_ROWS * 6);
 
@@ -35,40 +45,49 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
                                                               nullptr, 1, bufs, 0, nullptr);
     }
     commitResources(res);
-
-    m_scroll.m_view.reset(new ScrollView(res, *this));
-    m_scroll.m_view->setContentView(&m_rowsView);
-    updateData();
 }
 
 Table::CellView::CellView(Table& t, ViewResources& res)
 : View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont))  {}
 
-void Table::_setRowVerts(const boo::SWindowRect& rowsRect)
+void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWindowRect& scissor)
 {
     SolidShaderVert* v = m_verts;
     const ThemeData& theme = rootView().themeData();
+
+    if (m_t.m_cellViews.empty())
+        return;
+
     float pf = rootView().viewRes().pixelFactor();
+    int div = sub.size[0] / m_t.m_cellViews.size();
+    int spacing = (ROW_HEIGHT + ROW_SPACING) * pf;
     int rowHeight = ROW_HEIGHT * pf;
-    int rowSpace = ROW_SPACING * pf;
-    int hAdv = rowHeight + rowSpace;
-    int yOff = rowsRect.size[1] - hAdv;
+    int yOff = 0;
+    int idx = 0;
+    while (sub.location[1] + yOff < scissor.location[1] + scissor.size[1] || (idx & 1) != 0)
+    {
+        yOff += spacing;
+        ++idx;
+    }
+    int startIdx = std::max(0, int(m_t.m_rows) - idx);
+
     size_t i;
-    for (i=0 ; i<SPECTER_TABLE_MAX_ROWS && (yOff + rowHeight + rowSpace) >= 0 ; ++i)
+    for (i=0 ; i<SPECTER_TABLE_MAX_ROWS && (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++i)
     {
         v[0].m_pos.assign(0, yOff, 0);
         v[0].m_color = (i&1) ? theme.tableCellBg1() : theme.tableCellBg2();
         v[1] = v[0];
         v[2].m_pos.assign(0, yOff - rowHeight, 0);
         v[2].m_color = v[0].m_color;
-        v[3].m_pos.assign(rowsRect.size[0], yOff, 0);
+        v[3].m_pos.assign(sub.size[0], yOff, 0);
         v[3].m_color = v[0].m_color;
-        v[4].m_pos.assign(rowsRect.size[0], yOff - rowHeight, 0);
+        v[4].m_pos.assign(sub.size[0], yOff - rowHeight, 0);
         v[4].m_color = v[0].m_color;
         v[5] = v[4];
-        yOff -= hAdv;
+        yOff -= spacing;
         v += 6;
     }
+    m_visibleStart = startIdx;
     m_visibleRows = i;
     m_vertsBuf->load(m_verts, sizeof(SolidShaderVert) * 6 * i);
 }
@@ -115,6 +134,12 @@ void Table::mouseLeave(const boo::SWindowCoord& coord)
 void Table::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
     m_scroll.scroll(coord, scroll);
+}
+
+void Table::think()
+{
+    if (m_scroll.m_view)
+        m_scroll.m_view->think();
 }
 
 void Table::updateData()
@@ -183,21 +208,6 @@ void Table::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
             hv->resized(root, cell);
         cell.location[0] += div;
     }
-
-    int spacing = ROW_HEIGHT + ROW_SPACING * pf;
-    cell.location[0] = sub.location[0];
-    int hStart = cell.location[1];
-    for (auto& col : m_cellViews)
-    {
-        cell.location[1] = hStart;
-        for (std::unique_ptr<CellView>& cv : col)
-        {
-            cell.location[1] -= spacing;
-            if (cv)
-                cv->resized(root, cell);
-        }
-        cell.location[0] += div;
-    }
 }
 
 int Table::RowsView::nominalHeight() const
@@ -209,7 +219,33 @@ int Table::RowsView::nominalHeight() const
 void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
                               const boo::SWindowRect& scissor)
 {
-    m_t._setRowVerts(sub);
+    View::resized(root, sub);
+    _setRowVerts(sub, scissor);
+
+    if (m_t.m_cellViews.empty())
+        return;
+
+    float pf = rootView().viewRes().pixelFactor();
+    int div = sub.size[0] / m_t.m_cellViews.size();
+    boo::SWindowRect cell = sub;
+    cell.size[1] = ROW_HEIGHT * pf;
+    cell.location[1] += sub.size[1] - cell.size[1];
+    int spacing = (ROW_HEIGHT + ROW_SPACING) * pf;
+    int hStart = cell.location[1];
+    for (auto& col : m_t.m_cellViews)
+    {
+        cell.location[1] = hStart;
+        for (std::unique_ptr<CellView>& cv : col)
+        {
+            cell.location[1] -= spacing;
+            if (cv)
+                cv->resized(root, cell);
+        }
+        cell.location[0] += div;
+    }
+
+    m_scissorRect = scissor;
+    m_scissorRect.size[1] -= spacing;
 }
 
 void Table::CellView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -230,21 +266,27 @@ void Table::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->setShaderDataBinding(m_t.m_shaderBinding);
+    gfxQ->setShaderDataBinding(m_shaderBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
-    gfxQ->setScissor(subRect());
-    size_t rows = std::min(m_t.m_visibleRows, m_t.m_rows);
+
+    gfxQ->setScissor(m_scissorRect);
+    size_t rows = std::min(m_visibleRows, m_t.m_rows);
     gfxQ->draw(1, rows * 6 - 2);
+    for (auto& col : m_t.m_cellViews)
+    {
+        size_t idx = 0;
+        for (std::unique_ptr<CellView>& cv : col)
+        {
+            if (cv && idx >= m_visibleStart && idx < m_visibleStart + m_visibleRows)
+                cv->draw(gfxQ);
+            ++idx;
+        }
+    }
+    gfxQ->setScissor(rootView().subRect());
+
     for (std::unique_ptr<CellView>& hv : m_t.m_headerViews)
         if (hv)
             hv->draw(gfxQ);
-    for (auto& col : m_t.m_cellViews)
-    {
-        for (std::unique_ptr<CellView>& cv : col)
-            if (cv)
-                cv->draw(gfxQ);
-    }
-    gfxQ->setScissor(rootView().subRect());
 }
 
 void Table::CellView::draw(boo::IGraphicsCommandQueue* gfxQ)

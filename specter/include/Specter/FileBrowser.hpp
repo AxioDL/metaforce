@@ -108,8 +108,18 @@ class FileBrowser : public ModalWindow
         std::string m_sizeCol = "Size";
         std::vector<std::string> m_sizes = {"s1", "s2", "s3"};
 
+        TableDataBind()
+        {
+            for (int i=0 ; i<100 ; ++i)
+            {
+                m_names.push_back(HECL::Format("%d", i));
+                m_types.push_back(HECL::Format("%d", i));
+                m_sizes.push_back(HECL::Format("%d", i));
+            }
+        }
+
         size_t columnCount() const {return 3;}
-        size_t rowCount() const {return 3;}
+        size_t rowCount() const {return 103;}
 
         const std::string* header(size_t cIdx) const
         {
