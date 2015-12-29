@@ -156,6 +156,7 @@ void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
 
 void FileBrowser::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
+    m_fileListing.scroll(coord, scroll);
 }
 
 void FileBrowser::touchDown(const boo::STouchCoord& coord, uintptr_t tid)

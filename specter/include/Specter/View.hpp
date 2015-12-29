@@ -166,6 +166,7 @@ public:
 
     View& parentView() {return m_parentView;}
     RootView& rootView() {return m_rootView;}
+    const RootView& rootView() const {return m_rootView;}
     const boo::SWindowRect& subRect() const {return m_subRect;}
     int width() const {return m_subRect.size[0];}
     int height() const {return m_subRect.size[1];}
@@ -205,6 +206,8 @@ public:
     virtual void modKeyUp(boo::EModifierKey) {}
 
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
+                         const boo::SWindowRect& scissor) {resized(root, sub);}
     virtual void think() {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

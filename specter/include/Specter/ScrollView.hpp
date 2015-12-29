@@ -17,6 +17,7 @@ public:
 
 private:
     View* m_contentView = nullptr;
+    int m_scroll[2] = {};
 
 public:
     ScrollView(ViewResources& res, View& parentView);
@@ -25,6 +26,11 @@ public:
         m_contentView = v;
         updateSize();
     }
+
+    void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll);
+
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
 
 }

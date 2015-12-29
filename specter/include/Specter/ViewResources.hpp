@@ -43,6 +43,9 @@ class ThemeData
     Zeus::CColor m_textfieldSelection = {0.2725, 0.2725, 0.2725, 1.0};
     Zeus::CColor m_textfieldMarkSelection = {1.0, 1.0, 0.2725, 1.0};
 
+    Zeus::CColor m_tableCellBg1 = {0.1725, 0.1725, 0.1725, 0.75};
+    Zeus::CColor m_tableCellBg2 = {0.2425, 0.2425, 0.2425, 0.75};
+
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
     virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
@@ -74,6 +77,9 @@ public:
     virtual const Zeus::CColor& textfield2Disabled() const {return m_textfield2Disabled;}
     virtual const Zeus::CColor& textfieldSelection() const {return m_textfieldSelection;}
     virtual const Zeus::CColor& textfieldMarkSelection() const {return m_textfieldMarkSelection;}
+
+    virtual const Zeus::CColor& tableCellBg1() const {return m_tableCellBg1;}
+    virtual const Zeus::CColor& tableCellBg2() const {return m_tableCellBg2;}
 };
 
 class ViewResources

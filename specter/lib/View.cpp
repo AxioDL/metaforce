@@ -283,52 +283,52 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
     
 #endif
 
-void View::buildResources(ViewResources& system)
+void View::buildResources(ViewResources& res)
 {
     m_bgVertBuf =
-    system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                       sizeof(SolidShaderVert), 4);
+    res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
+                                    sizeof(SolidShaderVert), 4);
 
     m_viewVertBlockBuf =
-    system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
-                                       sizeof(ViewBlock), 1);
+    res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
+                                    sizeof(ViewBlock), 1);
 
-    if (!system.m_viewRes.m_solidVtxFmt)
+    if (!res.m_viewRes.m_solidVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
             {m_bgVertBuf, nullptr, boo::VertexSemantic::Position4},
             {m_bgVertBuf, nullptr, boo::VertexSemantic::Color}
         };
-        m_bgVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
+        m_bgVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
         m_bgShaderBinding =
-        system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, m_bgVtxFmt,
-                                               m_bgVertBuf, nullptr, nullptr, 1,
-                                               (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                               0, nullptr);
+        res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader, m_bgVtxFmt,
+                                            m_bgVertBuf, nullptr, nullptr, 1,
+                                            (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                            0, nullptr);
     }
     else
     {
         m_bgShaderBinding =
-        system.m_factory->newShaderDataBinding(system.m_viewRes.m_solidShader, system.m_viewRes.m_solidVtxFmt,
-                                               m_bgVertBuf, nullptr, nullptr, 1,
-                                               (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                               0, nullptr);
+        res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader, res.m_viewRes.m_solidVtxFmt,
+                                            m_bgVertBuf, nullptr, nullptr, 1,
+                                            (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                            0, nullptr);
     }
 }
 
-View::View(ViewResources& system)
+View::View(ViewResources& res)
 : m_rootView(*static_cast<RootView*>(this)),
   m_parentView(*static_cast<RootView*>(this))
 {
-    buildResources(system);
+    buildResources(res);
 }
 
-View::View(ViewResources& system, View& parentView)
+View::View(ViewResources& res, View& parentView)
 : m_rootView(parentView.rootView()),
   m_parentView(parentView)
 {
-    buildResources(system);
+    buildResources(res);
 }
 
 void View::updateSize()
@@ -355,9 +355,9 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->draw(0, 4);
 }
 
-void View::commitResources(ViewResources& system)
+void View::commitResources(ViewResources& res)
 {
-    m_gfxData = system.m_factory->commit();
+    m_gfxData = res.m_factory->commit();
 }
 
 }

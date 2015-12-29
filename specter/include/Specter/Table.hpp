@@ -3,6 +3,7 @@
 
 #include "View.hpp"
 #include "ScrollView.hpp"
+#include "TextView.hpp"
 
 namespace Specter
 {
@@ -36,10 +37,26 @@ class Table : public View
     ITableDataBinding* m_data;
     ITableStateBinding* m_state;
 
+    size_t m_rows = 0;
+    size_t m_columns = 0;
+    struct CellView : public View
+    {
+        Table& m_t;
+        std::unique_ptr<TextView> m_text;
+        CellView(Table& t, ViewResources& res);
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void draw(boo::IGraphicsCommandQueue* gfxQ);
+    };
+    std::vector<std::unique_ptr<CellView>> m_headerViews;
+    std::vector<std::vector<std::unique_ptr<CellView>>> m_cellViews;
+    bool m_header = false;
+
     SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * 6];
     boo::IGraphicsBufferD* m_vertsBuf = nullptr;
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding = nullptr;
+    size_t m_visibleRows = 0;
+    void _setRowVerts(const boo::SWindowRect& rowsRect);
 
     ViewChild<std::unique_ptr<ScrollView>> m_scroll;
 
@@ -47,19 +64,25 @@ class Table : public View
     {
         Table& m_t;
         RowsView(Table& t, ViewResources& res) : View(res, t), m_t(t) {}
-        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        int nominalHeight() const;
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
+                     const boo::SWindowRect& scissor);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     } m_rowsView;
 
 public:
     Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state=nullptr);
 
+    void setMultiplyColor(const Zeus::CColor& color);
+
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseMove(const boo::SWindowCoord&);
     void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
     void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
 
+    void updateData();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };

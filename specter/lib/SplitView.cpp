@@ -18,37 +18,37 @@ void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeD
     m_shadingTex = factory->newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, tex, 12);
 }
 
-SplitView::SplitView(ViewResources& system, View& parentView, Axis axis, int clearanceA, int clearanceB)
-: View(system, parentView), m_axis(axis), m_clearanceA(clearanceA), m_clearanceB(clearanceB)
+SplitView::SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA, int clearanceB)
+: View(res, parentView), m_axis(axis), m_clearanceA(clearanceA), m_clearanceB(clearanceB)
 {
-    m_splitBlockBuf = system.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_splitVertsBuf = system.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), 4);
+    m_splitBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+    m_splitVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), 4);
 
-    if (!system.m_viewRes.m_texVtxFmt)
+    if (!res.m_viewRes.m_texVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
             {m_splitVertsBuf, nullptr, boo::VertexSemantic::Position4},
             {m_splitVertsBuf, nullptr, boo::VertexSemantic::UV4}
         };
-        m_splitVtxFmt = system.m_factory->newVertexFormat(2, vdescs);
+        m_splitVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
-        boo::ITexture* texs[] = {system.m_splitRes.m_shadingTex};
-        m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewRes.m_texShader,
-                                                                      m_splitVtxFmt, m_splitVertsBuf, nullptr,
-                                                                      nullptr, 1, bufs, 1, texs);
+        boo::ITexture* texs[] = {res.m_splitRes.m_shadingTex};
+        m_splitShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                                   m_splitVtxFmt, m_splitVertsBuf, nullptr,
+                                                                   nullptr, 1, bufs, 1, texs);
     }
     else
     {
         boo::IGraphicsBuffer* bufs[] = {m_splitBlockBuf};
-        boo::ITexture* texs[] = {system.m_splitRes.m_shadingTex};
-        m_splitShaderBinding = system.m_factory->newShaderDataBinding(system.m_viewRes.m_texShader,
-                                                                      system.m_viewRes.m_texVtxFmt,
-                                                                      m_splitVertsBuf, nullptr,
-                                                                      nullptr, 1, bufs, 1, texs);
+        boo::ITexture* texs[] = {res.m_splitRes.m_shadingTex};
+        m_splitShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                                   res.m_viewRes.m_texVtxFmt,
+                                                                   m_splitVertsBuf, nullptr,
+                                                                   nullptr, 1, bufs, 1, texs);
     }
 
-    commitResources(system);
+    commitResources(res);
 }
 
 View* SplitView::setContentView(int slot, View* view)
