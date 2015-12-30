@@ -178,7 +178,7 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
 
     boo::SWindowRect centerRect = subRect();
     centerRect.location[0] = root.size[0] / 2 - (centerRect.size[0] / 2.0) + 2 * pf;
-    centerRect.location[1] = root.size[1] / 2 - (centerRect.size[1] / 2.0) + 2 * pf;;
+    centerRect.location[1] = root.size[1] / 2 - (centerRect.size[1] / 2.0) + 2 * pf;
     centerRect.size[0] -= 4 * pf;
     centerRect.size[1] -= 4 * pf;
 

@@ -46,6 +46,8 @@ class ThemeData
     Zeus::CColor m_tableCellBg1 = {0.1725, 0.1725, 0.1725, 0.75};
     Zeus::CColor m_tableCellBg2 = {0.2425, 0.2425, 0.2425, 0.75};
 
+    Zeus::CColor m_scrollIndicator = {0.2823, 0.2823, 0.2823, 1.0};
+
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
     virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
@@ -80,6 +82,8 @@ public:
 
     virtual const Zeus::CColor& tableCellBg1() const {return m_tableCellBg1;}
     virtual const Zeus::CColor& tableCellBg2() const {return m_tableCellBg2;}
+
+    virtual const Zeus::CColor& scrollIndicator() const {return m_scrollIndicator;}
 };
 
 class ViewResources

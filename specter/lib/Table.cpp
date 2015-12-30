@@ -5,14 +5,14 @@
 namespace Specter
 {
 #define ROW_HEIGHT 18
-#define ROW_SPACING 2
+#define CELL_MARGIN 1
 
 Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state)
 : View(res, parentView), m_data(data), m_state(state), m_rowsView(*this, res)
 {
     commitResources(res);
 
-    m_scroll.m_view.reset(new ScrollView(res, *this));
+    m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
     m_scroll.m_view->setContentView(&m_rowsView);
     updateData();
 }
@@ -21,7 +21,7 @@ Table::RowsView::RowsView(Table& t, ViewResources& res)
 : View(res, t), m_t(t)
 {
     m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert),
-                                                 SPECTER_TABLE_MAX_ROWS * 6);
+                                                 SPECTER_TABLE_MAX_ROWS * SPECTER_TABLE_MAX_COLUMNS * 6);
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
@@ -60,7 +60,8 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
 
     float pf = rootView().viewRes().pixelFactor();
     int div = sub.size[0] / m_t.m_cellViews.size();
-    int spacing = (ROW_HEIGHT + ROW_SPACING) * pf;
+    int spacing = (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
+    int margin = CELL_MARGIN * pf;
     int rowHeight = ROW_HEIGHT * pf;
     int yOff = 0;
     int idx = 0;
@@ -71,30 +72,38 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     }
     int startIdx = std::max(0, int(m_t.m_rows) - idx);
 
-    size_t i;
-    for (i=0 ; i<SPECTER_TABLE_MAX_ROWS && (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++i)
+    size_t r, c;
+    for (r=0 ; r<SPECTER_TABLE_MAX_ROWS && (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++r)
     {
-        v[0].m_pos.assign(0, yOff, 0);
-        v[0].m_color = (i&1) ? theme.tableCellBg1() : theme.tableCellBg2();
-        v[1] = v[0];
-        v[2].m_pos.assign(0, yOff - rowHeight, 0);
-        v[2].m_color = v[0].m_color;
-        v[3].m_pos.assign(sub.size[0], yOff, 0);
-        v[3].m_color = v[0].m_color;
-        v[4].m_pos.assign(sub.size[0], yOff - rowHeight, 0);
-        v[4].m_color = v[0].m_color;
-        v[5] = v[4];
+        const Zeus::CColor& color = (r&1) ? theme.tableCellBg1() : theme.tableCellBg2();
+        int xOff = 0;
+        for (c=0 ; c<std::min(SPECTER_TABLE_MAX_COLUMNS, m_t.m_columns) ; ++c)
+        {
+            v[0].m_pos.assign(xOff + margin, yOff - margin, 0);
+            v[0].m_color = color;
+            v[1] = v[0];
+            v[2].m_pos.assign(xOff + margin, yOff - margin - rowHeight, 0);
+            v[2].m_color = color;
+            v[3].m_pos.assign(xOff + div - margin, yOff - margin, 0);
+            v[3].m_color = color;
+            v[4].m_pos.assign(xOff + div - margin, yOff - margin - rowHeight, 0);
+            v[4].m_color = color;
+            v[5] = v[4];
+            v += 6;
+            xOff += div;
+        }
         yOff -= spacing;
-        v += 6;
     }
     m_visibleStart = startIdx;
-    m_visibleRows = i;
-    m_vertsBuf->load(m_verts, sizeof(SolidShaderVert) * 6 * i);
+    m_visibleRows = r;
+    m_vertsBuf->load(m_verts, sizeof(SolidShaderVert) * 6 * r * c);
 }
 
 void Table::setMultiplyColor(const Zeus::CColor& color)
 {
     View::setMultiplyColor(color);
+    if (m_scroll.m_view)
+        m_scroll.m_view->setMultiplyColor(color);
     for (std::unique_ptr<CellView>& hv : m_headerViews)
         if (hv)
             hv->m_text->setMultiplyColor(color);
@@ -213,7 +222,10 @@ void Table::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 int Table::RowsView::nominalHeight() const
 {
     float pf = rootView().viewRes().pixelFactor();
-    return m_t.m_rows * (ROW_HEIGHT + ROW_SPACING) * pf;
+    int rows = m_t.m_rows;
+    if (m_t.m_header)
+        rows += 1;
+    return rows * (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
 }
 
 void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
@@ -230,7 +242,7 @@ void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRe
     boo::SWindowRect cell = sub;
     cell.size[1] = ROW_HEIGHT * pf;
     cell.location[1] += sub.size[1] - cell.size[1];
-    int spacing = (ROW_HEIGHT + ROW_SPACING) * pf;
+    int spacing = (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
     int hStart = cell.location[1];
     for (auto& col : m_t.m_cellViews)
     {
@@ -254,7 +266,7 @@ void Table::CellView::resized(const boo::SWindowRect& root, const boo::SWindowRe
     boo::SWindowRect textRect = sub;
     float pf = rootView().viewRes().pixelFactor();
     textRect.location[0] += 5 * pf;
-    textRect.location[1] += 6 * pf;
+    textRect.location[1] += 5 * pf;
     m_text->resized(root, textRect);
 }
 
@@ -271,7 +283,7 @@ void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
     gfxQ->setScissor(m_scissorRect);
     size_t rows = std::min(m_visibleRows, m_t.m_rows);
-    gfxQ->draw(1, rows * 6 - 2);
+    gfxQ->draw(1, rows * m_t.m_columns * 6 - 2);
     for (auto& col : m_t.m_cellViews)
     {
         size_t idx = 0;

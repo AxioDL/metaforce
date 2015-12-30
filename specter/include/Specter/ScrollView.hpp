@@ -12,16 +12,25 @@ class ScrollView : public View
 public:
     enum class Style
     {
-
+        Plain,
+        ThinIndicator
     };
 
 private:
+    Style m_style;
     View* m_contentView = nullptr;
     int m_scroll[2] = {};
     int m_targetScroll[2] = {};
 
+    bool m_drawInd = false;
+
+    SolidShaderVert m_verts[4];
+    boo::IGraphicsBufferD* m_vertsBuf = nullptr;
+    boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
+    boo::IShaderDataBinding* m_shaderBinding = nullptr;
+
 public:
-    ScrollView(ViewResources& res, View& parentView);
+    ScrollView(ViewResources& res, View& parentView, Style style);
     void setContentView(View* v)
     {
         m_contentView = v;
@@ -34,6 +43,13 @@ public:
 
     int nominalWidth() const {return subRect().size[0];}
     int nominalHeight() const {return subRect().size[1];}
+
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        View::setMultiplyColor(color);
+        if (m_contentView)
+            m_contentView->setMultiplyColor(color);
+    }
 
     void think();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

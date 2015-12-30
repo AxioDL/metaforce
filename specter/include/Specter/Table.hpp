@@ -7,7 +7,8 @@
 
 namespace Specter
 {
-#define SPECTER_TABLE_MAX_ROWS 128
+#define SPECTER_TABLE_MAX_ROWS 128ul
+#define SPECTER_TABLE_MAX_COLUMNS 32ul
 
 enum class SortDirection
 {
@@ -57,7 +58,7 @@ class Table : public View
     {
         Table& m_t;
 
-        SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * 6];
+        SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * SPECTER_TABLE_MAX_COLUMNS * 6];
         boo::IGraphicsBufferD* m_vertsBuf = nullptr;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
