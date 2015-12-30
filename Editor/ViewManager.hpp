@@ -37,7 +37,7 @@ public:
         SetTo1(ViewManager& vm) : m_vm(vm) {}
 
         const char* name() const {return "SetTo1";}
-        const char* help() const {return "Sets scale factor to 1.0";;}
+        const char* help() const {return "Sets scale factor to 1.0";}
         void activated(const boo::SWindowCoord& coord)
         {
             m_vm.RequestPixelFactor(1.0);
