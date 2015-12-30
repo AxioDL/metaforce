@@ -234,30 +234,6 @@ public:
     static constexpr size_t BinarySize() {return 16;}
 };
 
-/** Case-insensitive comparator for std::map sorting */
-struct CaseInsensitiveCompare
-{
-    bool operator()(const std::string& lhs, const std::string& rhs) const
-    {
-#if _WIN32
-        if (_stricmp(lhs.c_str(), rhs.c_str()) < 0)
-#else
-        if (strcasecmp(lhs.c_str(), rhs.c_str()) < 0)
-#endif
-            return true;
-        return false;
-    }
-
-#if _WIN32
-    bool operator()(const std::wstring& lhs, const std::wstring& rhs) const
-    {
-        if (_wcsicmp(lhs.c_str(), rhs.c_str()) < 0)
-            return true;
-        return false;
-    }
-#endif
-};
-
 /** Class that automatically converts between hash and path for DNA usage */
 template <class IDTYPE>
 class PAKPath : public BigYAML

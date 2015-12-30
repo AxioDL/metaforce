@@ -27,7 +27,7 @@ struct SpecMP1 : SpecBase
 
     std::vector<const NOD::Node*> m_nonPaks;
     std::vector<DNAMP1::PAKBridge> m_paks;
-    std::map<std::string, DNAMP1::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
+    std::map<std::string, DNAMP1::PAKBridge*, HECL::CaseInsensitiveCompare> m_orderedPaks;
 
     HECL::ProjectPath m_workPath;
     HECL::ProjectPath m_cookPath;

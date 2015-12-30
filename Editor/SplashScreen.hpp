@@ -33,7 +33,10 @@ class SplashScreen : public Specter::ModalWindow
         const char* help() const {return "Creates an empty project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
-            m_splash.m_fileBrowser.m_view.reset(new Specter::FileBrowser(m_splash.rootView().viewRes(), m_splash, "New Project"));
+            m_splash.m_fileBrowser.m_view.reset(
+                        new Specter::FileBrowser(m_splash.rootView().viewRes(),
+                                                 m_splash, "New Project",
+                                                 Specter::FileBrowser::Type::SaveFile));
             m_splash.updateSize();
             m_splash.m_newButt.mouseLeave(coord);
         }
@@ -47,7 +50,10 @@ class SplashScreen : public Specter::ModalWindow
         const char* help() const {return "Opens an existing project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
-            m_splash.m_fileBrowser.m_view.reset(new Specter::FileBrowser(m_splash.rootView().viewRes(), m_splash, "Open Project"));
+            m_splash.m_fileBrowser.m_view.reset(
+                        new Specter::FileBrowser(m_splash.rootView().viewRes(),
+                                                 m_splash, "Open Project",
+                                                 Specter::FileBrowser::Type::OpenHECLProject));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
         }
@@ -61,7 +67,10 @@ class SplashScreen : public Specter::ModalWindow
         const char* help() const {return "Extracts game image as project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
-            m_splash.m_fileBrowser.m_view.reset(new Specter::FileBrowser(m_splash.rootView().viewRes(), m_splash, "Extract Game"));
+            m_splash.m_fileBrowser.m_view.reset(
+                        new Specter::FileBrowser(m_splash.rootView().viewRes(),
+                                                 m_splash, "Extract Game",
+                                                 Specter::FileBrowser::Type::OpenFile));
             m_splash.updateSize();
             m_splash.m_extractButt.mouseLeave(coord);
         }

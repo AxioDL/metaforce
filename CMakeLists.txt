@@ -16,7 +16,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 include_directories(/usr/local/include)
 endif()
 
-if(${CMAKE_BUILD_TYPE} AND ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND ${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   option(USE_LD_GOLD "Link with GNU Gold and enable LTO" ON)
 else()
   option(USE_LD_GOLD "Link with GNU Gold and enable LTO" OFF)

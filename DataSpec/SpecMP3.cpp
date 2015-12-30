@@ -26,7 +26,7 @@ struct SpecMP3 : SpecBase
     bool doMP3 = false;
     std::vector<const NOD::Node*> m_nonPaks;
     std::vector<DNAMP3::PAKBridge> m_paks;
-    std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_orderedPaks;
+    std::map<std::string, DNAMP3::PAKBridge*, HECL::CaseInsensitiveCompare> m_orderedPaks;
 
     HECL::ProjectPath m_workPath;
     HECL::ProjectPath m_cookPath;
@@ -36,7 +36,7 @@ struct SpecMP3 : SpecBase
     bool doMPTFE = false;
     std::vector<const NOD::Node*> m_feNonPaks;
     std::vector<DNAMP3::PAKBridge> m_fePaks;
-    std::map<std::string, DNAMP3::PAKBridge*, CaseInsensitiveCompare> m_feOrderedPaks;
+    std::map<std::string, DNAMP3::PAKBridge*, HECL::CaseInsensitiveCompare> m_feOrderedPaks;
 
     HECL::ProjectPath m_feWorkPath;
     HECL::ProjectPath m_feCookPath;

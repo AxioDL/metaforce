@@ -34,7 +34,7 @@ PAKBridge::PAKBridge(HECL::Database::Project& project,
     m_pak.read(rs);
 
     /* Append Level String */
-    std::set<HECL::SystemString, CaseInsensitiveCompare> uniq;
+    std::set<HECL::SystemString, HECL::CaseInsensitiveCompare> uniq;
     for (PAK::Entry& entry : m_pak.m_entries)
     {
         if (entry.type == FOURCC('MLVL'))
