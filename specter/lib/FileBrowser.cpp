@@ -4,7 +4,7 @@
 namespace Specter
 {
 
-#define BROWSER_MARGIN 30
+#define BROWSER_MARGIN 8
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
 
@@ -194,8 +194,8 @@ void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SW
     float pf = rootView().viewRes().pixelFactor();
 
     boo::SWindowRect pathRect = sub;
-    pathRect.location[0] += 25 * pf;
-    pathRect.location[1] += pathRect.size[1] - 50 * pf;
+    pathRect.location[0] += BROWSER_MARGIN * pf;
+    pathRect.location[1] += pathRect.size[1] - (BROWSER_MARGIN + 20) * pf;
     for (PathButton& b : m_fb.m_pathButtons)
     {
         pathRect.size[0] = b.m_button.m_view->nominalWidth();
@@ -204,22 +204,22 @@ void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SW
         pathRect.location[0] += pathRect.size[0] + 2;
     }
 
-    pathRect.location[0] = sub.location[0] + 25 * pf;
+    pathRect.location[0] = sub.location[0] + BROWSER_MARGIN * pf;
     pathRect.location[1] -= 25 * pf;
-    pathRect.size[0] = sub.size[0] - 155 * pf;
+    pathRect.size[0] = sub.size[0] - m_fb.m_ok.m_button.m_view->nominalWidth() - 20 * pf;
     pathRect.size[1] = m_fb.m_fileField.m_view->nominalHeight();
     m_fb.m_fileField.m_view->resized(root, pathRect);
 
-    pathRect.location[1] = sub.location[1] + 25 * pf;
-    pathRect.size[0] = sub.size[0] - 50 * pf;
-    pathRect.size[1] = sub.size[1] - 105 * pf;
+    pathRect.location[1] = sub.location[1] + BROWSER_MARGIN * pf;
+    pathRect.size[0] = sub.size[0] - BROWSER_MARGIN * 2 * pf;
+    pathRect.size[1] = sub.size[1] - (BROWSER_MARGIN + 56) * pf;
     m_fb.m_fileListing.m_view->resized(root, pathRect);
 
     boo::SWindowRect buttonRect = sub;
     buttonRect.size[0] = m_fb.m_ok.m_button.m_view->nominalWidth();
     buttonRect.size[1] = m_fb.m_ok.m_button.m_view->nominalHeight();
-    buttonRect.location[0] += sub.size[0] - 25 * pf - buttonRect.size[0];
-    buttonRect.location[1] += sub.size[1] - 50 * pf;
+    buttonRect.location[0] += sub.size[0] - BROWSER_MARGIN * pf - buttonRect.size[0];
+    buttonRect.location[1] += sub.size[1] - (BROWSER_MARGIN + 20) * pf;
     m_fb.m_ok.m_button.m_view->resized(root, buttonRect);
     buttonRect.location[1] -= 25 * pf;
     m_fb.m_cancel.m_button.m_view->resized(root, buttonRect);
