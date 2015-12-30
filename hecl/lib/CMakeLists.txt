@@ -16,6 +16,7 @@ add_library(HECLCommon
             HECL.cpp
             ProjectPath.cpp
             WideStringConvert.cpp
+            HumanizeNumber.cpp
             CVar.cpp
             CVarManager.cpp
             ../include/HECL/CVar.hpp

@@ -32,6 +32,7 @@
 #include <list>
 #include <map>
 #include <LogVisor/LogVisor.hpp>
+#include <Athena/Global.hpp>
 #include "../extern/xxhash/xxhash.h"
 
 namespace HECL
@@ -52,6 +53,27 @@ extern LogVisor::LogModule LogModule;
 
 std::string WideToUTF8(const std::wstring& src);
 std::wstring UTF8ToWide(const std::string& src);
+
+/* humanize_number port from FreeBSD's libutil */
+enum class HNFlags
+{
+    None        = 0,
+    Decimal     = 0x01,
+    NoSpace     = 0x02,
+    B           = 0x04,
+    Divisor1000 = 0x08,
+    IECPrefixes = 0x10
+};
+ENABLE_BITWISE_ENUM(HNFlags)
+
+enum class HNScale
+{
+    None      = 0,
+    AutoScale = 0x20
+};
+ENABLE_BITWISE_ENUM(HNScale)
+
+std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags);
 
 #if HECL_UCS2
 typedef wchar_t SystemChar;
@@ -480,6 +502,155 @@ public:
     bool operator>(const Time& other) const {return ts > other.ts;}
     bool operator<=(const Time& other) const {return ts <= other.ts;}
     bool operator>=(const Time& other) const {return ts >= other.ts;}
+};
+
+/**
+ * @brief Case-insensitive comparator for std::map sorting
+ */
+struct CaseInsensitiveCompare
+{
+    bool operator()(const std::string& lhs, const std::string& rhs) const
+    {
+#if _WIN32
+        if (_stricmp(lhs.c_str(), rhs.c_str()) < 0)
+#else
+        if (strcasecmp(lhs.c_str(), rhs.c_str()) < 0)
+#endif
+            return true;
+        return false;
+    }
+
+#if _WIN32
+    bool operator()(const std::wstring& lhs, const std::wstring& rhs) const
+    {
+        if (_wcsicmp(lhs.c_str(), rhs.c_str()) < 0)
+            return true;
+        return false;
+    }
+#endif
+};
+
+/**
+ * @brief Directory traversal tool for accessing sorted directory entries
+ */
+class DirectoryEnumerator
+{
+public:
+    enum class Mode
+    {
+        Native,
+        DirsSorted,
+        FilesSorted,
+        DirsThenFilesSorted
+    };
+    struct Entry
+    {
+        HECL::SystemString m_path;
+        HECL::SystemString m_name;
+        size_t m_fileSz;
+        bool m_isDir;
+
+    private:
+        friend class DirectoryEnumerator;
+        Entry(HECL::SystemString&& path, const HECL::SystemChar* name, size_t sz, bool isDir)
+        : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
+    };
+
+private:
+    std::vector<Entry> m_entries;
+
+public:
+    DirectoryEnumerator(const HECL::SystemString& path, Mode mode=Mode::DirsThenFilesSorted)
+    : DirectoryEnumerator(path.c_str(), mode) {}
+    DirectoryEnumerator(const HECL::SystemChar* path, Mode mode=Mode::DirsThenFilesSorted)
+    {
+        HECL::Sstat theStat;
+        if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
+            return;
+#if _WIN32
+#else
+        DIR* dir = opendir(path);
+        if (!dir)
+            return;
+        const dirent* d;
+        switch (mode)
+        {
+        case Mode::Native:
+            while ((d = readdir(dir)))
+            {
+                if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+                    continue;
+                HECL::SystemString fp(path);
+                fp += '/';
+                fp += d->d_name;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st))
+                    continue;
+
+                size_t sz = 0;
+                bool isDir = false;
+                if (S_ISDIR(st.st_mode))
+                    isDir = true;
+                else if (S_ISREG(st.st_mode))
+                    sz = st.st_size;
+                else
+                    continue;
+
+                m_entries.push_back(std::move(Entry(std::move(fp), d->d_name, sz, isDir)));
+            }
+            break;
+        case Mode::DirsThenFilesSorted:
+        case Mode::DirsSorted:
+        {
+            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            while ((d = readdir(dir)))
+            {
+                if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+                    continue;
+                HECL::SystemString fp(path);
+                fp += '/';
+                fp += d->d_name;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
+                    continue;
+                sort.emplace(std::make_pair(d->d_name, Entry(std::move(fp), d->d_name, 0, true)));
+            }
+            for (auto& e : sort)
+                m_entries.push_back(std::move(e.second));
+            if (mode == Mode::DirsSorted)
+                break;
+            rewinddir(dir);
+        }
+        case Mode::FilesSorted:
+        {
+            if (mode == Mode::FilesSorted)
+                m_entries.clear();
+            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            while ((d = readdir(dir)))
+            {
+                if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+                    continue;
+                HECL::SystemString fp(path);
+                fp += '/';
+                fp += d->d_name;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                    continue;
+                sort.emplace(std::make_pair(d->d_name, Entry(std::move(fp), d->d_name, st.st_size, false)));
+            }
+            for (auto& e : sort)
+                m_entries.push_back(std::move(e.second));
+            break;
+        }
+        }
+        closedir(dir);
+#endif
+    }
+
+    operator bool() const {return m_entries.size() != 0;}
+    size_t size() const {return m_entries.size();}
+    std::vector<Entry>::const_iterator begin() const {return m_entries.cbegin();}
+    std::vector<Entry>::const_iterator end() const {return m_entries.cend();}
 };
 
 /**
