@@ -35,7 +35,7 @@ ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
     commitResources(res);
 }
 
-void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
+bool ScrollView::_scroll(const boo::SScrollDelta& scroll)
 {
     if (m_contentView)
     {
@@ -46,7 +46,7 @@ void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta&
             m_scroll[1] = 0;
             m_targetScroll[0] = 0;
             m_targetScroll[1] = 0;
-            updateSize();
+            return true;
         }
 
         float pf = rootView().viewRes().pixelFactor();
@@ -64,7 +64,7 @@ void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta&
         {
             m_scroll[0] = m_targetScroll[0];
             m_scroll[1] = m_targetScroll[1];
-            updateSize();
+            return true;
         }
     }
     else
@@ -73,8 +73,15 @@ void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta&
         m_scroll[1] = 0;
         m_targetScroll[0] = 0;
         m_targetScroll[1] = 0;
-        updateSize();
+        return true;
     }
+    return false;
+}
+
+void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
+{
+    if (_scroll(scroll))
+        updateSize();
 }
 
 void ScrollView::think()
@@ -113,6 +120,7 @@ void ScrollView::think()
 void ScrollView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
+    _scroll({});
     if (m_contentView)
     {
         boo::SWindowRect cRect = sub;

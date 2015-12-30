@@ -45,7 +45,6 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
     m_bVertsBuf->load(m_verts, sizeof(m_verts));
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
-    setText("テスト");
 }
 
 void TextField::_setText()

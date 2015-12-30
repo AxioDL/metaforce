@@ -141,7 +141,7 @@ void FontAtlas::buildKernTable(FT_Face face)
         if (!ttface->kern_table)
             return;
         Athena::io::MemoryReader r(ttface->kern_table, ttface->kern_table_size);
-        std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>>::iterator it = m_kernAdjs.end();
+        auto it = m_kernAdjs.end();
         atUint32 nSubs = r.readUint32Big();
         for (atUint32 i=0 ; i<nSubs ; ++i)
         {
@@ -170,6 +170,7 @@ void FontAtlas::buildKernTable(FT_Face face)
 }
     
 #define NO_ZLIB 0
+#define ZLIB_BUF_SZ 32768
 
 static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data, size_t sz)
 {
@@ -178,7 +179,7 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
     return;
 #endif
     
-    atUint8 compBuf[8192];
+    atUint8 compBuf[ZLIB_BUF_SZ];
     z_stream z = {};
     deflateInit(&z, Z_DEFAULT_COMPRESSION);
     z.next_in = (Bytef*)data;
@@ -189,18 +190,18 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
     while (z.avail_in)
     {
         z.next_out = compBuf;
-        z.avail_out = 8192;
+        z.avail_out = ZLIB_BUF_SZ;
         deflate(&z, Z_NO_FLUSH);
-        writer.writeUBytes(compBuf, 8192 - z.avail_out);
+        writer.writeUBytes(compBuf, ZLIB_BUF_SZ - z.avail_out);
     }
 
     int finishCycle = Z_OK;
     while (finishCycle != Z_STREAM_END)
     {
         z.next_out = compBuf;
-        z.avail_out = 8192;
+        z.avail_out = ZLIB_BUF_SZ;
         finishCycle = deflate(&z, Z_FINISH);
-        writer.writeUBytes(compBuf, 8192 - z.avail_out);
+        writer.writeUBytes(compBuf, ZLIB_BUF_SZ - z.avail_out);
     }
 
     writer.seek(adlerPos, Athena::Begin);
@@ -216,7 +217,7 @@ static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size
     return true;
 #endif
     
-    atUint8 compBuf[8192];
+    atUint8 compBuf[ZLIB_BUF_SZ];
     z_stream z = {};
     inflateInit(&z);
     z.next_out = data;
@@ -224,7 +225,7 @@ static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size
     atUint32 adler32 = reader.readUint32Big();
     z.avail_out = std::min(sz, size_t(targetSz));
     size_t readSz;
-    while ((readSz = reader.readUBytesToBuf(compBuf, 8192)))
+    while ((readSz = reader.readUBytesToBuf(compBuf, ZLIB_BUF_SZ)))
     {
         z.next_in = compBuf;
         z.avail_in = readSz;

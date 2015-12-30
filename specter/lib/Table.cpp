@@ -282,8 +282,7 @@ void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
 
     gfxQ->setScissor(m_scissorRect);
-    size_t rows = std::min(m_visibleRows, m_t.m_rows);
-    gfxQ->draw(1, rows * m_t.m_columns * 6 - 2);
+    gfxQ->draw(1, m_visibleRows * m_t.m_columns * 6 - 2);
     for (auto& col : m_t.m_cellViews)
     {
         size_t idx = 0;
@@ -296,9 +295,12 @@ void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
     }
     gfxQ->setScissor(rootView().subRect());
 
-    for (std::unique_ptr<CellView>& hv : m_t.m_headerViews)
-        if (hv)
-            hv->draw(gfxQ);
+    if (m_t.m_header)
+    {
+        for (std::unique_ptr<CellView>& hv : m_t.m_headerViews)
+            if (hv)
+                hv->draw(gfxQ);
+    }
 }
 
 void Table::CellView::draw(boo::IGraphicsCommandQueue* gfxQ)

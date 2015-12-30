@@ -29,6 +29,7 @@ private:
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
+    bool _scroll(const boo::SScrollDelta& scroll);
 public:
     ScrollView(ViewResources& res, View& parentView, Style style);
     void setContentView(View* v)

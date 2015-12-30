@@ -40,12 +40,12 @@ static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& 
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string& title,
-                         const HECL::SystemString& initialPath)
+                         Type type, const HECL::SystemString& initialPath)
 : ModalWindow(res, parentView, RectangleConstraint(BROWSER_MIN_WIDTH * res.pixelFactor(),
                                                    BROWSER_MIN_HEIGHT * res.pixelFactor(),
                                                    RectangleConstraint::Test::Minimum,
                                                    RectangleConstraint::Test::Minimum)),
-  m_comps(PathComponents(initialPath)),
+  m_type(type),
   m_left(*this, res),
   m_right(*this, res),
   m_ok(*this, res, title),
@@ -55,14 +55,19 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     commitResources(res);
     setBackground({0,0,0,0.5});
 
-    m_pathButtons.reserve(m_comps.size());
-    size_t idx = 0;
-    for (const HECL::SystemString& c : m_comps)
-        m_pathButtons.emplace_back(*this, res, idx++, c);
-
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
     m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind));
-    m_fileListing.m_view->setBackground(Zeus::CColor::skBlue);
+    m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind));
+    m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
+    m_systemBookmarksLabel->typesetGlyphs("System Locations:", res.themeData().uiText());
+    m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind));
+    m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
+    m_projectBookmarksLabel->typesetGlyphs("Recent Projects:", res.themeData().uiText());
+    m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind));
+    m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
+    m_recentBookmarksLabel->typesetGlyphs("Recent Files:", res.themeData().uiText());
+
+    navigateToPath(initialPath);
 
     m_split.m_view.reset(new SplitView(res, *this, SplitView::Axis::Vertical,
                                        200 * res.pixelFactor(), 400 * res.pixelFactor()));
@@ -71,6 +76,43 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     m_split.m_view->setSlide(0.2);
 
     updateContentOpacity(0.0);
+}
+
+void FileBrowser::navigateToPath(const HECL::SystemString& path)
+{
+    HECL::Sstat theStat;
+    if (HECL::Stat(path.c_str(), &theStat))
+        return;
+
+    m_comps = PathComponents(path);
+    if (S_ISREG(theStat.st_mode))
+    {
+        HECL::SystemUTF8View utf8(m_comps.back());
+        m_fileField.m_view->setText(utf8);
+        m_comps.pop_back();
+    }
+
+    HECL::SystemString dir;
+    bool needSlash = false;
+    for (const HECL::SystemString& d : m_comps)
+    {
+        if (needSlash)
+            dir += '/';
+        needSlash = true;
+        dir += d;
+    }
+    HECL::DirectoryEnumerator dEnum(dir);
+    m_fileListingBind.updateListing(dEnum);
+    m_fileListing.m_view->updateData();
+
+    m_pathButtons.clear();
+    m_pathButtons.reserve(m_comps.size());
+    size_t idx = 0;
+    ViewResources& res = rootView().viewRes();
+    for (const HECL::SystemString& c : m_comps)
+        m_pathButtons.emplace_back(*this, res, idx++, c);
+
+    updateSize();
 }
 
 void FileBrowser::updateContentOpacity(float opacity)
@@ -83,6 +125,12 @@ void FileBrowser::updateContentOpacity(float opacity)
     m_fileListing.m_view->setMultiplyColor(color);
     m_ok.m_button.m_view->setMultiplyColor(color);
     m_cancel.m_button.m_view->setMultiplyColor(color);
+    m_systemBookmarks.m_view->setMultiplyColor(color);
+    m_systemBookmarksLabel->setMultiplyColor(color);
+    m_projectBookmarks.m_view->setMultiplyColor(color);
+    m_projectBookmarksLabel->setMultiplyColor(color);
+    m_recentBookmarks.m_view->setMultiplyColor(color);
+    m_recentBookmarksLabel->setMultiplyColor(color);
 }
 
 void FileBrowser::okActivated()
@@ -96,6 +144,22 @@ void FileBrowser::cancelActivated()
 
 void FileBrowser::pathButtonActivated(size_t idx)
 {
+    if (idx >= m_comps.size())
+        return;
+
+    HECL::SystemString dir;
+    bool needSlash = false;
+    size_t i = 0;
+    for (const HECL::SystemString& d : m_comps)
+    {
+        if (needSlash)
+            dir += '/';
+        needSlash = true;
+        dir += d;
+        if (++i > idx)
+            break;
+    }
+    navigateToPath(dir);
 }
 
 void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -115,9 +179,17 @@ void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton butt
 {
     if (closed())
         return;
+
     m_split.mouseUp(coord, button, mod);
+
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseUp(coord, button, mod);
+    if (m_pathButtonPending >= 0)
+    {
+        pathButtonActivated(m_pathButtonPending);
+        m_pathButtonPending = -1;
+    }
+
     m_fileField.mouseUp(coord, button, mod);
     m_fileListing.mouseUp(coord, button, mod);
     m_ok.m_button.mouseUp(coord, button, mod);
@@ -182,11 +254,39 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
     centerRect.size[0] -= 4 * pf;
     centerRect.size[1] -= 4 * pf;
 
-    m_split.m_view->resized(root, centerRect);
+    if (m_split.m_view)
+        m_split.m_view->resized(root, centerRect);
 }
 
 void FileBrowser::LeftSide::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
+    float pf = rootView().viewRes().pixelFactor();
+
+    int div = (sub.size[1] - BROWSER_MARGIN * pf) / 3;
+
+    boo::SWindowRect bookmarkRect = sub;
+    bookmarkRect.size[0] -= BROWSER_MARGIN * 2 * pf;
+    bookmarkRect.size[1] = div;
+    bookmarkRect.location[0] += BROWSER_MARGIN * pf;
+    bookmarkRect.location[1] = sub.location[1] + BROWSER_MARGIN * pf + div * 2;
+
+    boo::SWindowRect labelRect = bookmarkRect;
+    labelRect.size[1] = 20;
+    labelRect.location[1] += div - 16 * pf;
+
+    m_fb.m_systemBookmarks.m_view->resized(root, bookmarkRect);
+    m_fb.m_systemBookmarksLabel->resized(root, labelRect);
+    bookmarkRect.location[1] -= div;
+    labelRect.location[1] -= div;
+
+    m_fb.m_projectBookmarks.m_view->resized(root, bookmarkRect);
+    m_fb.m_projectBookmarksLabel->resized(root, labelRect);
+    bookmarkRect.location[1] -= div;
+    labelRect.location[1] -= div;
+
+    m_fb.m_recentBookmarks.m_view->resized(root, bookmarkRect);
+    m_fb.m_recentBookmarksLabel->resized(root, labelRect);
+
 }
 
 void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -230,6 +330,9 @@ void FileBrowser::think()
     ModalWindow::think();
     m_fileField.m_view->think();
     m_fileListing.m_view->think();
+    m_systemBookmarks.m_view->think();
+    m_projectBookmarks.m_view->think();
+    m_recentBookmarks.m_view->think();
 }
 
 void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -240,6 +343,12 @@ void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void FileBrowser::LeftSide::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
+    m_fb.m_systemBookmarks.m_view->draw(gfxQ);
+    m_fb.m_systemBookmarksLabel->draw(gfxQ);
+    m_fb.m_projectBookmarks.m_view->draw(gfxQ);
+    m_fb.m_projectBookmarksLabel->draw(gfxQ);
+    m_fb.m_recentBookmarks.m_view->draw(gfxQ);
+    m_fb.m_recentBookmarksLabel->draw(gfxQ);
 }
 
 void FileBrowser::RightSide::draw(boo::IGraphicsCommandQueue* gfxQ)

@@ -15,6 +15,16 @@ namespace Specter
 
 class FileBrowser : public ModalWindow
 {
+public:
+    enum class Type
+    {
+        SaveFile,
+        OpenFile,
+        OpenDirectory,
+        OpenHECLProject
+    };
+private:
+    Type m_type;
     std::vector<HECL::SystemString> m_comps;
 
     class LeftSide : public View
@@ -68,6 +78,7 @@ class FileBrowser : public ModalWindow
         void activated(const boo::SWindowCoord&) {m_fb.cancelActivated();}
     } m_cancel;
 
+    int m_pathButtonPending = -1;
     void pathButtonActivated(size_t idx);
     struct PathButton : IButtonBinding
     {
@@ -81,7 +92,7 @@ class FileBrowser : public ModalWindow
             m_button.m_view.reset(new Button(res, fb, this, utf8View));
         }
         const char* name() const {return m_button.m_view->getText().c_str();}
-        void activated(const boo::SWindowCoord&) {m_fb.pathButtonActivated(m_idx);}
+        void activated(const boo::SWindowCoord&) {m_fb.m_pathButtonPending = m_idx;}
     };
     friend struct PathButton;
     std::vector<PathButton> m_pathButtons;
@@ -97,29 +108,23 @@ class FileBrowser : public ModalWindow
         }
     } m_fileFieldBind;
 
-    struct TableDataBind : ITableDataBinding
+    struct FileListingDataBind : ITableDataBinding
     {
-        std::string m_nameCol = "Name";
-        std::vector<std::string> m_names = {"One", "Two", "Three"};
-
-        std::string m_typeCol = "Type";
-        std::vector<std::string> m_types = {"t1", "t2", "t3"};
-
-        std::string m_sizeCol = "Size";
-        std::vector<std::string> m_sizes = {"s1", "s2", "s3"};
-
-        TableDataBind()
+        struct Entry
         {
-            for (int i=0 ; i<100 ; ++i)
-            {
-                m_names.push_back(HECL::Format("%d", i));
-                m_types.push_back(HECL::Format("%d", i));
-                m_sizes.push_back(HECL::Format("%d", i));
-            }
-        }
+            HECL::SystemString m_path;
+            std::string m_name;
+            std::string m_type;
+            std::string m_size;
+        };
+        std::vector<Entry> m_entries;
+
+        std::string m_nameCol = "Name";
+        std::string m_typeCol = "Type";
+        std::string m_sizeCol = "Size";
 
         size_t columnCount() const {return 3;}
-        size_t rowCount() const {return 103;}
+        size_t rowCount() const {return m_entries.size();}
 
         const std::string* header(size_t cIdx) const
         {
@@ -141,23 +146,78 @@ class FileBrowser : public ModalWindow
             switch (cIdx)
             {
             case 0:
-                return &m_names.at(rIdx);
+                return &m_entries.at(rIdx).m_name;
             case 1:
-                return &m_types.at(rIdx);
+                return &m_entries.at(rIdx).m_type;
             case 2:
-                return &m_sizes.at(rIdx);
+                return &m_entries.at(rIdx).m_size;
             default: break;
             }
             return nullptr;
         }
+
+        void updateListing(const HECL::DirectoryEnumerator& dEnum)
+        {
+            m_entries.clear();
+            m_entries.reserve(dEnum.size());
+
+            for (const HECL::DirectoryEnumerator::Entry& d : dEnum)
+            {
+                m_entries.emplace_back();
+                Entry& ent = m_entries.back();
+                ent.m_path = d.m_path;
+                HECL::SystemUTF8View nameUtf8(d.m_name);
+                ent.m_name = nameUtf8.str();
+                if (d.m_isDir)
+                    ent.m_type = "Directory";
+                else
+                {
+                    ent.m_type = "File";
+                    ent.m_size = HECL::HumanizeNumber(d.m_fileSz, 7, nullptr, int(HECL::HNScale::AutoScale),
+                                                      HECL::HNFlags::B | HECL::HNFlags::Decimal);
+                }
+            }
+        }
+
     } m_fileListingBind;
     ViewChild<std::unique_ptr<Table>> m_fileListing;
 
-public:
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title)
-    : FileBrowser(res, parentView, title, HECL::GetcwdStr()) {}
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title, const HECL::SystemString& initialPath);
+    struct BookmarkDataBind : ITableDataBinding
+    {
+        struct Entry
+        {
+            HECL::SystemString m_path;
+            std::string m_name;
+        };
+        std::vector<Entry> m_entries;
 
+        size_t columnCount() const {return 1;}
+        size_t rowCount() const {return m_entries.size();}
+
+        const std::string* cell(size_t, size_t rIdx) const
+        {
+            return &m_entries.at(rIdx).m_name;
+        }
+    };
+
+    BookmarkDataBind m_systemBookmarkBind;
+    std::unique_ptr<TextView> m_systemBookmarksLabel;
+    ViewChild<std::unique_ptr<Table>> m_systemBookmarks;
+
+    BookmarkDataBind m_projectBookmarkBind;
+    std::unique_ptr<TextView> m_projectBookmarksLabel;
+    ViewChild<std::unique_ptr<Table>> m_projectBookmarks;
+
+    BookmarkDataBind m_recentBookmarkBind;
+    std::unique_ptr<TextView> m_recentBookmarksLabel;
+    ViewChild<std::unique_ptr<Table>> m_recentBookmarks;
+
+public:
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type)
+    : FileBrowser(res, parentView, title, type, HECL::GetcwdStr()) {}
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type, const HECL::SystemString& initialPath);
+
+    void navigateToPath(const HECL::SystemString& path);
     void updateContentOpacity(float opacity);
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

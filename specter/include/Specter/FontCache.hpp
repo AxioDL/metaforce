@@ -76,8 +76,8 @@ public:
         float m_uv[4];
         atInt32 m_leftPadding;
         atInt32 m_advance;
-        atUint32 m_width;
-        atUint32 m_height;
+        atInt32 m_width;
+        atInt32 m_height;
         atInt32 m_verticalOffset;
     };
 
