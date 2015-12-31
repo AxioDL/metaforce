@@ -73,7 +73,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     int startIdx = std::max(0, int(m_t.m_rows) - idx);
 
     size_t r, c;
-    for (r=0 ; r<SPECTER_TABLE_MAX_ROWS && (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++r)
+    for (r=0, c=0 ; r<SPECTER_TABLE_MAX_ROWS && (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++r)
     {
         const Zeus::CColor& color = (r&1) ? theme.tableCellBg1() : theme.tableCellBg2();
         int xOff = 0;
@@ -96,7 +96,8 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     }
     m_visibleStart = startIdx;
     m_visibleRows = r;
-    m_vertsBuf->load(m_verts.get(), sizeof(SolidShaderVert) * 6 * r * c);
+    if (r * c)
+        m_vertsBuf->load(m_verts, sizeof(SolidShaderVert) * 6 * r * c);
 }
 
 void Table::setMultiplyColor(const Zeus::CColor& color)

@@ -13,10 +13,10 @@ void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeDat
 {
     static const Zeus::RGBA32 tex[] =
     {
-        {255,255,255,64},
-        {255,255,255,64},
-        {0,0,0,64},
-        {0,0,0,64}
+        {{255,255,255,64}},
+        {{255,255,255,64}},
+        {{0,0,0,64}},
+        {{0,0,0,64}}
     };
     m_shadingTex = factory->newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, tex, 16);
 }
