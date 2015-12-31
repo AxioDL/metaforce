@@ -9,14 +9,11 @@
 #include "Tooltip.hpp"
 #include "FontCache.hpp"
 #include "DeferredWindowEvents.hpp"
+#include "IViewManager.hpp"
 #include <boo/boo.hpp>
 
 namespace Specter
 {
-
-struct IViewManager
-{
-};
 
 class RootView : public View
 {

@@ -8,6 +8,7 @@
 #include "ScrollView.hpp"
 #include "Table.hpp"
 #include "ViewResources.hpp"
+#include "IViewManager.hpp"
 #include <HECL/HECL.hpp>
 
 namespace Specter
@@ -68,13 +69,14 @@ private:
     {
         FileBrowser& m_fb;
         ViewChild<std::unique_ptr<Button>> m_button;
-        CancelButton(FileBrowser& fb, ViewResources& res)
-        : m_fb(fb)
+        std::string m_text;
+        CancelButton(FileBrowser& fb, ViewResources& res, const std::string& text)
+        : m_fb(fb), m_text(text)
         {
-            m_button.m_view.reset(new Button(res, fb, this, "Cancel", Button::Style::Block,
-                RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
+            m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
+                RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
         }
-        const char* name() const {return "Cancel";}
+        const char* name() const {return m_text.c_str();}
         void activated(const boo::SWindowCoord&) {m_fb.cancelActivated();}
     } m_cancel;
 
@@ -101,8 +103,10 @@ private:
     struct FileFieldBind : IStringBinding
     {
         FileBrowser& m_browser;
-        FileFieldBind(FileBrowser& browser) : m_browser(browser) {}
-        const char* name() const {return "File Name";}
+        std::string m_name;
+        FileFieldBind(FileBrowser& browser, const IViewManager& vm)
+        : m_browser(browser), m_name(vm.translateOr("file_name", "File Name")) {}
+        const char* name() const {return m_name.c_str();}
         void changed(const std::string& val)
         {
         }
@@ -119,9 +123,12 @@ private:
         };
         std::vector<Entry> m_entries;
 
-        std::string m_nameCol = "Name";
-        std::string m_typeCol = "Type";
-        std::string m_sizeCol = "Size";
+        std::string m_nameCol;
+        std::string m_typeCol;
+        std::string m_sizeCol;
+
+        std::string m_dirStr;
+        std::string m_fileStr;
 
         size_t columnCount() const {return 3;}
         size_t rowCount() const {return m_entries.size();}
@@ -169,14 +176,23 @@ private:
                 HECL::SystemUTF8View nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
-                    ent.m_type = "Directory";
+                    ent.m_type = m_dirStr;
                 else
                 {
-                    ent.m_type = "File";
+                    ent.m_type = m_fileStr;
                     ent.m_size = HECL::HumanizeNumber(d.m_fileSz, 7, nullptr, int(HECL::HNScale::AutoScale),
                                                       HECL::HNFlags::B | HECL::HNFlags::Decimal);
                 }
             }
+        }
+
+        FileListingDataBind(const IViewManager& vm)
+        {
+            m_nameCol = vm.translateOr("name", "Name");
+            m_typeCol = vm.translateOr("type", "Type");
+            m_sizeCol = vm.translateOr("size", "Size");
+            m_dirStr = vm.translateOr("directory", "Directory");
+            m_fileStr = vm.translateOr("file", "File");
         }
 
     } m_fileListingBind;

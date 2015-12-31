@@ -49,23 +49,25 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
   m_left(*this, res),
   m_right(*this, res),
   m_ok(*this, res, title),
-  m_cancel(*this, res),
-  m_fileFieldBind(*this)
+  m_cancel(*this, res, rootView().viewManager().translateOr("cancel", "Cancel")),
+  m_fileFieldBind(*this, rootView().viewManager()),
+  m_fileListingBind(rootView().viewManager())
 {
     commitResources(res);
     setBackground({0,0,0,0.5});
 
+    IViewManager& vm = rootView().viewManager();
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
     m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind));
     m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind));
     m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-    m_systemBookmarksLabel->typesetGlyphs("System Locations:", res.themeData().uiText());
+    m_systemBookmarksLabel->typesetGlyphs(vm.translateOr("system_locations", "System Locations"), res.themeData().uiText());
     m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind));
     m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-    m_projectBookmarksLabel->typesetGlyphs("Recent Projects:", res.themeData().uiText());
+    m_projectBookmarksLabel->typesetGlyphs(vm.translateOr("recent_projects", "Recent Projects"), res.themeData().uiText());
     m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind));
     m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-    m_recentBookmarksLabel->typesetGlyphs("Recent Files:", res.themeData().uiText());
+    m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
 
     navigateToPath(initialPath);
 

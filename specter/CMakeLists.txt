@@ -32,6 +32,7 @@ include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
 list(APPEND SPECTER_HEADERS
      include/Specter/Specter.hpp
      include/Specter/ViewResources.hpp
+     include/Specter/IViewManager.hpp
      include/Specter/DeferredWindowEvents.hpp
      include/Specter/View.hpp
      include/Specter/RootView.hpp
