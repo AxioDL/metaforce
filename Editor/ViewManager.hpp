@@ -9,12 +9,13 @@ namespace RUDE
 {
 class SplashScreen;
 
-class ViewManager : Specter::IViewManager
+class ViewManager : public Specter::IViewManager
 {
     HECL::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
     Specter::FontCache m_fontCache;
     Specter::ViewResources m_viewResources;
+    Specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
     std::unique_ptr<Specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
@@ -74,6 +75,7 @@ public:
     }
 
     ProjectManager& projectManager() {return m_projManager;}
+    const Specter::Translator* getTranslator() const {return &m_translator;}
 
     void init(boo::IApplication* app);
     bool proc();

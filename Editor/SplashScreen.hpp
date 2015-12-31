@@ -17,10 +17,14 @@ class SplashScreen : public Specter::ModalWindow
     Zeus::CColor m_textColorClear;
 
     std::unique_ptr<Specter::TextView> m_title;
+    std::string m_buildInfoStr;
     std::unique_ptr<Specter::MultiLineTextView> m_buildInfo;
 
+    std::string m_newString;
     Specter::ViewChild<std::unique_ptr<Specter::Button>> m_newButt;
+    std::string m_openString;
     Specter::ViewChild<std::unique_ptr<Specter::Button>> m_openButt;
+    std::string m_extractString;
     Specter::ViewChild<std::unique_ptr<Specter::Button>> m_extractButt;
 
     Specter::ViewChild<std::unique_ptr<Specter::FileBrowser>> m_fileBrowser;
@@ -29,13 +33,13 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         NewProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return "New Project";}
+        const char* name() const {return m_splash.m_newString.c_str();}
         const char* help() const {return "Creates an empty project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
-                                                 m_splash, "New Project",
+                                                 m_splash, m_splash.m_newString,
                                                  Specter::FileBrowser::Type::SaveFile));
             m_splash.updateSize();
             m_splash.m_newButt.mouseLeave(coord);
@@ -46,13 +50,13 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         OpenProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return "Open Project";}
+        const char* name() const {return m_splash.m_openString.c_str();}
         const char* help() const {return "Opens an existing project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
-                                                 m_splash, "Open Project",
+                                                 m_splash, m_splash.m_openString,
                                                  Specter::FileBrowser::Type::OpenHECLProject));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
@@ -63,13 +67,13 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         ExtractProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return "Extract Game";}
+        const char* name() const {return m_splash.m_extractString.c_str();}
         const char* help() const {return "Extracts game image as project at selected path";}
         void activated(const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
-                                                 m_splash, "Extract Game",
+                                                 m_splash, m_splash.m_extractString,
                                                  Specter::FileBrowser::Type::OpenFile));
             m_splash.updateSize();
             m_splash.m_extractButt.mouseLeave(coord);

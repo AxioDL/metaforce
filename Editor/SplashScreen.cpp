@@ -24,8 +24,15 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
   m_vm(vm),
   m_textColor(res.themeData().uiText()),
   m_textColorClear(m_textColor),
+  m_buildInfoStr(HECL::Format("%s: %s\n%s: %s\n%s: %s",
+                              vm.translateOr("branch", "Branch").c_str(), GIT_BRANCH,
+                              vm.translateOr("commit", "Commit").c_str(), GIT_COMMIT_HASH,
+                              vm.translateOr("date", "Date").c_str(), GIT_COMMIT_DATE)),
+  m_newString(m_vm.translateOr("new_project", "New Project")),
   m_newProjBind(*this),
+  m_openString(m_vm.translateOr("open_project", "Open Project")),
   m_openProjBind(*this),
+  m_extractString(m_vm.translateOr("extract_game", "Extract Game")),
   m_extractProjBind(*this)
 {
     m_textColorClear[3] = 0.0;
@@ -44,20 +51,21 @@ void SplashScreen::updateContentOpacity(float opacity)
     Specter::ViewResources& res = rootView().viewRes();
 
     if (!m_title && res.fontCacheReady())
-    {
+    {        
         m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
         Zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;
         m_title->typesetGlyphs("RUDE", clearColor);
 
         m_buildInfo.reset(new Specter::MultiLineTextView(res, *this, res.m_mainFont, Specter::TextView::Alignment::Right));
-        m_buildInfo->typesetGlyphs(HECL::Format("Branch: %s\nCommit: %s\nDate: %s",
-                                                GIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE),
-                                   clearColor);
+        m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);
 
-        m_newButt.m_view.reset(new Specter::Button(res, *this, &m_newProjBind, "New Project", Specter::Button::Style::Text));
-        m_openButt.m_view.reset(new Specter::Button(res, *this, &m_openProjBind, "Open Project", Specter::Button::Style::Text));
-        m_extractButt.m_view.reset(new Specter::Button(res, *this, &m_extractProjBind, "Extract Game", Specter::Button::Style::Text));
+        m_newButt.m_view.reset(new Specter::Button(res, *this, &m_newProjBind, m_newString,
+                                                   Specter::Button::Style::Text));
+        m_openButt.m_view.reset(new Specter::Button(res, *this, &m_openProjBind, m_openString,
+                                                    Specter::Button::Style::Text));
+        m_extractButt.m_view.reset(new Specter::Button(res, *this, &m_extractProjBind, m_extractString,
+                                                       Specter::Button::Style::Text));
 
         updateSize();
     }

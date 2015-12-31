@@ -2,6 +2,7 @@
 #include "Specter/Control.hpp"
 #include "Specter/Space.hpp"
 #include "SplashScreen.hpp"
+#include "locale/locale.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
@@ -42,7 +43,7 @@ void ViewManager::SetupEditorView()
 }
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
-: m_cvarManager(cvarMgr), m_fontCache(fileMgr),
+: m_cvarManager(cvarMgr), m_fontCache(fileMgr), m_translator(RUDE::LookupLocale("ja_JP")),
   m_setTo1(*this), m_setTo2(*this),
   m_split(*this),
   m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),

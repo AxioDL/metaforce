@@ -9,13 +9,17 @@ extern "C" size_t L_en_US_SZ;
 extern "C" const uint8_t L_en_GB[];
 extern "C" size_t L_en_GB_SZ;
 
+extern "C" const uint8_t L_ja_JP[];
+extern "C" size_t L_ja_JP_SZ;
+
 namespace RUDE
 {
 
 static const Specter::Locale Locales[] =
 {
     {"en_US", "US English", L_en_US, L_en_US_SZ},
-    {"en_GB", "British English", L_en_GB, L_en_GB_SZ}
+    {"en_GB", "British English", L_en_GB, L_en_GB_SZ},
+    {"ja_JP", "Japanese", L_ja_JP, L_ja_JP_SZ}
 };
 
 std::vector<std::pair<const std::string*, const std::string*>> ListLocales()
