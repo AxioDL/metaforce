@@ -7,8 +7,8 @@ namespace Specter
 #define ROW_HEIGHT 18
 #define CELL_MARGIN 1
 
-Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state)
-: View(res, parentView), m_data(data), m_state(state), m_rowsView(*this, res)
+Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state, size_t maxColumns)
+: View(res, parentView), m_data(data), m_state(state), m_maxColumns(maxColumns), m_rowsView(*this, res)
 {
     commitResources(res);
 
@@ -18,10 +18,10 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
 }
 
 Table::RowsView::RowsView(Table& t, ViewResources& res)
-: View(res, t), m_t(t)
+: View(res, t), m_t(t), m_verts(new SolidShaderVert[SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6])
 {
     m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert),
-                                                 SPECTER_TABLE_MAX_ROWS * SPECTER_TABLE_MAX_COLUMNS * 6);
+                                                 SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6);
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
@@ -52,7 +52,7 @@ Table::CellView::CellView(Table& t, ViewResources& res)
 
 void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWindowRect& scissor)
 {
-    SolidShaderVert* v = m_verts;
+    SolidShaderVert* v = m_verts.get();
     const ThemeData& theme = rootView().themeData();
 
     if (m_t.m_cellViews.empty())
@@ -77,7 +77,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     {
         const Zeus::CColor& color = (r&1) ? theme.tableCellBg1() : theme.tableCellBg2();
         int xOff = 0;
-        for (c=0 ; c<std::min(SPECTER_TABLE_MAX_COLUMNS, m_t.m_columns) ; ++c)
+        for (c=0 ; c<std::min(m_t.m_maxColumns, m_t.m_columns) ; ++c)
         {
             v[0].m_pos.assign(xOff + margin, yOff - margin, 0);
             v[0].m_color = color;
@@ -96,7 +96,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     }
     m_visibleStart = startIdx;
     m_visibleRows = r;
-    m_vertsBuf->load(m_verts, sizeof(SolidShaderVert) * 6 * r * c);
+    m_vertsBuf->load(m_verts.get(), sizeof(SolidShaderVert) * 6 * r * c);
 }
 
 void Table::setMultiplyColor(const Zeus::CColor& color)

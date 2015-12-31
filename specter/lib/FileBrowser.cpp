@@ -58,14 +58,14 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
 
     IViewManager& vm = rootView().viewManager();
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
-    m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind));
-    m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind));
+    m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, nullptr, 3));
+    m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, nullptr, 1));
     m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_systemBookmarksLabel->typesetGlyphs(vm.translateOr("system_locations", "System Locations"), res.themeData().uiText());
-    m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind));
+    m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind, nullptr, 1));
     m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_projectBookmarksLabel->typesetGlyphs(vm.translateOr("recent_projects", "Recent Projects"), res.themeData().uiText());
-    m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind));
+    m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind, nullptr, 1));
     m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
 
@@ -288,7 +288,6 @@ void FileBrowser::LeftSide::resized(const boo::SWindowRect& root, const boo::SWi
 
     m_fb.m_recentBookmarks.m_view->resized(root, bookmarkRect);
     m_fb.m_recentBookmarksLabel->resized(root, labelRect);
-
 }
 
 void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

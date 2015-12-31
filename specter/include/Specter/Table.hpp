@@ -8,7 +8,6 @@
 namespace Specter
 {
 #define SPECTER_TABLE_MAX_ROWS 128ul
-#define SPECTER_TABLE_MAX_COLUMNS 32ul
 
 enum class SortDirection
 {
@@ -38,6 +37,7 @@ class Table : public View
     ITableDataBinding* m_data;
     ITableStateBinding* m_state;
 
+    size_t m_maxColumns;
     size_t m_rows = 0;
     size_t m_columns = 0;
     struct CellView : public View
@@ -58,7 +58,7 @@ class Table : public View
     {
         Table& m_t;
 
-        SolidShaderVert m_verts[SPECTER_TABLE_MAX_ROWS * SPECTER_TABLE_MAX_COLUMNS * 6];
+        std::unique_ptr<SolidShaderVert[]> m_verts;
         boo::IGraphicsBufferD* m_vertsBuf = nullptr;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
@@ -76,7 +76,7 @@ class Table : public View
     } m_rowsView;
 
 public:
-    Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state=nullptr);
+    Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state=nullptr, size_t maxColumns=8);
 
     void setMultiplyColor(const Zeus::CColor& color);
 
