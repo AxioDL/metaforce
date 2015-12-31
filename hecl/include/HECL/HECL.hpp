@@ -568,6 +568,84 @@ public:
         if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
             return;
 #if _WIN32
+        HECL::SystemString wc(path);
+        wc += _S("/*");
+        WIN32_FIND_DATAW d;
+        HANDLE dir = FindFirstFileW(wc.c_str(), &d);
+        if (dir == INVALID_HANDLE_VALUE)
+            return;
+        switch (mode)
+        {
+        case Mode::Native:
+            do
+            {
+                if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                    continue;
+                HECL::SystemString fp(path);
+                fp += _S('/');
+                fp += d.cFileName;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st))
+                    continue;
+
+                size_t sz = 0;
+                bool isDir = false;
+                if (S_ISDIR(st.st_mode))
+                    isDir = true;
+                else if (S_ISREG(st.st_mode))
+                    sz = st.st_size;
+                else
+                    continue;
+
+                m_entries.push_back(std::move(Entry(std::move(fp), d.cFileName, sz, isDir)));
+            } while (FindNextFileW(dir, &d));
+            break;
+        case Mode::DirsThenFilesSorted:
+        case Mode::DirsSorted:
+        {
+            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            do
+            {
+                if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                    continue;
+                HECL::SystemString fp(path);
+                fp +=_S('/');
+                fp += d.cFileName;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
+                    continue;
+                sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, 0, true)));
+            } while (FindNextFileW(dir, &d));
+            for (auto& e : sort)
+                m_entries.push_back(std::move(e.second));
+            if (mode == Mode::DirsSorted)
+                break;
+            FindClose(dir);
+            dir = FindFirstFileW(wc.c_str(), &d);
+        }
+        case Mode::FilesSorted:
+        {
+            if (mode == Mode::FilesSorted)
+                m_entries.clear();
+            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            do
+            {
+                if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                    continue;
+                HECL::SystemString fp(path);
+                fp += _S('/');
+                fp += d.cFileName;
+                HECL::Sstat st;
+                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                    continue;
+                sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, st.st_size, false)));
+            } while (FindNextFileW(dir, &d));
+            for (auto& e : sort)
+                m_entries.push_back(std::move(e.second));
+            break;
+        }
+        }
+        FindClose(dir);
 #else
         DIR* dir = opendir(path);
         if (!dir)
