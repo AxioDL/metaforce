@@ -26,10 +26,12 @@ struct ITableDataBinding
 
 struct ITableStateBinding
 {
-    virtual float columnSplit(size_t cIdx) {return -1.0;}
+    virtual float getColumnSplit(size_t cIdx) const {return -1.0;}
     virtual void setColumnSplit(size_t cIdx, float split) {}
-    virtual SortDirection sort(size_t cIdx) {return SortDirection::None;}
+    virtual SortDirection getSort(size_t& cIdx) const {cIdx = 0; return SortDirection::None;}
     virtual void setSort(size_t cIdx, SortDirection dir) {}
+    virtual void setSelectedRow(size_t rIdx) {}
+    virtual void rowActivated(size_t rIdx) {}
 };
 
 class Table : public View
@@ -40,17 +42,36 @@ class Table : public View
     size_t m_maxColumns;
     size_t m_rows = 0;
     size_t m_columns = 0;
+    size_t m_selectedRow = -1;
+    size_t m_clickFrames = 15;
+
     struct CellView : public View
     {
         Table& m_t;
         std::unique_ptr<TextView> m_text;
-        CellView(Table& t, ViewResources& res);
+        size_t m_c, m_r;
+        CellView(Table& t, ViewResources& res, size_t c, size_t r);
+
+        bool m_selected = false;
+        void select();
+        void deselect();
+
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseEnter(const boo::SWindowCoord&);
+        void mouseLeave(const boo::SWindowCoord&);
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
-    std::vector<std::unique_ptr<CellView>> m_headerViews;
-    std::vector<std::vector<std::unique_ptr<CellView>>> m_cellViews;
+    std::vector<ViewChild<std::unique_ptr<CellView>>> m_headerViews;
+    std::vector<std::vector<ViewChild<std::unique_ptr<CellView>>>> m_cellViews;
     bool m_header = false;
+
+    std::unique_ptr<SolidShaderVert[]> m_hVerts;
+    boo::IGraphicsBufferD* m_hVertsBuf = nullptr;
+    boo::IVertexFormat* m_hVtxFmt = nullptr; /* OpenGL only */
+    boo::IShaderDataBinding* m_hShaderBinding = nullptr;
+    void _setHeaderVerts(const boo::SWindowRect& rect);
 
     ViewChild<std::unique_ptr<ScrollView>> m_scroll;
 
@@ -70,14 +91,23 @@ class Table : public View
         RowsView(Table& t, ViewResources& res);
         int nominalHeight() const;
         int nominalWidth() const {return m_t.m_scroll.m_view->nominalWidth();}
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseMove(const boo::SWindowCoord&);
+        void mouseLeave(const boo::SWindowCoord&);
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
                      const boo::SWindowRect& scissor);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     } m_rowsView;
 
-public:
-    Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state=nullptr, size_t maxColumns=8);
+    bool m_headerNeedsUpdate = false;
 
+public:
+    Table(ViewResources& res, View& parentView, ITableDataBinding* data,
+          ITableStateBinding* state=nullptr, size_t maxColumns=8);
+
+    void cycleSortColumn(size_t c);
+    void selectRow(size_t r);
     void setMultiplyColor(const Zeus::CColor& color);
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

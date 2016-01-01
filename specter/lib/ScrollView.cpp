@@ -78,14 +78,64 @@ bool ScrollView::_scroll(const boo::SScrollDelta& scroll)
     return false;
 }
 
+void ScrollView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    if (m_contentView)
+        m_contentView->mouseDown(coord, button, mod);
+}
+
+void ScrollView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    if (m_contentView)
+        m_contentView->mouseUp(coord, button, mod);
+}
+
+void ScrollView::mouseMove(const boo::SWindowCoord& coord)
+{
+    if (m_contentView)
+        m_contentView->mouseMove(coord);
+}
+
+void ScrollView::mouseEnter(const boo::SWindowCoord& coord)
+{
+    if (m_contentView)
+        m_contentView->mouseEnter(coord);
+}
+
+void ScrollView::mouseLeave(const boo::SWindowCoord& coord)
+{
+    if (m_contentView)
+        m_contentView->mouseLeave(coord);
+}
+
 void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
+    if (!scroll.isAccelerated)
+    {
+        boo::SScrollDelta newScroll = scroll;
+        m_consecutiveScroll[m_consecutiveIdx][0] += scroll.delta[0];
+        m_consecutiveScroll[m_consecutiveIdx][1] += scroll.delta[1];
+        newScroll.delta[0] = 0;
+        newScroll.delta[1] = 0;
+        for (size_t i=0 ; i<16 ; ++i)
+        {
+            newScroll.delta[0] += m_consecutiveScroll[i][0];
+            newScroll.delta[1] += m_consecutiveScroll[i][1];
+        }
+        if (_scroll(newScroll))
+            updateSize();
+        return;
+    }
     if (_scroll(scroll))
         updateSize();
 }
 
 void ScrollView::think()
 {
+    m_consecutiveIdx = (m_consecutiveIdx+1) % 16;
+    m_consecutiveScroll[m_consecutiveIdx][0] = 0.0;
+    m_consecutiveScroll[m_consecutiveIdx][1] = 0.0;
+
     bool update = false;
     float pf = rootView().viewRes().pixelFactor();
 

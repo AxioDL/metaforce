@@ -219,10 +219,10 @@ struct ViewChild
     bool m_mouseIn = false;
     int m_mouseDown = 0;
 
-    void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+    bool mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
     {
         if (!m_view)
-            return;
+            return false;
         if (m_view->subRect().coordInRect(coord))
         {
             if ((m_mouseDown & 1 << int(button)) == 0)
@@ -230,7 +230,9 @@ struct ViewChild
                 m_view->mouseDown(coord, button, mod);
                 m_mouseDown |= 1 << int(button);
             }
+            return true;
         }
+        return false;
     }
 
     void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)

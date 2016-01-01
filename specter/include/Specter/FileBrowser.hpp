@@ -26,6 +26,7 @@ public:
     };
 private:
     Type m_type;
+    HECL::SystemString m_path;
     std::vector<HECL::SystemString> m_comps;
 
     class LeftSide : public View
@@ -112,7 +113,7 @@ private:
         }
     } m_fileFieldBind;
 
-    struct FileListingDataBind : ITableDataBinding
+    struct FileListingDataBind : ITableDataBinding, ITableStateBinding
     {
         struct Entry
         {
@@ -184,6 +185,32 @@ private:
                                                       HECL::HNFlags::B | HECL::HNFlags::Decimal);
                 }
             }
+
+            m_needsUpdate = false;
+        }
+
+        bool m_sizeSort = false;
+        SortDirection m_sortDir = SortDirection::Ascending;
+        bool m_needsUpdate = false;
+
+        SortDirection getSort(size_t& cIdx) const
+        {
+            cIdx = m_sizeSort ? 2 : 0;
+            return m_sortDir;
+        }
+
+        void setSort(size_t cIdx, SortDirection dir)
+        {
+            if (cIdx == 1)
+                return;
+            m_sizeSort = cIdx == 2;
+            m_sortDir = dir;
+            m_needsUpdate = true;
+        }
+
+        void setSelectedRow(size_t rIdx)
+        {
+
         }
 
         FileListingDataBind(const IViewManager& vm)

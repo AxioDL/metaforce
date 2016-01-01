@@ -22,6 +22,9 @@ private:
     int m_scroll[2] = {};
     int m_targetScroll[2] = {};
 
+    size_t m_consecutiveIdx = 0;
+    double m_consecutiveScroll[16][2] = {};
+
     bool m_drawInd = false;
 
     SolidShaderVert m_verts[4];
@@ -38,6 +41,11 @@ public:
         updateSize();
     }
 
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseMove(const boo::SWindowCoord&);
+    void mouseEnter(const boo::SWindowCoord&);
+    void mouseLeave(const boo::SWindowCoord&);
     void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll);
     int getScrollX() const {return m_scroll[0];}
     int getScrollY() const {return m_scroll[1];}

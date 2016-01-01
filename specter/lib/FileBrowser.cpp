@@ -58,7 +58,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
 
     IViewManager& vm = rootView().viewManager();
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
-    m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, nullptr, 3));
+    m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, &m_fileListingBind, 3));
     m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, nullptr, 1));
     m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_systemBookmarksLabel->typesetGlyphs(vm.translateOr("system_locations", "System Locations"), res.themeData().uiText());
@@ -86,6 +86,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
     if (HECL::Stat(path.c_str(), &theStat))
         return;
 
+    m_path = path;
     m_comps = PathComponents(path);
     if (S_ISREG(theStat.st_mode))
     {
@@ -103,8 +104,10 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
         needSlash = true;
         dir += d;
     }
-    HECL::DirectoryEnumerator dEnum(dir);
+    HECL::DirectoryEnumerator dEnum(dir, HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                    m_fileListingBind.m_sizeSort, m_fileListingBind.m_sortDir==SortDirection::Descending);
     m_fileListingBind.updateListing(dEnum);
+    m_fileListing.m_view->selectRow(-1);
     m_fileListing.m_view->updateData();
 
     m_pathButtons.clear();
@@ -329,6 +332,8 @@ void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SW
 void FileBrowser::think()
 {
     ModalWindow::think();
+    if (m_fileListingBind.m_needsUpdate)
+        navigateToPath(m_path);
     m_fileField.m_view->think();
     m_fileListing.m_view->think();
     m_systemBookmarks.m_view->think();
