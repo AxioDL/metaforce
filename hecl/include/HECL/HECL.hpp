@@ -91,6 +91,7 @@ public:
     : m_utf8(WideToUTF8(str)) {}
     operator const std::string&() const {return m_utf8;}
     const std::string& str() const {return m_utf8;}
+    const char* c_str() const {return m_utf8.c_str();}
     std::string operator+(const std::string& other) const {return m_utf8 + other;}
     std::string operator+(const char* other) const {return m_utf8 + other;}
 };
@@ -104,6 +105,7 @@ public:
     : m_sys(UTF8ToWide(str)) {}
     operator const std::wstring&() const {return m_sys;}
     const std::wstring& sys_str() const {return m_sys;}
+    const SystemChar* c_str() const {return m_sys.c_str();}
     std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
     std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
 };
@@ -129,6 +131,7 @@ public:
     : m_utf8(str) {}
     operator const std::string&() const {return m_utf8;}
     const std::string& str() const {return m_utf8;}
+    const char* c_str() const {return m_utf8.c_str();}
     std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
     std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
 };
@@ -142,6 +145,7 @@ public:
     : m_sys(str) {}
     operator const std::string&() const {return m_sys;}
     const std::string& sys_str() const {return m_sys;}
+    const SystemChar* c_str() const {return m_sys.c_str();}
     std::string operator+(const std::string& other) const {return m_sys + other;}
     std::string operator+(const char* other) const {return m_sys + other;}
 };
@@ -561,16 +565,21 @@ private:
 
 public:
     DirectoryEnumerator(const HECL::SystemString& path, Mode mode=Mode::DirsThenFilesSorted,
-                        bool sizeSort=false, bool reverse=false)
-    : DirectoryEnumerator(path.c_str(), mode, sizeSort, reverse) {}
+                        bool sizeSort=false, bool reverse=false, bool noHidden=false)
+    : DirectoryEnumerator(path.c_str(), mode, sizeSort, reverse, noHidden) {}
     DirectoryEnumerator(const HECL::SystemChar* path, Mode mode=Mode::DirsThenFilesSorted,
-                        bool sizeSort=false, bool reverse=false);
+                        bool sizeSort=false, bool reverse=false, bool noHidden=false);
 
     operator bool() const {return m_entries.size() != 0;}
     size_t size() const {return m_entries.size();}
     std::vector<Entry>::const_iterator begin() const {return m_entries.cbegin();}
     std::vector<Entry>::const_iterator end() const {return m_entries.cend();}
 };
+
+/**
+ * @brief Build list of common OS-specific directories
+ */
+std::vector<HECL::SystemString> GetSystemLocations();
 
 /**
  * @brief Special ProjectRootPath class for opening HECLDatabase::IProject instances

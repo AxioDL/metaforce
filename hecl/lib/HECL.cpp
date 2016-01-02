@@ -1,5 +1,21 @@
 #include "HECL/HECL.hpp"
 
+#ifdef WIN32
+#include <windows.h>
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0400
+#endif
+#include <shlobj.h>
+#endif
+
+#ifdef __APPLE__
+#include <Carbon/Carbon.h>
+#endif
+
+#ifdef __linux__
+#include <mntent.h>
+#endif
+
 namespace HECL
 {
 unsigned VerbosityLevel = 0;
@@ -118,7 +134,7 @@ bool IsPathYAML(const HECL::ProjectPath& path)
 }
 
 HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mode mode,
-                                               bool sizeSort, bool reverse)
+                                               bool sizeSort, bool reverse, bool noHidden)
 {
     HECL::Sstat theStat;
     if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
@@ -137,6 +153,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         do
         {
             if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                continue;
+            if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             HECL::SystemString fp(path);
             fp += _S('/');
@@ -164,6 +182,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         do
         {
             if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                continue;
+            if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             HECL::SystemString fp(path);
             fp +=_S('/');
@@ -198,6 +218,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                     continue;
+                if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+                    continue;
                 HECL::SystemString fp(path);
                 fp += _S('/');
                 fp += d.cFileName;
@@ -220,6 +242,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             do
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                    continue;
+                if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
                 HECL::SystemString fp(path);
                 fp += _S('/');
@@ -256,6 +280,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         {
             if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
                 continue;
+            if (noHidden && d->d_name[0] == '.')
+                continue;
             HECL::SystemString fp(path);
             fp += '/';
             fp += d->d_name;
@@ -282,6 +308,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         while ((d = readdir(dir)))
         {
             if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+                continue;
+            if (noHidden && d->d_name[0] == '.')
                 continue;
             HECL::SystemString fp(path);
             fp += '/';
@@ -315,6 +343,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             {
                 if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
                     continue;
+                if (noHidden && d->d_name[0] == '.')
+                    continue;
                 HECL::SystemString fp(path);
                 fp += '/';
                 fp += d->d_name;
@@ -337,6 +367,8 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             while ((d = readdir(dir)))
             {
                 if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+                    continue;
+                if (noHidden && d->d_name[0] == '.')
                     continue;
                 HECL::SystemString fp(path);
                 fp += '/';
@@ -361,6 +393,173 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
     closedir(dir);
 
 #endif
+}
+
+std::vector<HECL::SystemString> GetSystemLocations()
+{
+    HECL::Sstat theStat;
+    std::vector<HECL::SystemString> ret;
+#ifdef WIN32
+    /* Add the drive names to the listing */
+    {
+        wchar_t wline[FILE_MAXDIR];
+        __int64 tmp;
+        char tmps[4], *name;
+        int i;
+
+        tmp = GetLogicalDrives();
+
+        for (i = 0; i < 26; i++) {
+            if ((tmp >> i) & 1) {
+                tmps[0] = 'A' + i;
+                tmps[1] = ':';
+                tmps[2] = '\\';
+                tmps[3] = '\0';
+                name = NULL;
+
+                /* Flee from horrible win querying hover floppy drives! */
+                if (i > 1) {
+                    /* Try to get volume label as well... */
+                    BLI_strncpy_wchar_from_utf8(wline, tmps, 4);
+                    if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, NULL, NULL, NULL, NULL, 0)) {
+                        size_t label_len;
+
+                        BLI_strncpy_wchar_as_utf8(line, wline + 4, FILE_MAXDIR - 4);
+
+                        label_len = MIN2(strlen(line), FILE_MAXDIR - 6);
+                        BLI_snprintf(line + label_len, 6, " (%.2s)", tmps);
+
+                        name = line;
+                    }
+                }
+
+                fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM, tmps, name, FS_INSERT_SORTED);
+            }
+        }
+
+        /* Adding Desktop and My Documents */
+        if (read_bookmarks) {
+            SHGetSpecialFolderPathW(0, wline, CSIDL_PERSONAL, 0);
+            BLI_strncpy_wchar_as_utf8(line, wline, FILE_MAXDIR);
+            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_SORTED);
+            SHGetSpecialFolderPathW(0, wline, CSIDL_DESKTOPDIRECTORY, 0);
+            BLI_strncpy_wchar_as_utf8(line, wline, FILE_MAXDIR);
+            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_SORTED);
+        }
+    }
+#else
+#ifdef __APPLE__
+    {
+        /* Get mounted volumes better method OSX 10.6 and higher, see: */
+        /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
+        /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
+
+        CFURLRef cfURL = NULL;
+        CFURLEnumeratorResult result = kCFURLEnumeratorSuccess;
+        CFURLEnumeratorRef volEnum = CFURLEnumeratorCreateForMountedVolumes(NULL, kCFURLEnumeratorSkipInvisibles, NULL);
+
+        while (result != kCFURLEnumeratorEnd) {
+            unsigned char defPath[FILE_MAX];
+
+            result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, NULL);
+            if (result != kCFURLEnumeratorSuccess)
+                continue;
+
+            CFURLGetFileSystemRepresentation(cfURL, false, (UInt8 *)defPath, FILE_MAX);
+            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM, (char *)defPath, NULL, FS_INSERT_SORTED);
+        }
+
+        CFRelease(volEnum);
+
+        /* Finally get user favorite places */
+        if (read_bookmarks) {
+            UInt32 seed;
+            OSErr err = noErr;
+            CFArrayRef pathesArray;
+            LSSharedFileListRef list;
+            LSSharedFileListItemRef itemRef;
+            CFIndex i, pathesCount;
+            CFURLRef cfURL = NULL;
+            CFStringRef pathString = NULL;
+            list = LSSharedFileListCreate(NULL, kLSSharedFileListFavoriteItems, NULL);
+            pathesArray = LSSharedFileListCopySnapshot(list, &seed);
+            pathesCount = CFArrayGetCount(pathesArray);
+
+            for (i = 0; i < pathesCount; i++) {
+                itemRef = (LSSharedFileListItemRef)CFArrayGetValueAtIndex(pathesArray, i);
+
+                err = LSSharedFileListItemResolve(itemRef,
+                                                  kLSSharedFileListNoUserInteraction |
+                                                  kLSSharedFileListDoNotMountVolumes,
+                                                  &cfURL, NULL);
+                if (err != noErr)
+                    continue;
+
+                pathString = CFURLCopyFileSystemPath(cfURL, kCFURLPOSIXPathStyle);
+
+                if (pathString == NULL || !CFStringGetCString(pathString, line, sizeof(line), kCFStringEncodingUTF8))
+                    continue;
+
+                /* Exclude "all my files" as it makes no sense in blender fileselector */
+                /* Exclude "airdrop" if wlan not active as it would show "" ) */
+                if (!strstr(line, "myDocuments.cannedSearch") && (*line != '\0')) {
+                    fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_LAST);
+                }
+
+                CFRelease(pathString);
+                CFRelease(cfURL);
+            }
+
+            CFRelease(pathesArray);
+            CFRelease(list);
+        }
+    }
+#else
+    /* unix */
+    {
+        const char* home = getenv("HOME");
+
+        if (home)
+        {
+            ret.push_back(home);
+            std::string desktop(home);
+            desktop += "/Desktop";
+            if (!HECL::Stat(desktop.c_str(), &theStat))
+                ret.push_back(std::move(desktop));
+        }
+
+        {
+            bool found = false;
+#ifdef __linux__
+            /* Loop over mount points */
+            struct mntent *mnt;
+
+            FILE* fp = setmntent(MOUNTED, "r");
+            if (fp)
+            {
+                while ((mnt = getmntent(fp)))
+                {
+                    if (strlen(mnt->mnt_fsname) < 4 || strncmp(mnt->mnt_fsname, "/dev", 4))
+                        continue;
+
+                    std::string mntStr(mnt->mnt_dir);
+                    if (mntStr.size() > 1 && mntStr.back() == '/')
+                        mntStr.pop_back();
+                    ret.push_back(std::move(mntStr));
+
+                    found = true;
+                }
+                endmntent(fp);
+            }
+#endif
+            /* Fallback */
+            if (!found)
+                ret.push_back("/");
+        }
+    }
+#endif
+#endif
+    return ret;
 }
 
 }
