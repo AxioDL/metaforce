@@ -74,7 +74,7 @@ public:
         bool m_space = false;
 
         RenderGlyphInfo(uint32_t ch, int width, int height, int adv)
-        : m_char(ch), m_dims(width, height), m_adv(adv), m_space(iswspace(ch)) {}
+        : m_char(ch), m_dims(width, height), m_adv(adv), m_space(iswspace(ch) != 0) {}
     };
     std::vector<RenderGlyph>& accessGlyphs() {return m_glyphs;}
     const std::vector<RenderGlyph>& accessGlyphs() const {return m_glyphs;}

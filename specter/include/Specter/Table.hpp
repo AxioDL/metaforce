@@ -44,6 +44,7 @@ class Table : public View
     size_t m_rows = 0;
     size_t m_columns = 0;
     size_t m_selectedRow = -1;
+    size_t m_deferredActivation = -1;
     size_t m_clickFrames = 15;
 
     struct CellView : public View

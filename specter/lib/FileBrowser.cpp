@@ -76,9 +76,9 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
 
     /* Populate system bookmarks */
-    std::vector<HECL::SystemString> systemLocs = HECL::GetSystemLocations();
-    for (const HECL::SystemString& loc : systemLocs)
-        m_systemBookmarkBind.m_entries.emplace_back(loc);
+    std::vector<std::pair<HECL::SystemString, std::string>> systemLocs = HECL::GetSystemLocations();
+    for (auto& loc : systemLocs)
+        m_systemBookmarkBind.m_entries.emplace_back(std::move(loc));
     m_systemBookmarks.m_view->updateData();
 
     navigateToPath(initialPath);
@@ -112,6 +112,13 @@ void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding
 void FileBrowser::navigateToPath(const HECL::SystemString& path)
 {
     HECL::Sstat theStat;
+#if _WIN32
+    if (path.size() == 2 && path[1] == L':')
+    {
+        if (HECL::Stat((path + L'/').c_str(), &theStat))
+            return;
+    } else
+#endif
     if (HECL::Stat(path.c_str(), &theStat))
         return;
 
@@ -192,7 +199,14 @@ void FileBrowser::okActivated(bool viaButton)
     }
 
     HECL::Sstat theStat;
+#if _WIN32
+    HECL::SystemString fixPath = path;
+    if (path.size() == 2 && path[1] == L':')
+        fixPath += L'/';
+    if (HECL::Stat(fixPath.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
+#else
     if (HECL::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
+#endif
     {
         HECL::SystemUTF8View utf8(path);
         m_fileField.m_view->setErrorState(
@@ -202,7 +216,7 @@ void FileBrowser::okActivated(bool viaButton)
     }
 
     path += _S('/');
-    path += m_fileField.m_view->getText();
+    path += HECL::SystemStringView(m_fileField.m_view->getText()).sys_str();
 
     int err = HECL::Stat(path.c_str(), &theStat);
     if (m_type == Type::SaveFile)
@@ -271,7 +285,7 @@ void FileBrowser::cancelActivated()
     }
 
     path += _S('/');
-    path += m_fileField.m_view->getText();
+    path += HECL::SystemStringView(m_fileField.m_view->getText()).sys_str();
 
     m_returnFunc(false, path);
     close();

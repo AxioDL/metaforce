@@ -308,7 +308,7 @@ void Table::mouseDown(const boo::SWindowCoord& coord,
             }
             if (abs(coord.pixel[0] - rect.location[0]) < 4 &&
                 unsigned(coord.pixel[1] - subRect().location[1] -
-                         subRect().size[1] + rect.size[1]) < rect.size[1])
+                         subRect().size[1] + rect.size[1]) < unsigned(rect.size[1]))
             {
                 m_hDraggingIdx = cIdx;
                 rootView().setActiveDragView(this);
@@ -321,6 +321,12 @@ void Table::mouseDown(const boo::SWindowCoord& coord,
     m_scroll.mouseDown(coord, button, mod);
     if (m_headerNeedsUpdate)
         _setHeaderVerts(subRect());
+
+    if (m_deferredActivation != -1 && m_state)
+    {
+        m_state->rowActivated(m_deferredActivation);
+        m_deferredActivation = -1;
+    }
 }
 
 void Table::RowsView::mouseDown(const boo::SWindowCoord& coord,
@@ -340,8 +346,8 @@ void Table::CellView::mouseDown(const boo::SWindowCoord& coord,
     if (m_r != -1)
     {
         m_t.selectRow(m_r);
-        if (m_t.m_clickFrames < 15 && m_t.m_state)
-            m_t.m_state->rowActivated(m_r);
+        if (m_t.m_clickFrames < 15)
+            m_t.m_deferredActivation = m_r;
         else
             m_t.m_clickFrames = 0;
     }
@@ -415,7 +421,7 @@ void Table::mouseMove(const boo::SWindowCoord& coord)
                 continue;
             if (abs(coord.pixel[0] - rect.location[0]) < 4 &&
                 unsigned(coord.pixel[1] - subRect().location[1] -
-                         subRect().size[1] + rect.size[1]) < rect.size[1])
+                         subRect().size[1] + rect.size[1]) < unsigned(rect.size[1]))
             {
                 hovering = true;
                 break;

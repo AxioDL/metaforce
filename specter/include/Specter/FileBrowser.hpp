@@ -167,7 +167,7 @@ private:
             return nullptr;
         }
 
-        float m_columnSplits[3] = {0.0, 0.7, 0.9};
+        float m_columnSplits[3] = {0.0f, 0.7f, 0.9f};
 
         bool columnSplitResizeAllowed() const {return true;}
 
@@ -261,6 +261,10 @@ private:
         {
             HECL::SystemString m_path;
             std::string m_name;
+
+            Entry(std::pair<HECL::SystemString, std::string>&& path)
+            : m_path(std::move(path.first)), m_name(std::move(path.second)) {}
+
             Entry(const HECL::SystemString& path)
             : m_path(path)
             {
