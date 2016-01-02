@@ -597,8 +597,8 @@ std::vector<boo::SWindowRect> Table::getCellRects(const boo::SWindowRect& sub) c
     {
         float nextSplit = (i==m_columns-1) ? 1.0 : splits[i+1];
         int x = nextSplit * sub.size[0];
-        ret.push_back({{sub.location[0] + lastX, sub.location[1]},
-                       {x - lastX, int(ROW_HEIGHT * pf)}});
+        ret.push_back({sub.location[0] + lastX, sub.location[1],
+                       x - lastX, int(ROW_HEIGHT * pf)});
         lastX = x;
     }
 

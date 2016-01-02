@@ -577,7 +577,7 @@ boo::SWindowRect TextField::rectForCharacterRange(const std::pair<int,int>& rang
     {
         const std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
         const TextView::RenderGlyph& g = glyphs.back();
-        return {{subRect().location[0] + int(g.m_pos[3][0]), subRect().location[1] + int(g.m_pos[3][1])}};
+        return {subRect().location[0] + int(g.m_pos[3][0]), subRect().location[1] + int(g.m_pos[3][1]), 0, 0};
     }
     begin += range.first;
     size_t endIdx = std::min(size_t(range.first + range.second), curLen);
@@ -588,8 +588,8 @@ boo::SWindowRect TextField::rectForCharacterRange(const std::pair<int,int>& rang
     const std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
     const TextView::RenderGlyph& g1 = glyphs[range.first];
     const TextView::RenderGlyph& g2 = glyphs[endIdx];
-    return {{subRect().location[0] + int(g1.m_pos[1][0]), subRect().location[1] + int(g1.m_pos[1][1])},
-            {int(g2.m_pos[3][0]-g1.m_pos[1][0]), int(g2.m_pos[0][1]-g1.m_pos[1][1])}};
+    return {subRect().location[0] + int(g1.m_pos[1][0]), subRect().location[1] + int(g1.m_pos[1][1]),
+            int(g2.m_pos[3][0]-g1.m_pos[1][0]), int(g2.m_pos[0][1]-g1.m_pos[1][1])};
 }
 
 void TextField::think()
