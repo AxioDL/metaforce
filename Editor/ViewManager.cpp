@@ -43,7 +43,8 @@ void ViewManager::SetupEditorView()
 }
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
-: m_cvarManager(cvarMgr), m_fontCache(fileMgr), m_translator(RUDE::SystemLocaleOrEnglish()),
+: m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr),
+  m_fontCache(fileMgr), m_translator(RUDE::SystemLocaleOrEnglish()),
   m_setTo1(*this), m_setTo2(*this),
   m_split(*this),
   m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),
@@ -51,6 +52,16 @@ ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarMan
 {}
 
 ViewManager::~ViewManager() {}
+
+void ViewManager::pushRecentProject(const HECL::SystemString& path)
+{
+    m_recentProjects.push_back(path);
+}
+
+void ViewManager::pushRecentFile(const HECL::SystemString& path)
+{
+    m_recentFiles.push_back(path);
+}
 
 void ViewManager::init(boo::IApplication* app)
 {

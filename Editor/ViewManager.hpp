@@ -11,6 +11,7 @@ class SplashScreen;
 
 class ViewManager : public Specter::IViewManager
 {
+    HECL::Runtime::FileStoreManager& m_fileStoreManager;
     HECL::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
     Specter::FontCache m_fontCache;
@@ -21,6 +22,9 @@ class ViewManager : public Specter::IViewManager
     std::unique_ptr<SplashScreen> m_splash;
 
     HECL::CVar* m_cvPixelFactor;
+
+    std::vector<HECL::SystemString> m_recentProjects;
+    std::vector<HECL::SystemString> m_recentFiles;
 
     bool m_updatePf = false;
     float m_reqPf;
@@ -76,6 +80,12 @@ public:
 
     ProjectManager& projectManager() {return m_projManager;}
     const Specter::Translator* getTranslator() const {return &m_translator;}
+
+    const std::vector<HECL::SystemString>* recentProjects() const {return &m_recentProjects;}
+    void pushRecentProject(const HECL::SystemString& path);
+
+    const std::vector<HECL::SystemString>* recentFiles() const {return &m_recentFiles;}
+    void pushRecentFile(const HECL::SystemString& path);
 
     void init(boo::IApplication* app);
     bool proc();

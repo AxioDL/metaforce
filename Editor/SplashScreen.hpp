@@ -9,6 +9,8 @@
 
 namespace RUDE
 {
+static LogVisor::LogModule Log("Specter::SplashScreen");
+
 class SplashScreen : public Specter::ModalWindow
 {
     ViewManager& m_vm;
@@ -40,7 +42,11 @@ class SplashScreen : public Specter::ModalWindow
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_newString,
-                                                 Specter::FileBrowser::Type::SaveFile));
+                                                 Specter::FileBrowser::Type::SaveFile,
+                                                 [](bool, const HECL::SystemString& path)
+            {
+                Log.report(LogVisor::Info, _S("Making project '%s'"), path.c_str());
+            }));
             m_splash.updateSize();
             m_splash.m_newButt.mouseLeave(coord);
         }
@@ -57,7 +63,11 @@ class SplashScreen : public Specter::ModalWindow
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_openString,
-                                                 Specter::FileBrowser::Type::OpenHECLProject));
+                                                 Specter::FileBrowser::Type::OpenHECLProject,
+                                                 [](bool, const HECL::SystemString& path)
+            {
+                Log.report(LogVisor::Info, _S("Opening project '%s'"), path.c_str());
+            }));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
         }
@@ -74,7 +84,11 @@ class SplashScreen : public Specter::ModalWindow
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_extractString,
-                                                 Specter::FileBrowser::Type::OpenFile));
+                                                 Specter::FileBrowser::Type::OpenFile,
+                                                 [](bool, const HECL::SystemString& path)
+            {
+                Log.report(LogVisor::Info, _S("Extracting game '%s'"), path.c_str());
+            }));
             m_splash.updateSize();
             m_splash.m_extractButt.mouseLeave(coord);
         }
@@ -95,6 +109,7 @@ public:
     void touchUp(const boo::STouchCoord&, uintptr_t);
     void touchMove(const boo::STouchCoord&, uintptr_t);
     void charKeyDown(unsigned long, boo::EModifierKey, bool);
+    void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

@@ -168,7 +168,18 @@ void SplashScreen::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
 
 void SplashScreen::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
 {
-    skipBuildInAnimation();
+    if (skipBuildInAnimation())
+        return;
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->charKeyDown(charCode, mods, isRepeat);
+}
+
+void SplashScreen::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
+{
+    if (skipBuildInAnimation())
+        return;
+    if (m_fileBrowser.m_view)
+        m_fileBrowser.m_view->specialKeyDown(key, mods, isRepeat);
 }
 
 void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
