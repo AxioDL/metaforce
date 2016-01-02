@@ -27,6 +27,7 @@ struct ITableDataBinding
 struct ITableStateBinding
 {
     virtual float getColumnSplit(size_t cIdx) const {return -1.0;}
+    virtual bool columnSplitResizeAllowed() const {return false;}
     virtual void setColumnSplit(size_t cIdx, float split) {}
     virtual SortDirection getSort(size_t& cIdx) const {cIdx = 0; return SortDirection::None;}
     virtual void setSort(size_t cIdx, SortDirection dir) {}
@@ -50,6 +51,7 @@ class Table : public View
         Table& m_t;
         std::unique_ptr<TextView> m_text;
         size_t m_c, m_r;
+        boo::SWindowRect m_scissorRect;
         CellView(Table& t, ViewResources& res, size_t c, size_t r);
 
         bool m_selected = false;
@@ -60,18 +62,24 @@ class Table : public View
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseEnter(const boo::SWindowCoord&);
         void mouseLeave(const boo::SWindowCoord&);
-        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
+                     const boo::SWindowRect& scissor);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::vector<ViewChild<std::unique_ptr<CellView>>> m_headerViews;
     std::vector<std::vector<ViewChild<std::unique_ptr<CellView>>>> m_cellViews;
     bool m_header = false;
 
+    std::vector<boo::SWindowRect> m_hCellRects;
+    size_t m_hDraggingIdx = 0;
+
     std::unique_ptr<SolidShaderVert[]> m_hVerts;
     boo::IGraphicsBufferD* m_hVertsBuf = nullptr;
     boo::IVertexFormat* m_hVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_hShaderBinding = nullptr;
     void _setHeaderVerts(const boo::SWindowRect& rect);
+
+    std::vector<boo::SWindowRect> getCellRects(const boo::SWindowRect& tableRect) const;
 
     ViewChild<std::unique_ptr<ScrollView>> m_scroll;
 

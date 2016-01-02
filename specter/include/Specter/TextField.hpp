@@ -16,8 +16,9 @@ class TextField : public ITextInputView
     std::string m_deferredTextStr;
     std::string m_deferredMarkStr;
     std::unique_ptr<TextView> m_text;
+    std::unique_ptr<TextView> m_errText;
 
-    SolidShaderVert m_verts[32];
+    SolidShaderVert m_verts[41];
     boo::IGraphicsBufferD* m_bVertsBuf = nullptr;
     boo::IVertexFormat* m_bVtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_bShaderBinding = nullptr;
@@ -48,15 +49,24 @@ class TextField : public ITextInputView
     size_t m_cursorFrames = 0;
     size_t m_clickFrames = 15;
     size_t m_clickFrames2 = 15;
+    size_t m_errorFrames = 360;
 
     size_t m_dragStart = 0;
     size_t m_dragging = 0;
 
     bool m_active = false;
+    bool m_error = false;
 
+    enum class BGState
+    {
+        Inactive,
+        Hover,
+        Disabled
+    } m_bgState = BGState::Inactive;
     void setInactive();
     void setHover();
     void setDisabled();
+    void refreshBg();
 
 public:
     TextField(ViewResources& res, View& parentView, IStringBinding* strBind);
@@ -99,6 +109,8 @@ public:
 
     void setActive(bool active);
     void setCursorPos(size_t pos);
+    void setErrorState(const std::string& message);
+    void clearErrorState();
 
     void setSelectionRange(size_t start, size_t count);
     void clearSelectionRange();
@@ -109,8 +121,10 @@ public:
         m_viewVertBlock.m_color = color;
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
+        if (m_errText)
+            m_errText->setMultiplyColor(color);
     }
-    
+
 private:
     void _setCursorPos();
     void _reallySetCursorPos(size_t pos);

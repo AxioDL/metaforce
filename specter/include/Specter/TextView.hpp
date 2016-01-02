@@ -89,7 +89,7 @@ public:
     void colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval=0.2, float fadeTime=0.5);
     void think();
 
-    void resized(const boo::SWindowRect &rootView, const boo::SWindowRect& sub);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     int nominalWidth() const {return m_width;}

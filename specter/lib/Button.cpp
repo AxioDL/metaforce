@@ -276,6 +276,8 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     if (m_style == Style::Block)
         textRect.location[1] += 7 * pf;
     textRect.location[0] += sub.size[0] / 2;
+    textRect.size[0] = m_nomWidth;
+    textRect.size[1] = m_nomHeight;
     m_text->resized(root, textRect);
 }
 

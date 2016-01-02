@@ -50,10 +50,10 @@ void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button,
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
-    if (m_view)
-        m_view->mouseMove(coord);
     if (m_activeDragView)
         m_activeDragView->mouseMove(coord);
+    else if (m_view)
+        m_view->mouseMove(coord);
 
     boo::SWindowRect ttrect = m_rootRect;
     ttrect.location[0] = coord.pixel[0];

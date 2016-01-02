@@ -3,6 +3,7 @@
 
 namespace Specter
 {
+static LogVisor::LogModule Log("Specter::FileBrowser");
 
 #define BROWSER_MARGIN 8
 #define BROWSER_MIN_WIDTH 600
@@ -40,7 +41,8 @@ static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& 
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string& title,
-                         Type type, const HECL::SystemString& initialPath)
+                         Type type, const HECL::SystemString& initialPath,
+                         std::function<void(bool, const HECL::SystemString&)> returnFunc)
 : ModalWindow(res, parentView, RectangleConstraint(BROWSER_MIN_WIDTH * res.pixelFactor(),
                                                    BROWSER_MIN_HEIGHT * res.pixelFactor(),
                                                    RectangleConstraint::Test::Minimum,
@@ -51,7 +53,11 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
   m_ok(*this, res, title),
   m_cancel(*this, res, rootView().viewManager().translateOr("cancel", "Cancel")),
   m_fileFieldBind(*this, rootView().viewManager()),
-  m_fileListingBind(rootView().viewManager())
+  m_fileListingBind(*this, rootView().viewManager()),
+  m_systemBookmarkBind(*this),
+  m_projectBookmarkBind(*this),
+  m_recentBookmarkBind(*this),
+  m_returnFunc(returnFunc)
 {
     commitResources(res);
     setBackground({0,0,0,0.5});
@@ -59,15 +65,21 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     IViewManager& vm = rootView().viewManager();
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
     m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, &m_fileListingBind, 3));
-    m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, nullptr, 1));
+    m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, &m_systemBookmarkBind, 1));
     m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_systemBookmarksLabel->typesetGlyphs(vm.translateOr("system_locations", "System Locations"), res.themeData().uiText());
-    m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind, nullptr, 1));
+    m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind, &m_projectBookmarkBind, 1));
     m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_projectBookmarksLabel->typesetGlyphs(vm.translateOr("recent_projects", "Recent Projects"), res.themeData().uiText());
-    m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind, nullptr, 1));
+    m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind, &m_recentBookmarkBind, 1));
     m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
     m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
+
+    /* Populate system bookmarks */
+    std::vector<HECL::SystemString> systemLocs = HECL::GetSystemLocations();
+    for (const HECL::SystemString& loc : systemLocs)
+        m_systemBookmarkBind.m_entries.emplace_back(loc);
+    m_systemBookmarks.m_view->updateData();
 
     navigateToPath(initialPath);
 
@@ -78,6 +90,23 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     m_split.m_view->setSlide(0.2);
 
     updateContentOpacity(0.0);
+}
+
+void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
+                                         const HECL::SystemString& sel)
+{
+    size_t idx = 0;
+    for (const BookmarkDataBind::Entry& e : binding.m_entries)
+    {
+        if (e.m_path == sel)
+        {
+            table.selectRow(idx);
+            break;
+        }
+        ++idx;
+    }
+    if (idx == binding.m_entries.size())
+        table.selectRow(-1);
 }
 
 void FileBrowser::navigateToPath(const HECL::SystemString& path)
@@ -92,6 +121,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
     {
         HECL::SystemUTF8View utf8(m_comps.back());
         m_fileField.m_view->setText(utf8);
+        m_fileField.m_view->clearErrorState();
         m_comps.pop_back();
     }
 
@@ -100,12 +130,20 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
     for (const HECL::SystemString& d : m_comps)
     {
         if (needSlash)
-            dir += '/';
-        needSlash = true;
+            dir += _S('/');
+        if (d.compare(_S("/")))
+            needSlash = true;
         dir += d;
     }
+
+    SyncBookmarkSelections(*m_systemBookmarks.m_view, m_systemBookmarkBind, dir);
+    SyncBookmarkSelections(*m_projectBookmarks.m_view, m_projectBookmarkBind, dir);
+    SyncBookmarkSelections(*m_recentBookmarks.m_view, m_recentBookmarkBind, dir);
+
     HECL::DirectoryEnumerator dEnum(dir, HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
-                                    m_fileListingBind.m_sizeSort, m_fileListingBind.m_sortDir==SortDirection::Descending);
+                                    m_fileListingBind.m_sizeSort,
+                                    m_fileListingBind.m_sortDir==SortDirection::Descending,
+                                    !m_showingHidden);
     m_fileListingBind.updateListing(dEnum);
     m_fileListing.m_view->selectRow(-1);
     m_fileListing.m_view->updateData();
@@ -138,12 +176,104 @@ void FileBrowser::updateContentOpacity(float opacity)
     m_recentBookmarksLabel->setMultiplyColor(color);
 }
 
-void FileBrowser::okActivated()
+void FileBrowser::okActivated(bool viaButton)
 {
+    IViewManager& vm = rootView().viewManager();
+
+    HECL::SystemString path;
+    bool needSlash = false;
+    for (const HECL::SystemString& d : m_comps)
+    {
+        if (needSlash)
+            path += _S('/');
+        if (d.compare(_S("/")))
+            needSlash = true;
+        path += d;
+    }
+
+    HECL::Sstat theStat;
+    if (HECL::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
+    {
+        HECL::SystemUTF8View utf8(path);
+        m_fileField.m_view->setErrorState(
+            HECL::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+                         utf8.c_str()));
+        return;
+    }
+
+    path += _S('/');
+    path += m_fileField.m_view->getText();
+
+    int err = HECL::Stat(path.c_str(), &theStat);
+    if (m_type == Type::SaveFile)
+    {
+        if (!err && S_ISDIR(theStat.st_mode))
+        {
+            navigateToPath(path);
+            return;
+        }
+        m_returnFunc(true, path);
+        close();
+        return;
+    }
+
+    if (m_type == Type::OpenFile)
+    {
+        if (!err && S_ISDIR(theStat.st_mode))
+        {
+            navigateToPath(path);
+            return;
+        }
+        else if (err || !S_ISREG(theStat.st_mode))
+        {
+            HECL::SystemUTF8View utf8(path);
+            m_fileField.m_view->setErrorState(
+                HECL::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").c_str(),
+                             utf8.c_str()));
+            return;
+        }
+        m_returnFunc(true, path);
+        close();
+        return;
+    }
+    else if (m_type == Type::OpenDirectory || m_type == Type::OpenHECLProject)
+    {
+        if (!viaButton && !err && S_ISDIR(theStat.st_mode))
+        {
+            navigateToPath(path);
+            return;
+        }
+        if (err || !S_ISDIR(theStat.st_mode))
+        {
+            HECL::SystemUTF8View utf8(path);
+            m_fileField.m_view->setErrorState(
+                HECL::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+                             utf8.c_str()));
+            return;
+        }
+        m_returnFunc(true, path);
+        close();
+        return;
+    }
 }
 
 void FileBrowser::cancelActivated()
 {
+    HECL::SystemString path;
+    bool needSlash = false;
+    for (const HECL::SystemString& d : m_comps)
+    {
+        if (needSlash)
+            path += _S('/');
+        if (d.compare(_S("/")))
+            needSlash = true;
+        path += d;
+    }
+
+    path += _S('/');
+    path += m_fileField.m_view->getText();
+
+    m_returnFunc(false, path);
     close();
 }
 
@@ -158,8 +288,9 @@ void FileBrowser::pathButtonActivated(size_t idx)
     for (const HECL::SystemString& d : m_comps)
     {
         if (needSlash)
-            dir += '/';
-        needSlash = true;
+            dir += _S('/');
+        if (d.compare(_S("/")))
+            needSlash = true;
         dir += d;
         if (++i > idx)
             break;
@@ -176,6 +307,9 @@ void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton bu
         b.m_button.mouseDown(coord, button, mod);
     m_fileField.mouseDown(coord, button, mod);
     m_fileListing.mouseDown(coord, button, mod);
+    m_systemBookmarks.m_view->mouseDown(coord, button, mod);
+    m_projectBookmarks.m_view->mouseDown(coord, button, mod);
+    m_recentBookmarks.m_view->mouseDown(coord, button, mod);
     m_ok.m_button.mouseDown(coord, button, mod);
     m_cancel.m_button.mouseDown(coord, button, mod);
 }
@@ -197,6 +331,9 @@ void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton butt
 
     m_fileField.mouseUp(coord, button, mod);
     m_fileListing.mouseUp(coord, button, mod);
+    m_systemBookmarks.m_view->mouseUp(coord, button, mod);
+    m_projectBookmarks.m_view->mouseUp(coord, button, mod);
+    m_recentBookmarks.m_view->mouseUp(coord, button, mod);
     m_ok.m_button.mouseUp(coord, button, mod);
     m_cancel.m_button.mouseUp(coord, button, mod);
 }
@@ -210,6 +347,9 @@ void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
         b.m_button.mouseMove(coord);
     m_fileField.mouseMove(coord);
     m_fileListing.mouseMove(coord);
+    m_systemBookmarks.m_view->mouseMove(coord);
+    m_projectBookmarks.m_view->mouseMove(coord);
+    m_recentBookmarks.m_view->mouseMove(coord);
     m_ok.m_button.mouseMove(coord);
     m_cancel.m_button.mouseMove(coord);
 }
@@ -246,6 +386,27 @@ void FileBrowser::touchUp(const boo::STouchCoord& coord, uintptr_t tid)
 
 void FileBrowser::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
 {
+}
+
+void FileBrowser::charKeyDown(unsigned long charcode, boo::EModifierKey mod, bool isRepeat)
+{
+    if (skipBuildInAnimation() || closed())
+        return;
+    if ((mod & boo::EModifierKey::CtrlCommand) != boo::EModifierKey::None && !isRepeat)
+    {
+        if (charcode == 'h' || charcode == 'H')
+            setShowingHidden(!showingHidden());
+        else if (charcode == 'r' || charcode == 'R')
+            navigateToPath(m_path);
+    }
+}
+
+void FileBrowser::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mod, bool isRepeat)
+{
+    if (skipBuildInAnimation() || closed())
+        return;
+    if (key == boo::ESpecialKey::Enter && !isRepeat)
+        okActivated(true);
 }
 
 void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -361,10 +522,10 @@ void FileBrowser::RightSide::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     for (PathButton& b : m_fb.m_pathButtons)
         b.m_button.m_view->draw(gfxQ);
-    m_fb.m_fileField.m_view->draw(gfxQ);
     m_fb.m_fileListing.m_view->draw(gfxQ);
     m_fb.m_ok.m_button.m_view->draw(gfxQ);
     m_fb.m_cancel.m_button.m_view->draw(gfxQ);
+    m_fb.m_fileField.m_view->draw(gfxQ);
 }
 
 }

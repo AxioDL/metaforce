@@ -19,7 +19,7 @@ class ThemeData
 
     Zeus::CColor m_vpBg = {0.2, 0.2, 0.2, 1.0};
     Zeus::CColor m_tbBg = {0.4, 0.4, 0.4, 1.0};
-    Zeus::CColor m_tooltipBg = {0.0, 0.0, 0.0, 0.65};
+    Zeus::CColor m_tooltipBg = {0.1, 0.1, 0.1, 0.85};
     Zeus::CColor m_splashBg = {0.075, 0.075, 0.075, 0.85};
 
     Zeus::CColor m_splash1 = {1.0, 1.0, 1.0, 1.0};

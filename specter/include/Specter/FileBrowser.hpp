@@ -28,6 +28,7 @@ private:
     Type m_type;
     HECL::SystemString m_path;
     std::vector<HECL::SystemString> m_comps;
+    bool m_showingHidden = false;
 
     class LeftSide : public View
     {
@@ -49,7 +50,7 @@ private:
 
     ViewChild<std::unique_ptr<SplitView>> m_split;
 
-    void okActivated();
+    void okActivated(bool viaButton);
     struct OKButton : IButtonBinding
     {
         FileBrowser& m_fb;
@@ -62,7 +63,7 @@ private:
                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
         }
         const char* name() const {return m_text.c_str();}
-        void activated(const boo::SWindowCoord&) {m_fb.okActivated();}
+        void activated(const boo::SWindowCoord&) {m_fb.okActivated(true);}
     } m_ok;
 
     void cancelActivated();
@@ -115,6 +116,8 @@ private:
 
     struct FileListingDataBind : ITableDataBinding, ITableStateBinding
     {
+        FileBrowser& m_fb;
+
         struct Entry
         {
             HECL::SystemString m_path;
@@ -164,6 +167,20 @@ private:
             return nullptr;
         }
 
+        float m_columnSplits[3] = {0.0, 0.7, 0.9};
+
+        bool columnSplitResizeAllowed() const {return true;}
+
+        float getColumnSplit(size_t cIdx) const
+        {
+            return m_columnSplits[cIdx];
+        }
+
+        void setColumnSplit(size_t cIdx, float split)
+        {
+            m_columnSplits[cIdx] = split;
+        }
+
         void updateListing(const HECL::DirectoryEnumerator& dEnum)
         {
             m_entries.clear();
@@ -210,10 +227,20 @@ private:
 
         void setSelectedRow(size_t rIdx)
         {
-
+            if (rIdx != -1)
+                m_fb.m_fileField.m_view->setText(m_entries.at(rIdx).m_name);
+            else
+                m_fb.m_fileField.m_view->setText("");
+            m_fb.m_fileField.m_view->clearErrorState();
         }
 
-        FileListingDataBind(const IViewManager& vm)
+        void rowActivated(size_t rIdx)
+        {
+            m_fb.okActivated(false);
+        }
+
+        FileListingDataBind(FileBrowser& fb, const IViewManager& vm)
+        : m_fb(fb)
         {
             m_nameCol = vm.translateOr("name", "Name");
             m_typeCol = vm.translateOr("type", "Type");
@@ -225,12 +252,30 @@ private:
     } m_fileListingBind;
     ViewChild<std::unique_ptr<Table>> m_fileListing;
 
-    struct BookmarkDataBind : ITableDataBinding
+    struct BookmarkDataBind : ITableDataBinding, ITableStateBinding
     {
+        FileBrowser& m_fb;
+        BookmarkDataBind(FileBrowser& fb) : m_fb(fb) {}
+
         struct Entry
         {
             HECL::SystemString m_path;
             std::string m_name;
+            Entry(const HECL::SystemString& path)
+            : m_path(path)
+            {
+                HECL::SystemUTF8View utf8(path);
+                if (utf8.str().size() == 1 && utf8.str()[0] == '/')
+                {
+                    m_name = "/";
+                    return;
+                }
+                size_t lastSlash = utf8.str().rfind('/');
+                if (lastSlash != std::string::npos)
+                    m_name.assign(utf8.str().cbegin() + lastSlash + 1, utf8.str().cend());
+                else
+                    m_name = utf8.str();
+            }
         };
         std::vector<Entry> m_entries;
 
@@ -240,6 +285,12 @@ private:
         const std::string* cell(size_t, size_t rIdx) const
         {
             return &m_entries.at(rIdx).m_name;
+        }
+
+        void setSelectedRow(size_t rIdx)
+        {
+            if (rIdx != -1)
+                m_fb.navigateToPath(m_entries.at(rIdx).m_path);
         }
     };
 
@@ -255,12 +306,25 @@ private:
     std::unique_ptr<TextView> m_recentBookmarksLabel;
     ViewChild<std::unique_ptr<Table>> m_recentBookmarks;
 
-public:
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type)
-    : FileBrowser(res, parentView, title, type, HECL::GetcwdStr()) {}
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type, const HECL::SystemString& initialPath);
+    std::function<void(bool, const HECL::SystemString&)> m_returnFunc;
 
+public:
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
+                std::function<void(bool, const HECL::SystemString&)> returnFunc)
+    : FileBrowser(res, parentView, title, type, HECL::GetcwdStr(), returnFunc) {}
+    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
+                const HECL::SystemString& initialPath,
+                std::function<void(bool, const HECL::SystemString&)> returnFunc);
+
+    static void SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
+                                       const HECL::SystemString& sel);
     void navigateToPath(const HECL::SystemString& path);
+    bool showingHidden() const {return m_showingHidden;}
+    void setShowingHidden(bool showingHidden)
+    {
+        m_showingHidden = showingHidden;
+        navigateToPath(m_path);
+    }
     void updateContentOpacity(float opacity);
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -272,6 +336,8 @@ public:
     void touchDown(const boo::STouchCoord&, uintptr_t);
     void touchUp(const boo::STouchCoord&, uintptr_t);
     void touchMove(const boo::STouchCoord&, uintptr_t);
+    void charKeyDown(unsigned long, boo::EModifierKey, bool);
+    void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void think();

@@ -2,6 +2,7 @@
 #define SPECTER_IVIEWMANAGER_HPP
 
 #include "Translator.hpp"
+#include <HECL/HECL.hpp>
 
 namespace Specter
 {
@@ -17,6 +18,12 @@ public:
             return trans->translateOr(key, vor);
         return vor;
     }
+
+    virtual const std::vector<HECL::SystemString>* recentProjects() const {return nullptr;}
+    virtual void pushRecentProject(const HECL::SystemString& path) {}
+
+    virtual const std::vector<HECL::SystemString>* recentFiles() const {return nullptr;}
+    virtual void pushRecentFile(const HECL::SystemString& path) {}
 };
 
 }
