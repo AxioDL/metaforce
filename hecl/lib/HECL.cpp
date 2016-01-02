@@ -137,13 +137,6 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                                                bool sizeSort, bool reverse, bool noHidden)
 {
     HECL::Sstat theStat;
-#if _WIN32
-    if (wcslen(path) == 2 && path[1] == L':')
-    {
-        if (HECL::Stat((std::wstring(path) + L'/').c_str(), &theStat))
-            return;
-    } else
-#endif
     if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
         return;
 
@@ -482,61 +475,19 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
         CFURLEnumeratorResult result = kCFURLEnumeratorSuccess;
         CFURLEnumeratorRef volEnum = CFURLEnumeratorCreateForMountedVolumes(NULL, kCFURLEnumeratorSkipInvisibles, NULL);
 
-        while (result != kCFURLEnumeratorEnd) {
-            unsigned char defPath[FILE_MAX];
+        while (result != kCFURLEnumeratorEnd)
+        {
+            char defPath[MAXPATHLEN];
 
             result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, NULL);
             if (result != kCFURLEnumeratorSuccess)
                 continue;
 
-            CFURLGetFileSystemRepresentation(cfURL, false, (UInt8 *)defPath, FILE_MAX);
-            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM, (char *)defPath, NULL, FS_INSERT_SORTED);
+            CFURLGetFileSystemRepresentation(cfURL, false, (UInt8 *)defPath, MAXPATHLEN);
+            ret.push_back(NameFromPath(defPath));
         }
 
         CFRelease(volEnum);
-
-        /* Finally get user favorite places */
-        if (read_bookmarks) {
-            UInt32 seed;
-            OSErr err = noErr;
-            CFArrayRef pathesArray;
-            LSSharedFileListRef list;
-            LSSharedFileListItemRef itemRef;
-            CFIndex i, pathesCount;
-            CFURLRef cfURL = NULL;
-            CFStringRef pathString = NULL;
-            list = LSSharedFileListCreate(NULL, kLSSharedFileListFavoriteItems, NULL);
-            pathesArray = LSSharedFileListCopySnapshot(list, &seed);
-            pathesCount = CFArrayGetCount(pathesArray);
-
-            for (i = 0; i < pathesCount; i++) {
-                itemRef = (LSSharedFileListItemRef)CFArrayGetValueAtIndex(pathesArray, i);
-
-                err = LSSharedFileListItemResolve(itemRef,
-                                                  kLSSharedFileListNoUserInteraction |
-                                                  kLSSharedFileListDoNotMountVolumes,
-                                                  &cfURL, NULL);
-                if (err != noErr)
-                    continue;
-
-                pathString = CFURLCopyFileSystemPath(cfURL, kCFURLPOSIXPathStyle);
-
-                if (pathString == NULL || !CFStringGetCString(pathString, line, sizeof(line), kCFStringEncodingUTF8))
-                    continue;
-
-                /* Exclude "all my files" as it makes no sense in blender fileselector */
-                /* Exclude "airdrop" if wlan not active as it would show "" ) */
-                if (!strstr(line, "myDocuments.cannedSearch") && (*line != '\0')) {
-                    fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_LAST);
-                }
-
-                CFRelease(pathString);
-                CFRelease(cfURL);
-            }
-
-            CFRelease(pathesArray);
-            CFRelease(list);
-        }
     }
 #else
     /* unix */

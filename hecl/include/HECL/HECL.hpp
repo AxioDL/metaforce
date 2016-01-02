@@ -303,6 +303,13 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
 static inline int Stat(const SystemChar* path, Sstat* statOut)
 {
 #if HECL_UCS2
+    size_t pos;
+    for (pos=0 ; pos<3 && path[pos] != L'\0' ; ++pos) {}
+    if (pos == 2 && path[1] == L':')
+    {
+        SystemChar fixPath[4] = {path[0], L':', L'/', L'\0'};
+        return _wstat(fixPath, statOut);
+    }
     return _wstat(path, statOut);
 #else
     return stat(path, statOut);
