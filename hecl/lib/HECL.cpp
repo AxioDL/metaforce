@@ -497,11 +497,11 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 
         if (home)
         {
-            ret.push_back(home);
+            ret.push_back(NameFromPath(home));
             std::string desktop(home);
             desktop += "/Desktop";
             if (!HECL::Stat(desktop.c_str(), &theStat))
-                ret.push_back(std::move(desktop));
+                ret.push_back(NameFromPath(desktop));
         }
 
         {
@@ -521,7 +521,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
                     std::string mntStr(mnt->mnt_dir);
                     if (mntStr.size() > 1 && mntStr.back() == '/')
                         mntStr.pop_back();
-                    ret.push_back(std::move(mntStr));
+                    ret.push_back(NameFromPath(mntStr));
 
                     found = true;
                 }
@@ -530,7 +530,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 #endif
             /* Fallback */
             if (!found)
-                ret.push_back("/");
+                ret.push_back(NameFromPath("/"));
         }
     }
 #endif
