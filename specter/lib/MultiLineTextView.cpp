@@ -58,7 +58,7 @@ std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
             continue;
         }
 
-        if (sz == 1 && (it[0] == ' ' || it[0] == '-'))
+        if (sz == 1 && (it[0] == ' ' || it[0] == '-' || it[0] == '/' || it[0] == '\\'))
         {
             lastSpaceIt = it + 1;
             lastSpaceRem = rem - 1;

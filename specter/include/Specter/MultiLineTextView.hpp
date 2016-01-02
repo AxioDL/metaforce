@@ -37,6 +37,12 @@ public:
 
     void colorGlyphs(const Zeus::CColor& newColor);
 
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        for (std::unique_ptr<TextView>& l : m_lines)
+            l->setMultiplyColor(color);
+    }
+
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 

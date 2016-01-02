@@ -37,6 +37,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/View.hpp
      include/Specter/RootView.hpp
      include/Specter/ModalWindow.hpp
+     include/Specter/MessageWindow.hpp
      include/Specter/Tooltip.hpp
      include/Specter/SplitView.hpp
      include/Specter/ScrollView.hpp
@@ -66,6 +67,7 @@ list(APPEND SPECTER_SOURCES
      lib/View.cpp
      lib/RootView.cpp
      lib/ModalWindow.cpp
+     lib/MessageWindow.cpp
      lib/Tooltip.cpp
      lib/SplitView.cpp
      lib/ScrollView.cpp

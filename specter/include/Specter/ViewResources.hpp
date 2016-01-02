@@ -21,6 +21,7 @@ class ThemeData
     Zeus::CColor m_tbBg = {0.4, 0.4, 0.4, 1.0};
     Zeus::CColor m_tooltipBg = {0.1, 0.1, 0.1, 0.85};
     Zeus::CColor m_splashBg = {0.075, 0.075, 0.075, 0.85};
+    Zeus::CColor m_splashErrorBg = {0.1, 0.01, 0.01, 0.85};
 
     Zeus::CColor m_splash1 = {1.0, 1.0, 1.0, 1.0};
     Zeus::CColor m_splash2 = {0.3, 0.3, 0.3, 1.0};
@@ -59,6 +60,7 @@ public:
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
     virtual const Zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
     virtual const Zeus::CColor& splashBackground() const {return m_splashBg;}
+    virtual const Zeus::CColor& splashErrorBackground() const {return m_splashErrorBg;}
 
     virtual const Zeus::CColor& splash1() const {return m_splash1;}
     virtual const Zeus::CColor& splash2() const {return m_splash2;}

@@ -1,5 +1,6 @@
 #include "Specter/FileBrowser.hpp"
 #include "Specter/RootView.hpp"
+#include "Specter/MessageWindow.hpp"
 
 namespace Specter
 {
@@ -207,6 +208,54 @@ void FileBrowser::okActivated(bool viaButton)
     int err = HECL::Stat(path.c_str(), &theStat);
     if (m_type == Type::SaveFile)
     {
+        if (m_fileField.m_view->getText().empty())
+        {
+            m_fileField.m_view->setErrorState(
+                vm.translateOr("file_field_empty", "Unable to save empty file").c_str());
+            return;
+        }
+        if (!err && !S_ISDIR(theStat.st_mode))
+        {
+            m_confirmWindow.reset(new MessageWindow(rootView().viewRes(), *this,
+                                                    MessageWindow::Type::ConfirmOkCancel,
+                                                    HECL::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").c_str(), path.c_str()),
+                                                    [&,path](bool ok)
+            {
+                if (ok)
+                {
+                    m_returnFunc(true, path);
+                    m_confirmWindow->close();
+                    close();
+                }
+                else
+                    m_confirmWindow->close();
+            }));
+            updateSize();
+            return;
+        }
+        if (!err && S_ISDIR(theStat.st_mode))
+        {
+            navigateToPath(path);
+            return;
+        }
+        m_returnFunc(true, path);
+        close();
+        return;
+    }
+    else if (m_type == Type::SaveDirectory)
+    {
+        if (m_fileField.m_view->getText().empty())
+        {
+            m_fileField.m_view->setErrorState(
+                vm.translateOr("directory_field_empty", "Unable to make empty-named directory").c_str());
+            return;
+        }
+        if (!err && !S_ISDIR(theStat.st_mode))
+        {
+            m_fileField.m_view->setErrorState(
+                vm.translateOr("no_overwrite_file", "Unable to make directory over file").c_str());
+            return;
+        }
         if (!err && S_ISDIR(theStat.st_mode))
         {
             navigateToPath(path);
@@ -302,6 +351,10 @@ void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton bu
 {
     if (skipBuildInAnimation() || closed())
         return;
+
+    if (m_confirmWindow)
+        m_confirmWindow->mouseDown(coord, button, mod);
+
     m_split.mouseDown(coord, button, mod);
     for (PathButton& b : m_pathButtons)
         b.m_button.mouseDown(coord, button, mod);
@@ -336,6 +389,9 @@ void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton butt
     m_recentBookmarks.m_view->mouseUp(coord, button, mod);
     m_ok.m_button.mouseUp(coord, button, mod);
     m_cancel.m_button.mouseUp(coord, button, mod);
+
+    if (m_confirmWindow)
+        m_confirmWindow->mouseUp(coord, button, mod);
 }
 
 void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
@@ -352,6 +408,9 @@ void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
     m_recentBookmarks.m_view->mouseMove(coord);
     m_ok.m_button.mouseMove(coord);
     m_cancel.m_button.mouseMove(coord);
+
+    if (m_confirmWindow)
+        m_confirmWindow->mouseMove(coord);
 }
 
 void FileBrowser::mouseEnter(const boo::SWindowCoord& coord)
@@ -369,6 +428,9 @@ void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
     m_fileListing.mouseLeave(coord);
     m_ok.m_button.mouseLeave(coord);
     m_cancel.m_button.mouseLeave(coord);
+
+    if (m_confirmWindow)
+        m_confirmWindow->mouseLeave(coord);
 }
 
 void FileBrowser::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
@@ -422,6 +484,9 @@ void FileBrowser::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
 
     if (m_split.m_view)
         m_split.m_view->resized(root, centerRect);
+
+    if (m_confirmWindow)
+        m_confirmWindow->resized(root, sub);
 }
 
 void FileBrowser::LeftSide::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -500,12 +565,18 @@ void FileBrowser::think()
     m_systemBookmarks.m_view->think();
     m_projectBookmarks.m_view->think();
     m_recentBookmarks.m_view->think();
+
+    if (m_confirmWindow)
+        m_confirmWindow->think();
 }
 
 void FileBrowser::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     ModalWindow::draw(gfxQ);
     m_split.m_view->draw(gfxQ);
+
+    if (m_confirmWindow)
+        m_confirmWindow->draw(gfxQ);
 }
 
 void FileBrowser::LeftSide::draw(boo::IGraphicsCommandQueue* gfxQ)

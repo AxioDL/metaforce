@@ -275,7 +275,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     float pf = rootView().viewRes().pixelFactor();
     if (m_style == Style::Block)
         textRect.location[1] += 7 * pf;
-    textRect.location[0] += sub.size[0] / 2;
+    textRect.location[0] += m_nomWidth / 2;
     textRect.size[0] = m_nomWidth;
     textRect.size[1] = m_nomHeight;
     m_text->resized(root, textRect);

@@ -276,9 +276,12 @@ void ModalWindow::setFillColors(float t)
 }
 
 ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint)
+: ModalWindow(res, parentView, constraint, res.themeData().splashBackground()) {}
+
+ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const Zeus::CColor& bgColor)
 : View(res, parentView),
   m_constraint(constraint),
-  m_windowBg(res.themeData().splashBackground()),
+  m_windowBg(bgColor),
   m_windowBgClear(m_windowBg),
   m_line1(res.themeData().splash1()),
   m_line2(res.themeData().splash2()),

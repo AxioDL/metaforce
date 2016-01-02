@@ -59,6 +59,7 @@ protected:
     virtual void updateContentOpacity(float opacity) {}
 
 public:
+    ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const Zeus::CColor& bgColor);
     ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
     void think();
     bool skipBuildInAnimation();

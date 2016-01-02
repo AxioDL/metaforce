@@ -9,6 +9,7 @@
 #include "Table.hpp"
 #include "ViewResources.hpp"
 #include "IViewManager.hpp"
+#include "MessageWindow.hpp"
 #include <HECL/HECL.hpp>
 
 namespace Specter
@@ -20,6 +21,7 @@ public:
     enum class Type
     {
         SaveFile,
+        SaveDirectory,
         OpenFile,
         OpenDirectory,
         OpenHECLProject
@@ -113,6 +115,8 @@ private:
         {
         }
     } m_fileFieldBind;
+
+    std::unique_ptr<MessageWindow> m_confirmWindow;
 
     struct FileListingDataBind : ITableDataBinding, ITableStateBinding
     {
