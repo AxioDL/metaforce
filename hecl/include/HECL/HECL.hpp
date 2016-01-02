@@ -579,7 +579,7 @@ public:
 /**
  * @brief Build list of common OS-specific directories
  */
-std::vector<HECL::SystemString> GetSystemLocations();
+std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations();
 
 /**
  * @brief Special ProjectRootPath class for opening HECLDatabase::IProject instances

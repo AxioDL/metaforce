@@ -137,6 +137,13 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                                                bool sizeSort, bool reverse, bool noHidden)
 {
     HECL::Sstat theStat;
+#if _WIN32
+    if (wcslen(path) == 2 && path[1] == L':')
+    {
+        if (HECL::Stat((std::wstring(path) + L'/').c_str(), &theStat))
+            return;
+    } else
+#endif
     if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
         return;
 
@@ -154,7 +161,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         {
             if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                 continue;
-            if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+            if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             HECL::SystemString fp(path);
             fp += _S('/');
@@ -183,7 +190,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         {
             if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                 continue;
-            if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+            if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             HECL::SystemString fp(path);
             fp +=_S('/');
@@ -218,7 +225,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                     continue;
-                if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+                if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
                 HECL::SystemString fp(path);
                 fp += _S('/');
@@ -243,7 +250,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                     continue;
-                if (noHidden && (d.cFileName == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+                if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
                 HECL::SystemString fp(path);
                 fp += _S('/');
@@ -395,57 +402,74 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
 #endif
 }
 
-std::vector<HECL::SystemString> GetSystemLocations()
+#define FILE_MAXDIR 768
+
+static std::pair<HECL::SystemString, std::string>
+NameFromPath(const HECL::SystemString& path)
 {
-    HECL::Sstat theStat;
-    std::vector<HECL::SystemString> ret;
+    HECL::SystemUTF8View utf8(path);
+    if (utf8.str().size() == 1 && utf8.str()[0] == '/')
+        return {path, "/"};
+    size_t lastSlash = utf8.str().rfind('/');
+    if (lastSlash != std::string::npos)
+        return {path, std::string(utf8.str().cbegin() + lastSlash + 1, utf8.str().cend())};
+    else
+        return {path, utf8.str()};
+}
+
+std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
+{
+    std::vector<std::pair<HECL::SystemString, std::string>> ret;
 #ifdef WIN32
-    /* Add the drive names to the listing */
+    /* Add the drive names to the listing (as queried by blender) */
     {
         wchar_t wline[FILE_MAXDIR];
+        wchar_t* name;
         __int64 tmp;
-        char tmps[4], *name;
         int i;
 
         tmp = GetLogicalDrives();
 
-        for (i = 0; i < 26; i++) {
-            if ((tmp >> i) & 1) {
-                tmps[0] = 'A' + i;
-                tmps[1] = ':';
-                tmps[2] = '\\';
-                tmps[3] = '\0';
-                name = NULL;
+        for (i = 0; i < 26; i++)
+        {
+            if ((tmp >> i) & 1)
+            {
+                wline[0] = L'A' + i;
+                wline[1] = L':';
+                wline[2] = L'/';
+                wline[3] = L'\0';
+                name = nullptr;
 
                 /* Flee from horrible win querying hover floppy drives! */
-                if (i > 1) {
+                if (i > 1)
+                {
                     /* Try to get volume label as well... */
-                    BLI_strncpy_wchar_from_utf8(wline, tmps, 4);
-                    if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, NULL, NULL, NULL, NULL, 0)) {
-                        size_t label_len;
-
-                        BLI_strncpy_wchar_as_utf8(line, wline + 4, FILE_MAXDIR - 4);
-
-                        label_len = MIN2(strlen(line), FILE_MAXDIR - 6);
-                        BLI_snprintf(line + label_len, 6, " (%.2s)", tmps);
-
-                        name = line;
+                    if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, nullptr, nullptr, nullptr, nullptr, 0))
+                    {
+                        size_t labelLen = wcslen(wline + 4);
+                        _snwprintf(wline + 4 + labelLen, FILE_MAXDIR - 4 - labelLen, L" (%.2s)", wline);
+                        name = wline + 4;
                     }
                 }
 
-                fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM, tmps, name, FS_INSERT_SORTED);
+                wline[2] = L'\0';
+                if (name)
+                    ret.emplace_back(wline, HECL::WideToUTF8(name));
+                else
+                    ret.push_back(NameFromPath(wline));
             }
         }
 
         /* Adding Desktop and My Documents */
-        if (read_bookmarks) {
-            SHGetSpecialFolderPathW(0, wline, CSIDL_PERSONAL, 0);
-            BLI_strncpy_wchar_as_utf8(line, wline, FILE_MAXDIR);
-            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_SORTED);
-            SHGetSpecialFolderPathW(0, wline, CSIDL_DESKTOPDIRECTORY, 0);
-            BLI_strncpy_wchar_as_utf8(line, wline, FILE_MAXDIR);
-            fsmenu_insert_entry(fsmenu, FS_CATEGORY_SYSTEM_BOOKMARKS, line, NULL, FS_INSERT_SORTED);
-        }
+        SystemString wpath;
+        SHGetSpecialFolderPathW(0, wline, CSIDL_PERSONAL, 0);
+        wpath.assign(wline);
+        SanitizePath(wpath);
+        ret.push_back(NameFromPath(wpath));
+        SHGetSpecialFolderPathW(0, wline, CSIDL_DESKTOPDIRECTORY, 0);
+        wpath.assign(wline);
+        SanitizePath(wpath);
+        ret.push_back(NameFromPath(wpath));
     }
 #else
 #ifdef __APPLE__
@@ -517,6 +541,7 @@ std::vector<HECL::SystemString> GetSystemLocations()
 #else
     /* unix */
     {
+        HECL::Sstat theStat;
         const char* home = getenv("HOME");
 
         if (home)
