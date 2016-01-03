@@ -110,6 +110,7 @@ class Table : public View
     } m_rowsView;
 
     bool m_headerNeedsUpdate = false;
+    bool m_inSelectRow = false;
 
 public:
     Table(ViewResources& res, View& parentView, ITableDataBinding* data,

@@ -240,13 +240,19 @@ void Table::cycleSortColumn(size_t c)
 
 void Table::selectRow(size_t r)
 {
+    if (m_inSelectRow)
+        return;
     if (r >= m_rows && r != -1)
         Log.report(LogVisor::FatalError, "selectRow out of bounds (%" PRISize ", %" PRISize ")",
                    r, m_rows);
     if (r == m_selectedRow)
     {
         if (m_state)
+        {
+            m_inSelectRow = true;
             m_state->setSelectedRow(r);
+            m_inSelectRow = false;
+        }
         return;
     }
     if (m_selectedRow != -1)
@@ -266,7 +272,11 @@ void Table::selectRow(size_t r)
         }
     updateSize();
     if (m_state)
+    {
+        m_inSelectRow = true;
         m_state->setSelectedRow(r);
+        m_inSelectRow = false;
+    }
 }
 
 void Table::setMultiplyColor(const Zeus::CColor& color)
