@@ -659,6 +659,8 @@ void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRe
         return;
 
     float pf = rootView().viewRes().pixelFactor();
+    boo::SWindowRect cellScissor = scissor;
+    cellScissor.size[1] -= 2 * pf;
     boo::SWindowRect rowRect = sub;
     rowRect.location[1] += sub.size[1] - ROW_HEIGHT * pf;
     int spacing = (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
@@ -670,7 +672,7 @@ void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRe
         {
             cellRectIt->location[1] -= spacing;
             if (cv.m_view)
-                cv.m_view->resized(root, *cellRectIt, scissor);
+                cv.m_view->resized(root, *cellRectIt, cellScissor);
         }
         ++cellRectIt;
     }
