@@ -57,6 +57,7 @@ class ModalWindow : public View
 
 protected:
     virtual void updateContentOpacity(float opacity) {}
+    RectangleConstraint& constraint() {return m_constraint;}
 
 public:
     ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const Zeus::CColor& bgColor);

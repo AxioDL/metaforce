@@ -8,7 +8,7 @@ namespace Specter
 MessageWindow::MessageWindow(ViewResources& res, View& parentView,
                              Type type, const std::string& message,
                              std::function<void (bool)> func)
-: ModalWindow(res, parentView, RectangleConstraint(400 * res.pixelFactor(), 150 * res.pixelFactor()),
+: ModalWindow(res, parentView, RectangleConstraint(),
               type==Type::ErrorOk ? res.themeData().splashErrorBackground() : res.themeData().splashBackground()),
   m_type(type), m_func(func),
   m_okBind(*this, rootView().viewManager().translateOr("ok", "OK")),
@@ -18,6 +18,7 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView,
 
     m_text.reset(new MultiLineTextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
     m_text->typesetGlyphs(message, res.themeData().uiText(), 380 * res.pixelFactor());
+    constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());
 
     m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name,
                                  Button::Style::Block, RectangleConstraint(150 * res.pixelFactor())));
@@ -73,7 +74,7 @@ void MessageWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect
     ModalWindow::resized(root, sub);
     boo::SWindowRect buttonRect = subRect();
     float pf = rootView().viewRes().pixelFactor();
-    buttonRect.location[1] += 25 * pf;
+    buttonRect.location[1] += 20 * pf;
     buttonRect.size[0] = m_ok.m_view->nominalWidth();
     buttonRect.size[1] = m_ok.m_view->nominalHeight();
     if (m_type == Type::ConfirmOkCancel)
@@ -91,7 +92,7 @@ void MessageWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect
 
     boo::SWindowRect textRect = subRect();
     textRect.location[0] += 200 * pf;
-    textRect.location[1] += 120 * pf;
+    textRect.location[1] += 65 * pf;
     m_text->resized(root, textRect);
 }
 

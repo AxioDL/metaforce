@@ -117,7 +117,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
         return;
 
     m_path = path;
-    m_comps = PathComponents(path);
+    m_comps = PathComponents(m_path);
     if (S_ISREG(theStat.st_mode))
     {
         HECL::SystemUTF8View utf8(m_comps.back());

@@ -244,7 +244,11 @@ void Table::selectRow(size_t r)
         Log.report(LogVisor::FatalError, "selectRow out of bounds (%" PRISize ", %" PRISize ")",
                    r, m_rows);
     if (r == m_selectedRow)
+    {
+        if (m_state)
+            m_state->setSelectedRow(r);
         return;
+    }
     if (m_selectedRow != -1)
         for (auto& col : m_cellViews)
         {
