@@ -45,7 +45,7 @@ public:
         const char* help() const {return "Sets scale factor to 1.0";}
         void activated(const boo::SWindowCoord& coord)
         {
-            m_vm.RequestPixelFactor(1.0);
+            m_vm.requestPixelFactor(1.0);
         }
     };
     SetTo1 m_setTo1;
@@ -59,7 +59,7 @@ public:
         const char* help() const {return "Sets scale factor to 2.0";}
         void activated(const boo::SWindowCoord& coord)
         {
-            m_vm.RequestPixelFactor(2.0);
+            m_vm.requestPixelFactor(2.0);
         }
     };
     SetTo2 m_setTo2;
@@ -72,7 +72,7 @@ public:
     ~ViewManager();
 
     Specter::RootView& rootView() const {return *m_rootView;}
-    void RequestPixelFactor(float pf)
+    void requestPixelFactor(float pf)
     {
         m_reqPf = pf;
         m_updatePf = true;

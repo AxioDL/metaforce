@@ -42,10 +42,11 @@ class SplashScreen : public Specter::ModalWindow
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_newString,
-                                                 Specter::FileBrowser::Type::SaveFile,
-                                                 [](bool, const HECL::SystemString& path)
+                                                 Specter::FileBrowser::Type::SaveDirectory,
+                                                 [](bool ok, const HECL::SystemString& path)
             {
-                Log.report(LogVisor::Info, _S("Making project '%s'"), path.c_str());
+                if (ok)
+                    Log.report(LogVisor::Info, _S("Making project '%s'"), path.c_str());
             }));
             m_splash.updateSize();
             m_splash.m_newButt.mouseLeave(coord);
@@ -64,9 +65,10 @@ class SplashScreen : public Specter::ModalWindow
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_openString,
                                                  Specter::FileBrowser::Type::OpenHECLProject,
-                                                 [](bool, const HECL::SystemString& path)
+                                                 [](bool ok, const HECL::SystemString& path)
             {
-                Log.report(LogVisor::Info, _S("Opening project '%s'"), path.c_str());
+                if (ok)
+                    Log.report(LogVisor::Info, _S("Opening project '%s'"), path.c_str());
             }));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
@@ -85,9 +87,10 @@ class SplashScreen : public Specter::ModalWindow
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_extractString,
                                                  Specter::FileBrowser::Type::OpenFile,
-                                                 [](bool, const HECL::SystemString& path)
+                                                 [](bool ok, const HECL::SystemString& path)
             {
-                Log.report(LogVisor::Info, _S("Extracting game '%s'"), path.c_str());
+                if (ok)
+                    Log.report(LogVisor::Info, _S("Extracting game '%s'"), path.c_str());
             }));
             m_splash.updateSize();
             m_splash.m_extractButt.mouseLeave(coord);
