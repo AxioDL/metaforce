@@ -48,9 +48,9 @@ size_t CHAR::AnimationInfo::EVNT::SFXEvent::binarySize(size_t __isz) const
     return __isz;
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::fromYAML(Athena::io::YAMLDocReader& reader)
+void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::YAMLDocReader& reader)
 {
-    EventBase::fromYAML(reader);
+    EventBase::read(reader);
     reader.enumerate("caudId", caudId);
     unk1 = reader.readUint32("unk1");
     unk2 = reader.readUint32("unk2");
@@ -61,9 +61,9 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::fromYAML(Athena::io::YAMLDocReader& re
         extraFloat = reader.readFloat("extraFloat");
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::toYAML(Athena::io::YAMLDocWriter& writer) const
+void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::YAMLDocWriter& writer) const
 {
-    EventBase::toYAML(writer);
+    EventBase::write(writer);
     writer.enumerate("caudId", caudId);
     writer.writeUint32("unk1", unk1);
     writer.writeUint32("unk2", unk2);
@@ -125,34 +125,34 @@ size_t CHAR::AnimationInfo::MetaAnimFactory::binarySize(size_t __isz) const
     return m_anim->binarySize(__isz + 4);
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& reader)
+void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
     if (!type.compare("primitive"))
     {
         m_anim.reset(new struct MetaAnimPrimitive);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("blend"))
     {
         m_anim.reset(new struct MetaAnimBlend);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("phaseblend"))
     {
         m_anim.reset(new struct MetaAnimPhaseBlend);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("random"))
     {
         m_anim.reset(new struct MetaAnimRandom);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("sequence"))
     {
         m_anim.reset(new struct MetaAnimSequence);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else
     {
@@ -161,12 +161,12 @@ void CHAR::AnimationInfo::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& r
 
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::toYAML(Athena::io::YAMLDocWriter& writer) const
+void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::YAMLDocWriter& writer) const
 {
     if (!m_anim)
         return;
     writer.writeString("type", m_anim->m_typeStr);
-    m_anim->toYAML(writer);
+    m_anim->write(writer);
 }
 
 const char* CHAR::AnimationInfo::MetaAnimFactory::DNAType()

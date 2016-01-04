@@ -39,6 +39,12 @@ set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/libBoo/include)
 set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
                      ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)
 
+set(DATA_SPEC_LIBS
+    RetroDataSpec
+    DNAMP3
+    DNAMP2
+    DNAMP1
+    DNACommon)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace Retro

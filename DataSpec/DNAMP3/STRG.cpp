@@ -85,7 +85,7 @@ void STRG::read(Athena::io::IStreamReader& reader)
     _read(reader);
 }
 
-void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
+void STRG::read(Athena::io::YAMLDocReader& reader)
 {
     const Athena::io::YAMLNode* root = reader.getRootNode();
 
@@ -243,7 +243,7 @@ size_t STRG::binarySize(size_t __isz) const
     return __isz;
 }
 
-void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
+void STRG::write(Athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& item : langs)
     {

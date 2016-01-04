@@ -5,11 +5,20 @@
 
 namespace RUDE
 {
+class ViewManager;
 
 class ProjectManager
 {
-    HECL::Database::Project* m_proj = nullptr;
+    ViewManager& m_vm;
+    std::unique_ptr<HECL::Database::Project> m_proj;
+    static bool m_registeredSpecs;
 public:
+    ProjectManager(ViewManager& vm);
+    operator bool() const {return m_proj.operator bool();}
+
+    bool newProject(const HECL::SystemString& path);
+    bool openProject(const HECL::SystemString& path);
+    bool extractGame(const HECL::SystemString& path);
 
 };
 

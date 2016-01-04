@@ -46,7 +46,7 @@ void EVNT::write(Athena::io::IStreamWriter& writer) const
     writer.enumerate(sfxEvents);
 }
 
-void EVNT::fromYAML(Athena::io::YAMLDocReader& reader)
+void EVNT::read(Athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
@@ -67,7 +67,7 @@ void EVNT::fromYAML(Athena::io::YAMLDocReader& reader)
     reader.enumerate("sfxEvents", sfxEvents, sfxCount);
 }
 
-void EVNT::toYAML(Athena::io::YAMLDocWriter& writer) const
+void EVNT::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 

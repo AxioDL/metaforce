@@ -35,9 +35,9 @@ public:
     {reader.readUBytesToBuf(fcc, 4);}
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUBytes((atUint8*)fcc, 4);}
-    void fromYAML(Athena::io::YAMLDocReader& reader)
+    void read(Athena::io::YAMLDocReader& reader)
     {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
-    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void write(Athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
@@ -56,9 +56,9 @@ public:
     {m_id = reader.readUint32Big();}
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32Big(m_id);}
-    void fromYAML(Athena::io::YAMLDocReader& reader)
+    void read(Athena::io::YAMLDocReader& reader)
     {m_id = reader.readUint32(nullptr);}
-    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void write(Athena::io::YAMLDocWriter& writer) const
     {writer.writeUint32(nullptr, m_id);}
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
@@ -109,9 +109,9 @@ public:
     {m_id = reader.readUint64Big();}
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint64Big(m_id);}
-    void fromYAML(Athena::io::YAMLDocReader& reader)
+    void read(Athena::io::YAMLDocReader& reader)
     {m_id = reader.readUint64(nullptr);}
-    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void write(Athena::io::YAMLDocWriter& writer) const
     {writer.writeUint64(nullptr, m_id);}
     size_t binarySize(size_t __isz) const
     {return __isz + 8;}
@@ -184,7 +184,7 @@ public:
         writer.writeUint64Big(m_id[0]);
         writer.writeUint64Big(m_id[1]);
     }
-    void fromYAML(Athena::io::YAMLDocReader& reader)
+    void read(Athena::io::YAMLDocReader& reader)
     {
         std::string str = reader.readString(nullptr);
         while (str.size() < 32)
@@ -194,7 +194,7 @@ public:
         m_id[0] = strtoull(hStr.c_str(), nullptr, 16);
         m_id[1] = strtoull(lStr.c_str(), nullptr, 16);
     }
-    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void write(Athena::io::YAMLDocWriter& writer) const
     {
         writer.writeString(nullptr, toString().c_str());
     }
@@ -259,7 +259,7 @@ public:
     {m_id.read(reader);}
     void write(Athena::io::IStreamWriter& writer) const
     {m_id.write(writer);}
-    void fromYAML(Athena::io::YAMLDocReader& reader)
+    void read(Athena::io::YAMLDocReader& reader)
     {
         if (!g_curSpec)
             LogDNACommon.report(LogVisor::FatalError, "current DataSpec not set for PAKPath");
@@ -273,7 +273,7 @@ public:
         m_path.assign(g_curSpec->getProject(), path);
         m_id = m_path;
     }
-    void toYAML(Athena::io::YAMLDocWriter& writer) const
+    void write(Athena::io::YAMLDocWriter& writer) const
     {
         if (m_path)
         {

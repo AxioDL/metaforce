@@ -131,7 +131,7 @@ size_t STRG::binarySize(size_t __isz) const
     return __isz;
 }
 
-void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
+void STRG::read(Athena::io::YAMLDocReader& reader)
 {
     const Athena::io::YAMLNode* root = reader.getRootNode();
 
@@ -182,7 +182,7 @@ void STRG::fromYAML(Athena::io::YAMLDocReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::toYAML(Athena::io::YAMLDocWriter& writer) const
+void STRG::write(Athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& lang : langs)
     {

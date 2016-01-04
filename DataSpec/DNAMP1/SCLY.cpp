@@ -80,7 +80,7 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
         obj->nameIDs(pakRouter);
 }
 
-void SCLY::fromYAML(Athena::io::YAMLDocReader& docin)
+void SCLY::read(Athena::io::YAMLDocReader& docin)
 {
     fourCC = docin.readUint32("fourCC");
     version = docin.readUint32("version");
@@ -89,7 +89,7 @@ void SCLY::fromYAML(Athena::io::YAMLDocReader& docin)
     docin.enumerate("layers", layers, layerCount);
 }
 
-void SCLY::toYAML(Athena::io::YAMLDocWriter& docout) const
+void SCLY::write(Athena::io::YAMLDocWriter& docout) const
 {
     docout.writeUint32("fourCC", fourCC);
     docout.writeUint32("version", version);
@@ -133,7 +133,7 @@ void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
     }
 }
 
-void SCLY::ScriptLayer::fromYAML(Athena::io::YAMLDocReader& rs)
+void SCLY::ScriptLayer::read(Athena::io::YAMLDocReader& rs)
 {
     unknown = rs.readUByte("unknown");
     objectCount = rs.readUint32("objectCount");
@@ -149,7 +149,7 @@ void SCLY::ScriptLayer::fromYAML(Athena::io::YAMLDocReader& rs)
         if (iter != SCRIPT_OBJECT_DB.end())
         {
             std::unique_ptr<IScriptObject> obj((*iter)->a());
-            obj->fromYAML(rs);
+            obj->read(rs);
             obj->type = type;
             objects.push_back(std::move(obj));
         }
@@ -183,7 +183,7 @@ size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
     return __isz;
 }
 
-void SCLY::ScriptLayer::toYAML(Athena::io::YAMLDocWriter& ws) const
+void SCLY::ScriptLayer::write(Athena::io::YAMLDocWriter& ws) const
 {
     ws.writeUByte("unknown", unknown);
     ws.writeUint32("objectCount", objectCount);
@@ -192,7 +192,7 @@ void SCLY::ScriptLayer::toYAML(Athena::io::YAMLDocWriter& ws) const
     {
         ws.enterSubRecord(nullptr);
         ws.writeUByte("type", obj->type);
-        obj->toYAML(ws);
+        obj->write(ws);
         ws.leaveSubRecord();
     };
     ws.leaveSubVector();

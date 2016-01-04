@@ -11,11 +11,11 @@ namespace RUDE
 
 Specter::View* ViewManager::BuildSpaceViews(RUDE::Space* space)
 {
-    Specter::Space* sspace = space->buildSpace(m_viewResources);
-    Specter::View* sview = space->buildContent(m_viewResources);
+    Specter::Space* sspace = space->buildSpaceView(m_viewResources);
+    Specter::View* sview = space->buildContentView(m_viewResources);
     sspace->setContentView(sview);
     if (space->usesToolbar())
-        space->buildToolbar(m_viewResources, sspace->toolbar());
+        space->buildToolbarView(m_viewResources, sspace->toolbar());
     return sspace;
 }
 
@@ -31,24 +31,28 @@ void ViewManager::SetupSplashView()
     m_splash.reset(new SplashScreen(*this, m_viewResources));
     m_rootView->setContentView(m_splash.get());
     m_rootView->updateSize();
+    m_showSplash = true;
 }
 
 void ViewManager::SetupEditorView()
 {
-    m_rootView->setBackground(Zeus::CColor::skGrey);
-    m_rootView->setContentView(m_split.buildContent(m_viewResources));
-    m_split.m_splitView->setContentView(0, BuildSpaceViews(&m_space1));
-    m_split.m_splitView->setContentView(1, BuildSpaceViews(&m_space2));
+    m_rootSpace.reset(new SplitSpace(*this));
+    m_rootView->setContentView(BuildSpaceViews(m_rootSpace.get()));
     m_rootView->updateSize();
+    m_showSplash = false;
+}
+
+void ViewManager::SetupEditorView(Athena::io::YAMLDocReader& r)
+{
+    m_rootSpace.reset(Space::NewSpaceFromYAMLStream(*this, r));
+    m_rootView->setContentView(BuildSpaceViews(m_rootSpace.get()));
+    m_rootView->updateSize();
+    m_showSplash = false;
 }
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
-: m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr),
-  m_fontCache(fileMgr), m_translator(RUDE::SystemLocaleOrEnglish()),
-  m_setTo1(*this), m_setTo2(*this),
-  m_split(*this),
-  m_space1(*this, "Hello, World!\n\n", "Hello Button", &m_setTo1),
-  m_space2(*this, "こんにちは世界！\n\n", "こんにちはボタン", &m_setTo2)
+: m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
+  m_fontCache(fileMgr), m_translator(RUDE::SystemLocaleOrEnglish())
 {}
 
 ViewManager::~ViewManager() {}
@@ -70,15 +74,12 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->setWaitCursor(true);
 
     float pixelFactor = 1.0;
-    m_cvPixelFactor = m_cvarManager.newCVar("ed_pixelfactor", "User-selected UI Scale",
-                                    pixelFactor, HECL::CVar::EFlags::Editor | HECL::CVar::EFlags::Archive);
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
     m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), pixelFactor);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     SetupRootView();
     SetupSplashView();
-    m_showSplash = true;
 
     m_mainWindow->setWaitCursor(false);
 }
@@ -92,16 +93,12 @@ bool ViewManager::proc()
     {
         m_viewResources.resetPixelFactor(m_reqPf);
         SetupRootView();
+        if (m_showSplash)
+            SetupSplashView();
+        else
+            SetupEditorView();
         m_updatePf = false;
     }
-#if 0
-    if (m_cvPixelFactor->isModified())
-    {
-        float pixelFactor = m_cvPixelFactor->toFloat();
-        m_viewResources.resetPixelFactor(pixelFactor);
-        m_cvPixelFactor->clearModified();
-    }
-#endif
     m_rootView->dispatchEvents();
     if (m_showSplash)
         m_splash->think();

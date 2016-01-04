@@ -128,7 +128,7 @@ struct SCAN : BigYAML
             __dna_writer.writeFloatBig(fadeDuration);
         }
 
-        void fromYAML(Athena::io::YAMLDocReader& __dna_docin)
+        void read(Athena::io::YAMLDocReader& __dna_docin)
         {
             /* texture */
             __dna_docin.enumerate("texture", texture);
@@ -153,7 +153,7 @@ struct SCAN : BigYAML
             fadeDuration = __dna_docin.readFloat("fadeDuration");
         }
 
-        void toYAML(Athena::io::YAMLDocWriter& __dna_docout) const
+        void write(Athena::io::YAMLDocWriter& __dna_docout) const
         {
             /* texture */
             __dna_docout.enumerate("texture", texture);

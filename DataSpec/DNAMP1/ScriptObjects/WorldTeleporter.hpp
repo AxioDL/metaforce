@@ -160,9 +160,9 @@ struct WorldTeleporter : IScriptObject
         }
     }
     
-    void fromYAML(Athena::io::YAMLDocReader& __dna_docin)
+    void read(Athena::io::YAMLDocReader& __dna_docin)
     {
-        IScriptObject::fromYAML(__dna_docin);
+        IScriptObject::read(__dna_docin);
         /* name */
         name = __dna_docin.readString("name");
         /* unknown1 */
@@ -223,9 +223,9 @@ struct WorldTeleporter : IScriptObject
         }
     }
     
-    void toYAML(Athena::io::YAMLDocWriter& __dna_docout) const
+    void write(Athena::io::YAMLDocWriter& __dna_docout) const
     {
-        IScriptObject::toYAML(__dna_docout);
+        IScriptObject::write(__dna_docout);
         /* name */
         __dna_docout.writeString("name", name);
         /* unknown1 */

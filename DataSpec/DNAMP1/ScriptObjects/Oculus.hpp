@@ -109,9 +109,9 @@ struct Oculus : IScriptObject
             __dna_writer.writeFloatBig(unknown8);
     }
 
-    void fromYAML(Athena::io::YAMLDocReader& __dna_docin)
+    void read(Athena::io::YAMLDocReader& __dna_docin)
     {
-        IScriptObject::fromYAML(__dna_docin);
+        IScriptObject::read(__dna_docin);
         /* name */
         name = __dna_docin.readString("name");
         /* location */
@@ -149,9 +149,9 @@ struct Oculus : IScriptObject
             unknown8 = 0.0;
     }
 
-    void toYAML(Athena::io::YAMLDocWriter& __dna_docout) const
+    void write(Athena::io::YAMLDocWriter& __dna_docout) const
     {
-        IScriptObject::toYAML(__dna_docout);
+        IScriptObject::write(__dna_docout);
         /* name */
         __dna_docout.writeString("name", name);
         /* location */

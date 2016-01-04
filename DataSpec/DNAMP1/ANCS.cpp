@@ -77,7 +77,7 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::bina
     return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(Athena::io::YAMLDocReader& reader)
 {
     parmType = reader.readUint32("parmType");
     unk1 = reader.readUint32("unk1");
@@ -107,7 +107,7 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::fromYA
     reader.leaveSubVector();
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("parmType", parmType);
     writer.writeUint32("unk1", unk1);
@@ -244,7 +244,7 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(siz
     return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io::YAMLDocReader& reader)
 {
     id = reader.readUint32("id");
     atUint32 parmInfoCount = reader.readUint32("parmInfoCount");
@@ -282,7 +282,7 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::fromYAML(Athena:
     });
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("id", id);
     writer.writeUint32("parmInfoCount", parmInfos.size());
@@ -524,7 +524,7 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -584,7 +584,7 @@ void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& read
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("idx", idx);
 
@@ -706,34 +706,34 @@ size_t ANCS::AnimationSet::MetaAnimFactory::binarySize(size_t __isz) const
     return m_anim->binarySize(__isz + 4);
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::MetaAnimFactory::read(Athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
     if (!type.compare("primitive"))
     {
         m_anim.reset(new struct MetaAnimPrimitive);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("blend"))
     {
         m_anim.reset(new struct MetaAnimBlend);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("phaseblend"))
     {
         m_anim.reset(new struct MetaAnimPhaseBlend);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("random"))
     {
         m_anim.reset(new struct MetaAnimRandom);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else if (!type.compare("sequence"))
     {
         m_anim.reset(new struct MetaAnimSequence);
-        m_anim->fromYAML(reader);
+        m_anim->read(reader);
     }
     else
     {
@@ -742,12 +742,12 @@ void ANCS::AnimationSet::MetaAnimFactory::fromYAML(Athena::io::YAMLDocReader& re
 
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::MetaAnimFactory::write(Athena::io::YAMLDocWriter& writer) const
 {
     if (!m_anim)
         return;
     writer.writeString("type", m_anim->m_typeStr);
-    m_anim->toYAML(writer);
+    m_anim->write(writer);
 }
 
 const char* ANCS::AnimationSet::MetaAnimFactory::DNAType()
@@ -797,24 +797,24 @@ size_t ANCS::AnimationSet::MetaTransFactory::binarySize(size_t __isz) const
     return m_trans->binarySize(__isz + 4);
 }
 
-void ANCS::AnimationSet::MetaTransFactory::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::MetaTransFactory::read(Athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
     if (!type.compare("metaanim"))
     {
         m_trans.reset(new struct MetaTransMetaAnim);
-        m_trans->fromYAML(reader);
+        m_trans->read(reader);
     }
     else if (!type.compare("trans"))
     {
         m_trans.reset(new struct MetaTransTrans);
-        m_trans->fromYAML(reader);
+        m_trans->read(reader);
     }
     else if (!type.compare("phasetrans"))
     {
         m_trans.reset(new struct MetaTransPhaseTrans);
-        m_trans->fromYAML(reader);
+        m_trans->read(reader);
     }
     else
     {
@@ -823,7 +823,7 @@ void ANCS::AnimationSet::MetaTransFactory::fromYAML(Athena::io::YAMLDocReader& r
 
 }
 
-void ANCS::AnimationSet::MetaTransFactory::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::MetaTransFactory::write(Athena::io::YAMLDocWriter& writer) const
 {
     if (!m_trans)
     {
@@ -831,7 +831,7 @@ void ANCS::AnimationSet::MetaTransFactory::toYAML(Athena::io::YAMLDocWriter& wri
         return;
     }
     writer.writeString("type", m_trans->m_typeStr?m_trans->m_typeStr:"NoTrans");
-    m_trans->toYAML(writer);
+    m_trans->write(writer);
 }
 
 const char* ANCS::AnimationSet::MetaTransFactory::DNAType()
@@ -957,7 +957,7 @@ size_t ANCS::AnimationSet::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
@@ -992,7 +992,7 @@ void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::AnimationSet::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 {
     atUint16 sectionCount;
     if (animResources.size())

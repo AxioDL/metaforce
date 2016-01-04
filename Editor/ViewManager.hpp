@@ -11,6 +11,8 @@ class SplashScreen;
 
 class ViewManager : public Specter::IViewManager
 {
+    friend class ProjectManager;
+
     HECL::Runtime::FileStoreManager& m_fileStoreManager;
     HECL::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
@@ -18,10 +20,10 @@ class ViewManager : public Specter::IViewManager
     Specter::ViewResources m_viewResources;
     Specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
+
     std::unique_ptr<Specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
-
-    HECL::CVar* m_cvPixelFactor;
+    std::unique_ptr<Space> m_rootSpace;
 
     std::vector<HECL::SystemString> m_recentProjects;
     std::vector<HECL::SystemString> m_recentFiles;
@@ -33,41 +35,11 @@ class ViewManager : public Specter::IViewManager
     void SetupRootView();
     void SetupSplashView();
     void SetupEditorView();
+    void SetupEditorView(Athena::io::YAMLDocReader& r);
 
     bool m_showSplash = false;
+
 public:
-    struct SetTo1 : Specter::IButtonBinding
-    {
-        ViewManager& m_vm;
-        SetTo1(ViewManager& vm) : m_vm(vm) {}
-
-        const char* name() const {return "SetTo1";}
-        const char* help() const {return "Sets scale factor to 1.0";}
-        void activated(const boo::SWindowCoord& coord)
-        {
-            m_vm.requestPixelFactor(1.0);
-        }
-    };
-    SetTo1 m_setTo1;
-
-    struct SetTo2 : Specter::IButtonBinding
-    {
-        ViewManager& m_vm;
-        SetTo2(ViewManager& vm) : m_vm(vm) {}
-
-        const char* name() const {return "SetTo2";}
-        const char* help() const {return "Sets scale factor to 2.0";}
-        void activated(const boo::SWindowCoord& coord)
-        {
-            m_vm.requestPixelFactor(2.0);
-        }
-    };
-    SetTo2 m_setTo2;
-
-    SplitSpace m_split;
-    TestSpace m_space1;
-    TestSpace m_space2;
-
     ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);
     ~ViewManager();
 

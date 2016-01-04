@@ -238,7 +238,7 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -309,7 +309,7 @@ void ANCS::CharacterSet::CharacterInfo::fromYAML(Athena::io::YAMLDocReader& read
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("idx", idx);
 
@@ -516,7 +516,7 @@ size_t ANCS::AnimationSet::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
@@ -551,7 +551,7 @@ void ANCS::AnimationSet::fromYAML(Athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::AnimationSet::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -661,7 +661,7 @@ size_t ANCS::AnimationSet::EVNT::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::AnimationSet::EVNT::fromYAML(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::EVNT::read(Athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
@@ -682,7 +682,7 @@ void ANCS::AnimationSet::EVNT::fromYAML(Athena::io::YAMLDocReader& reader)
     reader.enumerate("sfxEvents", sfxEvents, sfxCount);
 }
 
-void ANCS::AnimationSet::EVNT::toYAML(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::EVNT::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
