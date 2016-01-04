@@ -13,13 +13,6 @@ add_executable(hecl main.cpp
     ../DataSpecRegistry.hpp
 )
 
-list(APPEND DATA_SPEC_LIBS
-     RetroDataSpec
-     DNAMP3
-     DNAMP2
-     DNAMP1
-     DNACommon)
-
 if(NOT WIN32)
   list(APPEND PLAT_LIBS pthread)
 endif()

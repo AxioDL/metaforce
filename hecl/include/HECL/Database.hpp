@@ -261,8 +261,10 @@ private:
     ProjectPath m_dotPath;
     ProjectPath m_cookedRoot;
     std::vector<ProjectDataSpec> m_compiledSpecs;
+    bool m_valid = false;
 public:
     Project(const HECL::ProjectRootPath& rootPath);
+    operator bool() const {return m_valid;}
 
     /**
      * @brief Configuration file handle

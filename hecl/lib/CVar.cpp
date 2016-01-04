@@ -23,16 +23,16 @@ CVar::CVar(const std::string& name, const std::string &value, const std::string 
 }
 
 CVar::CVar(const std::string& name, const std::string& value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
-    : m_mgr(parent)
+: m_mgr(parent)
 {
-    // Unlock the cvar for writing if readonly
-    unlock();
-
-    m_name= name;
-    m_help = help;
-    m_type = EType::Literal;
     m_flags = flags;
     m_allowedWrite = false;
+    m_name = name;
+    m_help = help;
+    m_type = EType::Literal;
+
+    // Unlock the cvar for writing if readonly
+    unlock();
 
     fromLiteral(value);
     m_defaultValue = m_value;
@@ -46,14 +46,14 @@ CVar::CVar(const std::string& name, const std::string& value, const std::string&
 CVar::CVar(const std::string& name, const atVec4f& value, const std::string& help, EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    // Unlock the cvar for writing if readonly
-    unlock();
-
     m_name= name;
     m_help = help;
     m_type = EType::Vec4f;
     m_flags = flags;
     m_allowedWrite = false;
+
+    // Unlock the cvar for writing if readonly
+    unlock();
 
     fromVec4f(value);
     m_defaultValue = m_value;
@@ -67,14 +67,14 @@ CVar::CVar(const std::string& name, const atVec4f& value, const std::string& hel
 CVar::CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    // Unlock the cvar for writing if readonly
-    unlock();
-
     m_name= name;
     m_help = help;
     m_type = EType::Float;
     m_flags = flags;
     m_allowedWrite = false;
+
+    // Unlock the cvar for writing if readonly
+    unlock();
 
     fromFloat(value);
     m_defaultValue = m_value;
@@ -88,14 +88,14 @@ CVar::CVar(const std::string& name, float value, const std::string& help, EFlags
 CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    // Unlock the cvar for writing if readonly
-    unlock();
-
     m_name= name;
     m_help = help;
     m_type = EType::Boolean;
     m_flags = flags;
     m_allowedWrite = false;
+
+    // Unlock the cvar for writing if readonly
+    unlock();
 
     fromBoolean(value);
     m_defaultValue = m_value;
@@ -109,14 +109,14 @@ CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::E
 CVar::CVar(const std::string& name, int value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    // Unlock the cvar for writing if readonly
-    unlock();
-
     m_name= name;
     m_help = help;
     m_type = EType::Integer;
     m_flags = flags;
     m_allowedWrite = false;
+
+    // Unlock the cvar for writing if readonly
+    unlock();
 
     fromInteger(value);
     m_defaultValue = m_value;

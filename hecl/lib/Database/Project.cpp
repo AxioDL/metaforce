@@ -248,6 +248,7 @@ Project::Project(const ProjectRootPath& rootPath)
 
     /* Compile current dataspec */
     rescanDataSpecs();
+    m_valid = true;
 }
 
 bool Project::addPaths(const std::vector<ProjectPath>& paths)
