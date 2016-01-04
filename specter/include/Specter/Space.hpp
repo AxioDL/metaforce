@@ -27,6 +27,15 @@ public:
     void mouseLeave(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        View::setMultiplyColor(color);
+        if (m_contentView)
+            m_contentView->setMultiplyColor(color);
+        if (m_toolbar)
+            m_toolbar->setMultiplyColor(color);
+    }
 };
 
 }

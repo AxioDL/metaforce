@@ -80,6 +80,11 @@ public:
         View::setMultiplyColor(color);
         m_splitBlock.m_color = color;
         m_splitBlockBuf->load(&m_splitBlock, sizeof(m_splitBlock));
+
+        if (m_views[0].m_view)
+            m_views[0].m_view->setMultiplyColor(color);
+        if (m_views[1].m_view)
+            m_views[1].m_view->setMultiplyColor(color);
     }
 };
 

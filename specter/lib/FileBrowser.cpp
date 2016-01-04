@@ -289,6 +289,16 @@ void FileBrowser::okActivated(bool viaButton)
     {
         if (!viaButton && !err && S_ISDIR(theStat.st_mode))
         {
+            if (m_type == Type::OpenHECLProject)
+            {
+                HECL::ProjectRootPath projRoot = HECL::SearchForProject(path);
+                if (projRoot)
+                {
+                    m_returnFunc(true, projRoot.getAbsolutePath());
+                    close();
+                    return;
+                }
+            }
             navigateToPath(path);
             return;
         }

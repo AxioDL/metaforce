@@ -64,7 +64,8 @@ public:
     ViewResources& viewRes() const {return *m_viewRes;}
     const ThemeData& themeData() const {return m_viewRes->m_theme;}
 
-    View* setContentView(View* view);
+    std::vector<View*>& accessContentViews() {return m_views;}
+
     void setActiveTextView(ITextInputView* textView)
     {
         if (m_activeTextView)
@@ -113,7 +114,7 @@ private:
             m_window->setCursor(boo::EMouseCursor::Pointer);
     }
 
-    View* m_view = nullptr;
+    std::vector<View*> m_views;
     std::unique_ptr<Tooltip> m_tooltip;
 };
 

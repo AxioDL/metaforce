@@ -10,10 +10,8 @@ Locale::Locale(const std::string& name, const std::string& fullName,
 : m_name(name), m_fullName(fullName)
 {
     Athena::io::YAMLDocReader reader;
-    yaml_parser_t parser;
-    yaml_parser_initialize(&parser);
-    yaml_parser_set_input_string(&parser, yamlSource, yamlLength);
-    reader.read(&parser);
+    yaml_parser_set_input_string(reader.getParser(), yamlSource, yamlLength);
+    reader.parse();
     m_rootNode = std::move(reader.releaseRootNode());
     m_langNode = m_rootNode->findMapChild(name.c_str());
     if (!m_langNode)

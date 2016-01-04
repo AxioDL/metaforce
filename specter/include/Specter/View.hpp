@@ -178,7 +178,8 @@ public:
             m_bgRect[i].m_color = color;
         m_bgVertBuf->load(&m_bgRect, sizeof(SolidShaderVert) * 4);
     }
-    void setMultiplyColor(const Zeus::CColor& color)
+
+    virtual void setMultiplyColor(const Zeus::CColor& color)
     {
         m_viewVertBlock.m_color = color;
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));

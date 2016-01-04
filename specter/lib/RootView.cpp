@@ -27,8 +27,8 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
     m_rootRect.location[0] = 0;
     m_rootRect.location[1] = 0;
     View::resized(m_rootRect, m_rootRect);
-    if (m_view)
-        m_view->resized(m_rootRect, m_rootRect);
+    for (View* v : m_views)
+        v->resized(m_rootRect, m_rootRect);
     if (m_tooltip)
         m_tooltip->resized(m_rootRect, m_rootRect);
     m_resizeRTDirty = true;
@@ -38,22 +38,25 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 {
     if (m_activeTextView && !m_activeTextView->subRect().coordInRect(coord))
         setActiveTextView(nullptr);
-    if (m_view)
-        m_view->mouseDown(coord, button, mods);
+    for (View* v : m_views)
+        v->mouseDown(coord, button, mods);
 }
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-    if (m_view)
-        m_view->mouseUp(coord, button, mods);
+    for (View* v : m_views)
+        v->mouseUp(coord, button, mods);
 }
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
     if (m_activeDragView)
         m_activeDragView->mouseMove(coord);
-    else if (m_view)
-        m_view->mouseMove(coord);
+    else
+    {
+        for (View* v : m_views)
+            v->mouseMove(coord);
+    }
 
     boo::SWindowRect ttrect = m_rootRect;
     ttrect.location[0] = coord.pixel[0];
@@ -70,44 +73,44 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
 
 void RootView::mouseEnter(const boo::SWindowCoord& coord)
 {
-    if (m_view)
-        m_view->mouseEnter(coord);
+    for (View* v : m_views)
+        v->mouseEnter(coord);
 }
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
-    if (m_view)
-        m_view->mouseLeave(coord);
+    for (View* v : m_views)
+        v->mouseLeave(coord);
 }
 
 void RootView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
-    if (m_view)
-        m_view->scroll(coord, scroll);
+    for (View* v : m_views)
+        v->scroll(coord, scroll);
 }
 
 void RootView::touchDown(const boo::STouchCoord& coord, uintptr_t tid)
 {
-    if (m_view)
-        m_view->touchDown(coord, tid);
+    for (View* v : m_views)
+        v->touchDown(coord, tid);
 }
 
 void RootView::touchUp(const boo::STouchCoord& coord, uintptr_t tid)
 {
-    if (m_view)
-        m_view->touchUp(coord, tid);
+    for (View* v : m_views)
+        v->touchUp(coord, tid);
 }
 
 void RootView::touchMove(const boo::STouchCoord& coord, uintptr_t tid)
 {
-    if (m_view)
-        m_view->touchMove(coord, tid);
+    for (View* v : m_views)
+        v->touchMove(coord, tid);
 }
 
 void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
 {
-    if (m_view)
-        m_view->charKeyDown(charCode, mods, isRepeat);
+    for (View* v : m_views)
+        v->charKeyDown(charCode, mods, isRepeat);
     if (m_activeTextView &&
         (mods & (boo::EModifierKey::Ctrl|boo::EModifierKey::Command)) != boo::EModifierKey::None)
     {
@@ -122,8 +125,8 @@ void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool 
 
 void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods)
 {
-    if (m_view)
-        m_view->charKeyUp(charCode, mods);
+    for (View* v : m_views)
+        v->charKeyUp(charCode, mods);
 }
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
@@ -133,42 +136,34 @@ void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool
         m_window->setFullscreen(!m_window->isFullscreen());
         return;
     }
-    if (m_view)
-        m_view->specialKeyDown(key, mods, isRepeat);
+    for (View* v : m_views)
+        v->specialKeyDown(key, mods, isRepeat);
     if (m_activeTextView)
         m_activeTextView->specialKeyDown(key, mods, isRepeat);
 }
 
 void RootView::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
 {
-    if (m_view)
-        m_view->specialKeyUp(key, mods);
+    for (View* v : m_views)
+        v->specialKeyUp(key, mods);
     if (m_activeTextView)
         m_activeTextView->specialKeyUp(key, mods);
 }
 
 void RootView::modKeyDown(boo::EModifierKey mod, bool isRepeat)
 {
-    if (m_view)
-        m_view->modKeyDown(mod, isRepeat);
+    for (View* v : m_views)
+        v->modKeyDown(mod, isRepeat);
     if (m_activeTextView)
         m_activeTextView->modKeyDown(mod, isRepeat);
 }
 
 void RootView::modKeyUp(boo::EModifierKey mod)
 {
-    if (m_view)
-        m_view->modKeyUp(mod);
+    for (View* v : m_views)
+        v->modKeyUp(mod);
     if (m_activeTextView)
         m_activeTextView->modKeyUp(mod);
-}
-
-View* RootView::setContentView(View* view)
-{
-    View* ret = m_view;
-    m_view = view;
-    updateSize();
-    return ret;
 }
 
 void RootView::resetTooltip(ViewResources& res)
@@ -192,8 +187,8 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
     gfxQ->setViewport(m_rootRect);
     gfxQ->setScissor(m_rootRect);
     View::draw(gfxQ);
-    if (m_view)
-        m_view->draw(gfxQ);
+    for (View* v : m_views)
+        v->draw(gfxQ);
     if (m_tooltip)
         m_tooltip->draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);

@@ -447,9 +447,9 @@ bool ModalWindow::skipBuildInAnimation()
     return true;
 }
 
-void ModalWindow::close()
+void ModalWindow::close(bool skipAnimation)
 {
-    m_phase = Phase::BuildOut;
+    m_phase = skipAnimation ? Phase::Done : Phase::BuildOut;
     m_frame = 0;
 }
 

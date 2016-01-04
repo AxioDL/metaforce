@@ -64,7 +64,7 @@ public:
     ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
     void think();
     bool skipBuildInAnimation();
-    void close();
+    void close(bool skipAnimation=false);
     bool closed() const {return m_phase >= Phase::BuildOut;}
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
