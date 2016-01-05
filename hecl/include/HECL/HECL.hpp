@@ -279,11 +279,11 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
 #if HECL_UCS2
     FILE* fp = _wfopen(path, mode);
     if (!fp)
-        LogModule.report(LogVisor::FatalError, L"fopen %s: %s", path, _wcserror(errno));
+        return nullptr;
 #else
     FILE* fp = fopen(path, mode);
     if (!fp)
-        LogModule.report(LogVisor::FatalError, "fopen %s: %s", path, strerror(errno));
+        return nullptr;
 #endif
 
     if (lock != FileLockType::None)
@@ -293,7 +293,7 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
         LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == FileLockType::Write) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
         if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-            LogModule.report(LogVisor::FatalError, "flock %s: %s", path, strerror(errno));
+            LogModule.report(LogVisor::Error, "flock %s: %s", path, strerror(errno));
 #endif
     }
 
