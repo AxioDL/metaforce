@@ -26,12 +26,19 @@ bool ProjectManager::newProject(const HECL::SystemString& path)
         return false;
     }
 
+    HECL::MakeDir(path.c_str());
     m_proj.reset(new HECL::Database::Project(path));
     if (!*m_proj)
     {
         m_proj.reset();
         return false;
     }
+
+    m_vm.SetupEditorView();
+    saveProject();
+    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+    m_vm.DismissSplash();
+    m_vm.FadeInEditors();
 
     return true;
 }
@@ -52,18 +59,109 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
         return false;
     }
 
-    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
-    if (rudeSpacesPath.getPathType() == HECL::ProjectPath::Type::File)
-    {
+#ifdef RUDE_BINARY_CONFIGS
+    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
+    Athena::io::FileReader r(rudeSpacesPath.getAbsolutePath(), 32 * 1024, false);
+    if (r.hasError())
+        goto makeDefault;
 
+    m_vm.SetupEditorView(r);
+
+#else
+    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
+    FILE* fp = HECL::Fopen(rudeSpacesPath.getAbsolutePath().c_str(), _S("r"));
+
+    Athena::io::YAMLDocReader r;
+    if (!fp)
+        goto makeDefault;
+
+    yaml_parser_set_input_file(r.getParser(), fp);
+    if (!r.ValidateClassType(r.getParser(), "RudeSpacesState"))
+    {
+        fclose(fp);
+        goto makeDefault;
     }
 
+    r.reset();
+    fseek(fp, 0, SEEK_SET);
+    yaml_parser_set_input_file(r.getParser(), fp);
+    if (!r.parse())
+    {
+        fclose(fp);
+        goto makeDefault;
+    }
+    fclose(fp);
+
+    m_vm.SetupEditorView(r);
+
+#endif
+
+    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+    m_vm.DismissSplash();
+    m_vm.FadeInEditors();
+    return true;
+
+makeDefault:
+    m_vm.SetupEditorView();
+    saveProject();
+
+    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+    m_vm.DismissSplash();
+    m_vm.FadeInEditors();
     return true;
 }
 
 bool ProjectManager::extractGame(const HECL::SystemString& path)
 {
     return false;
+}
+
+bool ProjectManager::saveProject()
+{
+    if (!m_proj)
+        return false;
+
+#ifdef RUDE_BINARY_CONFIGS
+    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
+    Athena::io::FileReader r(rudeSpacesPath.getAbsolutePath(), 32 * 1024, false);
+    if (r.hasError())
+        return false;
+
+    m_vm.SetupEditorView(r);
+
+#else
+    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.yaml"));
+    FILE* fp = HECL::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
+    if (!fp)
+        return false;
+
+    Athena::io::YAMLDocWriter w("RudeSpacesState");
+    yaml_emitter_set_output_file(w.getEmitter(), fp);
+    if (!w.open())
+    {
+        fclose(fp);
+        return false;
+    }
+
+    m_vm.SaveEditorView(w);
+    if (!w.finish())
+    {
+        fclose(fp);
+        return false;
+    }
+
+    w.close();
+    fclose(fp);
+
+    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
+
+    HECL::Unlink(newSpacesPath.getAbsolutePath().c_str());
+    HECL::Rename(oldSpacesPath.getAbsolutePath().c_str(),
+                 newSpacesPath.getAbsolutePath().c_str());
+
+#endif
+
+    return true;
 }
 
 }

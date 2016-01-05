@@ -24,6 +24,7 @@ class ViewManager : public Specter::IViewManager
     std::unique_ptr<Specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
     std::unique_ptr<Space> m_rootSpace;
+    Specter::View* m_rootSpaceView = nullptr;
 
     std::vector<HECL::SystemString> m_recentProjects;
     std::vector<HECL::SystemString> m_recentFiles;
@@ -32,12 +33,17 @@ class ViewManager : public Specter::IViewManager
     float m_reqPf;
 
     Specter::View* BuildSpaceViews(RUDE::Space* space);
-    void SetupRootView();
-    void SetupSplashView();
+    Specter::RootView* SetupRootView();
+    SplashScreen* SetupSplashView();
     void SetupEditorView();
-    void SetupEditorView(Athena::io::YAMLDocReader& r);
+    void SetupEditorView(ConfigReader& r);
+    void SaveEditorView(ConfigWriter& w);
 
     bool m_showSplash = false;
+    void DismissSplash();
+
+    unsigned m_editorFrames = 120;
+    void FadeInEditors() {m_editorFrames = 0;}
 
 public:
     ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);

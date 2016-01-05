@@ -3,6 +3,7 @@
 #include "Specter/Space.hpp"
 #include "SplashScreen.hpp"
 #include "locale/locale.hpp"
+#include "ResourceOutliner.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
@@ -11,43 +12,62 @@ namespace RUDE
 
 Specter::View* ViewManager::BuildSpaceViews(RUDE::Space* space)
 {
-    Specter::Space* sspace = space->buildSpaceView(m_viewResources);
-    Specter::View* sview = space->buildContentView(m_viewResources);
-    sspace->setContentView(sview);
-    if (space->usesToolbar())
-        space->buildToolbarView(m_viewResources, sspace->toolbar());
-    return sspace;
+    m_rootSpaceView = space->buildSpaceView(m_viewResources);
+    return m_rootSpaceView;
 }
 
-void ViewManager::SetupRootView()
+Specter::RootView* ViewManager::SetupRootView()
 {
     m_rootView.reset(new Specter::RootView(*this, m_viewResources, m_mainWindow.get()));
     m_rootView->setBackground(Zeus::CColor::skBlack);
-    m_rootView->updateSize();
+    return m_rootView.get();
 }
 
-void ViewManager::SetupSplashView()
+SplashScreen* ViewManager::SetupSplashView()
 {
     m_splash.reset(new SplashScreen(*this, m_viewResources));
-    m_rootView->setContentView(m_splash.get());
-    m_rootView->updateSize();
-    m_showSplash = true;
+    if (!m_showSplash)
+        m_splash->close(true);
+    return m_splash.get();
 }
 
 void ViewManager::SetupEditorView()
 {
-    m_rootSpace.reset(new SplitSpace(*this));
-    m_rootView->setContentView(BuildSpaceViews(m_rootSpace.get()));
+    SplitSpace* split = new SplitSpace(*this);
+    split->setSpaceSlot(0, std::make_unique<ResourceOutliner>(*this));
+    split->setSpaceSlot(1, std::make_unique<ResourceOutliner>(*this));
+    m_rootSpace.reset(split);
+
+    std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
+    cViews.clear();
+    cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
+    cViews.push_back(m_splash.get());
     m_rootView->updateSize();
-    m_showSplash = false;
 }
 
-void ViewManager::SetupEditorView(Athena::io::YAMLDocReader& r)
+void ViewManager::SetupEditorView(ConfigReader& r)
 {
-    m_rootSpace.reset(Space::NewSpaceFromYAMLStream(*this, r));
-    m_rootView->setContentView(BuildSpaceViews(m_rootSpace.get()));
+    m_rootSpace.reset(Space::NewSpaceFromConfigStream(*this, r));
+    std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
+    cViews.clear();
+    cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
+    cViews.push_back(m_splash.get());
     m_rootView->updateSize();
+}
+
+void ViewManager::SaveEditorView(ConfigWriter& w)
+{
+    if (!m_rootSpace)
+        return;
+    m_rootSpace->saveState(w);
+}
+
+void ViewManager::DismissSplash()
+{
+    if (!m_showSplash)
+        return;
     m_showSplash = false;
+    m_splash->close();
 }
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
@@ -78,8 +98,10 @@ void ViewManager::init(boo::IApplication* app)
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
     m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), pixelFactor);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
-    SetupRootView();
-    SetupSplashView();
+    Specter::RootView* root = SetupRootView();
+    m_showSplash = true;
+    root->accessContentViews().push_back(SetupSplashView());
+    root->updateSize();
 
     m_mainWindow->setWaitCursor(false);
 }
@@ -89,19 +111,29 @@ bool ViewManager::proc()
     boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
     if (m_rootView->isDestroyed())
         return false;
+
     if (m_updatePf)
     {
         m_viewResources.resetPixelFactor(m_reqPf);
-        SetupRootView();
-        if (m_showSplash)
-            SetupSplashView();
-        else
-            SetupEditorView();
+        Specter::RootView* root = SetupRootView();
+        std::vector<Specter::View*>& cViews = root->accessContentViews();
+        if (m_rootSpace)
+            cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
+        cViews.push_back(SetupSplashView());
+        root->updateSize();
         m_updatePf = false;
     }
+
     m_rootView->dispatchEvents();
-    if (m_showSplash)
+    if (m_rootSpace)
+        m_rootSpace->think();
+    if (m_splash)
         m_splash->think();
+
+    ++m_editorFrames;
+    if (m_rootSpaceView && m_editorFrames <= 30)
+        m_rootSpaceView->setMultiplyColor(Zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
+
     m_rootView->draw(gfxQ);
     gfxQ->execute();
     m_mainWindow->waitForRetrace();
