@@ -1,14 +1,14 @@
-#ifndef RUDE_PROJECT_MANAGER_HPP
-#define RUDE_PROJECT_MANAGER_HPP
+#ifndef URDE_PROJECT_MANAGER_HPP
+#define URDE_PROJECT_MANAGER_HPP
 
 #include <HECL/Database.hpp>
 #include <Athena/DNAYaml.hpp>
 
-namespace RUDE
+namespace URDE
 {
 class ViewManager;
 
-#ifdef RUDE_BINARY_CONFIGS
+#ifdef URDE_BINARY_CONFIGS
 using ConfigReader = Athena::io::IStreamReader;
 using ConfigWriter = Athena::io::IStreamWriter;
 #else
@@ -35,4 +35,4 @@ public:
 
 }
 
-#endif // RUDE_PROJECT_MANAGER_HPP
+#endif // URDE_PROJECT_MANAGER_HPP

@@ -15,10 +15,10 @@ else()
 endif()
 
 if(RUDE_BINARY_CONFIGS)
-  add_definitions("-DRUDE_BINARY_CONFIGS=1")
+  add_definitions("-DURDE_BINARY_CONFIGS=1")
 endif()
 
-add_executable(rude WIN32
+add_executable(urde WIN32
                main.cpp
                Space.hpp Space.cpp atdna_Space.cpp
                SplashScreen.hpp SplashScreen.cpp
@@ -26,8 +26,8 @@ add_executable(rude WIN32
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp)
 
-target_link_libraries(rude
-                      RudeLocales
+target_link_libraries(urde
+                      UrdeLocales
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommon

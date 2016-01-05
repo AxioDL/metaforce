@@ -6,7 +6,7 @@
 #include <functional>
 #include "ViewManager.hpp"
 
-namespace RUDE
+namespace URDE
 {
 struct Application : boo::IApplicationCallback
 {
@@ -17,7 +17,7 @@ struct Application : boo::IApplicationCallback
     bool m_running = true;
 
     Application() :
-        m_fileMgr(_S("rude")),
+        m_fileMgr(_S("urde")),
         m_cvarManager(m_fileMgr),
         m_viewManager(m_fileMgr, m_cvarManager) {}
 
@@ -52,9 +52,9 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
     LogVisor::RegisterConsoleLogger();
-    RUDE::Application appCb;
+    URDE::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("rude"), _S("RUDE"), argc, argv, false);
+        appCb, _S("urde"), _S("URDE"), argc, argv, false);
     printf("IM DYING!!\n");
     return ret;
 }

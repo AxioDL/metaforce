@@ -1,10 +1,10 @@
-#ifndef RUDE_RESOURCE_OUTLINER_HPP
-#define RUDE_RESOURCE_OUTLINER_HPP
+#ifndef URDE_RESOURCE_OUTLINER_HPP
+#define URDE_RESOURCE_OUTLINER_HPP
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
 
-namespace RUDE
+namespace URDE
 {
 
 class ResourceOutliner : public Space
@@ -44,4 +44,4 @@ public:
 
 }
 
-#endif // RUDE_RESOURCE_OUTLINER_HPP
+#endif // URDE_RESOURCE_OUTLINER_HPP

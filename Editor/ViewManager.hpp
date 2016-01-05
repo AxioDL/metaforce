@@ -1,11 +1,11 @@
-#ifndef RUDE_VIEW_MANAGER_HPP
-#define RUDE_VIEW_MANAGER_HPP
+#ifndef URDE_VIEW_MANAGER_HPP
+#define URDE_VIEW_MANAGER_HPP
 
 #include <HECL/CVarManager.hpp>
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
-namespace RUDE
+namespace URDE
 {
 class SplashScreen;
 
@@ -32,7 +32,7 @@ class ViewManager : public Specter::IViewManager
     bool m_updatePf = false;
     float m_reqPf;
 
-    Specter::View* BuildSpaceViews(RUDE::Space* space);
+    Specter::View* BuildSpaceViews(URDE::Space* space);
     Specter::RootView* SetupRootView();
     SplashScreen* SetupSplashView();
     void SetupEditorView();
@@ -72,4 +72,4 @@ public:
 
 }
 
-#endif // RUDE_VIEW_MANAGER_HPP
+#endif // URDE_VIEW_MANAGER_HPP

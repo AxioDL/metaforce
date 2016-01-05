@@ -1,5 +1,5 @@
-#ifndef RUDE_SPLASH_SCREEN_HPP
-#define RUDE_SPLASH_SCREEN_HPP
+#ifndef URDE_SPLASH_SCREEN_HPP
+#define URDE_SPLASH_SCREEN_HPP
 
 #include <Specter/View.hpp>
 #include <Specter/ModalWindow.hpp>
@@ -7,7 +7,7 @@
 #include <Specter/FileBrowser.hpp>
 #include "ViewManager.hpp"
 
-namespace RUDE
+namespace URDE
 {
 static LogVisor::LogModule Log("Specter::SplashScreen");
 
@@ -130,4 +130,4 @@ public:
 }
 
 
-#endif // RUDE_SPLASH_SCREEN_HPP
+#endif // URDE_SPLASH_SCREEN_HPP

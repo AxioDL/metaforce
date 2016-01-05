@@ -1,9 +1,9 @@
-#ifndef RUDE_LOCALE_HPP
-#define RUDE_LOCALE_HPP
+#ifndef URDE_LOCALE_HPP
+#define URDE_LOCALE_HPP
 
 #include <Specter/Translator.hpp>
 
-namespace RUDE
+namespace URDE
 {
 
 std::vector<std::pair<const std::string*, const std::string*>> ListLocales();
@@ -12,4 +12,4 @@ const Specter::Locale* SystemLocaleOrEnglish();
 
 }
 
-#endif // RUDE_LOCALE_HPP
+#endif // URDE_LOCALE_HPP

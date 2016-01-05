@@ -1,7 +1,7 @@
 #include "SplashScreen.hpp"
 #include "version.h"
 
-namespace RUDE
+namespace URDE
 {
 
 #define SPLASH_WIDTH 555
@@ -55,7 +55,7 @@ void SplashScreen::updateContentOpacity(float opacity)
         m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
         Zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;
-        m_title->typesetGlyphs("RUDE", clearColor);
+        m_title->typesetGlyphs("URDE", clearColor);
 
         m_buildInfo.reset(new Specter::MultiLineTextView(res, *this, res.m_mainFont, Specter::TextView::Alignment::Right));
         m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);

@@ -1,5 +1,5 @@
-#ifndef RUDE_SPACE_HPP
-#define RUDE_SPACE_HPP
+#ifndef URDE_SPACE_HPP
+#define URDE_SPACE_HPP
 
 #include <Athena/DNAYaml.hpp>
 #include <Specter/Specter.hpp>
@@ -12,7 +12,7 @@ class SplitView;
 class ViewResources;
 class Toolbar;
 }
-namespace RUDE
+namespace URDE
 {
 class ViewManager;
 
@@ -84,7 +84,7 @@ public:
     : SplitSpace(vm)
     {
         m_state.read(r);
-#ifdef RUDE_BINARY_CONFIGS
+#ifdef URDE_BINARY_CONFIGS
         m_slots[0].reset(NewSpaceFromConfigStream(vm, r));
         m_slots[1].reset(NewSpaceFromConfigStream(vm, r));
 #else
@@ -180,4 +180,4 @@ public:
 
 }
 
-#endif // RUDE_SPACE_HPP
+#endif // URDE_SPACE_HPP

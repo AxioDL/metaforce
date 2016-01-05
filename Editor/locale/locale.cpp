@@ -12,7 +12,7 @@ extern "C" size_t L_en_GB_SZ;
 extern "C" const uint8_t L_ja_JP[];
 extern "C" size_t L_ja_JP_SZ;
 
-namespace RUDE
+namespace URDE
 {
 
 static const Specter::Locale Locales[] =

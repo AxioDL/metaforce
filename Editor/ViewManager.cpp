@@ -7,10 +7,10 @@
 
 using YAMLNode = Athena::io::YAMLNode;
 
-namespace RUDE
+namespace URDE
 {
 
-Specter::View* ViewManager::BuildSpaceViews(RUDE::Space* space)
+Specter::View* ViewManager::BuildSpaceViews(URDE::Space* space)
 {
     m_rootSpaceView = space->buildSpaceView(m_viewResources);
     return m_rootSpaceView;
@@ -72,7 +72,7 @@ void ViewManager::DismissSplash()
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
-  m_fontCache(fileMgr), m_translator(RUDE::SystemLocaleOrEnglish())
+  m_fontCache(fileMgr), m_translator(URDE::SystemLocaleOrEnglish())
 {}
 
 ViewManager::~ViewManager() {}
@@ -89,7 +89,7 @@ void ViewManager::pushRecentFile(const HECL::SystemString& path)
 
 void ViewManager::init(boo::IApplication* app)
 {
-    m_mainWindow = std::unique_ptr<boo::IWindow>(app->newWindow(_S("RUDE")));
+    m_mainWindow = std::unique_ptr<boo::IWindow>(app->newWindow(_S("URDE")));
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 

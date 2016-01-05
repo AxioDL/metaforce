@@ -2,9 +2,9 @@
 #include "ViewManager.hpp"
 #include "ResourceOutliner.hpp"
 
-namespace RUDE
+namespace URDE
 {
-static LogVisor::LogModule Log("RUDE::Space");
+static LogVisor::LogModule Log("URDE::Space");
 
 Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
@@ -50,7 +50,7 @@ static Space* BuildNewSpace(ViewManager& vm, Space::Class cls, Reader& r)
 
 Space* Space::NewSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)
 {
-#ifdef RUDE_BINARY_CONFIGS
+#ifdef URDE_BINARY_CONFIGS
     Class cls = Class(r.readUint32Big());
     return BuildNewSpace(vm, cls, r);
 #else

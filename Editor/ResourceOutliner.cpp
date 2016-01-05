@@ -1,6 +1,6 @@
 #include "ResourceOutliner.hpp"
 
-namespace RUDE
+namespace URDE
 {
 
 }

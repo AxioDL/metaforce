@@ -2,9 +2,9 @@
 #include "ViewManager.hpp"
 #include "../DataSpecRegistry.hpp"
 
-namespace RUDE
+namespace URDE
 {
-static LogVisor::LogModule Log("RUDE::ProjectManager");
+static LogVisor::LogModule Log("URDE::ProjectManager");
 
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
@@ -59,24 +59,24 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
         return false;
     }
 
-#ifdef RUDE_BINARY_CONFIGS
-    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
-    Athena::io::FileReader r(rudeSpacesPath.getAbsolutePath(), 32 * 1024, false);
+#ifdef URDE_BINARY_CONFIGS
+    HECL::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
+    Athena::io::FileReader r(urdeSpacesPath.getAbsolutePath(), 32 * 1024, false);
     if (r.hasError())
         goto makeDefault;
 
     m_vm.SetupEditorView(r);
 
 #else
-    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
-    FILE* fp = HECL::Fopen(rudeSpacesPath.getAbsolutePath().c_str(), _S("r"));
+    HECL::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
+    FILE* fp = HECL::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
 
     Athena::io::YAMLDocReader r;
     if (!fp)
         goto makeDefault;
 
     yaml_parser_set_input_file(r.getParser(), fp);
-    if (!r.ValidateClassType(r.getParser(), "RudeSpacesState"))
+    if (!r.ValidateClassType(r.getParser(), "UrdeSpacesState"))
     {
         fclose(fp);
         goto makeDefault;
@@ -121,8 +121,8 @@ bool ProjectManager::saveProject()
     if (!m_proj)
         return false;
 
-#ifdef RUDE_BINARY_CONFIGS
-    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.bin"));
+#ifdef urde_BINARY_CONFIGS
+    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.bin"));
     Athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
     if (w.hasError())
         return false;
@@ -130,15 +130,15 @@ bool ProjectManager::saveProject()
     m_vm.SaveEditorView(w);
     w.close();
 
-    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
+    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
 
 #else
-    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.yaml"));
+    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
     FILE* fp = HECL::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
     if (!fp)
         return false;
 
-    Athena::io::YAMLDocWriter w("RudeSpacesState");
+    Athena::io::YAMLDocWriter w("UrdeSpacesState");
     yaml_emitter_set_output_file(w.getEmitter(), fp);
     if (!w.open())
     {
@@ -156,7 +156,7 @@ bool ProjectManager::saveProject()
     w.close();
     fclose(fp);
 
-    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
+    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
 
 #endif
 
