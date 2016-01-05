@@ -30,7 +30,7 @@ void Translator::setLocale(const Locale* targetLocale)
     m_targetLocale = targetLocale;
 }
 
-static const std::string* RecursiveLookup(const Athena::io::YAMLNode& node,
+static const std::string* RecursiveLookup(const Athena::io::YAMLNode* node,
                                           std::string::const_iterator start,
                                           std::string::const_iterator end)
 {
@@ -38,13 +38,13 @@ static const std::string* RecursiveLookup(const Athena::io::YAMLNode& node,
     {
         if (*it == '/')
         {
-            const Athena::io::YAMLNode* ch = node.findMapChild(std::string(start, it).c_str());
+            const Athena::io::YAMLNode* ch = node->findMapChild(std::string(start, it).c_str());
             if (!ch)
                 return nullptr;
-            return RecursiveLookup(*ch, it+1, end);
+            return RecursiveLookup(ch, it+1, end);
         }
     }
-    const Athena::io::YAMLNode* ch = node.findMapChild(std::string(start, end).c_str());
+    const Athena::io::YAMLNode* ch = node->findMapChild(std::string(start, end).c_str());
     if (!ch)
         return nullptr;
     return &ch->m_scalarString;
@@ -52,7 +52,7 @@ static const std::string* RecursiveLookup(const Athena::io::YAMLNode& node,
 
 const std::string* Translator::translate(const std::string& key) const
 {
-    if ((&m_targetLocale->rootNode()) == nullptr)
+    if (!m_targetLocale->rootNode())
         return nullptr;
 
     return RecursiveLookup(m_targetLocale->rootNode(), key.cbegin(), key.cend());
@@ -60,10 +60,7 @@ const std::string* Translator::translate(const std::string& key) const
 
 std::string Translator::translateOr(const std::string& key, const char* vor) const
 {
-    if ((&m_targetLocale->rootNode()) == nullptr)
-        return vor;
-
-    const std::string* find = RecursiveLookup(m_targetLocale->rootNode(), key.cbegin(), key.cend());
+    const std::string* find = translate(key);
     if (find)
         return *find;
     return vor;
