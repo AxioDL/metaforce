@@ -78,7 +78,7 @@ endif()
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
 if(GIT_FOUND)
-  message("git found: ${GIT_EXECUTABLE}")
+    message(STATUS "Found GIT: ${GIT_EXECUTABLE}")
     # Get the current working branch
     execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}" OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE )
 
@@ -86,6 +86,12 @@ if(GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_COMMIT_HASH_FULL OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_COMMIT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_SOURCE_DIR}/version.h)
+else()
+    message(STATUS "Unable to find GIT, commit information will not be available")
+    set(GIT_BRANCH "")
+    set(GIT_COMMIT_HASH "")
+    set(GIT_COMMIT_HASH_FULL "")
+    set(GIT_COMMIT_DATE "")
 endif()
+
+configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_SOURCE_DIR}/version.h)
