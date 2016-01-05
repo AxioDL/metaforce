@@ -136,6 +136,7 @@ private:
         std::string m_sizeCol;
 
         std::string m_dirStr;
+        std::string m_projStr;
         std::string m_fileStr;
 
         size_t columnCount() const {return 3;}
@@ -198,7 +199,12 @@ private:
                 HECL::SystemUTF8View nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
-                    ent.m_type = m_dirStr;
+                {
+                    if (HECL::SearchForProject(d.m_path))
+                        ent.m_type = m_projStr;
+                    else
+                        ent.m_type = m_dirStr;
+                }
                 else
                 {
                     ent.m_type = m_fileStr;
@@ -250,6 +256,7 @@ private:
             m_typeCol = vm.translateOr("type", "Type");
             m_sizeCol = vm.translateOr("size", "Size");
             m_dirStr = vm.translateOr("directory", "Directory");
+            m_projStr = vm.translateOr("hecl_project", "HECL Project");
             m_fileStr = vm.translateOr("file", "File");
         }
 

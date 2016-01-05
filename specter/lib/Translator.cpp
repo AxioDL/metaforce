@@ -13,9 +13,14 @@ Locale::Locale(const std::string& name, const std::string& fullName,
     yaml_parser_set_input_string(reader.getParser(), yamlSource, yamlLength);
     reader.parse();
     m_rootNode = std::move(reader.releaseRootNode());
-    m_langNode = m_rootNode->findMapChild(name.c_str());
-    if (!m_langNode)
-        Log.report(LogVisor::FatalError, "no root node '%s' found in locale", name.c_str());
+    if (m_rootNode)
+    {
+        m_langNode = m_rootNode->findMapChild(name.c_str());
+        if (!m_langNode)
+            Log.report(LogVisor::FatalError, "no root node '%s' found in locale", name.c_str());
+    }
+    else
+        Log.report(LogVisor::Warning, "locale empty");
 }
 
 void Translator::setLocale(const Locale* targetLocale)
@@ -47,11 +52,17 @@ static const std::string* RecursiveLookup(const Athena::io::YAMLNode& node,
 
 const std::string* Translator::translate(const std::string& key) const
 {
+    if ((&m_targetLocale->rootNode()) == nullptr)
+        return nullptr;
+
     return RecursiveLookup(m_targetLocale->rootNode(), key.cbegin(), key.cend());
 }
 
 std::string Translator::translateOr(const std::string& key, const char* vor) const
 {
+    if ((&m_targetLocale->rootNode()) == nullptr)
+        return vor;
+
     const std::string* find = RecursiveLookup(m_targetLocale->rootNode(), key.cbegin(), key.cend());
     if (find)
         return *find;
