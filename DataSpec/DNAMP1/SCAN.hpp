@@ -1,6 +1,7 @@
 #ifndef _DNAMP1_SCAN_HPP_
 #define _DNAMP1_SCAN_HPP_
 
+#include <Athena/FileWriter.hpp>
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
@@ -192,6 +193,17 @@ struct SCAN : BigYAML
         FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         scan.toYAMLFile(fp);
         fclose(fp);
+        return true;
+    }
+
+    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+    {
+        SCAN scan;
+        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+        scan.fromYAMLFile(fp);
+        fclose(fp);
+        Athena::io::FileWriter ws(outPath.getAbsolutePath());
+        scan.write(ws);
         return true;
     }
 
