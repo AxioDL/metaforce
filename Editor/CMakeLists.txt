@@ -5,6 +5,16 @@ atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceOutliner.cpp ResourceOutliner.hpp)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+  option(RUDE_BINARY_CONFIGS
+         "Use binary Athena formats for serializing save data structures, rather than YAML"
+         YES)
+else()
+  option(RUDE_BINARY_CONFIGS
+         "Use binary Athena formats for serializing save data structures, rather than YAML"
+         NO)
+endif()
+
+if(RUDE_BINARY_CONFIGS)
   add_definitions("-DRUDE_BINARY_CONFIGS=1")
 endif()
 

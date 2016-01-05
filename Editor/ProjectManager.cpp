@@ -122,12 +122,15 @@ bool ProjectManager::saveProject()
         return false;
 
 #ifdef RUDE_BINARY_CONFIGS
-    HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
-    Athena::io::FileReader r(rudeSpacesPath.getAbsolutePath(), 32 * 1024, false);
-    if (r.hasError())
+    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.bin"));
+    Athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
+    if (w.hasError())
         return false;
 
-    m_vm.SetupEditorView(r);
+    m_vm.SaveEditorView(w);
+    w.close();
+
+    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
 
 #else
     HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.yaml"));
@@ -155,11 +158,11 @@ bool ProjectManager::saveProject()
 
     HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/rude_spaces.yaml"));
 
+#endif
+
     HECL::Unlink(newSpacesPath.getAbsolutePath().c_str());
     HECL::Rename(oldSpacesPath.getAbsolutePath().c_str(),
                  newSpacesPath.getAbsolutePath().c_str());
-
-#endif
 
     return true;
 }
