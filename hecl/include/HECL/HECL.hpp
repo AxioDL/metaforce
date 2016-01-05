@@ -300,6 +300,15 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     return fp;
 }
 
+static inline int Rename(const SystemChar* oldpath, const SystemChar* newpath)
+{
+#if HECL_UCS2
+    return _wrename(oldpath, newpath);
+#else
+    return rename(oldpath, newpath);
+#endif
+}
+
 static inline int Stat(const SystemChar* path, Sstat* statOut)
 {
 #if HECL_UCS2
@@ -664,6 +673,18 @@ public:
     Hash hash() const {return m_hash;}
     bool operator==(const ProjectRootPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectRootPath& other) const {return m_hash != other.m_hash;}
+
+    /**
+     * @brief Obtain c-string of final path component
+     * @return Final component c-string (may be empty)
+     */
+    const SystemChar* getLastComponent() const
+    {
+        size_t pos = m_projRoot.rfind(_S('/'));
+        if (pos == SystemString::npos)
+            return m_projRoot.c_str() + m_projRoot.size();
+        return m_projRoot.c_str() + pos + 1;
+    }
 };
 
 /**
