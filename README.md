@@ -1,6 +1,9 @@
 ## PathShagged
 **Status:** Extract Only
 
+### Download
+Precompiled builds are available at https://github.com/AxioDL/PathShagged/releases
+
 ### Platform Support
 * Windows 7+ (64-bit support only)
 * Mac OS X 10.9+
