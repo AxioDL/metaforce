@@ -123,11 +123,11 @@ bool ProjectManager::saveProject()
 
 #ifdef RUDE_BINARY_CONFIGS
     HECL::ProjectPath rudeSpacesPath(*m_proj, _S(".hecl/rude_spaces.bin"));
-    Athena::io::FileReader r(rudeSpacesPath.getAbsolutePath(), 32 * 1024, false);
-    if (r.hasError())
+    Athena::io::FileWriter w(rudeSpacesPath.getAbsolutePath(), true, false);
+    if (w.hasError())
         return false;
 
-    m_vm.SetupEditorView(r);
+    m_vm.SaveEditorView(w);
 
 #else
     HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~rude_spaces.yaml"));
