@@ -892,6 +892,77 @@ public:
     }
 
     /**
+     * @brief Build vector of project-relative directory/file components
+     * @return Vector of path components
+     */
+    std::vector<HECL::SystemString> getPathComponents() const
+    {
+        std::vector<HECL::SystemString> ret;
+        if (m_relPath.empty())
+            return ret;
+        auto it = m_relPath.cbegin();
+        if (*it == _S('/'))
+        {
+            ret.push_back(_S("/"));
+            ++it;
+        }
+        HECL::SystemString comp;
+        for (; it != m_relPath.cend() ; ++it)
+        {
+            if (*it == _S('/'))
+            {
+                if (comp.empty())
+                    continue;
+                ret.push_back(std::move(comp));
+                comp.clear();
+                continue;
+            }
+            comp += *it;
+        }
+        if (comp.size())
+            ret.push_back(std::move(comp));
+        return ret;
+    }
+
+    /**
+     * @brief Build vector of project-relative directory/file components
+     * @return Vector of path components encoded as UTF8
+     */
+    std::vector<std::string> getPathComponentsUTF8() const
+    {
+#if HECL_UCS2
+        const std::string& relPath = m_utf8RelPath;
+#else
+        const std::string& relPath = m_relPath;
+#endif
+        std::vector<std::string> ret;
+        if (relPath.empty())
+            return ret;
+        auto it = relPath.cbegin();
+        if (*it == '/')
+        {
+            ret.push_back(_S("/"));
+            ++it;
+        }
+        std::string comp;
+        for (; it != relPath.cend() ; ++it)
+        {
+            if (*it == _S('/'))
+            {
+                if (comp.empty())
+                    continue;
+                ret.push_back(std::move(comp));
+                comp.clear();
+                continue;
+            }
+            comp += *it;
+        }
+        if (comp.size())
+            ret.push_back(std::move(comp));
+        return ret;
+    }
+
+    /**
      * @brief Access fully-canonicalized absolute path in UTF-8
      * @return Absolute path reference
      */
