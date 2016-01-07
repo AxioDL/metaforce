@@ -467,6 +467,18 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 #else
 #ifdef __APPLE__
     {
+        HECL::Sstat theStat;
+        const char* home = getenv("HOME");
+        
+        if (home)
+        {
+            ret.push_back(NameFromPath(home));
+            std::string desktop(home);
+            desktop += "/Desktop";
+            if (!HECL::Stat(desktop.c_str(), &theStat))
+                ret.push_back(NameFromPath(desktop));
+        }
+        
         /* Get mounted volumes better method OSX 10.6 and higher, see: */
         /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
         /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
