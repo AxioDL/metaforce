@@ -18,7 +18,7 @@ public:
            const unsigned char* yamlSource, size_t yamlLength);
     const std::string& name() const {return m_name;}
     const std::string& fullName() const {return m_fullName;}
-    const Athena::io::YAMLNode& rootNode() const {return *m_langNode;}
+    const Athena::io::YAMLNode* rootNode() const {return m_langNode;}
 };
 
 class Translator
