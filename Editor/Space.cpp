@@ -1,6 +1,6 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
-#include "ResourceOutliner.hpp"
+#include "ResourceBrowser.hpp"
 
 namespace URDE
 {
@@ -8,12 +8,21 @@ static LogVisor::LogModule Log("URDE::Space");
 
 Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
-    m_space.reset(new Specter::Space(res, m_vm.rootView(), Specter::Toolbar::Position::Bottom));
-    Specter::View* sview = buildContentView(res);
-    m_space->setContentView(sview);
     if (usesToolbar())
-        buildToolbarView(res, m_space->toolbar());
-    return m_space.get();
+    {
+        m_space.reset(new Specter::Space(res, m_vm.rootView(), Specter::Toolbar::Position::Bottom));
+        Specter::View* sview = buildContentView(res);
+        m_space->setContentView(sview);
+        buildToolbarView(res, *m_space->toolbar());
+        return m_space.get();
+    }
+    else
+    {
+        m_space.reset(new Specter::Space(res, m_vm.rootView(), Specter::Toolbar::Position::None));
+        Specter::View* sview = buildContentView(res);
+        m_space->setContentView(sview);
+        return m_space.get();
+    }
 }
 
 Specter::View* SplitSpace::buildContentView(Specter::ViewResources& res)
@@ -41,11 +50,23 @@ static Space* BuildNewSpace(ViewManager& vm, Space::Class cls, Reader& r)
     {
     case Class::SplitSpace:
         return new SplitSpace(vm, r);
-    case Class::ResourceOutliner:
-        return new ResourceOutliner(vm, r);
+    case Class::ResourceBrowser:
+        return new ResourceBrowser(vm, r);
     default: break;
     }
     return nullptr;
+}
+
+void Space::saveState(Athena::io::IStreamWriter& w) const
+{
+    w.writeUint32Big(atUint32(m_class));
+    spaceState().write(w);
+}
+
+void Space::saveState(Athena::io::YAMLDocWriter& w) const
+{
+    w.writeUint32("class", atUint32(m_class));
+    spaceState().write(w);
 }
 
 Space* Space::NewSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)

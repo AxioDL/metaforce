@@ -25,6 +25,8 @@ public:
     ProjectManager(ViewManager& vm);
     operator bool() const {return m_proj.operator bool();}
 
+    HECL::Database::Project* project() {return m_proj.get();}
+
     bool newProject(const HECL::SystemString& path);
     bool openProject(const HECL::SystemString& path);
     bool extractGame(const HECL::SystemString& path);

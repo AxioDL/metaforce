@@ -3,7 +3,7 @@
 #include "Specter/Space.hpp"
 #include "SplashScreen.hpp"
 #include "locale/locale.hpp"
-#include "ResourceOutliner.hpp"
+#include "ResourceBrowser.hpp"
 
 using YAMLNode = Athena::io::YAMLNode;
 
@@ -34,8 +34,8 @@ SplashScreen* ViewManager::SetupSplashView()
 void ViewManager::SetupEditorView()
 {
     SplitSpace* split = new SplitSpace(*this);
-    split->setSpaceSlot(0, std::make_unique<ResourceOutliner>(*this));
-    split->setSpaceSlot(1, std::make_unique<ResourceOutliner>(*this));
+    split->setSpaceSlot(0, std::make_unique<ResourceBrowser>(*this));
+    split->setSpaceSlot(1, std::make_unique<ResourceBrowser>(*this));
     m_rootSpace.reset(split);
 
     std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();

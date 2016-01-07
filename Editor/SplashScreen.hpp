@@ -35,9 +35,9 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         NewProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return m_splash.m_newString.c_str();}
-        const char* help() const {return "Creates an empty project at selected path";}
-        void activated(const boo::SWindowCoord& coord)
+        const char* name(const Specter::Control* control) const {return m_splash.m_newString.c_str();}
+        const char* help(const Specter::Control* control) const {return "Creates an empty project at selected path";}
+        void activated(const Specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
@@ -60,9 +60,9 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         OpenProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return m_splash.m_openString.c_str();}
-        const char* help() const {return "Opens an existing project at selected path";}
-        void activated(const boo::SWindowCoord& coord)
+        const char* name(const Specter::Control* control) const {return m_splash.m_openString.c_str();}
+        const char* help(const Specter::Control* control) const {return "Opens an existing project at selected path";}
+        void activated(const Specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
@@ -85,9 +85,9 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         ExtractProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name() const {return m_splash.m_extractString.c_str();}
-        const char* help() const {return "Extracts game image as project at selected path";}
-        void activated(const boo::SWindowCoord& coord)
+        const char* name(const Specter::Control* control) const {return m_splash.m_extractString.c_str();}
+        const char* help(const Specter::Control* control) const {return "Extracts game image as project at selected path";}
+        void activated(const Specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),

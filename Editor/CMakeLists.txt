@@ -1,9 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(locale)
 
-atdna(atdna_Space.cpp Space.hpp)
-atdna(atdna_ResourceOutliner.cpp ResourceOutliner.hpp)
-
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   option(RUDE_BINARY_CONFIGS
          "Use binary Athena formats for serializing save data structures, rather than YAML"
@@ -18,11 +15,15 @@ if(RUDE_BINARY_CONFIGS)
   add_definitions("-DURDE_BINARY_CONFIGS=1")
 endif()
 
+atdna(atdna_Space.cpp Space.hpp)
+atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
+
 add_executable(urde WIN32
                main.cpp
                Space.hpp Space.cpp atdna_Space.cpp
                SplashScreen.hpp SplashScreen.cpp
-               ResourceOutliner.hpp ResourceOutliner.cpp atdna_ResourceOutliner.cpp
+               ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
+               ModelViewer.hpp ModelViewer.cpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp)
 

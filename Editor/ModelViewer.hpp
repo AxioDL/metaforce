@@ -1,0 +1,8 @@
+#ifndef URDE_MODEL_VIEWER_HPP
+#define URDE_MODEL_VIEWER_HPP
+
+namespace URDE
+{
+}
+
+#endif // URDE_MODEL_VIEWER_HPP

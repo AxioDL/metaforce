@@ -121,7 +121,7 @@ bool ProjectManager::saveProject()
     if (!m_proj)
         return false;
 
-#ifdef urde_BINARY_CONFIGS
+#ifdef URDE_BINARY_CONFIGS
     HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.bin"));
     Athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
     if (w.hasError())

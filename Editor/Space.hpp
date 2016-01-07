@@ -28,7 +28,7 @@ public:
         None,
         SplitSpace,
         TestSpace,
-        ResourceOutliner,
+        ResourceBrowser,
     };
 
     struct State : Athena::io::DNAYaml<Athena::BigEndian> {Delete _d;};
@@ -51,17 +51,9 @@ protected:
     virtual Specter::View* buildSpaceView(Specter::ViewResources& res);
 
 public:
-    virtual void saveState(Athena::io::IStreamWriter& w) const
-    {
-        w.writeUint32Big(atUint32(m_class));
-        spaceState().write(w);
-    }
-
-    virtual void saveState(Athena::io::YAMLDocWriter& w) const
-    {
-        w.writeUint32("class", atUint32(m_class));
-        spaceState().write(w);
-    }
+    virtual void saveState(Athena::io::IStreamWriter& w) const;
+    virtual void saveState(Athena::io::YAMLDocWriter& w) const;
+    virtual void reloadState() {}
 
     virtual void think() {}
 };

@@ -57,6 +57,7 @@ public:
     }
 
     ProjectManager& projectManager() {return m_projManager;}
+    HECL::Database::Project* project() {return m_projManager.project();}
     const Specter::Translator* getTranslator() const {return &m_translator;}
 
     const std::vector<HECL::SystemString>* recentProjects() const {return &m_recentProjects;}
