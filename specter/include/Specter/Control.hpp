@@ -6,38 +6,46 @@
 
 namespace Specter
 {
+class Control;
+class Button;
 
 struct IControlBinding
 {
-    virtual const char* name() const=0;
-    virtual const char* help() const {return nullptr;}
+    virtual const char* name(const Control* control) const=0;
+    virtual const char* help(const Control* control) const {return nullptr;}
 };
 
 struct IButtonBinding : IControlBinding
 {
     /** Pressed/Released while Hovering action,
      *  cancellable by holding the button and releasing outside */
-    virtual void activated(const boo::SWindowCoord& coord)=0;
+    virtual void activated(const Button* button, const boo::SWindowCoord& coord) {}
+
+    /** Pass-through down action */
+    virtual void down(const Button* button, const boo::SWindowCoord& coord) {}
+
+    /** Pass-through up action */
+    virtual void up(const Button* button, const boo::SWindowCoord& coord) {}
 };
 
 struct IFloatBinding : IControlBinding
 {
-    virtual float getDefault() const {return 0.0;}
-    virtual std::pair<float,float> getBounds() const {return std::make_pair(FLT_MIN, FLT_MAX);}
-    virtual void changed(float val)=0;
+    virtual float getDefault(const Control* control) const {return 0.0;}
+    virtual std::pair<float,float> getBounds(const Control* control) const {return std::make_pair(FLT_MIN, FLT_MAX);}
+    virtual void changed(const Control* control, float val)=0;
 };
 
 struct IIntBinding : IControlBinding
 {
-    virtual int getDefault() const {return 0;}
-    virtual std::pair<int,int> getBounds() const {return std::make_pair(INT_MIN, INT_MAX);}
-    virtual void changed(int val)=0;
+    virtual int getDefault(const Control* control) const {return 0;}
+    virtual std::pair<int,int> getBounds(const Control* control) const {return std::make_pair(INT_MIN, INT_MAX);}
+    virtual void changed(const Control* control, int val)=0;
 };
 
 struct IStringBinding : IControlBinding
 {
-    virtual std::string getDefault() const {return "";}
-    virtual void changed(const std::string& val)=0;
+    virtual std::string getDefault(const Control* control) const {return "";}
+    virtual void changed(const Control* control, const std::string& val)=0;
 };
 
 struct CVarControlBinding : IControlBinding
@@ -45,8 +53,8 @@ struct CVarControlBinding : IControlBinding
     HECL::CVar* m_cvar;
     CVarControlBinding(HECL::CVar* cvar)
     : m_cvar(cvar) {}
-    const char* name() const {return m_cvar->name().c_str();}
-    const char* help() const {return m_cvar->rawHelp().c_str();}
+    const char* name(const Control* control) const {return m_cvar->name().c_str();}
+    const char* help(const Control* control) const {return m_cvar->rawHelp().c_str();}
 };
 
 class Control : public View

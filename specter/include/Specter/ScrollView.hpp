@@ -2,6 +2,8 @@
 #define SPECTER_SCROLLVIEW_HPP
 
 #include "View.hpp"
+#include "Button.hpp"
+#include "IViewManager.hpp"
 
 namespace Specter
 {
@@ -13,12 +15,13 @@ public:
     enum class Style
     {
         Plain,
-        ThinIndicator
+        ThinIndicator,
+        SideButtons
     };
 
 private:
     Style m_style;
-    View* m_contentView = nullptr;
+    ScissorViewChild<View*> m_contentView;
     int m_scroll[2] = {};
     int m_targetScroll[2] = {};
 
@@ -26,18 +29,61 @@ private:
     double m_consecutiveScroll[16][2] = {};
 
     bool m_drawInd = false;
+    bool m_drawSideButtons = false;
 
     SolidShaderVert m_verts[4];
     boo::IGraphicsBufferD* m_vertsBuf = nullptr;
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
+    enum class SideButtonState
+    {
+        None,
+        ScrollLeft,
+        ScrollRight
+    } m_sideButtonState = SideButtonState::None;
+    struct SideButtonBinding : IButtonBinding
+    {
+        ScrollView& m_sv;
+        std::string m_leftName, m_rightName;
+        SideButtonBinding(ScrollView& sv, IViewManager& vm)
+        : m_sv(sv),
+          m_leftName(vm.translateOr("scroll_left", "Scroll Left")),
+          m_rightName(vm.translateOr("scroll_right", "Scroll Right")) {}
+        const char* name(const Control* control) const
+        {return (control == m_sv.m_sideButtons[0].m_view.get()) ? m_leftName.c_str() : m_rightName.c_str();}
+        void down(const Button* button, const boo::SWindowCoord& coord)
+        {
+            if (button == m_sv.m_sideButtons[0].m_view.get())
+                m_sv.m_sideButtonState = SideButtonState::ScrollRight;
+            else
+                m_sv.m_sideButtonState = SideButtonState::ScrollLeft;
+        }
+        void up(const Button* button, const boo::SWindowCoord& coord)
+        {
+            m_sv.m_sideButtonState = SideButtonState::None;
+        }
+    } m_sideButtonBind;
+    ViewChild<std::unique_ptr<Button>> m_sideButtons[2];
+
     bool _scroll(const boo::SScrollDelta& scroll);
+
+    int scrollAreaWidth() const
+    {
+        int ret = subRect().size[0];
+        if (m_style == Style::SideButtons && m_drawSideButtons)
+        {
+            ret -= m_sideButtons[0].m_view->nominalWidth();
+            ret -= m_sideButtons[1].m_view->nominalWidth();
+        }
+        return std::max(0, ret);
+    }
+
 public:
     ScrollView(ViewResources& res, View& parentView, Style style);
     void setContentView(View* v)
     {
-        m_contentView = v;
+        m_contentView.m_view = v;
         updateSize();
     }
 
@@ -56,8 +102,13 @@ public:
     void setMultiplyColor(const Zeus::CColor& color)
     {
         View::setMultiplyColor(color);
-        if (m_contentView)
-            m_contentView->setMultiplyColor(color);
+        if (m_style == Style::SideButtons)
+        {
+            m_sideButtons[0].m_view->setMultiplyColor(color);
+            m_sideButtons[1].m_view->setMultiplyColor(color);
+        }
+        if (m_contentView.m_view)
+            m_contentView.m_view->setMultiplyColor(color);
     }
 
     void think();

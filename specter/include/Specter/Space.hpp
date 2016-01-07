@@ -19,7 +19,7 @@ class Space : public View
 public:
     Space(ViewResources& res, View& parentView, Toolbar::Position toolbarPos);
     View* setContentView(View* view);
-    Toolbar& toolbar() {return *m_toolbar;}
+    Toolbar* toolbar() {return m_toolbar.get();}
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);

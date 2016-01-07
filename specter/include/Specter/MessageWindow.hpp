@@ -29,8 +29,8 @@ private:
         MessageWindow& m_mw;
         std::string m_name;
         OKBinding(MessageWindow& mw, std::string&& name) : m_mw(mw), m_name(std::move(name)) {}
-        const char* name() const {return m_name.c_str();}
-        void activated(const boo::SWindowCoord& coord)
+        const char* name(const Control* control) const {return m_name.c_str();}
+        void activated(const Button* button, const boo::SWindowCoord& coord)
         {
             m_mw.m_func(true);
         }
@@ -42,8 +42,8 @@ private:
         MessageWindow& m_mw;
         std::string m_name;
         CancelBinding(MessageWindow& mw, std::string&& name) : m_mw(mw), m_name(std::move(name)) {}
-        const char* name() const {return m_name.c_str();}
-        void activated(const boo::SWindowCoord& coord)
+        const char* name(const Control* control) const {return m_name.c_str();}
+        void activated(const Button* button, const boo::SWindowCoord& coord)
         {
             m_mw.m_func(false);
         }

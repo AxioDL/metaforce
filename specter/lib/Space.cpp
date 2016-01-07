@@ -10,7 +10,9 @@ Space::Space(ViewResources& res, View& parentView, Toolbar::Position tbPos)
 : View(res, parentView), m_tbPos(tbPos)
 {
     commitResources(res);
-    m_toolbar.reset(new Toolbar(res, *this, tbPos));
+    setBackground(res.themeData().spaceBackground());
+    if (tbPos != Toolbar::Position::None)
+        m_toolbar.reset(new Toolbar(res, *this, tbPos));
 }
 
 View* Space::setContentView(View* view)
@@ -118,20 +120,24 @@ void Space::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     View::resized(root, sub);
 
     boo::SWindowRect tbRect = sub;
-    tbRect.size[1] = m_toolbar->nominalHeight();
-    if (m_tbPos == Toolbar::Position::Top)
-        tbRect.location[1] += sub.size[1] - tbRect.size[1];
-    m_toolbar->resized(root, tbRect);
+    if (m_toolbar)
+    {
+        tbRect.size[1] = m_toolbar->nominalHeight();
+        if (m_tbPos == Toolbar::Position::Top)
+            tbRect.location[1] += sub.size[1] - tbRect.size[1];
+        m_toolbar->resized(root, tbRect);
+    }
+    else
+        tbRect.size[1] = 0;
 
     if (m_contentView)
     {
-        if (m_tbPos == Toolbar::Position::Top)
-            tbRect.location[1] = sub.location[1];
-        else
-            tbRect.location[1] += tbRect.size[1];
-        tbRect.size[1] = sub.size[1] - tbRect.size[1];
-        tbRect.size[1] = std::max(tbRect.size[1], 0);
-        m_contentView->resized(root, tbRect);
+        boo::SWindowRect contentRect = sub;
+        if (m_tbPos == Toolbar::Position::Bottom)
+            contentRect.location[1] += tbRect.size[1];
+        contentRect.size[1] = sub.size[1] - tbRect.size[1];
+        contentRect.size[1] = std::max(contentRect.size[1], 0);
+        m_contentView->resized(root, contentRect);
     }
 }
 
@@ -140,7 +146,8 @@ void Space::draw(boo::IGraphicsCommandQueue* gfxQ)
     View::draw(gfxQ);
     if (m_contentView)
         m_contentView->draw(gfxQ);
-    m_toolbar->draw(gfxQ);
+    if (m_toolbar)
+        m_toolbar->draw(gfxQ);
 }
 
 }

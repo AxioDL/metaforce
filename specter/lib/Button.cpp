@@ -233,18 +233,25 @@ void Button::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button,
     Control::mouseDown(coord, button, mod);
     m_pressed = true;
     setPressed();
+    if (m_controlBinding && dynamic_cast<IButtonBinding*>(m_controlBinding))
+        static_cast<IButtonBinding&>(*m_controlBinding).down(this, coord);
 }
 
 void Button::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     Control::mouseUp(coord, button, mod);
-    if (m_pressed && m_hovered)
+    if (m_pressed)
     {
-        Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
         if (m_controlBinding && dynamic_cast<IButtonBinding*>(m_controlBinding))
-            static_cast<IButtonBinding&>(*m_controlBinding).activated(coord);
+            static_cast<IButtonBinding&>(*m_controlBinding).up(this, coord);
+        if (m_hovered)
+        {
+            Log.report(LogVisor::Info, "button '%s' activated", m_textStr.c_str());
+            if (m_controlBinding && dynamic_cast<IButtonBinding*>(m_controlBinding))
+                static_cast<IButtonBinding&>(*m_controlBinding).activated(this, coord);
+        }
+        m_pressed = false;
     }
-    m_pressed = false;
     if (m_hovered)
         setHover();
     else

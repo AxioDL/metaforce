@@ -64,6 +64,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     setBackground({0,0,0,0.5});
 
     IViewManager& vm = rootView().viewManager();
+    m_pathButtons.m_view.reset(new PathButtons(res, *this, *this));
     m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
     m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, &m_fileListingBind, 3));
     m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, &m_systemBookmarkBind, 1));
@@ -149,12 +150,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
     m_fileListing.m_view->selectRow(-1);
     m_fileListing.m_view->updateData();
 
-    m_pathButtons.clear();
-    m_pathButtons.reserve(m_comps.size());
-    size_t idx = 0;
-    ViewResources& res = rootView().viewRes();
-    for (const HECL::SystemString& c : m_comps)
-        m_pathButtons.emplace_back(*this, res, idx++, c);
+    m_pathButtons.m_view->setButtons(m_comps);
 
     updateSize();
 }
@@ -163,8 +159,7 @@ void FileBrowser::updateContentOpacity(float opacity)
 {
     Zeus::CColor color = Zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
     m_split.m_view->setMultiplyColor(color);
-    for (PathButton& b : m_pathButtons)
-        b.m_button.m_view->setMultiplyColor(color);
+    m_pathButtons.m_view->setMultiplyColor(color);
     m_fileField.m_view->setMultiplyColor(color);
     m_fileListing.m_view->setMultiplyColor(color);
     m_ok.m_button.m_view->setMultiplyColor(color);
@@ -366,8 +361,7 @@ void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton bu
         m_confirmWindow->mouseDown(coord, button, mod);
 
     m_split.mouseDown(coord, button, mod);
-    for (PathButton& b : m_pathButtons)
-        b.m_button.mouseDown(coord, button, mod);
+    m_pathButtons.mouseDown(coord, button, mod);
     m_fileField.mouseDown(coord, button, mod);
     m_fileListing.mouseDown(coord, button, mod);
     m_systemBookmarks.m_view->mouseDown(coord, button, mod);
@@ -384,13 +378,7 @@ void FileBrowser::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton butt
 
     m_split.mouseUp(coord, button, mod);
 
-    for (PathButton& b : m_pathButtons)
-        b.m_button.mouseUp(coord, button, mod);
-    if (m_pathButtonPending >= 0)
-    {
-        pathButtonActivated(m_pathButtonPending);
-        m_pathButtonPending = -1;
-    }
+    m_pathButtons.mouseUp(coord, button, mod);
 
     m_fileField.mouseUp(coord, button, mod);
     m_fileListing.mouseUp(coord, button, mod);
@@ -409,8 +397,7 @@ void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
     if (closed())
         return;
     m_split.mouseMove(coord);
-    for (PathButton& b : m_pathButtons)
-        b.m_button.mouseMove(coord);
+    m_pathButtons.mouseMove(coord);
     m_fileField.mouseMove(coord);
     m_fileListing.mouseMove(coord);
     m_systemBookmarks.m_view->mouseMove(coord);
@@ -423,17 +410,12 @@ void FileBrowser::mouseMove(const boo::SWindowCoord& coord)
         m_confirmWindow->mouseMove(coord);
 }
 
-void FileBrowser::mouseEnter(const boo::SWindowCoord& coord)
-{
-}
-
 void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
 {
     if (closed())
         return;
     m_split.mouseLeave(coord);
-    for (PathButton& b : m_pathButtons)
-        b.m_button.mouseLeave(coord);
+    m_pathButtons.mouseLeave(coord);
     m_fileField.mouseLeave(coord);
     m_fileListing.mouseLeave(coord);
     m_ok.m_button.mouseLeave(coord);
@@ -445,6 +427,7 @@ void FileBrowser::mouseLeave(const boo::SWindowCoord& coord)
 
 void FileBrowser::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
+    m_pathButtons.scroll(coord, scroll);
     m_fileListing.scroll(coord, scroll);
 }
 
@@ -536,18 +519,12 @@ void FileBrowser::RightSide::resized(const boo::SWindowRect& root, const boo::SW
     boo::SWindowRect pathRect = sub;
     pathRect.location[0] += BROWSER_MARGIN * pf;
     pathRect.location[1] += pathRect.size[1] - (BROWSER_MARGIN + 20) * pf;
-    for (PathButton& b : m_fb.m_pathButtons)
-    {
-        pathRect.size[0] = b.m_button.m_view->nominalWidth();
-        pathRect.size[1] = b.m_button.m_view->nominalHeight();
-        b.m_button.m_view->resized(root, pathRect);
-        pathRect.location[0] += pathRect.size[0] + 2;
-    }
+    pathRect.size[0] = sub.size[0] - m_fb.m_ok.m_button.m_view->nominalWidth() - 20 * pf;
+    pathRect.size[1] = m_fb.m_fileField.m_view->nominalHeight();
+    m_fb.m_pathButtons.m_view->resized(root, pathRect);
 
     pathRect.location[0] = sub.location[0] + BROWSER_MARGIN * pf;
     pathRect.location[1] -= 25 * pf;
-    pathRect.size[0] = sub.size[0] - m_fb.m_ok.m_button.m_view->nominalWidth() - 20 * pf;
-    pathRect.size[1] = m_fb.m_fileField.m_view->nominalHeight();
     m_fb.m_fileField.m_view->resized(root, pathRect);
 
     pathRect.location[1] = sub.location[1] + BROWSER_MARGIN * pf;
@@ -570,6 +547,7 @@ void FileBrowser::think()
     ModalWindow::think();
     if (m_fileListingBind.m_needsUpdate)
         navigateToPath(m_path);
+    m_pathButtons.m_view->think();
     m_fileField.m_view->think();
     m_fileListing.m_view->think();
     m_systemBookmarks.m_view->think();
@@ -601,8 +579,7 @@ void FileBrowser::LeftSide::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void FileBrowser::RightSide::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    for (PathButton& b : m_fb.m_pathButtons)
-        b.m_button.m_view->draw(gfxQ);
+    m_fb.m_pathButtons.m_view->draw(gfxQ);
     m_fb.m_fileListing.m_view->draw(gfxQ);
     m_fb.m_ok.m_button.m_view->draw(gfxQ);
     m_fb.m_cancel.m_button.m_view->draw(gfxQ);

@@ -55,6 +55,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/Menu.hpp
      include/Specter/Node.hpp
      include/Specter/NodeSocket.hpp
+     include/Specter/PathButtons.hpp
      include/Specter/FileBrowser.hpp
      include/Specter/FontCache.hpp
      include/Specter/Translator.hpp)
@@ -85,6 +86,7 @@ list(APPEND SPECTER_SOURCES
      lib/Menu.cpp
      lib/Node.cpp
      lib/NodeSocket.cpp
+     lib/PathButtons.cpp
      lib/FileBrowser.cpp
      lib/FontCache.cpp
      lib/Translator.cpp

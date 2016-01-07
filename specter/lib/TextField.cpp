@@ -40,7 +40,7 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
     if (strBind)
-        setText(strBind->getDefault());
+        setText(strBind->getDefault(this));
 }
 
 void TextField::_setText()
@@ -52,7 +52,7 @@ void TextField::_setText()
         m_text->typesetGlyphs(m_textStr, m_error ? rootView().themeData().uiText() :
                                                    rootView().themeData().fieldText());
         if (m_controlBinding && dynamic_cast<IStringBinding*>(m_controlBinding))
-            static_cast<IStringBinding&>(*m_controlBinding).changed(m_textStr);
+            static_cast<IStringBinding&>(*m_controlBinding).changed(this, m_textStr);
         m_hasTextSet = false;
         if (m_deferredMarkStr.size())
             m_hasMarkSet = true;

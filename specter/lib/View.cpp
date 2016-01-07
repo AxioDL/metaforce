@@ -4,6 +4,7 @@
 
 namespace Specter
 {
+static LogVisor::LogModule Log("Specter::View");
 
 void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
 {
@@ -357,6 +358,8 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void View::commitResources(ViewResources& res)
 {
+    if (m_gfxData)
+        Log.report(LogVisor::FatalError, "multiple resource commits not allowed");
     m_gfxData = res.m_factory->commit();
 }
 

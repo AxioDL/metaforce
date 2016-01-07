@@ -20,6 +20,7 @@ public:
 
     enum class Position
     {
+        None,
         Bottom,
         Top
     };

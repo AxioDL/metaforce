@@ -18,8 +18,9 @@ class ThemeData
     Zeus::CColor m_selectedFieldText = Zeus::CColor::skWhite;
 
     Zeus::CColor m_vpBg = {0.2, 0.2, 0.2, 1.0};
-    Zeus::CColor m_tbBg = {0.4, 0.4, 0.4, 1.0};
+    Zeus::CColor m_tbBg = {0.2, 0.2, 0.2, 0.9};
     Zeus::CColor m_tooltipBg = {0.1, 0.1, 0.1, 0.85};
+    Zeus::CColor m_spaceBg = {0.075, 0.075, 0.075, 0.85};
     Zeus::CColor m_splashBg = {0.075, 0.075, 0.075, 0.85};
     Zeus::CColor m_splashErrorBg = {0.1, 0.01, 0.01, 0.85};
 
@@ -59,6 +60,7 @@ public:
     virtual const Zeus::CColor& viewportBackground() const {return m_vpBg;}
     virtual const Zeus::CColor& toolbarBackground() const {return m_tbBg;}
     virtual const Zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
+    virtual const Zeus::CColor& spaceBackground() const {return m_spaceBg;}
     virtual const Zeus::CColor& splashBackground() const {return m_splashBg;}
     virtual const Zeus::CColor& splashErrorBackground() const {return m_splashErrorBg;}
 

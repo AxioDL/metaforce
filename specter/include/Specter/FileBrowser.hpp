@@ -10,12 +10,13 @@
 #include "ViewResources.hpp"
 #include "IViewManager.hpp"
 #include "MessageWindow.hpp"
+#include "PathButtons.hpp"
 #include <HECL/HECL.hpp>
 
 namespace Specter
 {
 
-class FileBrowser : public ModalWindow
+class FileBrowser : public ModalWindow, public IPathButtonsBinding
 {
 public:
     enum class Type
@@ -64,8 +65,8 @@ private:
             m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
         }
-        const char* name() const {return m_text.c_str();}
-        void activated(const boo::SWindowCoord&) {m_fb.okActivated(true);}
+        const char* name(const Control* control) const {return m_text.c_str();}
+        void activated(const Button* button, const boo::SWindowCoord&) {m_fb.okActivated(true);}
     } m_ok;
 
     void cancelActivated();
@@ -80,28 +81,12 @@ private:
             m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
                 RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
         }
-        const char* name() const {return m_text.c_str();}
-        void activated(const boo::SWindowCoord&) {m_fb.cancelActivated();}
+        const char* name(const Control* control) const {return m_text.c_str();}
+        void activated(const Button* button, const boo::SWindowCoord&) {m_fb.cancelActivated();}
     } m_cancel;
 
-    int m_pathButtonPending = -1;
     void pathButtonActivated(size_t idx);
-    struct PathButton : IButtonBinding
-    {
-        FileBrowser& m_fb;
-        size_t m_idx;
-        ViewChild<std::unique_ptr<Button>> m_button;
-        PathButton(FileBrowser& fb, ViewResources& res, size_t idx, const HECL::SystemString& str)
-        : m_fb(fb), m_idx(idx)
-        {
-            HECL::SystemUTF8View utf8View(str);
-            m_button.m_view.reset(new Button(res, fb, this, utf8View));
-        }
-        const char* name() const {return m_button.m_view->getText().c_str();}
-        void activated(const boo::SWindowCoord&) {m_fb.m_pathButtonPending = m_idx;}
-    };
-    friend struct PathButton;
-    std::vector<PathButton> m_pathButtons;
+    ViewChild<std::unique_ptr<PathButtons>> m_pathButtons;
 
     ViewChild<std::unique_ptr<TextField>> m_fileField;
     struct FileFieldBind : IStringBinding
@@ -110,8 +95,8 @@ private:
         std::string m_name;
         FileFieldBind(FileBrowser& browser, const IViewManager& vm)
         : m_browser(browser), m_name(vm.translateOr("file_name", "File Name")) {}
-        const char* name() const {return m_name.c_str();}
-        void changed(const std::string& val)
+        const char* name(const Control* control) const {return m_name.c_str();}
+        void changed(const Control* control, const std::string& val)
         {
         }
     } m_fileFieldBind;
@@ -345,7 +330,6 @@ public:
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
-    void mouseEnter(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
     void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
     void touchDown(const boo::STouchCoord&, uintptr_t);

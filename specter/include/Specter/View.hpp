@@ -296,6 +296,54 @@ struct ViewChild
     }
 };
 
+template <class ViewPtrType>
+struct ScissorViewChild : ViewChild<ViewPtrType>
+{
+    using base = ViewChild<ViewPtrType>;
+    boo::SWindowRect m_scissorRect;
+
+    bool mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+    {
+        if (!base::m_view)
+            return false;
+        if (base::m_view->subRect().coordInRect(coord) &&
+            m_scissorRect.coordInRect(coord))
+        {
+            if ((base::m_mouseDown & 1 << int(button)) == 0)
+            {
+                base::m_view->mouseDown(coord, button, mod);
+                base::m_mouseDown |= 1 << int(button);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    void mouseMove(const boo::SWindowCoord& coord)
+    {
+        if (!base::m_view)
+            return;
+        if (base::m_view->subRect().coordInRect(coord) &&
+            m_scissorRect.coordInRect(coord))
+        {
+            if (!base::m_mouseIn)
+            {
+                base::m_view->mouseEnter(coord);
+                base::m_mouseIn = true;
+            }
+            base::m_view->mouseMove(coord);
+        }
+        else
+        {
+            if (base::m_mouseIn)
+            {
+                base::m_view->mouseLeave(coord);
+                base::m_mouseIn = false;
+            }
+        }
+    }
+};
+
 }
 
 #endif // SPECTER_VIEW_HPP
