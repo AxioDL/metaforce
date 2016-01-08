@@ -941,13 +941,13 @@ public:
         auto it = relPath.cbegin();
         if (*it == '/')
         {
-            ret.push_back(_S("/"));
+            ret.push_back("/");
             ++it;
         }
         std::string comp;
         for (; it != relPath.cend() ; ++it)
         {
-            if (*it == _S('/'))
+            if (*it == '/')
             {
                 if (comp.empty())
                     continue;
