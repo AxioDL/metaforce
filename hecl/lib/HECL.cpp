@@ -213,7 +213,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
 
         if (sizeSort)
         {
-            std::map<size_t, Entry> sort;
+            std::multimap<size_t, Entry> sort;
             do
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
@@ -338,7 +338,7 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
 
         if (sizeSort)
         {
-            std::map<size_t, Entry> sort;
+            std::multimap<size_t, Entry> sort;
             while ((d = readdir(dir)))
             {
                 if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
