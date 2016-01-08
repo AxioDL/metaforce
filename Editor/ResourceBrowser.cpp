@@ -18,11 +18,15 @@ bool ResourceBrowser::navigateToPath(const HECL::ProjectPath& pathIn)
                                     m_state.sortDir==Specter::SortDirection::Descending,
                                     true);
     m_fileListingBind.updateListing(dEnum);
-    m_view->m_fileListing.m_view->selectRow(-1);
-    m_view->m_fileListing.m_view->updateData();
-    m_view->m_pathButtons.m_view->setButtons(m_comps);
 
-    m_view->updateSize();
+    if (m_view)
+    {
+        m_view->m_fileListing.m_view->selectRow(-1);
+        m_view->m_fileListing.m_view->updateData();
+        m_view->m_pathButtons.m_view->setButtons(m_comps);
+
+        m_view->updateSize();
+    }
 
     return true;
 }

@@ -34,6 +34,7 @@ class SplashScreen : public Specter::ModalWindow
     struct NewProjBinding : Specter::IButtonBinding
     {
         SplashScreen& m_splash;
+        HECL::SystemString m_deferPath;
         NewProjBinding(SplashScreen& splash) : m_splash(splash) {}
         const char* name(const Specter::Control* control) const {return m_splash.m_newString.c_str();}
         const char* help(const Specter::Control* control) const {return "Creates an empty project at selected path";}
@@ -46,10 +47,7 @@ class SplashScreen : public Specter::ModalWindow
                                                  [&](bool ok, const HECL::SystemString& path)
             {
                 if (ok)
-                {
-                    Log.report(LogVisor::Info, _S("Making project '%s'"), path.c_str());
-                    m_splash.m_vm.projectManager().newProject(path);
-                }
+                    m_deferPath = path;
             }));
             m_splash.updateSize();
             m_splash.m_newButt.mouseLeave(coord);
@@ -59,6 +57,7 @@ class SplashScreen : public Specter::ModalWindow
     struct OpenProjBinding : Specter::IButtonBinding
     {
         SplashScreen& m_splash;
+        HECL::SystemString m_deferPath;
         OpenProjBinding(SplashScreen& splash) : m_splash(splash) {}
         const char* name(const Specter::Control* control) const {return m_splash.m_openString.c_str();}
         const char* help(const Specter::Control* control) const {return "Opens an existing project at selected path";}
@@ -71,10 +70,7 @@ class SplashScreen : public Specter::ModalWindow
                                                  [&](bool ok, const HECL::SystemString& path)
             {
                 if (ok)
-                {
-                    Log.report(LogVisor::Info, _S("Opening project '%s'"), path.c_str());
-                    m_splash.m_vm.projectManager().openProject(path);
-                }
+                    m_deferPath = path;
             }));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
@@ -84,6 +80,7 @@ class SplashScreen : public Specter::ModalWindow
     struct ExtractProjBinding : Specter::IButtonBinding
     {
         SplashScreen& m_splash;
+        HECL::SystemString m_deferPath;
         ExtractProjBinding(SplashScreen& splash) : m_splash(splash) {}
         const char* name(const Specter::Control* control) const {return m_splash.m_extractString.c_str();}
         const char* help(const Specter::Control* control) const {return "Extracts game image as project at selected path";}
@@ -96,10 +93,7 @@ class SplashScreen : public Specter::ModalWindow
                                                  [&](bool ok, const HECL::SystemString& path)
             {
                 if (ok)
-                {
-                    Log.report(LogVisor::Info, _S("Extracting game '%s'"), path.c_str());
-                    m_splash.m_vm.projectManager().extractGame(path);
-                }
+                    m_deferPath = path;
             }));
             m_splash.updateSize();
             m_splash.m_extractButt.mouseLeave(coord);
