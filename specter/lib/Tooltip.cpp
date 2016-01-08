@@ -13,29 +13,7 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
 : View(res, parentView), m_titleStr(title), m_messageStr(message)
 {
     m_ttBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_ttVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 16);
-
-    if (!res.m_viewRes.m_solidVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_ttVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_ttVertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_ttVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_ttBlockBuf};
-        m_ttShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                                m_ttVtxFmt, m_ttVertsBuf, nullptr,
-                                                                nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_ttBlockBuf};
-        m_ttShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                                res.m_viewRes.m_solidVtxFmt,
-                                                                m_ttVertsBuf, nullptr,
-                                                                nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, 16, m_ttBlockBuf);
 
     for (int i=0 ; i<16 ; ++i)
         m_ttVerts[i].m_color = res.themeData().tooltipBackground();
@@ -94,7 +72,7 @@ void Tooltip::setVerts(int width, int height, float pf)
     m_ttVerts[14].m_pos.assign(width-margin.first, margin.second, 0);
     m_ttVerts[15].m_pos.assign(width-margin.first, 0, 0);
 
-    m_ttVertsBuf->load(m_ttVerts, sizeof(SolidShaderVert) * 16);
+    m_vertsBinding.load(m_ttVerts, sizeof(m_ttVerts));
 }
 
 void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -132,7 +110,7 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 
 void Tooltip::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->setShaderDataBinding(m_ttShaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 16);
 

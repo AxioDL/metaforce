@@ -90,13 +90,24 @@ public:
         Zeus::CVector3f m_pos;
         Zeus::CVector2f m_uv;
     };
+    
+    struct VertexBufferBinding
+    {
+        boo::IGraphicsBufferD* m_vertsBuf = nullptr;
+        boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
+        boo::IShaderDataBinding* m_shaderBinding = nullptr;
+        
+        void initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf);
+        void initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture);
+
+        void load(const void* data, size_t sz) {m_vertsBuf->load(data, sz);}
+        operator boo::IShaderDataBinding*() {return m_shaderBinding;}
+    };
 private:
     RootView& m_rootView;
     View& m_parentView;
     boo::SWindowRect m_subRect;
-    boo::IGraphicsBufferD* m_bgVertBuf;
-    boo::IVertexFormat* m_bgVtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_bgShaderBinding;
+    VertexBufferBinding m_bgVertsBinding;
     SolidShaderVert m_bgRect[4];
     boo::GraphicsDataToken m_gfxData;
 
@@ -176,7 +187,7 @@ public:
     {
         for (int i=0 ; i<4 ; ++i)
             m_bgRect[i].m_color = color;
-        m_bgVertBuf->load(&m_bgRect, sizeof(SolidShaderVert) * 4);
+        m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
     }
 
     virtual void setMultiplyColor(const Zeus::CColor& color)

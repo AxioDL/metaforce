@@ -46,9 +46,7 @@ class ModalWindow : public View
     void setFillVerts(int width, int height, float pf);
     void setFillColors(float t);
 
-    boo::IGraphicsBufferD* m_vertsBuf;
-    boo::IVertexFormat* m_vertsVtxFmt; /* OpenGL only */
-    boo::IShaderDataBinding* m_vertsShaderBinding;
+    VertexBufferBinding m_vertsBinding;
 
     boo::GraphicsDataToken m_windowGfxData;
 

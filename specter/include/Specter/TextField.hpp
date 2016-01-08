@@ -19,9 +19,7 @@ class TextField : public ITextInputView
     std::unique_ptr<TextView> m_errText;
 
     SolidShaderVert m_verts[41];
-    boo::IGraphicsBufferD* m_bVertsBuf = nullptr;
-    boo::IVertexFormat* m_bVtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_bShaderBinding = nullptr;
+    VertexBufferBinding m_vertsBinding;
 
     int m_nomWidth = 0;
     int m_nomHeight = 0;

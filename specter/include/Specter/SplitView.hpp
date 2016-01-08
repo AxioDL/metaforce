@@ -60,9 +60,8 @@ private:
         m_splitVerts[3].m_uv.assign(1, 0);
     }
 
-    boo::IGraphicsBufferD* m_splitVertsBuf;
-    boo::IVertexFormat* m_splitVtxFmt; /* OpenGL only */
-    boo::IShaderDataBinding* m_splitShaderBinding;
+    VertexBufferBinding m_splitVertsBinding;
+    
 public:
     SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA=-1, int clearanceB=-1);
     View* setContentView(int slot, View* view);

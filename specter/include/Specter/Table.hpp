@@ -4,6 +4,7 @@
 #include "View.hpp"
 #include "ScrollView.hpp"
 #include "TextView.hpp"
+#include <array>
 
 namespace Specter
 {
@@ -53,11 +54,15 @@ class Table : public View
         std::unique_ptr<TextView> m_text;
         size_t m_c, m_r;
         boo::SWindowRect m_scissorRect;
-        CellView(Table& t, ViewResources& res, size_t c, size_t r);
+        uint64_t m_textHash = 0;
+        CellView(Table& t, ViewResources& res);
 
         bool m_selected = false;
         void select();
         void deselect();
+        void reset();
+        bool reset(size_t c);
+        bool reset(size_t c, size_t r);
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -68,16 +73,18 @@ class Table : public View
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::vector<ViewChild<std::unique_ptr<CellView>>> m_headerViews;
-    std::vector<std::vector<ViewChild<std::unique_ptr<CellView>>>> m_cellViews;
+    using ColumnPool = std::array<std::array<ViewChild<std::unique_ptr<CellView>>, SPECTER_TABLE_MAX_ROWS>, 2>;
+    std::vector<ColumnPool> m_cellPools;
+    size_t m_ensuredRows = 0;
+    std::vector<ColumnPool>& ensureCellPools(size_t rows, size_t cols, ViewResources& res);
+    size_t m_activePool = -1;
     bool m_header = false;
 
     std::vector<boo::SWindowRect> m_hCellRects;
     size_t m_hDraggingIdx = 0;
 
     std::unique_ptr<SolidShaderVert[]> m_hVerts;
-    boo::IGraphicsBufferD* m_hVertsBuf = nullptr;
-    boo::IVertexFormat* m_hVtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_hShaderBinding = nullptr;
+    VertexBufferBinding m_vertsBinding;
     void _setHeaderVerts(const boo::SWindowRect& rect);
 
     std::vector<boo::SWindowRect> getCellRects(const boo::SWindowRect& tableRect) const;
@@ -89,9 +96,7 @@ class Table : public View
         Table& m_t;
 
         std::unique_ptr<SolidShaderVert[]> m_verts;
-        boo::IGraphicsBufferD* m_vertsBuf = nullptr;
-        boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
-        boo::IShaderDataBinding* m_shaderBinding = nullptr;
+        VertexBufferBinding m_vertsBinding;
         size_t m_visibleStart = 0;
         size_t m_visibleRows = 0;
         boo::SWindowRect m_scissorRect;
@@ -111,6 +116,8 @@ class Table : public View
 
     bool m_headerNeedsUpdate = false;
     bool m_inSelectRow = false;
+    
+    void _updateData();
 
 public:
     Table(ViewResources& res, View& parentView, ITableDataBinding* data,

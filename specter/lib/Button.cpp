@@ -23,29 +23,7 @@ Button::Button(ViewResources& res, View& parentView,
 : Control(res, parentView, controlBinding),
   m_style(style), m_textColor(textColor), m_textStr(text), m_constraint(constraint)
 {
-    m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 28);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_bVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_bVertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_bVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               m_bVtxFmt, m_bVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               res.m_viewRes.m_texVtxFmt,
-                                                               m_bVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, 28, m_viewVertBlockBuf);
     commitResources(res);
 
     if (style == Style::Block)
@@ -57,13 +35,13 @@ Button::Button(ViewResources& res, View& parentView,
         m_verts[4].m_color = res.themeData().button2Inactive();
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = res.themeData().button2Inactive();
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_verts[i].m_color = Zeus::CColor::skClear;
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
     }
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
@@ -122,7 +100,7 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[26].m_pos.assign(width+1, 1, 0);
         m_verts[27].m_pos.assign(width+1, 0, 0);
 
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
@@ -133,7 +111,7 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[2].m_pos.assign(width, -1*pf, 0);
         m_verts[3].m_pos.assign(width, -2*pf, 0);
 
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
     }
 
     m_nomWidth = width;
@@ -155,13 +133,13 @@ void Button::setInactive()
         m_verts[2].m_color = rootView().themeData().button1Inactive();
         m_verts[3].m_color = rootView().themeData().button2Inactive();
         m_verts[4].m_color = rootView().themeData().button2Inactive();
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_verts[i].m_color = Zeus::CColor::skClear;
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
         m_text->colorGlyphs(m_textColor);
     }
 }
@@ -175,13 +153,13 @@ void Button::setHover()
         m_verts[2].m_color = rootView().themeData().button1Hover();
         m_verts[3].m_color = rootView().themeData().button2Hover();
         m_verts[4].m_color = rootView().themeData().button2Hover();
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_verts[i].m_color = m_textColor;
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
         m_text->colorGlyphs(m_textColor);
     }
 }
@@ -195,13 +173,13 @@ void Button::setPressed()
         m_verts[2].m_color = rootView().themeData().button1Press();
         m_verts[3].m_color = rootView().themeData().button2Press();
         m_verts[4].m_color = rootView().themeData().button2Press();
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_verts[i].m_color = m_textColor;
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
         m_text->colorGlyphs(m_textColor);
     }
 }
@@ -215,13 +193,13 @@ void Button::setDisabled()
         m_verts[2].m_color = rootView().themeData().button1Disabled();
         m_verts[3].m_color = rootView().themeData().button2Disabled();
         m_verts[4].m_color = rootView().themeData().button2Disabled();
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 28);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 28);
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_verts[i].m_color = Zeus::CColor::skClear;
-        m_bVertsBuf->load(m_verts, sizeof(SolidShaderVert) * 4);
+        m_vertsBinding.load(m_verts, sizeof(SolidShaderVert) * 4);
         Zeus::CColor dimText = m_textColor;
         dimText[3] *= 0.5;
         m_text->colorGlyphs(dimText);
@@ -291,7 +269,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 void Button::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
-    gfxQ->setShaderDataBinding(m_bShaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     if (m_style == Style::Block)
         gfxQ->draw(0, 28);

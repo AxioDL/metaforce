@@ -32,9 +32,7 @@ private:
     bool m_drawSideButtons = false;
 
     SolidShaderVert m_verts[4];
-    boo::IGraphicsBufferD* m_vertsBuf = nullptr;
-    boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_shaderBinding = nullptr;
+    VertexBufferBinding m_vertsBinding;
 
     enum class SideButtonState
     {

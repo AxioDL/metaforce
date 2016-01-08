@@ -84,9 +84,8 @@ private:
         m_tbVerts[9].m_uv.assign(1, 0);
     }
 
-    boo::IGraphicsBufferD* m_tbVertsBuf;
-    boo::IVertexFormat* m_tbVtxFmt; /* OpenGL only */
-    boo::IShaderDataBinding* m_tbShaderBinding;
+    VertexBufferBinding m_vertsBinding;
+    
 public:
     Toolbar(ViewResources& res, View& parentView, Position toolbarPos);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

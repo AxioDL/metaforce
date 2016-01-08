@@ -27,34 +27,9 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos)
   m_padding(res.pixelFactor() * TOOLBAR_PADDING)
 {
     m_tbBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_tbVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), 10);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_tbVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_tbVertsBuf, nullptr, boo::VertexSemantic::UV4}
-        };
-        m_tbVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_tbBlockBuf};
-        boo::ITexture* texs[] = {res.m_toolbarRes.m_shadingTex};
-        m_tbShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                                m_tbVtxFmt, m_tbVertsBuf, nullptr,
-                                                                nullptr, 1, bufs, 1, texs);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_tbBlockBuf};
-        boo::ITexture* texs[] = {res.m_toolbarRes.m_shadingTex};
-        m_tbShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                                res.m_viewRes.m_texVtxFmt,
-                                                                m_tbVertsBuf, nullptr,
-                                                                nullptr, 1, bufs, 1, texs);
-    }
-
-    setBackground(res.themeData().toolbarBackground());
+    m_vertsBinding.initTex(res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
     commitResources(res);
+    setBackground(res.themeData().toolbarBackground());
 }
 
 void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -91,7 +66,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
     setHorizontalVerts(sub.size[0]);
-    m_tbVertsBuf->load(&m_tbVerts, sizeof(TexShaderVert) * 10);
+    m_vertsBinding.load(m_tbVerts, sizeof(m_tbVerts));
     m_tbBlock.setViewRect(root, sub);
     m_tbBlockBuf->load(&m_tbBlock, sizeof(ViewBlock));
 
@@ -110,7 +85,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 void Toolbar::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
-    gfxQ->setShaderDataBinding(m_tbShaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 10);
 

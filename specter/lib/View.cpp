@@ -286,36 +286,10 @@ void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& them
 
 void View::buildResources(ViewResources& res)
 {
-    m_bgVertBuf =
-    res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                    sizeof(SolidShaderVert), 4);
-
     m_viewVertBlockBuf =
     res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
                                     sizeof(ViewBlock), 1);
-
-    if (!res.m_viewRes.m_solidVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_bgVertBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_bgVertBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_bgVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        m_bgShaderBinding =
-        res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader, m_bgVtxFmt,
-                                            m_bgVertBuf, nullptr, nullptr, 1,
-                                            (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                            0, nullptr);
-    }
-    else
-    {
-        m_bgShaderBinding =
-        res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader, res.m_viewRes.m_solidVtxFmt,
-                                            m_bgVertBuf, nullptr, nullptr, 1,
-                                            (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                            0, nullptr);
-    }
+    m_bgVertsBinding.initSolid(res, 4, m_viewVertBlockBuf);
 }
 
 View::View(ViewResources& res)
@@ -346,12 +320,12 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
-    m_bgVertBuf->load(m_bgRect, sizeof(SolidShaderVert) * 4);
+    m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->setShaderDataBinding(m_bgShaderBinding);
+    gfxQ->setShaderDataBinding(m_bgVertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
 }
@@ -362,5 +336,62 @@ void View::commitResources(ViewResources& res)
         Log.report(LogVisor::FatalError, "multiple resource commits not allowed");
     m_gfxData = res.m_factory->commit();
 }
+    
+void View::VertexBufferBinding::initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf)
+{
+    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), count);
+    
+    if (!res.m_viewRes.m_solidVtxFmt)
+    {
+        boo::VertexElementDescriptor vdescs[] =
+        {
+            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
+            {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
+        };
+        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
+        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
+        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
+                                                              m_vtxFmt, m_vertsBuf, nullptr,
+                                                              nullptr, 1, bufs, 0, nullptr);
+    }
+    else
+    {
+        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
+        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
+                                                              res.m_viewRes.m_solidVtxFmt,
+                                                              m_vertsBuf, nullptr,
+                                                              nullptr, 1, bufs, 0, nullptr);
+    }
+}
+    
+void View::VertexBufferBinding::initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture)
+{
+    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), count);
+    
+    if (!res.m_viewRes.m_texVtxFmt)
+    {
+        boo::VertexElementDescriptor vdescs[] =
+        {
+            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
+            {m_vertsBuf, nullptr, boo::VertexSemantic::UV4}
+        };
+        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
+        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
+        boo::ITexture* tex[] = {texture};
+        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                              m_vtxFmt, m_vertsBuf, nullptr,
+                                                              nullptr, 1, bufs, 1, tex);
+    }
+    else
+    {
+        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
+        boo::ITexture* tex[] = {texture};
+        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                              res.m_viewRes.m_texVtxFmt,
+                                                              m_vertsBuf, nullptr,
+                                                              nullptr, 1, bufs, 1, tex);
+    }
+}
+
 
 }

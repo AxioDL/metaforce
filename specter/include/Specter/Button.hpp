@@ -23,9 +23,7 @@ private:
     std::unique_ptr<TextView> m_text;
 
     SolidShaderVert m_verts[28];
-    boo::IGraphicsBufferD* m_bVertsBuf = nullptr;
-    boo::IVertexFormat* m_bVtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_bShaderBinding = nullptr;
+    VertexBufferBinding m_vertsBinding;
 
     RectangleConstraint m_constraint;
     int m_nomWidth, m_nomHeight;

@@ -16,31 +16,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
     if (!maxColumns)
         Log.report(LogVisor::FatalError, "0-column tables not supported");
 
-    m_hVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                                  sizeof(SolidShaderVert),
-                                                  maxColumns * 6);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_hVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_hVertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_hVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_hShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               m_hVtxFmt, m_hVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_hShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               res.m_viewRes.m_texVtxFmt,
-                                                               m_hVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, maxColumns * 6, m_viewVertBlockBuf);
     commitResources(res);
 
     m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
@@ -51,35 +27,12 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
 Table::RowsView::RowsView(Table& t, ViewResources& res)
 : View(res, t), m_t(t), m_verts(new SolidShaderVert[SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6])
 {
-    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert),
-                                                 SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              m_vtxFmt, m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              res.m_viewRes.m_texVtxFmt,
-                                                              m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
     commitResources(res);
 }
 
-Table::CellView::CellView(Table& t, ViewResources& res, size_t c, size_t r)
-: View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont)), m_c(c), m_r(r)  {}
+Table::CellView::CellView(Table& t, ViewResources& res)
+: View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont)), m_c(-1), m_r(-1)  {}
 
 void Table::_setHeaderVerts(const boo::SWindowRect& sub)
 {;
@@ -157,7 +110,7 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
     }
 
     if (c)
-        m_hVertsBuf->load(m_hVerts.get(), sizeof(SolidShaderVert) * 6 * c);
+        m_vertsBinding.load(m_hVerts.get(), sizeof(SolidShaderVert) * 6 * c);
 
     m_headerNeedsUpdate = false;
 }
@@ -167,7 +120,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     SolidShaderVert* v = m_verts.get();
     const ThemeData& theme = rootView().themeData();
 
-    if (m_t.m_cellViews.empty())
+    if (m_t.m_cellPools.empty())
         return;
 
     float pf = rootView().viewRes().pixelFactor();
@@ -182,8 +135,6 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
         ++idx;
     }
     int startIdx = int(m_t.m_rows) - idx;
-    if (!m_t.m_header)
-        startIdx -= 1;
 
     std::vector<boo::SWindowRect> cellRects = m_t.getCellRects(sub);
 
@@ -217,7 +168,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     m_visibleStart = std::max(0, startIdx);
     m_visibleRows = r;
     if (r * c)
-        m_vertsBuf->load(m_verts.get(), sizeof(SolidShaderVert) * 6 * r * c);
+        m_vertsBinding.load(m_verts.get(), sizeof(SolidShaderVert) * 6 * r * c);
 }
 
 void Table::cycleSortColumn(size_t c)
@@ -255,22 +206,61 @@ void Table::selectRow(size_t r)
         }
         return;
     }
-    if (m_selectedRow != -1)
-        for (auto& col : m_cellViews)
+    
+    if (m_selectedRow != -1 && m_activePool != -1)
+    {
+        size_t poolIdx = m_selectedRow / SPECTER_TABLE_MAX_ROWS;
+        int pool0 = (poolIdx & 1) != 0;
+        int pool1 = (poolIdx & 1) == 0;
+        if (m_activePool == poolIdx)
         {
-            ViewChild<std::unique_ptr<CellView>>& cv = col.at(m_selectedRow);
-            if (cv.m_view)
-                cv.m_view->deselect();
+            for (auto& col : m_cellPools)
+            {
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool0].at(m_selectedRow % SPECTER_TABLE_MAX_ROWS);
+                if (cv.m_view)
+                    cv.m_view->deselect();
+            }
         }
+        else if (m_activePool+1 == poolIdx)
+        {
+            for (auto& col : m_cellPools)
+            {
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool1].at(m_selectedRow % SPECTER_TABLE_MAX_ROWS);
+                if (cv.m_view)
+                    cv.m_view->deselect();
+            }
+        }
+    }
+    
     m_selectedRow = r;
-    if (m_selectedRow != -1)
-        for (auto& col : m_cellViews)
+    
+    if (m_selectedRow != -1 && m_activePool != -1)
+    {
+        size_t poolIdx = m_selectedRow / SPECTER_TABLE_MAX_ROWS;
+        int pool0 = (poolIdx & 1) != 0;
+        int pool1 = (poolIdx & 1) == 0;
+        if (m_activePool == poolIdx)
         {
-            ViewChild<std::unique_ptr<CellView>>& cv = col.at(m_selectedRow);
-            if (cv.m_view)
-                cv.m_view->select();
+            for (auto& col : m_cellPools)
+            {
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool0].at(m_selectedRow % SPECTER_TABLE_MAX_ROWS);
+                if (cv.m_view)
+                    cv.m_view->select();
+            }
         }
+        else if (m_activePool+1 == poolIdx)
+        {
+            for (auto& col : m_cellPools)
+            {
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool1].at(m_selectedRow % SPECTER_TABLE_MAX_ROWS);
+                if (cv.m_view)
+                    cv.m_view->select();
+            }
+        }
+    }
+    
     updateSize();
+    
     if (m_state)
     {
         m_inSelectRow = true;
@@ -287,9 +277,12 @@ void Table::setMultiplyColor(const Zeus::CColor& color)
     for (ViewChild<std::unique_ptr<CellView>>& hv : m_headerViews)
         if (hv.m_view)
             hv.m_view->m_text->setMultiplyColor(color);
-    for (auto& col : m_cellViews)
+    for (auto& col : m_cellPools)
     {
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[0])
+            if (cv.m_view)
+                cv.m_view->m_text->setMultiplyColor(color);
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[1])
             if (cv.m_view)
                 cv.m_view->m_text->setMultiplyColor(color);
     }
@@ -349,9 +342,13 @@ void Table::RowsView::mouseDown(const boo::SWindowCoord& coord,
     for (ViewChild<std::unique_ptr<CellView>>& hv : m_t.m_headerViews)
         if (hv.mouseDown(coord, button, mod))
             return; /* Trap header event */
-    for (std::vector<ViewChild<std::unique_ptr<CellView>>>& col : m_t.m_cellViews)
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+    for (auto& col : m_t.m_cellPools)
+    {
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[0])
             cv.mouseDown(coord, button, mod);
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[1])
+            cv.mouseDown(coord, button, mod);
+    }
 }
 
 void Table::CellView::mouseDown(const boo::SWindowCoord& coord,
@@ -393,9 +390,13 @@ void Table::RowsView::mouseUp(const boo::SWindowCoord& coord,
         hv.mouseUp(coord, button, mod);
         ++idx;
     }
-    for (std::vector<ViewChild<std::unique_ptr<CellView>>>& col : m_t.m_cellViews)
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+    for (auto& col : m_t.m_cellPools)
+    {
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[0])
             cv.mouseUp(coord, button, mod);
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[1])
+            cv.mouseUp(coord, button, mod);
+    }
 }
 
 void Table::CellView::mouseUp(const boo::SWindowCoord& coord,
@@ -453,9 +454,13 @@ void Table::RowsView::mouseMove(const boo::SWindowCoord& coord)
 {
     for (ViewChild<std::unique_ptr<CellView>>& hv : m_t.m_headerViews)
         hv.mouseMove(coord);
-    for (std::vector<ViewChild<std::unique_ptr<CellView>>>& col : m_t.m_cellViews)
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+    for (auto& col : m_t.m_cellPools)
+    {
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[0])
             cv.mouseMove(coord);
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[1])
+            cv.mouseMove(coord);
+    }
 }
 
 void Table::mouseEnter(const boo::SWindowCoord& coord)
@@ -482,9 +487,13 @@ void Table::RowsView::mouseLeave(const boo::SWindowCoord& coord)
 {
     for (ViewChild<std::unique_ptr<CellView>>& hv : m_t.m_headerViews)
         hv.mouseLeave(coord);
-    for (std::vector<ViewChild<std::unique_ptr<CellView>>>& col : m_t.m_cellViews)
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+    for (auto& col : m_t.m_cellPools)
+    {
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[0])
             cv.mouseLeave(coord);
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[1])
+            cv.mouseLeave(coord);
+    }
 }
 
 void Table::CellView::mouseLeave(const boo::SWindowCoord& coord)
@@ -504,12 +513,108 @@ void Table::think()
         m_scroll.m_view->think();
     ++m_clickFrames;
 }
+    
+void Table::CellView::reset()
+{
+    m_c = -1;
+    m_r = -1;
+    if (m_textHash)
+    {
+        m_text->typesetGlyphs("");
+        m_textHash = 0;
+    }
+}
+    
+bool Table::CellView::reset(size_t c)
+{
+    m_c = c;
+    m_r = -1;
+    const std::string* headerText = m_t.m_data->header(c);
+    if (headerText)
+    {
+        uint64_t hash = XXH64(headerText->data(), headerText->size(), 0);
+        if (hash != m_textHash)
+        {
+            m_text->typesetGlyphs(*headerText, rootView().themeData().uiText());
+            m_textHash = hash;
+        }
+        return true;
+    }
+    else if (m_textHash)
+    {
+        m_text->typesetGlyphs("");
+        m_textHash = 0;
+    }
+    return false;
+}
 
-void Table::updateData()
+bool Table::CellView::reset(size_t c, size_t r)
+{
+    m_c = c;
+    m_r = r;
+    const std::string* cellText = m_t.m_data->cell(c, r);
+    if (cellText)
+    {
+        uint64_t hash = XXH64(cellText->data(), cellText->size(), 0);
+        if (hash != m_textHash)
+        {
+            m_text->typesetGlyphs(*cellText, rootView().themeData().uiText());
+            m_textHash = hash;
+        }
+        return true;
+    }
+    else if (m_textHash)
+    {
+        m_text->typesetGlyphs("");
+        m_textHash = 0;
+    }
+    return false;
+}
+ 
+std::vector<Table::ColumnPool>& Table::ensureCellPools(size_t rows, size_t cols, ViewResources& res)
+{
+    if (m_cellPools.size() < cols)
+    {
+        m_cellPools.reserve(cols);
+        for (size_t i=m_cellPools.size() ; i<cols ; ++i)
+            m_cellPools.emplace_back();
+        m_ensuredRows = 0;
+    }
+    if (m_ensuredRows < rows)
+    {
+        for (size_t i=0 ; i<cols ; ++i)
+        {
+            ColumnPool& cp = m_cellPools[i];
+            if (rows > SPECTER_TABLE_MAX_ROWS)
+            {
+                for (int p=0 ; p<2 ; ++p)
+                    for (ViewChild<std::unique_ptr<CellView>>& cv : cp[p])
+                        if (!cv.m_view)
+                            cv.m_view.reset(new CellView(*this, res));
+            }
+            else
+            {
+                size_t r = 0;
+                for (ViewChild<std::unique_ptr<CellView>>& cv : cp[0])
+                {
+                    if (!cv.m_view)
+                        cv.m_view.reset(new CellView(*this, res));
+                    ++r;
+                    if (r >= rows)
+                        break;
+                }
+            }
+        }
+        m_ensuredRows = rows;
+    }
+    return m_cellPools;
+}
+    
+void Table::_updateData()
 {
     m_header = false;
     bool newViewChildren = false;
-    if (m_columns != m_data->columnCount())
+    if (m_columns != m_data->columnCount() || m_rows > m_data->rowCount() + SPECTER_TABLE_MAX_ROWS)
         newViewChildren = true;
 
     m_rows = m_data->rowCount();
@@ -517,52 +622,66 @@ void Table::updateData()
     if (!m_columns)
         return;
 
+    ViewResources& res = rootView().viewRes();
     if (newViewChildren)
     {
         m_headerViews.clear();
-        m_cellViews.clear();
+        m_cellPools.clear();
         m_headerViews.reserve(m_columns);
-        m_cellViews.reserve(m_columns);
         for (size_t c=0 ; c<m_columns ; ++c)
-        {
             m_headerViews.emplace_back();
-            m_cellViews.emplace_back();
-        }
+        m_ensuredRows = 0;
     }
-
-    ViewResources& res = rootView().viewRes();
-    const Zeus::CColor& textColor = rootView().themeData().uiText();
+    ensureCellPools(m_rows, m_columns, res);
+    
+    size_t poolIdx = m_rowsView.m_visibleStart / SPECTER_TABLE_MAX_ROWS;
+    size_t startRow = poolIdx * SPECTER_TABLE_MAX_ROWS;
+    int pool0 = (poolIdx & 1) != 0;
+    int pool1 = (poolIdx & 1) == 0;
+    
     for (size_t c=0 ; c<m_columns ; ++c)
     {
-        const std::string* headerText = m_data->header(c);
-        if (headerText)
-        {
+        std::unique_ptr<CellView>& cv = m_headerViews[c].m_view;
+        if (!cv)
+            cv.reset(new CellView(*this, res));
+        if (cv->reset(c))
             m_header = true;
-            CellView* cv = new CellView(*this, res, c, -1);
-            m_headerViews[c].m_view.reset(cv);
-            cv->m_text->typesetGlyphs(*headerText, textColor);
-        }
-        else
-            m_headerViews[c].m_view.reset();
 
-        std::vector<ViewChild<std::unique_ptr<CellView>>>& col = m_cellViews[c];
-        col.clear();
-        col.reserve(m_rows);
-        for (size_t r=0 ; r<m_rows ; ++r)
+        ColumnPool& col = m_cellPools[c];
+
+        if (poolIdx != m_activePool)
         {
-            const std::string* cellText = m_data->cell(c, r);
-            if (cellText)
+            for (size_t r=startRow, i=0 ; i<SPECTER_TABLE_MAX_ROWS ; ++r, ++i)
             {
-                CellView* cv = new CellView(*this, res, c, r);
-                col.emplace_back();
-                col.back().m_view.reset(cv);
-                cv->m_text->typesetGlyphs(*cellText, textColor);
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool0][i];
+                if (cv.m_view)
+                {
+                    if (r < m_rows)
+                        cv.m_view->reset(c, r);
+                    else
+                        cv.m_view->reset();
+                }
             }
-            else
-                col.emplace_back();
+            for (size_t r=startRow+SPECTER_TABLE_MAX_ROWS, i=0 ; i<SPECTER_TABLE_MAX_ROWS ; ++r, ++i)
+            {
+                ViewChild<std::unique_ptr<CellView>>& cv = col[pool1][i];
+                if (cv.m_view)
+                {
+                    if (r < m_rows)
+                        cv.m_view->reset(c, r);
+                    else
+                        cv.m_view->reset();
+                }
+            }
         }
     }
-
+    
+    m_activePool = poolIdx;
+}
+    
+void Table::updateData()
+{
+    m_activePool = -1;
     updateSize();
 }
 
@@ -643,9 +762,7 @@ void Table::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 int Table::RowsView::nominalHeight() const
 {
     float pf = rootView().viewRes().pixelFactor();
-    int rows = m_t.m_rows;
-    if (m_t.m_header)
-        rows += 1;
+    int rows = m_t.m_rows + 1;
     return rows * (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
 }
 
@@ -654,6 +771,7 @@ void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRe
 {
     View::resized(root, sub);
     _setRowVerts(sub, scissor);
+    m_t._updateData();
 
     if (!m_t.m_columns)
         return;
@@ -666,9 +784,20 @@ void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRe
     int spacing = (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
     std::vector<boo::SWindowRect> cellRects = m_t.getCellRects(rowRect);
     auto cellRectIt = cellRects.begin();
-    for (auto& col : m_t.m_cellViews)
+    int poolIdx = m_visibleStart / SPECTER_TABLE_MAX_ROWS;
+    int pool0 = (poolIdx & 1) != 0;
+    int pool1 = (poolIdx & 1) == 0;
+    int locationStart = spacing * poolIdx * SPECTER_TABLE_MAX_ROWS;
+    for (auto& col : m_t.m_cellPools)
     {
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+        cellRectIt->location[1] -= locationStart;
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[pool0])
+        {
+            cellRectIt->location[1] -= spacing;
+            if (cv.m_view)
+                cv.m_view->resized(root, *cellRectIt, cellScissor);
+        }
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[pool1])
         {
             cellRectIt->location[1] -= spacing;
             if (cv.m_view)
@@ -701,15 +830,25 @@ void Table::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->setShaderDataBinding(m_shaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
 
     gfxQ->setScissor(m_scissorRect);
     gfxQ->draw(1, m_visibleRows * m_t.m_columns * 6 - 2);
-    for (auto& col : m_t.m_cellViews)
+    
+    int poolIdx = m_t.m_activePool;
+    int pool0 = (poolIdx & 1) != 0;
+    int pool1 = (poolIdx & 1) == 0;
+    for (auto& col : m_t.m_cellPools)
     {
-        size_t idx = 0;
-        for (ViewChild<std::unique_ptr<CellView>>& cv : col)
+        size_t idx = poolIdx * SPECTER_TABLE_MAX_ROWS;
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[pool0])
+        {
+            if (cv.m_view && idx >= m_visibleStart && idx < m_visibleStart + m_visibleRows)
+                cv.m_view->draw(gfxQ);
+            ++idx;
+        }
+        for (ViewChild<std::unique_ptr<CellView>>& cv : col[pool1])
         {
             if (cv.m_view && idx >= m_visibleStart && idx < m_visibleStart + m_visibleRows)
                 cv.m_view->draw(gfxQ);
@@ -719,7 +858,7 @@ void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
     if (m_t.m_header)
     {
-        gfxQ->setShaderDataBinding(m_t.m_hShaderBinding);
+        gfxQ->setShaderDataBinding(m_t.m_vertsBinding);
         gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
         gfxQ->setScissor(rootView().subRect());
         gfxQ->draw(1, m_t.m_columns * 6 - 2);

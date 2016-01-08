@@ -8,35 +8,13 @@ namespace Specter
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
 : ITextInputView(res, parentView, strBind)
 {
-    m_bVertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 41);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_bVertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_bVertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_bVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               m_bVtxFmt, m_bVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_bShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                               res.m_viewRes.m_texVtxFmt,
-                                                               m_bVertsBuf, nullptr,
-                                                               nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, 41, m_viewVertBlockBuf);
     commitResources(res);
 
     for (int i=28 ; i<32 ; ++i)
         m_verts[i].m_color = res.themeData().textfieldSelection();
     setInactive();
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
     if (strBind)
@@ -149,7 +127,7 @@ void TextField::setInactive()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Inactive();
     }
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     m_bgState = BGState::Inactive;
 }
 
@@ -176,7 +154,7 @@ void TextField::setHover()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Inactive();
     }
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     m_bgState = BGState::Hover;
 }
 
@@ -203,7 +181,7 @@ void TextField::setDisabled()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Disabled();
     }
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     m_bgState = BGState::Disabled;
 }
 
@@ -623,7 +601,7 @@ void TextField::think()
         }
         for (size_t i=32 ; i<41 ; ++i)
             m_verts[i].m_color = errBg;
-        m_bVertsBuf->load(m_verts, sizeof(m_verts));
+        m_vertsBinding.load(m_verts, sizeof(m_verts));
 
         m_errText->setMultiplyColor(errMult);
     }
@@ -666,7 +644,7 @@ void TextField::_reallySetCursorPos(size_t pos)
     m_verts[30].m_color = selColor;
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -747,7 +725,7 @@ void TextField::_reallySetSelectionRange(size_t start, size_t len)
     m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
     m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -772,7 +750,7 @@ void TextField::_reallySetMarkRange(size_t start, size_t len)
     m_verts[30].m_color = selColor;
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
     
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -902,7 +880,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
             m_verts[i].m_color = Zeus::CColor::skClear;
     }
 
-    m_bVertsBuf->load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
 
     m_nomWidth = width;
     m_nomHeight = height;
@@ -916,7 +894,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
 void TextField::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
-    gfxQ->setShaderDataBinding(m_bShaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 28);
     if (m_active)

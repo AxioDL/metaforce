@@ -17,9 +17,7 @@ class Tooltip : public View
 
     void setVerts(int width, int height, float pf);
 
-    boo::IGraphicsBufferD* m_ttVertsBuf;
-    boo::IVertexFormat* m_ttVtxFmt; /* OpenGL only */
-    boo::IShaderDataBinding* m_ttShaderBinding;
+    VertexBufferBinding m_vertsBinding;
 
     std::string m_titleStr;
     std::unique_ptr<TextView> m_title;

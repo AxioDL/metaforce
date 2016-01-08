@@ -9,29 +9,7 @@ namespace Specter
 ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
 : View(res, parentView), m_style(style), m_sideButtonBind(*this, rootView().viewManager())
 {
-    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 4);
-
-    if (!res.m_viewRes.m_texVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              m_vtxFmt, m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewVertBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              res.m_viewRes.m_texVtxFmt,
-                                                              m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
-    }
+    m_vertsBinding.initSolid(res, 4, m_viewVertBlockBuf);
     commitResources(res);
 
     if (style == Style::SideButtons)
@@ -271,7 +249,7 @@ void ScrollView::resized(const boo::SWindowRect& root, const boo::SWindowRect& s
                 const Zeus::CColor& color = rootView().themeData().scrollIndicator();
                 for (int i=0 ; i<4 ; ++i)
                     m_verts[i].m_color = color;
-                m_vertsBuf->load(m_verts, sizeof(m_verts));
+                m_vertsBinding.load(m_verts, sizeof(m_verts));
             }
         }
         else if (m_style == Style::SideButtons && m_drawSideButtons)
@@ -297,7 +275,7 @@ void ScrollView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
         if (m_style == Style::ThinIndicator && m_drawInd)
         {
-            gfxQ->setShaderDataBinding(m_shaderBinding);
+            gfxQ->setShaderDataBinding(m_vertsBinding);
             gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
             gfxQ->draw(0, 4);
         }

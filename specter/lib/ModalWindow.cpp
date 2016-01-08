@@ -290,29 +290,9 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleCo
     m_windowBgClear[3] = 0.0;
     m_line2Clear[3] = 0.0;
     m_viewBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), 38);
-
-    if (!res.m_viewRes.m_solidVtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
-        };
-        m_vertsVtxFmt = res.m_factory->newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {m_viewBlockBuf};
-        m_vertsShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                                   m_vertsVtxFmt, m_vertsBuf, nullptr,
-                                                                   nullptr, 1, bufs, 0, nullptr);
-    }
-    else
-    {
-        boo::IGraphicsBuffer* bufs[] = {m_viewBlockBuf};
-        m_vertsShaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                                   res.m_viewRes.m_solidVtxFmt,
-                                                                   m_vertsBuf, nullptr,
-                                                                   nullptr, 1, bufs, 0, nullptr);
-    }
+    
+    m_vertsBinding.initSolid(res, 38, m_viewBlockBuf);
+    
     m_windowGfxData = res.m_factory->commit();
 
     for (int i=0 ; i<4 ; ++i)
@@ -332,7 +312,7 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleCo
     setLineColors(0.0);
     setFillColors(0.0);
 
-    m_vertsBuf->load(&m_verts, sizeof(m_verts));
+    m_vertsBinding.load(&m_verts, sizeof(m_verts));
 }
 
 static float CubicEase(float t)
@@ -387,7 +367,7 @@ void ModalWindow::think()
         if (doneCount == 3)
             m_phase = Phase::Showing;
         if (loadVerts)
-            m_vertsBuf->load(&m_verts, sizeof(m_verts));
+            m_vertsBinding.load(&m_verts, sizeof(m_verts));
         ++m_frame;
         break;
     }
@@ -422,7 +402,7 @@ void ModalWindow::think()
             tt = Zeus::Math::clamp(0.f, tt, 1.f);
             updateContentOpacity(tt);
         }
-        m_vertsBuf->load(&m_verts, sizeof(m_verts));
+        m_vertsBinding.load(&m_verts, sizeof(m_verts));
         ++m_frame;
         break;
     }
@@ -442,7 +422,7 @@ bool ModalWindow::skipBuildInAnimation()
     setLineVerts(m_width, m_height, pf, 1.0);
     setLineColors(2.0);
     setFillColors(2.0);
-    m_vertsBuf->load(&m_verts, sizeof(m_verts));
+    m_vertsBinding.load(&m_verts, sizeof(m_verts));
     m_phase = Phase::ResWait;
     return true;
 }
@@ -472,7 +452,7 @@ void ModalWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
 
     setLineVerts(m_width, m_height, pf, m_lineTime);
     setFillVerts(m_width, m_height, pf);
-    m_vertsBuf->load(&m_verts, sizeof(m_verts));
+    m_vertsBinding.load(&m_verts, sizeof(m_verts));
 
     boo::SWindowRect cornerRect = centerRect;
     cornerRect.size[0] = cornerRect.size[1] = 8 * pf;
@@ -495,7 +475,7 @@ void ModalWindow::draw(boo::IGraphicsCommandQueue* gfxQ)
     if (m_phase == Phase::Done)
         return;
 
-    gfxQ->setShaderDataBinding(m_vertsShaderBinding);
+    gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 22);
     gfxQ->draw(22, 16);
