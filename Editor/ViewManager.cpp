@@ -33,10 +33,12 @@ SplashScreen* ViewManager::SetupSplashView()
 
 void ViewManager::SetupEditorView()
 {
-    SplitSpace* split = new SplitSpace(*this);
-    split->setSpaceSlot(0, std::make_unique<ResourceBrowser>(*this));
-    split->setSpaceSlot(1, std::make_unique<ResourceBrowser>(*this));
-    m_rootSpace.reset(split);
+    m_rootSpace.reset(new RootSpace(*this));
+
+    SplitSpace* split = new SplitSpace(*this, nullptr);
+    m_rootSpace->setChild(std::unique_ptr<Space>(split));
+    split->setChildSlot(0, std::make_unique<ResourceBrowser>(*this, split));
+    split->setChildSlot(1, std::make_unique<ResourceBrowser>(*this, split));
 
     std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
     cViews.clear();
@@ -47,7 +49,7 @@ void ViewManager::SetupEditorView()
 
 void ViewManager::SetupEditorView(ConfigReader& r)
 {
-    m_rootSpace.reset(Space::NewSpaceFromConfigStream(*this, r));
+    m_rootSpace.reset(Space::NewRootSpaceFromConfigStream(*this, r));
     std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
     cViews.clear();
     cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
@@ -96,7 +98,7 @@ void ViewManager::init(boo::IApplication* app)
     float pixelFactor = 1.0;
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-    m_viewResources.init(gf, &m_fontCache, Specter::ThemeData(), pixelFactor);
+    m_viewResources.init(gf, &m_fontCache, &m_themeData, pixelFactor);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     Specter::RootView* root = SetupRootView();
     m_showSplash = true;

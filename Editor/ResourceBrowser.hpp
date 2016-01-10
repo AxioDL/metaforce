@@ -184,15 +184,20 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
     std::unique_ptr<View> m_view;
 
 public:
-    ResourceBrowser(ViewManager& vm)
-    : Space(vm, Class::ResourceBrowser),
+    ResourceBrowser(ViewManager& vm, Space* parent)
+    : Space(vm, Class::ResourceBrowser, parent),
       m_fileListingBind(*this, vm)
     {
-        m_state.path = vm.project()->getProjectWorkingPath().getRelativePathUTF8();
         reloadState();
     }
-    ResourceBrowser(ViewManager& vm, ConfigReader& r)
-    : ResourceBrowser(vm)
+    ResourceBrowser(ViewManager& vm, Space* parent, const ResourceBrowser& other)
+    : ResourceBrowser(vm, parent)
+    {
+        m_state = other.m_state;
+        reloadState();
+    }
+    ResourceBrowser(ViewManager& vm, Space* parent, ConfigReader& r)
+    : ResourceBrowser(vm, parent)
     {
         m_state.read(r);
         reloadState();
@@ -200,10 +205,22 @@ public:
 
     void reloadState()
     {
-        navigateToPath(HECL::ProjectPath(*m_vm.project(), m_state.path));
+        HECL::ProjectPath pp(*m_vm.project(), m_state.path);
+        if (m_state.path.empty() || pp.getPathType() == HECL::ProjectPath::Type::None)
+        {
+            m_state.path = m_vm.project()->getProjectWorkingPath().getRelativePathUTF8();
+            navigateToPath(HECL::ProjectPath(*m_vm.project(), m_state.path));
+        }
+        else
+            navigateToPath(pp);
     }
 
     bool navigateToPath(const HECL::ProjectPath& path);
+
+    Space* copy(Space* parent) const
+    {
+        return new ResourceBrowser(m_vm, parent, *this);
+    }
 
     Specter::View* buildContentView(Specter::ViewResources& res)
     {

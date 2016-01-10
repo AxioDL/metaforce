@@ -17,13 +17,14 @@ class ViewManager : public Specter::IViewManager
     HECL::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
     Specter::FontCache m_fontCache;
+    Specter::DefaultThemeData m_themeData;
     Specter::ViewResources m_viewResources;
     Specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
 
     std::unique_ptr<Specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
-    std::unique_ptr<Space> m_rootSpace;
+    std::unique_ptr<RootSpace> m_rootSpace;
     Specter::View* m_rootSpaceView = nullptr;
 
     std::vector<HECL::SystemString> m_recentProjects;

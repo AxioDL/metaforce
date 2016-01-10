@@ -43,7 +43,7 @@ class SplashScreen : public Specter::ModalWindow
             m_splash.m_fileBrowser.m_view.reset(
                         new Specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_newString,
-                                                 Specter::FileBrowser::Type::SaveDirectory,
+                                                 Specter::FileBrowser::Type::NewHECLProject,
                                                  [&](bool ok, const HECL::SystemString& path)
             {
                 if (ok)
