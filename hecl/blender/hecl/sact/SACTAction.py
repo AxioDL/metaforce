@@ -1,4 +1,3 @@
-from . import SACTEvent
 import bpy
 
 # Action update (if anything important changes)
