@@ -14,7 +14,7 @@
 
 namespace Specter
 {
-class ThemeData;
+class IThemeData;
 class ViewResources;
 class RootView;
 
@@ -157,11 +157,11 @@ public:
         boo::IShaderPipeline* m_texShader = nullptr;
         boo::IVertexFormat* m_texVtxFmt = nullptr; /* Not OpenGL */
 
-        void init(boo::GLDataFactory* factory, const ThemeData& theme);
+        void init(boo::GLDataFactory* factory, const IThemeData& theme);
 #if _WIN32
         void init(boo::ID3DDataFactory* factory, const ThemeData& theme);
 #elif BOO_HAS_METAL
-        void init(boo::MetalDataFactory* factory, const ThemeData& theme);
+        void init(boo::MetalDataFactory* factory, const IThemeData& theme);
 #endif
     };
 
@@ -218,6 +218,7 @@ public:
     virtual void modKeyUp(boo::EModifierKey) {}
 
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    virtual void resized(const ViewBlock& vb, const boo::SWindowRect& sub);
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
                          const boo::SWindowRect& scissor) {resized(root, sub);}
     virtual void think() {}

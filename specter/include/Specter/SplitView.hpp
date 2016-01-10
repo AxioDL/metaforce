@@ -15,7 +15,7 @@ public:
         friend class SplitView;
         boo::ITextureS* m_shadingTex;
 
-        void init(boo::IGraphicsDataFactory* factory, const ThemeData& theme);
+        void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
     };
 
     enum class Axis
@@ -26,7 +26,7 @@ public:
 private:
     Axis m_axis;
     float m_slide = 0.5;
-    void _setSlide(float slide);
+    void _setSplit(float slide);
     bool m_dragging = false;
 
     ViewChild<View*> m_views[2];
@@ -65,7 +65,8 @@ private:
 public:
     SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA=-1, int clearanceB=-1);
     View* setContentView(int slot, View* view);
-    void setSlide(float slide);
+    void setSplit(float slide);
+    void startDragSplit(const boo::SWindowCoord& coord);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);

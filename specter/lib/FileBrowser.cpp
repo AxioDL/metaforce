@@ -89,7 +89,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
                                        200 * res.pixelFactor(), 400 * res.pixelFactor()));
     m_split.m_view->setContentView(0, &m_left);
     m_split.m_view->setContentView(1, &m_right);
-    m_split.m_view->setSlide(0.2);
+    m_split.m_view->setSplit(0.2);
 
     updateContentOpacity(0.0);
 }
@@ -237,7 +237,7 @@ void FileBrowser::okActivated(bool viaButton)
         close();
         return;
     }
-    else if (m_type == Type::SaveDirectory)
+    else if (m_type == Type::SaveDirectory || m_type == Type::NewHECLProject)
     {
         if (m_fileField.m_view->getText().empty())
         {
@@ -253,6 +253,16 @@ void FileBrowser::okActivated(bool viaButton)
         }
         if (!err && S_ISDIR(theStat.st_mode))
         {
+            if (m_type == Type::NewHECLProject)
+            {
+                HECL::ProjectRootPath projRoot = HECL::SearchForProject(path);
+                if (projRoot)
+                {
+                    m_fileField.m_view->setErrorState(
+                        vm.translateOr("no_overwrite_project", "Unable to make project within existing project").c_str());
+                    return;
+                }
+            }
             navigateToPath(path);
             return;
         }

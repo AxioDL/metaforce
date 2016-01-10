@@ -10,7 +10,53 @@
 
 namespace Specter
 {
-class ThemeData
+class IThemeData
+{
+public:
+    virtual const Zeus::CColor& uiText() const=0;
+    virtual const Zeus::CColor& fieldText() const=0;
+    virtual const Zeus::CColor& fieldMarkedText() const=0;
+    virtual const Zeus::CColor& selectedFieldText() const=0;
+
+    virtual const Zeus::CColor& viewportBackground() const=0;
+    virtual const Zeus::CColor& toolbarBackground() const=0;
+    virtual const Zeus::CColor& tooltipBackground() const=0;
+    virtual const Zeus::CColor& spaceBackground() const=0;
+    virtual const Zeus::CColor& splashBackground() const=0;
+    virtual const Zeus::CColor& splashErrorBackground() const=0;
+
+    virtual const Zeus::CColor& splash1() const=0;
+    virtual const Zeus::CColor& splash2() const=0;
+
+    virtual const Zeus::CColor& button1Inactive() const=0;
+    virtual const Zeus::CColor& button2Inactive() const=0;
+    virtual const Zeus::CColor& button1Hover() const=0;
+    virtual const Zeus::CColor& button2Hover() const=0;
+    virtual const Zeus::CColor& button1Press() const=0;
+    virtual const Zeus::CColor& button2Press() const=0;
+    virtual const Zeus::CColor& button1Disabled() const=0;
+    virtual const Zeus::CColor& button2Disabled() const=0;
+
+    virtual const Zeus::CColor& textfield1Inactive() const=0;
+    virtual const Zeus::CColor& textfield2Inactive() const=0;
+    virtual const Zeus::CColor& textfield1Hover() const=0;
+    virtual const Zeus::CColor& textfield2Hover() const=0;
+    virtual const Zeus::CColor& textfield1Disabled() const=0;
+    virtual const Zeus::CColor& textfield2Disabled() const=0;
+    virtual const Zeus::CColor& textfieldSelection() const=0;
+    virtual const Zeus::CColor& textfieldMarkSelection() const=0;
+
+    virtual const Zeus::CColor& tableCellBg1() const=0;
+    virtual const Zeus::CColor& tableCellBg2() const=0;
+    virtual const Zeus::CColor& tableCellBgSelected() const=0;
+
+    virtual const Zeus::CColor& scrollIndicator() const=0;
+
+    virtual const Zeus::CColor& spaceTriangleShading1() const=0;
+    virtual const Zeus::CColor& spaceTriangleShading2() const=0;
+};
+
+class DefaultThemeData : public IThemeData
 {
     Zeus::CColor m_uiText = Zeus::CColor::skWhite;
     Zeus::CColor m_fieldText = Zeus::CColor::skBlack;
@@ -51,6 +97,9 @@ class ThemeData
 
     Zeus::CColor m_scrollIndicator = {0.2823, 0.2823, 0.2823, 1.0};
 
+    Zeus::CColor m_spaceTriangleShading1 = {0.6425, 0.6425, 0.6425, 1.0};
+    Zeus::CColor m_spaceTriangleShading2 = {0.5725, 0.5725, 0.5725, 1.0};
+
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
     virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
@@ -90,12 +139,15 @@ public:
     virtual const Zeus::CColor& tableCellBgSelected() const {return m_tableCellBgSelected;}
 
     virtual const Zeus::CColor& scrollIndicator() const {return m_scrollIndicator;}
+
+    virtual const Zeus::CColor& spaceTriangleShading1() const {return m_spaceTriangleShading1;}
+    virtual const Zeus::CColor& spaceTriangleShading2() const {return m_spaceTriangleShading2;}
 };
 
 class ViewResources
 {
     template <class Factory>
-    void init(Factory* factory, const ThemeData& theme, FontCache* fcache)
+    void init(Factory* factory, const IThemeData& theme, FontCache* fcache)
     {
         m_viewRes.init(factory, theme);
         m_textRes.init(factory, fcache);
@@ -142,19 +194,18 @@ public:
         }
     }
 
-    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const ThemeData& theme, float pixelFactor);
+    void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const IThemeData* theme, float pixelFactor);
     void prepFontCacheSync();
     void prepFontCacheAsync(boo::IWindow* window);
     bool fontCacheReady() const {return m_fcacheReady;}
     void resetPixelFactor(float pixelFactor);
-    void resetTheme(const ThemeData& theme);
-    void resetLanguage(const ThemeData& theme);
+    void resetTheme(const IThemeData* theme);
 
     float m_pixelFactor = 0;
     float pixelFactor() const {return m_pixelFactor;}
 
-    ThemeData m_theme;
-    const ThemeData& themeData() const {return m_theme;}
+    const IThemeData* m_theme;
+    const IThemeData& themeData() const {return *m_theme;}
 };
 }
 

@@ -39,7 +39,7 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
     if (m_headerViews.empty())
         return;
     SolidShaderVert* v = m_hVerts.get();
-    const ThemeData& theme = rootView().themeData();
+    const IThemeData& theme = rootView().themeData();
 
     float pf = rootView().viewRes().pixelFactor();
     int margin = CELL_MARGIN * pf;
@@ -118,7 +118,7 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
 void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWindowRect& scissor)
 {
     SolidShaderVert* v = m_verts.get();
-    const ThemeData& theme = rootView().themeData();
+    const IThemeData& theme = rootView().themeData();
 
     if (m_t.m_cellPools.empty())
         return;

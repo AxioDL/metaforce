@@ -41,7 +41,7 @@ public:
         friend class ViewResources;
         friend class Button;
 
-        void init(boo::IGraphicsDataFactory* factory, const ThemeData& theme);
+        void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
     };
 
     Button(ViewResources& res, View& parentView,

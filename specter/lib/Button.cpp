@@ -7,7 +7,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::Button");
 
-void Button::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData& theme)
+void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
 }
 

@@ -9,7 +9,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::Space");
 
-void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData& theme)
+void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
     static const Zeus::RGBA32 tex[] =
     {

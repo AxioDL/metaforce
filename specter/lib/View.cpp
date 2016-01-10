@@ -6,7 +6,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::View");
 
-void View::Resources::init(boo::GLDataFactory* factory, const ThemeData& theme)
+void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
 {
     static const char* SolidVS =
     "#version 330\n"
@@ -183,7 +183,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme
     
 #elif BOO_HAS_METAL
     
-void View::Resources::init(boo::MetalDataFactory* factory, const ThemeData& theme)
+void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& theme)
 {
     static const char* SolidVS =
     "#include <metal_stdlib>\n"
@@ -320,6 +320,17 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+    m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
+}
+
+void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
+{
+    m_subRect = sub;
+    m_bgRect[0].m_pos.assign(0.f, sub.size[1], 0.f);
+    m_bgRect[1].m_pos.assign(0.f, 0.f, 0.f);
+    m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
+    m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
+    m_viewVertBlockBuf->load(&vb, sizeof(ViewBlock));
     m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
 }
 

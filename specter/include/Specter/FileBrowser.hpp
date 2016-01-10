@@ -25,6 +25,7 @@ public:
         SaveDirectory,
         OpenFile,
         OpenDirectory,
+        NewHECLProject,
         OpenHECLProject
     };
 private:

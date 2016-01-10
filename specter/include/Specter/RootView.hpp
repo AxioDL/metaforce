@@ -62,7 +62,7 @@ public:
     boo::IWindow* window() const {return m_window;}
     IViewManager& viewManager() const {return m_viewMan;}
     ViewResources& viewRes() const {return *m_viewRes;}
-    const ThemeData& themeData() const {return m_viewRes->m_theme;}
+    const IThemeData& themeData() const {return *m_viewRes->m_theme;}
 
     std::vector<View*>& accessContentViews() {return m_views;}
 
@@ -97,6 +97,12 @@ public:
         m_textFieldHover = hover;
         _updateCursor();
     }
+    bool m_spaceCornerHover = false;
+    void setSpaceCornerHover(bool hover)
+    {
+        m_spaceCornerHover = hover;
+        _updateCursor();
+    }
 
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
@@ -104,7 +110,9 @@ public:
 private:
     void _updateCursor()
     {
-        if (m_vSplitHover)
+        if (m_spaceCornerHover)
+            m_window->setCursor(boo::EMouseCursor::Crosshairs);
+        else if (m_vSplitHover)
             m_window->setCursor(boo::EMouseCursor::HorizontalArrow);
         else if (m_hSplitHover)
             m_window->setCursor(boo::EMouseCursor::VerticalArrow);

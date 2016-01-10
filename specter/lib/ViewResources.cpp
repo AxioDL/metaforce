@@ -5,8 +5,10 @@ namespace Specter
 static LogVisor::LogModule Log("Specter::ViewResources");
 
 void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
-                         const ThemeData& theme, float pf)
+                         const IThemeData* theme, float pf)
 {
+    if (!factory || !fcache || !theme)
+        Log.report(LogVisor::FatalError, "all arguments of ViewResources::init() must be non-null");
     m_pixelFactor = pf;
     m_theme = theme;
     m_factory = factory;
@@ -16,16 +18,16 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     switch (factory->platform())
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
-        init<boo::GLDataFactory>(static_cast<boo::GLDataFactory*>(factory), theme, fcache);
+        init<boo::GLDataFactory>(static_cast<boo::GLDataFactory*>(factory), *theme, fcache);
         break;
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:
-        init<boo::ID3DDataFactory>(static_cast<boo::ID3DDataFactory*>(factory), theme, fcache);
+        init<boo::ID3DDataFactory>(static_cast<boo::ID3DDataFactory*>(factory), *theme, fcache);
         break;
 #elif BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
-        init<boo::MetalDataFactory>(static_cast<boo::MetalDataFactory*>(factory), theme, fcache);
+        init<boo::MetalDataFactory>(static_cast<boo::MetalDataFactory*>(factory), *theme, fcache);
         break;
 #endif
     default:
@@ -70,7 +72,7 @@ void ViewResources::resetPixelFactor(float pf)
     prepFontCacheSync();
 }
 
-void ViewResources::resetTheme(const ThemeData& theme)
+void ViewResources::resetTheme(const IThemeData* theme)
 {
     m_theme = theme;
 }

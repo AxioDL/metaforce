@@ -7,7 +7,7 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::SplitView");
 
-void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const ThemeData& theme)
+void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
     static const Zeus::RGBA32 tex[3] =
     {
@@ -38,7 +38,7 @@ View* SplitView::setContentView(int slot, View* view)
     return ret;
 }
 
-void SplitView::_setSlide(float slide)
+void SplitView::_setSplit(float slide)
 {
     m_slide = std::min(std::max(slide, 0.0f), 1.0f);
     const boo::SWindowRect& rect = subRect();
@@ -65,46 +65,55 @@ void SplitView::_setSlide(float slide)
     }
 }
 
-void SplitView::setSlide(float slide)
+void SplitView::setSplit(float slide)
 {
-    _setSlide(slide);
+    _setSplit(slide);
     updateSize();
+}
+
+void SplitView::startDragSplit(const boo::SWindowCoord& coord)
+{
+    m_dragging = true;
+    mouseMove(coord);
 }
 
 void SplitView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    if (m_axis == Axis::Horizontal)
+    if (!rootView().m_spaceCornerHover)
     {
-        int slidePx = subRect().size[1] * m_slide;
-        if (abs(int(coord.pixel[1] - subRect().location[1]) - slidePx) < 4)
+        if (m_axis == Axis::Horizontal)
         {
-            if (button == boo::EMouseButton::Primary)
+            int slidePx = subRect().size[1] * m_slide;
+            if (abs(int(coord.pixel[1] - subRect().location[1]) - slidePx) < 4)
             {
-                m_dragging = true;
-                setSlide((coord.pixel[1] - subRect().location[1]) / float(subRect().size[1]));
+                if (button == boo::EMouseButton::Primary)
+                {
+                    m_dragging = true;
+                    setSplit((coord.pixel[1] - subRect().location[1]) / float(subRect().size[1]));
+                }
+                else if (button == boo::EMouseButton::Secondary)
+                {
+                    // TODO: Split menu
+                }
+                return;
             }
-            else if (button == boo::EMouseButton::Secondary)
-            {
-                // TODO: Split menu
-            }
-            return;
         }
-    }
-    else if (m_axis == Axis::Vertical)
-    {
-        int slidePx = subRect().size[0] * m_slide;
-        if (abs(int(coord.pixel[0] - subRect().location[0]) - slidePx) < 4)
+        else if (m_axis == Axis::Vertical)
         {
-            if (button == boo::EMouseButton::Primary)
+            int slidePx = subRect().size[0] * m_slide;
+            if (abs(int(coord.pixel[0] - subRect().location[0]) - slidePx) < 4)
             {
-                m_dragging = true;
-                setSlide((coord.pixel[0] - subRect().location[0]) / float(subRect().size[0]));
+                if (button == boo::EMouseButton::Primary)
+                {
+                    m_dragging = true;
+                    setSplit((coord.pixel[0] - subRect().location[0]) / float(subRect().size[0]));
+                }
+                else if (button == boo::EMouseButton::Secondary)
+                {
+                    // TODO: Split menu
+                }
+                return;
             }
-            else if (button == boo::EMouseButton::Secondary)
-            {
-                // TODO: Split menu
-            }
-            return;
         }
     }
     m_views[0].mouseDown(coord, button, mod);
@@ -124,14 +133,14 @@ void SplitView::mouseMove(const boo::SWindowCoord& coord)
     if (m_axis == Axis::Horizontal)
     {
         if (m_dragging)
-            setSlide((coord.pixel[1] - subRect().location[1]) / float(subRect().size[1]));
+            setSplit((coord.pixel[1] - subRect().location[1]) / float(subRect().size[1]));
         int slidePx = subRect().size[1] * m_slide;
         rootView().setHorizontalSplitHover(abs(int(coord.pixel[1] - subRect().location[1]) - slidePx) < 4);
     }
     else if (m_axis == Axis::Vertical)
     {
         if (m_dragging)
-            setSlide((coord.pixel[0] - subRect().location[0]) / float(subRect().size[0]));
+            setSplit((coord.pixel[0] - subRect().location[0]) / float(subRect().size[0]));
         int slidePx = subRect().size[0] * m_slide;
         rootView().setVerticalSplitHover(abs(int(coord.pixel[0] - subRect().location[0]) - slidePx) < 4);
     }
@@ -155,7 +164,7 @@ void SplitView::mouseLeave(const boo::SWindowCoord& coord)
 void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     View::resized(root, sub);
-    _setSlide(m_slide);
+    _setSplit(m_slide);
     if (m_axis == Axis::Horizontal)
     {
         boo::SWindowRect ssub = sub;

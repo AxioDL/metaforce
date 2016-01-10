@@ -106,7 +106,7 @@ void TextField::setText(const std::string& str)
 
 void TextField::setInactive()
 {
-    const ThemeData& theme = rootView().themeData();
+    const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
         m_verts[0].m_color = theme.textfield1Inactive() * Zeus::CColor::skRed;
@@ -133,7 +133,7 @@ void TextField::setInactive()
 
 void TextField::setHover()
 {
-    const ThemeData& theme = rootView().themeData();
+    const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
         m_verts[0].m_color = theme.textfield1Hover() * Zeus::CColor::skRed;
@@ -160,7 +160,7 @@ void TextField::setHover()
 
 void TextField::setDisabled()
 {
-    const ThemeData& theme = rootView().themeData();
+    const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
         m_verts[0].m_color = theme.textfield1Disabled() * Zeus::CColor::skRed;
