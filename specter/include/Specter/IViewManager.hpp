@@ -7,7 +7,7 @@
 
 namespace Specter
 {
-struct ISplitSpaceController;
+struct ISpaceController;
 
 struct IViewManager
 {
@@ -21,7 +21,7 @@ public:
         return vor;
     }
 
-    virtual void deferSpaceSplit(ISplitSpaceController* split, SplitView::Axis axis, int thisSlot) {}
+    virtual void deferSpaceSplit(ISpaceController* split, SplitView::Axis axis, int thisSlot) {}
 
     virtual const std::vector<HECL::SystemString>* recentProjects() const {return nullptr;}
     virtual void pushRecentProject(const HECL::SystemString& path) {}

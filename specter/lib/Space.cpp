@@ -150,7 +150,6 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
     if (m_cornerDrag)
     {
         float pf = rootView().viewRes().pixelFactor();
-        ISplitSpaceController* cornerDragSplitSpace = nullptr;
         if (m_cornerView.m_view->m_flip)
         {
             if (coord.pixel[0] < m_cornerDragPoint[0] - CORNER_DRAG_THRESHOLD * pf)
