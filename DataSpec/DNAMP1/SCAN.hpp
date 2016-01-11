@@ -11,26 +11,10 @@ namespace DNAMP1
 {
 static const std::vector<std::string> PaneNames =
 {
-    "imagepane_pane0",
-    "imagepane_pane1",
-    "imagepane_pane2",
-    "imagepane_pane3",
-    "imagepane_pane01",
-    "imagepane_pane12",
-    "imagepane_pane23",
-    "imagepane_pane012",
-    "imagepane_pane123",
-    "imagepane_pane0123",
-    "imagepane_pane4",
-    "imagepane_pane5",
-    "imagepane_pane6",
-    "imagepane_pane7",
-    "imagepane_pane45",
-    "imagepane_pane56",
-    "imagepane_pane67",
-    "imagepane_pane456",
-    "imagepane_pane567",
-    "imagepane_pane4567"
+    "imagepane_pane0",  "imagepane_pane1",   "imagepane_pane2",   "imagepane_pane3",   "imagepane_pane01",
+    "imagepane_pane12", "imagepane_pane23",  "imagepane_pane012", "imagepane_pane123", "imagepane_pane0123",
+    "imagepane_pane4",  "imagepane_pane5",   "imagepane_pane6",   "imagepane_pane7",   "imagepane_pane45",
+    "imagepane_pane56", "imagepane_pane67",  "imagepane_pane456", "imagepane_pane567", "imagepane_pane4567"
 };
 
 struct SCAN : BigYAML
@@ -65,27 +49,9 @@ struct SCAN : BigYAML
         Value<float> appearanceRange;
         enum class Position : atInt32
         {
-            Pane0,
-            Pane1,
-            Pane2,
-            Pane3,
-            Pane01,
-            Pane12,
-            Pane23,
-            Pane012,
-            Pane123,
-            Pane0123,
-            Pane4,
-            Pane5,
-            Pane6,
-            Pane7,
-            Pane45,
-            Pane56,
-            Pane67,
-            Pane456,
-            Pane567,
-            Pane4567,
-            Invalid = -1
+            Pane0,   Pane1,    Pane2,   Pane3, Pane01,  Pane12,   Pane23,  Pane012,
+            Pane123, Pane0123, Pane4,   Pane5, Pane6,   Pane7,    Pane45,  Pane56,
+            Pane67,  Pane456,  Pane567, Pane4567, Invalid = -1
         };
         Value<Position> position;
         Value<atUint32> width;        // width of animation cell
