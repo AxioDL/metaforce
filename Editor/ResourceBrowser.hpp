@@ -176,6 +176,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
             commitResources(res);
             m_pathButtons.m_view.reset(new Specter::PathButtons(res, *this, ro));
             m_fileListing.m_view.reset(new Specter::Table(res, *this, &ro.m_fileListingBind, &ro.m_fileListingBind, 3));
+            printf("New ResView: %p\n", this);
         }
 
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

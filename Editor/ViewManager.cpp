@@ -10,9 +10,9 @@ using YAMLNode = Athena::io::YAMLNode;
 namespace URDE
 {
 
-Specter::View* ViewManager::BuildSpaceViews(URDE::Space* space)
+Specter::View* ViewManager::BuildSpaceViews()
 {
-    m_rootSpaceView = space->buildSpaceView(m_viewResources);
+    m_rootSpaceView = m_rootSpace->buildSpaceView(m_viewResources);
     return m_rootSpaceView;
 }
 
@@ -31,30 +31,32 @@ SplashScreen* ViewManager::SetupSplashView()
     return m_splash.get();
 }
 
+void ViewManager::RootSpaceViewBuilt(Specter::View *view)
+{
+    std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
+    cViews.clear();
+    cViews.push_back(view);
+    printf("RootView Set: %p [%p]\n\n", m_rootView.get(), view);
+    cViews.push_back(m_splash.get());
+    m_rootView->updateSize();
+}
+
 void ViewManager::SetupEditorView()
 {
     m_rootSpace.reset(new RootSpace(*this));
 
-    SplitSpace* split = new SplitSpace(*this, nullptr);
+    SplitSpace* split = new SplitSpace(*this, nullptr, Specter::SplitView::Axis::Horizontal);
     m_rootSpace->setChild(std::unique_ptr<Space>(split));
     split->setChildSlot(0, std::make_unique<ResourceBrowser>(*this, split));
     split->setChildSlot(1, std::make_unique<ResourceBrowser>(*this, split));
 
-    std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
-    cViews.clear();
-    cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
-    cViews.push_back(m_splash.get());
-    m_rootView->updateSize();
+    BuildSpaceViews();
 }
 
 void ViewManager::SetupEditorView(ConfigReader& r)
 {
     m_rootSpace.reset(Space::NewRootSpaceFromConfigStream(*this, r));
-    std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
-    cViews.clear();
-    cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
-    cViews.push_back(m_splash.get());
-    m_rootView->updateSize();
+    BuildSpaceViews();
 }
 
 void ViewManager::SaveEditorView(ConfigWriter& w)
@@ -118,10 +120,13 @@ bool ViewManager::proc()
     {
         m_viewResources.resetPixelFactor(m_reqPf);
         Specter::RootView* root = SetupRootView();
-        std::vector<Specter::View*>& cViews = root->accessContentViews();
         if (m_rootSpace)
-            cViews.push_back(BuildSpaceViews(m_rootSpace.get()));
-        cViews.push_back(SetupSplashView());
+            BuildSpaceViews();
+        else
+        {
+            std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
+            cViews.push_back(SetupSplashView());
+        }
         root->updateSize();
         m_updatePf = false;
     }
@@ -131,6 +136,12 @@ bool ViewManager::proc()
         m_rootSpace->think();
     if (m_splash)
         m_splash->think();
+
+    if (m_deferSplit)
+    {
+        m_deferSplit->spaceSplit(m_deferSplitAxis, m_deferSplitThisSlot);
+        m_deferSplit = nullptr;
+    }
 
     ++m_editorFrames;
     if (m_rootSpaceView && m_editorFrames <= 30)

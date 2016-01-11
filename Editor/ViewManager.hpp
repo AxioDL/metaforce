@@ -12,6 +12,8 @@ class SplashScreen;
 class ViewManager : public Specter::IViewManager
 {
     friend class ProjectManager;
+    friend class Space;
+    friend class RootSpace;
 
     HECL::Runtime::FileStoreManager& m_fileStoreManager;
     HECL::CVarManager& m_cvarManager;
@@ -33,9 +35,10 @@ class ViewManager : public Specter::IViewManager
     bool m_updatePf = false;
     float m_reqPf;
 
-    Specter::View* BuildSpaceViews(URDE::Space* space);
+    Specter::View* BuildSpaceViews();
     Specter::RootView* SetupRootView();
     SplashScreen* SetupSplashView();
+    void RootSpaceViewBuilt(Specter::View* view);
     void SetupEditorView();
     void SetupEditorView(ConfigReader& r);
     void SaveEditorView(ConfigWriter& w);
@@ -45,6 +48,10 @@ class ViewManager : public Specter::IViewManager
 
     unsigned m_editorFrames = 120;
     void FadeInEditors() {m_editorFrames = 0;}
+
+    Space* m_deferSplit = nullptr;
+    Specter::SplitView::Axis m_deferSplitAxis;
+    int m_deferSplitThisSlot;
 
 public:
     ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);
@@ -60,6 +67,13 @@ public:
     ProjectManager& projectManager() {return m_projManager;}
     HECL::Database::Project* project() {return m_projManager.project();}
     const Specter::Translator* getTranslator() const {return &m_translator;}
+
+    void deferSpaceSplit(Specter::ISpaceController* split, Specter::SplitView::Axis axis, int thisSlot)
+    {
+        m_deferSplit = static_cast<Space*>(split);
+        m_deferSplitAxis = axis;
+        m_deferSplitThisSlot = thisSlot;
+    }
 
     const std::vector<HECL::SystemString>* recentProjects() const {return &m_recentProjects;}
     void pushRecentProject(const HECL::SystemString& path);

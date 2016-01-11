@@ -44,7 +44,7 @@ protected:
     ViewManager& m_vm;
     Class m_class = Class::None;
     Space* m_parent;
-    std::unique_ptr<Specter::Space> m_space;
+    std::unique_ptr<Specter::Space> m_spaceView;
     Space(ViewManager& vm, Class cls, Space* parent) : m_vm(vm), m_class(cls), m_parent(parent) {}
 
     /* Allows common Space code to access DNA-encoded state */
@@ -74,7 +74,7 @@ public:
 class RootSpace : public Space
 {
     friend class ViewManager;
-    std::unique_ptr<Space> m_child;
+    std::unique_ptr<Space> m_spaceTree;
     struct State : Space::State
     {
         DECL_YAML
@@ -90,8 +90,8 @@ public:
 #ifdef URDE_BINARY_CONFIGS
         m_child.reset(NewSpaceFromConfigStream(vm, this, r));
 #else
-        r.enterSubRecord("child");
-        m_child.reset(NewSpaceFromConfigStream(vm, this, r));
+        r.enterSubRecord("spaceTree");
+        m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
         r.leaveSubRecord();
 #endif
     }
@@ -101,8 +101,8 @@ public:
         w.writeUint32Big(atUint32(m_class));
         m_state.write(w);
 
-        if (m_child)
-            m_child->saveState(w);
+        if (m_spaceTree)
+            m_spaceTree->saveState(w);
         else
             w.writeUint32Big(0);
     }
@@ -112,9 +112,9 @@ public:
         w.writeUint32("class", atUint32(m_class));
         m_state.write(w);
 
-        w.enterSubRecord("child");
-        if (m_child)
-            m_child->saveState(w);
+        w.enterSubRecord("spaceTree");
+        if (m_spaceTree)
+            m_spaceTree->saveState(w);
         else
             w.writeUint32("class", 0);
         w.leaveSubRecord();
@@ -122,15 +122,15 @@ public:
 
     void setChild(std::unique_ptr<Space>&& space)
     {
-        m_child = std::move(space);
-        m_child->m_parent = this;
+        m_spaceTree = std::move(space);
+        m_spaceTree->m_parent = this;
     }
 
     Space* copy(Space* parent) const {return nullptr;}
     bool spaceSplitAllowed() const {return false;}
 
-    Specter::View* buildSpaceView(Specter::ViewResources& res) {return buildContentView(res);}
-    Specter::View* buildContentView(Specter::ViewResources& res) {return m_child->buildSpaceView(res);}
+    Specter::View* buildSpaceView(Specter::ViewResources& res);
+    Specter::View* buildContentView(Specter::ViewResources& res) {return m_spaceTree->buildSpaceView(res);}
 
     std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
 };
@@ -143,14 +143,19 @@ class SplitSpace : public Space, public Specter::ISplitSpaceController
     struct State : Space::State
     {
         DECL_YAML
-        Value<float> split;
+        Value<Specter::SplitView::Axis> axis = Specter::SplitView::Axis::Horizontal;
+        Value<float> split = 0.5;
     } m_state;
     const Space::State& spaceState() const {return m_state;}
 
 public:
-    SplitSpace(ViewManager& vm, Space* parent) : Space(vm, Class::SplitSpace, parent) {}
+    SplitSpace(ViewManager& vm, Space* parent, Specter::SplitView::Axis axis) : Space(vm, Class::SplitSpace, parent)
+    {
+        m_state.axis = axis;
+        reloadState();
+    }
     SplitSpace(ViewManager& vm, Space* parent, ConfigReader& r)
-    : SplitSpace(vm, parent)
+    : SplitSpace(vm, parent, Specter::SplitView::Axis::Horizontal)
     {
         m_state.read(r);
 #ifdef URDE_BINARY_CONFIGS
@@ -164,6 +169,20 @@ public:
         m_slots[1].reset(NewSpaceFromConfigStream(vm, this, r));
         r.leaveSubRecord();
 #endif
+        reloadState();
+    }
+
+    void reloadState()
+    {
+        m_state.split = std::min(1.f, std::max(0.f, m_state.split));
+        if (m_state.axis != Specter::SplitView::Axis::Horizontal &&
+            m_state.axis != Specter::SplitView::Axis::Vertical)
+            m_state.axis = Specter::SplitView::Axis::Horizontal;
+        if (m_splitView)
+        {
+            m_splitView->setSplit(m_state.split);
+            m_splitView->setAxis(m_state.axis);
+        }
     }
 
     void saveState(Athena::io::IStreamWriter& w) const
@@ -224,9 +243,16 @@ public:
 
     std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
 
-    Specter::SplitView* splitView()
+    Specter::SplitView* splitView() {return m_splitView.get();}
+    void setSplit(float split)
     {
-        return m_splitView.get();
+        m_state.split = split;
+        reloadState();
+    }
+    void setAxis(Specter::SplitView::Axis axis)
+    {
+        m_state.axis = axis;
+        reloadState();
     }
 };
 
@@ -261,7 +287,7 @@ public:
 
     Specter::View* buildContentView(Specter::ViewResources& res)
     {
-        m_textView.reset(new Specter::MultiLineTextView(res, *m_space, res.m_heading14));
+        m_textView.reset(new Specter::MultiLineTextView(res, *m_spaceView, res.m_heading14));
         m_textView->setBackground(res.themeData().viewportBackground());
         m_textView->typesetGlyphs(m_contentStr, res.themeData().uiText());
         return m_textView.get();

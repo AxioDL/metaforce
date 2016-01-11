@@ -10,28 +10,36 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
     if (usesToolbar())
     {
-        m_space.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom));
+        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom));
         Specter::View* sview = buildContentView(res);
-        m_space->setContentView(sview);
-        buildToolbarView(res, *m_space->toolbar());
-        return m_space.get();
+        m_spaceView->setContentView(sview);
+        buildToolbarView(res, *m_spaceView->toolbar());
+        return m_spaceView.get();
     }
     else
     {
-        m_space.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::None));
+        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::None));
         Specter::View* sview = buildContentView(res);
-        m_space->setContentView(sview);
-        return m_space.get();
+        m_spaceView->setContentView(sview);
+        return m_spaceView.get();
     }
+}
+
+Specter::View* RootSpace::buildSpaceView(Specter::ViewResources& res)
+{
+    Specter::View* newRoot = buildContentView(res);
+    m_vm.RootSpaceViewBuilt(newRoot);
+    return newRoot;
 }
 
 Specter::View* SplitSpace::buildContentView(Specter::ViewResources& res)
 {
-    m_splitView.reset(new Specter::SplitView(res, m_vm.rootView(), Specter::SplitView::Axis::Horizontal));
+    m_splitView.reset(new Specter::SplitView(res, m_vm.rootView(), m_state.axis));
     if (m_slots[0])
         m_splitView->setContentView(0, m_slots[0]->buildSpaceView(res));
     if (m_slots[1])
         m_splitView->setContentView(1, m_slots[1]->buildSpaceView(res));
+    m_splitView->setSplit(m_state.split);
     return m_splitView.get();
 }
 
@@ -47,10 +55,10 @@ Specter::ISplitSpaceController* Space::spaceSplit(Specter::SplitView::Axis axis,
 {
     if (m_parent)
     {
-        SplitSpace* ss = new SplitSpace(m_vm, m_parent);
+        SplitSpace* ss = new SplitSpace(m_vm, m_parent, axis);
         ss->setChildSlot(thisSlot, std::move(m_parent->exchangeSpaceSplitJoin(this, std::unique_ptr<Space>(ss))));
         ss->setChildSlot(thisSlot ^ 1, std::unique_ptr<Space>(copy(ss)));
-        m_parent->buildSpaceView(m_vm.rootView().viewRes());
+        m_vm.BuildSpaceViews();
         return ss;
     }
     return nullptr;
@@ -60,10 +68,10 @@ std::unique_ptr<Space> RootSpace::exchangeSpaceSplitJoin(Space* removeSpace, std
 {
     std::unique_ptr<Space> ret = std::move(keepSpace);
 
-    if (removeSpace == m_child.get())
+    if (removeSpace == m_spaceTree.get())
     {
-        m_child.swap(ret);
-        m_child->m_parent = this;
+        m_spaceTree.swap(ret);
+        m_spaceTree->m_parent = this;
     }
     else
         Log.report(LogVisor::FatalError, "RootSpace::exchangeSpaceSplitJoin() failure");
