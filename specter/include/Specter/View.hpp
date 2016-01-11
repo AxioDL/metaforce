@@ -159,7 +159,7 @@ public:
 
         void init(boo::GLDataFactory* factory, const IThemeData& theme);
 #if _WIN32
-        void init(boo::ID3DDataFactory* factory, const ThemeData& theme);
+        void init(boo::ID3DDataFactory* factory, const IThemeData& theme);
 #elif BOO_HAS_METAL
         void init(boo::MetalDataFactory* factory, const IThemeData& theme);
 #endif

@@ -83,7 +83,7 @@ void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
     
 #if _WIN32
 
-void View::Resources::init(boo::ID3DDataFactory* factory, const ThemeData& theme)
+void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& theme)
 {
     static const char* SolidVS =
     "struct VertData\n"
