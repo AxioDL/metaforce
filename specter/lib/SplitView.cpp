@@ -24,6 +24,7 @@ SplitView::SplitView(ViewResources& res, View& parentView, Axis axis, int cleara
     m_splitBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
     m_splitVertsBinding.initTex(res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
     commitResources(res);
+    printf("New SplitView: %p\n", this);
 }
 
 View* SplitView::setContentView(int slot, View* view)
@@ -35,6 +36,7 @@ View* SplitView::setContentView(int slot, View* view)
     m_views[slot].m_mouseDown = 0;
     m_views[slot].m_mouseIn = false;
     updateSize();
+    printf("Set SplitView: %p [%d,%p]\n", this, slot, view);
     return ret;
 }
 
@@ -69,6 +71,12 @@ void SplitView::setSplit(float slide)
 {
     _setSplit(slide);
     updateSize();
+}
+
+void SplitView::setAxis(Axis axis)
+{
+    m_axis = axis;
+    setSplit(m_slide);
 }
 
 void SplitView::startDragSplit(const boo::SWindowCoord& coord)

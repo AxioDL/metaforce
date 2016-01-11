@@ -2,10 +2,12 @@
 #define SPECTER_IVIEWMANAGER_HPP
 
 #include "Translator.hpp"
+#include "SplitView.hpp"
 #include <HECL/HECL.hpp>
 
 namespace Specter
 {
+struct ISplitSpaceController;
 
 struct IViewManager
 {
@@ -18,6 +20,8 @@ public:
             return trans->translateOr(key, vor);
         return vor;
     }
+
+    virtual void deferSpaceSplit(ISplitSpaceController* split, SplitView::Axis axis, int thisSlot) {}
 
     virtual const std::vector<HECL::SystemString>* recentProjects() const {return nullptr;}
     virtual void pushRecentProject(const HECL::SystemString& path) {}

@@ -14,6 +14,7 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     resized(rect, rect);
+    printf("New RootView: %p\n", this);
 }
 
 void RootView::destroyed()

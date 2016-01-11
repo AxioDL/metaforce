@@ -20,6 +20,7 @@ struct ISpaceController
 struct ISplitSpaceController
 {
     virtual SplitView* splitView()=0;
+    virtual void setSplit(float split)=0;
 };
 
 class Space : public View
@@ -31,7 +32,6 @@ class Space : public View
 
     bool m_cornerDrag = false;
     int m_cornerDragPoint[2];
-    ISplitSpaceController* m_cornerDragSplitSpace = nullptr;
 
     struct CornerView : View
     {

@@ -25,6 +25,7 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
         m_cornerView.m_view.reset(new CornerView(res, *this, spaceTriangleColor()));
     if (tbPos != Toolbar::Position::None)
         m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos));
+    printf("New Space: %p\n", this);
 }
 
 Space::CornerView::CornerView(ViewResources& res, Space& space, const Zeus::CColor& triColor)
@@ -109,6 +110,7 @@ View* Space::setContentView(View* view)
     View* ret = m_contentView.m_view;
     m_contentView.m_view = view;
     updateSize();
+    printf("Set Space: %p [%p]\n", this, view);
     return ret;
 }
 
@@ -140,37 +142,29 @@ void Space::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, bo
 void Space::CornerView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     if (button == boo::EMouseButton::Primary)
-    {
         m_space.m_cornerDrag = false;
-        m_space.m_cornerDragSplitSpace = nullptr;
-    }
 }
 
 void Space::mouseMove(const boo::SWindowCoord& coord)
 {
-    if (m_cornerDragSplitSpace)
-    {
-        m_cornerDragSplitSpace->splitView()->mouseMove(coord);
-    }
-    else if (m_cornerDrag)
+    if (m_cornerDrag)
     {
         float pf = rootView().viewRes().pixelFactor();
+        ISplitSpaceController* cornerDragSplitSpace = nullptr;
         if (m_cornerView.m_view->m_flip)
         {
             if (coord.pixel[0] < m_cornerDragPoint[0] - CORNER_DRAG_THRESHOLD * pf)
-                m_cornerDragSplitSpace = m_controller.spaceSplit(SplitView::Axis::Vertical, 1);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 1);
             else if (coord.pixel[1] < m_cornerDragPoint[1] - CORNER_DRAG_THRESHOLD * pf)
-                m_cornerDragSplitSpace = m_controller.spaceSplit(SplitView::Axis::Horizontal, 1);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1);
         }
         else
         {
             if (coord.pixel[0] > m_cornerDragPoint[0] + CORNER_DRAG_THRESHOLD * pf)
-                m_cornerDragSplitSpace = m_controller.spaceSplit(SplitView::Axis::Vertical, 0);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 0);
             else if (coord.pixel[1] > m_cornerDragPoint[1] + CORNER_DRAG_THRESHOLD * pf)
-                m_cornerDragSplitSpace = m_controller.spaceSplit(SplitView::Axis::Horizontal, 0);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 0);
         }
-        if (m_cornerDragSplitSpace)
-            m_cornerDragSplitSpace->splitView()->startDragSplit(coord);
     }
     else
     {

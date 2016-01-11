@@ -66,6 +66,7 @@ public:
     SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA=-1, int clearanceB=-1);
     View* setContentView(int slot, View* view);
     void setSplit(float slide);
+    void setAxis(Axis axis);
     void startDragSplit(const boo::SWindowCoord& coord);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
