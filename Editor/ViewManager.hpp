@@ -52,6 +52,7 @@ class ViewManager : public Specter::IViewManager
     Space* m_deferSplit = nullptr;
     Specter::SplitView::Axis m_deferSplitAxis;
     int m_deferSplitThisSlot;
+    boo::SWindowCoord m_deferSplitCoord;
 
 public:
     ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);
@@ -68,11 +69,13 @@ public:
     HECL::Database::Project* project() {return m_projManager.project();}
     const Specter::Translator* getTranslator() const {return &m_translator;}
 
-    void deferSpaceSplit(Specter::ISpaceController* split, Specter::SplitView::Axis axis, int thisSlot)
+    void deferSpaceSplit(Specter::ISpaceController* split, Specter::SplitView::Axis axis, int thisSlot,
+                         const boo::SWindowCoord& coord)
     {
         m_deferSplit = static_cast<Space*>(split);
         m_deferSplitAxis = axis;
         m_deferSplitThisSlot = thisSlot;
+        m_deferSplitCoord = coord;
     }
 
     const std::vector<HECL::SystemString>* recentProjects() const {return &m_recentProjects;}

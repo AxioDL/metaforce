@@ -244,16 +244,15 @@ public:
     std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
 
     Specter::SplitView* splitView() {return m_splitView.get();}
-    void setSplit(float split)
-    {
-        m_state.split = split;
-        reloadState();
-    }
+    void updateSplit(float split) {m_state.split = split;}
     void setAxis(Specter::SplitView::Axis axis)
     {
         m_state.axis = axis;
         reloadState();
     }
+
+    Specter::SplitView::Axis axis() const {return m_state.axis;}
+    float split() const {return m_state.split;}
 };
 
 class TestSpace : public Space

@@ -139,7 +139,8 @@ bool ViewManager::proc()
 
     if (m_deferSplit)
     {
-        m_deferSplit->spaceSplit(m_deferSplitAxis, m_deferSplitThisSlot);
+        SplitSpace* ss = static_cast<SplitSpace*>(m_deferSplit->spaceSplit(m_deferSplitAxis, m_deferSplitThisSlot));
+        m_rootView->startSplitDrag(ss->splitView(), m_deferSplitCoord);
         m_deferSplit = nullptr;
     }
 

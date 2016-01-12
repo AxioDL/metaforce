@@ -34,12 +34,13 @@ Specter::View* RootSpace::buildSpaceView(Specter::ViewResources& res)
 
 Specter::View* SplitSpace::buildContentView(Specter::ViewResources& res)
 {
-    m_splitView.reset(new Specter::SplitView(res, m_vm.rootView(), m_state.axis));
+    int clearance = res.pixelFactor() * SPECTER_TOOLBAR_GAUGE;
+    m_splitView.reset(new Specter::SplitView(res, m_vm.rootView(), this, m_state.axis,
+                                             m_state.split, clearance, clearance));
     if (m_slots[0])
         m_splitView->setContentView(0, m_slots[0]->buildSpaceView(res));
     if (m_slots[1])
         m_splitView->setContentView(1, m_slots[1]->buildSpaceView(res));
-    m_splitView->setSplit(m_state.split);
     return m_splitView.get();
 }
 
