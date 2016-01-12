@@ -5,9 +5,11 @@
 
 namespace Specter
 {
+struct ISplitSpaceController;
 
 class SplitView : public View
 {
+    friend class RootView;
 public:
     class Resources
     {
@@ -24,6 +26,7 @@ public:
         Vertical
     };
 private:
+    ISplitSpaceController* m_controller;
     Axis m_axis;
     float m_slide = 0.5;
     void _setSplit(float slide);
@@ -63,11 +66,17 @@ private:
     VertexBufferBinding m_splitVertsBinding;
     
 public:
-    SplitView(ViewResources& res, View& parentView, Axis axis, int clearanceA=-1, int clearanceB=-1);
+    SplitView(ViewResources& res, View& parentView, ISplitSpaceController* controller,
+              Axis axis, float split, int clearanceA=-1, int clearanceB=-1);
     View* setContentView(int slot, View* view);
-    void setSplit(float slide);
+    void setSplit(float split);
     void setAxis(Axis axis);
+    Axis axis() const {return m_axis;}
+    float split() const {return m_slide;}
+    bool testSplitHover(const boo::SWindowCoord& coord);
     void startDragSplit(const boo::SWindowCoord& coord);
+    void endDragSplit();
+    void moveDragSplit(const boo::SWindowCoord& coord);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);

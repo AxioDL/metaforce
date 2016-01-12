@@ -2,7 +2,6 @@
 #include "Specter/Toolbar.hpp"
 #include "Specter/ViewResources.hpp"
 
-#define TOOLBAR_GAUGE 28
 #define TOOLBAR_PADDING 10
 
 namespace Specter
@@ -23,7 +22,7 @@ void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeDa
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos)
 : View(res, parentView), m_tbPos(tbPos),
-  m_nomHeight(res.pixelFactor() * TOOLBAR_GAUGE),
+  m_nomHeight(res.pixelFactor() * SPECTER_TOOLBAR_GAUGE),
   m_padding(res.pixelFactor() * TOOLBAR_PADDING)
 {
     m_tbBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);

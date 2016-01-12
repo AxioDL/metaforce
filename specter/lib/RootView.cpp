@@ -14,7 +14,6 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], 1);
     commitResources(res);
     resized(rect, rect);
-    printf("New RootView: %p\n", this);
 }
 
 void RootView::destroyed()
@@ -37,6 +36,13 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_hoverSplitDragView)
+    {
+        m_activeSplitDragView = true;
+        m_hoverSplitDragView->startDragSplit(coord);
+        return;
+    }
+
     if (m_activeTextView && !m_activeTextView->subRect().coordInRect(coord))
         setActiveTextView(nullptr);
     for (View* v : m_views)
@@ -45,12 +51,76 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_activeSplitDragView && button == boo::EMouseButton::Primary)
+    {
+        m_activeSplitDragView = false;
+        m_hoverSplitDragView->endDragSplit();
+        m_spaceCornerHover = false;
+        m_hSplitHover = false;
+        m_vSplitHover = false;
+        _updateCursor();
+    }
+
     for (View* v : m_views)
         v->mouseUp(coord, button, mods);
 }
 
+SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const
+{
+    if (sv->testSplitHover(coord))
+        return sv;
+    for (int i=0 ; i<2 ; ++i)
+    {
+        SplitView* child = dynamic_cast<SplitView*>(sv->m_views[i].m_view);
+        if (child)
+        {
+            SplitView* res = recursiveTestSplitHover(child, coord);
+            if (res)
+                return res;
+        }
+    }
+    return nullptr;
+}
+
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
+    if (m_activeSplitDragView)
+    {
+        m_hoverSplitDragView->moveDragSplit(coord);
+        m_spaceCornerHover = false;
+        if (m_hoverSplitDragView->axis() == SplitView::Axis::Horizontal)
+            setHorizontalSplitHover(true);
+        else
+            setVerticalSplitHover(true);
+        return;
+    }
+
+    m_hoverSplitDragView = nullptr;
+    if (!m_spaceCornerHover)
+    {
+        for (View* v : m_views)
+        {
+            SplitView* sv = dynamic_cast<SplitView*>(v);
+            if (sv)
+                sv = recursiveTestSplitHover(sv, coord);
+            if (sv)
+            {
+                if (sv->axis() == SplitView::Axis::Horizontal)
+                    setHorizontalSplitHover(true);
+                else
+                    setVerticalSplitHover(true);
+                m_hoverSplitDragView = sv;
+                break;
+            }
+            else
+            {
+                m_hSplitHover = false;
+                m_vSplitHover = false;
+                _updateCursor();
+            }
+        }
+    }
+
     if (m_activeDragView)
         m_activeDragView->mouseMove(coord);
     else

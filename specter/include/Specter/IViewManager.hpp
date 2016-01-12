@@ -21,7 +21,8 @@ public:
         return vor;
     }
 
-    virtual void deferSpaceSplit(ISpaceController* split, SplitView::Axis axis, int thisSlot) {}
+    virtual void deferSpaceSplit(ISpaceController* split, SplitView::Axis axis, int thisSlot,
+                                 const boo::SWindowCoord& coord) {}
 
     virtual const std::vector<HECL::SystemString>* recentProjects() const {return nullptr;}
     virtual void pushRecentProject(const HECL::SystemString& path) {}

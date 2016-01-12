@@ -25,7 +25,6 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
         m_cornerView.m_view.reset(new CornerView(res, *this, spaceTriangleColor()));
     if (tbPos != Toolbar::Position::None)
         m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos));
-    printf("New Space: %p\n", this);
 }
 
 Space::CornerView::CornerView(ViewResources& res, Space& space, const Zeus::CColor& triColor)
@@ -110,7 +109,6 @@ View* Space::setContentView(View* view)
     View* ret = m_contentView.m_view;
     m_contentView.m_view = view;
     updateSize();
-    printf("Set Space: %p [%p]\n", this, view);
     return ret;
 }
 
@@ -153,16 +151,16 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
         if (m_cornerView.m_view->m_flip)
         {
             if (coord.pixel[0] < m_cornerDragPoint[0] - CORNER_DRAG_THRESHOLD * pf)
-                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 1);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 1, coord);
             else if (coord.pixel[1] < m_cornerDragPoint[1] - CORNER_DRAG_THRESHOLD * pf)
-                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1, coord);
         }
         else
         {
             if (coord.pixel[0] > m_cornerDragPoint[0] + CORNER_DRAG_THRESHOLD * pf)
-                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 0);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 0, coord);
             else if (coord.pixel[1] > m_cornerDragPoint[1] + CORNER_DRAG_THRESHOLD * pf)
-                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 0);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 0, coord);
         }
     }
     else

@@ -27,6 +27,10 @@ class RootView : public View
     ITextInputView* m_activeTextView = nullptr;
     View* m_activeDragView = nullptr;
 
+    SplitView* m_hoverSplitDragView = nullptr;
+    bool m_activeSplitDragView = false;
+    SplitView* recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const;
+
     DeferredWindowEvents<RootView> m_events;
 
 public:
@@ -79,6 +83,13 @@ public:
         m_activeDragView = dragView;
     }
 
+    void startSplitDrag(SplitView* sv, const boo::SWindowCoord& coord)
+    {
+        m_hoverSplitDragView = sv;
+        m_activeSplitDragView = true;
+        sv->startDragSplit(coord);
+    }
+
     bool m_hSplitHover = false;
     void setHorizontalSplitHover(bool hover)
     {
@@ -107,7 +118,7 @@ public:
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
 
-private:
+private:    
     void _updateCursor()
     {
         if (m_spaceCornerHover)

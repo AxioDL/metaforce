@@ -5,6 +5,7 @@
 
 namespace Specter
 {
+#define SPECTER_TOOLBAR_GAUGE 28
 
 class Toolbar : public View
 {

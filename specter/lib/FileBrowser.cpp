@@ -85,11 +85,10 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
 
     navigateToPath(initialPath);
 
-    m_split.m_view.reset(new SplitView(res, *this, SplitView::Axis::Vertical,
+    m_split.m_view.reset(new SplitView(res, *this, nullptr, SplitView::Axis::Vertical, 0.2,
                                        200 * res.pixelFactor(), 400 * res.pixelFactor()));
     m_split.m_view->setContentView(0, &m_left);
     m_split.m_view->setContentView(1, &m_right);
-    m_split.m_view->setSplit(0.2);
 
     updateContentOpacity(0.0);
 }

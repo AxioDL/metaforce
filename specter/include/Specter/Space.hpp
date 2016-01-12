@@ -20,7 +20,7 @@ struct ISpaceController
 struct ISplitSpaceController
 {
     virtual SplitView* splitView()=0;
-    virtual void setSplit(float split)=0;
+    virtual void updateSplit(float split)=0;
 };
 
 class Space : public View
