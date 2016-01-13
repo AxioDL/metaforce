@@ -93,6 +93,8 @@ add_subdirectory(Editor)
 add_subdirectory(Runtime)
 endif()
 
+add_subdirectory(propparse)
+
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
 if(GIT_FOUND)

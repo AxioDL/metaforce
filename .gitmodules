@@ -7,3 +7,6 @@
 [submodule "libSpecter"]
 	path = libSpecter
 	url = https://github.com/AxioDL/libSpecter.git
+[submodule "propparse/extern/tinyxml2"]
+	path = propparse/extern/tinyxml2
+	url = https://github.com/AxioDL/tinyxml2.git
