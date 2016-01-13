@@ -8,10 +8,7 @@ namespace Specter
 {
 class ModalWindow : public View
 {
-    int m_frame = 0;
-    int m_contentStartFrame = 0;
-    float m_lineTime = 0.0;
-
+public:
     enum class Phase
     {
         BuildIn,
@@ -19,7 +16,14 @@ class ModalWindow : public View
         Showing,
         BuildOut,
         Done
-    } m_phase = Phase::BuildIn;
+    };
+
+private:
+    int m_frame = 0;
+    int m_contentStartFrame = 0;
+    float m_lineTime = 0.0;
+
+    Phase m_phase = Phase::BuildIn;
 
     int m_width = 0;
     int m_height = 0;
@@ -64,6 +68,7 @@ public:
     bool skipBuildInAnimation();
     void close(bool skipAnimation=false);
     bool closed() const {return m_phase >= Phase::BuildOut;}
+    ModalWindow::Phase phase() const {return m_phase;}
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

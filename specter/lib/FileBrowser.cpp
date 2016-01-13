@@ -10,7 +10,7 @@ static LogVisor::LogModule Log("Specter::FileBrowser");
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
 
-static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& path)
+std::vector<HECL::SystemString> FileBrowser::PathComponents(const HECL::SystemString& path)
 {
     std::vector<HECL::SystemString> ret;
     HECL::SystemString sPath = path;

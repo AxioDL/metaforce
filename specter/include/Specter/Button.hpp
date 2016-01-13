@@ -18,22 +18,59 @@ public:
 
 private:
     Style m_style;
+    IButtonBinding::MenuStyle m_menuStyle = IButtonBinding::MenuStyle::None;
     Zeus::CColor m_textColor;
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
 
-    SolidShaderVert m_verts[28];
+    SolidShaderVert m_verts[40];
     VertexBufferBinding m_vertsBinding;
 
     RectangleConstraint m_constraint;
     int m_nomWidth, m_nomHeight;
-    bool m_pressed = false;
-    bool m_hovered = false;
+    int m_textWidth;
 
-    void setInactive();
-    void setHover();
-    void setPressed();
-    void setDisabled();
+    struct ButtonTarget : View
+    {
+        Button& m_button;
+
+        bool m_pressed = false;
+        bool m_hovered = false;
+
+        void setInactive();
+        void setHover();
+        void setPressed();
+        void setDisabled();
+
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseEnter(const boo::SWindowCoord&);
+        void mouseLeave(const boo::SWindowCoord&);
+        ButtonTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
+    };
+    ViewChild<std::unique_ptr<ButtonTarget>> m_buttonTarget;
+
+    struct MenuTarget : View
+    {
+        Button& m_button;
+
+        bool m_pressed = false;
+        bool m_hovered = false;
+
+        void setInactive();
+        void setHover();
+        void setPressed();
+        void setDisabled();
+
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseEnter(const boo::SWindowCoord&);
+        void mouseLeave(const boo::SWindowCoord&);
+        MenuTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
+    };
+    ViewChild<std::unique_ptr<MenuTarget>> m_menuTarget;
+
+    ViewChild<std::unique_ptr<View>> m_modalMenu;
 
 public:
     class Resources
@@ -53,7 +90,7 @@ public:
            RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
+    void mouseMove(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);

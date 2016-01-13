@@ -317,8 +317,10 @@ public:
                 const HECL::SystemString& initialPath,
                 std::function<void(bool, const HECL::SystemString&)> returnFunc);
 
+    static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& path);
     static void SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
                                        const HECL::SystemString& sel);
+
     void navigateToPath(const HECL::SystemString& path);
     bool showingHidden() const {return m_showingHidden;}
     void setShowingHidden(bool showingHidden)

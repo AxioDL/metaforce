@@ -1,6 +1,7 @@
 #include "Specter/MessageWindow.hpp"
 #include "Specter/ViewResources.hpp"
 #include "Specter/RootView.hpp"
+#include "Specter/Menu.hpp"
 
 namespace Specter
 {

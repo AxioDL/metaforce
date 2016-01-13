@@ -2,7 +2,6 @@
 #define SPECTER_CONTROL_HPP
 
 #include "View.hpp"
-#include "HECL/CVar.hpp"
 
 namespace Specter
 {
@@ -26,6 +25,20 @@ struct IButtonBinding : IControlBinding
 
     /** Pass-through up action */
     virtual void up(const Button* button, const boo::SWindowCoord& coord) {}
+
+    /** Optional style of menu to bind to button */
+    enum class MenuStyle
+    {
+        None, /**< No menu; normal button */
+        Primary, /**< Menu button replaces normal button */
+        Auxiliary /**< Menu button placed alongside normal button */
+    };
+
+    /** Informs button which MenuStyle to present to user */
+    virtual MenuStyle menuStyle(const Specter::Button* button) const {return MenuStyle::None;}
+
+    /** Called when user requests menu, Button assumes modal ownership */
+    virtual std::unique_ptr<View> buildMenu(const Specter::Button* button) {return std::unique_ptr<View>();}
 };
 
 struct IFloatBinding : IControlBinding
@@ -63,12 +76,6 @@ protected:
     IControlBinding* m_controlBinding = nullptr;
 public:
     Control(ViewResources& res, View& parentView, IControlBinding* controlBinding);
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
-
-    IControlBinding* setControlBinding(IControlBinding* controlBinding);
 };
     
 class ITextInputView : public Control, public boo::ITextInputCallback

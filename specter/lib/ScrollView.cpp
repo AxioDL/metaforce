@@ -1,6 +1,7 @@
 #include "Specter/ScrollView.hpp"
 #include "Specter/ViewResources.hpp"
 #include "Specter/RootView.hpp"
+#include "Specter/Button.hpp"
 
 namespace Specter
 {
@@ -84,6 +85,17 @@ bool ScrollView::_scroll(const boo::SScrollDelta& scroll)
     return false;
 }
 
+int ScrollView::scrollAreaWidth() const
+{
+    int ret = subRect().size[0];
+    if (m_style == Style::SideButtons && m_drawSideButtons)
+    {
+        ret -= m_sideButtons[0].m_view->nominalWidth();
+        ret -= m_sideButtons[1].m_view->nominalWidth();
+    }
+    return std::max(0, ret);
+}
+
 void ScrollView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     if (m_style == Style::SideButtons && m_drawSideButtons)
@@ -155,6 +167,18 @@ void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta&
     }
     if (_scroll(scroll))
         updateSize();
+}
+
+void ScrollView::setMultiplyColor(const Zeus::CColor& color)
+{
+    View::setMultiplyColor(color);
+    if (m_style == Style::SideButtons)
+    {
+        m_sideButtons[0].m_view->setMultiplyColor(color);
+        m_sideButtons[1].m_view->setMultiplyColor(color);
+    }
+    if (m_contentView.m_view)
+        m_contentView.m_view->setMultiplyColor(color);
 }
 
 void ScrollView::think()

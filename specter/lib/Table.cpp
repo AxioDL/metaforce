@@ -1,6 +1,7 @@
 #include "Specter/Table.hpp"
 #include "Specter/ViewResources.hpp"
 #include "Specter/RootView.hpp"
+#include "Specter/ScrollView.hpp"
 
 namespace Specter
 {

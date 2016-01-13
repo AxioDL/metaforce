@@ -1,13 +1,13 @@
 #ifndef SPECTER_SCROLLVIEW_HPP
 #define SPECTER_SCROLLVIEW_HPP
 
-#include "View.hpp"
 #include "Button.hpp"
 #include "IViewManager.hpp"
 
 namespace Specter
 {
 class ViewResources;
+class Button;
 
 class ScrollView : public View
 {
@@ -49,7 +49,10 @@ private:
           m_leftName(vm.translateOr("scroll_left", "Scroll Left")),
           m_rightName(vm.translateOr("scroll_right", "Scroll Right")) {}
         const char* name(const Control* control) const
-        {return (control == m_sv.m_sideButtons[0].m_view.get()) ? m_leftName.c_str() : m_rightName.c_str();}
+        {
+            return (control == reinterpret_cast<Control*>(m_sv.m_sideButtons[0].m_view.get())) ?
+                   m_leftName.c_str() : m_rightName.c_str();
+        }
         void down(const Button* button, const boo::SWindowCoord& coord)
         {
             if (button == m_sv.m_sideButtons[0].m_view.get())
@@ -65,17 +68,7 @@ private:
     ViewChild<std::unique_ptr<Button>> m_sideButtons[2];
 
     bool _scroll(const boo::SScrollDelta& scroll);
-
-    int scrollAreaWidth() const
-    {
-        int ret = subRect().size[0];
-        if (m_style == Style::SideButtons && m_drawSideButtons)
-        {
-            ret -= m_sideButtons[0].m_view->nominalWidth();
-            ret -= m_sideButtons[1].m_view->nominalWidth();
-        }
-        return std::max(0, ret);
-    }
+    int scrollAreaWidth() const;
 
 public:
     ScrollView(ViewResources& res, View& parentView, Style style);
@@ -97,17 +90,7 @@ public:
     int nominalWidth() const {return subRect().size[0];}
     int nominalHeight() const {return subRect().size[1];}
 
-    void setMultiplyColor(const Zeus::CColor& color)
-    {
-        View::setMultiplyColor(color);
-        if (m_style == Style::SideButtons)
-        {
-            m_sideButtons[0].m_view->setMultiplyColor(color);
-            m_sideButtons[1].m_view->setMultiplyColor(color);
-        }
-        if (m_contentView.m_view)
-            m_contentView.m_view->setMultiplyColor(color);
-    }
+    void setMultiplyColor(const Zeus::CColor& color);
 
     void think();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
