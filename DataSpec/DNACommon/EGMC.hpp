@@ -1,5 +1,5 @@
-#ifndef EGMC_HPP
-#define EGMC_HPP
+#ifndef _DNACOMMON_EGMC_HPP_
+#define _DNACOMMON_EGMC_HPP_
 
 #include "DNACommon.hpp"
 
@@ -23,4 +23,4 @@ struct EGMC : public BigDNA
 };
 }
 }
-#endif // EGMC_HPP
+#endif // _DNACOMMON_EGMC_HPP_
