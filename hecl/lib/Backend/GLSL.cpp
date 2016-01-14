@@ -3,107 +3,9 @@
 #include <Athena/MemoryReader.hpp>
 #include <Athena/MemoryWriter.hpp>
 #include <boo/graphicsdev/GL.hpp>
+#include <boo/graphicsdev/Vulkan.hpp>
 
 static LogVisor::LogModule Log("HECL::Backend::GLSL");
-
-static const TBuiltInResource DefaultBuiltInResource =
-{
-    32,
-    6,
-    32,
-    32,
-    64,
-    4096,
-    64,
-    32,
-    80,
-    32,
-    4096,
-    32,
-    128,
-    8,
-    16,
-    16,
-    15,
-    -8,
-    7,
-    8,
-    65535,
-    65535,
-    65535,
-    1024,
-    1024,
-    64,
-    1024,
-    16,
-    8,
-    8,
-    1,
-    60,
-    64,
-    64,
-    128,
-    128,
-    8,
-    8,
-    8,
-    0,
-    0,
-    0,
-    0,
-    0,
-    8,
-    8,
-    16,
-    256,
-    1024,
-    1024,
-    64,
-    128,
-    128,
-    16,
-    1024,
-    4096,
-    128,
-    128,
-    16,
-    1024,
-    120,
-    32,
-    64,
-    16,
-    0,
-    0,
-    0,
-    0,
-    8,
-    8,
-    1,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    16384,
-    4,
-    64,
-    8,
-    8,
-    4,
-
-    {
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
-    }
-};
 
 namespace HECL
 {
@@ -249,20 +151,6 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     return retval + "}\n";
 }
 
-glslang::TShader GLSL::makeVertAST(const char* glslVer, unsigned col, unsigned uv, unsigned w,
-                                   unsigned s, unsigned tm) const
-{
-    std::string src = makeVert(glslVer, col, uv, w, s, tm);
-    const char* strs[] = {src.data()};
-    int lens[] = {int(src.size())};
-
-    glslang::TShader ret(EShLangVertex);
-    ret.setStringsWithLengths(strs, lens, 1);
-    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
-
-    return ret;
-}
-
 std::string GLSL::makeFrag(const char* glslVer,
                            const ShaderFunction& lighting) const
 {
@@ -302,20 +190,6 @@ std::string GLSL::makeFrag(const char* glslVer,
         retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0);\n";
 
     return retval + "}\n";
-}
-
-glslang::TShader GLSL::makeFragAST(const char* glslVer,
-                                   const ShaderFunction& lighting) const
-{
-    std::string src = makeFrag(glslVer, lighting);
-    const char* strs[] = {src.data()};
-    int lens[] = {int(src.size())};
-
-    glslang::TShader ret(EShLangFragment);
-    ret.setStringsWithLengths(strs, lens, 1);
-    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
-
-    return ret;
 }
 
 std::string GLSL::makeFrag(const char* glslVer,
@@ -366,21 +240,6 @@ std::string GLSL::makeFrag(const char* glslVer,
         retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0));\n";
 
     return retval + "}\n";
-}
-
-glslang::TShader GLSL::makeFragAST(const char* glslVer,
-                                   const ShaderFunction& lighting,
-                                   const ShaderFunction& post) const
-{
-    std::string src = makeFrag(glslVer, lighting, post);
-    const char* strs[] = {src.data()};
-    int lens[] = {int(src.size())};
-
-    glslang::TShader ret(EShLangFragment);
-    ret.setStringsWithLengths(strs, lens, 1);
-    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
-
-    return ret;
 }
 
 }
@@ -527,9 +386,249 @@ struct GLSLBackendFactory : IShaderBackendFactory
     }
 };
 
+struct SPIRVBackendFactory : IShaderBackendFactory
+{
+    Backend::GLSL m_backend;
+    boo::VulkanDataFactory* m_gfxFactory;
+
+    SPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+    : m_gfxFactory(dynamic_cast<boo::VulkanDataFactory*>(gfxFactory)) {}
+
+    ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
+                                       const HECL::Frontend::IR& ir,
+                                       HECL::Frontend::Diagnostics& diag,
+                                       boo::IShaderPipeline** objOut)
+    {
+        m_backend.reset(ir, diag);
+
+        std::string vertSource =
+        m_backend.makeVert("#version 330",
+                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+
+        std::string fragSource = m_backend.makeFrag("#version 330");
+
+        std::vector<unsigned int> vertBlob;
+        std::vector<unsigned int> fragBlob;
+        std::vector<unsigned int> pipelineBlob;
+
+        *objOut =
+        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                        vertBlob, fragBlob, pipelineBlob,
+                                        m_backend.m_texMapEnd, "texs",
+                                        1, STD_BLOCKNAMES,
+                                        m_backend.m_blendSrc, m_backend.m_blendDst,
+                                        tag.getDepthTest(), tag.getDepthWrite(),
+                                        tag.getBackfaceCulling());
+        if (!*objOut)
+            Log.report(LogVisor::FatalError, "unable to build shader");
+
+
+        atUint32 vertSz = vertBlob.size() * sizeof(unsigned int);
+        atUint32 fragSz = fragBlob.size() * sizeof(unsigned int);
+        atUint32 pipelineSz = pipelineBlob.size() * sizeof(unsigned int);
+
+        size_t cachedSz = 15 + vertSz + fragSz + pipelineSz;
+
+        ShaderCachedData dataOut(tag, cachedSz);
+        Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
+        w.writeUByte(atUint8(m_backend.m_texMapEnd));
+        w.writeUByte(atUint8(m_backend.m_blendSrc));
+        w.writeUByte(atUint8(m_backend.m_blendDst));
+
+        if (vertBlob.size())
+        {
+            w.writeUint32Big(vertSz);
+            w.writeUBytes((atUint8*)vertBlob.data(), vertSz);
+        }
+        else
+            w.writeUint32Big(0);
+
+        if (fragBlob.size())
+        {
+            w.writeUint32Big(fragSz);
+            w.writeUBytes((atUint8*)fragBlob.data(), fragSz);
+        }
+        else
+            w.writeUint32Big(0);
+
+        if (pipelineBlob.size())
+        {
+            w.writeUint32Big(pipelineSz);
+            w.writeUBytes((atUint8*)pipelineBlob.data(), pipelineSz);
+        }
+        else
+            w.writeUint32Big(0);
+
+        return dataOut;
+    }
+
+    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
+    {
+        const ShaderTag& tag = data.m_tag;
+        Athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        size_t texCount = size_t(r.readByte());
+        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
+        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
+
+        atUint32 vertSz = r.readUint32Big();
+        std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
+        if (vertSz)
+            r.readUBytesToBuf(vertBlob.data(), vertSz);
+
+        atUint32 fragSz = r.readUint32Big();
+        std::vector<unsigned int> fragBlob(fragSz / sizeof(unsigned int));
+        if (fragSz)
+            r.readUBytesToBuf(fragBlob.data(), fragSz);
+
+        atUint32 pipelineSz = r.readUint32Big();
+        std::vector<unsigned int> pipelineBlob(pipelineSz / sizeof(unsigned int));
+        if (pipelineSz)
+            r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
+
+        boo::IShaderPipeline* ret =
+        m_gfxFactory->newShaderPipeline(nullptr, nullptr,
+                                        vertBlob, fragBlob, pipelineBlob,
+                                        texCount, "texs",
+                                        1, STD_BLOCKNAMES,
+                                        blendSrc, blendDst,
+                                        tag.getDepthTest(), tag.getDepthWrite(),
+                                        tag.getBackfaceCulling());
+        if (!ret)
+            Log.report(LogVisor::FatalError, "unable to build shader");
+        return ret;
+    }
+
+    ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
+                                               const HECL::Frontend::IR& ir,
+                                               HECL::Frontend::Diagnostics& diag,
+                                               const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                               FReturnExtensionShader returnFunc)
+    {
+        m_backend.reset(ir, diag);
+
+        std::string vertSource =
+        m_backend.makeVert("#version 330",
+                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+
+        std::vector<unsigned int> vertBlob;
+        std::vector<std::pair<std::vector<unsigned int>, std::vector<unsigned int>>> fragPipeBlobs;
+        fragPipeBlobs.reserve(extensionSlots.size());
+
+        size_t cachedSz = 7 + 8 * extensionSlots.size();
+        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
+        {
+            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post);
+            fragPipeBlobs.emplace_back();
+            std::pair<std::vector<unsigned int>, std::vector<unsigned int>>& fragPipeBlob = fragPipeBlobs.back();
+            boo::IShaderPipeline* ret =
+            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                            vertBlob, fragPipeBlob.first, fragPipeBlob.second,
+                                            m_backend.m_texMapEnd, "texs",
+                                            1, STD_BLOCKNAMES,
+                                            m_backend.m_blendSrc, m_backend.m_blendDst,
+                                            tag.getDepthTest(), tag.getDepthWrite(),
+                                            tag.getBackfaceCulling());
+            if (!ret)
+                Log.report(LogVisor::FatalError, "unable to build shader");
+            cachedSz += fragPipeBlob.first.size() * sizeof(unsigned int);
+            cachedSz += fragPipeBlob.second.size() * sizeof(unsigned int);
+            returnFunc(ret);
+        }
+        size_t vertBlobSz = vertBlob.size() * sizeof(unsigned int);
+        cachedSz += vertBlobSz;
+
+        ShaderCachedData dataOut(tag, cachedSz);
+        Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
+        w.writeUByte(atUint8(m_backend.m_texMapEnd));
+        w.writeUByte(atUint8(m_backend.m_blendSrc));
+        w.writeUByte(atUint8(m_backend.m_blendDst));
+
+        if (vertBlobSz)
+        {
+
+            w.writeUint32Big(vertBlobSz);
+            w.writeUBytes((atUint8*)vertBlob.data(), vertBlobSz);
+        }
+        else
+            w.writeUint32Big(0);
+
+        for (const std::pair<std::vector<unsigned int>, std::vector<unsigned int>>& fragPipeBlob : fragPipeBlobs)
+        {
+            size_t fragBlobSz = fragPipeBlob.first.size() * sizeof(unsigned int);
+            size_t pipeBlobSz = fragPipeBlob.second.size() * sizeof(unsigned int);
+            if (fragBlobSz)
+            {
+                w.writeUint32Big(fragBlobSz);
+                w.writeUBytes((atUint8*)fragPipeBlob.first.data(), fragBlobSz);
+            }
+            else
+                w.writeUint32Big(0);
+
+            if (pipeBlobSz)
+            {
+                w.writeUint32Big(pipeBlobSz);
+                w.writeUBytes((atUint8*)fragPipeBlob.second.data(), pipeBlobSz);
+            }
+            else
+                w.writeUint32Big(0);
+        }
+
+        return dataOut;
+    }
+
+    void buildExtendedShaderFromCache(const ShaderCachedData& data,
+                                      const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                      FReturnExtensionShader returnFunc)
+    {
+        const ShaderTag& tag = data.m_tag;
+        Athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        size_t texCount = size_t(r.readByte());
+        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
+        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
+
+        atUint32 vertSz = r.readUint32Big();
+        std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
+        if (vertSz)
+            r.readUBytesToBuf(vertBlob.data(), vertSz);
+
+        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
+        {
+            atUint32 fragSz = r.readUint32Big();
+            std::vector<unsigned int> fragBlob(fragSz / sizeof(unsigned int));
+            if (fragSz)
+                r.readUBytesToBuf(fragBlob.data(), fragSz);
+
+            atUint32 pipelineSz = r.readUint32Big();
+            std::vector<unsigned int> pipelineBlob(pipelineSz / sizeof(unsigned int));
+            if (pipelineSz)
+                r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
+
+            boo::IShaderPipeline* ret =
+            m_gfxFactory->newShaderPipeline(nullptr, nullptr,
+                                            vertBlob, fragBlob, pipelineBlob,
+                                            texCount, "texs",
+                                            1, STD_BLOCKNAMES,
+                                            blendSrc, blendDst,
+                                            tag.getDepthTest(), tag.getDepthWrite(),
+                                            tag.getBackfaceCulling());
+            if (!ret)
+                Log.report(LogVisor::FatalError, "unable to build shader");
+            returnFunc(ret);
+        }
+    }
+};
+
 IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
 {
     return new struct GLSLBackendFactory(gfxFactory);
+}
+
+IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+{
+    //return new struct SPIRVBackendFactory(gfxFactory);
+    return nullptr;
 }
 
 }

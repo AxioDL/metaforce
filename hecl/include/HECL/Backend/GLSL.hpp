@@ -2,7 +2,6 @@
 #define HECLBACKEND_GLSL_HPP
 
 #include "ProgrammableCommon.hpp"
-#include <glslang/Public/ShaderLang.h>
 
 namespace HECL
 {
@@ -19,14 +18,6 @@ struct GLSL : ProgrammableCommon
     std::string makeFrag(const char* glslVer,
                          const ShaderFunction& lighting,
                          const ShaderFunction& post) const;
-
-    glslang::TShader makeVertAST(const char* glslVer, unsigned col, unsigned uv, unsigned w,
-                                 unsigned skinSlots, unsigned texMtxs) const;
-    glslang::TShader makeFragAST(const char* glslVer,
-                                 const ShaderFunction& lighting=ShaderFunction()) const;
-    glslang::TShader makeFragAST(const char* glslVer,
-                                 const ShaderFunction& lighting,
-                                 const ShaderFunction& post) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;

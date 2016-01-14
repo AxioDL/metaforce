@@ -20,7 +20,7 @@ set(ATHENA_INCLUDE_DIR ${ATHENA_INCLUDE_DIR} PARENT_SCOPE)
 set(SQUISH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/libSquish)
 set(SQUISH_INCLUDE_DIR ${SQUISH_INCLUDE_DIR} PARENT_SCOPE)
 
-set(BOO_INCLUDE_DIR extern/libBoo/include extern/libBoo/glslang)
+set(BOO_INCLUDE_DIR extern/libBoo/include)
 
 add_subdirectory(bintoc)
 add_subdirectory(extern)
