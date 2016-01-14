@@ -42,7 +42,7 @@ struct CMDL
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Mesh))
             return false;
-        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
+        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1, 2>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);
         conn.saveBlend();
 
@@ -61,13 +61,13 @@ struct CMDL
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
                 (conn, reader, pakRouter, entry, dataSpec, loadRp);
         return conn.saveBlend();
-#elif 1
+#elif 0
         /* HMDL cook test */
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"), true);
         HECL::BlenderConnection::DataStream ds = conn.beginData();
         DNACMDL::Mesh mesh = ds.compileMesh(HECL::HMDLTopology::TriStrips, 16);
         ds.close();
-        DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
+        DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, outPath, mesh);
 #endif
 
         return true;
@@ -89,7 +89,7 @@ struct CMDL
         if (mesh.skins.size())
         {
             DNACMDL::Mesh skinMesh = mesh.getContiguousSkinningVersion();
-            if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, skinMesh))
+            if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, skinMesh))
                 return false;
 
             /* Output skinning intermediate */
@@ -111,7 +111,7 @@ struct CMDL
             for (const std::string& boneName : skinMesh.boneNames)
                 writer.writeString(boneName);
         }
-        else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+        else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
             return false;
         return true;
     }
@@ -123,7 +123,7 @@ struct CMDL
         HECL::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
         if (mesh.skins.size())
         {
-            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
                 return false;
 
             /* Output skinning intermediate */
@@ -139,7 +139,7 @@ struct CMDL
             for (const std::string& boneName : mesh.boneNames)
                 writer.writeString(boneName);
         }
-        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, inPath, mesh))
+        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
             return false;
         return true;
     }
