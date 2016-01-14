@@ -6,6 +6,105 @@
 
 static LogVisor::LogModule Log("HECL::Backend::GLSL");
 
+static const TBuiltInResource DefaultBuiltInResource =
+{
+    32,
+    6,
+    32,
+    32,
+    64,
+    4096,
+    64,
+    32,
+    80,
+    32,
+    4096,
+    32,
+    128,
+    8,
+    16,
+    16,
+    15,
+    -8,
+    7,
+    8,
+    65535,
+    65535,
+    65535,
+    1024,
+    1024,
+    64,
+    1024,
+    16,
+    8,
+    8,
+    1,
+    60,
+    64,
+    64,
+    128,
+    128,
+    8,
+    8,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    8,
+    16,
+    256,
+    1024,
+    1024,
+    64,
+    128,
+    128,
+    16,
+    1024,
+    4096,
+    128,
+    128,
+    16,
+    1024,
+    120,
+    32,
+    64,
+    16,
+    0,
+    0,
+    0,
+    0,
+    8,
+    8,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    16384,
+    4,
+    64,
+    8,
+    8,
+    4,
+
+    {
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+    }
+};
+
 namespace HECL
 {
 namespace Backend
@@ -150,6 +249,20 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     return retval + "}\n";
 }
 
+glslang::TShader GLSL::makeVertAST(const char* glslVer, unsigned col, unsigned uv, unsigned w,
+                                   unsigned s, unsigned tm) const
+{
+    std::string src = makeVert(glslVer, col, uv, w, s, tm);
+    const char* strs[] = {src.data()};
+    int lens[] = {int(src.size())};
+
+    glslang::TShader ret(EShLangVertex);
+    ret.setStringsWithLengths(strs, lens, 1);
+    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
+
+    return ret;
+}
+
 std::string GLSL::makeFrag(const char* glslVer,
                            const ShaderFunction& lighting) const
 {
@@ -189,6 +302,20 @@ std::string GLSL::makeFrag(const char* glslVer,
         retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0);\n";
 
     return retval + "}\n";
+}
+
+glslang::TShader GLSL::makeFragAST(const char* glslVer,
+                                   const ShaderFunction& lighting) const
+{
+    std::string src = makeFrag(glslVer, lighting);
+    const char* strs[] = {src.data()};
+    int lens[] = {int(src.size())};
+
+    glslang::TShader ret(EShLangFragment);
+    ret.setStringsWithLengths(strs, lens, 1);
+    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
+
+    return ret;
 }
 
 std::string GLSL::makeFrag(const char* glslVer,
@@ -239,6 +366,21 @@ std::string GLSL::makeFrag(const char* glslVer,
         retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0));\n";
 
     return retval + "}\n";
+}
+
+glslang::TShader GLSL::makeFragAST(const char* glslVer,
+                                   const ShaderFunction& lighting,
+                                   const ShaderFunction& post) const
+{
+    std::string src = makeFrag(glslVer, lighting, post);
+    const char* strs[] = {src.data()};
+    int lens[] = {int(src.size())};
+
+    glslang::TShader ret(EShLangFragment);
+    ret.setStringsWithLengths(strs, lens, 1);
+    ret.parse(&DefaultBuiltInResource, 110, true, EShMsgDefault);
+
+    return ret;
 }
 
 }

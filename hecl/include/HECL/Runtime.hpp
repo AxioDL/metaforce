@@ -140,8 +140,9 @@ public:
     unsigned registerExtensionSlot(Function lighting, Function post)
     {
         m_extensionSlots.emplace_back();
-        m_extensionSlots.back().lighting = lighting;
-        m_extensionSlots.back().post = post;
+        ExtensionSlot& slot = m_extensionSlots.back();
+        slot.lighting = lighting;
+        slot.post = post;
         return m_extensionSlots.size() - 1;
     }
 };
