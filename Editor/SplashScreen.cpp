@@ -35,12 +35,20 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
   m_extractString(m_vm.translateOr("extract_game", "Extract Game")),
   m_extractProjBind(*this)
 {
+    m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");
     m_textColorClear[3] = 0.0;
     commitResources(res);
 }
 
 void SplashScreen::think()
 {
+    if (phase() == Phase::Done)
+    {
+        if (m_fileBrowser.m_view)
+            m_fileBrowser.m_view.reset();
+        return;
+    }
+
     ModalWindow::think();
     if (m_fileBrowser.m_view)
         m_fileBrowser.m_view->think();
@@ -245,6 +253,8 @@ void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect&
 
 void SplashScreen::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
+    if (phase() == Phase::Done)
+        return;
     ModalWindow::draw(gfxQ);
 
     if (m_title)

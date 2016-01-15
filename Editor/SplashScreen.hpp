@@ -5,6 +5,7 @@
 #include <Specter/ModalWindow.hpp>
 #include <Specter/MultiLineTextView.hpp>
 #include <Specter/FileBrowser.hpp>
+#include <Specter/Menu.hpp>
 #include "ViewManager.hpp"
 
 namespace URDE
@@ -58,7 +59,7 @@ class SplashScreen : public Specter::ModalWindow
     {
         SplashScreen& m_splash;
         HECL::SystemString m_deferPath;
-        OpenProjBinding(SplashScreen& splash) : m_splash(splash) {}
+        OpenProjBinding(SplashScreen& splash) : m_splash(splash), m_openRecentMenuRoot(*this) {}
         const char* name(const Specter::Control* control) const {return m_splash.m_openString.c_str();}
         const char* help(const Specter::Control* control) const {return "Opens an existing project at selected path";}
         void activated(const Specter::Button* button, const boo::SWindowCoord& coord)
@@ -74,6 +75,57 @@ class SplashScreen : public Specter::ModalWindow
             }));
             m_splash.updateSize();
             m_splash.m_openButt.mouseLeave(coord);
+        }
+
+        struct OpenRecentMenuRoot : Specter::IMenuNode
+        {
+            OpenProjBinding& m_openProjBind;
+            OpenRecentMenuRoot(OpenProjBinding& openProjBind) : m_openProjBind(openProjBind) {}
+
+            std::string m_text;
+            const std::string* text() const {return &m_text;}
+
+            struct OpenRecentMenuItem : Specter::IMenuNode
+            {
+                OpenRecentMenuRoot& m_parent;
+
+                HECL::SystemString m_path;
+                std::string m_text;
+
+                const std::string* text() const {return &m_text;}
+                void activated() {m_parent.m_openProjBind.m_deferPath = m_path;}
+
+                OpenRecentMenuItem(OpenRecentMenuRoot& parent, const HECL::SystemString& path)
+                : m_parent(parent), m_path(path)
+                {
+                    std::vector<HECL::SystemString> pathComps = Specter::FileBrowser::PathComponents(path);
+                    if (pathComps.size())
+                        m_text = HECL::SystemUTF8View(pathComps.back()).str();
+                }
+            };
+            std::vector<OpenRecentMenuItem> m_items;
+
+            size_t subNodeCount() const {return m_items.size();}
+            Specter::IMenuNode* subNode(size_t idx) {return &m_items[idx];}
+
+            void buildNodes(const std::vector<HECL::SystemString>* recentProjects)
+            {
+                m_items.clear();
+                if (recentProjects)
+                {
+                    m_items.reserve(recentProjects->size());
+                    for (const HECL::SystemString& path : *recentProjects)
+                        m_items.emplace_back(*this, path);
+                }
+            }
+        } m_openRecentMenuRoot;
+
+        MenuStyle menuStyle(const Specter::Button* button) const {return MenuStyle::Auxiliary;}
+        std::unique_ptr<View> buildMenu(const Specter::Button* button)
+        {
+            m_openRecentMenuRoot.buildNodes(m_splash.m_vm.recentProjects());
+            return std::unique_ptr<View>(new Specter::Menu(m_splash.rootView().viewRes(),
+                                                           m_splash, &m_openRecentMenuRoot));
         }
     } m_openProjBind;
 
