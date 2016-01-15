@@ -418,7 +418,7 @@ struct ANCS : BigYAML
             if (force || blendType == HECL::ProjectPath::Type::None)
             {
                 HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>
+                DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1, 2>
                         (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
         }

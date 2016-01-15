@@ -239,7 +239,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         secStart = drs.position();
         mHeader.read(drs);
         drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
-        curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1_2>
+        curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>
                       (os, drs, pakRouter, entry, dummy, true,
                        true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
         os.format("obj.retro_disable_enviro_visor = %s\n"

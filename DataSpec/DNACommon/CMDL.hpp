@@ -38,7 +38,7 @@ struct Header : BigDNA
     Align<32> align;
 };
 
-struct SurfaceHeader_1_2 : BigDNA
+struct SurfaceHeader_1 : BigDNA
 {
     DECL_DNA
     Value<atVec3f> centroid;
@@ -56,6 +56,26 @@ struct SurfaceHeader_1_2 : BigDNA
     static constexpr atInt16 skinMatrixBankIdx() {return -1;}
 };
 
+struct SurfaceHeader_2 : BigDNA
+{
+    DECL_DNA
+    Value<atVec3f> centroid;
+    Value<atUint32> matIdx = 0;
+    Value<atUint16> qDiv = 0x8000;
+    Value<atUint16> dlSize = 0;
+    Value<atUint32> unk1 = 0;
+    Value<atUint32> unk2 = 0;
+    Value<atUint32> aabbSz = 0;
+    Value<atVec3f> reflectionNormal;
+    Value<atInt16> skinMtxBankIdx;
+    Value<atUint16> surfaceGroup;
+    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Align<32> align;
+
+    static constexpr bool UseMatrixSkinning() {return false;}
+    atInt16 skinMatrixBankIdx() const {return skinMtxBankIdx;}
+};
+
 struct SurfaceHeader_3 : BigDNA
 {
     DECL_DNA
@@ -68,8 +88,9 @@ struct SurfaceHeader_3 : BigDNA
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
-    Value<atUint16> unk3;
+    Value<atUint16> surfaceGroup;
     Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Value<atUint8> unk3;
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return true;}

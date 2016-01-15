@@ -1,6 +1,7 @@
 make_dnalist(liblist
              CMDL
-             MAPA)
+             MAPA
+             EGMC)
 
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp

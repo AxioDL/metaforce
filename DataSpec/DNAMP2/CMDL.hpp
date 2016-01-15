@@ -40,7 +40,7 @@ struct CMDL
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
         if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Mesh))
             return false;
-        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 4>
+        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_2, 4>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);
         return conn.saveBlend();
     }
