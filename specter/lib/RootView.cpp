@@ -36,6 +36,14 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_activeMenuButton)
+    {
+        ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
+        if (!mv.mouseDown(coord, button, mods))
+            m_activeMenuButton->closeMenu(coord);
+        return;
+    }
+
     if (m_hoverSplitDragView)
     {
         m_activeSplitDragView = true;
@@ -51,6 +59,13 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_activeMenuButton)
+    {
+        ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
+        mv.mouseUp(coord, button, mods);
+        return;
+    }
+
     if (m_activeSplitDragView && button == boo::EMouseButton::Primary)
     {
         m_activeSplitDragView = false;
@@ -84,6 +99,13 @@ SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCo
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
+    if (m_activeMenuButton)
+    {
+        ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
+        mv.mouseMove(coord);
+        return;
+    }
+
     if (m_activeSplitDragView)
     {
         m_hoverSplitDragView->moveDragSplit(coord);
@@ -150,12 +172,26 @@ void RootView::mouseEnter(const boo::SWindowCoord& coord)
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
+    if (m_activeMenuButton)
+    {
+        ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
+        mv.mouseLeave(coord);
+        return;
+    }
+
     for (View* v : m_views)
         v->mouseLeave(coord);
 }
 
 void RootView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll)
 {
+    if (m_activeMenuButton)
+    {
+        ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
+        mv.scroll(coord, scroll);
+        return;
+    }
+
     for (View* v : m_views)
         v->scroll(coord, scroll);
 }

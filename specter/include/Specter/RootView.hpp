@@ -26,6 +26,7 @@ class RootView : public View
     ViewResources* m_viewRes;
     ITextInputView* m_activeTextView = nullptr;
     View* m_activeDragView = nullptr;
+    Button* m_activeMenuButton = nullptr;
 
     SplitView* m_hoverSplitDragView = nullptr;
     bool m_activeSplitDragView = false;
@@ -82,6 +83,15 @@ public:
     {
         m_activeDragView = dragView;
     }
+    void setActiveMenuButton(Button* button)
+    {
+        m_activeMenuButton = button;
+    }
+    void unsetActiveMenuButton(Button* button)
+    {
+        if (button == m_activeMenuButton)
+            m_activeMenuButton = nullptr;
+    }
 
     void startSplitDrag(SplitView* sv, const boo::SWindowCoord& coord)
     {
@@ -118,7 +128,7 @@ public:
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
 
-private:    
+private:
     void _updateCursor()
     {
         if (m_spaceCornerHover)

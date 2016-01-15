@@ -81,6 +81,7 @@ public:
         void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
     };
 
+    ~Button() {closeMenu({});}
     Button(ViewResources& res, View& parentView,
            IButtonBinding* controlBinding, const std::string& text,
            Style style=Style::Block, RectangleConstraint constraint=RectangleConstraint());
@@ -92,6 +93,7 @@ public:
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseMove(const boo::SWindowCoord&);
     void mouseLeave(const boo::SWindowCoord&);
+    void think();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
@@ -101,6 +103,9 @@ public:
     void colorGlyphs(const Zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}
     int nominalHeight() const {return m_nomHeight;}
+
+    void closeMenu(const boo::SWindowCoord& coord);
+    ViewChild<std::unique_ptr<View>>& getMenu() {return m_modalMenu;}
 
     void setMultiplyColor(const Zeus::CColor& color)
     {

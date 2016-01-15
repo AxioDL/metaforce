@@ -24,22 +24,40 @@ class Menu : public View
     std::unique_ptr<Menu> m_subMenu;
     std::unique_ptr<TextView> m_headText;
 
-    int m_cWidth, m_cHeight;
+    int m_cWidth, m_cHeight, m_cTop;
 
-    SolidShaderVert m_verts[16];
+    SolidShaderVert m_verts[8];
     VertexBufferBinding m_vertsBinding;
+    void setVerts(int width, int height);
 
     struct ContentView : View
     {
-        ContentView(ViewResources& res, Menu& menu) : View(res, menu) {}
+        Menu& m_menu;
+        ContentView(ViewResources& res, Menu& menu);
+
+        boo::SWindowRect m_scissorRect;
+        SolidShaderVert m_hlVerts[4];
+        VertexBufferBinding m_hlVertsBinding;
+
+        size_t m_highlightedItem = -1;
+        void setHighlightedItem(size_t idx);
+        void unsetHighlightedItem(size_t idx)
+        {
+            if (m_highlightedItem == idx)
+                setHighlightedItem(-1);
+        }
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseMove(const boo::SWindowCoord&);
         void mouseLeave(const boo::SWindowCoord&);
 
-        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
+                     const boo::SWindowRect& scissor);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+        int nominalWidth() const {return m_menu.m_cWidth;}
+        int nominalHeight() const {return m_menu.m_cHeight;}
     };
     std::unique_ptr<ContentView> m_content;
     ViewChild<std::unique_ptr<ScrollView>> m_scroll;
@@ -48,12 +66,16 @@ class Menu : public View
     {
         Menu& m_menu;
         std::unique_ptr<TextView> m_textView;
-        ItemView(ViewResources& res, Menu& menu, const std::string& text);
+        size_t m_idx;
+        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx);
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseEnter(const boo::SWindowCoord&);
         void mouseLeave(const boo::SWindowCoord&);
+
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::vector<ViewChild<std::unique_ptr<ItemView>>> m_items;
 
@@ -69,6 +91,7 @@ public:
     void mouseLeave(const boo::SWindowCoord&);
     void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
 
+    void think();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 };
