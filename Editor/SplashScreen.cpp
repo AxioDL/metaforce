@@ -53,6 +53,9 @@ void SplashScreen::think()
     if (m_fileBrowser.m_view)
         m_fileBrowser.m_view->think();
 
+    if (m_openButt.m_view)
+        m_openButt.m_view->think();
+
     if (m_newProjBind.m_deferPath.size())
     {
         Log.report(LogVisor::Info, _S("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
@@ -78,7 +81,7 @@ void SplashScreen::updateContentOpacity(float opacity)
     Specter::ViewResources& res = rootView().viewRes();
 
     if (!m_title && res.fontCacheReady())
-    {        
+    {
         m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
         Zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;

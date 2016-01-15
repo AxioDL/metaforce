@@ -29,7 +29,7 @@ class ViewManager : public Specter::IViewManager
     std::unique_ptr<RootSpace> m_rootSpace;
     Specter::View* m_rootSpaceView = nullptr;
 
-    std::vector<HECL::SystemString> m_recentProjects;
+    std::vector<HECL::SystemString> m_recentProjects = {"Test", "One", "Two", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
     std::vector<HECL::SystemString> m_recentFiles;
 
     bool m_updatePf = false;

@@ -36,7 +36,6 @@ void ViewManager::RootSpaceViewBuilt(Specter::View *view)
     std::vector<Specter::View*>& cViews = m_rootView->accessContentViews();
     cViews.clear();
     cViews.push_back(view);
-    printf("RootView Set: %p [%p]\n\n", m_rootView.get(), view);
     cViews.push_back(m_splash.get());
     m_rootView->updateSize();
 }
