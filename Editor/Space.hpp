@@ -88,7 +88,7 @@ public:
     {
         m_state.read(r);
 #ifdef URDE_BINARY_CONFIGS
-        m_child.reset(NewSpaceFromConfigStream(vm, this, r));
+        m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
 #else
         r.enterSubRecord("spaceTree");
         m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));

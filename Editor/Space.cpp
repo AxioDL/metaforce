@@ -131,26 +131,22 @@ Space* Space::NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigRea
 {
 #ifdef URDE_BINARY_CONFIGS
     Class cls = Class(r.readUint32Big());
-    return BuildNewSpace(vm, cls, parent, r);
 #else
     Class cls = Class(r.readUint32("class"));
-    return BuildNewSpace(vm, cls, parent, r);
 #endif
+    return BuildNewSpace(vm, cls, parent, r);
 }
 
 RootSpace* Space::NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)
 {
 #ifdef URDE_BINARY_CONFIGS
     Class cls = Class(r.readUint32Big());
-    if (cls != Class::RootSpace)
-        return nullptr;
-    return BuildNewSpace(vm, cls, r);
 #else
     Class cls = Class(r.readUint32("class"));
+#endif
     if (cls != Class::RootSpace)
         return nullptr;
     return new RootSpace(vm, r);
-#endif
 }
 
 }
