@@ -87,7 +87,7 @@ class SystemUTF8View
 {
     std::string m_utf8;
 public:
-    SystemUTF8View(const SystemString& str)
+    explicit SystemUTF8View(const SystemString& str)
     : m_utf8(WideToUTF8(str)) {}
     operator const std::string&() const {return m_utf8;}
     const std::string& str() const {return m_utf8;}
@@ -101,7 +101,7 @@ class SystemStringView
 {
     std::wstring m_sys;
 public:
-    SystemStringView(const std::string& str)
+    explicit SystemStringView(const std::string& str)
     : m_sys(UTF8ToWide(str)) {}
     operator const std::wstring&() const {return m_sys;}
     const std::wstring& sys_str() const {return m_sys;}
@@ -127,7 +127,7 @@ class SystemUTF8View
 {
     const std::string& m_utf8;
 public:
-    SystemUTF8View(const SystemString& str)
+    explicit SystemUTF8View(const SystemString& str)
     : m_utf8(str) {}
     operator const std::string&() const {return m_utf8;}
     const std::string& str() const {return m_utf8;}
@@ -141,7 +141,7 @@ class SystemStringView
 {
     const std::string& m_sys;
 public:
-    SystemStringView(const std::string& str)
+    explicit SystemStringView(const std::string& str)
     : m_sys(str) {}
     operator const std::string&() const {return m_sys;}
     const std::string& sys_str() const {return m_sys;}
