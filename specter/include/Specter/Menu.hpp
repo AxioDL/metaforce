@@ -14,7 +14,7 @@ struct IMenuNode
     virtual const std::string* text() const {return nullptr;}
     virtual size_t subNodeCount() const {return 0;}
     virtual IMenuNode* subNode(size_t idx) {return nullptr;}
-    virtual void activated() {}
+    virtual void activated(const boo::SWindowCoord& coord) {}
 };
 
 class Menu : public View
@@ -28,7 +28,7 @@ class Menu : public View
 
     SolidShaderVert m_verts[8];
     VertexBufferBinding m_vertsBinding;
-    void setVerts(int width, int height);
+    void setVerts(int width, int height, float pf);
 
     struct ContentView : View
     {
@@ -67,7 +67,8 @@ class Menu : public View
         Menu& m_menu;
         std::unique_ptr<TextView> m_textView;
         size_t m_idx;
-        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx);
+        IMenuNode& m_node;
+        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode& node);
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

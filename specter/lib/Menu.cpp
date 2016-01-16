@@ -56,7 +56,7 @@ void Menu::reset(IMenuNode* rootNode)
 
             if (nodeText)
             {
-                item.m_view.reset(new ItemView(res, *this, *nodeText, i));
+                item.m_view.reset(new ItemView(res, *this, *nodeText, i, *node));
                 m_cWidth = std::max(m_cWidth, int(item.m_view->m_textView->nominalWidth() + 10*pf));
             }
 
@@ -88,25 +88,25 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
     m_hlVerts[3].m_color = res.themeData().button2Hover();
 }
 
-Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx)
-: View(res, menu), m_menu(menu), m_idx(idx)
+Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode& node)
+: View(res, menu), m_menu(menu), m_idx(idx), m_node(node)
 {
     commitResources(res);
     m_textView.reset(new Specter::TextView(res, *this, res.m_mainFont));
     m_textView->typesetGlyphs(text, res.themeData().uiText());
 }
 
-void Menu::setVerts(int width, int height)
+void Menu::setVerts(int width, int height, float pf)
 {
-    m_verts[0].m_pos.assign(0, height-m_cTop, 0);
+    m_verts[0].m_pos.assign(0, height-m_cTop-pf, 0);
     m_verts[1].m_pos.assign(0, 0, 0);
-    m_verts[2].m_pos.assign(width, height-m_cTop, 0);
+    m_verts[2].m_pos.assign(width, height-m_cTop-pf, 0);
     m_verts[3].m_pos.assign(width, 0, 0);
 
     m_verts[4].m_pos.assign(0, height, 0);
-    m_verts[5].m_pos.assign(0, height-m_cTop, 0);
+    m_verts[5].m_pos.assign(0, height-m_cTop+pf, 0);
     m_verts[6].m_pos.assign(width, height, 0);
-    m_verts[7].m_pos.assign(width, height-m_cTop, 0);
+    m_verts[7].m_pos.assign(width, height-m_cTop+pf, 0);
 
     m_vertsBinding.load(m_verts, sizeof(m_verts));
 }
@@ -152,7 +152,6 @@ void Menu::ContentView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseBut
 
 void Menu::ItemView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-
 }
 
 void Menu::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -168,7 +167,8 @@ void Menu::ContentView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButto
 
 void Menu::ItemView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-
+    if (m_menu.m_content->m_highlightedItem == m_idx)
+        m_node.activated(coord);
 }
 
 void Menu::mouseMove(const boo::SWindowCoord& coord)
@@ -231,7 +231,7 @@ void Menu::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 
     View::resized(root, rect);
     m_scroll.m_view->resized(root, rect);
-    setVerts(rect.size[0], rect.size[1]);
+    setVerts(rect.size[0], rect.size[1], pf);
 
     rect.location[0] += 5*pf;
     rect.location[1] += rect.size[1] - (ROW_HEIGHT + ITEM_MARGIN - 5)*pf;

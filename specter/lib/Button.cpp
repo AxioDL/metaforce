@@ -180,6 +180,9 @@ void Button::colorGlyphs(const Zeus::CColor& newColor)
 {
     m_textColor = newColor;
     m_text->colorGlyphs(newColor);
+    for (int i=28 ; i<31 ; ++i)
+        m_verts[i].m_color = newColor;
+    m_vertsBinding.load(m_verts, sizeof(m_verts));
 }
 
 void Button::ButtonTarget::setInactive()
