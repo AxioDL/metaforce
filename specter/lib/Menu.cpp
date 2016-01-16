@@ -56,7 +56,7 @@ void Menu::reset(IMenuNode* rootNode)
 
             if (nodeText)
             {
-                item.m_view.reset(new ItemView(res, *this, *nodeText, i, *node));
+                item.m_view.reset(new ItemView(res, *this, *nodeText, i, node));
                 m_cWidth = std::max(m_cWidth, int(item.m_view->m_textView->nominalWidth() + 10*pf));
             }
 
@@ -88,7 +88,7 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
     m_hlVerts[3].m_color = res.themeData().button2Hover();
 }
 
-Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode& node)
+Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode* node)
 : View(res, menu), m_menu(menu), m_idx(idx), m_node(node)
 {
     commitResources(res);
@@ -157,6 +157,12 @@ void Menu::ItemView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton
 void Menu::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     m_scroll.mouseUp(coord, button, mod);
+    if (m_deferredActivation)
+    {
+        IMenuNode* node = m_deferredActivation;
+        m_deferredActivation = nullptr;
+        node->activated(coord);
+    }
 }
 
 void Menu::ContentView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -168,7 +174,7 @@ void Menu::ContentView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButto
 void Menu::ItemView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     if (m_menu.m_content->m_highlightedItem == m_idx)
-        m_node.activated(coord);
+        m_menu.m_deferredActivation = m_node;
 }
 
 void Menu::mouseMove(const boo::SWindowCoord& coord)

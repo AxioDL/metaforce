@@ -67,8 +67,8 @@ class Menu : public View
         Menu& m_menu;
         std::unique_ptr<TextView> m_textView;
         size_t m_idx;
-        IMenuNode& m_node;
-        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode& node);
+        IMenuNode* m_node;
+        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode* node);
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -79,6 +79,7 @@ class Menu : public View
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::vector<ViewChild<std::unique_ptr<ItemView>>> m_items;
+    IMenuNode* m_deferredActivation = nullptr;
 
     Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode* thisNode);
 
