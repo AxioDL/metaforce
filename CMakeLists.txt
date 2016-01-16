@@ -20,13 +20,21 @@ else()
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wno-multichar -fno-exceptions")
 
+  if(APPLE)
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -flto")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -flto")
+  endif()
+
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 include_directories(/usr/local/include)
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+if(("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+   AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   option(USE_LD_GOLD "Link with GNU Gold and enable LTO" ON)
 else()
   option(USE_LD_GOLD "Link with GNU Gold and enable LTO" OFF)
