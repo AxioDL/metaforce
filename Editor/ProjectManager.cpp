@@ -99,6 +99,9 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
     m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
+
+    m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
+
     return true;
 
 makeDefault:
@@ -163,6 +166,8 @@ bool ProjectManager::saveProject()
     HECL::Unlink(newSpacesPath.getAbsolutePath().c_str());
     HECL::Rename(oldSpacesPath.getAbsolutePath().c_str(),
                  newSpacesPath.getAbsolutePath().c_str());
+
+    m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
 
     return true;
 }

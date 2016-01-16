@@ -93,7 +93,11 @@ class SplashScreen : public Specter::ModalWindow
                 std::string m_text;
 
                 const std::string* text() const {return &m_text;}
-                void activated() {m_parent.m_openProjBind.m_deferPath = m_path;}
+                void activated(const boo::SWindowCoord& coord)
+                {
+                    m_parent.m_openProjBind.m_deferPath = m_path;
+                    m_parent.m_openProjBind.m_splash.m_openButt.m_view->closeMenu(coord);
+                }
 
                 OpenRecentMenuItem(OpenRecentMenuRoot& parent, const HECL::SystemString& path)
                 : m_parent(parent), m_path(path)
