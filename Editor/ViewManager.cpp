@@ -4,6 +4,7 @@
 #include "SplashScreen.hpp"
 #include "locale/locale.hpp"
 #include "ResourceBrowser.hpp"
+#include <cstdio>
 
 using YAMLNode = Athena::io::YAMLNode;
 
@@ -75,20 +76,76 @@ void ViewManager::DismissSplash()
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
-  m_fontCache(fileMgr), m_translator(URDE::SystemLocaleOrEnglish())
-{}
+  m_fontCache(fileMgr), m_translator(URDE::SystemLocaleOrEnglish()),
+  m_recentProjectsPath(HECL::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().c_str())),
+  m_recentFilesPath(HECL::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().c_str()))
+{
+    char path[2048];
+    HECL::Sstat theStat;
+
+    FILE* fp = HECL::Fopen(m_recentProjectsPath.c_str(), _S("r"), HECL::FileLockType::Read);
+    if (fp)
+    {
+        while (fgets(path, 2048, fp))
+        {
+            std::string pathStr(path);
+            pathStr.pop_back();
+            HECL::SystemStringView pathStrView(pathStr);
+            if (!HECL::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+                m_recentProjects.push_back(pathStrView);
+        }
+        fclose(fp);
+    }
+
+    fp = HECL::Fopen(m_recentFilesPath.c_str(), _S("r"), HECL::FileLockType::Read);
+    if (fp)
+    {
+        while (fgets(path, 2048, fp))
+        {
+            std::string pathStr(path);
+            pathStr.pop_back();
+            HECL::SystemStringView pathStrView(pathStr);
+            if (!HECL::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+                m_recentFiles.push_back(pathStrView);
+        }
+        fclose(fp);
+    }
+}
 
 ViewManager::~ViewManager() {}
 
 void ViewManager::pushRecentProject(const HECL::SystemString& path)
 {
+    for (HECL::SystemString& testPath : m_recentProjects)
+    {
+        if (path == testPath)
+            return;
+    }
     m_recentProjects.push_back(path);
+    FILE* fp = HECL::Fopen(m_recentProjectsPath.c_str(), _S("w"), HECL::FileLockType::Write);
+    if (fp)
+    {
+        for (HECL::SystemString& pPath : m_recentProjects)
+            fprintf(fp, "%s\n", HECL::SystemUTF8View(pPath).c_str());
+        fclose(fp);
+    }
 }
 
 void ViewManager::pushRecentFile(const HECL::SystemString& path)
 {
+    for (HECL::SystemString& testPath : m_recentFiles)
+    {
+        if (path == testPath)
+            return;
+    }
     m_recentFiles.push_back(path);
-}
+    FILE* fp = HECL::Fopen(m_recentFilesPath.c_str(), _S("w"), HECL::FileLockType::Write);
+    if (fp)
+    {
+        for (HECL::SystemString& pPath : m_recentFiles)
+            fprintf(fp, "%s\n", HECL::SystemUTF8View(pPath).c_str());
+        fclose(fp);
+    }}
 
 void ViewManager::init(boo::IApplication* app)
 {
