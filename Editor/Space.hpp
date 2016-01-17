@@ -32,6 +32,7 @@ public:
         SplitSpace,
         TestSpace,
         ResourceBrowser,
+        ModelViewer
     };
 
     struct State : Athena::io::DNAYaml<Athena::BigEndian> {Delete _d;};
