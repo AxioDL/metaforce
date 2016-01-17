@@ -673,6 +673,7 @@ def make_pass_inca():
     new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
     new_grp.links.new(grp_in.outputs[2], add1.inputs[2])
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
     grp_out.inputs[1].default_value = 1.0
 
 # Reflection Map

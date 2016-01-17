@@ -21,15 +21,17 @@ class ModelViewer : public Space
         };
 
         Value<Mode>    renderMode = Mode::Material;
-        Value<Zeus::CVector3f> cameraPosition;
+        Value<Zeus::CVector3f>   cameraPosition;
+        Value<Zeus::CQuaternion> cameraOrientation;
+
     } m_state;
 
     const Space::State& spaceState() const { return m_state; }
 
     struct View : Specter::View
     {
-        Zeus::CProjection m_cameraProjection;
     };
+
     virtual Specter::View* buildContentView(Specter::ViewResources& res)
     {
         return nullptr;

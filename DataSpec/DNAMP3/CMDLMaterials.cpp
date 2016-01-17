@@ -63,6 +63,9 @@ void MaterialSet::ConstructMaterial(Stream& out,
                material.header.flags.shadowOccluderMesh() ? "True" : "False");
 
 
+    /* TODO: Some models enable both of these flags at once, why?
+     * And how do we handle this properly?
+     */
     /* Blend factors */
     if (material.header.flags.additiveBlending())
         out << "new_material.game_settings.alpha_blend = 'ADD'\n"
