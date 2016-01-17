@@ -80,6 +80,7 @@ ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarMan
   m_recentProjectsPath(HECL::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().c_str())),
   m_recentFilesPath(HECL::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().c_str()))
 {
+    Space::SpaceMenuNode::initializeStrings(*this);
     char path[2048];
     HECL::Sstat theStat;
 

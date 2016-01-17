@@ -39,6 +39,67 @@ public:
     static Space* NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigReader& r);
     static RootSpace* NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r);
 
+    struct SpaceMenuNode : Specter::IMenuNode
+    {
+        struct SubNodeData : Specter::IMenuNode
+        {
+            Class m_cls;
+            std::string m_key;
+            std::string m_text;
+            const std::string* text() const {return &m_text;}
+            void activated(const boo::SWindowCoord& coord) {}
+
+            SubNodeData(Class cls, const char* key, const char* text)
+            : m_cls(cls), m_key(key), m_text(text) {}
+        };
+        static std::vector<SubNodeData> s_subNodeDats;
+
+        struct SubNode : Specter::IMenuNode
+        {
+            Space& m_space;
+            const SubNodeData& m_data;
+            const std::string* text() const {return &m_data.m_text;}
+            void activated(const boo::SWindowCoord& coord) {}
+
+            SubNode(Space& space, const SubNodeData& data) : m_space(space), m_data(data) {}
+        };
+        std::vector<SubNode> m_subNodes;
+
+        SpaceMenuNode(Space& space)
+        {
+            m_subNodes.reserve(s_subNodeDats.size());
+            for (const SubNodeData& sn : s_subNodeDats)
+                m_subNodes.emplace_back(space, sn);
+        }
+
+        static std::string s_text;
+        const std::string* text() const {return &s_text;}
+
+        size_t subNodeCount() const {return m_subNodes.size();}
+        IMenuNode* subNode(size_t idx) {return &m_subNodes[idx];}
+
+        static void initializeStrings(ViewManager& vm);
+        static const std::string* lookupClassString(Class cls)
+        {
+            for (const SubNodeData& sn : s_subNodeDats)
+                if (sn.m_cls == cls)
+                    return &sn.m_text;
+            return nullptr;
+        }
+    } m_spaceMenuNode;
+
+    struct SpaceSelectBind : Specter::IButtonBinding
+    {
+        Space& m_space;
+        const char* name(const Specter::Control* control) const {return SpaceMenuNode::s_text.c_str();}
+
+        MenuStyle menuStyle(const Specter::Button* button) const {return MenuStyle::Primary;}
+        std::unique_ptr<Specter::View> buildMenu(const Specter::Button* button);
+
+        SpaceSelectBind(Space& space) : m_space(space) {}
+    } m_spaceSelectBind;
+    std::unique_ptr<Specter::Button> m_spaceSelectButton;
+
 protected:
     friend class ViewManager;
     friend class RootSpace;
@@ -46,7 +107,7 @@ protected:
     Class m_class = Class::None;
     Space* m_parent;
     std::unique_ptr<Specter::Space> m_spaceView;
-    Space(ViewManager& vm, Class cls, Space* parent) : m_vm(vm), m_class(cls), m_parent(parent) {}
+    Space(ViewManager& vm, Class cls, Space* parent);
 
     /* Allows common Space code to access DNA-encoded state */
     virtual const Space::State& spaceState() const=0;
