@@ -137,9 +137,13 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    size_t decompSz = 0;
     int numMips = 0;
     for (int i=512 ; i>=1 ; i/=2)
+    {
+        decompSz += i*i*4;
         ++numMips;
+    }
 
     z_stream z = {0};
     size_t rowSz = 0;
@@ -282,10 +286,12 @@ int main(int argc, char* argv[])
             uint16_t w = _bswap16(width);
             uint16_t h = _bswap16(height);
             uint32_t mips = _bswap32(numMips);
+            uint32_t dsz = _bswap32(decompSz);
             fwrite(&fmt, 1, 4, ofp);
             fwrite(&w, 1, 2, ofp);
             fwrite(&h, 1, 2, ofp);
             fwrite(&mips, 1, 4, ofp);
+            fwrite(&dsz, 1, 4, ofp);
 
             rowSz = width*4;
             rowSzC = compressBound(rowSz);
@@ -299,11 +305,14 @@ int main(int argc, char* argv[])
             png_read_row(pngRead, row, NULL);
             z.next_in = row;
             z.avail_in = rowSz;
-            z.next_out = rowC;
-            z.avail_out = rowSzC;
-            z.total_out = 0;
-            deflate(&z, Z_NO_FLUSH);
-            fwrite(rowC, 1, z.total_out, ofp);
+            while (z.avail_in)
+            {
+                z.next_out = rowC;
+                z.avail_out = rowSzC;
+                z.total_out = 0;
+                deflate(&z, Z_NO_FLUSH);
+                fwrite(rowC, 1, z.total_out, ofp);
+            }
         }
         rowSz /= 2;
 
