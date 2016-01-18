@@ -1,5 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(locale)
+add_subdirectory(icons)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   option(RUDE_BINARY_CONFIGS
@@ -17,18 +18,20 @@ endif()
 
 atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
+atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
 
 add_executable(urde WIN32
                main.cpp
                Space.hpp Space.cpp atdna_Space.cpp
                SplashScreen.hpp SplashScreen.cpp
                ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
-               ModelViewer.hpp ModelViewer.cpp
+               ModelViewer.hpp ModelViewer.cpp atdna_ModelViewer.cpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp)
 
 target_link_libraries(urde
                       UrdeLocales
+                      UrdeIcons
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommon

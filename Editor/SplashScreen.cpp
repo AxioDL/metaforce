@@ -91,11 +91,11 @@ void SplashScreen::updateContentOpacity(float opacity)
         m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);
 
         m_newButt.m_view.reset(new Specter::Button(res, *this, &m_newProjBind, m_newString,
-                                                   Specter::Button::Style::Text));
+                                                   nullptr, Specter::Button::Style::Text));
         m_openButt.m_view.reset(new Specter::Button(res, *this, &m_openProjBind, m_openString,
-                                                    Specter::Button::Style::Text));
+                                                    nullptr, Specter::Button::Style::Text));
         m_extractButt.m_view.reset(new Specter::Button(res, *this, &m_extractProjBind, m_extractString,
-                                                       Specter::Button::Style::Text));
+                                                       nullptr, Specter::Button::Style::Text));
 
         updateSize();
     }
