@@ -27,7 +27,8 @@ add_executable(urde WIN32
                ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
                ModelViewer.hpp ModelViewer.cpp atdna_ModelViewer.cpp
                ProjectManager.hpp ProjectManager.cpp
-               ViewManager.hpp ViewManager.cpp)
+               ViewManager.hpp ViewManager.cpp
+               Camera.hpp Camera.cpp)
 
 target_link_libraries(urde
                       UrdeLocales
