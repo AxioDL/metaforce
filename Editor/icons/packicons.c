@@ -1,8 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <zlib.h>
 #include <png.h>
+
+#if _WIN32
+#define htonl(v) _byteswap_ulong(v)
+#define htons(v) _byteswap_ushort(v)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 
 static int CountBits(uint32_t n)
 {
@@ -23,8 +31,66 @@ int main(int argc, char* argv[])
 
     /* Validate inkscape */
     char command[2048];
+    FILE* fp;
+
+#if _WIN32
+    STARTUPINFOA sinfo = {sizeof(STARTUPINFOA)};
+
+    HANDLE hChildStd_OUT_Rd = NULL;
+    HANDLE hChildStd_OUT_Wr = NULL;
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    // Create a pipe for the child process's STDOUT.
+    if (!CreatePipe(&hChildStd_OUT_Rd, &hChildStd_OUT_Wr, &saAttr, 0))
+    {
+        fprintf(stderr, "unable to CreatePipe\n");
+        return 1;
+    }
+
+    // Ensure the read handle to the pipe for STDOUT is not inherited
+    if (!SetHandleInformation(hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0))
+    {
+        fprintf(stderr, "unable to SetHandleInformation\n");
+        return 1;
+    }
+
+    sinfo.hStdError = hChildStd_OUT_Wr;
+    sinfo.hStdOutput = hChildStd_OUT_Wr;
+    sinfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    PROCESS_INFORMATION pinfo;
+    if (!CreateProcessA(argv[1], " --version", NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &pinfo))
+    {
+        LPSTR messageBuffer = NULL;
+        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+        fprintf(stderr, "unable to launch inkscape from %s: %s\n", argv[1], messageBuffer);
+        return 1;
+    }
+    CloseHandle(hChildStd_OUT_Wr);
+    CloseHandle(pinfo.hThread);
+
+    char readback[8];
+    DWORD bytesRead = 0;
+    if (!ReadFile(hChildStd_OUT_Rd, readback, 8, &bytesRead, NULL) || bytesRead != 8 ||
+        strncmp(readback, "Inkscape", 8))
+    {
+        fprintf(stderr, "'%s' did not return expected \"Inkscape\"\n", command);
+        CloseHandle(hChildStd_OUT_Rd);
+        CloseHandle(pinfo.hProcess);
+        return 1;
+    }
+    CloseHandle(hChildStd_OUT_Rd);
+    WaitForSingleObject(pinfo.hProcess, INFINITE);
+    CloseHandle(pinfo.hProcess);
+
+#else
     snprintf(command, 2048, "%s --version", argv[1]);
-    FILE* fp = popen(command, "r");
+    fp = popen(command, "r");
     if (!fp)
     {
         fprintf(stderr, "'%s' is not executable on this system\n", command);
@@ -40,6 +106,8 @@ int main(int argc, char* argv[])
     }
     pclose(fp);
 
+#endif
+
     /* Validate input */
     fp = fopen(argv[2], "rb");
     if (!fp)
@@ -50,7 +118,7 @@ int main(int argc, char* argv[])
     fclose(fp);
 
 #ifdef _WIN32
-    char* TMPDIR = getenv(L"TEMP");
+    char* TMPDIR = getenv("TEMP");
     if (!TMPDIR)
         TMPDIR = (char*)"\\Temp";
 #else
@@ -70,7 +138,7 @@ int main(int argc, char* argv[])
     for (int i=512 ; i>=1 ; i/=2)
         ++numMips;
 
-    z_stream z = {};
+    z_stream z = {0};
     size_t rowSz = 0;
     uLong rowSzC = 0;
     png_bytep row;
@@ -81,6 +149,25 @@ int main(int argc, char* argv[])
         printf("Rendering icons @%dx%d\n", i, i);
         fflush(stdout);
 
+#if _WIN32
+        snprintf(command, 2048, " --export-png=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
+                 TMPDIR, i, i, argv[2]);
+
+        STARTUPINFOA sinfo = {sizeof(STARTUPINFOA)};
+        PROCESS_INFORMATION pinfo;
+        if (!CreateProcessA(argv[1], command, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &pinfo))
+        {
+            LPSTR messageBuffer = NULL;
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+            fprintf(stderr, "unable to launch inkscape from %s: %s\n", argv[1], messageBuffer);
+            return 1;
+        }
+        CloseHandle(pinfo.hThread);
+        WaitForSingleObject(pinfo.hProcess, INFINITE);
+        CloseHandle(pinfo.hProcess);
+
+#else
         snprintf(command, 2048, "%s --export-png=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
                  argv[1], TMPDIR, i, i, argv[2]);
         fp = popen(command, "r");
@@ -97,6 +184,7 @@ int main(int argc, char* argv[])
             fclose(ofp);
             return 1;
         }
+#endif
 
         /* Get PNG data */
         snprintf(command, 2048, "%s/icon_pack.png", TMPDIR);
@@ -203,7 +291,7 @@ int main(int argc, char* argv[])
             rowC = malloc(rowSzC);
         }
 
-        for (int r=0 ; r<height ; ++r)
+        for (png_uint_32 r=0 ; r<height ; ++r)
         {
             png_read_row(pngRead, row, NULL);
             z.next_in = row;

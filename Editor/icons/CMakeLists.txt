@@ -1,10 +1,19 @@
-include_directories(${LIBPNG_INCLUDE_DIR})
+cmake_policy(SET CMP0053 OLD)
+
+include_directories(${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_executable(packicons packicons.c)
 target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES})
 
 unset(INKSCAPE_BIN CACHE)
 set(CMAKE_FIND_APPBUNDLE "NEVER")
-find_program(INKSCAPE_BIN inkscape)
+if(WIN32)
+  find_program(INKSCAPE_BIN inkscape.exe PATHS
+               "$ENV{PROGRAMFILES}/Inkscape"
+               "$ENV{ProgramW6432}/Inkscape"
+               "$ENV{PROGRAMFILES(X86)}/Inkscape")
+else()
+  find_program(INKSCAPE_BIN inkscape)
+endif()
 if(INKSCAPE_BIN STREQUAL "INKSCAPE_BIN-NOTFOUND")
   message(STATUS "Inkscape not found; downloading icons")
   file(DOWNLOAD "https://www.dropbox.com/s/wnj17dwgcsky0o9/icons.bin"
