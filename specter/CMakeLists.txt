@@ -1,4 +1,5 @@
 add_subdirectory(freetype2)
+add_definitions("-DZE_ATHENA_TYPES=1")
 add_subdirectory(MathLib)
 set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/MathLib/include)
 
