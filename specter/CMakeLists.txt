@@ -58,6 +58,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/NodeSocket.hpp
      include/Specter/PathButtons.hpp
      include/Specter/FileBrowser.hpp
+     include/Specter/Icon.hpp
      include/Specter/FontCache.hpp
      include/Specter/Translator.hpp)
 
@@ -89,6 +90,7 @@ list(APPEND SPECTER_SOURCES
      lib/NodeSocket.cpp
      lib/PathButtons.cpp
      lib/FileBrowser.cpp
+     lib/Icon.cpp
      lib/FontCache.cpp
      lib/Translator.cpp
      atdna_FontCache.cpp)

@@ -86,7 +86,7 @@ private:
     }
 
     VertexBufferBinding m_vertsBinding;
-    
+
 public:
     Toolbar(ViewResources& res, View& parentView, Position toolbarPos);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -104,6 +104,14 @@ public:
     {
         m_children.emplace_back();
         m_children.back().m_view = v;
+    }
+
+    void setMultiplyColor(const Zeus::CColor& color)
+    {
+        View::setMultiplyColor(color);
+        for (ViewChild<View*>& c : m_children)
+            if (c.m_view)
+                c.m_view->setMultiplyColor(color);
     }
 };
 

@@ -14,6 +14,7 @@ class IThemeData
 {
 public:
     virtual const Zeus::CColor& uiText() const=0;
+    virtual const Zeus::CColor& uiAltText() const=0;
     virtual const Zeus::CColor& fieldText() const=0;
     virtual const Zeus::CColor& fieldMarkedText() const=0;
     virtual const Zeus::CColor& selectedFieldText() const=0;
@@ -59,6 +60,7 @@ public:
 class DefaultThemeData : public IThemeData
 {
     Zeus::CColor m_uiText = Zeus::CColor::skWhite;
+    Zeus::CColor m_uiAltText = Zeus::CColor::skGrey;
     Zeus::CColor m_fieldText = Zeus::CColor::skBlack;
     Zeus::CColor m_fieldMarkedText = {0.25, 0.25, 0.25, 1.0};
     Zeus::CColor m_selectedFieldText = Zeus::CColor::skWhite;
@@ -102,6 +104,7 @@ class DefaultThemeData : public IThemeData
 
 public:
     virtual const Zeus::CColor& uiText() const {return m_uiText;}
+    virtual const Zeus::CColor& uiAltText() const {return m_uiAltText;}
     virtual const Zeus::CColor& fieldText() const {return m_fieldText;}
     virtual const Zeus::CColor& fieldMarkedText() const {return m_fieldMarkedText;}
     virtual const Zeus::CColor& selectedFieldText() const {return m_selectedFieldText;}

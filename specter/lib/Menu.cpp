@@ -33,7 +33,7 @@ void Menu::reset(IMenuNode* rootNode)
     m_subMenu.reset();
 
     const std::string* headText = rootNode->text();
-    m_headText->typesetGlyphs(headText?*headText:"", rootView().themeData().uiText());
+    m_headText->typesetGlyphs(headText?*headText:"", rootView().themeData().uiAltText());
 
     float pf = rootView().viewRes().pixelFactor();
     int itemAdv = (ROW_HEIGHT + ITEM_MARGIN*2) * pf;

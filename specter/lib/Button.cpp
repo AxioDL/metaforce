@@ -12,15 +12,15 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeDat
 }
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text, boo::ITexture* icon,
-               Style style, RectangleConstraint constraint)
-: Button(res, parentView, controlBinding, text, res.themeData().uiText(), icon, style, constraint) {}
+               IButtonBinding* controlBinding, const std::string& text, Icon* icon,
+               Style style, const Zeus::CColor& bgColor, RectangleConstraint constraint)
+: Button(res, parentView, controlBinding, text, res.themeData().uiText(), icon, style, bgColor, constraint) {}
 
 Button::Button(ViewResources& res, View& parentView,
                IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
-               boo::ITexture* icon, Style style, RectangleConstraint constraint)
+               Icon* icon, Style style, const Zeus::CColor& bgColor, RectangleConstraint constraint)
 : Control(res, parentView, controlBinding),
-  m_style(style), m_textColor(textColor), m_textStr(text), m_icon(icon), m_constraint(constraint)
+  m_style(style), m_textColor(textColor), m_bgColor(bgColor), m_textStr(text), m_constraint(constraint)
 {
     m_vertsBinding.initSolid(res, 40, m_viewVertBlockBuf);
     commitResources(res);
@@ -30,19 +30,21 @@ Button::Button(ViewResources& res, View& parentView,
 
     if (style == Style::Block)
     {
-        m_verts[0].m_color = res.themeData().button1Inactive();
-        m_verts[1].m_color = res.themeData().button2Inactive();
-        m_verts[2].m_color = res.themeData().button1Inactive();
-        m_verts[3].m_color = res.themeData().button2Inactive();
-        m_verts[4].m_color = res.themeData().button2Inactive();
+        Zeus::CColor c1 = res.themeData().button1Inactive() * bgColor;
+        Zeus::CColor c2 = res.themeData().button2Inactive() * bgColor;
+        m_verts[0].m_color = c1;
+        m_verts[1].m_color = c2;
+        m_verts[2].m_color = c1;
+        m_verts[3].m_color = c2;
+        m_verts[4].m_color = c2;
         for (int i=5 ; i<28 ; ++i)
-            m_verts[i].m_color = res.themeData().button2Inactive();
-        m_verts[31].m_color = rootView().themeData().button1Inactive();
-        m_verts[32].m_color = rootView().themeData().button2Inactive();
-        m_verts[33].m_color = rootView().themeData().button1Inactive();
-        m_verts[34].m_color = rootView().themeData().button2Inactive();
+            m_verts[i].m_color = c2;
+        m_verts[31].m_color = c1;
+        m_verts[32].m_color = c2;
+        m_verts[33].m_color = c1;
+        m_verts[34].m_color = c2;
         for (int i=35 ; i<39 ; ++i)
-            m_verts[i].m_color = res.themeData().button2Inactive();
+            m_verts[i].m_color = c2;
     }
     else
     {
@@ -58,11 +60,14 @@ Button::Button(ViewResources& res, View& parentView,
     if (controlBinding)
         m_menuStyle = controlBinding->menuStyle(this);
 
+    if (icon)
+        m_icon.reset(new IconView(res, *this, *icon));
+
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
     setText(m_textStr);
 }
 
-void Button::setText(const std::string &text)
+void Button::setText(const std::string& text)
 {
     setText(text, m_textColor);
 }
@@ -78,7 +83,11 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
 
     if (m_style == Style::Block)
     {
-        std::pair<int,int> constraint = m_constraint.solve(m_text->nominalWidth() + 12 * pf, 20 * pf);
+        m_textWidth = m_text->nominalWidth();
+        int nomWidth = m_textWidth + 12*pf;
+        if (m_icon)
+            nomWidth += 18*pf;
+        std::pair<int,int> constraint = m_constraint.solve(nomWidth, 20 * pf);
         width = constraint.first;
         height = constraint.second;
         m_verts[0].m_pos.assign(1, height+1, 0);
@@ -87,7 +96,7 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[3].m_pos.assign(width+1, 1, 0);
         m_verts[4].m_pos.assign(width+1, 1, 0);
 
-        m_textWidth = width;
+        m_textIconWidth = width;
         if (m_menuStyle == IButtonBinding::MenuStyle::Primary)
             width += 12*pf;
         else if (m_menuStyle == IButtonBinding::MenuStyle::Auxiliary)
@@ -120,9 +129,9 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[26].m_pos.assign(width+1, 1, 0);
         m_verts[27].m_pos.assign(width+1, 0, 0);
 
-        int arrowX = m_textWidth + 5*pf;
+        int arrowX = m_textIconWidth + 5*pf;
         int arrowY = 7*pf;
-        int menuBgX = m_textWidth;
+        int menuBgX = m_textIconWidth;
         if (m_menuStyle == IButtonBinding::MenuStyle::Primary)
         {
             menuBgX = 0;
@@ -138,10 +147,10 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[33].m_pos.assign(width+1, height+1, 0);
         m_verts[34].m_pos.assign(width+1, 1, 0);
 
-        m_verts[35].m_pos.assign(m_textWidth, height+1, 0);
-        m_verts[36].m_pos.assign(m_textWidth, 1, 0);
-        m_verts[37].m_pos.assign(m_textWidth+1, height+1, 0);
-        m_verts[38].m_pos.assign(m_textWidth+1, 1, 0);
+        m_verts[35].m_pos.assign(m_textIconWidth, height+1, 0);
+        m_verts[36].m_pos.assign(m_textIconWidth, 1, 0);
+        m_verts[37].m_pos.assign(m_textIconWidth+1, height+1, 0);
+        m_verts[38].m_pos.assign(m_textIconWidth+1, 1, 0);
 
         m_vertsBinding.load(m_verts, sizeof(m_verts));
     }
@@ -160,6 +169,7 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[30].m_pos.assign(arrowX + 8*pf, 5*pf, 0);
 
         m_textWidth = width;
+        m_textIconWidth = width;
 
         int arrowLineWidth = 7*pf;
         if (m_menuStyle != IButtonBinding::MenuStyle::None)
@@ -184,6 +194,16 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
     m_nomHeight = height;
 }
 
+void Button::setIcon(Icon* icon)
+{
+    if (icon)
+        m_icon.reset(new IconView(rootView().viewRes(), *this, *icon));
+    else
+        m_icon.reset();
+    setText(m_textStr);
+    updateSize();
+}
+
 void Button::colorGlyphs(const Zeus::CColor& newColor)
 {
     m_textColor = newColor;
@@ -197,11 +217,13 @@ void Button::ButtonTarget::setInactive()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[0].m_color = rootView().themeData().button1Inactive();
-        m_button.m_verts[1].m_color = rootView().themeData().button2Inactive();
-        m_button.m_verts[2].m_color = rootView().themeData().button1Inactive();
-        m_button.m_verts[3].m_color = rootView().themeData().button2Inactive();
-        m_button.m_verts[4].m_color = rootView().themeData().button2Inactive();
+        Zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
+        m_button.m_verts[0].m_color = c1;
+        m_button.m_verts[1].m_color = c2;
+        m_button.m_verts[2].m_color = c1;
+        m_button.m_verts[3].m_color = c2;
+        m_button.m_verts[4].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -217,10 +239,12 @@ void Button::MenuTarget::setInactive()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[31].m_color = rootView().themeData().button1Inactive();
-        m_button.m_verts[32].m_color = rootView().themeData().button2Inactive();
-        m_button.m_verts[33].m_color = rootView().themeData().button1Inactive();
-        m_button.m_verts[34].m_color = rootView().themeData().button2Inactive();
+        Zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
+        m_button.m_verts[31].m_color = c1;
+        m_button.m_verts[32].m_color = c2;
+        m_button.m_verts[33].m_color = c1;
+        m_button.m_verts[34].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -237,11 +261,13 @@ void Button::ButtonTarget::setHover()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[0].m_color = rootView().themeData().button1Hover();
-        m_button.m_verts[1].m_color = rootView().themeData().button2Hover();
-        m_button.m_verts[2].m_color = rootView().themeData().button1Hover();
-        m_button.m_verts[3].m_color = rootView().themeData().button2Hover();
-        m_button.m_verts[4].m_color = rootView().themeData().button2Hover();
+        Zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
+        m_button.m_verts[0].m_color = c1;
+        m_button.m_verts[1].m_color = c2;
+        m_button.m_verts[2].m_color = c1;
+        m_button.m_verts[3].m_color = c2;
+        m_button.m_verts[4].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -257,10 +283,12 @@ void Button::MenuTarget::setHover()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[31].m_color = rootView().themeData().button1Hover();
-        m_button.m_verts[32].m_color = rootView().themeData().button2Hover();
-        m_button.m_verts[33].m_color = rootView().themeData().button1Hover();
-        m_button.m_verts[34].m_color = rootView().themeData().button2Hover();
+        Zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
+        m_button.m_verts[31].m_color = c1;
+        m_button.m_verts[32].m_color = c2;
+        m_button.m_verts[33].m_color = c1;
+        m_button.m_verts[34].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -277,11 +305,13 @@ void Button::ButtonTarget::setPressed()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[0].m_color = rootView().themeData().button1Press();
-        m_button.m_verts[1].m_color = rootView().themeData().button2Press();
-        m_button.m_verts[2].m_color = rootView().themeData().button1Press();
-        m_button.m_verts[3].m_color = rootView().themeData().button2Press();
-        m_button.m_verts[4].m_color = rootView().themeData().button2Press();
+        Zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
+        m_button.m_verts[0].m_color = c1;
+        m_button.m_verts[1].m_color = c2;
+        m_button.m_verts[2].m_color = c1;
+        m_button.m_verts[3].m_color = c2;
+        m_button.m_verts[4].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -297,10 +327,12 @@ void Button::MenuTarget::setPressed()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[31].m_color = rootView().themeData().button1Press();
-        m_button.m_verts[32].m_color = rootView().themeData().button2Press();
-        m_button.m_verts[33].m_color = rootView().themeData().button1Press();
-        m_button.m_verts[34].m_color = rootView().themeData().button2Press();
+        Zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
+        m_button.m_verts[31].m_color = c1;
+        m_button.m_verts[32].m_color = c2;
+        m_button.m_verts[33].m_color = c1;
+        m_button.m_verts[34].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -317,11 +349,13 @@ void Button::ButtonTarget::setDisabled()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[0].m_color = rootView().themeData().button1Disabled();
-        m_button.m_verts[1].m_color = rootView().themeData().button2Disabled();
-        m_button.m_verts[2].m_color = rootView().themeData().button1Disabled();
-        m_button.m_verts[3].m_color = rootView().themeData().button2Disabled();
-        m_button.m_verts[4].m_color = rootView().themeData().button2Disabled();
+        Zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
+        m_button.m_verts[0].m_color = c1;
+        m_button.m_verts[1].m_color = c2;
+        m_button.m_verts[2].m_color = c1;
+        m_button.m_verts[3].m_color = c2;
+        m_button.m_verts[4].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -339,10 +373,12 @@ void Button::MenuTarget::setDisabled()
 {
     if (m_button.m_style == Style::Block)
     {
-        m_button.m_verts[31].m_color = rootView().themeData().button1Disabled();
-        m_button.m_verts[32].m_color = rootView().themeData().button2Disabled();
-        m_button.m_verts[33].m_color = rootView().themeData().button1Disabled();
-        m_button.m_verts[34].m_color = rootView().themeData().button2Disabled();
+        Zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
+        Zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
+        m_button.m_verts[31].m_color = c1;
+        m_button.m_verts[32].m_color = c2;
+        m_button.m_verts[33].m_color = c1;
+        m_button.m_verts[34].m_color = c2;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
     else
@@ -486,8 +522,27 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     View::resized(root, sub);
     boo::SWindowRect textRect = sub;
     float pf = rootView().viewRes().pixelFactor();
+
+    if (m_icon)
+    {
+        textRect.location[0] += 18*pf;
+        boo::SWindowRect iconRect = sub;
+        iconRect.size[0] = 16*pf;
+        iconRect.size[1] = 16*pf;
+        iconRect.location[1] += 2*pf;
+        if (m_style == Style::Block)
+        {
+            iconRect.location[0] += 5*pf;
+            iconRect.location[1] += pf;
+        }
+        m_icon->resized(root, iconRect);
+    }
+
     if (m_style == Style::Block)
-        textRect.location[1] += 7 * pf;
+    {
+        textRect.location[0] += 6*pf;
+        textRect.location[1] += 7*pf;
+    }
     textRect.location[0] += m_textWidth / 2;
     textRect.size[0] = m_textWidth;
     textRect.size[1] = m_nomHeight;
@@ -506,7 +561,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         else
         {
             boo::SWindowRect targetRect = sub;
-            targetRect.size[0] = m_textWidth;
+            targetRect.size[0] = m_textIconWidth;
             m_buttonTarget.m_view->resized(root, targetRect);
             targetRect.location[0] += targetRect.size[0];
             targetRect.size[0] = 16*pf;
@@ -525,7 +580,7 @@ void Button::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         else
         {
             boo::SWindowRect targetRect = sub;
-            targetRect.size[0] = m_textWidth + 3*pf;
+            targetRect.size[0] = m_textIconWidth + 3*pf;
             targetRect.size[1] = m_nomHeight;
             m_buttonTarget.m_view->resized(root, targetRect);
             targetRect.location[0] += targetRect.size[0];
@@ -568,7 +623,11 @@ void Button::draw(boo::IGraphicsCommandQueue* gfxQ)
             gfxQ->draw(31, 4);
         }
     }
-    m_text->draw(gfxQ);
+
+    if (m_icon)
+        m_icon->draw(gfxQ);
+    if (m_textStr.size())
+        m_text->draw(gfxQ);
 
     if (m_modalMenu.m_view)
         m_modalMenu.m_view->draw(gfxQ);

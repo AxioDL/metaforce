@@ -21,8 +21,9 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
 {
     commitResources(res);
     setBackground(res.themeData().spaceBackground());
+    static const Zeus::CColor triColor = {0.75, 0.75, 0.75, 1.0};
     if (controller.spaceSplitAllowed())
-        m_cornerView.m_view.reset(new CornerView(res, *this, spaceTriangleColor()));
+        m_cornerView.m_view.reset(new CornerView(res, *this, triColor));
     if (tbPos != Toolbar::Position::None)
         m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos));
 }

@@ -69,12 +69,6 @@ public:
         if (m_toolbar.m_view)
             m_toolbar.m_view->setMultiplyColor(color);
     }
-
-    virtual const Zeus::CColor& spaceTriangleColor() const
-    {
-        static const Zeus::CColor defaultColor = {0.75, 0.75, 0.75, 1.0};
-        return defaultColor;
-    }
 };
 
 }

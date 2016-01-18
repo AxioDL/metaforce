@@ -3,6 +3,7 @@
 
 #include "Specter/TextView.hpp"
 #include "Specter/Control.hpp"
+#include "Specter/Icon.hpp"
 
 namespace Specter
 {
@@ -20,16 +21,17 @@ private:
     Style m_style;
     IButtonBinding::MenuStyle m_menuStyle = IButtonBinding::MenuStyle::None;
     Zeus::CColor m_textColor;
+    Zeus::CColor m_bgColor;
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
-    boo::ITexture* m_icon = nullptr;
+    std::unique_ptr<IconView> m_icon;
 
     SolidShaderVert m_verts[40];
     VertexBufferBinding m_vertsBinding;
 
     RectangleConstraint m_constraint;
     int m_nomWidth, m_nomHeight;
-    int m_textWidth;
+    int m_textWidth, m_textIconWidth;
 
     struct ButtonTarget : View
     {
@@ -84,11 +86,12 @@ public:
 
     ~Button() {closeMenu({});}
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text, boo::ITexture* icon=nullptr,
-           Style style=Style::Block, RectangleConstraint constraint=RectangleConstraint());
+           IButtonBinding* controlBinding, const std::string& text, Icon* icon=nullptr,
+           Style style=Style::Block, const Zeus::CColor& bgColor=Zeus::CColor::skWhite,
+           RectangleConstraint constraint=RectangleConstraint());
     Button(ViewResources& res, View& parentView,
            IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
-           boo::ITexture* icon=nullptr, Style style=Style::Block,
+           Icon* icon=nullptr, Style style=Style::Block, const Zeus::CColor& bgColor=Zeus::CColor::skWhite,
            RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -100,7 +103,7 @@ public:
 
     void setText(const std::string& text, const Zeus::CColor& textColor);
     void setText(const std::string& text);
-    void setIcon(boo::ITexture* icon);
+    void setIcon(Icon* icon=nullptr);
     const std::string& getText() const {return m_textStr;}
     void colorGlyphs(const Zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}
@@ -115,6 +118,8 @@ public:
         m_viewVertBlock.m_color = color;
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
+        if (m_icon)
+            m_icon->setMultiplyColor(color);
     }
 };
 
