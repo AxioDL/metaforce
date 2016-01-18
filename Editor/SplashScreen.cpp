@@ -24,10 +24,6 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
   m_vm(vm),
   m_textColor(res.themeData().uiText()),
   m_textColorClear(m_textColor),
-  m_buildInfoStr(HECL::Format("%s: %s\n%s: %s\n%s: %s",
-                              vm.translateOr("branch", "Branch").c_str(), GIT_BRANCH,
-                              vm.translateOr("commit", "Commit").c_str(), GIT_COMMIT_HASH,
-                              vm.translateOr("date", "Date").c_str(), GIT_COMMIT_DATE)),
   m_newString(m_vm.translateOr("new_project", "New Project")),
   m_newProjBind(*this),
   m_openString(m_vm.translateOr("open_project", "Open Project")),
@@ -35,6 +31,16 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
   m_extractString(m_vm.translateOr("extract_game", "Extract Game")),
   m_extractProjBind(*this)
 {
+    if (GIT_COMMIT_DATE[0] != '\0' &&
+        GIT_COMMIT_HASH[0] != '\0' &&
+        GIT_BRANCH[0]      != '\0')
+    {
+        m_buildInfoStr = HECL::Format("%s: %s\n%s: %s\n%s: %s",
+                                      vm.translateOr("branch", "Branch").c_str(), GIT_BRANCH,
+                                      vm.translateOr("commit", "Commit").c_str(), GIT_COMMIT_HASH,
+                                      vm.translateOr("date", "Date").c_str(), GIT_COMMIT_DATE);
+    }
+
     m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");
     m_textColorClear[3] = 0.0;
     commitResources(res);
@@ -52,6 +58,9 @@ void SplashScreen::think()
     ModalWindow::think();
     if (m_fileBrowser.m_view)
         m_fileBrowser.m_view->think();
+
+    if (m_openButt.m_view)
+        m_openButt.m_view->think();
 
     if (m_newProjBind.m_deferPath.size())
     {
@@ -78,7 +87,7 @@ void SplashScreen::updateContentOpacity(float opacity)
     Specter::ViewResources& res = rootView().viewRes();
 
     if (!m_title && res.fontCacheReady())
-    {        
+    {
         m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
         Zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;
@@ -88,11 +97,11 @@ void SplashScreen::updateContentOpacity(float opacity)
         m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);
 
         m_newButt.m_view.reset(new Specter::Button(res, *this, &m_newProjBind, m_newString,
-                                                   Specter::Button::Style::Text));
+                                                   nullptr, Specter::Button::Style::Text));
         m_openButt.m_view.reset(new Specter::Button(res, *this, &m_openProjBind, m_openString,
-                                                    Specter::Button::Style::Text));
+                                                    nullptr, Specter::Button::Style::Text));
         m_extractButt.m_view.reset(new Specter::Button(res, *this, &m_extractProjBind, m_extractString,
-                                                       Specter::Button::Style::Text));
+                                                       nullptr, Specter::Button::Style::Text));
 
         updateSize();
     }

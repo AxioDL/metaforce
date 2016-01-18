@@ -6,6 +6,10 @@ namespace URDE
 {
 static LogVisor::LogModule Log("URDE::Space");
 
+Space::Space(ViewManager& vm, Class cls, Space* parent)
+: m_spaceMenuNode(*this), m_spaceSelectBind(*this),
+  m_vm(vm), m_class(cls), m_parent(parent) {}
+
 Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
     if (usesToolbar())
@@ -13,7 +17,12 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
         m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom));
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
-        buildToolbarView(res, *m_spaceView->toolbar());
+        Specter::Toolbar& tb = *m_spaceView->toolbar();
+        const std::string* classStr = SpaceMenuNode::lookupClassString(m_class);
+        m_spaceSelectButton.reset(new Specter::Button(res, tb, &m_spaceSelectBind,
+                                                      classStr?*classStr:"Unknown Class"));
+        tb.push_back(m_spaceSelectButton.get());
+        buildToolbarView(res, tb);
         return m_spaceView.get();
     }
     else
@@ -23,6 +32,25 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
         m_spaceView->setContentView(sview);
         return m_spaceView.get();
     }
+}
+
+std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats =
+{
+    {Class::ResourceBrowser, "resource_browser", "Resource Browser"}
+};
+std::string Space::SpaceMenuNode::s_text = "Space Types";
+
+void Space::SpaceMenuNode::initializeStrings(ViewManager& vm)
+{
+    s_text = vm.translateOr("space_types", s_text.c_str());
+    for (SubNodeData& sn : s_subNodeDats)
+        sn.m_text = vm.translateOr(sn.m_key, sn.m_text.c_str());
+}
+
+std::unique_ptr<Specter::View> Space::SpaceSelectBind::buildMenu(const Specter::Button* button)
+{
+    return std::unique_ptr<Specter::View>(new Specter::Menu(m_space.m_vm.rootView().viewRes(),
+                                                            *m_space.m_spaceView, &m_space.m_spaceMenuNode));
 }
 
 Specter::View* RootSpace::buildSpaceView(Specter::ViewResources& res)
@@ -131,26 +159,22 @@ Space* Space::NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigRea
 {
 #ifdef URDE_BINARY_CONFIGS
     Class cls = Class(r.readUint32Big());
-    return BuildNewSpace(vm, cls, parent, r);
 #else
     Class cls = Class(r.readUint32("class"));
-    return BuildNewSpace(vm, cls, parent, r);
 #endif
+    return BuildNewSpace(vm, cls, parent, r);
 }
 
 RootSpace* Space::NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)
 {
 #ifdef URDE_BINARY_CONFIGS
     Class cls = Class(r.readUint32Big());
-    if (cls != Class::RootSpace)
-        return nullptr;
-    return BuildNewSpace(vm, cls, r);
 #else
     Class cls = Class(r.readUint32("class"));
+#endif
     if (cls != Class::RootSpace)
         return nullptr;
     return new RootSpace(vm, r);
-#endif
 }
 
 }
