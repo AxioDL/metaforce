@@ -21,10 +21,10 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView,
     m_text->typesetGlyphs(message, res.themeData().uiText(), 380 * res.pixelFactor());
     constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());
 
-    m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name,
+    m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name, nullptr,
                                  Button::Style::Block, RectangleConstraint(150 * res.pixelFactor())));
     if (type == Type::ConfirmOkCancel)
-        m_cancel.m_view.reset(new Button(res, *this, &m_cancelBind, m_cancelBind.m_name,
+        m_cancel.m_view.reset(new Button(res, *this, &m_cancelBind, m_cancelBind.m_name, nullptr,
                                          Button::Style::Block, RectangleConstraint(150 * res.pixelFactor())));
 
     updateContentOpacity(0.0);

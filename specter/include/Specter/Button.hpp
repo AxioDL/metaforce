@@ -22,6 +22,7 @@ private:
     Zeus::CColor m_textColor;
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
+    boo::ITexture* m_icon = nullptr;
 
     SolidShaderVert m_verts[40];
     VertexBufferBinding m_vertsBinding;
@@ -83,11 +84,11 @@ public:
 
     ~Button() {closeMenu({});}
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text,
+           IButtonBinding* controlBinding, const std::string& text, boo::ITexture* icon=nullptr,
            Style style=Style::Block, RectangleConstraint constraint=RectangleConstraint());
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text,
-           const Zeus::CColor& textColor, Style style=Style::Block,
+           IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
+           boo::ITexture* icon=nullptr, Style style=Style::Block,
            RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -99,6 +100,7 @@ public:
 
     void setText(const std::string& text, const Zeus::CColor& textColor);
     void setText(const std::string& text);
+    void setIcon(boo::ITexture* icon);
     const std::string& getText() const {return m_textStr;}
     void colorGlyphs(const Zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}

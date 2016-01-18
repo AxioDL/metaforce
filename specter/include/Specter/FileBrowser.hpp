@@ -63,7 +63,7 @@ private:
         OKButton(FileBrowser& fb, ViewResources& res, const std::string& text)
         : m_fb(fb), m_text(text)
         {
-            m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
+            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block,
                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
         }
         const char* name(const Control* control) const {return m_text.c_str();}
@@ -79,7 +79,7 @@ private:
         CancelButton(FileBrowser& fb, ViewResources& res, const std::string& text)
         : m_fb(fb), m_text(text)
         {
-            m_button.m_view.reset(new Button(res, fb, this, text, Button::Style::Block,
+            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block,
                 RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
         }
         const char* name(const Control* control) const {return m_text.c_str();}

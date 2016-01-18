@@ -12,16 +12,15 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeDat
 }
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text,
+               IButtonBinding* controlBinding, const std::string& text, boo::ITexture* icon,
                Style style, RectangleConstraint constraint)
-: Button(res, parentView, controlBinding, text, res.themeData().uiText(), style, constraint) {}
+: Button(res, parentView, controlBinding, text, res.themeData().uiText(), icon, style, constraint) {}
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text,
-               const Zeus::CColor& textColor, Style style,
-               RectangleConstraint constraint)
+               IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
+               boo::ITexture* icon, Style style, RectangleConstraint constraint)
 : Control(res, parentView, controlBinding),
-  m_style(style), m_textColor(textColor), m_textStr(text), m_constraint(constraint)
+  m_style(style), m_textColor(textColor), m_textStr(text), m_icon(icon), m_constraint(constraint)
 {
     m_vertsBinding.initSolid(res, 40, m_viewVertBlockBuf);
     commitResources(res);
@@ -89,7 +88,9 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
         m_verts[4].m_pos.assign(width+1, 1, 0);
 
         m_textWidth = width;
-        if (m_menuStyle != IButtonBinding::MenuStyle::None)
+        if (m_menuStyle == IButtonBinding::MenuStyle::Primary)
+            width += 12*pf;
+        else if (m_menuStyle == IButtonBinding::MenuStyle::Auxiliary)
             width += 16*pf;
 
         m_verts[5].m_pos.assign(1, height+1, 0);
@@ -121,12 +122,19 @@ void Button::setText(const std::string& text, const Zeus::CColor& textColor)
 
         int arrowX = m_textWidth + 5*pf;
         int arrowY = 7*pf;
+        int menuBgX = m_textWidth;
+        if (m_menuStyle == IButtonBinding::MenuStyle::Primary)
+        {
+            menuBgX = 0;
+            arrowX -= 5*pf;
+        }
+
         m_verts[28].m_pos.assign(arrowX + 4*pf, arrowY + 1*pf, 0);
         m_verts[29].m_pos.assign(arrowX, arrowY + 5*pf, 0);
         m_verts[30].m_pos.assign(arrowX + 8*pf, arrowY + 5*pf, 0);
 
-        m_verts[31].m_pos.assign(m_textWidth+1, height+1, 0);
-        m_verts[32].m_pos.assign(m_textWidth+1, 1, 0);
+        m_verts[31].m_pos.assign(menuBgX+1, height+1, 0);
+        m_verts[32].m_pos.assign(menuBgX+1, 1, 0);
         m_verts[33].m_pos.assign(width+1, height+1, 0);
         m_verts[34].m_pos.assign(width+1, 1, 0);
 
@@ -547,7 +555,8 @@ void Button::draw(boo::IGraphicsCommandQueue* gfxQ)
         {
             gfxQ->draw(31, 4);
             gfxQ->draw(28, 3);
-            gfxQ->draw(35, 4);
+            if (m_menuStyle == IButtonBinding::MenuStyle::Auxiliary)
+                gfxQ->draw(35, 4);
         }
     }
     else

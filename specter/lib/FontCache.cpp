@@ -30,6 +30,21 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::FontCache");
 
+const FCharFilter AllCharFilter =
+std::make_pair("all-glyphs", [](uint32_t)->bool
+{return true;});
+
+const FCharFilter LatinCharFilter =
+std::make_pair("latin-glyphs", [](uint32_t c)->bool
+{return c <= 0xff || ((c - 0x2200) <= (0x23FF - 0x2200));});
+
+const FCharFilter LatinAndJapaneseCharFilter =
+std::make_pair("latin-and-jp-glyphs", [](uint32_t c)->bool
+{return LatinCharFilter.second(c) ||
+((c - 0x2E00) <= (0x30FF - 0x2E00)) ||
+((c - 0x4E00) <= (0x9FFF - 0x4E00)) ||
+((c - 0xFF00) <= (0xFFEF - 0xFF00));});
+
 FontTag::FontTag(const std::string& name, bool subpixel, float points, uint32_t dpi)
 {
     XXH64_state_t st;
@@ -126,7 +141,7 @@ static void MemcpyRect(RgbaPixel* img, const FT_Bitmap* bmp, unsigned slice, uns
     }
 }
 
-    
+
 static inline void GridFitGlyph(FT_GlyphSlot slot, FT_UInt& width, FT_UInt& height)
 {
     width = slot->metrics.width >> 6;
@@ -168,7 +183,7 @@ void FontAtlas::buildKernTable(FT_Face face)
         }
     }
 }
-    
+
 #define NO_ZLIB 0
 #define ZLIB_BUF_SZ 32768
 
@@ -178,7 +193,7 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
     writer.writeUBytes(data, sz);
     return;
 #endif
-    
+
     atUint8 compBuf[ZLIB_BUF_SZ];
     z_stream z = {};
     deflateInit(&z, Z_DEFAULT_COMPRESSION);
@@ -216,7 +231,7 @@ static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size
     reader.readUBytesToBuf(data, sz);
     return true;
 #endif
-    
+
     atUint8 compBuf[ZLIB_BUF_SZ];
     z_stream z = {};
     inflateInit(&z);
@@ -250,7 +265,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         baseFlags |= FT_LOAD_TARGET_LCD;
     else
         baseFlags |= FT_LOAD_TARGET_NORMAL;
-    
+
     /* First count glyphs exposed by unicode charmap and tally required area */
     size_t glyphCount = 0;
     FT_UInt gindex;
@@ -339,7 +354,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
             m_glyphLookup[charcode] = m_glyphs.size();
             m_glyphs.emplace_back();
             Glyph& g = m_glyphs.back();
-            
+
             if (curLineWidth + width + 1 > TEXMAP_DIM)
             {
                 totalHeight += curLineHeight + 1;
@@ -355,7 +370,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            
+
             g.m_unicodePoint = charcode;
             g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
@@ -436,7 +451,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            
+
             g.m_unicodePoint = charcode;
             g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
@@ -556,7 +571,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            
+
             g.m_unicodePoint = charcode;
             g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
@@ -637,7 +652,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
                 curLineHeight = 0;
                 curLineWidth = 1;
             }
-            
+
             g.m_unicodePoint = charcode;
             g.m_glyphIdx = gindex;
             g.m_layerIdx = fullTexmapLayers;
