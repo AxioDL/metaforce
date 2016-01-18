@@ -63,17 +63,14 @@ void MaterialSet::ConstructMaterial(Stream& out,
                material.header.flags.shadowOccluderMesh() ? "True" : "False");
 
 
-    /* TODO: Some models enable both of these flags at once, why?
-     * And how do we handle this properly?
-     */
     /* Blend factors */
-    if (material.header.flags.additiveBlending())
-        out << "new_material.game_settings.alpha_blend = 'ADD'\n"
+    if (material.header.flags.alphaBlending())
+        out << "new_material.game_settings.alpha_blend = 'ALPHA'\n"
                "new_material.use_transparency = True\n"
                "new_material.transparency_method = 'RAYTRACE'\n"
                "new_material.alpha = 1.0\n";
-    else if (material.header.flags.alphaBlending())
-        out << "new_material.game_settings.alpha_blend = 'ALPHA'\n"
+    else if (material.header.flags.additiveBlending())
+        out << "new_material.game_settings.alpha_blend = 'ADD'\n"
                "new_material.use_transparency = True\n"
                "new_material.transparency_method = 'RAYTRACE'\n"
                "new_material.alpha = 1.0\n";
@@ -81,6 +78,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
     /* Texmap list */
     out << "tex_maps = []\n"
            "pnode = None\n"
+           "anode = None\n"
            "rflv_tex_node = None\n";
 
     /* Add PASSes */
@@ -100,9 +98,13 @@ void MaterialSet::ConstructMaterial(Stream& out,
     /* Connect final PASS */
     out << "if pnode:\n"
            "    new_nodetree.links.new(pnode.outputs['Next Color'], final_node.inputs['Color'])\n"
-           "    new_nodetree.links.new(pnode.outputs['Next Alpha'], final_node.inputs['Alpha'])\n"
            "else:\n"
            "    new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], final_node.inputs['Color'])\n"
+           "if anode:\n"
+           "    new_nodetree.links.new(anode.outputs['Value'], final_node.inputs['Alpha'])\n"
+           "elif pnode:\n"
+           "    new_nodetree.links.new(pnode.outputs['Next Alpha'], final_node.inputs['Alpha'])\n"
+           "else:\n"
            "    new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], final_node.inputs['Alpha'])\n";
 }
 
@@ -281,7 +283,13 @@ void Material::SectionINT::constructNode(HECL::BlenderConnection::PyOutStream& o
     switch (Subtype(subtype.toUint32()))
     {
     case Subtype::OPAC:
-        out.format("new_material.retro_opac = %d\n", value);
+    {
+        GX::Color clr(value);
+        out.format("anode = new_nodetree.nodes.new('ShaderNodeValue')\n"
+                   "anode.outputs['Value'].default_value = %f\n",
+                   float(clr[3]) / float(0xff));
+        out << "gridder.place_node(anode, 1)\n";
+    }
         break;
     case Subtype::BLOD:
         out.format("new_material.retro_blod = %d\n", value);
