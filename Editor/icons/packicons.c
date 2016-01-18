@@ -6,10 +6,13 @@
 #include <png.h>
 
 #if _WIN32
-#define htonl(v) _byteswap_ulong(v)
-#define htons(v) _byteswap_ushort(v)
+#define _bswap32(v) _byteswap_ulong(v)
+#define _bswap16(v) _byteswap_ushort(v)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#else
+#define _bswap32(v) __builtin_bswap32(v)
+#define _bswap16(v) __builtin_bswap16(v)
 #endif
 
 static int CountBits(uint32_t n)
@@ -275,10 +278,10 @@ int main(int argc, char* argv[])
 
         if (i == 512)
         {
-            uint32_t fmt = htonl(16);
-            uint16_t w = htons(width);
-            uint16_t h = htons(height);
-            uint32_t mips = htonl(numMips);
+            uint32_t fmt = _bswap32(16);
+            uint16_t w = _bswap16(width);
+            uint16_t h = _bswap16(height);
+            uint32_t mips = _bswap32(numMips);
             fwrite(&fmt, 1, 4, ofp);
             fwrite(&w, 1, 2, ofp);
             fwrite(&h, 1, 2, ofp);
