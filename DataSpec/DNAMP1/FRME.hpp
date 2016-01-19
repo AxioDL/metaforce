@@ -49,7 +49,7 @@ struct FRME : BigDNA
         Value<atUint16> group;
         Value<atVec3f> origin;
         Value<atVec3f> basis[3];
-        Value<atVec3f> unk1;
+        Value<atVec3f> rotationCenter;
         Value<atUint32> unk2;
         Value<bool> unk3;
         Value<bool> unk4;
@@ -192,7 +192,7 @@ struct FRME : BigDNA
             Value<atVec2f> pointScale;
             /* The following is only found in V1 */
             UniqueID32 jpnFont;
-            Value<atInt32> jpnPointScale;
+            Value<atInt32> jpnPointScale[2];
         };
 
         struct IMGPInfo : IWidgetInfo

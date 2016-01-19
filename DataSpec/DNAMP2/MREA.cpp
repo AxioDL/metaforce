@@ -2,6 +2,7 @@
 #include <lzo/lzo1x.h>
 #include "MREA.hpp"
 #include "../DNAMP1/MREA.hpp"
+#include "../DNACommon/EGMC.hpp"
 #include "DeafBabe.hpp"
 
 namespace Retro
@@ -193,6 +194,19 @@ bool MREA::Extract(const SpecBase& dataSpec,
     HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
     if (!conn.createBlend(mreaPath, HECL::BlenderConnection::BlendType::Area))
         return false;
+
+    /* Calculate offset to EGMC section */
+    atUint64 egmcOffset = 0;
+    for (int i = 0; i < head.egmcSecIdx; i++)
+        egmcOffset += head.secSizes[i];
+
+    /* Load EGMC if possible so we can assign meshes to scanIds */
+    drs.seek(egmcOffset, Athena::Begin);
+    UniqueID32 egmcId(drs);
+    DNACommon::EGMC egmc;
+    bool hasEGMC = pakRouter.lookupAndReadDNA(egmcId, egmc);
+
+    drs.seek(0, Athena::Begin);
 
     /* Open Py Stream and read sections */
     HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);

@@ -56,17 +56,17 @@ void FRME::Widget::read(Athena::io::IStreamReader& __dna_reader)
     case SBIG('BWIG'): widgetInfo.reset(new BWIGInfo); break;
     case SBIG('HWIG'): widgetInfo.reset(new HWIGInfo); break;
     case SBIG('CAMR'): widgetInfo.reset(new CAMRInfo); break;
-    case SBIG('MODL'): widgetInfo.reset(new MODLInfo); break;
     case SBIG('LITE'): widgetInfo.reset(new LITEInfo); break;
+    case SBIG('ENRG'): widgetInfo.reset(new ENRGInfo); break;
+    case SBIG('MODL'): widgetInfo.reset(new MODLInfo); break;
+    case SBIG('METR'): widgetInfo.reset(new METRInfo); break;
+    case SBIG('GRUP'): widgetInfo.reset(new GRUPInfo); break;
     case SBIG('TXPN'): widgetInfo.reset(new TXPNInfo(owner->version)); break;
     case SBIG('IMGP'): widgetInfo.reset(new IMGPInfo); break;
-    case SBIG('GRUP'): widgetInfo.reset(new GRUPInfo); break;
     case SBIG('TBGP'): widgetInfo.reset(new TBGPInfo); break;
-    case SBIG('ENRG'): widgetInfo.reset(new ENRGInfo); break;
-    case SBIG('METR'): widgetInfo.reset(new METRInfo); break;
     case SBIG('SLGP'): widgetInfo.reset(new SLGPInfo); break;
     default:
-        Log.report(LogVisor::FatalError, _S("Unsupported FRME widget type %s"), type.toString().c_str());
+        Log.report(LogVisor::FatalError, _S("Unsupported FRME widget type %.8X"), type.toUint32());
     }
 
     /* widgetInfo */
@@ -87,8 +87,8 @@ void FRME::Widget::read(Athena::io::IStreamReader& __dna_reader)
     basis[1] = __dna_reader.readVec3fBig();
     /* basis[2] */
     basis[2] = __dna_reader.readVec3fBig();
-    /* unk1 */
-    unk1 = __dna_reader.readVec3fBig();
+    /* rotationCenter */
+    rotationCenter = __dna_reader.readVec3fBig();
     /* unk2 */
     unk2 = __dna_reader.readUint32Big();
     /* unk3 */
@@ -122,8 +122,8 @@ void FRME::Widget::write(Athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeVec3fBig(basis[1]);
     /* basis[2] */
     __dna_writer.writeVec3fBig(basis[2]);
-    /* unk1 */
-    __dna_writer.writeVec3fBig(unk1);
+    /* rotationCenter */
+    __dna_writer.writeVec3fBig(rotationCenter);
     /* unk2 */
     __dna_writer.writeUint32Big(unk2);
     /* unk3 */
@@ -205,8 +205,10 @@ void FRME::Widget::TXPNInfo::read(Athena::io::IStreamReader& __dna_reader)
     {
         /* jpnFont */
         jpnFont.read(__dna_reader);
-        /* jpnPointScale */
-        jpnPointScale = __dna_reader.readInt32Big();
+        /* jpnPointScale[0] */
+        jpnPointScale[0] = __dna_reader.readInt32Big();
+        /* jpnPointScale[0] */
+        jpnPointScale[1] = __dna_reader.readInt32Big();
     }
 }
 
@@ -243,8 +245,10 @@ void FRME::Widget::TXPNInfo::write(Athena::io::IStreamWriter& __dna_writer) cons
     {
         /* jpnFont */
         jpnFont.write(__dna_writer);
-        /* jpnPointScale */
-        __dna_writer.writeInt32Big(jpnPointScale);
+        /* jpnPointScale[0] */
+        __dna_writer.writeInt32Big(jpnPointScale[0]);
+        /* jpnPointScale[1] */
+        __dna_writer.writeInt32Big(jpnPointScale[1]);
     }
 }
 
@@ -255,7 +259,7 @@ size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
     if (version == 1)
         __isz = jpnFont.binarySize(__isz);
 
-    return __isz + (version == 1 ? 74 : 66);
+    return __isz + (version == 1 ? 78 : 66);
 }
 
 }
