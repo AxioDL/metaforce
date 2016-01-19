@@ -46,11 +46,13 @@ public:
             Class m_cls;
             std::string m_key;
             std::string m_text;
+            Specter::Icon& m_icon;
+            Zeus::CColor m_color;
             const std::string* text() const {return &m_text;}
             void activated(const boo::SWindowCoord& coord) {}
 
-            SubNodeData(Class cls, const char* key, const char* text)
-            : m_cls(cls), m_key(key), m_text(text) {}
+            SubNodeData(Class cls, const char* key, const char* text, Specter::Icon& icon, const Zeus::CColor& color)
+            : m_cls(cls), m_key(key), m_text(text), m_icon(icon), m_color(color) {}
         };
         static std::vector<SubNodeData> s_subNodeDats;
 
@@ -84,6 +86,20 @@ public:
             for (const SubNodeData& sn : s_subNodeDats)
                 if (sn.m_cls == cls)
                     return &sn.m_text;
+            return nullptr;
+        }
+        static Specter::Icon* lookupClassIcon(Class cls)
+        {
+            for (SubNodeData& sn : s_subNodeDats)
+                if (sn.m_cls == cls)
+                    return &sn.m_icon;
+            return nullptr;
+        }
+        static const Zeus::CColor* lookupClassColor(Class cls)
+        {
+            for (SubNodeData& sn : s_subNodeDats)
+                if (sn.m_cls == cls)
+                    return &sn.m_color;
             return nullptr;
         }
     } m_spaceMenuNode;

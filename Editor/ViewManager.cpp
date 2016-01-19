@@ -4,6 +4,7 @@
 #include "SplashScreen.hpp"
 #include "locale/locale.hpp"
 #include "ResourceBrowser.hpp"
+#include "icons/icons.hpp"
 #include <cstdio>
 
 using YAMLNode = Athena::io::YAMLNode;
@@ -158,6 +159,7 @@ void ViewManager::init(boo::IApplication* app)
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
     m_viewResources.init(gf, &m_fontCache, &m_themeData, pixelFactor);
+    m_iconsToken = InitializeIcons(m_viewResources);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     Specter::RootView* root = SetupRootView();
     m_showSplash = true;

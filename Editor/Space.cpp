@@ -1,6 +1,7 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
 #include "ResourceBrowser.hpp"
+#include "icons/icons.hpp"
 
 namespace URDE
 {
@@ -19,8 +20,11 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
         m_spaceView->setContentView(sview);
         Specter::Toolbar& tb = *m_spaceView->toolbar();
         const std::string* classStr = SpaceMenuNode::lookupClassString(m_class);
-        m_spaceSelectButton.reset(new Specter::Button(res, tb, &m_spaceSelectBind,
-                                                      classStr?*classStr:"Unknown Class"));
+        Specter::Icon* classIcon = SpaceMenuNode::lookupClassIcon(m_class);
+        const Zeus::CColor* classColor = SpaceMenuNode::lookupClassColor(m_class);
+        m_spaceSelectButton.reset(new Specter::Button(res, tb, &m_spaceSelectBind, "", classIcon,
+                                                      Specter::Button::Style::Block,
+                                                      classColor?*classColor:Zeus::CColor::skWhite));
         tb.push_back(m_spaceSelectButton.get());
         buildToolbarView(res, tb);
         return m_spaceView.get();
@@ -36,7 +40,7 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 
 std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats =
 {
-    {Class::ResourceBrowser, "resource_browser", "Resource Browser"}
+    {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0,1.0,0.0,1.0}}
 };
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 

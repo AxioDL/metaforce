@@ -21,6 +21,7 @@ class ViewManager : public Specter::IViewManager
     Specter::FontCache m_fontCache;
     Specter::DefaultThemeData m_themeData;
     Specter::ViewResources m_viewResources;
+    boo::GraphicsDataToken m_iconsToken;
     Specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
 
