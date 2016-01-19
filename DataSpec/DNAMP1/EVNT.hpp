@@ -2,6 +2,7 @@
 #define __DNAMP1_EVNT_HPP__
 
 #include "../DNACommon/DNACommon.hpp"
+#include "DNAMP1.hpp"
 
 namespace Retro
 {
@@ -25,7 +26,7 @@ struct EVNT : BigYAML
         Value<atUint32> idx;
         Value<atUint8> unk2;
         Value<float> unk3;
-        Value<float> unk4;
+        Value<atUint32> unk4;
         Value<atUint32> unk5;
     };
 
@@ -64,6 +65,16 @@ struct EVNT : BigYAML
         Value<float> bigNum;
     };
     std::vector<SFXEvent> sfxEvents;
+
+    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    {
+        EVNT evnt;
+        evnt.read(rs);
+        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        evnt.toYAMLFile(fp);
+        fclose(fp);
+        return true;
+    }
 };
 
 }

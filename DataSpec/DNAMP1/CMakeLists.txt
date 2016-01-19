@@ -12,6 +12,7 @@ make_dnalist(liblist
              MREA
              DeafBabe
              SCAN
+             FRME
              Tweaks/CTweakGame
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
@@ -30,6 +31,7 @@ add_library(DNAMP1
             MAPA.hpp
             MREA.cpp
             SCLY.hpp SCLY.cpp
+            FRME.cpp
             DeafBabe.cpp)
 
 target_link_libraries(DNAMP1 ScriptObjectsMP1)

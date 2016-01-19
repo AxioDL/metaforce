@@ -10,6 +10,7 @@
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "FRME.hpp"
 
 namespace Retro
 {
@@ -268,6 +269,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
+    case SBIG('FRME'):
+        return {nullptr, FRME::Extract, {_S(".blend")}, 2};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1, CMDL::Name};
     case SBIG('ANCS'):
