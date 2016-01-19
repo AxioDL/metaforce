@@ -83,8 +83,8 @@ struct FRME : BigDNA
                 PerspectiveProjection() : IProjection(ProjectionType::Perspective) {}
                 Value<float> fov;
                 Value<float> aspect;
-                Value<float> near;
-                Value<float> far;
+                Value<float> znear;
+                Value<float> zfar;
             };
 
             struct OrthographicProjection : IProjection
@@ -95,8 +95,8 @@ struct FRME : BigDNA
                 Value<float> right;
                 Value<float> top;
                 Value<float> bottom;
-                Value<float> near;
-                Value<float> far;
+                Value<float> znear;
+                Value<float> zfar;
             };
             std::unique_ptr<IProjection> projection;
         };
