@@ -396,6 +396,10 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
                     }
                     flip ^= 1;
 
+                    /* Break if done */
+                    if (iit == prim.indices.cend())
+                        break;
+
                     bool peek = (v >= prim.indexCount - 3);
 
                     /* Advance one prim vert */
