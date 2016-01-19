@@ -782,7 +782,11 @@ public:
         if (replace)
         {
             auto relIt = pp.m_relPath.end();
+            if (relIt != pp.m_relPath.begin())
+                --relIt;
             auto absIt = pp.m_absPath.end();
+            if (absIt != pp.m_absPath.begin())
+                --absIt;
             while (relIt != pp.m_relPath.begin() && *relIt != _S('.') && *relIt != _S('/'))
             {
                 --relIt;
