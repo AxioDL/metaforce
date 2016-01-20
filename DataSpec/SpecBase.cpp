@@ -37,7 +37,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
         return false;
-    const char* gameID = m_disc->getHeader().gameID;
+    const char* gameID = m_disc->getHeader().m_gameID;
 
     if (!memcmp(gameID, "R3O", 3))
     {
@@ -58,7 +58,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     if (m_standalone && !checkStandaloneID(gameID))
         return false;
 
-    char region = m_disc->getHeader().gameID[3];
+    char region = m_disc->getHeader().m_gameID[3];
     static const HECL::SystemString regNONE = _S("");
     static const HECL::SystemString regE = _S("NTSC");
     static const HECL::SystemString regJ = _S("NTSC-J");
