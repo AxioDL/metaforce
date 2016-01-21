@@ -262,5 +262,83 @@ size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
     return __isz + (version == 1 ? 78 : 66);
 }
 
+bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL::ProjectPath &outPath, PAKRouter<PAKBridge> &pakRouter, const PAK::Entry &entry, bool force, std::function<void (const HECL::SystemChar *)> fileChanged)
+{
+    FRME frme;
+    frme.read(rs);
+
+    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+
+    if (!force && outPath.getPathType() == HECL::ProjectPath::Type::File)
+        return true;
+
+    if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Frame))
+        return false;
+
+    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+
+    os << "import bpy, math\n"
+          "from mathutils import Matrix, Quaternion\n"
+          "bpy.types.Object.retro_widget_type = bpy.props.StringProperty(name='Retro: FRME Widget Type')\n"
+          "bpy.types.Object.retro_widget_parent = bpy.props.StringProperty(name='Retro: FRME Widget Parent', description='Refers to internal frame widgets')\n"
+          "# Clear Scene\n"
+          "for ob in bpy.data.objects:\n"
+          "    bpy.context.scene.objects.unlink(ob)\n"
+          "    bpy.data.objects.remove(ob)\n";
+
+    os.format("bpy.context.scene.name = 'FRME_%s'\n",
+              entry.id.toString().c_str());
+
+    for (const FRME::Widget& w : frme.widgets)
+    {
+        os << "binding = None\n"
+              "angle = Quaternion((0.0, 0.0, 0.0), 0)\n";
+        if (w.type == SBIG('CAMR'))
+        {
+            using CAMRInfo = FRME::Widget::CAMRInfo;
+            os.format("cam = bpy.data.cameras.new(name='%s')\n"
+                      "binding = cam\n", w.header.name.c_str());
+            CAMRInfo* info = dynamic_cast<CAMRInfo*>(w.widgetInfo.get());
+            if (info)
+            {
+                if (info->projectionType == CAMRInfo::ProjectionType::Orthographic)
+                    os << "cam.type = 'ORTHO'\n";
+                else if (info->projectionType == CAMRInfo::ProjectionType::Perspective)
+                    os << "cam.type = 'PERSP'\n";
+            }
+            os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
+        }
+        else if (w.type == SBIG('LITE'))
+            os.format("lite = bpy.data.lamps.new(name='%s', type='POINT')\n"
+                      "binding = lite\n",
+                      w.header.name.c_str());
+
+
+        os.format("obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
+                  "obj.retro_widget_type = '%s'\n"
+                  "parentName = '%s'\n"
+                  "if parentName not in bpy.data.objects:\n"
+                  "    obj.retro_widget_parent = parentName\n"
+                  "else:\n"
+                  "    obj.parent = bpy.data.objects[parentName]\n"
+                  "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+                  "mtxd = mtx.decompose()\n"
+                  "obj.rotation_mode = 'QUATERNION'\n"
+                  "obj.location = mtxd[0]\n"
+                  "obj.rotation_quaternion = mtxd[1] * angle\n"
+                  "obj.scale = mtxd[2]\n",
+                  w.header.name.c_str(), w.type.toString().c_str(), w.header.parent.c_str(),
+                  w.basis[0].vec[0], w.basis[0].vec[1], w.basis[0].vec[2],w.origin.vec[0],
+                  w.basis[1].vec[0], w.basis[1].vec[1], w.basis[1].vec[2],w.origin.vec[1],
+                  w.basis[2].vec[0], w.basis[2].vec[1], w.basis[2].vec[2],w.origin.vec[2]);
+        os << "bpy.context.scene.objects.link(obj)\n";
+    }
+
+    os.centerView();
+    os.close();
+    conn.saveBlend();
+    return true;
+}
+
 }
 }

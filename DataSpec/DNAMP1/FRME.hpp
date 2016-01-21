@@ -215,12 +215,7 @@ struct FRME : BigDNA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
-    {
-        FRME frme;
-        frme.read(rs);
-        return true;
-    }
+                        std::function<void(const HECL::SystemChar*)> fileChanged);
 };
 
 }
