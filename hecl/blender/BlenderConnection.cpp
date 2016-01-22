@@ -375,6 +375,7 @@ static const char* BlendTypeStrs[] =
     "WORLD",
     "MAPAREA",
     "MAPUNIVERSE",
+    "FRAME",
     nullptr
 };
 
