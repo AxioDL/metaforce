@@ -561,6 +561,9 @@ public:
                                                            bool silenceWarnings=false,
                                                            bool currentPAK=false) const
     {
+        if (!entry)
+            return nullptr;
+
         if (!m_bridges)
             LogDNACommon.report(LogVisor::FatalError,
             "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
