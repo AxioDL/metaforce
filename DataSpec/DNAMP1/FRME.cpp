@@ -1,4 +1,5 @@
 #include "FRME.hpp"
+#include "../DNACommon/TXTR.hpp"
 
 namespace Retro
 {
@@ -260,6 +261,144 @@ size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
         __isz = jpnFont.binarySize(__isz);
 
     return __isz + (version == 1 ? 78 : 66);
+}
+
+bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL::ProjectPath &outPath, PAKRouter<PAKBridge> &pakRouter, const PAK::Entry &entry, bool force, std::function<void (const HECL::SystemChar *)> fileChanged)
+{
+    FRME frme;
+    frme.read(rs);
+
+    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+
+#if 0
+    if (!force && outPath.getPathType() == HECL::ProjectPath::Type::File)
+        return true;
+#endif
+
+    if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Frame))
+        return false;
+
+    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+
+    os << "import bpy, math\n"
+          "from mathutils import Matrix, Quaternion\n"
+          "bpy.types.Object.retro_widget_type = bpy.props.StringProperty(name='Retro: FRME Widget Type')\n"
+          "bpy.types.Object.retro_widget_parent = bpy.props.StringProperty(name='Retro: FRME Widget Parent', description='Refers to internal frame widgets')\n"
+          "# Clear Scene\n"
+          "for ob in bpy.data.objects:\n"
+          "    bpy.context.scene.objects.unlink(ob)\n"
+          "    bpy.data.objects.remove(ob)\n";
+
+    os.format("bpy.context.scene.name = 'FRME_%s'\n",
+              entry.id.toString().c_str());
+
+    for (const FRME::Widget& w : frme.widgets)
+    {
+        os << "binding = None\n"
+              "angle = Quaternion((0.0, 0.0, 0.0), 0)\n";
+        if (w.type == SBIG('CAMR'))
+        {
+            using CAMRInfo = Widget::CAMRInfo;
+            os.format("cam = bpy.data.cameras.new(name='%s')\n"
+                      "binding = cam\n", w.header.name.c_str());
+            CAMRInfo* info = dynamic_cast<CAMRInfo*>(w.widgetInfo.get());
+            if (info)
+            {
+                if (info->projectionType == CAMRInfo::ProjectionType::Orthographic)
+                {
+                    CAMRInfo::OrthographicProjection* proj = dynamic_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
+                    os.format("cam.type = 'ORTHO'\n");
+                }
+                else if (info->projectionType == CAMRInfo::ProjectionType::Perspective)
+                {
+                    CAMRInfo::PerspectiveProjection* proj = dynamic_cast<CAMRInfo::PerspectiveProjection*>(info->projection.get());
+                    os.format("cam.type = 'PERSP'\n"
+                              "cam.lens_unit = 'FOV'\n"
+                              "cam.angle = math.radians(%f)\n"
+                              "cam.clip_start = %f\n"
+                              "cam.clip_end = %f\n",
+                              proj->fov, proj->znear, proj->zfar);
+                }
+            }
+            os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
+        }
+        else if (w.type == SBIG('LITE'))
+            os.format("lite = bpy.data.lamps.new(name='%s', type='POINT')\n"
+                      "binding = lite\n",
+                      w.header.name.c_str());
+
+
+        os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
+                  "frme_obj.retro_widget_type = '%s'\n"
+                  "parentName = '%s'\n"
+                  "if parentName not in bpy.data.objects:\n"
+                  "    frme_obj.retro_widget_parent = parentName\n"
+                  "else:\n"
+                  "    frme_obj.parent = bpy.data.objects[parentName]\n",
+                  w.header.name.c_str(), w.type.toString().c_str(), w.header.parent.c_str());
+
+        if (w.type == SBIG('MODL'))
+        {
+            using MODLInfo = FRME::Widget::MODLInfo;
+            MODLInfo* info = dynamic_cast<MODLInfo*>(w.widgetInfo.get());
+            HECL::ProjectPath modelPath = pakRouter.getWorking(info->model);
+            const typename PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
+
+            os.linkBlend(modelPath.getAbsolutePathUTF8().c_str(),
+                         pakRouter.getBestEntryName(*cmdlE).c_str(), false);
+
+            os << "print(obj.name)\n"
+                  "if obj.name not in bpy.context.scene.objects:\n"
+                  "    bpy.context.scene.objects.link(obj)\n"
+                  "obj.parent = frme_obj\n"
+                  "obj.hide = False\n";
+        }
+        else if (w.type == SBIG('IMGP'))
+        {
+            using IMGPInfo = Widget::IMGPInfo;
+            IMGPInfo* info = dynamic_cast<IMGPInfo*>(w.widgetInfo.get());
+            if (info && info->texture)
+            {
+                std::string texName = pakRouter.getBestEntryName(info->texture);
+                const NOD::Node* node;
+                const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(info->texture, &node);
+                HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+                if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
+                {
+                    PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+                    TXTR::Extract(rs, txtrPath);
+                }
+                HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, info->texture);
+                HECL::SystemUTF8View resPathView(resPath);
+                os.format("if '%s' in bpy.data.images:\n"
+                          "    image = bpy.data.images['%s']\n"
+                          "else:\n"
+                          "    image = bpy.data.images.load('''//%s''')\n"
+                          "    image.name = '%s'\n"
+                          "frme_obj.empty_draw_type = 'IMAGE'\n"
+                          "frme_obj.data = image\n"
+                          "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n",
+                          texName.c_str(), texName.c_str(),
+                          resPathView.str().c_str(), texName.c_str());
+            }
+        }
+
+        os.format("mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+                  "mtxd = mtx.decompose()\n"
+                  "frme_obj.rotation_mode = 'QUATERNION'\n"
+                  "frme_obj.location = mtxd[0]\n"
+                  "frme_obj.rotation_quaternion = mtxd[1] * angle\n"
+                  "frme_obj.scale = mtxd[2]\n"
+                  "bpy.context.scene.objects.link(frme_obj)\n",
+                  w.basis[0].vec[0], w.basis[0].vec[1], w.basis[0].vec[2],w.origin.vec[0],
+                  w.basis[1].vec[0], w.basis[1].vec[1], w.basis[1].vec[2],w.origin.vec[1],
+                  w.basis[2].vec[0], w.basis[2].vec[1], w.basis[2].vec[2],w.origin.vec[2]);
+    }
+
+    os.centerView();
+    os.close();
+    conn.saveBlend();
+    return true;
 }
 
 }
