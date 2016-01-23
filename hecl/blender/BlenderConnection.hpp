@@ -43,7 +43,8 @@ public:
         Area,
         World,
         MapArea,
-        MapUniverse
+        MapUniverse,
+        Frame
     };
 private:
     bool m_lock = false;

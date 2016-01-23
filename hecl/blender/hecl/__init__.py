@@ -9,7 +9,7 @@ bl_info = {
     "category": "System"}
 
 # Package import
-from . import hmdl, sact, srea, swld, mapa, mapu, Nodegrid, Patching
+from . import hmdl, sact, srea, swld, mapa, mapu, frme, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
 import bpy, os, sys
 from bpy.app.handlers import persistent
@@ -23,7 +23,8 @@ hecl_typeS = [
 ('AREA', "Area", "Active scene represents a HECL Area", srea.draw),
 ('WORLD', "World", "Active scene represents a HECL World", swld.draw),
 ('MAPAREA', "Map Area", "Active scene represents a HECL Map Area", mapa.draw),
-('MAPUNIVERSE', "Map Universe", "Active scene represents a HECL Map Universe", mapu.draw)]
+('MAPUNIVERSE', "Map Universe", "Active scene represents a HECL Map Universe", mapu.draw),
+('FRAME', "Gui Frame", "Active scene represents a HECL Gui Frame", frme.draw)]
 
 # Main Scene Panel
 class hecl_scene_panel(bpy.types.Panel):
