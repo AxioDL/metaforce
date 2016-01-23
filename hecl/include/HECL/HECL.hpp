@@ -379,6 +379,15 @@ static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
 #endif
 }
 
+static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2)
+{
+#if HECL_UCS2
+    return _wcsicmp(str1, str2);
+#else
+    return strcasecmp(str1, str2);
+#endif
+}
+
 #define FORMAT_BUF_SZ 1024
 
 #if __GNUC__
