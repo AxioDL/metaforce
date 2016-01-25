@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/statvfs.h>
 #else
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
@@ -418,6 +419,22 @@ static inline std::string Format(const char* format, ...)
     int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
     va_end(va);
     return std::string(resultBuf, printSz);
+}
+
+
+static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
+{
+#if _WIN32
+    ULARGE_INTEGER freeBytes;
+    if (!GetDiskFreeSpaceExW(path, &freeBytes, nullptr, nullptr))
+        LogModule.report(LogVisor::FatalError, "GetDiskFreeSpaceExW %s: %d", path, GetLastError());
+    return reqSz < freeBytes;
+#else
+    struct statvfs svfs;
+    if (statvfs(path, &svfs))
+        LogModule.report(LogVisor::FatalError, "statvfs %s: %s", path, strerror(errno));
+    return reqSz < svfs.f_bsize * svfs.f_bfree;
+#endif
 }
 
 static inline int ConsoleWidth()
