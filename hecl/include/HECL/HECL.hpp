@@ -426,9 +426,16 @@ static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
 {
 #if _WIN32
     ULARGE_INTEGER freeBytes;
-    if (!GetDiskFreeSpaceExW(path, &freeBytes, nullptr, nullptr))
-        LogModule.report(LogVisor::FatalError, "GetDiskFreeSpaceExW %s: %d", path, GetLastError());
-    return reqSz < freeBytes;
+    wchar_t buf[1024];
+    wchar_t* end;
+    DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
+    if (!ret || ret > 1024)
+        LogModule.report(LogVisor::FatalError, _S("GetFullPathNameW %s"), path);
+    if (end)
+        end[0] = L'\0';
+    if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
+        LogModule.report(LogVisor::FatalError, _S("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
+    return reqSz < freeBytes.QuadPart;
 #else
     struct statvfs svfs;
     if (statvfs(path, &svfs))
