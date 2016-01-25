@@ -342,7 +342,7 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
             using MODLInfo = FRME::Widget::MODLInfo;
             MODLInfo* info = dynamic_cast<MODLInfo*>(w.widgetInfo.get());
             HECL::ProjectPath modelPath = pakRouter.getWorking(info->model);
-            const typename PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
+            const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
             os.linkBlend(modelPath.getAbsolutePathUTF8().c_str(),
                          pakRouter.getBestEntryName(*cmdlE).c_str(), false);
@@ -361,7 +361,7 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
             {
                 std::string texName = pakRouter.getBestEntryName(info->texture);
                 const NOD::Node* node;
-                const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(info->texture, &node);
+                const PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(info->texture, &node);
                 HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
                 if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
                 {
