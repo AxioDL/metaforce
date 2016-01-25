@@ -1,6 +1,6 @@
 ### HECL (high-level, extensible combiner language)
 
-HECL is a toolkit for building custom asset pipelines, assisting the development of conversion tools and runtime loaders.
+**HECL** is a toolkit for building custom asset pipelines, assisting the development of conversion tools and runtime loaders.
 
 The most significant feature is the intermediate HECL language, using an expressive command syntax to represent cross-platform shaders. This includes a common source representation and intermediate binary representation. Complete vertex and fragment shader programs are generated for supported platforms and may be built on-demand as part of a 3D application runtime.
 
