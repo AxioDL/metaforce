@@ -26,3 +26,4 @@ For asset pipelines, HECL provides a project system with dependency-resolution m
 * GLSL 330 *(with optional SPIR-V conversion)*
 * HLSL (Shader Model 4)
 * Metal 1.1
+* GX *(complete TexCoordGen and TEV configs in intermediate structures)*
