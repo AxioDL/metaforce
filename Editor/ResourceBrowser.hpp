@@ -167,21 +167,26 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
     struct View : Specter::View
     {
         ResourceBrowser& m_ro;
-        Specter::ViewChild<std::unique_ptr<Specter::PathButtons>> m_pathButtons;
         Specter::ViewChild<std::unique_ptr<Specter::Table>> m_fileListing;
 
         View(ResourceBrowser& ro, Specter::ViewResources& res)
         : Specter::View(res, ro.m_vm.rootView()), m_ro(ro)
         {
             commitResources(res);
-            m_pathButtons.m_view.reset(new Specter::PathButtons(res, *this, ro));
             m_fileListing.m_view.reset(new Specter::Table(res, *this, &ro.m_fileListingBind, &ro.m_fileListingBind, 3));
         }
+
+        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        void mouseMove(const boo::SWindowCoord&);
+        void mouseLeave(const boo::SWindowCoord&);
 
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<View> m_view;
+
+    std::unique_ptr<Specter::PathButtons> m_pathButtons;
 
 public:
     ResourceBrowser(ViewManager& vm, Space* parent)
@@ -222,6 +227,12 @@ public:
         return new ResourceBrowser(m_vm, parent, *this);
     }
 
+    void buildToolbarView(Specter::ViewResources &res, Specter::Toolbar &tb)
+    {
+        m_pathButtons.reset(new Specter::PathButtons(res, tb, *this, true));
+        tb.push_back(m_pathButtons.get(), 0);
+    }
+
     Specter::View* buildContentView(Specter::ViewResources& res)
     {
         m_view.reset(new View(*this, res));
@@ -231,6 +242,11 @@ public:
     bool usesToolbar() const
     {
         return true;
+    }
+
+    unsigned toolbarUnits() const
+    {
+        return 2;
     }
 };
 

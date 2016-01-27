@@ -130,6 +130,7 @@ protected:
 
     /* Structural control */
     virtual bool usesToolbar() const {return false;}
+    virtual unsigned toolbarUnits() const {return 1;}
     virtual void buildToolbarView(Specter::ViewResources& res, Specter::Toolbar& tb) {}
     virtual Specter::View* buildContentView(Specter::ViewResources& res)=0;
     virtual Specter::View* buildSpaceView(Specter::ViewResources& res);
@@ -359,7 +360,7 @@ public:
     void buildToolbarView(Specter::ViewResources& res, Specter::Toolbar& tb)
     {
         m_button.reset(new Specter::Button(res, tb, m_binding, m_buttonStr));
-        tb.push_back(m_button.get());
+        tb.push_back(m_button.get(), 0);
     }
 
     Specter::View* buildContentView(Specter::ViewResources& res)

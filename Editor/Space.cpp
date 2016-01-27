@@ -15,7 +15,7 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
     if (usesToolbar())
     {
-        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom));
+        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom, toolbarUnits()));
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         Specter::Toolbar& tb = *m_spaceView->toolbar();
@@ -25,13 +25,13 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
         m_spaceSelectButton.reset(new Specter::Button(res, tb, &m_spaceSelectBind, "", classIcon,
                                                       Specter::Button::Style::Block,
                                                       classColor?*classColor:Zeus::CColor::skWhite));
-        tb.push_back(m_spaceSelectButton.get());
+        tb.push_back(m_spaceSelectButton.get(), 0);
         buildToolbarView(res, tb);
         return m_spaceView.get();
     }
     else
     {
-        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::None));
+        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::None, 0));
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         return m_spaceView.get();

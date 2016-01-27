@@ -13,18 +13,19 @@ bool ResourceBrowser::navigateToPath(const HECL::ProjectPath& pathIn)
 
     m_comps = m_path.getPathComponents();
 
-    HECL::DirectoryEnumerator dEnum(m_path.getAbsolutePath(), HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+    HECL::DirectoryEnumerator dEnum(m_path.getAbsolutePath(),
+                                    HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
                                     m_state.sortColumn==State::SortColumn::Size,
                                     m_state.sortDir==Specter::SortDirection::Descending,
                                     true);
     m_fileListingBind.updateListing(dEnum);
+    if (m_pathButtons)
+        m_pathButtons->setButtons(m_comps);
 
     if (m_view)
     {
         m_view->m_fileListing.m_view->selectRow(-1);
         m_view->m_fileListing.m_view->updateData();
-        m_view->m_pathButtons.m_view->setButtons(m_comps);
-
         m_view->updateSize();
     }
 
@@ -52,18 +53,33 @@ void ResourceBrowser::pathButtonActivated(size_t idx)
     navigateToPath(HECL::ProjectPath(*m_vm.project(), dir));
 }
 
+void ResourceBrowser::View::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    m_fileListing.mouseDown(coord, button, mod);
+}
+
+void ResourceBrowser::View::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
+{
+    m_fileListing.mouseUp(coord, button, mod);
+}
+
+void ResourceBrowser::View::mouseMove(const boo::SWindowCoord& coord)
+{
+    m_fileListing.mouseMove(coord);
+}
+
+void ResourceBrowser::View::mouseLeave(const boo::SWindowCoord& coord)
+{
+    m_fileListing.mouseLeave(coord);
+}
+
 void ResourceBrowser::View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
-    float pf = rootView().viewRes().pixelFactor();
-
-    boo::SWindowRect pathRect = sub;
-    pathRect.location[0] += BROWSER_MARGIN * pf;
-    pathRect.location[1] += pathRect.size[1] - (BROWSER_MARGIN + 20) * pf;
-    m_pathButtons.m_view->resized(root, pathRect);
+    Specter::View::resized(root, sub);
+    m_fileListing.m_view->resized(root, sub);
 }
 void ResourceBrowser::View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    m_pathButtons.m_view->draw(gfxQ);
     m_fileListing.m_view->draw(gfxQ);
 }
 

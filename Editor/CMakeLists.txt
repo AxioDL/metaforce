@@ -20,8 +20,16 @@ atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
 
-add_executable(urde WIN32
-               main.cpp
+if(WIN32)
+  set(PLAT_SRCS platforms/win/urde.rc)
+elseif(APPLE)
+  set(PLAT_SRCS platforms/mac/mainicon.icns)
+  set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
+                              MACOSX_PACKAGE_LOCATION Resources)
+endif()
+
+add_executable(urde WIN32 MACOSX_BUNDLE
+               main.cpp ${PLAT_SRCS}
                Space.hpp Space.cpp atdna_Space.cpp
                SplashScreen.hpp SplashScreen.cpp
                ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
@@ -42,3 +50,6 @@ target_link_libraries(urde
                       LogVisor AthenaLibYaml Boo ${PNG_LIB} squish xxhash Math
                       ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
+
+set_target_properties(urde PROPERTIES
+                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")

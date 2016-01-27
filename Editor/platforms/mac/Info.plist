@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>URDE</string>
+    <key>CFBundleGetInfoString</key>
+    <string>Version BETA</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>2015-2016 Antidote / Jackoalan</string>
+    <key>CFBundleIconFile</key>
+    <string>mainicon.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>io.github.AxioDL.URDE</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>URDE</string>
+    <key>CFBundleVersion</key>
+    <string>BETA</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
