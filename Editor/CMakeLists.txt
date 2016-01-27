@@ -26,6 +26,10 @@ elseif(APPLE)
   set(PLAT_SRCS platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
                               MACOSX_PACKAGE_LOCATION Resources)
+elseif(UNIX)
+  add_subdirectory(platforms/freedesktop)
+  declare_wmicon_target()
+  set(PLAT_SRCS mainicon_netwm.c)
 endif()
 
 add_executable(urde WIN32 MACOSX_BUNDLE
