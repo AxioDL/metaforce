@@ -1,4 +1,5 @@
 #include "winver.h"
+#define IDI_ICON1 101
 
 IDI_ICON1  ICON DISCARDABLE "mainicon.ico"
 
@@ -17,7 +18,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Antidote / Jackoalan"
             VALUE "FileDescription", "URDE"
-            VALUE "FileVersion", "BETA" 
+            VALUE "FileVersion", "BETA"
             VALUE "LegalCopyright", "Copyright (C) 2015-2016 Antidote / Jackoalan"
             VALUE "InternalName", "urde"
             VALUE "OriginalFilename", "urde.exe"
