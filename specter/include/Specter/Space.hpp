@@ -50,7 +50,8 @@ class Space : public View
     ViewChild<std::unique_ptr<CornerView>> m_cornerView;
 
 public:
-    Space(ViewResources& res, View& parentView, ISpaceController& controller, Toolbar::Position toolbarPos);
+    Space(ViewResources& res, View& parentView, ISpaceController& controller,
+          Toolbar::Position toolbarPos, unsigned tbUnits);
     View* setContentView(View* view);
     Toolbar* toolbar() {return m_toolbar.m_view.get();}
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

@@ -90,13 +90,13 @@ public:
         Zeus::CVector3f m_pos;
         Zeus::CVector2f m_uv;
     };
-    
+
     struct VertexBufferBinding
     {
         boo::IGraphicsBufferD* m_vertsBuf = nullptr;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
-        
+
         void initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf);
         void initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture);
 
@@ -217,6 +217,7 @@ public:
     virtual void modKeyDown(boo::EModifierKey, bool) {}
     virtual void modKeyUp(boo::EModifierKey) {}
 
+    virtual void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {}
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     virtual void resized(const ViewBlock& vb, const boo::SWindowRect& sub);
     virtual void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,

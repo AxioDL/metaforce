@@ -4,8 +4,8 @@
 namespace Specter
 {
 
-PathButtons::PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding)
-: ScrollView(res, parentView, ScrollView::Style::SideButtons), m_binding(binding)
+PathButtons::PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding, bool fillContainer)
+: ScrollView(res, parentView, ScrollView::Style::SideButtons), m_binding(binding), m_fillContainer(fillContainer)
 {
     m_contentView.m_view.reset(new ContentView(res, *this));
     setContentView(m_contentView.m_view.get());

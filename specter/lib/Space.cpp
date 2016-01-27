@@ -16,7 +16,8 @@ static LogVisor::LogModule Log("Specter::Space");
 
 #define CORNER_DRAG_THRESHOLD 20
 
-Space::Space(ViewResources& res, View& parentView, ISpaceController& controller, Toolbar::Position tbPos)
+Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
+             Toolbar::Position tbPos, unsigned tbUnits)
 : View(res, parentView), m_controller(controller), m_tbPos(tbPos)
 {
     commitResources(res);
@@ -25,7 +26,7 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
     if (controller.spaceSplitAllowed())
         m_cornerView.m_view.reset(new CornerView(res, *this, triColor));
     if (tbPos != Toolbar::Position::None)
-        m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos));
+        m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
 }
 
 Space::CornerView::CornerView(ViewResources& res, Space& space, const Zeus::CColor& triColor)
