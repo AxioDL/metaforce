@@ -28,6 +28,9 @@ class RootView : public View
     View* m_activeDragView = nullptr;
     Button* m_activeMenuButton = nullptr;
 
+    ViewChild<std::unique_ptr<View>> m_rightClickMenu;
+    boo::SWindowCoord m_rightClickMenuCoord;
+
     SplitView* m_hoverSplitDragView = nullptr;
     bool m_activeSplitDragView = false;
     SplitView* recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const;
@@ -70,6 +73,13 @@ public:
     const IThemeData& themeData() const {return *m_viewRes->m_theme;}
 
     std::vector<View*>& accessContentViews() {return m_views;}
+
+    void adoptRightClickMenu(std::unique_ptr<View>&& menu, const boo::SWindowCoord& coord)
+    {
+        m_rightClickMenu.m_view = std::move(menu);
+        m_rightClickMenuCoord = coord;
+    }
+    View* getRightClickMenu() {return m_rightClickMenu.m_view.get();}
 
     void setActiveTextView(ITextInputView* textView)
     {

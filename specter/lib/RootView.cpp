@@ -36,6 +36,13 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_rightClickMenu.m_view)
+    {
+        if (!m_rightClickMenu.mouseDown(coord, button, mods))
+            m_rightClickMenu.m_view.reset();
+        return;
+    }
+
     if (m_activeMenuButton)
     {
         ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
@@ -59,6 +66,12 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
+    if (m_rightClickMenu.m_view)
+    {
+        m_rightClickMenu.mouseUp(coord, button, mods);
+        return;
+    }
+
     if (m_activeMenuButton)
     {
         ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
@@ -99,6 +112,12 @@ SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCo
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
+    if (m_rightClickMenu.m_view)
+    {
+        m_rightClickMenu.mouseMove(coord);
+        return;
+    }
+
     if (m_activeMenuButton)
     {
         ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
@@ -172,6 +191,12 @@ void RootView::mouseEnter(const boo::SWindowCoord& coord)
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
+    if (m_rightClickMenu.m_view)
+    {
+        m_rightClickMenu.mouseLeave(coord);
+        return;
+    }
+
     if (m_activeMenuButton)
     {
         ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
@@ -283,7 +308,7 @@ void RootView::displayTooltip(const std::string& name, const std::string& help)
 }
 
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
-{
+{   
     if (m_resizeRTDirty)
     {
         gfxQ->resizeRenderTexture(m_renderTex, m_rootRect.size[0], m_rootRect.size[1]);
@@ -298,6 +323,8 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
         v->draw(gfxQ);
     if (m_tooltip)
         m_tooltip->draw(gfxQ);
+    if (m_rightClickMenu.m_view)
+        m_rightClickMenu.m_view->draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);
 }
 
