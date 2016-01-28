@@ -80,7 +80,7 @@ public:
         out.leaveSubRecord();
     }
 
-    size_t binarySize(size_t __isz) { return __isz + IDType::BinarySize(); }
+    size_t binarySize(size_t __isz) const { return __isz + IDType::BinarySize(); }
 
     UniqueIDProperty& operator =(const IDType& v) { m_uniqueID = v; return *this; }
     operator IDType() { return m_uniqueID; }

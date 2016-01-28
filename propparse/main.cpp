@@ -49,6 +49,8 @@ std::map<std::string, std::string> typeTranslationCase = {
     { "animparams", "AnimationParametersMP2"},
 };
 
+std::map<std::string, std::vector<atUint32>> typeIdMap;
+
 int main(int argc, char *argv[])
 {
     Retro::DNACommon::UniqueID32Property var("BLARG", Retro::UniqueID32(1234), "Booty");
