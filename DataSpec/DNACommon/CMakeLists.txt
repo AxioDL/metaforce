@@ -16,6 +16,7 @@ add_library(DNACommon
             ANIM.hpp ANIM.cpp
             DeafBabe.hpp
             BabeDead.hpp
+            IProperty.hpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
             Tweaks/ITweakPlayer.hpp
