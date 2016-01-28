@@ -16,11 +16,12 @@ class Parser
     bool m_isMP3;
 public:
     Parser(const char* parametersDest, bool isMP3) : m_isMP3(isMP3) { m_parametersDest = fopen(parametersDest, "w"); }
-    ~Parser() { if (m_parametersDest) fclose(parametersDest); }
+    ~Parser() { if (m_parametersDest) fclose(m_parametersDest); }
 
     bool parse(const char* file)
     {
-        if (!dest)
+        if (!m_parametersDest)
+            return false;
         if (m_document.LoadFile(file) != tinyxml2::XML_SUCCESS)
             return false;
         tinyxml2::XMLElement* root = m_document.FirstChildElement();

@@ -9,7 +9,7 @@ namespace Retro
 namespace DNACommon
 {
 
-class IPropertyBase
+class IPropertyBase: public BigYAML
 {
 protected:
     const UniqueID32 m_hash;
@@ -27,10 +27,10 @@ public:
 };
 
 template <class ValueType>
-class IProperty : public IPropertyBase, public BigYAML
+class IProperty : public IPropertyBase
 {
     Delete _d;
-    Value<ValueType> m_val;
+    ValueType m_val;
 public:
     IProperty(UniqueID32 hash, const char* name)  : IPropertyBase(hash, name) { }
 
