@@ -1,6 +1,7 @@
 #include "ViewManager.hpp"
 #include "Specter/Control.hpp"
 #include "Specter/Space.hpp"
+#include "Specter/Menu.hpp"
 #include "SplashScreen.hpp"
 #include "locale/locale.hpp"
 #include "ResourceBrowser.hpp"
@@ -191,6 +192,9 @@ bool ViewManager::proc()
     }
 
     m_rootView->dispatchEvents();
+    Specter::Menu* rcMenu = dynamic_cast<Specter::Menu*>(m_rootView->getRightClickMenu());
+    if (rcMenu)
+        rcMenu->think();
     if (m_rootSpace)
         m_rootSpace->think();
     if (m_splash)
