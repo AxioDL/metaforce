@@ -1,13 +1,15 @@
 #include "Specter/RootView.hpp"
 #include "Specter/ViewResources.hpp"
 #include "Specter/Space.hpp"
+#include "Specter/Menu.hpp"
 
 namespace Specter
 {
 static LogVisor::LogModule Log("Specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
-: View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this)
+: View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this),
+  m_splitMenuNode(*this)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
@@ -31,6 +33,16 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
         v->resized(m_rootRect, m_rootRect);
     if (m_tooltip)
         m_tooltip->resized(m_rootRect, m_rootRect);
+    if (m_rightClickMenu.m_view)
+    {
+         float wr = root.size[0] / float(m_rightClickMenuRootAndLoc.size[0]);
+         float hr = root.size[1] / float(m_rightClickMenuRootAndLoc.size[1]);
+         m_rightClickMenuRootAndLoc.size[0] = root.size[0];
+         m_rightClickMenuRootAndLoc.size[1] = root.size[1];
+         m_rightClickMenuRootAndLoc.location[0] *= wr;
+         m_rightClickMenuRootAndLoc.location[1] *= hr;
+         m_rightClickMenu.m_view->resized(root, m_rightClickMenuRootAndLoc);
+    }
     m_resizeRTDirty = true;
 }
 
@@ -53,8 +65,16 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 
     if (m_hoverSplitDragView)
     {
-        m_activeSplitDragView = true;
-        m_hoverSplitDragView->startDragSplit(coord);
+        if (button == boo::EMouseButton::Primary)
+        {
+            m_activeSplitDragView = true;
+            m_hoverSplitDragView->startDragSplit(coord);
+        }
+        else if (button == boo::EMouseButton::Secondary)
+        {
+            m_splitMenuNode.m_splitView = m_hoverSplitDragView;
+            adoptRightClickMenu(std::make_unique<Specter::Menu>(*m_viewRes, *this, &m_splitMenuNode), coord);
+        }
         return;
     }
 
@@ -114,12 +134,18 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
     if (m_rightClickMenu.m_view)
     {
+        m_hSplitHover = false;
+        m_vSplitHover = false;
+        _updateCursor();
         m_rightClickMenu.mouseMove(coord);
         return;
     }
 
     if (m_activeMenuButton)
     {
+        m_hSplitHover = false;
+        m_vSplitHover = false;
+        _updateCursor();
         ViewChild<std::unique_ptr<View>>& mv = m_activeMenuButton->getMenu();
         mv.mouseMove(coord);
         return;
@@ -308,7 +334,7 @@ void RootView::displayTooltip(const std::string& name, const std::string& help)
 }
 
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
-{   
+{
     if (m_resizeRTDirty)
     {
         gfxQ->resizeRenderTexture(m_renderTex, m_rootRect.size[0], m_rootRect.size[1]);

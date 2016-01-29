@@ -8,6 +8,7 @@
 #include "SplitView.hpp"
 #include "Tooltip.hpp"
 #include "FontCache.hpp"
+#include "IMenuNode.hpp"
 #include "DeferredWindowEvents.hpp"
 #include "IViewManager.hpp"
 #include <boo/boo.hpp>
@@ -29,13 +30,55 @@ class RootView : public View
     Button* m_activeMenuButton = nullptr;
 
     ViewChild<std::unique_ptr<View>> m_rightClickMenu;
-    boo::SWindowCoord m_rightClickMenuCoord;
+    boo::SWindowRect m_rightClickMenuRootAndLoc;
 
     SplitView* m_hoverSplitDragView = nullptr;
     bool m_activeSplitDragView = false;
     SplitView* recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const;
 
     DeferredWindowEvents<RootView> m_events;
+
+    struct SplitMenuNode : IMenuNode
+    {
+        RootView& m_rv;
+        std::string m_text;
+        SplitView* m_splitView = nullptr;
+        SplitMenuNode(RootView& rv)
+        : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
+          m_splitActionNode(*this), m_joinActionNode(*this) {}
+        const std::string* text() const {return &m_text;}
+        size_t subNodeCount() const {return 2;}
+        IMenuNode* subNode(size_t idx)
+        {
+            if (idx)
+                return &m_joinActionNode;
+            else
+                return &m_splitActionNode;
+        }
+
+        struct SplitActionNode : IMenuNode
+        {
+            SplitMenuNode& m_smn;
+            std::string m_text;
+            SplitActionNode(SplitMenuNode& smn)
+            : m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("split", "Split")) {}
+            const std::string* text() const {return &m_text;}
+            void activated(const boo::SWindowCoord& coord)
+            {
+            }
+        } m_splitActionNode;
+        struct JoinActionNode : IMenuNode
+        {
+            SplitMenuNode& m_smn;
+            std::string m_text;
+            JoinActionNode(SplitMenuNode& smn)
+            : m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("join", "Join")) {}
+            const std::string* text() const {return &m_text;}
+            void activated(const boo::SWindowCoord& coord)
+            {
+            }
+        } m_joinActionNode;
+    } m_splitMenuNode;
 
 public:
     RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
@@ -77,7 +120,10 @@ public:
     void adoptRightClickMenu(std::unique_ptr<View>&& menu, const boo::SWindowCoord& coord)
     {
         m_rightClickMenu.m_view = std::move(menu);
-        m_rightClickMenuCoord = coord;
+        m_rightClickMenuRootAndLoc = subRect();
+        m_rightClickMenuRootAndLoc.location[0] = coord.pixel[0];
+        m_rightClickMenuRootAndLoc.location[1] = coord.pixel[1];
+        updateSize();
     }
     View* getRightClickMenu() {return m_rightClickMenu.m_view.get();}
 

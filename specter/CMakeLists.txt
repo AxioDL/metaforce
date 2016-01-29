@@ -54,6 +54,7 @@ list(APPEND SPECTER_HEADERS
      include/Specter/TextField.hpp
      include/Specter/NumericField.hpp
      include/Specter/Menu.hpp
+     include/Specter/IMenuNode.hpp
      include/Specter/Node.hpp
      include/Specter/NodeSocket.hpp
      include/Specter/PathButtons.hpp
