@@ -192,9 +192,7 @@ bool ViewManager::proc()
     }
 
     m_rootView->dispatchEvents();
-    Specter::Menu* rcMenu = dynamic_cast<Specter::Menu*>(m_rootView->getRightClickMenu());
-    if (rcMenu)
-        rcMenu->think();
+    m_rootView->internalThink();
     if (m_rootSpace)
         m_rootSpace->think();
     if (m_splash)
