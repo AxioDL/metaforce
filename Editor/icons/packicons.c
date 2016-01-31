@@ -5,6 +5,10 @@
 #include <zlib.h>
 #include <png.h>
 
+#if __FreeBSD__
+#include <sys/wait.h>
+#endif
+
 #if _WIN32
 #define _bswap32(v) _byteswap_ulong(v)
 #define _bswap16(v) _byteswap_ushort(v)

@@ -87,11 +87,8 @@ include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUD
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${SPECTER_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
-#disable Runtime on FreeBSD for now
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 add_subdirectory(Editor)
 add_subdirectory(Runtime)
-endif()
 
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
