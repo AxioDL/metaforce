@@ -99,6 +99,281 @@ bool SplitView::testSplitHover(const boo::SWindowCoord& coord)
     return false;
 }
 
+bool SplitView::testJoinArrowHover(const boo::SWindowCoord& coord, int& slotOut, boo::SWindowRect& rectOut, ArrowDir& dirOut)
+{
+    if (!subRect().coordInRect(coord))
+        return false;
+
+    if (m_axis == Axis::Horizontal)
+    {
+        int slidePx = subRect().size[1] * m_slide;
+        if (coord.pixel[1] - subRect().location[1] - slidePx >= 0)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->testJoinArrowHover(coord, slotOut, rectOut, dirOut);
+            }
+            slotOut = 1;
+            rectOut = subRect();
+            rectOut.location[1] += slidePx;
+            rectOut.size[1] -= slidePx;
+            dirOut = ArrowDir::Up;
+            return true;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->testJoinArrowHover(coord, slotOut, rectOut, dirOut);
+            }
+            slotOut = 0;
+            rectOut = subRect();
+            rectOut.size[1] = slidePx;
+            dirOut = ArrowDir::Down;
+            return true;
+        }
+    }
+    else
+    {
+        int slidePx = subRect().size[0] * m_slide;
+        if (coord.pixel[0] - subRect().location[0] - slidePx >= 0)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->testJoinArrowHover(coord, slotOut, rectOut, dirOut);
+            }
+            slotOut = 1;
+            rectOut = subRect();
+            rectOut.location[0] += slidePx;
+            rectOut.size[0] -= slidePx;
+            dirOut = ArrowDir::Right;
+            return true;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->testJoinArrowHover(coord, slotOut, rectOut, dirOut);
+            }
+            slotOut = 0;
+            rectOut = subRect();
+            rectOut.size[0] = slidePx;
+            dirOut = ArrowDir::Left;
+            return true;
+        }
+    }
+}
+
+void SplitView::getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir& dirOut)
+{
+    if (m_axis == Axis::Horizontal)
+    {
+        int slidePx = subRect().size[1] * m_slide;
+        if (slot == 1)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->getJoinArrowHover(0, rectOut, dirOut);
+            }
+            rectOut = subRect();
+            rectOut.location[1] += slidePx;
+            rectOut.size[1] -= slidePx;
+            dirOut = ArrowDir::Up;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->getJoinArrowHover(1, rectOut, dirOut);
+            }
+            rectOut = subRect();
+            rectOut.size[1] = slidePx;
+            dirOut = ArrowDir::Down;
+        }
+    }
+    else
+    {
+        int slidePx = subRect().size[0] * m_slide;
+        if (slot == 1)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->getJoinArrowHover(0, rectOut, dirOut);
+            }
+            rectOut = subRect();
+            rectOut.location[0] += slidePx;
+            rectOut.size[0] -= slidePx;
+            dirOut = ArrowDir::Right;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->getJoinArrowHover(1, rectOut, dirOut);
+            }
+            rectOut = subRect();
+            rectOut.size[0] = slidePx;
+            dirOut = ArrowDir::Left;
+        }
+    }
+}
+
+bool SplitView::testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut,
+                                   boo::SWindowRect& rectOut, float& splitOut, Axis& axisOut)
+{
+    if (!subRect().coordInRect(coord))
+        return false;
+
+    if (m_axis == Axis::Horizontal)
+    {
+        int slidePx = subRect().size[1] * m_slide;
+        if (coord.pixel[1] - subRect().location[1] - slidePx >= 0)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
+            }
+            slotOut = 1;
+            rectOut = subRect();
+            rectOut.location[1] += slidePx;
+            rectOut.size[1] -= slidePx;
+            splitOut = (coord.pixel[0] - rectOut.location[0]) / float(rectOut.size[0]);
+            axisOut = Axis::Vertical;
+            return true;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
+            }
+            slotOut = 0;
+            rectOut = subRect();
+            rectOut.size[1] = slidePx;
+            splitOut = (coord.pixel[0] - rectOut.location[0]) / float(rectOut.size[0]);
+            axisOut = Axis::Vertical;
+            return true;
+        }
+    }
+    else
+    {
+        int slidePx = subRect().size[0] * m_slide;
+        if (coord.pixel[0] - subRect().location[0] - slidePx >= 0)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
+            }
+            slotOut = 1;
+            rectOut = subRect();
+            rectOut.location[0] += slidePx;
+            rectOut.size[0] -= slidePx;
+            splitOut = (coord.pixel[1] - rectOut.location[1]) / float(rectOut.size[1]);
+            axisOut = Axis::Horizontal;
+            return true;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
+            }
+            slotOut = 0;
+            rectOut = subRect();
+            rectOut.size[0] = slidePx;
+            splitOut = (coord.pixel[1] - rectOut.location[1]) / float(rectOut.size[1]);
+            axisOut = Axis::Horizontal;
+            return true;
+        }
+    }
+}
+
+void SplitView::getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axisOut)
+{
+    if (m_axis == Axis::Horizontal)
+    {
+        int slidePx = subRect().size[1] * m_slide;
+        if (slot == 1)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->getSplitLineHover(0, rectOut, axisOut);
+            }
+            rectOut = subRect();
+            rectOut.location[1] += slidePx;
+            rectOut.size[1] -= slidePx;
+            axisOut = Axis::Vertical;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Horizontal)
+                    return chSplit->getSplitLineHover(1, rectOut, axisOut);
+            }
+            rectOut = subRect();
+            rectOut.size[1] = slidePx;
+            axisOut = Axis::Vertical;
+        }
+    }
+    else
+    {
+        int slidePx = subRect().size[0] * m_slide;
+        if (slot == 1)
+        {
+            if (m_views[1].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->getSplitLineHover(0, rectOut, axisOut);
+            }
+            rectOut = subRect();
+            rectOut.location[0] += slidePx;
+            rectOut.size[0] -= slidePx;
+            axisOut = Axis::Horizontal;
+        }
+        else
+        {
+            if (m_views[0].m_view)
+            {
+                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                if (chSplit && chSplit->m_axis == Axis::Vertical)
+                    return chSplit->getSplitLineHover(1, rectOut, axisOut);
+            }
+            rectOut = subRect();
+            rectOut.size[0] = slidePx;
+            axisOut = Axis::Horizontal;
+        }
+    }
+}
+
 void SplitView::startDragSplit(const boo::SWindowCoord& coord)
 {
     m_dragging = true;

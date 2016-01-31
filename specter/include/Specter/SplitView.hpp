@@ -20,6 +20,14 @@ public:
         void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
     };
 
+    enum class ArrowDir
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    };
+
     enum class Axis
     {
         Horizontal,
@@ -64,7 +72,7 @@ private:
     }
 
     VertexBufferBinding m_splitVertsBinding;
-    
+
 public:
     SplitView(ViewResources& res, View& parentView, ISplitSpaceController* controller,
               Axis axis, float split, int clearanceA=-1, int clearanceB=-1);
@@ -74,6 +82,10 @@ public:
     Axis axis() const {return m_axis;}
     float split() const {return m_slide;}
     bool testSplitHover(const boo::SWindowCoord& coord);
+    bool testJoinArrowHover(const boo::SWindowCoord& coord, int& slotOut, boo::SWindowRect& rectOut, ArrowDir& dirOut);
+    void getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir& dirOut);
+    bool testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut, boo::SWindowRect& rectOut, float& splitOut, Axis& axisOut);
+    void getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axisOut);
     void startDragSplit(const boo::SWindowCoord& coord);
     void endDragSplit();
     void moveDragSplit(const boo::SWindowCoord& coord);

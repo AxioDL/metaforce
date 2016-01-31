@@ -38,14 +38,38 @@ class RootView : public View
 
     DeferredWindowEvents<RootView> m_events;
 
-    struct SplitMenuNode : IMenuNode
+    struct SplitMenuSystem : IMenuNode
     {
         RootView& m_rv;
         std::string m_text;
+
         SplitView* m_splitView = nullptr;
-        SplitMenuNode(RootView& rv)
-        : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
-          m_splitActionNode(*this), m_joinActionNode(*this) {}
+        enum class Phase
+        {
+            Inactive,
+            InteractiveSplit,
+            InteractiveJoin,
+        } m_phase = Phase::Inactive;
+        bool m_draw = false;
+        int m_interactiveSlot = 0;
+        float m_interactiveSplit = 0.5;
+
+        VertexBufferBinding m_vertsBinding;
+        ViewBlock m_viewBlock;
+        boo::IGraphicsBufferD* m_viewVertBlockBuf;
+        SolidShaderVert m_verts[32];
+        void setArrowVerts(const boo::SWindowRect& rect, SplitView::ArrowDir dir);
+        void setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis);
+
+        void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
+        void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
+        void mouseMove(const boo::SWindowCoord& coord);
+        void mouseLeave(const boo::SWindowCoord& coord);
+
+        void resized();
+        void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+        SplitMenuSystem(RootView& rv);
         const std::string* text() const {return &m_text;}
         size_t subNodeCount() const {return 2;}
         IMenuNode* subNode(size_t idx)
@@ -56,29 +80,39 @@ class RootView : public View
                 return &m_splitActionNode;
         }
 
+        boo::SWindowCoord m_deferredCoord;
+        bool m_deferredSplit = false;
+        bool m_deferredJoin = false;
+
+        void beginSplit();
+        void beginJoin();
+        void cancelAction();
+
         struct SplitActionNode : IMenuNode
         {
-            SplitMenuNode& m_smn;
+            SplitMenuSystem& m_smn;
             std::string m_text;
-            SplitActionNode(SplitMenuNode& smn)
-            : m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("split", "Split")) {}
+            SplitActionNode(SplitMenuSystem& smn);
             const std::string* text() const {return &m_text;}
             void activated(const boo::SWindowCoord& coord)
             {
+                m_smn.m_deferredSplit = true;
+                m_smn.m_deferredCoord = coord;
             }
         } m_splitActionNode;
         struct JoinActionNode : IMenuNode
         {
-            SplitMenuNode& m_smn;
+            SplitMenuSystem& m_smn;
             std::string m_text;
-            JoinActionNode(SplitMenuNode& smn)
-            : m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("join", "Join")) {}
+            JoinActionNode(SplitMenuSystem& smn);
             const std::string* text() const {return &m_text;}
             void activated(const boo::SWindowCoord& coord)
             {
+                m_smn.m_deferredJoin = true;
+                m_smn.m_deferredCoord = coord;
             }
         } m_joinActionNode;
-    } m_splitMenuNode;
+    } m_splitMenuSystem;
 
 public:
     RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
@@ -106,6 +140,7 @@ public:
     void modKeyUp(boo::EModifierKey mod);
     boo::ITextInputCallback* getTextInputCallback() {return m_activeTextView;}
 
+    void internalThink();
     void dispatchEvents() {m_events.dispatchEvents();}
     void draw(boo::IGraphicsCommandQueue* gfxQ);
     const boo::SWindowRect& rootRect() const {return m_rootRect;}
