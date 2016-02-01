@@ -158,8 +158,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
         {
             if (m_cornerView.m_view->m_flip)
             {
-                m_cornerDrag = false;
-                rootView().unsetActiveDragView(this);
+                rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 1, coord);
             }
             else
@@ -167,8 +166,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
                 SplitView* sv = findSplitViewOnSide(SplitView::Axis::Vertical, 0);
                 if (sv)
                 {
-                    m_cornerDrag = false;
-                    rootView().unsetActiveDragView(this);
+                    rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                     rootView().beginInteractiveJoin(sv, coord);
                 }
             }
@@ -177,8 +175,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
         {
             if (m_cornerView.m_view->m_flip)
             {
-                m_cornerDrag = false;
-                rootView().unsetActiveDragView(this);
+                rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1, coord);
             }
             else
@@ -186,8 +183,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
                 SplitView* sv = findSplitViewOnSide(SplitView::Axis::Horizontal, 0);
                 if (sv)
                 {
-                    m_cornerDrag = false;
-                    rootView().unsetActiveDragView(this);
+                    rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                     rootView().beginInteractiveJoin(sv, coord);
                 }
             }
@@ -196,8 +192,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
         {
             if (!m_cornerView.m_view->m_flip)
             {
-                m_cornerDrag = false;
-                rootView().unsetActiveDragView(this);
+                rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 0, coord);
             }
             else
@@ -205,8 +200,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
                 SplitView* sv = findSplitViewOnSide(SplitView::Axis::Vertical, 1);
                 if (sv)
                 {
-                    m_cornerDrag = false;
-                    rootView().unsetActiveDragView(this);
+                    rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                     rootView().beginInteractiveJoin(sv, coord);
                 }
             }
@@ -215,8 +209,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
         {
             if (!m_cornerView.m_view->m_flip)
             {
-                m_cornerDrag = false;
-                rootView().unsetActiveDragView(this);
+                rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 0, coord);
             }
             else
@@ -224,8 +217,7 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
                 SplitView* sv = findSplitViewOnSide(SplitView::Axis::Horizontal, 1);
                 if (sv)
                 {
-                    m_cornerDrag = false;
-                    rootView().unsetActiveDragView(this);
+                    rootView().mouseUp(coord, boo::EMouseButton::Primary, boo::EModifierKey::None);
                     rootView().beginInteractiveJoin(sv, coord);
                 }
             }
@@ -266,12 +258,15 @@ void Space::CornerView::mouseLeave(const boo::SWindowCoord& coord)
 SplitView* Space::findSplitViewOnSide(SplitView::Axis axis, int side)
 {
     SplitView* ret = dynamic_cast<SplitView*>(&parentView());
+    View* test = this;
     while (ret)
     {
         if (ret->axis() != axis)
             return nullptr;
-        if (ret->m_views[side ^ 1].m_view == this)
+        if (ret->m_views[side ^ 1].m_view == test)
             return ret;
+        else if (ret->m_views[side].m_view == test)
+            test = ret;
         ret = dynamic_cast<SplitView*>(&ret->parentView());
     }
     return nullptr;

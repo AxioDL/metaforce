@@ -544,7 +544,10 @@ void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool
         return;
     }
     if (key == boo::ESpecialKey::Esc && m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    {
         m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::Inactive;
+        return;
+    }
     for (View* v : m_views)
         v->specialKeyDown(key, mods, isRepeat);
     if (m_activeTextView)
