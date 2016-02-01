@@ -25,6 +25,7 @@ public:
     Space(const Space& other) = delete;
     Space& operator=(const Space& other) = delete;
 
+    /** Common encoded-enumeration for all space classes */
     enum class Class
     {
         None,
@@ -32,7 +33,8 @@ public:
         SplitSpace,
         TestSpace,
         ResourceBrowser,
-        ModelViewer
+        ModelViewer,
+        EffectEditor
     };
 
     struct State : Athena::io::DNAYaml<Athena::BigEndian> {Delete _d;};
@@ -80,22 +82,22 @@ public:
         size_t subNodeCount() const {return m_subNodes.size();}
         IMenuNode* subNode(size_t idx) {return &m_subNodes[idx];}
 
-        static void initializeStrings(ViewManager& vm);
-        static const std::string* lookupClassString(Class cls)
+        static void InitializeStrings(ViewManager& vm);
+        static const std::string* LookupClassString(Class cls)
         {
             for (const SubNodeData& sn : s_subNodeDats)
                 if (sn.m_cls == cls)
                     return &sn.m_text;
             return nullptr;
         }
-        static Specter::Icon* lookupClassIcon(Class cls)
+        static Specter::Icon* LookupClassIcon(Class cls)
         {
             for (SubNodeData& sn : s_subNodeDats)
                 if (sn.m_cls == cls)
                     return &sn.m_icon;
             return nullptr;
         }
-        static const Zeus::CColor* lookupClassColor(Class cls)
+        static const Zeus::CColor* LookupClassColor(Class cls)
         {
             for (SubNodeData& sn : s_subNodeDats)
                 if (sn.m_cls == cls)
@@ -341,6 +343,20 @@ public:
     float split() const {return m_state.split;}
 
     Specter::View* basisView() {return m_splitView.get();}
+};
+
+class ViewerSpace : public Space
+{
+public:
+    ViewerSpace(ViewManager& vm, Class cls, Space* parent)
+    : Space(vm, cls, parent) {}
+};
+
+class EditorSpace : public Space
+{
+public:
+    EditorSpace(ViewManager& vm, Class cls, Space* parent)
+    : Space(vm, cls, parent) {}
 };
 
 class TestSpace : public Space

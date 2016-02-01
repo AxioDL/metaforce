@@ -36,10 +36,6 @@ class ModelViewer : public Space
     {
         return nullptr;
     }
-    virtual Specter::View* buildSpaceView(Specter::ViewResources& res)
-    {
-        return nullptr;
-    }
 
 public:
     ModelViewer(ViewManager& vm, Space* parent)

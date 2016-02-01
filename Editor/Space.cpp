@@ -1,6 +1,7 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
 #include "ResourceBrowser.hpp"
+#include "EffectEditor.hpp"
 #include "icons/icons.hpp"
 
 namespace URDE
@@ -19,9 +20,9 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         Specter::Toolbar& tb = *m_spaceView->toolbar();
-        const std::string* classStr = SpaceMenuNode::lookupClassString(m_class);
-        Specter::Icon* classIcon = SpaceMenuNode::lookupClassIcon(m_class);
-        const Zeus::CColor* classColor = SpaceMenuNode::lookupClassColor(m_class);
+        const std::string* classStr = SpaceMenuNode::LookupClassString(m_class);
+        Specter::Icon* classIcon = SpaceMenuNode::LookupClassIcon(m_class);
+        const Zeus::CColor* classColor = SpaceMenuNode::LookupClassColor(m_class);
         m_spaceSelectButton.reset(new Specter::Button(res, tb, &m_spaceSelectBind, "", classIcon,
                                                       Specter::Button::Style::Block,
                                                       classColor?*classColor:Zeus::CColor::skWhite));
@@ -40,11 +41,12 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 
 std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats =
 {
-    {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0,1.0,0.0,1.0}}
+    {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0,1.0,0.0,1.0}},
+    {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0,0.5,0.0,1.0}}
 };
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 
-void Space::SpaceMenuNode::initializeStrings(ViewManager& vm)
+void Space::SpaceMenuNode::InitializeStrings(ViewManager& vm)
 {
     s_text = vm.translateOr("space_types", s_text.c_str());
     for (SubNodeData& sn : s_subNodeDats)
@@ -69,7 +71,7 @@ Specter::View* RootSpace::basisView() {return &m_vm.rootView();}
 Specter::View* SplitSpace::buildContentView(Specter::ViewResources& res)
 {
     int clearance = res.pixelFactor() * SPECTER_TOOLBAR_GAUGE;
-    m_splitView.reset(new Specter::SplitView(res, m_vm.rootView(), this, m_state.axis,
+    m_splitView.reset(new Specter::SplitView(res, *m_parent->basisView(), this, m_state.axis,
                                              m_state.split, clearance, clearance));
     if (m_slots[0])
         m_splitView->setContentView(0, m_slots[0]->buildSpaceView(res));
@@ -195,6 +197,8 @@ static Space* BuildNewSpace(ViewManager& vm, Space::Class cls, Space* parent, Re
         return new SplitSpace(vm, parent, r);
     case Class::ResourceBrowser:
         return new ResourceBrowser(vm, parent, r);
+    case Class::EffectEditor:
+        return new EffectEditor(vm, parent, r);
     default: break;
     }
     return nullptr;
