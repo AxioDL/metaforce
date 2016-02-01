@@ -10,6 +10,7 @@ struct ISplitSpaceController;
 class SplitView : public View
 {
     friend class RootView;
+    friend class Space;
 public:
     class Resources
     {
@@ -82,7 +83,9 @@ public:
     Axis axis() const {return m_axis;}
     float split() const {return m_slide;}
     bool testSplitHover(const boo::SWindowCoord& coord);
-    bool testJoinArrowHover(const boo::SWindowCoord& coord, int& slotOut, boo::SWindowRect& rectOut, ArrowDir& dirOut);
+    bool testJoinArrowHover(const boo::SWindowCoord& coord, int& origSlotOut,
+                            SplitView*& splitOut, int& slotOut,
+                            boo::SWindowRect& rectOut, ArrowDir& dirOut, int forceSlot=-1);
     void getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir& dirOut);
     bool testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut, boo::SWindowRect& rectOut, float& splitOut, Axis& axisOut);
     void getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axisOut);

@@ -128,24 +128,6 @@ void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float
     m_viewVertBlockBuf->load(&m_viewBlock, sizeof(m_viewBlock));
 }
 
-void RootView::SplitMenuSystem::beginSplit()
-{
-    m_phase = Phase::InteractiveSplit;
-    m_draw = true;
-}
-
-void RootView::SplitMenuSystem::beginJoin()
-{
-    m_phase = Phase::InteractiveJoin;
-    m_draw = true;
-}
-
-void RootView::SplitMenuSystem::cancelAction()
-{
-    m_phase = Phase::Inactive;
-    m_draw = false;
-}
-
 void RootView::destroyed()
 {
     m_destroyed = true;
@@ -239,7 +221,28 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
 
 void RootView::SplitMenuSystem::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-
+    if (m_phase == Phase::InteractiveJoin)
+    {
+        int origDummy;
+        SplitView* selSplit;
+        boo::SWindowRect rect;
+        SplitView::ArrowDir arrow;
+        if (m_splitView->testJoinArrowHover(coord, origDummy, selSplit, m_interactiveSlot, rect, arrow))
+        {
+            setArrowVerts(rect, arrow);
+            m_interactiveDown = true;
+        }
+    }
+    else if (m_phase == Phase::InteractiveSplit)
+    {
+        boo::SWindowRect rect;
+        SplitView::Axis axis;
+        if (m_splitView->testSplitLineHover(coord, m_interactiveSlot, rect, m_interactiveSplit, axis))
+        {
+            setLineVerts(rect, m_interactiveSplit, axis);
+            m_interactiveDown = true;
+        }
+    }
 }
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
@@ -279,7 +282,43 @@ void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button,
 
 void RootView::SplitMenuSystem::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-
+    if (m_phase == Phase::InteractiveJoin)
+    {
+        int origSlot;
+        SplitView* selSplit;
+        boo::SWindowRect rect;
+        SplitView::ArrowDir arrow;
+        if (m_splitView->testJoinArrowHover(coord, origSlot, selSplit, m_interactiveSlot, rect, arrow))
+        {
+            setArrowVerts(rect, arrow);
+            if (m_interactiveDown)
+            {
+                m_interactiveDown = false;
+                m_phase = Phase::Inactive;
+                m_splitView->m_controller->joinViews(m_splitView, origSlot, selSplit, m_interactiveSlot);
+            }
+        }
+    }
+    else if (m_phase == Phase::InteractiveSplit)
+    {
+        boo::SWindowRect rect;
+        SplitView::Axis axis;
+        if (m_splitView->testSplitLineHover(coord, m_interactiveSlot, rect, m_interactiveSplit, axis))
+        {
+            setLineVerts(rect, m_interactiveSplit, axis);
+            if (m_interactiveDown)
+            {
+                m_interactiveDown = false;
+                m_phase = Phase::Inactive;
+                Space* space = dynamic_cast<Space*>(m_splitView->m_views[m_interactiveSlot].m_view);
+                if (space && space->m_controller.spaceSplitAllowed())
+                {
+                    ISplitSpaceController* ss = space->m_controller.spaceSplit(axis, 0);
+                    ss->splitView()->setSplit(m_interactiveSplit);
+                }
+            }
+        }
+    }
 }
 
 SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const
@@ -347,10 +386,6 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
                 sv = recursiveTestSplitHover(sv, coord);
             if (sv)
             {
-                if (sv->axis() == SplitView::Axis::Horizontal)
-                    setHorizontalSplitHover(true);
-                else
-                    setVerticalSplitHover(true);
                 m_hoverSplitDragView = sv;
                 break;
             }
@@ -371,6 +406,14 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
             v->mouseMove(coord);
     }
 
+    if (m_hoverSplitDragView)
+    {
+        if (m_hoverSplitDragView->axis() == SplitView::Axis::Horizontal)
+            setHorizontalSplitHover(true);
+        else
+            setVerticalSplitHover(true);
+    }
+
     boo::SWindowRect ttrect = m_rootRect;
     ttrect.location[0] = coord.pixel[0];
     ttrect.location[1] = coord.pixel[1];
@@ -388,9 +431,11 @@ void RootView::SplitMenuSystem::mouseMove(const boo::SWindowCoord& coord)
 {
     if (m_phase == Phase::InteractiveJoin)
     {
+        int origDummy;
+        SplitView* selSplit;
         boo::SWindowRect rect;
         SplitView::ArrowDir arrow;
-        if (m_splitView->testJoinArrowHover(coord, m_interactiveSlot, rect, arrow))
+        if (m_splitView->testJoinArrowHover(coord, origDummy, selSplit, m_interactiveSlot, rect, arrow))
             setArrowVerts(rect, arrow);
     }
     else if (m_phase == Phase::InteractiveSplit)
@@ -499,7 +544,7 @@ void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool
         return;
     }
     if (key == boo::ESpecialKey::Esc && m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
-        m_splitMenuSystem.cancelAction();
+        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::Inactive;
     for (View* v : m_views)
         v->specialKeyDown(key, mods, isRepeat);
     if (m_activeTextView)
@@ -545,7 +590,7 @@ void RootView::internalThink()
     {
         m_splitMenuSystem.m_deferredSplit = false;
         m_rightClickMenu.m_view.reset();
-        m_splitMenuSystem.beginSplit();
+        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveSplit;
         m_splitMenuSystem.mouseMove(m_splitMenuSystem.m_deferredCoord);
     }
 
@@ -553,7 +598,7 @@ void RootView::internalThink()
     {
         m_splitMenuSystem.m_deferredJoin = false;
         m_rightClickMenu.m_view.reset();
-        m_splitMenuSystem.beginJoin();
+        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveJoin;
         m_splitMenuSystem.mouseMove(m_splitMenuSystem.m_deferredCoord);
     }
 
@@ -585,7 +630,7 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void RootView::SplitMenuSystem::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    if (m_phase == Phase::Inactive || !m_draw)
+    if (m_phase == Phase::Inactive)
         return;
     gfxQ->setShaderDataBinding(m_vertsBinding);
     gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);

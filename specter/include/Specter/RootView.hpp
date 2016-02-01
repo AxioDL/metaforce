@@ -50,9 +50,9 @@ class RootView : public View
             InteractiveSplit,
             InteractiveJoin,
         } m_phase = Phase::Inactive;
-        bool m_draw = false;
         int m_interactiveSlot = 0;
         float m_interactiveSplit = 0.5;
+        bool m_interactiveDown = false;
 
         VertexBufferBinding m_vertsBinding;
         ViewBlock m_viewBlock;
@@ -83,10 +83,6 @@ class RootView : public View
         boo::SWindowCoord m_deferredCoord;
         bool m_deferredSplit = false;
         bool m_deferredJoin = false;
-
-        void beginSplit();
-        void beginJoin();
-        void cancelAction();
 
         struct SplitActionNode : IMenuNode
         {
@@ -174,6 +170,11 @@ public:
     {
         m_activeDragView = dragView;
     }
+    void unsetActiveDragView(View* dragView)
+    {
+        if (dragView == m_activeDragView)
+            m_activeDragView = nullptr;
+    }
     void setActiveMenuButton(Button* button)
     {
         m_activeMenuButton = button;
@@ -218,6 +219,13 @@ public:
 
     void resetTooltip(ViewResources& res);
     void displayTooltip(const std::string& name, const std::string& help);
+
+    void beginInteractiveJoin(SplitView* sv, const boo::SWindowCoord& coord)
+    {
+        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveJoin;
+        m_splitMenuSystem.m_splitView = sv;
+        m_splitMenuSystem.mouseMove(coord);
+    }
 
 private:
     void _updateCursor()

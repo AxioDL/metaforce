@@ -129,6 +129,7 @@ void Space::CornerView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseBut
         m_space.m_cornerDrag = true;
         m_space.m_cornerDragPoint[0] = coord.pixel[0];
         m_space.m_cornerDragPoint[1] = coord.pixel[1];
+        rootView().setActiveDragView(&m_space);
     }
 }
 
@@ -142,7 +143,10 @@ void Space::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, bo
 void Space::CornerView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
     if (button == boo::EMouseButton::Primary)
+    {
         m_space.m_cornerDrag = false;
+        rootView().unsetActiveDragView(&m_space);
+    }
 }
 
 void Space::mouseMove(const boo::SWindowCoord& coord)
@@ -150,19 +154,81 @@ void Space::mouseMove(const boo::SWindowCoord& coord)
     if (m_cornerDrag)
     {
         float pf = rootView().viewRes().pixelFactor();
-        if (m_cornerView.m_view->m_flip)
+        if (coord.pixel[0] < m_cornerDragPoint[0] - CORNER_DRAG_THRESHOLD * pf)
         {
-            if (coord.pixel[0] < m_cornerDragPoint[0] - CORNER_DRAG_THRESHOLD * pf)
+            if (m_cornerView.m_view->m_flip)
+            {
+                m_cornerDrag = false;
+                rootView().unsetActiveDragView(this);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 1, coord);
-            else if (coord.pixel[1] < m_cornerDragPoint[1] - CORNER_DRAG_THRESHOLD * pf)
-                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1, coord);
+            }
+            else
+            {
+                SplitView* sv = findSplitViewOnSide(SplitView::Axis::Vertical, 0);
+                if (sv)
+                {
+                    m_cornerDrag = false;
+                    rootView().unsetActiveDragView(this);
+                    rootView().beginInteractiveJoin(sv, coord);
+                }
+            }
         }
-        else
+        else if (coord.pixel[1] < m_cornerDragPoint[1] - CORNER_DRAG_THRESHOLD * pf)
         {
-            if (coord.pixel[0] > m_cornerDragPoint[0] + CORNER_DRAG_THRESHOLD * pf)
+            if (m_cornerView.m_view->m_flip)
+            {
+                m_cornerDrag = false;
+                rootView().unsetActiveDragView(this);
+                rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 1, coord);
+            }
+            else
+            {
+                SplitView* sv = findSplitViewOnSide(SplitView::Axis::Horizontal, 0);
+                if (sv)
+                {
+                    m_cornerDrag = false;
+                    rootView().unsetActiveDragView(this);
+                    rootView().beginInteractiveJoin(sv, coord);
+                }
+            }
+        }
+        else if (coord.pixel[0] > m_cornerDragPoint[0] + CORNER_DRAG_THRESHOLD * pf)
+        {
+            if (!m_cornerView.m_view->m_flip)
+            {
+                m_cornerDrag = false;
+                rootView().unsetActiveDragView(this);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Vertical, 0, coord);
-            else if (coord.pixel[1] > m_cornerDragPoint[1] + CORNER_DRAG_THRESHOLD * pf)
+            }
+            else
+            {
+                SplitView* sv = findSplitViewOnSide(SplitView::Axis::Vertical, 1);
+                if (sv)
+                {
+                    m_cornerDrag = false;
+                    rootView().unsetActiveDragView(this);
+                    rootView().beginInteractiveJoin(sv, coord);
+                }
+            }
+        }
+        else if (coord.pixel[1] > m_cornerDragPoint[1] + CORNER_DRAG_THRESHOLD * pf)
+        {
+            if (!m_cornerView.m_view->m_flip)
+            {
+                m_cornerDrag = false;
+                rootView().unsetActiveDragView(this);
                 rootView().viewManager().deferSpaceSplit(&m_controller, SplitView::Axis::Horizontal, 0, coord);
+            }
+            else
+            {
+                SplitView* sv = findSplitViewOnSide(SplitView::Axis::Horizontal, 1);
+                if (sv)
+                {
+                    m_cornerDrag = false;
+                    rootView().unsetActiveDragView(this);
+                    rootView().beginInteractiveJoin(sv, coord);
+                }
+            }
         }
     }
     else
@@ -195,6 +261,20 @@ void Space::mouseLeave(const boo::SWindowCoord& coord)
 void Space::CornerView::mouseLeave(const boo::SWindowCoord& coord)
 {
     rootView().setSpaceCornerHover(false);
+}
+
+SplitView* Space::findSplitViewOnSide(SplitView::Axis axis, int side)
+{
+    SplitView* ret = dynamic_cast<SplitView*>(&parentView());
+    while (ret)
+    {
+        if (ret->axis() != axis)
+            return nullptr;
+        if (ret->m_views[side ^ 1].m_view == this)
+            return ret;
+        ret = dynamic_cast<SplitView*>(&ret->parentView());
+    }
+    return nullptr;
 }
 
 void Space::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
