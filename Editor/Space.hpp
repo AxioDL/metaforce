@@ -148,11 +148,14 @@ public:
     Specter::ISplitSpaceController* spaceSplit(Specter::SplitView::Axis axis, int thisSlot);
     virtual std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace)
     {return std::unique_ptr<Space>();}
+
+    virtual Specter::View* basisView() {return m_spaceView.get();}
 };
 
 class RootSpace : public Space
 {
     friend class ViewManager;
+    std::unique_ptr<Specter::RootView> m_rootView;
     std::unique_ptr<Space> m_spaceTree;
     struct State : Space::State
     {
@@ -212,6 +215,8 @@ public:
     Specter::View* buildContentView(Specter::ViewResources& res) {return m_spaceTree->buildSpaceView(res);}
 
     std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
+
+    Specter::View* basisView();
 };
 
 class SplitSpace : public Space, public Specter::ISplitSpaceController
@@ -324,6 +329,8 @@ public:
 
     Specter::SplitView* splitView() {return m_splitView.get();}
     void updateSplit(float split) {m_state.split = split;}
+    void joinViews(Specter::SplitView* thisSplit, int thisSlot, Specter::SplitView* otherSplit, int otherSlot);
+
     void setAxis(Specter::SplitView::Axis axis)
     {
         m_state.axis = axis;
@@ -332,6 +339,8 @@ public:
 
     Specter::SplitView::Axis axis() const {return m_state.axis;}
     float split() const {return m_state.split;}
+
+    Specter::View* basisView() {return m_splitView.get();}
 };
 
 class TestSpace : public Space

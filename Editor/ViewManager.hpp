@@ -14,6 +14,7 @@ class ViewManager : public Specter::IViewManager
     friend class ProjectManager;
     friend class Space;
     friend class RootSpace;
+    friend class SplitSpace;
 
     HECL::Runtime::FileStoreManager& m_fileStoreManager;
     HECL::CVarManager& m_cvarManager;

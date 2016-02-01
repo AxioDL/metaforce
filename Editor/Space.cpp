@@ -15,7 +15,7 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 {
     if (usesToolbar())
     {
-        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::Bottom, toolbarUnits()));
+        m_spaceView.reset(new Specter::Space(res, *m_parent->basisView(), *this, Specter::Toolbar::Position::Bottom, toolbarUnits()));
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         Specter::Toolbar& tb = *m_spaceView->toolbar();
@@ -31,7 +31,7 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
     }
     else
     {
-        m_spaceView.reset(new Specter::Space(res, m_vm.rootView(), *this, Specter::Toolbar::Position::None, 0));
+        m_spaceView.reset(new Specter::Space(res, *m_parent->basisView(), *this, Specter::Toolbar::Position::None, 0));
         Specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         return m_spaceView.get();
@@ -64,6 +64,8 @@ Specter::View* RootSpace::buildSpaceView(Specter::ViewResources& res)
     return newRoot;
 }
 
+Specter::View* RootSpace::basisView() {return &m_vm.rootView();}
+
 Specter::View* SplitSpace::buildContentView(Specter::ViewResources& res)
 {
     int clearance = res.pixelFactor() * SPECTER_TOOLBAR_GAUGE;
@@ -84,10 +86,61 @@ void SplitSpace::setChildSlot(unsigned slot, std::unique_ptr<Space>&& space)
     m_slots[slot]->m_parent = this;
 }
 
+void SplitSpace::joinViews(Specter::SplitView* thisSplit, int thisSlot, Specter::SplitView* otherSplit, int otherSlot)
+{
+    if (thisSplit == otherSplit)
+    {
+        SplitSpace* thisSS = dynamic_cast<SplitSpace*>(m_slots[thisSlot].get());
+        if (thisSS)
+        {
+            int ax = thisSS->m_state.axis == Specter::SplitView::Axis::Horizontal ? 1 : 0;
+            const boo::SWindowRect& thisRect = m_splitView->subRect();
+            const boo::SWindowRect& subRect = thisSS->m_splitView->subRect();
+            int splitPx = subRect.location[ax] + subRect.size[ax] * thisSS->m_state.split -
+                          thisRect.location[ax];
+            thisSS->m_state.split = splitPx / float(thisRect.size[ax]);
+        }
+        m_parent->exchangeSpaceSplitJoin(this, std::move(m_slots[thisSlot]));
+        m_vm.BuildSpaceViews();
+    }
+    else
+    {
+        for (int i=0 ; i<2 ; ++i)
+        {
+            SplitSpace* otherSS = dynamic_cast<SplitSpace*>(m_slots[i].get());
+            if (otherSS && otherSS->m_splitView.get() == otherSplit)
+            {
+                int ax = m_state.axis == Specter::SplitView::Axis::Horizontal ? 1 : 0;
+                const boo::SWindowRect& thisRect = m_splitView->subRect();
+                const boo::SWindowRect& subRect = otherSS->m_splitView->subRect();
+                int splitPx = subRect.location[ax] + subRect.size[ax] * otherSS->m_state.split -
+                              thisRect.location[ax];
+                m_state.split = splitPx / float(thisRect.size[ax]);
+                exchangeSpaceSplitJoin(otherSS, std::move(otherSS->m_slots[otherSlot ^ 1]));
+                m_vm.BuildSpaceViews();
+                break;
+            }
+        }
+    }
+}
+
 Specter::ISplitSpaceController* Space::spaceSplit(Specter::SplitView::Axis axis, int thisSlot)
 {
     if (m_parent)
     {
+        /* Reject split operations with insufficient clearance */
+        int clearance = m_vm.m_viewResources.pixelFactor() * SPECTER_TOOLBAR_GAUGE;
+        if (axis == Specter::SplitView::Axis::Horizontal)
+        {
+            if (m_spaceView->subRect().size[1] <= clearance)
+                return nullptr;
+        }
+        else
+        {
+            if (m_spaceView->subRect().size[0] <= clearance)
+                return nullptr;
+        }
+
         SplitSpace* ss = new SplitSpace(m_vm, m_parent, axis);
         ss->setChildSlot(thisSlot, std::move(m_parent->exchangeSpaceSplitJoin(this, std::unique_ptr<Space>(ss))));
         ss->setChildSlot(thisSlot ^ 1, std::unique_ptr<Space>(copy(ss)));
