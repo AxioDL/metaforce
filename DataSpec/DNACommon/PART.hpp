@@ -29,17 +29,21 @@ struct GPSM : BigYAML
     bool x44_0_SORT : 1; bool x44_1_MBLR : 1;  bool x44_2_LINE : 1; bool x44_3_LIT_ : 1;
     bool x44_4_AAPH : 1; bool x44_5_ZBUF : 1;  bool x44_6_FXLL : 1; bool x44_7_PMAB : 1;
     bool x45_0_VMD4 : 1; bool x45_1_VMD3 : 1;  bool x45_2_VMD2 : 1; bool x45_3_VMD1 : 1;
-    bool x45_4_OPTS : 1; bool x45_5_PMUS : 1;  bool x45_6_PMOO : 1; // is the last bit unused?
+    bool x45_4_OPTS : 1; bool x45_5_PMUS : 1;  bool x45_6_PMOO : 1; bool x45_7_CIND : 1;
     IntElementFactory x48_MBSP;
     RealElementFactory x4c_SIZE;
     RealElementFactory x50_ROTA;
-    //TextureElementFactory x54_TEXR;
-    //TextureElementFactory x58_TIND;
+    UVElementFactory x54_TEXR;
+    UVElementFactory x58_TIND;
     // x5c_PMDL Model
     VectorElementFactory x6c_PMOP;
     VectorElementFactory x70_PMRT;
     VectorElementFactory x74_PMSC;
     ColorElementFactory x78_PMCL;
+    ModVectorElementFactory x7c_VEL1;
+    ModVectorElementFactory x80_VEL2;
+    ModVectorElementFactory x84_VEL3;
+    ModVectorElementFactory x88_VEL4;
     ChildGeneratorDesc<IDType> x8c_ICTS;
     IntElementFactory x9c_NCSY;
     IntElementFactory xb4_NDSY;
@@ -47,14 +51,15 @@ struct GPSM : BigYAML
     ChildGeneratorDesc<IDType> xa4_IDTS;
     IntElementFactory xc8_PISY;
     IntElementFactory xcc_SISY;
+    // xd4_SSWH Swoosh
     IntElementFactory xe4_SSSD;
     VectorElementFactory xe8_SSPO;
     // xec_PMLC Electric Generator
     IntElementFactory x100_LTYP;
     ColorElementFactory x104_LCLR;
     RealElementFactory x108_LINT;
-    VectorElementFactory x110_LDIR;
     VectorElementFactory x10c_LOFF;
+    VectorElementFactory x110_LDIR;
     IntElementFactory x114_LFOT;
     RealElementFactory x118_LFOR;
     RealElementFactory x11c_LSLA;
@@ -88,6 +93,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("CIND"))
         {
+            x45_7_CIND = r.readBool(nullptr);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("AAPH"))
@@ -107,6 +113,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("FXLL"))
         {
+            x44_6_FXLL = r.readBool(nullptr);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("ICTS"))
@@ -163,6 +170,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("LINT"))
         {
+            x108_LINT.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LINE"))
@@ -250,10 +258,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("PMDL"))
         {
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("PMOO"))
-        {
+            // x5c_PMDL.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PMRT"))
@@ -337,16 +342,17 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("TEXR"))
         {
-            //x54_TEXR.read(r);
+            x54_TEXR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("SSWH"))
         {
+            // xd4_SSWH.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("TIND"))
         {
-            //x58_TIND.read(r);
+            x58_TIND.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("VMD4"))
@@ -371,18 +377,22 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("VEL4"))
         {
+            x88_VEL4.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("VEL3"))
         {
+            x84_VEL3.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("VEL2"))
         {
+            x80_VEL2.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("VEL1"))
         {
+            x7c_VEL1.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("ZBUF"))
