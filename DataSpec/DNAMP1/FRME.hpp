@@ -105,6 +105,14 @@ struct FRME : BigDNA
         {
             DECL_DNA
             UniqueID32 model;
+            enum class BlendMode
+            {
+                Unknown0,
+                Unknown1,
+                Unknown2,
+                Additive
+            };
+
             Value<atUint32> blendMode;
             Value<atUint32> lightMode;
         };
