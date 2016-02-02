@@ -8,7 +8,7 @@
 
 namespace URDE
 {
-class ModelViewer : public Space
+class ModelViewer : public ViewerSpace
 {
     struct State : Space::State
     {
@@ -39,7 +39,7 @@ class ModelViewer : public Space
 
 public:
     ModelViewer(ViewManager& vm, Space* parent)
-        : Space(vm, Class::ModelViewer, parent)
+        : ViewerSpace(vm, Class::ModelViewer, parent)
     {
         reloadState();
     }

@@ -289,7 +289,10 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
           "    bpy.context.scene.objects.unlink(ob)\n"
           "    bpy.data.objects.remove(ob)\n";
 
-    os.format("bpy.context.scene.name = 'FRME_%s'\n",
+    os.format("bpy.context.scene.name = 'FRME_%s'\n"
+              "bpy.context.scene.render.resolution_x = 640\n"
+              "bpy.context.scene.render.resolution_y = 480\n"
+              "bpy.context.scene.render.engine = 'BLENDER_GAME'\n",
               entry.id.toString().c_str());
 
     for (const FRME::Widget& w : frme.widgets)
@@ -316,17 +319,20 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
                               "cam.lens_unit = 'FOV'\n"
                               "cam.angle = math.radians(%f)\n"
                               "cam.clip_start = %f\n"
-                              "cam.clip_end = %f\n",
-                              proj->fov, proj->znear, proj->zfar);
+                              "cam.clip_end = %f\n"
+                              "bpy.context.scene.render.pixel_aspect_x = %f\n"
+                              "bpy.context.scene.render.pixel_aspect_y = bpy.context.scene.render.pixel_aspect_x\n",
+                              proj->fov, proj->znear, proj->zfar, proj->aspect);
                 }
             }
             os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
         }
         else if (w.type == SBIG('LITE'))
             os.format("lite = bpy.data.lamps.new(name='%s', type='POINT')\n"
+                      "lite.color = (%f, %f, %f)\n"
                       "binding = lite\n",
-                      w.header.name.c_str());
-
+                      w.header.name.c_str(),
+                      w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2]);
 
         os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
                   "frme_obj.retro_widget_type = '%s'\n"
