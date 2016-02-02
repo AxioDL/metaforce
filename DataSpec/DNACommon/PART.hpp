@@ -14,7 +14,29 @@ struct GPSM : BigYAML
     static const char* DNAType() {return "Retro::GPSM";}
     const char* DNATypeV() const {return DNAType();}
 
+    VectorElement x18_POFS;
+    RealElement x20_LENG;
+    RealElement x24_WIDT;
+    IntElement x28_MAXP;
+    ColorElement x30_COLR;
+    IntElement x34_LTME;
+    VectorElement x38_ILOC;
+    VectorElement x3c_IVEC;
+    EmitterElement x40_EMTR;
+    atUint8 x44_settings; // SORT,MBLR,LINE
+    atUint8 x45_options; // VMD1-4, OPTS
+    RealElement x4c_SIZE;
+    RealElement x50_ROTA;
+    TextureElement x54_TEXR;
+    TextureElement x58_TIND;
+    IntElement xb4_NDSY;
+    VectorElement x110_LDIR;
+    ColorElement x104_LCLR;
+    RealElement x108_LINT;
+    VectorElement x10c_LOFF;
+    IntElement x114_LFOT;
     RealElement x118_LFOR;
+    RealElement x11c_LSLA;
     ChildGeneratorDesc<IDType> xa4_IDTS;
 
     void read(Athena::io::YAMLDocReader& r)
@@ -31,11 +53,12 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("EMTR"))
         {
-
+            x40_EMTR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("COLR"))
         {
+            x30_COLR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("CIND"))
@@ -72,6 +95,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("ILOC"))
         {
+            x38_ILOC.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("IITS"))
@@ -80,10 +104,12 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("IVEC"))
         {
+            x3c_IVEC.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LDIR"))
         {
+            x110_LDIR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("COLR"))
@@ -92,18 +118,22 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("LCLR"))
         {
+            x104_LCLR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LENG"))
         {
+            x20_LENG.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("MAXP"))
         {
+            x28_MAXP.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LOFF"))
         {
+            x10c_LOFF.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LINT"))
@@ -116,6 +146,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("LFOT"))
         {
+            x114_LFOT.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LIT_"))
@@ -124,10 +155,12 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("LTME"))
         {
+            x34_LTME.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LSLA"))
         {
+            x11c_LSLA.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LTYP"))
@@ -136,6 +169,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("NDSY"))
         {
+            xb4_NDSY.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("MBSP"))
@@ -192,6 +226,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("POFS"))
         {
+            x18_POFS.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PMUS"))
@@ -204,6 +239,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("ROTA"))
         {
+            x50_ROTA.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PSVM"))
@@ -248,6 +284,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("SIZE"))
         {
+            x4c_SIZE.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("SISY"))
@@ -260,6 +297,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("TEXR"))
         {
+            x54_TEXR.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("SSWH"))
@@ -268,9 +306,18 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("TIND"))
         {
+            x58_TIND.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("VMD4"))
+        {
+            r.leaveSubRecord();
+        }
+        if (r.enterSubRecord("VMD3"))
+        {
+            r.leaveSubRecord();
+        }
+        if (r.enterSubRecord("VMD2"))
         {
             r.leaveSubRecord();
         }
@@ -286,7 +333,11 @@ struct GPSM : BigYAML
         {
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("VMD3"))
+        if (r.enterSubRecord("VEL2"))
+        {
+            r.leaveSubRecord();
+        }
+        if (r.enterSubRecord("VEL1"))
         {
             r.leaveSubRecord();
         }
@@ -296,6 +347,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("WIDT"))
         {
+            x24_WIDT.read(r);
             r.leaveSubRecord();
         }
     }
