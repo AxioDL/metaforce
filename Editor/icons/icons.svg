@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="19.709914"
-     inkscape:cx="39.011614"
-     inkscape:cy="31.253837"
+     inkscape:zoom="39.419828"
+     inkscape:cx="8.6860061"
+     inkscape:cy="66.261622"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="2560"
-     inkscape:window-height="1391"
+     inkscape:window-width="1366"
+     inkscape:window-height="713"
      inkscape:window-x="0"
-     inkscape:window-y="1"
+     inkscape:window-y="31"
      inkscape:window-maximized="1">
     <inkscape:grid
        type="xygrid"
@@ -253,5 +253,32 @@
        cx="8.0509853"
        id="circle4280"
        style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.94857585;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <g
+       id="g3516"
+       transform="matrix(0.32198959,0,0,0.32198959,-15.18449,670.22212)">
+      <path
+         style="fill:#dbdbdb;fill-opacity:1;stroke:none"
+         d="m 72,941.36217 -20,10 20,10 20,-10 z"
+         id="path2987"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path2989"
+         d="m 72,961.36217 0,25 20,-10 0,-25 z"
+         style="fill:#cbcbcb;fill-opacity:1;stroke:none" />
+      <path
+         style="fill:#818181;fill-opacity:1;stroke:none"
+         d="m 72,961.36217 0,25 -20,-10 0,-25 z"
+         id="path2991"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2.90463042;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 72,941.37499 -20,10 0,25 20,10 20,-10 0,-25 -20,-10 z"
+         id="path2993"
+         inkscape:connector-curvature="0" />
+    </g>
   </g>
 </svg>
