@@ -10,14 +10,14 @@ namespace DNAParticle
 
 struct IElement : BigYAML
 {
-    enum class ClassID : uint32_t
+    enum class EClassID : uint32_t
     {
         NONE = 'NONE',
         CNST = 'CNST'
     };
     Delete _d;
     virtual ~IElement() = default;
-    virtual const char* ClassName() const=0;
+    virtual const char* ClassID() const=0;
 };
 
 struct IRealElement : IElement {Delete _d;};
@@ -92,14 +92,14 @@ struct RELifetimeTween : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "LFTW";}
+    const char* ClassID() const {return "LFTW";}
 };
 
 struct REConstant : IRealElement
 {
     DECL_YAML
     Value<float> val;
-    const char* ClassName() const {return "CNST";}
+    const char* ClassID() const {return "CNST";}
 };
 
 struct RETimeChain : IRealElement
@@ -108,7 +108,7 @@ struct RETimeChain : IRealElement
     RealElementFactory a;
     RealElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CHAN";}
+    const char* ClassID() const {return "CHAN";}
 };
 
 struct REAdd : IRealElement
@@ -116,7 +116,7 @@ struct REAdd : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "ADD_";}
+    const char* ClassID() const {return "ADD_";}
 };
 
 struct REClamp : IRealElement
@@ -125,7 +125,7 @@ struct REClamp : IRealElement
     RealElementFactory a;
     RealElementFactory b;
     RealElementFactory c;
-    const char* ClassName() const {return "CLMP";}
+    const char* ClassID() const {return "CLMP";}
 };
 
 struct REKeyframeEmitter : IRealElement
@@ -139,7 +139,7 @@ struct REKeyframeEmitter : IRealElement
     Value<atUint32> f;
     Value<atUint32> count;
     Vector<float, DNA_COUNT(count)> keys;
-    const char* ClassName() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
 };
 
 struct REInitialRandom : IRealElement
@@ -147,7 +147,7 @@ struct REInitialRandom : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "IRND";}
+    const char* ClassID() const {return "IRND";}
 };
 
 struct RERandom : IRealElement
@@ -155,7 +155,7 @@ struct RERandom : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "RAND";}
+    const char* ClassID() const {return "RAND";}
 };
 
 struct REMultiply : IRealElement
@@ -163,7 +163,7 @@ struct REMultiply : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "MULT";}
+    const char* ClassID() const {return "MULT";}
 };
 
 struct REPulse : IRealElement
@@ -173,21 +173,21 @@ struct REPulse : IRealElement
     IntElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    const char* ClassName() const {return "PULS";}
+    const char* ClassID() const {return "PULS";}
 };
 
 struct RETimeScale : IRealElement
 {
     DECL_YAML
     RealElementFactory a;
-    const char* ClassName() const {return "SCAL";}
+    const char* ClassID() const {return "SCAL";}
 };
 
 struct RELifetimePercent : IRealElement
 {
     DECL_YAML
     RealElementFactory a;
-    const char* ClassName() const {return "RLPT";}
+    const char* ClassID() const {return "RLPT";}
 };
 
 struct RESineWave : IRealElement
@@ -196,7 +196,7 @@ struct RESineWave : IRealElement
     RealElementFactory a;
     RealElementFactory b;
     RealElementFactory c;
-    const char* ClassName() const {return "SINE";}
+    const char* ClassID() const {return "SINE";}
 };
 
 struct IEKeyframeEmitter : IIntElement
@@ -210,7 +210,7 @@ struct IEKeyframeEmitter : IIntElement
     Value<atUint32> f;
     Value<atUint32> count;
     Vector<atUint32, DNA_COUNT(count)> keys;
-    const char* ClassName() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
 };
 
 struct IEDeath : IIntElement
@@ -218,7 +218,7 @@ struct IEDeath : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    const char* ClassName() const {return "DETH";}
+    const char* ClassID() const {return "DETH";}
 };
 
 struct IEClamp : IIntElement
@@ -227,7 +227,7 @@ struct IEClamp : IIntElement
     IntElementFactory a;
     IntElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CLMP";}
+    const char* ClassID() const {return "CLMP";}
 };
 
 struct IETimeChain : IIntElement
@@ -236,7 +236,7 @@ struct IETimeChain : IIntElement
     IntElementFactory a;
     IntElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CHAN";}
+    const char* ClassID() const {return "CHAN";}
 };
 
 struct IEAdd : IIntElement
@@ -244,28 +244,28 @@ struct IEAdd : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    const char* ClassName() const {return "ADD_";}
+    const char* ClassID() const {return "ADD_";}
 };
 
 struct IEConstant : IIntElement
 {
     DECL_YAML
     Value<atUint32> val;
-    const char* ClassName() const {return "CNST";}
+    const char* ClassID() const {return "CNST";}
 };
 
 struct IEImpulse : IIntElement
 {
     DECL_YAML
     IntElementFactory a;
-    const char* ClassName() const {return "IMPL";}
+    const char* ClassID() const {return "IMPL";}
 };
 
 struct IELifetimePercent : IIntElement
 {
     DECL_YAML
     IntElementFactory a;
-    const char* ClassName() const {return "ILPT";}
+    const char* ClassID() const {return "ILPT";}
 };
 
 struct IEInitialRandom : IIntElement
@@ -273,7 +273,7 @@ struct IEInitialRandom : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    const char* ClassName() const {return "IRND";}
+    const char* ClassID() const {return "IRND";}
 };
 
 struct IEPulse : IIntElement
@@ -283,7 +283,7 @@ struct IEPulse : IIntElement
     IntElementFactory b;
     IntElementFactory c;
     IntElementFactory d;
-    const char* ClassName() const {return "PULS";}
+    const char* ClassID() const {return "PULS";}
 };
 
 struct IEMultiply : IIntElement
@@ -291,7 +291,7 @@ struct IEMultiply : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    const char* ClassName() const {return "MULT";}
+    const char* ClassID() const {return "MULT";}
 };
 
 struct IESampleAndHold : IIntElement
@@ -300,7 +300,7 @@ struct IESampleAndHold : IIntElement
     IntElementFactory a;
     IntElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "SPAH";}
+    const char* ClassID() const {return "SPAH";}
 };
 
 struct IERandom : IIntElement
@@ -308,14 +308,14 @@ struct IERandom : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    const char* ClassName() const {return "RAND";}
+    const char* ClassID() const {return "RAND";}
 };
 
 struct IETimeScale : IIntElement
 {
     DECL_YAML
     RealElementFactory a;
-    const char* ClassName() const {return "TSCL";}
+    const char* ClassID() const {return "TSCL";}
 };
 
 struct VECone : IVectorElement
@@ -323,7 +323,7 @@ struct VECone : IVectorElement
     DECL_YAML
     VectorElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "CONE";}
+    const char* ClassID() const {return "CONE";}
 };
 
 struct VETimeChain : IVectorElement
@@ -332,7 +332,7 @@ struct VETimeChain : IVectorElement
     VectorElementFactory a;
     VectorElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CHAN";}
+    const char* ClassID() const {return "CHAN";}
 };
 
 struct VEAngleCone : IVectorElement
@@ -343,7 +343,7 @@ struct VEAngleCone : IVectorElement
     RealElementFactory c;
     RealElementFactory d;
     RealElementFactory e;
-    const char* ClassName() const {return "ANGC";}
+    const char* ClassID() const {return "ANGC";}
 };
 
 struct VEAdd : IVectorElement
@@ -351,7 +351,7 @@ struct VEAdd : IVectorElement
     DECL_YAML
     VectorElementFactory a;
     VectorElementFactory b;
-    const char* ClassName() const {return "ADD_";}
+    const char* ClassID() const {return "ADD_";}
 };
 
 struct VECircleCluster : IVectorElement
@@ -361,7 +361,7 @@ struct VECircleCluster : IVectorElement
     VectorElementFactory b;
     IntElementFactory c;
     RealElementFactory d;
-    const char* ClassName() const {return "CCLU";}
+    const char* ClassID() const {return "CCLU";}
 };
 
 struct VEConstant : IVectorElement
@@ -370,7 +370,7 @@ struct VEConstant : IVectorElement
     RealElementFactory a;
     RealElementFactory b;
     RealElementFactory c;
-    const char* ClassName() const {return "CNST";}
+    const char* ClassID() const {return "CNST";}
 };
 
 struct VECircle : IVectorElement
@@ -381,7 +381,7 @@ struct VECircle : IVectorElement
     RealElementFactory c;
     RealElementFactory d;
     RealElementFactory e;
-    const char* ClassName() const {return "CIRC";}
+    const char* ClassID() const {return "CIRC";}
 };
 
 struct VEKeyframeEmitter : IVectorElement
@@ -395,7 +395,7 @@ struct VEKeyframeEmitter : IVectorElement
     Value<atUint32> f;
     Value<atUint32> count;
     Vector<atVec3f, DNA_COUNT(count)> keys;
-    const char* ClassName() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
 };
 
 struct VEMultiply : IVectorElement
@@ -403,14 +403,14 @@ struct VEMultiply : IVectorElement
     DECL_YAML
     VectorElementFactory a;
     VectorElementFactory b;
-    const char* ClassName() const {return "MULT";}
+    const char* ClassID() const {return "MULT";}
 };
 
 struct VERealToVector : IVectorElement
 {
     DECL_YAML
     RealElementFactory a;
-    const char* ClassName() const {return "RTOV";}
+    const char* ClassID() const {return "RTOV";}
 };
 
 struct VEPulse : IVectorElement
@@ -420,7 +420,7 @@ struct VEPulse : IVectorElement
     IntElementFactory b;
     VectorElementFactory c;
     VectorElementFactory d;
-    const char* ClassName() const {return "PULS";}
+    const char* ClassID() const {return "PULS";}
 };
 
 struct CEKeyframeEmitter : IColorElement
@@ -434,7 +434,7 @@ struct CEKeyframeEmitter : IColorElement
     Value<atUint32> f;
     Value<atUint32> count;
     Vector<atVec4f, DNA_COUNT(count)> keys;
-    const char* ClassName() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
 };
 
 struct CEConstant : IColorElement
@@ -444,7 +444,7 @@ struct CEConstant : IColorElement
     RealElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    const char* ClassName() const {return "CNST";}
+    const char* ClassID() const {return "CNST";}
 };
 
 struct CETimeChain : IColorElement
@@ -453,7 +453,7 @@ struct CETimeChain : IColorElement
     ColorElementFactory a;
     ColorElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CHAN";}
+    const char* ClassID() const {return "CHAN";}
 };
 
 struct CEFadeEnd : IColorElement
@@ -463,7 +463,7 @@ struct CEFadeEnd : IColorElement
     ColorElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    const char* ClassName() const {return "CFDE";}
+    const char* ClassID() const {return "CFDE";}
 };
 
 struct CEFade : IColorElement
@@ -472,7 +472,7 @@ struct CEFade : IColorElement
     ColorElementFactory a;
     ColorElementFactory b;
     RealElementFactory c;
-    const char* ClassName() const {return "FADE";}
+    const char* ClassID() const {return "FADE";}
 };
 
 struct CEPulse : IColorElement
@@ -482,7 +482,7 @@ struct CEPulse : IColorElement
     IntElementFactory b;
     ColorElementFactory c;
     ColorElementFactory d;
-    const char* ClassName() const {return "PULS";}
+    const char* ClassID() const {return "PULS";}
 };
 
 struct MVEImplosion : IModVectorElement
@@ -492,9 +492,9 @@ struct MVEImplosion : IModVectorElement
     RealElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    Value<ClassID> boolCls = ClassID::CNST;
+    Value<EClassID> boolCls = EClassID::CNST;
     Value<bool> boolVal;
-    const char* ClassName() const {return "IMPL";}
+    const char* ClassID() const {return "IMPL";}
 };
 
 struct MVEExponentialImplosion : IModVectorElement
@@ -504,9 +504,9 @@ struct MVEExponentialImplosion : IModVectorElement
     RealElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    Value<ClassID> boolCls = ClassID::CNST;
+    Value<EClassID> boolCls = EClassID::CNST;
     Value<bool> boolVal;
-    const char* ClassName() const {return "EMPL";}
+    const char* ClassID() const {return "EMPL";}
 };
 
 struct MVETimeChain : IModVectorElement
@@ -515,7 +515,7 @@ struct MVETimeChain : IModVectorElement
     ModVectorElementFactory a;
     ModVectorElementFactory b;
     IntElementFactory c;
-    const char* ClassName() const {return "CHAN";}
+    const char* ClassID() const {return "CHAN";}
 };
 
 struct MVEBounce : IModVectorElement
@@ -525,9 +525,9 @@ struct MVEBounce : IModVectorElement
     VectorElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    Value<ClassID> boolCls = ClassID::CNST;
+    Value<EClassID> boolCls = EClassID::CNST;
     Value<bool> boolVal;
-    const char* ClassName() const {return "BNCE";}
+    const char* ClassID() const {return "BNCE";}
 };
 
 struct MVEConstant : IModVectorElement
@@ -536,14 +536,14 @@ struct MVEConstant : IModVectorElement
     RealElementFactory a;
     RealElementFactory b;
     RealElementFactory c;
-    const char* ClassName() const {return "CNST";}
+    const char* ClassID() const {return "CNST";}
 };
 
 struct MVEGravity : IModVectorElement
 {
     DECL_YAML
     VectorElementFactory a;
-    const char* ClassName() const {return "GRAV";}
+    const char* ClassID() const {return "GRAV";}
 };
 
 struct MVEExplode : IModVectorElement
@@ -551,14 +551,14 @@ struct MVEExplode : IModVectorElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "EXPL";}
+    const char* ClassID() const {return "EXPL";}
 };
 
 struct MVESetPosition : IModVectorElement
 {
     DECL_YAML
     VectorElementFactory a;
-    const char* ClassName() const {return "SPOS";}
+    const char* ClassID() const {return "SPOS";}
 };
 
 struct MVELinearImplosion : IModVectorElement
@@ -568,9 +568,9 @@ struct MVELinearImplosion : IModVectorElement
     RealElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    Value<ClassID> boolCls = ClassID::CNST;
+    Value<EClassID> boolCls = EClassID::CNST;
     Value<bool> boolVal;
-    const char* ClassName() const {return "LMPL";}
+    const char* ClassID() const {return "LMPL";}
 };
 
 struct MVEPulse : IModVectorElement
@@ -580,7 +580,7 @@ struct MVEPulse : IModVectorElement
     IntElementFactory b;
     ModVectorElementFactory c;
     ModVectorElementFactory d;
-    const char* ClassName() const {return "PULS";}
+    const char* ClassID() const {return "PULS";}
 };
 
 struct MVEWind : IModVectorElement
@@ -588,7 +588,7 @@ struct MVEWind : IModVectorElement
     DECL_YAML
     VectorElementFactory a;
     RealElementFactory b;
-    const char* ClassName() const {return "WIND";}
+    const char* ClassID() const {return "WIND";}
 };
 
 struct MVESwirl : IModVectorElement
@@ -598,7 +598,7 @@ struct MVESwirl : IModVectorElement
     VectorElementFactory b;
     RealElementFactory c;
     RealElementFactory d;
-    const char* ClassName() const {return "SWRL";}
+    const char* ClassID() const {return "SWRL";}
 };
 
 template <class IDType>
@@ -665,7 +665,7 @@ struct UVEAnimTexture : IUVElement
     IntElementFactory c;
     IntElementFactory d;
     IntElementFactory e;
-    Value<ClassID> boolCls = ClassID::CNST;
+    Value<EClassID> boolCls = EClassID::CNST;
     Value<bool> boolVal;
     void read(Athena::io::YAMLDocReader& r)
     {
@@ -704,12 +704,12 @@ struct UVEAnimTexture : IUVElement
             e.read(r);
             r.leaveSubRecord();
         }
-        boolCls = ClassID::NONE;
+        boolCls = EClassID::NONE;
         if (r.enterSubRecord("bool"))
         {
             if (r.enterSubRecord("CNST"))
             {
-                boolCls = ClassID::CNST;
+                boolCls = EClassID::CNST;
                 boolVal = r.readBool(nullptr);
                 r.leaveSubRecord();
             }
@@ -730,7 +730,7 @@ struct UVEAnimTexture : IUVElement
         d.write(w);
         e.write(w);
         w.enterSubRecord("bool");
-        if (boolCls == ClassID::CNST)
+        if (boolCls == EClassID::CNST)
         {
             w.enterSubRecord("CNST");
             w.writeBool(nullptr, boolVal);
@@ -748,7 +748,7 @@ struct UVEAnimTexture : IUVElement
         __isz = c.binarySize(__isz);
         __isz = d.binarySize(__isz);
         __isz = e.binarySize(__isz);
-        if (boolCls == ClassID::CNST)
+        if (boolCls == EClassID::CNST)
             __isz += 1;
         return __isz;
     }
@@ -764,11 +764,11 @@ struct UVEAnimTexture : IUVElement
         c.read(r);
         d.read(r);
         e.read(r);
-        boolCls = ClassID::NONE;
+        boolCls = EClassID::NONE;
         r.readBytesToBuf(&clsId, 4);
         if (clsId == SBIG('CNST'))
         {
-            boolCls = ClassID::CNST;
+            boolCls = EClassID::CNST;
             boolVal = r.readBool();
         }
     }
@@ -786,7 +786,7 @@ struct UVEAnimTexture : IUVElement
         c.write(w);
         d.write(w);
         e.write(w);
-        if (boolCls == ClassID::CNST)
+        if (boolCls == EClassID::CNST)
         {
             w.writeBytes((atInt8*)"CNST", 4);
             w.writeBool(boolVal);
@@ -824,7 +824,7 @@ struct UVElementFactory : BigYAML
     {
         if (m_elem)
         {
-            w.enterSubRecord(m_elem->ClassName());
+            w.enterSubRecord(m_elem->ClassID());
             m_elem->write(w);
             w.leaveSubRecord();
         }
@@ -861,7 +861,7 @@ struct UVElementFactory : BigYAML
     {
         if (m_elem)
         {
-            w.writeBytes((atInt8*)m_elem->ClassName(), 4);
+            w.writeBytes((atInt8*)m_elem->ClassID(), 4);
             m_elem->write(w);
         }
         else
