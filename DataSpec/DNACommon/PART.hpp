@@ -14,7 +14,12 @@ struct GPSM : BigYAML
     static const char* DNAType() {return "Retro::GPSM";}
     const char* DNATypeV() const {return DNAType();}
 
-
+    VectorElementFactory x0_PSIV;
+    ModVectorElementFactory x4_PSVM;
+    VectorElementFactory x8_PSOV;
+    IntElementFactory xc_PSLT;
+    IntElementFactory x10_PSWT;
+    RealElementFactory x14_PSTS;
     VectorElementFactory x18_POFS;
     IntElementFactory x1c_PMED;
     RealElementFactory x20_LENG;
@@ -47,13 +52,17 @@ struct GPSM : BigYAML
     ChildGeneratorDesc<IDType> x8c_ICTS;
     IntElementFactory x9c_NCSY;
     IntElementFactory xb4_NDSY;
+    ChildGeneratorDesc<IDType> xb8_IITS;
     IntElementFactory xa0_CSSD;
     ChildGeneratorDesc<IDType> xa4_IDTS;
     IntElementFactory xc8_PISY;
     IntElementFactory xcc_SISY;
+    // xd0_KSSM
     // xd4_SSWH Swoosh
     IntElementFactory xe4_SSSD;
     VectorElementFactory xe8_SSPO;
+    IntElementFactory xf8_SESD;
+    VectorElementFactory xfc_SEPO;
     // xec_PMLC Electric Generator
     IntElementFactory x100_LTYP;
     ColorElementFactory x104_LCLR;
@@ -123,6 +132,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("KSSM"))
         {
+            // xd0_KSSM.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("ILOC"))
@@ -142,10 +152,6 @@ struct GPSM : BigYAML
         if (r.enterSubRecord("LDIR"))
         {
             x110_LDIR.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("COLR"))
-        {
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("LCLR"))
@@ -240,10 +246,17 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("SESD"))
         {
+            xf8_SESD.read(r);
+            r.leaveSubRecord();
+        }
+        if (r.enterSubRecord("SEPO"))
+        {
+            xfc_SEPO.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PSLT"))
         {
+            xc_PSLT.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PMSC"))
@@ -278,6 +291,7 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("PSIV"))
         {
+            x0_PSIV.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("ROTA"))
@@ -287,22 +301,27 @@ struct GPSM : BigYAML
         }
         if (r.enterSubRecord("PSVM"))
         {
+            x4_PSVM.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PSTS"))
         {
+            x14_PSTS.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PSOV"))
         {
+            x8_PSOV.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PSWT"))
         {
+            x10_PSWT.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PMLC"))
         {
+            // xec_PMLC.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("PMED"))
