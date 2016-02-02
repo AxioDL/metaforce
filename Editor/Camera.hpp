@@ -16,19 +16,14 @@ class Camera
     Zeus::CQuaternion m_orientation;
 public:
 
-    Camera(const Zeus::CVector3f& position, Zeus::EProjType projType=Zeus::EProjType::Perspective,
-           const Zeus::CVector3f& up=Zeus::Math::kUpVec)
-        : m_position(position)
-    {
-    }
+    void setPosition(const Zeus::CVector3f& position) { m_position = position; }
+    void setOrientation(const Zeus::CQuaternion& orientation) { m_orientation = orientation; }
 
     const Zeus::CMatrix4f& projectionMatrix() const { return m_projection.getCachedMatrix(); }
     const Zeus::CProjection& projection() const { return m_projection; }
 
     virtual void think()
-    {
-
-    }
+    {}
 };
 }
 

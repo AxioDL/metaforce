@@ -20,6 +20,7 @@ atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
 atdna(atdna_ParticleEditor.cpp ParticleEditor.hpp)
+atdna(atdna_InformationCenter.cpp InformationCenter.hpp)
 
 if(WIN32)
   set(PLAT_SRCS platforms/win/urde.rc)
@@ -40,6 +41,7 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
                ModelViewer.hpp ModelViewer.cpp atdna_ModelViewer.cpp
                ParticleEditor.hpp ParticleEditor.cpp atdna_ParticleEditor.cpp
+               InformationCenter.hpp InformationCenter.hpp atdna_InformationCenter.cpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp
                Resource.hpp Resource.cpp

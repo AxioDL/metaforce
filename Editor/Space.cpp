@@ -2,6 +2,8 @@
 #include "ViewManager.hpp"
 #include "ResourceBrowser.hpp"
 #include "ParticleEditor.hpp"
+#include "ModelViewer.hpp"
+#include "InformationCenter.hpp"
 #include "icons/icons.hpp"
 
 namespace URDE
@@ -42,7 +44,9 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats =
 {
     {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0,1.0,0.0,1.0}},
-    {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0,0.5,0.0,1.0}}
+    {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0,0.5,0.0,1.0}},
+    {Class::ModelViewer, "model_viewer", "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.5, 0.5, 0.0, 1.0}},
+    {Class::InformationCenter, "information_center", "Information Center", GetIcon(SpaceIcon::InformationCenter), {0.0, 1.0, 1.0, 1.0}}
 };
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 
@@ -199,6 +203,10 @@ static Space* BuildNewSpace(ViewManager& vm, Space::Class cls, Space* parent, Re
         return new ResourceBrowser(vm, parent, r);
     case Class::EffectEditor:
         return new EffectEditor(vm, parent, r);
+    case Class::ModelViewer:
+        return new ModelViewer(vm, parent, r);
+    case Class::InformationCenter:
+        return new InformationCenter(vm, parent, r);
     default: break;
     }
     return nullptr;

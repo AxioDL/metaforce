@@ -3,8 +3,7 @@
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
-#include "CVector3f.hpp"
-#include "CProjection.hpp"
+#include "Camera.hpp"
 
 namespace URDE
 {
@@ -30,12 +29,14 @@ class ModelViewer : public ViewerSpace
 
     struct View : Specter::View
     {
+        ModelViewer& m_mv;
+        View(ModelViewer& mv, Specter::ViewResources& res)
+            : Specter::View(res, mv.m_vm.rootView()), m_mv(mv)
+        {}
     };
 
-    virtual Specter::View* buildContentView(Specter::ViewResources& res)
-    {
-        return nullptr;
-    }
+    Camera m_camera;
+    std::unique_ptr<View> m_view;
 
 public:
     ModelViewer(ViewManager& vm, Space* parent)
@@ -59,11 +60,20 @@ public:
     }
 
     void reloadState()
-    {}
+    {
+        m_camera.setPosition(m_state.cameraPosition);
+        m_camera.setOrientation(m_state.cameraOrientation);
+    }
 
     Space* copy(Space *parent) const
     {
         return new ModelViewer(m_vm, parent, *this);
+    }
+
+    virtual Specter::View* buildContentView(Specter::ViewResources& res)
+    {
+        m_view.reset(new View(*this, res));
+        return m_view.get();
     }
 
     bool usesToolbar() const { return true; }
