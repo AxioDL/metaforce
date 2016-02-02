@@ -83,6 +83,18 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
         m_systemBookmarkBind.m_entries.emplace_back(std::move(loc));
     m_systemBookmarks.m_view->updateData();
 
+    const std::vector<HECL::SystemString>* recentProjects = vm.recentProjects();
+
+    for (auto& proj : *recentProjects)
+        m_projectBookmarkBind.m_entries.emplace_back(proj);
+    m_projectBookmarks.m_view->updateData();
+
+    const std::vector<HECL::SystemString>* recentFiles = vm.recentFiles();
+
+    for (auto& file : *recentFiles)
+        m_recentBookmarkBind.m_entries.emplace_back(file);
+    m_recentBookmarks.m_view->updateData();
+
     navigateToPath(initialPath);
 
     m_split.m_view.reset(new SplitView(res, *this, nullptr, SplitView::Axis::Vertical, 0.2,
