@@ -19,7 +19,7 @@ endif()
 atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
-atdna(atdna_EffectEditor.cpp EffectEditor.hpp)
+atdna(atdna_ParticleEditor.cpp ParticleEditor.hpp)
 
 if(WIN32)
   set(PLAT_SRCS platforms/win/urde.rc)
@@ -39,9 +39,10 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                SplashScreen.hpp SplashScreen.cpp
                ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
                ModelViewer.hpp ModelViewer.cpp atdna_ModelViewer.cpp
-               EffectEditor.hpp EffectEditor.cpp atdna_EffectEditor.cpp
+               ParticleEditor.hpp ParticleEditor.cpp atdna_ParticleEditor.cpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp
+               Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp)
 
 target_link_libraries(urde

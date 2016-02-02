@@ -1,7 +1,7 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
 #include "ResourceBrowser.hpp"
-#include "EffectEditor.hpp"
+#include "ParticleEditor.hpp"
 #include "icons/icons.hpp"
 
 namespace URDE

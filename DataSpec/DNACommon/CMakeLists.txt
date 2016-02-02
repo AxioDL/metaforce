@@ -1,7 +1,8 @@
 make_dnalist(liblist
              CMDL
              MAPA
-             EGMC)
+             EGMC
+             ParticleCommon)
 
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
@@ -14,6 +15,10 @@ add_library(DNACommon
             TXTR.hpp TXTR.cpp
             ANCS.hpp
             ANIM.hpp ANIM.cpp
+            PART.hpp
+            SWHC.hpp
+            ELSC.hpp
+            ParticleCommon.cpp
             DeafBabe.hpp
             BabeDead.hpp
             Tweaks/ITweakGame.hpp

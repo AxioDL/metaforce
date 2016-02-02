@@ -1,5 +1,5 @@
-#ifndef URDE_EFFECT_EDITOR_HPP
-#define URDE_EFFECT_EDITOR_HPP
+#ifndef URDE_PARTICLE_EDITOR_HPP
+#define URDE_PARTICLE_EDITOR_HPP
 
 #include "Space.hpp"
 
@@ -14,6 +14,12 @@ class EffectEditor : public EditorSpace
         String<-1> path;
     } m_state;
     const Space::State& spaceState() const {return m_state;}
+
+    struct View : Specter::View
+    {
+        View(Specter::ViewResources& res, Specter::View& parent)
+        : Specter::View(res, parent) {}
+    };
 
     Specter::View* buildContentView(Specter::ViewResources& res)
     {
@@ -36,4 +42,4 @@ public:
 
 }
 
-#endif // URDE_EFFECT_EDITOR_HPP
+#endif // URDE_PARTICLE_EDITOR_HPP
