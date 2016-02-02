@@ -45,6 +45,8 @@ Specter::Icon& GetIcon(SpaceIcon icon)
         return g_IconAtlas.getIcon(0, 2);
     case SpaceIcon::InformationCenter:
         return g_IconAtlas.getIcon(0, 3);
+    case SpaceIcon::ModelViewer:
+        return g_IconAtlas.getIcon(0, 4);
     }
 }
 

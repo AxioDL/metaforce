@@ -34,7 +34,8 @@ public:
         TestSpace,
         ResourceBrowser,
         ModelViewer,
-        EffectEditor
+        EffectEditor,
+        InformationCenter
     };
 
     struct State : Athena::io::DNAYaml<Athena::BigEndian> {Delete _d;};
