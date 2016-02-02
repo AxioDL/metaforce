@@ -51,7 +51,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
     }
     else if (r.enterSubRecord("KEYP"))
     {
-        m_elem.reset(new struct REKeyframeEmitterP);
+        m_elem.reset(new struct REKeyframeEmitter);
         m_elem->read(r);
         r.leaveSubRecord();
     }
@@ -135,13 +135,11 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         m_elem.reset(new struct REClamp);
         break;
     case SBIG('KEYE'):
+    case SBIG('KEYP'):
         m_elem.reset(new struct REKeyframeEmitter);
         break;
     case SBIG('IRND'):
         m_elem.reset(new struct REInitialRandom);
-        break;
-    case SBIG('KEYP'):
-        m_elem.reset(new struct REKeyframeEmitterP);
         break;
     case SBIG('RAND'):
         m_elem.reset(new struct RERandom);
@@ -250,7 +248,7 @@ void IntElementFactory::read(Athena::io::YAMLDocReader& r)
     }
     else if (r.enterSubRecord("KEYP"))
     {
-        m_elem.reset(new struct IEKeyframeEmitterP);
+        m_elem.reset(new struct IEKeyframeEmitter);
         m_elem->read(r);
         r.leaveSubRecord();
     }
@@ -301,6 +299,7 @@ void IntElementFactory::read(Athena::io::IStreamReader& r)
     switch (clsId)
     {
     case SBIG('KEYE'):
+    case SBIG('KEYP'):
         m_elem.reset(new struct IEKeyframeEmitter);
         break;
     case SBIG('DETH'):
@@ -333,9 +332,6 @@ void IntElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('MULT'):
         m_elem.reset(new struct IEMultiply);
         break;
-    case SBIG('KEYP'):
-        m_elem.reset(new struct IEKeyframeEmitterP);
-        break;
     case SBIG('SPAH'):
         m_elem.reset(new struct IESampleAndHold);
         break;
@@ -353,6 +349,427 @@ void IntElementFactory::read(Athena::io::IStreamReader& r)
 }
 
 void IntElementFactory::write(Athena::io::IStreamWriter& w) const
+{
+    if (m_elem)
+    {
+        w.writeBytes((atInt8*)m_elem->ClassName(), 4);
+        m_elem->write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+
+void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
+{
+    if (r.enterSubRecord("CONE"))
+    {
+        m_elem.reset(new struct VECone);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CHAN"))
+    {
+        m_elem.reset(new struct VETimeChain);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("ANGC"))
+    {
+        m_elem.reset(new struct VEAngleCone);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("ADD_"))
+    {
+        m_elem.reset(new struct VEAdd);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CCLU"))
+    {
+        m_elem.reset(new struct VECircleCluster);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CNST"))
+    {
+        m_elem.reset(new struct VEConstant);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CIRC"))
+    {
+        m_elem.reset(new struct VECircle);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("KEYE"))
+    {
+        m_elem.reset(new struct VEKeyframeEmitter);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("KEYP"))
+    {
+        m_elem.reset(new struct VEKeyframeEmitter);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("MULT"))
+    {
+        m_elem.reset(new struct VEMultiply);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("RTOV"))
+    {
+        m_elem.reset(new struct VERealToVector);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("PULS"))
+    {
+        m_elem.reset(new struct VEPulse);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else
+        m_elem.reset();
+}
+
+void VectorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+{
+    if (m_elem)
+    {
+        w.enterSubRecord(m_elem->ClassName());
+        m_elem->write(w);
+        w.leaveSubRecord();
+    }
+}
+
+size_t VectorElementFactory::binarySize(size_t __isz) const
+{
+    if (m_elem)
+        return m_elem->binarySize(__isz + 4);
+    else
+        return __isz + 4;
+}
+
+void VectorElementFactory::read(Athena::io::IStreamReader& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    switch (clsId)
+    {
+    case SBIG('CONE'):
+        m_elem.reset(new struct VECone);
+        break;
+    case SBIG('CHAN'):
+        m_elem.reset(new struct VETimeChain);
+        break;
+    case SBIG('ANGC'):
+        m_elem.reset(new struct VEAngleCone);
+        break;
+    case SBIG('ADD_'):
+        m_elem.reset(new struct VEAdd);
+        break;
+    case SBIG('CCLU'):
+        m_elem.reset(new struct VECircleCluster);
+        break;
+    case SBIG('CNST'):
+        m_elem.reset(new struct VEConstant);
+        break;
+    case SBIG('CIRC'):
+        m_elem.reset(new struct VECircle);
+        break;
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+        m_elem.reset(new struct VEKeyframeEmitter);
+        break;
+    case SBIG('MULT'):
+        m_elem.reset(new struct VEMultiply);
+        break;
+    case SBIG('RTOV'):
+        m_elem.reset(new struct VERealToVector);
+        break;
+    case SBIG('PULS'):
+        m_elem.reset(new struct VEPulse);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    m_elem->read(r);
+}
+
+void VectorElementFactory::write(Athena::io::IStreamWriter& w) const
+{
+    if (m_elem)
+    {
+        w.writeBytes((atInt8*)m_elem->ClassName(), 4);
+        m_elem->write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+
+
+void ColorElementFactory::read(Athena::io::YAMLDocReader& r)
+{
+    if (r.enterSubRecord("KEYE"))
+    {
+        m_elem.reset(new struct CEKeyframeEmitter);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CNST"))
+    {
+        m_elem.reset(new struct CEConstant);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CHAN"))
+    {
+        m_elem.reset(new struct CETimeChain);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CFDE"))
+    {
+        m_elem.reset(new struct CEFadeEnd);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("FADE"))
+    {
+        m_elem.reset(new struct CEFade);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("KEYP"))
+    {
+        m_elem.reset(new struct CEKeyframeEmitter);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("PULS"))
+    {
+        m_elem.reset(new struct CEPulse);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else
+        m_elem.reset();
+}
+
+void ColorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+{
+    if (m_elem)
+    {
+        w.enterSubRecord(m_elem->ClassName());
+        m_elem->write(w);
+        w.leaveSubRecord();
+    }
+}
+
+size_t ColorElementFactory::binarySize(size_t __isz) const
+{
+    if (m_elem)
+        return m_elem->binarySize(__isz + 4);
+    else
+        return __isz + 4;
+}
+
+void ColorElementFactory::read(Athena::io::IStreamReader& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    switch (clsId)
+    {
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+        m_elem.reset(new struct CEKeyframeEmitter);
+        break;
+    case SBIG('CNST'):
+        m_elem.reset(new struct CEConstant);
+        break;
+    case SBIG('CHAN'):
+        m_elem.reset(new struct CETimeChain);
+        break;
+    case SBIG('CFDE'):
+        m_elem.reset(new struct CEFadeEnd);
+        break;
+    case SBIG('FADE'):
+        m_elem.reset(new struct CEFade);
+        break;
+    case SBIG('PULS'):
+        m_elem.reset(new struct CEPulse);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    m_elem->read(r);
+}
+
+void ColorElementFactory::write(Athena::io::IStreamWriter& w) const
+{
+    if (m_elem)
+    {
+        w.writeBytes((atInt8*)m_elem->ClassName(), 4);
+        m_elem->write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+
+
+void ModVectorElementFactory::read(Athena::io::YAMLDocReader& r)
+{
+    if (r.enterSubRecord("IMPL"))
+    {
+        m_elem.reset(new struct MVEImplosion);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("EMPL"))
+    {
+        m_elem.reset(new struct MVEExponentialImplosion);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CHAN"))
+    {
+        m_elem.reset(new struct MVETimeChain);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("BNCE"))
+    {
+        m_elem.reset(new struct MVEBounce);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("CNST"))
+    {
+        m_elem.reset(new struct MVEConstant);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("GRAV"))
+    {
+        m_elem.reset(new struct MVEGravity);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("EXPL"))
+    {
+        m_elem.reset(new struct MVEExplode);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("SPOS"))
+    {
+        m_elem.reset(new struct MVESetPosition);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("LMPL"))
+    {
+        m_elem.reset(new struct MVELinearImplosion);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("PULS"))
+    {
+        m_elem.reset(new struct MVEPulse);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("WIND"))
+    {
+        m_elem.reset(new struct MVEWind);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else if (r.enterSubRecord("SWRL"))
+    {
+        m_elem.reset(new struct MVESwirl);
+        m_elem->read(r);
+        r.leaveSubRecord();
+    }
+    else
+        m_elem.reset();
+}
+
+void ModVectorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+{
+    if (m_elem)
+    {
+        w.enterSubRecord(m_elem->ClassName());
+        m_elem->write(w);
+        w.leaveSubRecord();
+    }
+}
+
+size_t ModVectorElementFactory::binarySize(size_t __isz) const
+{
+    if (m_elem)
+        return m_elem->binarySize(__isz + 4);
+    else
+        return __isz + 4;
+}
+
+void ModVectorElementFactory::read(Athena::io::IStreamReader& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    switch (clsId)
+    {
+    case SBIG('IMPL'):
+        m_elem.reset(new struct MVEImplosion);
+        break;
+    case SBIG('EMPL'):
+        m_elem.reset(new struct MVEExponentialImplosion);
+        break;
+    case SBIG('CHAN'):
+        m_elem.reset(new struct MVETimeChain);
+        break;
+    case SBIG('BNCE'):
+        m_elem.reset(new struct MVEBounce);
+        break;
+    case SBIG('CNST'):
+        m_elem.reset(new struct MVEConstant);
+        break;
+    case SBIG('GRAV'):
+        m_elem.reset(new struct MVEGravity);
+        break;
+    case SBIG('EXPL'):
+        m_elem.reset(new struct MVEExplode);
+        break;
+    case SBIG('SPOS'):
+        m_elem.reset(new struct MVESetPosition);
+        break;
+    case SBIG('LMPL'):
+        m_elem.reset(new struct MVELinearImplosion);
+        break;
+    case SBIG('PULS'):
+        m_elem.reset(new struct MVEPulse);
+        break;
+    case SBIG('WIND'):
+        m_elem.reset(new struct MVEWind);
+        break;
+    case SBIG('SWRL'):
+        m_elem.reset(new struct MVESwirl);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    m_elem->read(r);
+}
+
+void ModVectorElementFactory::write(Athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
