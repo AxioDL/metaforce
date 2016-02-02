@@ -66,7 +66,7 @@ class IDataSpec
 {
 public:
     virtual ~IDataSpec() {}
-    using FProgress = FProgress;
+    using FProgress = HECL::Database::FProgress;
     using FCookProgress = std::function<void(const SystemChar*)>;
 
     /**
