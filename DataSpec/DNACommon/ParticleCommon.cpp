@@ -4,7 +4,7 @@ namespace Retro
 {
 namespace DNAParticle
 {
-static LogVisor::LogModule Log("Retro::ParticleCommon   ");
+LogVisor::LogModule LogModule("Retro::DNAParticle");
 
 void RealElementFactory::read(Athena::io::YAMLDocReader& r)
 {
@@ -17,7 +17,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        Log.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -164,7 +164,7 @@ void IntElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        Log.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -316,7 +316,7 @@ void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        Log.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -451,7 +451,7 @@ void ColorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        Log.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -556,7 +556,7 @@ void ModVectorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        Log.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -673,6 +673,91 @@ void ModVectorElementFactory::read(Athena::io::IStreamReader& r)
 }
 
 void ModVectorElementFactory::write(Athena::io::IStreamWriter& w) const
+{
+    if (m_elem)
+    {
+        w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+        m_elem->write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+
+
+void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
+{
+    const auto& mapChildren = r.getCurNode()->m_mapChildren;
+    if (mapChildren.empty())
+    {
+        m_elem.reset();
+        return;
+    }
+
+    const auto& elem = mapChildren[0];
+    if (elem.first.size() < 4)
+        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+
+    switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
+    {
+    case SBIG('SETR'):
+        m_elem.reset(new struct EESimpleEmitterTR);
+        break;
+    case SBIG('SEMR'):
+        m_elem.reset(new struct EESimpleEmitter);
+        break;
+    case SBIG('SPHE'):
+        m_elem.reset(new struct VESphere);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    r.enterSubRecord(elem.first.c_str());
+    m_elem->read(r);
+    r.leaveSubRecord();
+}
+
+void EmitterElementFactory::write(Athena::io::YAMLDocWriter& w) const
+{
+    if (m_elem)
+    {
+        w.enterSubRecord(m_elem->ClassID());
+        m_elem->write(w);
+        w.leaveSubRecord();
+    }
+}
+
+size_t EmitterElementFactory::binarySize(size_t __isz) const
+{
+    if (m_elem)
+        return m_elem->binarySize(__isz + 4);
+    else
+        return __isz + 4;
+}
+
+void EmitterElementFactory::read(Athena::io::IStreamReader& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    switch (clsId)
+    {
+    case SBIG('SETR'):
+        m_elem.reset(new struct EESimpleEmitterTR);
+        break;
+    case SBIG('SEMR'):
+        m_elem.reset(new struct EESimpleEmitter);
+        break;
+    case SBIG('SPHE'):
+        m_elem.reset(new struct VESphere);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    m_elem->read(r);
+}
+
+void EmitterElementFactory::write(Athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {

@@ -6,6 +6,7 @@
 #include "SCAN.hpp"
 #include "MLVL.hpp"
 #include "../DNACommon/TXTR.hpp"
+#include "../DNACommon/PART.hpp"
 #include "CMDL.hpp"
 #include "ANCS.hpp"
 #include "MREA.hpp"
@@ -281,6 +282,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {nullptr, MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+    //case SBIG('PART'):
+    //    return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".yaml")}};
     }
     return {};
 }
