@@ -8,6 +8,7 @@
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/PART.hpp"
 #include "CMDL.hpp"
+#include "AFSM.hpp"
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
@@ -270,6 +271,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
+    case SBIG('AFSM'):
+        return {AFSM::Extract, nullptr, {_S(".yaml")}};
     case SBIG('FRME'):
         return {nullptr, FRME::Extract, {_S(".blend")}, 2};
     case SBIG('CMDL'):
