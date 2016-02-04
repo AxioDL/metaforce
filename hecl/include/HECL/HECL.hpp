@@ -301,6 +301,28 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
     return fp;
 }
 
+static inline int FSeek(FILE* fp, int64_t offset, int whence)
+{
+#if _WIN32
+    return _fseeki64(fp, offset, whence);
+#elif __APPLE__ || __FreeBSD__
+    return fseeko(fp, offset, whence);
+#else
+    return fseeko64(fp, offset, whence);
+#endif
+}
+
+static inline int64_t FTell(FILE* fp)
+{
+#if _WIN32
+    return _ftelli64(fp);
+#elif __APPLE__ || __FreeBSD__
+    return ftello(fp);
+#else
+    return ftello64(fp);
+#endif
+}
+
 static inline int Rename(const SystemChar* oldpath, const SystemChar* newpath)
 {
 #if HECL_UCS2
