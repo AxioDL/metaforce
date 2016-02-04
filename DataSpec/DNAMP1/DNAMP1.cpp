@@ -282,8 +282,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {nullptr, MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
-    //case SBIG('PART'):
-    //    return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".yaml")}};
+    case SBIG('PART'):
+        return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".yaml")}};
     }
     return {};
 }

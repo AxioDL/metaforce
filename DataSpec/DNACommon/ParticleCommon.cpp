@@ -61,6 +61,69 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
     case SBIG('SINE'):
         m_elem.reset(new struct RESineWave);
         break;
+    case SBIG('ISWT'):
+        m_elem.reset(new struct REISWT);
+        break;
+    case SBIG('CLTN'):
+        m_elem.reset(new struct RECompareLessThan);
+        break;
+    case SBIG('CEQL'):
+        m_elem.reset(new struct RECompareEquals);
+        break;
+    case SBIG('PAP1'):
+        m_elem.reset(new struct REParticleAccessParam1);
+        break;
+    case SBIG('PAP2'):
+        m_elem.reset(new struct REParticleAccessParam2);
+        break;
+    case SBIG('PAP3'):
+        m_elem.reset(new struct REParticleAccessParam3);
+        break;
+    case SBIG('PAP4'):
+        m_elem.reset(new struct REParticleAccessParam4);
+        break;
+    case SBIG('PAP5'):
+        m_elem.reset(new struct REParticleAccessParam5);
+        break;
+    case SBIG('PAP6'):
+        m_elem.reset(new struct REParticleAccessParam6);
+        break;
+    case SBIG('PAP7'):
+        m_elem.reset(new struct REParticleAccessParam7);
+        break;
+    case SBIG('PAP8'):
+        m_elem.reset(new struct REParticleAccessParam8);
+        break;
+    case SBIG('PSLL'):
+        m_elem.reset(new struct REPSLL);
+        break;
+    case SBIG('PRLW'):
+        m_elem.reset(new struct REPRLW);
+        break;
+    case SBIG('PSOF'):
+        m_elem.reset(new struct REPSOF);
+        break;
+    case SBIG('SUB_'):
+        m_elem.reset(new struct RESubtract);
+        break;
+    case SBIG('VMAG'):
+        m_elem.reset(new struct REVectorMagnitude);
+        break;
+    case SBIG('VXTR'):
+        m_elem.reset(new struct REVectorXToReal);
+        break;
+    case SBIG('VYTR'):
+        m_elem.reset(new struct REVectorYToReal);
+        break;
+    case SBIG('VZTR'):
+        m_elem.reset(new struct REVectorZToReal);
+        break;
+    case SBIG('CEXT'):
+        m_elem.reset(new struct RECEXT);
+        break;
+    case SBIG('ITRL'):
+        m_elem.reset(new struct REITRL);
+        break;
     default:
         m_elem.reset();
         return;
@@ -134,8 +197,75 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('SINE'):
         m_elem.reset(new struct RESineWave);
         break;
+    case SBIG('ISWT'):
+        m_elem.reset(new struct REISWT);
+        break;
+    case SBIG('CLTN'):
+        m_elem.reset(new struct RECompareLessThan);
+        break;
+    case SBIG('CEQL'):
+        m_elem.reset(new struct RECompareEquals);
+        break;
+    case SBIG('PAP1'):
+        m_elem.reset(new struct REParticleAccessParam1);
+        break;
+    case SBIG('PAP2'):
+        m_elem.reset(new struct REParticleAccessParam2);
+        break;
+    case SBIG('PAP3'):
+        m_elem.reset(new struct REParticleAccessParam3);
+        break;
+    case SBIG('PAP4'):
+        m_elem.reset(new struct REParticleAccessParam4);
+        break;
+    case SBIG('PAP5'):
+        m_elem.reset(new struct REParticleAccessParam5);
+        break;
+    case SBIG('PAP6'):
+        m_elem.reset(new struct REParticleAccessParam6);
+        break;
+    case SBIG('PAP7'):
+        m_elem.reset(new struct REParticleAccessParam7);
+        break;
+    case SBIG('PAP8'):
+        m_elem.reset(new struct REParticleAccessParam8);
+        break;
+    case SBIG('PSLL'):
+        m_elem.reset(new struct REPSLL);
+        break;
+    case SBIG('PRLW'):
+        m_elem.reset(new struct REPRLW);
+        break;
+    case SBIG('PSOF'):
+        m_elem.reset(new struct REPSOF);
+        break;
+    case SBIG('SUB_'):
+        m_elem.reset(new struct RESubtract);
+        break;
+    case SBIG('VMAG'):
+        m_elem.reset(new struct REVectorMagnitude);
+        break;
+    case SBIG('VXTR'):
+        m_elem.reset(new struct REVectorXToReal);
+        break;
+    case SBIG('VYTR'):
+        m_elem.reset(new struct REVectorYToReal);
+        break;
+    case SBIG('VZTR'):
+        m_elem.reset(new struct REVectorZToReal);
+        break;
+    case SBIG('CEXT'):
+        m_elem.reset(new struct RECEXT);
+        break;
+    case SBIG('ITRL'):
+        m_elem.reset(new struct REITRL);
+        break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown RealElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
@@ -210,6 +340,15 @@ void IntElementFactory::read(Athena::io::YAMLDocReader& r)
         break;
     case SBIG('TSCL'):
         m_elem.reset(new struct IETimeScale);
+        break;
+    case SBIG('GTCP'):
+        m_elem.reset(new struct IEGTCP);
+        break;
+    case SBIG('MODU'):
+        m_elem.reset(new struct IEModulo);
+        break;
+    case SBIG('SUB_'):
+        m_elem.reset(new struct IESubtract);
         break;
     default:
         m_elem.reset();
@@ -287,8 +426,21 @@ void IntElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('TSCL'):
         m_elem.reset(new struct IETimeScale);
         break;
+    case SBIG('GTCP'):
+        m_elem.reset(new struct IEGTCP);
+        break;
+    case SBIG('MODU'):
+        m_elem.reset(new struct IEModulo);
+        break;
+    case SBIG('SUB_'):
+        m_elem.reset(new struct IESubtract);
+        break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown IntElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
@@ -353,6 +505,24 @@ void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
         break;
     case SBIG('PULS'):
         m_elem.reset(new struct VEPulse);
+        break;
+    case SBIG('PVEL'):
+        m_elem.reset(new struct VEParticleVelocity);
+        break;
+    case SBIG('SPOS'):
+        m_elem.reset(new struct VESPOS);
+        break;
+    case SBIG('PLCO'):
+        m_elem.reset(new struct VEPLCO);
+        break;
+    case SBIG('PLOC'):
+        m_elem.reset(new struct VEPLOC);
+        break;
+    case SBIG('PSOR'):
+        m_elem.reset(new struct VEPSOR);
+        break;
+    case SBIG('PSOF'):
+        m_elem.reset(new struct VEPSOF);
         break;
     default:
         m_elem.reset();
@@ -421,8 +591,30 @@ void VectorElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('PULS'):
         m_elem.reset(new struct VEPulse);
         break;
+    case SBIG('PVEL'):
+        m_elem.reset(new struct VEParticleVelocity);
+        break;
+    case SBIG('SPOS'):
+        m_elem.reset(new struct VESPOS);
+        break;
+    case SBIG('PLCO'):
+        m_elem.reset(new struct VEPLCO);
+        break;
+    case SBIG('PLOC'):
+        m_elem.reset(new struct VEPLOC);
+        break;
+    case SBIG('PSOR'):
+        m_elem.reset(new struct VEPSOR);
+        break;
+    case SBIG('PSOF'):
+        m_elem.reset(new struct VEPSOF);
+        break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown VectorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
@@ -526,8 +718,12 @@ void ColorElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('PULS'):
         m_elem.reset(new struct CEPulse);
         break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown ColorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
@@ -665,8 +861,12 @@ void ModVectorElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('SWRL'):
         m_elem.reset(new struct MVESwirl);
         break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown ModVectorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
@@ -707,6 +907,9 @@ void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
         break;
     case SBIG('SPHE'):
         m_elem.reset(new struct VESphere);
+        break;
+    case SBIG('ASPH'):
+        m_elem.reset(new struct VEAngularSphere);
         break;
     default:
         m_elem.reset();
@@ -750,8 +953,15 @@ void EmitterElementFactory::read(Athena::io::IStreamReader& r)
     case SBIG('SPHE'):
         m_elem.reset(new struct VESphere);
         break;
+    case SBIG('ASPH'):
+        m_elem.reset(new struct VEAngularSphere);
+        break;
+    case SBIG('NONE'):
+        m_elem.reset();
+        return;
     default:
         m_elem.reset();
+        LogModule.report(LogVisor::FatalError, "Unknown EmitterElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);

@@ -26,6 +26,7 @@ struct RealElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IRealElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -39,6 +40,7 @@ struct IntElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IIntElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -52,6 +54,7 @@ struct VectorElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IVectorElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -65,6 +68,7 @@ struct ColorElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IColorElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -78,6 +82,7 @@ struct ModVectorElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IModVectorElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -91,6 +96,7 @@ struct EmitterElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IEmitterElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r);
     void write(Athena::io::YAMLDocWriter& w) const;
@@ -111,8 +117,30 @@ struct RELifetimeTween : IRealElement
 
 struct REConstant : IRealElement
 {
-    DECL_YAML
+    Delete _d;
     Value<float> val;
+
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        val = r.readFloat(nullptr);
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.writeFloat(nullptr, val);
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        return __isz + 4;
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        val = r.readFloatBig();
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        w.writeFloatBig(val);
+    }
+
     const char* ClassID() const {return "CNST";}
 };
 
@@ -213,6 +241,151 @@ struct RESineWave : IRealElement
     const char* ClassID() const {return "SINE";}
 };
 
+struct REISWT : IRealElement
+{
+    DECL_YAML
+    RealElementFactory a;
+    RealElementFactory b;
+    const char* ClassID() const {return "ISWT";}
+};
+
+struct RECompareLessThan : IRealElement
+{
+    DECL_YAML
+    RealElementFactory a;
+    RealElementFactory b;
+    RealElementFactory c;
+    RealElementFactory d;
+    const char* ClassID() const {return "CLTN";}
+};
+
+struct RECompareEquals : IRealElement
+{
+    DECL_YAML
+    RealElementFactory a;
+    RealElementFactory b;
+    RealElementFactory c;
+    RealElementFactory d;
+    const char* ClassID() const {return "CEQL";}
+};
+
+struct REParticleAccessParam1 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP1";}
+};
+
+struct REParticleAccessParam2 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP2";}
+};
+
+struct REParticleAccessParam3 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP3";}
+};
+
+struct REParticleAccessParam4 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP4";}
+};
+
+struct REParticleAccessParam5 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP5";}
+};
+
+struct REParticleAccessParam6 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP6";}
+};
+
+struct REParticleAccessParam7 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP7";}
+};
+
+struct REParticleAccessParam8 : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PAP8";}
+};
+
+struct REPSLL : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PSLL";}
+};
+
+struct REPRLW : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PRLW";}
+};
+
+struct REPSOF : IRealElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PSOF";}
+};
+
+struct RESubtract : IRealElement
+{
+    DECL_YAML
+    RealElementFactory a;
+    RealElementFactory b;
+    const char* ClassID() const {return "SUB_";}
+};
+
+struct REVectorMagnitude : IRealElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    const char* ClassID() const {return "VMAG";}
+};
+
+struct REVectorXToReal : IRealElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    const char* ClassID() const {return "VXTR";}
+};
+
+struct REVectorYToReal : IRealElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    const char* ClassID() const {return "VYTR";}
+};
+
+struct REVectorZToReal : IRealElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    const char* ClassID() const {return "VZTR";}
+};
+
+struct RECEXT : IRealElement
+{
+    DECL_YAML
+    IntElementFactory a;
+    const char* ClassID() const {return "CEXT";}
+};
+
+struct REITRL : IRealElement
+{
+    DECL_YAML
+    IntElementFactory a;
+    RealElementFactory b;
+    const char* ClassID() const {return "ITRL";}
+};
+
 struct IEKeyframeEmitter : IIntElement
 {
     DECL_YAML
@@ -263,8 +436,30 @@ struct IEAdd : IIntElement
 
 struct IEConstant : IIntElement
 {
-    DECL_YAML
+    Delete _d;
     Value<atUint32> val;
+
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        val = r.readUint32(nullptr);
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.writeUint32(nullptr, val);
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        return __isz + 4;
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        val = r.readUint32Big();
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        w.writeUint32Big(val);
+    }
+
     const char* ClassID() const {return "CNST";}
 };
 
@@ -332,6 +527,28 @@ struct IETimeScale : IIntElement
     const char* ClassID() const {return "TSCL";}
 };
 
+struct IEGTCP : IIntElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "GTCP";}
+};
+
+struct IEModulo : IIntElement
+{
+    DECL_YAML
+    IntElementFactory a;
+    IntElementFactory b;
+    const char* ClassID() const {return "MODU";}
+};
+
+struct IESubtract : IIntElement
+{
+    DECL_YAML
+    IntElementFactory a;
+    IntElementFactory b;
+    const char* ClassID() const {return "SUB_";}
+};
+
 struct VECone : IVectorElement
 {
     DECL_YAML
@@ -380,10 +597,48 @@ struct VECircleCluster : IVectorElement
 
 struct VEConstant : IVectorElement
 {
-    DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
+    Delete _d;
+    RealElementFactory comps[3];
+
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        for (int i=0 ; i<3 ; ++i)
+        {
+            r.enterSubRecord(nullptr);
+            comps[i].read(r);
+            r.leaveSubRecord();
+        }
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.enterSubVector(nullptr);
+        for (int i=0 ; i<3 ; ++i)
+        {
+            w.enterSubRecord(nullptr);
+            comps[i].write(w);
+            w.leaveSubRecord();
+        }
+        w.leaveSubVector();
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = comps[0].binarySize(__isz);
+        __isz = comps[1].binarySize(__isz);
+        return comps[2].binarySize(__isz);
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        comps[0].read(r);
+        comps[1].read(r);
+        comps[2].read(r);
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        comps[0].write(w);
+        comps[1].write(w);
+        comps[2].write(w);
+    }
+
     const char* ClassID() const {return "CNST";}
 };
 
@@ -437,6 +692,43 @@ struct VEPulse : IVectorElement
     const char* ClassID() const {return "PULS";}
 };
 
+struct VEParticleVelocity : IVectorElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PVEL";}
+};
+
+struct VESPOS : IVectorElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    const char* ClassID() const {return "SPOS";}
+};
+
+struct VEPLCO : IVectorElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PLCO";}
+};
+
+struct VEPLOC : IVectorElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PLOC";}
+};
+
+struct VEPSOR : IVectorElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PSOR";}
+};
+
+struct VEPSOF : IVectorElement
+{
+    DECL_YAML
+    const char* ClassID() const {return "PSOF";}
+};
+
 struct CEKeyframeEmitter : IColorElement
 {
     DECL_YAML
@@ -453,11 +745,51 @@ struct CEKeyframeEmitter : IColorElement
 
 struct CEConstant : IColorElement
 {
-    DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    Delete _d;
+    RealElementFactory comps[4];
+
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        for (int i=0 ; i<4 ; ++i)
+        {
+            r.enterSubRecord(nullptr);
+            comps[i].read(r);
+            r.leaveSubRecord();
+        }
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.enterSubVector(nullptr);
+        for (int i=0 ; i<4 ; ++i)
+        {
+            w.enterSubRecord(nullptr);
+            comps[i].write(w);
+            w.leaveSubRecord();
+        }
+        w.leaveSubVector();
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = comps[0].binarySize(__isz);
+        __isz = comps[1].binarySize(__isz);
+        __isz = comps[2].binarySize(__isz);
+        return comps[3].binarySize(__isz);
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        comps[0].read(r);
+        comps[1].read(r);
+        comps[2].read(r);
+        comps[3].read(r);
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        comps[0].write(w);
+        comps[1].write(w);
+        comps[2].write(w);
+        comps[3].write(w);
+    }
+
     const char* ClassID() const {return "CNST";}
 };
 
@@ -546,10 +878,48 @@ struct MVEBounce : IModVectorElement
 
 struct MVEConstant : IModVectorElement
 {
-    DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
+    Delete _d;
+    RealElementFactory comps[3];
+
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        for (int i=0 ; i<3 ; ++i)
+        {
+            r.enterSubRecord(nullptr);
+            comps[i].read(r);
+            r.leaveSubRecord();
+        }
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.enterSubVector(nullptr);
+        for (int i=0 ; i<3 ; ++i)
+        {
+            w.enterSubRecord(nullptr);
+            comps[i].write(w);
+            w.leaveSubRecord();
+        }
+        w.leaveSubVector();
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = comps[0].binarySize(__isz);
+        __isz = comps[1].binarySize(__isz);
+        return comps[2].binarySize(__isz);
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        comps[0].read(r);
+        comps[1].read(r);
+        comps[2].read(r);
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        comps[0].write(w);
+        comps[1].write(w);
+        comps[2].write(w);
+    }
+
     const char* ClassID() const {return "CNST";}
 };
 
@@ -630,6 +1000,19 @@ struct VESphere : IEmitterElement
     RealElementFactory b;
     RealElementFactory c;
     const char* ClassID() const {return "SPHE";}
+};
+
+struct VEAngularSphere : IEmitterElement
+{
+    DECL_YAML
+    VectorElementFactory a;
+    RealElementFactory b;
+    RealElementFactory c;
+    RealElementFactory d;
+    RealElementFactory e;
+    RealElementFactory f;
+    RealElementFactory g;
+    const char* ClassID() const {return "ASPH";}
 };
 
 struct EESimpleEmitterTR : EESimpleEmitter
@@ -893,6 +1276,7 @@ struct UVElementFactory : BigYAML
 {
     Delete _d;
     std::unique_ptr<IUVElement> m_elem;
+    operator bool() const {return m_elem.operator bool();}
 
     void read(Athena::io::YAMLDocReader& r)
     {
@@ -1085,6 +1469,8 @@ struct SpawnSystemKeyframeData : BigYAML
     }
     void write(Athena::io::YAMLDocWriter& w) const
     {
+        if (spawns.empty())
+            return;
         w.writeUint32("a", a);
         w.writeUint32("b", b);
         w.writeUint32("c", c);
@@ -1092,6 +1478,7 @@ struct SpawnSystemKeyframeData : BigYAML
         w.enterSubVector("spawns");
         for (const auto& spawn : spawns)
         {
+            w.enterSubRecord(nullptr);
             w.writeUint32("first", spawn.first);
             w.enterSubVector("second");
             for (const auto& info : spawn.second)
@@ -1101,6 +1488,7 @@ struct SpawnSystemKeyframeData : BigYAML
                 w.leaveSubRecord();
             }
             w.leaveSubVector();
+            w.leaveSubRecord();
         }
         w.leaveSubVector();
     }
@@ -1117,6 +1505,11 @@ struct SpawnSystemKeyframeData : BigYAML
     }
     void read(Athena::io::IStreamReader& r)
     {
+        uint32_t clsId;
+        r.readBytesToBuf(&clsId, 4);
+        if (clsId != SBIG('CNST'))
+            return;
+
         a = r.readUint32Big();
         b = r.readUint32Big();
         c = r.readUint32Big();
@@ -1139,6 +1532,12 @@ struct SpawnSystemKeyframeData : BigYAML
     }
     void write(Athena::io::IStreamWriter& w) const
     {
+        if (spawns.empty())
+        {
+            w.writeBytes((atInt8*)"NONE", 4);
+            return;
+        }
+        w.writeBytes((atInt8*)"CNST", 4);
         w.writeUint32Big(a);
         w.writeUint32Big(b);
         w.writeUint32Big(c);
@@ -1152,6 +1551,8 @@ struct SpawnSystemKeyframeData : BigYAML
                 info.write(w);
         }
     }
+
+    operator bool() const {return spawns.size() != 0;}
 };
 
 template <class IDType>
@@ -1202,6 +1603,8 @@ struct ChildResourceFactory : BigYAML
         else
             w.writeBytes((atInt8*)"NONE", 4);
     }
+
+    operator bool() const {return id.operator bool();}
 };
 
 }
