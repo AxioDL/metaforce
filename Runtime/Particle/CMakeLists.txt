@@ -1,4 +1,5 @@
 add_library(RuntimeCommonParticle
+            IElement.hpp
             CGenDescription.hpp CGenDescription.cpp
             CRealElement.hpp CRealElement.cpp
             CIntElement.hpp CIntElement.cpp
@@ -19,4 +20,5 @@ add_library(RuntimeCommonParticle
             CParticleElectric.hpp CParticleElectric.cpp
             CDecalManager.hpp CDecalManager.cpp
             CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
-            CWarp.hpp CWarp.cpp)
+            CWarp.hpp CWarp.cpp
+            CParticleGlobals.hpp CParticleGlobals.cpp)
