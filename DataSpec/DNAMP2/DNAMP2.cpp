@@ -6,6 +6,7 @@
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "AFSM.hpp"
 #include "../DNACommon/TXTR.hpp"
 
 namespace Retro
@@ -215,6 +216,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
+    case SBIG('AFSM'):
+        return {AFSM::Extract, nullptr, {_S(".yaml")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('ANCS'):

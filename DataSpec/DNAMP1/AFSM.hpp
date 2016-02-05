@@ -1,5 +1,5 @@
-#ifndef _RETRO_AFSM_HPP_
-#define _RETRO_AFSM_HPP_
+#ifndef _DNAMP1_AFSM_HPP_
+#define _DNAMP1_AFSM_HPP_
 
 #include <Athena/FileWriter.hpp>
 #include "../DNACommon/DNACommon.hpp"
