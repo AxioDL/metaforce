@@ -3,6 +3,7 @@ add_subdirectory(ScriptObjects)
 make_dnalist(liblist
              PAK
              MLVL
+             AFSM
              ANCS
              ANIM
              CINF
