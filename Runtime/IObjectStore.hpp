@@ -15,8 +15,8 @@ public:
     virtual CToken GetObj(const SObjectTag&)=0;
     virtual CToken GetObj(char const*)=0;
     virtual CToken GetObj(char const*, const CVParamTransfer&)=0;
-    virtual void HasObject(const SObjectTag&) const=0;
-    virtual void ObjectIsLive(const SObjectTag&) const=0;
+    virtual bool HasObject(const SObjectTag&) const=0;
+    virtual bool ObjectIsLive(const SObjectTag&) const=0;
     virtual IFactory& GetFactory() const=0;
     virtual void Flush()=0;
     virtual void ObjectUnreferenced(const SObjectTag&)=0;

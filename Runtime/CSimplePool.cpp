@@ -9,36 +9,61 @@ CSimplePool::CSimplePool(IFactory& factory)
 : x30_factory(factory), x34_paramXfer(new TObjOwnerParam<IObjectStore*>(this))
 {}
 
-CToken CSimplePool::GetObj(const SObjectTag&, const CVParamTransfer&)
+CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
 {
+    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
+        return pair.first == tag;
+    });
+
+    if (iter != x4_resources.end())
+        return CToken(iter->second);
+    // TODO: There is some logic missing here, need to figure out what it's doing
+    CObjectReference* ret = new CObjectReference(*this, x30_factory.Build(tag, paramXfer), tag, paramXfer);
+
+    return CToken(ret);
 }
 
-CToken CSimplePool::GetObj(const SObjectTag&)
+CToken CSimplePool::GetObj(const SObjectTag& tag)
 {
+    return GetObj(tag, x34_paramXfer);
 }
 
-CToken CSimplePool::GetObj(char const*)
+CToken CSimplePool::GetObj(char const* resourceName)
 {
+    return GetObj(resourceName, x34_paramXfer);
 }
 
-CToken CSimplePool::GetObj(char const*, const CVParamTransfer&)
+CToken CSimplePool::GetObj(char const* resourceName, const CVParamTransfer& paramXfer)
 {
+    const SObjectTag* tag = x30_factory.GetResourceIdByName(resourceName);
+    return GetObj(*tag, paramXfer);
 }
 
-void CSimplePool::HasObject(const SObjectTag&) const
+bool CSimplePool::HasObject(const SObjectTag& tag) const
 {
+    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
+        return pair.first == tag;
+    });
+
+    return iter != x4_resources.end();
 }
 
-void CSimplePool::ObjectIsLive(const SObjectTag&) const
+bool CSimplePool::ObjectIsLive(const SObjectTag&) const
 {
+    return false;
 }
 
 void CSimplePool::Flush()
 {
 }
 
-void CSimplePool::ObjectUnreferenced(const SObjectTag&)
+void CSimplePool::ObjectUnreferenced(const SObjectTag& tag)
 {
+    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
+        return pair.first == tag;
+    });
+    if (iter != x4_resources.end())
+        x4_resources.erase(iter);
 }
 
 }
