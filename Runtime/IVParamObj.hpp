@@ -15,7 +15,7 @@ public:
 
 class CVParamTransfer
 {
-    rstl::rc_ptr<IVParamObj> m_ref;
+    std::shared_ptr<IVParamObj> m_ref;
 public:
     CVParamTransfer();
     CVParamTransfer(IVParamObj* obj) : m_ref(obj) {}
@@ -34,6 +34,7 @@ protected:
     ~TObjOwnerParam() {}
 public:
     TObjOwnerParam(T&& obj) : m_param(std::move(obj)) {}
+    T& GetParam() {return m_param;}
 };
 
 }

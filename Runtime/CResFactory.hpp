@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "IFactory.hpp"
 #include "CResLoader.hpp"
+#include "IVParamObj.hpp"
 
 namespace Retro
 {
@@ -15,15 +16,16 @@ class CResFactory : public IFactory
 public:
     struct SLoadingData
     {
-        SObjectTag tag;
-        IDvdRequest* dvdReq;
-        IObj** targetPtr;
-        void* loadBuffer;
-        u32 resSize;
+        SObjectTag x0_tag;
+        IDvdRequest* x8_dvdReq;
+        IObj** xc_targetPtr;
+        void* x10_loadBuffer;
+        u32 x14_resSize;
+        CVParamTransfer x18_cvXfer;
     };
 private:
     std::unordered_map<SObjectTag, SLoadingData> m_loadList;
-    void AddToLoadList(const SLoadingData& data) {m_loadList[data.tag] = data;}
+    void AddToLoadList(const SLoadingData& data) {m_loadList[data.x0_tag] = data;}
 public:
     CResLoader& GetLoader() {return x4_loader;}
     std::unique_ptr<IObj> Build(const SObjectTag&, const CVParamTransfer&);

@@ -2,28 +2,31 @@
 #define __RETRO_CSIMPLEPOOL_HPP__
 
 #include "IObjectStore.hpp"
+#include "RetroTypes.hpp"
+#include "IVParamObj.hpp"
+#include <unordered_map>
 
 namespace Retro
 {
 class IFactory;
+class CObjectReference;
 
 class CSimplePool : public IObjectStore
 {
-    IFactory& m_factory;
+    std::unordered_map<SObjectTag, CObjectReference*> x4_resources;
+    IFactory& x30_factory;
+    CVParamTransfer x34_paramXfer;
 public:
-    CSimplePool(IFactory& factory)
-    : m_factory(factory)
-    {
-    }
-    IObj* GetObj(const SObjectTag&, const CVParamTransfer&) {return nullptr;}
-    IObj* GetObj(const SObjectTag&) {return nullptr;}
-    IObj* GetObj(char const*) {return nullptr;}
-    IObj* GetObj(char const*, const CVParamTransfer&) {return nullptr;}
-    void HasObject(const SObjectTag&) const {}
-    void ObjectIsLive(const SObjectTag&) const {}
-    IFactory& GetFactory() const {return m_factory;}
-    void Flush() {}
-    void ObjectUnreferenced(const SObjectTag&) {}
+    CSimplePool(IFactory& factory);
+    CToken GetObj(const SObjectTag&, const CVParamTransfer&);
+    CToken GetObj(const SObjectTag&);
+    CToken GetObj(char const*);
+    CToken GetObj(char const*, const CVParamTransfer&);
+    void HasObject(const SObjectTag&) const;
+    void ObjectIsLive(const SObjectTag&) const;
+    IFactory& GetFactory() const {return x30_factory;}
+    void Flush();
+    void ObjectUnreferenced(const SObjectTag&);
 };
 
 }

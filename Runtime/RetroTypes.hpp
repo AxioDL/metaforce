@@ -12,11 +12,12 @@ namespace Retro
 {
 
 using FourCC = HECL::FourCC;
+using TResID = u32;
 
 struct SObjectTag
 {
     FourCC type;
-    u32 id;
+    TResID id = -1;
     bool operator!=(const SObjectTag& other) const {return id != other.id;}
     bool operator==(const SObjectTag& other) const {return id == other.id;}
 };

@@ -85,7 +85,7 @@ class CArchitectureMessage
 {
     EArchMsgTarget x0_target;
     EArchMsgType x4_type;
-    rstl::rc_ptr<IArchMsgParm> x8_parm;
+    std::shared_ptr<IArchMsgParm> x8_parm;
 public:
     CArchitectureMessage(EArchMsgTarget target, EArchMsgType type, IArchMsgParm* parm)
     : x0_target(target), x4_type(type), x8_parm(parm) {}

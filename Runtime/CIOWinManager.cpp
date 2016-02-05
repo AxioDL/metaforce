@@ -20,7 +20,7 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
     case EArchMsgType::CreateIOWin:
     {
         const CArchMsgParmInt32Int32VoidPtr& parm = MakeMsg::GetParmCreateIOWin(msg);
-        rstl::rc_ptr<CIOWin> iow(static_cast<CIOWin*>(parm.xc_parm3));
+        std::shared_ptr<CIOWin> iow(static_cast<CIOWin*>(parm.xc_parm3));
         AddIOWin(iow, parm.x4_parm1, parm.x8_parm2);
         return false;
     }
@@ -146,14 +146,14 @@ CIOWin* CIOWinManager::FindIOWin(const std::string& name)
     return nullptr;
 }
 
-rstl::rc_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name)
+std::shared_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name)
 {
     size_t findHash = std::hash<std::string>()(name);
 
     IOWinPQNode* node = x4_pumpRoot;
     while (node)
     {
-        rstl::rc_ptr<CIOWin> iow = node->ShareIOWin();
+        std::shared_ptr<CIOWin> iow = node->ShareIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
         node = node->x8_next;
@@ -162,13 +162,13 @@ rstl::rc_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name)
     node = x0_drawRoot;
     while (node)
     {
-        rstl::rc_ptr<CIOWin> iow = node->ShareIOWin();
+        std::shared_ptr<CIOWin> iow = node->ShareIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
         node = node->x8_next;
     }
 
-    return rstl::rc_ptr<CIOWin>();
+    return std::shared_ptr<CIOWin>();
 }
 
 void CIOWinManager::ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int drawPrio)
@@ -289,7 +289,7 @@ void CIOWinManager::RemoveIOWin(CIOWin* chIow)
     }
 }
 
-void CIOWinManager::AddIOWin(rstl::ncrc_ptr<CIOWin> chIow, int pumpPrio, int drawPrio)
+void CIOWinManager::AddIOWin(std::weak_ptr<CIOWin> chIow, int pumpPrio, int drawPrio)
 {
     IOWinPQNode* node = x4_pumpRoot;
     IOWinPQNode* prevNode = nullptr;

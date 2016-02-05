@@ -2,7 +2,7 @@
 #define __RETRO_CIOWIN_HPP__
 
 #include <string>
-#include "rstl.hpp"
+#include <memory>
 
 namespace Retro
 {
@@ -31,7 +31,7 @@ public:
     size_t GetNameHash() const {return m_nameHash;}
 };
 
-static bool operator==(rstl::rc_ptr<CIOWin> a, rstl::rc_ptr<CIOWin> b)
+static bool operator==(std::shared_ptr<CIOWin> a, std::shared_ptr<CIOWin> b)
 {
     return a.get() == b.get();
 }

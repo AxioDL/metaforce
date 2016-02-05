@@ -3,6 +3,4 @@
 namespace rstl
 {
 
-CRefData rstl::CRefData::sNull;
-
 }

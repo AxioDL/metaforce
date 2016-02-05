@@ -15,23 +15,44 @@ class IObj;
 
 class CObjectReference
 {
+    friend class CToken;
     u16 x0_refCount = 0;
-    bool x3_loading = false;
+    u16 x2_lockCount = 0;
+    bool x3_loading = false; /* Rightmost bit of lockCount */
     SObjectTag x4_objTag;
     IObjectStore* xC_objectStore = nullptr;
-    std::unique_ptr<IObj> x10_object;
+    IObj* x10_object = nullptr;
     CVParamTransfer x14_params;
 public:
     CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj,
                      const SObjectTag& objTag, CVParamTransfer buildParams)
-        : x4_objTag(objTag), xC_objectStore(&objStore),
-          x10_object(std::move(obj)), x14_params(buildParams) {}
-    CObjectReference(std::unique_ptr<IObj>&& obj);
+    : x4_objTag(objTag), xC_objectStore(&objStore),
+      x10_object(obj.release()), x14_params(buildParams) {}
+    CObjectReference(std::unique_ptr<IObj>&& obj)
+    : x10_object(obj.release()) {}
 
     bool IsLoading() const {return x3_loading;}
-    void Unlock() {}
-    void Lock() {}
-    u32 RemoveReference()
+    void Unlock()
+    {
+        --x2_lockCount;
+        if (x2_lockCount)
+            return;
+        if (x10_object && xC_objectStore)
+            Unload();
+        else if (IsLoading())
+            CancelLoad();
+    }
+    void Lock()
+    {
+        ++x2_lockCount;
+        if (!x10_object && !x3_loading)
+        {
+            IFactory& fac = xC_objectStore->GetFactory();
+            fac.BuildAsync(x4_objTag, x14_params, &x10_object);
+            x3_loading = true;
+        }
+    }
+    u16 RemoveReference()
     {
         --x0_refCount;
         if (x0_refCount == 0)
@@ -42,31 +63,51 @@ public:
                 CancelLoad();
             xC_objectStore->ObjectUnreferenced(x4_objTag);
         }
+        return x0_refCount;
     }
-    void CancelLoad() {}
+    void CancelLoad()
+    {
+        if (xC_objectStore && IsLoading())
+        {
+            xC_objectStore->GetFactory().CancelBuild(x4_objTag);
+            x3_loading = false;
+        }
+    }
     void Unload()
     {
-        x10_object.reset(nullptr);
+        delete x10_object;
+        x10_object = nullptr;
         x3_loading = false;
     }
-    IObj& GetObject()
+    IObj* GetObject()
     {
-        IFactory& factory = xC_objectStore->GetFactory();
-        factory.Build(x4_objTag, x14_params);
+        if (!x10_object)
+        {
+            IFactory& factory = xC_objectStore->GetFactory();
+            x10_object = factory.Build(x4_objTag, x14_params).release();
+        }
+        x3_loading = false;
+        return x10_object;
     }
-
+    ~CObjectReference()
+    {
+        if (x10_object)
+            delete x10_object;
+        else if (x3_loading)
+            xC_objectStore->GetFactory().CancelBuild(x4_objTag);
+    }
 };
 
 class CToken
 {
-    CObjectReference& x0_objRef;
+    CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
 public:
     void Unlock()
     {
         if (x4_lockHeld)
         {
-            x0_objRef.Unlock();
+            x0_objRef->Unlock();
             x4_lockHeld = false;
         }
     }
@@ -74,33 +115,77 @@ public:
     {
         if (!x4_lockHeld)
         {
-            x0_objRef.Lock();
+            x0_objRef->Lock();
             x4_lockHeld = true;
         }
     }
     void RemoveRef()
     {
-
+        if (x0_objRef->RemoveReference() == 0)
+        {
+            delete x0_objRef;
+            x0_objRef = nullptr;
+        }
     }
-    IObj& GetObj()
+    IObj* GetObj()
     {
         Lock();
-        return x0_objRef.GetObject();
+        return x0_objRef->GetObject();
     }
-    CToken& operator=(CToken&& other)
+    CToken& operator=(const CToken& other)
     {
-
+        Unlock();
+        RemoveRef();
+        x0_objRef = other.x0_objRef;
+        ++x0_objRef->x0_refCount;
+        if (other.x4_lockHeld)
+            Lock();
+        return *this;
+    }
+    CToken() {}
+    CToken(const CToken& other)
+    : x0_objRef(other.x0_objRef)
+    {
+        ++x0_objRef->x0_refCount;
+    }
+    CToken(IObj* obj)
+    {
+        x0_objRef = new CObjectReference(std::unique_ptr<IObj>(obj));
+        ++x0_objRef->x0_refCount;
+        Lock();
+    }
+    CToken(CObjectReference* obj)
+    {
+        x0_objRef = obj;
+        ++x0_objRef->x0_refCount;
     }
     ~CToken()
     {
-        if (x0_objRef && x4_lockHeld)
+        if (x4_lockHeld)
             x0_objRef->Unlock();
+        RemoveRef();
     }
 };
 
 template<class T>
-class TLockedToken
+class TToken : public CToken
 {
+public:
+    static std::unique_ptr<TObjOwnerDerivedFromIObj<T>> GetIObjObjectFor(std::unique_ptr<T>&& obj)
+    {
+        return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
+    }
+    TToken() {}
+    TToken(T* obj)
+    : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
+    TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
+};
+
+template<class T>
+class TLockedToken : public TToken<T>
+{
+public:
+    using TToken<T>::TToken;
 };
 
 }
