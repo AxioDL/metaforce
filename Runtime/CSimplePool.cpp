@@ -16,9 +16,9 @@ CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXf
     });
 
     if (iter != x4_resources.end())
-        return CToken(iter.second);
+        return CToken(iter->second);
     // TODO: There is some logic missing here, need to figure out what it's doing
-    CObjectReference* ret = new CObjectReference(*this, x30_factory.Build(tag, paramXfer), paramXfer);
+    CObjectReference* ret = new CObjectReference(*this, x30_factory.Build(tag, paramXfer), tag, paramXfer);
 
     return CToken(ret);
 }
