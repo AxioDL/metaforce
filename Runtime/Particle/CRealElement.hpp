@@ -60,11 +60,11 @@ public:
 class CREKeyframeEmitter : public CRealElement
 {
     u32 x4_percent;
-    u32 x8_a;
-    bool xc_b;
-    bool xd_c;
-    u32 x10_d;
-    u32 x14_e;
+    u32 x8_unk1;
+    bool xc_loop;
+    bool xd_unk2;
+    u32 x10_loopEnd;
+    u32 x14_loopStart;
     std::vector<float> x18_keys;
 public:
     CREKeyframeEmitter(CInputStream& in);

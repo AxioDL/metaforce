@@ -8,10 +8,10 @@ CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in)
 {
     x4_percent = in.readUint32Big();
     x8_a = in.readUint32Big();
-    xc_b = in.readBool();
+    xc_loop = in.readBool();
     xd_c = in.readBool();
-    x10_d = in.readUint32Big();
-    x14_e = in.readUint32Big();
+    x10_loopEnd = in.readUint32Big();
+    x14_loopStart = in.readUint32Big();
 
     u32 count = in.readUint32Big();
     x18_keys.reserve(count);
@@ -25,24 +25,22 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const
     {
         int emitterTime = CParticleGlobals::g_emitterTimeInt;
         int calcKey = emitterTime;
-        if (xc_b)
+        if (xc_loop)
         {
-            if (emitterTime >= x10_d)
+            if (emitterTime >= x10_loopEnd)
             {
-                int v1 = emitterTime - x14_e;
-                int v2 = x10_d - x14_e;
-                calcKey = v1 / v2;
-                calcKey *= v2;
-                calcKey = v1 - calcKey;
-                calcKey += x14_e;
+                int v1 = emitterTime - x14_loopStart;
+                int v2 = x10_loopEnd - x14_loopStart;
+                calcKey = v1 % v2;
+                calcKey += x14_loopStart;
             }
             valOut = x18_keys[calcKey];
         }
         else
         {
-            int x10_d_m1 = x10_d - 1;
-            if (x10_d_m1 < calcKey)
-                calcKey = x10_d_m1;
+            int v1 = x10_loopEnd - 1;
+            if (v1 < emitterTime)
+                calcKey = v1;
             valOut = x18_keys[calcKey];
         }
     }
