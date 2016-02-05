@@ -7,9 +7,9 @@ namespace Retro
 CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in)
 {
     x4_percent = in.readUint32Big();
-    x8_a = in.readUint32Big();
+    x8_unk1 = in.readUint32Big();
     xc_loop = in.readBool();
-    xd_c = in.readBool();
+    xd_unk2 = in.readBool();
     x10_loopEnd = in.readUint32Big();
     x14_loopStart = in.readUint32Big();
 
