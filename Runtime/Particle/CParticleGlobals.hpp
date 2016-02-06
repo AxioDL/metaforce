@@ -1,6 +1,8 @@
 #ifndef __RETRO_CPARTICLEGLOBALS_HPP__
 #define __RETRO_CPARTICLEGLOBALS_HPP__
 
+#include "CVector3f.hpp"
+
 namespace Retro
 {
 
@@ -33,6 +35,18 @@ public:
         g_particleLifetimePercentTweenInt = g_particleLifetimePercentTweenFloat;
         g_particleLifetimePercentTweenIntFloatRem = g_particleLifetimePercentTweenFloat - g_particleLifetimePercentTweenInt;
     }
+
+    static float* g_papValues;
+
+    struct SParticleMetrics
+    {
+        Zeus::CVector3f x0_ploc;
+        Zeus::CVector3f x10_plco;
+        Zeus::CVector3f x1c_pvel;
+        float x2c_psll;
+        float x30_prlw;
+    };
+    static SParticleMetrics* g_particleMetrics;
 };
 
 }

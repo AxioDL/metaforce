@@ -1,5 +1,8 @@
 #include "CRealElement.hpp"
 #include "CParticleGlobals.hpp"
+#include "CRandom16.hpp"
+#include <math.h>
+#include <float.h>
 
 namespace Retro
 {
@@ -100,6 +103,217 @@ bool CREClamp::GetValue(int frame, float &valOut) const
         valOut = b;
     if (valOut < a)
         valOut = a;
+    return false;
+}
+
+bool CRERandom::GetValue(int frame, float& valOut) const
+{
+    float a, b;
+    x4_min->GetValue(frame, a);
+    x8_max->GetValue(frame, b);
+    float rand = CRandom16::GetRandomNumber()->Float();
+    valOut = b * rand + a * (1.0f - rand);
+    return false;
+}
+
+bool CREPulse::GetValue(int frame, float& valOut) const
+{
+    int a, b;
+    x4_aDuration->GetValue(frame, a);
+    x8_bDuration->GetValue(frame, b);
+    int cv = std::max(1, a + b + 1);
+
+    if (b >= 1)
+    {
+        int cv2 = frame % cv;
+        if (cv2 >= a)
+            x10_valB->GetValue(frame, valOut);
+        else
+            xc_valA->GetValue(frame, valOut);
+    }
+    else
+        xc_valA->GetValue(frame, valOut);
+
+    return false;
+}
+
+bool CRETimeScale::GetValue(int frame, float& valOut) const
+{
+    float a;
+    x4_a->GetValue(frame, a);
+    valOut = float(frame) * a;
+    return false;
+}
+
+bool CRELifetimePercent::GetValue(int frame, float& valOut) const
+{
+    float a;
+    x4_percentVal->GetValue(frame, a);
+    a = std::max(0.0f, a);
+    valOut = (a / 100.0f) * CParticleGlobals::g_particleLifetimeFloat;
+    return false;
+}
+
+bool CRESineWave::GetValue(int frame, float& valOut) const
+{
+    float a, b, c;
+    x4_magnitude->GetValue(frame, a);
+    x8_linearFrame->GetValue(frame, b);
+    xc_constantFrame->GetValue(frame, c);
+    valOut = sinf((frame * b + c) * M_PI / 180.f) * a;
+    return false;
+}
+
+bool CREISWT::GetValue(int frame, float& valOut) const
+{
+    if (frame == 0)
+        x4_a->GetValue(frame, valOut);
+    else
+        x8_b->GetValue(frame, valOut);
+    return false;
+}
+
+bool CRECompareLessThan::GetValue(int frame, float& valOut) const
+{
+    float a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    if (a < b)
+        xc_c->GetValue(frame, valOut);
+    else
+        x10_d->GetValue(frame, valOut);
+    return false;
+}
+
+bool CRECompareEquals::GetValue(int frame, float& valOut) const
+{
+    float a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    if (fabsf(a-b) < 0.00001)
+        xc_c->GetValue(frame, valOut);
+    else
+        x10_d->GetValue(frame, valOut);
+    return false;
+}
+
+bool CREParticleAccessParam1::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[0];
+    return false;
+}
+
+bool CREParticleAccessParam2::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[1];
+    return false;
+}
+
+bool CREParticleAccessParam3::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[2];
+    return false;
+}
+
+bool CREParticleAccessParam4::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[3];
+    return false;
+}
+
+bool CREParticleAccessParam5::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[4];
+    return false;
+}
+
+bool CREParticleAccessParam6::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[5];
+    return false;
+}
+
+bool CREParticleAccessParam7::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[6];
+    return false;
+}
+
+bool CREParticleAccessParam8::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_papValues[7];
+    return false;
+}
+
+bool CREPSLL::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_particleMetrics->x2c_psll;
+    return false;
+}
+
+bool CREPRLW::GetValue(int frame, float& valOut) const
+{
+    valOut = CParticleGlobals::g_particleMetrics->x30_prlw;
+    return false;
+}
+
+bool CRESubtract::GetValue(int frame, float& valOut) const
+{
+    float a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    valOut = a - b;
+    return false;
+}
+
+bool CREVectorMagnitude::GetValue(int frame, float& valOut) const
+{
+    Zeus::CVector3f a;
+    x4_a->GetValue(frame, a);
+    valOut = a.magnitude();
+    return false;
+}
+
+bool CREVectorXToReal::GetValue(int frame, float& valOut) const
+{
+    Zeus::CVector3f a;
+    x4_a->GetValue(frame, a);
+    valOut = a[0];
+    return false;
+}
+
+bool CREVectorYToReal::GetValue(int frame, float& valOut) const
+{
+    Zeus::CVector3f a;
+    x4_a->GetValue(frame, a);
+    valOut = a[1];
+    return false;
+}
+
+bool CREVectorZToReal::GetValue(int frame, float& valOut) const
+{
+    Zeus::CVector3f a;
+    x4_a->GetValue(frame, a);
+    valOut = a[2];
+    return false;
+}
+
+bool CRECEXT::GetValue(int frame, float& valOut) const
+{
+    int a;
+    x4_a->GetValue(frame, a);
+    int cv = std::max(0, a);
+    /* TODO: Figure out how value table is generated/stored in 0-00 */
+    return false;
+}
+
+bool CREITRL::GetValue(int frame, float& valOut) const
+{
+    int a;
+    x4_a->GetValue(frame, a);
+    float b;
+    x8_b->GetValue(frame, b);
+    valOut = float(a) * b;
     return false;
 }
 

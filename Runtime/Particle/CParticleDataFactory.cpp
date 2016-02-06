@@ -608,10 +608,6 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
     {
         return new CREPRLW;
     }
-    case SBIG('PSOF'):
-    {
-        return new CREPSOF;
-    }
     case SBIG('SUB_'):
     {
         CRealElement* a = GetRealElement(in);

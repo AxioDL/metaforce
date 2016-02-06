@@ -329,12 +329,6 @@ struct REPRLW : IRealElement
     const char* ClassID() const {return "PRLW";}
 };
 
-struct REPSOF : IRealElement
-{
-    DECL_YAML
-    const char* ClassID() const {return "PSOF";}
-};
-
 struct RESubtract : IRealElement
 {
     DECL_YAML

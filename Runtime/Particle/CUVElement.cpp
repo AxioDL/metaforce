@@ -9,7 +9,7 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntEle
 {
     a->GetValue(0, x10_tileW);
     delete a;
-    b->GetValue(0, x14_tileW);
+    b->GetValue(0, x14_tileH);
     delete b;
     c->GetValue(0, x18_strideW);
     delete c;
@@ -31,7 +31,7 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntEle
             int px = x18_strideW * x;
             int px2 = px + x10_tileW;
             int py = x1c_strideH * y;
-            int py2 = py + x14_tileW;
+            int py2 = py + x14_tileH;
             x2c_uvElems.push_back({px / widthF, py / heightF, px2 / widthF, py2 / heightF});
         }
     }

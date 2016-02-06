@@ -54,7 +54,7 @@ struct CUVEAnimTexture : public CUVElement
 {
     TToken<CTexture> x4_tex;
     CTexture* xc_directTex;
-    int x10_tileW, x14_tileW, x18_strideW, x1c_strideH;
+    int x10_tileW, x14_tileH, x18_strideW, x1c_strideH;
     int x20_tiles;
     bool x24_loop;
     std::unique_ptr<CIntElement> x28_cycleFrameRate;

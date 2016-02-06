@@ -6,6 +6,20 @@
 namespace Retro
 {
 
+class CREKeyframeEmitter : public CRealElement
+{
+    u32 x4_percent;
+    u32 x8_unk1;
+    bool xc_loop;
+    bool xd_unk2;
+    u32 x10_loopEnd;
+    u32 x14_loopStart;
+    std::vector<float> x18_keys;
+public:
+    CREKeyframeEmitter(CInputStream& in);
+    bool GetValue(int frame, float& valOut) const;
+};
+
 class CRELifetimeTween : public CRealElement
 {
     std::unique_ptr<CRealElement> x4_a;
@@ -57,20 +71,6 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
-class CREKeyframeEmitter : public CRealElement
-{
-    u32 x4_percent;
-    u32 x8_unk1;
-    bool xc_loop;
-    bool xd_unk2;
-    u32 x10_loopEnd;
-    u32 x14_loopStart;
-    std::vector<float> x18_keys;
-public:
-    CREKeyframeEmitter(CInputStream& in);
-    bool GetValue(int frame, float& valOut) const;
-};
-
 class CREInitialRandom : public CRealElement
 {
     std::unique_ptr<CRealElement> x4_min;
@@ -104,13 +104,13 @@ public:
 
 class CREPulse : public CRealElement
 {
-    std::unique_ptr<CIntElement> x4_a;
-    std::unique_ptr<CIntElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
+    std::unique_ptr<CIntElement> x4_aDuration;
+    std::unique_ptr<CIntElement> x8_bDuration;
+    std::unique_ptr<CRealElement> xc_valA;
+    std::unique_ptr<CRealElement> x10_valB;
 public:
     CREPulse(CIntElement* a, CIntElement* b, CRealElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_aDuration(a), x8_bDuration(b), xc_valA(c), x10_valB(d) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
@@ -125,21 +125,21 @@ public:
 
 class CRELifetimePercent : public CRealElement
 {
-    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x4_percentVal;
 public:
     CRELifetimePercent(CRealElement* a)
-    : x4_a(a) {}
+    : x4_percentVal(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRESineWave : public CRealElement
 {
-    std::unique_ptr<CRealElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x4_magnitude;
+    std::unique_ptr<CRealElement> x8_linearFrame;
+    std::unique_ptr<CRealElement> xc_constantFrame;
 public:
     CRESineWave(CRealElement* a, CRealElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_magnitude(a), x8_linearFrame(b), xc_constantFrame(c) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
@@ -232,12 +232,6 @@ public:
 };
 
 class CREPRLW : public CRealElement
-{
-public:
-    bool GetValue(int frame, float& valOut) const;
-};
-
-class CREPSOF : public CRealElement
 {
 public:
     bool GetValue(int frame, float& valOut) const;

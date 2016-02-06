@@ -100,9 +100,6 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
     case SBIG('PRLW'):
         m_elem.reset(new struct REPRLW);
         break;
-    case SBIG('PSOF'):
-        m_elem.reset(new struct REPSOF);
-        break;
     case SBIG('SUB_'):
         m_elem.reset(new struct RESubtract);
         break;
@@ -235,9 +232,6 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         break;
     case SBIG('PRLW'):
         m_elem.reset(new struct REPRLW);
-        break;
-    case SBIG('PSOF'):
-        m_elem.reset(new struct REPSOF);
         break;
     case SBIG('SUB_'):
         m_elem.reset(new struct RESubtract);
