@@ -48,6 +48,10 @@ public:
     virtual bool GetValue(int frame, Zeus::CColor& colorOut) const=0;
 };
 
+class CEmitterElement : public IElement
+{
+};
+
 }
 
 #endif // __RETRO_IELEMENT_HPP__

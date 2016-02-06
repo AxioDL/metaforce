@@ -8,80 +8,147 @@ namespace Retro
 
 class CMVEImplosion : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
+    bool x14_e;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEExponentialImplosion : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
+    bool x14_e;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEExponentialImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVETimeChain : public CModVectorElement
 {
+    std::unique_ptr<CModVectorElement> x4_a;
+    std::unique_ptr<CModVectorElement> x8_b;
+    std::unique_ptr<CIntElement> xc_c;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVETimeChain(CModVectorElement* a, CModVectorElement* b, CIntElement* c)
+    : x4_a(a), x8_b(b), xc_c(c) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEBounce : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CVectorElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
+    bool x14_e;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool e)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEConstant : public CModVectorElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEConstant(CRealElement* a, CRealElement* b, CRealElement* c)
+    : x4_a(a), x8_b(b), xc_c(c) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEFastConstant : public CModVectorElement
 {
+    Zeus::CVector3f x4_val;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEFastConstant(float a, float b, float c)
+    : x4_val(a, b, c) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEGravity : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEGravity(CVectorElement* a)
+    : x4_a(a) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEExplode : public CModVectorElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEExplode(CRealElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVESetPosition : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVESetPosition(CVectorElement* a)
+    : x4_a(a) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVELinearImplosion : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
+    bool x14_e;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVELinearImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEPulse : public CModVectorElement
 {
+    std::unique_ptr<CIntElement> x4_a;
+    std::unique_ptr<CIntElement> x8_b;
+    std::unique_ptr<CModVectorElement> xc_c;
+    std::unique_ptr<CModVectorElement> x10_d;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEPulse(CIntElement* a, CIntElement* b, CModVectorElement* c, CModVectorElement* d)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVEWind : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVEWind(CVectorElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 class CMVESwirl : public CModVectorElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CVectorElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
 public:
-    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    CMVESwirl(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const;
 };
 
 }

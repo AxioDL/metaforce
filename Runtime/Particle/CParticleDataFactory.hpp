@@ -25,25 +25,25 @@ class CIntElement;
 struct SParticleModel
 {
     TToken<CModel> m_model;
-    bool m_found;
+    bool m_found = false;
 };
 
 struct SChildGeneratorDesc
 {
     TToken<CSwooshDescription> m_model;
-    bool m_found;
+    bool m_found = false;
 };
 
 struct SSwooshGeneratorDesc
 {
     TToken<CSwooshDescription> m_model;
-    bool m_found;
+    bool m_found = false;
 };
 
 struct SElectricGeneratorDesc
 {
     TToken<CElectricDescription> m_model;
-    bool m_found;
+    bool m_found = false;
 };
 
 class CParticleDataFactory

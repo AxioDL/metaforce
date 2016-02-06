@@ -29,10 +29,10 @@ class CRETimeChain : public CRealElement
 {
     std::unique_ptr<CRealElement> x4_a;
     std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CIntElement> xc_c;
+    std::unique_ptr<CIntElement> xc_swFrame;
 public:
     CRETimeChain(CRealElement* a, CRealElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_a(a), x8_b(b), xc_swFrame(c) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
@@ -48,12 +48,12 @@ public:
 
 class CREClamp : public CRealElement
 {
-    std::unique_ptr<CRealElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x4_min;
+    std::unique_ptr<CRealElement> x8_max;
+    std::unique_ptr<CRealElement> xc_val;
 public:
     CREClamp(CRealElement* a, CRealElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_min(a), x8_max(b), xc_val(c) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
@@ -73,62 +73,107 @@ public:
 
 class CREInitialRandom : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_min;
+    std::unique_ptr<CRealElement> x8_max;
 public:
+    CREInitialRandom(CRealElement* a, CRealElement* b)
+    : x4_min(a), x8_max(b) {}
     bool GetValue(int frame, float& valOut) const;
     bool IsConstant() const {return true;}
 };
 
 class CRERandom : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_min;
+    std::unique_ptr<CRealElement> x8_max;
 public:
+    CRERandom(CRealElement* a, CRealElement* b)
+    : x4_min(a), x8_max(b) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREMultiply : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
+    CREMultiply(CRealElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREPulse : public CRealElement
 {
+    std::unique_ptr<CIntElement> x4_a;
+    std::unique_ptr<CIntElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
 public:
+    CREPulse(CIntElement* a, CIntElement* b, CRealElement* c, CRealElement* d)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRETimeScale : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
 public:
+    CRETimeScale(CRealElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRELifetimePercent : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
 public:
+    CRELifetimePercent(CRealElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRESineWave : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
 public:
+    CRESineWave(CRealElement* a, CRealElement* b, CRealElement* c)
+    : x4_a(a), x8_b(b), xc_c(c) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREISWT : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
+    CREISWT(CRealElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRECompareLessThan : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
 public:
+    CRECompareLessThan(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRECompareEquals : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x10_d;
 public:
+    CRECompareEquals(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d)
+    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
@@ -200,43 +245,66 @@ public:
 
 class CRESubtract : public CRealElement
 {
+    std::unique_ptr<CRealElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
+    CRESubtract(CRealElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREVectorMagnitude : public CRealElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
+    CREVectorMagnitude(CVectorElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREVectorXToReal : public CRealElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
+    CREVectorXToReal(CVectorElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREVectorYToReal : public CRealElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
+    CREVectorYToReal(CVectorElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREVectorZToReal : public CRealElement
 {
+    std::unique_ptr<CVectorElement> x4_a;
 public:
+    CREVectorZToReal(CVectorElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CRECEXT : public CRealElement
 {
+    std::unique_ptr<CIntElement> x4_a;
 public:
+    CRECEXT(CIntElement* a)
+    : x4_a(a) {}
     bool GetValue(int frame, float& valOut) const;
 };
 
 class CREITRL : public CRealElement
 {
+    std::unique_ptr<CIntElement> x4_a;
+    std::unique_ptr<CRealElement> x8_b;
 public:
+    CREITRL(CIntElement* a, CRealElement* b)
+    : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };
 

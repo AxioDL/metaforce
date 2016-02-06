@@ -32,6 +32,738 @@ FourCC CParticleDataFactory::GetClassID(CInputStream& in)
     return val;
 }
 
+SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* resPool)
+{
+    FourCC clsId = GetClassID(in);
+    if (clsId == SBIG('NONE'))
+        return {};
+    TResID id = in.readUint32Big();
+    if (!id)
+        return {};
+    return {resPool->GetObj({FOURCC('CMDL'), id}), true};
+}
+
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(TResID res, CSimplePool* resPool, const std::vector<TResID>& tracker)
+{
+    if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
+        return {resPool->GetObj({FOURCC('PART'), res}), true};
+    return {};
+}
+
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<TResID>& tracker)
+{
+    FourCC clsId = GetClassID(in);
+    if (clsId == SBIG('NONE'))
+        return {};
+    TResID id = in.readUint32Big();
+    if (!id)
+        return {};
+    return GetChildGeneratorDesc(id, resPool, tracker);
+}
+
+SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& in, CSimplePool* resPool)
+{
+    FourCC clsId = GetClassID(in);
+    if (clsId == SBIG('NONE'))
+        return {};
+    TResID id = in.readUint32Big();
+    if (!id)
+        return {};
+    return {resPool->GetObj({FOURCC('SWHC'), id}), true};
+}
+
+SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool)
+{
+    FourCC clsId = GetClassID(in);
+    if (clsId == SBIG('NONE'))
+        return {};
+    TResID id = in.readUint32Big();
+    if (!id)
+        return {};
+    return {resPool->GetObj({FOURCC('ELSC'), id}), true};
+}
+
+CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('CNST'):
+    {
+        FourCC subId = GetClassID(in);
+        if (subId == SBIG('NONE'))
+            return nullptr;
+        TResID id = in.readUint32Big();
+        TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+        return new CUVEConstant(std::move(txtr));
+    }
+    case SBIG('ATEX'):
+    {
+        FourCC subId = GetClassID(in);
+        if (subId == SBIG('NONE'))
+            return nullptr;
+        TResID id = in.readUint32Big();
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CIntElement* c = GetIntElement(in);
+        CIntElement* d = GetIntElement(in);
+        CIntElement* e = GetIntElement(in);
+        bool f = GetBool(in);
+        TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+        return new CUVEAnimTexture(std::move(txtr), a, b, c, d, e, f);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CColorElement* CParticleDataFactory::GetColorElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+    {
+        return new CCEKeyframeEmitter(in);
+    }
+    case SBIG('CNST'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        if (a->IsConstant() && b->IsConstant() && c->IsConstant() && d->IsConstant())
+        {
+            float af, bf, cf, df;
+            a->GetValue(0, af);
+            b->GetValue(0, bf);
+            c->GetValue(0, cf);
+            d->GetValue(0, df);
+            return new CCEFastConstant(af, bf, cf, df);
+        }
+        else
+        {
+            return new CCEConstant(a, b, c, d);
+        }
+    }
+    case SBIG('CHAN'):
+    {
+        CColorElement* a = GetColorElement(in);
+        CColorElement* b = GetColorElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CCETimeChain(a, b, c);
+    }
+    case SBIG('CFDE'):
+    {
+        CColorElement* a = GetColorElement(in);
+        CColorElement* b = GetColorElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CCEFadeEnd(a, b, c, d);
+    }
+    case SBIG('FADE'):
+    {
+        CColorElement* a = GetColorElement(in);
+        CColorElement* b = GetColorElement(in);
+        CRealElement* c = GetRealElement(in);
+        return new CCEFade(a, b, c);
+    }
+    case SBIG('PULS'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CColorElement* c = GetColorElement(in);
+        CColorElement* d = GetColorElement(in);
+        return new CCEPulse(a, b, c, d);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CModVectorElement* CParticleDataFactory::GetModVectorElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('IMPL'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        bool e = GetBool(in);
+        return new CMVEImplosion(a, b, c, d, e);
+    }
+    case SBIG('EMPL'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        bool e = GetBool(in);
+        return new CMVEExponentialImplosion(a, b, c, d, e);
+    }
+    case SBIG('CHAN'):
+    {
+        CModVectorElement* a = GetModVectorElement(in);
+        CModVectorElement* b = GetModVectorElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CMVETimeChain(a, b, c);
+    }
+    case SBIG('BNCE'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        bool e = GetBool(in);
+        return new CMVEBounce(a, b, c, d, e);
+    }
+    case SBIG('CNST'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        if (a->IsConstant() && b->IsConstant() && c->IsConstant())
+        {
+            float af, bf, cf;
+            a->GetValue(0, af);
+            b->GetValue(0, bf);
+            c->GetValue(0, cf);
+            return new CMVEFastConstant(af, bf, cf);
+        }
+        else
+        {
+            return new CMVEConstant(a, b, c);
+        }
+    }
+    case SBIG('GRAV'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CMVEGravity(a);
+    }
+    case SBIG('EXPL'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CMVEExplode(a, b);
+    }
+    case SBIG('SPOS'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CMVESetPosition(a);
+    }
+    case SBIG('LMPL'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        bool e = GetBool(in);
+        return new CMVELinearImplosion(a, b, c, d, e);
+    }
+    case SBIG('PULS'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CModVectorElement* c = GetModVectorElement(in);
+        CModVectorElement* d = GetModVectorElement(in);
+        return new CMVEPulse(a, b, c, d);
+    }
+    case SBIG('WIND'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CMVEWind(a, b);
+    }
+    case SBIG('SWRL'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CMVESwirl(a, b, c, d);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CEmitterElement* CParticleDataFactory::GetEmitterElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('SETR'):
+    {
+        FourCC prop = GetClassID(in);
+        if (prop == SBIG('ILOC'))
+        {
+            CVectorElement* a = GetVectorElement(in);
+            prop = GetClassID(in);
+            if (prop == SBIG('IVEC'))
+            {
+                CVectorElement* b = GetVectorElement(in);
+                return new CEESimpleEmitter(a, b);
+            }
+        }
+        return nullptr;
+    }
+    case SBIG('SEMR'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        return new CEESimpleEmitter(a, b);
+    }
+    case SBIG('SPHE'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        return new CVESphere(a, b, c);
+    }
+    case SBIG('ASPH'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        CRealElement* e = GetRealElement(in);
+        CRealElement* f = GetRealElement(in);
+        CRealElement* g = GetRealElement(in);
+        return new CVEAngleSphere(a, b, c, d, e, f, g);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('CONE'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CVECone(a, b);
+    }
+    case SBIG('CHAN'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CVETimeChain(a, b, c);
+    }
+    case SBIG('ANGC'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        CRealElement* e = GetRealElement(in);
+        return new CVEAngleCone(a, b, c, d, e);
+    }
+    case SBIG('ADD_'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        return new CVEAdd(a, b);
+    }
+    case SBIG('CCLU'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        CIntElement* c = GetIntElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CVECircleCluster(a, b, c, d);
+    }
+    case SBIG('CNST'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        if (a->IsConstant() && b->IsConstant() && c->IsConstant())
+        {
+            float af, bf, cf;
+            a->GetValue(0, af);
+            b->GetValue(0, bf);
+            c->GetValue(0, cf);
+            return new CVEFastConstant(af, bf, cf);
+        }
+        else
+        {
+            return new CVEConstant(a, b, c);
+        }
+    }
+    case SBIG('CIRC'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        CRealElement* e = GetRealElement(in);
+        return new CVECircle(a, b, c, d, e);
+    }
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+    {
+        return new CVEKeyframeEmitter(in);
+    }
+    case SBIG('MULT'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        return new CVEMultiply(a, b);
+    }
+    case SBIG('RTOV'):
+    {
+        CRealElement* a = GetRealElement(in);
+        return new CVERealToVector(a);
+    }
+    case SBIG('PULS'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CVectorElement* c = GetVectorElement(in);
+        CVectorElement* d = GetVectorElement(in);
+        return new CVEPulse(a, b, c, d);
+    }
+    case SBIG('PVEL'):
+    {
+        return new CVEParticleVelocity;
+    }
+    case SBIG('SPOS'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CVESPOS(a);
+    }
+    case SBIG('PLCO'):
+    {
+        return new CVEPLCO;
+    }
+    case SBIG('PLOC'):
+    {
+        return new CVEPLOC;
+    }
+    case SBIG('PSOR'):
+    {
+        return new CVEPSOR;
+    }
+    case SBIG('PSOF'):
+    {
+        return new CVEPSOF;
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('LFTW'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CRELifetimeTween(a, b);
+    }
+    case SBIG('CNST'):
+    {
+        float a = GetReal(in);
+        return new CREConstant(a);
+    }
+    case SBIG('CHAN'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CRETimeChain(a, b, c);
+    }
+    case SBIG('ADD_'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CREAdd(a, b);
+    }
+    case SBIG('CLMP'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        return new CREClamp(a, b, c);
+    }
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+    {
+        return new CREKeyframeEmitter(in);
+    }
+    case SBIG('IRND'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CREInitialRandom(a, b);
+    }
+    case SBIG('RAND'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CRERandom(a, b);
+    }
+    case SBIG('MULT'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CREMultiply(a, b);
+    }
+    case SBIG('PULS'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CREPulse(a, b, c, d);
+    }
+    case SBIG('SCAL'):
+    {
+        CRealElement* a = GetRealElement(in);
+        return new CRETimeScale(a);
+    }
+    case SBIG('RLPT'):
+    {
+        CRealElement* a = GetRealElement(in);
+        return new CRELifetimePercent(a);
+    }
+    case SBIG('SINE'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        return new CRESineWave(a, b, c);
+    }
+    case SBIG('ISWT'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CREISWT(a, b);
+    }
+    case SBIG('CLTN'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CRECompareLessThan(a, b, c, d);
+    }
+    case SBIG('CEQL'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        return new CRECompareEquals(a, b, c, d);
+    }
+    case SBIG('PAP1'):
+    {
+        return new CREParticleAccessParam1;
+    }
+    case SBIG('PAP2'):
+    {
+        return new CREParticleAccessParam2;
+    }
+    case SBIG('PAP3'):
+    {
+        return new CREParticleAccessParam3;
+    }
+    case SBIG('PAP4'):
+    {
+        return new CREParticleAccessParam4;
+    }
+    case SBIG('PAP5'):
+    {
+        return new CREParticleAccessParam5;
+    }
+    case SBIG('PAP6'):
+    {
+        return new CREParticleAccessParam6;
+    }
+    case SBIG('PAP7'):
+    {
+        return new CREParticleAccessParam7;
+    }
+    case SBIG('PAP8'):
+    {
+        return new CREParticleAccessParam8;
+    }
+    case SBIG('PSLL'):
+    {
+        return new CREPSLL;
+    }
+    case SBIG('PRLW'):
+    {
+        return new CREPRLW;
+    }
+    case SBIG('PSOF'):
+    {
+        return new CREPSOF;
+    }
+    case SBIG('SUB_'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CRESubtract(a, b);
+    }
+    case SBIG('VMAG'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CREVectorMagnitude(a);
+    }
+    case SBIG('VXTR'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CREVectorXToReal(a);
+    }
+    case SBIG('VYTR'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CREVectorYToReal(a);
+    }
+    case SBIG('VZTR'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        return new CREVectorZToReal(a);
+    }
+    case SBIG('CEXT'):
+    {
+        CIntElement* a = GetIntElement(in);
+        return new CRECEXT(a);
+    }
+    case SBIG('ITRL'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CRealElement* b = GetRealElement(in);
+        return new CREITRL(a, b);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
+CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
+{
+    FourCC clsId = GetClassID(in);
+    switch (clsId)
+    {
+    case SBIG('KEYE'):
+    case SBIG('KEYP'):
+    {
+        return new CIEKeyframeEmitter(in);
+    }
+    case SBIG('DETH'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIEDeath(a, b);
+    }
+    case SBIG('CLMP'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CIEClamp(a, b, c);
+    }
+    case SBIG('CHAN'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CIETimeChain(a, b, c);
+    }
+    case SBIG('ADD_'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIEAdd(a, b);
+    }
+    case SBIG('CNST'):
+    {
+        int a = GetInt(in);
+        return new CIEConstant(a);
+    }
+    case SBIG('IMPL'):
+    {
+        CIntElement* a = GetIntElement(in);
+        return new CIEImpulse(a);
+    }
+    case SBIG('ILPT'):
+    {
+        CIntElement* a = GetIntElement(in);
+        return new CIELifetimePercent(a);
+    }
+    case SBIG('IRND'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIEInitialRandom(a, b);
+    }
+    case SBIG('PULS'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CIntElement* c = GetIntElement(in);
+        CIntElement* d = GetIntElement(in);
+        return new CIEPulse(a, b, c, d);
+    }
+    case SBIG('MULT'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIEMultiply(a, b);
+    }
+    case SBIG('SPAH'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        CIntElement* c = GetIntElement(in);
+        return new CIESampleAndHold(a, b, c);
+    }
+    case SBIG('RAND'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIERandom(a, b);
+    }
+    case SBIG('TSCL'):
+    {
+        CRealElement* a = GetRealElement(in);
+        return new CIETimeScale(a);
+    }
+    case SBIG('GTCP'):
+    {
+        return new CIEGTCP;
+    }
+    case SBIG('MODU'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIEModulo(a, b);
+    }
+    case SBIG('SUB_'):
+    {
+        CIntElement* a = GetIntElement(in);
+        CIntElement* b = GetIntElement(in);
+        return new CIESubtract(a, b);
+    }
+    default: break;
+    }
+    return nullptr;
+}
+
 CGenDescription* CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
 {
     std::vector<TResID> tracker;

@@ -30,6 +30,7 @@ public:
         (new TObjOwnerDerivedFromIObj<T>(obj.release()));
     }
     ~TObjOwnerDerivedFromIObj() {delete static_cast<T*>(m_objPtr);}
+    T* GetObj() {return static_cast<T*>(m_objPtr);}
 };
 
 }

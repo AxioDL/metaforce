@@ -58,6 +58,7 @@ add_library(RuntimeCommon
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
             CCallStack.hpp
+            CTexture.hpp CTexture.cpp
             IOStreams.hpp IOStreams.cpp
             CMainFlowBase.hpp CMainFlowBase.cpp
             CMFGameBase.hpp

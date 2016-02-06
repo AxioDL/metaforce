@@ -34,15 +34,14 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const
                 calcKey = v1 % v2;
                 calcKey += x14_loopStart;
             }
-            valOut = x18_keys[calcKey];
         }
         else
         {
             int v1 = x10_loopEnd - 1;
             if (v1 < emitterTime)
                 calcKey = v1;
-            valOut = x18_keys[calcKey];
         }
+        valOut = x18_keys[calcKey];
     }
     else
     {
@@ -75,7 +74,7 @@ bool CREConstant::GetValue(int frame, float& valOut) const
 bool CRETimeChain::GetValue(int frame, float& valOut) const
 {
     int v;
-    xc_c->GetValue(frame, v);
+    xc_swFrame->GetValue(frame, v);
     if (frame >= v)
         return x8_b->GetValue(frame, valOut);
     else
@@ -94,9 +93,9 @@ bool CREAdd::GetValue(int frame, float& valOut) const
 bool CREClamp::GetValue(int frame, float &valOut) const
 {
     float a, b;
-    x4_a->GetValue(frame, a);
-    x8_b->GetValue(frame, b);
-    xc_c->GetValue(frame, valOut);
+    x4_min->GetValue(frame, a);
+    x8_max->GetValue(frame, b);
+    xc_val->GetValue(frame, valOut);
     if (valOut > b)
         valOut = b;
     if (valOut < a)

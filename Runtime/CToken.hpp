@@ -105,7 +105,7 @@ class CToken
 public:
     void Unlock()
     {
-        if (x4_lockHeld)
+        if (x0_objRef && x4_lockHeld)
         {
             x0_objRef->Unlock();
             x4_lockHeld = false;
@@ -113,7 +113,7 @@ public:
     }
     void Lock()
     {
-        if (!x4_lockHeld)
+        if (x0_objRef && !x4_lockHeld)
         {
             x0_objRef->Lock();
             x4_lockHeld = true;
@@ -121,7 +121,7 @@ public:
     }
     void RemoveRef()
     {
-        if (x0_objRef->RemoveReference() == 0)
+        if (x0_objRef && x0_objRef->RemoveReference() == 0)
         {
             delete x0_objRef;
             x0_objRef = nullptr;
@@ -129,6 +129,8 @@ public:
     }
     IObj* GetObj()
     {
+        if (!x0_objRef)
+            return nullptr;
         Lock();
         return x0_objRef->GetObject();
     }
@@ -137,9 +139,22 @@ public:
         Unlock();
         RemoveRef();
         x0_objRef = other.x0_objRef;
-        ++x0_objRef->x0_refCount;
-        if (other.x4_lockHeld)
-            Lock();
+        if (x0_objRef)
+        {
+            ++x0_objRef->x0_refCount;
+            if (other.x4_lockHeld)
+                Lock();
+        }
+        return *this;
+    }
+    CToken& operator=(CToken&& other)
+    {
+        Unlock();
+        RemoveRef();
+        x0_objRef = other.x0_objRef;
+        other.x0_objRef = nullptr;
+        x4_lockHeld = other.x4_lockHeld;
+        other.x4_lockHeld = false;
         return *this;
     }
     CToken() {}
@@ -147,6 +162,12 @@ public:
     : x0_objRef(other.x0_objRef)
     {
         ++x0_objRef->x0_refCount;
+    }
+    CToken(CToken&& other)
+    : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld)
+    {
+        other.x0_objRef = nullptr;
+        other.x4_lockHeld = false;
     }
     CToken(IObj* obj)
     {
@@ -161,9 +182,12 @@ public:
     }
     ~CToken()
     {
-        if (x4_lockHeld)
-            x0_objRef->Unlock();
-        RemoveRef();
+        if (x0_objRef)
+        {
+            if (x4_lockHeld)
+                x0_objRef->Unlock();
+            RemoveRef();
+        }
     }
 };
 
@@ -176,16 +200,18 @@ public:
         return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
     }
     TToken() {}
+    TToken(const CToken& other) : CToken(other) {}
     TToken(T* obj)
     : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
     TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
+    T* GetObj() {return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();}
 };
 
 template<class T>
 class TLockedToken : public TToken<T>
 {
 public:
-    using TToken<T>::TToken;
+    TLockedToken(const CToken& other) : TToken<T>(other) {CToken::Lock();}
 };
 
 }

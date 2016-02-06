@@ -1002,7 +1002,7 @@ struct VESphere : IEmitterElement
     const char* ClassID() const {return "SPHE";}
 };
 
-struct VEAngularSphere : IEmitterElement
+struct VEAngleSphere : IEmitterElement
 {
     DECL_YAML
     VectorElementFactory a;

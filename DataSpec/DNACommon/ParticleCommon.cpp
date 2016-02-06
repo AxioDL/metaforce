@@ -909,7 +909,7 @@ void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
         m_elem.reset(new struct VESphere);
         break;
     case SBIG('ASPH'):
-        m_elem.reset(new struct VEAngularSphere);
+        m_elem.reset(new struct VEAngleSphere);
         break;
     default:
         m_elem.reset();
@@ -954,7 +954,7 @@ void EmitterElementFactory::read(Athena::io::IStreamReader& r)
         m_elem.reset(new struct VESphere);
         break;
     case SBIG('ASPH'):
-        m_elem.reset(new struct VEAngularSphere);
+        m_elem.reset(new struct VEAngleSphere);
         break;
     case SBIG('NONE'):
         m_elem.reset();
