@@ -30,19 +30,19 @@ struct SParticleModel
 
 struct SChildGeneratorDesc
 {
-    TToken<CSwooshDescription> m_model;
+    TToken<CGenDescription> m_gen;
     bool m_found = false;
 };
 
 struct SSwooshGeneratorDesc
 {
-    TToken<CSwooshDescription> m_model;
+    TToken<CSwooshDescription> m_swoosh;
     bool m_found = false;
 };
 
 struct SElectricGeneratorDesc
 {
-    TToken<CElectricDescription> m_model;
+    TToken<CElectricDescription> m_electric;
     bool m_found = false;
 };
 
