@@ -39,7 +39,7 @@ public:
 class CModVectorElement : public IElement
 {
 public:
-    virtual bool GetValue(int frame, Zeus::CVector3f& vec1Out, Zeus::CVector3f& vec2Out) const=0;
+    virtual bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const=0;
 };
 
 class CColorElement : public IElement

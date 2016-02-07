@@ -17,7 +17,7 @@ CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in)
     u32 count = in.readUint32Big();
     x18_keys.reserve(count);
     for (u32 i=0 ; i<count ; ++i)
-        x18_keys.push_back(in.readUint32Big());
+        x18_keys.push_back(in.readInt32Big());
 }
 
 bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const

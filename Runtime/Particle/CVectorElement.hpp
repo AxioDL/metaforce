@@ -68,12 +68,12 @@ public:
 class CVECircleCluster : public CVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CVectorElement> x8_b;
-    std::unique_ptr<CIntElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
+    Zeus::CVector3f x8_xVec;
+    Zeus::CVector3f x14_yVec;
+    float x20_deltaAngle;
+    std::unique_ptr<CRealElement> x24_magnitude;
 public:
-    CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntElement* c, CRealElement* d);
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
@@ -99,14 +99,14 @@ public:
 
 class CVECircle : public CVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CVectorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
-    std::unique_ptr<CRealElement> x14_e;
+    std::unique_ptr<CVectorElement> x4_direction;
+    Zeus::CVector3f x8_xVec;
+    Zeus::CVector3f x14_yVec;
+    std::unique_ptr<CRealElement> x20_angleConstant;
+    std::unique_ptr<CRealElement> x24_angleLinear;
+    std::unique_ptr<CRealElement> x28_magnitude;
 public:
-    CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e);
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 

@@ -18,7 +18,7 @@ CVEKeyframeEmitter::CVEKeyframeEmitter(CInputStream& in)
     u32 count = in.readUint32Big();
     x18_keys.reserve(count);
     for (u32 i=0 ; i<count ; ++i)
-        x18_keys.push_back(in.readFloatBig());
+        x18_keys.push_back(in.readVec3fBig());
 }
 
 bool CVEKeyframeEmitter::GetValue(int frame, Zeus::CVector3f& valOut) const
@@ -62,12 +62,12 @@ CVECone::CVECone(CVectorElement* a, CRealElement* b)
 {
     Zeus::CVector3f av;
     x4_direction->GetValue(0, av);
-    Zeus::CVector3f avNorm = av.normalized();
-    if (avNorm[0] > 0.8)
-        xc_xVec = avNorm.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
+    av.normalize();
+    if (av[0] > 0.8)
+        xc_xVec = av.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
     else
-        xc_xVec = avNorm.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
-    x18_yVec = avNorm.cross(xc_xVec);
+        xc_xVec = av.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
+    x18_yVec = av.cross(xc_xVec);
 }
 
 bool CVECone::GetValue(int frame, Zeus::CVector3f& valOut) const
@@ -132,9 +132,94 @@ bool CVEAdd::GetValue(int frame, Zeus::CVector3f& valOut) const
     return false;
 }
 
+CVECircleCluster::CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntElement* c, CRealElement* d)
+: x4_a(a), x24_magnitude(d)
+{
+    int cv;
+    c->GetValue(0, cv);
+    x20_deltaAngle = 360.f / float(cv) * M_PI / 180.f;
+
+    Zeus::CVector3f bv;
+    b->GetValue(0, bv);
+    bv.normalize();
+    if (bv[0] > 0.8)
+        x8_xVec = bv.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
+    else
+        x8_xVec = bv.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
+    x14_yVec = bv.cross(x8_xVec);
+
+    delete b;
+    delete c;
+}
+
 bool CVECircleCluster::GetValue(int frame, Zeus::CVector3f& valOut) const
 {
+    Zeus::CVector3f av;
+    x4_a->GetValue(frame, av);
 
+    float curAngle = frame * x20_deltaAngle;
+    Zeus::CVector3f x = x8_xVec * cosf(curAngle);
+    Zeus::CVector3f y = x14_yVec * sinf(curAngle);
+    Zeus::CVector3f tv = x + y + av;
+
+    float dv;
+    x24_magnitude->GetValue(frame, dv);
+
+    Zeus::CVector3f magVec(dv * tv.magnitude());
+    Zeus::CVector3f rv = magVec * Zeus::CVector3f(CRandom16::GetRandomNumber()->Float(),
+                                                  CRandom16::GetRandomNumber()->Float(),
+                                                  CRandom16::GetRandomNumber()->Float());
+
+    valOut = tv + rv;
+    return false;
+}
+
+bool CVEConstant::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    float a, b, c;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    xc_c->GetValue(frame, c);
+    valOut = Zeus::CVector3f(a, b, c);
+    return false;
+}
+
+bool CVEFastConstant::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    valOut = x4_val;
+    return false;
+}
+
+CVECircle::CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
+: x4_direction(a), x20_angleConstant(c), x24_angleLinear(d), x28_magnitude(e)
+{
+    Zeus::CVector3f bv;
+    b->GetValue(0, bv);
+    bv.normalize();
+    if (bv[0] > 0.8)
+        x8_xVec = bv.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
+    else
+        x8_xVec = bv.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
+    x14_yVec = bv.cross(x8_xVec);
+    delete b;
+}
+
+bool CVECircle::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    float c, d, e;
+    x20_angleConstant->GetValue(frame, c);
+    x24_angleLinear->GetValue(frame, d);
+    x28_magnitude->GetValue(frame, e);
+
+    float curAngle = (d * frame + c) * M_PI / 180.f;
+
+    Zeus::CVector3f av;
+    x4_direction->GetValue(frame, av);
+
+    Zeus::CVector3f x = x8_xVec * e * cosf(curAngle);
+    Zeus::CVector3f y = x14_yVec * e * sinf(curAngle);
+
+    valOut = x + y + av;
     return false;
 }
 

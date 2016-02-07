@@ -45,10 +45,10 @@ class CCETimeChain : public CColorElement
 {
     std::unique_ptr<CColorElement> x4_a;
     std::unique_ptr<CColorElement> x8_b;
-    std::unique_ptr<CIntElement> xc_c;
+    std::unique_ptr<CIntElement> xc_swFrame;
 public:
     CCETimeChain(CColorElement* a, CColorElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_a(a), x8_b(b), xc_swFrame(c) {}
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 
@@ -56,11 +56,11 @@ class CCEFadeEnd : public CColorElement
 {
     std::unique_ptr<CColorElement> x4_a;
     std::unique_ptr<CColorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
+    std::unique_ptr<CRealElement> xc_startFrame;
+    std::unique_ptr<CRealElement> x10_endFrame;
 public:
     CCEFadeEnd(CColorElement* a, CColorElement* b, CRealElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_a(a), x8_b(b), xc_startFrame(c), x10_endFrame(d) {}
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 
@@ -68,22 +68,22 @@ class CCEFade : public CColorElement
 {
     std::unique_ptr<CColorElement> x4_a;
     std::unique_ptr<CColorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> xc_startFrame;
 public:
     CCEFade(CColorElement* a, CColorElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_a(a), x8_b(b), xc_startFrame(c) {}
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 
 class CCEPulse : public CColorElement
 {
-    std::unique_ptr<CIntElement> x4_a;
-    std::unique_ptr<CIntElement> x8_b;
-    std::unique_ptr<CColorElement> xc_c;
-    std::unique_ptr<CColorElement> x10_d;
+    std::unique_ptr<CIntElement> x4_aDuration;
+    std::unique_ptr<CIntElement> x8_bDuration;
+    std::unique_ptr<CColorElement> xc_aVal;
+    std::unique_ptr<CColorElement> x10_bVal;
 public:
     CCEPulse(CIntElement* a, CIntElement* b, CColorElement* c, CColorElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 
