@@ -31,7 +31,7 @@ public:
     };
 
 private:
-    u32                  x4_unknown          = 0; // The game stores a byte here
+    bool                 x4_isInitialized    = false; // The game stores a byte here
     u32                  x8_heapSize         = 0;
     SGameMemInfo*        xc_infoHead         = nullptr;
     SGameMemInfo*        x10_infoTail        = nullptr;
@@ -43,15 +43,15 @@ private:
     void*                x64_smallAllocMainData = nullptr;
     void*                x68_smallAllocBookKeeping = nullptr;
     u32                  x6c_unknown         = 0;
-    CMediumAllocPool*    x70_mediumAllocPool = nullptr;
-    u32                  x74_unknown         = 0;
-    u32                  x78_unknown         = 0;
+    u32                  x70_unknown          = 0;
+    CMediumAllocPool*    x74_mediumAllocPool  = nullptr;
+    void*                x78_mediumAllocMainData= 0;
     u32                  x7c_unknown         = 0;
     u32                  x80_unknown         = 0;
     u32                  x84_unknown         = 0;
     u32                  x88_unknown         = 0;
     u32                  x8c_unknown         = 0;
-    u8*                  x90_unknown         = nullptr;
+    u32                  x90_unknown         = 0;
     u32                  x94_unknown         = 0;
     u32                  x98_unknown         = 0;
     u32                  x9c_unknown         = 0;
@@ -72,7 +72,7 @@ public:
     static u32 GetFreeBinEntryForSize(u32);
     void AddFreeEntryToFreeList(SGameMemInfo*);
     void RemoveFreeEntryFromFreeList(SGameMemInfo*);
-    void DumpAllocations() const;
+    u32 DumpAllocations() const;
     u32 GetLargestFreeChunk() const;
     SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr);
 

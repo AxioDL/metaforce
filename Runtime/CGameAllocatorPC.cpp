@@ -1,9 +1,13 @@
 #include "CGameAllocator.hpp"
 #include "CCallStack.hpp"
+#include <new>
 #include <cstddef>
 
 #define ALLOC_ROUNDUP(x) (((x) + (32 - 1)) & ~(32 - 1))
 #define ALLOC_ROUNDDOWN(x) ((x) & ~(32 - 1))
+
+#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+#define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((32-(n))) << (x))
 
 namespace Retro
 {
@@ -140,9 +144,8 @@ bool CGameAllocator::FreeNormalAllocation(void* ptr)
     x88_unknown = oldSize - x88_unknown;
     x8c_unknown -= newSize + offset;
     x90_unknown += newSize + offset;
-    if (oldSize > 0x38)
-        return true;
-    xa8_unknown--;
+    if (oldSize <= 0x38)
+        xa8_unknown--;
 
     return true;
 }
@@ -198,8 +201,25 @@ void CGameAllocator::RemoveFreeEntryFromFreeList(SGameMemInfo* memInfo)
     }
 }
 
-void CGameAllocator::DumpAllocations() const
+u32 CGameAllocator::DumpAllocations() const
 {
+    u32 ret = GetLargestFreeChunk();
+    SGameMemInfo* node = xc_infoHead;
+    int i = 0;
+    while (node)
+    {
+        i++;
+        int tmp = (ret << 30);
+        ret = (ret >> 31);
+        tmp = ret - tmp;
+        tmp = ROTATE_LEFT(tmp, 2);
+        tmp += ret;
+        if (tmp > 0)
+            ; // game waits .005 seconds
+        node = node->x14_next;
+    }
+
+    return ret;
 }
 
 u32 CGameAllocator::GetLargestFreeChunk() const
@@ -258,6 +278,11 @@ bool CGameAllocator::Initialize()
     x10_infoTail->x18_ctx = nullptr;
     memset(x10_infoTail->x1c_canary, skCanary, sizeof(SGameMemInfo) - offsetof(SGameMemInfo, x1c_canary));
 
+    x14_bins[0]  = nullptr; x14_bins[1]  = nullptr; x14_bins[2]  = nullptr; x14_bins[3]  = nullptr;
+    x14_bins[4]  = nullptr; x14_bins[5]  = nullptr; x14_bins[6]  = nullptr; x14_bins[7]  = nullptr;
+    x14_bins[8]  = nullptr; x14_bins[9]  = nullptr; x14_bins[10] = nullptr; x14_bins[11] = nullptr;
+    x14_bins[12] = nullptr; x14_bins[13] = nullptr; x14_bins[14] = nullptr; x14_bins[15] = nullptr;
+
     /* Add head to our list of free bins */
     AddFreeEntryToFreeList(xc_infoHead);
 
@@ -265,31 +290,56 @@ bool CGameAllocator::Initialize()
     x80_unknown = 0;
     x88_unknown = 0;
     x8c_unknown = 0;
-    x90_unknown = (u8*)x54_heap;
+    x90_unknown = x8_heapSize;
     x94_unknown = 0;
     x98_unknown = 0;
+    x9c_unknown = 0;
     xa0_unknown = 0;
     xa4_unknown = 0;
     xa8_unknown = 0;
-    x4_unknown = 1;
+    x4_isInitialized = 1;
 
     /* Report our allocation information */
     AllocLog.report(LogVisor::Info, _S("TotalMem: %d Head: %p Tail: %p"), x8_heapSize, xc_infoHead, x10_infoTail);
 
     /* Allocate memory for CSmallAllocPool */
-    x64_smallAllocMainData    = Alloc(0x00000D, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocMainData   ", " - Ignore"));
-    x68_smallAllocBookKeeping = Alloc(0x1A0000, HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocBookKeeping", " - Ignore"));
-    void* smallAlloc          = Alloc(sizeof(CSmallAllocPool), HintNone, ScopeDefault, TypePrimitive, CCallStack("SmallAllocClass      ", " - Ignore"));
+    x64_smallAllocMainData    = Alloc(0xB,
+                                      EHint::None, EScope::Default, EType::Primitive,
+                                      CCallStack("SmallAllocMainData   ", " - Ignore"));
+    x68_smallAllocBookKeeping = Alloc(0x16000,
+                                      EHint::None, EScope::Default, EType::Primitive,
+                                      CCallStack("SmallAllocBookKeeping", " - Ignore"));
+    void* smallAlloc          = Alloc(sizeof(CSmallAllocPool),
+                                      EHint::None, EScope::Default, EType::Primitive,
+                                      CCallStack("SmallAllocClass      ", " - Ignore"));
+    if (smallAlloc)
+        x60_smallAllocPool = new(smallAlloc) CSmallAllocPool(0x2C000, x64_smallAllocMainData, x68_smallAllocBookKeeping);
+    else
+        x60_smallAllocPool = nullptr;
 
+    /* Allocate memory for CMediumAllocPool */
+    void* mediumAlloc = Alloc(sizeof(CMediumAllocPool),
+                              EHint::None, EScope::Default, EType::Primitive,
+                              CCallStack("MediumAllocClass     ", " - Ignore"));
+
+    if (mediumAlloc)
+        x74_mediumAllocPool = new(mediumAlloc) CMediumAllocPool();
+    else
+        x74_mediumAllocPool = nullptr;
+
+    x78_mediumAllocMainData = Alloc(0x21000,
+                                     EHint::None, EScope::Default, EType::Primitive,
+                                     CCallStack("MediumAllocMainData  ", " - Ignore"));
+    x84_unknown -= 4;
+    xbc_fakeStaticOff = 0xC6000;
     return true;
 }
 
 void CGameAllocator::Shutdown()
 {
     ReleaseAll();
-    _mm_free(reinterpret_cast<void*>(x54_heap));
     x54_heap = nullptr;
-    x8_heapSize = 0;
+    x4_isInitialized = false;
 }
 
 void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, const CCallStack& cs)
@@ -309,7 +359,7 @@ bool CGameAllocator::Free(void* buf)
     {
         if (x60_smallAllocPool && x60_smallAllocPool->Free(buf))
             return true;
-        if (x70_mediumAllocPool && x70_mediumAllocPool->Free(buf))
+        if (x74_mediumAllocPool && x74_mediumAllocPool->Free(buf))
             return true;
 
         return FreeNormalAllocation(buf);
@@ -320,14 +370,14 @@ bool CGameAllocator::Free(void* buf)
 
 void CGameAllocator::ReleaseAll()
 {
-    if (x70_mediumAllocPool)
+    if (x74_mediumAllocPool)
     {
-        x70_mediumAllocPool->ClearPuddles();
-        FreeNormalAllocation((void*)x70_mediumAllocPool);
-        x70_mediumAllocPool = nullptr;
+        x74_mediumAllocPool->ClearPuddles();
+        FreeNormalAllocation((void*)x74_mediumAllocPool);
+        x74_mediumAllocPool = nullptr;
     }
 
-    SGameMemInfo* node = x10_infoTail;
+    SGameMemInfo* node = xc_infoHead;
     while (node)
     {
         u8* prev = (u8*)node->x10_prev;
@@ -340,6 +390,7 @@ void CGameAllocator::ReleaseAll()
         node = node->x14_next;
     }
 
+    xc_infoHead = nullptr;
     x10_infoTail = nullptr;
 }
 
@@ -365,10 +416,12 @@ void CGameAllocator::SetOutOfMemoryCallback(const TOutOfMemoryCallback cb, void*
 
 int CGameAllocator::EnumAllocations(const TAllocationVisitCallback, void*, bool) const
 {
+    return 0;
 }
 
 CGameAllocator::SAllocInfo CGameAllocator::GetAllocInfo(void*) const
 {
+    return SAllocInfo();
 }
 
 void CGameAllocator::OffsetFakeStatics(int offset)
@@ -378,6 +431,7 @@ void CGameAllocator::OffsetFakeStatics(int offset)
 
 CGameAllocator::SMetrics CGameAllocator::GetMetrics() const
 {
+    return SMetrics();
 }
 
 }
