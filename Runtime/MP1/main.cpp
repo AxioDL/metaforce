@@ -224,7 +224,10 @@ int main(int argc, const char* argv[])
 
 =======
     
+<<<<<<< HEAD
 >>>>>>> Redo reimplementations
+=======
+>>>>>>> 620f65227e8d4a2128c4a53155f2525e6cf4b7d4
     LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,

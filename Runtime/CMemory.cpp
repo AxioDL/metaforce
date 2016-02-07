@@ -111,6 +111,7 @@ void* operator new[](std::size_t sz)
 {
     if (!Retro::g_memoryAllocatorReady)
         return malloc(sz);
+
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
