@@ -103,6 +103,7 @@ void operator delete(void* ptr) noexcept
         free(ptr);
         return;
     }
+
     Retro::CMemory::Free(ptr);
 }
 
@@ -110,6 +111,7 @@ void* operator new[](std::size_t sz)
 {
     if (!Retro::g_memoryAllocatorReady)
         return malloc(sz);
+
     Retro::CCallStack cs("?\?(?\?)", "UnknownType");
     return Retro::CMemory::Alloc(sz,
                                  Retro::IAllocator::EHint::None,
@@ -138,5 +140,6 @@ void operator delete[](void* ptr) noexcept
         free(ptr);
         return;
     }
+
     Retro::CMemory::Free(ptr);
 }

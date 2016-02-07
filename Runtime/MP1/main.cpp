@@ -5,6 +5,11 @@
 #include <objbase.h>
 #endif
 
+#define NEW(sz, type) new(sizeof(type), __FILE__, #type) type
+#define STRX(x) #x
+#define STR(x) STRX(x)
+#define NEW_ARRAY(sz, type) new(__FILE__ "(" STR(__LINE__) ")", #type) type[sz]
+
 #include <clocale>
 #include <memory>
 #include <boo/boo.hpp>
@@ -197,6 +202,7 @@ int CMain::appMain(boo::IApplication* app)
         time = (frame++) / 60.f;
         //fprintf(stderr, "%f\n", test.x0_currentTime);
     }
+
     return 0;
 }
 
@@ -214,7 +220,14 @@ int main(int argc, const char* argv[])
 #else
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
+<<<<<<< afac8ab949f17d84417b8407c9e9bdfe927a6dfc
 
+=======
+    
+<<<<<<< HEAD
+>>>>>>> Redo reimplementations
+=======
+>>>>>>> 620f65227e8d4a2128c4a53155f2525e6cf4b7d4
     LogVisor::RegisterConsoleLogger();
     Retro::TOneStatic<Retro::MP1::CMain> main;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,

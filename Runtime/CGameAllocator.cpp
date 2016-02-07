@@ -95,5 +95,4 @@ CGameAllocator::SMetrics CGameAllocator::GetMetrics() const
 {
     return CGameAllocator::SMetrics();
 }
-
 }

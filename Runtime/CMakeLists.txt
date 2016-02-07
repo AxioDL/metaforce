@@ -19,7 +19,7 @@ add_library(RuntimeCommon
             CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
-            CGameAllocator.hpp CGameAllocator.cpp
+            CGameAllocator.hpp CGameAllocatorPC.cpp
             CBasics.hpp CBasicsPC.cpp
             CIOWin.hpp
             CIOWinManager.hpp CIOWinManager.cpp
