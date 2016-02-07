@@ -119,7 +119,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
         m_elem.reset(new struct RECEXT);
         break;
     case SBIG('ITRL'):
-        m_elem.reset(new struct REITRL);
+        m_elem.reset(new struct REIntTimesReal);
         break;
     default:
         m_elem.reset();
@@ -252,7 +252,7 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         m_elem.reset(new struct RECEXT);
         break;
     case SBIG('ITRL'):
-        m_elem.reset(new struct REITRL);
+        m_elem.reset(new struct REIntTimesReal);
         break;
     case SBIG('NONE'):
         m_elem.reset();

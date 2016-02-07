@@ -89,6 +89,10 @@ public:
         x3_loading = false;
         return x10_object;
     }
+    const SObjectTag& GetObjectTag() const
+    {
+        return x4_objTag;
+    }
     ~CObjectReference()
     {
         if (x10_object)
@@ -103,6 +107,7 @@ class CToken
     CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
 public:
+    operator bool() const {return x0_objRef != nullptr;}
     void Unlock()
     {
         if (x0_objRef && x4_lockHeld)
@@ -157,7 +162,7 @@ public:
         other.x4_lockHeld = false;
         return *this;
     }
-    CToken() {}
+    CToken() = default;
     CToken(const CToken& other)
     : x0_objRef(other.x0_objRef)
     {
@@ -180,6 +185,12 @@ public:
         x0_objRef = obj;
         ++x0_objRef->x0_refCount;
     }
+    const SObjectTag* GetObjectTag() const
+    {
+        if (!x0_objRef)
+            return nullptr;
+        return &x0_objRef->GetObjectTag();
+    }
     ~CToken()
     {
         if (x0_objRef)
@@ -199,7 +210,7 @@ public:
     {
         return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
     }
-    TToken() {}
+    TToken() = default;
     TToken(const CToken& other) : CToken(other) {}
     TToken(T* obj)
     : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
