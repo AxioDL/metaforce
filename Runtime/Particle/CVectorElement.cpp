@@ -58,34 +58,84 @@ bool CVEKeyframeEmitter::GetValue(int frame, Zeus::CVector3f& valOut) const
 }
 
 CVECone::CVECone(CVectorElement* a, CRealElement* b)
-: x4_a(a), x8_b(b)
+: x4_direction(a), x8_magnitude(b)
 {
     Zeus::CVector3f av;
-    x4_a->GetValue(0, av);
+    x4_direction->GetValue(0, av);
     Zeus::CVector3f avNorm = av.normalized();
     if (avNorm[0] > 0.8)
-        xc_vec1 = av.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
+        xc_xVec = avNorm.cross(Zeus::CVector3f(0.f, 1.f, 0.f));
     else
-        xc_vec1 = av.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
-    x18_vec2 = avNorm.cross(xc_vec1);
+        xc_xVec = avNorm.cross(Zeus::CVector3f(1.f, 0.f, 0.f));
+    x18_yVec = avNorm.cross(xc_xVec);
 }
 
 bool CVECone::GetValue(int frame, Zeus::CVector3f& valOut) const
 {
     float b;
-    x8_b->GetValue(frame, b);
-    Zeus::CVector3f av;
-    x4_a->GetValue(0, av);
+    x8_magnitude->GetValue(frame, b);
+    Zeus::CVector3f dir;
+    x4_direction->GetValue(frame, dir);
     float b2 = std::min(1.f, b);
-    while (true)
+
+    float randX, randY;
+    do
     {
-        float rand = CRandom16::GetRandomNumber()->Float() - 0.5f;
-        float c = 2.f * b2 * rand;
+        float rand1 = CRandom16::GetRandomNumber()->Float() - 0.5f;
+        randX = 2.f * b2 * rand1;
+        float rand2 = CRandom16::GetRandomNumber()->Float() - 0.5f;
+        randY = 2.f * b2 * rand2;
+    } while (randX * randX + randY * randY > 1.f);
 
+    valOut = xc_xVec * randX + x18_yVec * randY + dir;
+    return false;
+}
 
-        c = c * c;
+bool CVETimeChain::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    int v;
+    xc_swFrame->GetValue(frame, v);
+    if (frame >= v)
+        return x8_b->GetValue(frame, valOut);
+    else
+        return x4_a->GetValue(frame, valOut);
+}
 
-    }
+bool CVEAngleCone::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    float xc, yc, xr, yr;
+    x4_angleXConstant->GetValue(frame, xc);
+    x8_angleYConstant->GetValue(frame, yc);
+    xc_angleXRange->GetValue(frame, xr);
+    x10_angleYRange->GetValue(frame, yr);
+
+    float xtmp = CRandom16::GetRandomNumber()->Float() * xr;
+    float xang = (0.5f * xr - xtmp + xc) * M_PI / 180.f;
+
+    float ytmp = CRandom16::GetRandomNumber()->Float() * yr;
+    float yang = (0.5f * yr - ytmp + yc) * M_PI / 180.f;
+
+    float mag;
+    x14_magnitude->GetValue(frame, mag);
+
+    /* This takes a +Z vector and rotates it around X and Y axis (like a rotation matrix would) */
+    valOut = Zeus::CVector3f(cosf(xang) * -sinf(yang), sinf(xang), cosf(xang) * cosf(yang)) * Zeus::CVector3f(mag);
+    return false;
+}
+
+bool CVEAdd::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    Zeus::CVector3f a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    valOut = a + b;
+    return false;
+}
+
+bool CVECircleCluster::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+
+    return false;
 }
 
 bool CVEMultiply::GetValue(int frame, Zeus::CVector3f& valOut) const

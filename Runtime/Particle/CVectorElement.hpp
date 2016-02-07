@@ -22,10 +22,10 @@ public:
 
 class CVECone : public CVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    Zeus::CVector3f xc_vec1;
-    Zeus::CVector3f x18_vec2;
+    std::unique_ptr<CVectorElement> x4_direction;
+    std::unique_ptr<CRealElement> x8_magnitude;
+    Zeus::CVector3f xc_xVec;
+    Zeus::CVector3f x18_yVec;
 public:
     CVECone(CVectorElement* a, CRealElement* b);
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
@@ -35,23 +35,23 @@ class CVETimeChain : public CVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
     std::unique_ptr<CVectorElement> x8_b;
-    std::unique_ptr<CIntElement> xc_c;
+    std::unique_ptr<CIntElement> xc_swFrame;
 public:
     CVETimeChain(CVectorElement* a, CVectorElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_a(a), x8_b(b), xc_swFrame(c) {}
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
 class CVEAngleCone : public CVectorElement
 {
-    std::unique_ptr<CRealElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
-    std::unique_ptr<CRealElement> x14_e;
+    std::unique_ptr<CRealElement> x4_angleXConstant;
+    std::unique_ptr<CRealElement> x8_angleYConstant;
+    std::unique_ptr<CRealElement> xc_angleXRange;
+    std::unique_ptr<CRealElement> x10_angleYRange;
+    std::unique_ptr<CRealElement> x14_magnitude;
 public:
     CVEAngleCone(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    : x4_angleXConstant(a), x8_angleYConstant(b), xc_angleXRange(c), x10_angleYRange(d), x14_magnitude(e) {}
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
