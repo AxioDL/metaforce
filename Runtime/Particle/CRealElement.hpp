@@ -292,12 +292,12 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
-class CREITRL : public CRealElement
+class CREIntTimesReal : public CRealElement
 {
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CRealElement> x8_b;
 public:
-    CREITRL(CIntElement* a, CRealElement* b)
+    CREIntTimesReal(CIntElement* a, CRealElement* b)
     : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };

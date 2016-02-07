@@ -372,7 +372,7 @@ struct RECEXT : IRealElement
     const char* ClassID() const {return "CEXT";}
 };
 
-struct REITRL : IRealElement
+struct REIntTimesReal : IRealElement
 {
     DECL_YAML
     IntElementFactory a;

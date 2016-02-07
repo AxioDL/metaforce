@@ -2,7 +2,6 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include <math.h>
-#include <float.h>
 
 namespace Retro
 {
@@ -53,7 +52,7 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const
         if (ltPerc == 100)
             valOut = x18_keys[100];
         else
-            valOut = x18_keys[ltPerc+1] * ltPercRem + (1.0f - ltPercRem) * x18_keys[ltPerc];
+            valOut = ltPercRem * x18_keys[ltPerc+1] + (1.0f - ltPercRem) * x18_keys[ltPerc];
     }
     return false;
 }
@@ -307,7 +306,7 @@ bool CRECEXT::GetValue(int frame, float& valOut) const
     return false;
 }
 
-bool CREITRL::GetValue(int frame, float& valOut) const
+bool CREIntTimesReal::GetValue(int frame, float& valOut) const
 {
     int a;
     x4_a->GetValue(frame, a);

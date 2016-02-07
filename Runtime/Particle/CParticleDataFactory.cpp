@@ -643,7 +643,7 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
     {
         CIntElement* a = GetIntElement(in);
         CRealElement* b = GetRealElement(in);
-        return new CREITRL(a, b);
+        return new CREIntTimesReal(a, b);
     }
     default: break;
     }

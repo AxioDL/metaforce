@@ -6,13 +6,28 @@
 namespace Retro
 {
 
+class CVEKeyframeEmitter : public CVectorElement
+{
+    u32 x4_percent;
+    u32 x8_unk1;
+    bool xc_loop;
+    bool xd_unk2;
+    u32 x10_loopEnd;
+    u32 x14_loopStart;
+    std::vector<Zeus::CVector3f> x18_keys;
+public:
+    CVEKeyframeEmitter(CInputStream& in);
+    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
+};
+
 class CVECone : public CVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
     std::unique_ptr<CRealElement> x8_b;
+    Zeus::CVector3f xc_vec1;
+    Zeus::CVector3f x18_vec2;
 public:
-    CVECone(CVectorElement* a, CRealElement* b)
-    : x4_a(a), x8_b(b) {}
+    CVECone(CVectorElement* a, CRealElement* b);
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
@@ -95,20 +110,6 @@ public:
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
-class CVEKeyframeEmitter : public CVectorElement
-{
-    u32 x4_percent;
-    u32 x8_unk1;
-    bool xc_loop;
-    bool xd_unk2;
-    u32 x10_loopEnd;
-    u32 x14_loopStart;
-    std::vector<Zeus::CVector3f> x18_keys;
-public:
-    CVEKeyframeEmitter(CInputStream& in);
-    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
-};
-
 class CVEMultiply : public CVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
@@ -130,13 +131,13 @@ public:
 
 class CVEPulse : public CVectorElement
 {
-    std::unique_ptr<CIntElement> x4_a;
-    std::unique_ptr<CIntElement> x8_b;
-    std::unique_ptr<CVectorElement> xc_c;
-    std::unique_ptr<CVectorElement> x10_d;
+    std::unique_ptr<CIntElement> x4_aDuration;
+    std::unique_ptr<CIntElement> x8_bDuration;
+    std::unique_ptr<CVectorElement> xc_aVal;
+    std::unique_ptr<CVectorElement> x10_bVal;
 public:
     CVEPulse(CIntElement* a, CIntElement* b, CVectorElement* c, CVectorElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
