@@ -21,7 +21,7 @@ public:
     struct alignas(32) SGameMemInfo
     {
         u32           x0_sentinel;
-        u32           x4_size;
+        size_t        x4_size;
         const char**  x8_fileAndLine;
         const char**  xc_type;
         SGameMemInfo* x10_prev;
@@ -61,20 +61,20 @@ private:
     u32                  xac_unknown         = 0;
     u32                  xb0_unknown         = 0;
     u32                  xb4_unknown         = 0;
-    u32                  xb8_unknown         = 0;
-    u32                  xbc_fakeStaticOff   = 0;
+    u32                  xb8_fakeStaticOff   = 0;
+    u32                  xbc_unknown         = 0;
 public:
     SGameMemInfo* FindFreeBlock(u32);
     SGameMemInfo* FindFreeBlockFromTopOfHeap(u32);
-    u32 FixupAllocPtrs(SGameMemInfo*, u32, u32, EHint, const CCallStack&);
+    u32 FixupAllocPtrs(SGameMemInfo*, size_t, size_t, EHint, const CCallStack&);
     void UpdateAllocDebugStats(u32, u32, u32);
     bool FreeNormalAllocation(void* ptr);
-    static u32 GetFreeBinEntryForSize(u32);
+    static u32 GetFreeBinEntryForSize(size_t);
     void AddFreeEntryToFreeList(SGameMemInfo*);
     void RemoveFreeEntryFromFreeList(SGameMemInfo*);
     u32 DumpAllocations() const;
     u32 GetLargestFreeChunk() const;
-    SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr);
+    SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr) const;
 
     bool Initialize();
     void Shutdown();

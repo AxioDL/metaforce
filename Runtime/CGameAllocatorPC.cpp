@@ -88,7 +88,7 @@ CGameAllocator::SGameMemInfo* CGameAllocator::FindFreeBlockFromTopOfHeap(u32 siz
     return ret;
 }
 
-u32 CGameAllocator::FixupAllocPtrs(SGameMemInfo* memInfo, u32 size, u32 roundedSize, EHint hint, const CCallStack& cs)
+u32 CGameAllocator::FixupAllocPtrs(SGameMemInfo* memInfo, size_t size, size_t roundedSize, EHint hint, const CCallStack& cs)
 {
     return 0;
 }
@@ -150,7 +150,7 @@ bool CGameAllocator::FreeNormalAllocation(void* ptr)
     return true;
 }
 
-u32 CGameAllocator::GetFreeBinEntryForSize(u32 size)
+u32 CGameAllocator::GetFreeBinEntryForSize(size_t size)
 {
     u32 curBlock = skMinBlockSize;
     u32 bin = 0;
@@ -179,25 +179,27 @@ void CGameAllocator::AddFreeEntryToFreeList(SGameMemInfo* memInfo)
 
 void CGameAllocator::RemoveFreeEntryFromFreeList(SGameMemInfo* memInfo)
 {
-    SGameMemInfo*& bin = x14_bins[GetFreeBinEntryForSize(memInfo->x4_size)];
+    SGameMemInfo* bin = x14_bins[GetFreeBinEntryForSize(memInfo->x4_size)];
+    SGameMemInfo* node = bin->x14_next;
     SGameMemInfo* ctx = nullptr;
-
-    while (bin)
+    while(node)
     {
-        if (bin != memInfo)
+        if (node == memInfo)
         {
-            ctx = bin;
-            bin = bin->x18_ctx;
-            continue;
+            if (ctx)
+            {
+                SGameMemInfo* tmp = node->x18_ctx;
+                bin = ctx->x18_ctx;
+                ctx->x18_ctx = tmp;
+            }
+            else
+                bin->x14_next = node->x18_ctx;
         }
-        if (ctx)
+        else
         {
-            ctx->x18_ctx = bin->x18_ctx;
-            break;
+            ctx = node;
+            node = ctx->x18_ctx;
         }
-
-        bin = bin->x18_ctx;
-        break;
     }
 }
 
@@ -214,8 +216,8 @@ u32 CGameAllocator::DumpAllocations() const
         tmp = ret - tmp;
         tmp = ROTATE_LEFT(tmp, 2);
         tmp += ret;
-        if (tmp > 0)
-            ; // game waits .005 seconds
+        if (tmp == 0)
+            ; // game waits .004999 seconds
         node = node->x14_next;
     }
 
@@ -241,7 +243,7 @@ u32 CGameAllocator::GetLargestFreeChunk() const
     return ret;
 }
 
-CGameAllocator::SGameMemInfo* CGameAllocator::GetMemInfoFromBlockPtr(void* ptr)
+CGameAllocator::SGameMemInfo* CGameAllocator::GetMemInfoFromBlockPtr(void* ptr) const
 {
     return reinterpret_cast<SGameMemInfo*>(reinterpret_cast<u8*>(ptr) - 32 /*sizeof(SGameMemInfo)*/);
 }
@@ -250,7 +252,7 @@ bool CGameAllocator::Initialize()
 {
     x8_heapSize = (0x0119d2c0);
     x8_heapSize &= 0xFFFFFF80;
-    x54_heap = (u8*)_mm_malloc(x8_heapSize, sizeof(SGameMemInfo));
+    x54_heap = (u8*)_mm_malloc(x8_heapSize, 32);
     if (!x54_heap)
     {
         AllocLog.report(LogVisor::FatalError, _S("Failed allocate memory, unable to continue!"));
@@ -328,10 +330,10 @@ bool CGameAllocator::Initialize()
         x74_mediumAllocPool = nullptr;
 
     x78_mediumAllocMainData = Alloc(0x21000,
-                                     EHint::None, EScope::Default, EType::Primitive,
-                                     CCallStack("MediumAllocMainData  ", " - Ignore"));
+                                    EHint::None, EScope::Default, EType::Primitive,
+                                    CCallStack("MediumAllocMainData  ", " - Ignore"));
     x84_unknown -= 4;
-    xbc_fakeStaticOff = 0xC6000;
+    xbc_unknown = 0xC6000;
     return true;
 }
 
@@ -344,11 +346,25 @@ void CGameAllocator::Shutdown()
 
 void* CGameAllocator::Alloc(size_t size, EHint hint, EScope scope, EType type, const CCallStack& cs)
 {
-    u32 r27 = size;
-    EHint r28 = hint;
-    EScope r26 = scope;
-    EType r25 = type;
-    CCallStack r29 = cs;
+    void* ret = nullptr;
+    if (!bool(hint & EHint::TopOfHeap))
+        size = ROUND_UP_32(size);
+
+    int r3 = 0;
+    int r4 = 0;
+
+    if (size <= 0x38 && !bool(hint & (EHint::Large | EHint::TopOfHeap)) && x60_smallAllocPool)
+        r3 = 1;
+    if (!(r3 & 0xFF) && x70_unknown >= 0)
+    {
+        x70_unknown = r3 - 1;
+        r4 = 0;
+    }
+
+    if (!(r4 & 0xFF))
+    {
+        ret = x60_smallAllocPool->Alloc(size);
+    }
 
     return nullptr;
 }
@@ -419,14 +435,20 @@ int CGameAllocator::EnumAllocations(const TAllocationVisitCallback, void*, bool)
     return 0;
 }
 
-CGameAllocator::SAllocInfo CGameAllocator::GetAllocInfo(void*) const
+CGameAllocator::SAllocInfo CGameAllocator::GetAllocInfo(void* ptr) const
 {
-    return SAllocInfo();
+    SGameMemInfo* info = GetMemInfoFromBlockPtr(ptr);
+    return { static_cast<void*>(info),
+                info->x4_size,
+                info->x10_prev != nullptr,
+                false,
+                info->x8_fileAndLine,
+                info->xc_type};
 }
 
 void CGameAllocator::OffsetFakeStatics(int offset)
 {
-    xbc_fakeStaticOff += offset;
+    xb8_fakeStaticOff += offset;
 }
 
 CGameAllocator::SMetrics CGameAllocator::GetMetrics() const
