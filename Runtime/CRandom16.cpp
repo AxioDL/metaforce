@@ -3,7 +3,7 @@
 namespace Retro
 {
 
-CRandom16* GLOBAL_RANDOM = nullptr;
-CGlobalRandom* GLOBAL_RANDOM_TOKEN = nullptr;
+CRandom16* CRandom16::g_randomNumber = nullptr;
+CGlobalRandom* CGlobalRandom::g_currentGlobalRandom = nullptr;
 
 }

@@ -5,12 +5,10 @@
 
 namespace Retro
 {
-CTimeProvider* g_TimeProvider = nullptr;
+CTimeProvider* CTimeProvider::g_currentTimeProvider = nullptr;
 CTimeProvider::CTimeProvider(const float& time)
-    : x0_currentTime(time)
+    : x0_currentTime(time), x8_lastProvider(g_currentTimeProvider)
 {
-    x8_lastProvider = g_TimeProvider;
-
     if (x8_lastProvider != nullptr)
         x8_lastProvider->x4_first = false;
 
@@ -21,9 +19,9 @@ CTimeProvider::CTimeProvider(const float& time)
 
 CTimeProvider::~CTimeProvider()
 {
-    g_TimeProvider = x8_lastProvider;
-    if (g_TimeProvider)
-        g_TimeProvider->x4_first = true;
+    g_currentTimeProvider = x8_lastProvider;
+    if (g_currentTimeProvider)
+        g_currentTimeProvider->x4_first = true;
 #if 0
     CGraphics::SetExternalTimeProvider(g_TimeProvider);
 #endif

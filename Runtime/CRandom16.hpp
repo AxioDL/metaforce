@@ -6,12 +6,11 @@
 namespace Retro
 {
 
-extern class CRandom16* GLOBAL_RANDOM;
-extern class CGlobalRandom* GLOBAL_RANDOM_TOKEN;
 
 class CRandom16
 {
     u32 m_seed;
+    static CRandom16* g_randomNumber;
 public:
     CRandom16(u32 p) : m_seed(p) {}
 
@@ -50,24 +49,25 @@ public:
         return rand % diff + min;
     }
 
-    static CRandom16* GetRandomNumber() {return GLOBAL_RANDOM;}
-    static void SetRandomNumber(CRandom16* rnd) {GLOBAL_RANDOM = rnd;}
+    static CRandom16* GetRandomNumber() {return g_randomNumber;}
+    static void SetRandomNumber(CRandom16* rnd) {g_randomNumber = rnd;}
 };
 
 class CGlobalRandom
 {
     CRandom16& m_random;
     CGlobalRandom* m_prev;
+    static CGlobalRandom* g_currentGlobalRandom;
 public:
     CGlobalRandom(CRandom16& rand)
-    : m_random(rand), m_prev(GLOBAL_RANDOM_TOKEN)
+    : m_random(rand), m_prev(g_currentGlobalRandom)
     {
-        GLOBAL_RANDOM_TOKEN = this;
+        g_currentGlobalRandom = this;
         CRandom16::SetRandomNumber(&m_random);
     }
     ~CGlobalRandom()
     {
-        GLOBAL_RANDOM_TOKEN = m_prev;
+        g_currentGlobalRandom = m_prev;
         if (m_prev)
             CRandom16::SetRandomNumber(&m_prev->m_random);
         else

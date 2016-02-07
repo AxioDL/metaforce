@@ -3,10 +3,10 @@
 namespace Retro
 {
 class CTimeProvider;
-extern CTimeProvider* g_TimeProvider;
 class CTimeProvider
 {
 public:
+    static CTimeProvider* g_currentTimeProvider;
     const float&   x0_currentTime; // in seconds
     bool           x4_first = true;
     CTimeProvider* x8_lastProvider = nullptr;
