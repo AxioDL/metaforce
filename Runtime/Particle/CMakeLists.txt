@@ -14,7 +14,6 @@ add_library(RuntimeCommonParticle
             CDecalDescription.hpp CDecalDescription.cpp
             CWeaponDescription.hpp CWeaponDescription.cpp
             CDecalDataFactory.hpp CDecalDataFactory.cpp
-            CParticleGen.hpp CParticleGen.cpp
             CElementGen.hpp CElementGen.cpp
             CParticleSwoosh.hpp CParticleSwoosh.cpp
             CParticleElectric.hpp CParticleElectric.cpp

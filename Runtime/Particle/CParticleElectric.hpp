@@ -6,7 +6,7 @@
 namespace Retro
 {
 
-class CParticleElectric : public CParticleGen
+class CParticleElectric : public CElementGen
 {
 };
 

@@ -1,12 +1,20 @@
 #ifndef __RETRO_CELEMENTGEN_HPP__
 #define __RETRO_CELEMENTGEN_HPP__
 
-#include "CParticleGen.hpp"
+#include "../RetroTypes.hpp"
+#include "CTransform.hpp"
+#include "CColor.hpp"
+#include "CAABox.hpp"
 
 namespace Retro
 {
+class CWarp;
+class CLight;
+class CGenDescription
+{
+};
 
-class CElementGen : public CParticleGen
+class CElementGen
 {
     bool x68_particleEmission;
     float x78_generatorRate;
@@ -40,6 +48,29 @@ public:
     {
     }
     void BuildParticleSystemBounds();
+
+    virtual ~CElementGen() {}
+    virtual void Update(double);
+    virtual void Render();
+    virtual void SetOrientation(const Zeus::CTransform&);
+    virtual void SetTranslation(const Zeus::CVector3f&);
+    virtual void SetGlobalOrientation(const Zeus::CTransform&);
+    virtual void SetGlobalTranslation(const Zeus::CVector3f&);
+    virtual void SetGlobalScale(const Zeus::CVector3f&);
+    virtual void SetLocalScale(const Zeus::CVector3f&);
+    virtual void SetParticleEmission(bool);
+    virtual void SetModulationColor(const Zeus::CColor&);
+    virtual const Zeus::CTransform& GetOrientation() const;
+    virtual const Zeus::CVector3f& GetTranslation() const;
+    virtual const Zeus::CVector3f& GetGlobalScale() const;
+    virtual const Zeus::CColor& GetModulationColor() const;
+    virtual bool IsSystemDeletable() const;
+    virtual Zeus::CAABox GetBounds() const;
+    virtual u32 GetParticleCount() const;
+    virtual bool SystemHasLight() const;
+    virtual CLight GetLight() const;
+    virtual void DestroyParticles();
+    virtual void AddModifier(CWarp*);
 };
 
 }

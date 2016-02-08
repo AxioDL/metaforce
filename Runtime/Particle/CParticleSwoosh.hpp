@@ -6,7 +6,7 @@
 namespace Retro
 {
 
-class CParticleSwoosh : public CParticleGen
+class CParticleSwoosh : public CElementGen
 {
 };
 

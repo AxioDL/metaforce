@@ -14,7 +14,7 @@ namespace Retro
 class CMetroidModelInstance;
 class CLight;
 class CAreaOctTree;
-class CParticleGen;
+class CElementGen;
 class CModel;
 class CSkinnedModel;
 
@@ -42,7 +42,7 @@ public:
     virtual void DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
     virtual void DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
     virtual void PostRenderFogs();
-    virtual void AddParticleGen(const CParticleGen&);
+    virtual void AddParticleGen(const CElementGen&);
     virtual void AddPlaneObject(const void*, const CAABox&, const CPlane&, int);
     virtual void AddDrawable(void const *, const CVector3f&, const CAABox&, int, EDrawableSorting);
     virtual void SetDrawableCallback(TDrawableCallback, const void*);
