@@ -5,7 +5,7 @@ namespace Retro
 
 CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,
                                  CIntElement* c, CIntElement* d, CIntElement* e, bool f)
-: x4_tex(std::move(tex)), xc_directTex(x4_tex.GetObj()), x24_loop(f), x28_cycleFrameRate(e)
+: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrameRate(e)
 {
     a->GetValue(0, x10_tileW);
     delete a;
@@ -16,8 +16,8 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntEle
     d->GetValue(0, x1c_strideH);
     delete d;
 
-    int width = xc_directTex->GetWidth();
-    int height = xc_directTex->GetHeight();
+    int width = x4_tex.GetObj()->GetWidth();
+    int height = x4_tex.GetObj()->GetHeight();
     float widthF = width;
     float heightF = height;
     int xTiles = std::max(1, width / x18_strideW);

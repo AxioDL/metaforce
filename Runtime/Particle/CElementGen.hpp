@@ -5,24 +5,62 @@
 #include "CTransform.hpp"
 #include "CColor.hpp"
 #include "CAABox.hpp"
+#include "CToken.hpp"
 
 namespace Retro
 {
 class CWarp;
 class CLight;
-class CGenDescription
-{
-};
+class CGenDescription;
 
 class CElementGen
 {
-    bool x68_particleEmission;
-    float x78_generatorRate;
+public:
+    enum class EModelOrientationType
+    {
+    };
+    enum class EOptionalSystemFlags
+    {
+    };
+private:
+    TLockedToken<CGenDescription> x1c_genDesc;
+    EModelOrientationType x28_orientType;
+    u32 x30 = 0;
+    u32 x34 = 0;
+    u32 x38 = 0;
+    u32 x40 = 0;
+    u32 x44 = 0;
+    u32 x48 = 0;
+    u32 x4c = 0;
+    u32 x50 = 0;
+    float x58 = 0.f;
+    u32 x64 = -1;
+    bool x68_particleEmission = true;
+    float x6c = 0.f;
+    u32 x70 = 0;
+    u16 x74 = 99;
+    float x78_generatorRate = 1.f;
+    float x7c = 0.f;
+    float x80 = 0.f;
+    float x84 = 0.f;
+    float x88 = 0.f;
+    float x8c = 0.f;
+    float x90 = 0.f;
+    float x94 = 0.f;
+    float x98 = 0.f;
+    float x9c = 0.f;
+    float xa0 = 1.f;
+    float xa4 = 1.f;
+    float xa8 = 1.f;
+    Zeus::CTransform xac = Zeus::CTransform::Identity();
     Zeus::CVector3f x88_globalTranslation;
     Zeus::CTransform x1d8_globalOrientation;
     std::vector<CElementGen> x240_children;
     std::vector<CElementGen> x254_children;
 public:
+    CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
+    virtual ~CElementGen() = default;
+
     virtual const Zeus::CVector3f& GetGlobalTranslation() const
     { return x88_globalTranslation; }
     virtual const Zeus::CTransform& GetGlobalOrientation() const
@@ -49,7 +87,6 @@ public:
     }
     void BuildParticleSystemBounds();
 
-    virtual ~CElementGen() {}
     virtual void Update(double);
     virtual void Render();
     virtual void SetOrientation(const Zeus::CTransform&);

@@ -202,7 +202,7 @@ public:
     }
 };
 
-template<class T>
+template <class T>
 class TToken : public CToken
 {
 public:
@@ -212,17 +212,21 @@ public:
     }
     TToken() = default;
     TToken(const CToken& other) : CToken(other) {}
+    TToken(CToken&& other) : CToken(std::move(other)) {}
     TToken(T* obj)
     : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
     TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
     T* GetObj() {return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();}
 };
 
-template<class T>
+template <class T>
 class TLockedToken : public TToken<T>
 {
+    T* m_obj;
 public:
-    TLockedToken(const CToken& other) : TToken<T>(other) {CToken::Lock();}
+    TLockedToken(const CToken& other) : TToken<T>(other) {m_obj = TToken<T>::GetObj();}
+    TLockedToken(CToken&& other) : TToken<T>(std::move(other)) {m_obj = TToken<T>::GetObj();}
+    T* GetObj() {return m_obj;}
 };
 
 }
