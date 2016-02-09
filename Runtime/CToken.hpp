@@ -13,6 +13,7 @@ namespace Retro
 class IObjectStore;
 class IObj;
 
+/** Shared data-structure for CToken references, analogous to std::shared_ptr */
 class CObjectReference
 {
     friend class CToken;
@@ -31,7 +32,10 @@ public:
     CObjectReference(std::unique_ptr<IObj>&& obj)
     : x10_object(obj.release()) {}
 
+    /** Indicates an asynchronous load transaction has been submitted and is not yet finished */
     bool IsLoading() const {return x3_loading;}
+
+    /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
     void Unlock()
     {
         --x2_lockCount;
@@ -42,6 +46,8 @@ public:
         else if (IsLoading())
             CancelLoad();
     }
+
+    /** Increments 2nd ref-count, performing async-factory-load if needed */
     void Lock()
     {
         ++x2_lockCount;
@@ -52,6 +58,9 @@ public:
             x3_loading = true;
         }
     }
+
+    /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
+     *  Reaching 0 indicates the CToken should delete the CObjectReference */
     u16 RemoveReference()
     {
         --x0_refCount;
@@ -73,12 +82,16 @@ public:
             x3_loading = false;
         }
     }
+
+    /** Pointer-synchronized object-destructor, another building Lock cycle may be performed after */
     void Unload()
     {
         delete x10_object;
         x10_object = nullptr;
         x3_loading = false;
     }
+
+    /** Synchronous object-fetch, guaranteed to return complete object on-demand, blocking build if not ready */
     IObj* GetObject()
     {
         if (!x10_object)
@@ -102,11 +115,15 @@ public:
     }
 };
 
+/** Counted meta-object, reference-counting against a shared CObjectReference
+ *  This class is analogous to std::shared_ptr and C++11 rvalues have been implemented accordingly
+ *  (default/empty constructor, move constructor/assign) */
 class CToken
 {
     CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
 public:
+    /* Added to test for non-null state */
     operator bool() const {return x0_objRef != nullptr;}
     void Unlock()
     {
