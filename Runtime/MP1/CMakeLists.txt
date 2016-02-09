@@ -11,6 +11,7 @@ add_executable(mp1
 target_link_libraries(mp1
                       RuntimeCommonCharacter
                       RuntimeCommonInput
+                      RuntimeCommonParticle
                       RuntimeCommon
                       DNAMP1
                       DNACommon

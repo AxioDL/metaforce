@@ -59,6 +59,7 @@ add_library(RuntimeCommon
             CStringExtras.hpp
             CCallStack.hpp
             CTexture.hpp CTexture.cpp
+            CLight.hpp CLight.cpp
             IOStreams.hpp IOStreams.cpp
             CMainFlowBase.hpp CMainFlowBase.cpp
             CMFGameBase.hpp

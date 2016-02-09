@@ -9,31 +9,31 @@ namespace Retro
 class CParticleGlobals
 {
 public:
-    static int g_emitterTimeInt;
-    static float g_emitterTimeFloat;
+    static int g_EmitterTime;
+    static float g_EmitterTimeReal;
     static void SetEmitterTime(int frame)
     {
-        g_emitterTimeInt = frame;
-        g_emitterTimeFloat = frame;
+        g_EmitterTime = frame;
+        g_EmitterTimeReal = frame;
     }
 
-    static int g_particleLifetimeInt;
-    static float g_particleLifetimeFloat;
+    static int g_ParticleLifetime;
+    static float g_ParticleLifetimeReal;
     static void SetParticleLifetime(int frame)
     {
-        g_particleLifetimeInt = frame;
-        g_particleLifetimeFloat = frame;
+        g_ParticleLifetime = frame;
+        g_ParticleLifetimeReal = frame;
     }
 
-    static int g_particleLifetimePercentTweenInt;
-    static float g_particleLifetimePercentTweenFloat;
-    static float g_particleLifetimePercentTweenIntFloatRem;
+    static int g_ParticleLifetimePercentage;
+    static float g_ParticleLifetimePercentageReal;
+    static float g_ParticleLifetimePercentageRemainder;
     static void UpdateParticleLifetimeTweenValues(int frame)
     {
-        float lt = g_particleLifetimeInt != 0.0f ? g_particleLifetimeInt : 1.0f;
-        g_particleLifetimePercentTweenFloat = 100.0f * frame / lt;
-        g_particleLifetimePercentTweenInt = g_particleLifetimePercentTweenFloat;
-        g_particleLifetimePercentTweenIntFloatRem = g_particleLifetimePercentTweenFloat - g_particleLifetimePercentTweenInt;
+        float lt = g_ParticleLifetime != 0.0f ? g_ParticleLifetime : 1.0f;
+        g_ParticleLifetimePercentageReal = 100.0f * frame / lt;
+        g_ParticleLifetimePercentage = g_ParticleLifetimePercentageReal;
+        g_ParticleLifetimePercentageRemainder = g_ParticleLifetimePercentageReal - g_ParticleLifetimePercentage;
     }
 
     static float* g_papValues;

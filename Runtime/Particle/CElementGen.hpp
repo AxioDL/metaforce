@@ -3,9 +3,12 @@
 
 #include "../RetroTypes.hpp"
 #include "CTransform.hpp"
+#include "CVector3f.hpp"
 #include "CColor.hpp"
 #include "CAABox.hpp"
 #include "CToken.hpp"
+#include "CLight.hpp"
+#include "CRandom16.hpp"
 
 namespace Retro
 {
@@ -18,16 +21,23 @@ class CElementGen
 public:
     enum class EModelOrientationType
     {
+        Normal,
+        One
     };
     enum class EOptionalSystemFlags
+    {
+        None,
+        One,
+        Two
+    };
+    class CParticleListItem
     {
     };
 private:
     TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
-    u32 x30 = 0;
-    u32 x34 = 0;
-    u32 x38 = 0;
+    std::vector<CParticleListItem> x2c_particleLists;
+    std::vector<Zeus::CMatrix3f> x3c_parentMatrices;
     u32 x40 = 0;
     u32 x44 = 0;
     u32 x48 = 0;
@@ -37,29 +47,90 @@ private:
     u32 x64 = -1;
     bool x68_particleEmission = true;
     float x6c = 0.f;
-    u32 x70 = 0;
+    int x70_MAXP = 0;
     u16 x74 = 99;
     float x78_generatorRate = 1.f;
     float x7c = 0.f;
     float x80 = 0.f;
     float x84 = 0.f;
-    float x88 = 0.f;
-    float x8c = 0.f;
-    float x90 = 0.f;
-    float x94 = 0.f;
+    Zeus::CVector3f x88_globalTranslation;
+    float x94_WIDT = 0.f;
     float x98 = 0.f;
     float x9c = 0.f;
     float xa0 = 1.f;
     float xa4 = 1.f;
     float xa8 = 1.f;
     Zeus::CTransform xac = Zeus::CTransform::Identity();
-    Zeus::CVector3f x88_globalTranslation;
-    Zeus::CTransform x1d8_globalOrientation;
-    std::vector<CElementGen> x240_children;
-    std::vector<CElementGen> x254_children;
+    Zeus::CTransform xdc = Zeus::CTransform::Identity();
+    float x10c = 1.f;
+    float x110 = 1.f;
+    float x114 = 1.f;
+    Zeus::CTransform x118 = Zeus::CTransform::Identity();
+    Zeus::CTransform x148 = Zeus::CTransform::Identity();
+    Zeus::CTransform x178 = Zeus::CTransform::Identity();
+    Zeus::CTransform x1a8 = Zeus::CTransform::Identity();
+    Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
+    u32 x208 = 0;
+    u32 x20c = 0;
+    u32 x210 = 0;
+    int x214_PSLT = 0x7fffff;
+    Zeus::CVector3f x218_PSIV;
+    bool x224_24 = false;
+    bool x224_25_LIT_;
+    bool x224_26_AAPH;
+    bool x224_27_ZBUF;
+    bool x224_28 = true;
+    bool x224_29_MBLR;
+    bool x224_30_VMD1;
+    bool x224_31_VMD2;
+    bool x225_24_VMD2;
+    bool x225_25_VMD2;
+    bool x225_26_LINE;
+    bool x225_27_FXLL;
+    bool x225_28 = false;
+    bool x225_29 = false;
+    bool x226;
+    int x228_MBSP;
+    bool x22c = false;
+    CRandom16 x230;
+    std::vector<std::unique_ptr<CElementGen>> x234_children;
+    int x244_CSSD = 0;
+    std::vector<std::unique_ptr<CElementGen>> x248_children;
+    int x258_SISY = 16;
+    int x25c_PISY = 16;
+    u32 x264 = 0;
+    u32 x268 = 0;
+    u32 x26c = 0;
+    int x270_SSSD = 0;
+    Zeus::CVector3f x274_SSPO;
+    u32 x284 = 0;
+    u32 x288 = 0;
+    u32 x28c = 0;
+    int x290_SESD = 0;
+    Zeus::CVector3f x294_SEPO;
+    float x2a0 = 0.f;
+    float x2a4 = 0.f;
+    Zeus::CVector3f x2a8;
+    Zeus::CVector3f x2b4;
+    float x2c0 = 0.f;
+    Zeus::CAABox x2c4 = Zeus::CAABox::skInvertedBox;
+    ELightType x2dc_lightType;
+    Zeus::CColor x2e0 = Zeus::CColor::skWhite;
+    float x2e4 = 1.f;
+    float x2e8 = 0.f;
+    float x2ec = 0.f;
+    float x2f0 = 0.f;
+    float x2f4 = 1.f;
+    float x2f8 = 0.f;
+    float x2fc = 0.f;
+    EFalloffType x300_falloffType = EFalloffType::Linear;
+    float x304 = 1.f;
+    float x308 = 45.f;
+    u32 x30c = -1;
+
 public:
     CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
-    virtual ~CElementGen() = default;
+    virtual ~CElementGen();
 
     virtual const Zeus::CVector3f& GetGlobalTranslation() const
     { return x88_globalTranslation; }
@@ -75,16 +146,17 @@ public:
         else
             x78_generatorRate = 0.0f;
 
-        for (CElementGen& child : x240_children)
-            child.SetGeneratorRateScalar(x78_generatorRate);
+        for (std::unique_ptr<CElementGen>& child : x234_children)
+            child->SetGeneratorRateScalar(x78_generatorRate);
 
-        for (CElementGen& child : x254_children)
-            child.SetGeneratorRateScalar(x78_generatorRate);
+        for (std::unique_ptr<CElementGen>& child : x248_children)
+            child->SetGeneratorRateScalar(x78_generatorRate);
     }
 
-    static void Initialize()
-    {
-    }
+    static int g_ParticleAliveCount;
+    static int g_ParticleSystemAliveCount;
+    static void Initialize();
+
     void BuildParticleSystemBounds();
 
     virtual void Update(double);
@@ -109,6 +181,7 @@ public:
     virtual void DestroyParticles();
     virtual void AddModifier(CWarp*);
 };
+ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
 }
 
