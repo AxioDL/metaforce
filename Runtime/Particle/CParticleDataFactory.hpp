@@ -24,25 +24,25 @@ class CIntElement;
 
 struct SParticleModel
 {
-    TToken<CModel> m_model;
+    TLockedToken<CModel> m_model;
     bool m_found = false;
 };
 
 struct SChildGeneratorDesc
 {
-    TToken<CGenDescription> m_gen;
+    TLockedToken<CGenDescription> m_gen;
     bool m_found = false;
 };
 
 struct SSwooshGeneratorDesc
 {
-    TToken<CSwooshDescription> m_swoosh;
+    TLockedToken<CSwooshDescription> m_swoosh;
     bool m_found = false;
 };
 
 struct SElectricGeneratorDesc
 {
-    TToken<CElectricDescription> m_electric;
+    TLockedToken<CElectricDescription> m_electric;
     bool m_found = false;
 };
 

@@ -24,7 +24,7 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const
 {
     if (!x4_percent)
     {
-        int emitterTime = CParticleGlobals::g_emitterTimeInt;
+        int emitterTime = CParticleGlobals::g_EmitterTime;
         int calcKey = emitterTime;
         if (xc_loop)
         {
@@ -46,8 +46,8 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const
     }
     else
     {
-        int ltPerc = CParticleGlobals::g_particleLifetimePercentTweenInt;
-        float ltPercRem = CParticleGlobals::g_particleLifetimePercentTweenIntFloatRem;
+        int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
+        float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
         if (ltPerc == 100)
             valOut = x18_keys[100];
         else
@@ -117,7 +117,7 @@ bool CIELifetimePercent::GetValue(int frame, int& valOut) const
     int a;
     x4_percentVal->GetValue(frame, a);
     a = std::max(0, a);
-    valOut = (a / 100.0f) * CParticleGlobals::g_particleLifetimeFloat;
+    valOut = (a / 100.0f) * CParticleGlobals::g_ParticleLifetimeReal;
     return false;
 }
 

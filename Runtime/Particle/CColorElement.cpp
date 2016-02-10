@@ -25,7 +25,7 @@ bool CCEKeyframeEmitter::GetValue(int frame, Zeus::CColor& valOut) const
 {
     if (!x4_percent)
     {
-        int emitterTime = CParticleGlobals::g_emitterTimeInt;
+        int emitterTime = CParticleGlobals::g_EmitterTime;
         int calcKey = emitterTime;
         if (xc_loop)
         {
@@ -47,8 +47,8 @@ bool CCEKeyframeEmitter::GetValue(int frame, Zeus::CColor& valOut) const
     }
     else
     {
-        int ltPerc = CParticleGlobals::g_particleLifetimePercentTweenInt;
-        float ltPercRem = CParticleGlobals::g_particleLifetimePercentTweenIntFloatRem;
+        int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
+        float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
         if (ltPerc == 100)
             valOut = x18_keys[100];
         else
