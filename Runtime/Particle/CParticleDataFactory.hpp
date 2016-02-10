@@ -48,6 +48,10 @@ struct SElectricGeneratorDesc
 
 class CParticleDataFactory
 {
+    friend class CDecalDataFactory;
+    friend class CParticleElectricDataFactory;
+    friend class CParticleSwooshDataFactory;
+
     static SParticleModel GetModel(CInputStream& in, CSimplePool* resPool);
     static SChildGeneratorDesc GetChildGeneratorDesc(TResId res, CSimplePool* resPool, const std::vector<TResId>& tracker);
     static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<TResId>& tracker);
@@ -65,7 +69,6 @@ class CParticleDataFactory
     static int32_t GetInt(CInputStream& in);
     static bool GetBool(CInputStream& in);
     static FourCC GetClassID(CInputStream& in);
-
 public:
     static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<TResId>& tracker,

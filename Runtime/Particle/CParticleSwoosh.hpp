@@ -1,7 +1,7 @@
 #ifndef __RETRO_CPARTICLESWOOSH_HPP__
 #define __RETRO_CPARTICLESWOOSH_HPP__
 
-#include "CParticleGen.hpp"
+#include "CElementGen.hpp"
 
 namespace Retro
 {
