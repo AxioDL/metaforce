@@ -1,16 +1,24 @@
 #include "CElementGen.hpp"
 #include "CGenDescription.hpp"
 #include "CLight.hpp"
+#include "CParticleGlobals.hpp"
 
 namespace Retro
 {
+static LogVisor::LogModule Log("Retro::CElementGen");
+
+static bool s_inCreateNewParticles = false;
 
 int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
+static rstl::reserved_vector<CElementGen::CParticle, 2560> g_StaticParticleList;
 void CElementGen::Initialize()
 {
     g_ParticleAliveCount = 0;
     g_ParticleSystemAliveCount = 0;
+
+    CParticle baseParticle;
+    std::uninitialized_fill_n(g_StaticParticleList.begin(), 2560, baseParticle);
 }
 
 CElementGen::CElementGen(const TToken<CGenDescription>& gen,
@@ -23,7 +31,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     if (pmedElem)
     {
         int pmedVal;
-        pmedElem->GetValue(x50, pmedVal);
+        pmedElem->GetValue(x50_curFrame, pmedVal);
         x74 = pmedVal;
     }
     x230.SetSeed(x74);
@@ -35,7 +43,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 
     CIntElement* mbspElem = x1c_genDesc.GetObj()->x48_MBSP.get();
     if (mbspElem)
-        mbspElem->GetValue(x50, x228_MBSP);
+        mbspElem->GetValue(x50_curFrame, x228_MBSP);
 
     x224_30_VMD1 = x1c_genDesc.GetObj()->x45_26_VMD1;
     x224_31_VMD2 = x1c_genDesc.GetObj()->x45_27_VMD2;
@@ -103,7 +111,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 
     CIntElement* maxpElem = x1c_genDesc.GetObj()->x28_MAXP.get();
     if (maxpElem)
-        maxpElem->GetValue(x50, x70_MAXP);
+        maxpElem->GetValue(x50_curFrame, x70_MAXP);
 
     x2c_particleLists.reserve(std::min(256, x70_MAXP));
     if (x28_orientType == EModelOrientationType::One)
@@ -117,13 +125,13 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 
     CRealElement* widtElem = x1c_genDesc.GetObj()->x24_WIDT.get();
     if (widtElem)
-        widtElem->GetValue(x50, x94_WIDT);
+        widtElem->GetValue(x50_curFrame, x94_WIDT);
 
     CIntElement* ltypElem = x1c_genDesc.GetObj()->x100_LTYP.get();
     if (ltypElem)
     {
         int ltyp;
-        ltypElem->GetValue(x50, ltyp);
+        ltypElem->GetValue(x50_curFrame, ltyp);
         switch (ELightType(ltyp))
         {
         case ELightType::LocalAmbient:
@@ -146,7 +154,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     if (lfotElem)
     {
         int lfot;
-        lfotElem->GetValue(x50, lfot);
+        lfotElem->GetValue(x50_curFrame, lfot);
         switch (EFalloffType(lfot))
         {
         case EFalloffType::Constant:
@@ -168,7 +176,149 @@ CElementGen::~CElementGen()
     --g_ParticleSystemAliveCount;
 }
 
-void CElementGen::Update(double)
+CElementGen::CParticleListItem::CParticleListItem()
+{
+    ++g_ParticleAliveCount;
+}
+
+CElementGen::CParticleListItem::~CParticleListItem()
+{
+    --g_ParticleAliveCount;
+}
+
+void CElementGen::Update(double t)
+{
+    CIntElement* pswtElem = x1c_genDesc.GetObj()->x10_PSWT.get();
+    if (pswtElem && !x225_28_warmedUp)
+    {
+        int pswt = 0;
+        pswtElem->GetValue(x50_curFrame, pswt);
+        if (pswt > 32)
+        {
+            Log.report(LogVisor::Info,
+                       "Running warmup on particle system 0x%08x for %d ticks.",
+                       x1c_genDesc.GetObj(), pswt);
+            InternalUpdate(pswt / 60.0);
+            x225_28_warmedUp = true;
+        }
+    }
+    InternalUpdate(t);
+}
+
+bool CElementGen::InternalUpdate(double dt)
+{
+    CGlobalRandom gr(x230);
+
+    double dt1 = 1 / 60.0;
+    if (fabs(dt - 1 / 60.0) >= 1 / 60000.0)
+        dt1 = dt;
+    double t = x50_curFrame / 60.0;
+    CParticleGlobals::SetEmitterTime(x50_curFrame);
+
+    CRealElement* pstsElem = x1c_genDesc.GetObj()->x14_PSTS.get();
+    if (pstsElem)
+    {
+        float psts;
+        pstsElem->GetValue(x50_curFrame, psts);
+        double dt1Scaled = psts * dt1;
+        dt1 = std::max(0.0, dt1Scaled);
+    }
+
+    x58_curSeconds += dt1;
+
+    if (x224_29_MBLR && dt > 0.0)
+    {
+        CIntElement* mbspElem = x1c_genDesc.GetObj()->x48_MBSP.get();
+        if (mbspElem)
+            mbspElem->GetValue(x50_curFrame, x228_MBSP);
+    }
+
+    int frameUpdateCount = 0;
+    while (t < x58_curSeconds && fabs(t - x58_curSeconds) >= 1 / 60000.0)
+    {
+        x2a8.splat(FLT_MAX);
+        x2b4.splat(FLT_MIN);
+        x2c0 = 0.f;
+        float grte = 0.f;
+        CParticleGlobals::SetEmitterTime(x50_curFrame);
+        CRealElement* grteElem = x1c_genDesc.GetObj()->x2c_GRTE.get();
+        if (grteElem->GetValue(x50_curFrame, grte))
+        {
+            x2c_particleLists.clear();
+            return true;
+        }
+
+        grte = std::max(0.f, grte * x78_generatorRate);
+        x6c += grte;
+        int x6c_floor = floorf(x6c);
+        x6c = x6c - x6c_floor;
+
+        if (x50_curFrame < x214_PSLT)
+        {
+            if (!x68_particleEmission)
+                x6c_floor = 0;
+        }
+        else
+            x6c_floor = 0;
+
+        CIntElement* maxpElem = x1c_genDesc.GetObj()->x28_MAXP.get();
+        if (maxpElem)
+            maxpElem->GetValue(x50_curFrame, x70_MAXP);
+
+        UpdateExistingParticles();
+
+        CParticleGlobals::SetParticleLifetime(x214_PSLT);
+        bool oldBoolVal = s_inCreateNewParticles;
+        s_inCreateNewParticles = true;
+        CreateNewParticles(x6c_floor);
+        s_inCreateNewParticles = oldBoolVal;
+
+        UpdatePSTranslationAndOrientation();
+        UpdateChildParticleSystems(1 / 60.0);
+
+        if (x2dc_lightType != ELightType::LocalAmbient)
+            UpdateLightParameters();
+
+        ++frameUpdateCount;
+        ++x50_curFrame;
+        t += 1 / 60.0;
+    }
+
+    UpdateChildParticleSystems(frameUpdateCount * (-1 / 60.0) - dt1);
+    if (fabs(t - x58_curSeconds) < 1 / 60000.0)
+        x58_curSeconds = t;
+
+    BuildParticleSystemBounds();
+    x224_24 = false;
+
+    double passedTime = t - x58_curSeconds;
+    x60 = 1.0 - passedTime * 60.0;
+
+    return false;
+}
+
+void CElementGen::UpdateExistingParticles()
+{
+    CParticleGlobals::SetEmitterTime(x50_curFrame);
+}
+
+void CElementGen::CreateNewParticles(int)
+{
+}
+
+void CElementGen::UpdatePSTranslationAndOrientation()
+{
+}
+
+void CElementGen::UpdateChildParticleSystems(double dt)
+{
+}
+
+void CElementGen::UpdateLightParameters()
+{
+}
+
+void CElementGen::BuildParticleSystemBounds()
 {
 }
 

@@ -32,18 +32,22 @@ public:
     };
     class CParticleListItem
     {
+    public:
+        CParticleListItem();
+        ~CParticleListItem();
+    };
+    class CParticle
+    {
     };
 private:
     TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
     std::vector<Zeus::CMatrix3f> x3c_parentMatrices;
-    u32 x40 = 0;
-    u32 x44 = 0;
-    u32 x48 = 0;
     u32 x4c = 0;
-    u32 x50 = 0;
-    float x58 = 0.f;
+    u32 x50_curFrame = 0;
+    double x58_curSeconds = 0.f;
+    float x60;
     u32 x64 = -1;
     bool x68_particleEmission = true;
     float x6c = 0.f;
@@ -87,7 +91,7 @@ private:
     bool x225_25_VMD2;
     bool x225_26_LINE;
     bool x225_27_FXLL;
-    bool x225_28 = false;
+    bool x225_28_warmedUp = false;
     bool x225_29 = false;
     bool x226;
     int x228_MBSP;
@@ -157,9 +161,15 @@ public:
     static int g_ParticleSystemAliveCount;
     static void Initialize();
 
+    void UpdateExistingParticles();
+    void CreateNewParticles(int);
+    void UpdatePSTranslationAndOrientation();
+    void UpdateChildParticleSystems(double);
+    void UpdateLightParameters();
     void BuildParticleSystemBounds();
 
     virtual void Update(double);
+    bool InternalUpdate(double);
     virtual void Render();
     virtual void SetOrientation(const Zeus::CTransform&);
     virtual void SetTranslation(const Zeus::CVector3f&);
