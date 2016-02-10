@@ -1,3 +1,5 @@
+add_subdirectory(ScriptObjects)
+
 make_dnalist(liblist
              MLVL
              ANIM
@@ -7,6 +9,8 @@ make_dnalist(liblist
              CSKR
              MREA
              DeafBabe)
+
+
 add_library(DNAMP2
             DNAMP2.hpp DNAMP2.cpp
             ${liblist}
@@ -17,3 +21,5 @@ add_library(DNAMP2
             MAPA.hpp
             AFSM.hpp
             STRG.hpp STRG.cpp)
+
+target_link_libraries(DNAMP2 ScriptObjectsMP2)

@@ -94,6 +94,9 @@ public:
         copy[8] = L'\0';
         m_id = wcstoul(copy, nullptr, 16);
     }
+    UniqueID32(atUint32 id)
+        : m_id(id)
+    {}
 
     static constexpr size_t BinarySize() {return 4;}
 };
@@ -155,6 +158,10 @@ public:
         m_id = wcstoull(copy, nullptr, 16);
 #endif
     }
+
+    UniqueID64(atUint64 id)
+        : m_id(id)
+    {}
 
     static constexpr size_t BinarySize() {return 8;}
 };
@@ -235,11 +242,11 @@ public:
 };
 
 /** Class that automatically converts between hash and path for DNA usage */
-template <class IDTYPE>
+template <class IDType>
 class PAKPath : public BigYAML
 {
     HECL::ProjectPath m_path;
-    IDTYPE m_id;
+    IDType m_id;
 public:
     HECL::ProjectPath getPath() const
     {
@@ -252,7 +259,7 @@ public:
         return HECL::ProjectPath();
     }
     operator HECL::ProjectPath() const {return getPath();}
-    operator const IDTYPE&() const {return m_id;}
+    operator const IDType&() const {return m_id;}
 
     Delete _d;
     void read(Athena::io::IStreamReader& reader)
@@ -284,7 +291,7 @@ public:
     }
 
     size_t binarySize(size_t __isz) const
-    {return __isz + IDTYPE::BinarySize();}
+    {return __isz + IDType::BinarySize();}
 };
 using PAKPath32 = PAKPath<UniqueID32>;
 using PAKPath64 = PAKPath<UniqueID64>;

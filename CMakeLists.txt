@@ -90,6 +90,8 @@ add_subdirectory(DataSpec)
 add_subdirectory(Editor)
 add_subdirectory(Runtime)
 
+add_subdirectory(propparse)
+
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
 if(GIT_FOUND)
