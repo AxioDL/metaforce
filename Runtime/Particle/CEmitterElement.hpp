@@ -13,6 +13,7 @@ class CEESimpleEmitter : public CEmitterElement
 public:
     CEESimpleEmitter(CVectorElement* a, CVectorElement* b)
     : x4_loc(a), x8_vec(b) {}
+    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
 };
 
 class CVESphere : public CEmitterElement
@@ -23,6 +24,7 @@ class CVESphere : public CEmitterElement
 public:
     CVESphere(CVectorElement* a, CRealElement* b, CRealElement* c)
     : x4_a(a), x8_b(b), xc_c(c) {}
+    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
 };
 
 class CVEAngleSphere : public CEmitterElement
@@ -38,6 +40,7 @@ public:
     CVEAngleSphere(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d,
                    CRealElement* e, CRealElement* f, CRealElement* g)
     : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e), x18_f(f), x1c_g(g) {}
+    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
 };
 
 }

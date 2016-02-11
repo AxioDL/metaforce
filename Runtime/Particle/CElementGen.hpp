@@ -32,12 +32,31 @@ public:
     };
     class CParticleListItem
     {
+        friend class CElementGen;
+        s16 x0_partIdx;
+        Zeus::CVector3f x4_vec;
     public:
-        CParticleListItem();
-        ~CParticleListItem();
+        CParticleListItem(s16 idx)
+        : x0_partIdx(idx)
+        {
+            ++g_ParticleAliveCount;
+        }
+        ~CParticleListItem()
+        {
+            --g_ParticleAliveCount;
+        }
     };
     class CParticle
     {
+        friend class CElementGen;
+        int x0_endFrame = 0;
+        Zeus::CVector3f x4_pos;
+        Zeus::CVector3f x10_prevPos;
+        Zeus::CVector3f x1c_vel;
+        int x28_startFrame = 0;
+        float x2c_lineLengthOrSize = 0.f;
+        float x30_lineWidthOrRota = 0.f;
+        Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
 private:
     TLockedToken<CGenDescription> x1c_genDesc;
@@ -50,17 +69,13 @@ private:
     float x60;
     u32 x64 = -1;
     bool x68_particleEmission = true;
-    float x6c = 0.f;
+    float x6c_generatorRemainder = 0.f;
     int x70_MAXP = 0;
     u16 x74 = 99;
     float x78_generatorRate = 1.f;
-    float x7c = 0.f;
-    float x80 = 0.f;
-    float x84 = 0.f;
+    Zeus::CVector3f x7c;
     Zeus::CVector3f x88_globalTranslation;
-    float x94_WIDT = 0.f;
-    float x98 = 0.f;
-    float x9c = 0.f;
+    Zeus::CVector3f x94_POFS;
     float xa0 = 1.f;
     float xa4 = 1.f;
     float xa8 = 1.f;
@@ -74,9 +89,9 @@ private:
     Zeus::CTransform x178 = Zeus::CTransform::Identity();
     Zeus::CTransform x1a8 = Zeus::CTransform::Identity();
     Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
-    u32 x208 = 0;
+    u32 x208_activeParticleCount = 0;
     u32 x20c = 0;
-    u32 x210 = 0;
+    u32 x210_curEmitterFrame = 0;
     int x214_PSLT = 0x7fffff;
     Zeus::CVector3f x218_PSIV;
     bool x224_24 = false;
@@ -87,8 +102,8 @@ private:
     bool x224_29_MBLR;
     bool x224_30_VMD1;
     bool x224_31_VMD2;
-    bool x225_24_VMD2;
-    bool x225_25_VMD2;
+    bool x225_24_VMD3;
+    bool x225_25_VMD4;
     bool x225_26_LINE;
     bool x225_27_FXLL;
     bool x225_28_warmedUp = false;
@@ -96,7 +111,7 @@ private:
     bool x226;
     int x228_MBSP;
     bool x22c = false;
-    CRandom16 x230;
+    CRandom16 x230_randState;
     std::vector<std::unique_ptr<CElementGen>> x234_children;
     int x244_CSSD = 0;
     std::vector<std::unique_ptr<CElementGen>> x248_children;
@@ -114,9 +129,9 @@ private:
     Zeus::CVector3f x294_SEPO;
     float x2a0 = 0.f;
     float x2a4 = 0.f;
-    Zeus::CVector3f x2a8;
-    Zeus::CVector3f x2b4;
-    float x2c0 = 0.f;
+    Zeus::CVector3f x2a8_aabbMin;
+    Zeus::CVector3f x2b4_aabbMax;
+    float x2c0_maxSize = 0.f;
     Zeus::CAABox x2c4 = Zeus::CAABox::skInvertedBox;
     ELightType x2dc_lightType;
     Zeus::CColor x2e0 = Zeus::CColor::skWhite;
@@ -131,6 +146,8 @@ private:
     float x304 = 1.f;
     float x308 = 45.f;
     u32 x30c = -1;
+
+    void AccumulateBounds(Zeus::CVector3f& pos, float size);
 
 public:
     CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
@@ -157,6 +174,8 @@ public:
             child->SetGeneratorRateScalar(x78_generatorRate);
     }
 
+    static s32 g_FreeIndex;
+    static bool g_StaticListInitialized;
     static int g_ParticleAliveCount;
     static int g_ParticleSystemAliveCount;
     static void Initialize();

@@ -50,6 +50,8 @@ public:
 
 class CEmitterElement : public IElement
 {
+public:
+    virtual bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const=0;
 };
 
 }
