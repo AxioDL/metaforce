@@ -72,6 +72,7 @@ public:
     SSwooshGeneratorDesc xd4_SSWH;
     std::unique_ptr<CIntElement> xe4_SSSD;
     std::unique_ptr<CVectorElement> xe8_SSPO;
+    SElectricGeneratorDesc xec_SELC;
     std::unique_ptr<CIntElement> xf8_SESD;
     std::unique_ptr<CVectorElement> xfc_SEPO;
     SChildGeneratorDesc xec_PMLC;
@@ -86,7 +87,6 @@ public:
 
     /* 0-00 additions */
     std::unique_ptr<CIntElement> x10_SEED;
-    SElectricGeneratorDesc xd8_SELC;
     union
     {
         struct

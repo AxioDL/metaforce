@@ -8,7 +8,7 @@ CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in)
 {
     x0 = in.readUint32Big();
     x4 = in.readUint32Big();
-    x8 = in.readUint32Big();
+    x8_endFrame = in.readUint32Big();
     xc = in.readUint32Big();
 
     u32 count = in.readUint32Big();
@@ -43,8 +43,19 @@ void CSpawnSystemKeyframeData::LoadAllSpawnedSystemTokens(CSimplePool* pool)
 void CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::LoadToken(CSimplePool* pool)
 {
     x10_token = std::move(pool->GetObj({FOURCC('PART'), x0_id}));
-    x10_token.Lock();
     x18_found = true;
+}
+
+std::vector<CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo>&
+CSpawnSystemKeyframeData::GetSpawnedSystemsAtFrame(u32 frame)
+{
+    static std::vector<CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo> emptyReturn;
+    if (frame >= x8_endFrame)
+        return emptyReturn;
+    for (auto& spawn : x10_spawns)
+        if (spawn.first == frame)
+            return spawn.second;
+    return emptyReturn;
 }
 
 }

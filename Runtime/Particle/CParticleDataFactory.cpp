@@ -1044,7 +1044,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x128_ADV8.reset(GetRealElement(in));
             break;
         case SBIG('SELC'):
-            fillDesc->xd8_SELC = GetElectricGeneratorDesc(in, resPool);
+            fillDesc->xec_SELC = GetElectricGeneratorDesc(in, resPool);
             break;
         default:
         {

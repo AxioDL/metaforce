@@ -1,7 +1,7 @@
 #ifndef __RETRO_CELEMENTGEN_HPP__
 #define __RETRO_CELEMENTGEN_HPP__
 
-#include "../RetroTypes.hpp"
+#include "RetroTypes.hpp"
 #include "CTransform.hpp"
 #include "CVector3f.hpp"
 #include "CColor.hpp"
@@ -15,6 +15,8 @@ namespace Retro
 class CWarp;
 class CLight;
 class CGenDescription;
+class CParticleSwoosh;
+class CParticleElectric;
 
 class CElementGen
 {
@@ -67,30 +69,26 @@ private:
     u32 x50_curFrame = 0;
     double x58_curSeconds = 0.f;
     float x60;
-    u32 x64 = -1;
+    u32 x64_prevFrame = -1;
     bool x68_particleEmission = true;
     float x6c_generatorRemainder = 0.f;
     int x70_MAXP = 0;
     u16 x74 = 99;
     float x78_generatorRate = 1.f;
-    Zeus::CVector3f x7c;
+    Zeus::CVector3f x7c_translation;
     Zeus::CVector3f x88_globalTranslation;
     Zeus::CVector3f x94_POFS;
-    float xa0 = 1.f;
-    float xa4 = 1.f;
-    float xa8 = 1.f;
+    Zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
     Zeus::CTransform xac = Zeus::CTransform::Identity();
     Zeus::CTransform xdc = Zeus::CTransform::Identity();
-    float x10c = 1.f;
-    float x110 = 1.f;
-    float x114 = 1.f;
+    Zeus::CVector3f x10c_localScale = {1.f, 1.f, 1.f};
     Zeus::CTransform x118 = Zeus::CTransform::Identity();
     Zeus::CTransform x148 = Zeus::CTransform::Identity();
-    Zeus::CTransform x178 = Zeus::CTransform::Identity();
+    Zeus::CTransform x178_orientation = Zeus::CTransform::Identity();
     Zeus::CTransform x1a8 = Zeus::CTransform::Identity();
     Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
     u32 x208_activeParticleCount = 0;
-    u32 x20c = 0;
+    u32 x20c_recursiveParticleCount = 0;
     u32 x210_curEmitterFrame = 0;
     int x214_PSLT = 0x7fffff;
     Zeus::CVector3f x218_PSIV;
@@ -112,19 +110,15 @@ private:
     int x228_MBSP;
     bool x22c = false;
     CRandom16 x230_randState;
-    std::vector<std::unique_ptr<CElementGen>> x234_children;
+    std::vector<std::unique_ptr<CElementGen>> x234_activePartChildren;
     int x244_CSSD = 0;
-    std::vector<std::unique_ptr<CElementGen>> x248_children;
+    std::vector<std::unique_ptr<CElementGen>> x248_finishPartChildren;
     int x258_SISY = 16;
     int x25c_PISY = 16;
-    u32 x264 = 0;
-    u32 x268 = 0;
-    u32 x26c = 0;
+    std::vector<std::unique_ptr<CParticleSwoosh>> x260_swhcChildren;
     int x270_SSSD = 0;
     Zeus::CVector3f x274_SSPO;
-    u32 x284 = 0;
-    u32 x288 = 0;
-    u32 x28c = 0;
+    std::vector<std::unique_ptr<CParticleElectric>> x280_elscChildren;
     int x290_SESD = 0;
     Zeus::CVector3f x294_SEPO;
     float x2a0 = 0.f;
@@ -132,20 +126,16 @@ private:
     Zeus::CVector3f x2a8_aabbMin;
     Zeus::CVector3f x2b4_aabbMax;
     float x2c0_maxSize = 0.f;
-    Zeus::CAABox x2c4 = Zeus::CAABox::skInvertedBox;
+    Zeus::CAABox x2c4_systemBounds = Zeus::CAABox::skInvertedBox;
     ELightType x2dc_lightType;
-    Zeus::CColor x2e0 = Zeus::CColor::skWhite;
-    float x2e4 = 1.f;
-    float x2e8 = 0.f;
-    float x2ec = 0.f;
-    float x2f0 = 0.f;
-    float x2f4 = 1.f;
-    float x2f8 = 0.f;
-    float x2fc = 0.f;
+    Zeus::CColor x2e0_LCLR = Zeus::CColor::skWhite;
+    float x2e4_LINT = 1.f;
+    Zeus::CVector3f x2e8_LOFF;
+    Zeus::CVector3f x2f4_LDIR = {1.f, 0.f, 0.f};
     EFalloffType x300_falloffType = EFalloffType::Linear;
-    float x304 = 1.f;
-    float x308 = 45.f;
-    u32 x30c = -1;
+    float x304_LFOR = 1.f;
+    float x308_LSLA = 45.f;
+    Zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
 
     void AccumulateBounds(Zeus::CVector3f& pos, float size);
 
@@ -167,10 +157,10 @@ public:
         else
             x78_generatorRate = 0.0f;
 
-        for (std::unique_ptr<CElementGen>& child : x234_children)
+        for (std::unique_ptr<CElementGen>& child : x234_activePartChildren)
             child->SetGeneratorRateScalar(x78_generatorRate);
 
-        for (std::unique_ptr<CElementGen>& child : x248_children)
+        for (std::unique_ptr<CElementGen>& child : x248_finishPartChildren)
             child->SetGeneratorRateScalar(x78_generatorRate);
     }
 
@@ -187,6 +177,8 @@ public:
     CElementGen* ConstructChildParticleSystem(const TToken<CGenDescription>&);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
+    u32 GetParticleCountAllInternal() const;
+    u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
 
     virtual void Update(double);
     bool InternalUpdate(double);
@@ -204,7 +196,7 @@ public:
     virtual const Zeus::CVector3f& GetGlobalScale() const;
     virtual const Zeus::CColor& GetModulationColor() const;
     virtual bool IsSystemDeletable() const;
-    virtual Zeus::CAABox GetBounds() const;
+    virtual std::pair<Zeus::CAABox, bool> GetBounds() const;
     virtual u32 GetParticleCount() const;
     virtual bool SystemHasLight() const;
     virtual CLight GetLight() const;

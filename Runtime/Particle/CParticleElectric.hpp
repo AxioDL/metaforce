@@ -5,9 +5,12 @@
 
 namespace Retro
 {
+class CElectricDescription;
 
 class CParticleElectric : public CElementGen
 {
+public:
+    CParticleElectric(const TToken<CElectricDescription>& desc);
 };
 
 }
