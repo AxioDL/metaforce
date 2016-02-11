@@ -369,10 +369,10 @@ void CElementGen::UpdateExistingParticles()
             if (x224_30_VMD1)
             {
                 Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c);
+                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
                 err = vel1->GetValue(particleFrame, xfVel, xfPos);
-                particle.x1c_vel = x178 * xfVel;
-                particle.x4_pos = x178 * xfPos + x7c;
+                particle.x1c_vel = x178_orientation * xfVel;
+                particle.x4_pos = x178_orientation * xfPos + x7c_translation;
             }
             else
             {
@@ -386,10 +386,10 @@ void CElementGen::UpdateExistingParticles()
             if (x224_31_VMD2)
             {
                 Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c);
+                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
                 err |= vel2->GetValue(particleFrame, xfVel, xfPos);
-                particle.x1c_vel = x178 * xfVel;
-                particle.x4_pos = x178 * xfPos + x7c;
+                particle.x1c_vel = x178_orientation * xfVel;
+                particle.x4_pos = x178_orientation * xfPos + x7c_translation;
             }
             else
             {
@@ -403,10 +403,10 @@ void CElementGen::UpdateExistingParticles()
             if (x225_24_VMD3)
             {
                 Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c);
+                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
                 err |= vel3->GetValue(particleFrame, xfVel, xfPos);
-                particle.x1c_vel = x178 * xfVel;
-                particle.x4_pos = x178 * xfPos + x7c;
+                particle.x1c_vel = x178_orientation * xfVel;
+                particle.x4_pos = x178_orientation * xfPos + x7c_translation;
             }
             else
             {
@@ -420,10 +420,10 @@ void CElementGen::UpdateExistingParticles()
             if (x225_25_VMD4)
             {
                 Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c);
+                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
                 err |= vel4->GetValue(particleFrame, xfVel, xfPos);
-                particle.x1c_vel = x178 * xfVel;
-                particle.x4_pos = x178 * xfPos + x7c;
+                particle.x1c_vel = x178_orientation * xfVel;
+                particle.x4_pos = x178_orientation * xfPos + x7c_translation;
             }
             else
             {
@@ -483,7 +483,7 @@ void CElementGen::CreateNewParticles(int count)
         x2c_particleLists.push_back(staticIdx);
         ++x208_activeParticleCount;
         if (x28_orientType == EModelOrientationType::One)
-            x3c_parentMatrices[x2c_particleLists.size()-1] = x178.buildMatrix3f();
+            x3c_parentMatrices[x2c_particleLists.size()-1] = x178_orientation.buildMatrix3f();
 
         CElementGen::CParticle& particle = g_StaticParticleList[staticIdx];
         particle.x28_startFrame = x50_curFrame;
@@ -504,14 +504,14 @@ void CElementGen::CreateNewParticles(int count)
         if (emtr)
         {
             emtr->GetValue(x210_curEmitterFrame, particle.x4_pos, particle.x1c_vel);
-            Zeus::CVector3f compXf1 = (xdc * x148) * x7c;
-            Zeus::CVector3f compXf2 = x178 * particle.x4_pos;
+            Zeus::CVector3f compXf1 = (xdc * x148) * x7c_translation;
+            Zeus::CVector3f compXf2 = x178_orientation * particle.x4_pos;
             particle.x4_pos = compXf1 + compXf2 + x94_POFS;
-            particle.x1c_vel = x178 * particle.x1c_vel;
+            particle.x1c_vel = x178_orientation * particle.x1c_vel;
         }
         else
         {
-            Zeus::CVector3f compXf1 = (xdc * x148) * x7c;
+            Zeus::CVector3f compXf1 = (xdc * x148) * x7c_translation;
             particle.x4_pos = compXf1 + x94_POFS;
             particle.x1c_vel.zeroOut();
         }
@@ -561,26 +561,26 @@ void CElementGen::UpdatePSTranslationAndOrientation()
     CModVectorElement* psvm = x1c_genDesc.GetObj()->x4_PSVM.get();
     if (psvm)
     {
-        Zeus::CVector3f vel = x7c;
+        Zeus::CVector3f vel = x7c_translation;
         psvm->GetValue(x50_curFrame, x218_PSIV, vel);
-        if (vel != x7c)
+        if (vel != x7c_translation)
         {
             x224_24 = true;
-            x7c = vel;
+            x7c_translation = vel;
         }
     }
 
-    Zeus::CVector3f v = x178 * x218_PSIV;
+    Zeus::CVector3f v = x178_orientation * x218_PSIV;
     if (v != Zeus::CVector3f::skZero)
         x224_24 = true;
-    x7c += v;
+    x7c_translation += v;
 
     CVectorElement* psov = x1c_genDesc.GetObj()->x8_PSOV.get();
     if (psov)
     {
         Zeus::CVector3f angles;
         psov->GetValue(x50_curFrame, angles);
-        Zeus::CTransform xf(x178);
+        Zeus::CTransform xf(x178_orientation);
         xf.rotateLocalX(angles[0] * M_PI / 180.f);
         xf.rotateLocalY(angles[1] * M_PI / 180.f);
         xf.rotateLocalZ(angles[2] * M_PI / 180.f);
@@ -610,6 +610,35 @@ void CElementGen::UpdateLightParameters()
 
 void CElementGen::BuildParticleSystemBounds()
 {
+}
+
+u32 CElementGen::GetSystemCount()
+{
+    u32 ret = 0;
+    for (const CElementGen& child : x234_children)
+        ret += child.GetSystemCount();
+
+    for (const CElementGen& child : x248_children)
+       ret += child.GetSystemCount();
+
+    return (ret + (x208_activeParticleCount != 0));
+}
+
+u32 CElementGen::GetParticleCountAll()
+{
+    return x20c;
+}
+
+u32 CElementGen::GetParticleCountAllInternal()
+{
+    u32 ret = x208_activeParticleCount;
+    for (const CElementGen& child : x234_children)
+        ret += child.GetParticleCountAll();
+
+    for (const CElementGen& child : x248_children)
+        ret += child.GetParticleCountAll();
+
+    return ret;
 }
 
 void CElementGen::Render()
@@ -650,10 +679,12 @@ void CElementGen::SetModulationColor(const Zeus::CColor&)
 
 const Zeus::CTransform& CElementGen::GetOrientation() const
 {
+    return x178_orientation;
 }
 
 const Zeus::CVector3f& CElementGen::GetTranslation() const
 {
+    return x7c_translation;
 }
 
 const Zeus::CVector3f& CElementGen::GetGlobalScale() const

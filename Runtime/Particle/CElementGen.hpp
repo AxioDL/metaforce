@@ -73,7 +73,7 @@ private:
     int x70_MAXP = 0;
     u16 x74 = 99;
     float x78_generatorRate = 1.f;
-    Zeus::CVector3f x7c;
+    Zeus::CVector3f x7c_translation;
     Zeus::CVector3f x88_globalTranslation;
     Zeus::CVector3f x94_POFS;
     float xa0 = 1.f;
@@ -86,7 +86,7 @@ private:
     float x114 = 1.f;
     Zeus::CTransform x118 = Zeus::CTransform::Identity();
     Zeus::CTransform x148 = Zeus::CTransform::Identity();
-    Zeus::CTransform x178 = Zeus::CTransform::Identity();
+    Zeus::CTransform x178_orientation = Zeus::CTransform::Identity();
     Zeus::CTransform x1a8 = Zeus::CTransform::Identity();
     Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
     u32 x208_activeParticleCount = 0;
@@ -186,6 +186,9 @@ public:
     void UpdateChildParticleSystems(double);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
+    u32 GetSystemCount();
+    u32 GetParticleCountAll();
+    u32 GetParticleCountAllInternal();
 
     virtual void Update(double);
     bool InternalUpdate(double);
