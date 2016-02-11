@@ -3,9 +3,9 @@
 
 namespace Retro
 {
-namespace CElectricDescription
+class CElectricDescription
 {
-}
+};
 }
 
 #endif // __RETRO_CELECTRICDESCRIPTION_HPP__

@@ -3,9 +3,9 @@
 
 namespace Retro
 {
-namespace CSwooshDescription
+class CSwooshDescription
 {
-}
+};
 }
 
 #endif // __RETRO_CSWOOSHDESCRIPTION_HPP__
