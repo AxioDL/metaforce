@@ -15,7 +15,7 @@
 namespace Retro
 {
 
-class CGenDescription
+class CGenDescription : public IGenDescription
 {
 public:
     std::unique_ptr<CVectorElement> x0_PSIV;

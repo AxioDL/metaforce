@@ -14,6 +14,7 @@ namespace Retro
 {
 class CWarp;
 class CLight;
+class IGenDescription;
 class CGenDescription;
 class CParticleSwoosh;
 class CParticleElectric;
@@ -60,8 +61,9 @@ public:
         float x30_lineWidthOrRota = 0.f;
         Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
-private:
-    TLockedToken<CGenDescription> x1c_genDesc;
+protected:
+    CElementGen(const TToken<IGenDescription>& gen);
+    TLockedToken<IGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
     std::vector<Zeus::CMatrix3f> x3c_parentMatrices;

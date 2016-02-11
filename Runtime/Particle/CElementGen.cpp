@@ -45,13 +45,17 @@ void CElementGen::Initialize()
     g_StaticListInitialized = true;
 }
 
+CElementGen::CElementGen(const TToken<IGenDescription>& gen) : x1c_genDesc(gen), x230_randState(x74) {}
+
 CElementGen::CElementGen(const TToken<CGenDescription>& gen,
                          EModelOrientationType orientType,
                          EOptionalSystemFlags flags)
 : x1c_genDesc(gen), x28_orientType(orientType),
   x226((flags & EOptionalSystemFlags::Two) != EOptionalSystemFlags::None), x230_randState(x74)
 {
-    CIntElement* pmedElem = x1c_genDesc.GetObj()->x1c_PMED.get();
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
+    CIntElement* pmedElem = desc->x1c_PMED.get();
     if (pmedElem)
     {
         int pmedVal;
@@ -60,44 +64,44 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     }
     x230_randState.SetSeed(x74);
     ++g_ParticleSystemAliveCount;
-    x224_25_LIT_ = x1c_genDesc.GetObj()->x44_29_LIT_;
-    x224_26_AAPH = x1c_genDesc.GetObj()->x44_26_AAPH;
-    x224_27_ZBUF = x1c_genDesc.GetObj()->x44_27_ZBUF;
-    x224_29_MBLR = x1c_genDesc.GetObj()->x44_30_MBLR;
+    x224_25_LIT_ = desc->x44_29_LIT_;
+    x224_26_AAPH = desc->x44_26_AAPH;
+    x224_27_ZBUF = desc->x44_27_ZBUF;
+    x224_29_MBLR = desc->x44_30_MBLR;
 
-    CIntElement* mbspElem = x1c_genDesc.GetObj()->x48_MBSP.get();
+    CIntElement* mbspElem = desc->x48_MBSP.get();
     if (mbspElem)
         mbspElem->GetValue(x50_curFrame, x228_MBSP);
 
-    x224_30_VMD1 = x1c_genDesc.GetObj()->x45_26_VMD1;
-    x224_31_VMD2 = x1c_genDesc.GetObj()->x45_27_VMD2;
-    x225_24_VMD3 = x1c_genDesc.GetObj()->x45_28_VMD3;
-    x225_25_VMD4 = x1c_genDesc.GetObj()->x45_29_VMD4;
+    x224_30_VMD1 = desc->x45_26_VMD1;
+    x224_31_VMD2 = desc->x45_27_VMD2;
+    x225_24_VMD3 = desc->x45_28_VMD3;
+    x225_25_VMD4 = desc->x45_29_VMD4;
 
-    CIntElement* cssdElem = x1c_genDesc.GetObj()->xa0_CSSD.get();
+    CIntElement* cssdElem = desc->xa0_CSSD.get();
     if (cssdElem)
         cssdElem->GetValue(0, x244_CSSD);
 
-    SChildGeneratorDesc& idts = x1c_genDesc.GetObj()->xa4_IDTS;
+    SChildGeneratorDesc& idts = desc->xa4_IDTS;
     if (idts.m_found)
     {
         int ndsyVal = 1;
-        CIntElement* ndsyElem = x1c_genDesc.GetObj()->xb4_NDSY.get();
+        CIntElement* ndsyElem = desc->xb4_NDSY.get();
         if (ndsyElem)
             ndsyElem->GetValue(0, ndsyVal);
         x248_finishPartChildren.reserve(ndsyVal + x248_finishPartChildren.size());
         for (int i=0 ; i<ndsyVal ; ++i)
         {
-            CGenDescription* chDesc = x1c_genDesc.GetObj()->xa4_IDTS.m_gen.GetObj();
+            CGenDescription* chDesc = desc->xa4_IDTS.m_gen.GetObj();
             if (x226 && chDesc->x45_31_OPTS)
                 break;
-            x248_finishPartChildren.emplace_back(new CElementGen(x1c_genDesc.GetObj()->xa4_IDTS.m_gen,
+            x248_finishPartChildren.emplace_back(new CElementGen(desc->xa4_IDTS.m_gen,
                                                        EModelOrientationType::Normal,
                                                        x226 ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One));
         }
     }
 
-    CIntElement* pisyElem = x1c_genDesc.GetObj()->xc8_PISY.get();
+    CIntElement* pisyElem = desc->xc8_PISY.get();
     if (pisyElem)
     {
         pisyElem->GetValue(0, x25c_PISY);
@@ -105,35 +109,35 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
             x25c_PISY = 1;
     }
 
-    CIntElement* sisyElem = x1c_genDesc.GetObj()->xcc_SISY.get();
+    CIntElement* sisyElem = desc->xcc_SISY.get();
     if (sisyElem)
         pisyElem->GetValue(0, x258_SISY);
 
-    CIntElement* sssdElem = x1c_genDesc.GetObj()->xe4_SSSD.get();
+    CIntElement* sssdElem = desc->xe4_SSSD.get();
     if (sssdElem)
         sssdElem->GetValue(0, x270_SSSD);
 
-    CVectorElement* sspoElem = x1c_genDesc.GetObj()->xe8_SSPO.get();
+    CVectorElement* sspoElem = desc->xe8_SSPO.get();
     if (sspoElem)
         sspoElem->GetValue(0, x274_SSPO);
 
-    CIntElement* sesdElem = x1c_genDesc.GetObj()->xf8_SESD.get();
+    CIntElement* sesdElem = desc->xf8_SESD.get();
     if (sesdElem)
         sesdElem->GetValue(0, x290_SESD);
 
-    CVectorElement* sepoElem = x1c_genDesc.GetObj()->xfc_SEPO.get();
+    CVectorElement* sepoElem = desc->xfc_SEPO.get();
     if (sepoElem)
         sepoElem->GetValue(0, x294_SEPO);
 
-    CIntElement* psltElem = x1c_genDesc.GetObj()->xc_PSLT.get();
+    CIntElement* psltElem = desc->xc_PSLT.get();
     if (psltElem)
         psltElem->GetValue(0, x214_PSLT);
 
-    CVectorElement* psivElem = x1c_genDesc.GetObj()->x0_PSIV.get();
+    CVectorElement* psivElem = desc->x0_PSIV.get();
     if (psivElem)
         psivElem->GetValue(0, x218_PSIV);
 
-    CIntElement* maxpElem = x1c_genDesc.GetObj()->x28_MAXP.get();
+    CIntElement* maxpElem = desc->x28_MAXP.get();
     if (maxpElem)
         maxpElem->GetValue(x50_curFrame, x70_MAXP);
 
@@ -144,14 +148,14 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
                                   Zeus::CMatrix3f::skIdentityMatrix3f);
     }
 
-    x225_26_LINE = x1c_genDesc.GetObj()->x44_24_LINE;
-    x225_27_FXLL = x1c_genDesc.GetObj()->x44_25_FXLL;
+    x225_26_LINE = desc->x44_24_LINE;
+    x225_27_FXLL = desc->x44_25_FXLL;
 
-    CVectorElement* pofsElem = x1c_genDesc.GetObj()->x18_POFS.get();
+    CVectorElement* pofsElem = desc->x18_POFS.get();
     if (pofsElem)
         pofsElem->GetValue(x50_curFrame, x94_POFS);
 
-    CIntElement* ltypElem = x1c_genDesc.GetObj()->x100_LTYP.get();
+    CIntElement* ltypElem = desc->x100_LTYP.get();
     if (ltypElem)
     {
         int ltyp;
@@ -174,7 +178,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         }
     }
 
-    CIntElement* lfotElem = x1c_genDesc.GetObj()->x114_LFOT.get();
+    CIntElement* lfotElem = desc->x114_LFOT.get();
     if (lfotElem)
     {
         int lfot;
@@ -202,7 +206,8 @@ CElementGen::~CElementGen()
 
 void CElementGen::Update(double t)
 {
-    CIntElement* pswtElem = x1c_genDesc.GetObj()->x10_PSWT.get();
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CIntElement* pswtElem = desc->x10_PSWT.get();
     if (pswtElem && !x225_28_warmedUp)
     {
         int pswt = 0;
@@ -211,7 +216,7 @@ void CElementGen::Update(double t)
         {
             Log.report(LogVisor::Info,
                        "Running warmup on particle system 0x%08x for %d ticks.",
-                       x1c_genDesc.GetObj(), pswt);
+                       desc, pswt);
             InternalUpdate(pswt / 60.0);
             x225_28_warmedUp = true;
         }
@@ -222,6 +227,7 @@ void CElementGen::Update(double t)
 bool CElementGen::InternalUpdate(double dt)
 {
     CGlobalRandom gr(x230_randState);
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
 
     double dt1 = 1 / 60.0;
     if (fabs(dt - 1 / 60.0) >= 1 / 60000.0)
@@ -229,7 +235,7 @@ bool CElementGen::InternalUpdate(double dt)
     double t = x50_curFrame / 60.0;
     CParticleGlobals::SetEmitterTime(x50_curFrame);
 
-    CRealElement* pstsElem = x1c_genDesc.GetObj()->x14_PSTS.get();
+    CRealElement* pstsElem = desc->x14_PSTS.get();
     if (pstsElem)
     {
         float psts;
@@ -242,7 +248,7 @@ bool CElementGen::InternalUpdate(double dt)
 
     if (x224_29_MBLR && dt > 0.0)
     {
-        CIntElement* mbspElem = x1c_genDesc.GetObj()->x48_MBSP.get();
+        CIntElement* mbspElem = desc->x48_MBSP.get();
         if (mbspElem)
             mbspElem->GetValue(x50_curFrame, x228_MBSP);
     }
@@ -255,7 +261,7 @@ bool CElementGen::InternalUpdate(double dt)
         x2c0_maxSize = 0.f;
         float grte = 0.f;
         CParticleGlobals::SetEmitterTime(x50_curFrame);
-        CRealElement* grteElem = x1c_genDesc.GetObj()->x2c_GRTE.get();
+        CRealElement* grteElem = desc->x2c_GRTE.get();
         if (grteElem->GetValue(x50_curFrame, grte))
         {
             x2c_particleLists.clear();
@@ -270,7 +276,7 @@ bool CElementGen::InternalUpdate(double dt)
         if (!x68_particleEmission || x50_curFrame >= x214_PSLT)
             genCount = 0;
 
-        CIntElement* maxpElem = x1c_genDesc.GetObj()->x28_MAXP.get();
+        CIntElement* maxpElem = desc->x28_MAXP.get();
         if (maxpElem)
             maxpElem->GetValue(x50_curFrame, x70_MAXP);
 
@@ -319,6 +325,8 @@ void CElementGen::AccumulateBounds(Zeus::CVector3f& pos, float size)
 
 void CElementGen::UpdateExistingParticles()
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
     x208_activeParticleCount = 0;
     CParticleGlobals::SetEmitterTime(x50_curFrame);
     for (std::vector<CParticleListItem>::iterator p = x2c_particleLists.begin();
@@ -360,7 +368,7 @@ void CElementGen::UpdateExistingParticles()
         CParticleGlobals::UpdateParticleLifetimeTweenValues(particleFrame);
 
         bool err = false;
-        CModVectorElement* vel1 = x1c_genDesc.GetObj()->x7c_VEL1.get();
+        CModVectorElement* vel1 = desc->x7c_VEL1.get();
         if (vel1)
         {
             if (x224_30_VMD1)
@@ -377,7 +385,7 @@ void CElementGen::UpdateExistingParticles()
             }
         }
 
-        CModVectorElement* vel2 = x1c_genDesc.GetObj()->x80_VEL2.get();
+        CModVectorElement* vel2 = desc->x80_VEL2.get();
         if (vel2)
         {
             if (x224_31_VMD2)
@@ -394,7 +402,7 @@ void CElementGen::UpdateExistingParticles()
             }
         }
 
-        CModVectorElement* vel3 = x1c_genDesc.GetObj()->x84_VEL3.get();
+        CModVectorElement* vel3 = desc->x84_VEL3.get();
         if (vel3)
         {
             if (x225_24_VMD3)
@@ -411,7 +419,7 @@ void CElementGen::UpdateExistingParticles()
             }
         }
 
-        CModVectorElement* vel4 = x1c_genDesc.GetObj()->x88_VEL4.get();
+        CModVectorElement* vel4 = desc->x88_VEL4.get();
         if (vel4)
         {
             if (x225_25_VMD4)
@@ -430,24 +438,24 @@ void CElementGen::UpdateExistingParticles()
 
         if (x225_26_LINE)
         {
-            CRealElement* leng = x1c_genDesc.GetObj()->x20_LENG.get();
+            CRealElement* leng = desc->x20_LENG.get();
             if (leng)
                 err |= leng->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
-            CRealElement* widt = x1c_genDesc.GetObj()->x24_WIDT.get();
+            CRealElement* widt = desc->x24_WIDT.get();
             if (widt)
                 err |= widt->GetValue(particleFrame, particle.x30_lineWidthOrRota);
         }
         else
         {
-            CRealElement* rota = x1c_genDesc.GetObj()->x50_ROTA.get();
+            CRealElement* rota = desc->x50_ROTA.get();
             if (rota)
                 err |= rota->GetValue(particleFrame, particle.x30_lineWidthOrRota);
-            CRealElement* size = x1c_genDesc.GetObj()->x4c_SIZE.get();
+            CRealElement* size = desc->x4c_SIZE.get();
             if (size)
                 err |= size->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
         }
 
-        CColorElement* colr = x1c_genDesc.GetObj()->x30_COLR.get();
+        CColorElement* colr = desc->x30_COLR.get();
         if (colr)
             err |= colr->GetValue(particleFrame, particle.x34_color);
 
@@ -461,6 +469,8 @@ void CElementGen::UpdateExistingParticles()
 
 void CElementGen::CreateNewParticles(int count)
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
     if (!g_StaticListInitialized)
         Initialize();
     if (x2c_particleLists.size() >= x70_MAXP)
@@ -484,20 +494,20 @@ void CElementGen::CreateNewParticles(int count)
 
         CElementGen::CParticle& particle = g_StaticParticleList[staticIdx];
         particle.x28_startFrame = x50_curFrame;
-        CIntElement* ltme = x1c_genDesc.GetObj()->x34_LTME.get();
+        CIntElement* ltme = desc->x34_LTME.get();
         if (ltme)
             ltme->GetValue(0, particle.x0_endFrame);
         CParticleGlobals::SetParticleLifetime(particle.x0_endFrame);
         CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
         particle.x0_endFrame += x50_curFrame;
 
-        CColorElement* colr = x1c_genDesc.GetObj()->x30_COLR.get();
+        CColorElement* colr = desc->x30_COLR.get();
         if (colr)
             colr->GetValue(0, particle.x34_color);
         else
             particle.x34_color = Zeus::CColor::skWhite;
 
-        CEmitterElement* emtr = x1c_genDesc.GetObj()->x40_EMTR.get();
+        CEmitterElement* emtr = desc->x40_EMTR.get();
         if (emtr)
         {
             emtr->GetValue(x210_curEmitterFrame, particle.x4_pos, particle.x1c_vel);
@@ -516,13 +526,13 @@ void CElementGen::CreateNewParticles(int count)
 
         if (x225_26_LINE)
         {
-            CRealElement* leng = x1c_genDesc.GetObj()->x20_LENG.get();
+            CRealElement* leng = desc->x20_LENG.get();
             if (leng)
                 leng->GetValue(0, particle.x2c_lineLengthOrSize);
             else
                 particle.x2c_lineLengthOrSize = 1.f;
 
-            CRealElement* widt = x1c_genDesc.GetObj()->x24_WIDT.get();
+            CRealElement* widt = desc->x24_WIDT.get();
             if (widt)
                 widt->GetValue(0, particle.x30_lineWidthOrRota);
             else
@@ -530,13 +540,13 @@ void CElementGen::CreateNewParticles(int count)
         }
         else
         {
-            CRealElement* rota = x1c_genDesc.GetObj()->x50_ROTA.get();
+            CRealElement* rota = desc->x50_ROTA.get();
             if (rota)
                 rota->GetValue(0, particle.x30_lineWidthOrRota);
             else
                 particle.x30_lineWidthOrRota = 0.f;
 
-            CRealElement* size = x1c_genDesc.GetObj()->x4c_SIZE.get();
+            CRealElement* size = desc->x4c_SIZE.get();
             if (size)
                 size->GetValue(0, particle.x2c_lineLengthOrSize);
             else
@@ -551,11 +561,13 @@ void CElementGen::CreateNewParticles(int count)
 
 void CElementGen::UpdatePSTranslationAndOrientation()
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
     CGlobalRandom gr(x230_randState);
     if (x214_PSLT < x50_curFrame)
         return;
 
-    CModVectorElement* psvm = x1c_genDesc.GetObj()->x4_PSVM.get();
+    CModVectorElement* psvm = desc->x4_PSVM.get();
     if (psvm)
     {
         Zeus::CVector3f vel = x7c_translation;
@@ -572,7 +584,7 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         x224_24 = true;
     x7c_translation += v;
 
-    CVectorElement* psov = x1c_genDesc.GetObj()->x8_PSOV.get();
+    CVectorElement* psov = desc->x8_PSOV.get();
     if (psov)
     {
         Zeus::CVector3f angles;
@@ -584,15 +596,15 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         SetOrientation(xf);
     }
 
-    CVectorElement* pofs = x1c_genDesc.GetObj()->x18_POFS.get();
+    CVectorElement* pofs = desc->x18_POFS.get();
     if (pofs)
         pofs->GetValue(x50_curFrame, x94_POFS);
 
-    CVectorElement* sspo = x1c_genDesc.GetObj()->xe8_SSPO.get();
+    CVectorElement* sspo = desc->xe8_SSPO.get();
     if (sspo)
         sspo->GetValue(x50_curFrame, x274_SSPO);
 
-    CVectorElement* sepo = x1c_genDesc.GetObj()->xfc_SEPO.get();
+    CVectorElement* sepo = desc->xfc_SEPO.get();
     if (sepo)
         sspo->GetValue(x50_curFrame, x294_SEPO);
 }
@@ -614,12 +626,14 @@ CElementGen* CElementGen::ConstructChildParticleSystem(const TToken<CGenDescript
 
 void CElementGen::UpdateChildParticleSystems(double dt)
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
     CGlobalRandom gr(x230_randState);
-    SChildGeneratorDesc& icts = x1c_genDesc.GetObj()->x8c_ICTS;
+    SChildGeneratorDesc& icts = desc->x8c_ICTS;
     if (icts.m_found && x64_prevFrame != x50_curFrame && x244_CSSD == x50_curFrame)
     {
         int ncsyVal = 1;
-        CIntElement* ncsy = x1c_genDesc.GetObj()->x9c_NCSY.get();
+        CIntElement* ncsy = desc->x9c_NCSY.get();
         if (ncsy)
             ncsy->GetValue(x50_curFrame, ncsyVal);
 
@@ -635,7 +649,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         }
     }
 
-    SChildGeneratorDesc& iits = x1c_genDesc.GetObj()->xb8_IITS;
+    SChildGeneratorDesc& iits = desc->xb8_IITS;
     if (iits.m_found && x64_prevFrame != x50_curFrame && x50_curFrame < x214_PSLT &&
         x68_particleEmission == 1 && x50_curFrame >= x258_SISY &&
         ((x50_curFrame - x258_SISY) % x25c_PISY) == 0)
@@ -648,7 +662,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         }
     }
 
-    CSpawnSystemKeyframeData* kssm = x1c_genDesc.GetObj()->xd0_KSSM.get();
+    CSpawnSystemKeyframeData* kssm = desc->xd0_KSSM.get();
     if (kssm && x64_prevFrame != x50_curFrame && x50_curFrame < x214_PSLT)
     {
         std::vector<CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo>& systems =
@@ -665,7 +679,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         }
     }
 
-    SSwooshGeneratorDesc& sswh = x1c_genDesc.GetObj()->xd4_SSWH;
+    SSwooshGeneratorDesc& sswh = desc->xd4_SSWH;
     if (sswh.m_found && x64_prevFrame != x50_curFrame && x50_curFrame == x270_SSSD)
     {
         CParticleSwoosh* sswhGen = new CParticleSwoosh(sswh.m_swoosh, 0);
@@ -677,7 +691,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         x260_swhcChildren.emplace_back(sswhGen);
     }
 
-    SElectricGeneratorDesc& selc = x1c_genDesc.GetObj()->xec_SELC;
+    SElectricGeneratorDesc& selc = desc->xec_SELC;
     if (selc.m_found && x64_prevFrame != x50_curFrame && x50_curFrame == x290_SESD)
     {
         CParticleElectric* selcGen = new CParticleElectric(selc.m_electric);
@@ -779,11 +793,13 @@ void CElementGen::UpdateChildParticleSystems(double dt)
 
 void CElementGen::UpdateLightParameters()
 {
-    CColorElement* lclr = x1c_genDesc.GetObj()->x104_LCLR.get();
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
+    CColorElement* lclr = desc->x104_LCLR.get();
     if (lclr)
         lclr->GetValue(x50_curFrame, x2e0_LCLR);
 
-    CRealElement* lint = x1c_genDesc.GetObj()->x108_LINT.get();
+    CRealElement* lint = desc->x108_LINT.get();
     if (lint)
         lint->GetValue(x50_curFrame, x2e4_LINT);
 
@@ -794,17 +810,17 @@ void CElementGen::UpdateLightParameters()
     case ELightType::Directional:
     case ELightType::Spot:
     {
-        CVectorElement* loff = x1c_genDesc.GetObj()->x10c_LOFF.get();
+        CVectorElement* loff = desc->x10c_LOFF.get();
         if (loff)
             loff->GetValue(x50_curFrame, x2e8_LOFF);
 
-        CRealElement* lfor = x1c_genDesc.GetObj()->x118_LFOR.get();
+        CRealElement* lfor = desc->x118_LFOR.get();
         if (lfor)
             lfor->GetValue(x50_curFrame, x304_LFOR);
 
         if (x2dc_lightType == ELightType::Spot)
         {
-            CRealElement* lsla = x1c_genDesc.GetObj()->x11c_LSLA.get();
+            CRealElement* lsla = desc->x11c_LSLA.get();
             if (lsla)
                 lsla->GetValue(x50_curFrame, x308_LSLA);
         }
@@ -813,7 +829,7 @@ void CElementGen::UpdateLightParameters()
     {
         if (x2dc_lightType != ELightType::Directional)
         {
-            CVectorElement* ldir = x1c_genDesc.GetObj()->x110_LDIR.get();
+            CVectorElement* ldir = desc->x110_LDIR.get();
             if (ldir)
                 ldir->GetValue(x50_curFrame, x2f4_LDIR);
         }
@@ -899,30 +915,13 @@ void CElementGen::BuildParticleSystemBounds()
 u32 CElementGen::GetSystemCount()
 {
     u32 ret = 0;
-    for (const CElementGen& child : x234_children)
-        ret += child.GetSystemCount();
+    for (const std::unique_ptr<CElementGen>& child : x234_activePartChildren)
+        ret += child->GetSystemCount();
 
-    for (const CElementGen& child : x248_children)
-       ret += child.GetSystemCount();
+    for (const std::unique_ptr<CElementGen>& child : x248_finishPartChildren)
+        ret += child->GetSystemCount();
 
     return (ret + (x208_activeParticleCount != 0));
-}
-
-u32 CElementGen::GetParticleCountAll()
-{
-    return x20c;
-}
-
-u32 CElementGen::GetParticleCountAllInternal()
-{
-    u32 ret = x208_activeParticleCount;
-    for (const CElementGen& child : x234_children)
-        ret += child.GetParticleCountAll();
-
-    for (const CElementGen& child : x248_children)
-        ret += child.GetParticleCountAll();
-
-    return ret;
 }
 
 void CElementGen::Render()

@@ -749,7 +749,7 @@ CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
     }
     case SBIG('GEMT'):
     {
-        return new GIEGEMT;
+        return new CIEGEMT;
     }
     case SBIG('MODU'):
     {

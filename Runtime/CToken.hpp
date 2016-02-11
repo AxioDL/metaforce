@@ -246,6 +246,8 @@ public:
     TLockedToken(const CToken& other) : TToken<T>(other) {m_obj = TToken<T>::GetObj();}
     TLockedToken(CToken&& other) : TToken<T>(std::move(other)) {m_obj = TToken<T>::GetObj();}
     T* GetObj() {return m_obj;}
+    template <class U>
+    U* CastObj() {return static_cast<U*>(m_obj);}
 };
 
 }
