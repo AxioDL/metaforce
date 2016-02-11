@@ -6,7 +6,10 @@
 namespace Retro
 {
 
-const char* DecodeARAMFile(const char* name);
+static const char* DecodeARAMFile(const char* name)
+{
+    return (strncmp(name, "aram:", 5) == 0 ? name + 5 : name);
+}
 
 enum class ESeekOrigin
 {
@@ -44,7 +47,6 @@ public:
     static void ARAMARAMXferCallback(u32) {}
     static void DVDARAMXferCallback(s32, DVDFileInfo*) {}
 };
-
 }
 
 #endif // __RETRO_CDVDFILE_HPP__

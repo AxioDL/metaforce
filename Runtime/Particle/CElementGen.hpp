@@ -177,6 +177,7 @@ public:
     CElementGen* ConstructChildParticleSystem(const TToken<CGenDescription>&);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
+    u32 GetSystemCount();
     u32 GetParticleCountAllInternal() const;
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
 

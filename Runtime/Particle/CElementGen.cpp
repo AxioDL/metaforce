@@ -896,6 +896,35 @@ void CElementGen::BuildParticleSystemBounds()
         x2c4_systemBounds.accumulateBounds(aabb);
 }
 
+u32 CElementGen::GetSystemCount()
+{
+    u32 ret = 0;
+    for (const CElementGen& child : x234_children)
+        ret += child.GetSystemCount();
+
+    for (const CElementGen& child : x248_children)
+       ret += child.GetSystemCount();
+
+    return (ret + (x208_activeParticleCount != 0));
+}
+
+u32 CElementGen::GetParticleCountAll()
+{
+    return x20c;
+}
+
+u32 CElementGen::GetParticleCountAllInternal()
+{
+    u32 ret = x208_activeParticleCount;
+    for (const CElementGen& child : x234_children)
+        ret += child.GetParticleCountAll();
+
+    for (const CElementGen& child : x248_children)
+        ret += child.GetParticleCountAll();
+
+    return ret;
+}
+
 void CElementGen::Render()
 {
 }
@@ -934,10 +963,12 @@ void CElementGen::SetModulationColor(const Zeus::CColor&)
 
 const Zeus::CTransform& CElementGen::GetOrientation() const
 {
+    return x178_orientation;
 }
 
 const Zeus::CVector3f& CElementGen::GetTranslation() const
 {
+    return x7c_translation;
 }
 
 const Zeus::CVector3f& CElementGen::GetGlobalScale() const
