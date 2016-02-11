@@ -184,6 +184,7 @@ public:
     void CreateNewParticles(int);
     void UpdatePSTranslationAndOrientation();
     void UpdateChildParticleSystems(double);
+    CElementGen* ConstructChildParticleSystem(const TToken<CGenDescription>&);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
     u32 GetSystemCount();

@@ -600,8 +600,52 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         sspo->GetValue(x50_curFrame, x294_SEPO);
 }
 
+CElementGen* CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc)
+{
+
+}
+
 void CElementGen::UpdateChildParticleSystems(double dt)
 {
+    CGlobalRandom gr(x230_randState);
+    SChildGeneratorDesc& icts = x1c_genDesc.GetObj()->x8c_ICTS;
+    if (icts.m_found && x64 != x50_curFrame && x244_CSSD == x50_curFrame)
+    {
+        int ncsyVal = 1;
+        CIntElement* ncsy = x1c_genDesc.GetObj()->x9c_NCSY.get();
+        if (ncsy)
+            ncsy->GetValue(x50_curFrame, ncsyVal);
+
+        CGenDescription* ictsDesc = icts.m_gen.GetObj();
+        if (!(x226 && ictsDesc->x45_31_OPTS))
+        {
+            x234_children.reserve(ncsyVal + x234_children.size());
+            for (int i=0 ; i<ncsyVal ; ++i)
+            {
+                CElementGen* chGen = ConstructChildParticleSystem(icts.m_gen);
+                x234_children.emplace_back(chGen);
+            }
+        }
+    }
+
+    SChildGeneratorDesc& iits = x1c_genDesc.GetObj()->xb8_IITS;
+    if (iits.m_found && x64 != x50_curFrame && x50_curFrame < x214_PSLT &&
+        x68_particleEmission == 1 && x50_curFrame >= x258_SISY &&
+        ((x50_curFrame - x258_SISY) % x25c_PISY) == 0)
+    {
+        CGenDescription* iitsDesc = iits.m_gen.GetObj();
+        if (!(x226 && iitsDesc->x45_31_OPTS))
+        {
+            CElementGen* chGen = ConstructChildParticleSystem(iits.m_gen);
+            x234_children.emplace_back(chGen);
+        }
+    }
+
+    CSpawnSystemKeyframeData* kssm = x1c_genDesc.GetObj()->xd0_KSSM.get();
+    if (kssm && x64 != x50_curFrame && x50_curFrame < x214_PSLT)
+    {
+    }
+
 }
 
 void CElementGen::UpdateLightParameters()
