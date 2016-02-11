@@ -1,0 +1,50 @@
+#include "CSpawnSystemKeyframeData.hpp"
+#include "CSimplePool.hpp"
+
+namespace Retro
+{
+
+CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in)
+{
+    x0 = in.readUint32Big();
+    x4 = in.readUint32Big();
+    x8 = in.readUint32Big();
+    xc = in.readUint32Big();
+
+    u32 count = in.readUint32Big();
+    x10_spawns.reserve(count);
+    for (u32 i=0 ; i<count ; ++i)
+    {
+        u32 v1 = in.readUint32Big();
+        x10_spawns.emplace_back(v1, std::vector<CSpawnSystemKeyframeInfo>());
+        std::vector<CSpawnSystemKeyframeInfo>& v2 = x10_spawns.back().second;
+        u32 v2c = in.readUint32Big();
+        v2.reserve(v2c);
+        for (u32 j=0 ; j<v2c ; ++j)
+            v2.emplace_back(in);
+    }
+}
+
+CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::CSpawnSystemKeyframeInfo(CInputStream& in)
+{
+    x0_id = in.readUint32Big();
+    x4 = in.readUint32Big();
+    x8 = in.readUint32Big();
+    xc = in.readUint32Big();
+}
+
+void CSpawnSystemKeyframeData::LoadAllSpawnedSystemTokens(CSimplePool* pool)
+{
+    for (auto& spawn : x10_spawns)
+        for (CSpawnSystemKeyframeInfo& elem : spawn.second)
+            elem.LoadToken(pool);
+}
+
+void CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::LoadToken(CSimplePool* pool)
+{
+    x10_token = std::move(pool->GetObj({FOURCC('PART'), x0_id}));
+    x10_token.Lock();
+    x18_found = true;
+}
+
+}
