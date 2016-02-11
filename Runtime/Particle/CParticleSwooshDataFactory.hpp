@@ -14,7 +14,7 @@ class CParticleSwooshDataFactory
 {
 public:
     static CSwooshDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
-    static CSwooshDescription* CreateGeneratorDescription(CInputStream& resPool, CSimplePool* resPool);
+    static CSwooshDescription* CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool);
     static bool CreateWPSM(CSwooshDescription* desc, CInputStream& in, CSimplePool* resPool);
 };
 
