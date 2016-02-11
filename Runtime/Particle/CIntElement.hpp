@@ -158,6 +158,18 @@ public:
     bool GetValue(int frame, int& valOut) const;
 };
 
+class CIEGAPC : public CIntElement
+{
+public:
+    bool GetValue(int frame, int &valOut) const;
+};
+
+class CIEGEMT : public CIntElement
+{
+public:
+    bool GetValue(int frame, int &valOut) const;
+};
+
 class CIEModulo : public CIntElement
 {
     std::unique_ptr<CIntElement> x4_a;

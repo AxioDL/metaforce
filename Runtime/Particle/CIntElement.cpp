@@ -207,6 +207,18 @@ bool CIEGTCP::GetValue(int frame, int& valOut) const
     return false;
 }
 
+bool CIEGAPC::GetValue(int frame, int &valOut) const
+{
+    /* TODO: Do */
+    return false;
+}
+
+bool CIEGEMT::GetValue(int frame, int &valOut) const
+{
+    /* TODO: Do */
+    return false;
+}
+
 bool CIEModulo::GetValue(int frame, int& valOut) const
 {
     int a, b;

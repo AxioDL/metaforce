@@ -739,9 +739,17 @@ CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
         CRealElement* a = GetRealElement(in);
         return new CIETimeScale(a);
     }
+    case SBIG('GAPC'):
+    {
+        return new CIEGAPC;
+    }
     case SBIG('GTCP'):
     {
         return new CIEGTCP;
+    }
+    case SBIG('GEMT'):
+    {
+        return new GIEGEMT;
     }
     case SBIG('MODU'):
     {
