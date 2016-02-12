@@ -117,8 +117,7 @@ bool CRERandom::GetValue(int frame, float& valOut) const
 
 bool CREDotProduct::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a; /* = someVec @ 805A66A0 */
-    Zeus::CVector3f b; /* = someVec @ 805A66A0 */
+    Zeus::CVector3f a, b;
     x4_a->GetValue(frame, a);
     x8_b->GetValue(frame, b);
     valOut = a.dot(b);
