@@ -1,4 +1,4 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ./../Runtime)
 add_subdirectory(locale)
 add_subdirectory(icons)
 
@@ -52,6 +52,7 @@ target_link_libraries(urde
                       UrdeIcons
                       RuntimeCommonCharacter
                       RuntimeCommonInput
+                      RuntimeCommonParticle
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
                       DNACommon Specter SpecterFonts freetype ${DATA_SPEC_LIBS}

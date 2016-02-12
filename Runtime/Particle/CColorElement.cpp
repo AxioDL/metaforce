@@ -150,4 +150,10 @@ bool CCEPulse::GetValue(int frame, Zeus::CColor& valOut) const
     return false;
 }
 
+bool CCEParticleColor::GetValue(int frame, Zeus::CColor& colorOut) const
+{
+    /* TODO: Do */
+    return false
+}
+
 }

@@ -285,15 +285,36 @@ bool CVEPLOC::GetValue(int frame, Zeus::CVector3f& valOut) const
     return false;
 }
 
+bool CVEPSOF::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    /* TODO: Do */
+    return false;
+}
+
+bool CVEPSOU::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    /* TODO: Do */
+    return false;
+}
+
 bool CVEPSOR::GetValue(int frame, Zeus::CVector3f& valOut) const
 {
     /* TODO: Do */
     return false;
 }
 
-bool CVEPSOF::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPSTR::GetValue(int frame, Zeus::CVector3f& valOut) const
 {
     /* TODO: Do */
+    return false;
+}
+
+bool CVESubtract::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    Zeus::CVector3f a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    valOut = a - b;
     return false;
 }
 

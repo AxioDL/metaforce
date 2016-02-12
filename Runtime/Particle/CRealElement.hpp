@@ -92,6 +92,16 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
+class CREDotProduct : public CRealElement
+{
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CVectorElement> x8_b;
+public:
+    CREDotProduct(CVectorElement* a, CVectorElement* b)
+        : x4_a(a), x8_b(b) {}
+    bool GetValue(int frame, float& valOut) const;
+};
+
 class CREMultiply : public CRealElement
 {
     std::unique_ptr<CRealElement> x4_a;
@@ -302,6 +312,59 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
+class CREConstantRange : public CRealElement
+{
+    std::unique_ptr<CRealElement> x4_val;
+    std::unique_ptr<CRealElement> x8_min;
+    std::unique_ptr<CRealElement> xc_max;
+    std::unique_ptr<CRealElement> x10_inRange;
+    std::unique_ptr<CRealElement> x14_outOfRange;
+public:
+    CREConstantRange(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
+        : x4_val(a), x8_min(b), xc_max(c), x10_inRange(d), x14_outOfRange(e) {}
+
+    bool GetValue(int frame, float& valOut) const;
+};
+
+class CREGetComponentRed : public CRealElement
+{
+    std::unique_ptr<CColorElement> x4_a;
+public:
+    CREGetComponentRed(CColorElement* a)
+        : x4_a(a) {}
+
+    bool GetValue(int frame, float& valOut) const;
+};
+
+class CREGetComponentGreen : public CRealElement
+{
+    std::unique_ptr<CColorElement> x4_a;
+public:
+    CREGetComponentGreen(CColorElement* a)
+        : x4_a(a) {}
+
+    bool GetValue(int frame, float& valOut) const;
+};
+
+class CREGetComponentBlue : public CRealElement
+{
+    std::unique_ptr<CColorElement> x4_a;
+public:
+    CREGetComponentBlue(CColorElement* a)
+        : x4_a(a) {}
+
+    bool GetValue(int frame, float& valOut) const;
+};
+
+class CREGetComponentAlpha : public CRealElement
+{
+    std::unique_ptr<CColorElement> x4_a;
+public:
+    CREGetComponentAlpha(CColorElement* a)
+        : x4_a(a) {}
+
+    bool GetValue(int frame, float& valOut) const;
+};
 }
 
 #endif // __RETRO_CREALELEMENT_HPP__

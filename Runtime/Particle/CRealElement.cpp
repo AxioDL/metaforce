@@ -92,7 +92,7 @@ bool CREAdd::GetValue(int frame, float& valOut) const
     return false;
 }
 
-bool CREClamp::GetValue(int frame, float &valOut) const
+bool CREClamp::GetValue(int frame,float& valOut) const
 {
     float a, b;
     x4_min->GetValue(frame, a);
@@ -112,6 +112,25 @@ bool CRERandom::GetValue(int frame, float& valOut) const
     x8_max->GetValue(frame, b);
     float rand = CRandom16::GetRandomNumber()->Float();
     valOut = b * rand + a * (1.0f - rand);
+    return false;
+}
+
+bool CREDotProduct::GetValue(int frame, float& valOut) const
+{
+    Zeus::CVector3f a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    valOut = a.dot(b);
+    return false;
+}
+
+
+bool CREMultiply::GetValue(int frame, float& valOut) const
+{
+    float a, b;
+    x4_a->GetValue(frame, a);
+    x8_b->GetValue(frame, b);
+    valOut = a * b;
     return false;
 }
 
@@ -313,6 +332,53 @@ bool CREIntTimesReal::GetValue(int frame, float& valOut) const
     float b;
     x8_b->GetValue(frame, b);
     valOut = float(a) * b;
+    return false;
+}
+
+bool CREConstantRange::GetValue(int frame, float& valOut) const
+{
+    float val, min, max;
+    x4_val->GetValue(frame, val);
+    x8_min->GetValue(frame, min);
+    xc_max->GetValue(frame, max);
+
+    if (val > min && val < max)
+        x10_inRange->GetValue(Frame, valOut);
+    else
+        x14_outOfRange->GetValue(frame, valOut);
+
+    return false;
+}
+
+bool CREGetComponentRed::GetValue(int frame, float& valOut) const
+{
+    Zeus::CColor a = Zeus::CColor::skBlack;
+    x4_a->GetValue(frame, a);
+    valOut = a.r;
+    return false;
+}
+
+bool CREGetComponentGreen::GetValue(int frame, float& valOut) const
+{
+    Zeus::CColor a = Zeus::CColor::skBlack;
+    x4_a->GetValue(frame, a);
+    valOut = a.g;
+    return false;
+}
+
+bool CREGetComponentBlue::GetValue(int frame, float& valOut) const
+{
+    Zeus::CColor a = Zeus::CColor::skBlack;
+    x4_a->GetValue(frame, a);
+    valOut = a.b;
+    return false;
+}
+
+bool CREGetComponentAlpha::GetValue(int frame, float& valOut) const
+{
+    Zeus::CColor a = Zeus::CColor::skBlack;
+    x4_a->GetValue(frame, a);
+    valOut = a.a;
     return false;
 }
 
