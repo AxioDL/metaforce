@@ -1,6 +1,5 @@
 #include "CElementGen.hpp"
 #include "CGenDescription.hpp"
-#include "CLight.hpp"
 #include "CParticleGlobals.hpp"
 #include "CParticleSwoosh.hpp"
 #include "CParticleElectric.hpp"
@@ -925,6 +924,48 @@ u32 CElementGen::GetSystemCount()
 }
 
 void CElementGen::Render()
+{
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
+    x22c_backupLightActive = CGraphics::g_LightActive;
+    CGraphics::DisableAllLights();
+
+    for (std::unique_ptr<CElementGen>& child : x234_activePartChildren)
+        child->Render();
+
+    if (x214_PSLT <= x50_curFrame)
+        for (std::unique_ptr<CElementGen>& child : x248_finishPartChildren)
+            child->Render();
+
+    for (std::unique_ptr<CParticleSwoosh>& child : x260_swhcChildren)
+        child->Render();
+
+    for (std::unique_ptr<CParticleElectric>& child : x280_elscChildren)
+        child->Render();
+
+    if (x2c_particleLists.size())
+    {
+        SParticleModel& pmdl = desc->x5c_PMDL;
+        if (pmdl.m_found || desc->x45_24_PMUS)
+            RenderModels();
+
+        if (x225_26_LINE)
+            RenderLines();
+        else
+            RenderParticles();
+    }
+}
+
+void CElementGen::RenderModels()
+{
+
+}
+
+void CElementGen::RenderLines()
+{
+}
+
+void CElementGen::RenderParticles()
 {
 }
 

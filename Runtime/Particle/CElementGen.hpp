@@ -8,6 +8,7 @@
 #include "CAABox.hpp"
 #include "CToken.hpp"
 #include "CLight.hpp"
+#include "CGraphics.hpp"
 #include "CRandom16.hpp"
 
 namespace Retro
@@ -110,7 +111,7 @@ protected:
     bool x225_29 = false;
     bool x226;
     int x228_MBSP;
-    bool x22c = false;
+    ERglLight x22c_backupLightActive = ERglLight::None;
     CRandom16 x230_randState;
     std::vector<std::unique_ptr<CElementGen>> x234_activePartChildren;
     int x244_CSSD = 0;
@@ -182,6 +183,10 @@ public:
     u32 GetSystemCount();
     u32 GetParticleCountAllInternal() const;
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
+
+    void RenderModels();
+    void RenderLines();
+    void RenderParticles();
 
     virtual void Update(double);
     bool InternalUpdate(double);

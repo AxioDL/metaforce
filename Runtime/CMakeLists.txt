@@ -67,6 +67,7 @@ add_library(RuntimeCommon
             CPlayMovieBase.hpp
             CMoviePlayer.hpp CMoviePlayer.cpp
             CGameDebug.hpp CGameDebug.cpp
+            CGraphics.hpp CGraphics.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp
