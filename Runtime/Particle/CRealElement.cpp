@@ -343,7 +343,7 @@ bool CREConstantRange::GetValue(int frame, float& valOut) const
     xc_max->GetValue(frame, max);
 
     if (val > min && val < max)
-        x10_inRange->GetValue(Frame, valOut);
+        x10_inRange->GetValue(frame, valOut);
     else
         x14_outOfRange->GetValue(frame, valOut);
 
