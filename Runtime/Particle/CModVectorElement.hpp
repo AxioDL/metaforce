@@ -63,9 +63,11 @@ class CMVEBounce : public CModVectorElement
     std::unique_ptr<CRealElement> xc_c;
     std::unique_ptr<CRealElement> x10_d;
     bool x14_e;
+    bool x15_f;
+    Zeus::CVector3f x18_g;
+    float x24_j;
 public:
-    CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool e)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e) {}
+    CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool e);
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 

@@ -16,7 +16,7 @@ public:
     static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CElectricDescription* CreateElectricDescription(CInputStream& in, CSimplePool* resPool);
 
-    static bool CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool) { return false; }
+    static bool CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool);
     static bool LoadELSMTokens(CElectricDescription* desc);
 };
 
