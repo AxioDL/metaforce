@@ -177,6 +177,10 @@ CColorElement* CParticleDataFactory::GetColorElement(CInputStream& in)
         CColorElement* d = GetColorElement(in);
         return new CCEPulse(a, b, c, d);
     }
+    case SBIG('PCOL'):
+    {
+        return new CCEParticleColor();
+    }
     default: break;
     }
     return nullptr;
@@ -449,13 +453,27 @@ CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
     {
         return new CVEPLOC;
     }
+    case SBIG('PSOF'):
+    {
+        return new CVEPSOF;
+    }
+    case SBIG('PSOU'):
+    {
+        return new CVEPSOU;
+    }
     case SBIG('PSOR'):
     {
         return new CVEPSOR;
     }
-    case SBIG('PSOF'):
+    case SBIG('PSTR'):
     {
-        return new CVEPSOF;
+        return new CVEPSTR;
+    }
+    case SBIG('SUB_'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        return new CVESubtract(a, b);
     }
     default: break;
     }
@@ -514,6 +532,12 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
         CRealElement* a = GetRealElement(in);
         CRealElement* b = GetRealElement(in);
         return new CRERandom(a, b);
+    }
+    case SBIG('DOTP'):
+    {
+        CVectorElement* a = GetVectorElement(in);
+        CVectorElement* b = GetVectorElement(in);
+        return new CREDotProduct(a, b);
     }
     case SBIG('MULT'):
     {
@@ -644,6 +668,35 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
         CIntElement* a = GetIntElement(in);
         CRealElement* b = GetRealElement(in);
         return new CREIntTimesReal(a, b);
+    }
+    case SBIG('CRNG'):
+    {
+        CRealElement* a = GetRealElement(in);
+        CRealElement* b = GetRealElement(in);
+        CRealElement* c = GetRealElement(in);
+        CRealElement* d = GetRealElement(in);
+        CRealElement* e = GetRealElement(in);
+        return new CREConstantRange(a, b, c, d, e);
+    }
+    case SBIG('GTCR'):
+    {
+        CColorElement* a = GetColorElement(in);
+        return new CREGetComponentRed(a);
+    }
+    case SBIG('GTCG'):
+    {
+        CColorElement* a = GetColorElement(in);
+        return new CREGetComponentGreen(a);
+    }
+    case SBIG('GTCB'):
+    {
+        CColorElement* a = GetColorElement(in);
+        return new CREGetComponentBlue(a);
+    }
+    case SBIG('GTCA'):
+    {
+        CColorElement* a = GetColorElement(in);
+        return new CREGetComponentAlpha(a);
     }
     default: break;
     }

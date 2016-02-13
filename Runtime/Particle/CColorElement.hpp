@@ -87,6 +87,11 @@ public:
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 
+class CCEParticleColor : public CColorElement
+{
+public:
+    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+};
 }
 
 #endif // __RETRO_CCOLORELEMENT_HPP__

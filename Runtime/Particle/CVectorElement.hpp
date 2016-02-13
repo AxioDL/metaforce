@@ -168,15 +168,38 @@ public:
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
+class CVEPSOF : public CVectorElement
+{
+public:
+    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
+};
+
+class CVEPSOU : public CVectorElement
+{
+public:
+    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
+};
+
 class CVEPSOR : public CVectorElement
 {
 public:
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
-class CVEPSOF : public CVectorElement
+class CVEPSTR : public CVectorElement
 {
 public:
+    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
+};
+
+class CVESubtract : public CVectorElement
+{
+    std::unique_ptr<CVectorElement> x4_a;
+    std::unique_ptr<CVectorElement> x8_b;
+public:
+    CVESubtract(CVectorElement* a, CVectorElement* b)
+        : x4_a(a), x8_b(b)
+    {}
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 

@@ -5,6 +5,7 @@
 #include <Runtime/CGameAllocator.hpp>
 #include <functional>
 #include "ViewManager.hpp"
+#include <Runtime/Particle/CElementGen.hpp>
 
 namespace URDE
 {
@@ -23,6 +24,7 @@ struct Application : boo::IApplicationCallback
 
     int appMain(boo::IApplication* app)
     {
+        Retro::CElementGen::Initialize();
         m_viewManager.init(app);
         while (m_running)
         {
