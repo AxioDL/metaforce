@@ -10,7 +10,7 @@
 #include "CLight.hpp"
 #include "CGraphics.hpp"
 #include "CRandom16.hpp"
-#include "CWarp.hpp"
+#include "CParticleGen.hpp"
 
 namespace Retro
 {
@@ -21,7 +21,7 @@ class CGenDescription;
 class CParticleSwoosh;
 class CParticleElectric;
 
-class CElementGen
+class CElementGen : public CParticleGen
 {
 public:
     enum class EModelOrientationType
@@ -71,9 +71,9 @@ public:
         Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
 protected:
-    CElementGen(const TToken<IGenDescription>& gen);
-    std::list<CWarp*> x8_modifierList;
-    TLockedToken<IGenDescription> x1c_genDesc;
+    CElementGen(const TToken<CGenDescription>& gen);
+
+    TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
     std::vector<Zeus::CMatrix3f> x3c_parentMatrices;
@@ -153,14 +153,14 @@ protected:
 
 public:
     CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
-    virtual ~CElementGen();
+    ~CElementGen();
 
-    virtual const Zeus::CVector3f& GetGlobalTranslation() const
-    { return x88_globalTranslation; }
-    virtual const Zeus::CTransform& GetGlobalOrientation() const
-    { return x1d8_globalOrientation; }
-    virtual bool GetParticleEmission() const
-    { return x68_particleEmission; }
+    static s32 g_FreeIndex;
+    static bool g_StaticListInitialized;
+    static int g_ParticleAliveCount;
+    static int g_ParticleSystemAliveCount;
+    static bool g_MoveRedToAlphaBuffer;
+    static void Initialize();
 
     void SetGeneratorRateScalar(float scalar)
     {
@@ -176,13 +176,6 @@ public:
             child->SetGeneratorRateScalar(x78_generatorRate);
     }
 
-    static s32 g_FreeIndex;
-    static bool g_StaticListInitialized;
-    static int g_ParticleAliveCount;
-    static int g_ParticleSystemAliveCount;
-    static bool g_MoveRedToAlphaBuffer;
-    static void Initialize();
-
     void UpdateExistingParticles();
     void CreateNewParticles(int);
     void UpdatePSTranslationAndOrientation();
@@ -194,33 +187,35 @@ public:
     u32 GetParticleCountAllInternal() const;
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
 
+    bool InternalUpdate(double);
     void RenderModels();
     void RenderLines();
     void RenderParticles();
     void RenderParticlesIndirectTexture();
 
-    virtual void Update(double);
-    bool InternalUpdate(double);
-    virtual void Render();
-    virtual void SetOrientation(const Zeus::CTransform&);
-    virtual void SetTranslation(const Zeus::CVector3f&);
-    virtual void SetGlobalOrientation(const Zeus::CTransform&);
-    virtual void SetGlobalTranslation(const Zeus::CVector3f&);
-    virtual void SetGlobalScale(const Zeus::CVector3f&);
-    virtual void SetLocalScale(const Zeus::CVector3f&);
-    virtual void SetParticleEmission(bool);
-    virtual void SetModulationColor(const Zeus::CColor&);
-    virtual const Zeus::CTransform& GetOrientation() const;
-    virtual const Zeus::CVector3f& GetTranslation() const;
-    virtual const Zeus::CVector3f& GetGlobalScale() const;
-    virtual const Zeus::CColor& GetModulationColor() const;
-    virtual bool IsSystemDeletable() const;
-    virtual std::pair<Zeus::CAABox, bool> GetBounds() const;
-    virtual u32 GetParticleCount() const;
-    virtual bool SystemHasLight() const;
-    virtual CLight GetLight() const;
-    virtual void DestroyParticles();
-    virtual void AddModifier(CWarp*);
+    void Update(double);
+    void Render();
+    void SetOrientation(const Zeus::CTransform&);
+    void SetTranslation(const Zeus::CVector3f&);
+    void SetGlobalOrientation(const Zeus::CTransform&);
+    void SetGlobalTranslation(const Zeus::CVector3f&);
+    void SetGlobalScale(const Zeus::CVector3f&);
+    void SetLocalScale(const Zeus::CVector3f&);
+    void SetParticleEmission(bool);
+    void SetModulationColor(const Zeus::CColor&);
+    const Zeus::CTransform& GetOrientation() const;
+    const Zeus::CVector3f& GetTranslation() const;
+    const Zeus::CTransform& GetGlobalOrientation() const;
+    const Zeus::CVector3f& GetGlobalTranslation() const;
+    const Zeus::CVector3f& GetGlobalScale() const;
+    const Zeus::CColor& GetModulationColor() const;
+    bool IsSystemDeletable() const;
+    std::pair<Zeus::CAABox, bool> GetBounds() const;
+    u32 GetParticleCount() const;
+    bool SystemHasLight() const;
+    CLight GetLight() const;
+    bool GetParticleEmission() const;
+    void DestroyParticles();
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

@@ -19,6 +19,7 @@ add_library(RuntimeCommonParticle
             CParticleSwoosh.hpp CParticleSwoosh.cpp
             CParticleElectricDataFactory.hpp CParticleElectricDataFactory.cpp
             CParticleElectric.hpp CParticleElectric.cpp
+            CParticleGen.hpp CParticleGen.cpp
             CDecalManager.hpp CDecalManager.cpp
             CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
             CWarp.hpp CWarp.cpp

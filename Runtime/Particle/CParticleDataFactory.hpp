@@ -22,8 +22,6 @@ class CVectorElement;
 class CRealElement;
 class CIntElement;
 
-class IGenDescription {};
-
 struct SParticleModel
 {
     TLockedToken<CModel> m_model;

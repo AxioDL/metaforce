@@ -5,7 +5,7 @@
 
 namespace Retro
 {
-class CSwooshDescription : public IGenDescription
+class CSwooshDescription
 {
 };
 }

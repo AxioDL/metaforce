@@ -5,7 +5,7 @@
 
 namespace Retro
 {
-class CElectricDescription : public IGenDescription
+class CElectricDescription
 {
 };
 }

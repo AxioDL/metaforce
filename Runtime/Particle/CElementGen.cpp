@@ -46,7 +46,7 @@ void CElementGen::Initialize()
     g_StaticListInitialized = true;
 }
 
-CElementGen::CElementGen(const TToken<IGenDescription>& gen) : x1c_genDesc(gen), x230_randState(x74_randomSeed) {}
+CElementGen::CElementGen(const TToken<CGenDescription>& gen) : x1c_genDesc(gen), x230_randState(x74_randomSeed) {}
 
 CElementGen::CElementGen(const TToken<CGenDescription>& gen,
                          EModelOrientationType orientType,
@@ -54,7 +54,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 : x1c_genDesc(gen), x28_orientType(orientType),
   x226_enableOPTS((flags & EOptionalSystemFlags::Two) != EOptionalSystemFlags::None), x230_randState(x74_randomSeed)
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     CIntElement* seedElem = desc->x1c_SEED.get();
     if (seedElem)
@@ -207,7 +207,7 @@ CElementGen::~CElementGen()
 
 void CElementGen::Update(double t)
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
     CIntElement* pswtElem = desc->x10_PSWT.get();
     if (pswtElem && !x225_28_warmedUp)
     {
@@ -228,7 +228,7 @@ void CElementGen::Update(double t)
 bool CElementGen::InternalUpdate(double dt)
 {
     CGlobalRandom gr(x230_randState);
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     double dt1 = 1 / 60.0;
     if (fabs(dt - 1 / 60.0) >= 1 / 60000.0)
@@ -326,7 +326,7 @@ void CElementGen::AccumulateBounds(Zeus::CVector3f& pos, float size)
 
 void CElementGen::UpdateExistingParticles()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     x208_activeParticleCount = 0;
     CParticleGlobals::SetEmitterTime(x50_curFrame);
@@ -469,7 +469,7 @@ void CElementGen::UpdateExistingParticles()
 
 void CElementGen::CreateNewParticles(int count)
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     if (!g_StaticListInitialized)
         Initialize();
@@ -561,7 +561,7 @@ void CElementGen::CreateNewParticles(int count)
 
 void CElementGen::UpdatePSTranslationAndOrientation()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     CGlobalRandom gr(x230_randState);
     if (x214_PSLT < x50_curFrame)
@@ -626,7 +626,7 @@ CElementGen* CElementGen::ConstructChildParticleSystem(const TToken<CGenDescript
 
 void CElementGen::UpdateChildParticleSystems(double dt)
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     CGlobalRandom gr(x230_randState);
     SChildGeneratorDesc& icts = desc->x8c_ICTS;
@@ -793,7 +793,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
 
 void CElementGen::UpdateLightParameters()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     CColorElement* lclr = desc->x104_LCLR.get();
     if (lclr)
@@ -926,7 +926,7 @@ u32 CElementGen::GetSystemCount()
 
 void CElementGen::Render()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     x22c_backupLightActive = CGraphics::g_LightActive;
     CGraphics::DisableAllLights();
@@ -959,7 +959,7 @@ void CElementGen::Render()
 
 void CElementGen::RenderModels()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
     if (x225_29_modelsUseLights)
         CGraphics::SetLightState(x22c_backupLightActive);
@@ -1153,7 +1153,7 @@ void CElementGen::RenderLines()
 
 void CElementGen::RenderParticles()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
     CGlobalRandom gr(x230_randState);
 
     CUVElement* texr = desc->x54_TEXR.get();
@@ -1438,7 +1438,7 @@ void CElementGen::RenderParticles()
 
 void CElementGen::RenderParticlesIndirectTexture()
 {
-    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGenDescription* desc = x1c_genDesc.GetObj();
 
 
 }
@@ -1585,6 +1585,16 @@ const Zeus::CVector3f& CElementGen::GetTranslation() const
     return x7c_translation;
 }
 
+const Zeus::CTransform& CElementGen::GetGlobalOrientation() const
+{
+    return x1d8_globalOrientation;
+}
+
+const Zeus::CVector3f& CElementGen::GetGlobalTranslation() const
+{
+    return x88_globalTranslation;
+}
+
 const Zeus::CVector3f& CElementGen::GetGlobalScale() const
 {
     return xa0_globalScale;
@@ -1656,6 +1666,11 @@ CLight CElementGen::GetLight() const
     }
 }
 
+bool CElementGen::GetParticleEmission() const
+{
+    return x68_particleEmission;
+}
+
 void CElementGen::DestroyParticles()
 {
     for (CParticleListItem& p : x2c_particleLists)
@@ -1672,11 +1687,6 @@ void CElementGen::DestroyParticles()
 
     for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
         ch->DestroyParticles();
-}
-
-void CElementGen::AddModifier(CWarp* mod)
-{
-    x8_modifierList.push_back(mod);
 }
 
 }
