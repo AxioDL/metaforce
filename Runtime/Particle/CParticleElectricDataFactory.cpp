@@ -104,9 +104,16 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         case SBIG('ZERY'):
             desc->x70_ZERY = CPF::GetBool(in);
         break;
+        default:
+        {
+            uint32_t clsName = clsId.toUint32();
+            Log.report(LogVisor::FatalError, "Unknown ELSM class %.4s @%" PRIi64, &clsName, in.position());
+            return false;
         }
+        }
+        clsId = GetClassID(in);
     }
-    return false;
+    return true;
 }
 
 std::unique_ptr<Retro::IObj> FParticleElecrticFactory(const Retro::SObjectTag &tag, Retro::CInputStream &in, const Retro::CVParamTransfer &vparms)
