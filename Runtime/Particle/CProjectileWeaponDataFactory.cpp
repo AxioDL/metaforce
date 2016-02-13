@@ -132,11 +132,9 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         case SBIG('PJFX'):
         {
             FourCC cid = CPF::GetClassID(in);
-            if (cid != FOURCC('CNST'))
-            {
-                Log.report(LogVisor::FatalError, "PJFX element does not begin with CNST");
-                return false;
-            }
+            if (cid == FOURCC('NONE'))
+                break;
+
             desc->xa8_PJFX = CPF::GetInt(in);
             break;
         }
