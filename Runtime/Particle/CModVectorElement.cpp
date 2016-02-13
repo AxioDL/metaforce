@@ -113,7 +113,7 @@ CMVEBounce::CMVEBounce(CVectorElement *a, CVectorElement *b, CRealElement *c, CR
     }
 }
 
-bool CMVEBounce::GetValue(int frame, Zeus::CVector3f &pVel, Zeus::CVector3f &pPos) const
+bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
 {
     if (!x14_e)
     {
@@ -140,6 +140,12 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f &pVel, Zeus::CVector3f &pPo
 
     Zeus::CVector3f delta = pPos - pVel;
 
+    return false;
+}
+
+bool CMVESetPosition::GetValue(int frame, Zeus::CVector3f& /*pVel*/, Zeus::CVector3f& pPos) const
+{
+    x4_a->GetValue(frame, pPos);
     return false;
 }
 
