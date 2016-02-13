@@ -38,7 +38,7 @@ public:
     {
         friend class CElementGen;
         s16 x0_partIdx;
-        Zeus::CVector3f x4_vec;
+        Zeus::CVector3f x4_viewPoint;
     public:
         CParticleListItem(s16 idx)
         : x0_partIdx(idx)
@@ -99,7 +99,7 @@ protected:
     bool x224_25_LIT_;
     bool x224_26_AAPH;
     bool x224_27_ZBUF;
-    bool x224_28 = true;
+    bool x224_28_zTest = true;
     bool x224_29_MBLR;
     bool x224_30_VMD1;
     bool x224_31_VMD2;
@@ -108,7 +108,7 @@ protected:
     bool x225_26_LINE;
     bool x225_27_FXLL;
     bool x225_28_warmedUp = false;
-    bool x225_29 = false;
+    bool x225_29_modelsUseLights = false;
     bool x226;
     int x228_MBSP;
     ERglLight x22c_backupLightActive = ERglLight::None;
@@ -171,6 +171,7 @@ public:
     static bool g_StaticListInitialized;
     static int g_ParticleAliveCount;
     static int g_ParticleSystemAliveCount;
+    static bool g_MoveRedToAlphaBuffer;
     static void Initialize();
 
     void UpdateExistingParticles();
@@ -187,6 +188,7 @@ public:
     void RenderModels();
     void RenderLines();
     void RenderParticles();
+    void RenderParticlesIndirectTexture();
 
     virtual void Update(double);
     bool InternalUpdate(double);

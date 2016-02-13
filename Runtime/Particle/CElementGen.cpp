@@ -3,6 +3,7 @@
 #include "CParticleGlobals.hpp"
 #include "CParticleSwoosh.hpp"
 #include "CParticleElectric.hpp"
+#include "CModel.hpp"
 
 namespace Retro
 {
@@ -14,6 +15,7 @@ int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
 s32 CElementGen::g_FreeIndex;
 bool CElementGen::g_StaticListInitialized = false;
+bool CElementGen::g_MoveRedToAlphaBuffer = false;
 static rstl::reserved_vector<CElementGen::CParticle, 2560> g_StaticParticleList;
 static rstl::reserved_vector<u16, 2560> g_StaticFreeList;
 void CElementGen::Initialize()
@@ -958,7 +960,192 @@ void CElementGen::Render()
 
 void CElementGen::RenderModels()
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
 
+    if (x225_29_modelsUseLights)
+        CGraphics::SetLightState(x22c_backupLightActive);
+    CGlobalRandom gr(x230_randState);
+
+    SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
+    CUVElement* texr = desc->x54_TEXR.get();
+    CTexture* cachedTex = nullptr;
+    bool texConst = true;
+    bool moveRedToAlphaBuffer = false;
+
+    if (desc->x45_24_PMUS)
+    {
+        if (g_MoveRedToAlphaBuffer && desc->x44_31_PMAB && desc->x54_TEXR)
+            moveRedToAlphaBuffer = true;
+
+        if (desc->x44_31_PMAB)
+        {
+            CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
+            if (moveRedToAlphaBuffer)
+                CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
+            else
+                CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+        }
+        else
+        {
+            CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+            CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
+        }
+
+        CGraphics::SetCullMode(ERglCullMode::None);
+
+        if (texr)
+        {
+            CParticle& target = g_StaticParticleList[x2c_particleLists[0].x0_partIdx];
+            int partFrame = x50_curFrame - target.x28_startFrame;
+            cachedTex = texr->GetValueTexture(partFrame).GetObj();
+            cachedTex->Load(0, CTexture::EClampMode::One);
+            /* Shade as TEXC * RASC and TEXA * RASA */
+            if (moveRedToAlphaBuffer)
+            {
+                /* Color = Prev.rgb * Prev.a */
+                /* Alpha = Tex.r * Prev.a */
+            }
+            texConst = texr->HasConstantTexture();
+            texr->GetValueUV(partFrame, uvs);
+        }
+    }
+
+    Zeus::CTransform orient = Zeus::CTransform::Identity();
+    if (desc->x45_25_PMOO)
+        orient = x178_orientation;
+    orient = orient * x1d8_globalOrientation;
+
+    CVectorElement* pmrt = desc->x70_PMRT.get();
+    bool pmrtConst = false;
+    if (pmrt)
+        pmrtConst = pmrt->IsFastConstant();
+
+    Zeus::CVector3f trans = (xdc * x148) * x88_globalTranslation;
+
+    Zeus::CTransform rot = Zeus::CTransform::Identity();
+    if (pmrtConst)
+    {
+        Zeus::CVector3f pmrtVal;
+        pmrt->GetValue(x50_curFrame, pmrtVal);
+        rot = Zeus::CTransform::RotateZ(pmrtVal[2] * M_PI / 180.f);
+        rot.rotateLocalY(pmrtVal[1] * M_PI / 180.f);
+        rot.rotateLocalX(pmrtVal[0] * M_PI / 180.f);
+    }
+    rot = orient * rot;
+
+    CParticleGlobals::SetEmitterTime(x50_curFrame);
+    Zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
+
+    Zeus::CVector3f pmopVec;
+    auto matrixIt = x3c_parentMatrices.begin();
+    for (CParticleListItem& item : x2c_particleLists)
+    {
+        CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+        if (particle.x0_endFrame == -1)
+        {
+            ++matrixIt;
+            continue;
+        }
+        CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+        int partFrame = x50_curFrame - particle.x28_startFrame - 1;
+        CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+        CVectorElement* pmop = desc->x6c_PMOP.get();
+        if (pmop)
+            pmop->GetValue(partFrame, pmopVec);
+
+        Zeus::CTransform partTrans = Zeus::CTransform::Translate(particle.x4_pos + trans);
+        if (x28_orientType == EModelOrientationType::One)
+        {
+            Zeus::CTransform partRot(*matrixIt);
+            Zeus::CVector3f pmopRotateOffset = (orient * partRot) * pmopVec;
+            partTrans = partTrans * partRot;
+            partTrans += pmopRotateOffset;
+        }
+        else
+        {
+            partTrans += orient * pmopVec;
+        }
+
+        if (pmrtConst)
+        {
+            partTrans = partTrans * rot;
+        }
+        else
+        {
+            if (pmrt)
+            {
+                Zeus::CVector3f pmrtVal;
+                pmrt->GetValue(partFrame, pmrtVal);
+                rot = Zeus::CTransform::RotateZ(pmrtVal[2] * M_PI / 180.f);
+                rot.rotateLocalY(pmrtVal[1] * M_PI / 180.f);
+                rot.rotateLocalX(pmrtVal[0] * M_PI / 180.f);
+                partTrans = partTrans * (orient * rot);
+            }
+            else
+            {
+                partTrans = partTrans * rot;
+            }
+        }
+
+        CVectorElement* pmsc = desc->x74_PMSC.get();
+        if (pmsc)
+        {
+            Zeus::CVector3f pmscVal;
+            pmsc->GetValue(partFrame, pmscVal);
+            partTrans = partTrans * Zeus::CTransform::Scale(pmscVal);
+        }
+
+        CColorElement* pmcl = desc->x78_PMCL.get();
+        if (pmcl)
+            pmcl->GetValue(partFrame, col);
+
+        CGraphics::SetModelMatrix((xac * partTrans) * x118);
+
+        if (desc->x45_24_PMUS)
+        {
+            if (!texConst)
+            {
+                CTexture* tex = texr->GetValueTexture(x50_curFrame - particle.x28_startFrame).GetObj();
+                if (tex != cachedTex)
+                {
+                    tex->Load(0, CTexture::EClampMode::One);
+                    cachedTex = tex;
+                }
+            }
+
+            /* Draw: */
+            /* Pos: {0.5, 0.0, 0.5}  Color: <col-variable>  UV0: {uv[2], uv[3]} */
+            /* Pos: {-0.5, 0.0, 0.5}  Color: <col-variable>  UV0: {uv[0], uv[3]} */
+            /* Pos: {-0.5, 0.0, -0.5}  Color: <col-variable>  UV0: {uv[0], uv[1]} */
+            /* Pos: {0.5, 0.0, -0.5}  Color: <col-variable>  UV0: {uv[2], uv[1]} */
+        }
+        else
+        {
+            CModel* model = desc->x5c_PMDL.m_model.GetObj();
+            if (desc->x44_31_PMAB)
+            {
+                model->Draw({3, 0, 1, col});
+            }
+            else
+            {
+                if (1.f == col.a)
+                    model->Draw({0, 0, 3, Zeus::CColor::skWhite});
+                else
+                    model->Draw({4, 0, 1, col});
+            }
+        }
+
+        ++matrixIt;
+    }
+
+    if (x225_29_modelsUseLights)
+        CGraphics::DisableAllLights();
+
+    CGraphics::SetCullMode(ERglCullMode::Front);
+    if (moveRedToAlphaBuffer)
+    {
+        /* Restore passthrough */
+    }
 }
 
 void CElementGen::RenderLines()
@@ -966,6 +1153,291 @@ void CElementGen::RenderLines()
 }
 
 void CElementGen::RenderParticles()
+{
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+    CGlobalRandom gr(x230_randState);
+
+    CUVElement* texr = desc->x54_TEXR.get();
+    CUVElement* tind = desc->x58_TIND.get();
+    if (texr && tind)
+    {
+        RenderParticlesIndirectTexture();
+        return;
+    }
+
+    CRealElement* size = desc->x4c_SIZE.get();
+    if (size && size->IsConstant())
+    {
+        float sizeVal;
+        size->GetValue(0, sizeVal);
+        if (sizeVal == 0.f)
+        {
+            size->GetValue(1, sizeVal);
+            if (sizeVal == 0.f)
+                return;
+        }
+    }
+
+    Zeus::CTransform xf(CGraphics::g_ViewMatrix);
+    Zeus::CTransform xf2 = xf.inverse() * x1d8_globalOrientation;
+
+    xf = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac) * xf) * x118;
+    CGraphics::SetModelMatrix(xf);
+    CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+
+    SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
+    bool constTexr = true;
+    bool constUVs = true;
+    CTexture* cachedTex = nullptr;
+
+    if (texr)
+    {
+        CParticle& target = g_StaticParticleList[x2c_particleLists[0].x0_partIdx];
+        int partFrame = x50_curFrame - target.x28_startFrame;
+        cachedTex = texr->GetValueTexture(partFrame).GetObj();
+        cachedTex->Load(0, CTexture::EClampMode::One);
+
+        if (x30c_moduColor != Zeus::CColor::skBlack)
+        {
+            /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
+        }
+        else
+        {
+            /* Pass-thru */
+        }
+
+        constTexr = texr->HasConstantTexture();
+        texr->GetValueUV(partFrame, uvs);
+        constUVs = texr->HasConstantUV();
+    }
+    else
+    {
+        /* Pass-thru */
+    }
+
+    if (desc->x44_28_SORT)
+    {
+        for (CParticleListItem& item : x2c_particleLists)
+        {
+            CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+            item.x4_viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60 + particle.x10_prevPos);
+        }
+
+        std::sort(x2c_particleLists.begin(), x2c_particleLists.end(),
+                  [](const CParticleListItem& a, const CParticleListItem& b) -> bool
+                  {return a.x4_viewPoint[1] >= b.x4_viewPoint[1];});
+
+#if 0
+        bool done = false;
+        while (!done)
+        {
+            done = true;
+            for (int i=0 ; i<x2c_particleLists.size()-1 ; ++i)
+            {
+                CParticleListItem& p1 = x2c_particleLists[i];
+                CParticleListItem& p2 = x2c_particleLists[i+1];
+                if (p1.x4_viewPoint[1] < p2.x4_viewPoint[1])
+                {
+                    CParticleListItem tmp = p2;
+                    p2 = p1;
+                    p1 = tmp;
+                    done = false;
+                }
+            }
+        }
+#endif
+    }
+
+    if (x30c_moduColor != Zeus::CColor::skBlack)
+    {
+        /* Load mat-color here */
+    }
+    else
+    {
+        /* Pass-thru */
+    }
+
+    bool moveRedToAlphaBuffer = false;
+    if (g_MoveRedToAlphaBuffer && x224_26_AAPH)
+        moveRedToAlphaBuffer = true;
+
+    if (moveRedToAlphaBuffer)
+    {
+        CGraphics::SetDepthWriteMode(x224_28_zTest, ERglEnum::LEqual, false);
+        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
+        /* Color = Prev.rgb * Prev.a */
+        /* Alpha = Tex.r * Prev.a */
+    }
+    else
+    {
+        if (x224_26_AAPH)
+        {
+            CGraphics::SetDepthWriteMode(x224_28_zTest, ERglEnum::LEqual, false);
+            CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+        }
+        else
+        {
+            CGraphics::SetDepthWriteMode(x224_28_zTest, ERglEnum::LEqual, x224_27_ZBUF);
+            CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
+        }
+    }
+
+    int mbspVal = std::max(1, x228_MBSP);
+    if (!x224_29_MBLR)
+    {
+        /* Begin quad draw of x2c_particleLists.size() * 4 verts */
+    }
+    else
+    {
+        /* Begin quad draw of x2c_particleLists.size() * 4 * mbspVal verts */
+    }
+
+    CParticleGlobals::SetEmitterTime(x50_curFrame);
+    if (!x224_29_MBLR)
+    {
+        for (CParticleListItem& item : x2c_particleLists)
+        {
+            CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+            int partFrame = x50_curFrame - particle.x28_startFrame - 1;
+            Zeus::CVector3f viewPoint;
+            if (desc->x44_28_SORT)
+                viewPoint = item.x4_viewPoint;
+            else
+                viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60 + particle.x10_prevPos);
+
+            if (!constTexr)
+            {
+                CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
+                if (tex != cachedTex)
+                {
+                    tex->Load(0, CTexture::EClampMode::One);
+                    cachedTex = tex;
+                }
+            }
+
+            if (!constUVs)
+            {
+                CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+                CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+                texr->GetValueUV(partFrame, uvs);
+            }
+
+            float size = 0.5f * particle.x2c_lineLengthOrSize;
+            if (0.f == particle.x30_lineWidthOrRota)
+            {
+                /* Draw: */
+                /* Pos: {viewPoint.x + size, 0.0, viewPoint.z + size}  Color: particle.color  UV0: {uv[2], uv[3]} */
+                /* Pos: {viewPoint.x - size, 0.0, viewPoint.z + size}  Color: particle.color  UV0: {uv[0], uv[3]} */
+                /* Pos: {viewPoint.x - size, 0.0, viewPoint.z - size}  Color: particle.color  UV0: {uv[0], uv[1]} */
+                /* Pos: {viewPoint.x + size, 0.0, viewPoint.z - size}  Color: particle.color  UV0: {uv[2], uv[1]} */
+            }
+            else
+            {
+                float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
+                float sinT = sinf(theta) * size;
+                float cosT = sinf(theta) * size;
+
+                /* Draw:
+                viewPoint.x + sinT + cosT;
+                0.f;
+                viewPoint.z + cosT - sinT;
+
+                viewPoint.x + sinT - cosT;
+                0.f;
+                viewPoint.z + sinT + cosT;
+
+                viewPoint.x - (sinT + cosT);
+                0.f;
+                viewPoint.z - (cosT - sinT);
+
+                viewPoint.x + (cosT - sinT);
+                0.f;
+                viewPoint.z + (-cosT - sinT);
+                */
+            }
+        }
+    }
+    else
+    {
+        float mbspFac = 1.f / float(mbspVal);
+        for (CParticleListItem& item : x2c_particleLists)
+        {
+            CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+            int partFrame = x50_curFrame - particle.x28_startFrame - 1;
+
+            if (!constTexr)
+            {
+                CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
+                if (tex != cachedTex)
+                {
+                    tex->Load(0, CTexture::EClampMode::One);
+                    cachedTex = tex;
+                }
+            }
+
+            if (!constUVs)
+            {
+                CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+                CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+                texr->GetValueUV(partFrame, uvs);
+            }
+
+            Zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
+            Zeus::CVector3f vec = dVec * x60 + particle.x10_prevPos;
+            Zeus::CVector3f mbspVec = dVec * mbspFac;
+            float size = 0.5f * particle.x2c_lineLengthOrSize;
+            if (0.f == particle.x30_lineWidthOrRota)
+            {
+                for (int i=0 ; i<mbspVal ; ++i)
+                {
+                    vec += mbspVec;
+                    Zeus::CVector3f vec2 = xf2 * vec;
+                    /* Draw: */
+                    /* Pos: {vec2.x + size, vec2.y, vec2.z + size}  Color: particle.color  UV0: {uv[2], uv[3]} */
+                    /* Pos: {vec2.x - size, vec2.y, vec2.z + size}  Color: particle.color  UV0: {uv[0], uv[3]} */
+                    /* Pos: {vec2.x - size, vec2.y, vec2.z - size}  Color: particle.color  UV0: {uv[0], uv[1]} */
+                    /* Pos: {vec2.x + size, vec2.y, vec2.z - size}  Color: particle.color  UV0: {uv[2], uv[1]} */
+                }
+            }
+            else
+            {
+                float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
+                float sinT = sinf(theta) * size;
+                float cosT = sinf(theta) * size;
+
+                for (int i=0 ; i<mbspVal ; ++i)
+                {
+                    vec += mbspVec;
+                    Zeus::CVector3f vec2 = xf2 * vec;
+                    /* Draw:
+                    vec2.x + sinT + cosT;
+                    vec2.y;
+                    vec2.z + cosT - sinT;
+
+                    vec2.x + sinT - cosT;
+                    vec2.y;
+                    vec2.z + sinT + cosT;
+
+                    vec2.x - (sinT + cosT);
+                    vec2.y;
+                    vec2.z - (cosT - sinT);
+
+                    vec2.x + (cosT - sinT);
+                    vec2.y;
+                    vec2.z + (-cosT - sinT);
+                    */
+                }
+            }
+        }
+    }
+
+    if (moveRedToAlphaBuffer)
+    {
+        /* Restore */
+    }
+}
+
+void CElementGen::RenderParticlesIndirectTexture()
 {
 }
 
