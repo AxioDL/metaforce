@@ -51,6 +51,7 @@ class CParticleDataFactory
     friend class CDecalDataFactory;
     friend class CParticleElectricDataFactory;
     friend class CParticleSwooshDataFactory;
+    friend class CProjectileWeaponDataFactory;
 
     static SParticleModel GetModel(CInputStream& in, CSimplePool* resPool);
     static SChildGeneratorDesc GetChildGeneratorDesc(TResId res, CSimplePool* resPool, const std::vector<TResId>& tracker);

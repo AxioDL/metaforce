@@ -122,7 +122,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown SSWH class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(LogVisor::FatalError, "Unknown SWSH class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }

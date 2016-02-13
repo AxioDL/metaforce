@@ -20,6 +20,8 @@ add_library(RuntimeCommonParticle
             CParticleElectricDataFactory.hpp CParticleElectricDataFactory.cpp
             CParticleElectric.hpp CParticleElectric.cpp
             CParticleGen.hpp CParticleGen.cpp
+            CProjectileWeaponDataFactory.hpp CProjectileWeaponDataFactory.cpp
+            CCollisionResponseData.hpp CCollisionResponseData.cpp
             CDecalManager.hpp CDecalManager.cpp
             CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
             CWarp.hpp CWarp.cpp

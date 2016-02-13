@@ -10,6 +10,14 @@
 
 namespace pshag
 {
+class CCollisionResponseData;
+
+struct SCollisionResponseData
+{
+    TToken<CCollisionResponseData> m_res;
+    bool m_found = false;
+};
+
 class CWeaponDescription
 {
 public:
@@ -37,7 +45,7 @@ public:
     SSwooshGeneratorDesc x64_ASW2;
     SSwooshGeneratorDesc x74_ASW3;
     SParticleModel x84_OHEF;
-    //x94_COLR;
+    SCollisionResponseData x94_COLR;
     bool xa4_EWTR;
     bool xa5_LWTR;
     bool xa6_SWTR;
