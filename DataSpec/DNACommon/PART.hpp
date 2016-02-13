@@ -23,7 +23,7 @@ struct GPSM : BigYAML
     IntElementFactory x10_PSWT;
     RealElementFactory x14_PSTS;
     VectorElementFactory x18_POFS;
-    IntElementFactory x1c_PMED;
+    IntElementFactory x1c_SEED;
     RealElementFactory x20_LENG;
     RealElementFactory x24_WIDT;
     IntElementFactory x28_MAXP;
@@ -83,7 +83,6 @@ struct GPSM : BigYAML
     RealElementFactory x11c_LSLA;
 
     /* 0-00 additions */
-    IntElementFactory x10_SEED;
     ChildResourceFactory<IDType> xd8_SELC;
     union
     {
@@ -271,8 +270,8 @@ struct GPSM : BigYAML
             case SBIG('PMLC'):
                 xec_PMLC.read(r);
                 break;
-            case SBIG('PMED'):
-                x1c_PMED.read(r);
+            case SBIG('SEED'):
+                x1c_SEED.read(r);
                 break;
             case SBIG('PMOO'):
                 x45_25_PMOO = r.readBool(nullptr);
@@ -337,9 +336,6 @@ struct GPSM : BigYAML
             case SBIG('RSOP'):
                 x30_31_RSOP = r.readBool(nullptr);
                 break;
-            case SBIG('SEED'):
-                x10_SEED.read(r);
-                break;
             case SBIG('ADV1'):
                 x10c_ADV1.read(r);
                 break;
@@ -396,12 +392,6 @@ struct GPSM : BigYAML
             xc_PSLT.write(w);
             w.leaveSubRecord();
         }
-        if (x10_SEED)
-        {
-            w.enterSubRecord("SEED");
-            x10_SEED.write(w);
-            w.leaveSubRecord();
-        }
         if (x10_PSWT)
         {
             w.enterSubRecord("PSWT");
@@ -420,10 +410,10 @@ struct GPSM : BigYAML
             x18_POFS.write(w);
             w.leaveSubRecord();
         }
-        if (x1c_PMED)
+        if (x1c_SEED)
         {
-            w.enterSubRecord("PMED");
-            x1c_PMED.write(w);
+            w.enterSubRecord("SEED");
+            x1c_SEED.write(w);
             w.leaveSubRecord();
         }
         if (x20_LENG)
@@ -804,16 +794,14 @@ struct GPSM : BigYAML
             __isz = x8_PSOV.binarySize(__isz + 4);
         if (xc_PSLT)
             __isz = xc_PSLT.binarySize(__isz + 4);
-        if (x10_SEED)
-            __isz = x10_SEED.binarySize(__isz + 4);
         if (x10_PSWT)
             __isz = x10_PSWT.binarySize(__isz + 4);
         if (x14_PSTS)
             __isz = x14_PSTS.binarySize(__isz + 4);
         if (x18_POFS)
             __isz = x18_POFS.binarySize(__isz + 4);
-        if (x1c_PMED)
-            __isz = x1c_PMED.binarySize(__isz + 4);
+        if (x1c_SEED)
+            __isz = x1c_SEED.binarySize(__isz + 4);
         if (x20_LENG)
             __isz = x20_LENG.binarySize(__isz + 4);
         if (x24_WIDT)
@@ -1135,8 +1123,8 @@ struct GPSM : BigYAML
             case SBIG('PMLC'):
                 xec_PMLC.read(r);
                 break;
-            case SBIG('PMED'):
-                x1c_PMED.read(r);
+            case SBIG('SEED'):
+                x1c_SEED.read(r);
                 break;
             case SBIG('PMOO'):
                 r.readUint32Big();
@@ -1210,9 +1198,6 @@ struct GPSM : BigYAML
                 r.readUint32Big();
                 x30_31_RSOP = r.readBool();
                 break;
-            case SBIG('SEED'):
-                x10_SEED.read(r);
-                break;
             case SBIG('ADV1'):
                 x10c_ADV1.read(r);
                 break;
@@ -1270,11 +1255,6 @@ struct GPSM : BigYAML
             w.writeBytes((atInt8*)"PSLT", 4);
             xc_PSLT.write(w);
         }
-        if (x10_SEED)
-        {
-            w.writeBytes((atInt8*)"SEED", 4);
-            x10_SEED.write(w);
-        }
         if (x10_PSWT)
         {
             w.writeBytes((atInt8*)"PSWT", 4);
@@ -1290,10 +1270,10 @@ struct GPSM : BigYAML
             w.writeBytes((atInt8*)"POFS", 4);
             x18_POFS.write(w);
         }
-        if (x1c_PMED)
+        if (x1c_SEED)
         {
-            w.writeBytes((atInt8*)"PMED", 4);
-            x1c_PMED.write(w);
+            w.writeBytes((atInt8*)"SEED", 4);
+            x1c_SEED.write(w);
         }
         if (x20_LENG)
         {

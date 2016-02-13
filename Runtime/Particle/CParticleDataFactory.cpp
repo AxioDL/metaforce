@@ -1011,8 +1011,8 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         case SBIG('PMLC'):
             fillDesc->xec_PMLC = GetChildGeneratorDesc(in, resPool, tracker);
             break;
-        case SBIG('PMED'):
-            fillDesc->x1c_PMED.reset(GetIntElement(in));
+        case SBIG('SEED'):
+            fillDesc->x1c_SEED.reset(GetIntElement(in));
             break;
         case SBIG('PMOO'):
             fillDesc->x45_25_PMOO = GetBool(in);
@@ -1076,9 +1076,6 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             break;
         case SBIG('RSOP'):
             fillDesc->x30_31_RSOP = GetBool(in);
-            break;
-        case SBIG('SEED'):
-            fillDesc->x10_SEED.reset(GetIntElement(in));
             break;
         case SBIG('ADV1'):
             fillDesc->x10c_ADV1.reset(GetRealElement(in));

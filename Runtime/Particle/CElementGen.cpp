@@ -46,24 +46,24 @@ void CElementGen::Initialize()
     g_StaticListInitialized = true;
 }
 
-CElementGen::CElementGen(const TToken<IGenDescription>& gen) : x1c_genDesc(gen), x230_randState(x74) {}
+CElementGen::CElementGen(const TToken<IGenDescription>& gen) : x1c_genDesc(gen), x230_randState(x74_randomSeed) {}
 
 CElementGen::CElementGen(const TToken<CGenDescription>& gen,
                          EModelOrientationType orientType,
                          EOptionalSystemFlags flags)
 : x1c_genDesc(gen), x28_orientType(orientType),
-  x226((flags & EOptionalSystemFlags::Two) != EOptionalSystemFlags::None), x230_randState(x74)
+  x226_enableOPTS((flags & EOptionalSystemFlags::Two) != EOptionalSystemFlags::None), x230_randState(x74_randomSeed)
 {
     CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
 
-    CIntElement* pmedElem = desc->x1c_PMED.get();
-    if (pmedElem)
+    CIntElement* seedElem = desc->x1c_SEED.get();
+    if (seedElem)
     {
-        int pmedVal;
-        pmedElem->GetValue(x50_curFrame, pmedVal);
-        x74 = pmedVal;
+        int seedVal;
+        seedElem->GetValue(x50_curFrame, seedVal);
+        x74_randomSeed = seedVal;
     }
-    x230_randState.SetSeed(x74);
+    x230_randState.SetSeed(x74_randomSeed);
     ++g_ParticleSystemAliveCount;
     x224_25_LIT_ = desc->x44_29_LIT_;
     x224_26_AAPH = desc->x44_26_AAPH;
@@ -94,11 +94,11 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         for (int i=0 ; i<ndsyVal ; ++i)
         {
             CGenDescription* chDesc = desc->xa4_IDTS.m_gen.GetObj();
-            if (x226 && chDesc->x45_31_OPTS)
+            if (x226_enableOPTS && chDesc->x45_31_OPTS)
                 break;
             x248_finishPartChildren.emplace_back(new CElementGen(desc->xa4_IDTS.m_gen,
-                                                       EModelOrientationType::Normal,
-                                                       x226 ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One));
+                                                 EModelOrientationType::Normal,
+                                                 x226_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One));
         }
     }
 
@@ -161,20 +161,20 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     {
         int ltyp;
         ltypElem->GetValue(x50_curFrame, ltyp);
-        switch (ELightType(ltyp))
+        switch (LightType(ltyp))
         {
-        case ELightType::LocalAmbient:
+        case LightType::None:
         default:
-            x2dc_lightType = ELightType::LocalAmbient;
+            x2dc_lightType = LightType::None;
             break;
-        case ELightType::Directional:
-            x2dc_lightType = ELightType::Directional;
+        case LightType::Directional:
+            x2dc_lightType = LightType::Directional;
             break;
-        case ELightType::Custom:
-            x2dc_lightType = ELightType::Custom;
+        case LightType::Custom:
+            x2dc_lightType = LightType::Custom;
             break;
-        case ELightType::Spot:
-            x2dc_lightType = ELightType::Spot;
+        case LightType::Spot:
+            x2dc_lightType = LightType::Spot;
             break;
         }
     }
@@ -292,7 +292,7 @@ bool CElementGen::InternalUpdate(double dt)
         UpdatePSTranslationAndOrientation();
         UpdateChildParticleSystems(1 / 60.0);
 
-        if (x2dc_lightType != ELightType::LocalAmbient)
+        if (x2dc_lightType != LightType::None)
             UpdateLightParameters();
 
         ++frameUpdateCount;
@@ -305,10 +305,10 @@ bool CElementGen::InternalUpdate(double dt)
         x58_curSeconds = t;
 
     BuildParticleSystemBounds();
-    x224_24 = false;
+    x224_24_translationDirty = false;
 
     double passedTime = t - x58_curSeconds;
-    x60 = 1.0 - passedTime * 60.0;
+    x60_timeDeltaScale = 1.0 - passedTime * 60.0;
 
     return false;
 }
@@ -336,7 +336,6 @@ void CElementGen::UpdateExistingParticles()
         CElementGen::CParticle& particle = g_StaticParticleList[p->x0_partIdx];
         if (particle.x0_endFrame < x50_curFrame)
         {
-            --g_ParticleAliveCount;
             g_StaticFreeList[++g_FreeIndex] = p->x0_partIdx;
             if (p+1 == x2c_particleLists.end())
             {
@@ -374,8 +373,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x224_30_VMD1)
             {
-                Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
+                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err = vel1->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -391,8 +390,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x224_31_VMD2)
             {
-                Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
+                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel2->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -408,8 +407,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x225_24_VMD3)
             {
-                Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
+                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel3->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -425,8 +424,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x225_25_VMD4)
             {
-                Zeus::CVector3f xfVel = x1a8 * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8 * (particle.x4_pos - x7c_translation);
+                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel4->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -488,7 +487,7 @@ void CElementGen::CreateNewParticles(int count)
             return;
 
         s16 staticIdx = g_StaticFreeList[g_FreeIndex];
-        x2c_particleLists.push_back(staticIdx);
+        x2c_particleLists.emplace_back(staticIdx);
         ++x208_activeParticleCount;
         if (x28_orientType == EModelOrientationType::One)
             x3c_parentMatrices[x2c_particleLists.size()-1] = x178_orientation.buildMatrix3f();
@@ -512,14 +511,14 @@ void CElementGen::CreateNewParticles(int count)
         if (emtr)
         {
             emtr->GetValue(x210_curEmitterFrame, particle.x4_pos, particle.x1c_vel);
-            Zeus::CVector3f compXf1 = (xdc * x148) * x7c_translation;
+            Zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
             Zeus::CVector3f compXf2 = x178_orientation * particle.x4_pos;
             particle.x4_pos = compXf1 + compXf2 + x94_POFS;
             particle.x1c_vel = x178_orientation * particle.x1c_vel;
         }
         else
         {
-            Zeus::CVector3f compXf1 = (xdc * x148) * x7c_translation;
+            Zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
             particle.x4_pos = compXf1 + x94_POFS;
             particle.x1c_vel.zeroOut();
         }
@@ -575,14 +574,14 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         psvm->GetValue(x50_curFrame, x218_PSIV, vel);
         if (vel != x7c_translation)
         {
-            x224_24 = true;
+            x224_24_translationDirty = true;
             x7c_translation = vel;
         }
     }
 
     Zeus::CVector3f v = x178_orientation * x218_PSIV;
     if (v != Zeus::CVector3f::skZero)
-        x224_24 = true;
+        x224_24_translationDirty = true;
     x7c_translation += v;
 
     CVectorElement* psov = desc->x8_PSOV.get();
@@ -613,7 +612,7 @@ void CElementGen::UpdatePSTranslationAndOrientation()
 CElementGen* CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc)
 {
     CElementGen* ret = new CElementGen(desc, EModelOrientationType::Normal,
-                                       x226 ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
+                                       x226_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
     ret->SetGlobalTranslation(x88_globalTranslation);
     ret->SetGlobalOrientation(x1d8_globalOrientation);
     ret->SetGlobalScale(xa0_globalScale);
@@ -639,7 +638,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
             ncsy->GetValue(x50_curFrame, ncsyVal);
 
         CGenDescription* ictsDesc = icts.m_gen.GetObj();
-        if (!(x226 && ictsDesc->x45_31_OPTS))
+        if (!(x226_enableOPTS && ictsDesc->x45_31_OPTS))
         {
             x234_activePartChildren.reserve(ncsyVal + x234_activePartChildren.size());
             for (int i=0 ; i<ncsyVal ; ++i)
@@ -656,7 +655,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         ((x50_curFrame - x258_SISY) % x25c_PISY) == 0)
     {
         CGenDescription* iitsDesc = iits.m_gen.GetObj();
-        if (!(x226 && iitsDesc->x45_31_OPTS))
+        if (!(x226_enableOPTS && iitsDesc->x45_31_OPTS))
         {
             CElementGen* chGen = ConstructChildParticleSystem(iits.m_gen);
             x234_activePartChildren.emplace_back(chGen);
@@ -672,7 +671,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         for (CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo& system : systems)
         {
             TLockedToken<CGenDescription>& token = system.GetToken();
-            if (!(x226 && token.GetObj()->x45_31_OPTS))
+            if (!(x226_enableOPTS && token.GetObj()->x45_31_OPTS))
             {
                 CElementGen* chGen = ConstructChildParticleSystem(token);
                 x234_activePartChildren.emplace_back(chGen);
@@ -708,7 +707,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     {
         std::unique_ptr<CElementGen>& ch = *p;
 
-        if ((x50_curFrame == x4c || x224_24) && x64_prevFrame != x50_curFrame)
+        if ((x50_curFrame == x4c_internalStartFrame || x224_24_translationDirty) && x64_prevFrame != x50_curFrame)
         {
             ch->SetTranslation(x7c_translation);
             ch->SetOrientation(x178_orientation);
@@ -751,7 +750,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     {
         std::unique_ptr<CParticleSwoosh>& ch = *p;
 
-        if ((x50_curFrame == x270_SSSD || x224_24) && x64_prevFrame != x50_curFrame)
+        if ((x50_curFrame == x270_SSSD || x224_24_translationDirty) && x64_prevFrame != x50_curFrame)
         {
             Zeus::CVector3f trans = x7c_translation + x274_SSPO;
             ch->SetTranslation(trans);
@@ -772,7 +771,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     {
         std::unique_ptr<CParticleElectric>& ch = *p;
 
-        if ((x50_curFrame == x290_SESD || x224_24) && x64_prevFrame != x50_curFrame)
+        if ((x50_curFrame == x290_SESD || x224_24_translationDirty) && x64_prevFrame != x50_curFrame)
         {
             Zeus::CVector3f trans = x7c_translation + x294_SEPO;
             ch->SetTranslation(trans);
@@ -807,9 +806,9 @@ void CElementGen::UpdateLightParameters()
     switch (x2dc_lightType)
     {
     default:
-    case ELightType::LocalAmbient:
-    case ELightType::Directional:
-    case ELightType::Spot:
+    case LightType::None:
+    case LightType::Custom:
+    case LightType::Spot:
     {
         CVectorElement* loff = desc->x10c_LOFF.get();
         if (loff)
@@ -819,16 +818,16 @@ void CElementGen::UpdateLightParameters()
         if (lfor)
             lfor->GetValue(x50_curFrame, x304_LFOR);
 
-        if (x2dc_lightType == ELightType::Spot)
+        if (x2dc_lightType == LightType::Spot)
         {
             CRealElement* lsla = desc->x11c_LSLA.get();
             if (lsla)
                 lsla->GetValue(x50_curFrame, x308_LSLA);
         }
     }
-    case ELightType::Custom:
+    case LightType::Directional:
     {
-        if (x2dc_lightType != ELightType::Directional)
+        if (x2dc_lightType != LightType::Custom)
         {
             CVectorElement* ldir = desc->x110_LDIR.get();
             if (ldir)
@@ -900,7 +899,7 @@ void CElementGen::BuildParticleSystemBounds()
     if (GetParticleCount())
     {
         Zeus::CVector3f scale = xa0_globalScale * x2c0_maxSize;
-        Zeus::CTransform xf = (xac * x1d8_globalOrientation) * x118;
+        Zeus::CTransform xf = (xac_globalScaleTransform * x1d8_globalOrientation) * x118_localScaleTransform;
         Zeus::CAABox box = Zeus::CAABox(x2a8_aabbMin, x2b4_aabbMax).getTransformedAABox(xf);
         Zeus::CVector3f min = box.m_min + x88_globalTranslation - scale;
         Zeus::CVector3f max = box.m_max + x88_globalTranslation + scale;
@@ -1020,7 +1019,7 @@ void CElementGen::RenderModels()
     if (pmrt)
         pmrtConst = pmrt->IsFastConstant();
 
-    Zeus::CVector3f trans = (xdc * x148) * x88_globalTranslation;
+    Zeus::CVector3f trans = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x88_globalTranslation;
 
     Zeus::CTransform rot = Zeus::CTransform::Identity();
     if (pmrtConst)
@@ -1099,7 +1098,7 @@ void CElementGen::RenderModels()
         if (pmcl)
             pmcl->GetValue(partFrame, col);
 
-        CGraphics::SetModelMatrix((xac * partTrans) * x118);
+        CGraphics::SetModelMatrix((xac_globalScaleTransform * partTrans) * x118_localScaleTransform);
 
         if (desc->x45_24_PMUS)
         {
@@ -1181,7 +1180,7 @@ void CElementGen::RenderParticles()
     Zeus::CTransform xf(CGraphics::g_ViewMatrix);
     Zeus::CTransform xf2 = xf.inverse() * x1d8_globalOrientation;
 
-    xf = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac) * xf) * x118;
+    xf = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * xf) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(xf);
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
@@ -1220,7 +1219,7 @@ void CElementGen::RenderParticles()
         for (CParticleListItem& item : x2c_particleLists)
         {
             CParticle& particle = g_StaticParticleList[item.x0_partIdx];
-            item.x4_viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60 + particle.x10_prevPos);
+            item.x4_viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
         }
 
         std::sort(x2c_particleLists.begin(), x2c_particleLists.end(),
@@ -1303,7 +1302,7 @@ void CElementGen::RenderParticles()
             if (desc->x44_28_SORT)
                 viewPoint = item.x4_viewPoint;
             else
-                viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60 + particle.x10_prevPos);
+                viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
 
             if (!constTexr)
             {
@@ -1383,7 +1382,7 @@ void CElementGen::RenderParticles()
             }
 
             Zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
-            Zeus::CVector3f vec = dVec * x60 + particle.x10_prevPos;
+            Zeus::CVector3f vec = dVec * x60_timeDeltaScale + particle.x10_prevPos;
             Zeus::CVector3f mbspVec = dVec * mbspFac;
             float size = 0.5f * particle.x2c_lineLengthOrSize;
             if (0.f == particle.x30_lineWidthOrRota)
@@ -1439,38 +1438,141 @@ void CElementGen::RenderParticles()
 
 void CElementGen::RenderParticlesIndirectTexture()
 {
+    CGenDescription* desc = x1c_genDesc.CastObj<CGenDescription>();
+
+
 }
 
-void CElementGen::SetOrientation(const Zeus::CTransform&)
+void CElementGen::SetOrientation(const Zeus::CTransform& orientation)
 {
+    x178_orientation = orientation;
+    x1a8_orientationInverse = x178_orientation.inverse();
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetOrientation(orientation);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetOrientation(orientation);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetOrientation(orientation);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetOrientation(orientation);
 }
 
-void CElementGen::SetTranslation(const Zeus::CVector3f&)
+void CElementGen::SetTranslation(const Zeus::CVector3f& translation)
 {
+    x7c_translation = translation;
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetTranslation(translation);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetTranslation(translation);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetTranslation(translation + x274_SSPO);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetTranslation(translation + x294_SEPO);
 }
 
-void CElementGen::SetGlobalOrientation(const Zeus::CTransform&)
+void CElementGen::SetGlobalOrientation(const Zeus::CTransform& rotation)
 {
+    x1d8_globalOrientation.setRotation(rotation);
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetGlobalOrientation(x1d8_globalOrientation);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetGlobalOrientation(x1d8_globalOrientation);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetGlobalOrientation(x1d8_globalOrientation);
 }
 
-void CElementGen::SetGlobalTranslation(const Zeus::CVector3f&)
+void CElementGen::SetGlobalTranslation(const Zeus::CVector3f& translation)
 {
+    x88_globalTranslation = translation;
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetGlobalTranslation(translation);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetGlobalTranslation(translation);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetGlobalTranslation(translation);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetGlobalTranslation(translation);
 }
 
-void CElementGen::SetGlobalScale(const Zeus::CVector3f&)
+void CElementGen::SetGlobalScale(const Zeus::CVector3f& scale)
 {
+    xa0_globalScale = scale;
+    xac_globalScaleTransform = Zeus::CTransform::Scale(scale);
+    xdc_globalScaleTransformInverse = Zeus::CTransform::Scale(Zeus::CVector3f::skOne / scale);
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetGlobalScale(scale);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetGlobalScale(scale);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetGlobalScale(scale);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetGlobalScale(scale);
 }
 
-void CElementGen::SetLocalScale(const Zeus::CVector3f&)
+void CElementGen::SetLocalScale(const Zeus::CVector3f& scale)
 {
+    x10c_localScale = scale;
+    x118_localScaleTransform = Zeus::CTransform::Scale(scale);
+    x148_localScaleTransformInverse = Zeus::CTransform::Scale(Zeus::CVector3f::skOne / scale);
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetLocalScale(scale);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetLocalScale(scale);
 }
 
-void CElementGen::SetParticleEmission(bool)
+void CElementGen::SetParticleEmission(bool enabled)
 {
+    x68_particleEmission = enabled;
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetParticleEmission(enabled);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetParticleEmission(enabled);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetParticleEmission(enabled);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetParticleEmission(enabled);
 }
 
-void CElementGen::SetModulationColor(const Zeus::CColor&)
+void CElementGen::SetModulationColor(const Zeus::CColor& color)
 {
+    x30c_moduColor = color;
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->SetModulationColor(color);
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->SetModulationColor(color);
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetModulationColor(color);
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetModulationColor(color);
 }
 
 const Zeus::CTransform& CElementGen::GetOrientation() const
@@ -1485,38 +1587,96 @@ const Zeus::CVector3f& CElementGen::GetTranslation() const
 
 const Zeus::CVector3f& CElementGen::GetGlobalScale() const
 {
+    return xa0_globalScale;
 }
 
 const Zeus::CColor& CElementGen::GetModulationColor() const
 {
+    return x30c_moduColor;
 }
 
 bool CElementGen::IsSystemDeletable() const
 {
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        if (!ch->IsSystemDeletable())
+            return false;
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        if (!ch->IsSystemDeletable())
+            return false;
+
+    for (const std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        if (!ch->IsSystemDeletable())
+            return false;
+
+    for (const std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        if (!ch->IsSystemDeletable())
+            return false;
+
+    if (x214_PSLT < x50_curFrame && x208_activeParticleCount == 0)
+        return true;
+
+    return false;
 }
 
 std::pair<Zeus::CAABox, bool> CElementGen::GetBounds() const
 {
+    if (GetParticleCountAll() == 0)
+        return {Zeus::CAABox(), false};
+    else
+        return {x2c4_systemBounds, true};
 }
 
 u32 CElementGen::GetParticleCount() const
 {
+    return x208_activeParticleCount;
 }
 
 bool CElementGen::SystemHasLight() const
 {
+    return x2dc_lightType != LightType::None;
 }
 
 CLight CElementGen::GetLight() const
 {
+    switch (x2dc_lightType)
+    {
+    case LightType::Directional:
+        return CLight::BuildDirectional(x2f4_LDIR.normalized(), x2e0_LCLR * x2e4_LINT);
+    case LightType::Spot:
+        return CLight::BuildSpot(x2e8_LOFF, x2f4_LDIR.normalized(), x2e0_LCLR * x2e4_LINT, x308_LSLA);
+    default:
+    {
+        float quad = x300_falloffType == EFalloffType::Quadratic ? x304_LFOR : 0.f;
+        float linear = x300_falloffType == EFalloffType::Linear ? x304_LFOR : 0.f;
+        float constant = x300_falloffType == EFalloffType::Constant ? 1.f : 0.f;
+        return CLight::BuildCustom(x2e8_LOFF, {1.f, 0.f, 0.f}, x2e0_LCLR,
+                                   constant, linear, quad, x2e4_LINT, 0.f, 0.f);
+    }
+    }
 }
 
 void CElementGen::DestroyParticles()
 {
+    for (CParticleListItem& p : x2c_particleLists)
+    {
+        g_StaticFreeList[++g_FreeIndex] = p.x0_partIdx;
+        g_StaticParticleList[p.x0_partIdx].x0_endFrame = -1;
+    }
+
+    x2c_particleLists.clear();
+    x3c_parentMatrices.clear();
+
+    for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->DestroyParticles();
+
+    for (const std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->DestroyParticles();
 }
 
-void CElementGen::AddModifier(CWarp*)
+void CElementGen::AddModifier(CWarp* mod)
 {
+    x8_modifierList.push_back(mod);
 }
 
 }

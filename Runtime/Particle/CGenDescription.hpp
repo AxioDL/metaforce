@@ -25,7 +25,7 @@ public:
     std::unique_ptr<CIntElement> x10_PSWT;
     std::unique_ptr<CRealElement> x14_PSTS;
     std::unique_ptr<CVectorElement> x18_POFS;
-    std::unique_ptr<CIntElement> x1c_PMED;
+    std::unique_ptr<CIntElement> x1c_SEED;
     std::unique_ptr<CRealElement> x20_LENG;
     std::unique_ptr<CRealElement> x24_WIDT;
     std::unique_ptr<CIntElement> x28_MAXP;
@@ -86,7 +86,6 @@ public:
     std::unique_ptr<CRealElement> x11c_LSLA;
 
     /* 0-00 additions */
-    std::unique_ptr<CIntElement> x10_SEED;
     union
     {
         struct

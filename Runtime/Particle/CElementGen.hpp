@@ -10,6 +10,7 @@
 #include "CLight.hpp"
 #include "CGraphics.hpp"
 #include "CRandom16.hpp"
+#include "CWarp.hpp"
 
 namespace Retro
 {
@@ -33,6 +34,13 @@ public:
         None,
         One,
         Two
+    };
+    enum class LightType
+    {
+        None        = 0,
+        Custom      = 1,
+        Directional = 2,
+        Spot        = 3
     };
     class CParticleListItem
     {
@@ -64,38 +72,39 @@ public:
     };
 protected:
     CElementGen(const TToken<IGenDescription>& gen);
+    std::list<CWarp*> x8_modifierList;
     TLockedToken<IGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
     std::vector<Zeus::CMatrix3f> x3c_parentMatrices;
-    u32 x4c = 0;
+    u32 x4c_internalStartFrame = 0;
     u32 x50_curFrame = 0;
     double x58_curSeconds = 0.f;
-    float x60;
+    float x60_timeDeltaScale;
     u32 x64_prevFrame = -1;
     bool x68_particleEmission = true;
     float x6c_generatorRemainder = 0.f;
     int x70_MAXP = 0;
-    u16 x74 = 99;
+    u16 x74_randomSeed = 99;
     float x78_generatorRate = 1.f;
     Zeus::CVector3f x7c_translation;
     Zeus::CVector3f x88_globalTranslation;
     Zeus::CVector3f x94_POFS;
     Zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
-    Zeus::CTransform xac = Zeus::CTransform::Identity();
-    Zeus::CTransform xdc = Zeus::CTransform::Identity();
+    Zeus::CTransform xac_globalScaleTransform = Zeus::CTransform::Identity();
+    Zeus::CTransform xdc_globalScaleTransformInverse = Zeus::CTransform::Identity();
     Zeus::CVector3f x10c_localScale = {1.f, 1.f, 1.f};
-    Zeus::CTransform x118 = Zeus::CTransform::Identity();
-    Zeus::CTransform x148 = Zeus::CTransform::Identity();
+    Zeus::CTransform x118_localScaleTransform = Zeus::CTransform::Identity();
+    Zeus::CTransform x148_localScaleTransformInverse = Zeus::CTransform::Identity();
     Zeus::CTransform x178_orientation = Zeus::CTransform::Identity();
-    Zeus::CTransform x1a8 = Zeus::CTransform::Identity();
+    Zeus::CTransform x1a8_orientationInverse = Zeus::CTransform::Identity();
     Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
     u32 x208_activeParticleCount = 0;
     u32 x20c_recursiveParticleCount = 0;
     u32 x210_curEmitterFrame = 0;
     int x214_PSLT = 0x7fffff;
     Zeus::CVector3f x218_PSIV;
-    bool x224_24 = false;
+    bool x224_24_translationDirty = false;
     bool x224_25_LIT_;
     bool x224_26_AAPH;
     bool x224_27_ZBUF;
@@ -109,7 +118,7 @@ protected:
     bool x225_27_FXLL;
     bool x225_28_warmedUp = false;
     bool x225_29_modelsUseLights = false;
-    bool x226;
+    bool x226_enableOPTS;
     int x228_MBSP;
     ERglLight x22c_backupLightActive = ERglLight::None;
     CRandom16 x230_randState;
@@ -130,7 +139,7 @@ protected:
     Zeus::CVector3f x2b4_aabbMax;
     float x2c0_maxSize = 0.f;
     Zeus::CAABox x2c4_systemBounds = Zeus::CAABox::skInvertedBox;
-    ELightType x2dc_lightType;
+    LightType x2dc_lightType;
     Zeus::CColor x2e0_LCLR = Zeus::CColor::skWhite;
     float x2e4_LINT = 1.f;
     Zeus::CVector3f x2e8_LOFF;
