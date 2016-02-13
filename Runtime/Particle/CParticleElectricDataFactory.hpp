@@ -12,12 +12,11 @@ class CElectricDescription;
 class CSimplePool;
 class CParticleElectricDataFactory
 {
-public:
-    static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CElectricDescription* CreateElectricDescription(CInputStream& in, CSimplePool* resPool);
-
     static bool CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool);
     static bool LoadELSMTokens(CElectricDescription* desc);
+public:
+    static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
 std::unique_ptr<IObj> FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

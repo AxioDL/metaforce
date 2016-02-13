@@ -12,10 +12,10 @@ class CSwooshDescription;
 class CSimplePool;
 class CParticleSwooshDataFactory
 {
-public:
-    static CSwooshDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CSwooshDescription* CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool);
     static bool CreateWPSM(CSwooshDescription* desc, CInputStream& in, CSimplePool* resPool);
+public:
+    static CSwooshDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
 std::unique_ptr<IObj> FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

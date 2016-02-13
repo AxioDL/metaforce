@@ -2,11 +2,18 @@
 #define __RETRO_CELECTRICDESCRIPTION_HPP__
 
 #include "CParticleDataFactory.hpp"
+#include "CRealElement.hpp"
+#include "CIntElement.hpp"
+#include "CVectorElement.hpp"
+#include "CModVectorElement.hpp"
+#include "CColorElement.hpp"
+#include "CUVElement.hpp"
 
 namespace Retro
 {
 class CElectricDescription
 {
+public:
     std::unique_ptr<CIntElement> x0_LIFE;
     std::unique_ptr<CIntElement> x4_SLIF;
     std::unique_ptr<CRealElement> x8_GRAT;
@@ -20,9 +27,9 @@ class CElectricDescription
     bool x28_LWD1;
     bool x2c_LWD2;
     bool x30_LWD3;
-    bool x34_LCL1;
-    bool x38_LCL2;
-    bool x3c_LCL3;
+    std::unique_ptr<CColorElement> x34_LCL1;
+    std::unique_ptr<CColorElement> x38_LCL2;
+    std::unique_ptr<CColorElement> x3c_LCL3;
     SSwooshGeneratorDesc x40_SSWH;
     SChildGeneratorDesc  x50_GPSM;
     SChildGeneratorDesc  x60_EPSM;

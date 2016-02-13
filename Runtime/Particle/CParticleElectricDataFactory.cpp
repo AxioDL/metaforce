@@ -1,10 +1,12 @@
 #include "CParticleElectricDataFactory.hpp"
 #include "CElectricDescription.hpp"
+#include "CToken.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
 namespace Retro
 {
+static LogVisor::LogModule Log("Retro::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -15,13 +17,13 @@ CElectricDescription* CParticleElectricDataFactory::GetGeneratorDesc(CInputStrea
 
 CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CInputStream &in, CSimplePool *resPool)
 {
-    FourCC cid = CParticleDataFactory::GetClassID(in);
+    FourCC cid = CPF::GetClassID(in);
     if (cid == FOURCC('ELSM'))
     {
-        CElectricDescription* ret = new CElectricDescription;
+        CElectricDescription* desc = new CElectricDescription;
         CreateELSM(desc, in, resPool);
-        LoadELSMTokens(ret);
-        return ret;
+        LoadELSMTokens(desc);
+        return desc;
     }
 
     return nullptr;
@@ -36,7 +38,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         CGlobalRandom gr(rand);
         switch(clsId)
         {
-        case SBIG(''):
+        case SBIG('LIFE'):
             desc->x0_LIFE.reset(CPF::GetIntElement(in));
         break;
         case SBIG('SLIF'):
@@ -111,7 +113,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
             return false;
         }
         }
-        clsId = GetClassID(in);
+        clsId = CPF::GetClassID(in);
     }
     return true;
 }
