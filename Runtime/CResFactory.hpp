@@ -1,12 +1,12 @@
-#ifndef __RETRO_CRESFACTORY_HPP__
-#define __RETRO_CRESFACTORY_HPP__
+#ifndef __PSHAG_CRESFACTORY_HPP__
+#define __PSHAG_CRESFACTORY_HPP__
 
 #include <unordered_map>
 #include "IFactory.hpp"
 #include "CResLoader.hpp"
 #include "IVParamObj.hpp"
 
-namespace Retro
+namespace pshag
 {
 class IDvdRequest;
 
@@ -43,4 +43,4 @@ public:
 
 }
 
-#endif // __RETRO_CRESFACTORY_HPP__
+#endif // __PSHAG_CRESFACTORY_HPP__

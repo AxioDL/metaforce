@@ -1,6 +1,6 @@
 #include "CRandom16.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CRandom16* CRandom16::g_randomNumber = nullptr;

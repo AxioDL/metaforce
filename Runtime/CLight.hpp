@@ -1,10 +1,10 @@
-#ifndef __RETRO_CLIGHT_HPP__
-#define __RETRO_CLIGHT_HPP__
+#ifndef __PSHAG_CLIGHT_HPP__
+#define __PSHAG_CLIGHT_HPP__
 
 #include "CVector3f.hpp"
 #include "CColor.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 enum class ELightType
@@ -36,4 +36,4 @@ public:
 
 }
 
-#endif // __RETRO_CLIGHT_HPP__
+#endif // __PSHAG_CLIGHT_HPP__

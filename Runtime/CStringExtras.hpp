@@ -1,10 +1,10 @@
-#ifndef __RETRO_CSTRINGEXTRAS_HPP__
-#define __RETRO_CSTRINGEXTRAS_HPP__
+#ifndef __PSHAG_CSTRINGEXTRAS_HPP__
+#define __PSHAG_CSTRINGEXTRAS_HPP__
 
 #include <string>
 #include <string.h>
 
-namespace Retro
+namespace pshag
 {
 
 class CStringExtras
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __RETRO_CSTRINGEXTRAS_HPP__
+#endif // __PSHAG_CSTRINGEXTRAS_HPP__

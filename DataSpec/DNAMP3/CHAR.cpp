@@ -1,6 +1,6 @@
 #include "CHAR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

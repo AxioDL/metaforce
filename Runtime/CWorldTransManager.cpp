@@ -1,6 +1,6 @@
 #include "CWorldTransManager.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CWorldTransManager::DrawEnabled() const

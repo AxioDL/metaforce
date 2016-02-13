@@ -8,7 +8,7 @@
 #endif
 #include <math.h>
 
-namespace Retro
+namespace DataSpec
 {
 
 template<class BabeDeadLight>

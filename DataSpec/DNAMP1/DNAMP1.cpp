@@ -14,7 +14,7 @@
 #include "MAPA.hpp"
 #include "FRME.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

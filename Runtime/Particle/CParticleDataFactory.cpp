@@ -3,7 +3,7 @@
 #include "CSimplePool.hpp"
 #include "CGenDescription.hpp"
 
-namespace Retro
+namespace pshag
 {
 static LogVisor::LogModule Log("Retro::CParticleDataFactory");
 

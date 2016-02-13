@@ -1,7 +1,7 @@
-#ifndef __RETRO_CSPLASHSCREEN_HPP__
-#define __RETRO_CSPLASHSCREEN_HPP__
+#ifndef __PSHAG_CSPLASHSCREEN_HPP__
+#define __PSHAG_CSPLASHSCREEN_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CSplashScreen
@@ -10,4 +10,4 @@ class CSplashScreen
 
 }
 
-#endif // __RETRO_CSPLASHSCREEN_HPP__
+#endif // __PSHAG_CSPLASHSCREEN_HPP__

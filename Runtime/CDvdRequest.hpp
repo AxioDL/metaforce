@@ -1,7 +1,7 @@
-#ifndef __RETRO_CDVDREQUEST_HPP__
-#define __RETRO_CDVDREQUEST_HPP__
+#ifndef __PSHAG_CDVDREQUEST_HPP__
+#define __PSHAG_CDVDREQUEST_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class IDvdRequest
@@ -39,4 +39,4 @@ class CDvdRequest : public IDvdRequest
 
 }
 
-#endif // __RETRO_CDVDREQUEST_HPP__
+#endif // __PSHAG_CDVDREQUEST_HPP__

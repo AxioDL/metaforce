@@ -65,7 +65,7 @@ set(DATA_SPEC_LIBS
     DNACommon)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
-namespace Retro
+namespace DataSpec
 {
     extern HECL::Database::DataSpecEntry SpecEntMP1;
     extern HECL::Database::DataSpecEntry SpecEntMP2;
@@ -73,9 +73,9 @@ namespace Retro
 }")
 set(HECL_DATASPEC_PUSHES
 "    /* RetroCommon */
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP1);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP2);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&Retro::SpecEntMP3);")
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
+    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);")
 add_subdirectory(hecl)
 add_subdirectory(libSpecter)
 set(SPECTER_INCLUDE_DIR libSpecter/include libSpecter/freetype2/include)

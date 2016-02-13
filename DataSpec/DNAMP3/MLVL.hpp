@@ -5,7 +5,7 @@
 #include "../DNACommon/MLVL.hpp"
 #include "DNAMP3.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

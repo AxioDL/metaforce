@@ -8,7 +8,7 @@
 #include "DNAMP3/STRG.hpp"
 #include "DNAMP2/STRG.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 static LogVisor::LogModule Log("Retro::SpecMP3");

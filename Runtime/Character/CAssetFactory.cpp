@@ -1,6 +1,6 @@
 #include "CAssetFactory.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 }

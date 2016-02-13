@@ -5,7 +5,7 @@
 #include "DNAMP1.hpp"
 #include <Athena/FileWriter.hpp>
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

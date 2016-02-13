@@ -4,7 +4,7 @@
 #include "BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP2
 {

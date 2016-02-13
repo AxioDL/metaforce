@@ -1,10 +1,10 @@
-#ifndef __RETRO_CPLAYMOVIEBASE_HPP__
-#define __RETRO_CPLAYMOVIEBASE_HPP__
+#ifndef __PSHAG_CPLAYMOVIEBASE_HPP__
+#define __PSHAG_CPLAYMOVIEBASE_HPP__
 
 #include "CIOWin.hpp"
 #include "CMoviePlayer.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CPlayMovieBase : public CIOWin
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // __RETRO_CPLAYMOVIEBASE_HPP__
+#endif // __PSHAG_CPLAYMOVIEBASE_HPP__

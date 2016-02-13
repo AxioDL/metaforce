@@ -1,5 +1,5 @@
-#ifndef __RETRO_IRENDERER_HPP__
-#define __RETRO_IRENDERER_HPP__
+#ifndef __PSHAG_IRENDERER_HPP__
+#define __PSHAG_IRENDERER_HPP__
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -9,7 +9,7 @@
 #include "CFrustum.hpp"
 #include "CColor.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CMetroidModelInstance;
 class CLight;
@@ -95,4 +95,4 @@ public:
 
 }
 
-#endif // __RETRO_IRENDERER_HPP__
+#endif // __PSHAG_IRENDERER_HPP__

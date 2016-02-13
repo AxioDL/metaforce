@@ -1,10 +1,10 @@
-#ifndef __RETRO_CSTATICINTERFERENCE_HPP__
-#define __RETRO_CSTATICINTERFERENCE_HPP__
+#ifndef __PSHAG_CSTATICINTERFERENCE_HPP__
+#define __PSHAG_CSTATICINTERFERENCE_HPP__
 
 #include <vector>
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CStateManager;
 
@@ -72,4 +72,4 @@ public:
 
 }
 
-#endif // __RETRO_CSTATICINTERFERENCE_HPP__
+#endif // __PSHAG_CSTATICINTERFERENCE_HPP__

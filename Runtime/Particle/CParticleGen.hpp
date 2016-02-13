@@ -1,5 +1,5 @@
-#ifndef __RETRO_CPARTICLEGEN_HPP__
-#define __RETRO_CPARTICLEGEN_HPP__
+#ifndef __PSHAG_CPARTICLEGEN_HPP__
+#define __PSHAG_CPARTICLEGEN_HPP__
 
 #include "RetroTypes.hpp"
 #include "CLight.hpp"
@@ -10,7 +10,7 @@
 #include "CAABox.hpp"
 #include <list>
 
-namespace Retro
+namespace pshag
 {
 
 class CParticleGen
@@ -48,4 +48,4 @@ public:
 
 }
 
-#endif // __RETRO_CPARTICLEGEN_HPP__
+#endif // __PSHAG_CPARTICLEGEN_HPP__

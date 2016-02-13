@@ -1,9 +1,9 @@
-#ifndef __RETRO_CPHYSICSACTOR_HPP__
-#define __RETRO_CPHYSICSACTOR_HPP__
+#ifndef __PSHAG_CPHYSICSACTOR_HPP__
+#define __PSHAG_CPHYSICSACTOR_HPP__
 
 #include "CActor.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CCollisionPrimitive
@@ -120,4 +120,4 @@ public:
 
 }
 
-#endif // __RETRO_CPHYSICSACTOR_HPP__
+#endif // __PSHAG_CPHYSICSACTOR_HPP__

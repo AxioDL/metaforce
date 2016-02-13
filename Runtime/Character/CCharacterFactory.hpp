@@ -1,9 +1,9 @@
-#ifndef __RETRO_CCHARACTERFACTORY_HPP__
-#define __RETRO_CCHARACTERFACTORY_HPP__
+#ifndef __PSHAG_CCHARACTERFACTORY_HPP__
+#define __PSHAG_CCHARACTERFACTORY_HPP__
 
 #include "../IFactory.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CCharacterFactory : public IFactory
@@ -16,4 +16,4 @@ public:
 
 }
 
-#endif // __RETRO_CCHARACTERFACTORY_HPP__
+#endif // __PSHAG_CCHARACTERFACTORY_HPP__

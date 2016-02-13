@@ -1,6 +1,6 @@
 #include "CModel.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CModel::Draw(const CModelFlags& flags) const

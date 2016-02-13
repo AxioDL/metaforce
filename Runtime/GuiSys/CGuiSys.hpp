@@ -1,7 +1,7 @@
-#ifndef __RETRO_CGUISYS_HPP__
-#define __RETRO_CGUISYS_HPP__
+#ifndef __PSHAG_CGUISYS_HPP__
+#define __PSHAG_CGUISYS_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CGuiSys
@@ -10,4 +10,4 @@ class CGuiSys
 
 }
 
-#endif // __RETRO_CGUISYS_HPP__
+#endif // __PSHAG_CGUISYS_HPP__

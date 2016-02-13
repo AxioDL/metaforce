@@ -1,7 +1,7 @@
-#ifndef __RETRO_CHIERARCHYPOSEBUILDER_HPP__
-#define __RETRO_CHIERARCHYPOSEBUILDER_HPP__
+#ifndef __PSHAG_CHIERARCHYPOSEBUILDER_HPP__
+#define __PSHAG_CHIERARCHYPOSEBUILDER_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CHierarchyPoseBuilder
@@ -10,4 +10,4 @@ class CHierarchyPoseBuilder
 
 }
 
-#endif // __RETRO_CHIERARCHYPOSEBUILDER_HPP__
+#endif // __PSHAG_CHIERARCHYPOSEBUILDER_HPP__

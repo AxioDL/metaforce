@@ -1,6 +1,6 @@
-#ifndef __RETRO__CTIMEPROVIDER_HPP__
-#define __RETRO__CTIMEPROVIDER_HPP__
-namespace Retro
+#ifndef __PSHAG__CTIMEPROVIDER_HPP__
+#define __PSHAG__CTIMEPROVIDER_HPP__
+namespace pshag
 {
 class CTimeProvider;
 class CTimeProvider

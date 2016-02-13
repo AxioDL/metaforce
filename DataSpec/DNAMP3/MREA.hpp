@@ -6,7 +6,7 @@
 #include "CSKR.hpp"
 #include "../DNAMP2/MREA.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

@@ -1,12 +1,12 @@
-#ifndef __RETRO_CBASICS_HPP__
-#define __RETRO_CBASICS_HPP__
+#ifndef __PSHAG_CBASICS_HPP__
+#define __PSHAG_CBASICS_HPP__
 
 #include <stdint.h>
 #include <stdlib.h>
 
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CBasics
@@ -18,4 +18,4 @@ public:
 
 }
 
-#endif // __RETRO_CBASICS_HPP__
+#endif // __PSHAG_CBASICS_HPP__

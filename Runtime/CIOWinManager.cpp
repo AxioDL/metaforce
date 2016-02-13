@@ -2,7 +2,7 @@
 #include "CArchitectureMessage.hpp"
 #include "CIOWin.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)

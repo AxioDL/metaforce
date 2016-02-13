@@ -6,7 +6,7 @@
 #include <NOD/DiscBase.hpp>
 #include "../DNACommon/PAK.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

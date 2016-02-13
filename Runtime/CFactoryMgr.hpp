@@ -1,10 +1,10 @@
-#ifndef __RETRO_CFACTORYMGR_HPP__
-#define __RETRO_CFACTORYMGR_HPP__
+#ifndef __PSHAG_CFACTORYMGR_HPP__
+#define __PSHAG_CFACTORYMGR_HPP__
 
 #include <unordered_map>
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 class SObjectTag;
 class CVParamTransfer;
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __RETRO_CFACTORYMGR_HPP__
+#endif // __PSHAG_CFACTORYMGR_HPP__

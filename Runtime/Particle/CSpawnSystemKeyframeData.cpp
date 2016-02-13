@@ -1,7 +1,7 @@
 #include "CSpawnSystemKeyframeData.hpp"
 #include "CSimplePool.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in)

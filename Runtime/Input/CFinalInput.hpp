@@ -1,11 +1,11 @@
-#ifndef __RETRO_CFINALINPUT_HPP__
-#define __RETRO_CFINALINPUT_HPP__
+#ifndef __PSHAG_CFINALINPUT_HPP__
+#define __PSHAG_CFINALINPUT_HPP__
 
 #include "../RetroTypes.hpp"
 #include "CKeyboardMouseController.hpp"
 #include <boo/inputdev/DolphinSmashAdapter.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 class CFinalInput
@@ -143,4 +143,4 @@ public:
 
 }
 
-#endif // __RETRO_CFINALINPUT_HPP__
+#endif // __PSHAG_CFINALINPUT_HPP__

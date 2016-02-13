@@ -1,7 +1,7 @@
-#ifndef __RETRO_CANIMDATA_HPP__
-#define __RETRO_CANIMDATA_HPP__
+#ifndef __PSHAG_CANIMDATA_HPP__
+#define __PSHAG_CANIMDATA_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CAnimData
@@ -14,4 +14,4 @@ public:
 
 }
 
-#endif // __RETRO_CANIMDATA_HPP__
+#endif // __PSHAG_CANIMDATA_HPP__

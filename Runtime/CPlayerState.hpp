@@ -1,12 +1,12 @@
-#ifndef __RETRO_CPLAYERSTATE_HPP__
-#define __RETRO_CPLAYERSTATE_HPP__
+#ifndef __PSHAG_CPLAYERSTATE_HPP__
+#define __PSHAG_CPLAYERSTATE_HPP__
 
 #include "RetroTypes.hpp"
 #include "CBasics.hpp"
 #include "CStaticInterference.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CPlayerState
@@ -29,4 +29,4 @@ public:
 
 }
 
-#endif // __RETRO_CPLAYERSTATE_HPP__
+#endif // __PSHAG_CPLAYERSTATE_HPP__

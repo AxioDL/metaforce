@@ -1,5 +1,5 @@
-#ifndef __RETRO_CGAMESTATE_HPP__
-#define __RETRO_CGAMESTATE_HPP__
+#ifndef __PSHAG_CGAMESTATE_HPP__
+#define __PSHAG_CGAMESTATE_HPP__
 
 #include <memory>
 #include "CBasics.hpp"
@@ -7,7 +7,7 @@
 #include "CGameOptions.hpp"
 #include "CWorldTransManager.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CGameState
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __RETRO_CGAMESTATE_HPP__
+#endif // __PSHAG_CGAMESTATE_HPP__

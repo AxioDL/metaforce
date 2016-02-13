@@ -1,5 +1,5 @@
-#ifndef __RETRO_CIOWINMANAGER_HPP__
-#define __RETRO_CIOWINMANAGER_HPP__
+#ifndef __PSHAG_CIOWINMANAGER_HPP__
+#define __PSHAG_CIOWINMANAGER_HPP__
 
 #include <memory>
 #include <list>
@@ -7,7 +7,7 @@
 #include "rstl.hpp"
 #include "CArchitectureQueue.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CIOWinManager
@@ -41,4 +41,4 @@ public:
 
 }
 
-#endif // __RETRO_CIOWINMANAGER_HPP__
+#endif // __PSHAG_CIOWINMANAGER_HPP__

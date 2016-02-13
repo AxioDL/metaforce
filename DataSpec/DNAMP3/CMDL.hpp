@@ -8,7 +8,7 @@
 #include "CINF.hpp"
 #include "CSKR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

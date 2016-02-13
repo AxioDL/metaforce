@@ -1,6 +1,6 @@
 #include "CMapWorldInfo.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 }

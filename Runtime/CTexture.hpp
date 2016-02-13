@@ -1,9 +1,9 @@
-#ifndef __RETRO_CTEXTURE_HPP__
-#define __RETRO_CTEXTURE_HPP__
+#ifndef __PSHAG_CTEXTURE_HPP__
+#define __PSHAG_CTEXTURE_HPP__
 
 #include "GCNTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CTexture
@@ -23,4 +23,4 @@ public:
 
 }
 
-#endif // __RETRO_CTEXTURE_HPP__
+#endif // __PSHAG_CTEXTURE_HPP__

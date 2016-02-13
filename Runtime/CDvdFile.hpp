@@ -1,9 +1,9 @@
-#ifndef __RETRO_CDVDFILE_HPP__
-#define __RETRO_CDVDFILE_HPP__
+#ifndef __PSHAG_CDVDFILE_HPP__
+#define __PSHAG_CDVDFILE_HPP__
 
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 static const char* DecodeARAMFile(const char* name)
@@ -49,4 +49,4 @@ public:
 };
 }
 
-#endif // __RETRO_CDVDFILE_HPP__
+#endif // __PSHAG_CDVDFILE_HPP__

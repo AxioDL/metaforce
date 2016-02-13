@@ -5,7 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

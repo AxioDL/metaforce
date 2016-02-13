@@ -1,9 +1,9 @@
-#ifndef __RETRO_IALLOCATOR_HPP__
-#define __RETRO_IALLOCATOR_HPP__
+#ifndef __PSHAG_IALLOCATOR_HPP__
+#define __PSHAG_IALLOCATOR_HPP__
 
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 class COsContext;
 class CCallStack;
@@ -76,4 +76,4 @@ public:
 
 }
 
-#endif // __RETRO_IALLOCATOR_HPP__
+#endif // __PSHAG_IALLOCATOR_HPP__

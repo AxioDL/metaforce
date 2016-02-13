@@ -1,11 +1,11 @@
-#ifndef __RETRO_CARCHITECTUREMESSAGE_HPP__
-#define __RETRO_CARCHITECTUREMESSAGE_HPP__
+#ifndef __PSHAG_CARCHITECTUREMESSAGE_HPP__
+#define __PSHAG_CARCHITECTUREMESSAGE_HPP__
 
 #include "GCNTypes.hpp"
 #include "Input/CFinalInput.hpp"
 #include "rstl.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CIOWin;
 
@@ -147,4 +147,4 @@ public:
 
 }
 
-#endif // __RETRO_CARCHITECTUREMESSAGE_HPP__
+#endif // __PSHAG_CARCHITECTUREMESSAGE_HPP__

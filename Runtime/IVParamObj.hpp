@@ -1,10 +1,10 @@
-#ifndef __RETRO_IVPARAMOBJ_HPP__
-#define __RETRO_IVPARAMOBJ_HPP__
+#ifndef __PSHAG_IVPARAMOBJ_HPP__
+#define __PSHAG_IVPARAMOBJ_HPP__
 
 #include <memory>
 #include "IObj.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IVParamObj : public IObj
@@ -39,4 +39,4 @@ public:
 
 }
 
-#endif // __RETRO_IVPARAMOBJ_HPP__
+#endif // __PSHAG_IVPARAMOBJ_HPP__

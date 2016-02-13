@@ -1,10 +1,10 @@
-#ifndef __RETRO_CPARTICLESWOOSH_HPP__
-#define __RETRO_CPARTICLESWOOSH_HPP__
+#ifndef __PSHAG_CPARTICLESWOOSH_HPP__
+#define __PSHAG_CPARTICLESWOOSH_HPP__
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CSwooshDescription;
 
@@ -40,4 +40,4 @@ public:
 
 }
 
-#endif // __RETRO_CPARTICLESWOOSH_HPP__
+#endif // __PSHAG_CPARTICLESWOOSH_HPP__

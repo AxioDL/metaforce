@@ -6,7 +6,7 @@
 #include "DNAMP2/MLVL.hpp"
 #include "DNAMP2/STRG.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 static LogVisor::LogModule Log("Retro::SpecMP2");

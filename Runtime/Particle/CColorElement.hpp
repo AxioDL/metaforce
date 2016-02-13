@@ -1,9 +1,9 @@
-#ifndef __RETRO_CCOLORELEMENT_HPP__
-#define __RETRO_CCOLORELEMENT_HPP__
+#ifndef __PSHAG_CCOLORELEMENT_HPP__
+#define __PSHAG_CCOLORELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CCEKeyframeEmitter : public CColorElement
@@ -94,4 +94,4 @@ public:
 };
 }
 
-#endif // __RETRO_CCOLORELEMENT_HPP__
+#endif // __PSHAG_CCOLORELEMENT_HPP__

@@ -1,6 +1,6 @@
 #include "CLight.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CLight CLight::BuildDirectional(const Zeus::CVector3f& dir, const Zeus::CColor& color)

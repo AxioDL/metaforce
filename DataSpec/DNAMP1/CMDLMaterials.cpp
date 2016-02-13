@@ -3,7 +3,7 @@
 
 using Stream = HECL::BlenderConnection::PyOutStream;
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {
@@ -1299,7 +1299,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
 }
 }
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP2
 {
@@ -1308,7 +1308,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
                                     const MaterialSet::Material& material,
                                     unsigned groupIdx,
                                     unsigned matIdx)
-{Retro::DNAMP1::_ConstructMaterial(out, material, groupIdx, matIdx);}
+{DataSpec::DNAMP1::_ConstructMaterial(out, material, groupIdx, matIdx);}
 
 }
 }

@@ -1,7 +1,7 @@
 #ifndef __SCRIPT_OBJECT_SUPPORT_HPP__
 #define __SCRIPT_OBJECT_SUPPORT_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 enum class EScriptObjectState

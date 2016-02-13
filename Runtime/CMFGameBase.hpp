@@ -1,9 +1,9 @@
-#ifndef __RETRO_CMFGAMEBASE_HPP__
-#define __RETRO_CMFGAMEBASE_HPP__
+#ifndef __PSHAG_CMFGAMEBASE_HPP__
+#define __PSHAG_CMFGAMEBASE_HPP__
 
 #include "CIOWin.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CMFGameBase : public CIOWin
@@ -20,4 +20,4 @@ public:
 
 }
 
-#endif // __RETRO_CMFGAMEBASE_HPP__
+#endif // __PSHAG_CMFGAMEBASE_HPP__

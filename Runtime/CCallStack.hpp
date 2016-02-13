@@ -1,7 +1,7 @@
-#ifndef __RETRO_CCALLSTACK_HPP__
-#define __RETRO_CCALLSTACK_HPP__
+#ifndef __PSHAG_CCALLSTACK_HPP__
+#define __PSHAG_CCALLSTACK_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CCallStack
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // __RETRO_CCALLSTACK_HPP__
+#endif // __PSHAG_CCALLSTACK_HPP__

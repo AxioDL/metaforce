@@ -1,12 +1,12 @@
-#ifndef __RETRO_CINPUTGENERATOR_HPP__
-#define __RETRO_CINPUTGENERATOR_HPP__
+#ifndef __PSHAG_CINPUTGENERATOR_HPP__
+#define __PSHAG_CINPUTGENERATOR_HPP__
 
 #include <atomic>
 #include <boo/boo.hpp>
 #include "CFinalInput.hpp"
 #include "CKeyboardMouseController.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CArchitectureQueue;
 
@@ -181,4 +181,4 @@ public:
 
 }
 
-#endif // __RETRO_CINPUTGENERATOR_HPP__
+#endif // __PSHAG_CINPUTGENERATOR_HPP__

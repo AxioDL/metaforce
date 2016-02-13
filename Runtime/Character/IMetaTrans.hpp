@@ -1,9 +1,9 @@
-#ifndef __RETRO_IMETATRANS_HPP__
-#define __RETRO_IMETATRANS_HPP__
+#ifndef __PSHAG_IMETATRANS_HPP__
+#define __PSHAG_IMETATRANS_HPP__
 
 #include "../RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IMetaTrans
@@ -12,4 +12,4 @@ class IMetaTrans
 
 }
 
-#endif // __RETRO_IMETATRANS_HPP__
+#endif // __PSHAG_IMETATRANS_HPP__

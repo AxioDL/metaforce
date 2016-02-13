@@ -1,12 +1,12 @@
-#ifndef __RETRO_CPARTICLEELECTRICDATAFACTORY_HPP__
-#define __RETRO_CPARTICLEELECTRICDATAFACTORY_HPP__
+#ifndef __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
+#define __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CElectricDescription;
 class CSimplePool;
@@ -22,4 +22,4 @@ public:
 std::unique_ptr<IObj> FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __RETRO_CPARTICLEELECTRICDATAFACTORY_HPP__
+#endif // __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__

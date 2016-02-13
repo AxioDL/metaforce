@@ -1,7 +1,7 @@
-#ifndef __RETRO_CAREAOCTTREE_HPP__
-#define __RETRO_CAREAOCTTREE_HPP__
+#ifndef __PSHAG_CAREAOCTTREE_HPP__
+#define __PSHAG_CAREAOCTTREE_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CAreaOctTree
@@ -10,4 +10,4 @@ class CAreaOctTree
 
 }
 
-#endif // __RETRO_CAREAOCTTREE_HPP__
+#endif // __PSHAG_CAREAOCTTREE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __RETRO_CAI_HPP__
-#define __RETRO_CAI_HPP__
+#ifndef __PSHAG_CAI_HPP__
+#define __PSHAG_CAI_HPP__
 
 #include "GCNTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -9,7 +9,7 @@
 
 #include <MathLib.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 /* TODO: Figure out what all this is for and move it somewhere appropriate */
@@ -175,4 +175,4 @@ public:
 
 }
 
-#endif // __RETRO_CAI_HPP__
+#endif // __PSHAG_CAI_HPP__

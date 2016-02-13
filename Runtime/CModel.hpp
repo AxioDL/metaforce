@@ -1,10 +1,10 @@
-#ifndef __RETRO_CMODEL_HPP__
-#define __RETRO_CMODEL_HPP__
+#ifndef __PSHAG_CMODEL_HPP__
+#define __PSHAG_CMODEL_HPP__
 
 #include "RetroTypes.hpp"
 #include "CColor.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 struct CModelFlags
@@ -23,4 +23,4 @@ public:
 
 }
 
-#endif // __RETRO_CMODEL_HPP__
+#endif // __PSHAG_CMODEL_HPP__

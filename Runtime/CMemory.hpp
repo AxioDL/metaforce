@@ -1,9 +1,9 @@
-#ifndef __RETRO_CMEMORY_HPP__
-#define __RETRO_CMEMORY_HPP__
+#ifndef __PSHAG_CMEMORY_HPP__
+#define __PSHAG_CMEMORY_HPP__
 
 #include "IAllocator.hpp"
 
-namespace Retro
+namespace pshag
 {
 class COsContext;
 
@@ -33,4 +33,4 @@ public:
 void* operator new(std::size_t sz, const char* funcName, const char* typeName);
 void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
 
-#endif // __RETRO_CMEMORY_HPP__
+#endif // __PSHAG_CMEMORY_HPP__

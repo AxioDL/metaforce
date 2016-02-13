@@ -1,6 +1,6 @@
 #include "CUVElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,

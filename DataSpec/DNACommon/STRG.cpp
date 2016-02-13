@@ -3,7 +3,7 @@
 #include "../DNAMP2/STRG.hpp"
 #include "../DNAMP3/STRG.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)

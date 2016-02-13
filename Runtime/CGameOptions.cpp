@@ -1,6 +1,6 @@
 #include "CGameOptions.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 }

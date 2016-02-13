@@ -1,6 +1,6 @@
 #include "CParticleGlobals.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 int CParticleGlobals::g_EmitterTime = 0;

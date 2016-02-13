@@ -24,7 +24,7 @@ struct Application : boo::IApplicationCallback
 
     int appMain(boo::IApplication* app)
     {
-        Retro::CElementGen::Initialize();
+        pshag::CElementGen::Initialize();
         m_viewManager.init(app);
         while (m_running)
         {

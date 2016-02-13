@@ -8,7 +8,7 @@
 #include "HECL/Database.hpp"
 #include "../SpecBase.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 extern LogVisor::LogModule LogDNACommon;
@@ -364,30 +364,30 @@ typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> 
 namespace std
 {
 template<>
-struct hash<Retro::DNAFourCC>
+struct hash<DataSpec::DNAFourCC>
 {
-    size_t operator()(const Retro::DNAFourCC& fcc) const
+    size_t operator()(const DataSpec::DNAFourCC& fcc) const
     {return fcc.toUint32();}
 };
 
 template<>
-struct hash<Retro::UniqueID32>
+struct hash<DataSpec::UniqueID32>
 {
-    size_t operator()(const Retro::UniqueID32& id) const
+    size_t operator()(const DataSpec::UniqueID32& id) const
     {return id.toUint32();}
 };
 
 template<>
-struct hash<Retro::UniqueID64>
+struct hash<DataSpec::UniqueID64>
 {
-    size_t operator()(const Retro::UniqueID64& id) const
+    size_t operator()(const DataSpec::UniqueID64& id) const
     {return id.toUint64();}
 };
 
 template<>
-struct hash<Retro::UniqueID128>
+struct hash<DataSpec::UniqueID128>
 {
-    size_t operator()(const Retro::UniqueID128& id) const
+    size_t operator()(const DataSpec::UniqueID128& id) const
     {return id.toHighUint64() ^ id.toLowUint64();}
 };
 }

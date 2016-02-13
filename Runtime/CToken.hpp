@@ -1,5 +1,5 @@
-#ifndef __RETRO_CTOKEN_HPP__
-#define __RETRO_CTOKEN_HPP__
+#ifndef __PSHAG_CTOKEN_HPP__
+#define __PSHAG_CTOKEN_HPP__
 
 #include <memory>
 #include "IObj.hpp"
@@ -8,7 +8,7 @@
 #include "IObjectStore.hpp"
 #include "IFactory.hpp"
 
-namespace Retro
+namespace pshag
 {
 class IObjectStore;
 class IObj;
@@ -250,4 +250,4 @@ public:
 
 }
 
-#endif // __RETRO_CTOKEN_HPP__
+#endif // __PSHAG_CTOKEN_HPP__

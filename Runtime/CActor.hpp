@@ -1,10 +1,10 @@
-#ifndef __RETRO_CACTOR_HPP__
-#define __RETRO_CACTOR_HPP__
+#ifndef __PSHAG_CACTOR_HPP__
+#define __PSHAG_CACTOR_HPP__
 
 #include "CEntity.hpp"
 #include <MathLib.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 enum class ECollisionResponseType
@@ -80,4 +80,4 @@ public:
 
 }
 
-#endif // __RETRO_CACTOR_HPP__
+#endif // __PSHAG_CACTOR_HPP__

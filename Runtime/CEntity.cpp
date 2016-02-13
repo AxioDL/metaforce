@@ -1,7 +1,7 @@
 #include "CEntity.hpp"
 #include "CStateManager.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active)

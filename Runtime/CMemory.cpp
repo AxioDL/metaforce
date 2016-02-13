@@ -3,7 +3,7 @@
 #include "CCallStack.hpp"
 #include <LogVisor/LogVisor.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 LogVisor::LogModule Log("CMemory");
@@ -73,70 +73,70 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 void* operator new(std::size_t sz)
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
         return malloc(sz);
-    Retro::CCallStack cs("?\?(?\?)", "UnknownType");
-    return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::EHint::None,
-                                 Retro::IAllocator::EScope::Default,
-                                 Retro::IAllocator::EType::Primitive,
+    pshag::CCallStack cs("?\?(?\?)", "UnknownType");
+    return pshag::CMemory::Alloc(sz,
+                                 pshag::IAllocator::EHint::None,
+                                 pshag::IAllocator::EScope::Default,
+                                 pshag::IAllocator::EType::Primitive,
                                  cs);
 }
 
 void* operator new(std::size_t sz,
                    const char* funcName, const char* typeName)
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
         return malloc(sz);
-    Retro::CCallStack cs(funcName, typeName);
-    return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::EHint::None,
-                                 Retro::IAllocator::EScope::Default,
-                                 Retro::IAllocator::EType::Primitive,
+    pshag::CCallStack cs(funcName, typeName);
+    return pshag::CMemory::Alloc(sz,
+                                 pshag::IAllocator::EHint::None,
+                                 pshag::IAllocator::EScope::Default,
+                                 pshag::IAllocator::EType::Primitive,
                                  cs);
 }
 
 void operator delete(void* ptr) noexcept
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
     {
         free(ptr);
         return;
     }
-    Retro::CMemory::Free(ptr);
+    pshag::CMemory::Free(ptr);
 }
 
 void* operator new[](std::size_t sz)
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
         return malloc(sz);
-    Retro::CCallStack cs("?\?(?\?)", "UnknownType");
-    return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::EHint::None,
-                                 Retro::IAllocator::EScope::Default,
-                                 Retro::IAllocator::EType::Array,
+    pshag::CCallStack cs("?\?(?\?)", "UnknownType");
+    return pshag::CMemory::Alloc(sz,
+                                 pshag::IAllocator::EHint::None,
+                                 pshag::IAllocator::EScope::Default,
+                                 pshag::IAllocator::EType::Array,
                                  cs);
 }
 
 void* operator new[](std::size_t sz,
                      const char* funcName, const char* typeName)
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
         return malloc(sz);
-    Retro::CCallStack cs(funcName, typeName);
-    return Retro::CMemory::Alloc(sz,
-                                 Retro::IAllocator::EHint::None,
-                                 Retro::IAllocator::EScope::Default,
-                                 Retro::IAllocator::EType::Array,
+    pshag::CCallStack cs(funcName, typeName);
+    return pshag::CMemory::Alloc(sz,
+                                 pshag::IAllocator::EHint::None,
+                                 pshag::IAllocator::EScope::Default,
+                                 pshag::IAllocator::EType::Array,
                                  cs);
 }
 
 void operator delete[](void* ptr) noexcept
 {
-    if (!Retro::g_memoryAllocatorReady)
+    if (!pshag::g_memoryAllocatorReady)
     {
         free(ptr);
         return;
     }
-    Retro::CMemory::Free(ptr);
+    pshag::CMemory::Free(ptr);
 }

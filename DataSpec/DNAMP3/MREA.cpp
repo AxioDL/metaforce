@@ -3,7 +3,7 @@
 #include "../DNAMP2/DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

@@ -1,5 +1,5 @@
-#ifndef __RETRO_CSFXMANAGER_HPP__
-#define __RETRO_CSFXMANAGER_HPP__
+#ifndef __PSHAG_CSFXMANAGER_HPP__
+#define __PSHAG_CSFXMANAGER_HPP__
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -7,7 +7,7 @@
 #include "CVector3f.hpp"
 #include "CAudioSys.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CSfxManager
@@ -130,4 +130,4 @@ class CSfxManager
 
 }
 
-#endif // __RETRO_CSFXMANAGER_HPP__
+#endif // __PSHAG_CSFXMANAGER_HPP__

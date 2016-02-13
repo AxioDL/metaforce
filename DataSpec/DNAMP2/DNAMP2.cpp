@@ -9,7 +9,7 @@
 #include "AFSM.hpp"
 #include "../DNACommon/TXTR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP2
 {

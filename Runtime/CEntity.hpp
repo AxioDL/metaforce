@@ -1,10 +1,10 @@
-#ifndef __RETRO_CENTITY_HPP__
-#define __RETRO_CENTITY_HPP__
+#ifndef __PSHAG_CENTITY_HPP__
+#define __PSHAG_CENTITY_HPP__
 
 #include "RetroTypes.hpp"
 #include "ScriptObjectSupport.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CStateManager;
 
@@ -45,4 +45,4 @@ public:
 
 }
 
-#endif // __RETRO_CENTITY_HPP__
+#endif // __PSHAG_CENTITY_HPP__

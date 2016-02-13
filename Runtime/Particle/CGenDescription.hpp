@@ -1,5 +1,5 @@
-#ifndef __RETRO_CGENDESCRIPTION_HPP__
-#define __RETRO_CGENDESCRIPTION_HPP__
+#ifndef __PSHAG_CGENDESCRIPTION_HPP__
+#define __PSHAG_CGENDESCRIPTION_HPP__
 
 #include <memory>
 #include "CRealElement.hpp"
@@ -12,7 +12,7 @@
 #include "CSpawnSystemKeyframeData.hpp"
 #include "CParticleDataFactory.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CGenDescription
@@ -112,4 +112,4 @@ public:
 
 }
 
-#endif // __RETRO_CGENDESCRIPTION_HPP__
+#endif // __PSHAG_CGENDESCRIPTION_HPP__

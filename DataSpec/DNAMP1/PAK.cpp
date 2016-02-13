@@ -3,7 +3,7 @@
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

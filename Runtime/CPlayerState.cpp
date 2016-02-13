@@ -1,6 +1,6 @@
 #include "CPlayerState.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CPlayerState::CPlayerState(CInputStream& stream)

@@ -1,6 +1,6 @@
 #include "CScriptMailbox.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 }

@@ -1,9 +1,9 @@
-#ifndef __RETRO_ICONTROLLER_HPP__
-#define __RETRO_ICONTROLLER_HPP__
+#ifndef __PSHAG_ICONTROLLER_HPP__
+#define __PSHAG_ICONTROLLER_HPP__
 
 #include "../RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IController
@@ -21,4 +21,4 @@ public:
 
 }
 
-#endif // __RETRO_ICONTROLLER_HPP__
+#endif // __PSHAG_ICONTROLLER_HPP__

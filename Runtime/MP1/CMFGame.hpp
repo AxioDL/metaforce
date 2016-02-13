@@ -1,9 +1,9 @@
-#ifndef __RETRO_CMFGAME_HPP__
-#define __RETRO_CMFGAME_HPP__
+#ifndef __PSHAG_CMFGAME_HPP__
+#define __PSHAG_CMFGAME_HPP__
 
 #include "CMFGameBase.hpp"
 
-namespace Retro
+namespace pshag
 {
 namespace MP1
 {
@@ -27,4 +27,4 @@ public:
 }
 }
 
-#endif // __RETRO_CMFGAME_HPP__
+#endif // __PSHAG_CMFGAME_HPP__

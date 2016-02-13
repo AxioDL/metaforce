@@ -1,7 +1,7 @@
 #include "CGameState.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CGameState::CGameState(CInputStream& stream)

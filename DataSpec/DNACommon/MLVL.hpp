@@ -5,7 +5,7 @@
 #include "BlenderConnection.hpp"
 #include "CVector3f.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMLVL
 {

@@ -2,7 +2,7 @@
 #include "../CArchitectureMessage.hpp"
 #include "../CArchitectureQueue.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue)

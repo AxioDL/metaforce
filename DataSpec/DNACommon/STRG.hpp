@@ -8,7 +8,7 @@
 #include <Athena/FileWriter.hpp>
 #include "DNACommon.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 struct ISTRG : BigYAML
 {

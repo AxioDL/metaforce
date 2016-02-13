@@ -1,7 +1,7 @@
-#ifndef __RETRO_CMEMORYCARDSYS_HPP__
-#define __RETRO_CMEMORYCARDSYS_HPP__
+#ifndef __PSHAG_CMEMORYCARDSYS_HPP__
+#define __PSHAG_CMEMORYCARDSYS_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CMemoryCardSys
@@ -10,4 +10,4 @@ class CMemoryCardSys
 
 }
 
-#endif // __RETRO_CMEMORYCARDSYS_HPP__
+#endif // __PSHAG_CMEMORYCARDSYS_HPP__

@@ -1,11 +1,11 @@
-#ifndef __RETRO_CSTATEMANAGER_HPP__
-#define __RETRO_CSTATEMANAGER_HPP__
+#ifndef __PSHAG_CSTATEMANAGER_HPP__
+#define __PSHAG_CSTATEMANAGER_HPP__
 
 #include <memory>
 #include "CBasics.hpp"
 #include "ScriptObjectSupport.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CScriptMailbox;
 class CMapWorldInfo;

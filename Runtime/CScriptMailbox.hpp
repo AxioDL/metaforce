@@ -1,7 +1,7 @@
-#ifndef __RETRO_CSCRIPTMAILBOX_HPP__
-#define __RETRO_CSCRIPTMAILBOX_HPP__
+#ifndef __PSHAG_CSCRIPTMAILBOX_HPP__
+#define __PSHAG_CSCRIPTMAILBOX_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CScriptMailbox
@@ -10,4 +10,4 @@ class CScriptMailbox
 
 }
 
-#endif // __RETRO_CSCRIPTMAILBOX_HPP__
+#endif // __PSHAG_CSCRIPTMAILBOX_HPP__

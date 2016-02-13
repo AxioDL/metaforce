@@ -10,7 +10,7 @@
 #include "MAPA.hpp"
 #include "../DNACommon/TXTR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

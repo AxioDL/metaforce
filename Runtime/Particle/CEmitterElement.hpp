@@ -1,9 +1,9 @@
-#ifndef __RETRO_CEMITTERELEMENT_HPP__
-#define __RETRO_CEMITTERELEMENT_HPP__
+#ifndef __PSHAG_CEMITTERELEMENT_HPP__
+#define __PSHAG_CEMITTERELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CEESimpleEmitter : public CEmitterElement
@@ -45,4 +45,4 @@ public:
 
 }
 
-#endif // __RETRO_CEMITTERELEMENT_HPP__
+#endif // __PSHAG_CEMITTERELEMENT_HPP__

@@ -5,7 +5,7 @@
 #include "CParticleElectric.hpp"
 #include "CModel.hpp"
 
-namespace Retro
+namespace pshag
 {
 static LogVisor::LogModule Log("Retro::CElementGen");
 

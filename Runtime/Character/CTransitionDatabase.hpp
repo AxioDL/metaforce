@@ -1,9 +1,9 @@
-#ifndef __RETRO_CTRANSITIONDATABASE_HPP__
-#define __RETRO_CTRANSITIONDATABASE_HPP__
+#ifndef __PSHAG_CTRANSITIONDATABASE_HPP__
+#define __PSHAG_CTRANSITIONDATABASE_HPP__
 
 #include "../RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 class IMetaTrans;
 
@@ -15,4 +15,4 @@ public:
 
 }
 
-#endif // __RETRO_CTRANSITIONDATABASE_HPP__
+#endif // __PSHAG_CTRANSITIONDATABASE_HPP__

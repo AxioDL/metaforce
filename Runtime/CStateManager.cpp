@@ -1,6 +1,6 @@
 #include "CStateManager.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CStateManager::SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state)

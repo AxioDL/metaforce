@@ -4,7 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

@@ -2,7 +2,7 @@
 #include "IVParamObj.hpp"
 #include "CToken.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CSimplePool::CSimplePool(IFactory& factory)

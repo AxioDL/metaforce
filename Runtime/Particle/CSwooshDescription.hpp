@@ -1,5 +1,5 @@
-#ifndef __RETRO_CSWOOSHDESCRIPTION_HPP__
-#define __RETRO_CSWOOSHDESCRIPTION_HPP__
+#ifndef __PSHAG_CSWOOSHDESCRIPTION_HPP__
+#define __PSHAG_CSWOOSHDESCRIPTION_HPP__
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -9,7 +9,7 @@
 #include "CColorElement.hpp"
 #include "CUVElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CSwooshDescription
 {
@@ -44,4 +44,4 @@ public:
 };
 }
 
-#endif // __RETRO_CSWOOSHDESCRIPTION_HPP__
+#endif // __PSHAG_CSWOOSHDESCRIPTION_HPP__

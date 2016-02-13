@@ -1,6 +1,6 @@
 #include "CGameAllocator.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 LogVisor::LogModule AllocLog("CGameAllocator");

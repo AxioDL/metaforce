@@ -1,7 +1,10 @@
-#ifndef __RETRO_GAMEGLOBALOBJECTS_HPP__
-#define __RETRO_GAMEGLOBALOBJECTS_HPP__
+#ifndef __PSHAG_GAMEGLOBALOBJECTS_HPP__
+#define __PSHAG_GAMEGLOBALOBJECTS_HPP__
+#include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 extern class CMemoryCardSys* g_MemoryCardSys;
@@ -13,10 +16,10 @@ extern class CGameState* g_GameState;
 extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 
-extern struct ITweakGame*   g_tweakGame;
-extern struct ITweakPlayer* g_tweakPlayer;
-extern struct ITweakPlayerControl* g_tweakPlayerControl;
+extern DataSpec::ITweakGame*   g_tweakGame;
+extern DataSpec::ITweakPlayer* g_tweakPlayer;
+extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
 
 }
 
-#endif // __RETRO_GAMEGLOBALOBJECTS_HPP__
+#endif // __PSHAG_GAMEGLOBALOBJECTS_HPP__

@@ -1,5 +1,5 @@
-#ifndef __RETRO_CELEMENTGEN_HPP__
-#define __RETRO_CELEMENTGEN_HPP__
+#ifndef __PSHAG_CELEMENTGEN_HPP__
+#define __PSHAG_CELEMENTGEN_HPP__
 
 #include "RetroTypes.hpp"
 #include "CTransform.hpp"
@@ -12,7 +12,7 @@
 #include "CRandom16.hpp"
 #include "CParticleGen.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CWarp;
 class CLight;
@@ -221,4 +221,4 @@ ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
 }
 
-#endif // __RETRO_CELEMENTGEN_HPP__
+#endif // __PSHAG_CELEMENTGEN_HPP__

@@ -1,10 +1,10 @@
-#ifndef __RETRO_CMOVIEPLAYER_HPP__
-#define __RETRO_CMOVIEPLAYER_HPP__
+#ifndef __PSHAG_CMOVIEPLAYER_HPP__
+#define __PSHAG_CMOVIEPLAYER_HPP__
 
 #include "RetroTypes.hpp"
 #include "CDvdFile.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CVector3f;
 
@@ -41,4 +41,4 @@ public:
 
 }
 
-#endif // __RETRO_CMOVIEPLAYER_HPP__
+#endif // __PSHAG_CMOVIEPLAYER_HPP__

@@ -1,7 +1,7 @@
-#ifndef __RETRO_CCONSOLEOUTPUTWINDOW_HPP__
-#define __RETRO_CCONSOLEOUTPUTWINDOW_HPP__
+#ifndef __PSHAG_CCONSOLEOUTPUTWINDOW_HPP__
+#define __PSHAG_CCONSOLEOUTPUTWINDOW_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CConsoleOutputWindow
@@ -10,4 +10,4 @@ class CConsoleOutputWindow
 
 }
 
-#endif // __RETRO_CCONSOLEOUTPUTWINDOW_HPP__
+#endif // __PSHAG_CCONSOLEOUTPUTWINDOW_HPP__

@@ -1,9 +1,9 @@
-#ifndef __RETRO_CANIMATIONDATABASEGAME_HPP__
-#define __RETRO_CANIMATIONDATABASEGAME_HPP__
+#ifndef __PSHAG_CANIMATIONDATABASEGAME_HPP__
+#define __PSHAG_CANIMATIONDATABASEGAME_HPP__
 
 #include "CAnimationDatabase.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CAnimationDatabaseGame : public CAnimationDatabase
@@ -18,4 +18,4 @@ public:
 
 }
 
-#endif // __RETRO_CANIMATIONDATABASEGAME_HPP__
+#endif // __PSHAG_CANIMATIONDATABASEGAME_HPP__

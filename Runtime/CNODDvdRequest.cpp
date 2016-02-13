@@ -1,6 +1,6 @@
 #include "CDvdRequest.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CNODDvdRequest::WaitUntilComplete()

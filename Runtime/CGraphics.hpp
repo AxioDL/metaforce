@@ -1,10 +1,10 @@
-#ifndef __RETRO_CGRAPHICS_HPP__
-#define __RETRO_CGRAPHICS_HPP__
+#ifndef __PSHAG_CGRAPHICS_HPP__
+#define __PSHAG_CGRAPHICS_HPP__
 
 #include "RetroTypes.hpp"
 #include "CTransform.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 enum class ERglLight : u8
@@ -120,4 +120,4 @@ public:
 
 }
 
-#endif // __RETRO_CGRAPHICS_HPP__
+#endif // __PSHAG_CGRAPHICS_HPP__

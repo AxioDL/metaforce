@@ -1,6 +1,6 @@
 #include "CParticleGen.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CParticleGen::AddModifier(CWarp* mod)

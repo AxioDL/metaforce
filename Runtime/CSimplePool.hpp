@@ -1,12 +1,12 @@
-#ifndef __RETRO_CSIMPLEPOOL_HPP__
-#define __RETRO_CSIMPLEPOOL_HPP__
+#ifndef __PSHAG_CSIMPLEPOOL_HPP__
+#define __PSHAG_CSIMPLEPOOL_HPP__
 
 #include "IObjectStore.hpp"
 #include "RetroTypes.hpp"
 #include "IVParamObj.hpp"
 #include <unordered_map>
 
-namespace Retro
+namespace pshag
 {
 class IFactory;
 class CObjectReference;
@@ -32,4 +32,4 @@ public:
 
 }
 
-#endif // __RETRO_CSIMPLEPOOL_HPP__
+#endif // __PSHAG_CSIMPLEPOOL_HPP__

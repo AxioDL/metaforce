@@ -1,7 +1,7 @@
-#ifndef __RETRO_CWORLDTRANSMANAGER_HPP__
-#define __RETRO_CWORLDTRANSMANAGER_HPP__
+#ifndef __PSHAG_CWORLDTRANSMANAGER_HPP__
+#define __PSHAG_CWORLDTRANSMANAGER_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CWorldTransManager
@@ -21,4 +21,4 @@ public:
 
 }
 
-#endif // __RETRO_CWORLDTRANSMANAGER_HPP__
+#endif // __PSHAG_CWORLDTRANSMANAGER_HPP__

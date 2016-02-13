@@ -1,9 +1,9 @@
-#ifndef __RETRO_IMETAANIM_HPP__
-#define __RETRO_IMETAANIM_HPP__
+#ifndef __PSHAG_IMETAANIM_HPP__
+#define __PSHAG_IMETAANIM_HPP__
 
 #include "../RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IMetaAnim
@@ -12,4 +12,4 @@ class IMetaAnim
 
 }
 
-#endif // __RETRO_IMETAANIM_HPP__
+#endif // __PSHAG_IMETAANIM_HPP__

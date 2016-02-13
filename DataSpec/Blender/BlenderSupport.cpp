@@ -5,7 +5,7 @@
 extern "C" uint8_t RETRO_MASTER_SHADER[];
 extern "C" size_t RETRO_MASTER_SHADER_SZ;
 
-namespace Retro
+namespace DataSpec
 {
 namespace Blender
 {

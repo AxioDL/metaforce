@@ -3,7 +3,7 @@
 #include "CRandom16.hpp"
 #include <math.h>
 
-namespace Retro
+namespace pshag
 {
 
 CVEKeyframeEmitter::CVEKeyframeEmitter(CInputStream& in)

@@ -1,12 +1,12 @@
-#ifndef __RETRO_CANIMATIONDATABASE_HPP__
-#define __RETRO_CANIMATIONDATABASE_HPP__
+#ifndef __PSHAG_CANIMATIONDATABASE_HPP__
+#define __PSHAG_CANIMATIONDATABASE_HPP__
 
 #include "../RetroTypes.hpp"
 #include <vector>
 #include <set>
 #include <string>
 
-namespace Retro
+namespace pshag
 {
 class IMetaAnim;
 class CPrimitive;
@@ -23,4 +23,4 @@ public:
 
 }
 
-#endif // __RETRO_CANIMATIONDATABASE_HPP__
+#endif // __PSHAG_CANIMATIONDATABASE_HPP__

@@ -1,10 +1,10 @@
-#ifndef __RETRO_IFACTORY_HPP__
-#define __RETRO_IFACTORY_HPP__
+#ifndef __PSHAG_IFACTORY_HPP__
+#define __PSHAG_IFACTORY_HPP__
 
 #include <memory>
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CVParamTransfer;
 class IObj;
@@ -22,4 +22,4 @@ public:
 
 }
 
-#endif // __RETRO_IFACTORY_HPP__
+#endif // __PSHAG_IFACTORY_HPP__

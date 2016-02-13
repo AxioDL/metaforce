@@ -3,7 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakGame.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

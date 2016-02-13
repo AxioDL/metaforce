@@ -1,10 +1,10 @@
-#ifndef __RETRO_CARCHITECTUREQUEUE_HPP__
-#define __RETRO_CARCHITECTUREQUEUE_HPP__
+#ifndef __PSHAG_CARCHITECTUREQUEUE_HPP__
+#define __PSHAG_CARCHITECTUREQUEUE_HPP__
 
 #include <list>
 #include "CArchitectureMessage.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CArchitectureQueue
@@ -27,4 +27,4 @@ public:
 
 }
 
-#endif // __RETRO_CARCHITECTUREQUEUE_HPP__
+#endif // __PSHAG_CARCHITECTUREQUEUE_HPP__

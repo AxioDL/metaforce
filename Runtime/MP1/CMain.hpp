@@ -1,5 +1,5 @@
-#ifndef __RETRO_CMAIN_HPP__
-#define __RETRO_CMAIN_HPP__
+#ifndef __PSHAG_CMAIN_HPP__
+#define __PSHAG_CMAIN_HPP__
 
 #include <boo/boo.hpp>
 #include "CMemory.hpp"
@@ -7,7 +7,7 @@
 #include "CPlayMovie.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CStopwatch;
 
@@ -69,4 +69,4 @@ extern CMain* g_main;
 }
 }
 
-#endif // __RETRO_CMAIN_HPP__
+#endif // __PSHAG_CMAIN_HPP__

@@ -1,10 +1,10 @@
-#ifndef __RETRO_CPARTICLEELECTRIC_HPP__
-#define __RETRO_CPARTICLEELECTRIC_HPP__
+#ifndef __PSHAG_CPARTICLEELECTRIC_HPP__
+#define __PSHAG_CPARTICLEELECTRIC_HPP__
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CElectricDescription;
 
@@ -40,4 +40,4 @@ public:
 
 }
 
-#endif // __RETRO_CPARTICLEELECTRIC_HPP__
+#endif // __PSHAG_CPARTICLEELECTRIC_HPP__

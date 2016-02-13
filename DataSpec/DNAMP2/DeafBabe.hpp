@@ -3,7 +3,7 @@
 
 #include "../DNAMP1/DeafBabe.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP2
 {

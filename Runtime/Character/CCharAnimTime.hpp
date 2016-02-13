@@ -1,7 +1,7 @@
-#ifndef __RETRO_CCHARANIMTIME_HPP__
-#define __RETRO_CCHARANIMTIME_HPP__
+#ifndef __PSHAG_CCHARANIMTIME_HPP__
+#define __PSHAG_CCHARANIMTIME_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CCharAnimTime
@@ -59,4 +59,4 @@ public:
 };
 }
 
-#endif // __RETRO_CCHARANIMTIME_HPP__
+#endif // __PSHAG_CCHARANIMTIME_HPP__

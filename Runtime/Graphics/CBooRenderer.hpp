@@ -1,7 +1,7 @@
-#ifndef __RETRO_CBOORENDERER_HPP__
-#define __RETRO_CBOORENDERER_HPP__
+#ifndef __PSHAG_CBOORENDERER_HPP__
+#define __PSHAG_CBOORENDERER_HPP__
 
-namespace Retro
+namespace pshag
 {
 class IObjectStore;
 class CMemorySys;
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // __RETRO_CBOORENDERER_HPP__
+#endif // __PSHAG_CBOORENDERER_HPP__

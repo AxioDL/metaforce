@@ -1,10 +1,10 @@
-#ifndef __RETRO_CIOWIN_HPP__
-#define __RETRO_CIOWIN_HPP__
+#ifndef __PSHAG_CIOWIN_HPP__
+#define __PSHAG_CIOWIN_HPP__
 
 #include <string>
 #include <memory>
 
-namespace Retro
+namespace pshag
 {
 class CArchitectureMessage;
 class CArchitectureQueue;
@@ -38,4 +38,4 @@ static bool operator==(std::shared_ptr<CIOWin> a, std::shared_ptr<CIOWin> b)
 
 }
 
-#endif // __RETRO_CIOWIN_HPP__
+#endif // __PSHAG_CIOWIN_HPP__

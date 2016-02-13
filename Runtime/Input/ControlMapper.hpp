@@ -1,7 +1,7 @@
-#ifndef __RETRO_CCONTROLMAPPER_HPP__
-#define __RETRO_CCONTROLMAPPER_HPP__
+#ifndef __PSHAG_CCONTROLMAPPER_HPP__
+#define __PSHAG_CCONTROLMAPPER_HPP__
 
-namespace Retro
+namespace pshag
 {
 class CFinalInput;
 
@@ -112,4 +112,4 @@ public:
 
 }
 
-#endif // __RETRO_CCONTROLMAPPER_HPP__
+#endif // __PSHAG_CCONTROLMAPPER_HPP__

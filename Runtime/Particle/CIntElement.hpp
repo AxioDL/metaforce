@@ -1,9 +1,9 @@
-#ifndef __RETRO_CINTELEMENT_HPP__
-#define __RETRO_CINTELEMENT_HPP__
+#ifndef __PSHAG_CINTELEMENT_HPP__
+#define __PSHAG_CINTELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CIEKeyframeEmitter : public CIntElement
@@ -192,4 +192,4 @@ public:
 
 }
 
-#endif // __RETRO_CINTELEMENT_HPP__
+#endif // __PSHAG_CINTELEMENT_HPP__

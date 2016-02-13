@@ -7,7 +7,7 @@
 #include <NOD/NOD.hpp>
 #include "BlenderConnection.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 struct SpecBase : HECL::Database::IDataSpec

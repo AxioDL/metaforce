@@ -1,6 +1,6 @@
 #include "CParticleSwoosh.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int)

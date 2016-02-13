@@ -3,7 +3,7 @@
 
 #include "DNACommon.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNACommon
 {

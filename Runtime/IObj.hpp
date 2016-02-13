@@ -1,9 +1,9 @@
-#ifndef __RETRO_IOBJ_HPP__
-#define __RETRO_IOBJ_HPP__
+#ifndef __PSHAG_IOBJ_HPP__
+#define __PSHAG_IOBJ_HPP__
 
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IObj
@@ -35,4 +35,4 @@ public:
 
 }
 
-#endif // __RETRO_IOBJ_HPP__
+#endif // __PSHAG_IOBJ_HPP__

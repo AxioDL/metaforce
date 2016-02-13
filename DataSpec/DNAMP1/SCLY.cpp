@@ -1,7 +1,7 @@
 #include "SCLY.hpp"
 #include "ScriptObjects/ScriptTypes.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

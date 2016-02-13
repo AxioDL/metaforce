@@ -1,9 +1,9 @@
-#ifndef __RETRO_CKEYBOARDMOUSECONTROLLER_HPP__
-#define __RETRO_CKEYBOARDMOUSECONTROLLER_HPP__
+#ifndef __PSHAG_CKEYBOARDMOUSECONTROLLER_HPP__
+#define __PSHAG_CKEYBOARDMOUSECONTROLLER_HPP__
 
 #include <boo/boo.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 struct CKeyboardMouseControllerData
@@ -18,4 +18,4 @@ struct CKeyboardMouseControllerData
 
 }
 
-#endif // __RETRO_CKEYBOARDMOUSECONTROLLER_HPP__
+#endif // __PSHAG_CKEYBOARDMOUSECONTROLLER_HPP__

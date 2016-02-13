@@ -1,5 +1,5 @@
-#ifndef __RETRO_IELEMENT_HPP__
-#define __RETRO_IELEMENT_HPP__
+#ifndef __PSHAG_IELEMENT_HPP__
+#define __PSHAG_IELEMENT_HPP__
 
 #include <memory>
 #include "GCNTypes.hpp"
@@ -7,7 +7,7 @@
 #include "CColor.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class IElement
@@ -56,4 +56,4 @@ public:
 
 }
 
-#endif // __RETRO_IELEMENT_HPP__
+#endif // __PSHAG_IELEMENT_HPP__

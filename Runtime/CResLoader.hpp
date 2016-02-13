@@ -1,5 +1,5 @@
-#ifndef __RETRO_CRESLOADER_HPP__
-#define __RETRO_CRESLOADER_HPP__
+#ifndef __PSHAG_CRESLOADER_HPP__
+#define __PSHAG_CRESLOADER_HPP__
 
 #include <memory>
 #include <string>
@@ -7,7 +7,7 @@
 #include "CPakFile.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 struct SObjectTag;
 class IDvdRequest;
@@ -48,4 +48,4 @@ public:
 
 }
 
-#endif // __RETRO_CRESLOADER_HPP__
+#endif // __PSHAG_CRESLOADER_HPP__

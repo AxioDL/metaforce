@@ -11,7 +11,7 @@
 #include "ANIM.hpp"
 #include "Athena/FileReader.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

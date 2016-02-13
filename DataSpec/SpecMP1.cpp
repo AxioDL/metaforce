@@ -10,7 +10,7 @@
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/ANCS.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 static LogVisor::LogModule Log("Retro::SpecMP1");

@@ -1,6 +1,6 @@
 #include "CTexture.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CTexture::Load(int slot, EClampMode clamp)

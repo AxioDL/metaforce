@@ -3,7 +3,7 @@
 
 #include "CBasics.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 void CBasics::Init()

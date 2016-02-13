@@ -1,10 +1,10 @@
-#ifndef __RETRO_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
-#define __RETRO_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
+#ifndef __PSHAG_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
+#define __PSHAG_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
 
 #include "IOStreams.hpp"
 #include "CToken.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CSimplePool;
 class CGenDescription;
@@ -40,4 +40,4 @@ public:
 
 }
 
-#endif // __RETRO_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
+#endif // __PSHAG_CSPAWNSYSTEMKEYFRAMEDATA_HPP__

@@ -2,7 +2,7 @@
 #include "CDecalDescription.hpp"
 #include "CSimplePool.hpp"
 
-namespace Retro
+namespace pshag
 {
 std::unique_ptr<IObj> FDealDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
 {

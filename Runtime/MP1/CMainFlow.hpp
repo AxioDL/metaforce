@@ -1,9 +1,9 @@
-#ifndef __RETRO_CMAINFLOW_HPP__
-#define __RETRO_CMAINFLOW_HPP__
+#ifndef __PSHAG_CMAINFLOW_HPP__
+#define __PSHAG_CMAINFLOW_HPP__
 
 #include "CMainFlowBase.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CArchitectureMessage;
 class CArchitectureQueue;
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __RETRO_CMAINFLOW_HPP__
+#endif // __PSHAG_CMAINFLOW_HPP__

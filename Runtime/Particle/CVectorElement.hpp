@@ -1,9 +1,9 @@
-#ifndef __RETRO_CVECTORELEMENT_HPP__
-#define __RETRO_CVECTORELEMENT_HPP__
+#ifndef __PSHAG_CVECTORELEMENT_HPP__
+#define __PSHAG_CVECTORELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CVEKeyframeEmitter : public CVectorElement
@@ -205,4 +205,4 @@ public:
 
 }
 
-#endif // __RETRO_CVECTORELEMENT_HPP__
+#endif // __PSHAG_CVECTORELEMENT_HPP__

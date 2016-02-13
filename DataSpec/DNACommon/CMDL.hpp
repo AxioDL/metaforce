@@ -9,7 +9,7 @@
 #include "GX.hpp"
 #include "TXTR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNACMDL
 {

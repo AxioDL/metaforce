@@ -1,9 +1,9 @@
-#ifndef __RETRO_CPLAYMOVIE_HPP__
-#define __RETRO_CPLAYMOVIE_HPP__
+#ifndef __PSHAG_CPLAYMOVIE_HPP__
+#define __PSHAG_CPLAYMOVIE_HPP__
 
 #include "CPlayMovieBase.hpp"
 
-namespace Retro
+namespace pshag
 {
 namespace MP1
 {
@@ -27,4 +27,4 @@ public:
 }
 }
 
-#endif // __RETRO_CPLAYMOVIE_HPP__
+#endif // __PSHAG_CPLAYMOVIE_HPP__

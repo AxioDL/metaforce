@@ -1,6 +1,6 @@
 #include "DNACommon.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 LogVisor::LogModule LogDNACommon("Retro::DNACommon");

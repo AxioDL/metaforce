@@ -1,9 +1,9 @@
-#ifndef __RETRO_CINGAMETWEAKMANAGER_HPP__
-#define __RETRO_CINGAMETWEAKMANAGER_HPP__
+#ifndef __PSHAG_CINGAMETWEAKMANAGER_HPP__
+#define __PSHAG_CINGAMETWEAKMANAGER_HPP__
 
 #include "CInGameTweakManagerBase.hpp"
 
-namespace Retro
+namespace pshag
 {
 namespace MP1
 {
@@ -17,4 +17,4 @@ public:
 }
 }
 
-#endif // __RETRO_CINGAMETWEAKMANAGER_HPP__
+#endif // __PSHAG_CINGAMETWEAKMANAGER_HPP__

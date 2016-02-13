@@ -7,7 +7,7 @@
 #include "../DNACommon/MAPA.hpp"
 #include "DNAMP1.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

@@ -1,7 +1,7 @@
 #include "IOStreams.hpp"
 #include "CMemory.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CZipSupport

@@ -1,9 +1,9 @@
-#ifndef __RETRO_CAUDIOSTATEWIN_HPP__
-#define __RETRO_CAUDIOSTATEWIN_HPP__
+#ifndef __PSHAG_CAUDIOSTATEWIN_HPP__
+#define __PSHAG_CAUDIOSTATEWIN_HPP__
 
 #include "../CIOWin.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CAudioStateWin : public CIOWin
@@ -18,4 +18,4 @@ public:
 
 }
 
-#endif // __RETRO_CAUDIOSTATEWIN_HPP__
+#endif // __PSHAG_CAUDIOSTATEWIN_HPP__

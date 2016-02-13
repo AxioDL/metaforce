@@ -1,10 +1,10 @@
-#ifndef __RETRO_COBJECTLIST_HPP__
-#define __RETRO_COBJECTLIST_HPP__
+#ifndef __PSHAG_COBJECTLIST_HPP__
+#define __PSHAG_COBJECTLIST_HPP__
 
 #include "CEntity.hpp"
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 enum class EGameObjectList
@@ -95,4 +95,4 @@ public:
 
 }
 
-#endif // __RETRO_COBJECTLIST_HPP__
+#endif // __PSHAG_COBJECTLIST_HPP__

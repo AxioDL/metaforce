@@ -37,7 +37,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 
-namespace Retro
+namespace pshag
 {
 CMemoryCardSys* g_MemoryCardSys = nullptr;
 CResFactory*  g_ResFactory = nullptr;
@@ -216,7 +216,7 @@ int main(int argc, const char* argv[])
 #endif
 
     LogVisor::RegisterConsoleLogger();
-    Retro::TOneStatic<Retro::MP1::CMain> main;
+    pshag::TOneStatic<pshag::MP1::CMain> main;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,
                                   _S("mp1"), _S("MP1"), argc, argv);
     return ret;

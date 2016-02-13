@@ -1,12 +1,12 @@
-#ifndef __RETRO_CPARTICLESWOOSHDATAFACTORY_HPP__
-#define __RETRO_CPARTICLESWOOSHDATAFACTORY_HPP__
+#ifndef __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__
+#define __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CSwooshDescription;
 class CSimplePool;
@@ -21,4 +21,4 @@ public:
 std::unique_ptr<IObj> FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __RETRO_CPARTICLESWOOSHDATAFACTORY_HPP__
+#endif // __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__

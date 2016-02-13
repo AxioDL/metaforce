@@ -3,7 +3,7 @@
 #include "CRandom16.hpp"
 #include <math.h>
 
-namespace Retro
+namespace pshag
 {
 
 bool CMVEImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const

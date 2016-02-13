@@ -1,7 +1,7 @@
 #include "CGraphics.hpp"
 #include <Math.hpp>
 
-namespace Retro
+namespace pshag
 {
 
 u32 CGraphics::g_NumLightsActive = 0;

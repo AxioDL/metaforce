@@ -1,9 +1,9 @@
-#ifndef __RETRO_CPARTICLEGLOBALS_HPP__
-#define __RETRO_CPARTICLEGLOBALS_HPP__
+#ifndef __PSHAG_CPARTICLEGLOBALS_HPP__
+#define __PSHAG_CPARTICLEGLOBALS_HPP__
 
 #include "CVector3f.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CParticleGlobals
@@ -51,4 +51,4 @@ public:
 
 }
 
-#endif // __RETRO_CPARTICLEGLOBALS_HPP__
+#endif // __PSHAG_CPARTICLEGLOBALS_HPP__

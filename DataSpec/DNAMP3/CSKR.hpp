@@ -6,7 +6,7 @@
 #include "CINF.hpp"
 #include "../DNAMP2/CSKR.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

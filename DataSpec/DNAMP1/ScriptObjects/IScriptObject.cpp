@@ -1,7 +1,7 @@
 #include "IScriptObject.hpp"
 #include "ScriptTypes.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

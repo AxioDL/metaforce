@@ -7,11 +7,11 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
 
-namespace Retro
+namespace pshag
 {
-ITweakGame*   g_tweakGame = nullptr;
-ITweakPlayer* g_tweakPlayer = nullptr;
-ITweakPlayerControl* g_tweakPlayerControl = nullptr;
+DataSpec::ITweakGame*   g_tweakGame = nullptr;
+DataSpec::ITweakPlayer* g_tweakPlayer = nullptr;
+DataSpec::ITweakPlayerControl* g_tweakPlayerControl = nullptr;
 
 namespace MP1
 {

@@ -3,7 +3,7 @@
 #include "CGraphics.hpp"
 #endif
 
-namespace Retro
+namespace pshag
 {
 CTimeProvider* CTimeProvider::g_currentTimeProvider = nullptr;
 CTimeProvider::CTimeProvider(const float& time)

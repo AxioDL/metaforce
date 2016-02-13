@@ -1,6 +1,6 @@
 #include "CParticleElectric.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& desc)

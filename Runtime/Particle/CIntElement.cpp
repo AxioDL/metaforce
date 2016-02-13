@@ -2,7 +2,7 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in)

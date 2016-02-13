@@ -1,7 +1,7 @@
-#ifndef __RETRO_CDECALMANAGER_HPP__
-#define __RETRO_CDECALMANAGER_HPP__
+#ifndef __PSHAG_CDECALMANAGER_HPP__
+#define __PSHAG_CDECALMANAGER_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CDecalManager
@@ -14,4 +14,4 @@ public:
 
 }
 
-#endif // __RETRO_CDECALMANAGER_HPP__
+#endif // __PSHAG_CDECALMANAGER_HPP__

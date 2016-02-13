@@ -1,9 +1,9 @@
-#ifndef __RETRO_CGAMEDEBUG_HPP__
-#define __RETRO_CGAMEDEBUG_HPP__
+#ifndef __PSHAG_CGAMEDEBUG_HPP__
+#define __PSHAG_CGAMEDEBUG_HPP__
 
 #include <string>
 
-namespace Retro
+namespace pshag
 {
 class CFinalInput;
 
@@ -53,4 +53,4 @@ public:
 
 }
 
-#endif // __RETRO_CGAMEDEBUG_HPP__
+#endif // __PSHAG_CGAMEDEBUG_HPP__

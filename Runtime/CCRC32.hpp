@@ -2,7 +2,7 @@
 #define RETRO_CRC32_HPP
 #include <cstdint>
 
-namespace Retro
+namespace pshag
 {
 
 class CCRC32

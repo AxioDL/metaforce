@@ -1,7 +1,7 @@
-#ifndef __RETRO_CSFXHANDLE_HPP__
-#define __RETRO_CSFXHANDLE_HPP__
+#ifndef __PSHAG_CSFXHANDLE_HPP__
+#define __PSHAG_CSFXHANDLE_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CSfxHandle
@@ -10,4 +10,4 @@ class CSfxHandle
 
 }
 
-#endif // __RETRO_CSFXHANDLE_HPP__
+#endif // __PSHAG_CSFXHANDLE_HPP__

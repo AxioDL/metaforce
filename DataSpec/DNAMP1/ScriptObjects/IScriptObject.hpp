@@ -4,7 +4,7 @@
 #include "../DNAMP1.hpp"
 #include <stdio.h>
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

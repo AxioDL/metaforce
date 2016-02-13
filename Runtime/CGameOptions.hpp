@@ -1,9 +1,9 @@
-#ifndef __RETRO_CGAMEOPTIONS_HPP__
-#define __RETRO_CGAMEOPTIONS_HPP__
+#ifndef __PSHAG_CGAMEOPTIONS_HPP__
+#define __PSHAG_CGAMEOPTIONS_HPP__
 
 #include "RetroTypes.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CGameOptions
@@ -19,4 +19,4 @@ class CGameOptions
 
 }
 
-#endif // __RETRO_CGAMEOPTIONS_HPP__
+#endif // __PSHAG_CGAMEOPTIONS_HPP__

@@ -1,11 +1,11 @@
-#ifndef __RETRO_CDECALDESCRIPTION_HPP__
-#define __RETRO_CDECALDESCRIPTION_HPP__
+#ifndef __PSHAG_CDECALDESCRIPTION_HPP__
+#define __PSHAG_CDECALDESCRIPTION_HPP__
 
-namespace Retro
+namespace pshag
 {
 class CDecalDescription
 {
 };
 
 }
-#endif // __RETRO_CDECALDESCRIPTION_HPP__
+#endif // __PSHAG_CDECALDESCRIPTION_HPP__

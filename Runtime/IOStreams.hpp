@@ -1,5 +1,5 @@
-#ifndef __RETRO_IOSTREAMS_HPP__
-#define __RETRO_IOSTREAMS_HPP__
+#ifndef __PSHAG_IOSTREAMS_HPP__
+#define __PSHAG_IOSTREAMS_HPP__
 
 #include "RetroTypes.hpp"
 #include <Athena/IStreamReader.hpp>
@@ -7,7 +7,7 @@
 #include <Athena/MemoryReader.hpp>
 #include <zlib.h>
 
-namespace Retro
+namespace pshag
 {
 
 using CInputStream = Athena::io::IStreamReader;
@@ -31,4 +31,4 @@ public:
 
 }
 
-#endif // __RETRO_IOSTREAMS_HPP__
+#endif // __PSHAG_IOSTREAMS_HPP__

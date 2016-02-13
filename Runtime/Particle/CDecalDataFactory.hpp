@@ -1,5 +1,5 @@
-#ifndef __RETRO_CDECALDATAFACTORY_HPP__
-#define __RETRO_CDECALDATAFACTORY_HPP__
+#ifndef __PSHAG_CDECALDATAFACTORY_HPP__
+#define __PSHAG_CDECALDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "IObj.hpp"
@@ -7,7 +7,7 @@
 #include "IOStreams.hpp"
 
 
-namespace Retro
+namespace pshag
 {
 class CDecalDescription;
 class CSimplePool;
@@ -22,4 +22,4 @@ public:
 
 std::unique_ptr<IObj> FDealDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
-#endif // __RETRO_CDECALDATAFACTORY_HPP__
+#endif // __PSHAG_CDECALDATAFACTORY_HPP__

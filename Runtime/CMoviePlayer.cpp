@@ -1,6 +1,6 @@
 #include "CMoviePlayer.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CMoviePlayer::CMoviePlayer(const char* path, float startTime, bool flag)

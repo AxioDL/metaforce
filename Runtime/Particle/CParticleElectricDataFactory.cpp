@@ -4,7 +4,7 @@
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
-namespace Retro
+namespace pshag
 {
 static LogVisor::LogModule Log("Retro::CParticleElectricDataFactory");
 
@@ -88,7 +88,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         break;
         case SBIG('SSWH'):
             desc->x40_SSWH = CPF::GetSwooshGeneratorDesc(in, resPool);
-            break;
+        break;
         case SBIG('GPSM'):
         {
             std::vector<TResId> tracker;
@@ -118,7 +118,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
     return true;
 }
 
-std::unique_ptr<Retro::IObj> FParticleElecrticFactory(const Retro::SObjectTag &tag, Retro::CInputStream &in, const Retro::CVParamTransfer &vparms)
+std::unique_ptr<pshag::IObj> FParticleElecrticFactory(const pshag::SObjectTag &tag, pshag::CInputStream &in, const pshag::CVParamTransfer &vparms)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
     return TToken<CElectricDescription>::GetIObjObjectFor(std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));

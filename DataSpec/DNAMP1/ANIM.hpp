@@ -6,7 +6,7 @@
 #include "../DNACommon/ANIM.hpp"
 #include "CINF.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP1
 {

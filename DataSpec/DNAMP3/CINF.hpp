@@ -5,7 +5,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNAMP2/CINF.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

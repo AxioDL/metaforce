@@ -10,7 +10,7 @@
 
 #include <time.h>
 
-namespace Retro
+namespace DataSpec
 {
 
 static LogVisor::LogModule Log("Retro::SpecBase");
@@ -85,7 +85,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 
 void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 {
-    Retro::g_curSpec = this;
+    DataSpec::g_curSpec = this;
     if (!Blender::BuildMasterShader(m_masterShader))
         Log.report(LogVisor::FatalError, "Unable to build master shader blend");
     if (m_isWii)
@@ -153,7 +153,7 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
 void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath,
                       bool fast, FCookProgress progress)
 {
-    Retro::g_curSpec = this;
+    DataSpec::g_curSpec = this;
     if (HECL::IsPathBlend(path))
     {
         HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();

@@ -1,12 +1,12 @@
-#ifndef __RETRO_CPARTICLEDATAFACTORY_HPP__
-#define __RETRO_CPARTICLEDATAFACTORY_HPP__
+#ifndef __PSHAG_CPARTICLEDATAFACTORY_HPP__
+#define __PSHAG_CPARTICLEDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CGenDescription;
 class CSwooshDescription;
@@ -82,4 +82,4 @@ std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in, 
 
 }
 
-#endif // __RETRO_CPARTICLEDATAFACTORY_HPP__
+#endif // __PSHAG_CPARTICLEDATAFACTORY_HPP__

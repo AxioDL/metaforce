@@ -1,9 +1,9 @@
-#ifndef __RETRO_CINGAMETWEAKMANAGERBASE_HPP__
-#define __RETRO_CINGAMETWEAKMANAGERBASE_HPP__
+#ifndef __PSHAG_CINGAMETWEAKMANAGERBASE_HPP__
+#define __PSHAG_CINGAMETWEAKMANAGERBASE_HPP__
 
 #include <string>
 
-namespace Retro
+namespace pshag
 {
 
 class CInGameTweakManagerBase
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // __RETRO_CINGAMETWEAKMANAGERBASE_HPP__
+#endif // __PSHAG_CINGAMETWEAKMANAGERBASE_HPP__

@@ -1,9 +1,9 @@
-#ifndef __RETRO_CMODVECTORELEMENT_HPP__
-#define __RETRO_CMODVECTORELEMENT_HPP__
+#ifndef __PSHAG_CMODVECTORELEMENT_HPP__
+#define __PSHAG_CMODVECTORELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CMVEImplosion : public CModVectorElement
@@ -155,4 +155,4 @@ public:
 
 }
 
-#endif // __RETRO_CMODVECTORELEMENT_HPP__
+#endif // __PSHAG_CMODVECTORELEMENT_HPP__

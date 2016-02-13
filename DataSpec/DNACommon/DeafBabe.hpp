@@ -4,7 +4,7 @@
 #include "DNACommon.hpp"
 #include "BlenderConnection.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 template<class DEAFBABE>

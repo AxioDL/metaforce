@@ -1,7 +1,7 @@
-#ifndef __RETRO_CWARP_HPP__
-#define __RETRO_CWARP_HPP__
+#ifndef __PSHAG_CWARP_HPP__
+#define __PSHAG_CWARP_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CWarp
@@ -10,4 +10,4 @@ class CWarp
 
 }
 
-#endif // __RETRO_CWARP_HPP__
+#endif // __PSHAG_CWARP_HPP__

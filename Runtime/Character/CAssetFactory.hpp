@@ -1,10 +1,10 @@
-#ifndef __RETRO_CASSETFACTORY_HPP__
-#define __RETRO_CASSETFACTORY_HPP__
+#ifndef __PSHAG_CASSETFACTORY_HPP__
+#define __PSHAG_CASSETFACTORY_HPP__
 
 #include "../IFactory.hpp"
 #include "../IObj.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CCharacterFactoryBuilder : public IFactory
 {
@@ -17,4 +17,4 @@ public:
 };
 }
 
-#endif // __RETRO_CASSETFACTORY_HPP__
+#endif // __PSHAG_CASSETFACTORY_HPP__

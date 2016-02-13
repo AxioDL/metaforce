@@ -1,9 +1,9 @@
-#ifndef __RETRO_CREALELEMENT_HPP__
-#define __RETRO_CREALELEMENT_HPP__
+#ifndef __PSHAG_CREALELEMENT_HPP__
+#define __PSHAG_CREALELEMENT_HPP__
 
 #include "IElement.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CREKeyframeEmitter : public CRealElement
@@ -367,4 +367,4 @@ public:
 };
 }
 
-#endif // __RETRO_CREALELEMENT_HPP__
+#endif // __PSHAG_CREALELEMENT_HPP__

@@ -1,7 +1,7 @@
-#ifndef __RETRO_IOBJECTSTORE_HPP__
-#define __RETRO_IOBJECTSTORE_HPP__
+#ifndef __PSHAG_IOBJECTSTORE_HPP__
+#define __PSHAG_IOBJECTSTORE_HPP__
 
-namespace Retro
+namespace pshag
 {
 struct SObjectTag;
 class CVParamTransfer;
@@ -24,4 +24,4 @@ public:
 
 }
 
-#endif // __RETRO_IOBJECTSTORE_HPP__
+#endif // __PSHAG_IOBJECTSTORE_HPP__

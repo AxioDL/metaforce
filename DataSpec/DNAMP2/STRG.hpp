@@ -5,7 +5,7 @@
 #include "../DNACommon/PAK.hpp"
 #include "../DNACommon/STRG.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP2
 {

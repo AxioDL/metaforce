@@ -3,7 +3,7 @@
 #include "TXTR.hpp"
 #include "PAK.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 
 static LogVisor::LogModule Log("libpng");

@@ -1,6 +1,6 @@
 #include "CFrontEndUI.hpp"
 
-namespace Retro
+namespace pshag
 {
 namespace MP1
 {

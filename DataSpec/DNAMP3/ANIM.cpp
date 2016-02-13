@@ -2,7 +2,7 @@
 #include <float.h>
 #include <math.h>
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAMP3
 {

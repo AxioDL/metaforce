@@ -5,7 +5,7 @@
 #include "PAK.hpp"
 #include "Athena/FileWriter.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAParticle
 {

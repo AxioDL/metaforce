@@ -1,5 +1,5 @@
-#ifndef __RETRO_TYPES_HPP__
-#define __RETRO_TYPES_HPP__
+#ifndef __PSHAG_TYPES_HPP__
+#define __PSHAG_TYPES_HPP__
 
 #include <vector>
 #include <utility>
@@ -8,7 +8,7 @@
 #include "rstl.hpp"
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 using FourCC = HECL::FourCC;
@@ -70,11 +70,11 @@ using TAreaId = u32;
 namespace std
 {
 template<>
-struct hash<Retro::SObjectTag>
+struct hash<pshag::SObjectTag>
 {
-    inline size_t operator()(const Retro::SObjectTag& tag) const
+    inline size_t operator()(const pshag::SObjectTag& tag) const
     {return tag.id;}
 };
 }
 
-#endif // __RETRO_TYPES_HPP__
+#endif // __PSHAG_TYPES_HPP__

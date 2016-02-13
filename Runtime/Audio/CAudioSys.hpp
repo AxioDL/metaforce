@@ -1,10 +1,10 @@
-#ifndef __RETRO_CAUDIOSYS_HPP__
-#define __RETRO_CAUDIOSYS_HPP__
+#ifndef __PSHAG_CAUDIOSYS_HPP__
+#define __PSHAG_CAUDIOSYS_HPP__
 
 #include "../GCNTypes.hpp"
 #include "CVector3f.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CAudioSys
@@ -29,4 +29,4 @@ public:
 
 }
 
-#endif // __RETRO_CAUDIOSYS_HPP__
+#endif // __PSHAG_CAUDIOSYS_HPP__

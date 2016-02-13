@@ -1,6 +1,6 @@
 #include "ParticleCommon.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAParticle
 {

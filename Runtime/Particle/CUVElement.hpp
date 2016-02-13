@@ -1,11 +1,11 @@
-#ifndef __RETRO_CUVELEMENT_HPP__
-#define __RETRO_CUVELEMENT_HPP__
+#ifndef __PSHAG_CUVELEMENT_HPP__
+#define __PSHAG_CUVELEMENT_HPP__
 
 #include "IElement.hpp"
 #include "CToken.hpp"
 #include "CTexture.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CToken;
 
@@ -63,4 +63,4 @@ public:
 
 }
 
-#endif // __RETRO_CUVELEMENT_HPP__
+#endif // __PSHAG_CUVELEMENT_HPP__

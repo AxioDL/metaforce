@@ -1,10 +1,10 @@
-#ifndef __RETRO_CFRONTENDUI_HPP__
-#define __RETRO_CFRONTENDUI_HPP__
+#ifndef __PSHAG_CFRONTENDUI_HPP__
+#define __PSHAG_CFRONTENDUI_HPP__
 
 #include "CIOWin.hpp"
 #include "CGameDebug.hpp"
 
-namespace Retro
+namespace pshag
 {
 class CGuiSliderGroup;
 class CGuiTableGroup;
@@ -56,4 +56,4 @@ public:
 }
 }
 
-#endif // __RETRO_CFRONTENDUI_HPP__
+#endif // __PSHAG_CFRONTENDUI_HPP__

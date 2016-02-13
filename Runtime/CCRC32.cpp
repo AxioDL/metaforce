@@ -1,6 +1,6 @@
 #include "CCRC32.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 const uint32_t CCRC32::crc32Table[256] =

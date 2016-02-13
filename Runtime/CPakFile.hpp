@@ -1,5 +1,5 @@
-#ifndef __RETRO_CPAKFILE_HPP__
-#define __RETRO_CPAKFILE_HPP__
+#ifndef __PSHAG_CPAKFILE_HPP__
+#define __PSHAG_CPAKFILE_HPP__
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -7,7 +7,7 @@
 #include "CDvdFile.hpp"
 #include "CDvdRequest.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CPakFile : public CDvdFile
@@ -74,4 +74,4 @@ public:
 
 }
 
-#endif // __RETRO_CPAKFILE_HPP__
+#endif // __PSHAG_CPAKFILE_HPP__

@@ -1,7 +1,7 @@
 #include <Math.hpp>
 #include "CFinalInput.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 CFinalInput::CFinalInput()

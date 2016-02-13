@@ -2,7 +2,7 @@
 #include <math.h>
 #include "ANIM.hpp"
 
-namespace Retro
+namespace DataSpec
 {
 namespace DNAANIM
 {

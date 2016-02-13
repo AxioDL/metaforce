@@ -1,9 +1,9 @@
-#ifndef __RETRO_CTRANSITIONDATABASEGAME_HPP__
-#define __RETRO_CTRANSITIONDATABASEGAME_HPP__
+#ifndef __PSHAG_CTRANSITIONDATABASEGAME_HPP__
+#define __PSHAG_CTRANSITIONDATABASEGAME_HPP__
 
 #include "CTransitionDatabase.hpp"
 
-namespace Retro
+namespace pshag
 {
 
 class CTransitionDatabaseGame : public CTransitionDatabase
@@ -14,4 +14,4 @@ public:
 
 }
 
-#endif // __RETRO_CTRANSITIONDATABASEGAME_HPP__
+#endif // __PSHAG_CTRANSITIONDATABASEGAME_HPP__

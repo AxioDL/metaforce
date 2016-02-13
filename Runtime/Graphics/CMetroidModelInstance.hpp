@@ -1,7 +1,7 @@
-#ifndef __RETRO_CMETROIDMODELINSTANCE_HPP__
-#define __RETRO_CMETROIDMODELINSTANCE_HPP__
+#ifndef __PSHAG_CMETROIDMODELINSTANCE_HPP__
+#define __PSHAG_CMETROIDMODELINSTANCE_HPP__
 
-namespace Retro
+namespace pshag
 {
 
 class CMetroidModelInstance
@@ -10,4 +10,4 @@ class CMetroidModelInstance
 
 }
 
-#endif // __RETRO_CMETROIDMODELINSTANCE_HPP__
+#endif // __PSHAG_CMETROIDMODELINSTANCE_HPP__
