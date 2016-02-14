@@ -1,4 +1,5 @@
 #include "CCollisionResponseData.hpp"
+#include "CSimplePool.hpp"
 
 namespace pshag
 {

@@ -5,6 +5,8 @@
 #include "CParticleElectric.hpp"
 #include "CModel.hpp"
 
+#define MAX_GLOBAL_PARTICLES 2560
+
 namespace pshag
 {
 static LogVisor::LogModule Log("Retro::CElementGen");
@@ -16,8 +18,8 @@ int CElementGen::g_ParticleSystemAliveCount;
 s32 CElementGen::g_FreeIndex;
 bool CElementGen::g_StaticListInitialized = false;
 bool CElementGen::g_MoveRedToAlphaBuffer = false;
-static rstl::reserved_vector<CElementGen::CParticle, 2560> g_StaticParticleList;
-static rstl::reserved_vector<u16, 2560> g_StaticFreeList;
+static rstl::reserved_vector<CElementGen::CParticle, MAX_GLOBAL_PARTICLES> g_StaticParticleList;
+static rstl::reserved_vector<u16, MAX_GLOBAL_PARTICLES> g_StaticFreeList;
 void CElementGen::Initialize()
 {
     if (g_StaticListInitialized)
@@ -28,21 +30,15 @@ void CElementGen::Initialize()
     g_ParticleSystemAliveCount = 0;
 
     g_StaticParticleList.clear();
-    g_StaticParticleList.insert(g_StaticParticleList.end(), 2560, CParticle());
+    g_StaticParticleList.insert(g_StaticParticleList.end(), MAX_GLOBAL_PARTICLES, CParticle());
 
     g_StaticFreeList.clear();
-    int c=0;
-    for (int i=0 ; i<512 ; ++i)
-    {
-        g_StaticFreeList.push_back(c++);
-        g_StaticFreeList.push_back(c++);
-        g_StaticFreeList.push_back(c++);
-        g_StaticFreeList.push_back(c++);
-        g_StaticFreeList.push_back(c++);
-    }
+    for (int i=0 ; i<MAX_GLOBAL_PARTICLES ; ++i)
+        g_StaticFreeList.push_back(i);
 
-    g_FreeIndex = 2559;
-    Log.report(LogVisor::Info, "size %d (%d each part).", (56 + 2) * 2560, 56);
+    g_FreeIndex = MAX_GLOBAL_PARTICLES - 1;
+    Log.report(LogVisor::Info, "size %d (%d each part).",
+               (sizeof(CParticle) + sizeof(u16)) * MAX_GLOBAL_PARTICLES, 56);
     g_StaticListInitialized = true;
 }
 
@@ -1148,7 +1144,7 @@ void CElementGen::RenderModels()
 }
 
 void CElementGen::RenderLines()
-{
+{    
 }
 
 void CElementGen::RenderParticles()
@@ -1177,11 +1173,12 @@ void CElementGen::RenderParticles()
         }
     }
 
-    Zeus::CTransform xf(CGraphics::g_ViewMatrix);
-    Zeus::CTransform xf2 = xf.inverse() * x1d8_globalOrientation;
+    Zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+    systemViewPointMatrix.m_origin.zeroOut();
+    Zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
+    systemViewPointMatrix = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
+    CGraphics::SetModelMatrix(systemViewPointMatrix);
 
-    xf = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * xf) * x118_localScaleTransform;
-    CGraphics::SetModelMatrix(xf);
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
     SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
@@ -1219,7 +1216,7 @@ void CElementGen::RenderParticles()
         for (CParticleListItem& item : x2c_particleLists)
         {
             CParticle& particle = g_StaticParticleList[item.x0_partIdx];
-            item.x4_viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
+            item.x4_viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
         }
 
         std::sort(x2c_particleLists.begin(), x2c_particleLists.end(),
@@ -1302,7 +1299,7 @@ void CElementGen::RenderParticles()
             if (desc->x44_28_SORT)
                 viewPoint = item.x4_viewPoint;
             else
-                viewPoint = xf2 * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
+                viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x60_timeDeltaScale + particle.x10_prevPos);
 
             if (!constTexr)
             {
@@ -1390,7 +1387,7 @@ void CElementGen::RenderParticles()
                 for (int i=0 ; i<mbspVal ; ++i)
                 {
                     vec += mbspVec;
-                    Zeus::CVector3f vec2 = xf2 * vec;
+                    Zeus::CVector3f vec2 = systemCameraMatrix * vec;
                     /* Draw: */
                     /* Pos: {vec2.x + size, vec2.y, vec2.z + size}  Color: particle.color  UV0: {uv[2], uv[3]} */
                     /* Pos: {vec2.x - size, vec2.y, vec2.z + size}  Color: particle.color  UV0: {uv[0], uv[3]} */
@@ -1407,7 +1404,7 @@ void CElementGen::RenderParticles()
                 for (int i=0 ; i<mbspVal ; ++i)
                 {
                     vec += mbspVec;
-                    Zeus::CVector3f vec2 = xf2 * vec;
+                    Zeus::CVector3f vec2 = systemCameraMatrix * vec;
                     /* Draw:
                     vec2.x + sinT + cosT;
                     vec2.y;
@@ -1440,6 +1437,44 @@ void CElementGen::RenderParticlesIndirectTexture()
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
+    Zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+    systemViewPointMatrix.m_origin.zeroOut();
+    Zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
+    systemViewPointMatrix = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
+    CGraphics::SetModelMatrix(systemViewPointMatrix);
+
+    CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+
+    if (x224_26_AAPH)
+    {
+        CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+    }
+    else
+    {
+        CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, x224_27_ZBUF);
+        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
+    }
+
+    CUVElement* texr = desc->x54_TEXR.get();
+    CParticle& firstParticle = g_StaticParticleList[x2c_particleLists[0].x0_partIdx];
+    int partFrame = x50_curFrame - firstParticle.x28_startFrame;
+    CTexture* cachedTex = texr->GetValueTexture(partFrame).GetObj();
+    cachedTex->Load(0, CTexture::EClampMode::One);
+
+    SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
+    bool constTexr = texr->HasConstantTexture();
+    texr->GetValueUV(partFrame, uvs);
+    bool constUVs = texr->HasConstantUV();
+
+    CUVElement* tind = desc->x58_TIND.get();
+    CTexture* cachedIndTex = tind->GetValueTexture(partFrame).GetObj();
+    cachedIndTex->Load(2, CTexture::EClampMode::One);
+
+    SUVElementSet uvsInd = {0.f, 0.f, 1.f, 1.f};
+    bool constIndTexr = tind->HasConstantTexture();
+    bool constIndUVs = tind->HasConstantUV();
+    tind->GetValueUV(partFrame, uvsInd);
 
 }
 
