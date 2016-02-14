@@ -73,12 +73,12 @@ public:
 
 class CMVEConstant : public CModVectorElement
 {
-    std::unique_ptr<CRealElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CRealElement> x4_x;
+    std::unique_ptr<CRealElement> x8_y;
+    std::unique_ptr<CRealElement> xc_z;
 public:
     CMVEConstant(CRealElement* a, CRealElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_x(a), x8_y(b), xc_z(c) {}
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 
@@ -121,23 +121,23 @@ public:
 
 class CMVEPulse : public CModVectorElement
 {
-    std::unique_ptr<CIntElement> x4_a;
-    std::unique_ptr<CIntElement> x8_b;
-    std::unique_ptr<CModVectorElement> xc_c;
-    std::unique_ptr<CModVectorElement> x10_d;
+    std::unique_ptr<CIntElement> x4_aDuration;
+    std::unique_ptr<CIntElement> x8_bDuration;
+    std::unique_ptr<CModVectorElement> xc_aVal;
+    std::unique_ptr<CModVectorElement> x10_bVal;
 public:
     CMVEPulse(CIntElement* a, CIntElement* b, CModVectorElement* c, CModVectorElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 
 class CMVEWind : public CModVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
+    std::unique_ptr<CVectorElement> x4_direction;
+    std::unique_ptr<CRealElement> x8_speed;
 public:
     CMVEWind(CVectorElement* a, CRealElement* b)
-    : x4_a(a), x8_b(b) {}
+    : x4_direction(a), x8_speed(b) {}
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 
