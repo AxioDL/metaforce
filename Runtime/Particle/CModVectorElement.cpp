@@ -139,9 +139,10 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPo
         return false;
 
     Zeus::CVector3f delta = pPos - pVel;
-    pPos.x += ((-((((delta.z * ((delta.x * (delta.y * x18_g.y)) + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) / ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - ((x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)) * pVel.x;
-    pPos.y += ((-((((delta.z * ((delta.x * (delta.y * x18_g.y)) + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) / ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - ((x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)) * pVel.y;
-    pPos.z += ((-((((delta.z * ((delta.x * (delta.y * x18_g.y)) + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) / ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - ((x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)) * pVel.z;
+    pPos += Zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_g.y))
+                                             + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) /
+                             ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - (
+                (x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
 
     float d = 0.0f;
     x10_d->GetValue(frame, d);

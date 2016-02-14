@@ -1,6 +1,7 @@
 #include "CVectorElement.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
+#include "CParticleGen.hpp"
 #include <math.h>
 
 namespace pshag
@@ -261,51 +262,54 @@ bool CVEPulse::GetValue(int frame, Zeus::CVector3f& valOut) const
     return false;
 }
 
-bool CVEParticleVelocity::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEParticleVelocity::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_particleMetrics->x1c_pvel;
     return false;
 }
 
-bool CVESPOS::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPLCO::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_particleMetrics->x10_plco;
     return false;
 }
 
-bool CVEPLCO::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPLOC::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_particleMetrics->x0_ploc;
     return false;
 }
 
-bool CVEPLOC::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPSOF::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    Zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis[0][0];
+    valOut.y = trans.m_basis[1][1];
+    valOut.z = trans.m_basis[2][2];
     return false;
 }
 
-bool CVEPSOF::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPSOU::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    Zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis[0][0];
+    valOut.y = trans.m_basis[1][1];
+    valOut.z = trans.m_basis[2][2];
     return false;
 }
 
-bool CVEPSOU::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPSOR::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
+    Zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis[0][0];
+    valOut.y = trans.m_basis[1][1];
+    valOut.z = trans.m_basis[2][2];
     return false;
 }
 
-bool CVEPSOR::GetValue(int frame, Zeus::CVector3f& valOut) const
+bool CVEPSTR::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    /* TODO: Do */
-    return false;
-}
-
-bool CVEPSTR::GetValue(int frame, Zeus::CVector3f& valOut) const
-{
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetTranslation();
     return false;
 }
 
