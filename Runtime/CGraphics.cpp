@@ -144,60 +144,70 @@ Zeus::CVector2i CGraphics::ProjectPoint(const Zeus::CVector3f& point)
             int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y};
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromMS(const Zeus::CVector3f& pos,
-                                                const Zeus::CVector3f& extent,
-                                                ETexelFormat fmt)
+SClipScreenRect CGraphics::ClipScreenRectFromMS(const Zeus::CVector3f& p1,
+                                                const Zeus::CVector3f& p2)
 {
-    Zeus::CVector3f xfExt = (g_GXModelMatrix * extent) - g_ViewMatrix.m_origin;
+    Zeus::CVector3f xfExt = (g_GXModelMatrix * p2) - g_ViewMatrix.m_origin;
     xfExt = g_ViewMatrix.transposeRotate(xfExt);
-    Zeus::CVector3f xfPos = (g_GXModelMatrix * pos) - g_ViewMatrix.m_origin;
+    Zeus::CVector3f xfPos = (g_GXModelMatrix * p1) - g_ViewMatrix.m_origin;
     xfPos = g_ViewMatrix.transposeRotate(xfPos);
-    return ClipScreenRectFromVS(xfPos, xfExt, fmt);
+    return ClipScreenRectFromVS(xfPos, xfExt);
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& pos,
-                                                const Zeus::CVector3f& extent,
-                                                ETexelFormat fmt)
+SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
+                                                const Zeus::CVector3f& p2)
 {
-    if (pos.x == 0.f && pos.y == 0.f && pos.z == 0.f)
+    if (p1.x == 0.f && p1.y == 0.f && p1.z == 0.f)
         return {};
-    if (extent.x == 0.f && extent.y == 0.f && extent.z == 0.f)
-        return {};
-
-    if (pos.y < GetProjectionState().x14_near || extent.y < GetProjectionState().x14_near)
-        return {};
-    if (pos.y > GetProjectionState().x18_far || extent.y > GetProjectionState().x18_far)
+    if (p2.x == 0.f && p2.y == 0.f && p2.z == 0.f)
         return {};
 
-    Zeus::CVector2i pt1 = ProjectPoint(pos);
-    Zeus::CVector2i pt2 = ProjectPoint(extent);
-    int minX = std::min(pt2.x, pt1.x);
+    if (p1.y < GetProjectionState().x14_near || p2.y < GetProjectionState().x14_near)
+        return {};
+    if (p1.y > GetProjectionState().x18_far || p2.y > GetProjectionState().x18_far)
+        return {};
+
+    Zeus::CVector2i sp1 = ProjectPoint(p1);
+    Zeus::CVector2i sp2 = ProjectPoint(p2);
+    int minX = std::min(sp2.x, sp1.x);
     int minX2 = minX & 0xfffffffe;
-    int minY = std::min(pt2.y, pt1.y);
+    int minY = std::min(sp2.y, sp1.y);
     int minY2 = minY & 0xfffffffe;
 
 
     if (minX2 >= g_ViewportResolution.x)
         return {};
 
-    int minX3 = (abs(pt1.x - pt2.x) + 2 + minX) & 0xfffffffe;
-    if (minX3 <= 0 /* ViewportX origin */)
+    int maxX = abs(sp1.x - sp2.x) + minX;
+    int maxX2 = (maxX + 2) & 0xfffffffe;
+    if (maxX2 <= 0 /* ViewportX origin */)
         return {};
 
-    int outX = std::max(minX2, 0 /* ViewportX origin */);
+    int finalMinX = std::max(minX, 0 /* ViewportX origin */);
+    int finalMaxX = std::min(maxX, g_ViewportResolution.x);
 
 
     if (minY2 >= g_ViewportResolution.y)
         return {};
 
-    int minY3 = (abs(pt1.y - pt2.y) + 2 + minY) & 0xfffffffe;
-    if (minY3 <= 0 /* ViewportY origin */)
+    int maxY = abs(sp1.y - sp2.y) + minY;
+    int maxY2 = (maxY + 2) & 0xfffffffe;
+    if (maxY2 <= 0 /* ViewportY origin */)
         return {};
 
-    int outY = std::max(minY2, 0 /* ViewportY origin */);
+    int finalMinY = std::max(minY, 0 /* ViewportY origin */);
+    int finalMaxY = std::min(maxY, g_ViewportResolution.y);
 
-
+    int width = maxX2 - minX2;
+    int height = maxY2 - minY2;
+    return {true, minX2, minY2, width, height, width,
+            (finalMinX - minX2) / float(width), (finalMaxX - minX2) / float(width),
+            (finalMinY - minY2) / float(height), (finalMaxY - minY2) / float(height)};
 
 }
+
+boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
+boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
+boo::ITextureR* CGraphics::g_SpareTexture = nullptr;
 
 }

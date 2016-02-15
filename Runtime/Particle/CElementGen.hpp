@@ -11,6 +11,7 @@
 #include "CGraphics.hpp"
 #include "CRandom16.hpp"
 #include "CParticleGen.hpp"
+#include "CElementGenShaders.hpp"
 
 namespace pshag
 {
@@ -70,9 +71,8 @@ public:
         float x30_lineWidthOrRota = 0.f;
         Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
-protected:
-    CElementGen(const TToken<CGenDescription>& gen);
-
+private:
+    friend class CElementGenShaders;
     TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
@@ -119,7 +119,7 @@ protected:
     bool x225_28_warmedUp = false;
     bool x225_29_modelsUseLights = false;
     bool x226_enableOPTS;
-    int x228_MBSP;
+    int x228_MBSP = 0; int m_maxMBSP = 0;
     ERglLight x22c_backupLightActive = ERglLight::None;
     CRandom16 x230_randState;
     std::vector<std::unique_ptr<CElementGen>> x234_activePartChildren;
@@ -149,11 +149,21 @@ protected:
     float x308_LSLA = 45.f;
     Zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
 
+    CElementGenShaders::EShaderClass m_shaderClass;
+
     void AccumulateBounds(Zeus::CVector3f& pos, float size);
 
 public:
     CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
     ~CElementGen();
+
+    boo::GraphicsDataToken m_gfxToken;
+    boo::IShaderDataBinding* m_normalDataBind = nullptr;
+    boo::IShaderDataBinding* m_redToAlphaDataBind = nullptr;
+    boo::IGraphicsBufferD* m_instBuf = nullptr;
+    boo::IGraphicsBufferD* m_uniformBuf = nullptr;
+
+    CGenDescription* GetDesc() {return x1c_genDesc.GetObj();}
 
     static s32 g_FreeIndex;
     static bool g_StaticListInitialized;

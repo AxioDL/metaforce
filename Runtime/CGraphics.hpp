@@ -5,6 +5,9 @@
 #include "CTransform.hpp"
 #include "CVector2i.hpp"
 
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
+
 namespace pshag
 {
 
@@ -105,11 +108,11 @@ enum class ERglAlphaOp
 struct SClipScreenRect
 {
     bool x0_valid;
-    u32 x4_left;
-    u32 x8_top;
-    u32 xc_width;
-    u32 x10_height;
-    u32 x14_dstWidth;
+    int x4_left;
+    int x8_top;
+    int xc_width;
+    int x10_height;
+    int x14_dstWidth;
     float x18_uvXMin;
     float x1c_uvXMax;
     float x20_uvYMin;
@@ -146,6 +149,7 @@ public:
     static Zeus::CVector2i g_ViewportResolution;
     static Zeus::CVector2i g_ViewportResolutionHalf;
     static bool g_IsGXModelMatrixIdentity;
+
     static void DisableAllLights();
     static void EnableLight(ERglLight light);
     static void SetLightState(ERglLight lightState);
@@ -162,8 +166,29 @@ public:
     static void SetPerspective(float, float, float, float);
     static void FlushProjection();
     static Zeus::CVector2i ProjectPoint(const Zeus::CVector3f& point);
-    static SClipScreenRect ClipScreenRectFromMS(const Zeus::CVector3f& pos, const Zeus::CVector3f& extent, ETexelFormat);
-    static SClipScreenRect ClipScreenRectFromVS(const Zeus::CVector3f& pos, const Zeus::CVector3f& extent, ETexelFormat);
+    static SClipScreenRect ClipScreenRectFromMS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
+    static SClipScreenRect ClipScreenRectFromVS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
+
+    static boo::IGraphicsDataFactory* g_BooFactory;
+    static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
+    static boo::ITextureR* g_SpareTexture;
+
+    static boo::IGraphicsBufferD* NewDynamicGPUBuffer(boo::BufferUse use, size_t stride, size_t count)
+    {
+        return g_BooFactory->newDynamicBuffer(use, stride, count);
+    }
+    static boo::GraphicsDataToken CommitResources()
+    {
+        return g_BooFactory->commit();
+    }
+    static void SetShaderDataBinding(boo::IShaderDataBinding* binding)
+    {
+        g_BooMainCommandQueue->setShaderDataBinding(binding);
+    }
+    static void DrawInstances(size_t start, size_t count, size_t instCount)
+    {
+        g_BooMainCommandQueue->drawInstances(start, count, instCount);
+    }
 };
 
 }

@@ -1,3 +1,9 @@
+if(WIN32)
+  set(PLAT_SRCS CElementGenShadersHLSL.cpp)
+elseif(APPLE)
+  set(PLAT_SRCS CElementGenShadersMetal.cpp)
+endif()
+
 add_library(RuntimeCommonParticle
             IElement.hpp
             CGenDescription.hpp CGenDescription.cpp
@@ -25,4 +31,7 @@ add_library(RuntimeCommonParticle
             CDecalManager.hpp CDecalManager.cpp
             CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
             CWarp.hpp CWarp.cpp
-            CParticleGlobals.hpp CParticleGlobals.cpp)
+            CParticleGlobals.hpp CParticleGlobals.cpp
+            CElementGenShaders.hpp
+            CElementGenShadersGLSL.cpp
+            ${PLAT_SRCS})
