@@ -1113,6 +1113,25 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         }
         clsId = GetClassID(in);
     }
+
+    /* Now for our custom additions, if available */
+    if (!in.atEnd())
+    {
+        clsId = GetClassID(in);
+        if (clsId == 0xFFFFFFFF)
+            return true;
+
+        while (clsId != SBIG('_END') && !in.atEnd())
+        {
+            switch(clsId)
+            {
+            case SBIG('BGCL'):
+                fillDesc->m_bevelGradient.reset(GetColorElement(in));
+            break;
+            }
+            clsId = GetClassID(in);
+        }
+    }
     return true;
 }
 

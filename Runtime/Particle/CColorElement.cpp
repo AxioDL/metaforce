@@ -156,10 +156,4 @@ bool CCEParticleColor::GetValue(int /*frame*/, Zeus::CColor& colorOut) const
     return false;
 }
 
-bool CCEBevelGradient::GetValue(int frame, Zeus::CColor& colorOut) const
-{
-    m_gradientColor->GetValue(frame, colorOut);
-    return false;
-}
-
 }

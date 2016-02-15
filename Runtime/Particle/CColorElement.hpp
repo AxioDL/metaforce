@@ -92,16 +92,6 @@ class CCEParticleColor : public CColorElement
 public:
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
-
-/* Custom additions */
-class CCEBevelGradient : public CColorElement
-{
-    std::unique_ptr<CColorElement> m_gradientColor;
-public:
-    CCEBevelGradient(CColorElement* gradientCol)
-        : m_gradientColor(gradientCol) {}
-    bool GetValue(int frame, Zeus::CColor &colorOut) const;
-};
 }
 
 #endif // __PSHAG_CCOLORELEMENT_HPP__
