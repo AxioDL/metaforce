@@ -9,6 +9,8 @@
 
 namespace URDE
 {
+LogVisor::LogModule Log{"URDE"};
+
 struct Application : boo::IApplicationCallback
 {
     HECL::Runtime::FileStoreManager m_fileMgr;
@@ -24,8 +26,7 @@ struct Application : boo::IApplicationCallback
 
     int appMain(boo::IApplication* app)
     {
-        Zeus::detectCPU();
-        pshag::CElementGen::Initialize();
+        initialize(app);
         m_viewManager.init(app);
         while (m_running)
         {
@@ -43,6 +44,20 @@ struct Application : boo::IApplicationCallback
     void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&)
     {
 
+    }
+
+    void initialize(boo::IApplication* app)
+    {
+        Zeus::detectCPU();
+        pshag::CElementGen::Initialize();
+
+        const Zeus::CPUInfo& cpuInf = Zeus::cpuFeatures();
+        HECL::SystemString cpuName{reinterpret_cast<const char*>(cpuInf.cpuBrand)};
+        HECL::SystemStringView cpuNameView{cpuName};
+        HECL::SystemString cpuVendor{reinterpret_cast<const char*>(cpuInf.cpuVendor)};
+        HECL::SystemStringView cpuVendorView{cpuVendor};
+        Log.report(LogVisor::Info, _S("CPU Name: %s"), cpuNameView.sys_str().c_str());
+        Log.report(LogVisor::Info, _S("CPU Vendor: %s"), cpuVendorView.sys_str().c_str());
     }
 };
 
