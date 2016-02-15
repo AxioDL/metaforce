@@ -15,5 +15,5 @@ float CParticleGlobals::g_ParticleLifetimePercentageRemainder = 0.0;
 
 float* CParticleGlobals::g_papValues = nullptr;
 CParticleGlobals::SParticleMetrics* CParticleGlobals::g_particleMetrics = nullptr;
-
+CParticleGlobals::SParticleSystem* CParticleGlobals::g_currentParticleSystem = nullptr;
 }

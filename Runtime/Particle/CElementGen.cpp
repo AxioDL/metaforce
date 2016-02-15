@@ -295,10 +295,10 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         x248_finishPartChildren.reserve(ndsyVal + x248_finishPartChildren.size());
         for (int i=0 ; i<ndsyVal ; ++i)
         {
-            CGenDescription* chDesc = desc->xa4_IDTS.m_gen.GetObj();
+            CGenDescription* chDesc = desc->xa4_IDTS.m_token.GetObj();
             if (x226_enableOPTS && chDesc->x45_31_OPTS)
                 break;
-            x248_finishPartChildren.emplace_back(new CElementGen(desc->xa4_IDTS.m_gen,
+            x248_finishPartChildren.emplace_back(new CElementGen(desc->xa4_IDTS.m_token,
                                                  EModelOrientationType::Normal,
                                                  x226_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One));
         }
@@ -853,13 +853,13 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         if (ncsy)
             ncsy->GetValue(x50_curFrame, ncsyVal);
 
-        CGenDescription* ictsDesc = icts.m_gen.GetObj();
+        CGenDescription* ictsDesc = icts.m_token.GetObj();
         if (!(x226_enableOPTS && ictsDesc->x45_31_OPTS))
         {
             x234_activePartChildren.reserve(ncsyVal + x234_activePartChildren.size());
             for (int i=0 ; i<ncsyVal ; ++i)
             {
-                CElementGen* chGen = ConstructChildParticleSystem(icts.m_gen);
+                CElementGen* chGen = ConstructChildParticleSystem(icts.m_token);
                 x234_activePartChildren.emplace_back(chGen);
             }
         }
@@ -870,10 +870,10 @@ void CElementGen::UpdateChildParticleSystems(double dt)
         x68_particleEmission == 1 && x50_curFrame >= x258_SISY &&
         ((x50_curFrame - x258_SISY) % x25c_PISY) == 0)
     {
-        CGenDescription* iitsDesc = iits.m_gen.GetObj();
+        CGenDescription* iitsDesc = iits.m_token.GetObj();
         if (!(x226_enableOPTS && iitsDesc->x45_31_OPTS))
         {
-            CElementGen* chGen = ConstructChildParticleSystem(iits.m_gen);
+            CElementGen* chGen = ConstructChildParticleSystem(iits.m_token);
             x234_activePartChildren.emplace_back(chGen);
         }
     }
@@ -898,7 +898,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     SSwooshGeneratorDesc& sswh = desc->xd4_SSWH;
     if (sswh.m_found && x64_prevFrame != x50_curFrame && x50_curFrame == x270_SSSD)
     {
-        CParticleSwoosh* sswhGen = new CParticleSwoosh(sswh.m_swoosh, 0);
+        CParticleSwoosh* sswhGen = new CParticleSwoosh(sswh.m_token, 0);
         sswhGen->SetGlobalTranslation(x88_globalTranslation);
         sswhGen->SetGlobalScale(xa0_globalScale);
         sswhGen->SetTranslation(x7c_translation);
@@ -910,7 +910,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     SElectricGeneratorDesc& selc = desc->xec_SELC;
     if (selc.m_found && x64_prevFrame != x50_curFrame && x50_curFrame == x290_SESD)
     {
-        CParticleElectric* selcGen = new CParticleElectric(selc.m_electric);
+        CParticleElectric* selcGen = new CParticleElectric(selc.m_token);
         selcGen->SetGlobalTranslation(x88_globalTranslation);
         selcGen->SetGlobalScale(xa0_globalScale);
         selcGen->SetTranslation(x7c_translation);
@@ -1336,7 +1336,7 @@ void CElementGen::RenderModels()
         }
         else
         {
-            CModel* model = desc->x5c_PMDL.m_model.GetObj();
+            CModel* model = desc->x5c_PMDL.m_token.GetObj();
             if (desc->x44_31_PMAB)
             {
                 model->Draw({3, 0, 1, col});

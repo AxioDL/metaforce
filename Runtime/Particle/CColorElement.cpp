@@ -150,9 +150,9 @@ bool CCEPulse::GetValue(int frame, Zeus::CColor& valOut) const
     return false;
 }
 
-bool CCEParticleColor::GetValue(int frame, Zeus::CColor& colorOut) const
+bool CCEParticleColor::GetValue(int /*frame*/, Zeus::CColor& colorOut) const
 {
-    /* TODO: Do */
+    colorOut = CParticleGlobals::g_particleMetrics->x34_pcol;
     return false;
 }
 

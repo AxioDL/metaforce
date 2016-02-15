@@ -24,26 +24,30 @@ class CIntElement;
 
 struct SParticleModel
 {
-    TLockedToken<CModel> m_model;
+    TLockedToken<CModel> m_token;
     bool m_found = false;
+    CModel* m_model = nullptr;
 };
 
 struct SChildGeneratorDesc
 {
-    TLockedToken<CGenDescription> m_gen;
+    TLockedToken<CGenDescription> m_token;
     bool m_found = false;
+    CGenDescription* m_gen = nullptr;
 };
 
 struct SSwooshGeneratorDesc
 {
-    TLockedToken<CSwooshDescription> m_swoosh;
+    TLockedToken<CSwooshDescription> m_token;
     bool m_found = false;
+    CSwooshDescription* m_swoosh = nullptr;
 };
 
 struct SElectricGeneratorDesc
 {
-    TLockedToken<CElectricDescription> m_electric;
+    TLockedToken<CElectricDescription> m_token;
     bool m_found = false;
+    CElectricDescription* m_electric = nullptr;
 };
 
 class CParticleDataFactory
@@ -70,13 +74,13 @@ class CParticleDataFactory
     static int32_t GetInt(CInputStream& in);
     static bool GetBool(CInputStream& in);
     static FourCC GetClassID(CInputStream& in);
-public:
-    static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<TResId>& tracker,
                                                        TResId resId, CSimplePool* resPool);
     static bool CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
                            std::vector<TResId>& tracker, CSimplePool* resPool);
     static void LoadGPSMTokens(CGenDescription* desc);
+public:
+    static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
 std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

@@ -129,7 +129,7 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPo
     float dot = x18_g.dot(pPos);
     if ((dot - x24_j) <= 0.0f)
     {
-        if (!x15_f)
+        if (x15_f)
             return true;
     }
     else
@@ -139,11 +139,22 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPo
         return false;
 
     Zeus::CVector3f delta = pPos - pVel;
+    pPos += Zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_g.y))
+                                             + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) /
+                             ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - (
+                (x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
 
+    float d = 0.0f;
+    x10_d->GetValue(frame, d);
+    pVel -= d * pVel;
+
+    float c = 0.0f;
+    xc_c->GetValue(frame, c);
+    pVel -= Zeus::CVector3f{(1.0f + c) * ((x18_g.z * (x18_g.x * (x18_g.y * pVel.y)) + pVel.x) + pVel.x)} * x18_g;
     return false;
 }
 
-bool CMVEConstant::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVEConstant::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
 {
     x4_x->GetValue(frame, pVel.x);
     x8_y->GetValue(frame, pVel.y);
