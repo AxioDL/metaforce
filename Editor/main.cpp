@@ -24,6 +24,7 @@ struct Application : boo::IApplicationCallback
 
     int appMain(boo::IApplication* app)
     {
+        Zeus::detectCPU();
         pshag::CElementGen::Initialize();
         m_viewManager.init(app);
         while (m_running)
