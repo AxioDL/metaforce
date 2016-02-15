@@ -58,25 +58,25 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
             desc->x14_COLR.reset(CPF::GetColorElement(in));
         break;
         case SBIG('IEMT'):
-            desc->x18_IEMT = CPF::GetBool(in);
+            desc->x18_IEMT.reset(CPF::GetEmitterElement(in));
         break;
         case SBIG('FEMT'):
-            desc->x1c_FEMT = CPF::GetBool(in);
+            desc->x1c_FEMT.reset(CPF::GetEmitterElement(in));
         break;
         case SBIG('AMPL'):
-            desc->x20_AMPL = CPF::GetBool(in);
+            desc->x20_AMPL.reset(CPF::GetRealElement(in));
         break;
         case SBIG('AMPD'):
-            desc->x24_AMPD = CPF::GetBool(in);
+            desc->x24_AMPD.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD1'):
-            desc->x28_LWD1 = CPF::GetBool(in);
+            desc->x28_LWD1.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD2'):
-            desc->x2c_LWD2 = CPF::GetBool(in);
+            desc->x2c_LWD2.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD3'):
-            desc->x30_LWD3 = CPF::GetBool(in);
+            desc->x30_LWD3.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LCL1'):
             desc->x34_LCL1.reset(CPF::GetColorElement(in));
