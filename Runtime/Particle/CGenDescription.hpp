@@ -75,7 +75,6 @@ public:
     SElectricGeneratorDesc xec_SELC;
     std::unique_ptr<CIntElement> xf8_SESD;
     std::unique_ptr<CVectorElement> xfc_SEPO;
-    SChildGeneratorDesc xec_PMLC;
     std::unique_ptr<CIntElement> x100_LTYP;
     std::unique_ptr<CColorElement> x104_LCLR;
     std::unique_ptr<CRealElement> x108_LINT;

@@ -1008,9 +1008,6 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         case SBIG('PSWT'):
             fillDesc->x10_PSWT.reset(GetIntElement(in));
             break;
-        case SBIG('PMLC'):
-            fillDesc->xec_PMLC = GetChildGeneratorDesc(in, resPool, tracker);
-            break;
         case SBIG('SEED'):
             fillDesc->x1c_SEED.reset(GetIntElement(in));
             break;
@@ -1118,6 +1115,20 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc)
 {
+    if (desc->x5c_PMDL.m_found)
+        desc->x5c_PMDL.m_model = desc->x5c_PMDL.m_token.GetObj();
+
+    if (desc->x8c_ICTS.m_found)
+        desc->x8c_ICTS.m_gen = desc->x8c_ICTS.m_token.GetObj();
+
+    if (desc->xa4_IDTS.m_found)
+        desc->xa4_IDTS.m_gen = desc->xa4_IDTS.m_token.GetObj();
+
+    if (desc->xb8_IITS.m_found)
+        desc->xb8_IITS.m_gen = desc->xb8_IITS.m_token.GetObj();
+
+    if (desc->xd4_SSWH.m_found)
+        desc->xd4_SSWH.m_swoosh = desc->xd4_SSWH.m_token.GetObj();
 }
 
 std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
