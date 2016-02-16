@@ -16,6 +16,7 @@ Zeus::CTransform CGraphics::g_GXViewPointMatrix;
 Zeus::CTransform CGraphics::g_CameraMatrix;
 Zeus::CVector2i CGraphics::g_ViewportResolution;
 Zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
+int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity;
 
 void CGraphics::DisableAllLights()

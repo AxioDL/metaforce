@@ -46,7 +46,7 @@ static const char* FS_GLSL_TEX =
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    colorOut = vtf.color;\n"
 "}\n";
 
 static const char* FS_GLSL_TEX_REDTOALPHA =
@@ -180,7 +180,7 @@ static const char* FS_GLSL_NOTEX =
 "    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
-struct DataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct MetalDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
@@ -336,7 +336,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLD
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        false, false, false);
 
-    return new struct DataBindingFactory;
+    return new struct MetalDataBindingFactory;
 }
 
 }

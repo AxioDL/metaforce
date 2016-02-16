@@ -689,7 +689,7 @@ void CElementGen::CreateNewParticles(int count)
 
     if (!g_StaticListInitialized)
         Initialize();
-    if (x2c_particleLists.size() >= x70_MAXP)
+    if (!count || x2c_particleLists.size() >= x70_MAXP)
         return;
 
     if (count + x2c_particleLists.size() > x70_MAXP)

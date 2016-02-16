@@ -599,10 +599,16 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
                     {
                         target[x].color1 = HECL::SBig(source[x].color1);
                         target[x].color2 = HECL::SBig(source[x].color2);
-                        target[x].lines[0] = source[x].lines[3];
-                        target[x].lines[1] = source[x].lines[2];
-                        target[x].lines[2] = source[x].lines[1];
-                        target[x].lines[3] = source[x].lines[0];
+                        for (int i=0 ; i<4 ; ++i)
+                        {
+                            u8 ind[4];
+                            u8 packed = source[x].lines[i];
+                            ind[3] = packed & 0x3;
+                            ind[2] = (packed >> 2) & 0x3;
+                            ind[1] = (packed >> 4) & 0x3;
+                            ind[0] = (packed >> 6) & 0x3;
+                            target[x].lines[i] = ind[0] | (ind[1] << 2) | (ind[2] << 4) | (ind[3] << 6);
+                        }
                     }
                 }
             }

@@ -159,6 +159,7 @@ public:
     static Zeus::CTransform g_CameraMatrix;
     static Zeus::CVector2i g_ViewportResolution;
     static Zeus::CVector2i g_ViewportResolutionHalf;
+    static int g_ViewportSamples;
     static bool g_IsGXModelMatrixIdentity;
 
     static void DisableAllLights();

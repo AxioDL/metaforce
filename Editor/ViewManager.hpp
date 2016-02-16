@@ -45,7 +45,7 @@ class ViewManager : public Specter::IViewManager
             {
                 m_vm.m_partGen->Update(1.0 / 60.0);
                 pshag::CGraphics::SetModelMatrix(Zeus::CTransform::Identity());
-                pshag::CGraphics::SetViewPointMatrix(Zeus::CTransform::Identity() + Zeus::CVector3f(0.f, -10.f, 0.f));
+                pshag::CGraphics::SetViewPointMatrix(Zeus::CTransform::Identity() + Zeus::CVector3f(0.f, 10.f, 0.f));
                 boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
                 float aspect = windowRect.size[0] / float(windowRect.size[1]);
                 pshag::CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
