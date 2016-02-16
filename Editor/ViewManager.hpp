@@ -49,7 +49,7 @@ class ViewManager : public Specter::IViewManager
                 boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
                 float aspect = windowRect.size[0] / float(windowRect.size[1]);
                 pshag::CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
-                gfxQ->clearTarget(false, true);
+                //gfxQ->clearTarget(false, true);
                 m_vm.m_partGen->Render();
             }
         }

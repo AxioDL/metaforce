@@ -6,178 +6,207 @@ namespace pshag
 {
 
 static const char* VS_METAL_TEX =
-"#version 330\n"
-"layout(location=0) in vec4 posIn[4];\n"
-"layout(location=4) in vec4 colorIn;\n"
-"layout(location=5) in vec2 uvsIn[4];\n"
-"\n"
-"uniform ParticleUniform\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"struct VertData\n"
 "{\n"
-"    mat4 mvp;\n"
-"    vec4 moduColor;\n"
+"    float4 posIn[4];\n"
+"    float4 colorIn;\n"
+"    float4 uvsIn[4];\n"
+"};\n"
+"\n"
+"struct ParticleUniform\n"
+"{\n"
+"    float4x4 mvp;\n"
+"    float4 moduColor;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uv;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uv;\n"
 "};\n"
 "\n"
-"out VertToFrag vtf;\n"
-"void main()\n"
+"vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],\n"
+"                        uint vertId [[ vertex_id ]], uint instId [[ instance_id ]],\n"
+"                        constant ParticleUniform& particle [[ buffer(2) ]])\n"
 "{\n"
-"    vtf.color = colorIn * moduColor;\n"
-"    vtf.uv = uvsIn[gl_VertexID];\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
-"    gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
+"    VertToFrag vtf;\n"
+"    constant VertData& v = va[instId];\n"
+"    vtf.color = v.colorIn * particle.moduColor;\n"
+"    vtf.uv = v.uvsIn[vertId].xy;\n"
+"    vtf.position = particle.mvp * v.posIn[vertId];\n"
+"    return vtf;\n"
 "}\n";
 
 static const char* FS_METAL_TEX =
-"#version 330\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uv;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uv;\n"
 "};\n"
 "\n"
-"in VertToFrag vtf;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
-"void main()\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
-"    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    return vtf.color * tex0.sample(samp, vtf.uv);\n"
 "}\n";
 
 static const char* FS_METAL_TEX_REDTOALPHA =
-"#version 330\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uv;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uv;\n"
 "};\n"
 "\n"
-"in VertToFrag vtf;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
-"void main()\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
-"    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
-"    colorOut.a = colorOut.r;\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    float4 colr = vtf.color * tex0.sample(samp, vtf.uv);\n"
+"    return float4(colr.rgb, colr.r);"
 "}\n";
 
 static const char* VS_METAL_INDTEX =
-"#version 330\n"
-"layout(location=0) in vec4 posIn[4];\n"
-"layout(location=4) in vec4 colorIn;\n"
-"layout(location=5) in vec4 uvsInTexrTind[4];\n"
-"layout(location=9) in vec2 uvsInScene[4];\n"
-"\n"
-"uniform ParticleUniform\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"struct VertData\n"
 "{\n"
-"    mat4 mvp;\n"
-"    vec4 moduColor;\n"
+"    float4 posIn[4];\n"
+"    float4 colorIn;\n"
+"    float4 uvsInTexrTind[4];\n"
+"    float4 uvsInScene[4];\n"
+"};\n"
+"\n"
+"struct ParticleUniform\n"
+"{\n"
+"    float4x4 mvp;\n"
+"    float4 moduColor;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
-"    vec2 uvTind;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uvTexr;\n"
+"    float2 uvScene;\n"
+"    float2 uvTind;\n"
 "};\n"
 "\n"
-"out VertToFrag vtf;\n"
-"void main()\n"
+"vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],\n"
+"                        uint vertId [[ vertex_id ]], uint instId [[ instance_id ]],\n"
+"                        constant ParticleUniform& particle [[ buffer(2) ]])\n"
 "{\n"
-"    vtf.color = colorIn * moduColor;\n"
-"    vtf.uvTexr = uvsInTexrTind[gl_VertexID].xy;\n"
-"    vtf.uvScene = uvsInScene[gl_VertexID];\n"
-"    vtf.uvTind = uvsInTexrTind[gl_VertexID].zw;\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    VertToFrag vtf;\n"
+"    constant VertData& v = va[instId];\n"
+"    vtf.color = v.colorIn * particle.moduColor;\n"
+"    vtf.uvTexr = v.uvsInTexrTind[vertId].xy;\n"
+"    vtf.uvScene = v.uvsInScene[vertId].xy;\n"
+"    vtf.uvTind = v.uvsInTexrTind[vertId].zw;\n"
+"    vtf.position = particle.mvp * v.posIn[vertId];\n"
+"    return vtf;\n"
 "}\n";
 
 static const char* FS_METAL_INDTEX =
-"#version 330\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
-"    vec2 uvTind;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uvTexr;\n"
+"    float2 uvScene;\n"
+"    float2 uvTind;\n"
 "};\n"
 "\n"
-"in VertToFrag vtf;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[3];\n"
-"void main()\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      texture2d<float> tex0 [[ texture(0) ]],\n"
+"                      texture2d<float> tex1 [[ texture(1) ]],\n"
+"                      texture2d<float> tex2 [[ texture(2) ]])\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
-"    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
-"    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
-"    colorOut = vtf.color * sceneTexel + texrTexel;\n"
-"    colorOut.a = vtf.color.a * texrTexel.a;"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
+"    float4 sceneTexel = tex1.sample(samp, vtf.uvScene + tindTexel);\n"
+"    float4 texrTexel = tex0.sample(samp, vtf.uvTexr);\n"
+"    float4 colr = vtf.color * sceneTexel + texrTexel;\n"
+"    return float4(colr.rgb, vtf.color.a * texrTexel.a);"
 "}\n";
 
 static const char* FS_METAL_CINDTEX =
-"#version 330\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
-"    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
-"    vec2 uvTind;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uvTexr;\n"
+"    float2 uvScene;\n"
+"    float2 uvTind;\n"
 "};\n"
 "\n"
-"in VertToFrag vtf;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[3];\n"
-"void main()\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      texture2d<float> tex0 [[ texture(0) ]],\n"
+"                      texture2d<float> tex1 [[ texture(1) ]],\n"
+"                      texture2d<float> tex2 [[ texture(2) ]])\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
-"    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
-"    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
+"    float4 sceneTexel = tex1.sample(samp, vtf.uvScene + tindTexel);\n"
+"    return vtf.color * sceneTexel * tex0.sample(samp, vtf.uvTexr);\n"
 "}\n";
 
 static const char* VS_METAL_NOTEX =
-"#version 330\n"
-"layout(location=0) in vec4 posIn[4];\n"
-"layout(location=4) in vec4 colorIn;\n"
-"\n"
-"uniform ParticleUniform\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"struct VertData\n"
 "{\n"
-"    mat4 mvp;\n"
-"    vec4 moduColor;\n"
+"    float4 posIn[4];\n"
+"    float4 colorIn;\n"
+"};\n"
+"\n"
+"struct ParticleUniform\n"
+"{\n"
+"    float4x4 mvp;\n"
+"    float4 moduColor;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
 "};\n"
 "\n"
-"out VertToFrag vtf;\n"
-"void main()\n"
+"vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],\n"
+"                        uint vertId [[ vertex_id ]], uint instId [[ instance_id ]],\n"
+"                        constant ParticleUniform& particle [[ buffer(2) ]])\n"
 "{\n"
-"    vtf.color = colorIn * moduColor;\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    VertToFrag vtf;\n"
+"    constant VertData& v = va[instId];\n"
+"    vtf.color = v.colorIn * particle.moduColor;\n"
+"    vtf.position = particle.mvp * v.posIn[vertId];\n"
+"    return vtf;\n"
 "}\n";
 
 static const char* FS_METAL_NOTEX =
-"#version 330\n"
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 color;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
 "};\n"
 "\n"
-"in VertToFrag vtf;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"void main()\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]])\n"
 "{\n"
-"    colorOut = vtf.color;\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
+"    return vtf.color;\n"
 "}\n";
 
 struct MetalDataBindingFactory : CElementGenShaders::IDataBindingFactory
@@ -220,6 +249,48 @@ struct MetalDataBindingFactory : CElementGenShaders::IDataBindingFactory
 
 CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::MetalDataFactory& factory)
 {
+    static const boo::VertexElementDescriptor TexFmtTex[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
+    };
+    m_vtxFormatTex = factory.newVertexFormat(9, TexFmtTex);
+
+    static const boo::VertexElementDescriptor TexFmtIndTex[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 5},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 6},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 7}
+    };
+    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(13, TexFmtIndTex);
+
+    static const boo::VertexElementDescriptor TexFmtNoTex[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFormatNoTex = CGraphics::g_BooFactory->newVertexFormat(5, TexFmtNoTex);
+
     m_texZTestZWrite = factory.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_vtxFormatTex,
                                                  CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,

@@ -1636,7 +1636,6 @@ void CElementGen::RenderParticles()
 
             float size = 0.5f * particle.x2c_lineLengthOrSize;
             size = 0.5f;
-            fprintf(stderr, "%p (%f %f %f) %f %f\n", this, viewPoint.x, viewPoint.y, viewPoint.z, size, particle.x30_lineWidthOrRota);
             if (0.f == particle.x30_lineWidthOrRota)
             {
                 switch (m_shaderClass)
@@ -1691,7 +1690,6 @@ void CElementGen::RenderParticles()
                     inst.uvs[1] = {uvs.xMin, uvs.yMax};
                     inst.uvs[2] = {uvs.xMax, uvs.yMin};
                     inst.uvs[3] = {uvs.xMin, uvs.yMin};
-                    fprintf(stderr, "(%f %f) (%f %f)\n", uvs.xMax, uvs.yMax, uvs.xMin, uvs.yMin);
                     break;
                 }
                 case CElementGenShaders::EShaderClass::NoTex:

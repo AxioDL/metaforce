@@ -29,7 +29,6 @@ static const char* VS_GLSL_TEX =
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uv = uvsIn[gl_VertexID].xy;\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
-"    //gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX =
@@ -111,7 +110,7 @@ static const char* FS_GLSL_INDTEX =
 "uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
 "    colorOut = vtf.color * sceneTexel + texrTexel;\n"
@@ -133,7 +132,7 @@ static const char* FS_GLSL_CINDTEX =
 "uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
 "}\n";
