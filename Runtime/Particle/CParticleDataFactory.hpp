@@ -53,6 +53,7 @@ struct SElectricGeneratorDesc
 class CParticleDataFactory
 {
     friend class CDecalDataFactory;
+    friend class CCollisionResponseData;
     friend class CParticleElectricDataFactory;
     friend class CParticleSwooshDataFactory;
     friend class CProjectileWeaponDataFactory;

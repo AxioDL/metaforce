@@ -21,8 +21,14 @@ CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXf
         return CToken(iter->second);
     // TODO: There is some logic missing here, need to figure out what it's doing
     CObjectReference* ret = new CObjectReference(*this, x30_factory.Build(tag, paramXfer), tag, paramXfer);
+    if (ret->GetObject())
+    {
+        x4_resources.push_back(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
+        return CToken(ret);
+    }
 
-    return CToken(ret);
+    delete ret;
+    return CToken();
 }
 
 CToken CSimplePool::GetObj(const SObjectTag& tag)

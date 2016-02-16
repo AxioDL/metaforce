@@ -30,7 +30,7 @@ public:
                          Zeus::CVector3f*,
                          Zeus::CColor*,
                          float*, float*) {}
-    void Activate(bool) { x28_activated = true; }
+    void Activate(bool val) { x28_activated = val; }
     bool IsActivated() { return x28_activated; }
     FourCC Get4CharID() { return FOURCC('FWRP'); }
 };
