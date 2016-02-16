@@ -108,7 +108,7 @@ private:
     bool x224_25_LIT_;
     bool x224_26_AAPH;
     bool x224_27_ZBUF;
-    bool x224_28_zTest = true;
+    bool x224_28_zTest = false;
     bool x224_29_MBLR;
     bool x224_30_VMD1;
     bool x224_31_VMD2;

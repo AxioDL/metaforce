@@ -29,7 +29,7 @@ boo::GraphicsDataToken InitializeIcons(Specter::ViewResources& viewRes)
         Log.report(LogVisor::FatalError, "unable to decompress icons");
 
     g_IconAtlas.initializeAtlas(viewRes.m_factory->newStaticTexture(width, height, mips, boo::TextureFormat::RGBA8,
-                                                                    std::move(texels), destSz));
+                                                                    texels.get(), destSz));
     return viewRes.m_factory->commit();
 }
 

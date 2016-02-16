@@ -3,6 +3,8 @@
 
 #include <HECL/Database.hpp>
 #include <Athena/DNAYaml.hpp>
+#include "ProjectResourceFactory.hpp"
+#include "Runtime/CSimplePool.hpp"
 
 namespace URDE
 {
@@ -21,6 +23,11 @@ class ProjectManager
     ViewManager& m_vm;
     std::unique_ptr<HECL::Database::Project> m_proj;
     static bool m_registeredSpecs;
+    ProjectResourceFactory m_factory;
+    pshag::CSimplePool m_objStore;
+
+    void IndexMP1Resources();
+
 public:
     ProjectManager(ViewManager& vm);
     operator bool() const {return m_proj.operator bool();}

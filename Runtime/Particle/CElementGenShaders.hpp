@@ -63,7 +63,7 @@ public:
     static IDataBindingFactory* Initialize(boo::GLDataFactory& factory);
 #if _WIN32
     static IDataBindingFactory* Initialize(boo::ID3DDataFactory& factory);
-#elif __APPLE__
+#elif BOO_HAS_METAL
     static IDataBindingFactory* Initialize(boo::MetalDataFactory& factory);
 #endif
 

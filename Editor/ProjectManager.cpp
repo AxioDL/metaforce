@@ -6,9 +6,22 @@ namespace URDE
 {
 static LogVisor::LogModule Log("URDE::ProjectManager");
 
+void ProjectManager::IndexMP1Resources()
+{
+    const std::vector<HECL::Database::Project::ProjectDataSpec>& specs = m_proj->getDataSpecs();
+    for (const HECL::Database::Project::ProjectDataSpec& spec : m_proj->getDataSpecs())
+    {
+        if (&spec.spec == &DataSpec::SpecEntMP1)
+        {
+            m_factory.BuildObjectMap(spec);
+            break;
+        }
+    }
+}
+
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
-: m_vm(vm)
+: m_vm(vm), m_objStore(m_factory)
 {
     if (!m_registeredSpecs)
     {
@@ -96,6 +109,8 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
 
 #endif
 
+    IndexMP1Resources();
+    m_vm.BuildTestPART(m_objStore);
     m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();

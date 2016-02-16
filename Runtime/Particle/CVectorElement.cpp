@@ -268,6 +268,12 @@ bool CVEParticleVelocity::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
     return false;
 }
 
+bool CVESPOS::GetValue(int frame, Zeus::CVector3f& valOut) const
+{
+    /* TODO: Do */
+    return false;
+}
+
 bool CVEPLCO::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
     valOut = CParticleGlobals::g_particleMetrics->x10_plco;

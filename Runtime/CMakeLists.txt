@@ -58,7 +58,7 @@ add_library(RuntimeCommon
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
             CCallStack.hpp
-            CTexture.hpp CTexture.cpp
+            CTexture.hpp CTextureBoo.cpp
             CLight.hpp CLight.cpp
             IOStreams.hpp IOStreams.cpp
             CMainFlowBase.hpp CMainFlowBase.cpp

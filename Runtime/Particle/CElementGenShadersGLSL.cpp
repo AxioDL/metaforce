@@ -7,7 +7,7 @@ namespace pshag
 
 static const char* VS_GLSL_TEX =
 "#version 330\n"
-"layout(location=0) in vec3 posIn[4];\n"
+"layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "layout(location=5) in vec2 uvsIn[4];\n"
 "\n"
@@ -29,6 +29,7 @@ static const char* VS_GLSL_TEX =
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uv = uvsIn[gl_VertexID];\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX =
@@ -45,6 +46,7 @@ static const char* FS_GLSL_TEX =
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
+"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX_REDTOALPHA =
@@ -62,11 +64,12 @@ static const char* FS_GLSL_TEX_REDTOALPHA =
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
 "    colorOut.a = colorOut.r;\n"
+"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_INDTEX =
 "#version 330\n"
-"layout(location=0) in vec3 posIn[4];\n"
+"layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "layout(location=5) in vec4 uvsInTexrTind[4];\n"
 "layout(location=9) in vec2 uvsInScene[4];\n"
@@ -110,11 +113,12 @@ static const char* FS_GLSL_INDTEX =
 "uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind);\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
 "    colorOut = vtf.color * sceneTexel + texrTexel;\n"
 "    colorOut.a = vtf.color.a * texrTexel.a;"
+"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_CINDTEX =
@@ -132,14 +136,15 @@ static const char* FS_GLSL_CINDTEX =
 "uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind);\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
+"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
 "#version 330\n"
-"layout(location=0) in vec3 posIn[4];\n"
+"layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "\n"
 "uniform ParticleUniform\n"
@@ -172,6 +177,7 @@ static const char* FS_GLSL_NOTEX =
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color;\n"
+"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 struct DataBindingFactory : CElementGenShaders::IDataBindingFactory

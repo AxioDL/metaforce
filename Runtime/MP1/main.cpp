@@ -54,13 +54,13 @@ class CMain* g_main = nullptr;
 
 class CGameGlobalObjects
 {
-    CMemoryCardSys m_memoryCardSys;
-    CResFactory m_resFactory;
-    CSimplePool m_simplePool;
-    CCharacterFactoryBuilder m_charFactoryBuilder;
-    CAiFuncMap m_aiFuncMap;
-    CGameState m_gameState;
-    CInGameTweakManager m_tweakManager;
+    CMemoryCardSys x0_memoryCardSys;
+    CResFactory x20_resFactory;
+    CSimplePool x114_simplePool;
+    CCharacterFactoryBuilder x14c_charFactoryBuilder;
+    CAiFuncMap x188_aiFuncMap;
+    CGameState x1a8_gameState;
+    CInGameTweakManager x1c0_tweakManager;
     std::unique_ptr<CBooRenderer> m_renderer;
 
     void AddPaksAndFactories()
@@ -79,22 +79,22 @@ class CGameGlobalObjects
 
 public:
     CGameGlobalObjects()
-    : m_simplePool(m_resFactory)
+    : x114_simplePool(x20_resFactory)
     {
-        g_MemoryCardSys = &m_memoryCardSys;
-        g_ResFactory = &m_resFactory;
-        g_SimplePool = &m_simplePool;
-        g_CharFactoryBuilder = &m_charFactoryBuilder;
-        g_AiFuncMap = &m_aiFuncMap;
-        g_GameState = &m_gameState;
-        g_TweakManager = &m_tweakManager;
+        g_MemoryCardSys = &x0_memoryCardSys;
+        g_ResFactory = &x20_resFactory;
+        g_SimplePool = &x114_simplePool;
+        g_CharFactoryBuilder = &x14c_charFactoryBuilder;
+        g_AiFuncMap = &x188_aiFuncMap;
+        g_GameState = &x1a8_gameState;
+        g_TweakManager = &x1c0_tweakManager;
     }
 
     void PostInitialize(CMemorySys& memSys)
     {
         AddPaksAndFactories();
         LoadStringTable();
-        m_renderer.reset(AllocateRenderer(m_simplePool, memSys, m_resFactory));
+        m_renderer.reset(AllocateRenderer(x114_simplePool, memSys, x20_resFactory));
     }
 };
 

@@ -183,7 +183,7 @@ void CElementGenShaders::Initialize()
     case boo::IGraphicsDataFactory::Platform::D3D12:
         m_bindFactory.reset(Initialize(*static_cast<boo::ID3DDataFactory*>(CGraphics::g_BooFactory)));
         break;
-#elif __APPLE__
+#elif BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
         m_bindFactory.reset(Initialize(*static_cast<boo::MetalDataFactory*>(CGraphics::g_BooFactory)));
         break;
@@ -1175,6 +1175,7 @@ void CElementGen::Render()
 
 void CElementGen::RenderModels()
 {
+    return;
     CGenDescription* desc = x1c_genDesc.GetObj();
 
     if (x225_29_modelsUseLights)
@@ -1365,6 +1366,7 @@ void CElementGen::RenderModels()
 
 void CElementGen::RenderLines()
 {
+    return;
     CGenDescription* desc = x1c_genDesc.GetObj();
     CGlobalRandom gr(x230_randState);
 
@@ -1498,7 +1500,7 @@ void CElementGen::RenderParticles()
     CUVElement* tind = desc->x58_TIND.get();
     if (texr && tind)
     {
-        RenderParticlesIndirectTexture();
+        //RenderParticlesIndirectTexture();
         return;
     }
 
@@ -1623,6 +1625,7 @@ void CElementGen::RenderParticles()
             }
 
             float size = 0.5f * particle.x2c_lineLengthOrSize;
+            fprintf(stderr, "%p (%f %f %f) %f\n", this, viewPoint.x, viewPoint.y, viewPoint.z, size);
             if (0.f == particle.x30_lineWidthOrRota)
             {
                 switch (m_shaderClass)
@@ -1698,11 +1701,11 @@ void CElementGen::RenderParticles()
         {
         case CElementGenShaders::EShaderClass::Tex:
             m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-            CGraphics::DrawInstances(0, 4, g_instTexData.size());
+            CGraphics::DrawInstances(boo::Primitive::TriStrips, 0, 4, g_instTexData.size());
             break;
         case CElementGenShaders::EShaderClass::NoTex:
             m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-            CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+            CGraphics::DrawInstances(boo::Primitive::TriStrips, 0, 4, g_instNoTexData.size());
             break;
         default: break;
         }
@@ -1837,11 +1840,11 @@ void CElementGen::RenderParticles()
         {
         case CElementGenShaders::EShaderClass::Tex:
             m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-            CGraphics::DrawInstances(0, 4, g_instTexData.size());
+            CGraphics::DrawInstances(boo::Primitive::TriStrips, 0, 4, g_instTexData.size());
             break;
         case CElementGenShaders::EShaderClass::NoTex:
             m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-            CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+            CGraphics::DrawInstances(boo::Primitive::TriStrips, 0, 4, g_instNoTexData.size());
             break;
         default: break;
         }

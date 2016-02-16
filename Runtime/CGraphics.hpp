@@ -121,6 +121,17 @@ struct SClipScreenRect
 
 enum class ETexelFormat
 {
+    I4     = 0,
+    I8     = 1,
+    IA4    = 2,
+    IA8    = 3,
+    C4     = 4,
+    C8     = 5,
+    C14X2  = 6,
+    RGB565 = 7,
+    RGB5A3 = 8,
+    RGBA8  = 9,
+    CMPR   = 10
 };
 
 class CGraphics
@@ -163,7 +174,7 @@ public:
     static Zeus::CMatrix4f GetPerspectiveProjectionMatrix();
     static const CProjectionState& GetProjectionState();
     static void SetProjectionState(const CProjectionState&);
-    static void SetPerspective(float, float, float, float);
+    static void SetPerspective(float fovy, float aspect, float near, float far);
     static void FlushProjection();
     static Zeus::CVector2i ProjectPoint(const Zeus::CVector3f& point);
     static SClipScreenRect ClipScreenRectFromMS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
@@ -172,6 +183,12 @@ public:
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
+
+    static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc)
+    {
+        g_BooFactory = factory;
+        g_BooMainCommandQueue = cc;
+    }
 
     static boo::IGraphicsBufferD* NewDynamicGPUBuffer(boo::BufferUse use, size_t stride, size_t count)
     {
@@ -185,8 +202,9 @@ public:
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
     }
-    static void DrawInstances(size_t start, size_t count, size_t instCount)
+    static void DrawInstances(boo::Primitive prim, size_t start, size_t count, size_t instCount)
     {
+        g_BooMainCommandQueue->setDrawPrimitive(prim);
         g_BooMainCommandQueue->drawInstances(start, count, instCount);
     }
 };

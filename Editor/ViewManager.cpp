@@ -76,6 +76,16 @@ void ViewManager::DismissSplash()
     m_splash->close();
 }
 
+void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
+{
+    m_partGenDesc = objStore.GetObj({HECL::FOURCC('PART'), 0x0B4D0FBF});
+    m_partGen.reset(new pshag::CElementGen(m_partGenDesc,
+                                           pshag::CElementGen::EModelOrientationType::Normal,
+                                           pshag::CElementGen::EOptionalSystemFlags::None));
+    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
+    m_rootView->accessContentViews().push_back(m_particleView.get());
+}
+
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
   m_fontCache(fileMgr), m_translator(URDE::SystemLocaleOrEnglish()),
@@ -168,6 +178,9 @@ void ViewManager::init(boo::IApplication* app)
     root->updateSize();
 
     m_mainWindow->setWaitCursor(false);
+
+    pshag::CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue());
+    pshag::CElementGen::Initialize();
 }
 
 bool ViewManager::proc()

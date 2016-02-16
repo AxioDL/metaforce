@@ -5,6 +5,8 @@
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
+#include "Runtime/Particle/CElementGen.hpp"
+
 namespace URDE
 {
 class SplashScreen;
@@ -31,6 +33,31 @@ class ViewManager : public Specter::IViewManager
     std::unique_ptr<RootSpace> m_rootSpace;
     Specter::View* m_rootSpaceView = nullptr;
 
+    class ParticleView : public Specter::View
+    {
+        ViewManager& m_vm;
+    public:
+        ParticleView(ViewManager& vm, Specter::ViewResources& res, Specter::View& parent)
+        : View(res, parent), m_vm(vm) {}
+        void draw(boo::IGraphicsCommandQueue* gfxQ)
+        {
+            if (m_vm.m_partGen)
+            {
+                m_vm.m_partGen->Update(1.0 / 60.0);
+                pshag::CGraphics::SetModelMatrix(Zeus::CTransform::Identity());
+                pshag::CGraphics::SetViewPointMatrix(Zeus::CTransform::Identity() + Zeus::CVector3f(0.f, -10.f, 0.f));
+                boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
+                float aspect = windowRect.size[0] / float(windowRect.size[1]);
+                pshag::CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+                gfxQ->clearTarget(false, true);
+                m_vm.m_partGen->Render();
+            }
+        }
+    };
+    std::unique_ptr<ParticleView> m_particleView;
+    pshag::TLockedToken<pshag::CGenDescription> m_partGenDesc;
+    std::unique_ptr<pshag::CElementGen> m_partGen;
+
     HECL::SystemString m_recentProjectsPath;
     std::vector<HECL::SystemString> m_recentProjects;
     HECL::SystemString m_recentFilesPath;
@@ -52,6 +79,8 @@ class ViewManager : public Specter::IViewManager
 
     unsigned m_editorFrames = 120;
     void FadeInEditors() {m_editorFrames = 0;}
+
+    void BuildTestPART(pshag::IObjectStore& objStore);
 
     Space* m_deferSplit = nullptr;
     Specter::SplitView::Axis m_deferSplitAxis;

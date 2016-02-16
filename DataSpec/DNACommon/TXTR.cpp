@@ -42,7 +42,7 @@ static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
     int ry = y % 8;
     int bidx = by * bwidth + bx;
     const uint8_t* btexels = &texels[32*bidx];
-    return btexels[ry*4+rx/2] >> ((rx%2)?0:4) & 0xf;
+    return btexels[ry*4+rx/2] >> ((rx&1)?0:4) & 0xf;
 }
 
 static inline uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y)

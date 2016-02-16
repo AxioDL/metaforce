@@ -11,7 +11,9 @@ CSimplePool::CSimplePool(IFactory& factory)
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
 {
-    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
+    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(),
+    [&tag](std::pair<SObjectTag, CObjectReference*> pair) -> bool
+    {
         return pair.first == tag;
     });
 
