@@ -233,7 +233,12 @@ public:
     TToken(T* obj)
     : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
     TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
-    T* GetObj() {return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();}
+    T* GetObj()
+    {
+        if (CToken::GetObj())
+            return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();
+        return nullptr;
+    }
     T* operator->() {return GetObj();}
 };
 
