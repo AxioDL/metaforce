@@ -65,8 +65,8 @@ void CGraphics::SetViewPointMatrix(const Zeus::CTransform& xf)
 {
     g_ViewMatrix = xf;
     g_ViewPoint = xf.m_origin;
-    g_GXViewPointMatrix.m_basis = g_ViewMatrix.m_basis.transposed();
-    g_GXViewPointMatrix.m_origin = -g_ViewPoint;
+    Zeus::CMatrix3f tmp(xf.m_basis[0], xf.m_basis[2], -xf.m_basis[1]);
+    g_GXViewPointMatrix = Zeus::CTransform(tmp.transposed());
     SetViewMatrix();
 }
 

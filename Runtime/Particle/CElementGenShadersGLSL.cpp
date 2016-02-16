@@ -29,7 +29,7 @@ static const char* VS_GLSL_TEX =
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uv = uvsIn[gl_VertexID].xy;\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
-"    gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
+"    //gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX =
