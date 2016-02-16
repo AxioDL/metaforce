@@ -68,6 +68,7 @@ public:
 #endif
 
     static void Initialize();
+    static void Shutdown();
     static EShaderClass GetShaderClass(CElementGen& gen);
     static void BuildShaderDataBinding(CElementGen& gen);
 };

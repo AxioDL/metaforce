@@ -9,7 +9,7 @@ static const char* VS_GLSL_TEX =
 "#version 330\n"
 "layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
-"layout(location=5) in vec2 uvsIn[4];\n"
+"layout(location=5) in vec4 uvsIn[4];\n"
 "\n"
 "uniform ParticleUniform\n"
 "{\n"
@@ -27,7 +27,7 @@ static const char* VS_GLSL_TEX =
 "void main()\n"
 "{\n"
 "    vtf.color = colorIn * moduColor;\n"
-"    vtf.uv = uvsIn[gl_VertexID];\n"
+"    vtf.uv = uvsIn[gl_VertexID].xy;\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
 "    gl_Position = vec4(posIn[gl_VertexID].x, posIn[gl_VertexID].z, 0.0, 1.0);\n"
 "}\n";
@@ -46,7 +46,6 @@ static const char* FS_GLSL_TEX =
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
-"    colorOut = vtf.color;\n"
 "}\n";
 
 static const char* FS_GLSL_TEX_REDTOALPHA =
@@ -64,7 +63,6 @@ static const char* FS_GLSL_TEX_REDTOALPHA =
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
 "    colorOut.a = colorOut.r;\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_INDTEX =
@@ -118,7 +116,6 @@ static const char* FS_GLSL_INDTEX =
 "    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
 "    colorOut = vtf.color * sceneTexel + texrTexel;\n"
 "    colorOut.a = vtf.color.a * texrTexel.a;"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* FS_GLSL_CINDTEX =
@@ -139,7 +136,6 @@ static const char* FS_GLSL_CINDTEX =
 "    vec2 tindTexel = texture(texs[2], vtf.uvTind).xy;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
@@ -177,10 +173,9 @@ static const char* FS_GLSL_NOTEX =
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color;\n"
-"    colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
-struct MetalDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct GLSLDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
@@ -336,7 +331,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLD
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        false, false, false);
 
-    return new struct MetalDataBindingFactory;
+    return new struct GLSLDataBindingFactory;
 }
 
 }

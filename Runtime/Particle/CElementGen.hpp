@@ -171,6 +171,7 @@ public:
     static int g_ParticleSystemAliveCount;
     static bool g_MoveRedToAlphaBuffer;
     static void Initialize();
+    static void Shutdown();
 
     void SetGeneratorRateScalar(float scalar)
     {

@@ -232,6 +232,7 @@ bool ViewManager::proc()
 
 void ViewManager::stop()
 {
+    pshag::CElementGen::Shutdown();
     m_mainWindow->getCommandQueue()->stopRenderer();
 }
 
