@@ -14,7 +14,7 @@ class CParticleElectricDataFactory
 {
     static CElectricDescription* CreateElectricDescription(CInputStream& in, CSimplePool* resPool);
     static bool CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool);
-    static bool LoadELSMTokens(CElectricDescription* desc);
+    static void LoadELSMTokens(CElectricDescription* desc);
 public:
     static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };

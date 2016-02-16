@@ -2,6 +2,7 @@
 #include "CToken.hpp"
 #include "CSimplePool.hpp"
 #include "CGenDescription.hpp"
+#include "CRandom16.hpp"
 
 namespace pshag
 {
@@ -849,6 +850,8 @@ CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& 
 bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
                                       std::vector<TResId>& tracker, CSimplePool* resPool)
 {
+    CRandom16 rand{99};
+    CGlobalRandom gr(rand);
     FourCC clsId = GetClassID(in);
     while (clsId != SBIG('_END'))
     {
@@ -1109,6 +1112,25 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         }
         }
         clsId = GetClassID(in);
+    }
+
+    /* Now for our custom additions, if available */
+    if (!in.atEnd())
+    {
+        clsId = GetClassID(in);
+        if (clsId == 0xFFFFFFFF)
+            return true;
+
+        while (clsId != SBIG('_END') && !in.atEnd())
+        {
+            switch(clsId)
+            {
+            case SBIG('BGCL'):
+                fillDesc->m_bevelGradient.reset(GetColorElement(in));
+            break;
+            }
+            clsId = GetClassID(in);
+        }
     }
     return true;
 }

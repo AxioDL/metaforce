@@ -31,11 +31,12 @@ CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CI
 
 bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInputStream &in, CSimplePool *resPool)
 {
-    CRandom16 rand;
+    CRandom16 rand{99};
+    CGlobalRandom gr{rand};
+
     FourCC clsId = CPF::GetClassID(in);
     while (clsId != SBIG('_END'))
     {
-        CGlobalRandom gr(rand);
         switch(clsId)
         {
         case SBIG('LIFE'):
@@ -57,25 +58,25 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
             desc->x14_COLR.reset(CPF::GetColorElement(in));
         break;
         case SBIG('IEMT'):
-            desc->x18_IEMT = CPF::GetBool(in);
+            desc->x18_IEMT.reset(CPF::GetEmitterElement(in));
         break;
         case SBIG('FEMT'):
-            desc->x1c_FEMT = CPF::GetBool(in);
+            desc->x1c_FEMT.reset(CPF::GetEmitterElement(in));
         break;
         case SBIG('AMPL'):
-            desc->x20_AMPL = CPF::GetBool(in);
+            desc->x20_AMPL.reset(CPF::GetRealElement(in));
         break;
         case SBIG('AMPD'):
-            desc->x24_AMPD = CPF::GetBool(in);
+            desc->x24_AMPD.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD1'):
-            desc->x28_LWD1 = CPF::GetBool(in);
+            desc->x28_LWD1.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD2'):
-            desc->x2c_LWD2 = CPF::GetBool(in);
+            desc->x2c_LWD2.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LWD3'):
-            desc->x30_LWD3 = CPF::GetBool(in);
+            desc->x30_LWD3.reset(CPF::GetRealElement(in));
         break;
         case SBIG('LCL1'):
             desc->x34_LCL1.reset(CPF::GetColorElement(in));
@@ -116,6 +117,16 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         clsId = CPF::GetClassID(in);
     }
     return true;
+}
+
+void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc)
+{
+    if (desc->x40_SSWH.m_found)
+        desc->x40_SSWH.m_swoosh = desc->x40_SSWH.m_token.GetObj();
+    if (desc->x50_GPSM.m_found)
+        desc->x50_GPSM.m_gen = desc->x50_GPSM.m_token.GetObj();
+    if (desc->x60_EPSM.m_found)
+        desc->x60_EPSM.m_gen = desc->x60_EPSM.m_token.GetObj();
 }
 
 std::unique_ptr<pshag::IObj> FParticleElecrticFactory(const pshag::SObjectTag &tag, pshag::CInputStream &in, const pshag::CVParamTransfer &vparms)

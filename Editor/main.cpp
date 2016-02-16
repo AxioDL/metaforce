@@ -9,6 +9,8 @@
 
 namespace URDE
 {
+LogVisor::LogModule Log{"URDE"};
+
 struct Application : boo::IApplicationCallback
 {
     HECL::Runtime::FileStoreManager m_fileMgr;
@@ -24,6 +26,7 @@ struct Application : boo::IApplicationCallback
 
     int appMain(boo::IApplication* app)
     {
+        initialize(app);
         m_viewManager.init(app);
         while (m_running)
         {
@@ -41,6 +44,50 @@ struct Application : boo::IApplicationCallback
     void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&)
     {
 
+    }
+
+    void initialize(boo::IApplication* app)
+    {
+        Zeus::detectCPU();
+
+        const Zeus::CPUInfo& cpuInf = Zeus::cpuFeatures();
+        HECL::SystemString cpuName{reinterpret_cast<const char*>(cpuInf.cpuBrand)};
+        HECL::SystemString cpuVendor{reinterpret_cast<const char*>(cpuInf.cpuVendor)};
+        Log.report(LogVisor::Info, _S("CPU Name: %s"), cpuName.c_str());
+        Log.report(LogVisor::Info, _S("CPU Vendor: %s"), cpuVendor.c_str());
+        HECL::SystemString features;
+        if (cpuInf.AESNI)
+            features += _S("AES-NI");
+        if (cpuInf.SSE1)
+        {
+            if (!features.empty())
+                features += _S(", SSE1");
+            else
+                features += _S("SSE1");
+        }
+        else
+        {
+            Log.report(LogVisor::FatalError, _S("URDE requires SSE1 minimum"));
+            return;
+        }
+        if (cpuInf.SSE2)
+            features += _S(", SSE2");
+        else
+        {
+            Log.report(LogVisor::FatalError, _S("URDE requires SSE2 minimum"));
+            return;
+        }
+        if (cpuInf.SSE3)
+            features += _S(", SSE3");
+        if (cpuInf.SSSE3)
+            features += _S(", SSSE3");
+        if (cpuInf.SSE4a)
+            features += _S(", SSE4a");
+        if (cpuInf.SSE41)
+            features += _S(", SSE4.1");
+        if (cpuInf.SSE42)
+            features += _S(", SSE4.2");
+        Log.report(LogVisor::Info, _S("CPU Features: %s"), features.c_str());
     }
 };
 

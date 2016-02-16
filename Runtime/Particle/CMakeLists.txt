@@ -31,6 +31,7 @@ add_library(RuntimeCommonParticle
             CDecalManager.hpp CDecalManager.cpp
             CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
             CWarp.hpp CWarp.cpp
+            CFlameWarp.hpp CFlameWarp.cpp
             CParticleGlobals.hpp CParticleGlobals.cpp
             CElementGenShaders.hpp
             CElementGenShadersGLSL.cpp

@@ -103,6 +103,10 @@ public:
     std::unique_ptr<CRealElement> x124_ADV7;
     std::unique_ptr<CRealElement> x128_ADV8;
 
+
+    /* Custom additions */
+    std::unique_ptr<CColorElement> m_bevelGradient; /* FourCC BGCL */
+
     CGenDescription()
     {
         x45_25_PMOO = true;
