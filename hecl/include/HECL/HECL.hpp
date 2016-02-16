@@ -1084,6 +1084,11 @@ public:
     void getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const;
 
     /**
+     * @brief Construct DirectoryEnumerator set to project path
+     */
+    HECL::DirectoryEnumerator enumerateDir() const;
+
+    /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
      */

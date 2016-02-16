@@ -175,22 +175,15 @@ Time ProjectPath::getModtime() const
         }
         else if (S_ISDIR(theStat.st_mode))
         {
-#if _WIN32
-#else
-            DIR* dir = opendir(m_absPath.c_str());
-            dirent* de;
-            while ((de = readdir(dir)))
+            HECL::DirectoryEnumerator de(m_absPath);
+            for (const HECL::DirectoryEnumerator::Entry& ent : de)
             {
-                if (de->d_name[0] == '.')
-                    continue;
-                if (!HECL::Stat(de->d_name, &theStat))
+                if (!HECL::Stat(ent.m_path.c_str(), &theStat))
                 {
                     if (S_ISREG(theStat.st_mode) && theStat.st_mtime > latestTime)
                         latestTime = theStat.st_mtime;
                 }
             }
-            closedir(dir);
-#endif
             return Time(latestTime);
         }
     }
@@ -238,65 +231,38 @@ static void _recursiveGlob(Database::Project& proj,
     /* Compile component into regex */
     SystemRegex regComp(comp, SystemRegex::ECMAScript);
 
-#if _WIN32
-#else
-    DIR* dir = opendir(itStr.c_str());
-    if (!dir)
+    HECL::DirectoryEnumerator de(itStr);
+    for (const HECL::DirectoryEnumerator::Entry& ent : de)
     {
-        LogModule.report(LogVisor::Error, "unable to open directory for traversal at '%s'", itStr.c_str());
-        return;
-    }
-
-    struct dirent* de;
-    while ((de = readdir(dir)))
-    {
-        if (std::regex_search(de->d_name, regComp))
+        if (std::regex_search(ent.m_name, regComp))
         {
             SystemString nextItStr = itStr;
             if (needSlash)
                 nextItStr += '/';
-            nextItStr += de->d_name;
+            nextItStr += ent.m_name;
 
             struct stat theStat;
             if (stat(nextItStr.c_str(), &theStat))
                 continue;
 
-            if (S_ISDIR(theStat.st_mode))
+            if (ent.m_isDir)
                 _recursiveGlob(proj, outPaths, level+1, pathCompMatches, nextItStr, true);
-            else if (S_ISREG(theStat.st_mode))
+            else
                 outPaths.emplace_back(proj, nextItStr);
         }
     }
-
-    closedir(dir);
-#endif
 }
 
 void ProjectPath::getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const
 {
-#if _WIN32
-#else
-    struct dirent* de;
-    DIR* dir = opendir(m_absPath.c_str());
-    if (!dir)
-    {
-        LogModule.report(LogVisor::Error, "unable to open directory for traversal at '%s'", m_absPath.c_str());
-        return;
-    }
+    HECL::DirectoryEnumerator de(m_absPath);
+    for (const HECL::DirectoryEnumerator::Entry& ent : de)
+        outPaths[ent.m_name] = ProjectPath(*this, ent.m_name);
+}
 
-    /* Add elements */
-    rewinddir(dir);
-    while ((de = readdir(dir)))
-    {
-        if (!strcmp(de->d_name, "."))
-            continue;
-        if (!strcmp(de->d_name, ".."))
-            continue;
-        outPaths[de->d_name] = ProjectPath(*this, de->d_name);
-    }
-
-    closedir(dir);
-#endif
+HECL::DirectoryEnumerator ProjectPath::enumerateDir() const
+{
+    return HECL::DirectoryEnumerator(m_absPath);
 }
 
 void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
