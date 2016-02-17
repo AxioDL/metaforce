@@ -29,7 +29,7 @@ public:
         return std::unique_ptr<TObjOwnerDerivedFromIObj<T>>
         (new TObjOwnerDerivedFromIObj<T>(obj.release()));
     }
-    ~TObjOwnerDerivedFromIObj() {delete static_cast<T*>(m_objPtr);}
+    ~TObjOwnerDerivedFromIObj() {std::default_delete<T>()(static_cast<T*>(m_objPtr));}
     T* GetObj() {return static_cast<T*>(m_objPtr);}
 };
 
