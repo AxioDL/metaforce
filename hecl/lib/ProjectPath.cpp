@@ -241,8 +241,8 @@ static void _recursiveGlob(Database::Project& proj,
                 nextItStr += '/';
             nextItStr += ent.m_name;
 
-            struct stat theStat;
-            if (stat(nextItStr.c_str(), &theStat))
+            HECL::Sstat theStat;
+            if (Stat(nextItStr.c_str(), &theStat))
                 continue;
 
             if (ent.m_isDir)
