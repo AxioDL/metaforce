@@ -20,6 +20,8 @@ struct SObjectTag
     TResId id = -1;
     bool operator!=(const SObjectTag& other) const {return id != other.id;}
     bool operator==(const SObjectTag& other) const {return id == other.id;}
+    SObjectTag() = default;
+    SObjectTag(FourCC tp, TResId rid) : type(tp), id(rid) {}
 };
 
 /**

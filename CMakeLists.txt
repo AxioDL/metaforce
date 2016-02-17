@@ -85,7 +85,7 @@ add_definitions(-DZE_ATHENA_TYPES=1)
 set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libSpecter/MathLib/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
                     ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
-                    ${SPECTER_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+                    ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 add_subdirectory(Editor)
 add_subdirectory(Runtime)

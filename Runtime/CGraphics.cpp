@@ -1,6 +1,9 @@
 #include "CGraphics.hpp"
 #include <Math.hpp>
 
+#undef near
+#undef far
+
 namespace pshag
 {
 

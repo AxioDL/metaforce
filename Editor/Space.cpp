@@ -43,10 +43,10 @@ Specter::View* Space::buildSpaceView(Specter::ViewResources& res)
 
 std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats =
 {
-    {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0,1.0,0.0,1.0}},
-    {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0,0.5,0.0,1.0}},
-    {Class::ModelViewer, "model_viewer", "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.95, 0.95, 0.95, 1.0}},
-    {Class::InformationCenter, "information_center", "Information Center", GetIcon(SpaceIcon::InformationCenter), {0.0, 1.0, 1.0, 1.0}}
+    {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0f, 1.0f, 0.0f, 1.0f}},
+    {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0f, 0.5f, 0.0f, 1.0f}},
+    {Class::ModelViewer, "model_viewer", "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.95f, 0.95f, 0.95f, 1.0f}},
+    {Class::InformationCenter, "information_center", "Information Center", GetIcon(SpaceIcon::InformationCenter), {0.0f, 1.0f, 1.0f, 1.0f}}
 };
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 

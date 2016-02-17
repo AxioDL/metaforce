@@ -51,10 +51,8 @@ struct Application : boo::IApplicationCallback
         Zeus::detectCPU();
 
         const Zeus::CPUInfo& cpuInf = Zeus::cpuFeatures();
-        HECL::SystemString cpuName{reinterpret_cast<const char*>(cpuInf.cpuBrand)};
-        HECL::SystemString cpuVendor{reinterpret_cast<const char*>(cpuInf.cpuVendor)};
-        Log.report(LogVisor::Info, _S("CPU Name: %s"), cpuName.c_str());
-        Log.report(LogVisor::Info, _S("CPU Vendor: %s"), cpuVendor.c_str());
+        Log.report(LogVisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
+        Log.report(LogVisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
         HECL::SystemString features;
         if (cpuInf.AESNI)
             features += _S("AES-NI");

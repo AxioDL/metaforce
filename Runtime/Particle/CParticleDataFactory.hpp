@@ -27,6 +27,9 @@ struct SParticleModel
     TLockedToken<CModel> m_token;
     bool m_found = false;
     CModel* m_model = nullptr;
+    SParticleModel() = default;
+    SParticleModel(CToken&& tok, bool found)
+    : m_token(std::move(tok)), m_found(found) {}
 };
 
 struct SChildGeneratorDesc
@@ -34,6 +37,9 @@ struct SChildGeneratorDesc
     TLockedToken<CGenDescription> m_token;
     bool m_found = false;
     CGenDescription* m_gen = nullptr;
+    SChildGeneratorDesc() = default;
+    SChildGeneratorDesc(CToken&& tok, bool found)
+    : m_token(std::move(tok)), m_found(found) {}
 };
 
 struct SSwooshGeneratorDesc
@@ -41,6 +47,9 @@ struct SSwooshGeneratorDesc
     TLockedToken<CSwooshDescription> m_token;
     bool m_found = false;
     CSwooshDescription* m_swoosh = nullptr;
+    SSwooshGeneratorDesc() = default;
+    SSwooshGeneratorDesc(CToken&& tok, bool found)
+    : m_token(std::move(tok)), m_found(found) {}
 };
 
 struct SElectricGeneratorDesc
@@ -48,6 +57,9 @@ struct SElectricGeneratorDesc
     TLockedToken<CElectricDescription> m_token;
     bool m_found = false;
     CElectricDescription* m_electric = nullptr;
+    SElectricGeneratorDesc() = default;
+    SElectricGeneratorDesc(CToken&& tok, bool found)
+    : m_token(std::move(tok)), m_found(found) {}
 };
 
 class CParticleDataFactory

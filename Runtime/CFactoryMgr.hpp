@@ -7,7 +7,7 @@
 
 namespace pshag
 {
-class SObjectTag;
+struct SObjectTag;
 class CVParamTransfer;
 class IObj;
 
