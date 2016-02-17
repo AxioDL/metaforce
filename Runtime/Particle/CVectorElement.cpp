@@ -330,9 +330,9 @@ bool CVESubtract::GetValue(int frame, Zeus::CVector3f& valOut) const
 
 bool CVEColorToVector::GetValue(int frame, Zeus::CVector3f &valOut) const
 {
-    Zeus::CColor black = {0.0, 0.0, 0.0, 1.0};
-    x4_a->GetValue(frame, black);
-    valOut = Zeus::CVector3f{black.r, valOut.y, black.g };
+    Zeus::CColor val = {0.0, 0.0, 0.0, 1.0};
+    x4_a->GetValue(frame, val);
+    valOut = Zeus::CVector3f{val.r, val.g, val.b};
     return false;
 }
 
