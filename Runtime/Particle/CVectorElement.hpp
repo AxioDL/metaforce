@@ -147,15 +147,6 @@ public:
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
-class CVESPOS : public CVectorElement
-{
-    std::unique_ptr<CVectorElement> x4_a;
-public:
-    CVESPOS(CVectorElement* a)
-    : x4_a(a) {}
-    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
-};
-
 class CVEPLCO : public CVectorElement
 {
 public:

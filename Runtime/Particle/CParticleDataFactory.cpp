@@ -444,11 +444,6 @@ CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
     {
         return new CVEParticleVelocity;
     }
-    case SBIG('SPOS'):
-    {
-        CVectorElement* a = GetVectorElement(in);
-        return new CVESPOS(a);
-    }
     case SBIG('PLCO'):
     {
         return new CVEPLCO;
