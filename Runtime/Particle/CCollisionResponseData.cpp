@@ -74,8 +74,39 @@ static const std::vector<FourCC> DecalTypes =
 
 using CPF = CParticleDataFactory;
 
+void CCollisionResponseData::AddParticleSystemToResponse(EWeaponCollisionResponseTypes type, CInputStream &in, CSimplePool *resPool)
+{
+    int i = int(type);
+    std::vector<TResId> tracker;
+    tracker.resize(8);
+    x0[i].first = std::move(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
+    if (x0[i].first)
+        x0[i].second = true;
+}
+
 bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
 {
+    int i = 0;
+    for (const FourCC& type : DecalTypes)
+    {
+        if (type == clsId)
+        {
+            FourCC cls = CPF::GetClassID(in);
+            if (cls == SBIG('NONE'))
+                return true;
+
+            TResId id = CPF::GetInt(in);
+            if (!id)
+                return true;
+
+            x20[i].first = std::move(resPool->GetObj({FOURCC('DPSC'), id}));
+            if (x0[i].first)
+                x0[i].second = true;
+
+            return true;
+        }
+        i++;
+    }
     return false;
 }
 
@@ -101,6 +132,15 @@ bool CCollisionResponseData::CheckAndAddSoundFXToResponse(FourCC clsId, CInputSt
 
 bool CCollisionResponseData::CheckAndAddParticleSystemToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
 {
+    int i = 0;
+    for (const FourCC& type : GeneratorTypes)
+    {
+        if (type == clsId)
+        {
+            AddParticleSystemToResponse(EWeaponCollisionResponseTypes(i), in, resPool);
+            return true;
+        }
+    }
     return false;
 }
 

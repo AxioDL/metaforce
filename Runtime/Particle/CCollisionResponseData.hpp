@@ -38,9 +38,9 @@ enum class EWeaponCollisionResponseTypes
 class CCollisionResponseData
 {
 
-    std::vector<TLockedToken<CGenDescription>> x0;
+    std::vector<std::pair<TLockedToken<CGenDescription>, bool>> x0;
     std::vector<s32> x10;
-    std::vector<TLockedToken<CDecalDescription>> x20;
+    std::vector<std::pair<TLockedToken<CDecalDescription>, bool>> x20;
     float x30_RNGE;
     float x34_FOFF;
 
