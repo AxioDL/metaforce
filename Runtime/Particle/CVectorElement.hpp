@@ -203,6 +203,16 @@ public:
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;
 };
 
+class CVEColorToVector : public CVectorElement
+{
+    std::unique_ptr<CColorElement> x4_a;
+public:
+    CVEColorToVector(CColorElement* a)
+        : x4_a(a) {}
+
+    bool GetValue(int frame, Zeus::CVector3f& valOut) const;
+};
+
 }
 
 #endif // __PSHAG_CVECTORELEMENT_HPP__

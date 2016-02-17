@@ -476,6 +476,11 @@ CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
         CVectorElement* b = GetVectorElement(in);
         return new CVESubtract(a, b);
     }
+    case SBIG('CTVC'):
+    {
+        CColorElement* a = GetColorElement(in);
+        return new CVEColorToVector(a);
+    }
     default: break;
     }
     return nullptr;
