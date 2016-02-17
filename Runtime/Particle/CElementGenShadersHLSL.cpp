@@ -1,6 +1,9 @@
 #include "CElementGenShaders.hpp"
 #include "CElementGen.hpp"
 #include "CGenDescription.hpp"
+#include "CElectricDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CModel.hpp"
 
 namespace pshag
 {

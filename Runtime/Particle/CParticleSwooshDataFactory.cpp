@@ -1,5 +1,8 @@
 #include "CParticleSwooshDataFactory.hpp"
 #include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
+#include "CGenDescription.hpp"
+#include "CModel.hpp"
 #include "CRandom16.hpp"
 #include "CSimplePool.hpp"
 

@@ -6,6 +6,10 @@
 #include "locale/locale.hpp"
 #include "ResourceBrowser.hpp"
 #include "icons/icons.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/CModel.hpp"
 #include <cstdio>
 
 using YAMLNode = Athena::io::YAMLNode;

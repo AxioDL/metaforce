@@ -1,6 +1,10 @@
 #include "CCollisionResponseData.hpp"
 #include "CParticleDataFactory.hpp"
 #include "CDecalDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
+#include "CGenDescription.hpp"
+#include "CModel.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 

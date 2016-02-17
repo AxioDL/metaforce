@@ -2,6 +2,10 @@
 #include "Runtime/IOStreams.hpp"
 
 #include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/CModel.hpp"
 #include "Runtime/CTexture.hpp"
 
 namespace URDE

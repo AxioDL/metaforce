@@ -1,4 +1,8 @@
 #include "CSpawnSystemKeyframeData.hpp"
+#include "CGenDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
+#include "CModel.hpp"
 #include "CSimplePool.hpp"
 
 namespace pshag

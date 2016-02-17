@@ -1,5 +1,7 @@
 #include "CElementGen.hpp"
 #include "CGenDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
 #include "CParticleGlobals.hpp"
 #include "CParticleSwoosh.hpp"
 #include "CParticleElectric.hpp"
