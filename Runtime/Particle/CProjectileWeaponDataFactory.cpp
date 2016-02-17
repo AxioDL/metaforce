@@ -1,6 +1,10 @@
 #include "CProjectileWeaponDataFactory.hpp"
 #include "CWeaponDescription.hpp"
 #include "CCollisionResponseData.hpp"
+#include "CElectricDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CGenDescription.hpp"
+#include "CModel.hpp"
 #include "CRandom16.hpp"
 #include "CSimplePool.hpp"
 

@@ -3,6 +3,9 @@
 #include "CSimplePool.hpp"
 #include "CGenDescription.hpp"
 #include "CRandom16.hpp"
+#include "CModel.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
 
 namespace pshag
 {
