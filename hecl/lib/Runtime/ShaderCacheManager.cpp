@@ -65,11 +65,10 @@ void ShaderCacheManager::bootstrapIndex()
     m_datFr.close();
 
 #if _WIN32
-    SystemString tmp = m_idxFr.wfilename();
+    SystemString idxFilename = m_idxFr.wfilename();
 #else
-    SystemString tmp = m_idxFr.filename();
+    SystemString idxFilename = m_idxFr.filename();
 #endif
-    SystemStringView idxFilename(tmp);
 
     FILE* idxFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
     if (!idxFp)
@@ -81,16 +80,15 @@ void ShaderCacheManager::bootstrapIndex()
     fwrite(&ZERO64, 1, 8, idxFp);
     fclose(idxFp);
 #if _WIN32
-    tmp = m_datFr.wfilename();
+    SystemString datFilename = m_datFr.wfilename();
 #else
-    tmp = m_datFr.filename();
+    SystemString datFilename = m_datFr.filename();
 #endif
-    SystemStringView datFilename(tmp);
 
     FILE* datFp = HECL::Fopen(datFilename.c_str(), _S("wb"));
     if (!datFp)
         Log.report(LogVisor::FatalError, _S("unable to write shader cache data at %s"),
-                   idxFilename.c_str());
+                   datFilename.c_str());
     fwrite(&DAT_MAGIC, 1, 8, datFp);
     fwrite(&m_timeHash, 1, 8, datFp);
     fclose(datFp);
@@ -106,7 +104,7 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
   m_extensions(std::move(extension)),
   m_idxFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".idx"), 32*1024, false),
   m_datFr(storeMgr.getStoreRoot() + _S("/shadercache") + gfxFactory->platformName() + _S(".dat"), 32*1024, false)
-{   
+{
     boo::IGraphicsDataFactory::Platform plat = gfxFactory->platform();
     if (m_extensions && m_extensions.m_plat != plat)
         Log.report(LogVisor::FatalError, "ShaderCacheExtension backend mismatch (should be %s)",
