@@ -12,6 +12,8 @@ CTimeProvider::CTimeProvider(const float& time)
     if (x8_lastProvider != nullptr)
         x8_lastProvider->x4_first = false;
 
+    g_currentTimeProvider = this;
+
 #if 0
     CGraphics::SetExternalTimeProvider(this);
 #endif
