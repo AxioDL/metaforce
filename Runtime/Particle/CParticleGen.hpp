@@ -42,6 +42,7 @@ public:
     virtual CLight GetLight() const=0;
     virtual bool GetParticleEmission() const=0;
     virtual void DestroyParticles()=0;
+    virtual void Reset()=0;
 
     virtual void AddModifier(CWarp* mod);
 };

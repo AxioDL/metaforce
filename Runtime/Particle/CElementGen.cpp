@@ -2230,4 +2230,20 @@ void CElementGen::DestroyParticles()
         ch->DestroyParticles();
 }
 
+void CElementGen::Reset()
+{
+    x2c_particleLists.clear();
+    x3c_parentMatrices.clear();
+    x234_activePartChildren.clear();;
+    x248_finishPartChildren.clear();
+    x280_elscChildren.clear();
+    x260_swhcChildren.clear();
+
+    x50_curFrame = 0;
+    x58_curSeconds = 0.f;
+    x64_prevFrame = -1;
+    x208_activeParticleCount = 0;
+    x225_28_warmedUp = false;
+}
+
 }

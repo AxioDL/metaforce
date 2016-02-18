@@ -103,7 +103,7 @@ private:
     u32 x208_activeParticleCount = 0;
     u32 x20c_recursiveParticleCount = 0;
     u32 x210_curEmitterFrame = 0;
-    int x214_PSLT = 0x7fffff;
+    int x214_PSLT = 90;//0x7fffff;
     Zeus::CVector3f x218_PSIV;
     bool x224_24_translationDirty = false;
     bool x224_25_LIT_;
@@ -229,6 +229,7 @@ public:
     CLight GetLight() const;
     bool GetParticleEmission() const;
     void DestroyParticles();
+    void Reset();
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

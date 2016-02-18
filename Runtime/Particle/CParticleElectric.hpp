@@ -36,6 +36,7 @@ public:
     CLight GetLight() const;
     bool GetParticleEmission() const;
     void DestroyParticles();
+    void Reset() {}
 };
 
 }
