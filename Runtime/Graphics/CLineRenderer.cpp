@@ -154,7 +154,7 @@ void CLineRenderer::Reset()
 void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColor& color, float width,
                               const Zeus::CVector2f& uv)
 {
-    if (!m_shaderBind || m_nextVert >= m_maxVerts)
+    if (m_final || !m_shaderBind || m_nextVert >= m_maxVerts)
         return;
 
     float adjWidth = width / 480.f;
@@ -385,15 +385,16 @@ void CLineRenderer::Render(const Zeus::CColor& moduColor)
 
     SDrawUniform uniformData = {moduColor};
     m_uniformBuf->load(&uniformData, sizeof(SDrawUniform));
-    CGraphics::SetShaderDataBinding(m_shaderBind);
     if (m_textured)
     {
         m_vertBuf->load(g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
+        CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(boo::Primitive::TriStrips, 0, g_StaticLineVertsTex.size());
     }
     else
     {
         m_vertBuf->load(g_StaticLineVertsNoTex.data(), sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
+        CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(boo::Primitive::TriStrips, 0, g_StaticLineVertsNoTex.size());
     }
 }
