@@ -26,6 +26,9 @@ private:
     static boo::IShaderPipeline* m_noTexAlpha;
     static boo::IShaderPipeline* m_noTexAdditive;
 
+    static boo::IVertexFormat* m_texVtxFmt;
+    static boo::IVertexFormat* m_noTexVtxFmt;
+
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;
     static boo::GraphicsDataToken m_gfxToken;
 

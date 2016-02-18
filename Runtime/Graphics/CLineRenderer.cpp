@@ -10,6 +10,9 @@ boo::IShaderPipeline* CLineRendererShaders::m_texAdditive = nullptr;
 boo::IShaderPipeline* CLineRendererShaders::m_noTexAlpha = nullptr;
 boo::IShaderPipeline* CLineRendererShaders::m_noTexAdditive = nullptr;
 
+boo::IVertexFormat* CLineRendererShaders::m_texVtxFmt = nullptr;
+boo::IVertexFormat* CLineRendererShaders::m_noTexVtxFmt = nullptr;
+
 std::unique_ptr<CLineRendererShaders::IDataBindingFactory> CLineRendererShaders::m_bindFactory;
 boo::GraphicsDataToken CLineRendererShaders::m_gfxToken;
 
