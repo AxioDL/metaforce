@@ -64,7 +64,12 @@ void ShaderCacheManager::bootstrapIndex()
     m_idxFr.close();
     m_datFr.close();
 
-    SystemStringView idxFilename(m_idxFr.filename());
+#if _WIN32
+    SystemString tmp = m_idxFr.wfilename();
+#else
+    SystemString tmp = m_idxFr.filename();
+#endif
+    SystemStringView idxFilename(tmp);
 
     FILE* idxFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
     if (!idxFp)
@@ -75,8 +80,12 @@ void ShaderCacheManager::bootstrapIndex()
     fwrite(&m_extensionsHash, 1, 8, idxFp);
     fwrite(&ZERO64, 1, 8, idxFp);
     fclose(idxFp);
-
-    SystemStringView datFilename(m_datFr.filename());
+#if _WIN32
+    tmp = m_datFr.wfilename();
+#else
+    tmp = m_datFr.filename();
+#endif
+    SystemStringView datFilename(tmp);
 
     FILE* datFp = HECL::Fopen(datFilename.c_str(), _S("wb"));
     if (!datFp)
