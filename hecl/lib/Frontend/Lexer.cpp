@@ -407,7 +407,7 @@ void Lexer::EmitVec4(IR& ir, const Lexer::OperationNode* funcNode, IR::RegID tar
     const Parser::Token* imms[4];
     for (int i=0 ; i<4 ; ++i)
     {
-        if (!gn->m_sub || gn->m_sub->m_tok.m_type != Parser::TokenType::NumLiteral)
+        if (!gn || !gn->m_sub || gn->m_sub->m_tok.m_type != Parser::TokenType::NumLiteral)
         {
             opt = false;
             break;
