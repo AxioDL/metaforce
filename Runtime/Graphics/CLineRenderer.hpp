@@ -19,7 +19,7 @@ public:
         LineLoop
     };
 
-public:
+private:
     EPrimitiveMode m_mode;
     u32 m_maxVerts;
     u32 m_nextVert = 0;
