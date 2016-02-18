@@ -10,7 +10,7 @@
 
 namespace pshag
 {
-static LogVisor::LogModule Log("Retro::CProjectileWeaponDataFactory");
+static LogVisor::LogModule Log("pshag::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 

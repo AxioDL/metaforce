@@ -12,6 +12,7 @@
 #include "CRandom16.hpp"
 #include "CParticleGen.hpp"
 #include "CElementGenShaders.hpp"
+#include "Graphics/CLineRenderer.hpp"
 
 namespace pshag
 {
@@ -149,6 +150,7 @@ private:
     float x308_LSLA = 45.f;
     Zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
 
+    std::unique_ptr<CLineRenderer> m_lineRenderer;
     CElementGenShaders::EShaderClass m_shaderClass;
 
     void AccumulateBounds(Zeus::CVector3f& pos, float size);

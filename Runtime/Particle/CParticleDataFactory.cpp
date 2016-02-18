@@ -9,7 +9,7 @@
 
 namespace pshag
 {
-static LogVisor::LogModule Log("Retro::CParticleDataFactory");
+static LogVisor::LogModule Log("pshag::CParticleDataFactory");
 
 float CParticleDataFactory::GetReal(CInputStream& in)
 {

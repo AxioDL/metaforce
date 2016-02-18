@@ -187,7 +187,7 @@ static const char* FS_HLSL_NOTEX =
 "    return vtf.color;\n"
 "}\n";
 
-struct D3DDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct D3DElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
@@ -356,7 +356,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        false, false, false);
 
-    return new struct D3DDataBindingFactory;
+    return new struct D3DElementDataBindingFactory;
 }
 
 }

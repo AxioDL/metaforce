@@ -54,6 +54,7 @@ target_link_libraries(urde
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommonParticle
+                      RuntimeCommonGraphics
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
                       DNACommon Specter SpecterFonts freetype ${DATA_SPEC_LIBS}

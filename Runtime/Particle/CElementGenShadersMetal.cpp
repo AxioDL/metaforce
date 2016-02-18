@@ -209,7 +209,7 @@ static const char* FS_METAL_NOTEX =
 "    return vtf.color;\n"
 "}\n";
 
-struct MetalDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct MetalElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
@@ -378,7 +378,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::Met
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        false, false, false);
 
-    return new struct MetalDataBindingFactory;
+    return new struct MetalElementDataBindingFactory;
 }
 
 }

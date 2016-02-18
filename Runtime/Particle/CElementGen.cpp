@@ -13,7 +13,7 @@
 
 namespace pshag
 {
-static LogVisor::LogModule Log("Retro::CElementGen");
+static LogVisor::LogModule Log("pshag::CElementGen");
 
 static bool s_inCreateNewParticles = false;
 
@@ -413,18 +413,30 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         }
     }
 
-    m_shaderClass = CElementGenShaders::GetShaderClass(*this);
-    static const size_t ShadClsSizes[] =
+    if (x225_26_LINE)
     {
-        sizeof(SParticleInstanceTex),
-        sizeof(SParticleInstanceIndTex),
-        sizeof(SParticleInstanceNoTex)
-    };
-    size_t maxInsts = x224_29_MBLR ? (m_maxMBSP * x70_MAXP) : x70_MAXP;
-    m_instBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
-    m_uniformBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    CElementGenShaders::BuildShaderDataBinding(*this);
-    m_gfxToken = CGraphics::CommitResources();
+        CUVElement* texr = desc->x54_TEXR.get();
+        boo::ITexture* tex = nullptr;
+        if (texr)
+            tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
+        m_lineRenderer.reset(new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines,
+                                               x70_MAXP * 2, tex, x224_26_AAPH));
+    }
+    else
+    {
+        m_shaderClass = CElementGenShaders::GetShaderClass(*this);
+        static const size_t ShadClsSizes[] =
+        {
+            sizeof(SParticleInstanceTex),
+            sizeof(SParticleInstanceIndTex),
+            sizeof(SParticleInstanceNoTex)
+        };
+        size_t maxInsts = x224_29_MBLR ? (m_maxMBSP * x70_MAXP) : x70_MAXP;
+        m_instBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+        m_uniformBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+        CElementGenShaders::BuildShaderDataBinding(*this);
+        m_gfxToken = CGraphics::CommitResources();
+    }
 }
 
 CElementGen::~CElementGen()
@@ -1378,7 +1390,6 @@ void CElementGen::RenderModels()
 
 void CElementGen::RenderLines()
 {
-    return;
     CGenDescription* desc = x1c_genDesc.GetObj();
     CGlobalRandom gr(x230_randState);
 
@@ -1411,6 +1422,7 @@ void CElementGen::RenderLines()
     bool constTexr = true;
     bool constUVs = true;
     CTexture* cachedTex = nullptr;
+    Zeus::CColor moduColor = Zeus::CColor::skWhite;
     if (texr)
     {
         CParticle& target = g_StaticParticleList[x2c_particleLists[0].x0_partIdx];
@@ -1423,29 +1435,22 @@ void CElementGen::RenderLines()
         if (x30c_moduColor != Zeus::CColor::skBlack)
         {
             /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
-        }
-        else
-        {
-            /* Pass-thru */
+            moduColor = x30c_moduColor;
         }
 
         constTexr = texr->HasConstantTexture();
         texr->GetValueUV(partFrame, uvs);
         constUVs = texr->HasConstantUV();
     }
-    else
-    {
-        /* Pass-thru */
-    }
 
+    float constWidth = 1.f;
     if (widtConst)
     {
-        float width = 1.f;
-        widt->GetValue(0, width);
-        width = std::max(0.f, std::min(width, 42.5f));
-        /* Set line width */
-        /* Start line draw of x2c_particleLists.size() * 2 */
+        widt->GetValue(0, constWidth);
+        constWidth = std::max(0.f, std::min(constWidth, 42.5f));
     }
+
+    m_lineRenderer->Reset();
 
     for (CParticleListItem& item : x2c_particleLists)
     {
@@ -1475,32 +1480,20 @@ void CElementGen::RenderLines()
 
         if (widtConst)
         {
-            /* Draw: */
-            /* Pos: p1  Color: particle.color  UV0: {uv[0], uv[1]} */
-            /* Pos: p2  Color: particle.color  UV0: {uv[2], uv[3]} */
+            m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
+            m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
         }
         else
         {
             float width = 1.f;
             widt->GetValue(0, width);
             width = std::max(0.f, std::min(width, 42.5f));
-            /* Set line width */
-            /* Start line draw of 2 */
-
-            /* Draw: */
-            /* Pos: p1  Color: particle.color  UV0: {uv[0], uv[1]} */
-            /* Pos: p2  Color: particle.color  UV0: {uv[2], uv[3]} */
-            /* EndDraw */
+            m_lineRenderer->AddVertex(p1, particle.x34_color, width, {uvs.xMin, uvs.yMin});
+            m_lineRenderer->AddVertex(p2, particle.x34_color, width, {uvs.xMax, uvs.yMax});
         }
     }
 
-    if (widtConst)
-    {
-        /* EndDraw */
-    }
-
-    /* Restore line-width to 1.0 */
-
+    m_lineRenderer->Render(moduColor);
 }
 
 void CElementGen::RenderParticles()

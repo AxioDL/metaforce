@@ -12,6 +12,7 @@ target_link_libraries(mp1
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommonParticle
+                      RuntimeCommonGraphics
                       RuntimeCommon
                       DNAMP1
                       DNACommon

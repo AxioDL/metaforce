@@ -10,12 +10,56 @@
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/CModel.hpp"
+#include "Runtime/CGraphics.hpp"
 #include <cstdio>
 
 using YAMLNode = Athena::io::YAMLNode;
 
 namespace URDE
 {
+
+void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
+{
+    m_partGenDesc = objStore.GetObj({HECL::FOURCC('PART'), 0x1E348530});
+    m_partGen.reset(new pshag::CElementGen(m_partGenDesc,
+                                           pshag::CElementGen::EModelOrientationType::Normal,
+                                           pshag::CElementGen::EOptionalSystemFlags::None));
+    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
+    m_lineRenderer.reset(new pshag::CLineRenderer(pshag::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
+
+    m_rootView->accessContentViews().push_back(m_particleView.get());
+    m_rootView->updateSize();
+}
+
+void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+{
+    Specter::View::resized(root, sub);
+    pshag::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
+}
+
+void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
+{
+    if (m_vm.m_partGen)
+    {
+        m_vm.m_partGen->Update(1.0 / 60.0);
+        pshag::CGraphics::SetModelMatrix(Zeus::CTransform::Identity());
+        pshag::CGraphics::SetViewPointMatrix(Zeus::CTransform::Identity() + Zeus::CVector3f(0.f, -10.f, 0.f));
+        boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
+        float aspect = windowRect.size[0] / float(windowRect.size[1]);
+        pshag::CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+        //gfxQ->clearTarget(false, true);
+        m_vm.m_partGen->Render();
+
+        /*
+        m_vm.m_lineRenderer->Reset();
+        m_vm.m_lineRenderer->AddVertex({-0.5f, 0.f, -0.5f}, Zeus::CColor::skBlue, 1.f);
+        m_vm.m_lineRenderer->AddVertex({-0.5f, 0.f, 0.5f}, Zeus::CColor::skBlue, 1.f);
+        m_vm.m_lineRenderer->AddVertex({0.5f, 10.f, 0.5f}, Zeus::CColor::skRed, 3.f);
+        m_vm.m_lineRenderer->AddVertex({0.5f, 0.f, -0.5f}, Zeus::CColor::skBlue, 1.f);
+        m_vm.m_lineRenderer->Render();
+        */
+    }
+}
 
 Specter::View* ViewManager::BuildSpaceViews()
 {
@@ -78,16 +122,6 @@ void ViewManager::DismissSplash()
         return;
     m_showSplash = false;
     m_splash->close();
-}
-
-void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
-{
-    m_partGenDesc = objStore.GetObj({HECL::FOURCC('PART'), 0x273375E3});
-    m_partGen.reset(new pshag::CElementGen(m_partGenDesc,
-                                           pshag::CElementGen::EModelOrientationType::Normal,
-                                           pshag::CElementGen::EOptionalSystemFlags::None));
-    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    m_rootView->accessContentViews().push_back(m_particleView.get());
 }
 
 ViewManager::ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr)
@@ -185,6 +219,7 @@ void ViewManager::init(boo::IApplication* app)
 
     pshag::CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue());
     pshag::CElementGen::Initialize();
+    pshag::CLineRenderer::Initialize();
 }
 
 bool ViewManager::proc()
@@ -236,6 +271,7 @@ bool ViewManager::proc()
 void ViewManager::stop()
 {
     pshag::CElementGen::Shutdown();
+    pshag::CLineRenderer::Shutdown();
     m_mainWindow->getCommandQueue()->stopRenderer();
 }
 

@@ -148,6 +148,7 @@ public:
         float x18_far;
     };
     static CProjectionState g_Proj;
+    static float g_ProjAspect;
     static u32 g_NumLightsActive;
     static ERglLight g_LightActive;
     static ERglLight g_LightsWereOn;
@@ -180,6 +181,8 @@ public:
     static Zeus::CVector2i ProjectPoint(const Zeus::CVector3f& point);
     static SClipScreenRect ClipScreenRectFromMS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
     static SClipScreenRect ClipScreenRectFromVS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
+    static Zeus::CVector3f ProjectModelPointToViewportSpace(const Zeus::CVector3f& point);
+    static void SetViewportResolution(const Zeus::CVector2i& res);
 
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
@@ -207,6 +210,11 @@ public:
     {
         g_BooMainCommandQueue->setDrawPrimitive(prim);
         g_BooMainCommandQueue->drawInstances(start, count, instCount);
+    }
+    static void DrawArray(boo::Primitive prim, size_t start, size_t count)
+    {
+        g_BooMainCommandQueue->setDrawPrimitive(prim);
+        g_BooMainCommandQueue->draw(start, count);
     }
 };
 

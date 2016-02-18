@@ -9,7 +9,7 @@
 
 namespace pshag
 {
-static LogVisor::LogModule Log("Retro::CParticleElectricDataFactory");
+static LogVisor::LogModule Log("pshag::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 

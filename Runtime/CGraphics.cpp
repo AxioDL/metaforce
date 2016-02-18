@@ -8,6 +8,7 @@ namespace pshag
 {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
+float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
 ERglLight CGraphics::g_LightActive = ERglLight::None;
 ERglLight CGraphics::g_LightsWereOn = ERglLight::None;
@@ -119,6 +120,8 @@ void CGraphics::SetProjectionState(const CGraphics::CProjectionState& proj)
 
 void CGraphics::SetPerspective(float fovy, float aspect, float near, float far)
 {
+    g_ProjAspect = aspect;
+
     float tfov = tanf(fovy * 0.5f * M_PI / 180.f);
     g_Proj.x0_persp = true;
     g_Proj.x14_near = near;
@@ -151,11 +154,11 @@ Zeus::CVector2i CGraphics::ProjectPoint(const Zeus::CVector3f& point)
 SClipScreenRect CGraphics::ClipScreenRectFromMS(const Zeus::CVector3f& p1,
                                                 const Zeus::CVector3f& p2)
 {
-    Zeus::CVector3f xfExt = (g_GXModelMatrix * p2) - g_ViewMatrix.m_origin;
-    xfExt = g_ViewMatrix.transposeRotate(xfExt);
-    Zeus::CVector3f xfPos = (g_GXModelMatrix * p1) - g_ViewMatrix.m_origin;
-    xfPos = g_ViewMatrix.transposeRotate(xfPos);
-    return ClipScreenRectFromVS(xfPos, xfExt);
+    Zeus::CVector3f xf2 = (g_GXModelMatrix * p2) - g_ViewMatrix.m_origin;
+    xf2 = g_ViewMatrix.transposeRotate(xf2);
+    Zeus::CVector3f xf1 = (g_GXModelMatrix * p1) - g_ViewMatrix.m_origin;
+    xf1 = g_ViewMatrix.transposeRotate(xf1);
+    return ClipScreenRectFromVS(xf1, xf2);
 }
 
 SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
@@ -208,6 +211,19 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
             (finalMinX - minX2) / float(width), (finalMaxX - minX2) / float(width),
             (finalMinY - minY2) / float(height), (finalMaxY - minY2) / float(height)};
 
+}
+
+Zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const Zeus::CVector3f& point)
+{
+    CProjectionState& pst = g_Proj;
+    Zeus::CVector3f pt = g_GXModelView * point;
+    return GetPerspectiveProjectionMatrix().multiplyOneOverW(pt);
+}
+
+void CGraphics::SetViewportResolution(const Zeus::CVector2i& res)
+{
+    g_ViewportResolution = res;
+    g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
 }
 
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;

@@ -8,7 +8,7 @@
 
 namespace pshag
 {
-static LogVisor::LogModule Log("Retro::CParticleSwooshDataFactory");
+static LogVisor::LogModule Log("pshag::CParticleSwooshDataFactory");
 
 using CPF = CParticleDataFactory;
 

@@ -177,7 +177,7 @@ static const char* FS_GLSL_NOTEX =
 "    colorOut = vtf.color;\n"
 "}\n";
 
-struct GLSLDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct GLSLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
@@ -333,7 +333,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLD
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        false, false, false);
 
-    return new struct GLSLDataBindingFactory;
+    return new struct GLSLElementDataBindingFactory;
 }
 
 }
