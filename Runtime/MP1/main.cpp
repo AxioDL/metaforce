@@ -109,6 +109,8 @@ class CGameArchitectureSupport : public boo::IWindowCallback
     CMainFlow m_mainFlow;
     CConsoleOutputWindow m_consoleWindow;
     CAudioStateWin m_audioStateWin;
+    boo::SWindowRect m_windowRect;
+    bool m_rectIsDirty;
 
     void mouseDown(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
     { m_inputGenerator.mouseDown(coord, button, mods); }
@@ -132,6 +134,12 @@ class CGameArchitectureSupport : public boo::IWindowCallback
     { m_inputGenerator.modKeyUp(mod); }
 
     void destroyed() { m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport))); }
+
+    void resized(const boo::SWindowRect &rect)
+    {
+        m_windowRect = rect;
+        m_rectIsDirty = true;
+    }
 
 public:
     CGameArchitectureSupport()
@@ -163,6 +171,13 @@ public:
             }
         }
         return finished;
+    }
+
+    bool isRectDirty() { return m_rectIsDirty; }
+    const boo::SWindowRect& getWindowRect()
+    {
+        m_rectIsDirty = false;
+        return m_windowRect;
     }
 };
 
@@ -222,6 +237,8 @@ int CMain::appMain(boo::IApplication* app)
     mainWindow->setCallback(archSupport.GetAllocSpace());
 
     boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
+    boo::SWindowRect windowRect = mainWindow->getWindowFrame();
+    boo::ITextureR* renderTex = mainWindow->getMainContextDataFactory()->newRenderTexture(windowRect.size[0], windowRect.size[1], 1);
     float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};
     gfxQ->setClearColor(rgba);
 
@@ -229,9 +246,18 @@ int CMain::appMain(boo::IApplication* app)
     {
         mainWindow->waitForRetrace();
         xe8_b24_finished = archSupport->Update();
-        gfxQ->clearTarget();
 
-        gfxQ->resolveDisplay(nullptr);
+        if (archSupport->isRectDirty())
+        {
+            const boo::SWindowRect& windowRect = archSupport->getWindowRect();
+            gfxQ->resizeRenderTexture(renderTex,
+                                      windowRect.size[0],
+                                      windowRect.size[1]);
+        }
+
+        gfxQ->setRenderTarget(renderTex);
+        gfxQ->clearTarget();
+        gfxQ->resolveDisplay(renderTex);
         gfxQ->execute();
     }
     return 0;
