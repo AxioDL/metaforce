@@ -319,7 +319,7 @@ public:
             ++bridgeIdx;
         }
 
-        HECL::SystemString catalogPath = m_gameCooked.getAbsolutePath() + _S("/catalog.yaml");
+        HECL::SystemString catalogPath = HECL::ProjectPath(m_gameCooked, "catalog.yaml").getAbsolutePath();
         FILE* catalog = HECL::Fopen(catalogPath.c_str(), _S("wb"));
         if (catalog)
         {
