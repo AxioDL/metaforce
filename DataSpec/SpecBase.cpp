@@ -25,9 +25,12 @@ static const HECL::SystemChar* MomErr[] =
     _S("Contradictive narratives unsupported"),
     _S("Wiimote profile \"NES + Zapper\" not recognized"),
     _S("Unable to find Waldo"),
-    _S("Expected Ridley, found furby")
+    _S("Expected Ridley, found furby"),
+    _S("Adam has not authorized this, please do not bug the developers"),
+    _S("Error: Lady returned objection")
 };
 
+constexpr uint32_t MomErrCount = 11;
 SpecBase::SpecBase(HECL::Database::Project& project)
 : m_project(project),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
@@ -44,9 +47,9 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         unsigned int t = time(nullptr);
 #if _WIN32
         rand_s(&t);
-        int r = t % 9;
+        int r = t % MomErrCount;
 #else
-        int r = rand_r(&t) % 9;
+        int r = rand_r(&t) % MomErrCount;
 #endif
         Log.report(LogVisor::FatalError, MomErr[r]);
     }
