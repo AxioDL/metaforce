@@ -15,26 +15,29 @@ struct Application : boo::IApplicationCallback
 {
     HECL::Runtime::FileStoreManager m_fileMgr;
     HECL::CVarManager m_cvarManager;
-    ViewManager m_viewManager;
+    std::unique_ptr<ViewManager> m_viewManager;
 
     bool m_running = true;
 
     Application() :
         m_fileMgr(_S("urde")),
-        m_cvarManager(m_fileMgr),
-        m_viewManager(m_fileMgr, m_cvarManager) {}
+        m_cvarManager(m_fileMgr)
+    {
+        m_viewManager.reset(new ViewManager(m_fileMgr, m_cvarManager));
+    }
 
     int appMain(boo::IApplication* app)
     {
         initialize(app);
-        m_viewManager.init(app);
+        m_viewManager->init(app);
         while (m_running)
         {
-            if (!m_viewManager.proc())
+            if (!m_viewManager->proc())
                 break;
         }
-        m_viewManager.stop();
+        m_viewManager->stop();
         m_cvarManager.serialize();
+        m_viewManager.reset();
         return 0;
     }
     void appQuitting(boo::IApplication*)

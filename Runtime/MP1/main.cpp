@@ -179,7 +179,7 @@ int CMain::appMain(boo::IApplication* app)
     TOneStatic<CGameArchitectureSupport> archSupport;
 
     boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
-    float rgba[4] = { 0.5f, 0.5f, 0.5f, 1.0f};
+    float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};
     gfxQ->setClearColor(rgba);
 
     float time = 0.0f;
@@ -192,6 +192,7 @@ int CMain::appMain(boo::IApplication* app)
         xe8_b24_finished = archSupport->Update();
         gfxQ->clearTarget();
 
+        gfxQ->resolveDisplay(nullptr);
         gfxQ->execute();
 
         time = (frame++) / 60.f;
