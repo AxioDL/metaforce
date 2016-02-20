@@ -111,7 +111,7 @@ public:
             /* Controller thread */
             m_statusChanges[idx].store(EStatusChange::Connected);
         }
-        void controllerDisconnected(unsigned idx, boo::EDolphinControllerType)
+        void controllerDisconnected(unsigned idx)
         {
             /* Controller thread */
             std::unique_lock<std::mutex> lk(m_stateLock);

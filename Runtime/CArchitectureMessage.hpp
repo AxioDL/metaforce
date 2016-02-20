@@ -43,6 +43,7 @@ struct CArchMsgParmInt32 : IArchMsgParm
 {
     u32 x4_parm;
     CArchMsgParmInt32(u32 parm) : x4_parm(parm) {}
+    virtual ~CArchMsgParmInt32() {}
 };
 
 struct CArchMsgParmVoidPtr : IArchMsgParm
@@ -50,6 +51,7 @@ struct CArchMsgParmVoidPtr : IArchMsgParm
     void* x4_parm1;
     CArchMsgParmVoidPtr(void* parm1)
     : x4_parm1(parm1) {}
+    virtual ~CArchMsgParmVoidPtr() {}
 };
 
 struct CArchMsgParmInt32Int32VoidPtr : IArchMsgParm
@@ -59,22 +61,26 @@ struct CArchMsgParmInt32Int32VoidPtr : IArchMsgParm
     void* xc_parm3;
     CArchMsgParmInt32Int32VoidPtr(u32 parm1, u32 parm2, void* parm3)
     : x4_parm1(parm1), x8_parm2(parm2), xc_parm3(parm3) {}
+    virtual ~CArchMsgParmInt32Int32VoidPtr() {}
 };
 
 struct CArchMsgParmNull : IArchMsgParm
 {
+    virtual ~CArchMsgParmNull() {}
 };
 
 struct CArchMsgParmReal32 : IArchMsgParm
 {
     float x4_parm;
     CArchMsgParmReal32(float parm) : x4_parm(parm) {}
+    virtual ~CArchMsgParmReal32() {}
 };
 
 struct CArchMsgParmUserInput : IArchMsgParm
 {
     CFinalInput x4_parm;
     CArchMsgParmUserInput(const CFinalInput& parm) : x4_parm(parm) {}
+    virtual ~CArchMsgParmUserInput() {}
 };
 
 struct CArchMsgParmControllerStatus : IArchMsgParm
@@ -83,6 +89,8 @@ struct CArchMsgParmControllerStatus : IArchMsgParm
     bool x6_parm2;
     CArchMsgParmControllerStatus(u16 a, bool b)
     : x4_parm1(a), x6_parm2(b) {}
+
+    virtual ~CArchMsgParmControllerStatus() {}
 };
 
 class CArchitectureMessage
