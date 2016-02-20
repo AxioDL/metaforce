@@ -24,6 +24,7 @@ class CInputGenerator : public boo::DeviceFinder
      * the logical state */
     float m_leftDiv;
     float m_rightDiv;
+    CKeyboardMouseControllerData m_data;
 public:
     CInputGenerator(float leftDiv, float rightDiv)
     : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)}),
@@ -35,70 +36,66 @@ public:
      * for buffering events in its own way, then boo flushes the buffer
      * at the start of each frame, invoking these methods. No atomic locking
      * is necessary, only absolute state tracking. */
-    struct WindowCallback : boo::IWindowCallback
+
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
     {
-        CKeyboardMouseControllerData m_data;
+        m_data.m_mouseButtons[int(button)] = true;
+    }
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
+    {
+        m_data.m_mouseButtons[int(button)] = false;
+    }
+    void mouseMove(const boo::SWindowCoord& coord)
+    {
+        m_data.m_mouseCoord = coord;
+    }
+    void scroll(const boo::SWindowCoord&, const boo::SScrollDelta& scroll)
+    {
+        m_data.m_accumScroll += scroll;
+    }
 
-        void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
-        {
-            m_data.m_mouseButtons[int(button)] = true;
-        }
-        void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey)
-        {
-            m_data.m_mouseButtons[int(button)] = false;
-        }
-        void mouseMove(const boo::SWindowCoord& coord)
-        {
-            m_data.m_mouseCoord = coord;
-        }
-        void scroll(const boo::SWindowCoord&, const boo::SScrollDelta& scroll)
-        {
-            m_data.m_accumScroll += scroll;
-        }
+    void charKeyDown(unsigned long charCode, boo::EModifierKey, bool)
+    {
+        charCode = tolower(charCode);
+        if (charCode > 255)
+            return;
+        m_data.m_charKeys[charCode] = true;
+    }
+    void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
+    {
+        charCode = tolower(charCode);
+        if (charCode > 255)
+            return;
+        m_data.m_charKeys[charCode] = false;
+    }
+    void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool)
+    {
+        m_data.m_specialKeys[int(key)] = true;
+    }
+    void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey)
+    {
+        m_data.m_specialKeys[int(key)] = false;
+    }
+    void modKeyDown(boo::EModifierKey mod, bool)
+    {
+        m_data.m_modMask = m_data.m_modMask | mod;
+    }
+    void modKeyUp(boo::EModifierKey mod)
+    {
+        m_data.m_modMask = m_data.m_modMask & ~mod;
+    }
 
-        void charKeyDown(unsigned long charCode, boo::EModifierKey, bool)
-        {
-            charCode = tolower(charCode);
-            if (charCode > 255)
-                return;
-            m_data.m_charKeys[charCode] = true;
-        }
-        void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
-        {
-            charCode = tolower(charCode);
-            if (charCode > 255)
-                return;
-            m_data.m_charKeys[charCode] = false;
-        }
-        void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool)
-        {
-            m_data.m_specialKeys[int(key)] = true;
-        }
-        void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey)
-        {
-            m_data.m_specialKeys[int(key)] = false;
-        }
-        void modKeyDown(boo::EModifierKey mod, bool)
-        {
-            m_data.m_modMask = m_data.m_modMask | mod;
-        }
-        void modKeyUp(boo::EModifierKey mod)
-        {
-            m_data.m_modMask = m_data.m_modMask & ~mod;
-        }
+    void reset()
+    {
+        m_data.m_accumScroll.zeroOut();
+    }
 
-        void reset()
-        {
-            m_data.m_accumScroll.zeroOut();
-        }
-
-        CFinalInput m_lastUpdate;
-        const CFinalInput& getFinalInput(unsigned idx, float dt)
-        {
-            m_lastUpdate = CFinalInput(idx, dt, m_data, m_lastUpdate);
-            return m_lastUpdate;
-        }
-    } m_windowCb;
+    CFinalInput m_lastUpdate;
+    const CFinalInput& getFinalInput(unsigned idx, float dt)
+    {
+        m_lastUpdate = CFinalInput(idx, dt, m_data, m_lastUpdate);
+        return m_lastUpdate;
+    }
 
     /* Input via the smash adapter is received asynchronously on a USB
      * report thread. This class atomically exchanges that data to the

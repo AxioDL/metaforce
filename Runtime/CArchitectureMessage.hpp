@@ -12,7 +12,9 @@ class CIOWin;
 enum class EArchMsgTarget
 {
     IOWinManager = 0,
-    Game = 1
+    Game = 1,
+    /* PathShagged targets, we start at 255 */
+    ArchitectureSupport = 255,
 };
 
 enum class EArchMsgType
@@ -28,6 +30,8 @@ enum class EArchMsgType
     QuitGameplay = 8,
     UpdateBegin = 10,
     FrameBegin = 11,
+    /* PathShagged messages, we start at 255 */
+    ApplicationExit = 255,
 };
 
 struct IArchMsgParm
@@ -142,6 +146,11 @@ public:
     static const CArchMsgParmVoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg)
     {
         return *msg.GetParm<CArchMsgParmVoidPtr>();
+    }
+    /* PathShagged Messages */
+    static CArchitectureMessage CreateApplicationExit(EArchMsgTarget target)
+    {
+        return CArchitectureMessage(target, EArchMsgType::ApplicationExit, new CArchMsgParmNull());
     }
 };
 

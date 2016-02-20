@@ -98,7 +98,7 @@ public:
     }
 };
 
-class CGameArchitectureSupport
+class CGameArchitectureSupport : public boo::IWindowCallback
 {
     CArchitectureQueue m_archQueue;
     CAudioSys m_audioSys;
@@ -109,6 +109,30 @@ class CGameArchitectureSupport
     CMainFlow m_mainFlow;
     CConsoleOutputWindow m_consoleWindow;
     CAudioStateWin m_audioStateWin;
+
+    void mouseDown(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
+    { m_inputGenerator.mouseDown(coord, button, mods); }
+    void mouseUp(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
+    { m_inputGenerator.mouseUp(coord, button, mods); }
+    void mouseMove(const boo::SWindowCoord &coord)
+    { m_inputGenerator.mouseMove(coord); }
+    void scroll(const boo::SWindowCoord &coord, const boo::SScrollDelta &scroll)
+    { m_inputGenerator.scroll(coord, scroll); }
+    void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
+    { m_inputGenerator.charKeyDown(charCode, mods, isRepeat); }
+    void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
+    { m_inputGenerator.charKeyUp(charCode, mods); }
+    void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
+    { m_inputGenerator.specialKeyDown(key, mods, isRepeat); }
+    void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
+    { m_inputGenerator.specialKeyUp(key, mods); }
+    void modKeyDown(boo::EModifierKey mod, bool isRepeat)
+    { m_inputGenerator.modKeyDown(mod, isRepeat);}
+    void modKeyUp(boo::EModifierKey mod)
+    { m_inputGenerator.modKeyUp(mod); }
+
+    void destroyed() { m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport))); }
+
 public:
     CGameArchitectureSupport()
         : m_audioSys(0,0,0,0,0),
@@ -120,6 +144,24 @@ public:
     bool Update()
     {
         bool finished = false;
+        m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
+
+        while(m_archQueue)
+        {
+            CArchitectureMessage msg = m_archQueue.Pop();
+            if (msg.GetTarget() == EArchMsgTarget::ArchitectureSupport)
+            {
+                if (msg.GetType() == EArchMsgType::ApplicationExit)
+                    finished = true;
+            }
+
+            if (msg.GetTarget() == EArchMsgTarget::Game && msg.GetType() == EArchMsgType::UserInput)
+            {
+                const CArchMsgParmUserInput* input = msg.GetParm<CArchMsgParmUserInput>();
+                if (input->x4_parm.DStart())
+                    m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)));
+            }
+        }
         return finished;
     }
 };
@@ -177,6 +219,7 @@ int CMain::appMain(boo::IApplication* app)
     g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
     TOneStatic<CGameArchitectureSupport> archSupport;
+    mainWindow->setCallback(archSupport.GetAllocSpace());
 
     boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
     float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};

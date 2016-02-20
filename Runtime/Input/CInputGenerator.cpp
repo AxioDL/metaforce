@@ -8,7 +8,7 @@ namespace pshag
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue)
 {
     /* Keyboard/Mouse first */
-    CFinalInput kbInput = m_windowCb.getFinalInput(0, dt);
+    CFinalInput kbInput = getFinalInput(0, dt);
     bool kbUsed = false;
 
     /* Dolphin controllers next */
