@@ -12,7 +12,7 @@ namespace pshag
 {
 
 using FourCC = HECL::FourCC;
-using TResId = u32;
+using TResId = u64;
 
 struct SObjectTag
 {

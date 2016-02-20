@@ -244,7 +244,6 @@ int CMain::appMain(boo::IApplication* app)
 
     while (!xe8_b24_finished)
     {
-        mainWindow->waitForRetrace();
         xe8_b24_finished = archSupport->Update();
 
         if (archSupport->isRectDirty())
@@ -259,6 +258,7 @@ int CMain::appMain(boo::IApplication* app)
         gfxQ->clearTarget();
         gfxQ->resolveDisplay(renderTex);
         gfxQ->execute();
+        mainWindow->waitForRetrace();
     }
     return 0;
 }
