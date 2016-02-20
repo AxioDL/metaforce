@@ -25,6 +25,13 @@ class CInputGenerator : public boo::DeviceFinder
     float m_leftDiv;
     float m_rightDiv;
     CKeyboardMouseControllerData m_data;
+
+    CFinalInput m_lastUpdate;
+    const CFinalInput& getFinalInput(unsigned idx, float dt)
+    {
+        m_lastUpdate = CFinalInput(idx, dt, m_data, m_lastUpdate);
+        return m_lastUpdate;
+    }
 public:
     CInputGenerator(float leftDiv, float rightDiv)
     : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)}),
@@ -88,13 +95,6 @@ public:
     void reset()
     {
         m_data.m_accumScroll.zeroOut();
-    }
-
-    CFinalInput m_lastUpdate;
-    const CFinalInput& getFinalInput(unsigned idx, float dt)
-    {
-        m_lastUpdate = CFinalInput(idx, dt, m_data, m_lastUpdate);
-        return m_lastUpdate;
     }
 
     /* Input via the smash adapter is received asynchronously on a USB

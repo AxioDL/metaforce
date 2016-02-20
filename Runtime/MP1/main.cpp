@@ -225,10 +225,6 @@ int CMain::appMain(boo::IApplication* app)
     float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};
     gfxQ->setClearColor(rgba);
 
-    float time = 0.0f;
-    int frame = 0;
-    CTimeProvider test(time);
-
     while (!xe8_b24_finished)
     {
         mainWindow->waitForRetrace();
@@ -237,9 +233,6 @@ int CMain::appMain(boo::IApplication* app)
 
         gfxQ->resolveDisplay(nullptr);
         gfxQ->execute();
-
-        time = (frame++) / 60.f;
-        //fprintf(stderr, "%f\n", test.x0_currentTime);
     }
     return 0;
 }

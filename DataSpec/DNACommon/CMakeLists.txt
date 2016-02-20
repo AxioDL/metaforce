@@ -21,6 +21,7 @@ add_library(DNACommon
             ParticleCommon.cpp
             DeafBabe.hpp
             BabeDead.hpp
+            NamedResourceCatalog.hpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
             Tweaks/ITweakPlayer.hpp
