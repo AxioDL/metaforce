@@ -72,6 +72,8 @@ public:
                 const CKeyboardMouseControllerData& data,
                 const CFinalInput& prevInput);
     CFinalInput& operator|=(const CFinalInput& other);
+    bool operator==(const CFinalInput& other)
+    { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
 
     bool PStart() const {return x2e_b31_PStart;}
     bool PR() const {return x2e_b26_PR;}

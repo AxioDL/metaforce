@@ -32,6 +32,8 @@ class CInputGenerator : public boo::DeviceFinder
         m_lastUpdate = CFinalInput(idx, dt, m_data, m_lastUpdate);
         return m_lastUpdate;
     }
+
+    bool m_firstFrame = true;
 public:
     CInputGenerator(float leftDiv, float rightDiv)
     : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)}),
