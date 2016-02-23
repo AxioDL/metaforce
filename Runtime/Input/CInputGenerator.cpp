@@ -7,6 +7,12 @@ namespace pshag
 
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue)
 {
+    if (m_firstFrame)
+    {
+        m_firstFrame = false;
+        return;
+    }
+
     /* Keyboard/Mouse first */
     CFinalInput kbInput = getFinalInput(0, dt);
     bool kbUsed = false;

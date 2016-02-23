@@ -6,6 +6,7 @@ make_dnalist(liblist
              CINF
              CSKR
              MREA
+             PTLA
              DeafBabe)
 add_library(DNAMP2
             DNAMP2.hpp DNAMP2.cpp
