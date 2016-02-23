@@ -20,6 +20,6 @@ public:
     static bool CreateDPSM(CDecalDescription* desc,CInputStream& in,CSimplePool* resPool);
 };
 
-std::unique_ptr<IObj> FDealDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+std::unique_ptr<IObj> FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 #endif // __PSHAG_CDECALDATAFACTORY_HPP__
