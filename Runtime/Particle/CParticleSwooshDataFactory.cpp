@@ -23,8 +23,10 @@ CSwooshDescription*CParticleSwooshDataFactory::CreateGeneratorDescription(CInput
     if (clsId == FOURCC('SWSH'))
     {
         CSwooshDescription* desc = new CSwooshDescription;
-        CreateWPSM(desc, in, resPool);
-        return desc;
+        if (CreateWPSM(desc, in, resPool))
+            return desc;
+        else
+            delete desc;
     }
     return nullptr;
 }
