@@ -1,5 +1,5 @@
 #include "HECL/Backend/Metal.hpp"
-#if HECL_HAS_METAL
+#if BOO_HAS_METAL
 #include "HECL/Runtime.hpp"
 #include <Athena/MemoryReader.hpp>
 #include <Athena/MemoryWriter.hpp>
@@ -263,7 +263,7 @@ struct MetalBackendFactory : IShaderBackendFactory
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const HECL::Frontend::IR& ir,
                                        HECL::Frontend::Diagnostics& diag,
-                                       boo::IShaderPipeline** objOut)
+                                       boo::IShaderPipeline*& objOut)
     {
         if (!m_rtHint)
             Log.report(LogVisor::FatalError,
@@ -279,7 +279,7 @@ struct MetalBackendFactory : IShaderBackendFactory
         
         std::string fragSource = m_backend.makeFrag();
         cachedSz += fragSource.size() + 1;
-        *objOut =
+        objOut =
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         tag.newVertexFormat(m_gfxFactory), m_rtHint,
                                         m_backend.m_blendSrc, m_backend.m_blendDst,

@@ -63,7 +63,7 @@ boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory* factory
     return factory->newVertexFormat(elemCount, vdescs.get());
 }
 
-/* For shader constructors that require vertex format up-front (HLSL) */
+/* For shader constructors that require vertex format up-front (HLSL/Metal/Vulkan) */
 boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory *factory) const
 {
     size_t elemCount = 2 + m_colorCount + m_uvCount + m_weightCount;

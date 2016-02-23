@@ -6,9 +6,7 @@
 #include <ctime>
 
 #include "HECL/Backend/GLSL.hpp"
-#if __APPLE__
 #include "HECL/Backend/Metal.hpp"
-#endif
 
 namespace HECL
 {
@@ -17,8 +15,12 @@ namespace Runtime
 IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
 #if _WIN32
 IShaderBackendFactory* _NewHLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
-#elif __APPLE__
+#endif
+#if BOO_HAS_METAL
 IShaderBackendFactory* _NewMetalBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+#endif
+#if BOO_HAS_VULKAN
+IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
 #endif
 
 static LogVisor::LogModule Log("ShaderCacheManager");
@@ -121,9 +123,15 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
     case boo::IGraphicsDataFactory::Platform::D3D12:
         m_factory.reset(_NewHLSLBackendFactory(gfxFactory));
         break;
-#elif __APPLE__ && HECL_HAS_METAL
+#endif
+#if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
         m_factory.reset(_NewMetalBackendFactory(gfxFactory));
+        break;
+#endif
+#if BOO_HAS_VULKAN
+    case boo::IGraphicsDataFactory::Platform::Vulkan:
+        m_factory.reset(_NewSPIRVBackendFactory(gfxFactory));
         break;
 #endif
     default:
@@ -369,7 +377,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const HECL::Frontend::IR& 
         return buildFromCache(foundData);
     FE.getDiagnostics().reset(diagName);
     boo::IShaderPipeline* ret;
-    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), &ret));
+    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ret));
     return ret;
 }
 

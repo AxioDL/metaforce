@@ -191,7 +191,6 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             float rgba[] = {sinf(frameIdx / 60.0), cosf(frameIdx / 60.0), 0.0, 1.0};
             gfxQ->setClearColor(rgba);
             gfxQ->clearTarget();
-            gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
 
             vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
             vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;

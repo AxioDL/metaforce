@@ -24,6 +24,7 @@ set(BOO_INCLUDE_DIR extern/libBoo/include)
 
 add_subdirectory(bintoc)
 add_subdirectory(extern)
+add_definitions(${BOO_SYS_DEFINES})
 include_directories(include ${LOG_VISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR} ${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_subdirectory(lib)
 add_subdirectory(blender)

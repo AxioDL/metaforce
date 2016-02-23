@@ -259,7 +259,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const HECL::Frontend::IR& ir,
                                        HECL::Frontend::Diagnostics& diag,
-                                       boo::IShaderPipeline** objOut)
+                                       boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
         size_t cachedSz = 3;
@@ -272,14 +272,14 @@ struct GLSLBackendFactory : IShaderBackendFactory
 
         std::string fragSource = m_backend.makeFrag("#version 330");
         cachedSz += fragSource.size() + 1;
-        *objOut =
+        objOut =
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         m_backend.m_texMapEnd, "texs",
                                         1, STD_BLOCKNAMES,
                                         m_backend.m_blendSrc, m_backend.m_blendDst,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
-        if (!*objOut)
+        if (!objOut)
             Log.report(LogVisor::FatalError, "unable to build shader");
 
         ShaderCachedData dataOut(tag, cachedSz);
@@ -386,6 +386,13 @@ struct GLSLBackendFactory : IShaderBackendFactory
     }
 };
 
+IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+{
+    return new struct GLSLBackendFactory(gfxFactory);
+}
+
+#if BOO_HAS_VULKAN
+
 struct SPIRVBackendFactory : IShaderBackendFactory
 {
     Backend::GLSL m_backend;
@@ -397,7 +404,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const HECL::Frontend::IR& ir,
                                        HECL::Frontend::Diagnostics& diag,
-                                       boo::IShaderPipeline** objOut)
+                                       boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
 
@@ -410,17 +417,15 @@ struct SPIRVBackendFactory : IShaderBackendFactory
 
         std::vector<unsigned int> vertBlob;
         std::vector<unsigned int> fragBlob;
-        std::vector<unsigned int> pipelineBlob;
+        std::vector<unsigned char> pipelineBlob;
 
-        *objOut =
+        objOut =
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        vertBlob, fragBlob, pipelineBlob,
-                                        m_backend.m_texMapEnd, "texs",
-                                        1, STD_BLOCKNAMES,
+                                        vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(m_gfxFactory),
                                         m_backend.m_blendSrc, m_backend.m_blendDst,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
-        if (!*objOut)
+        if (!objOut)
             Log.report(LogVisor::FatalError, "unable to build shader");
 
 
@@ -482,15 +487,14 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             r.readUBytesToBuf(fragBlob.data(), fragSz);
 
         atUint32 pipelineSz = r.readUint32Big();
-        std::vector<unsigned int> pipelineBlob(pipelineSz / sizeof(unsigned int));
+        std::vector<unsigned char> pipelineBlob(pipelineSz);
         if (pipelineSz)
             r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
 
         boo::IShaderPipeline* ret =
         m_gfxFactory->newShaderPipeline(nullptr, nullptr,
                                         vertBlob, fragBlob, pipelineBlob,
-                                        texCount, "texs",
-                                        1, STD_BLOCKNAMES,
+                                        tag.newVertexFormat(m_gfxFactory),
                                         blendSrc, blendDst,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
@@ -513,7 +517,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                            tag.getSkinSlotCount(), tag.getTexMtxCount());
 
         std::vector<unsigned int> vertBlob;
-        std::vector<std::pair<std::vector<unsigned int>, std::vector<unsigned int>>> fragPipeBlobs;
+        std::vector<std::pair<std::vector<unsigned int>, std::vector<unsigned char>>> fragPipeBlobs;
         fragPipeBlobs.reserve(extensionSlots.size());
 
         size_t cachedSz = 7 + 8 * extensionSlots.size();
@@ -521,19 +525,18 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         {
             std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post);
             fragPipeBlobs.emplace_back();
-            std::pair<std::vector<unsigned int>, std::vector<unsigned int>>& fragPipeBlob = fragPipeBlobs.back();
+            std::pair<std::vector<unsigned int>, std::vector<unsigned char>>& fragPipeBlob = fragPipeBlobs.back();
             boo::IShaderPipeline* ret =
             m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                             vertBlob, fragPipeBlob.first, fragPipeBlob.second,
-                                            m_backend.m_texMapEnd, "texs",
-                                            1, STD_BLOCKNAMES,
+                                            tag.newVertexFormat(m_gfxFactory),
                                             m_backend.m_blendSrc, m_backend.m_blendDst,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
                 Log.report(LogVisor::FatalError, "unable to build shader");
             cachedSz += fragPipeBlob.first.size() * sizeof(unsigned int);
-            cachedSz += fragPipeBlob.second.size() * sizeof(unsigned int);
+            cachedSz += fragPipeBlob.second.size();
             returnFunc(ret);
         }
         size_t vertBlobSz = vertBlob.size() * sizeof(unsigned int);
@@ -554,10 +557,10 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         else
             w.writeUint32Big(0);
 
-        for (const std::pair<std::vector<unsigned int>, std::vector<unsigned int>>& fragPipeBlob : fragPipeBlobs)
+        for (const std::pair<std::vector<unsigned int>, std::vector<unsigned char>>& fragPipeBlob : fragPipeBlobs)
         {
             size_t fragBlobSz = fragPipeBlob.first.size() * sizeof(unsigned int);
-            size_t pipeBlobSz = fragPipeBlob.second.size() * sizeof(unsigned int);
+            size_t pipeBlobSz = fragPipeBlob.second.size();
             if (fragBlobSz)
             {
                 w.writeUint32Big(fragBlobSz);
@@ -601,15 +604,14 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                 r.readUBytesToBuf(fragBlob.data(), fragSz);
 
             atUint32 pipelineSz = r.readUint32Big();
-            std::vector<unsigned int> pipelineBlob(pipelineSz / sizeof(unsigned int));
+            std::vector<unsigned char> pipelineBlob(pipelineSz);
             if (pipelineSz)
                 r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
 
             boo::IShaderPipeline* ret =
             m_gfxFactory->newShaderPipeline(nullptr, nullptr,
                                             vertBlob, fragBlob, pipelineBlob,
-                                            texCount, "texs",
-                                            1, STD_BLOCKNAMES,
+                                            tag.newVertexFormat(m_gfxFactory),
                                             blendSrc, blendDst,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
@@ -620,16 +622,12 @@ struct SPIRVBackendFactory : IShaderBackendFactory
     }
 };
 
-IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
-{
-    return new struct GLSLBackendFactory(gfxFactory);
-}
-
 IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
 {
-    //return new struct SPIRVBackendFactory(gfxFactory);
-    return nullptr;
+    return new struct SPIRVBackendFactory(gfxFactory);
 }
+
+#endif
 
 }
 }

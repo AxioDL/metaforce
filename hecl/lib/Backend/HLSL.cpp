@@ -248,7 +248,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const HECL::Frontend::IR& ir,
                                        HECL::Frontend::Diagnostics& diag,
-                                       boo::IShaderPipeline** objOut)
+                                       boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
 
@@ -260,7 +260,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         ComPtr<ID3DBlob> vertBlob;
         ComPtr<ID3DBlob> fragBlob;
         ComPtr<ID3DBlob> pipelineBlob;
-        *objOut =
+        objOut =
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         vertBlob, fragBlob, pipelineBlob,
                                         tag.newVertexFormat(m_gfxFactory),

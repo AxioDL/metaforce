@@ -1,12 +1,6 @@
 #ifndef HECLBACKEND_METAL_HPP
 #define HECLBACKEND_METAL_HPP
-#if __APPLE__
-
-#include "ProgrammableCommon.hpp"
-#include <Availability.h>
-
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101100
-#define HECL_HAS_METAL 1
+#if BOO_HAS_METAL
 
 namespace HECL
 {
@@ -39,9 +33,5 @@ private:
 }
 }
 
-#else
-#define HECL_HAS_METAL 0
-#endif
-
-#endif // __APPLE__
+#endif // BOO_HAS_METAL
 #endif // HECLBACKEND_METAL_HPP

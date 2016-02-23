@@ -159,7 +159,7 @@ protected:
     virtual ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                                const HECL::Frontend::IR& ir,
                                                HECL::Frontend::Diagnostics& diag,
-                                               boo::IShaderPipeline** objOut)=0;
+                                               boo::IShaderPipeline*& objOut)=0;
     virtual boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)=0;
     virtual ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
                                                        const HECL::Frontend::IR& ir,
