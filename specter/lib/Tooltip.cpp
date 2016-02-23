@@ -111,7 +111,6 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 void Tooltip::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 16);
 
     for (int i=0 ; i<4 ; ++i)

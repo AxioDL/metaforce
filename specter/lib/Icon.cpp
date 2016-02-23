@@ -32,7 +32,6 @@ void IconView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub
 void IconView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_vertexBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
 }
 

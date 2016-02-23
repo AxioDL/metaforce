@@ -11,6 +11,7 @@
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
 #include <boo/graphicsdev/Metal.hpp>
+#include <boo/graphicsdev/Vulkan.hpp>
 
 namespace Specter
 {
@@ -160,8 +161,12 @@ public:
         void init(boo::GLDataFactory* factory, const IThemeData& theme);
 #if _WIN32
         void init(boo::ID3DDataFactory* factory, const IThemeData& theme);
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
         void init(boo::MetalDataFactory* factory, const IThemeData& theme);
+#endif
+#if BOO_HAS_VULKAN
+        void init(boo::VulkanDataFactory* factory, const IThemeData& theme);
 #endif
     };
 

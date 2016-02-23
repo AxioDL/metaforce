@@ -343,7 +343,6 @@ void Space::draw(boo::IGraphicsCommandQueue* gfxQ)
 void Space::CornerView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_vertexBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 34);
 }
 

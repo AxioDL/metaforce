@@ -636,7 +636,6 @@ void RootView::SplitMenuSystem::draw(boo::IGraphicsCommandQueue* gfxQ)
     if (m_phase == Phase::Inactive)
         return;
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     if (m_phase == Phase::InteractiveJoin)
         gfxQ->draw(0, 28);
     else

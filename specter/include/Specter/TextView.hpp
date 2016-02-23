@@ -5,6 +5,7 @@
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
 #include <boo/graphicsdev/Metal.hpp>
+#include <boo/graphicsdev/Vulkan.hpp>
 
 #include "FontCache.hpp"
 
@@ -49,8 +50,12 @@ public:
         void init(boo::GLDataFactory* factory, FontCache* fcache);
 #if _WIN32
         void init(boo::ID3DDataFactory* factory, FontCache* fcache);
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
         void init(boo::MetalDataFactory* factory, FontCache* fcache);
+#endif
+#if BOO_HAS_VULKAN
+        void init(boo::VulkanDataFactory* factory, FontCache* fcache);
 #endif
     };
 

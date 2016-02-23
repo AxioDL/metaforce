@@ -895,7 +895,6 @@ void TextField::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 28);
     if (m_active)
     {

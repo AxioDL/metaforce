@@ -300,7 +300,6 @@ void ScrollView::draw(boo::IGraphicsCommandQueue* gfxQ)
         if (m_style == Style::ThinIndicator && m_drawInd)
         {
             gfxQ->setShaderDataBinding(m_vertsBinding);
-            gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
             gfxQ->draw(0, 4);
         }
         else if (m_style == Style::SideButtons && m_drawSideButtons)

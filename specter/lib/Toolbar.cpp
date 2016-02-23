@@ -168,7 +168,6 @@ void Toolbar::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 10);
 
     for (std::vector<ViewChild<View*>>& u : m_children)

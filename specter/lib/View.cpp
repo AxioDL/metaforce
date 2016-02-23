@@ -6,77 +6,77 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::View");
 
+static const char* GLSLSolidVS =
+"#version 330\n"
+"layout(location=0) in vec3 posIn;\n"
+"layout(location=1) in vec4 colorIn;\n"
+SPECTER_VIEW_VERT_BLOCK_GLSL
+"struct VertToFrag\n"
+"{\n"
+"    vec4 color;\n"
+"};\n"
+"out VertToFrag vtf;\n"
+"void main()\n"
+"{\n"
+"    vtf.color = colorIn * mulColor;\n"
+"    gl_Position = mv * vec4(posIn, 1.0);\n"
+"}\n";
+
+static const char* GLSLSolidFS =
+"#version 330\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec4 color;\n"
+"};\n"
+"in VertToFrag vtf;\n"
+"layout(location=0) out vec4 colorOut;\n"
+"void main()\n"
+"{\n"
+"    colorOut = vtf.color;\n"
+"}\n";
+
+static const char* GLSLTexVS =
+"#version 330\n"
+"layout(location=0) in vec3 posIn;\n"
+"layout(location=1) in vec2 uvIn;\n"
+SPECTER_VIEW_VERT_BLOCK_GLSL
+"struct VertToFrag\n"
+"{\n"
+"    vec4 color;\n"
+"    vec2 uv;\n"
+"};\n"
+"out VertToFrag vtf;\n"
+"void main()\n"
+"{\n"
+"    vtf.uv = uvIn;\n"
+"    vtf.color = mulColor;\n"
+"    gl_Position = mv * vec4(posIn, 1.0);\n"
+"}\n";
+
+static const char* GLSLTexFS =
+"#version 330\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec4 color;\n"
+"    vec2 uv;\n"
+"};\n"
+"in VertToFrag vtf;\n"
+"uniform sampler2D tex;\n"
+"layout(location=0) out vec4 colorOut;\n"
+"void main()\n"
+"{\n"
+"    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
+"}\n";
+
 void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
 {
-    static const char* SolidVS =
-    "#version 330\n"
-    "layout(location=0) in vec3 posIn;\n"
-    "layout(location=1) in vec4 colorIn;\n"
-    SPECTER_VIEW_VERT_BLOCK_GLSL
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec4 color;\n"
-    "};\n"
-    "out VertToFrag vtf;\n"
-    "void main()\n"
-    "{\n"
-    "    vtf.color = colorIn * mulColor;\n"
-    "    gl_Position = mv * vec4(posIn, 1.0);\n"
-    "}\n";
-
-    static const char* SolidFS =
-    "#version 330\n"
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec4 color;\n"
-    "};\n"
-    "in VertToFrag vtf;\n"
-    "layout(location=0) out vec4 colorOut;\n"
-    "void main()\n"
-    "{\n"
-    "    colorOut = vtf.color;\n"
-    "}\n";
-
-    static const char* TexVS =
-    "#version 330\n"
-    "layout(location=0) in vec3 posIn;\n"
-    "layout(location=1) in vec2 uvIn;\n"
-    SPECTER_VIEW_VERT_BLOCK_GLSL
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec4 color;\n"
-    "    vec2 uv;\n"
-    "};\n"
-    "out VertToFrag vtf;\n"
-    "void main()\n"
-    "{\n"
-    "    vtf.uv = uvIn;\n"
-    "    vtf.color = mulColor;\n"
-    "    gl_Position = mv * vec4(posIn, 1.0);\n"
-    "}\n";
-
-    static const char* TexFS =
-    "#version 330\n"
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec4 color;\n"
-    "    vec2 uv;\n"
-    "};\n"
-    "in VertToFrag vtf;\n"
-    "uniform sampler2D tex;\n"
-    "layout(location=0) out vec4 colorOut;\n"
-    "void main()\n"
-    "{\n"
-    "    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
-    "}\n";
-
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
-    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, 0, nullptr, 1, BlockNames,
+    m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
 
-    m_texShader = factory->newShaderPipeline(TexVS, TexFS, 1, "tex", 1, BlockNames,
+    m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, "tex", 1, BlockNames,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              false, false, false);
 }
@@ -181,7 +181,8 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
                                              false, false, false);
 }
     
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
     
 void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& theme)
 {
@@ -283,6 +284,34 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
 }
     
 #endif
+#if BOO_HAS_VULKAN
+
+void View::Resources::init(boo::VulkanDataFactory* factory, const IThemeData& theme)
+{
+    boo::VertexElementDescriptor solidvdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::Color}
+    };
+    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
+
+    m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               false, false, false);
+
+    boo::VertexElementDescriptor texvdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::UV4}
+    };
+    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
+
+    m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             false, false, false);
+}
+
+#endif
 
 void View::buildResources(ViewResources& res)
 {
@@ -337,7 +366,6 @@ void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_bgVertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
 }
 

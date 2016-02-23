@@ -476,7 +476,6 @@ void ModalWindow::draw(boo::IGraphicsCommandQueue* gfxQ)
         return;
 
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 22);
     gfxQ->draw(22, 16);
 

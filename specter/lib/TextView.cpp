@@ -9,72 +9,72 @@ namespace Specter
 {
 static LogVisor::LogModule Log("Specter::TextView");
 
+static const char* GLSLVS =
+"#version 330\n"
+"layout(location=0) in vec3 posIn[4];\n"
+"layout(location=4) in mat4 mvMtx;\n"
+"layout(location=8) in vec3 uvIn[4];\n"
+"layout(location=12) in vec4 colorIn;\n"
+SPECTER_VIEW_VERT_BLOCK_GLSL
+"struct VertToFrag\n"
+"{\n"
+"    vec3 uv;\n"
+"    vec4 color;\n"
+"};\n"
+"out VertToFrag vtf;\n"
+"void main()\n"
+"{\n"
+"    vtf.uv = uvIn[gl_VertexID];\n"
+"    vtf.color = colorIn * mulColor;\n"
+"    gl_Position = mv * mvMtx * vec4(posIn[gl_VertexID], 1.0);\n"
+"}\n";
+
+static const char* GLSLFSReg =
+"#version 330\n"
+"uniform sampler2DArray fontTex;\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec3 uv;\n"
+"    vec4 color;\n"
+"};\n"
+"in VertToFrag vtf;\n"
+"layout(location=0) out vec4 colorOut;\n"
+"void main()\n"
+"{\n"
+"    colorOut = vtf.color;\n"
+"    colorOut.a *= texture(fontTex, vtf.uv).r;\n"
+"}\n";
+
+static const char* GLSLFSSubpixel =
+"#version 330\n"
+"uniform sampler2DArray fontTex;\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec3 uv;\n"
+"    vec4 color;\n"
+"};\n"
+"in VertToFrag vtf;\n"
+"layout(location=0, index=0) out vec4 colorOut;\n"
+"layout(location=0, index=1) out vec4 blendOut;\n"
+"void main()\n"
+"{\n"
+"    colorOut = vtf.color;\n"
+"    blendOut = colorOut.a * texture(fontTex, vtf.uv);\n"
+"}\n";
+
 void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
 
-    static const char* VS =
-    "#version 330\n"
-    "layout(location=0) in vec3 posIn[4];\n"
-    "layout(location=4) in mat4 mvMtx;\n"
-    "layout(location=8) in vec3 uvIn[4];\n"
-    "layout(location=12) in vec4 colorIn;\n"
-    SPECTER_VIEW_VERT_BLOCK_GLSL
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec3 uv;\n"
-    "    vec4 color;\n"
-    "};\n"
-    "out VertToFrag vtf;\n"
-    "void main()\n"
-    "{\n"
-    "    vtf.uv = uvIn[gl_VertexID];\n"
-    "    vtf.color = colorIn * mulColor;\n"
-    "    gl_Position = mv * mvMtx * vec4(posIn[gl_VertexID], 1.0);\n"
-    "}\n";
-
-    static const char* FSReg =
-    "#version 330\n"
-    "uniform sampler2DArray fontTex;\n"
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec3 uv;\n"
-    "    vec4 color;\n"
-    "};\n"
-    "in VertToFrag vtf;\n"
-    "layout(location=0) out vec4 colorOut;\n"
-    "void main()\n"
-    "{\n"
-    "    colorOut = vtf.color;\n"
-    "    colorOut.a *= texture(fontTex, vtf.uv).r;\n"
-    "}\n";
-
-    static const char* FSSubpixel =
-    "#version 330\n"
-    "uniform sampler2DArray fontTex;\n"
-    "struct VertToFrag\n"
-    "{\n"
-    "    vec3 uv;\n"
-    "    vec4 color;\n"
-    "};\n"
-    "in VertToFrag vtf;\n"
-    "layout(location=0, index=0) out vec4 colorOut;\n"
-    "layout(location=0, index=1) out vec4 blendOut;\n"
-    "void main()\n"
-    "{\n"
-    "    colorOut = vtf.color;\n"
-    "    blendOut = colorOut.a * texture(fontTex, vtf.uv);\n"
-    "}\n";
-
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
     m_regular =
-    factory->newShaderPipeline(VS, FSReg, 1, "fontTex", 1, BlockNames,
+    factory->newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                false, false, false);
 
     m_subpixel =
-    factory->newShaderPipeline(VS, FSSubpixel, 1, "fontTex", 1, BlockNames,
+    factory->newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                                false, false, false);
 }
@@ -181,7 +181,8 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
                                false, false, false);
 }
     
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
     
 void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache)
 {
@@ -257,6 +258,37 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
                                false, false, false);
 }
     
+#endif
+#if BOO_HAS_VULKAN
+
+void TextView::Resources::init(boo::VulkanDataFactory* factory, FontCache* fcache)
+{
+    m_fcache = fcache;
+
+    boo::VertexElementDescriptor vdescs[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+    };
+    m_vtxFmt = factory->newVertexFormat(13, vdescs);
+
+    m_regular =
+    factory->newShaderPipeline(GLSLVS, GLSLFSReg, m_vtxFmt,
+                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                               false, false, false);
+}
+
 #endif
 
 TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align, size_t capacity)
@@ -501,7 +533,6 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
             m_valid = true;
         }
         gfxQ->setShaderDataBinding(m_shaderBinding);
-        gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
         gfxQ->drawInstances(0, 4, m_glyphs.size());
     }
 }

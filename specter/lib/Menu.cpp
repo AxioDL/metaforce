@@ -279,11 +279,9 @@ void Menu::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(0, 4);
     m_scroll.m_view->draw(gfxQ);
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     gfxQ->draw(4, 4);
     m_headText->draw(gfxQ);
 }

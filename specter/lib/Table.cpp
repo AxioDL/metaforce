@@ -832,7 +832,6 @@ void Table::draw(boo::IGraphicsCommandQueue* gfxQ)
 void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
 
     gfxQ->setScissor(m_scissorRect);
     gfxQ->draw(1, m_visibleRows * m_t.m_columns * 6 - 2);
@@ -860,7 +859,6 @@ void Table::RowsView::draw(boo::IGraphicsCommandQueue* gfxQ)
     if (m_t.m_header)
     {
         gfxQ->setShaderDataBinding(m_t.m_vertsBinding);
-        gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
         gfxQ->setScissor(rootView().subRect());
         gfxQ->draw(1, m_t.m_columns * 6 - 2);
         for (ViewChild<std::unique_ptr<CellView>>& hv : m_t.m_headerViews)

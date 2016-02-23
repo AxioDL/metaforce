@@ -25,9 +25,15 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     case boo::IGraphicsDataFactory::Platform::D3D12:
         init<boo::ID3DDataFactory>(static_cast<boo::ID3DDataFactory*>(factory), *theme, fcache);
         break;
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
         init<boo::MetalDataFactory>(static_cast<boo::MetalDataFactory*>(factory), *theme, fcache);
+        break;
+#endif
+#if BOO_HAS_VULKAN
+    case boo::IGraphicsDataFactory::Platform::Vulkan:
+        init<boo::VulkanDataFactory>(static_cast<boo::VulkanDataFactory*>(factory), *theme, fcache);
         break;
 #endif
     default:

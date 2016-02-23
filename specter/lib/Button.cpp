@@ -602,7 +602,6 @@ void Button::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     View::draw(gfxQ);
     gfxQ->setShaderDataBinding(m_vertsBinding);
-    gfxQ->setDrawPrimitive(boo::Primitive::TriStrips);
     if (m_style == Style::Block)
     {
         gfxQ->draw(0, 28);
