@@ -206,14 +206,12 @@ public:
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
     }
-    static void DrawInstances(boo::Primitive prim, size_t start, size_t count, size_t instCount)
+    static void DrawInstances(size_t start, size_t count, size_t instCount)
     {
-        g_BooMainCommandQueue->setDrawPrimitive(prim);
         g_BooMainCommandQueue->drawInstances(start, count, instCount);
     }
-    static void DrawArray(boo::Primitive prim, size_t start, size_t count)
+    static void DrawArray(size_t start, size_t count)
     {
-        g_BooMainCommandQueue->setDrawPrimitive(prim);
         g_BooMainCommandQueue->draw(start, count);
     }
 };

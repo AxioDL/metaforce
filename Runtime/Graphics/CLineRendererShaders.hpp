@@ -5,6 +5,7 @@
 #include "boo/graphicsdev/GL.hpp"
 #include "boo/graphicsdev/D3D.hpp"
 #include "boo/graphicsdev/Metal.hpp"
+#include "boo/graphicsdev/Vulkan.hpp"
 
 namespace pshag
 {
@@ -36,8 +37,12 @@ public:
     static IDataBindingFactory* Initialize(boo::GLDataFactory& factory);
 #if _WIN32
     static IDataBindingFactory* Initialize(boo::ID3DDataFactory& factory);
-#elif BOO_HAS_METAL
+#endif
+#if BOO_HAS_METAL
     static IDataBindingFactory* Initialize(boo::MetalDataFactory& factory);
+#endif
+#if BOO_HAS_VULKAN
+    static IDataBindingFactory* Initialize(boo::VulkanDataFactory& factory);
 #endif
 
     static void Initialize();
