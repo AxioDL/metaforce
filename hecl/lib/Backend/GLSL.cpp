@@ -87,7 +87,7 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
 {
     if (skinSlots == 0)
         skinSlots = 1;
-    std::string retval = HECL::Format("uniform HECLVertUniform\n"
+    std::string retval = HECL::Format("UBINDING0 uniform HECLVertUniform\n"
                                       "{\n"
                                       "    mat4 mv[%u];\n"
                                       "    mat4 mvInv[%u];\n"
@@ -107,7 +107,7 @@ void GLSL::reset(const IR& ir, Diagnostics& diag)
 std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
                            unsigned s, unsigned tm) const
 {
-    std::string retval = std::string(glslVer) + "\n" +
+    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertInStruct(col, uv, w) + "\n" +
             GenerateVertToFragStruct() + "\n" +
             GenerateVertUniformStruct(s, tm) +
@@ -160,9 +160,9 @@ std::string GLSL::makeFrag(const char* glslVer,
 
     std::string texMapDecl;
     if (m_texMapEnd)
-        texMapDecl = HECL::Format("uniform sampler2D texs[%u];\n", m_texMapEnd);
+        texMapDecl = HECL::Format("TBINDING0 uniform sampler2D texs[%u];\n", m_texMapEnd);
 
-    std::string retval = std::string(glslVer) + "\n" +
+    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct() +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
@@ -210,9 +210,9 @@ std::string GLSL::makeFrag(const char* glslVer,
 
     std::string texMapDecl;
     if (m_texMapEnd)
-        texMapDecl = HECL::Format("uniform sampler2D texs[%u];\n", m_texMapEnd);
+        texMapDecl = HECL::Format("TBINDING0 uniform sampler2D texs[%u];\n", m_texMapEnd);
 
-    std::string retval = std::string(glslVer) + "\n" +
+    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct() +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +

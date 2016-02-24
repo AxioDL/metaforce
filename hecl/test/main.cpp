@@ -35,7 +35,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     int appMain(boo::IApplication* app)
     {
         /* Setup boo window */
-        m_mainWindow = app->newWindow(_S("HECL Test"));
+        m_mainWindow = app->newWindow(_S("HECL Test"), 1);
         m_mainWindow->setCallback(&m_windowCb);
 
         boo::ITextureR* renderTex = nullptr;
@@ -75,7 +75,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
 
             boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
-            renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], 1);
+            renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1]);
 
             /* HECL managers */
             HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
