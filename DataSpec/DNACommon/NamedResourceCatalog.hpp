@@ -8,7 +8,7 @@ template <class IDType>
 struct NamedResourceCatalog : BigYAML
 {
     Delete _d;
-    Value<atUint32> namedResCount;
+    Value<atUint32> namedResCount = 0;
     struct NamedResource : BigYAML
     {
         Delete _d;

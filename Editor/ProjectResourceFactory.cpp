@@ -21,9 +21,9 @@ void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::Proje
 {
     m_resPaths.clear();
     m_namedResources.clear();
-    HECL::SystemString catalogPath = HECL::ProjectPath(spec.cookedPath, std::string(spec.spec.m_name) + "/catalog.yaml").getAbsolutePath();
+    HECL::SystemString catalogPath = HECL::ProjectPath(spec.cookedPath, HECL::SystemString(spec.spec.m_name) + _S("/catalog.yaml")).getAbsolutePath();
     FILE* catalogFile = HECL::Fopen(catalogPath.c_str(), _S("r"));
-    if (!HECL::StrCmp(spec.spec.m_name, "MP3"))
+    if (!HECL::StrCmp(spec.spec.m_name, _S("MP3")))
     {
         DataSpec::NamedResourceCatalog<DataSpec::UniqueID64> catalog;
         if (catalogFile)

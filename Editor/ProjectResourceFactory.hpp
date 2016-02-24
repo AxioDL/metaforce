@@ -25,7 +25,11 @@ class ProjectResourceFactory : public pshag::IFactory
             if (ent.m_name.size() == idLen && ent.m_name[4] == _S('_'))
             {
                 HECL::SystemUTF8View entu8(ent.m_name);
+#if _WIN32
+                u64 id = _strtoui64(entu8.c_str() + 5, nullptr, 16);
+#else
                 u64 id = strtouq(entu8.c_str() + 5, nullptr, 16);
+#endif
 
                 if (id)
                 {

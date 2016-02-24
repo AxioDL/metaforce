@@ -1,6 +1,10 @@
 #include "CDecalDataFactory.hpp"
 #include "CDecalDescription.hpp"
+#include "CGenDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
 #include "CParticleDataFactory.hpp"
+#include "CModel.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
@@ -35,10 +39,10 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
     CGlobalRandom gr{rand};
     FourCC clsId = CPF::GetClassID(in);
 
-    while(clsId != SBIG('_END'))
+    while (clsId != SBIG('_END'))
     {
         bool loadFirstDesc = false;
-        switch(clsId)
+        switch (clsId)
         {
         case SBIG('1SZE'):
         case SBIG('1LFT'):
@@ -100,7 +104,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
 
 void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId, SQuadDescr& quad)
 {
-    switch(clsId)
+    switch (clsId)
     {
     case SBIG('1LFT'):
     case SBIG('2LFT'):
