@@ -201,7 +201,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     "    float3 uvIn[4];\n"
     "    float4 colorIn;\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_METAL
+    SPECTER_METAL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"

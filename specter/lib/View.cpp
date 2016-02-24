@@ -197,7 +197,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
     "    float3 posIn [[ attribute(0) ]];\n"
     "    float4 colorIn [[ attribute(1) ]];\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_METAL
+    SPECTER_METAL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
@@ -232,7 +232,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
     "    float3 posIn [[ attribute(0) ]];\n"
     "    float2 uvIn [[ attribute(1) ]];\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_METAL
+    SPECTER_METAL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
