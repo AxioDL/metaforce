@@ -267,7 +267,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                         m_backend.m_blendSrc, m_backend.m_blendDst,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
-        if (!*objOut)
+        if (!objOut)
             Log.report(LogVisor::FatalError, "unable to build shader");
 
         atUint32 vertSz = 0;
