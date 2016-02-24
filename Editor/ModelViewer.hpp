@@ -26,13 +26,20 @@ class ModelViewer : public ViewerSpace
     } m_state;
 
     const Space::State& spaceState() const { return m_state; }
-
+    std::unique_ptr<pshag::CLineRenderer> m_lineRenderer;
     struct View : Specter::View
     {
         ModelViewer& m_mv;
+        boo::SWindowRect m_scissorRect;
+
         View(ModelViewer& mv, Specter::ViewResources& res)
             : Specter::View(res, mv.m_vm.rootView()), m_mv(mv)
-        {}
+        {
+            commitResources(res);
+        }
+
+        void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+        void draw(boo::IGraphicsCommandQueue *gfxQ);
     };
 
     Camera m_camera;
@@ -43,6 +50,7 @@ public:
         : ViewerSpace(vm, Class::ModelViewer, parent)
     {
         reloadState();
+        m_lineRenderer.reset(new pshag::CLineRenderer(pshag::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     }
 
     ModelViewer(ViewManager& vm, Space* parent, const ModelViewer& other)

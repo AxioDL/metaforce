@@ -6,11 +6,12 @@ namespace pshag
 
 static const char* VS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
 "layout(location=1) in vec4 colorIn;\n"
 "layout(location=2) in vec4 uvIn;\n"
 "\n"
-"uniform LineUniform\n"
+"UBINDING0 uniform LineUniform\n"
 "{\n"
 "    vec4 moduColor;\n"
 "};\n"
@@ -31,6 +32,7 @@ static const char* VS_GLSL_TEX =
 
 static const char* FS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -39,7 +41,7 @@ static const char* FS_GLSL_TEX =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D texs[1];\n"
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
@@ -47,10 +49,11 @@ static const char* FS_GLSL_TEX =
 
 static const char* VS_GLSL_NOTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
 "layout(location=1) in vec4 colorIn;\n"
 "\n"
-"uniform LineUniform\n"
+"UBINDING0 uniform LineUniform\n"
 "{\n"
 "    vec4 moduColor;\n"
 "};\n"
@@ -81,7 +84,7 @@ static const char* FS_GLSL_NOTEX =
 "    colorOut = vtf.color;\n"
 "}\n";
 
-struct GLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
+struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
     {
@@ -136,7 +139,63 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 false, false, false);
 
-    return new struct GLSLLineDataBindingFactory;
+    return new struct OGLLineDataBindingFactory;
 }
+
+#if BOO_HAS_VULKAN
+struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
+{
+    void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    {
+        int texCount = 0;
+        boo::ITexture* textures[1];
+
+        if (texture)
+        {
+            textures[0] = texture;
+            texCount = 1;
+        }
+
+        boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
+
+        renderer.m_shaderBind = CGraphics::g_BooFactory->newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
+                                                                              nullptr, nullptr, 1, uniforms,
+                                                                              texCount, textures);
+    }
+};
+
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::VulkanDataFactory& factory)
+{
+    static const boo::VertexElementDescriptor VtxFmtTex[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::Color},
+        {nullptr, nullptr, boo::VertexSemantic::UV4}
+    };
+    m_texVtxFmt = factory.newVertexFormat(3, VtxFmtTex);
+
+    static const boo::VertexElementDescriptor VtxFmtNoTex[] =
+    {
+        {nullptr, nullptr, boo::VertexSemantic::Position4},
+        {nullptr, nullptr, boo::VertexSemantic::Color}
+    };
+    m_noTexVtxFmt = factory.newVertexFormat(2, VtxFmtNoTex);
+
+    m_texAlpha = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                           false, true, false);
+    m_texAdditive = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                              false, false, false);
+    m_noTexAlpha = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             false, true, false);
+    m_noTexAdditive = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                false, false, false);
+
+    return new struct VulkanLineDataBindingFactory;
+}
+#endif
 
 }

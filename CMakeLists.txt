@@ -77,6 +77,7 @@ set(HECL_DATASPEC_PUSHES
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
     HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);")
 add_subdirectory(hecl)
+add_definitions(${BOO_SYS_DEFINES})
 add_subdirectory(libSpecter)
 set(SPECTER_INCLUDE_DIR libSpecter/include libSpecter/freetype2/include)
 add_subdirectory(NODLib)

@@ -78,6 +78,9 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             desc->x2a_AP11 = CPF::GetBool(in);
         break;
         case SBIG('AP21'):
+            desc->x2b_AP21 = CPF::GetBool(in);
+        break;
+        case SBIG('AS11'):
             desc->x2c_AS11 = CPF::GetBool(in);
         break;
         case SBIG('AS12'):

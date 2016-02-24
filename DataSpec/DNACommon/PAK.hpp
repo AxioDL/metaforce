@@ -2,6 +2,7 @@
 #define __DNACOMMON_PAK_HPP__
 
 #include "DNACommon.hpp"
+#include "NamedResourceCatalog.hpp"
 
 namespace DataSpec
 {
@@ -240,6 +241,7 @@ public:
     using EntryType = typename PAKType::Entry;
     using RigPair = std::pair<IDType, IDType>;
 private:
+    NamedResourceCatalog<IDType> m_catalog;
     const SpecBase& m_dataSpec;
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     std::vector<std::pair<HECL::ProjectPath,HECL::ProjectPath>> m_bridgePaths;
@@ -309,8 +311,20 @@ public:
             /* Add RigPairs to global map */
             bridge.addCMDLRigPairs(*this, m_cmdlRigs);
 
+            /* Add named resources to catalog */
+            for (const auto& namedEntry : pak.m_nameEntries)
+                m_catalog.addNamedResource(namedEntry.name, namedEntry.id, namedEntry.type);
+
             progress(++count / bridgesSz);
             ++bridgeIdx;
+        }
+
+        HECL::SystemString catalogPath = HECL::ProjectPath(m_gameCooked, "catalog.yaml").getAbsolutePath();
+        FILE* catalog = HECL::Fopen(catalogPath.c_str(), _S("wb"));
+        if (catalog)
+        {
+            m_catalog.toYAMLFile(catalog);
+            fclose(catalog);
         }
     }
 
