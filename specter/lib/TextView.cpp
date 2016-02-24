@@ -11,11 +11,12 @@ static LogVisor::LogModule Log("Specter::TextView");
 
 static const char* GLSLVS =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec3 posIn[4];\n"
 "layout(location=4) in mat4 mvMtx;\n"
 "layout(location=8) in vec3 uvIn[4];\n"
 "layout(location=12) in vec4 colorIn;\n"
-SPECTER_VIEW_VERT_BLOCK_GLSL
+SPECTER_GLSL_VIEW_VERT_BLOCK
 "struct VertToFrag\n"
 "{\n"
 "    vec3 uv;\n"
@@ -31,7 +32,8 @@ SPECTER_VIEW_VERT_BLOCK_GLSL
 
 static const char* GLSLFSReg =
 "#version 330\n"
-"uniform sampler2DArray fontTex;\n"
+BOO_GLSL_BINDING_HEAD
+"TBINDING0 uniform sampler2DArray fontTex;\n"
 "struct VertToFrag\n"
 "{\n"
 "    vec3 uv;\n"
@@ -47,7 +49,8 @@ static const char* GLSLFSReg =
 
 static const char* GLSLFSSubpixel =
 "#version 330\n"
-"uniform sampler2DArray fontTex;\n"
+BOO_GLSL_BINDING_HEAD
+"TBINDING0 uniform sampler2DArray fontTex;\n"
 "struct VertToFrag\n"
 "{\n"
 "    vec3 uv;\n"

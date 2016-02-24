@@ -129,19 +129,19 @@ protected:
             m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
         }
     } m_viewVertBlock;
-#define SPECTER_VIEW_VERT_BLOCK_GLSL\
-    "uniform SpecterViewBlock\n"\
+#define SPECTER_GLSL_VIEW_VERT_BLOCK\
+    "UBINDING0 uniform SpecterViewBlock\n"\
     "{\n"\
     "    mat4 mv;\n"\
     "    vec4 mulColor;\n"\
     "};\n"
-#define SPECTER_VIEW_VERT_BLOCK_HLSL\
+#define SPECTER_HLSL_VIEW_VERT_BLOCK\
     "cbuffer SpecterViewBlock : register(b0)\n"\
     "{\n"\
     "    float4x4 mv;\n"\
     "    float4 mulColor;\n"\
     "};\n"
-#define SPECTER_VIEW_VERT_BLOCK_METAL\
+#define SPECTER_METAL_VIEW_VERT_BLOCK\
     "struct SpecterViewBlock\n"\
     "{\n"\
     "    float4x4 mv;\n"\

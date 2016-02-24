@@ -8,9 +8,10 @@ static LogVisor::LogModule Log("Specter::View");
 
 static const char* GLSLSolidVS =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec3 posIn;\n"
 "layout(location=1) in vec4 colorIn;\n"
-SPECTER_VIEW_VERT_BLOCK_GLSL
+SPECTER_GLSL_VIEW_VERT_BLOCK
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -37,9 +38,10 @@ static const char* GLSLSolidFS =
 
 static const char* GLSLTexVS =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec3 posIn;\n"
 "layout(location=1) in vec2 uvIn;\n"
-SPECTER_VIEW_VERT_BLOCK_GLSL
+SPECTER_GLSL_VIEW_VERT_BLOCK
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -55,13 +57,14 @@ SPECTER_VIEW_VERT_BLOCK_GLSL
 
 static const char* GLSLTexFS =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
 "    vec2 uv;\n"
 "};\n"
 "in VertToFrag vtf;\n"
-"uniform sampler2D tex;\n"
+"TBINDING0 uniform sampler2D tex;\n"
 "layout(location=0) out vec4 colorOut;\n"
 "void main()\n"
 "{\n"
