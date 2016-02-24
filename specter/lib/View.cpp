@@ -83,7 +83,7 @@ void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              false, false, false);
 }
-    
+
 #if _WIN32
 
 void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& theme)
@@ -94,7 +94,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
     "    float3 posIn : POSITION;\n"
     "    float4 colorIn : COLOR;\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_HLSL
+    SPECTER_HLSL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
@@ -125,7 +125,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
     "    float3 posIn : POSITION;\n"
     "    float2 uvIn : UV;\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_HLSL
+    SPECTER_HLSL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
@@ -183,10 +183,10 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              false, false, false);
 }
-    
+
 #endif
 #if BOO_HAS_METAL
-    
+
 void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& theme)
 {
     static const char* SolidVS =
@@ -210,7 +210,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
     "    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
     "    return vtf;\n"
     "}\n";
-    
+
     static const char* SolidFS =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
@@ -262,14 +262,14 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
     "{\n"
     "    return tex.sample(samp, vtf.uv) * vtf.color;\n"
     "}\n";
-    
+
     boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
     m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
-    
+
     m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                false, false, false);
@@ -285,7 +285,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              false, false, false);
 }
-    
+
 #endif
 #if BOO_HAS_VULKAN
 
@@ -378,11 +378,11 @@ void View::commitResources(ViewResources& res)
         Log.report(LogVisor::FatalError, "multiple resource commits not allowed");
     m_gfxData = res.m_factory->commit();
 }
-    
+
 void View::VertexBufferBinding::initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf)
 {
     m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), count);
-    
+
     if (!res.m_viewRes.m_solidVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
@@ -405,11 +405,11 @@ void View::VertexBufferBinding::initSolid(ViewResources& res, size_t count, boo:
                                                               nullptr, 1, bufs, 0, nullptr);
     }
 }
-    
+
 void View::VertexBufferBinding::initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture)
 {
     m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), count);
-    
+
     if (!res.m_viewRes.m_texVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =

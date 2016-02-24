@@ -96,7 +96,7 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     "    float3 uvIn[4] : UV;\n"
     "    float4 colorIn : COLOR;\n"
     "};\n"
-    SPECTER_VIEW_VERT_BLOCK_HLSL
+    SPECTER_HLSL_VIEW_VERT_BLOCK
     "struct VertToFrag\n"
     "{\n"
     "    float4 position : SV_Position;\n"
@@ -183,14 +183,14 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                                false, false, false);
 }
-    
+
 #endif
 #if BOO_HAS_METAL
-    
+
 void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache)
 {
     m_fcache = fcache;
-    
+
     static const char* VS =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
@@ -219,7 +219,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     "    vtf.position = view.mv * v.mvMtx * float4(v.posIn[vertId], 1.0);\n"
     "    return vtf;\n"
     "}\n";
-    
+
     static const char* FSReg =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
@@ -236,7 +236,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     "    colorOut.a *= fontTex.sample(samp, vtf.uv.xy, vtf.uv.z).r;\n"
     "    return colorOut;\n"
     "}\n";
-    
+
     boo::VertexElementDescriptor vdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
@@ -254,13 +254,13 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
     m_vtxFmt = factory->newVertexFormat(13, vdescs);
-    
+
     m_regular =
     factory->newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                false, false, false);
 }
-    
+
 #endif
 #if BOO_HAS_VULKAN
 
