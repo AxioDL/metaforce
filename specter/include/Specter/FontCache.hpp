@@ -191,6 +191,8 @@ public:
     void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close(); m_curvesFace.close();}
 
     const FontAtlas& lookupAtlas(FontTag tag) const;
+
+    void destroyAtlases() {m_cachedAtlases.clear();}
 };
 
 }

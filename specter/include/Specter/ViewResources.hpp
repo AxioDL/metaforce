@@ -188,6 +188,11 @@ public:
     ViewResources& operator=(const ViewResources& other) = delete;
     ViewResources& operator=(ViewResources&& other) = default;
 
+    void destroyResData()
+    {
+        m_resData.doDestroy();
+    }
+
     ~ViewResources()
     {
         if (m_fcacheThread.joinable())
