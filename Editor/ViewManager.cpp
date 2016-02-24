@@ -201,7 +201,7 @@ void ViewManager::pushRecentFile(const HECL::SystemString& path)
 
 void ViewManager::init(boo::IApplication* app)
 {
-    m_mainWindow = std::unique_ptr<boo::IWindow>(app->newWindow(_S("URDE")));
+    m_mainWindow = std::unique_ptr<boo::IWindow>(app->newWindow(_S("URDE"), 1));
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 

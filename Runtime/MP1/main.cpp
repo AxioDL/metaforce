@@ -224,7 +224,7 @@ void CMain::LoadAudio()
 int CMain::appMain(boo::IApplication* app)
 {
     Zeus::detectCPU();
-    mainWindow = app->newWindow(_S("Metroid Prime 1 Reimplementation vZygote"));
+    mainWindow = app->newWindow(_S("Metroid Prime 1 Reimplementation vZygote"), 1);
     mainWindow->showWindow();
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();
@@ -238,7 +238,7 @@ int CMain::appMain(boo::IApplication* app)
 
     boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
     boo::SWindowRect windowRect = mainWindow->getWindowFrame();
-    boo::ITextureR* renderTex = mainWindow->getMainContextDataFactory()->newRenderTexture(windowRect.size[0], windowRect.size[1], 1);
+    boo::ITextureR* renderTex = mainWindow->getMainContextDataFactory()->newRenderTexture(windowRect.size[0], windowRect.size[1]);
     float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};
     gfxQ->setClearColor(rgba);
 

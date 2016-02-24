@@ -6,11 +6,12 @@ namespace pshag
 
 static const char* VS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
 "layout(location=1) in vec4 colorIn;\n"
 "layout(location=2) in vec4 uvIn;\n"
 "\n"
-"uniform LineUniform\n"
+"UBINDING0 uniform LineUniform\n"
 "{\n"
 "    vec4 moduColor;\n"
 "};\n"
@@ -31,6 +32,7 @@ static const char* VS_GLSL_TEX =
 
 static const char* FS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -39,7 +41,7 @@ static const char* FS_GLSL_TEX =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D texs[1];\n"
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
@@ -47,10 +49,11 @@ static const char* FS_GLSL_TEX =
 
 static const char* VS_GLSL_NOTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
 "layout(location=1) in vec4 colorIn;\n"
 "\n"
-"uniform LineUniform\n"
+"UBINDING0 uniform LineUniform\n"
 "{\n"
 "    vec4 moduColor;\n"
 "};\n"

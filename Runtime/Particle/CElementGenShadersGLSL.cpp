@@ -10,11 +10,12 @@ namespace pshag
 
 static const char* VS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "layout(location=5) in vec4 uvsIn[4];\n"
 "\n"
-"uniform ParticleUniform\n"
+"UBINDING0 uniform ParticleUniform\n"
 "{\n"
 "    mat4 mvp;\n"
 "    vec4 moduColor;\n"
@@ -36,6 +37,7 @@ static const char* VS_GLSL_TEX =
 
 static const char* FS_GLSL_TEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -44,7 +46,7 @@ static const char* FS_GLSL_TEX =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D texs[1];\n"
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
@@ -52,6 +54,7 @@ static const char* FS_GLSL_TEX =
 
 static const char* FS_GLSL_TEX_REDTOALPHA =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -60,7 +63,7 @@ static const char* FS_GLSL_TEX_REDTOALPHA =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D texs[1];\n"
 "void main()\n"
 "{\n"
 "    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
@@ -69,12 +72,13 @@ static const char* FS_GLSL_TEX_REDTOALPHA =
 
 static const char* VS_GLSL_INDTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "layout(location=5) in vec4 uvsInTexrTind[4];\n"
 "layout(location=9) in vec2 uvsInScene[4];\n"
 "\n"
-"uniform ParticleUniform\n"
+"UBINDING0 uniform ParticleUniform\n"
 "{\n"
 "    mat4 mvp;\n"
 "    vec4 moduColor;\n"
@@ -100,6 +104,7 @@ static const char* VS_GLSL_INDTEX =
 
 static const char* FS_GLSL_INDTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -110,7 +115,7 @@ static const char* FS_GLSL_INDTEX =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[3];\n"
+"TBINDING0 uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
 "    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
@@ -122,6 +127,7 @@ static const char* FS_GLSL_INDTEX =
 
 static const char* FS_GLSL_CINDTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
@@ -132,7 +138,7 @@ static const char* FS_GLSL_CINDTEX =
 "\n"
 "in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"uniform sampler2D texs[3];\n"
+"TBINDING0 uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
 "    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
@@ -142,10 +148,11 @@ static const char* FS_GLSL_CINDTEX =
 
 static const char* VS_GLSL_NOTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "\n"
-"uniform ParticleUniform\n"
+"UBINDING0 uniform ParticleUniform\n"
 "{\n"
 "    mat4 mvp;\n"
 "    vec4 moduColor;\n"
