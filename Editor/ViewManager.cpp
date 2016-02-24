@@ -273,6 +273,9 @@ void ViewManager::stop()
 {
     pshag::CElementGen::Shutdown();
     pshag::CLineRenderer::Shutdown();
+    m_iconsToken.doDestroy();
+    m_viewResources.destroyResData();
+    m_fontCache.destroyAtlases();
     m_mainWindow->getCommandQueue()->stopRenderer();
 }
 
