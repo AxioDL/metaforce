@@ -20,8 +20,12 @@ public:
 
         if (HECL::Stat(dir->c_str(), &theStat))
         {
-            LogModule.report(LogVisor::FatalError, _S("unable to stat '%s'"), dir->c_str());
-            return;
+            HECL::MakeDir(dir->c_str());
+            if (HECL::Stat(dir->c_str(), &theStat))
+            {
+                LogModule.report(LogVisor::FatalError, _S("unable to stat '%s'"), dir->c_str());
+                return;
+            }
         }
         if (!S_ISDIR(theStat.st_mode))
         {
