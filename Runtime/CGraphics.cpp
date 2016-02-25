@@ -207,7 +207,7 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
     int height = maxY2 - minY2;
     return {true, minX2, minY2, width, height, width,
             minX2 / float(g_ViewportResolution.x), maxX2 / float(g_ViewportResolution.x),
-            minY2 / float(g_ViewportResolution.y), maxY2 / float(g_ViewportResolution.y)};
+            1.f - maxY2 / float(g_ViewportResolution.y), 1.f - minY2 / float(g_ViewportResolution.y)};
 
 }
 

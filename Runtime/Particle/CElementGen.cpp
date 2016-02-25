@@ -220,7 +220,7 @@ struct SParticleInstanceIndTex
     Zeus::CVector4f pos[4];
     Zeus::CColor color;
     Zeus::CVector4f texrTindUVs[4];
-    Zeus::CVector2f sceneUVs[4];
+    Zeus::CVector4f sceneUVs;
 };
 static std::vector<SParticleInstanceIndTex> g_instIndTexData;
 
@@ -361,7 +361,6 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     CIntElement* maxpElem = desc->x28_MAXP.get();
     if (maxpElem)
         maxpElem->GetValue(x50_curFrame, x70_MAXP);
-    x70_MAXP = 1;
 
     x2c_particleLists.reserve(x70_MAXP);
     if (x28_orientType == EModelOrientationType::One)
@@ -527,7 +526,6 @@ bool CElementGen::InternalUpdate(double dt)
         CIntElement* maxpElem = desc->x28_MAXP.get();
         if (maxpElem)
             maxpElem->GetValue(x50_curFrame, x70_MAXP);
-        x70_MAXP = 1;
 
         UpdateExistingParticles();
 
@@ -1993,7 +1991,7 @@ void CElementGen::RenderParticlesIndirectTexture()
         if (!clipRect.x0_valid)
             continue;
 
-        CGraphics::ResolveSpareTexture(clipRect);
+        CGraphics::ResolveSpareTexture(clipRect, true, false);
 
         g_instIndTexData.emplace_back();
         SParticleInstanceIndTex& inst = g_instIndTexData.back();
@@ -2002,14 +2000,11 @@ void CElementGen::RenderParticlesIndirectTexture()
         inst.pos[2] = Zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.pos[3] = Zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.color = particle.x34_color;
-        inst.texrTindUVs[0] = Zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMax, uvsInd.yMax};
+        inst.texrTindUVs[0] = Zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
         inst.texrTindUVs[1] = Zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
         inst.texrTindUVs[2] = Zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
-        inst.texrTindUVs[3] = Zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
-        inst.sceneUVs[0] = {clipRect.x1c_uvXMax, clipRect.x24_uvYMax};
-        inst.sceneUVs[1] = {clipRect.x18_uvXMin, clipRect.x24_uvYMax};
-        inst.sceneUVs[2] = {clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
-        inst.sceneUVs[3] = {clipRect.x18_uvXMin, clipRect.x20_uvYMin};
+        inst.texrTindUVs[3] = Zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
+        inst.sceneUVs = Zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
     }
 
     m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));

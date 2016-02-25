@@ -76,7 +76,7 @@ BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn[4];\n"
 "layout(location=4) in vec4 colorIn;\n"
 "layout(location=5) in vec4 uvsInTexrTind[4];\n"
-"layout(location=9) in vec2 uvsInScene[4];\n"
+"layout(location=9) in vec4 uvsInScene;\n"
 "\n"
 "UBINDING0 uniform ParticleUniform\n"
 "{\n"
@@ -87,8 +87,8 @@ BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
+"    vec4 uvScene;\n"
 "    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
 "    vec2 uvTind;\n"
 "};\n"
 "\n"
@@ -96,8 +96,8 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = colorIn * moduColor;\n"
+"    vtf.uvScene = uvsInScene;\n"
 "    vtf.uvTexr = uvsInTexrTind[gl_VertexID].xy;\n"
-"    vtf.uvScene = uvsInScene[gl_VertexID];\n"
 "    vtf.uvTind = uvsInTexrTind[gl_VertexID].zw;\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
 "}\n";
@@ -108,8 +108,8 @@ BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
+"    vec4 uvScene;\n"
 "    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
 "    vec2 uvTind;\n"
 "};\n"
 "\n"
@@ -118,12 +118,11 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
-"    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).zw;\n"
+"    vec4 sceneTexel = texture(texs[1], mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
-"    //colorOut = vtf.color * sceneTexel + texrTexel;\n"
-"    colorOut = sceneTexel + vec4(0.5, 0.0, 0.0, 1.0);\n"
-"    //colorOut.a = vtf.color.a * texrTexel.a;\n"
+"    colorOut = vtf.color * sceneTexel + texrTexel;\n"
+"    colorOut.a = vtf.color.a * texrTexel.a;\n"
 "}\n";
 
 static const char* FS_GLSL_CINDTEX =
@@ -132,8 +131,8 @@ BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
+"    vec4 uvScene;\n"
 "    vec2 uvTexr;\n"
-"    vec2 uvScene;\n"
 "    vec2 uvTind;\n"
 "};\n"
 "\n"
@@ -142,10 +141,9 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D texs[3];\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
-"    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
+"    vec2 tindTexel = texture(texs[2], vtf.uvTind).zw;\n"
+"    vec4 sceneTexel = texture(texs[1], mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
-"    //colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
@@ -222,11 +220,8 @@ struct OGLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
                     {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
                     {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
                     {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 5},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 6},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 7}
                 };
-                vtxFmt = CGraphics::g_BooFactory->newVertexFormat(13, TexFmtIndTex);
+                vtxFmt = CGraphics::g_BooFactory->newVertexFormat(10, TexFmtIndTex);
             }
             else
             {

@@ -29,6 +29,7 @@ void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
     m_lineRenderer.reset(new pshag::CLineRenderer(pshag::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
 
+    //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
     m_rootView->updateSize();
 }
