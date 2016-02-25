@@ -121,8 +121,9 @@ BOO_GLSL_BINDING_HEAD
 "    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
-"    colorOut = vtf.color * sceneTexel + texrTexel;\n"
-"    colorOut.a = vtf.color.a * texrTexel.a;"
+"    //colorOut = vtf.color * sceneTexel + texrTexel;\n"
+"    colorOut = sceneTexel + vec4(0.5, 0.0, 0.0, 1.0);\n"
+"    //colorOut.a = vtf.color.a * texrTexel.a;\n"
 "}\n";
 
 static const char* FS_GLSL_CINDTEX =
@@ -144,6 +145,7 @@ BOO_GLSL_BINDING_HEAD
 "    vec2 tindTexel = texture(texs[2], vtf.uvTind).ba;\n"
 "    vec4 sceneTexel = texture(texs[1], vtf.uvScene + tindTexel);\n"
 "    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
+"    //colorOut = vec4(1.0,1.0,1.0,1.0);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
@@ -302,23 +304,23 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLD
 
     m_indTexZWrite = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               true, true, false);
+                                               false, true, false);
     m_indTexNoZWrite = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 true, false, false);
+                                                 false, false, false);
     m_indTexAdditive = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 true, true, false);
+                                                 false, true, false);
 
     m_cindTexZWrite = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                true, true, false);
+                                                false, true, false);
     m_cindTexNoZWrite = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                  true, false, false);
+                                                  false, false, false);
     m_cindTexAdditive = factory.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                  true, true, false);
+                                                  false, true, false);
 
     m_noTexZTestZWrite = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,

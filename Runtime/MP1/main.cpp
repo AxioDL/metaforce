@@ -238,7 +238,7 @@ int CMain::appMain(boo::IApplication* app)
 
     boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
     boo::SWindowRect windowRect = mainWindow->getWindowFrame();
-    boo::ITextureR* renderTex = mainWindow->getMainContextDataFactory()->newRenderTexture(windowRect.size[0], windowRect.size[1]);
+    boo::ITextureR* renderTex = mainWindow->getMainContextDataFactory()->newRenderTexture(windowRect.size[0], windowRect.size[1], true, true);
     float rgba[4] = { 0.2f, 0.2f, 0.2f, 1.0f};
     gfxQ->setClearColor(rgba);
 

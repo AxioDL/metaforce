@@ -148,16 +148,14 @@ Zeus::CVector2i CGraphics::ProjectPoint(const Zeus::CVector3f& point)
 {
     Zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
     return {int(projPt.x * g_ViewportResolutionHalf.x) + g_ViewportResolutionHalf.x,
-            int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y};
+            g_ViewportResolution.y - (int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y)};
 }
 
 SClipScreenRect CGraphics::ClipScreenRectFromMS(const Zeus::CVector3f& p1,
                                                 const Zeus::CVector3f& p2)
 {
-    Zeus::CVector3f xf2 = (g_GXModelMatrix * p2) - g_ViewMatrix.m_origin;
-    xf2 = g_ViewMatrix.transposeRotate(xf2);
-    Zeus::CVector3f xf1 = (g_GXModelMatrix * p1) - g_ViewMatrix.m_origin;
-    xf1 = g_ViewMatrix.transposeRotate(xf1);
+    Zeus::CVector3f xf1 = g_GXModelView * p1;
+    Zeus::CVector3f xf2 = g_GXModelView * p2;
     return ClipScreenRectFromVS(xf1, xf2);
 }
 
@@ -208,14 +206,13 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
     int width = maxX2 - minX2;
     int height = maxY2 - minY2;
     return {true, minX2, minY2, width, height, width,
-            (finalMinX - minX2) / float(width), (finalMaxX - minX2) / float(width),
-            (finalMinY - minY2) / float(height), (finalMaxY - minY2) / float(height)};
+            minX2 / float(g_ViewportResolution.x), maxX2 / float(g_ViewportResolution.x),
+            minY2 / float(g_ViewportResolution.y), maxY2 / float(g_ViewportResolution.y)};
 
 }
 
 Zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const Zeus::CVector3f& point)
 {
-    CProjectionState& pst = g_Proj;
     Zeus::CVector3f pt = g_GXModelView * point;
     return GetPerspectiveProjectionMatrix().multiplyOneOverW(pt);
 }

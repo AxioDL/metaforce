@@ -21,10 +21,11 @@ namespace URDE
 void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
 {
     //m_partGenDesc = objStore.GetObj({HECL::FOURCC('PART'), 0x972A5CD2});
-    m_partGenDesc = objStore.GetObj("WallSpark");
+    m_partGenDesc = objStore.GetObj("PART_EnvRainSplash");
     m_partGen.reset(new pshag::CElementGen(m_partGenDesc,
                                            pshag::CElementGen::EModelOrientationType::Normal,
                                            pshag::CElementGen::EOptionalSystemFlags::None));
+    m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
     m_lineRenderer.reset(new pshag::CLineRenderer(pshag::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
 
@@ -218,7 +219,7 @@ void ViewManager::init(boo::IApplication* app)
 
     m_mainWindow->setWaitCursor(false);
 
-    pshag::CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue());
+    pshag::CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     pshag::CElementGen::Initialize();
     pshag::CLineRenderer::Initialize();
 }

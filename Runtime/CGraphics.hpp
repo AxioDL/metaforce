@@ -188,10 +188,13 @@ public:
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
 
-    static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc)
+    static void InitializeBoo(boo::IGraphicsDataFactory* factory,
+                              boo::IGraphicsCommandQueue* cc,
+                              boo::ITextureR* spareTex)
     {
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
+        g_SpareTexture = spareTex;
     }
 
     static boo::IGraphicsBufferD* NewDynamicGPUBuffer(boo::BufferUse use, size_t stride, size_t count)
@@ -205,6 +208,11 @@ public:
     static void SetShaderDataBinding(boo::IShaderDataBinding* binding)
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
+    }
+    static void ResolveSpareTexture(const SClipScreenRect& rect)
+    {
+        boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
+        g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true);
     }
     static void DrawInstances(size_t start, size_t count, size_t instCount)
     {
