@@ -22,6 +22,7 @@ int CElementGen::g_ParticleSystemAliveCount;
 s32 CElementGen::g_FreeIndex;
 bool CElementGen::g_StaticListInitialized = false;
 bool CElementGen::g_MoveRedToAlphaBuffer = false;
+CElementGen::CParticle* CElementGen::g_currentParticle = nullptr;
 static rstl::reserved_vector<CElementGen::CParticle, MAX_GLOBAL_PARTICLES> g_StaticParticleList;
 static rstl::reserved_vector<u16, MAX_GLOBAL_PARTICLES> g_StaticFreeList;
 
@@ -580,6 +581,8 @@ void CElementGen::UpdateExistingParticles()
          p != x2c_particleLists.end();)
     {
         CElementGen::CParticle& particle = g_StaticParticleList[p->x0_partIdx];
+        g_currentParticle = &particle;
+
         if (particle.x0_endFrame < x50_curFrame)
         {
             g_StaticFreeList[++g_FreeIndex] = p->x0_partIdx;
@@ -1287,6 +1290,8 @@ void CElementGen::RenderModels()
     for (CParticleListItem& item : x2c_particleLists)
     {
         CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+        g_currentParticle = &particle;
+
         if (particle.x0_endFrame == -1)
         {
             ++matrixIt;
@@ -1461,6 +1466,8 @@ void CElementGen::RenderLines()
     for (CParticleListItem& item : x2c_particleLists)
     {
         CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+        g_currentParticle = &particle;
+
         int partFrame = x50_curFrame - particle.x28_startFrame;
 
         if (!constTexr)
@@ -1611,6 +1618,8 @@ void CElementGen::RenderParticles()
         for (CParticleListItem& item : x2c_particleLists)
         {
             CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+            g_currentParticle = &particle;
+
             int partFrame = x50_curFrame - particle.x28_startFrame - 1;
             Zeus::CVector3f viewPoint;
             if (desc->x44_28_SORT)
@@ -1741,6 +1750,8 @@ void CElementGen::RenderParticles()
         for (CParticleListItem& item : x2c_particleLists)
         {
             CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+            g_currentParticle = &particle;
+
             int partFrame = x50_curFrame - particle.x28_startFrame - 1;
 
             if (!constTexr)
@@ -1912,23 +1923,6 @@ void CElementGen::RenderParticlesIndirectTexture()
     bool constIndUVs = tind->HasConstantUV();
     tind->GetValueUV(partFrame, uvsInd);
 
-    if (!desc->x45_30_CIND)
-    {
-        /* 1. TEXC
-         * 2. Indirect TEXC * RASC + PREVC
-         */
-    }
-    else
-    {
-        /* 1. TEXC * RASC
-         * 2. Indirect TEXC * PREVC
-         */
-    }
-
-    /* 1. TEXA
-     * 2. RASA * PREVA
-     */
-
     if (desc->x44_28_SORT)
     {
         for (CParticleListItem& item : x2c_particleLists)
@@ -1950,6 +1944,8 @@ void CElementGen::RenderParticlesIndirectTexture()
     for (CParticleListItem& item : x2c_particleLists)
     {
         CParticle& particle = g_StaticParticleList[item.x0_partIdx];
+        g_currentParticle = &particle;
+
         int partFrame = x50_curFrame - particle.x28_startFrame;
         Zeus::CVector3f viewPoint;
         if (desc->x44_28_SORT)

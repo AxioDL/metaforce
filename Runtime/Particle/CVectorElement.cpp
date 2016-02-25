@@ -1,7 +1,7 @@
 #include "CVectorElement.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
-#include "CParticleGen.hpp"
+#include "CElementGen.hpp"
 #include <math.h>
 
 namespace pshag
@@ -264,19 +264,19 @@ bool CVEPulse::GetValue(int frame, Zeus::CVector3f& valOut) const
 
 bool CVEParticleVelocity::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    valOut = CParticleGlobals::g_particleMetrics->x1c_pvel;
+    valOut = CElementGen::g_currentParticle->x1c_vel;
     return false;
 }
 
 bool CVEPLCO::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    valOut = CParticleGlobals::g_particleMetrics->x10_plco;
+    valOut = CElementGen::g_currentParticle->x10_prevPos;
     return false;
 }
 
 bool CVEPLOC::GetValue(int /*frame*/, Zeus::CVector3f& valOut) const
 {
-    valOut = CParticleGlobals::g_particleMetrics->x0_ploc;
+    valOut = CElementGen::g_currentParticle->x4_pos;
     return false;
 }
 

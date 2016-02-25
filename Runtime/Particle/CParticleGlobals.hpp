@@ -40,23 +40,12 @@ public:
 
     static float* g_papValues;
 
-    struct SParticleMetrics
-    {
-        Zeus::CVector3f x0_ploc;
-        Zeus::CVector3f x10_plco;
-        Zeus::CVector3f x1c_pvel;
-        float x2c_psll;
-        float x30_prlw;
-        Zeus::CColor x34_pcol;
-    };
-
     struct SParticleSystem
     {
         FourCC x0_type;
         CParticleGen* x4_system;
     };
 
-    static SParticleMetrics* g_particleMetrics;
     static SParticleSystem* g_currentParticleSystem;
 };
 

@@ -1,4 +1,5 @@
 #include "CColorElement.hpp"
+#include "CElementGen.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include <math.h>
@@ -152,7 +153,7 @@ bool CCEPulse::GetValue(int frame, Zeus::CColor& valOut) const
 
 bool CCEParticleColor::GetValue(int /*frame*/, Zeus::CColor& colorOut) const
 {
-    colorOut = CParticleGlobals::g_particleMetrics->x34_pcol;
+    colorOut = CElementGen::g_currentParticle->x34_color;
     return false;
 }
 

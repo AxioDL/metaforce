@@ -45,6 +45,10 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     if (m_vm.m_partGen)
     {
         m_vm.m_partGen->Update(1.0 / 60.0);
+
+        if (m_vm.m_partGen->IsSystemDeletable())
+            m_vm.m_partGen->Reset();
+
         pshag::CGraphics::SetModelMatrix(Zeus::CTransform::Identity());
         pshag::CGraphics::SetViewPointMatrix(Zeus::CTransform::Identity() + Zeus::CVector3f(0.f, -10.f, 0.f));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();

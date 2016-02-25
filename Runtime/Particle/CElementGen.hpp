@@ -60,9 +60,8 @@ public:
             --g_ParticleAliveCount;
         }
     };
-    class CParticle
+    struct CParticle
     {
-        friend class CElementGen;
         int x0_endFrame = 0;
         Zeus::CVector3f x4_pos;
         Zeus::CVector3f x10_prevPos;
@@ -72,6 +71,7 @@ public:
         float x30_lineWidthOrRota = 0.f;
         Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
+    static CParticle* g_currentParticle;
 private:
     friend class CElementGenShaders;
     TLockedToken<CGenDescription> x1c_genDesc;
