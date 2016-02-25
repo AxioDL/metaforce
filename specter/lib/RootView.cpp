@@ -13,7 +13,7 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
-    m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1]);
+    m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], true, true);
     commitResources(res);
     resized(rect, rect);
 }

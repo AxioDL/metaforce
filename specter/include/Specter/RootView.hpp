@@ -145,6 +145,7 @@ public:
     IViewManager& viewManager() const {return m_viewMan;}
     ViewResources& viewRes() const {return *m_viewRes;}
     const IThemeData& themeData() const {return *m_viewRes->m_theme;}
+    boo::ITextureR* renderTex() const {return m_renderTex;}
 
     std::vector<View*>& accessContentViews() {return m_views;}
 
