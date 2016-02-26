@@ -36,6 +36,16 @@ public:
         }
         m_sources.push_back({id, magnitude, duration});
     }
+
+    void RemoveSource(TUniqueId id)
+    {
+        auto iter = std::find_if(m_sources.begin(), m_sources.end(), [&id](const CStaticInterferenceSource& src)->bool{
+            return src.id == id;
+        });
+        if (iter != m_sources.end())
+            m_sources.erase(iter);
+    }
+
     void Update(CStateManager&, float dt)
     {
         std::vector<CStaticInterferenceSource> newSources;
@@ -50,6 +60,7 @@ public:
         }
         m_sources = std::move(newSources);
     }
+
     float GetTotalInterference() const
     {
         float validAccum = 0.0;
