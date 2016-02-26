@@ -167,9 +167,16 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     switch (Subtype(subtype.toUint32()))
     {
     case Subtype::DIFF:
+    {
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassDIFF']\n";
+        if (txtrId)
+        {
+            out << "new_material.hecl_lightmap = texture.name\n"
+                << "texture.image.use_fake_user = True\n";
+        }
         linkRAS = true;
         break;
+    }
     case Subtype::RIML:
         out << "pnode.node_tree = bpy.data.node_groups['RetroPassRIML']\n";
         if (idx == 0)
