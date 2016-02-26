@@ -75,7 +75,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
 
             boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
-            renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1]);
+            renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], false, false);
 
             /* HECL managers */
             HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
