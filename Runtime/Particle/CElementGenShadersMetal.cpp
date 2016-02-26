@@ -83,7 +83,7 @@ static const char* VS_METAL_INDTEX =
 "    float4 posIn[4];\n"
 "    float4 colorIn;\n"
 "    float4 uvsInTexrTind[4];\n"
-"    float4 uvsInScene[4];\n"
+"    float4 uvsInScene;\n"
 "};\n"
 "\n"
 "struct ParticleUniform\n"
@@ -96,8 +96,8 @@ static const char* VS_METAL_INDTEX =
 "{\n"
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
+"    float4 uvScene;\n"
 "    float2 uvTexr;\n"
-"    float2 uvScene;\n"
 "    float2 uvTind;\n"
 "};\n"
 "\n"
@@ -108,8 +108,8 @@ static const char* VS_METAL_INDTEX =
 "    VertToFrag vtf;\n"
 "    constant VertData& v = va[instId];\n"
 "    vtf.color = v.colorIn * particle.moduColor;\n"
+"    vtf.uvScene = v.uvsInScene * float4(1.0, -1.0, 1.0, -1.0);\n"
 "    vtf.uvTexr = v.uvsInTexrTind[vertId].xy;\n"
-"    vtf.uvScene = v.uvsInScene[vertId].xy;\n"
 "    vtf.uvTind = v.uvsInTexrTind[vertId].zw;\n"
 "    vtf.position = particle.mvp * v.posIn[vertId];\n"
 "    return vtf;\n"
@@ -123,8 +123,8 @@ static const char* FS_METAL_INDTEX =
 "{\n"
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
+"    float4 uvScene;\n"
 "    float2 uvTexr;\n"
-"    float2 uvScene;\n"
 "    float2 uvTind;\n"
 "};\n"
 "\n"
@@ -134,7 +134,7 @@ static const char* FS_METAL_INDTEX =
 "                      texture2d<float> tex2 [[ texture(2) ]])\n"
 "{\n"
 "    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
-"    float4 sceneTexel = tex1.sample(samp, vtf.uvScene + tindTexel);\n"
+"    float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    float4 texrTexel = tex0.sample(samp, vtf.uvTexr);\n"
 "    float4 colr = vtf.color * sceneTexel + texrTexel;\n"
 "    return float4(colr.rgb, vtf.color.a * texrTexel.a);"
@@ -148,8 +148,8 @@ static const char* FS_METAL_CINDTEX =
 "{\n"
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
+"    float4 uvScene;\n"
 "    float2 uvTexr;\n"
-"    float2 uvScene;\n"
 "    float2 uvTind;\n"
 "};\n"
 "\n"
@@ -159,7 +159,7 @@ static const char* FS_METAL_CINDTEX =
 "                      texture2d<float> tex2 [[ texture(2) ]])\n"
 "{\n"
 "    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
-"    float4 sceneTexel = tex1.sample(samp, vtf.uvScene + tindTexel);\n"
+"    float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    return vtf.color * sceneTexel * tex0.sample(samp, vtf.uvTexr);\n"
 "}\n";
 
@@ -274,12 +274,9 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::Met
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 5},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 6},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 7}
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4}
     };
-    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(13, TexFmtIndTex);
+    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(10, TexFmtIndTex);
 
     static const boo::VertexElementDescriptor TexFmtNoTex[] =
     {
@@ -329,28 +326,28 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::Met
     m_indTexZWrite = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, m_vtxFormatIndTex,
                                                CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               true, true, false);
+                                               false, true, false);
     m_indTexNoZWrite = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, m_vtxFormatIndTex,
                                                  CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 true, false, false);
+                                                 false, false, false);
     m_indTexAdditive = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, m_vtxFormatIndTex,
                                                  CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 true, true, false);
+                                                 false, true, false);
 
     m_cindTexZWrite = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, m_vtxFormatIndTex,
                                                 CGraphics::g_ViewportSamples,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                true, true, false);
+                                                false, true, false);
     m_cindTexNoZWrite = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, m_vtxFormatIndTex,
                                                   CGraphics::g_ViewportSamples,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                  true, false, false);
+                                                  false, false, false);
     m_cindTexAdditive = factory.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, m_vtxFormatIndTex,
                                                   CGraphics::g_ViewportSamples,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                  true, true, false);
+                                                  false, true, false);
 
     m_noTexZTestZWrite = factory.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_vtxFormatNoTex,
                                                    CGraphics::g_ViewportSamples,
