@@ -75,7 +75,7 @@ static const char* VS_HLSL_INDTEX =
 "    float4 posIn[4] : POSITION;\n"
 "    float4 colorIn : COLOR;\n"
 "    float4 uvsInTexrTind[4] : UV0;\n"
-"    float4 uvsInScene[4] : UV4;\n"
+"    float4 uvsInScene : UV4;\n"
 "};\n"
 "\n"
 "cbuffer ParticleUniform : register(b0)\n"
@@ -88,8 +88,8 @@ static const char* VS_HLSL_INDTEX =
 "{\n"
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
-"    float2 uvTexr : UV0;\n"
-"    float2 uvScene : UV1;\n"
+"    float4 uvScene : UV0;\n"
+"    float2 uvTexr : UV1;\n"
 "    float2 uvTind : UV2;\n"
 "};\n"
 "\n"
@@ -97,8 +97,8 @@ static const char* VS_HLSL_INDTEX =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.color = v.colorIn * moduColor;\n"
+"    vtf.uvScene = v.uvsInScene;\n"
 "    vtf.uvTexr = v.uvsInTexrTind[vertId].xy;\n"
-"    vtf.uvScene = v.uvsInScene[vertId].xy;\n"
 "    vtf.uvTind = v.uvsInTexrTind[vertId].zw;\n"
 "    vtf.position = mul(mvp, v.posIn[vertId]);\n"
 "    return vtf;\n"
@@ -113,21 +113,23 @@ static const char* FS_HLSL_INDTEX =
 "{\n"
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
-"    float2 uvTexr : UV0;\n"
-"    float2 uvScene : UV1;\n"
+"    float4 uvScene : UV0;\n"
+"    float2 uvTexr : UV1;\n"
 "    float2 uvTind : UV2;\n"
 "};\n"
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ba;\n"
-"    float4 sceneTexel = tex1.Sample(samp, vtf.uvScene + tindTexel);\n"
+"    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).zw;\n"
+"    float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    float4 texrTexel = tex0.Sample(samp, vtf.uvTexr);\n"
-"    float4 colr = vtf.color * sceneTexel + texrTexel;\n"
-"    return float4(colr.rgb, vtf.color.a * texrTexel.a);"
+"    return float4(tindTexel, 0.0, 1.0);\n"
+"    float4 colorOut = vtf.color * sceneTexel + texrTexel;\n"
+"    colorOut.a = vtf.color.a * texrTexel.a;\n"
+"    return colorOut;\n"
 "}\n";
 
-static const char* FS_METAL_CINDTEX =
+static const char* FS_HLSL_CINDTEX =
 "SamplerState samp : register(s0);\n"
 "Texture2D tex0 : register(t0);\n"
 "Texture2D tex1 : register(t1);\n"
@@ -136,15 +138,15 @@ static const char* FS_METAL_CINDTEX =
 "{\n"
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
-"    float2 uvTexr : UV0;\n"
-"    float2 uvScene : UV1;\n"
+"    float4 uvScene : UV0;\n"
+"    float2 uvTexr : UV1;\n"
 "    float2 uvTind : UV2;\n"
 "};\n"
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ba;\n"
-"    float4 sceneTexel = tex1.Sample(samp, vtf.uvScene + tindTexel);\n"
+"    float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    return vtf.color * sceneTexel * tex0.Sample(samp, vtf.uvTexr);\n"
 "}\n";
 
@@ -252,12 +254,9 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 5},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 6},
-        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 7}
+        {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4}
     };
-    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(13, TexFmtIndTex);
+    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(10, TexFmtIndTex);
 
     static const boo::VertexElementDescriptor TexFmtNoTex[] =
     {
@@ -307,28 +306,28 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
     m_indTexZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               true, true, false);
+                                               false, true, false);
     m_indTexNoZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 true, false, false);
+                                                 false, false, false);
     m_indTexAdditive = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 true, true, false);
+                                                 false, true, false);
 
-    m_cindTexZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_METAL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_cindTexZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                 ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                true, true, false);
-    m_cindTexNoZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_METAL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                                false, true, false);
+    m_cindTexNoZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                   ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                  true, false, false);
-    m_cindTexAdditive = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_METAL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                                  false, false, false);
+    m_cindTexAdditive = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                   ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                  true, true, false);
+                                                  false, true, false);
 
     m_noTexZTestZWrite = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                    ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
