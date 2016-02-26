@@ -9,6 +9,11 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& desc)
 {
 }
 
+void CParticleElectric::SetupLineGXMaterial()
+{
+
+}
+
 void CParticleElectric::RenderLines()
 {
     CGraphics::DisableAllLights();
@@ -16,15 +21,22 @@ void CParticleElectric::RenderLines()
     CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
 
     Zeus::CTransform viewXfrm = CGraphics::g_ViewMatrix;
-    Zeus::CTransform scale;
-    scale.Scale(xec_localScale);
+    Zeus::CTransform localScale;
+    localScale.Scale(xec_localScale);
     Zeus::CTransform globalScale;
     globalScale.Scale(xe0_globalScale);
-    Zeus::CTransform localTranslate;
-    localTranslate.Translate(x38_translation);
-    Zeus::CTransform globalTranslate;
-    globalTranslate.Translate(xa4_globalTranslation);
-    Zeus::CTransform global = globalTranslate * xb0_globalOrientation;
+    Zeus::CTransform localTranslation;
+    localTranslation.Translate(x38_translation);
+    Zeus::CTransform globalTranslation;
+    globalTranslation.Translate(xa4_globalTranslation);
+    CGraphics::SetModelMatrix(xb0_globalOrientation * globalTranslation * localTranslation * x44_orientation * globalScale);
+    CGraphics::SetCullMode(ERglCullMode::None);
+    SetupLineGXMaterial();
+    /* Iterate line managers */
+
+    CGraphics::SetCullMode(ERglCullMode::Front);
+    //CGraphics::SetLineWidth(1.f, ERglTexOffset);
+    CGraphics::SetViewPointMatrix(viewXfrm);
 }
 
 void CParticleElectric::Update(double)
