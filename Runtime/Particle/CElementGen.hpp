@@ -199,6 +199,8 @@ public:
     u32 GetSystemCount();
     u32 GetParticleCountAllInternal() const;
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
+    void EndLifetime();
+    void ForceParticleCreation(int amount) { CreateNewParticles(amount); }
 
     bool InternalUpdate(double);
     void RenderModels();

@@ -1099,6 +1099,19 @@ u32 CElementGen::GetParticleCountAllInternal() const
     return ret;
 }
 
+void CElementGen::EndLifetime()
+{
+    x214_PSLT = 0;
+    for (std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
+        ch->EndLifetime();
+    for (std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
+        ch->EndLifetime();
+    for (std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
+        ch->SetParticleEmission(false);
+    for (std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
+        ch->SetParticleEmission(false);
+}
+
 void CElementGen::BuildParticleSystemBounds()
 {
     Zeus::CAABox aabb;
