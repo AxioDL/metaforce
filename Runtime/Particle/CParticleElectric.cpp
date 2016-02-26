@@ -1,4 +1,8 @@
 #include "CParticleElectric.hpp"
+#include "CGenDescription.hpp"
+#include "CSwooshDescription.hpp"
+#include "CElectricDescription.hpp"
+#include "CModel.hpp"
 #include "CGraphics.hpp"
 
 namespace pshag

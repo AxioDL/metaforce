@@ -209,10 +209,10 @@ public:
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
     }
-    static void ResolveSpareTexture(const SClipScreenRect& rect, bool color, bool depth)
+    static void ResolveSpareTexture(const SClipScreenRect& rect)
     {
         boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-        g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, color, depth);
+        g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, true, false);
     }
     static void DrawInstances(size_t start, size_t count, size_t instCount)
     {

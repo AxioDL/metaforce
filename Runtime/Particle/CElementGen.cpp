@@ -2000,7 +2000,7 @@ void CElementGen::RenderParticlesIndirectTexture()
         if (!clipRect.x0_valid)
             continue;
 
-        CGraphics::ResolveSpareTexture(clipRect, true, false);
+        CGraphics::ResolveSpareTexture(clipRect);
 
         g_instIndTexData.emplace_back();
         SParticleInstanceIndTex& inst = g_instIndTexData.back();
