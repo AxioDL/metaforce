@@ -183,11 +183,12 @@ public:
             ret.m_unk = 2;
         else
             ret.m_unk = 1;
+        return ret;
     }
 
     CCharAnimTime operator*(const float& other)
     {
-        return CCharAnimTime;
+        return CCharAnimTime();
     }
 
     float operator/(const CCharAnimTime& other)
