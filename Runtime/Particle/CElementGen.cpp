@@ -1949,8 +1949,6 @@ void CElementGen::RenderParticlesIndirectTexture()
                   {return a.x4_viewPoint[1] >= b.x4_viewPoint[1];});
     }
 
-    CGraphics::SetShaderDataBinding(m_normalDataBind);
-
     g_instIndTexData.clear();
     g_instIndTexData.reserve(x2c_particleLists.size());
 
@@ -2016,8 +2014,12 @@ void CElementGen::RenderParticlesIndirectTexture()
         inst.sceneUVs = Zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
     }
 
-    m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
-    CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
+    if (g_instIndTexData.size())
+    {
+        m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
+        CGraphics::SetShaderDataBinding(m_normalDataBind);
+        CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
+    }
 }
 
 void CElementGen::SetOrientation(const Zeus::CTransform& orientation)
