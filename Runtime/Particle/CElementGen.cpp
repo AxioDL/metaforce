@@ -426,8 +426,9 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         boo::ITexture* tex = nullptr;
         if (texr)
             tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
+        int maxVerts = (x70_MAXP == 0 ? 256 : x70_MAXP);
         m_lineRenderer.reset(new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines,
-                                               x70_MAXP * 2, tex, x224_26_AAPH));
+                                               maxVerts * 2, tex, x224_26_AAPH));
     }
     else
     {

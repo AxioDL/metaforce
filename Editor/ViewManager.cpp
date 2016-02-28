@@ -21,7 +21,7 @@ namespace URDE
 void ViewManager::BuildTestPART(pshag::IObjectStore& objStore)
 {
     //m_partGenDesc = objStore.GetObj({HECL::FOURCC('PART'), 0x972A5CD2});
-    m_partGenDesc = objStore.GetObj("PART_EnvRainSplash");
+    m_partGenDesc = objStore.GetObj("BusterSparks");
     m_partGen.reset(new pshag::CElementGen(m_partGenDesc,
                                            pshag::CElementGen::EModelOrientationType::Normal,
                                            pshag::CElementGen::EOptionalSystemFlags::None));

@@ -231,61 +231,61 @@ bool CRECompareEquals::GetValue(int frame, float& valOut) const
     return false;
 }
 
-bool CREParticleAccessParam1::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam1::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[0];
+    valOut = CParticleGlobals::g_papValues[0];
     return false;
 }
 
-bool CREParticleAccessParam2::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam2::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[1];
+    valOut = CParticleGlobals::g_papValues[1];
     return false;
 }
 
-bool CREParticleAccessParam3::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam3::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[2];
+    valOut = CParticleGlobals::g_papValues[2];
     return false;
 }
 
-bool CREParticleAccessParam4::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam4::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[3];
+    valOut = CParticleGlobals::g_papValues[3];
     return false;
 }
 
-bool CREParticleAccessParam5::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam5::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[4];
+    valOut = CParticleGlobals::g_papValues[4];
     return false;
 }
 
-bool CREParticleAccessParam6::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam6::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[5];
+    valOut = CParticleGlobals::g_papValues[5];
     return false;
 }
 
-bool CREParticleAccessParam7::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam7::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[6];
+    valOut = CParticleGlobals::g_papValues[6];
     return false;
 }
 
-bool CREParticleAccessParam8::GetValue(int frame, float& valOut) const
+bool CREParticleAccessParam8::GetValue(int /*frame*/, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_papValues[7];
+    valOut = CParticleGlobals::g_papValues[7];
     return false;
 }
 
-bool CREPSLL::GetValue(int frame, float& valOut) const
+bool CREPSLL::GetValue(int /*frame*/, float& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x2c_lineLengthOrSize;
     return false;
 }
 
-bool CREPRLW::GetValue(int frame, float& valOut) const
+bool CREPRLW::GetValue(int /*frame*/, float& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x30_lineWidthOrRota;
     return false;

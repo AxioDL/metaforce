@@ -3,6 +3,7 @@
 
 namespace pshag
 {
+LogVisor::LogModule LineRendererLog("pshag::CLineRenderer");
 
 boo::IShaderPipeline* CLineRendererShaders::m_texAlpha = nullptr;
 boo::IShaderPipeline* CLineRendererShaders::m_texAdditive = nullptr;
@@ -107,7 +108,10 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
 : m_mode(mode), m_maxVerts(maxVerts)
 {
     if (maxVerts < 2)
+    {
+        LineRendererLog.report(LogVisor::FatalError, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
+    }
     m_textured = texture != nullptr;
 
     u32 maxTriVerts;

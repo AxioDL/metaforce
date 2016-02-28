@@ -46,6 +46,7 @@ std::unique_ptr<pshag::IObj> ProjectResourceFactory::Build(const pshag::SObjectT
     if (search == m_resPaths.end())
         return {};
 
+    fprintf(stderr, "Loading resource %s\n", search->second.getRelativePath().c_str());
     Athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
     if (fr.hasError())
         return {};
