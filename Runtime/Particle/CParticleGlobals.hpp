@@ -38,7 +38,7 @@ public:
         g_ParticleLifetimePercentageRemainder = g_ParticleLifetimePercentageReal - g_ParticleLifetimePercentage;
     }
 
-    static float* g_papValues;
+    static float g_papValues[8];
 
     struct SParticleSystem
     {
