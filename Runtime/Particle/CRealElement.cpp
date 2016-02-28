@@ -1,7 +1,10 @@
 #include "CRealElement.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
+#include "CElementGen.hpp"
 #include <math.h>
+
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */
 
 namespace pshag
 {
@@ -278,13 +281,13 @@ bool CREParticleAccessParam8::GetValue(int frame, float& valOut) const
 
 bool CREPSLL::GetValue(int frame, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_particleMetrics->x2c_psll;
+    valOut = CElementGen::g_currentParticle->x2c_lineLengthOrSize;
     return false;
 }
 
 bool CREPRLW::GetValue(int frame, float& valOut) const
 {
-    //valOut = CParticleGlobals::g_particleMetrics->x30_prlw;
+    valOut = CElementGen::g_currentParticle->x30_lineWidthOrRota;
     return false;
 }
 

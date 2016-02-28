@@ -3,6 +3,8 @@
 
 #include "IElement.hpp"
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Mod_Vector_Elements */
+
 namespace pshag
 {
 
@@ -58,14 +60,14 @@ public:
 
 class CMVEBounce : public CModVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CVectorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
-    bool x14_e;
-    bool x15_f;
-    Zeus::CVector3f x18_g;
-    float x24_j;
+    std::unique_ptr<CVectorElement> x4_planePoint;
+    std::unique_ptr<CVectorElement> x8_planeNormal;
+    std::unique_ptr<CRealElement> xc_friction;
+    std::unique_ptr<CRealElement> x10_restitution;
+    bool x14_planePrecomputed;
+    bool x15_dieOnPenetrate;
+    Zeus::CVector3f x18_planeValidatedNormal;
+    float x24_planeD;
 public:
     CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool e);
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;

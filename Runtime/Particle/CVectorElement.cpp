@@ -4,6 +4,8 @@
 #include "CElementGen.hpp"
 #include <math.h>
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Vector_Elements */
+
 namespace pshag
 {
 
@@ -192,7 +194,7 @@ bool CVEFastConstant::GetValue(int frame, Zeus::CVector3f& valOut) const
 }
 
 CVECircle::CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
-: x4_direction(a), x20_angleConstant(c), x24_angleLinear(d), x28_magnitude(e)
+: x4_direction(a), x20_angleConstant(c), x24_angleLinear(d), x28_radius(e)
 {
     Zeus::CVector3f bv;
     b->GetValue(0, bv);
@@ -210,7 +212,7 @@ bool CVECircle::GetValue(int frame, Zeus::CVector3f& valOut) const
     float c, d, e;
     x20_angleConstant->GetValue(frame, c);
     x24_angleLinear->GetValue(frame, d);
-    x28_magnitude->GetValue(frame, e);
+    x28_radius->GetValue(frame, e);
 
     float curAngle = (d * frame + c) * M_PI / 180.f;
 

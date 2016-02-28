@@ -3,6 +3,8 @@
 #include "CRandom16.hpp"
 #include <math.h>
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Mod_Vector_Elements */
+
 namespace pshag
 {
 
@@ -97,60 +99,65 @@ bool CMVETimeChain::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& 
         return x4_a->GetValue(frame, pVel, pPos);
 }
 
-CMVEBounce::CMVEBounce(CVectorElement *a, CVectorElement *b, CRealElement *c, CRealElement *d, bool f)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(false), x15_f(f), x24_j(0.0)
+CMVEBounce::CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool f)
+: x4_planePoint(a), x8_planeNormal(b), xc_friction(c), x10_restitution(d), x14_planePrecomputed(false), x15_dieOnPenetrate(f), x24_planeD(0.0)
 {
-    if (x4_a && x8_b && x4_a->IsFastConstant() && x8_b->IsFastConstant())
+    if (x4_planePoint && x8_planeNormal && x4_planePoint->IsFastConstant() && x8_planeNormal->IsFastConstant())
     {
-        x14_e = true;
-        x8_b->GetValue(0, x18_g);
+        /* Precompute Hesse normal form of plane (for penetration testing)
+         * https://en.wikipedia.org/wiki/Hesse_normal_form */
+        x14_planePrecomputed = true;
+        x8_planeNormal->GetValue(0, x18_planeValidatedNormal);
 
-        if (x18_g.magSquared() > 0.0)
-            x18_g.normalize();
+        if (x18_planeValidatedNormal.magSquared() > 0.0)
+            x18_planeValidatedNormal.normalize();
         Zeus::CVector3f a;
-        x4_a->GetValue(0, a);
-        x24_j = x18_g.dot(a);
+        x4_planePoint->GetValue(0, a);
+        x24_planeD = x18_planeValidatedNormal.dot(a);
     }
 }
 
 bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
 {
-    if (!x14_e)
+    if (!x14_planePrecomputed)
     {
-        x8_b->GetValue(frame, ((Zeus::CVector3f&)x18_g));
-        ((Zeus::CVector3f&)x18_g).normalize();
+        /* Compute Hesse normal form of plane (for penetration testing) */
+        x8_planeNormal->GetValue(frame, ((Zeus::CVector3f&)x18_planeValidatedNormal));
+        ((Zeus::CVector3f&)x18_planeValidatedNormal).normalize();
 
         Zeus::CVector3f a;
-        x4_a->GetValue(frame, a);
+        x4_planePoint->GetValue(frame, a);
 
-        (float&)(x24_j) = x18_g.dot(a);
+        (float&)(x24_planeD) = x18_planeValidatedNormal.dot(a);
     }
 
-    float dot = x18_g.dot(pPos);
-    if ((dot - x24_j) <= 0.0f)
+    float dot = x18_planeValidatedNormal.dot(pPos);
+    if ((dot - x24_planeD) <= 0.0f)
     {
-        if (x15_f)
+        if (x15_dieOnPenetrate)
             return true;
     }
     else
         return false;
 
+    /* Deflection event */
+
     if (pVel.magSquared() > 0.0f)
         return false;
 
     Zeus::CVector3f delta = pPos - pVel;
-    pPos += Zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_g.y))
-                                             + ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x))) + x18_g.z) - x24_j)) /
-                             ((pVel.z * ((pVel.x * (x18_g.y * pVel.y)) + x18_g.x)) + x18_g.z)) - (
-                (x18_g.z * ((x18_g.x * (x18_g.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
+    pPos += Zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_planeValidatedNormal.y))
+                                             + ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x))) + x18_planeValidatedNormal.z) - x24_planeD)) /
+                             ((pVel.z * ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x)) + x18_planeValidatedNormal.z)) - (
+                (x18_planeValidatedNormal.z * ((x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
 
     float d = 0.0f;
-    x10_d->GetValue(frame, d);
+    x10_restitution->GetValue(frame, d);
     pVel -= d * pVel;
 
     float c = 0.0f;
-    xc_c->GetValue(frame, c);
-    pVel -= Zeus::CVector3f{(1.0f + c) * ((x18_g.z * (x18_g.x * (x18_g.y * pVel.y)) + pVel.x) + pVel.x)} * x18_g;
+    xc_friction->GetValue(frame, c);
+    pVel -= Zeus::CVector3f{(1.0f + c) * ((x18_planeValidatedNormal.z * (x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x) + pVel.x)} * x18_planeValidatedNormal;
     return false;
 }
 

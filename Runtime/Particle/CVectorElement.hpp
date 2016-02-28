@@ -3,6 +3,8 @@
 
 #include "IElement.hpp"
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Vector_Elements */
+
 namespace pshag
 {
 
@@ -104,7 +106,7 @@ class CVECircle : public CVectorElement
     Zeus::CVector3f x14_yVec;
     std::unique_ptr<CRealElement> x20_angleConstant;
     std::unique_ptr<CRealElement> x24_angleLinear;
-    std::unique_ptr<CRealElement> x28_magnitude;
+    std::unique_ptr<CRealElement> x28_radius;
 public:
     CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e);
     bool GetValue(int frame, Zeus::CVector3f& valOut) const;

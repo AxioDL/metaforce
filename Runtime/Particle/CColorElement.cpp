@@ -4,6 +4,8 @@
 #include "CRandom16.hpp"
 #include <math.h>
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
+
 namespace pshag
 {
 

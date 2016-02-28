@@ -2,6 +2,8 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
+
 namespace pshag
 {
 
