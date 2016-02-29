@@ -114,7 +114,7 @@ bool CCEFadeEnd::GetValue(int frame, Zeus::CColor& valOut) const
 bool CCEFade::GetValue(int frame, Zeus::CColor& valOut) const
 {
     float c;
-    xc_startFrame->GetValue(frame, c);
+    xc_endFrame->GetValue(frame, c);
 
     float t = frame / c;
     if (t > 1.f)

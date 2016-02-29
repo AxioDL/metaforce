@@ -21,9 +21,9 @@ bool CEESimpleEmitter::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3
 bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const
 {
     Zeus::CVector3f a;
-    x4_a->GetValue(frame, a);
+    x4_sphereOrigin->GetValue(frame, a);
     float b;
-    x8_b->GetValue(frame, b);
+    x8_sphereRadius->GetValue(frame, b);
     CRandom16* rand = CRandom16::GetRandomNumber();
     int rand1 = rand->Range(-100, 100);
     int rand2 = rand->Range(-100, 100);
@@ -42,7 +42,7 @@ bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel
         normVec2.normalize();
 
     float c;
-    xc_c->GetValue(frame, c);
+    xc_velocityMag->GetValue(frame, c);
     pVel = c * normVec2;
 
     return false;
@@ -51,17 +51,17 @@ bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel
 bool CVEAngleSphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const
 {
     Zeus::CVector3f a;
-    x4_a->GetValue(frame, a);
+    x4_sphereOrigin->GetValue(frame, a);
 
     float b, d, e, f, g;
-    x8_b->GetValue(frame,  b);
-    x10_d->GetValue(frame, d);
-    x14_e->GetValue(frame, e);
-    x18_f->GetValue(frame, f);
-    x1c_g->GetValue(frame, g);
+    x8_sphereRadius->GetValue(frame,  b);
+    x10_angleXBias->GetValue(frame, d);
+    x14_angleYBias->GetValue(frame, e);
+    x18_angleXRange->GetValue(frame, f);
+    x1c_angleYRange->GetValue(frame, g);
     CRandom16* rand = CRandom16::GetRandomNumber();
     d = (d + ((0.5f * (f * rand->Float())) - f)) * M_PI / 180.f;
-    e = (e + ((0.5f * (f * rand->Float())) - f)) * M_PI / 180.f;
+    e = (e + ((0.5f * (g * rand->Float())) - g)) * M_PI / 180.f;
 
     float cosD = Zeus::Math::fastCosR(d);
     pPos.x = a.x + (b * (-Zeus::Math::fastSinR(e) * cosD));
@@ -70,7 +70,7 @@ bool CVEAngleSphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f&
     Zeus::CVector3f normVec = (pPos - a).normalized();
 
     float c;
-    xc_c->GetValue(frame, c);
+    xc_velocityMag->GetValue(frame, c);
     pVel = c * normVec;
     return false;
 }

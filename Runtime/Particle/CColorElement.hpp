@@ -70,10 +70,10 @@ class CCEFade : public CColorElement
 {
     std::unique_ptr<CColorElement> x4_a;
     std::unique_ptr<CColorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_startFrame;
+    std::unique_ptr<CRealElement> xc_endFrame;
 public:
     CCEFade(CColorElement* a, CColorElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_startFrame(c) {}
+    : x4_a(a), x8_b(b), xc_endFrame(c) {}
     bool GetValue(int frame, Zeus::CColor& colorOut) const;
 };
 

@@ -135,23 +135,23 @@ public:
 
 class CMVEWind : public CModVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_direction;
-    std::unique_ptr<CRealElement> x8_speed;
+    std::unique_ptr<CVectorElement> x4_velocity;
+    std::unique_ptr<CRealElement> x8_factor;
 public:
     CMVEWind(CVectorElement* a, CRealElement* b)
-    : x4_direction(a), x8_speed(b) {}
+    : x4_velocity(a), x8_factor(b) {}
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 
 class CMVESwirl : public CModVectorElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CVectorElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
+    std::unique_ptr<CVectorElement> x4_helixPoint;
+    std::unique_ptr<CVectorElement> x8_curveBinormal;
+    std::unique_ptr<CRealElement> xc_targetRadius;
+    std::unique_ptr<CRealElement> x10_tangentialVelocity;
 public:
     CMVESwirl(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    : x4_helixPoint(a), x8_curveBinormal(b), xc_targetRadius(c), x10_tangentialVelocity(d) {}
     bool GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const;
 };
 

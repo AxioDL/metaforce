@@ -49,7 +49,7 @@ struct CUVEAnimTexture : public CUVElement
     int x10_tileW, x14_tileH, x18_strideW, x1c_strideH;
     int x20_tiles;
     bool x24_loop;
-    std::unique_ptr<CIntElement> x28_cycleFrameRate;
+    std::unique_ptr<CIntElement> x28_cycleFrames;
     std::vector<SUVElementSet> x2c_uvElems;
 public:
     CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,

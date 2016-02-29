@@ -187,24 +187,18 @@ bool CMVEExplode::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*
 {
     if (frame == 0)
     {
-        float b;
-        x8_b->GetValue(frame, b);
-        pVel *= b;
-    }
-    else
-    {
         CRandom16* rand = CRandom16::GetRandomNumber();
-        Zeus::CVector3f vec;
-        do
-        {
-            vec = {rand->Float() - 0.5f, rand->Float() - 0.5f, rand->Float() - 0.5f};
-        }
-        while (vec.magSquared() > 1.0);
-
+        Zeus::CVector3f vec = {rand->Float() - 0.5f, rand->Float() - 0.5f, rand->Float() - 0.5f};
         vec.normalize();
         float a;
         x4_a->GetValue(frame, a);
         pVel = vec * a;
+    }
+    else
+    {
+        float b;
+        x8_b->GetValue(frame, b);
+        pVel *= b;
     }
 
     return false;
@@ -239,27 +233,32 @@ bool CMVEPulse::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos
 
 bool CMVEWind::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
 {
-    Zeus::CVector3f direction;
-    x4_direction->GetValue(frame, direction);
-    float speed;
-    x8_speed->GetValue(frame, speed);
-    pVel += (direction - pVel) * speed;
+    Zeus::CVector3f wVel;
+    x4_velocity->GetValue(frame, wVel);
+    float factor;
+    x8_factor->GetValue(frame, factor);
+    pVel += (wVel - pVel) * factor;
     return false;
 }
 
 bool CMVESwirl::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
 {
     Zeus::CVector3f a, b;
-    x4_a->GetValue(frame, a);
-    x8_b->GetValue(frame, b);
+    x4_helixPoint->GetValue(frame, a);
+    x8_curveBinormal->GetValue(frame, b);
+
+    /* Compute Frenet–Serret normal
+     * https://en.wikipedia.org/wiki/Frenet–Serret_formulas */
     const Zeus::CVector3f diff = a - pPos;
     float x = (diff.x - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.x));
     float y = (diff.y - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.y));
     float z = (diff.z - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.z));
     float c = 0.0f, d = 0.0f;
-    xc_c->GetValue(frame, c);
-    x10_d->GetValue(frame, d);
+    xc_targetRadius->GetValue(frame, c);
+    x10_tangentialVelocity->GetValue(frame, d);
 
+    /* Integrate tangential velocity by crossing particle normal with binormal,
+     * also "homing" towards the target radius */
     const float f9 = (b.z * ((b.x * (b.y * pVel.y)) + pVel.x)) + pVel.x;
     pVel.x = (c * ((f9 * b.x) + (d * ((b.y * (y * b.z)) - z)))) + ((1.0 - c) * pVel.x);
     pVel.y = (c * ((f9 * b.y) + (d * ((b.z * x) - (z * b.x))))) + ((1.0 - c) * pVel.y);

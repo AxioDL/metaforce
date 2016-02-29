@@ -7,7 +7,7 @@ namespace pshag
 
 CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,
                                  CIntElement* c, CIntElement* d, CIntElement* e, bool f)
-: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrameRate(e)
+: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrames(e)
 {
     a->GetValue(0, x10_tileW);
     delete a;
@@ -42,7 +42,7 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntEle
 void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const
 {
     int cv;
-    x28_cycleFrameRate->GetValue(frame, cv);
+    x28_cycleFrames->GetValue(frame, cv);
     float cvf = cv / float(x20_tiles);
     cvf = frame / cvf;
 

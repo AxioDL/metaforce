@@ -20,28 +20,28 @@ public:
 
 class CVESphere : public CEmitterElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
+    std::unique_ptr<CVectorElement> x4_sphereOrigin;
+    std::unique_ptr<CRealElement> x8_sphereRadius;
+    std::unique_ptr<CRealElement> xc_velocityMag;
 public:
     CVESphere(CVectorElement* a, CRealElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    : x4_sphereOrigin(a), x8_sphereRadius(b), xc_velocityMag(c) {}
     bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
 };
 
 class CVEAngleSphere : public CEmitterElement
 {
-    std::unique_ptr<CVectorElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
-    std::unique_ptr<CRealElement> x14_e;
-    std::unique_ptr<CRealElement> x18_f;
-    std::unique_ptr<CRealElement> x1c_g;
+    std::unique_ptr<CVectorElement> x4_sphereOrigin;
+    std::unique_ptr<CRealElement> x8_sphereRadius;
+    std::unique_ptr<CRealElement> xc_velocityMag;
+    std::unique_ptr<CRealElement> x10_angleXBias;
+    std::unique_ptr<CRealElement> x14_angleYBias;
+    std::unique_ptr<CRealElement> x18_angleXRange;
+    std::unique_ptr<CRealElement> x1c_angleYRange;
 public:
     CVEAngleSphere(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d,
                    CRealElement* e, CRealElement* f, CRealElement* g)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d), x14_e(e), x18_f(f), x1c_g(g) {}
+    : x4_sphereOrigin(a), x8_sphereRadius(b), xc_velocityMag(c), x10_angleXBias(d), x14_angleYBias(e), x18_angleXRange(f), x1c_angleYRange(g) {}
     bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
 };
 
