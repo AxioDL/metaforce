@@ -70,11 +70,7 @@ public:
     void setMultiplyColor(const Zeus::CColor& color);
 
     /* Fill all available space in container when requested */
-    void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
-    {
-        if (m_fillContainer)
-            View::resized(root, sub);
-    }
+    void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
 };
 
 }

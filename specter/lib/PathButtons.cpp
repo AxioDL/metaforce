@@ -1,5 +1,6 @@
 #include "Specter/PathButtons.hpp"
 #include "Specter/RootView.hpp"
+#include "Specter/ViewResources.hpp"
 
 namespace Specter
 {
@@ -70,6 +71,16 @@ void PathButtons::ContentView::resized(const boo::SWindowRect& root, const boo::
         pathRect.size[1] = b.m_button.m_view->nominalHeight();
         b.m_button.m_view->resized(root, pathRect);
         pathRect.location[0] += pathRect.size[0] + 2;
+    }
+}
+
+void PathButtons::containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+{
+    if (m_fillContainer)
+    {
+        boo::SWindowRect fillRect = sub;
+        fillRect.size[1] = 20 * rootView().viewRes().pixelFactor();
+        View::resized(root, fillRect);
     }
 }
 

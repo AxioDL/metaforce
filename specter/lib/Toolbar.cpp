@@ -139,9 +139,9 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 
     float gaugeUnit = rootView().viewRes().pixelFactor() * SPECTER_TOOLBAR_GAUGE;
     float yOff = 0.0;
-    boo::SWindowRect childRect = sub;
     for (std::vector<ViewChild<View*>>& u : m_children)
     {
+        boo::SWindowRect childRect = sub;
         boo::SWindowRect containRect = sub;
         containRect.location[0] += m_padding;
         containRect.size[0] -= m_padding * 2;
