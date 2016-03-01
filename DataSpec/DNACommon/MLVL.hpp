@@ -24,14 +24,6 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
     if (!force && mlvlPath.getPathType() == HECL::ProjectPath::Type::File)
         return true;
 
-    /* Link Skybox CMDL */
-    const typename PAKRouter::EntryType* skyboxEntry = pakRouter.lookupEntry(mlvl.worldSkyboxId);
-    if (skyboxEntry)
-    {
-        HECL::ProjectPath skyboxPath = pakRouter.getWorking(skyboxEntry);
-        HECL::ProjectPath(outPath.getParentPath(), _S("!skybox.blend")).makeLinkTo(skyboxPath);
-    }
-
     /* Create World Blend */
     if (!conn.createBlend(mlvlPath, HECL::BlenderConnection::BlendType::World))
         return false;

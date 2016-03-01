@@ -13,6 +13,7 @@ namespace DataSpec
 
 extern LogVisor::LogModule LogDNACommon;
 extern SpecBase* g_curSpec;
+extern class PAKRouterBase* g_PakRouter;
 
 /* This comes up a great deal */
 typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
@@ -44,6 +45,64 @@ public:
 };
 
 using FourCC = HECL::FourCC;
+class UniqueID32;
+class UniqueID64;
+class UniqueID128;
+
+/** Common virtual interface for runtime ambiguity resolution */
+class PAKRouterBase
+{
+protected:
+    const SpecBase& m_dataSpec;
+public:
+    PAKRouterBase(const SpecBase& dataSpec) : m_dataSpec(dataSpec) {}
+    HECL::Database::Project& getProject() const {return m_dataSpec.getProject();}
+    virtual HECL::ProjectPath getWorking(const UniqueID32&) const
+    {
+        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID32 specialization");
+        return HECL::ProjectPath();
+    }
+    virtual HECL::ProjectPath getWorking(const UniqueID64&) const
+    {
+        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID64 specialization");
+        return HECL::ProjectPath();
+    }
+    virtual HECL::ProjectPath getWorking(const UniqueID128&) const
+    {
+        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID128 specialization");
+        return HECL::ProjectPath();
+    }
+};
+
+/** Globally-accessed manager allowing UniqueID* classes to directly
+ *  lookup destination paths of resources */
+class UniqueIDBridge
+{
+    friend class UniqueID32;
+    friend class UniqueID64;
+public:
+    template <class IDType>
+    static HECL::ProjectPath TranslatePakIdToPath(const IDType& id)
+    {
+        if (!g_PakRouter)
+            LogDNACommon.report(LogVisor::FatalError,
+            "UniqueIDBridge::setPakRouter must be called before translatePakIdToPath");
+        HECL::ProjectPath res = g_PakRouter->getWorking(id);
+        if (!res)
+            LogDNACommon.report(LogVisor::FatalError,
+            "unable to translate %s to path", id.toString().c_str());
+        return res;
+    }
+    static HECL::ProjectPath MakePathFromString(const std::string& str)
+    {
+        return HECL::ProjectPath(g_PakRouter->getProject(), str);
+    }
+    template <class IDType>
+    static void TransformOldHashToNewHash(IDType& id)
+    {
+        id = TranslatePakIdToPath(id);
+    }
+};
 
 /** PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
@@ -57,9 +116,13 @@ public:
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint32Big(m_id);}
     void read(Athena::io::YAMLDocReader& reader)
-    {m_id = reader.readUint32(nullptr);}
+    {
+        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+    }
     void write(Athena::io::YAMLDocWriter& writer) const
-    {writer.writeUint32(nullptr, m_id);}
+    {
+        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
+    }
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
 
@@ -110,9 +173,13 @@ public:
     void write(Athena::io::IStreamWriter& writer) const
     {writer.writeUint64Big(m_id);}
     void read(Athena::io::YAMLDocReader& reader)
-    {m_id = reader.readUint64(nullptr);}
+    {
+        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+    }
     void write(Athena::io::YAMLDocWriter& writer) const
-    {writer.writeUint64(nullptr, m_id);}
+    {
+        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
+    }
     size_t binarySize(size_t __isz) const
     {return __isz + 8;}
 
@@ -186,20 +253,21 @@ public:
     }
     void read(Athena::io::YAMLDocReader& reader)
     {
-        std::string str = reader.readString(nullptr);
-        while (str.size() < 32)
-            str += '0';
-        std::string hStr(str.begin(), str.begin() + 16);
-        std::string lStr(str.begin() + 16, str.begin() + 32);
-        m_id[0] = strtoull(hStr.c_str(), nullptr, 16);
-        m_id[1] = strtoull(lStr.c_str(), nullptr, 16);
+        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
     }
     void write(Athena::io::YAMLDocWriter& writer) const
     {
-        writer.writeString(nullptr, toString().c_str());
+        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
     }
     size_t binarySize(size_t __isz) const
     {return __isz + 16;}
+
+    UniqueID128& operator=(const HECL::ProjectPath& path)
+    {
+        m_id[0] = path.hash().val64();
+        m_id[1] = 0;
+        return *this;
+    }
 
     bool operator!=(const UniqueID128& other) const
     {
@@ -233,61 +301,6 @@ public:
 
     static constexpr size_t BinarySize() {return 16;}
 };
-
-/** Class that automatically converts between hash and path for DNA usage */
-template <class IDTYPE>
-class PAKPath : public BigYAML
-{
-    HECL::ProjectPath m_path;
-    IDTYPE m_id;
-public:
-    HECL::ProjectPath getPath() const
-    {
-        if (m_path)
-            return m_path;
-        if (!g_curSpec)
-            LogDNACommon.report(LogVisor::FatalError, "current DataSpec not set for PAKPath");
-        if (m_id)
-            return g_curSpec->getWorking(m_id);
-        return HECL::ProjectPath();
-    }
-    operator HECL::ProjectPath() const {return getPath();}
-    operator const IDTYPE&() const {return m_id;}
-
-    Delete _d;
-    void read(Athena::io::IStreamReader& reader)
-    {m_id.read(reader);}
-    void write(Athena::io::IStreamWriter& writer) const
-    {m_id.write(writer);}
-    void read(Athena::io::YAMLDocReader& reader)
-    {
-        if (!g_curSpec)
-            LogDNACommon.report(LogVisor::FatalError, "current DataSpec not set for PAKPath");
-        std::string path = reader.readString(nullptr);
-        if (path.empty())
-        {
-            m_path.clear();
-            m_id.clear();
-            return;
-        }
-        m_path.assign(g_curSpec->getProject(), path);
-        m_id = m_path;
-    }
-    void write(Athena::io::YAMLDocWriter& writer) const
-    {
-        if (m_path)
-        {
-            writer.writeString(nullptr, m_path.getRelativePathUTF8());
-            return;
-        }
-        writer.writeString(nullptr, getPath().getRelativePathUTF8());
-    }
-
-    size_t binarySize(size_t __isz) const
-    {return __isz + IDTYPE::BinarySize();}
-};
-using PAKPath32 = PAKPath<UniqueID32>;
-using PAKPath64 = PAKPath<UniqueID64>;
 
 /** Word Bitmap reader/writer */
 class WordBitmap

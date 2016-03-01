@@ -60,7 +60,7 @@ struct SpecBase : HECL::Database::IDataSpec
     virtual HECL::ProjectPath getWorking(class UniqueID64&) {return HECL::ProjectPath();}
 
     /* Project accessor */
-    HECL::Database::Project& getProject() {return m_project;}
+    HECL::Database::Project& getProject() const {return m_project;}
 
     SpecBase(HECL::Database::Project& project);
 protected:

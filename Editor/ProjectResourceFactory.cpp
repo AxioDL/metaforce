@@ -19,10 +19,24 @@ ProjectResourceFactory::ProjectResourceFactory()
 
 void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::ProjectDataSpec &spec)
 {
-    m_resPaths.clear();
-    m_namedResources.clear();
+    m_tagToPath.clear();
+    m_catalogNameToTag.clear();
     HECL::SystemString catalogPath = HECL::ProjectPath(spec.cookedPath, HECL::SystemString(spec.spec.m_name) + _S("/catalog.yaml")).getAbsolutePath();
     FILE* catalogFile = HECL::Fopen(catalogPath.c_str(), _S("r"));
+    Athena::io::YAMLDocReader reader;
+    yaml_parser_set_input_file(reader.getParser(), catalogFile);
+    reader.parse();
+    const Athena::io::YAMLNode* catalogRoot = reader.getRootNode();
+    if (catalogRoot)
+    {
+        m_catalogNameToPath.reserve(catalogRoot->m_mapChildren.size());
+        for (const std::pair<std::string, std::unique_ptr<Athena::io::YAMLNode>>& ch : catalogRoot->m_mapChildren)
+        {
+            if (ch.second->m_type == YAML_SCALAR_NODE)
+                m_catalogNameToPath[ch.first] = HECL::ProjectPath(spec.cookedPath, HECL::SystemString(ch.second->m_scalarString));
+        }
+    }
+
     if (!HECL::StrCmp(spec.spec.m_name, _S("MP3")))
     {
         DataSpec::NamedResourceCatalog<DataSpec::UniqueID64> catalog;
@@ -42,8 +56,8 @@ void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::Proje
 std::unique_ptr<pshag::IObj> ProjectResourceFactory::Build(const pshag::SObjectTag& tag,
                                                            const pshag::CVParamTransfer& paramXfer)
 {
-    auto search = m_resPaths.find(tag);
-    if (search == m_resPaths.end())
+    auto search = m_tagToPath.find(tag);
+    if (search == m_tagToPath.end())
         return {};
 
     fprintf(stderr, "Loading resource %s\n", search->second.getRelativePath().c_str());
@@ -68,8 +82,8 @@ void ProjectResourceFactory::CancelBuild(const pshag::SObjectTag&)
 
 bool ProjectResourceFactory::CanBuild(const pshag::SObjectTag& tag)
 {
-    auto search = m_resPaths.find(tag);
-    if (search == m_resPaths.end())
+    auto search = m_tagToPath.find(tag);
+    if (search == m_tagToPath.end())
         return false;
 
     Athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
@@ -81,9 +95,9 @@ bool ProjectResourceFactory::CanBuild(const pshag::SObjectTag& tag)
 
 const pshag::SObjectTag* ProjectResourceFactory::GetResourceIdByName(const char* name) const
 {
-    if (m_namedResources.find(name) == m_namedResources.end())
+    if (m_catalogNameToTag.find(name) == m_catalogNameToTag.end())
         return nullptr;
-    const pshag::SObjectTag& tag = m_namedResources.at(name);
+    const pshag::SObjectTag& tag = m_catalogNameToTag.at(name);
     return &tag;
 }
 

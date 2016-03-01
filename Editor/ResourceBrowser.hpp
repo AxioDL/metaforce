@@ -140,6 +140,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
         void setSort(size_t cIdx, Specter::SortDirection dir)
         {
             m_rb.m_state.sortDir = dir;
+            m_rb.m_state.sortColumn = State::SortColumn(cIdx);
             m_needsUpdate = true;
         }
 
@@ -162,18 +163,18 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
             m_fileStr = vm.translateOr("file", "File");
         }
 
-    } m_fileListingBind;
+    } m_resListingBind;
 
     struct View : Specter::View
     {
         ResourceBrowser& m_ro;
-        Specter::ViewChild<std::unique_ptr<Specter::Table>> m_fileListing;
+        Specter::ViewChild<std::unique_ptr<Specter::Table>> m_resListing;
 
         View(ResourceBrowser& ro, Specter::ViewResources& res)
         : Specter::View(res, ro.m_vm.rootView()), m_ro(ro)
         {
             commitResources(res);
-            m_fileListing.m_view.reset(new Specter::Table(res, *this, &ro.m_fileListingBind, &ro.m_fileListingBind, 3));
+            m_resListing.m_view.reset(new Specter::Table(res, *this, &ro.m_resListingBind, &ro.m_resListingBind, 3));
         }
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -191,7 +192,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
 public:
     ResourceBrowser(ViewManager& vm, Space* parent)
     : Space(vm, Class::ResourceBrowser, parent),
-      m_fileListingBind(*this, vm)
+      m_resListingBind(*this, vm)
     {
         reloadState();
     }
@@ -220,6 +221,12 @@ public:
             navigateToPath(pp);
     }
 
+    void think()
+    {
+        if (m_resListingBind.m_needsUpdate)
+            reloadState();
+    }
+
     bool navigateToPath(const HECL::ProjectPath& path);
 
     Space* copy(Space* parent) const
@@ -230,7 +237,8 @@ public:
     void buildToolbarView(Specter::ViewResources &res, Specter::Toolbar &tb)
     {
         m_pathButtons.reset(new Specter::PathButtons(res, tb, *this, true));
-        tb.push_back(m_pathButtons.get(), 0);
+        tb.push_back(m_pathButtons.get(), 1);
+        reloadState();
     }
 
     Specter::View* buildContentView(Specter::ViewResources& res)

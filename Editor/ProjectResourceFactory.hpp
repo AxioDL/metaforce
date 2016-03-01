@@ -3,15 +3,15 @@
 
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CFactoryMgr.hpp"
-#include "DataSpec/DNACommon/NamedResourceCatalog.hpp"
 
 namespace URDE
 {
 
 class ProjectResourceFactory : public pshag::IFactory
 {
-    std::unordered_map<pshag::SObjectTag, HECL::ProjectPath> m_resPaths;
-    std::unordered_map<std::string, pshag::SObjectTag> m_namedResources;
+    std::unordered_map<pshag::SObjectTag, HECL::ProjectPath> m_tagToPath;
+    std::unordered_map<std::string, pshag::SObjectTag> m_catalogNameToTag;
+    std::unordered_map<std::string, HECL::ProjectPath> m_catalogNameToPath;
     pshag::CFactoryMgr m_factoryMgr;
     template <class IDType>
     void RecursiveAddDirObjects(const HECL::ProjectPath& path, const DataSpec::NamedResourceCatalog<IDType>& catalog)
@@ -34,8 +34,8 @@ class ProjectResourceFactory : public pshag::IFactory
                 if (id)
                 {
                     pshag::SObjectTag objTag = {HECL::FourCC(entu8.c_str()), id};
-                    if (m_resPaths.find(objTag) == m_resPaths.end())
-                        m_resPaths[objTag] = HECL::ProjectPath(path, ent.m_name);
+                    if (m_tagToPath.find(objTag) == m_tagToPath.end())
+                        m_tagToPath[objTag] = HECL::ProjectPath(path, ent.m_name);
                 }
             }
             else
@@ -50,8 +50,8 @@ class ProjectResourceFactory : public pshag::IFactory
                 const typename DataSpec::NamedResourceCatalog<IDType>::NamedResource& nr = *it;
                 pshag::SObjectTag objTag = GetTag<IDType>(nr);
 
-                m_namedResources[nr.name.c_str()] = objTag;
-                m_resPaths[objTag] = HECL::ProjectPath(path, ent.m_name);
+                m_catalogNameToTag[nr.name.c_str()] = objTag;
+                m_tagToPath[objTag] = HECL::ProjectPath(path, ent.m_name);
             }
         }
     }

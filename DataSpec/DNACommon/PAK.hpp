@@ -2,12 +2,11 @@
 #define __DNACOMMON_PAK_HPP__
 
 #include "DNACommon.hpp"
-#include "NamedResourceCatalog.hpp"
 
 namespace DataSpec
 {
 
-/* PAK entry stream reader */
+/** PAK entry stream reader */
 class PAKEntryReadStream : public Athena::io::IStreamReader
 {
     std::unique_ptr<atUint8[]> m_buf;
@@ -197,7 +196,7 @@ struct UniqueResult
 template <class BRIDGETYPE>
 class PAKRouter;
 
-/* Resource extractor type */
+/** Resource extractor type */
 template <class PAKBRIDGE>
 struct ResExtractor
 {
@@ -211,7 +210,7 @@ struct ResExtractor
                        typename PAKBRIDGE::PAKType::Entry&)> func_name;
 };
 
-/* Level hierarchy representation */
+/** Level hierarchy representation */
 template <class IDType>
 struct Level
 {
@@ -231,9 +230,9 @@ struct Level
     std::unordered_map<IDType, Area> areas;
 };
 
-/* PAKRouter (for detecting shared entry locations) */
+/** PAKRouter (for detecting shared entry locations) */
 template <class BRIDGETYPE>
-class PAKRouter
+class PAKRouter : public PAKRouterBase
 {
 public:
     using PAKType = typename BRIDGETYPE::PAKType;
@@ -241,8 +240,6 @@ public:
     using EntryType = typename PAKType::Entry;
     using RigPair = std::pair<IDType, IDType>;
 private:
-    NamedResourceCatalog<IDType> m_catalog;
-    const SpecBase& m_dataSpec;
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     std::vector<std::pair<HECL::ProjectPath,HECL::ProjectPath>> m_bridgePaths;
     size_t m_curBridgeIdx = 0;
@@ -257,12 +254,13 @@ private:
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
 public:
     PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
-    : m_dataSpec(dataSpec),
+    : PAKRouterBase(dataSpec),
       m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
 
     void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress)
     {
+        g_PakRouter = this;
         m_bridges = &bridges;
         m_bridgePaths.clear();
 
@@ -311,21 +309,29 @@ public:
             /* Add RigPairs to global map */
             bridge.addCMDLRigPairs(*this, m_cmdlRigs);
 
-            /* Add named resources to catalog */
-            for (const auto& namedEntry : pak.m_nameEntries)
-                m_catalog.addNamedResource(namedEntry.name, namedEntry.id, namedEntry.type);
-
             progress(++count / bridgesSz);
             ++bridgeIdx;
         }
 
-        HECL::SystemString catalogPath = HECL::ProjectPath(m_gameCooked, "catalog.yaml").getAbsolutePath();
-        FILE* catalog = HECL::Fopen(catalogPath.c_str(), _S("wb"));
-        if (catalog)
+        /* Add named resources to catalog YAML */
+        Athena::io::YAMLDocWriter catalogWriter(nullptr);
+        for (BRIDGETYPE& bridge : bridges)
         {
-            m_catalog.toYAMLFile(catalog);
-            fclose(catalog);
+            const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
+            for (const auto& namedEntry : pak.m_nameEntries)
+            {
+                catalogWriter.enterSubRecord(namedEntry.name.c_str());
+                catalogWriter.writeString(nullptr, getWorking(namedEntry.id).getRelativePathUTF8().c_str());
+                catalogWriter.leaveSubRecord();
+            }
         }
+
+        /* Write catalog */
+        HECL::SystemString catalogPath = HECL::ProjectPath(m_gameWorking, "catalog.yaml").getAbsolutePath();
+        FILE* catalog = HECL::Fopen(catalogPath.c_str(), _S("w"));
+        yaml_emitter_set_output_file(catalogWriter.getEmitter(), catalog);
+        catalogWriter.finish();
+        fclose(catalog);
     }
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge)
@@ -347,6 +353,7 @@ public:
             ++bridgeIdx;
         }
         LogDNACommon.report(LogVisor::FatalError, "PAKBridge provided to PAKRouter::enterPAKBridge() was not part of build()");
+        g_PakRouter = this;
     }
 
     HECL::ProjectPath getWorking(const EntryType* entry,
@@ -362,11 +369,11 @@ public:
             {
                 const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
                 pakPath.makeDir();
-    #if HECL_UCS2
+#if HECL_UCS2
                 HECL::SystemString entName = HECL::UTF8ToWide(m_pak->bestEntryName(*entry));
-    #else
+#else
                 HECL::SystemString entName = m_pak->bestEntryName(*entry);
-    #endif
+#endif
                 if (extractor.fileExts[0] && !extractor.fileExts[1])
                     entName += extractor.fileExts[0];
                 return HECL::ProjectPath(pakPath, entName);
@@ -393,7 +400,6 @@ public:
         if (sharedSearch != m_sharedEntries.end())
         {
             const HECL::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
-            HECL::ProjectPath uniquePathPre = entry->unique.uniquePath(pakPath);
 #if HECL_UCS2
             HECL::SystemString entBase = HECL::UTF8ToWide(m_pak->bestEntryName(*entry));
 #else
@@ -403,24 +409,6 @@ public:
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
             HECL::ProjectPath sharedPath(m_sharedWorking, entName);
-            HECL::ProjectPath uniquePath(uniquePathPre, entName);
-            if (extractor.func_a || extractor.func_b)
-            {
-                if (extractor.fileExts[0] && !extractor.fileExts[1])
-                    uniquePath.makeLinkTo(sharedPath);
-                else
-                {
-                    for (int e=0 ; e<4 ; ++e)
-                    {
-                        if (!extractor.fileExts[e])
-                            break;
-                        HECL::SystemString entName = entBase + extractor.fileExts[e];
-                        HECL::ProjectPath sharedPath(m_sharedWorking, entName);
-                        HECL::ProjectPath uniquePath(uniquePathPre, entName);
-                        uniquePath.makeLinkTo(sharedPath);
-                    }
-                }
-            }
             m_sharedWorking.makeDir();
             return sharedPath;
         }
@@ -527,13 +515,13 @@ public:
                 ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item);
                 if (extractor.weight != w)
                     continue;
-                
+
                 std::string bestName = getBestEntryName(*item);
                 HECL::SystemStringView bestNameView(bestName);
                 float thisFac = ++count / fsz;
                 progress(bestNameView.sys_str().c_str(), thisFac);
 
-                /* TODO: Position after extracted item */
+                /* Extract first, so they start out invalid */
                 HECL::ProjectPath cooked = getCooked(item);
                 if (force || cooked.getPathType() == HECL::ProjectPath::Type::None)
                 {

@@ -181,6 +181,12 @@ public:
 #endif
     }
 
+    void think()
+    {
+        if (m_spaceTree)
+            m_spaceTree->think();
+    }
+
     void saveState(Athena::io::IStreamWriter& w) const
     {
         w.writeUint32Big(atUint32(m_class));
@@ -272,6 +278,14 @@ public:
         }
     }
 
+    void think()
+    {
+        if (m_slots[0])
+            m_slots[0]->think();
+        if (m_slots[1])
+            m_slots[1]->think();
+    }
+
     void saveState(Athena::io::IStreamWriter& w) const
     {
         w.writeUint32Big(atUint32(m_class));
@@ -357,6 +371,13 @@ class EditorSpace : public Space
 {
 public:
     EditorSpace(ViewManager& vm, Class cls, Space* parent)
+    : Space(vm, cls, parent) {}
+};
+
+class GameSpace : public Space
+{
+public:
+    GameSpace(ViewManager& vm, Class cls, Space* parent)
     : Space(vm, cls, parent) {}
 };
 
