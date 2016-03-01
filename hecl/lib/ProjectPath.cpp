@@ -128,16 +128,6 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 
 ProjectPath::Type ProjectPath::getPathType() const
 {
-#if WIN32
-    if (TestShellLink(m_absPath.c_str()))
-        return Type::Link;
-#else
-    HECL::Sstat lnStat;
-    if (lstat(m_absPath.c_str(), &lnStat))
-        return Type::None;
-    if (S_ISLNK(lnStat.st_mode))
-        return Type::Link;
-#endif
     if (std::regex_search(m_absPath, regGLOB))
         return Type::Glob;
     Sstat theStat;
@@ -189,22 +179,6 @@ Time ProjectPath::getModtime() const
     }
     LogModule.report(LogVisor::FatalError, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
-}
-
-ProjectPath ProjectPath::resolveLink() const
-{
-#if WIN32
-    wchar_t target[2048];
-    if (FAILED(ResolveShellLink(m_absPath.c_str(), target, 2048)))
-        LogModule.report(LogVisor::FatalError, _S("unable to resolve link '%s'"), m_absPath.c_str());
-#else
-    char target[2048];
-    ssize_t targetSz;
-    if ((targetSz = readlink(m_absPath.c_str(), target, 2048)) < 0)
-        LogModule.report(LogVisor::FatalError, _S("unable to resolve link '%s': %s"), m_absPath.c_str(), strerror(errno));
-    target[targetSz] = '\0';
-#endif
-    return ProjectPath(getParentPath(), target);
 }
 
 static void _recursiveGlob(Database::Project& proj,

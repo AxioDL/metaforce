@@ -194,24 +194,6 @@ static inline void MakeDir(const wchar_t* dir)
 }
 #endif
 
-static inline void MakeLink(const SystemChar* target, const SystemChar* linkPath)
-{
-#if _WIN32
-    HRESULT res = CreateShellLink(target, linkPath, _S("HECL Link")); /* :(( */
-    if (!SUCCEEDED(res))
-    {
-        LPWSTR messageBuffer = nullptr;
-        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, res, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL); /* :((( */
-        LogModule.report(LogVisor::FatalError, _S("MakeLink(%s, %s): %s"), target, linkPath, messageBuffer);
-    }
-#else
-    if (symlink(target, linkPath)) /* :) */
-        if (errno != EEXIST)
-            LogModule.report(LogVisor::FatalError, "MakeLink(%s, %s): %s", target, linkPath, strerror(errno));
-#endif
-}
-
 static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 {
 #if HECL_UCS2
@@ -1052,7 +1034,6 @@ public:
         File, /**< Singular file path (confirmed with filesystem) */
         Directory, /**< Singular directory path (confirmed with filesystem) */
         Glob, /**< Glob-path (whenever one or more '*' occurs in syntax) */
-        Link /**< Link (symlink on POSIX, ShellLink on Windows) */
     };
 
     /**
@@ -1070,12 +1051,6 @@ public:
      * Glob-paths return the latest modtime of all matched regular files
      */
     Time getModtime() const;
-
-    /**
-     * @brief For link paths, get the target path
-     * @return Target path
-     */
-    ProjectPath resolveLink() const;
 
     /**
      * @brief Insert directory children into list
@@ -1114,20 +1089,6 @@ public:
      * If directory already exists, no action taken.
      */
     void makeDir() const {MakeDir(m_absPath.c_str());}
-
-    /**
-     * @brief Create relative symbolic link at calling path targeting another path
-     * @param target Path to target
-     */
-    void makeLinkTo(const ProjectPath& target) const
-    {
-        SystemString relTarget;
-        for (SystemChar ch : m_relPath)
-            if (ch == _S('/') || ch == _S('\\'))
-                relTarget += _S("../");
-        relTarget += target.m_relPath;
-        MakeLink(relTarget.c_str(), m_absPath.c_str());
-    }
 
     /**
      * @brief Fetch project that contains path

@@ -409,24 +409,8 @@ static void VisitDirectory(const ProjectPath& dir,
     /* Pass 1: child file count */
     int childFileCount = 0;
     for (auto& child : children)
-    {
-        switch (child.second.getPathType())
-        {
-        case ProjectPath::Type::File:
-        {
+        if (child.second.getPathType() == ProjectPath::Type::File)
             ++childFileCount;
-            break;
-        }
-        case ProjectPath::Type::Link:
-        {
-            ProjectPath target = child.second.resolveLink();
-            if (target.getPathType() == ProjectPath::Type::File)
-                ++childFileCount;
-            break;
-        }
-        default: break;
-        }
-    }
 
     /* Pass 2: child files */
     int progNum = 0;
@@ -434,25 +418,10 @@ static void VisitDirectory(const ProjectPath& dir,
     progress.changeDir(dir.getLastComponent());
     for (auto& child : children)
     {
-        switch (child.second.getPathType())
-        {
-        case ProjectPath::Type::File:
+        if (child.second.getPathType() == ProjectPath::Type::File)
         {
             progress.changeFile(child.first.c_str(), progNum++/progDenom);
             VisitFile(child.second, force, fast, specInsts, progress);
-            break;
-        }
-        case ProjectPath::Type::Link:
-        {
-            ProjectPath target = child.second.resolveLink();
-            if (target.getPathType() == ProjectPath::Type::File)
-            {
-                progress.changeFile(target.getLastComponent(), progNum++/progDenom);
-                VisitFile(target, force, fast, specInsts, progress);
-            }
-            break;
-        }
-        default: break;
         }
     }
     progress.reportDirComplete();
@@ -486,24 +455,8 @@ static void VisitGlob(const ProjectPath& path,
     /* Pass 1: child file count */
     int childFileCount = 0;
     for (ProjectPath& child : children)
-    {
-        switch (child.getPathType())
-        {
-        case ProjectPath::Type::File:
-        {
+        if (child.getPathType() == ProjectPath::Type::File)
             ++childFileCount;
-            break;
-        }
-        case ProjectPath::Type::Link:
-        {
-            ProjectPath target = path.resolveLink();
-            if (target.getPathType() == ProjectPath::Type::File)
-                ++childFileCount;
-            break;
-        }
-        default: break;
-        }
-    }
 
     /* Pass 2: child files */
     int progNum = 0;
@@ -511,45 +464,19 @@ static void VisitGlob(const ProjectPath& path,
     progress.changeDir(path.getLastComponent());
     for (ProjectPath& child : children)
     {
-        switch (child.getPathType())
-        {
-        case ProjectPath::Type::File:
+        if (child.getPathType() == ProjectPath::Type::File)
         {
             progress.changeFile(child.getLastComponent(), progNum++/progDenom);
             VisitFile(child, force, fast, specInsts, progress);
-            break;
-        }
-        case ProjectPath::Type::Link:
-        {
-            ProjectPath target = path.resolveLink();
-            if (target.getPathType() == ProjectPath::Type::File)
-            {
-                progress.changeFile(target.getLastComponent(), progNum++/progDenom);
-                VisitFile(target, force, fast, specInsts, progress);
-            }
-            break;
-        }
-        default: break;
         }
     }
     progress.reportDirComplete();
 
     /* Pass 3: child directories */
     if (recursive)
-    {
         for (ProjectPath& child : children)
-        {
-            switch (child.getPathType())
-            {
-            case ProjectPath::Type::Directory:
-            {
+            if (child.getPathType() == ProjectPath::Type::Directory)
                 VisitDirectory(child, recursive, force, fast, specInsts, progress);
-                break;
-            }
-            default: break;
-            }
-        }
-    }
 }
 
 bool Project::cookPath(const ProjectPath& path, FProgress progress,
@@ -571,16 +498,6 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     {
         cookProg.changeFile(path.getLastComponent(), 0.0);
         VisitFile(path, force, fast, specInsts, cookProg);
-        break;
-    }
-    case ProjectPath::Type::Link:
-    {
-        ProjectPath target = path.resolveLink();
-        if (target.getPathType() == ProjectPath::Type::File)
-        {
-            cookProg.changeFile(target.getLastComponent(), 0.0);
-            VisitFile(target, force, fast, specInsts, cookProg);
-        }
         break;
     }
     case ProjectPath::Type::Directory:
