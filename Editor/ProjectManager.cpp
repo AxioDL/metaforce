@@ -89,7 +89,7 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
         goto makeDefault;
 
     yaml_parser_set_input_file(r.getParser(), fp);
-    if (!r.ValidateClassType(r.getParser(), "UrdeSpacesState"))
+    if (!r.ValidateClassType("UrdeSpacesState"))
     {
         fclose(fp);
         goto makeDefault;
@@ -123,7 +123,9 @@ makeDefault:
     m_vm.SetupEditorView();
     saveProject();
 
-    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+    HECL::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
+    windowTitle += _S(" - URDE");
+    m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
     return true;
@@ -158,20 +160,12 @@ bool ProjectManager::saveProject()
 
     Athena::io::YAMLDocWriter w("UrdeSpacesState");
     yaml_emitter_set_output_file(w.getEmitter(), fp);
-    if (!w.open())
-    {
-        fclose(fp);
-        return false;
-    }
-
     m_vm.SaveEditorView(w);
     if (!w.finish())
     {
         fclose(fp);
         return false;
     }
-
-    w.close();
     fclose(fp);
 
     HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));

@@ -217,6 +217,10 @@ struct SpecMP2 : SpecBase
         progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
 
         m_workPath.makeDir();
+        HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
+        outPath.makeDir();
+        HECL::ProjectPath mp2OutPath(outPath, _S("MP2"));
+        mp2OutPath.makeDir();
         progress(_S("MP2 Root"), _S(""), 3, 0.0);
         int prog = 0;
         ctx.progressCB = [&](const std::string& name) {
@@ -225,7 +229,7 @@ struct SpecMP2 : SpecBase
         };
         for (const NOD::Node* node : m_nonPaks)
         {
-            node->extractToDirectory(m_workPath.getAbsolutePath(), ctx);
+            node->extractToDirectory(mp2OutPath.getAbsolutePath(), ctx);
             prog++;
         }
         progress(_S("MP2 Root"), _S(""), 3, 1.0);

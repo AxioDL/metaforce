@@ -39,17 +39,11 @@ void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::Proje
 
     if (!HECL::StrCmp(spec.spec.m_name, _S("MP3")))
     {
-        DataSpec::NamedResourceCatalog<DataSpec::UniqueID64> catalog;
-        if (catalogFile)
-            catalog.fromYAMLFile(catalogFile);
-        RecursiveAddDirObjects(spec.cookedPath, catalog);
+        RecursiveAddDirObjects(spec.cookedPath);
     }
     else
     {
-        DataSpec::NamedResourceCatalog<DataSpec::UniqueID32> catalog;
-        if (catalogFile)
-            catalog.fromYAMLFile(catalogFile);
-        RecursiveAddDirObjects(spec.cookedPath, catalog);
+        RecursiveAddDirObjects(spec.cookedPath);
     }
 }
 

@@ -93,25 +93,10 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
         Log.report(LogVisor::FatalError, "Unable to build master shader blend");
     if (m_isWii)
     {
-        /* Extract update partition for repacking later */
-        const HECL::SystemString& target = m_project.getProjectWorkingPath().getAbsolutePath();
-        NOD::Partition* update = m_disc->getUpdatePartition();
+        /* Extract root files for repacking later */
+        HECL::ProjectPath outDir(m_project.getProjectWorkingPath(), _S("out"));
+        outDir.makeDir();
         NOD::ExtractionContext ctx = {true, info.force, nullptr};
-
-        if (update)
-        {
-            atUint64 idx = 0;
-            progress(_S("Update Partition"), _S(""), 0, 0.0);
-            const atUint64 nodeCount = update->getFSTRoot().rawEnd() - update->getFSTRoot().rawBegin();
-            ctx.progressCB = [&](const std::string& name) {
-                HECL::SystemStringView nameView(name);
-                progress(_S("Update Partition"), nameView.sys_str().c_str(), 0, idx / (float)nodeCount);
-                idx++;
-            };
-
-            update->getFSTRoot().extractToDirectory(target, ctx);
-            progress(_S("Update Partition"), _S(""), 0, 1.0);
-        }
 
         if (!m_standalone)
         {
@@ -120,7 +105,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
             const NOD::Node& root = data->getFSTRoot();
             for (const NOD::Node& child : root)
                 if (child.getKind() == NOD::Node::Kind::File)
-                    child.extractToDirectory(target, ctx);
+                    child.extractToDirectory(outDir.getAbsolutePath(), ctx);
             progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
     }

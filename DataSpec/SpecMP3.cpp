@@ -346,8 +346,12 @@ struct SpecMP3 : SpecBase
             });
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
-            HECL::ProjectPath mp3WorkPath(m_project.getProjectWorkingPath(), "MP3");
+            HECL::ProjectPath mp3WorkPath(m_project.getProjectWorkingPath(), _S("MP3"));
             mp3WorkPath.makeDir();
+            HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
+            outPath.makeDir();
+            HECL::ProjectPath mp3OutPath(outPath, _S("MP3"));
+            mp3OutPath.makeDir();
             currentTarget = _S("MP3 Root");
             progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
             prog = 0;
@@ -356,7 +360,7 @@ struct SpecMP3 : SpecBase
             // TODO: Make this more granular
             for (const NOD::Node* node : m_nonPaks)
             {
-                node->extractToDirectory(mp3WorkPath.getAbsolutePath(), ctx);
+                node->extractToDirectory(mp3OutPath.getAbsolutePath(), ctx);
                 prog++;
             }
             ctx.progressCB = nullptr;
@@ -398,6 +402,10 @@ struct SpecMP3 : SpecBase
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
             m_feWorkPath.makeDir();
+            HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
+            outPath.makeDir();
+            HECL::ProjectPath feOutPath(outPath, _S("fe"));
+            feOutPath.makeDir();
             currentTarget = _S("fe Root");
             progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
             prog = 0;
@@ -406,7 +414,7 @@ struct SpecMP3 : SpecBase
             // TODO: Make this more granular
             for (const NOD::Node* node : m_feNonPaks)
             {
-                node->extractToDirectory(m_feWorkPath.getAbsolutePath(), ctx);
+                node->extractToDirectory(feOutPath.getAbsolutePath(), ctx);
                 prog++;
             }
             progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
