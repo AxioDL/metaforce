@@ -23,7 +23,7 @@ struct SpecialFunction : IScriptObject
     struct LayerSwitch : BigYAML
     {
         DECL_YAML
-        UniqueID32 area;
+        Value<atUint32> area;
         Value<atUint32> layerIdx;
     } layerSwitch;
     Value<EPickupType> pickup;

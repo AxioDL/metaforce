@@ -80,14 +80,18 @@ struct PAK : BigDNA
         return nullptr;
     }
 
-    inline std::string bestEntryName(const Entry& entry) const
+    inline std::string bestEntryName(const Entry& entry, bool& named) const
     {
         /* Prefer named entries first */
         for (const NameEntry& nentry : m_nameEntries)
             if (nentry.id == entry.id)
+            {
+                named = true;
                 return nentry.name;
+            }
 
         /* Otherwise return ID format string */
+        named = false;
         return entry.type.toString() + '_' + entry.id.toString();
     }
 

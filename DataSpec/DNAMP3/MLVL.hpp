@@ -28,7 +28,7 @@ struct MLVL : BigYAML
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
         UniqueID64 areaMREAId;
-        UniqueID64 areaId;
+        Value<atUint64> areaId;
 
         Value<atUint32> attachedAreaCount;
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;

@@ -339,6 +339,11 @@ struct SpecMP3 : SpecBase
                                       }};
         if (doMP3)
         {
+            m_workPath.makeDir();
+            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
+            cookPath.makeDir();
+            m_cookPath.makeDir();
+
             progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_pakRouter.build(m_paks, [&progress, &compIdx](float factor)
             {
@@ -346,8 +351,6 @@ struct SpecMP3 : SpecBase
             });
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
-            HECL::ProjectPath mp3WorkPath(m_project.getProjectWorkingPath(), _S("MP3"));
-            mp3WorkPath.makeDir();
             HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
             HECL::ProjectPath mp3OutPath(outPath, _S("MP3"));
@@ -366,11 +369,6 @@ struct SpecMP3 : SpecBase
             ctx.progressCB = nullptr;
 
             progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
-
-            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
-            cookPath.makeDir();
-            HECL::ProjectPath mp3CookPath(cookPath, "MP3");
-            mp3CookPath.makeDir();
 
             prog = 0;
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
@@ -394,6 +392,11 @@ struct SpecMP3 : SpecBase
 
         if (doMPTFE)
         {
+            m_feWorkPath.makeDir();
+            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
+            cookPath.makeDir();
+            m_feCookPath.makeDir();
+
             progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_fePakRouter.build(m_fePaks, [&progress, &compIdx](float factor)
             {
@@ -401,7 +404,6 @@ struct SpecMP3 : SpecBase
             });
             progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
 
-            m_feWorkPath.makeDir();
             HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
             HECL::ProjectPath feOutPath(outPath, _S("fe"));
@@ -418,10 +420,6 @@ struct SpecMP3 : SpecBase
                 prog++;
             }
             progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
-
-            const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
-            cookPath.makeDir();
-            m_feCookPath.makeDir();
 
             prog = 0;
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)

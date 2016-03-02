@@ -89,10 +89,11 @@ void PAKBridge::build()
                 PAKEntryReadStream rs = entry.beginReadStream(m_node);
                 mlvl.read(rs);
             }
+            bool named;
 #if HECL_UCS2
-            level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry));
+            level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry, named));
 #else
-            level.name = m_pak.bestEntryName(entry);
+            level.name = m_pak.bestEntryName(entry, named);
 #endif
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;

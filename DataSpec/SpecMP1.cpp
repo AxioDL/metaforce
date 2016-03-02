@@ -219,6 +219,11 @@ struct SpecMP1 : SpecBase
     {
         NOD::ExtractionContext ctx = {true, force, nullptr};
 
+        m_workPath.makeDir();
+        const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP1);
+        cookPath.makeDir();
+        m_cookPath.makeDir();
+
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {
@@ -226,7 +231,6 @@ struct SpecMP1 : SpecBase
         });
         progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
 
-        m_workPath.makeDir();
         HECL::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
         outPath.makeDir();
         HECL::ProjectPath mp1OutPath(outPath, _S("MP1"));
@@ -243,10 +247,6 @@ struct SpecMP1 : SpecBase
             prog++;
         }
         progress(_S("MP1 Root"), _S(""), 3, 1.0);
-
-        const HECL::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP1);
-        cookPath.makeDir();
-        m_cookPath.makeDir();
 
         int compIdx = 4;
         prog = 0;
