@@ -820,12 +820,12 @@ void CElementGen::UpdatePSTranslationAndOrientation()
     CModVectorElement* psvm = desc->x4_PSVM.get();
     if (psvm)
     {
-        Zeus::CVector3f vel = x7c_translation;
-        psvm->GetValue(x50_curFrame, x218_PSIV, vel);
-        if (vel != x7c_translation)
+        Zeus::CVector3f pos = x7c_translation;
+        psvm->GetValue(x50_curFrame, x218_PSIV, pos);
+        if (pos != x7c_translation)
         {
             x224_24_translationDirty = true;
-            x7c_translation = vel;
+            x7c_translation = pos;
         }
     }
 
