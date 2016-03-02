@@ -11,11 +11,6 @@ extern LogVisor::LogModule LogModule;
 
 struct IElement : BigYAML
 {
-    enum class EClassID : uint32_t
-    {
-        NONE = 'NONE',
-        CNST = 'CNST'
-    };
     Delete _d;
     virtual ~IElement() = default;
     virtual const char* ClassID() const=0;
@@ -107,6 +102,41 @@ struct EmitterElementFactory : BigYAML
 
 struct IUVElement : IElement {Delete _d;};
 
+struct BoolHelper : IElement
+{
+    Delete _d;
+    bool value = false;
+    operator bool() const {return value;}
+    BoolHelper& operator=(bool val) {value = val; return *this;}
+    void read(Athena::io::YAMLDocReader& r)
+    {
+        value = r.readBool(nullptr);
+    }
+    void write(Athena::io::YAMLDocWriter& w) const
+    {
+        w.writeBool(nullptr, value);
+    }
+    size_t binarySize(size_t __isz) const
+    {
+        return __isz + 5;
+    }
+    void read(Athena::io::IStreamReader& r)
+    {
+        uint32_t clsId;
+        r.readBytesToBuf(&clsId, 4);
+        if (clsId == SBIG('CNST'))
+            value = r.readBool();
+        else
+            value = false;
+    }
+    void write(Athena::io::IStreamWriter& w) const
+    {
+        w.writeBytes((atInt8*)"CNST", 4);
+        w.writeBool(value);
+    }
+    const char* ClassID() const {return "BoolHelper";}
+};
+
 struct RELifetimeTween : IRealElement
 {
     DECL_YAML
@@ -149,7 +179,7 @@ struct RETimeChain : IRealElement
     DECL_YAML
     RealElementFactory a;
     RealElementFactory b;
-    IntElementFactory c;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "CHAN";}
 };
 
@@ -164,24 +194,24 @@ struct REAdd : IRealElement
 struct REClamp : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
+    RealElementFactory min;
+    RealElementFactory max;
+    RealElementFactory val;
     const char* ClassID() const {return "CLMP";}
 };
 
 struct REKeyframeEmitter : IRealElement
 {
     DECL_YAML
-    Value<atUint32> percentage;
-    Value<atUint32> b;
-    Value<atUint8> c;
-    Value<atUint8> d;
-    Value<atUint32> e;
-    Value<atUint32> f;
+    Value<atUint32> percentageTween;
+    Value<atUint32> unk1;
+    Value<bool> loop;
+    Value<atUint8> unk2;
+    Value<atUint32> loopEnd;
+    Value<atUint32> loopStart;
     Value<atUint32> count;
     Vector<float, DNA_COUNT(count)> keys;
-    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
 struct REInitialRandom : IRealElement
@@ -211,37 +241,37 @@ struct REMultiply : IRealElement
 struct REPulse : IRealElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    IntElementFactory aDuration;
+    IntElementFactory bDuration;
+    RealElementFactory a;
+    RealElementFactory b;
     const char* ClassID() const {return "PULS";}
 };
 
 struct RETimeScale : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
+    RealElementFactory dv;
     const char* ClassID() const {return "SCAL";}
 };
 
 struct RELifetimePercent : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
+    RealElementFactory percent;
     const char* ClassID() const {return "RLPT";}
 };
 
 struct RESineWave : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
+    RealElementFactory magnitude;
+    RealElementFactory linearAngle;
+    RealElementFactory constantAngle;
     const char* ClassID() const {return "SINE";}
 };
 
-struct REISWT : IRealElement
+struct REInitialSwitch : IRealElement
 {
     DECL_YAML
     RealElementFactory a;
@@ -252,78 +282,78 @@ struct REISWT : IRealElement
 struct RECompareLessThan : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    RealElementFactory ca;
+    RealElementFactory cb;
+    RealElementFactory pass;
+    RealElementFactory fail;
     const char* ClassID() const {return "CLTN";}
 };
 
 struct RECompareEquals : IRealElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    RealElementFactory ca;
+    RealElementFactory cb;
+    RealElementFactory pass;
+    RealElementFactory fail;
     const char* ClassID() const {return "CEQL";}
 };
 
-struct REParticleAccessParam1 : IRealElement
+struct REParticleAdvanceParam1 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP1";}
 };
 
-struct REParticleAccessParam2 : IRealElement
+struct REParticleAdvanceParam2 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP2";}
 };
 
-struct REParticleAccessParam3 : IRealElement
+struct REParticleAdvanceParam3 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP3";}
 };
 
-struct REParticleAccessParam4 : IRealElement
+struct REParticleAdvanceParam4 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP4";}
 };
 
-struct REParticleAccessParam5 : IRealElement
+struct REParticleAdvanceParam5 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP5";}
 };
 
-struct REParticleAccessParam6 : IRealElement
+struct REParticleAdvanceParam6 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP6";}
 };
 
-struct REParticleAccessParam7 : IRealElement
+struct REParticleAdvanceParam7 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP7";}
 };
 
-struct REParticleAccessParam8 : IRealElement
+struct REParticleAdvanceParam8 : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PAP8";}
 };
 
-struct REPSLL : IRealElement
+struct REParticleSizeOrLineLength : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PSLL";}
 };
 
-struct REPRLW : IRealElement
+struct REParticleRotationOrLineWidth : IRealElement
 {
     DECL_YAML
     const char* ClassID() const {return "PRLW";}
@@ -340,35 +370,35 @@ struct RESubtract : IRealElement
 struct REVectorMagnitude : IRealElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory vec;
     const char* ClassID() const {return "VMAG";}
 };
 
 struct REVectorXToReal : IRealElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory vec;
     const char* ClassID() const {return "VXTR";}
 };
 
 struct REVectorYToReal : IRealElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory vec;
     const char* ClassID() const {return "VYTR";}
 };
 
 struct REVectorZToReal : IRealElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory vec;
     const char* ClassID() const {return "VZTR";}
 };
 
 struct RECEXT : IRealElement
 {
     DECL_YAML
-    IntElementFactory a;
+    IntElementFactory index;
     const char* ClassID() const {return "CEXT";}
 };
 
@@ -383,31 +413,31 @@ struct REIntTimesReal : IRealElement
 struct IEKeyframeEmitter : IIntElement
 {
     DECL_YAML
-    Value<atUint32> percentage;
-    Value<atUint32> b;
-    Value<atUint8> c;
-    Value<atUint8> d;
-    Value<atUint32> e;
-    Value<atUint32> f;
+    Value<atUint32> percentageTween;
+    Value<atUint32> unk1;
+    Value<bool> loop;
+    Value<atUint8> unk2;
+    Value<atUint32> loopEnd;
+    Value<atUint32> loopStart;
     Value<atUint32> count;
     Vector<atUint32, DNA_COUNT(count)> keys;
-    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
 struct IEDeath : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
+    IntElementFactory passthrough;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "DETH";}
 };
 
 struct IEClamp : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    IntElementFactory c;
+    IntElementFactory min;
+    IntElementFactory max;
+    IntElementFactory val;
     const char* ClassID() const {return "CLMP";}
 };
 
@@ -416,7 +446,7 @@ struct IETimeChain : IIntElement
     DECL_YAML
     IntElementFactory a;
     IntElementFactory b;
-    IntElementFactory c;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "CHAN";}
 };
 
@@ -460,14 +490,14 @@ struct IEConstant : IIntElement
 struct IEImpulse : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
+    IntElementFactory val;
     const char* ClassID() const {return "IMPL";}
 };
 
 struct IELifetimePercent : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
+    IntElementFactory percent;
     const char* ClassID() const {return "ILPT";}
 };
 
@@ -482,10 +512,10 @@ struct IEInitialRandom : IIntElement
 struct IEPulse : IIntElement
 {
     DECL_YAML
+    IntElementFactory aDuration;
+    IntElementFactory bDuration;
     IntElementFactory a;
     IntElementFactory b;
-    IntElementFactory c;
-    IntElementFactory d;
     const char* ClassID() const {return "PULS";}
 };
 
@@ -500,9 +530,9 @@ struct IEMultiply : IIntElement
 struct IESampleAndHold : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    IntElementFactory c;
+    IntElementFactory val;
+    IntElementFactory waitMin;
+    IntElementFactory waitMax;
     const char* ClassID() const {return "SPAH";}
 };
 
@@ -517,7 +547,7 @@ struct IERandom : IIntElement
 struct IETimeScale : IIntElement
 {
     DECL_YAML
-    RealElementFactory a;
+    RealElementFactory dv;
     const char* ClassID() const {return "TSCL";}
 };
 
@@ -538,8 +568,8 @@ struct IEModulo : IIntElement
 struct IESubtract : IIntElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
+    IntElementFactory direction;
+    IntElementFactory baseRadius;
     const char* ClassID() const {return "SUB_";}
 };
 
@@ -556,18 +586,18 @@ struct VETimeChain : IVectorElement
     DECL_YAML
     VectorElementFactory a;
     VectorElementFactory b;
-    IntElementFactory c;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "CHAN";}
 };
 
 struct VEAngleCone : IVectorElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    RealElementFactory e;
+    RealElementFactory angleXBias;
+    RealElementFactory angleYBias;
+    RealElementFactory angleXRange;
+    RealElementFactory angleYRange;
+    RealElementFactory magnitude;
     const char* ClassID() const {return "ANGC";}
 };
 
@@ -582,10 +612,10 @@ struct VEAdd : IVectorElement
 struct VECircleCluster : IVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    VectorElementFactory b;
-    IntElementFactory c;
-    RealElementFactory d;
+    VectorElementFactory circleOffset;
+    VectorElementFactory circleNormal;
+    IntElementFactory cycleFrames;
+    RealElementFactory randomFactor;
     const char* ClassID() const {return "CCLU";}
 };
 
@@ -639,26 +669,26 @@ struct VEConstant : IVectorElement
 struct VECircle : IVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    VectorElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    RealElementFactory e;
+    VectorElementFactory circleOffset;
+    VectorElementFactory circleNormal;
+    RealElementFactory angleConstant;
+    RealElementFactory angleLinear;
+    RealElementFactory circleRadius;
     const char* ClassID() const {return "CIRC";}
 };
 
 struct VEKeyframeEmitter : IVectorElement
 {
     DECL_YAML
-    Value<atUint32> percentage;
-    Value<atUint32> b;
-    Value<atUint8> c;
-    Value<atUint8> d;
-    Value<atUint32> e;
-    Value<atUint32> f;
+    Value<atUint32> percentageTween;
+    Value<atUint32> unk1;
+    Value<bool> loop;
+    Value<atUint8> unk2;
+    Value<atUint32> loopEnd;
+    Value<atUint32> loopStart;
     Value<atUint32> count;
     Vector<atVec3f, DNA_COUNT(count)> keys;
-    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
 struct VEMultiply : IVectorElement
@@ -679,10 +709,10 @@ struct VERealToVector : IVectorElement
 struct VEPulse : IVectorElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    VectorElementFactory c;
-    VectorElementFactory d;
+    IntElementFactory aDuration;
+    IntElementFactory bDuration;
+    VectorElementFactory a;
+    VectorElementFactory b;
     const char* ClassID() const {return "PULS";}
 };
 
@@ -726,15 +756,15 @@ struct VEPSOF : IVectorElement
 struct CEKeyframeEmitter : IColorElement
 {
     DECL_YAML
-    Value<atUint32> percentage;
-    Value<atUint32> b;
-    Value<atUint8> c;
-    Value<atUint8> d;
-    Value<atUint32> e;
-    Value<atUint32> f;
+    Value<atUint32> percentageTween;
+    Value<atUint32> unk1;
+    Value<bool> loop;
+    Value<atUint8> unk2;
+    Value<atUint32> loopEnd;
+    Value<atUint32> loopStart;
     Value<atUint32> count;
     Vector<atVec4f, DNA_COUNT(count)> keys;
-    const char* ClassID() const {return percentage ? "KEYP" : "KEYE";}
+    const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
 struct CEConstant : IColorElement
@@ -792,7 +822,7 @@ struct CETimeChain : IColorElement
     DECL_YAML
     ColorElementFactory a;
     ColorElementFactory b;
-    IntElementFactory c;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "CHAN";}
 };
 
@@ -801,8 +831,8 @@ struct CEFadeEnd : IColorElement
     DECL_YAML
     ColorElementFactory a;
     ColorElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    RealElementFactory startFrame;
+    RealElementFactory endFrame;
     const char* ClassID() const {return "CFDE";}
 };
 
@@ -811,41 +841,39 @@ struct CEFade : IColorElement
     DECL_YAML
     ColorElementFactory a;
     ColorElementFactory b;
-    RealElementFactory c;
+    RealElementFactory endFrame;
     const char* ClassID() const {return "FADE";}
 };
 
 struct CEPulse : IColorElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    ColorElementFactory c;
-    ColorElementFactory d;
+    IntElementFactory aDuration;
+    IntElementFactory bDuration;
+    ColorElementFactory a;
+    ColorElementFactory b;
     const char* ClassID() const {return "PULS";}
 };
 
 struct MVEImplosion : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    Value<EClassID> boolCls = EClassID::CNST;
-    Value<bool> boolVal;
+    VectorElementFactory implodePoint;
+    RealElementFactory velocityScale;
+    RealElementFactory maxRadius;
+    RealElementFactory minRadius;
+    BoolHelper enableMinRadius;
     const char* ClassID() const {return "IMPL";}
 };
 
 struct MVEExponentialImplosion : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    Value<EClassID> boolCls = EClassID::CNST;
-    Value<bool> boolVal;
+    VectorElementFactory implodePoint;
+    RealElementFactory velocityScale;
+    RealElementFactory maxRadius;
+    RealElementFactory minRadius;
+    BoolHelper enableMinRadius;
     const char* ClassID() const {return "EMPL";}
 };
 
@@ -854,19 +882,18 @@ struct MVETimeChain : IModVectorElement
     DECL_YAML
     ModVectorElementFactory a;
     ModVectorElementFactory b;
-    IntElementFactory c;
+    IntElementFactory thresholdFrame;
     const char* ClassID() const {return "CHAN";}
 };
 
 struct MVEBounce : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    VectorElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    Value<EClassID> boolCls = EClassID::CNST;
-    Value<bool> boolVal;
+    VectorElementFactory planePoint;
+    VectorElementFactory planeNormal;
+    RealElementFactory friction;
+    RealElementFactory restitution;
+    BoolHelper dieOnPenetrate;
     const char* ClassID() const {return "BNCE";}
 };
 
@@ -920,92 +947,91 @@ struct MVEConstant : IModVectorElement
 struct MVEGravity : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory acceleration;
     const char* ClassID() const {return "GRAV";}
 };
 
 struct MVEExplode : IModVectorElement
 {
     DECL_YAML
-    RealElementFactory a;
-    RealElementFactory b;
+    RealElementFactory impulseMagnitude;
+    RealElementFactory falloffFactor;
     const char* ClassID() const {return "EXPL";}
 };
 
 struct MVESetPosition : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
+    VectorElementFactory position;
     const char* ClassID() const {return "SPOS";}
 };
 
 struct MVELinearImplosion : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    Value<EClassID> boolCls = EClassID::CNST;
-    Value<bool> boolVal;
+    VectorElementFactory implodePoint;
+    RealElementFactory velocityScale;
+    RealElementFactory maxRadius;
+    RealElementFactory minRadius;
+    BoolHelper enableMinRadius;
     const char* ClassID() const {return "LMPL";}
 };
 
 struct MVEPulse : IModVectorElement
 {
     DECL_YAML
-    IntElementFactory a;
-    IntElementFactory b;
-    ModVectorElementFactory c;
-    ModVectorElementFactory d;
+    IntElementFactory aDuration;
+    IntElementFactory bDuration;
+    ModVectorElementFactory a;
+    ModVectorElementFactory b;
     const char* ClassID() const {return "PULS";}
 };
 
 struct MVEWind : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
+    VectorElementFactory windVelocity;
+    RealElementFactory factor;
     const char* ClassID() const {return "WIND";}
 };
 
 struct MVESwirl : IModVectorElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    VectorElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
+    VectorElementFactory helixPoint;
+    VectorElementFactory curveBinormal;
+    RealElementFactory targetRadius;
+    RealElementFactory tangentialVelocity;
     const char* ClassID() const {return "SWRL";}
 };
 
 struct EESimpleEmitter : IEmitterElement
 {
     DECL_YAML
-    VectorElementFactory loc;
-    VectorElementFactory vec;
+    VectorElementFactory position;
+    VectorElementFactory velocity;
     const char* ClassID() const {return "SEMR";}
 };
 
 struct VESphere : IEmitterElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
+    VectorElementFactory sphereOrigin;
+    RealElementFactory sphereRadius;
+    RealElementFactory magnitude;
     const char* ClassID() const {return "SPHE";}
 };
 
 struct VEAngleSphere : IEmitterElement
 {
     DECL_YAML
-    VectorElementFactory a;
-    RealElementFactory b;
-    RealElementFactory c;
-    RealElementFactory d;
-    RealElementFactory e;
-    RealElementFactory f;
-    RealElementFactory g;
+    VectorElementFactory sphereOrigin;
+    RealElementFactory sphereRadius;
+    RealElementFactory magnitude;
+    RealElementFactory angleXBias;
+    RealElementFactory angleYBias;
+    RealElementFactory angleXRange;
+    RealElementFactory angleYRange;
     const char* ClassID() const {return "ASPH";}
 };
 
@@ -1015,55 +1041,55 @@ struct EESimpleEmitterTR : EESimpleEmitter
 
     void read(Athena::io::YAMLDocReader& r)
     {
-        loc.m_elem.reset();
-        vec.m_elem.reset();
+        position.m_elem.reset();
+        velocity.m_elem.reset();
         if (r.enterSubRecord("ILOC"))
         {
-            loc.read(r);
+            position.read(r);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("IVEC"))
         {
-            vec.read(r);
+            velocity.read(r);
             r.leaveSubRecord();
         }
     }
     void write(Athena::io::YAMLDocWriter& w) const
     {
         w.enterSubRecord("ILOC");
-        loc.write(w);
+        position.write(w);
         w.leaveSubRecord();
         w.enterSubRecord("IVEC");
-        vec.write(w);
+        velocity.write(w);
         w.leaveSubRecord();
     }
     size_t binarySize(size_t __isz) const
     {
         __isz += 8;
-        __isz = loc.binarySize(__isz);
-        __isz = vec.binarySize(__isz);
+        __isz = position.binarySize(__isz);
+        __isz = velocity.binarySize(__isz);
         return __isz;
     }
     void read(Athena::io::IStreamReader& r)
     {
-        loc.m_elem.reset();
-        vec.m_elem.reset();
+        position.m_elem.reset();
+        velocity.m_elem.reset();
         uint32_t clsId;
         r.readBytesToBuf(&clsId, 4);
         if (clsId == SBIG('ILOC'))
         {
-            loc.read(r);
+            position.read(r);
             r.readBytesToBuf(&clsId, 4);
             if (clsId == SBIG('IVEC'))
-                vec.read(r);
+                velocity.read(r);
         }
     }
     void write(Athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"ILOC", 4);
-        loc.write(w);
+        position.write(w);
         w.writeBytes((atInt8*)"IVEC", 4);
-        vec.write(w);
+        velocity.write(w);
     }
     const char* ClassID() const {return "SETR";}
 };
@@ -1078,29 +1104,19 @@ struct UVEConstant : IUVElement
         tex.clear();
         if (r.enterSubRecord("tex"))
         {
-            if (r.enterSubRecord("CNST"))
-            {
-                tex.read(r);
-                r.leaveSubRecord();
-            }
+            tex.read(r);
             r.leaveSubRecord();
         }
     }
     void write(Athena::io::YAMLDocWriter& w) const
     {
-        if (tex)
-        {
-            w.enterSubRecord("CNST");
-            tex.write(w);
-            w.leaveSubRecord();
-        }
+        w.enterSubRecord("tex");
+        tex.write(w);
+        w.leaveSubRecord();
     }
     size_t binarySize(size_t __isz) const
     {
-        if (tex)
-            return tex.binarySize(__isz + 4);
-        else
-            return __isz + 4;
+        return tex.binarySize(__isz + 4);
     }
     void read(Athena::io::IStreamReader& r)
     {
@@ -1112,13 +1128,8 @@ struct UVEConstant : IUVElement
     }
     void write(Athena::io::IStreamWriter& w) const
     {
-        if (tex)
-        {
-            w.writeBytes((atInt8*)"CNST", 4);
-            tex.write(w);
-        }
-        else
-            w.writeBytes((atInt8*)"NONE", 4);
+        w.writeBytes((atInt8*)"CNST", 4);
+        tex.write(w);
     }
     const char* ClassID() const {return "CNST";}
 };
@@ -1128,96 +1139,82 @@ struct UVEAnimTexture : IUVElement
 {
     Delete _d;
     IDType tex;
-    IntElementFactory a;
-    IntElementFactory b;
-    IntElementFactory c;
-    IntElementFactory d;
-    IntElementFactory e;
-    Value<EClassID> boolCls = EClassID::CNST;
-    Value<bool> boolVal;
+    IntElementFactory tileW;
+    IntElementFactory tileH;
+    IntElementFactory strideW;
+    IntElementFactory strideH;
+    IntElementFactory cycleFrames;
+    Value<bool> loop = false;
     void read(Athena::io::YAMLDocReader& r)
     {
         tex.clear();
         if (r.enterSubRecord("tex"))
         {
-            if (r.enterSubRecord("CNST"))
-            {
-                tex.read(r);
-                r.leaveSubRecord();
-            }
+            tex.read(r);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("a"))
+        if (r.enterSubRecord("tileW"))
         {
-            a.read(r);
+            tileW.read(r);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("b"))
+        if (r.enterSubRecord("tileH"))
         {
-            b.read(r);
+            tileH.read(r);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("c"))
+        if (r.enterSubRecord("strideW"))
         {
-            c.read(r);
+            strideW.read(r);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("d"))
+        if (r.enterSubRecord("strideH"))
         {
-            d.read(r);
+            strideH.read(r);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("e"))
+        if (r.enterSubRecord("cycleFrames"))
         {
-            e.read(r);
+            cycleFrames.read(r);
             r.leaveSubRecord();
         }
-        boolCls = EClassID::NONE;
-        if (r.enterSubRecord("bool"))
+        if (r.enterSubRecord("loop"))
         {
-            if (r.enterSubRecord("CNST"))
-            {
-                boolCls = EClassID::CNST;
-                boolVal = r.readBool(nullptr);
-                r.leaveSubRecord();
-            }
+            loop = r.readBool(nullptr);
             r.leaveSubRecord();
         }
     }
     void write(Athena::io::YAMLDocWriter& w) const
     {
-        if (tex)
-        {
-            w.enterSubRecord("CNST");
-            tex.write(w);
-            w.leaveSubRecord();
-        }
-        a.write(w);
-        b.write(w);
-        c.write(w);
-        d.write(w);
-        e.write(w);
-        w.enterSubRecord("bool");
-        if (boolCls == EClassID::CNST)
-        {
-            w.enterSubRecord("CNST");
-            w.writeBool(nullptr, boolVal);
-            w.leaveSubRecord();
-        }
+        w.enterSubRecord("tex");
+        tex.write(w);
         w.leaveSubRecord();
+        w.enterSubRecord("tileW");
+        tileW.write(w);
+        w.leaveSubRecord();
+        w.enterSubRecord("tileH");
+        tileH.write(w);
+        w.leaveSubRecord();
+        w.enterSubRecord("strideW");
+        strideW.write(w);
+        w.leaveSubRecord();
+        w.enterSubRecord("strideH");
+        strideH.write(w);
+        w.leaveSubRecord();
+        w.enterSubRecord("cycleFrames");
+        cycleFrames.write(w);
+        w.leaveSubRecord();
+        w.writeBool("loop", loop);
     }
     size_t binarySize(size_t __isz) const
     {
-        __isz += 8;
-        if (tex)
-            __isz = tex.binarySize(__isz);
-        __isz = a.binarySize(__isz);
-        __isz = b.binarySize(__isz);
-        __isz = c.binarySize(__isz);
-        __isz = d.binarySize(__isz);
-        __isz = e.binarySize(__isz);
-        if (boolCls == EClassID::CNST)
-            __isz += 1;
+        __isz += 9;
+        __isz = tex.binarySize(__isz);
+        __isz = tileW.binarySize(__isz);
+        __isz = tileH.binarySize(__isz);
+        __isz = strideW.binarySize(__isz);
+        __isz = strideH.binarySize(__isz);
+        __isz = cycleFrames.binarySize(__isz);
         return __isz;
     }
     void read(Athena::io::IStreamReader& r)
@@ -1227,40 +1224,26 @@ struct UVEAnimTexture : IUVElement
         r.readBytesToBuf(&clsId, 4);
         if (clsId == SBIG('CNST'))
             tex.read(r);
-        a.read(r);
-        b.read(r);
-        c.read(r);
-        d.read(r);
-        e.read(r);
-        boolCls = EClassID::NONE;
+        tileW.read(r);
+        tileH.read(r);
+        strideW.read(r);
+        strideH.read(r);
+        cycleFrames.read(r);
         r.readBytesToBuf(&clsId, 4);
         if (clsId == SBIG('CNST'))
-        {
-            boolCls = EClassID::CNST;
-            boolVal = r.readBool();
-        }
+            loop = r.readBool();
     }
     void write(Athena::io::IStreamWriter& w) const
     {
-        if (tex)
-        {
-            w.writeBytes((atInt8*)"CNST", 4);
-            tex.write(w);
-        }
-        else
-            w.writeBytes((atInt8*)"NONE", 4);
-        a.write(w);
-        b.write(w);
-        c.write(w);
-        d.write(w);
-        e.write(w);
-        if (boolCls == EClassID::CNST)
-        {
-            w.writeBytes((atInt8*)"CNST", 4);
-            w.writeBool(boolVal);
-        }
-        else
-            w.writeBytes((atInt8*)"NONE", 4);
+        w.writeBytes((atInt8*)"CNST", 4);
+        tex.write(w);
+        tileW.write(w);
+        tileH.write(w);
+        strideW.write(w);
+        strideH.write(w);
+        cycleFrames.write(w);
+        w.writeBytes((atInt8*)"CNST", 4);
+        w.writeBool(loop);
     }
     const char* ClassID() const {return "ATEX";}
 };
@@ -1345,7 +1328,7 @@ struct SpawnSystemKeyframeData : BigYAML
     Delete _d;
     Value<atUint32> a;
     Value<atUint32> b;
-    Value<atUint32> c;
+    Value<atUint32> endFrame;
     Value<atUint32> d;
 
     struct SpawnSystemKeyframeInfo : BigYAML
@@ -1422,9 +1405,9 @@ struct SpawnSystemKeyframeData : BigYAML
             b = r.readUint32(nullptr);
             r.leaveSubRecord();
         }
-        if (r.enterSubRecord("c"))
+        if (r.enterSubRecord("endFrame"))
         {
-            c = r.readUint32(nullptr);
+            endFrame = r.readUint32(nullptr);
             r.leaveSubRecord();
         }
         if (r.enterSubRecord("d"))
@@ -1441,8 +1424,8 @@ struct SpawnSystemKeyframeData : BigYAML
                 if (r.enterSubRecord(nullptr))
                 {
                     spawns.emplace_back();
-                    spawns.back().first = r.readUint32("first");
-                    if (r.enterSubVector("second"))
+                    spawns.back().first = r.readUint32("startFrame");
+                    if (r.enterSubVector("systems"))
                     {
                         spawns.back().second.reserve(r.getCurNode()->m_seqChildren.size());
                         for (const auto& in : r.getCurNode()->m_seqChildren)
@@ -1467,14 +1450,14 @@ struct SpawnSystemKeyframeData : BigYAML
             return;
         w.writeUint32("a", a);
         w.writeUint32("b", b);
-        w.writeUint32("c", c);
+        w.writeUint32("endFrame", endFrame);
         w.writeUint32("d", d);
         w.enterSubVector("spawns");
         for (const auto& spawn : spawns)
         {
             w.enterSubRecord(nullptr);
-            w.writeUint32("first", spawn.first);
-            w.enterSubVector("second");
+            w.writeUint32("startFrame", spawn.first);
+            w.enterSubVector("systems");
             for (const auto& info : spawn.second)
             {
                 w.enterSubRecord(nullptr);
@@ -1506,7 +1489,7 @@ struct SpawnSystemKeyframeData : BigYAML
 
         a = r.readUint32Big();
         b = r.readUint32Big();
-        c = r.readUint32Big();
+        endFrame = r.readUint32Big();
         d = r.readUint32Big();
         uint32_t count = r.readUint32Big();
         spawns.clear();
@@ -1534,7 +1517,7 @@ struct SpawnSystemKeyframeData : BigYAML
         w.writeBytes((atInt8*)"CNST", 4);
         w.writeUint32Big(a);
         w.writeUint32Big(b);
-        w.writeUint32Big(c);
+        w.writeUint32Big(endFrame);
         w.writeUint32Big(d);
         w.writeUint32Big(spawns.size());
         for (const auto& spawn : spawns)

@@ -62,7 +62,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
         m_elem.reset(new struct RESineWave);
         break;
     case SBIG('ISWT'):
-        m_elem.reset(new struct REISWT);
+        m_elem.reset(new struct REInitialSwitch);
         break;
     case SBIG('CLTN'):
         m_elem.reset(new struct RECompareLessThan);
@@ -71,34 +71,34 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
         m_elem.reset(new struct RECompareEquals);
         break;
     case SBIG('PAP1'):
-        m_elem.reset(new struct REParticleAccessParam1);
+        m_elem.reset(new struct REParticleAdvanceParam1);
         break;
     case SBIG('PAP2'):
-        m_elem.reset(new struct REParticleAccessParam2);
+        m_elem.reset(new struct REParticleAdvanceParam2);
         break;
     case SBIG('PAP3'):
-        m_elem.reset(new struct REParticleAccessParam3);
+        m_elem.reset(new struct REParticleAdvanceParam3);
         break;
     case SBIG('PAP4'):
-        m_elem.reset(new struct REParticleAccessParam4);
+        m_elem.reset(new struct REParticleAdvanceParam4);
         break;
     case SBIG('PAP5'):
-        m_elem.reset(new struct REParticleAccessParam5);
+        m_elem.reset(new struct REParticleAdvanceParam5);
         break;
     case SBIG('PAP6'):
-        m_elem.reset(new struct REParticleAccessParam6);
+        m_elem.reset(new struct REParticleAdvanceParam6);
         break;
     case SBIG('PAP7'):
-        m_elem.reset(new struct REParticleAccessParam7);
+        m_elem.reset(new struct REParticleAdvanceParam7);
         break;
     case SBIG('PAP8'):
-        m_elem.reset(new struct REParticleAccessParam8);
+        m_elem.reset(new struct REParticleAdvanceParam8);
         break;
     case SBIG('PSLL'):
-        m_elem.reset(new struct REPSLL);
+        m_elem.reset(new struct REParticleSizeOrLineLength);
         break;
     case SBIG('PRLW'):
-        m_elem.reset(new struct REPRLW);
+        m_elem.reset(new struct REParticleRotationOrLineWidth);
         break;
     case SBIG('SUB_'):
         m_elem.reset(new struct RESubtract);
@@ -195,7 +195,7 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         m_elem.reset(new struct RESineWave);
         break;
     case SBIG('ISWT'):
-        m_elem.reset(new struct REISWT);
+        m_elem.reset(new struct REInitialSwitch);
         break;
     case SBIG('CLTN'):
         m_elem.reset(new struct RECompareLessThan);
@@ -204,34 +204,34 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         m_elem.reset(new struct RECompareEquals);
         break;
     case SBIG('PAP1'):
-        m_elem.reset(new struct REParticleAccessParam1);
+        m_elem.reset(new struct REParticleAdvanceParam1);
         break;
     case SBIG('PAP2'):
-        m_elem.reset(new struct REParticleAccessParam2);
+        m_elem.reset(new struct REParticleAdvanceParam2);
         break;
     case SBIG('PAP3'):
-        m_elem.reset(new struct REParticleAccessParam3);
+        m_elem.reset(new struct REParticleAdvanceParam3);
         break;
     case SBIG('PAP4'):
-        m_elem.reset(new struct REParticleAccessParam4);
+        m_elem.reset(new struct REParticleAdvanceParam4);
         break;
     case SBIG('PAP5'):
-        m_elem.reset(new struct REParticleAccessParam5);
+        m_elem.reset(new struct REParticleAdvanceParam5);
         break;
     case SBIG('PAP6'):
-        m_elem.reset(new struct REParticleAccessParam6);
+        m_elem.reset(new struct REParticleAdvanceParam6);
         break;
     case SBIG('PAP7'):
-        m_elem.reset(new struct REParticleAccessParam7);
+        m_elem.reset(new struct REParticleAdvanceParam7);
         break;
     case SBIG('PAP8'):
-        m_elem.reset(new struct REParticleAccessParam8);
+        m_elem.reset(new struct REParticleAdvanceParam8);
         break;
     case SBIG('PSLL'):
-        m_elem.reset(new struct REPSLL);
+        m_elem.reset(new struct REParticleSizeOrLineLength);
         break;
     case SBIG('PRLW'):
-        m_elem.reset(new struct REPRLW);
+        m_elem.reset(new struct REParticleRotationOrLineWidth);
         break;
     case SBIG('SUB_'):
         m_elem.reset(new struct RESubtract);
