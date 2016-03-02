@@ -59,17 +59,20 @@ public:
     HECL::Database::Project& getProject() const {return m_dataSpec.getProject();}
     virtual HECL::ProjectPath getWorking(const UniqueID32&) const
     {
-        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID32 specialization");
+        LogDNACommon.report(LogVisor::FatalError,
+        "PAKRouter IDType mismatch; expected UniqueID32 specialization");
         return HECL::ProjectPath();
     }
     virtual HECL::ProjectPath getWorking(const UniqueID64&) const
     {
-        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID64 specialization");
+        LogDNACommon.report(LogVisor::FatalError,
+        "PAKRouter IDType mismatch; expected UniqueID64 specialization");
         return HECL::ProjectPath();
     }
     virtual HECL::ProjectPath getWorking(const UniqueID128&) const
     {
-        LogDNACommon.report(LogVisor::FatalError, "PAKRouter IDType mismatch; expected UniqueID128 specialization");
+        LogDNACommon.report(LogVisor::FatalError,
+        "PAKRouter IDType mismatch; expected UniqueID128 specialization");
         return HECL::ProjectPath();
     }
 };

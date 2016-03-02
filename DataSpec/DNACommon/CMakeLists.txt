@@ -7,15 +7,16 @@ make_dnalist(liblist
 add_library(DNACommon
             DNACommon.hpp DNACommon.cpp
             ${liblist}
-            PAK.hpp
+            PAK.hpp PAK.cpp
             GX.hpp
-            MLVL.hpp
+            MLVL.hpp MLVL.cpp
             CMDL.cpp
+            MAPA.cpp
             STRG.hpp STRG.cpp
             TXTR.hpp TXTR.cpp
             ANCS.hpp
             ANIM.hpp ANIM.cpp
-            PART.hpp
+            PART.hpp PART.cpp
             SWHC.hpp
             ELSC.hpp
             ParticleCommon.cpp

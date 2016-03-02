@@ -41,7 +41,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                        const SpecBase& dataspec,
                        std::function<void(const HECL::SystemChar*)> fileChanged,
                        bool force=false)
-{    
+{
     /* Extract character CMDL/CSKR first */
     std::vector<CharacterResInfo<typename PAKRouter::IDType>> chResInfo;
     ancs.getCharacterResInfo(chResInfo);
