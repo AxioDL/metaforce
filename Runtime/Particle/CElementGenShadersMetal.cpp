@@ -217,8 +217,8 @@ struct MetalElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
     {
         CGenDescription* desc = gen.GetDesc();
 
-        CUVElement* texr = desc->x54_TEXR.get();
-        CUVElement* tind = desc->x58_TIND.get();
+        CUVElement* texr = desc->x54_x40_TEXR.get();
+        CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
         boo::ITexture* textures[3];
 
