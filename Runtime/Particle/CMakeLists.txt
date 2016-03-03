@@ -6,7 +6,7 @@ endif()
 
 add_library(RuntimeCommonParticle
             IElement.hpp
-            CGenDescription.hpp CGenDescription.cpp
+            CGenDescription.hpp
             CRealElement.hpp CRealElement.cpp
             CIntElement.hpp CIntElement.cpp
             CVectorElement.hpp CVectorElement.cpp

@@ -193,8 +193,8 @@ struct OGLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
         CGenDescription* desc = gen.GetDesc();
 
         boo::IVertexFormat* vtxFmt = nullptr;
-        CUVElement* texr = desc->x54_TEXR.get();
-        CUVElement* tind = desc->x58_TIND.get();
+        CUVElement* texr = desc->x54_x40_TEXR.get();
+        CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
         boo::ITexture* textures[3];
 
@@ -349,8 +349,8 @@ struct VulkanElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
     {
         CGenDescription* desc = gen.GetDesc();
 
-        CUVElement* texr = desc->x54_TEXR.get();
-        CUVElement* tind = desc->x58_TIND.get();
+        CUVElement* texr = desc->x54_x40_TEXR.get();
+        CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
         boo::ITexture* textures[3];
 

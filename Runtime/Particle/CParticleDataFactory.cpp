@@ -861,62 +861,62 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         switch (clsId)
         {
         case SBIG('PMCL'):
-            fillDesc->x78_PMCL.reset(GetColorElement(in));
+            fillDesc->x78_x64_PMCL.reset(GetColorElement(in));
             break;
         case SBIG('LFOR'):
-            fillDesc->x118_LFOR.reset(GetRealElement(in));
+            fillDesc->x118_x104_LFOR.reset(GetRealElement(in));
             break;
         case SBIG('IDTS'):
-            fillDesc->xa4_IDTS = GetChildGeneratorDesc(in, resPool, tracker);
+            fillDesc->xa4_x90_IDTS = GetChildGeneratorDesc(in, resPool, tracker);
             break;
         case SBIG('EMTR'):
-            fillDesc->x40_EMTR.reset(GetEmitterElement(in));
+            fillDesc->x40_x2c_EMTR.reset(GetEmitterElement(in));
             break;
         case SBIG('COLR'):
             fillDesc->x30_COLR.reset(GetColorElement(in));
             break;
         case SBIG('CIND'):
-            fillDesc->x45_30_CIND = GetBool(in);
+            fillDesc->x45_30_x32_24_CIND = GetBool(in);
             break;
         case SBIG('AAPH'):
-            fillDesc->x44_26_AAPH = GetBool(in);
+            fillDesc->x44_26_x30_26_AAPH = GetBool(in);
             break;
         case SBIG('CSSD'):
-            fillDesc->xa0_CSSD.reset(GetIntElement(in));
+            fillDesc->xa0_x8c_CSSD.reset(GetIntElement(in));
             break;
         case SBIG('GRTE'):
             fillDesc->x2c_GRTE.reset(GetRealElement(in));
             break;
         case SBIG('FXLL'):
-            fillDesc->x44_25_FXLL = GetBool(in);
+            fillDesc->x44_25_x30_25_FXLL = GetBool(in);
             break;
         case SBIG('ICTS'):
-            fillDesc->x8c_ICTS = GetChildGeneratorDesc(in, resPool, tracker);
+            fillDesc->x8c_x78_ICTS = GetChildGeneratorDesc(in, resPool, tracker);
             break;
         case SBIG('KSSM'):
         {
-            fillDesc->xd0_KSSM.reset();
+            fillDesc->xd0_xbc_KSSM.reset();
             FourCC cid = GetClassID(in);
             if (cid != SBIG('CNST'))
                 break;
-            fillDesc->xd0_KSSM.reset(new CSpawnSystemKeyframeData(in));
-            fillDesc->xd0_KSSM->LoadAllSpawnedSystemTokens(resPool);
+            fillDesc->xd0_xbc_KSSM.reset(new CSpawnSystemKeyframeData(in));
+            fillDesc->xd0_xbc_KSSM->LoadAllSpawnedSystemTokens(resPool);
             break;
         }
         case SBIG('ILOC'):
-            fillDesc->x38_ILOC.reset(GetVectorElement(in));
+            delete GetVectorElement(in);
             break;
         case SBIG('IITS'):
-            fillDesc->xb8_IITS = GetChildGeneratorDesc(in, resPool, tracker);
+            fillDesc->xb8_xa4_IITS = GetChildGeneratorDesc(in, resPool, tracker);
             break;
         case SBIG('IVEC'):
-            fillDesc->x3c_IVEC.reset(GetVectorElement(in));
+            delete GetVectorElement(in);
             break;
         case SBIG('LDIR'):
-            fillDesc->x110_LDIR.reset(GetVectorElement(in));
+            fillDesc->x110_xfc_LDIR.reset(GetVectorElement(in));
             break;
         case SBIG('LCLR'):
-            fillDesc->x104_LCLR.reset(GetColorElement(in));
+            fillDesc->x104_xf0_LCLR.reset(GetColorElement(in));
             break;
         case SBIG('LENG'):
             fillDesc->x20_LENG.reset(GetRealElement(in));
@@ -925,151 +925,151 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x28_MAXP.reset(GetIntElement(in));
             break;
         case SBIG('LOFF'):
-            fillDesc->x10c_LOFF.reset(GetVectorElement(in));
+            fillDesc->x10c_xf8_LOFF.reset(GetVectorElement(in));
             break;
         case SBIG('LINT'):
-            fillDesc->x108_LINT.reset(GetRealElement(in));
+            fillDesc->x108_xf4_LINT.reset(GetRealElement(in));
             break;
         case SBIG('LINE'):
-            fillDesc->x44_24_LINE = GetBool(in);
+            fillDesc->x44_24_x30_24_LINE = GetBool(in);
             break;
         case SBIG('LFOT'):
-            fillDesc->x114_LFOT.reset(GetIntElement(in));
+            fillDesc->x114_x100_LFOT.reset(GetIntElement(in));
             break;
         case SBIG('LIT_'):
-            fillDesc->x44_29_LIT_ = GetBool(in);
+            fillDesc->x44_29_x30_29_LIT_ = GetBool(in);
             break;
         case SBIG('LTME'):
             fillDesc->x34_LTME.reset(GetIntElement(in));
             break;
         case SBIG('LSLA'):
-            fillDesc->x11c_LSLA.reset(GetRealElement(in));
+            fillDesc->x11c_x108_LSLA.reset(GetRealElement(in));
             break;
         case SBIG('LTYP'):
-            fillDesc->x100_LTYP.reset(GetIntElement(in));
+            fillDesc->x100_xec_LTYP.reset(GetIntElement(in));
             break;
         case SBIG('NDSY'):
-            fillDesc->xb4_NDSY.reset(GetIntElement(in));
+            fillDesc->xb4_xa0_NDSY.reset(GetIntElement(in));
             break;
         case SBIG('MBSP'):
-            fillDesc->x48_MBSP.reset(GetIntElement(in));
+            fillDesc->x48_x34_MBSP.reset(GetIntElement(in));
             break;
         case SBIG('MBLR'):
-            fillDesc->x44_30_MBLR = GetBool(in);
+            fillDesc->x44_30_x31_24_MBLR = GetBool(in);
             break;
         case SBIG('NCSY'):
-            fillDesc->x9c_NCSY.reset(GetIntElement(in));
+            fillDesc->x9c_x88_NCSY.reset(GetIntElement(in));
             break;
         case SBIG('PISY'):
-            fillDesc->xc8_PISY.reset(GetIntElement(in));
+            fillDesc->xc8_xb4_PISY.reset(GetIntElement(in));
             break;
         case SBIG('OPTS'):
-            fillDesc->x45_31_OPTS = GetBool(in);
+            fillDesc->x45_31_x32_25_OPTS = GetBool(in);
             break;
         case SBIG('PMAB'):
-            fillDesc->x44_31_PMAB = GetBool(in);
+            fillDesc->x44_31_x31_25_PMAB = GetBool(in);
             break;
         case SBIG('SESD'):
-            fillDesc->xf8_SESD.reset(GetIntElement(in));
+            fillDesc->xf8_xe4_SESD.reset(GetIntElement(in));
             break;
         case SBIG('SEPO'):
-            fillDesc->xfc_SEPO.reset(GetVectorElement(in));
+            fillDesc->xfc_xe8_SEPO.reset(GetVectorElement(in));
             break;
         case SBIG('PSLT'):
-            fillDesc->xc_PSLT.reset(GetIntElement(in));
+            fillDesc->xc_x0_PSLT.reset(GetIntElement(in));
             break;
         case SBIG('PMSC'):
-            fillDesc->x74_PMSC.reset(GetVectorElement(in));
+            fillDesc->x74_x60_PMSC.reset(GetVectorElement(in));
             break;
         case SBIG('PMOP'):
-            fillDesc->x6c_PMOP.reset(GetVectorElement(in));
+            fillDesc->x6c_x58_PMOP.reset(GetVectorElement(in));
             break;
         case SBIG('PMDL'):
-            fillDesc->x5c_PMDL = GetModel(in, resPool);
+            fillDesc->x5c_x48_PMDL = GetModel(in, resPool);
             break;
         case SBIG('PMRT'):
-            fillDesc->x70_PMRT.reset(GetVectorElement(in));
+            fillDesc->x70_x5c_PMRT.reset(GetVectorElement(in));
             break;
         case SBIG('POFS'):
             fillDesc->x18_POFS.reset(GetVectorElement(in));
             break;
         case SBIG('PMUS'):
-            fillDesc->x45_24_PMUS = GetBool(in);
+            fillDesc->x45_24_x31_26_PMUS = GetBool(in);
             break;
         case SBIG('PSIV'):
-            fillDesc->x0_PSIV.reset(GetVectorElement(in));
+            delete GetVectorElement(in);
             break;
         case SBIG('ROTA'):
-            fillDesc->x50_ROTA.reset(GetRealElement(in));
+            fillDesc->x50_x3c_ROTA.reset(GetRealElement(in));
             break;
         case SBIG('PSVM'):
-            fillDesc->x4_PSVM.reset(GetModVectorElement(in));
+            delete GetModVectorElement(in);
             break;
         case SBIG('PSTS'):
-            fillDesc->x14_PSTS.reset(GetRealElement(in));
+            fillDesc->x14_x8_PSTS.reset(GetRealElement(in));
             break;
         case SBIG('PSOV'):
-            fillDesc->x8_PSOV.reset(GetVectorElement(in));
+            delete GetVectorElement(in);
             break;
         case SBIG('PSWT'):
-            fillDesc->x10_PSWT.reset(GetIntElement(in));
+            fillDesc->x10_x4_PSWT.reset(GetIntElement(in));
             break;
         case SBIG('SEED'):
             fillDesc->x1c_SEED.reset(GetIntElement(in));
             break;
         case SBIG('PMOO'):
-            fillDesc->x45_25_PMOO = GetBool(in);
+            fillDesc->x45_25_x31_27_PMOO = GetBool(in);
             break;
         case SBIG('SSSD'):
-            fillDesc->xe4_SSSD.reset(GetIntElement(in));
+            fillDesc->xe4_xd0_SSSD.reset(GetIntElement(in));
             break;
         case SBIG('SORT'):
-            fillDesc->x44_28_SORT = GetBool(in);
+            fillDesc->x44_28_x30_28_SORT = GetBool(in);
             break;
         case SBIG('SIZE'):
-            fillDesc->x4c_SIZE.reset(GetRealElement(in));
+            fillDesc->x4c_x38_SIZE.reset(GetRealElement(in));
             break;
         case SBIG('SISY'):
-            fillDesc->xcc_SISY.reset(GetIntElement(in));
+            fillDesc->xcc_xb8_SISY.reset(GetIntElement(in));
             break;
         case SBIG('SSPO'):
-            fillDesc->xe8_SSPO.reset(GetVectorElement(in));
+            fillDesc->xe8_xd4_SSPO.reset(GetVectorElement(in));
             break;
         case SBIG('TEXR'):
-            fillDesc->x54_TEXR.reset(GetTextureElement(in, resPool));
+            fillDesc->x54_x40_TEXR.reset(GetTextureElement(in, resPool));
             break;
         case SBIG('SSWH'):
-            fillDesc->xd4_SSWH = GetSwooshGeneratorDesc(in, resPool);
+            fillDesc->xd4_xc0_SSWH = GetSwooshGeneratorDesc(in, resPool);
             break;
         case SBIG('TIND'):
-            fillDesc->x58_TIND.reset(GetTextureElement(in, resPool));
+            fillDesc->x58_x44_TIND.reset(GetTextureElement(in, resPool));
             break;
         case SBIG('VMD4'):
-            fillDesc->x45_29_VMD4 = GetBool(in);
+            fillDesc->x45_29_x31_31_VMD4 = GetBool(in);
             break;
         case SBIG('VMD3'):
-            fillDesc->x45_28_VMD3 = GetBool(in);
+            fillDesc->x45_28_x31_30_VMD3 = GetBool(in);
             break;
         case SBIG('VMD2'):
-            fillDesc->x45_27_VMD2 = GetBool(in);
+            fillDesc->x45_27_x31_29_VMD2 = GetBool(in);
             break;
         case SBIG('VMD1'):
-            fillDesc->x45_26_VMD1 = GetBool(in);
+            fillDesc->x45_26_x31_28_VMD1 = GetBool(in);
             break;
         case SBIG('VEL4'):
-            fillDesc->x88_VEL4.reset(GetModVectorElement(in));
+            fillDesc->x88_x74_VEL4.reset(GetModVectorElement(in));
             break;
         case SBIG('VEL3'):
-            fillDesc->x84_VEL3.reset(GetModVectorElement(in));
+            fillDesc->x84_x70_VEL3.reset(GetModVectorElement(in));
             break;
         case SBIG('VEL2'):
-            fillDesc->x80_VEL2.reset(GetModVectorElement(in));
+            fillDesc->x80_x6c_VEL2.reset(GetModVectorElement(in));
             break;
         case SBIG('VEL1'):
-            fillDesc->x7c_VEL1.reset(GetModVectorElement(in));
+            fillDesc->x7c_x68_VEL1.reset(GetModVectorElement(in));
             break;
         case SBIG('ZBUF'):
-            fillDesc->x44_27_ZBUF = GetBool(in);
+            fillDesc->x44_27_x30_27_ZBUF = GetBool(in);
             break;
         case SBIG('WIDT'):
             fillDesc->x24_WIDT.reset(GetRealElement(in));
@@ -1105,7 +1105,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x128_ADV8.reset(GetRealElement(in));
             break;
         case SBIG('SELC'):
-            fillDesc->xec_SELC = GetElectricGeneratorDesc(in, resPool);
+            fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
             break;
         default:
         {
@@ -1140,20 +1140,20 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc)
 {
-    if (desc->x5c_PMDL.m_found)
-        desc->x5c_PMDL.m_model = desc->x5c_PMDL.m_token.GetObj();
+    if (desc->x5c_x48_PMDL.m_found)
+        desc->x5c_x48_PMDL.m_model = desc->x5c_x48_PMDL.m_token.GetObj();
 
-    if (desc->x8c_ICTS.m_found)
-        desc->x8c_ICTS.m_gen = desc->x8c_ICTS.m_token.GetObj();
+    if (desc->x8c_x78_ICTS.m_found)
+        desc->x8c_x78_ICTS.m_gen = desc->x8c_x78_ICTS.m_token.GetObj();
 
-    if (desc->xa4_IDTS.m_found)
-        desc->xa4_IDTS.m_gen = desc->xa4_IDTS.m_token.GetObj();
+    if (desc->xa4_x90_IDTS.m_found)
+        desc->xa4_x90_IDTS.m_gen = desc->xa4_x90_IDTS.m_token.GetObj();
 
-    if (desc->xb8_IITS.m_found)
-        desc->xb8_IITS.m_gen = desc->xb8_IITS.m_token.GetObj();
+    if (desc->xb8_xa4_IITS.m_found)
+        desc->xb8_xa4_IITS.m_gen = desc->xb8_xa4_IITS.m_token.GetObj();
 
-    if (desc->xd4_SSWH.m_found)
-        desc->xd4_SSWH.m_swoosh = desc->xd4_SSWH.m_token.GetObj();
+    if (desc->xd4_xc0_SSWH.m_found)
+        desc->xd4_xc0_SSWH.m_swoosh = desc->xd4_xc0_SSWH.m_token.GetObj();
 }
 
 std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)

@@ -12,18 +12,23 @@
 #include "CSpawnSystemKeyframeData.hpp"
 #include "CParticleDataFactory.hpp"
 
+/* Documentation at: http://www.metroid2002.com/retromodding/wiki/PART_(File_Format) */
+
 namespace pshag
 {
 
 class CGenDescription
 {
 public:
-    std::unique_ptr<CVectorElement> x0_PSIV;
-    std::unique_ptr<CModVectorElement> x4_PSVM;
-    std::unique_ptr<CVectorElement> x8_PSOV;
-    std::unique_ptr<CIntElement> xc_PSLT;
-    std::unique_ptr<CIntElement> x10_PSWT;
-    std::unique_ptr<CRealElement> x14_PSTS;
+    /* Naming convention: <demo-offset>_<retail-offset>_<name> */
+
+    /* Removed from demo */
+    //std::unique_ptr<CVectorElement> x0_PSIV;
+    //std::unique_ptr<CModVectorElement> x4_PSVM;
+    //std::unique_ptr<CVectorElement> x8_PSOV;
+    std::unique_ptr<CIntElement> xc_x0_PSLT;
+    std::unique_ptr<CIntElement> x10_x4_PSWT;
+    std::unique_ptr<CRealElement> x14_x8_PSTS;
     std::unique_ptr<CVectorElement> x18_POFS;
     std::unique_ptr<CIntElement> x1c_SEED;
     std::unique_ptr<CRealElement> x20_LENG;
@@ -32,68 +37,60 @@ public:
     std::unique_ptr<CRealElement> x2c_GRTE;
     std::unique_ptr<CColorElement> x30_COLR;
     std::unique_ptr<CIntElement> x34_LTME;
-    std::unique_ptr<CVectorElement> x38_ILOC;
-    std::unique_ptr<CVectorElement> x3c_IVEC;
-    std::unique_ptr<CEmitterElement> x40_EMTR;
+    /* Removed from demo (replaced by EMTR) */
+    // std::unique_ptr<CVectorElement> x38_ILOC;
+    // std::unique_ptr<CVectorElement> x3c_IVEC;
+    std::unique_ptr<CEmitterElement> x40_x2c_EMTR;
     union
     {
         struct
         {
-            bool x44_28_SORT : 1; bool x44_30_MBLR : 1;  bool x44_24_LINE : 1; bool x44_29_LIT_ : 1;
-            bool x44_26_AAPH : 1; bool x44_27_ZBUF : 1;  bool x44_25_FXLL : 1; bool x44_31_PMAB : 1;
-            bool x45_29_VMD4 : 1; bool x45_28_VMD3 : 1;  bool x45_27_VMD2 : 1; bool x45_26_VMD1 : 1;
-            bool x45_31_OPTS : 1; bool x45_24_PMUS : 1;  bool x45_25_PMOO : 1; bool x45_30_CIND : 1;
+            bool x44_28_x30_28_SORT : 1; bool x44_30_x31_24_MBLR : 1;  bool x44_24_x30_24_LINE : 1; bool x44_29_x30_29_LIT_ : 1;
+            bool x44_26_x30_26_AAPH : 1; bool x44_27_x30_27_ZBUF : 1;  bool x44_25_x30_25_FXLL : 1; bool x44_31_x31_25_PMAB : 1;
+            bool x45_29_x31_31_VMD4 : 1; bool x45_28_x31_30_VMD3 : 1;  bool x45_27_x31_29_VMD2 : 1; bool x45_26_x31_28_VMD1 : 1;
+            bool x45_31_x32_25_OPTS : 1; bool x45_24_x31_26_PMUS : 1;  bool x45_25_x31_27_PMOO : 1; bool x45_30_x32_24_CIND : 1;
+            /* 0-00 additions */
+            bool x30_30_ORNT : 1; bool x30_31_RSOP : 1;
         };
-        uint16_t dummy1 = 0;
+        uint32_t dummy1 = 0;
     };
-    std::unique_ptr<CIntElement> x48_MBSP;
-    std::unique_ptr<CRealElement> x4c_SIZE;
-    std::unique_ptr<CRealElement> x50_ROTA;
-    std::unique_ptr<CUVElement> x54_TEXR;
-    std::unique_ptr<CUVElement> x58_TIND;
-    SParticleModel x5c_PMDL;
-    std::unique_ptr<CVectorElement> x6c_PMOP;
-    std::unique_ptr<CVectorElement> x70_PMRT;
-    std::unique_ptr<CVectorElement> x74_PMSC;
-    std::unique_ptr<CColorElement> x78_PMCL;
-    std::unique_ptr<CModVectorElement> x7c_VEL1;
-    std::unique_ptr<CModVectorElement> x80_VEL2;
-    std::unique_ptr<CModVectorElement> x84_VEL3;
-    std::unique_ptr<CModVectorElement> x88_VEL4;
-    SChildGeneratorDesc x8c_ICTS;
-    std::unique_ptr<CIntElement> x9c_NCSY;
-    std::unique_ptr<CIntElement> xa0_CSSD;
-    SChildGeneratorDesc xa4_IDTS;
-    std::unique_ptr<CIntElement> xb4_NDSY;
-    SChildGeneratorDesc xb8_IITS;
-    std::unique_ptr<CIntElement> xc8_PISY;
-    std::unique_ptr<CIntElement> xcc_SISY;
-    std::unique_ptr<CSpawnSystemKeyframeData> xd0_KSSM;
-    SSwooshGeneratorDesc xd4_SSWH;
-    std::unique_ptr<CIntElement> xe4_SSSD;
-    std::unique_ptr<CVectorElement> xe8_SSPO;
-    SElectricGeneratorDesc xec_SELC;
-    std::unique_ptr<CIntElement> xf8_SESD;
-    std::unique_ptr<CVectorElement> xfc_SEPO;
-    std::unique_ptr<CIntElement> x100_LTYP;
-    std::unique_ptr<CColorElement> x104_LCLR;
-    std::unique_ptr<CRealElement> x108_LINT;
-    std::unique_ptr<CVectorElement> x10c_LOFF;
-    std::unique_ptr<CVectorElement> x110_LDIR;
-    std::unique_ptr<CIntElement> x114_LFOT;
-    std::unique_ptr<CRealElement> x118_LFOR;
-    std::unique_ptr<CRealElement> x11c_LSLA;
-
-    /* 0-00 additions */
-    union
-    {
-        struct
-        {
-            bool x30_30_ORNT : 1;
-            bool x30_31_RSOP : 1;
-        };
-        uint16_t dummy2 = 0;
-    };
+    std::unique_ptr<CIntElement> x48_x34_MBSP;
+    std::unique_ptr<CRealElement> x4c_x38_SIZE;
+    std::unique_ptr<CRealElement> x50_x3c_ROTA;
+    std::unique_ptr<CUVElement> x54_x40_TEXR;
+    std::unique_ptr<CUVElement> x58_x44_TIND;
+    SParticleModel x5c_x48_PMDL;
+    std::unique_ptr<CVectorElement> x6c_x58_PMOP;
+    std::unique_ptr<CVectorElement> x70_x5c_PMRT;
+    std::unique_ptr<CVectorElement> x74_x60_PMSC;
+    std::unique_ptr<CColorElement> x78_x64_PMCL;
+    std::unique_ptr<CModVectorElement> x7c_x68_VEL1;
+    std::unique_ptr<CModVectorElement> x80_x6c_VEL2;
+    std::unique_ptr<CModVectorElement> x84_x70_VEL3;
+    std::unique_ptr<CModVectorElement> x88_x74_VEL4;
+    SChildGeneratorDesc x8c_x78_ICTS;
+    std::unique_ptr<CIntElement> x9c_x88_NCSY;
+    std::unique_ptr<CIntElement> xa0_x8c_CSSD;
+    SChildGeneratorDesc xa4_x90_IDTS;
+    std::unique_ptr<CIntElement> xb4_xa0_NDSY;
+    SChildGeneratorDesc xb8_xa4_IITS;
+    std::unique_ptr<CIntElement> xc8_xb4_PISY;
+    std::unique_ptr<CIntElement> xcc_xb8_SISY;
+    std::unique_ptr<CSpawnSystemKeyframeData> xd0_xbc_KSSM;
+    SSwooshGeneratorDesc xd4_xc0_SSWH;
+    std::unique_ptr<CIntElement> xe4_xd0_SSSD;
+    std::unique_ptr<CVectorElement> xe8_xd4_SSPO;
+    SElectricGeneratorDesc xec_xd8_SELC;
+    std::unique_ptr<CIntElement> xf8_xe4_SESD;
+    std::unique_ptr<CVectorElement> xfc_xe8_SEPO;
+    std::unique_ptr<CIntElement> x100_xec_LTYP;
+    std::unique_ptr<CColorElement> x104_xf0_LCLR;
+    std::unique_ptr<CRealElement> x108_xf4_LINT;
+    std::unique_ptr<CVectorElement> x10c_xf8_LOFF;
+    std::unique_ptr<CVectorElement> x110_xfc_LDIR;
+    std::unique_ptr<CIntElement> x114_x100_LFOT;
+    std::unique_ptr<CRealElement> x118_x104_LFOR;
+    std::unique_ptr<CRealElement> x11c_x108_LSLA;
     std::unique_ptr<CRealElement> x10c_ADV1;
     std::unique_ptr<CRealElement> x110_ADV2;
     std::unique_ptr<CRealElement> x114_ADV3;
@@ -109,7 +106,7 @@ public:
 
     CGenDescription()
     {
-        x45_25_PMOO = true;
+        x45_25_x31_27_PMOO = true;
     }
 };
 
