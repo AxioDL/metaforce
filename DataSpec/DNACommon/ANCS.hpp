@@ -57,7 +57,8 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
                 if (!conn.createBlend(cmdlPath, HECL::BlenderConnection::BlendType::Mesh))
                     return false;
 
-                HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(*cmdlE));
+                std::string bestName = pakRouter.getBestEntryName(*cmdlE);
+                HECL::SystemStringView bestNameView(bestName);
                 fileChanged(bestNameView.sys_str().c_str());
 
                 typename ANCSDNA::CSKRType cskr;
@@ -76,7 +77,8 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         }
     }
 
-    HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(entry));
+    std::string bestName = pakRouter.getBestEntryName(entry);
+    HECL::SystemStringView bestNameView(bestName);
     fileChanged(bestNameView.sys_str().c_str());
 
     /* Establish ANCS blend */
