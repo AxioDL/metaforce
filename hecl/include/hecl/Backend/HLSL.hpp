@@ -3,7 +3,7 @@
 
 #include "ProgrammableCommon.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {
@@ -24,7 +24,7 @@ private:
 
     std::string EmitVec3(const atVec4f& vec) const
     {
-        return HECL::Format("float3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
+        return hecl::Format("float3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
     }
 
     std::string EmitTexGenSource2(TexGenSrc src, int uvIdx) const;

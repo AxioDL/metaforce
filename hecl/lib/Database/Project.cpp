@@ -9,14 +9,14 @@
 #include <unistd.h>
 #endif
 
-#include "HECL/Database.hpp"
+#include "hecl/Database.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Database
 {
 
-LogVisor::LogModule LogModule("HECLDatabase");
+logvisor::Module LogModule("HECLDatabase");
 
 /**********************************************
  * Project::ConfigFile
@@ -53,7 +53,7 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead()
     if (m_lockedFile)
         return m_lines;
 
-    m_lockedFile = HECL::Fopen(m_filepath.c_str(), _S("a+"), FileLockType::Write);
+    m_lockedFile = hecl::Fopen(m_filepath.c_str(), _S("a+"), FileLockType::Write);
 
     std::string mainString;
     char readBuf[1024];
@@ -95,7 +95,7 @@ void Project::ConfigFile::removeLine(const std::string& refLine)
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+        LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__,
                                "Project::ConfigFile::lockAndRead not yet called");
         return;
     }
@@ -116,7 +116,7 @@ bool Project::ConfigFile::checkForLine(const std::string& refLine)
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+        LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__,
                                "Project::ConfigFile::lockAndRead not yet called");
         return false;
     }
@@ -131,7 +131,7 @@ void Project::ConfigFile::unlockAndDiscard()
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+        LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__,
                                "Project::ConfigFile::lockAndRead not yet called");
         return;
     }
@@ -145,13 +145,13 @@ bool Project::ConfigFile::unlockAndCommit()
 {
     if (!m_lockedFile)
     {
-        LogModule.reportSource(LogVisor::FatalError, __FILE__, __LINE__,
+        LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__,
                                "Project::ConfigFile::lockAndRead not yet called");
         return false;
     }
 
     SystemString newPath = m_filepath + _S(".part");
-    FILE* newFile = HECL::Fopen(newPath.c_str(), _S("w"), FileLockType::Write);
+    FILE* newFile = hecl::Fopen(newPath.c_str(), _S("w"), FileLockType::Write);
     bool fail = false;
     for (const std::string& line : m_lines)
     {
@@ -205,15 +205,15 @@ Project::Project(const ProjectRootPath& rootPath)
 {
     /* Stat for existing project directory (must already exist) */
     Sstat myStat;
-    if (HECL::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
+    if (hecl::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
     {
-        LogModule.report(LogVisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().c_str());
+        LogModule.report(logvisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().c_str());
         return;
     }
 
     if (!S_ISDIR(myStat.st_mode))
     {
-        LogModule.report(LogVisor::Error, _S("provided path must be a directory; '%s' isn't"), m_rootPath.getAbsolutePath().c_str());
+        LogModule.report(logvisor::Error, _S("provided path must be a directory; '%s' isn't"), m_rootPath.getAbsolutePath().c_str());
         return;
     }
 
@@ -223,14 +223,14 @@ Project::Project(const ProjectRootPath& rootPath)
 
     /* Ensure beacon is valid or created */
     ProjectPath beaconPath(m_dotPath, _S("beacon"));
-    FILE* bf = HECL::Fopen(beaconPath.getAbsolutePath().c_str(), _S("a+b"));
+    FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().c_str(), _S("a+b"));
     struct BeaconStruct
     {
-        HECL::FourCC magic;
+        hecl::FourCC magic;
         uint32_t version;
     } beacon;
 #define DATA_VERSION 1
-    static const HECL::FourCC HECLfcc("HECL");
+    static const hecl::FourCC HECLfcc("HECL");
     if (fread(&beacon, 1, sizeof(beacon), bf) != sizeof(beacon))
     {
         fseek(bf, 0, SEEK_SET);
@@ -242,7 +242,7 @@ Project::Project(const ProjectRootPath& rootPath)
     if (beacon.magic != HECLfcc ||
         SBig(beacon.version) != DATA_VERSION)
     {
-        LogModule.report(LogVisor::FatalError, "incompatible project version");
+        LogModule.report(logvisor::Fatal, "incompatible project version");
         return;
     }
 
@@ -285,7 +285,7 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
     return m_paths.unlockAndCommit();
 }
 
-bool Project::addGroup(const HECL::ProjectPath& path)
+bool Project::addGroup(const hecl::ProjectPath& path)
 {
     m_groups.lockAndRead();
     m_groups.addLine(path.getRelativePathUTF8());
@@ -305,9 +305,9 @@ void Project::rescanDataSpecs()
     m_specs.lockAndRead();
     for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
-        HECL::SystemString specStr(spec->m_name);
+        hecl::SystemString specStr(spec->m_name);
         SystemUTF8View specUTF8(specStr);
-        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, HECL::SystemString(spec->m_name) + _S(".spec")),
+        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, hecl::SystemString(spec->m_name) + _S(".spec")),
                                    m_specs.checkForLine(specUTF8) ? true : false});
     }
     m_specs.unlockAndDiscard();

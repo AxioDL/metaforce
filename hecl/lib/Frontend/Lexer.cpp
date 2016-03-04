@@ -1,9 +1,9 @@
-#include "HECL/HECL.hpp"
-#include "HECL/Frontend.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Frontend.hpp"
 
 /* Combined lexer and semantic analysis system */
 
-namespace HECL
+namespace hecl
 {
 namespace Frontend
 {
@@ -343,7 +343,7 @@ void Lexer::consumeAllTokens(Parser& parser)
         }
     }
 
-    if (HECL::VerbosityLevel > 1)
+    if (hecl::VerbosityLevel > 1)
     {
         printf("%s\n", m_diag.getSource().c_str());
         PrintTree(firstNode);

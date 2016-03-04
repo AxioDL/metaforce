@@ -32,11 +32,11 @@
 #include <regex>
 #include <list>
 #include <map>
-#include <LogVisor/LogVisor.hpp>
-#include <Athena/Global.hpp>
+#include "logvisor/logvisor.hpp"
+#include <athena/Global.hpp>
 #include "../extern/xxhash/xxhash.h"
 
-namespace HECL
+namespace hecl
 {
 namespace Database
 {
@@ -46,7 +46,7 @@ struct DataSpecEntry;
 
 
 extern unsigned VerbosityLevel;
-extern LogVisor::LogModule LogModule;
+extern logvisor::Module LogModule;
 
 #if _WIN32 && UNICODE
 #define HECL_UCS2 1
@@ -176,11 +176,11 @@ static inline void MakeDir(const char* dir)
     HRESULT err;
     if (!CreateDirectoryA(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            LogModule.report(LogVisor::FatalError, _S("MakeDir(%s)"), dir);
+            LogModule.report(logvisor::Fatal, _S("MakeDir(%s)"), dir);
 #else
     if (mkdir(dir, 0755))
         if (errno != EEXIST)
-            LogModule.report(LogVisor::FatalError, "MakeDir(%s): %s", dir, strerror(errno));
+            LogModule.report(logvisor::Fatal, "MakeDir(%s): %s", dir, strerror(errno));
 #endif
 }
 
@@ -190,7 +190,7 @@ static inline void MakeDir(const wchar_t* dir)
     HRESULT err;
     if (!CreateDirectoryW(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            LogModule.report(LogVisor::FatalError, _S("MakeDir(%s)"), dir);
+            LogModule.report(logvisor::Fatal, _S("MakeDir(%s)"), dir);
 }
 #endif
 
@@ -215,7 +215,7 @@ static SystemString GetcwdStr()
     if (errno != ERANGE)
     {
         // It's not ERANGE, so we don't know how to handle it
-        LogModule.report(LogVisor::FatalError, "Cannot determine the current path.");
+        LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
         // Of course you may choose a different error reporting method
     }
     // Ok, the stack buffer isn't long enough; fallback to heap allocation
@@ -229,11 +229,11 @@ static SystemString GetcwdStr()
         if (errno != ERANGE)
         {
             // It's not ERANGE, so we don't know how to handle it
-            LogModule.report(LogVisor::FatalError, "Cannot determine the current path.");
+            LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
             // Of course you may choose a different error reporting method
         }
     }
-    LogModule.report(LogVisor::FatalError, "Cannot determine the current path; the path is apparently unreasonably long");
+    LogModule.report(logvisor::Fatal, "Cannot determine the current path; the path is apparently unreasonably long");
     return SystemString();
 }
 
@@ -276,7 +276,7 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
         LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == FileLockType::Write) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1, &ov);
 #else
         if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-            LogModule.report(LogVisor::Error, "flock %s: %s", path, strerror(errno));
+            LogModule.report(logvisor::Error, "flock %s: %s", path, strerror(errno));
 #endif
     }
 
@@ -434,16 +434,16 @@ static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
     wchar_t* end;
     DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
     if (!ret || ret > 1024)
-        LogModule.report(LogVisor::FatalError, _S("GetFullPathNameW %s"), path);
+        LogModule.report(logvisor::Fatal, _S("GetFullPathNameW %s"), path);
     if (end)
         end[0] = L'\0';
     if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-        LogModule.report(LogVisor::FatalError, _S("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
+        LogModule.report(logvisor::Fatal, _S("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
     return reqSz < freeBytes.QuadPart;
 #else
     struct statvfs svfs;
     if (statvfs(path, &svfs))
-        LogModule.report(LogVisor::FatalError, "statvfs %s: %s", path, strerror(errno));
+        LogModule.report(logvisor::Fatal, "statvfs %s: %s", path, strerror(errno));
     return reqSz < svfs.f_frsize * svfs.f_bavail;
 #endif
 }
@@ -602,14 +602,14 @@ public:
     };
     struct Entry
     {
-        HECL::SystemString m_path;
-        HECL::SystemString m_name;
+        hecl::SystemString m_path;
+        hecl::SystemString m_name;
         size_t m_fileSz;
         bool m_isDir;
 
     private:
         friend class DirectoryEnumerator;
-        Entry(HECL::SystemString&& path, const HECL::SystemChar* name, size_t sz, bool isDir)
+        Entry(hecl::SystemString&& path, const hecl::SystemChar* name, size_t sz, bool isDir)
         : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
     };
 
@@ -617,10 +617,10 @@ private:
     std::vector<Entry> m_entries;
 
 public:
-    DirectoryEnumerator(const HECL::SystemString& path, Mode mode=Mode::DirsThenFilesSorted,
+    DirectoryEnumerator(const hecl::SystemString& path, Mode mode=Mode::DirsThenFilesSorted,
                         bool sizeSort=false, bool reverse=false, bool noHidden=false)
     : DirectoryEnumerator(path.c_str(), mode, sizeSort, reverse, noHidden) {}
-    DirectoryEnumerator(const HECL::SystemChar* path, Mode mode=Mode::DirsThenFilesSorted,
+    DirectoryEnumerator(const hecl::SystemChar* path, Mode mode=Mode::DirsThenFilesSorted,
                         bool sizeSort=false, bool reverse=false, bool noHidden=false);
 
     operator bool() const {return m_entries.size() != 0;}
@@ -632,7 +632,7 @@ public:
 /**
  * @brief Build list of common OS-specific directories
  */
-std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations();
+std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations();
 
 /**
  * @brief Special ProjectRootPath class for opening HECLDatabase::IProject instances
@@ -690,7 +690,7 @@ public:
                 return SystemString(beginIt, absPath.cend());
             }
         }
-        LogModule.report(LogVisor::FatalError, "unable to resolve '%s' as project relative '%s'",
+        LogModule.report(logvisor::Fatal, "unable to resolve '%s' as project relative '%s'",
                          absPath.c_str(), m_projRoot.c_str());
         return SystemString();
     }
@@ -881,7 +881,7 @@ public:
     ProjectPath getParentPath() const
     {
         if (m_relPath == _S("."))
-            LogModule.report(LogVisor::FatalError, "attempted to resolve parent of root project path");
+            LogModule.report(logvisor::Fatal, "attempted to resolve parent of root project path");
         size_t pos = m_relPath.rfind(_S('/'));
         if (pos == SystemString::npos)
             return ProjectPath(*m_proj, _S(""));
@@ -936,9 +936,9 @@ public:
      * @brief Build vector of project-relative directory/file components
      * @return Vector of path components
      */
-    std::vector<HECL::SystemString> getPathComponents() const
+    std::vector<hecl::SystemString> getPathComponents() const
     {
-        std::vector<HECL::SystemString> ret;
+        std::vector<hecl::SystemString> ret;
         if (m_relPath.empty())
             return ret;
         auto it = m_relPath.cbegin();
@@ -947,7 +947,7 @@ public:
             ret.push_back(_S("/"));
             ++it;
         }
-        HECL::SystemString comp;
+        hecl::SystemString comp;
         for (; it != m_relPath.cend() ; ++it)
         {
             if (*it == _S('/'))
@@ -1061,7 +1061,7 @@ public:
     /**
      * @brief Construct DirectoryEnumerator set to project path
      */
-    HECL::DirectoryEnumerator enumerateDir() const;
+    hecl::DirectoryEnumerator enumerateDir() const;
 
     /**
      * @brief Insert glob matches into existing vector
@@ -1097,7 +1097,7 @@ public:
     Database::Project& getProject() const
     {
         if (!m_proj)
-            LogModule.report(LogVisor::FatalError, "ProjectPath::getProject() called on unqualified path");
+            LogModule.report(logvisor::Fatal, "ProjectPath::getProject() called on unqualified path");
         return *m_proj;
     }
 
@@ -1131,21 +1131,21 @@ ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpath
  * @param path Path to test
  * @return true if PNG
  */
-bool IsPathPNG(const HECL::ProjectPath& path);
+bool IsPathPNG(const hecl::ProjectPath& path);
 
 /**
  * @brief Test if given path is a blend (based on file header)
  * @param path Path to test
  * @return true if blend
  */
-bool IsPathBlend(const HECL::ProjectPath& path);
+bool IsPathBlend(const hecl::ProjectPath& path);
 
 /**
  * @brief Test if given path is a yaml (based on file extension)
  * @param path Path to test
  * @return true if yaml
  */
-bool IsPathYAML(const HECL::ProjectPath& path);
+bool IsPathYAML(const hecl::ProjectPath& path);
 
 #undef bswap16
 #undef bswap32
@@ -1244,19 +1244,19 @@ static inline uint64_t SBig(uint64_t val) {return val;}
 
 namespace std
 {
-template <> struct hash<HECL::FourCC>
+template <> struct hash<hecl::FourCC>
 {
-    size_t operator()(const HECL::FourCC& val) const NOEXCEPT
+    size_t operator()(const hecl::FourCC& val) const NOEXCEPT
     {return val.toUint32();}
 };
-template <> struct hash<HECL::ProjectPath>
+template <> struct hash<hecl::ProjectPath>
 {
-    size_t operator()(const HECL::ProjectPath& val) const NOEXCEPT
+    size_t operator()(const hecl::ProjectPath& val) const NOEXCEPT
     {return val.hash().valSizeT();}
 };
-template <> struct hash<HECL::Hash>
+template <> struct hash<hecl::Hash>
 {
-    size_t operator()(const HECL::Hash& val) const NOEXCEPT
+    size_t operator()(const hecl::Hash& val) const NOEXCEPT
     {return val.valSizeT();}
 };
 }

@@ -1,7 +1,7 @@
-#include "HECL/Backend/ProgrammableCommon.hpp"
+#include "hecl/Backend/ProgrammableCommon.hpp"
 #include <map>
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {

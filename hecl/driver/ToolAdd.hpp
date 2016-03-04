@@ -49,7 +49,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("add");}
+    hecl::SystemString toolName() const {return _S("add");}
 
     int run()
     {

@@ -22,7 +22,7 @@ add_custom_command(OUTPUT hecl.zip DEPENDS ${PY_SOURCES}
 bintoc(hecl_addon.c "${CMAKE_CURRENT_BINARY_DIR}/hecl.zip" HECL_ADDON)
 bintoc(hecl_startup.c hecl_startup.blend HECL_STARTUP)
 
-add_library(HECLBlender
+add_library(hecl-blender
             BlenderConnection.cpp
             BlenderConnection.hpp
             HMDL.cpp

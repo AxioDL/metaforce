@@ -13,7 +13,7 @@ public:
     : ToolBase(info)
     {
         if (!info.project)
-            LogModule.report(LogVisor::FatalError, "hecl package must be ran within a project directory");
+            LogModule.report(logvisor::Fatal, "hecl package must be ran within a project directory");
     }
 
     ~ToolPackage()
@@ -61,7 +61,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("package");}
+    hecl::SystemString toolName() const {return _S("package");}
 
     int run()
     {

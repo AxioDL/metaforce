@@ -6,9 +6,9 @@
 #endif
 #define DATA_SPEC_REGISTRY_HPP
 
-#include "HECL/Database.hpp"
+#include "hecl/Database.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Database
 {

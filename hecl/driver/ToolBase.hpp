@@ -11,19 +11,19 @@
 #include <unistd.h>
 #endif
 
-#include "HECL/Database.hpp"
-#include "LogVisor/LogVisor.hpp"
+#include "hecl/Database.hpp"
+#include "logvisor/logvisor.hpp"
 
-extern LogVisor::LogModule LogModule;
+extern logvisor::Module LogModule;
 
 struct ToolPassInfo
 {
-    HECL::SystemString pname;
-    HECL::SystemString cwd;
-    std::vector<HECL::SystemString> args;
-    std::vector<HECL::SystemChar> flags;
-    HECL::SystemString output;
-    HECL::Database::Project* project = nullptr;
+    hecl::SystemString pname;
+    hecl::SystemString cwd;
+    std::vector<hecl::SystemString> args;
+    std::vector<hecl::SystemChar> flags;
+    hecl::SystemString output;
+    hecl::Database::Project* project = nullptr;
     unsigned verbosityLevel = 0;
     bool force = false;
 };
@@ -37,10 +37,10 @@ public:
     ToolBase(const ToolPassInfo& info)
     : m_info(info)
     {
-        HECL::VerbosityLevel = info.verbosityLevel;
+        hecl::VerbosityLevel = info.verbosityLevel;
     }
     virtual ~ToolBase() {}
-    virtual HECL::SystemString toolName() const=0;
+    virtual hecl::SystemString toolName() const=0;
     virtual int run()=0;
     inline operator bool() const {return m_good;}
 };
@@ -69,16 +69,16 @@ private:
     FILE* m_sout;
     HelpFunc m_helpFunc;
     int m_lineWidth;
-    HECL::SystemString m_wrapBuffer;
+    hecl::SystemString m_wrapBuffer;
 
-    void _wrapBuf(HECL::SystemString& string)
+    void _wrapBuf(hecl::SystemString& string)
     {
         int counter;
-        HECL::SystemString::iterator it = string.begin();
+        hecl::SystemString::iterator it = string.begin();
 
         while (it != string.end())
         {
-            HECL::SystemString::iterator v=it;
+            hecl::SystemString::iterator v=it;
 
             /* copy string until the end of the line is reached */
             for (counter=WRAP_INDENT ; counter < m_lineWidth ; ++counter)
@@ -108,7 +108,7 @@ private:
             else
             {
                 /* check for nearest whitespace back in string */
-                for (HECL::SystemString::iterator k=it ; k!=string.begin() ; --k)
+                for (hecl::SystemString::iterator k=it ; k!=string.begin() ; --k)
                 {
                     if (isspace(*k))
                     {
@@ -131,7 +131,7 @@ private:
 public:
 
     HelpOutput(HelpFunc helpFunc)
-    : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(HECL::ConsoleWidth())
+    : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::ConsoleWidth())
     {}
 
     void go()
@@ -154,33 +154,33 @@ public:
 #endif
     }
 
-    void print(const HECL::SystemChar* str)
+    void print(const hecl::SystemChar* str)
     {
-        HECL::FPrintf(m_sout, _S("%s"), str);
+        hecl::FPrintf(m_sout, _S("%s"), str);
     }
 
-    void printBold(const HECL::SystemChar* str)
+    void printBold(const hecl::SystemChar* str)
     {
         if (XTERM_COLOR)
-            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL ""), str);
+            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL ""), str);
         else
-            HECL::FPrintf(m_sout, _S("%s"), str);
+            hecl::FPrintf(m_sout, _S("%s"), str);
     }
 
-    void secHead(const HECL::SystemChar* headName)
+    void secHead(const hecl::SystemChar* headName)
     {
         if (XTERM_COLOR)
-            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL "\n"), headName);
+            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL "\n"), headName);
         else
-            HECL::FPrintf(m_sout, _S("%s\n"), headName);
+            hecl::FPrintf(m_sout, _S("%s\n"), headName);
     }
 
-    void optionHead(const HECL::SystemChar* flag, const HECL::SystemChar* synopsis)
+    void optionHead(const hecl::SystemChar* flag, const hecl::SystemChar* synopsis)
     {
         if (XTERM_COLOR)
-            HECL::FPrintf(m_sout, _S("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
+            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
         else
-            HECL::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
+            hecl::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
     }
 
     void beginWrap()
@@ -188,12 +188,12 @@ public:
         m_wrapBuffer.clear();
     }
 
-    void wrap(const HECL::SystemChar* str)
+    void wrap(const hecl::SystemChar* str)
     {
         m_wrapBuffer += str;
     }
 
-    void wrapBold(const HECL::SystemChar* str)
+    void wrapBold(const hecl::SystemChar* str)
     {
         if (XTERM_COLOR)
             m_wrapBuffer += _S("" BOLD "");
@@ -206,13 +206,13 @@ public:
     {
         _wrapBuf(m_wrapBuffer);
         m_wrapBuffer += _S('\n');
-        HECL::FPrintf(m_sout, _S("%s"), m_wrapBuffer.c_str());
+        hecl::FPrintf(m_sout, _S("%s"), m_wrapBuffer.c_str());
         m_wrapBuffer.clear();
     }
 };
 
-static HECL::SystemString MakePathArgAbsolute(const HECL::SystemString& arg,
-                                              const HECL::SystemString& cwd)
+static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
+                                              const hecl::SystemString& cwd)
 {
 #if _WIN32
     if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == _S(':'))
@@ -227,24 +227,24 @@ static HECL::SystemString MakePathArgAbsolute(const HECL::SystemString& arg,
 #endif
 }
 
-void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* submessage,
+void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* submessage,
                        int lidx, float factor, int& lineIdx)
 {
     bool blocks = factor >= 0.0;
     factor = std::max(0.0f, std::min(1.0f, factor));
     int iFactor = factor * 100.0;
     if (XTERM_COLOR)
-        HECL::Printf(_S("" HIDE_CURSOR ""));
+        hecl::Printf(_S("" HIDE_CURSOR ""));
 
     if (lidx > lineIdx)
     {
-        HECL::Printf(_S("\n  "));
+        hecl::Printf(_S("\n  "));
         lineIdx = lidx;
     }
     else
-        HECL::Printf(_S("  "));
+        hecl::Printf(_S("  "));
 
-    int width = HECL::ConsoleWidth();
+    int width = hecl::ConsoleWidth();
     int half;
     if (blocks)
         half = width / 2 - 2;
@@ -253,34 +253,34 @@ void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* 
 
     if (!message)
         message = _S("");
-    size_t messageLen = HECL::StrLen(message);
+    size_t messageLen = hecl::StrLen(message);
     if (!submessage)
         submessage = _S("");
-    size_t submessageLen = HECL::StrLen(submessage);
+    size_t submessageLen = hecl::StrLen(submessage);
     if (half - messageLen < submessageLen-2)
         submessageLen = 0;
 
     if (submessageLen)
     {
         if (messageLen > half-submessageLen-1)
-            HECL::Printf(_S("%.*s... %s "), half-int(submessageLen)-4, message, submessage);
+            hecl::Printf(_S("%.*s... %s "), half-int(submessageLen)-4, message, submessage);
         else
         {
-            HECL::Printf(_S("%s"), message);
+            hecl::Printf(_S("%s"), message);
             for (int i=half-messageLen-submessageLen-1 ; i>=0 ; --i)
-                HECL::Printf(_S(" "));
-            HECL::Printf(_S("%s "), submessage);
+                hecl::Printf(_S(" "));
+            hecl::Printf(_S("%s "), submessage);
         }
     }
     else
     {
         if (messageLen > half)
-            HECL::Printf(_S("%.*s... "), half-3, message);
+            hecl::Printf(_S("%.*s... "), half-3, message);
         else
         {
-            HECL::Printf(_S("%s"), message);
+            hecl::Printf(_S("%s"), message);
             for (int i=half-messageLen ; i>=0 ; --i)
-                HECL::Printf(_S(" "));
+                hecl::Printf(_S(" "));
         }
     }
 
@@ -291,30 +291,30 @@ void ToolPrintProgress(const HECL::SystemChar* message, const HECL::SystemChar* 
             size_t blocks = half - 7;
             size_t filled = blocks * factor;
             size_t rem = blocks - filled;
-            HECL::Printf(_S("" BOLD "%3d%% ["), iFactor);
+            hecl::Printf(_S("" BOLD "%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
-                HECL::Printf(_S("#"));
+                hecl::Printf(_S("#"));
             for (int b=0 ; b<rem ; ++b)
-                HECL::Printf(_S("-"));
-            HECL::Printf(_S("]" NORMAL ""));
+                hecl::Printf(_S("-"));
+            hecl::Printf(_S("]" NORMAL ""));
         }
         else
         {
             size_t blocks = half - 7;
             size_t filled = blocks * factor;
             size_t rem = blocks - filled;
-            HECL::Printf(_S("%3d%% ["), iFactor);
+            hecl::Printf(_S("%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
-                HECL::Printf(_S("#"));
+                hecl::Printf(_S("#"));
             for (int b=0 ; b<rem ; ++b)
-                HECL::Printf(_S("-"));
-            HECL::Printf(_S("]"));
+                hecl::Printf(_S("-"));
+            hecl::Printf(_S("]"));
         }
     }
 
-    HECL::Printf(_S("\r"));
+    hecl::Printf(_S("\r"));
     if (XTERM_COLOR)
-        HECL::Printf(_S("" SHOW_CURSOR ""));
+        hecl::Printf(_S("" SHOW_CURSOR ""));
     fflush(stdout);
 }
 

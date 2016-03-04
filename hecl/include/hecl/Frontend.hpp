@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 #include <forward_list>
-#include <Athena/Types.hpp>
-#include <Athena/DNA.hpp>
-#include <HECL/HECL.hpp>
+#include <athena/Types.hpp>
+#include <athena/DNA.hpp>
+#include <hecl/hecl.hpp>
 
-namespace HECL
+namespace hecl
 {
 namespace Frontend
 {
@@ -113,7 +113,7 @@ public:
     Parser(Diagnostics& diag) : m_diag(diag) {}
 };
 
-using BigDNA = Athena::io::DNA<Athena::BigEndian>;
+using BigDNA = athena::io::DNA<athena::BigEndian>;
 
 struct IR : BigDNA
 {
@@ -188,7 +188,7 @@ struct IR : BigDNA
             case OpType::Swizzle:
                 return 1;
             default:
-                LogModule.report(LogVisor::FatalError, "invalid op type");
+                LogModule.report(logvisor::Fatal, "invalid op type");
             }
             return -1;
         }
@@ -201,14 +201,14 @@ struct IR : BigDNA
                 return ir.m_instructions.at(m_call.m_argInstIdxs.at(idx));
             case OpType::Arithmetic:
                 if (idx > 1)
-                    LogModule.report(LogVisor::FatalError, "arithmetic child idx must be 0 or 1");
+                    LogModule.report(logvisor::Fatal, "arithmetic child idx must be 0 or 1");
                 return ir.m_instructions.at(m_arithmetic.m_instIdxs[idx]);
             case OpType::Swizzle:
                 if (idx > 0)
-                    LogModule.report(LogVisor::FatalError, "swizzle child idx must be 0");
+                    LogModule.report(logvisor::Fatal, "swizzle child idx must be 0");
                 return ir.m_instructions.at(m_swizzle.m_instIdx);
             default:
-                LogModule.report(LogVisor::FatalError, "invalid op type");
+                LogModule.report(logvisor::Fatal, "invalid op type");
             }
             return *this;
         }
@@ -216,11 +216,11 @@ struct IR : BigDNA
         const atVec4f& getImmVec() const
         {
             if (m_op != OpType::LoadImm)
-                LogModule.report(LogVisor::FatalError, "invalid op type");
+                LogModule.report(logvisor::Fatal, "invalid op type");
             return m_loadImm.m_immVec;
         }
 
-        void read(Athena::io::IStreamReader& reader)
+        void read(athena::io::IStreamReader& reader)
         {
             m_op = OpType(reader.readUByte());
             m_target = reader.readUint16Big();
@@ -242,7 +242,7 @@ struct IR : BigDNA
             }
         }
 
-        void write(Athena::io::IStreamWriter& writer) const
+        void write(athena::io::IStreamWriter& writer) const
         {
             writer.writeUByte(m_op);
             writer.writeUint16Big(m_target);
@@ -286,14 +286,14 @@ struct IR : BigDNA
             return sz;
         }
 
-        Instruction(Athena::io::IStreamReader& reader) {read(reader);}
+        Instruction(athena::io::IStreamReader& reader) {read(reader);}
     };
 
     atUint64 m_hash = 0;
     atUint16 m_regCount = 0;
     std::vector<Instruction> m_instructions;
 
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {
         m_hash = reader.readUint64Big();
         m_regCount = reader.readUint16Big();
@@ -304,7 +304,7 @@ struct IR : BigDNA
             m_instructions.emplace_back(reader);
     }
 
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {
         writer.writeUint64Big(m_hash);
         writer.writeUint16Big(m_regCount);

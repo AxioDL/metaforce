@@ -5,7 +5,7 @@
 #include <vector>
 #include "CVar.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Runtime
 {
@@ -29,7 +29,7 @@ class CVarManager final
         return nullptr;
     }
 
-    HECL::Runtime::FileStoreManager& m_store;
+    hecl::Runtime::FileStoreManager& m_store;
     bool m_useBinary;
     static CVarManager* m_instance;
 public:
@@ -37,7 +37,7 @@ public:
     CVarManager(const CVarManager&) = delete;
     CVarManager& operator=(const CVarManager&) = delete;
     CVarManager& operator=(const CVarManager&&) = delete;
-    CVarManager(HECL::Runtime::FileStoreManager& store, bool useBinary = false);
+    CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary = false);
     ~CVarManager();
 
     void update();

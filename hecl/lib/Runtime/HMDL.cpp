@@ -1,23 +1,23 @@
-#include "HECL/HMDLMeta.hpp"
-#include "HECL/Runtime.hpp"
-#include <Athena/MemoryReader.hpp>
+#include "hecl/HMDLMeta.hpp"
+#include "hecl/Runtime.hpp"
+#include <athena/MemoryReader.hpp>
 
-namespace HECL
+namespace hecl
 {
 namespace Runtime
 {
-static LogVisor::LogModule Log("HMDL");
+static logvisor::Module Log("HMDL");
 
 HMDLData::HMDLData(boo::IGraphicsDataFactory* factory,
                    const void* metaData, const void* vbo, const void* ibo)
 {
     HMDLMeta meta;
     {
-        Athena::io::MemoryReader r((atUint8*)metaData, HECL_HMDL_META_SZ);
+        athena::io::MemoryReader r((atUint8*)metaData, HECL_HMDL_META_SZ);
         meta.read(r);
     }
     if (meta.magic != 'TACO')
-        Log.report(LogVisor::FatalError, "invalid HMDL magic");
+        Log.report(logvisor::Fatal, "invalid HMDL magic");
 
     m_vbo = factory->newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
     m_ibo = factory->newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);

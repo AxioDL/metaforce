@@ -1,11 +1,11 @@
-﻿#include "HECL/HECL.hpp"
-#include "HECL/CVar.hpp"
-#include "HECL/CVarManager.hpp"
+﻿#include "hecl/hecl.hpp"
+#include "hecl/CVar.hpp"
+#include "hecl/CVarManager.hpp"
 
-#include <Athena/Utility.hpp>
+#include <athena/Utility.hpp>
 #include <algorithm>
 
-namespace HECL
+namespace hecl
 {
 extern CVar* com_developer;
 extern CVar* com_enableCheats;
@@ -234,7 +234,7 @@ const std::wstring CVar::toWideLiteral(bool* isValid) const
         *isValid = true;
 
     // Even if it's not a literal, it's still safe to return
-    return HECL::UTF8ToWide(m_value);
+    return hecl::UTF8ToWide(m_value);
 }
 
 bool CVar::fromVec4f(const atVec4f& val)
@@ -250,7 +250,7 @@ bool CVar::fromVec4f(const atVec4f& val)
     if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
-    m_value.assign(HECL::Format("%f %f %f %f", val.vec[0], val.vec[1], val.vec[2], val.vec[3]));
+    m_value.assign(hecl::Format("%f %f %f %f", val.vec[0], val.vec[1], val.vec[2], val.vec[3]));
     m_flags |= EFlags::Modified;
     return true;
 }
@@ -268,7 +268,7 @@ bool CVar::fromFloat(float val)
     if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
-    m_value.assign(HECL::Format("%f", val));
+    m_value.assign(hecl::Format("%f", val));
     setModified();
     return true;
 }
@@ -308,7 +308,7 @@ bool CVar::fromInteger(int val)
     if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
-    m_value = HECL::Format("%i", val);
+    m_value = hecl::Format("%i", val);
     setModified();
     return true;
 }
@@ -344,7 +344,7 @@ bool CVar::fromLiteral(const std::wstring& val)
     if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
-    m_value.assign(HECL::WideToUTF8(val));
+    m_value.assign(hecl::WideToUTF8(val));
     setModified();
     return true;
 }

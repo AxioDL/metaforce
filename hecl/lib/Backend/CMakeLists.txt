@@ -5,7 +5,7 @@ if(APPLE)
   set(PLAT_SRCS Metal.cpp)
 endif()
 
-add_library(HECLBackend
+add_library(hecl-backend
             GX.cpp
             ProgrammableCommon.cpp
             GLSL.cpp

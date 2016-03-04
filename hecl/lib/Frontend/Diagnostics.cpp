@@ -1,5 +1,5 @@
-#include "HECL/HECL.hpp"
-#include "HECL/Frontend.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Frontend.hpp"
 
 #include <stdarg.h>
 
@@ -12,7 +12,7 @@
 #define BOLD "\x1b[1m"
 #define NORMAL "\x1b[0m"
 
-namespace HECL
+namespace hecl
 {
 namespace Frontend
 {
@@ -56,11 +56,11 @@ void Diagnostics::reportParserErr(const SourceLocation& l, const char* fmt, ...)
     vasprintf(&result, fmt, ap);
 #endif
     va_end(ap);
-    if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, CYAN "[Parser]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+    if (logvisor::XtermColor)
+        LogModule.report(logvisor::Fatal, CYAN "[Parser]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "[Parser] %s @%d:%d\n%s\n%s",
+        LogModule.report(logvisor::Fatal, "[Parser] %s @%d:%d\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
@@ -78,11 +78,11 @@ void Diagnostics::reportLexerErr(const SourceLocation& l, const char* fmt, ...)
     vasprintf(&result, fmt, ap);
 #endif
     va_end(ap);
-    if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, CYAN "[Lexer]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+    if (logvisor::XtermColor)
+        LogModule.report(logvisor::Fatal, CYAN "[Lexer]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "[Lexer] %s @%d:%d\n%s\n%s",
+        LogModule.report(logvisor::Fatal, "[Lexer] %s @%d:%d\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
@@ -100,11 +100,11 @@ void Diagnostics::reportCompileErr(const SourceLocation& l, const char* fmt, ...
     vasprintf(&result, fmt, ap);
 #endif
     va_end(ap);
-    if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, CYAN "[Compiler]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+    if (logvisor::XtermColor)
+        LogModule.report(logvisor::Fatal, CYAN "[Compiler]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "[Compiler] %s @%d:%d\n%s\n%s",
+        LogModule.report(logvisor::Fatal, "[Compiler] %s @%d:%d\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
@@ -122,11 +122,11 @@ void Diagnostics::reportBackendErr(const SourceLocation& l, const char* fmt, ...
     vasprintf(&result, fmt, ap);
 #endif
     va_end(ap);
-    if (LogVisor::XtermColor)
-        LogModule.report(LogVisor::FatalError, CYAN "[%s]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+    if (logvisor::XtermColor)
+        LogModule.report(logvisor::Fatal, CYAN "[%s]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
                          m_backend.c_str(), m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
-        LogModule.report(LogVisor::FatalError, "[%s] %s @%d:%d\n%s\n%s",
+        LogModule.report(logvisor::Fatal, "[%s] %s @%d:%d\n%s\n%s",
                          m_backend.c_str(), m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }

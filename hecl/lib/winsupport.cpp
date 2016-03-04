@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <string>
-#include "HECL/winsupport.hpp"
+#include "hecl/winsupport.hpp"
 
 /*
 * The memmem() function finds the start of the first occurrence of the

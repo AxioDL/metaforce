@@ -1,12 +1,12 @@
-#include "HECL/Backend/HLSL.hpp"
-#include "HECL/Runtime.hpp"
-#include <Athena/MemoryReader.hpp>
-#include <Athena/MemoryWriter.hpp>
+#include "hecl/Backend/HLSL.hpp"
+#include "hecl/Runtime.hpp"
+#include <athena/MemoryReader.hpp>
+#include <athena/MemoryWriter.hpp>
 #include <boo/graphicsdev/D3D.hpp>
 
-static LogVisor::LogModule Log("HECL::Backend::HLSL");
+static logvisor::Module Log("hecl::Backend::HLSL");
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {
@@ -20,7 +20,7 @@ std::string HLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     case TexGenSrc::Normal:
         return "v.normIn.xy\n";
     case TexGenSrc::UV:
-        return HECL::Format("v.uvIn[%u]", uvIdx);
+        return hecl::Format("v.uvIn[%u]", uvIdx);
     default: break;
     }
     return std::string();
@@ -35,7 +35,7 @@ std::string HLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     case TexGenSrc::Normal:
         return "float4(v.normIn, 1.0)\n";
     case TexGenSrc::UV:
-        return HECL::Format("float4(v.uvIn[%u], 0.0, 1.0)", uvIdx);
+        return hecl::Format("float4(v.uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
     }
     return std::string();
@@ -50,13 +50,13 @@ std::string HLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     "    float3 normIn : NORMAL;\n";
 
     if (col)
-        retval += HECL::Format("    float4 colIn[%u] : COLOR;\n", col);
+        retval += hecl::Format("    float4 colIn[%u] : COLOR;\n", col);
 
     if (uv)
-        retval += HECL::Format("    float2 uvIn[%u] : UV;\n", uv);
+        retval += hecl::Format("    float2 uvIn[%u] : UV;\n", uv);
 
     if (w)
-        retval += HECL::Format("    float4 weightIn[%u] : WEIGHT;\n", w);
+        retval += hecl::Format("    float4 weightIn[%u] : WEIGHT;\n", w);
 
     return retval + "};\n";
 }
@@ -71,7 +71,7 @@ std::string HLSL::GenerateVertToFragStruct() const
     "    float4 mvNorm : NORMAL;\n";
 
     if (m_tcgs.size())
-        retval += HECL::Format("    float2 tcgs[%u] : UV;\n", unsigned(m_tcgs.size()));
+        retval += hecl::Format("    float2 tcgs[%u] : UV;\n", unsigned(m_tcgs.size()));
 
     return retval + "};\n";
 }
@@ -80,14 +80,14 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
 {
     if (skinSlots == 0)
         skinSlots = 1;
-    std::string retval = HECL::Format("cbuffer HECLVertUniform : register(b0)\n"
+    std::string retval = hecl::Format("cbuffer HECLVertUniform : register(b0)\n"
                                       "{\n"
                                       "    float4x4 mv[%u];\n"
                                       "    float4x4 mvInv[%u];\n"
                                       "    float4x4 proj;\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-        retval += HECL::Format("    float4x4 texMtxs[%u];\n", texMtxs);
+        retval += hecl::Format("    float4x4 texMtxs[%u];\n", texMtxs);
     return retval + "};\n";
 }
 
@@ -114,7 +114,7 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
         retval += "    vec4 posAccum = float4(0.0,0.0,0.0,0.0);\n"
                   "    vec4 normAccum = float4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += HECL::Format("    posAccum += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n"
+            retval += hecl::Format("    posAccum += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n"
                                    "    normAccum += mul(mvInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
         retval += "    posAccum[3] = 1.0;\n"
@@ -134,10 +134,10 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
     for (const TexCoordGen& tcg : m_tcgs)
     {
         if (tcg.m_mtx < 0)
-            retval += HECL::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
+            retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += HECL::Format("    vtf.tcgs[%u] = mul(texMtxs[%u], %s).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += hecl::Format("    vtf.tcgs[%u] = mul(texMtxs[%u], %s).xy;\n", tcgIdx, tcg.m_mtx,
                                    EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
@@ -154,7 +154,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
 
     std::string texMapDecl;
     if (m_texMapEnd)
-        texMapDecl = HECL::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
+        texMapDecl = hecl::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
 
     std::string retval =
             "SamplerState samp : register(s0);\n" +
@@ -167,14 +167,14 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += HECL::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
         else
             retval += "    float4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
 
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
-        retval += HECL::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
+        retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
@@ -202,7 +202,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
 
     std::string texMapDecl;
     if (m_texMapEnd)
-        texMapDecl = HECL::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
+        texMapDecl = hecl::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
 
     std::string retval =
             "SamplerState samp : register(s0);\n" +
@@ -215,14 +215,14 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += HECL::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
 
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
-        retval += HECL::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
+        retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
@@ -246,8 +246,8 @@ struct HLSLBackendFactory : IShaderBackendFactory
     : m_gfxFactory(dynamic_cast<boo::ID3DDataFactory*>(gfxFactory)) {}
 
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
-                                       const HECL::Frontend::IR& ir,
-                                       HECL::Frontend::Diagnostics& diag,
+                                       const hecl::Frontend::IR& ir,
+                                       hecl::Frontend::Diagnostics& diag,
                                        boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
@@ -268,7 +268,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!objOut)
-            Log.report(LogVisor::FatalError, "unable to build shader");
+            Log.report(logvisor::Fatal, "unable to build shader");
 
         atUint32 vertSz = 0;
         atUint32 fragSz = 0;
@@ -283,7 +283,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         size_t cachedSz = 14 + vertSz + fragSz + pipelineSz;
 
         ShaderCachedData dataOut(tag, cachedSz);
-        Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
+        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
 
@@ -317,7 +317,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
     boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
     {
         const ShaderTag& tag = data.m_tag;
-        Athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
 
@@ -353,13 +353,13 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!ret)
-            Log.report(LogVisor::FatalError, "unable to build shader");
+            Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
     }
 
     ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
-                                               const HECL::Frontend::IR& ir,
-                                               HECL::Frontend::Diagnostics& diag,
+                                               const hecl::Frontend::IR& ir,
+                                               hecl::Frontend::Diagnostics& diag,
                                                const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                                FReturnExtensionShader returnFunc)
     {
@@ -387,7 +387,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
-                Log.report(LogVisor::FatalError, "unable to build shader");
+                Log.report(logvisor::Fatal, "unable to build shader");
             if (fragPipeBlob.first)
                 cachedSz += fragPipeBlob.first->GetBufferSize();
             if (fragPipeBlob.second)
@@ -398,7 +398,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             cachedSz += vertBlob->GetBufferSize();
 
         ShaderCachedData dataOut(tag, cachedSz);
-        Athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
+        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
 
@@ -437,7 +437,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                       FReturnExtensionShader returnFunc)
     {
         const ShaderTag& tag = data.m_tag;
-        Athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
 
@@ -475,7 +475,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
-                Log.report(LogVisor::FatalError, "unable to build shader");
+                Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
     }

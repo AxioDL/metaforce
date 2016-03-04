@@ -1,8 +1,8 @@
-#include "HECL/HECL.hpp"
-#include "HECL/Database.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Database.hpp"
 #include <regex>
 
-namespace HECL
+namespace hecl
 {
 static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
@@ -12,7 +12,7 @@ static SystemString CanonRelPath(const SystemString& path)
 {
     /* Tokenize Path */
     std::vector<SystemString> comps;
-    HECL::SystemRegexMatch matches;
+    hecl::SystemRegexMatch matches;
     SystemString in = path;
     SanitizePath(in);
     for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix())
@@ -25,7 +25,7 @@ static SystemString CanonRelPath(const SystemString& path)
             if (comps.empty())
             {
                 /* Unable to resolve outside project */
-                LogModule.report(LogVisor::FatalError, _S("Unable to resolve outside project root in %s"), path.c_str());
+                LogModule.report(logvisor::Fatal, _S("Unable to resolve outside project root in %s"), path.c_str());
                 return _S(".");
             }
             comps.pop_back();
@@ -131,7 +131,7 @@ ProjectPath::Type ProjectPath::getPathType() const
     if (std::regex_search(m_absPath, regGLOB))
         return Type::Glob;
     Sstat theStat;
-    if (HECL::Stat(m_absPath.c_str(), &theStat))
+    if (hecl::Stat(m_absPath.c_str(), &theStat))
         return Type::None;
     if (S_ISDIR(theStat.st_mode))
         return Type::Directory;
@@ -150,14 +150,14 @@ Time ProjectPath::getModtime() const
         getGlobResults(globResults);
         for (ProjectPath& path : globResults)
         {
-            if (!HECL::Stat(path.getAbsolutePath().c_str(), &theStat))
+            if (!hecl::Stat(path.getAbsolutePath().c_str(), &theStat))
             {
                 if (S_ISREG(theStat.st_mode) && theStat.st_mtime > latestTime)
                     latestTime = theStat.st_mtime;
             }
         }
     }
-    if (!HECL::Stat(m_absPath.c_str(), &theStat))
+    if (!hecl::Stat(m_absPath.c_str(), &theStat))
     {
         if (S_ISREG(theStat.st_mode))
         {
@@ -165,10 +165,10 @@ Time ProjectPath::getModtime() const
         }
         else if (S_ISDIR(theStat.st_mode))
         {
-            HECL::DirectoryEnumerator de(m_absPath);
-            for (const HECL::DirectoryEnumerator::Entry& ent : de)
+            hecl::DirectoryEnumerator de(m_absPath);
+            for (const hecl::DirectoryEnumerator::Entry& ent : de)
             {
-                if (!HECL::Stat(ent.m_path.c_str(), &theStat))
+                if (!hecl::Stat(ent.m_path.c_str(), &theStat))
                 {
                     if (S_ISREG(theStat.st_mode) && theStat.st_mtime > latestTime)
                         latestTime = theStat.st_mtime;
@@ -177,7 +177,7 @@ Time ProjectPath::getModtime() const
             return Time(latestTime);
         }
     }
-    LogModule.report(LogVisor::FatalError, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
+    LogModule.report(logvisor::Fatal, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
 }
 
@@ -205,8 +205,8 @@ static void _recursiveGlob(Database::Project& proj,
     /* Compile component into regex */
     SystemRegex regComp(comp, SystemRegex::ECMAScript);
 
-    HECL::DirectoryEnumerator de(itStr);
-    for (const HECL::DirectoryEnumerator::Entry& ent : de)
+    hecl::DirectoryEnumerator de(itStr);
+    for (const hecl::DirectoryEnumerator::Entry& ent : de)
     {
         if (std::regex_search(ent.m_name, regComp))
         {
@@ -215,7 +215,7 @@ static void _recursiveGlob(Database::Project& proj,
                 nextItStr += '/';
             nextItStr += ent.m_name;
 
-            HECL::Sstat theStat;
+            hecl::Sstat theStat;
             if (Stat(nextItStr.c_str(), &theStat))
                 continue;
 
@@ -229,14 +229,14 @@ static void _recursiveGlob(Database::Project& proj,
 
 void ProjectPath::getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const
 {
-    HECL::DirectoryEnumerator de(m_absPath);
-    for (const HECL::DirectoryEnumerator::Entry& ent : de)
+    hecl::DirectoryEnumerator de(m_absPath);
+    for (const hecl::DirectoryEnumerator::Entry& ent : de)
         outPaths[ent.m_name] = ProjectPath(*this, ent.m_name);
 }
 
-HECL::DirectoryEnumerator ProjectPath::enumerateDir() const
+hecl::DirectoryEnumerator ProjectPath::enumerateDir() const
 {
-    return HECL::DirectoryEnumerator(m_absPath);
+    return hecl::DirectoryEnumerator(m_absPath);
 }
 
 void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
@@ -268,11 +268,11 @@ ProjectRootPath SearchForProject(const SystemString& path)
         SystemString testPath(begin, end);
         SystemString testIndexPath = testPath + _S("/.hecl/beacon");
         Sstat theStat;
-        if (!HECL::Stat(testIndexPath.c_str(), &theStat))
+        if (!hecl::Stat(testIndexPath.c_str(), &theStat))
         {
             if (S_ISREG(theStat.st_mode))
             {
-                FILE* fp = HECL::Fopen(testIndexPath.c_str(), _S("rb"));
+                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _S("rb"));
                 if (!fp)
                     continue;
                 char magic[4];
@@ -280,8 +280,8 @@ ProjectRootPath SearchForProject(const SystemString& path)
                 fclose(fp);
                 if (readSize != 4)
                     continue;
-                static const HECL::FourCC hecl("HECL");
-                if (HECL::FourCC(magic) != hecl)
+                static const hecl::FourCC hecl("HECL");
+                if (hecl::FourCC(magic) != hecl)
                     continue;
                 return ProjectRootPath(testPath);
             }
@@ -305,11 +305,11 @@ ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpath
         SystemString testPath(begin, end);
         SystemString testIndexPath = testPath + _S("/.hecl/beacon");
         Sstat theStat;
-        if (!HECL::Stat(testIndexPath.c_str(), &theStat))
+        if (!hecl::Stat(testIndexPath.c_str(), &theStat))
         {
             if (S_ISREG(theStat.st_mode))
             {
-                FILE* fp = HECL::Fopen(testIndexPath.c_str(), _S("rb"));
+                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _S("rb"));
                 if (!fp)
                     continue;
                 char magic[4];
@@ -317,7 +317,7 @@ ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpath
                 fclose(fp);
                 if (readSize != 4)
                     continue;
-                if (HECL::FourCC(magic) != FOURCC('HECL'))
+                if (hecl::FourCC(magic) != FOURCC('HECL'))
                     continue;
                 ProjectRootPath newRootPath = ProjectRootPath(testPath);
                 SystemString::const_iterator origEnd = testRoot.getAbsolutePath().end();

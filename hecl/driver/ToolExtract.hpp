@@ -12,51 +12,51 @@
 
 class ToolExtract final : public ToolBase
 {
-    HECL::Database::IDataSpec::ExtractPassInfo m_einfo;
+    hecl::Database::IDataSpec::ExtractPassInfo m_einfo;
     struct SpecExtractPass
     {
-        const HECL::Database::DataSpecEntry* m_entry;
-        std::unique_ptr<HECL::Database::IDataSpec> m_instance;
-        SpecExtractPass(const HECL::Database::DataSpecEntry* entry, HECL::Database::IDataSpec* instance)
+        const hecl::Database::DataSpecEntry* m_entry;
+        std::unique_ptr<hecl::Database::IDataSpec> m_instance;
+        SpecExtractPass(const hecl::Database::DataSpecEntry* entry, hecl::Database::IDataSpec* instance)
         : m_entry(entry), m_instance(instance) {}
         SpecExtractPass(const SpecExtractPass& other) = delete;
         SpecExtractPass(SpecExtractPass&& other) = default;
     };
     std::vector<SpecExtractPass> m_specPasses;
-    std::vector<HECL::Database::IDataSpec::ExtractReport> m_reps;
-    std::unique_ptr<HECL::Database::Project> m_fallbackProj;
-    HECL::Database::Project* m_useProj;
+    std::vector<hecl::Database::IDataSpec::ExtractReport> m_reps;
+    std::unique_ptr<hecl::Database::Project> m_fallbackProj;
+    hecl::Database::Project* m_useProj;
 public:
     ToolExtract(const ToolPassInfo& info)
     : ToolBase(info)
     {
         if (!m_info.args.size())
-            LogModule.report(LogVisor::FatalError, "hecl extract needs a source path as its first argument");
+            LogModule.report(logvisor::Fatal, "hecl extract needs a source path as its first argument");
 
         if (!info.project)
         {
             /* Get name from input file and init project there */
-            HECL::SystemString baseFile = info.args.front();
+            hecl::SystemString baseFile = info.args.front();
             size_t slashPos = baseFile.rfind(_S('/'));
-            if (slashPos == HECL::SystemString::npos)
+            if (slashPos == hecl::SystemString::npos)
                 slashPos = baseFile.rfind(_S('\\'));
-            if (slashPos != HECL::SystemString::npos)
+            if (slashPos != hecl::SystemString::npos)
                 baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
             size_t dotPos = baseFile.rfind(_S('.'));
-            if (dotPos != HECL::SystemString::npos)
+            if (dotPos != hecl::SystemString::npos)
                 baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
 
             if (baseFile.empty())
-                LogModule.report(LogVisor::FatalError, "hecl extract must be ran within a project directory");
+                LogModule.report(logvisor::Fatal, "hecl extract must be ran within a project directory");
 
-            size_t ErrorRef = LogVisor::ErrorCount;
-            HECL::SystemString rootDir = info.cwd + baseFile;
-            HECL::ProjectRootPath newProjRoot(rootDir);
+            size_t ErrorRef = logvisor::ErrorCount;
+            hecl::SystemString rootDir = info.cwd + baseFile;
+            hecl::ProjectRootPath newProjRoot(rootDir);
             newProjRoot.makeDir();
-            m_fallbackProj.reset(new HECL::Database::Project(newProjRoot));
-            if (LogVisor::ErrorCount > ErrorRef)
-                LogModule.report(LogVisor::FatalError, "unable to init project at '%s'", rootDir.c_str());
-            LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), rootDir.c_str());
+            m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
+            if (logvisor::ErrorCount > ErrorRef)
+                LogModule.report(logvisor::Fatal, "unable to init project at '%s'", rootDir.c_str());
+            LogModule.report(logvisor::Info, _S("initialized project at '%s/.hecl'"), rootDir.c_str());
             m_useProj = m_fallbackProj.get();
         }
         else
@@ -70,10 +70,10 @@ public:
         for (; it != info.args.cend(); ++it)
             m_einfo.extractArgs.push_back(*it);
 
-        m_specPasses.reserve(HECL::Database::DATA_SPEC_REGISTRY.size());
-        for (const HECL::Database::DataSpecEntry* entry : HECL::Database::DATA_SPEC_REGISTRY)
+        m_specPasses.reserve(hecl::Database::DATA_SPEC_REGISTRY.size());
+        for (const hecl::Database::DataSpecEntry* entry : hecl::Database::DATA_SPEC_REGISTRY)
         {
-            HECL::Database::IDataSpec* ds = entry->m_factory(*m_useProj, HECL::Database::DataSpecTool::Extract);
+            hecl::Database::IDataSpec* ds = entry->m_factory(*m_useProj, hecl::Database::DataSpecTool::Extract);
             if (ds)
             {
                 if (ds->canExtract(m_einfo, m_reps))
@@ -111,21 +111,21 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("extract");}
+    hecl::SystemString toolName() const {return _S("extract");}
 
-    static void _recursivePrint(int level, HECL::Database::IDataSpec::ExtractReport& rep)
+    static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep)
     {
         for (int l=0 ; l<level ; ++l)
-            HECL::Printf(_S("  "));
+            hecl::Printf(_S("  "));
         if (XTERM_COLOR)
-            HECL::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
+            hecl::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
-            HECL::Printf(_S("%s"), rep.name.c_str());
+            hecl::Printf(_S("%s"), rep.name.c_str());
         
         if (rep.desc.size())
-            HECL::Printf(_S(" [%s]"), rep.desc.c_str());
-        HECL::Printf(_S("\n"));
-        for (HECL::Database::IDataSpec::ExtractReport& child : rep.childOpts)
+            hecl::Printf(_S(" [%s]"), rep.desc.c_str());
+        hecl::Printf(_S("\n"));
+        for (hecl::Database::IDataSpec::ExtractReport& child : rep.childOpts)
             _recursivePrint(level + 1, child);
     }
 
@@ -134,27 +134,27 @@ public:
         if (m_specPasses.empty())
         {
             if (XTERM_COLOR)
-                HECL::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
+                hecl::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
             else
-                HECL::Printf(_S("NOTHING TO EXTRACT\n"));
+                hecl::Printf(_S("NOTHING TO EXTRACT\n"));
             return -1;
         }
 
         if (XTERM_COLOR)
-            HECL::Printf(_S("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
+            hecl::Printf(_S("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
         else
-            HECL::Printf(_S("ABOUT TO EXTRACT:\n"));
+            hecl::Printf(_S("ABOUT TO EXTRACT:\n"));
 
-        for (HECL::Database::IDataSpec::ExtractReport& rep : m_reps)
+        for (hecl::Database::IDataSpec::ExtractReport& rep : m_reps)
         {
             _recursivePrint(0, rep);
-            HECL::Printf(_S("\n"));
+            hecl::Printf(_S("\n"));
         }
 
         if (XTERM_COLOR)
-            HECL::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
+            hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
         else
-            HECL::Printf(_S("\nContinue? (Y/n) "));
+            hecl::Printf(_S("\nContinue? (Y/n) "));
 
         int ch;
 #ifndef _WIN32
@@ -177,22 +177,22 @@ public:
         tcsetattr(0, TCSANOW, &tioOld);
 #endif
 
-        HECL::Printf(_S("\n"));
+        hecl::Printf(_S("\n"));
 
         for (SpecExtractPass& ds : m_specPasses)
         {
             if (XTERM_COLOR)
-                HECL::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
+                hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
             else
-                HECL::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
+                hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
 
             int lineIdx = 0;
             ds.m_instance->doExtract(m_einfo,
-            [&lineIdx](const HECL::SystemChar* message,
-                       const HECL::SystemChar* submessage,
+            [&lineIdx](const hecl::SystemChar* message,
+                       const hecl::SystemChar* submessage,
                        int lidx, float factor)
             {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);});
-            HECL::Printf(_S("\n\n"));
+            hecl::Printf(_S("\n\n"));
         }
 
         return 0;

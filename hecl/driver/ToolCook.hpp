@@ -6,9 +6,9 @@
 
 class ToolCook final : public ToolBase
 {
-    std::vector<HECL::ProjectPath> m_selectedItems;
-    std::unique_ptr<HECL::Database::Project> m_fallbackProj;
-    HECL::Database::Project* m_useProj;
+    std::vector<hecl::ProjectPath> m_selectedItems;
+    std::unique_ptr<hecl::Database::Project> m_fallbackProj;
+    hecl::Database::Project* m_useProj;
     bool m_recursive = false;
     bool m_fast = false;
 public:
@@ -16,7 +16,7 @@ public:
     : ToolBase(info), m_useProj(info.project)
     {
         /* Check for recursive flag */
-        for (HECL::SystemChar arg : info.flags)
+        for (hecl::SystemChar arg : info.flags)
             if (arg == _S('r'))
                 m_recursive = true;
 
@@ -25,7 +25,7 @@ public:
         {
             /* See if project path is supplied via args and use that over the getcwd one */
             m_selectedItems.reserve(info.args.size());
-            for (const HECL::SystemString& arg : info.args)
+            for (const hecl::SystemString& arg : info.args)
             {
                 if (arg.empty())
                     continue;
@@ -37,17 +37,17 @@ public:
                 else if (arg.size() >= 2 && arg[0] == _S('-') && arg[1] == _S('-'))
                     continue;
 
-                HECL::SystemString subPath;
-                HECL::ProjectRootPath root = HECL::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
+                hecl::SystemString subPath;
+                hecl::ProjectRootPath root = hecl::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
                 if (root)
                 {
                     if (!m_fallbackProj)
                     {
-                        m_fallbackProj.reset(new HECL::Database::Project(root));
+                        m_fallbackProj.reset(new hecl::Database::Project(root));
                         m_useProj = m_fallbackProj.get();
                     }
                     else if (m_fallbackProj->getProjectRootPath() != root)
-                        LogModule.report(LogVisor::FatalError,
+                        LogModule.report(logvisor::Fatal,
                                          _S("hecl cook can only process multiple items in the same project; ")
                                          _S("'%s' and '%s' are different projects"),
                                          m_fallbackProj->getProjectRootPath().getAbsolutePath().c_str(),
@@ -57,7 +57,7 @@ public:
             }
         }
         if (!m_useProj)
-            LogModule.report(LogVisor::FatalError,
+            LogModule.report(logvisor::Fatal,
                              "hecl cook must be ran within a project directory or "
                              "provided a path within a project");
 
@@ -65,7 +65,7 @@ public:
         if (m_selectedItems.empty())
         {
             m_selectedItems.reserve(1);
-            m_selectedItems.push_back({HECL::ProjectPath(*m_useProj, _S(""))});
+            m_selectedItems.push_back({hecl::ProjectPath(*m_useProj, _S(""))});
             m_recursive = true;
         }
     }
@@ -132,16 +132,16 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("cook");}
+    hecl::SystemString toolName() const {return _S("cook");}
 
     int run()
     {
-        for (const HECL::ProjectPath& path : m_selectedItems)
+        for (const hecl::ProjectPath& path : m_selectedItems)
         {
             int lineIdx = 0;
             m_useProj->cookPath(path,
-            [&lineIdx](const HECL::SystemChar* message,
-                       const HECL::SystemChar* submessage,
+            [&lineIdx](const hecl::SystemChar* message,
+                       const hecl::SystemChar* submessage,
                        int lidx, float factor)
             {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);},
             m_recursive, m_info.force, m_fast);

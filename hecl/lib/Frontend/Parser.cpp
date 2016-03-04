@@ -1,9 +1,9 @@
-#include "HECL/HECL.hpp"
-#include "HECL/Frontend.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Frontend.hpp"
 
 /* Syntatical token parsing system */
 
-namespace HECL
+namespace hecl
 {
 namespace Frontend
 {

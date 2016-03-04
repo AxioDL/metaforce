@@ -21,15 +21,15 @@ public:
             return;
 
         if (!info.project)
-            LogModule.report(LogVisor::FatalError,
+            LogModule.report(logvisor::Fatal,
                              "hecl spec must be ran within a project directory");
 
         const auto& specs = info.project->getDataSpecs();
-        HECL::SystemString firstArg = info.args.front();
-        HECL::ToLower(firstArg);
+        hecl::SystemString firstArg = info.args.front();
+        hecl::ToLower(firstArg);
 
-        static const HECL::SystemString enable(_S("enable"));
-        static const HECL::SystemString disable(_S("disable"));
+        static const hecl::SystemString enable(_S("enable"));
+        static const hecl::SystemString disable(_S("disable"));
         if (!firstArg.compare(enable))
             mode = MENABLE;
         else if (!firstArg.compare(disable))
@@ -38,7 +38,7 @@ public:
             return;
 
         if (info.args.size() < 2)
-            LogModule.report(LogVisor::FatalError, "Speclist argument required");
+            LogModule.report(logvisor::Fatal, "Speclist argument required");
 
         auto it = info.args.begin();
         ++it;
@@ -56,7 +56,7 @@ public:
                 }
             }
             if (!found)
-                LogModule.report(LogVisor::FatalError,
+                LogModule.report(logvisor::Fatal,
                                  _S("'%s' is not found in the dataspec registry"),
                                  it->c_str());
         }
@@ -88,19 +88,19 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("spec");}
+    hecl::SystemString toolName() const {return _S("spec");}
 
     int run()
     {
         if (!m_info.project)
         {
-            for (const HECL::Database::DataSpecEntry* spec : HECL::Database::DATA_SPEC_REGISTRY)
+            for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
             {
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name);
+                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name);
                 else
-                    HECL::Printf(_S("%s\n"), spec->m_name);
-                HECL::Printf(_S("  %s\n"), spec->m_desc);
+                    hecl::Printf(_S("%s\n"), spec->m_name);
+                hecl::Printf(_S("  %s\n"), spec->m_desc);
             }
             return 0;
         }
@@ -111,32 +111,32 @@ public:
             for (auto& spec : specs)
             {
                 if (XTERM_COLOR)
-                    HECL::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name);
+                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name);
                 else
-                    HECL::Printf(_S("%s"), spec.spec.m_name);
+                    hecl::Printf(_S("%s"), spec.spec.m_name);
                 if (spec.active)
                 {
                     if (XTERM_COLOR)
-                        HECL::Printf(_S(" " BOLD GREEN "[ENABLED]" NORMAL ""));
+                        hecl::Printf(_S(" " BOLD GREEN "[ENABLED]" NORMAL ""));
                     else
-                        HECL::Printf(_S(" [ENABLED]"));
+                        hecl::Printf(_S(" [ENABLED]"));
                 }
-                HECL::Printf(_S("\n  %s\n"), spec.spec.m_desc);
+                hecl::Printf(_S("\n  %s\n"), spec.spec.m_desc);
             }
             return 0;
         }
 
-        std::vector<HECL::SystemString> opSpecs;
+        std::vector<hecl::SystemString> opSpecs;
         auto it = m_info.args.begin();
         ++it;
         for (; it != m_info.args.end() ; ++it)
         {
-            HECL::SystemString itName = *it;
-            HECL::ToLower(itName);
+            hecl::SystemString itName = *it;
+            hecl::ToLower(itName);
             for (auto& spec : specs)
             {
-                HECL::SystemString compName(spec.spec.m_name);
-                HECL::ToLower(compName);
+                hecl::SystemString compName(spec.spec.m_name);
+                hecl::ToLower(compName);
                 if (!itName.compare(compName))
                 {
                     opSpecs.push_back(spec.spec.m_name);

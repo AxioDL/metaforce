@@ -1,4 +1,4 @@
-#include "HECL/HECL.hpp"
+#include "hecl/hecl.hpp"
 
 #ifdef WIN32
 #include <windows.h>
@@ -16,10 +16,10 @@
 #include <mntent.h>
 #endif
 
-namespace HECL
+namespace hecl
 {
 unsigned VerbosityLevel = 0;
-LogVisor::LogModule LogModule("HECL");
+logvisor::Module LogModule("hecl");
 
 void SanitizePath(std::string& path)
 {
@@ -83,9 +83,9 @@ void SanitizePath(std::wstring& path)
     });
 }
 
-bool IsPathPNG(const HECL::ProjectPath& path)
+bool IsPathPNG(const hecl::ProjectPath& path)
 {
-    FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;
     uint32_t buf;
@@ -95,18 +95,18 @@ bool IsPathPNG(const HECL::ProjectPath& path)
         return false;
     }
     fclose(fp);
-    buf = HECL::SBig(buf);
+    buf = hecl::SBig(buf);
     if (buf == 0x89504e47)
         return true;
     return false;
 }
 
-bool IsPathBlend(const HECL::ProjectPath& path)
+bool IsPathBlend(const hecl::ProjectPath& path)
 {
     const SystemChar* lastCompExt = path.getLastComponentExt();
-    if (!lastCompExt || HECL::StrCmp(lastCompExt, _S("blend")))
+    if (!lastCompExt || hecl::StrCmp(lastCompExt, _S("blend")))
         return false;
-    FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;
     uint32_t buf;
@@ -116,32 +116,32 @@ bool IsPathBlend(const HECL::ProjectPath& path)
         return false;
     }
     fclose(fp);
-    buf = HECL::SLittle(buf);
+    buf = hecl::SLittle(buf);
     if (buf == 0x4e454c42 || buf == 0x88b1f)
         return true;
     return false;
 }
 
-bool IsPathYAML(const HECL::ProjectPath& path)
+bool IsPathYAML(const hecl::ProjectPath& path)
 {
     const SystemChar* lastCompExt = path.getLastComponentExt();
     if (!lastCompExt)
         return false;
-    if (!HECL::StrCmp(lastCompExt, _S("yaml")) ||
-        !HECL::StrCmp(lastCompExt, _S("yml")))
+    if (!hecl::StrCmp(lastCompExt, _S("yaml")) ||
+        !hecl::StrCmp(lastCompExt, _S("yml")))
         return true;
     return false;
 }
 
-HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mode mode,
+hecl::DirectoryEnumerator::DirectoryEnumerator(const hecl::SystemChar* path, Mode mode,
                                                bool sizeSort, bool reverse, bool noHidden)
 {
-    HECL::Sstat theStat;
-    if (HECL::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
+    hecl::Sstat theStat;
+    if (hecl::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
         return;
 
 #if _WIN32
-    HECL::SystemString wc(path);
+    hecl::SystemString wc(path);
     wc += _S("/*");
     WIN32_FIND_DATAW d;
     HANDLE dir = FindFirstFileW(wc.c_str(), &d);
@@ -156,11 +156,11 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                 continue;
             if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
-            HECL::SystemString fp(path);
+            hecl::SystemString fp(path);
             fp += _S('/');
             fp += d.cFileName;
-            HECL::Sstat st;
-            if (HECL::Stat(fp.c_str(), &st))
+            hecl::Sstat st;
+            if (hecl::Stat(fp.c_str(), &st))
                 continue;
 
             size_t sz = 0;
@@ -178,18 +178,18 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
     case Mode::DirsThenFilesSorted:
     case Mode::DirsSorted:
     {
-        std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+        std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
         do
         {
             if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                 continue;
             if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
-            HECL::SystemString fp(path);
+            hecl::SystemString fp(path);
             fp +=_S('/');
             fp += d.cFileName;
-            HECL::Sstat st;
-            if (HECL::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
+            hecl::Sstat st;
+            if (hecl::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
                 continue;
             sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, 0, true)));
         } while (FindNextFileW(dir, &d));
@@ -220,11 +220,11 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                     continue;
                 if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
-                HECL::SystemString fp(path);
+                hecl::SystemString fp(path);
                 fp += _S('/');
                 fp += d.cFileName;
-                HECL::Sstat st;
-                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                hecl::Sstat st;
+                if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
                     continue;
                 sort.emplace(std::make_pair(st.st_size, Entry(std::move(fp), d.cFileName, st.st_size, false)));
             } while (FindNextFileW(dir, &d));
@@ -238,18 +238,18 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         }
         else
         {
-            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
             do
             {
                 if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
                     continue;
                 if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
-                HECL::SystemString fp(path);
+                hecl::SystemString fp(path);
                 fp += _S('/');
                 fp += d.cFileName;
-                HECL::Sstat st;
-                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                hecl::Sstat st;
+                if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
                     continue;
                 sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, st.st_size, false)));
             } while (FindNextFileW(dir, &d));
@@ -282,11 +282,11 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                 continue;
             if (noHidden && d->d_name[0] == '.')
                 continue;
-            HECL::SystemString fp(path);
+            hecl::SystemString fp(path);
             fp += '/';
             fp += d->d_name;
-            HECL::Sstat st;
-            if (HECL::Stat(fp.c_str(), &st))
+            hecl::Sstat st;
+            if (hecl::Stat(fp.c_str(), &st))
                 continue;
 
             size_t sz = 0;
@@ -304,18 +304,18 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
     case Mode::DirsThenFilesSorted:
     case Mode::DirsSorted:
     {
-        std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+        std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
         while ((d = readdir(dir)))
         {
             if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
                 continue;
             if (noHidden && d->d_name[0] == '.')
                 continue;
-            HECL::SystemString fp(path);
+            hecl::SystemString fp(path);
             fp += '/';
             fp += d->d_name;
-            HECL::Sstat st;
-            if (HECL::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
+            hecl::Sstat st;
+            if (hecl::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
                 continue;
             sort.emplace(std::make_pair(d->d_name, Entry(std::move(fp), d->d_name, 0, true)));
         }
@@ -345,11 +345,11 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
                     continue;
                 if (noHidden && d->d_name[0] == '.')
                     continue;
-                HECL::SystemString fp(path);
+                hecl::SystemString fp(path);
                 fp += '/';
                 fp += d->d_name;
-                HECL::Sstat st;
-                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                hecl::Sstat st;
+                if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
                     continue;
                 sort.emplace(std::make_pair(st.st_size, Entry(std::move(fp), d->d_name, st.st_size, false)));
             }
@@ -363,18 +363,18 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
         }
         else
         {
-            std::map<HECL::SystemString, Entry, CaseInsensitiveCompare> sort;
+            std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
             while ((d = readdir(dir)))
             {
                 if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
                     continue;
                 if (noHidden && d->d_name[0] == '.')
                     continue;
-                HECL::SystemString fp(path);
+                hecl::SystemString fp(path);
                 fp += '/';
                 fp += d->d_name;
-                HECL::Sstat st;
-                if (HECL::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+                hecl::Sstat st;
+                if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
                     continue;
                 sort.emplace(std::make_pair(d->d_name, Entry(std::move(fp), d->d_name, st.st_size, false)));
             }
@@ -397,10 +397,10 @@ HECL::DirectoryEnumerator::DirectoryEnumerator(const HECL::SystemChar* path, Mod
 
 #define FILE_MAXDIR 768
 
-static std::pair<HECL::SystemString, std::string>
-NameFromPath(const HECL::SystemString& path)
+static std::pair<hecl::SystemString, std::string>
+NameFromPath(const hecl::SystemString& path)
 {
-    HECL::SystemUTF8View utf8(path);
+    hecl::SystemUTF8View utf8(path);
     if (utf8.str().size() == 1 && utf8.str()[0] == '/')
         return {path, "/"};
     size_t lastSlash = utf8.str().rfind('/');
@@ -410,9 +410,9 @@ NameFromPath(const HECL::SystemString& path)
         return {path, utf8.str()};
 }
 
-std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
+std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
 {
-    std::vector<std::pair<HECL::SystemString, std::string>> ret;
+    std::vector<std::pair<hecl::SystemString, std::string>> ret;
 #ifdef WIN32
     /* Add the drive names to the listing (as queried by blender) */
     {
@@ -447,7 +447,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 
                 wline[2] = L'\0';
                 if (name)
-                    ret.emplace_back(wline, HECL::WideToUTF8(name));
+                    ret.emplace_back(wline, hecl::WideToUTF8(name));
                 else
                     ret.push_back(NameFromPath(wline));
             }
@@ -467,7 +467,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 #else
 #ifdef __APPLE__
     {
-        HECL::Sstat theStat;
+        hecl::Sstat theStat;
         const char* home = getenv("HOME");
         
         if (home)
@@ -475,7 +475,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
             ret.push_back(NameFromPath(home));
             std::string desktop(home);
             desktop += "/Desktop";
-            if (!HECL::Stat(desktop.c_str(), &theStat))
+            if (!hecl::Stat(desktop.c_str(), &theStat))
                 ret.push_back(NameFromPath(desktop));
         }
         
@@ -504,7 +504,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
 #else
     /* unix */
     {
-        HECL::Sstat theStat;
+        hecl::Sstat theStat;
         const char* home = getenv("HOME");
 
         if (home)
@@ -512,7 +512,7 @@ std::vector<std::pair<HECL::SystemString, std::string>> GetSystemLocations()
             ret.push_back(NameFromPath(home));
             std::string desktop(home);
             desktop += "/Desktop";
-            if (!HECL::Stat(desktop.c_str(), &theStat))
+            if (!hecl::Stat(desktop.c_str(), &theStat))
                 ret.push_back(NameFromPath(desktop));
         }
 

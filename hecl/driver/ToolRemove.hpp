@@ -51,7 +51,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("remove");}
+    hecl::SystemString toolName() const {return _S("remove");}
 
     int run()
     {

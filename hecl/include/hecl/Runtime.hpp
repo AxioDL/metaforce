@@ -1,14 +1,14 @@
 #ifndef HECLRUNTIME_HPP
 #define HECLRUNTIME_HPP
 
-#include "HECL.hpp"
+#include "hecl.hpp"
 #include "Frontend.hpp"
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <Athena/DNA.hpp>
-#include <Athena/FileReader.hpp>
+#include <athena/DNA.hpp>
+#include <athena/FileReader.hpp>
 #include <unordered_map>
 
-namespace HECL
+namespace hecl
 {
 struct HMDLMeta;
 
@@ -59,7 +59,7 @@ public:
     : Hash(source), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
       m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
     {hash ^= m_meta;}
-    ShaderTag(const HECL::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t,
+    ShaderTag(const hecl::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t,
               bool depthTest, bool depthWrite, bool backfaceCulling)
     : Hash(ir.m_hash), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
       m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
@@ -157,13 +157,13 @@ protected:
     unsigned m_rtHint = 1;
     using FReturnExtensionShader = std::function<void(boo::IShaderPipeline*)>;
     virtual ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
-                                               const HECL::Frontend::IR& ir,
-                                               HECL::Frontend::Diagnostics& diag,
+                                               const hecl::Frontend::IR& ir,
+                                               hecl::Frontend::Diagnostics& diag,
                                                boo::IShaderPipeline*& objOut)=0;
     virtual boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)=0;
     virtual ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
-                                                       const HECL::Frontend::IR& ir,
-                                                       HECL::Frontend::Diagnostics& diag,
+                                                       const hecl::Frontend::IR& ir,
+                                                       hecl::Frontend::Diagnostics& diag,
                                                        const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                                        FReturnExtensionShader returnFunc)=0;
     virtual void buildExtendedShaderFromCache(const ShaderCachedData& data,
@@ -182,10 +182,10 @@ class ShaderCacheManager
     ShaderCacheExtensions m_extensions;
     uint64_t m_extensionsHash = 0;
     std::unique_ptr<IShaderBackendFactory> m_factory;
-    Athena::io::FileReader m_idxFr;
-    Athena::io::FileReader m_datFr;
-    HECL::Frontend::Frontend FE;
-    struct IndexEntry : Athena::io::DNA<Athena::BigEndian>
+    athena::io::FileReader m_idxFr;
+    athena::io::FileReader m_datFr;
+    hecl::Frontend::Frontend FE;
+    struct IndexEntry : athena::io::DNA<athena::BigEndian>
     {
         DECL_DNA
         Value<atUint64> m_hash;
@@ -217,11 +217,11 @@ public:
     
     boo::IShaderPipeline* buildShader(const ShaderTag& tag, const std::string& source,
                                       const std::string& diagName);
-    boo::IShaderPipeline* buildShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+    boo::IShaderPipeline* buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                       const std::string& diagName);
     std::vector<boo::IShaderPipeline*> buildExtendedShader(const ShaderTag& tag, const std::string& source,
                                                            const std::string& diagName);
-    std::vector<boo::IShaderPipeline*> buildExtendedShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+    std::vector<boo::IShaderPipeline*> buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                                            const std::string& diagName);
 };
 
@@ -254,9 +254,9 @@ struct HMDLData
 
 namespace std
 {
-template <> struct hash<HECL::Runtime::ShaderTag>
+template <> struct hash<hecl::Runtime::ShaderTag>
 {
-    size_t operator()(const HECL::Runtime::ShaderTag& val) const NOEXCEPT
+    size_t operator()(const hecl::Runtime::ShaderTag& val) const NOEXCEPT
     {return val.valSizeT();}
 };
 }

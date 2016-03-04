@@ -2,12 +2,12 @@
 #define HECLBACKEND_GX_HPP
 
 #include "Backend.hpp"
-#include <Athena/DNA.hpp>
+#include <athena/DNA.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <algorithm>
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {
@@ -405,7 +405,7 @@ struct GX : IBackend
     BlendFactor m_blendSrc;
     BlendFactor m_blendDst;
 
-    struct Color : Athena::io::DNA<Athena::BigEndian>
+    struct Color : athena::io::DNA<athena::BigEndian>
     {
         union
         {
@@ -445,9 +445,9 @@ struct GX : IBackend
         uint8_t operator[](size_t idx) const {return color[idx];}
         uint8_t& operator[](size_t idx) {return color[idx];}
 
-        void read(Athena::io::IStreamReader& reader)
+        void read(athena::io::IStreamReader& reader)
         {reader.readUBytesToBuf(&num, 4);}
-        void write(Athena::io::IStreamWriter& writer) const
+        void write(athena::io::IStreamWriter& writer) const
         {writer.writeUBytes(reinterpret_cast<const atUint8*>(&num), 4);}
         size_t binarySize(size_t __isz) const
         {return __isz + 4;}

@@ -7,9 +7,9 @@
 #include <string>
 #include <algorithm>
 
-#include <HECL/HECL.hpp>
-#include <HECL/Database.hpp>
-#include <LogVisor/LogVisor.hpp>
+#include <hecl/hecl.hpp>
+#include <hecl/Database.hpp>
+#include "logvisor/logvisor.hpp"
 #include "BlenderConnection.hpp"
 
 #if _WIN32
@@ -30,10 +30,10 @@ template <> struct hash<std::pair<uint32_t,uint32_t>>
 };
 }
 
-namespace HECL
+namespace hecl
 {
 
-LogVisor::LogModule BlenderLog("BlenderConnection");
+logvisor::Module BlenderLog("BlenderConnection");
 BlenderConnection* SharedBlenderConnection = nullptr;
 
 #ifdef __APPLE__
@@ -53,18 +53,18 @@ extern "C" size_t HECL_STARTUP_SZ;
 
 static void InstallBlendershell(const SystemChar* path)
 {
-    FILE* fp = HECL::Fopen(path, _S("w"));
+    FILE* fp = hecl::Fopen(path, _S("w"));
     if (!fp)
-        BlenderLog.report(LogVisor::FatalError, _S("unable to open %s for writing"), path);
+        BlenderLog.report(logvisor::Fatal, _S("unable to open %s for writing"), path);
     fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
     fclose(fp);
 }
     
 static void InstallAddon(const SystemChar* path)
 {
-    FILE* fp = HECL::Fopen(path, _S("wb"));
+    FILE* fp = hecl::Fopen(path, _S("wb"));
     if (!fp)
-        BlenderLog.report(LogVisor::FatalError, _S("Unable to install blender addon at '%s'"), path);
+        BlenderLog.report(logvisor::Fatal, _S("Unable to install blender addon at '%s'"), path);
     fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
     fclose(fp);
 }
@@ -73,7 +73,7 @@ static void InstallStartup(const char* path)
 {
     FILE* fp = fopen(path, "wb");
     if (!fp)
-        BlenderLog.report(LogVisor::FatalError, "Unable to place hecl_startup.blend at '%s'", path);
+        BlenderLog.report(logvisor::Fatal, "Unable to place hecl_startup.blend at '%s'", path);
     fwrite(HECL_STARTUP, 1, HECL_STARTUP_SZ, fp);
     fclose(fp);
 }
@@ -85,14 +85,14 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
     {
         if (readBytes >= bufSz)
         {
-            BlenderLog.report(LogVisor::FatalError, "Pipe buffer overrun");
+            BlenderLog.report(logvisor::Fatal, "Pipe buffer overrun");
             *(buf-1) = '\0';
             return bufSz - 1;
         }
         int ret = read(m_readpipe[0], buf, 1);
         if (ret < 0)
         {
-            BlenderLog.report(LogVisor::FatalError, strerror(errno));
+            BlenderLog.report(logvisor::Fatal, strerror(errno));
             return 0;
         }
         else if (ret == 1)
@@ -102,7 +102,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
                 *buf = '\0';
                 if (readBytes >= 4)
                     if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
-                        BlenderLog.report(LogVisor::FatalError, "Blender exception");
+                        BlenderLog.report(logvisor::Fatal, "Blender exception");
                 return readBytes;
             }
             ++readBytes;
@@ -113,7 +113,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
             *buf = '\0';
             if (readBytes >= 4)
                 if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
-                    BlenderLog.report(LogVisor::FatalError, "Blender exception");
+                    BlenderLog.report(logvisor::Fatal, "Blender exception");
             return readBytes;
         }
     }
@@ -130,7 +130,7 @@ size_t BlenderConnection::_writeLine(const char* buf)
         goto err;
     return (size_t)ret;
 err:
-    BlenderLog.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(logvisor::Fatal, strerror(errno));
     return 0;
 }
 
@@ -141,10 +141,10 @@ size_t BlenderConnection::_readBuf(void* buf, size_t len)
         goto err;
     if (len >= 4)
         if (!memcmp((char*)buf, "EXCEPTION", std::min(len, size_t(9))))
-            BlenderLog.report(LogVisor::FatalError, "Blender exception");
+            BlenderLog.report(logvisor::Fatal, "Blender exception");
     return ret;
 err:
-    BlenderLog.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(logvisor::Fatal, strerror(errno));
     return 0;
 }
 
@@ -155,7 +155,7 @@ size_t BlenderConnection::_writeBuf(const void* buf, size_t len)
         goto err;
     return ret;
 err:
-    BlenderLog.report(LogVisor::FatalError, strerror(errno));
+    BlenderLog.report(logvisor::Fatal, strerror(errno));
     return 0;
 }
 
@@ -167,25 +167,25 @@ void BlenderConnection::_closePipe()
 
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
-    BlenderLog.report(LogVisor::Info, "Establishing BlenderConnection...");
+    BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
     
     /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
     if (!TMPDIR)
         TMPDIR = (wchar_t*)L"\\Temp";
-    m_startupBlend = HECL::WideToUTF8(TMPDIR);
+    m_startupBlend = hecl::WideToUTF8(TMPDIR);
 #else
     char* TMPDIR = getenv("TMPDIR");
     if (!TMPDIR)
         TMPDIR = (char*)"/tmp";
     m_startupBlend = TMPDIR;
 #endif
-    HECL::SystemString blenderShellPath(TMPDIR);
+    hecl::SystemString blenderShellPath(TMPDIR);
     blenderShellPath += _S("/hecl_blendershell.py");
     InstallBlendershell(blenderShellPath.c_str());
 
-    HECL::SystemString blenderAddonPath(TMPDIR);
+    hecl::SystemString blenderAddonPath(TMPDIR);
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
     InstallAddon(blenderAddonPath.c_str());
     
@@ -224,7 +224,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             /* Environment not set; use default */
             wchar_t progFiles[256];
             if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
-                BlenderLog.report(LogVisor::FatalError, L"unable to determine 'Program Files' path");
+                BlenderLog.report(logvisor::Fatal, L"unable to determine 'Program Files' path");
             _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender\\blender.exe", progFiles);
             blenderBin = BLENDER_BIN_BUF;
         }
@@ -251,7 +251,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             LPWSTR messageBuffer = nullptr;
             size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-            BlenderLog.report(LogVisor::FatalError, L"unable to launch blender from %s: %s", blenderBin, messageBuffer);
+            BlenderLog.report(logvisor::Fatal, L"unable to launch blender from %s: %s", blenderBin, messageBuffer);
         }
 
         close(m_writepipe[0]);
@@ -323,16 +323,16 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         if (!strcmp(lineBuf, "NOLAUNCH"))
         {
             _closePipe();
-            BlenderLog.report(LogVisor::FatalError, "Unable to launch blender");
+            BlenderLog.report(logvisor::Fatal, "Unable to launch blender");
         }
         else if (!strcmp(lineBuf, "NOBLENDER"))
         {
             _closePipe();
             if (blenderBin)
-                BlenderLog.report(LogVisor::FatalError, _S("Unable to find blender at '%s' or '%s'"),
+                BlenderLog.report(logvisor::Fatal, _S("Unable to find blender at '%s' or '%s'"),
                            blenderBin, DEFAULT_BLENDER_BIN);
             else
-                BlenderLog.report(LogVisor::FatalError, _S("Unable to find blender at '%s'"),
+                BlenderLog.report(logvisor::Fatal, _S("Unable to find blender at '%s'"),
                            DEFAULT_BLENDER_BIN);
         }
         else if (!strcmp(lineBuf, "NOADDON"))
@@ -341,7 +341,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             InstallAddon(blenderAddonPath.c_str());
             ++installAttempt;
             if (installAttempt >= 2)
-                BlenderLog.report(LogVisor::FatalError, _S("unable to install blender addon using '%s'"), blenderAddonPath.c_str());
+                BlenderLog.report(logvisor::Fatal, _S("unable to install blender addon using '%s'"), blenderAddonPath.c_str());
             continue;
         }
         else if (!strcmp(lineBuf, "ADDONINSTALLED"))
@@ -353,7 +353,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         else if (strcmp(lineBuf, "READY"))
         {
             _closePipe();
-            BlenderLog.report(LogVisor::FatalError, "read '%s' from blender; expected 'READY'", lineBuf);
+            BlenderLog.report(logvisor::Fatal, "read '%s' from blender; expected 'READY'", lineBuf);
         }
         _writeLine("ACK");
 
@@ -383,7 +383,7 @@ bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
 {
     if (m_lock)
     {
-        BlenderLog.report(LogVisor::FatalError,
+        BlenderLog.report(logvisor::Fatal,
                           "BlenderConnection::createBlend() musn't be called with stream active");
         return false;
     }
@@ -403,7 +403,7 @@ bool BlenderConnection::openBlend(const ProjectPath& path, bool force)
 {
     if (m_lock)
     {
-        BlenderLog.report(LogVisor::FatalError,
+        BlenderLog.report(logvisor::Fatal,
                           "BlenderConnection::openBlend() musn't be called with stream active");
         return false;
     }
@@ -437,7 +437,7 @@ bool BlenderConnection::saveBlend()
 {
     if (m_lock)
     {
-        BlenderLog.report(LogVisor::FatalError,
+        BlenderLog.report(logvisor::Fatal,
                           "BlenderConnection::saveBlend() musn't be called with stream active");
         return false;
     }
@@ -453,8 +453,8 @@ void BlenderConnection::deleteBlend()
 {
     if (m_loadedBlend)
     {
-        HECL::Unlink(m_loadedBlend.getAbsolutePath().c_str());
-        BlenderLog.report(LogVisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().c_str());
+        hecl::Unlink(m_loadedBlend.getAbsolutePath().c_str());
+        BlenderLog.report(logvisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().c_str());
         m_loadedBlend = ProjectPath();
     }
 }
@@ -534,7 +534,7 @@ BlenderConnection::DataStream::Mesh::Mesh
 
     conn._readBuf(&colorLayerCount, 4);
     if (colorLayerCount > 4)
-        LogModule.report(LogVisor::FatalError, "mesh has %u color-layers; max 4", colorLayerCount);
+        LogModule.report(logvisor::Fatal, "mesh has %u color-layers; max 4", colorLayerCount);
     conn._readBuf(&count, 4);
     color.reserve(count);
     for (uint32_t i=0 ; i<count ; ++i)
@@ -542,7 +542,7 @@ BlenderConnection::DataStream::Mesh::Mesh
 
     conn._readBuf(&uvLayerCount, 4);
     if (uvLayerCount > 8)
-        LogModule.report(LogVisor::FatalError, "mesh has %u UV-layers; max 8", uvLayerCount);
+        LogModule.report(logvisor::Fatal, "mesh has %u UV-layers; max 8", uvLayerCount);
     conn._readBuf(&count, 4);
     uv.reserve(count);
     for (uint32_t i=0 ; i<count ; ++i)

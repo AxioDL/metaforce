@@ -1,5 +1,5 @@
-add_subdirectory(libBoo)
+add_subdirectory(boo)
 add_subdirectory(libSquish)
 add_subdirectory(xxhash)
-add_subdirectory(Athena)
+add_subdirectory(athena)
 add_subdirectory(libpng)

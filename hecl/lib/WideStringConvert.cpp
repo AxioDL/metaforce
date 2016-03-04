@@ -1,7 +1,7 @@
 #include <utf8proc.h>
-#include "HECL/HECL.hpp"
+#include "hecl/hecl.hpp"
 
-namespace HECL
+namespace hecl
 {
 
 std::string WideToUTF8(const std::wstring& src)
@@ -14,7 +14,7 @@ std::string WideToUTF8(const std::wstring& src)
         utf8proc_ssize_t c = utf8proc_encode_char(utf8proc_int32_t(ch), mb);
         if (c < 0)
         {
-            LogModule.report(LogVisor::Warning, "invalid UTF-8 character while encoding");
+            LogModule.report(logvisor::Warning, "invalid UTF-8 character while encoding");
             return retval;
         }
         retval.append(reinterpret_cast<char*>(mb), c);
@@ -33,7 +33,7 @@ std::wstring UTF8ToWide(const std::string& src)
         utf8proc_ssize_t len = utf8proc_iterate(buf, -1, &wc);
         if (len < 0)
         {
-            LogModule.report(LogVisor::Warning, "invalid UTF-8 character while decoding");
+            LogModule.report(logvisor::Warning, "invalid UTF-8 character while decoding");
             return retval;
         }
         buf += len;

@@ -15,7 +15,7 @@ public:
     {
         if (m_info.args.empty())
         {
-            LogModule.report(LogVisor::Error, "help requires a tool name argument");
+            LogModule.report(logvisor::Error, "help requires a tool name argument");
             return;
         }
         m_good = true;
@@ -56,7 +56,7 @@ public:
             _S("...................................,\n"));
     }
 
-    static void ShowHelp(const HECL::SystemString& toolName)
+    static void ShowHelp(const hecl::SystemString& toolName)
     {
         /* Select tool's help-text streamer */
         HelpOutput::HelpFunc helpFunc = NULL;
@@ -82,7 +82,7 @@ public:
             helpFunc = ToolHelp::Help;
         else
         {
-            LogModule.report(LogVisor::Error, _S("unrecognized tool '%s' - can't help"), toolName.c_str());
+            LogModule.report(logvisor::Error, _S("unrecognized tool '%s' - can't help"), toolName.c_str());
             return;
         }
 
@@ -90,7 +90,7 @@ public:
         ho.go();
     }
 
-    HECL::SystemString toolName() const {return _S("help");}
+    hecl::SystemString toolName() const {return _S("help");}
 
     int run()
     {

@@ -1,7 +1,7 @@
-#include "HECL/Backend/GX.hpp"
+#include "hecl/Backend/GX.hpp"
 #include <map>
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {

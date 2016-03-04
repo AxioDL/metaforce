@@ -1,9 +1,9 @@
 #ifndef HECLBACKEND_HPP
 #define HECLBACKEND_HPP
 
-#include "HECL/Frontend.hpp"
+#include "hecl/Frontend.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {

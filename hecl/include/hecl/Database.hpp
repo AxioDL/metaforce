@@ -15,20 +15,20 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include <Athena/IStreamReader.hpp>
-#include <LogVisor/LogVisor.hpp>
+#include <athena/IStreamReader.hpp>
+#include "logvisor/logvisor.hpp"
 
-#include "HECL.hpp"
+#include "hecl.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Database
 {
 class Project;
 
-extern LogVisor::LogModule LogModule;
+extern logvisor::Module LogModule;
 
-typedef std::function<void(const HECL::SystemChar*, const HECL::SystemChar*, int, float)> FProgress;
+typedef std::function<void(const hecl::SystemChar*, const hecl::SystemChar*, int, float)> FProgress;
 
 /**
  * @brief Nodegraph class for gathering dependency-resolved objects for packaging
@@ -66,7 +66,7 @@ class IDataSpec
 {
 public:
     virtual ~IDataSpec() {}
-    using FProgress = HECL::Database::FProgress;
+    using FProgress = hecl::Database::FProgress;
     using FCookProgress = std::function<void(const SystemChar*)>;
 
     /**
@@ -96,12 +96,12 @@ public:
     };
 
     virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
-    {(void)info;(void)reps;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    {(void)info;(void)reps;LogModule.report(logvisor::Error, "not implemented");return false;}
     virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
     {(void)info;(void)progress;}
 
     virtual bool canCook(const ProjectPath& path)
-    {(void)path;LogModule.report(LogVisor::Error, "not implemented");return false;}
+    {(void)path;LogModule.report(logvisor::Error, "not implemented");return false;}
     virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
                         bool fast, FCookProgress progress)
     {(void)path;(void)cookedPath;(void)fast;(void)progress;}
@@ -263,7 +263,7 @@ private:
     std::vector<ProjectDataSpec> m_compiledSpecs;
     bool m_valid = false;
 public:
-    Project(const HECL::ProjectRootPath& rootPath);
+    Project(const hecl::ProjectRootPath& rootPath);
     operator bool() const {return m_valid;}
 
     /**
@@ -330,7 +330,7 @@ public:
         for (const ProjectDataSpec& sp : m_compiledSpecs)
             if (&sp.spec == &spec)
                 return sp.cookedPath;
-        LogModule.report(LogVisor::FatalError, "Unable to find spec '%s'", spec.m_name);
+        LogModule.report(logvisor::Fatal, "Unable to find spec '%s'", spec.m_name);
         return m_cookedRoot;
     }
 
@@ -380,7 +380,7 @@ public:
     /**
      * @brief Re-reads the data store holding user's spec preferences
      *
-     * Call periodically in a long-term use of the HECL::Database::Project class.
+     * Call periodically in a long-term use of the hecl::Database::Project class.
      * Install filesystem event-hooks if possible.
      */
     void rescanDataSpecs();

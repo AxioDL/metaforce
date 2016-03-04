@@ -1,10 +1,10 @@
 #ifndef HMDLMETA_HPP
 #define HMDLMETA_HPP
 
-#include <HECL/HECL.hpp>
-#include <Athena/DNA.hpp>
+#include <hecl/hecl.hpp>
+#include <athena/DNA.hpp>
 
-namespace HECL
+namespace hecl
 {
 
 enum class HMDLTopology : atUint32
@@ -15,7 +15,7 @@ enum class HMDLTopology : atUint32
 
 #define HECL_HMDL_META_SZ 32
 
-struct HMDLMeta : Athena::io::DNA<Athena::BigEndian>
+struct HMDLMeta : athena::io::DNA<athena::BigEndian>
 {
     DECL_DNA
     Value<atUint32> magic = 'TACO';

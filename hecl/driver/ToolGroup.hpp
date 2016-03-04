@@ -11,7 +11,7 @@ public:
     : ToolBase(info)
     {
         if (!info.project)
-            LogModule.report(LogVisor::FatalError, "hecl group must be ran within a project directory");
+            LogModule.report(logvisor::Fatal, "hecl group must be ran within a project directory");
     }
 
     ~ToolGroup()
@@ -58,7 +58,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("group");}
+    hecl::SystemString toolName() const {return _S("group");}
 
     int run()
     {

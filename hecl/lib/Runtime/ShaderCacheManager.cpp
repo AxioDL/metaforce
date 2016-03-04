@@ -1,14 +1,14 @@
-#include "HECL/Runtime.hpp"
-#include <Athena/FileReader.hpp>
-#include <Athena/FileWriter.hpp>
+#include "hecl/Runtime.hpp"
+#include <athena/FileReader.hpp>
+#include <athena/FileWriter.hpp>
 #include <zlib.h>
 #include <algorithm>
 #include <ctime>
 
-#include "HECL/Backend/GLSL.hpp"
-#include "HECL/Backend/Metal.hpp"
+#include "hecl/Backend/GLSL.hpp"
+#include "hecl/Backend/Metal.hpp"
 
-namespace HECL
+namespace hecl
 {
 namespace Runtime
 {
@@ -23,7 +23,7 @@ IShaderBackendFactory* _NewMetalBackendFactory(boo::IGraphicsDataFactory* gfxFac
 IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
 #endif
 
-static LogVisor::LogModule Log("ShaderCacheManager");
+static logvisor::Module Log("ShaderCacheManager");
 static uint64_t IDX_MAGIC = SBig(uint64_t(0xDEADFEEDC001D00D));
 static uint64_t DAT_MAGIC = SBig(uint64_t(0xC001D00DDEADBABE));
 static uint64_t ZERO64 = 0;
@@ -72,9 +72,9 @@ void ShaderCacheManager::bootstrapIndex()
     SystemString idxFilename = m_idxFr.filename();
 #endif
 
-    FILE* idxFp = HECL::Fopen(idxFilename.c_str(), _S("wb"));
+    FILE* idxFp = hecl::Fopen(idxFilename.c_str(), _S("wb"));
     if (!idxFp)
-        Log.report(LogVisor::FatalError, _S("unable to write shader cache index at %s"),
+        Log.report(logvisor::Fatal, _S("unable to write shader cache index at %s"),
                    idxFilename.c_str());
     fwrite(&IDX_MAGIC, 1, 8, idxFp);
     fwrite(&m_timeHash, 1, 8, idxFp);
@@ -87,9 +87,9 @@ void ShaderCacheManager::bootstrapIndex()
     SystemString datFilename = m_datFr.filename();
 #endif
 
-    FILE* datFp = HECL::Fopen(datFilename.c_str(), _S("wb"));
+    FILE* datFp = hecl::Fopen(datFilename.c_str(), _S("wb"));
     if (!datFp)
-        Log.report(LogVisor::FatalError, _S("unable to write shader cache data at %s"),
+        Log.report(logvisor::Fatal, _S("unable to write shader cache data at %s"),
                    datFilename.c_str());
     fwrite(&DAT_MAGIC, 1, 8, datFp);
     fwrite(&m_timeHash, 1, 8, datFp);
@@ -109,7 +109,7 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
 {
     boo::IGraphicsDataFactory::Platform plat = gfxFactory->platform();
     if (m_extensions && m_extensions.m_plat != plat)
-        Log.report(LogVisor::FatalError, "ShaderCacheExtension backend mismatch (should be %s)",
+        Log.report(logvisor::Fatal, "ShaderCacheExtension backend mismatch (should be %s)",
                    gfxFactory->platformName());
     m_extensionsHash = m_extensions.hashExtensions();
 
@@ -135,7 +135,7 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
         break;
 #endif
     default:
-        Log.report(LogVisor::FatalError, _S("unsupported backend %s"), gfxFactory->platformName());
+        Log.report(logvisor::Fatal, _S("unsupported backend %s"), gfxFactory->platformName());
     }
 
     reload();
@@ -148,8 +148,8 @@ void ShaderCacheManager::reload()
     m_timeHash = 0;
 
     /* Attempt to open existing index */
-    m_idxFr.seek(0, Athena::Begin);
-    m_datFr.seek(0, Athena::Begin);
+    m_idxFr.seek(0, athena::Begin);
+    m_datFr.seek(0, athena::Begin);
     if (m_idxFr.hasError() || m_datFr.hasError())
     {
         bootstrapIndex();
@@ -223,12 +223,12 @@ ShaderCachedData ShaderCacheManager::lookupData(const Hash& hash)
     const IndexEntry& ent = m_entries[search->second];
     if (ent.m_compOffset + ent.m_compSize > m_datFr.length())
     {
-        Log.report(LogVisor::Warning, "shader cache not long enough to read entry, might be corrupt");
+        Log.report(logvisor::Warning, "shader cache not long enough to read entry, might be corrupt");
         return ShaderCachedData();
     }
 
     /* File-streamed decompression */
-    m_datFr.seek(ent.m_compOffset, Athena::Begin);
+    m_datFr.seek(ent.m_compOffset, athena::Begin);
     ShaderCachedData ret(ShaderTag(ent.m_hash, ent.m_meta), ent.m_decompSize);
     uint8_t compDat[2048];
     z_stream z = {};
@@ -255,18 +255,18 @@ bool ShaderCacheManager::addData(const ShaderCachedData& data)
     uLong cBound = compressBound(data.m_sz);
     void* compBuf = malloc(cBound);
     if (compress((Bytef*)compBuf, &cBound, (Bytef*)data.m_data.get(), data.m_sz) != Z_OK)
-        Log.report(LogVisor::FatalError, "unable to deflate data");
+        Log.report(logvisor::Fatal, "unable to deflate data");
 
     /* Open index for writing (non overwriting) */
-    Athena::io::FileWriter idxFw(m_idxFr.filename(), false);
+    athena::io::FileWriter idxFw(m_idxFr.filename(), false);
     if (idxFw.hasError())
-        Log.report(LogVisor::FatalError, _S("unable to append shader cache index at %s"),
+        Log.report(logvisor::Fatal, _S("unable to append shader cache index at %s"),
                    m_idxFr.filename().c_str());
 
     /* Open data for writing (non overwriting) */
-    Athena::io::FileWriter datFw(m_datFr.filename(), false);
+    athena::io::FileWriter datFw(m_datFr.filename(), false);
     if (datFw.hasError())
-        Log.report(LogVisor::FatalError, _S("unable to append shader cache data at %s"),
+        Log.report(logvisor::Fatal, _S("unable to append shader cache data at %s"),
                    m_datFr.filename().c_str());
 
     size_t targetOffset = 0;
@@ -316,10 +316,10 @@ bool ShaderCacheManager::addData(const ShaderCachedData& data)
     if (!targetOffset)
     {
         /* New index entry at end */
-        idxFw.seek(24, Athena::Begin);
+        idxFw.seek(24, athena::Begin);
         idxFw.writeUint64Big(m_entries.size() + 1);
-        idxFw.seek(m_entries.size() * 32 + 32, Athena::Begin);
-        datFw.seek(0, Athena::End);
+        idxFw.seek(m_entries.size() * 32 + 32, athena::Begin);
+        datFw.seek(0, athena::End);
         m_entryLookup[data.m_tag] = m_entries.size();
         m_entries.emplace_back();
 
@@ -336,7 +336,7 @@ bool ShaderCacheManager::addData(const ShaderCachedData& data)
     else
     {
         /* Reusing index entry and data space */
-        datFw.seek(targetOffset, Athena::Begin);
+        datFw.seek(targetOffset, athena::Begin);
         datFw.writeUBytes((atUint8*)compBuf, cBound);
     }
 
@@ -364,12 +364,12 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
         return buildFromCache(foundData);
-    HECL::Frontend::IR ir = FE.compileSource(source, diagName);
+    hecl::Frontend::IR ir = FE.compileSource(source, diagName);
     return buildShader(tag, ir, diagName);
 }
 
 boo::IShaderPipeline*
-ShaderCacheManager::buildShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                 const std::string& diagName)
 {
     ShaderCachedData foundData = lookupData(tag);
@@ -389,7 +389,7 @@ ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData)
     m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots,
     [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
     if (shaders.size() != m_extensions.m_extensionSlots.size())
-        Log.report(LogVisor::FatalError, "buildShaderFromCache returned %" PRISize " times, expected %" PRISize,
+        Log.report(logvisor::Fatal, "buildShaderFromCache returned %" PRISize " times, expected %" PRISize,
                    shaders.size(), m_extensions.m_extensionSlots.size());
     return shaders;
 }
@@ -401,12 +401,12 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string&
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
         return buildExtendedFromCache(foundData);
-    HECL::Frontend::IR ir = FE.compileSource(source, diagName);
+    hecl::Frontend::IR ir = FE.compileSource(source, diagName);
     return buildExtendedShader(tag, ir, diagName);
 }
 
 std::vector<boo::IShaderPipeline*>
-ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const HECL::Frontend::IR& ir,
+ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                         const std::string& diagName)
 {
     ShaderCachedData foundData = lookupData(tag);
@@ -419,7 +419,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const HECL::Fronte
     m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots,
     [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
     if (shaders.size() != m_extensions.m_extensionSlots.size())
-        Log.report(LogVisor::FatalError, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
+        Log.report(logvisor::Fatal, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
                    shaders.size(), m_extensions.m_extensionSlots.size());
     addData(data);
     return shaders;

@@ -20,15 +20,15 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "HECL/HECL.hpp"
-#include "HECL/HMDLMeta.hpp"
-#include <Athena/Types.hpp>
-#include <Athena/MemoryWriter.hpp>
+#include "hecl/hecl.hpp"
+#include "hecl/HMDLMeta.hpp"
+#include <athena/Types.hpp>
+#include <athena/MemoryWriter.hpp>
 
-namespace HECL
+namespace hecl
 {
 
-extern LogVisor::LogModule BlenderLog;
+extern logvisor::Module BlenderLog;
 extern class BlenderConnection* SharedBlenderConnection;
 class HMDLBuffers;
 
@@ -97,7 +97,7 @@ public:
             int_type overflow(int_type ch)
             {
                 if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
-                    BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream writing");
+                    BlenderLog.report(logvisor::Fatal, "lock not held for PyOutStream writing");
                 if (ch != traits_type::eof() && ch != '\n' && ch != '\0')
                 {
                     m_lineBuf += char_type(ch);
@@ -111,7 +111,7 @@ public:
                 {
                     if (m_deleteOnError)
                         m_parent.m_parent->deleteBlend();
-                    BlenderLog.report(LogVisor::FatalError, "error sending '%s' to blender", m_lineBuf.c_str());
+                    BlenderLog.report(logvisor::Fatal, "error sending '%s' to blender", m_lineBuf.c_str());
                 }
                 m_lineBuf.clear();
                 return ch;
@@ -128,7 +128,7 @@ public:
             char readBuf[16];
             m_parent->_readLine(readBuf, 16);
             if (strcmp(readBuf, "READY"))
-                BlenderLog.report(LogVisor::FatalError, "unable to open PyOutStream with blender");
+                BlenderLog.report(logvisor::Fatal, "unable to open PyOutStream with blender");
         }
     public:
         PyOutStream(const PyOutStream& other) = delete;
@@ -144,7 +144,7 @@ public:
                 char readBuf[16];
                 m_parent->_readLine(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
-                    BlenderLog.report(LogVisor::FatalError, "unable to close PyOutStream with blender");
+                    BlenderLog.report(logvisor::Fatal, "unable to close PyOutStream with blender");
                 m_parent->m_lock = false;
             }
         }
@@ -154,7 +154,7 @@ public:
         void format(const char* fmt, ...)
         {
             if (!m_parent || !m_parent->m_lock)
-                BlenderLog.report(LogVisor::FatalError, "lock not held for PyOutStream::format()");
+                BlenderLog.report(logvisor::Fatal, "lock not held for PyOutStream::format()");
             va_list ap;
             va_start(ap, fmt);
             char* result = nullptr;
@@ -236,7 +236,7 @@ public:
                 char readBuf[16];
                 m_parent->_readLine(readBuf, 16);
                 if (strcmp(readBuf, "ANIMREADY"))
-                    BlenderLog.report(LogVisor::FatalError, "unable to open ANIMOutStream");
+                    BlenderLog.report(logvisor::Fatal, "unable to open ANIMOutStream");
             }
             ~ANIMOutStream()
             {
@@ -245,12 +245,12 @@ public:
                 char readBuf[16];
                 m_parent->_readLine(readBuf, 16);
                 if (strcmp(readBuf, "ANIMDONE"))
-                    BlenderLog.report(LogVisor::FatalError, "unable to close ANIMOutStream");
+                    BlenderLog.report(logvisor::Fatal, "unable to close ANIMOutStream");
             }
             void changeCurve(CurveType type, unsigned crvIdx, unsigned keyCount)
             {
                 if (m_curCount != m_totalCount)
-                    BlenderLog.report(LogVisor::FatalError, "incomplete ANIMOutStream for change");
+                    BlenderLog.report(logvisor::Fatal, "incomplete ANIMOutStream for change");
                 m_curCount = 0;
                 m_totalCount = keyCount;
                 char tp = char(type);
@@ -266,7 +266,7 @@ public:
             void write(unsigned frame, float val)
             {
                 if (!m_inCurve)
-                    BlenderLog.report(LogVisor::FatalError, "changeCurve not called before write");
+                    BlenderLog.report(logvisor::Fatal, "changeCurve not called before write");
                 if (m_curCount < m_totalCount)
                 {
                     struct
@@ -278,7 +278,7 @@ public:
                     ++m_curCount;
                 }
                 else
-                    BlenderLog.report(LogVisor::FatalError, "ANIMOutStream keyCount overflow");
+                    BlenderLog.report(logvisor::Fatal, "ANIMOutStream keyCount overflow");
             }
         };
         ANIMOutStream beginANIMCurve()
@@ -289,7 +289,7 @@ public:
     PyOutStream beginPythonOut(bool deleteOnError=false)
     {
         if (m_lock)
-            BlenderLog.report(LogVisor::FatalError, "lock already held for BlenderConnection::beginPythonOut()");
+            BlenderLog.report(logvisor::Fatal, "lock already held for BlenderConnection::beginPythonOut()");
         return PyOutStream(this, deleteOnError);
     }
 
@@ -305,7 +305,7 @@ public:
             char readBuf[16];
             m_parent->_readLine(readBuf, 16);
             if (strcmp(readBuf, "READY"))
-                BlenderLog.report(LogVisor::FatalError, "unable to open DataStream with blender");
+                BlenderLog.report(logvisor::Fatal, "unable to open DataStream with blender");
         }
     public:
         DataStream(const DataStream& other) = delete;
@@ -320,7 +320,7 @@ public:
                 char readBuf[16];
                 m_parent->_readLine(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
-                    BlenderLog.report(LogVisor::FatalError, "unable to close DataStream with blender");
+                    BlenderLog.report(logvisor::Fatal, "unable to close DataStream with blender");
                 m_parent->m_lock = false;
             }
         }
@@ -532,7 +532,7 @@ public:
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != BlendType::Mesh)
-                BlenderLog.report(LogVisor::FatalError, _S("%s is not a MESH blend"),
+                BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
             char req[128];
@@ -543,7 +543,7 @@ public:
             char readBuf[256];
             m_parent->_readLine(readBuf, 256);
             if (strcmp(readBuf, "OK"))
-                BlenderLog.report(LogVisor::FatalError, "unable to cook mesh: %s", readBuf);
+                BlenderLog.report(logvisor::Fatal, "unable to cook mesh: %s", readBuf);
 
             return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
@@ -553,7 +553,7 @@ public:
                          Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != BlendType::Area)
-                BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
+                BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
             char req[128];
@@ -564,7 +564,7 @@ public:
             char readBuf[256];
             m_parent->_readLine(readBuf, 256);
             if (strcmp(readBuf, "OK"))
-                BlenderLog.report(LogVisor::FatalError, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
+                BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
             return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
@@ -574,7 +574,7 @@ public:
                               Mesh::SurfProgFunc surfProg=[](int){})
         {
             if (m_parent->m_loadedType != BlendType::Area)
-                BlenderLog.report(LogVisor::FatalError, _S("%s is not an AREA blend"),
+                BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
             char req[128];
@@ -586,7 +586,7 @@ public:
             char readBuf[256];
             m_parent->_readLine(readBuf, 256);
             if (strcmp(readBuf, "OK"))
-                BlenderLog.report(LogVisor::FatalError, "unable to cook all meshes: %s", readBuf);
+                BlenderLog.report(logvisor::Fatal, "unable to cook all meshes: %s", readBuf);
 
             return Mesh(*m_parent, topology, skinSlotCount, surfProg);
         }
@@ -659,7 +659,7 @@ public:
         Actor compileActor()
         {
             if (m_parent->m_loadedType != BlendType::Actor)
-                BlenderLog.report(LogVisor::FatalError, _S("%s is not an ACTOR blend"),
+                BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
                                   m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
             m_parent->_writeLine("ACTORCOMPILE");
@@ -667,7 +667,7 @@ public:
             char readBuf[256];
             m_parent->_readLine(readBuf, 256);
             if (strcmp(readBuf, "OK"))
-                BlenderLog.report(LogVisor::FatalError, "unable to compile actor: %s", readBuf);
+                BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
 
             return Actor(*m_parent);
         }
@@ -675,7 +675,7 @@ public:
     DataStream beginData()
     {
         if (m_lock)
-            BlenderLog.report(LogVisor::FatalError, "lock already held for BlenderConnection::beginDataIn()");
+            BlenderLog.report(logvisor::Fatal, "lock already held for BlenderConnection::beginDataIn()");
         return DataStream(this);
     }
 
@@ -684,7 +684,7 @@ public:
     static BlenderConnection& SharedConnection()
     {
         if (!SharedBlenderConnection)
-            SharedBlenderConnection = new BlenderConnection(HECL::VerbosityLevel);
+            SharedBlenderConnection = new BlenderConnection(hecl::VerbosityLevel);
         return *SharedBlenderConnection;
     }
 
@@ -702,7 +702,7 @@ public:
             SharedBlenderConnection->quitBlender();
             delete SharedBlenderConnection;
             SharedBlenderConnection = nullptr;
-            BlenderLog.report(LogVisor::Info, "BlenderConnection Shutdown Successful");
+            BlenderLog.report(logvisor::Info, "BlenderConnection Shutdown Successful");
         }
     }
 
@@ -724,7 +724,7 @@ private:
       m_surfaces(std::move(surfaces)), m_skinBanks(skinBanks)
     {
         {
-            Athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
+            athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
             w.enumerateLittle(iboData);
         }
     }

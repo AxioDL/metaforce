@@ -3,11 +3,11 @@
 
 #include <string>
 #include <functional>
-#include <Athena/Types.hpp>
-#include <Athena/Global.hpp>
-#include <Athena/DNAYaml.hpp>
+#include <athena/Types.hpp>
+#include <athena/Global.hpp>
+#include <athena/DNAYaml.hpp>
 
-namespace HECL
+namespace hecl
 {
 namespace DNACVAR
 {
@@ -35,7 +35,7 @@ enum EFlags
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
-class CVar : public Athena::io::DNAYaml<Athena::BigEndian>
+class CVar : public athena::io::DNAYaml<athena::BigEndian>
 {
 public:
     DECL_YAML
@@ -44,7 +44,7 @@ public:
     Value<EType>  m_type;
 };
 
-struct CVarContainer : public Athena::io::DNAYaml<Athena::BigEndian>
+struct CVarContainer : public athena::io::DNAYaml<athena::BigEndian>
 {
     DECL_YAML
     Value<atUint32> magic = 'CVAR';

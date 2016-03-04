@@ -14,11 +14,11 @@
 #include <signal.h>
 #include <regex>
 #include <list>
-#include "HECL/Database.hpp"
+#include "hecl/Database.hpp"
 #include "../blender/BlenderConnection.hpp"
-#include "LogVisor/LogVisor.hpp"
+#include "logvisor/logvisor.hpp"
 
-LogVisor::LogModule LogModule("HECLDriver");
+logvisor::Module LogModule("HECLDriver");
 
 #include "ToolBase.hpp"
 #include "ToolInit.hpp"
@@ -47,41 +47,41 @@ bool XTERM_COLOR = false;
 */
 
 /* Main usage message */
-static void printHelp(const HECL::SystemChar* pname)
+static void printHelp(const hecl::SystemChar* pname)
 {
     if (XTERM_COLOR)
-        HECL::Printf(_S("" BOLD "HECL" NORMAL ""));
+        hecl::Printf(_S("" BOLD "HECL" NORMAL ""));
     else
-        HECL::Printf(_S("HECL"));
+        hecl::Printf(_S("HECL"));
 #if HECL_GIT
-    HECL::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #elif HECL_VER
-    HECL::Printf(_S(" Version " HECL_VER_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #else
-    HECL::Printf(_S("\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S("\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
 #endif
 }
 
 /* Regex patterns */
-static const HECL::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
+static const hecl::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
 
 /* SIGINT will gracefully close blender connections and delete blends in progress */
 static void SIGINTHandler(int sig)
 {
-    HECL::BlenderConnection::Shutdown();
+    hecl::BlenderConnection::Shutdown();
     exit(1);
 }
 
 /* SIGWINCH should do nothing */
 static void SIGWINCHHandler(int sig) {}
 
-static LogVisor::LogModule AthenaLog("Athena");
-static void AthenaExc(Athena::error::Level level, const char* file,
+static logvisor::Module AthenaLog("Athena");
+static void AthenaExc(athena::error::Level level, const char* file,
                       const char*, int line, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    AthenaLog.reportSource(LogVisor::Level(level), file, line, fmt, ap);
+    AthenaLog.reportSource(logvisor::Level(level), file, line, fmt, ap);
     va_end(ap);
 }
 
@@ -110,7 +110,7 @@ int main(int argc, const char** argv)
 #endif
     signal(SIGINT, SIGINTHandler);
 
-    LogVisor::RegisterConsoleLogger();
+    logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
 
     /* Basic usage check */
@@ -137,8 +137,8 @@ int main(int argc, const char** argv)
     /* Assemble common tool pass info */
     ToolPassInfo info;
     info.pname = argv[0];
-    HECL::SystemChar cwdbuf[1024];
-    if (HECL::Getcwd(cwdbuf, 1024))
+    hecl::SystemChar cwdbuf[1024];
+    if (hecl::Getcwd(cwdbuf, 1024))
     {
         info.cwd = cwdbuf;
         if (info.cwd.size() && info.cwd.back() != _S('/') && info.cwd.back() != _S('\\'))
@@ -150,21 +150,21 @@ int main(int argc, const char** argv)
     }
 
     /* Concatenate args */
-    std::vector<HECL::SystemString> args;
+    std::vector<hecl::SystemString> args;
     args.reserve(argc-2);
     for (int i=2 ; i<argc ; ++i)
-        args.push_back(HECL::SystemString(argv[i]));
+        args.push_back(hecl::SystemString(argv[i]));
 
     if (!args.empty())
     {
         /* Extract output argument */
         for (auto it = args.cbegin() ; it != args.cend() ;)
         {
-            const HECL::SystemString& arg = *it;
-            HECL::SystemRegexMatch oMatch;
+            const hecl::SystemString& arg = *it;
+            hecl::SystemRegexMatch oMatch;
             if (std::regex_search(arg, oMatch, regOPEN))
             {
-                const HECL::SystemString& token = oMatch[1].str();
+                const hecl::SystemString& token = oMatch[1].str();
                 if (token.size())
                 {
                     if (info.output.empty())
@@ -188,7 +188,7 @@ int main(int argc, const char** argv)
         /* Iterate flags */
         for (auto it = args.cbegin() ; it != args.cend() ;)
         {
-            const HECL::SystemString& arg = *it;
+            const hecl::SystemString& arg = *it;
             if (arg.size() < 2 || arg[0] != _S('-') || arg[1] == _S('-'))
             {
                 ++it;
@@ -210,18 +210,18 @@ int main(int argc, const char** argv)
 
         /* Gather remaining args */
         info.args.reserve(args.size());
-        for (const HECL::SystemString& arg : args)
+        for (const hecl::SystemString& arg : args)
             info.args.push_back(arg);
     }
 
     /* Attempt to find hecl project */
-    HECL::ProjectRootPath rootPath = HECL::SearchForProject(info.cwd);
-    std::unique_ptr<HECL::Database::Project> project;
+    hecl::ProjectRootPath rootPath = hecl::SearchForProject(info.cwd);
+    std::unique_ptr<hecl::Database::Project> project;
     if (rootPath)
     {
-        size_t ErrorRef = LogVisor::ErrorCount;
-        HECL::Database::Project* newProj = new HECL::Database::Project(rootPath);
-        if (LogVisor::ErrorCount > ErrorRef)
+        size_t ErrorRef = logvisor::ErrorCount;
+        hecl::Database::Project* newProj = new hecl::Database::Project(rootPath);
+        if (logvisor::ErrorCount > ErrorRef)
         {
 #if WIN_PAUSE
             system("PAUSE");
@@ -234,11 +234,11 @@ int main(int argc, const char** argv)
     }
 
     /* Construct selected tool */
-    HECL::SystemString toolName(argv[1]);
-    HECL::ToLower(toolName);
+    hecl::SystemString toolName(argv[1]);
+    hecl::ToLower(toolName);
     std::unique_ptr<ToolBase> tool;
 
-    size_t ErrorRef = LogVisor::ErrorCount;
+    size_t ErrorRef = logvisor::ErrorCount;
     if (toolName == _S("init"))
         tool.reset(new ToolInit(info));
     else if (toolName == _S("spec"))
@@ -261,9 +261,9 @@ int main(int argc, const char** argv)
         tool.reset(new ToolHelp(info));
     else
     {
-        FILE* fp = HECL::Fopen(argv[1], _S("rb"));
+        FILE* fp = hecl::Fopen(argv[1], _S("rb"));
         if (!fp)
-            LogModule.report(LogVisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
+            LogModule.report(logvisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
         else
         {
             /* Shortcut-case: implicit extract */
@@ -273,7 +273,7 @@ int main(int argc, const char** argv)
         }
     }
 
-    if (LogVisor::ErrorCount > ErrorRef)
+    if (logvisor::ErrorCount > ErrorRef)
     {
 #if WIN_PAUSE
         system("PAUSE");
@@ -282,22 +282,22 @@ int main(int argc, const char** argv)
     }
 
     if (info.verbosityLevel)
-        LogModule.report(LogVisor::Info, _S("Constructed tool '%s' %d\n"),
+        LogModule.report(logvisor::Info, _S("Constructed tool '%s' %d\n"),
                          tool->toolName().c_str(), info.verbosityLevel);
 
     /* Run tool */
-    ErrorRef = LogVisor::ErrorCount;
+    ErrorRef = logvisor::ErrorCount;
     int retval = tool->run();
-    if (LogVisor::ErrorCount > ErrorRef)
+    if (logvisor::ErrorCount > ErrorRef)
     {
-        HECL::BlenderConnection::Shutdown();
+        hecl::BlenderConnection::Shutdown();
 #if WIN_PAUSE
         system("PAUSE");
 #endif
         return -1;
     }
 
-    HECL::BlenderConnection::Shutdown();
+    hecl::BlenderConnection::Shutdown();
 #if WIN_PAUSE
     system("PAUSE");
 #endif

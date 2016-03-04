@@ -6,37 +6,37 @@
 
 class ToolInit final : public ToolBase
 {
-    const HECL::SystemString* m_dir = NULL;
+    const hecl::SystemString* m_dir = NULL;
 public:
     ToolInit(const ToolPassInfo& info)
     : ToolBase(info)
     {
-        HECL::Sstat theStat;
-        const HECL::SystemString* dir;
+        hecl::Sstat theStat;
+        const hecl::SystemString* dir;
         if (info.args.size())
             dir = &info.args.front();
         else
             dir = &info.cwd;
 
-        if (HECL::Stat(dir->c_str(), &theStat))
+        if (hecl::Stat(dir->c_str(), &theStat))
         {
-            HECL::MakeDir(dir->c_str());
-            if (HECL::Stat(dir->c_str(), &theStat))
+            hecl::MakeDir(dir->c_str());
+            if (hecl::Stat(dir->c_str(), &theStat))
             {
-                LogModule.report(LogVisor::FatalError, _S("unable to stat '%s'"), dir->c_str());
+                LogModule.report(logvisor::Fatal, _S("unable to stat '%s'"), dir->c_str());
                 return;
             }
         }
         if (!S_ISDIR(theStat.st_mode))
         {
-            LogModule.report(LogVisor::FatalError, _S("'%s' is not a directory"), dir->c_str());
+            LogModule.report(logvisor::Fatal, _S("'%s' is not a directory"), dir->c_str());
             return;
         }
 
-        HECL::SystemString testPath = *dir + _S("/.hecl/beacon");
-        if (!HECL::Stat(testPath.c_str(), &theStat))
+        hecl::SystemString testPath = *dir + _S("/.hecl/beacon");
+        if (!hecl::Stat(testPath.c_str(), &theStat))
         {
-            LogModule.report(LogVisor::FatalError, _S("project already exists at '%s'"), dir->c_str());
+            LogModule.report(logvisor::Fatal, _S("project already exists at '%s'"), dir->c_str());
             return;
         }
 
@@ -47,11 +47,11 @@ public:
     {
         if (!m_dir)
             return -1;
-        size_t ErrorRef = LogVisor::ErrorCount;
-        HECL::Database::Project proj((HECL::ProjectRootPath(*m_dir)));
-        if (LogVisor::ErrorCount > ErrorRef)
+        size_t ErrorRef = logvisor::ErrorCount;
+        hecl::Database::Project proj((hecl::ProjectRootPath(*m_dir)));
+        if (logvisor::ErrorCount > ErrorRef)
             return -1;
-        LogModule.report(LogVisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());
+        LogModule.report(logvisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());
         return 0;
     }
 
@@ -82,7 +82,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("init");}
+    hecl::SystemString toolName() const {return _S("init");}
 };
 
 #endif // CTOOL_INIT

@@ -1,3 +1,3 @@
-add_library(HECLDatabase
+add_library(hecl-database
             Project.cpp)
 

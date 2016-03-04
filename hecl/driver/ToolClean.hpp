@@ -59,7 +59,7 @@ public:
         help.endWrap();
     }
 
-    HECL::SystemString toolName() const {return _S("clean");}
+    hecl::SystemString toolName() const {return _S("clean");}
 
     int run()
     {

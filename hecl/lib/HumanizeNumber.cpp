@@ -1,5 +1,5 @@
-#include "HECL/HECL.hpp"
-#include <LogVisor/LogVisor.hpp>
+#include "hecl/hecl.hpp"
+#include "logvisor/logvisor.hpp"
 
 /*
  * Copyright (c) 1997, 1998, 1999, 2002 The NetBSD Foundation, Inc.
@@ -32,9 +32,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace HECL
+namespace hecl
 {
-static LogVisor::LogModule Log("HECL::HumanizeNumber");
+static logvisor::Module Log("hecl::HumanizeNumber");
 
 static const int maxscale = 7;
 
@@ -50,7 +50,7 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
     if (suffix == nullptr)
         suffix = "";
     if ((flags & HNFlags::Divisor1000) != HNFlags::None && (flags & HNFlags::IECPrefixes) != HNFlags::None)
-        Log.report(LogVisor::FatalError, "invalid flags combo");
+        Log.report(logvisor::Fatal, "invalid flags combo");
 
     /* setup parameters */
     remainder = 0;
@@ -111,7 +111,7 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
 
     /* Check if enough room for `x y' + suffix */
     if (len < baselen)
-        Log.report(LogVisor::FatalError,
+        Log.report(logvisor::Fatal,
                    "buffer size %" PRISize "insufficient for minimum size %" PRISize,
                    len, baselen);
     std::string ret(len, '\0');

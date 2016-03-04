@@ -1,6 +1,6 @@
 #include "BlenderConnection.hpp"
 
-namespace HECL
+namespace hecl
 {
 
 HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
@@ -69,7 +69,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
 
     size_t vboSz = metaOut.vertCount * metaOut.vertStride;
     HMDLBuffers ret(std::move(metaOut), vboSz, iboData, std::move(outSurfaces), skinBanks);
-    Athena::io::MemoryWriter vboW(ret.m_vboData.get(), vboSz);
+    athena::io::MemoryWriter vboW(ret.m_vboData.get(), vboSz);
     for (const std::pair<const Surface*, const Surface::Vert*>& sv : vertPool)
     {
         const Surface& s = *sv.first;

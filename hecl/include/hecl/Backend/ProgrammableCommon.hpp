@@ -2,14 +2,14 @@
 #define HECLBACKEND_PROGCOMMON_HPP
 
 #include "Backend.hpp"
-#include "HECL/Runtime.hpp"
-#include <Athena/DNA.hpp>
+#include "hecl/Runtime.hpp"
+#include <athena/DNA.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <algorithm>
 
-namespace HECL
+namespace hecl
 {
 namespace Backend
 {
@@ -65,17 +65,17 @@ private:
 
     std::string EmitSamplingUseRGB(unsigned samplingIdx) const
     {
-        return HECL::Format("sampling%u.rgb", samplingIdx);
+        return hecl::Format("sampling%u.rgb", samplingIdx);
     }
 
     std::string EmitSamplingUseAlpha(unsigned samplingIdx) const
     {
-        return HECL::Format("sampling%u.a", samplingIdx);
+        return hecl::Format("sampling%u.a", samplingIdx);
     }
 
     std::string EmitColorRegUse(unsigned idx) const
     {
-        return HECL::Format("colorReg%u", idx);
+        return hecl::Format("colorReg%u", idx);
     }
 
     std::string EmitLighting() const
@@ -87,7 +87,7 @@ private:
 
     std::string EmitVal(float val) const
     {
-        return HECL::Format("%g", val);
+        return hecl::Format("%g", val);
     }
 
     std::string EmitAdd(const std::string& a, const std::string& b) const

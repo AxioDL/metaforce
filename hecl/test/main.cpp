@@ -1,8 +1,8 @@
 #include <boo/boo.hpp>
-#include <LogVisor/LogVisor.hpp>
-#include <Athena/MemoryWriter.hpp>
-#include "HECL/Runtime.hpp"
-#include "HECL/HMDLMeta.hpp"
+#include "logvisor/logvisor.hpp"
+#include <athena/MemoryWriter.hpp>
+#include "hecl/Runtime.hpp"
+#include "hecl/HMDLMeta.hpp"
 
 #include <math.h>
 #include <thread>
@@ -78,18 +78,18 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             renderTex = gfxF->newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], false, false);
 
             /* HECL managers */
-            HECL::Runtime::FileStoreManager fileMgr(app->getUniqueName());
-            HECL::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
+            hecl::Runtime::FileStoreManager fileMgr(app->getUniqueName());
+            hecl::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
 
             /* Compile HECL shader */
             static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
-            HECL::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
+            hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
             boo::IShaderPipeline* testShaderObj =
             shaderMgr.buildShader(testShaderTag, testShader, "testShader");
 
             /* Generate meta structure (usually statically serialized) */
-            HECL::HMDLMeta testMeta;
-            testMeta.topology = HECL::HMDLTopology::TriStrips;
+            hecl::HMDLMeta testMeta;
+            testMeta.topology = hecl::HMDLTopology::TriStrips;
             testMeta.vertStride = 32;
             testMeta.vertCount = 4;
             testMeta.indexCount = 4;
@@ -99,7 +99,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
             /* Binary form of meta structure */
             atUint8 testMetaBuf[HECL_HMDL_META_SZ];
-            Athena::io::MemoryWriter testMetaWriter(testMetaBuf, HECL_HMDL_META_SZ);
+            athena::io::MemoryWriter testMetaWriter(testMetaBuf, HECL_HMDL_META_SZ);
             testMeta.write(testMetaWriter);
 
             /* Make Tri-strip VBO */
@@ -121,7 +121,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             static const uint32_t ibo[4] = {0,1,2,3};
 
             /* Construct quad mesh against boo factory */
-            HECL::Runtime::HMDLData testData(gfxF, testMetaBuf, quad, ibo);
+            hecl::Runtime::HMDLData testData(gfxF, testMetaBuf, quad, ibo);
 
             /* Make ramp texture */
             using Pixel = uint8_t[4];
@@ -217,14 +217,14 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     }
 };
 
-void AthenaExcHandler(Athena::error::Level level,
+void AthenaExcHandler(athena::error::Level level,
                       const char* file, const char* function,
                       int line, const char* fmt, ...)
 {
-    static LogVisor::LogModule Log("heclTest::AthenaExcHandler");
+    static logvisor::Module Log("heclTest::AthenaExcHandler");
     va_list ap;
     va_start(ap, fmt);
-    Log.reportSource(LogVisor::Level(level), file, line, fmt, ap);
+    Log.reportSource(logvisor::Level(level), file, line, fmt, ap);
     va_end(ap);
 }
 
@@ -235,7 +235,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
     atSetExceptionHandler(AthenaExcHandler);
-    LogVisor::RegisterConsoleLogger();
+    logvisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("heclTest"), _S("HECL Test"), argc, argv);
@@ -255,7 +255,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
     for (int i=0 ; i<argc ; ++i)
         booArgv[i+1] = argv[i];
 
-    LogVisor::CreateWin32Console();
+    logvisor::CreateWin32Console();
     return wmain(argc+1, booArgv);
 }
 #endif
