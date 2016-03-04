@@ -1,9 +1,9 @@
-[submodule "NODLib"]
-	path = NODLib
-	url = https://github.com/AxioDL/NODLib.git
 [submodule "hecl"]
 	path = hecl
 	url = https://github.com/AxioDL/hecl.git
-[submodule "libSpecter"]
-	path = libSpecter
-	url = https://github.com/AxioDL/libSpecter.git
+[submodule "specter"]
+	path = specter
+	url = https://github.com/AxioDL/specter.git
+[submodule "nod"]
+	path = nod
+	url = https://github.com/AxioDL/nod.git
