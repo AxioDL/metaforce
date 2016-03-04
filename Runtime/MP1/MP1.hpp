@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMAIN_HPP__
-#define __PSHAG_CMAIN_HPP__
+#ifndef __PSHAG_MP1_HPP__
+#define __PSHAG_MP1_HPP__
 
 #include <boo/boo.hpp>
 #include "CMemory.hpp"
@@ -27,7 +27,7 @@ class WindowCallback : public boo::IWindowCallback
 };
 
 class CMain : public boo::IApplicationCallback
-{    
+{
     boo::IWindow* mainWindow;
     int appMain(boo::IApplication* app);
     void appQuitting(boo::IApplication*)
@@ -69,4 +69,4 @@ extern CMain* g_main;
 }
 }
 
-#endif // __PSHAG_CMAIN_HPP__
+#endif // __PSHAG_MP1_HPP__

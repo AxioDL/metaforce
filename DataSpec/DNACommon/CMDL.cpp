@@ -123,6 +123,13 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
     }
 }
 
+template void ReadMaterialSetToBlender_3<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet>
+(HECL::BlenderConnection::PyOutStream& os,
+ const DNAMP3::MaterialSet& matSet,
+ const PAKRouter<DNAMP3::PAKBridge>& pakRouter,
+ const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ unsigned setIdx);
+
 class DLReader
 {
 public:

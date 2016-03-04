@@ -31,7 +31,7 @@
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"
-#include "CMain.hpp"
+#include "MP1.hpp"
 #include "CTimeProvider.hpp"
 
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
@@ -264,23 +264,4 @@ int CMain::appMain(boo::IApplication* app)
 }
 
 }
-}
-
-#ifdef _WIN32
-int wmain(int argc, const wchar_t* argv[])
-#else
-int main(int argc, const char* argv[])
-#endif
-{
-#if _WIN32
-    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-#else
-    std::setlocale(LC_ALL, "en-US.UTF-8");
-#endif
-
-    LogVisor::RegisterConsoleLogger();
-    pshag::TOneStatic<pshag::MP1::CMain> main;
-    int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,
-                                  _S("mp1"), _S("MP1"), argc, argv);
-    return ret;
 }

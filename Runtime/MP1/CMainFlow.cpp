@@ -1,7 +1,7 @@
 #include "CMainFlow.hpp"
+#include "MP1.hpp"
 #include "CArchitectureQueue.hpp"
 #include "CMFGame.hpp"
-#include "CMain.hpp"
 #include "CPlayMovie.hpp"
 #include "CResFactory.hpp"
 #include "CFrontEndUI.hpp"
