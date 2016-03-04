@@ -1416,18 +1416,20 @@ struct SpawnSystemKeyframeData : BigYAML
             r.leaveSubRecord();
         }
         spawns.clear();
-        if (r.enterSubVector("spawns"))
+        size_t spawnsCount;
+        if (r.enterSubVector("spawns", spawnsCount))
         {
-            spawns.reserve(r.getCurNode()->m_seqChildren.size());
+            spawns.reserve(spawnsCount);
             for (const auto& child : r.getCurNode()->m_seqChildren)
             {
                 if (r.enterSubRecord(nullptr))
                 {
                     spawns.emplace_back();
                     spawns.back().first = r.readUint32("startFrame");
-                    if (r.enterSubVector("systems"))
+                    size_t systemsCount;
+                    if (r.enterSubVector("systems", systemsCount))
                     {
-                        spawns.back().second.reserve(r.getCurNode()->m_seqChildren.size());
+                        spawns.back().second.reserve(systemsCount);
                         for (const auto& in : r.getCurNode()->m_seqChildren)
                         {
                             spawns.back().second.emplace_back();

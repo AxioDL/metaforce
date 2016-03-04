@@ -90,11 +90,7 @@ public:
         if (!g_PakRouter)
             LogDNACommon.report(LogVisor::FatalError,
             "UniqueIDBridge::setPakRouter must be called before translatePakIdToPath");
-        HECL::ProjectPath res = g_PakRouter->getWorking(id);
-        if (!res)
-            LogDNACommon.report(LogVisor::FatalError,
-            "unable to translate %s to path", id.toString().c_str());
-        return res;
+        return g_PakRouter->getWorking(id);
     }
     static HECL::ProjectPath MakePathFromString(const std::string& str)
     {
@@ -126,7 +122,10 @@ public:
     {
         if (!operator bool())
             return;
-        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
+        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        if (!path)
+            return;
+        writer.writeString(nullptr, path.getRelativePathUTF8());
     }
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
@@ -186,7 +185,10 @@ public:
     {
         if (!operator bool())
             return;
-        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
+        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        if (!path)
+            return;
+        writer.writeString(nullptr, path.getRelativePathUTF8());
     }
     size_t binarySize(size_t __isz) const
     {return __isz + 8;}
@@ -267,7 +269,10 @@ public:
     {
         if (!operator bool())
             return;
-        writer.writeString(nullptr, UniqueIDBridge::TranslatePakIdToPath(*this).getRelativePathUTF8());
+        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        if (!path)
+            return;
+        writer.writeString(nullptr, path.getRelativePathUTF8());
     }
     size_t binarySize(size_t __isz) const
     {return __isz + 16;}

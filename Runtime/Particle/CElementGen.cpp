@@ -276,7 +276,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
-    CIntElement* seedElem = desc->x1c_SEED.get();
+    CIntElement* seedElem = desc->x1c_x10_SEED.get();
     if (seedElem)
     {
         int seedVal;
@@ -361,7 +361,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         psivElem->GetValue(0, x218_PSIV);
     */
 
-    CIntElement* maxpElem = desc->x28_MAXP.get();
+    CIntElement* maxpElem = desc->x28_x1c_MAXP.get();
     if (maxpElem)
         maxpElem->GetValue(x50_curFrame, x70_MAXP);
 
@@ -375,7 +375,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     x225_26_LINE = desc->x44_24_x30_24_LINE;
     x225_27_FXLL = desc->x44_25_x30_25_FXLL;
 
-    CVectorElement* pofsElem = desc->x18_POFS.get();
+    CVectorElement* pofsElem = desc->x18_xc_POFS.get();
     if (pofsElem)
         pofsElem->GetValue(x50_curFrame, x94_POFS);
 
@@ -512,7 +512,7 @@ bool CElementGen::InternalUpdate(double dt)
         x2c0_maxSize = 0.f;
         float grte = 0.f;
         CParticleGlobals::SetEmitterTime(x50_curFrame);
-        CRealElement* grteElem = desc->x2c_GRTE.get();
+        CRealElement* grteElem = desc->x2c_x20_GRTE.get();
         if (grteElem->GetValue(x50_curFrame, grte))
         {
             x2c_particleLists.clear();
@@ -527,7 +527,7 @@ bool CElementGen::InternalUpdate(double dt)
         if (!x68_particleEmission || x50_curFrame >= x214_PSLT)
             genCount = 0;
 
-        CIntElement* maxpElem = desc->x28_MAXP.get();
+        CIntElement* maxpElem = desc->x28_x1c_MAXP.get();
         if (maxpElem)
             maxpElem->GetValue(x50_curFrame, x70_MAXP);
 
@@ -690,10 +690,10 @@ void CElementGen::UpdateExistingParticles()
 
         if (x225_26_LINE)
         {
-            CRealElement* leng = desc->x20_LENG.get();
+            CRealElement* leng = desc->x20_x14_LENG.get();
             if (leng)
                 err |= leng->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
-            CRealElement* widt = desc->x24_WIDT.get();
+            CRealElement* widt = desc->x24_x18_WIDT.get();
             if (widt)
                 err |= widt->GetValue(particleFrame, particle.x30_lineWidthOrRota);
         }
@@ -707,7 +707,7 @@ void CElementGen::UpdateExistingParticles()
                 err |= size->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
         }
 
-        CColorElement* colr = desc->x30_COLR.get();
+        CColorElement* colr = desc->x30_x24_COLR.get();
         if (colr)
             err |= colr->GetValue(particleFrame, particle.x34_color);
 
@@ -746,14 +746,14 @@ void CElementGen::CreateNewParticles(int count)
 
         CElementGen::CParticle& particle = g_StaticParticleList[staticIdx];
         particle.x28_startFrame = x50_curFrame;
-        CIntElement* ltme = desc->x34_LTME.get();
+        CIntElement* ltme = desc->x34_x28_LTME.get();
         if (ltme)
             ltme->GetValue(0, particle.x0_endFrame);
         CParticleGlobals::SetParticleLifetime(particle.x0_endFrame);
         CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
         particle.x0_endFrame += x50_curFrame;
 
-        CColorElement* colr = desc->x30_COLR.get();
+        CColorElement* colr = desc->x30_x24_COLR.get();
         if (colr)
             colr->GetValue(0, particle.x34_color);
         else
@@ -778,13 +778,13 @@ void CElementGen::CreateNewParticles(int count)
 
         if (x225_26_LINE)
         {
-            CRealElement* leng = desc->x20_LENG.get();
+            CRealElement* leng = desc->x20_x14_LENG.get();
             if (leng)
                 leng->GetValue(0, particle.x2c_lineLengthOrSize);
             else
                 particle.x2c_lineLengthOrSize = 1.f;
 
-            CRealElement* widt = desc->x24_WIDT.get();
+            CRealElement* widt = desc->x24_x18_WIDT.get();
             if (widt)
                 widt->GetValue(0, particle.x30_lineWidthOrRota);
             else
@@ -850,7 +850,7 @@ void CElementGen::UpdatePSTranslationAndOrientation()
     }
     */
 
-    CVectorElement* pofs = desc->x18_POFS.get();
+    CVectorElement* pofs = desc->x18_xc_POFS.get();
     if (pofs)
         pofs->GetValue(x50_curFrame, x94_POFS);
 
@@ -1441,7 +1441,7 @@ void CElementGen::RenderLines()
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
     }
 
-    CRealElement* widt = desc->x24_WIDT.get();
+    CRealElement* widt = desc->x24_x18_WIDT.get();
     bool widtConst = false;
     if (widt)
         widtConst = widt->IsConstant();
@@ -1701,7 +1701,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
                 float sinT = sinf(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = cosf(theta) * size;
 
                 switch (m_shaderClass)
                 {
@@ -1836,7 +1836,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
                 float sinT = sinf(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = cosf(theta) * size;
 
                 for (int i=0 ; i<mbspVal ; ++i)
                 {

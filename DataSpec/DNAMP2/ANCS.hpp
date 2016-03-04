@@ -139,7 +139,7 @@ struct ANCS : BigYAML
                 Value<atUint32> idx;
                 Value<atUint8> unk2;
                 Value<float> unk3;
-                Value<float> unk4;
+                Value<atUint32> unk4;
                 Value<atUint32> unk5;
             };
 

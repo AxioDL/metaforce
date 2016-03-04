@@ -873,7 +873,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x40_x2c_EMTR.reset(GetEmitterElement(in));
             break;
         case SBIG('COLR'):
-            fillDesc->x30_COLR.reset(GetColorElement(in));
+            fillDesc->x30_x24_COLR.reset(GetColorElement(in));
             break;
         case SBIG('CIND'):
             fillDesc->x45_30_x32_24_CIND = GetBool(in);
@@ -885,7 +885,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->xa0_x8c_CSSD.reset(GetIntElement(in));
             break;
         case SBIG('GRTE'):
-            fillDesc->x2c_GRTE.reset(GetRealElement(in));
+            fillDesc->x2c_x20_GRTE.reset(GetRealElement(in));
             break;
         case SBIG('FXLL'):
             fillDesc->x44_25_x30_25_FXLL = GetBool(in);
@@ -919,10 +919,10 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x104_xf0_LCLR.reset(GetColorElement(in));
             break;
         case SBIG('LENG'):
-            fillDesc->x20_LENG.reset(GetRealElement(in));
+            fillDesc->x20_x14_LENG.reset(GetRealElement(in));
             break;
         case SBIG('MAXP'):
-            fillDesc->x28_MAXP.reset(GetIntElement(in));
+            fillDesc->x28_x1c_MAXP.reset(GetIntElement(in));
             break;
         case SBIG('LOFF'):
             fillDesc->x10c_xf8_LOFF.reset(GetVectorElement(in));
@@ -940,7 +940,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x44_29_x30_29_LIT_ = GetBool(in);
             break;
         case SBIG('LTME'):
-            fillDesc->x34_LTME.reset(GetIntElement(in));
+            fillDesc->x34_x28_LTME.reset(GetIntElement(in));
             break;
         case SBIG('LSLA'):
             fillDesc->x11c_x108_LSLA.reset(GetRealElement(in));
@@ -991,7 +991,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x70_x5c_PMRT.reset(GetVectorElement(in));
             break;
         case SBIG('POFS'):
-            fillDesc->x18_POFS.reset(GetVectorElement(in));
+            fillDesc->x18_xc_POFS.reset(GetVectorElement(in));
             break;
         case SBIG('PMUS'):
             fillDesc->x45_24_x31_26_PMUS = GetBool(in);
@@ -1015,7 +1015,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x10_x4_PSWT.reset(GetIntElement(in));
             break;
         case SBIG('SEED'):
-            fillDesc->x1c_SEED.reset(GetIntElement(in));
+            fillDesc->x1c_x10_SEED.reset(GetIntElement(in));
             break;
         case SBIG('PMOO'):
             fillDesc->x45_25_x31_27_PMOO = GetBool(in);
@@ -1072,7 +1072,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x44_27_x30_27_ZBUF = GetBool(in);
             break;
         case SBIG('WIDT'):
-            fillDesc->x24_WIDT.reset(GetRealElement(in));
+            fillDesc->x24_x18_WIDT.reset(GetRealElement(in));
             break;
         case SBIG('ORNT'):
             fillDesc->x30_30_ORNT = GetBool(in);

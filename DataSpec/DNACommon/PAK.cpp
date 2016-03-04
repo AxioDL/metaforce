@@ -498,9 +498,11 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
 
     if (currentPAK)
     {
+#ifndef NDEBUG
         if (!silenceWarnings)
             LogDNACommon.report(LogVisor::Warning,
             "unable to find PAK entry %s in current PAK", entry.toString().c_str());
+#endif
         return nullptr;
     }
 
@@ -516,9 +518,11 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
         }
     }
 
+#ifndef NDEBUG
     if (!silenceWarnings)
         LogDNACommon.report(LogVisor::Warning,
         "unable to find PAK entry %s", entry.toString().c_str());
+#endif
     if (nodeOut)
         *nodeOut = nullptr;
     return nullptr;

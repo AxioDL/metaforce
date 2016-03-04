@@ -23,20 +23,20 @@ public:
     /* Naming convention: <demo-offset>_<retail-offset>_<name> */
 
     /* Removed from demo */
-    //std::unique_ptr<CVectorElement> x0_PSIV;
-    //std::unique_ptr<CModVectorElement> x4_PSVM;
-    //std::unique_ptr<CVectorElement> x8_PSOV;
+    // std::unique_ptr<CVectorElement> x0_PSIV;
+    // std::unique_ptr<CModVectorElement> x4_PSVM;
+    // std::unique_ptr<CVectorElement> x8_PSOV;
     std::unique_ptr<CIntElement> xc_x0_PSLT;
     std::unique_ptr<CIntElement> x10_x4_PSWT;
     std::unique_ptr<CRealElement> x14_x8_PSTS;
-    std::unique_ptr<CVectorElement> x18_POFS;
-    std::unique_ptr<CIntElement> x1c_SEED;
-    std::unique_ptr<CRealElement> x20_LENG;
-    std::unique_ptr<CRealElement> x24_WIDT;
-    std::unique_ptr<CIntElement> x28_MAXP;
-    std::unique_ptr<CRealElement> x2c_GRTE;
-    std::unique_ptr<CColorElement> x30_COLR;
-    std::unique_ptr<CIntElement> x34_LTME;
+    std::unique_ptr<CVectorElement> x18_xc_POFS;
+    std::unique_ptr<CIntElement> x1c_x10_SEED;
+    std::unique_ptr<CRealElement> x20_x14_LENG;
+    std::unique_ptr<CRealElement> x24_x18_WIDT;
+    std::unique_ptr<CIntElement> x28_x1c_MAXP;
+    std::unique_ptr<CRealElement> x2c_x20_GRTE;
+    std::unique_ptr<CColorElement> x30_x24_COLR;
+    std::unique_ptr<CIntElement> x34_x28_LTME;
     /* Removed from demo (replaced by EMTR) */
     // std::unique_ptr<CVectorElement> x38_ILOC;
     // std::unique_ptr<CVectorElement> x3c_IVEC;

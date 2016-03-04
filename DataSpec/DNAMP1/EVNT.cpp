@@ -50,20 +50,16 @@ void EVNT::read(Athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
-    atUint32 loopCount = reader.readUint32("loopCount");
-    reader.enumerate("loopEvents", loopEvents, loopCount);
+    reader.enumerate("loopEvents", loopEvents);
 
     uevtEvents.clear();
-    atUint32 uevtCount = reader.readUint32("uevtCount");
-    reader.enumerate("uevtEvents", uevtEvents, uevtCount);
+    reader.enumerate("uevtEvents", uevtEvents);
 
-    atUint32 effectCount = reader.readUint32("effectCount");
-    reader.enumerate("effectEvents", effectEvents, effectCount);
+    reader.enumerate("effectEvents", effectEvents);
 
     if (version == 2)
     {
-        atUint32 sfxCount = reader.readUint32("sfxCount");
-        reader.enumerate("sfxEvents", sfxEvents, sfxCount);
+        reader.enumerate("sfxEvents", sfxEvents);
     }
 }
 
@@ -71,18 +67,14 @@ void EVNT::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
-    writer.writeUint32("loopCount", loopEvents.size());
     writer.enumerate("loopEvents", loopEvents);
 
-    writer.writeUint32("uevtCount", uevtEvents.size());
     writer.enumerate("uevtEvents", uevtEvents);
 
-    writer.writeUint32("effectCount", effectEvents.size());
     writer.enumerate("effectEvents", effectEvents);
 
     if (version == 2)
     {
-        writer.writeUint32("sfxCount", sfxEvents.size());
         writer.enumerate("sfxEvents", sfxEvents);
     }
 }

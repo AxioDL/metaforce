@@ -84,16 +84,14 @@ void SCLY::read(Athena::io::YAMLDocReader& docin)
 {
     fourCC = docin.readUint32("fourCC");
     version = docin.readUint32("version");
-    layerCount = docin.readUint32("layerCount");
-    docin.enumerate("layerSizes", layerSizes, layerCount);
-    docin.enumerate("layers", layers, layerCount);
+    layerCount = docin.enumerate("layerSizes", layerSizes);
+    docin.enumerate("layers", layers);
 }
 
 void SCLY::write(Athena::io::YAMLDocWriter& docout) const
 {
     docout.writeUint32("fourCC", fourCC);
     docout.writeUint32("version", version);
-    docout.writeUint32("layerCount", layerCount);
     docout.enumerate("layerSizes", layerSizes);
     docout.enumerate("layers", layers);
 }
@@ -136,29 +134,35 @@ void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
 void SCLY::ScriptLayer::read(Athena::io::YAMLDocReader& rs)
 {
     unknown = rs.readUByte("unknown");
-    objectCount = rs.readUint32("objectCount");
-    objects.reserve(objectCount);
-    rs.enterSubVector("objects");
-    for (atUint32 i = 0; i < objectCount; i++)
+    size_t objCount;
+    objects.clear();
+    if (rs.enterSubVector("objects", objCount))
     {
-        rs.enterSubRecord(nullptr);
-        atUint8 type = rs.readUByte("type");
-        auto iter = std::find_if(SCRIPT_OBJECT_DB.begin(), SCRIPT_OBJECT_DB.end(), [&type](const ScriptObjectSpec* obj) -> bool
-        { return obj->type == type; });
-
-        if (iter != SCRIPT_OBJECT_DB.end())
+        objectCount = objCount;
+        objects.reserve(objCount);
+        for (atUint32 i = 0; i < objectCount; i++)
         {
-            std::unique_ptr<IScriptObject> obj((*iter)->a());
-            obj->read(rs);
-            obj->type = type;
-            objects.push_back(std::move(obj));
-        }
-        else
-            Log.report(LogVisor::FatalError, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+            rs.enterSubRecord(nullptr);
+            atUint8 type = rs.readUByte("type");
+            auto iter = std::find_if(SCRIPT_OBJECT_DB.begin(), SCRIPT_OBJECT_DB.end(), [&type](const ScriptObjectSpec* obj) -> bool
+            { return obj->type == type; });
 
-        rs.leaveSubRecord();
+            if (iter != SCRIPT_OBJECT_DB.end())
+            {
+                std::unique_ptr<IScriptObject> obj((*iter)->a());
+                obj->read(rs);
+                obj->type = type;
+                objects.push_back(std::move(obj));
+            }
+            else
+                Log.report(LogVisor::FatalError, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+
+            rs.leaveSubRecord();
+        }
+        rs.leaveSubVector();
     }
-    rs.leaveSubVector();
+    else
+        objectCount = 0;
 }
 
 void SCLY::ScriptLayer::write(Athena::io::IStreamWriter& ws) const
@@ -186,7 +190,6 @@ size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
 void SCLY::ScriptLayer::write(Athena::io::YAMLDocWriter& ws) const
 {
     ws.writeUByte("unknown", unknown);
-    ws.writeUint32("objectCount", objectCount);
     ws.enterSubVector("objects");
     for (const std::unique_ptr<IScriptObject>& obj : objects)
     {

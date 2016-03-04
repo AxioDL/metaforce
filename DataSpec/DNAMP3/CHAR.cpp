@@ -54,8 +54,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::YAMLDocReader& reader
     reader.enumerate("caudId", caudId);
     unk1 = reader.readUint32("unk1");
     unk2 = reader.readUint32("unk2");
-    unk3 = reader.readUint32("unk3");
-    reader.enumerate("unk3Vals", unk3Vals, unk3);
+    unk3 = reader.enumerate("unk3Vals", unk3Vals);
     extraType = reader.readUint32("extraType");
     if (extraType == 1)
         extraFloat = reader.readFloat("extraFloat");
@@ -67,7 +66,6 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::YAMLDocWriter& write
     writer.enumerate("caudId", caudId);
     writer.writeUint32("unk1", unk1);
     writer.writeUint32("unk2", unk2);
-    writer.writeUint32("unk3", unk3);
     writer.enumerate("unk3Vals", unk3Vals);
     writer.writeUint32("extraType", extraType);
     if (extraType == 1)

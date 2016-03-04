@@ -122,12 +122,10 @@ struct AFSM : public BigYAML
 
             void read(Athena::io::YAMLDocReader& __dna_docin)
             {
-                /* triggerCount */
-                triggerCount = __dna_docin.readUint32("triggerCount");
                 int i = 0;
                 /* triggers */
-                __dna_docin.enumerate<Trigger>("triggers", triggers, triggerCount,
-                                               [&](Athena::io::YAMLDocReader& in, Trigger& tr){
+                triggerCount = __dna_docin.enumerate<Trigger>("triggers", triggers,
+                [&](Athena::io::YAMLDocReader& in, Trigger& tr){
                     tr.first = i == 0;
                     tr.read(in);
                     i++;
@@ -136,8 +134,6 @@ struct AFSM : public BigYAML
 
             void write(Athena::io::YAMLDocWriter& __dna_docout) const
             {
-                /* triggerCount */
-                __dna_docout.writeUint32("triggerCount", triggerCount);
                 /* triggers */
                 __dna_docout.enumerate("triggers", triggers);
             }

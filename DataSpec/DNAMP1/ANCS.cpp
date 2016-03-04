@@ -82,7 +82,8 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(A
     parmType = reader.readUint32("parmType");
     unk1 = reader.readUint32("unk1");
     unk2 = reader.readFloat("unk2");
-    reader.enterSubVector("parmVals");
+    size_t parmValsCount;
+    reader.enterSubVector("parmVals", parmValsCount);
     switch (DataType(parmType))
     {
     case DataType::Int32:
@@ -247,17 +248,16 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(siz
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io::YAMLDocReader& reader)
 {
     id = reader.readUint32("id");
-    atUint32 parmInfoCount = reader.readUint32("parmInfoCount");
-    atUint32 animInfoCount = reader.readUint32("animInfoCount");
 
-    reader.enumerate("parmInfos", parmInfos, parmInfoCount);
+    size_t parmInfoCount = reader.enumerate("parmInfos", parmInfos);
 
-    reader.enumerate<AnimInfo>("animInfos", animInfos, animInfoCount,
+    reader.enumerate<AnimInfo>("animInfos", animInfos,
     [this, parmInfoCount](Athena::io::YAMLDocReader& reader, AnimInfo& ai)
     {
         ai.id = reader.readUint32("id");
         ai.parmVals.reserve(parmInfoCount);
-        reader.enterSubVector("parmVals");
+        size_t parmValsCount;
+        reader.enterSubVector("parmVals", parmValsCount);
         for (const ParmInfo& pi : parmInfos)
         {
             switch (ParmInfo::DataType(pi.parmType))
@@ -285,8 +285,6 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(Athena::io:
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(Athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("id", id);
-    writer.writeUint32("parmInfoCount", parmInfos.size());
-    writer.writeUint32("animInfoCount", animInfos.size());
 
     writer.enumerate("parmInfos", parmInfos);
 
@@ -533,25 +531,20 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
     reader.enumerate("cskr", cskr);
     reader.enumerate("cinf", cinf);
 
-    atUint32 animationCount = reader.readUint32("animationCount");
-    reader.enumerate("animations", animations, animationCount);
+    reader.enumerate("animations", animations);
 
     reader.enumerate("pasDatabase", pasDatabase);
 
-    atUint32 partCount = reader.readUint32("partCount");
-    reader.enumerate("part", partResData.part, partCount);
+    reader.enumerate("part", partResData.part);
 
-    atUint32 swhcCount = reader.readUint32("swhcCount");
-    reader.enumerate("swhc", partResData.swhc, swhcCount);
+    reader.enumerate("swhc", partResData.swhc);
 
-    atUint32 unkCount = reader.readUint32("unkCount");
-    reader.enumerate("unk", partResData.unk, unkCount);
+    reader.enumerate("unk", partResData.unk);
 
     partResData.elsc.clear();
     if (sectionCount > 5)
     {
-        atUint32 elscCount = reader.readUint32("elscCount");
-        reader.enumerate("elsc", partResData.elsc, elscCount);
+        reader.enumerate("elsc", partResData.elsc);
     }
 
     unk1 = reader.readUint32("unk1");
@@ -559,15 +552,13 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
     animAABBs.clear();
     if (sectionCount > 1)
     {
-        atUint32 aabbCount = reader.readUint32("animAABBCount");
-        reader.enumerate("part", animAABBs, aabbCount);
+        reader.enumerate("part", animAABBs);
     }
 
     effects.clear();
     if (sectionCount > 2)
     {
-        atUint32 effectCount = reader.readUint32("effectCount");
-        reader.enumerate("effects", effects, effectCount);
+        reader.enumerate("effects", effects);
     }
 
     if (sectionCount > 3)
@@ -579,8 +570,7 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
     animIdxs.clear();
     if (sectionCount > 4)
     {
-        atUint32 animIdxCount = reader.readUint32("animIdxCount");
-        reader.enumerate("animIdxs", animIdxs, animIdxCount);
+        reader.enumerate("animIdxs", animIdxs);
     }
 }
 
@@ -608,23 +598,18 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer)
     writer.enumerate("cskr", cskr);
     writer.enumerate("cinf", cinf);
 
-    writer.writeUint32("animationCount", animations.size());
     writer.enumerate("animations", animations);
 
     writer.enumerate("pasDatabase", pasDatabase);
 
-    writer.writeUint32("partCount", partResData.part.size());
     writer.enumerate("part", partResData.part);
 
-    writer.writeUint32("swhcCount", partResData.swhc.size());
     writer.enumerate("swhc", partResData.swhc);
 
-    writer.writeUint32("unkCount", partResData.unk.size());
     writer.enumerate("unk", partResData.unk);
 
     if (sectionCount > 5)
     {
-        writer.writeUint32("elscCount", partResData.elsc.size());
         writer.enumerate("elsc", partResData.elsc);
     }
 
@@ -632,13 +617,11 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer)
 
     if (sectionCount > 1)
     {
-        writer.writeUint32("animAABBCount", animAABBs.size());
         writer.enumerate("animAABBs", animAABBs);
     }
 
     if (sectionCount > 2)
     {
-        writer.writeUint32("effectCount", effects.size());
         writer.enumerate("effects", effects);
     }
 
@@ -650,7 +633,6 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer)
 
     if (sectionCount > 4)
     {
-        writer.writeUint32("animIdxCount", animIdxs.size());
         writer.enumerate("animIdxs", animIdxs);
     }
 }
@@ -961,18 +943,15 @@ void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
-    atUint32 animationCount = reader.readUint32("animationCount");
-    reader.enumerate("animations", animations, animationCount);
+    reader.enumerate("animations", animations);
 
-    atUint32 transitionCount = reader.readUint32("transitionCount");
-    reader.enumerate("transitions", transitions, transitionCount);
+    reader.enumerate("transitions", transitions);
     reader.enumerate("defaultTransition", defaultTransition);
 
     additiveAnims.clear();
     if (sectionCount > 1)
     {
-        atUint32 additiveAnimCount = reader.readUint32("additiveAnimCount");
-        reader.enumerate("additiveAnims", additiveAnims, additiveAnimCount);
+        reader.enumerate("additiveAnims", additiveAnims);
         floatA = reader.readFloat("floatA");
         floatB = reader.readFloat("floatB");
     }
@@ -980,15 +959,13 @@ void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
     halfTransitions.clear();
     if (sectionCount > 2)
     {
-        atUint32 halfTransitionCount = reader.readUint32("halfTransitionCount");
-        reader.enumerate("halfTransitions", halfTransitions, halfTransitionCount);
+        reader.enumerate("halfTransitions", halfTransitions);
     }
 
     animResources.clear();
     if (sectionCount > 3)
     {
-        atUint32 animResourcesCount = reader.readUint32("animResourcesCount");
-        reader.enumerate("animResources", animResources, animResourcesCount);
+        reader.enumerate("animResources", animResources);
     }
 }
 
@@ -1006,16 +983,13 @@ void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 
     writer.writeUint16("sectionCount", sectionCount);
 
-    writer.writeUint32("animationCount", animations.size());
     writer.enumerate("animations", animations);
 
-    writer.writeUint32("transitionCount", transitions.size());
     writer.enumerate("transitions", transitions);
     writer.enumerate("defaultTransition", defaultTransition);
 
     if (sectionCount > 1)
     {
-        writer.writeUint32("additiveAnimCount", additiveAnims.size());
         writer.enumerate("additiveAnims", additiveAnims);
         writer.writeFloat("floatA", floatA);
         writer.writeFloat("floatB", floatB);
@@ -1023,13 +997,11 @@ void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 
     if (sectionCount > 2)
     {
-        writer.writeUint32("halfTransitionCount", halfTransitions.size());
         writer.enumerate("halfTransitions", halfTransitions);
     }
 
     if (sectionCount > 3)
     {
-        writer.writeUint32("animResourcesCount", animResources.size());
         writer.enumerate("animResources", animResources);
     }
 }
