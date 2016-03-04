@@ -1,6 +1,6 @@
 #include "CRandom16.hpp"
 
-namespace pshag
+namespace urde
 {
 
 static CRandom16 DefaultRandom(0);

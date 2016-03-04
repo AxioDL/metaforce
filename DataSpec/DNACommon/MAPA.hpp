@@ -74,13 +74,13 @@ struct MAPA : BigDNA
     };
 
 
-    void read(Athena::io::IStreamReader& __dna_reader)
+    void read(athena::io::IStreamReader& __dna_reader)
     {
         /* magic */
         magic = __dna_reader.readUint32Big();
         if (magic != 0xDEADD00D)
         {
-            LogDNACommon.report(LogVisor::Error, "invalid MAPA magic");
+            LogDNACommon.report(logvisor::Error, "invalid MAPA magic");
             return;
         }
         /* version */
@@ -93,7 +93,7 @@ struct MAPA : BigDNA
             header.reset(new HeaderMP3);
         else
         {
-            LogDNACommon.report(LogVisor::Error, "invalid MAPA version");
+            LogDNACommon.report(logvisor::Error, "invalid MAPA version");
             return;
         }
 
@@ -118,7 +118,7 @@ struct MAPA : BigDNA
         __dna_reader.enumerate(surfaces, header->surfaceCount());
     }
 
-    void write(Athena::io::IStreamWriter& __dna_writer) const
+    void write(athena::io::IStreamWriter& __dna_writer) const
     {
         /* magic */
         __dna_writer.writeUint32Big(magic);
@@ -189,9 +189,9 @@ struct MAPA : BigDNA
         Value<Type> type;
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
-        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Seek<DNA_COUNT(4), athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        Seek<DNA_COUNT(0x10), athena::Current> seek2;
         virtual ~MappableObjectMP1_2()  {}
     };
 
@@ -202,9 +202,9 @@ struct MAPA : BigDNA
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
         Buffer<DNA_COUNT(0x10)> unknownHash;
-        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Seek<DNA_COUNT(4), athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        Seek<DNA_COUNT(0x10), athena::Current> seek2;
         virtual ~MappableObjectMP3()  {}
     };
 
@@ -252,21 +252,21 @@ struct MAPA : BigDNA
 };
 
 template <typename PAKRouter>
-bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
+bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const MAPA& mapa,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force)
 {
     /* Rename MAPA for consistency */
-    HECL::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
-    if (!force && mapaPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
+    if (!force && mapaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
-    if (!conn.createBlend(mapaPath, HECL::BlenderConnection::BlendType::MapArea))
+    if (!conn.createBlend(mapaPath, hecl::BlenderConnection::BlendType::MapArea))
         return false;
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy, bmesh\n"
           "from mathutils import Matrix\n"
@@ -450,8 +450,8 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
           "bm.free()\n";
 
     /* World background */
-    HECL::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
-    if (worldBlend.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
+    if (worldBlend.getPathType() == hecl::ProjectPath::Type::File)
         os.linkBackground("//../!world.blend", "World");
 
     os.centerView();

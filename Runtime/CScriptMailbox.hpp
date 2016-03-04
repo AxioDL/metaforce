@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CSCRIPTMAILBOX_HPP__
 #define __PSHAG_CSCRIPTMAILBOX_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CScriptMailbox

@@ -1,6 +1,6 @@
 #include "CCharAnimTime.hpp"
 
-namespace pshag
+namespace urde
 {
 
 }

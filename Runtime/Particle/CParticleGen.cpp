@@ -1,6 +1,6 @@
 #include "CParticleGen.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CParticleGen::AddModifier(CWarp* mod)

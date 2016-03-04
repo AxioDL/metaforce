@@ -1,7 +1,7 @@
-#include <Math.hpp>
+#include "zeus/Math.hpp"
 #include "CFinalInput.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CFinalInput::CFinalInput()
@@ -55,10 +55,10 @@ CFinalInput::CFinalInput(int cIdx, float dt,
                          float leftDiv, float rightDiv)
 : x0_dt(dt),
   x4_controllerIdx(cIdx),
-  x8_anaLeftX(Zeus::Math::clamp(-1.0f, data.m_leftStick[0] / 72.0f / leftDiv, 1.0f)),
-  xc_anaLeftY(Zeus::Math::clamp(-1.0f, data.m_leftStick[1] / 72.0f / leftDiv, 1.0f)),
-  x10_anaRightX(Zeus::Math::clamp(-1.0f, data.m_rightStick[0] / 59.0f / rightDiv, 1.0f)),
-  x14_anaRightY(Zeus::Math::clamp(-1.0f, data.m_rightStick[0] / 59.0f / rightDiv, 1.0f)),
+  x8_anaLeftX(zeus::clamp(-1.0f, data.m_leftStick[0] / 72.0f / leftDiv, 1.0f)),
+  xc_anaLeftY(zeus::clamp(-1.0f, data.m_leftStick[1] / 72.0f / leftDiv, 1.0f)),
+  x10_anaRightX(zeus::clamp(-1.0f, data.m_rightStick[0] / 59.0f / rightDiv, 1.0f)),
+  x14_anaRightY(zeus::clamp(-1.0f, data.m_rightStick[0] / 59.0f / rightDiv, 1.0f)),
   x18_anaLeftTrigger(data.m_analogTriggers[0] * 0.0066666668),
   x1c_anaRightTrigger(data.m_analogTriggers[1] * 0.0066666668),
   x20_enableAnaLeftXP(DLARight() && !prevInput.DLARight()),
@@ -184,13 +184,13 @@ CFinalInput::CFinalInput(int cIdx, float dt,
 {
     if (x8_anaLeftX || xc_anaLeftY)
     {
-        float len = sqrtf(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
+        float len = std::sqrt(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
         x8_anaLeftX /= len;
         xc_anaLeftY /= len;
     }
     if (x10_anaRightX || x14_anaRightY)
     {
-        float len = sqrtf(x10_anaRightX * x10_anaRightX + x14_anaRightY * x14_anaRightY);
+        float len = std::sqrt(x10_anaRightX * x10_anaRightX + x14_anaRightY * x14_anaRightY);
         x10_anaRightX /= len;
         x14_anaRightY /= len;
     }
@@ -198,17 +198,17 @@ CFinalInput::CFinalInput(int cIdx, float dt,
 
 CFinalInput& CFinalInput::operator|=(const CFinalInput& other)
 {
-    if (fabsf(other.x8_anaLeftX) > fabsf(x8_anaLeftX))
+    if (std::fabs(other.x8_anaLeftX) > std::fabs(x8_anaLeftX))
         x8_anaLeftX = other.x8_anaLeftX;
-    if (fabsf(other.xc_anaLeftY) > fabsf(xc_anaLeftY))
+    if (std::fabs(other.xc_anaLeftY) > std::fabs(xc_anaLeftY))
         xc_anaLeftY = other.xc_anaLeftY;
-    if (fabsf(other.x10_anaRightX) > fabsf(x10_anaRightX))
+    if (std::fabs(other.x10_anaRightX) > std::fabs(x10_anaRightX))
         x10_anaRightX = other.x10_anaRightX;
-    if (fabsf(other.x14_anaRightY) > fabsf(x14_anaRightY))
+    if (std::fabs(other.x14_anaRightY) > std::fabs(x14_anaRightY))
         x14_anaRightY = other.x14_anaRightY;
-    if (fabsf(other.x18_anaLeftTrigger) > fabsf(x18_anaLeftTrigger))
+    if (std::fabs(other.x18_anaLeftTrigger) > std::fabs(x18_anaLeftTrigger))
         x18_anaLeftTrigger = other.x18_anaLeftTrigger;
-    if (fabsf(other.x1c_anaRightTrigger) > fabsf(x1c_anaRightTrigger))
+    if (std::fabs(other.x1c_anaRightTrigger) > std::fabs(x1c_anaRightTrigger))
         x1c_anaRightTrigger = other.x1c_anaRightTrigger;
     x20_enableAnaLeftXP |= other.x20_enableAnaLeftXP;
     x20_enableAnaLeftNegXP |= other.x20_enableAnaLeftNegXP;

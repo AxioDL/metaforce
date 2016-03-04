@@ -4,7 +4,7 @@
 #include <string>
 #include <string.h>
 
-namespace pshag
+namespace urde
 {
 
 class CStringExtras

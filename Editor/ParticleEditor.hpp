@@ -15,13 +15,13 @@ class EffectEditor : public EditorSpace
     } m_state;
     const Space::State& spaceState() const {return m_state;}
 
-    struct View : Specter::View
+    struct View : specter::View
     {
-        View(Specter::ViewResources& res, Specter::View& parent)
-        : Specter::View(res, parent) {}
+        View(specter::ViewResources& res, specter::View& parent)
+        : specter::View(res, parent) {}
     };
 
-    Specter::View* buildContentView(Specter::ViewResources& res)
+    specter::View* buildContentView(specter::ViewResources& res)
     {
         return nullptr;
     }

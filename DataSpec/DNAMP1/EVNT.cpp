@@ -5,7 +5,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-void EVNT::read(Athena::io::IStreamReader& reader)
+void EVNT::read(athena::io::IStreamReader& reader)
 {
     version = reader.readUint32Big();
 
@@ -26,7 +26,7 @@ void EVNT::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void EVNT::write(Athena::io::IStreamWriter& writer) const
+void EVNT::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(version);
 
@@ -46,50 +46,42 @@ void EVNT::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
-void EVNT::read(Athena::io::YAMLDocReader& reader)
+void EVNT::read(athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
-    atUint32 loopCount = reader.readUint32("loopCount");
-    reader.enumerate("loopEvents", loopEvents, loopCount);
+    reader.enumerate("loopEvents", loopEvents);
 
     uevtEvents.clear();
-    atUint32 uevtCount = reader.readUint32("uevtCount");
-    reader.enumerate("uevtEvents", uevtEvents, uevtCount);
+    reader.enumerate("uevtEvents", uevtEvents);
 
-    atUint32 effectCount = reader.readUint32("effectCount");
-    reader.enumerate("effectEvents", effectEvents, effectCount);
+    reader.enumerate("effectEvents", effectEvents);
 
     if (version == 2)
     {
-        atUint32 sfxCount = reader.readUint32("sfxCount");
-        reader.enumerate("sfxEvents", sfxEvents, sfxCount);
+        reader.enumerate("sfxEvents", sfxEvents);
     }
 }
 
-void EVNT::write(Athena::io::YAMLDocWriter& writer) const
+void EVNT::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
-    writer.writeUint32("loopCount", loopEvents.size());
     writer.enumerate("loopEvents", loopEvents);
 
-    writer.writeUint32("uevtCount", uevtEvents.size());
     writer.enumerate("uevtEvents", uevtEvents);
 
-    writer.writeUint32("effectCount", effectEvents.size());
     writer.enumerate("effectEvents", effectEvents);
 
     if (version == 2)
     {
-        writer.writeUint32("sfxCount", sfxEvents.size());
         writer.enumerate("sfxEvents", sfxEvents);
     }
 }
 
 const char* EVNT::DNAType()
 {
-    return "Retro::DNAMP1::EVNT";
+    return "urde::DNAMP1::EVNT";
 }
 
 size_t EVNT::binarySize(size_t __isz) const

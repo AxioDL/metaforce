@@ -4,12 +4,12 @@
 
 namespace URDE
 {
-static LogVisor::LogModule Log("URDE::ProjectManager");
+static logvisor::Module Log("URDE::ProjectManager");
 
 void ProjectManager::IndexMP1Resources()
 {
-    const std::vector<HECL::Database::Project::ProjectDataSpec>& specs = m_proj->getDataSpecs();
-    for (const HECL::Database::Project::ProjectDataSpec& spec : m_proj->getDataSpecs())
+    const std::vector<hecl::Database::Project::ProjectDataSpec>& specs = m_proj->getDataSpecs();
+    for (const hecl::Database::Project::ProjectDataSpec& spec : m_proj->getDataSpecs())
     {
         if (&spec.spec == &DataSpec::SpecEntMP1)
         {
@@ -30,17 +30,17 @@ ProjectManager::ProjectManager(ViewManager &vm)
     }
 }
 
-bool ProjectManager::newProject(const HECL::SystemString& path)
+bool ProjectManager::newProject(const hecl::SystemString& path)
 {
-    HECL::ProjectRootPath projPath = HECL::SearchForProject(path);
+    hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
     if (projPath)
     {
-        Log.report(LogVisor::Warning, _S("project already exists at '%s'"), path.c_str());
+        Log.report(logvisor::Warning, _S("project already exists at '%s'"), path.c_str());
         return false;
     }
 
-    HECL::MakeDir(path.c_str());
-    m_proj.reset(new HECL::Database::Project(path));
+    hecl::MakeDir(path.c_str());
+    m_proj.reset(new hecl::Database::Project(path));
     if (!*m_proj)
     {
         m_proj.reset();
@@ -56,16 +56,16 @@ bool ProjectManager::newProject(const HECL::SystemString& path)
     return true;
 }
 
-bool ProjectManager::openProject(const HECL::SystemString& path)
+bool ProjectManager::openProject(const hecl::SystemString& path)
 {
-    HECL::ProjectRootPath projPath = HECL::SearchForProject(path);
+    hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
     if (!projPath)
     {
-        Log.report(LogVisor::Warning, _S("project doesn't exist at '%s'"), path.c_str());
+        Log.report(logvisor::Warning, _S("project doesn't exist at '%s'"), path.c_str());
         return false;
     }
 
-    m_proj.reset(new HECL::Database::Project(projPath));
+    m_proj.reset(new hecl::Database::Project(projPath));
     if (!*m_proj)
     {
         m_proj.reset();
@@ -73,23 +73,23 @@ bool ProjectManager::openProject(const HECL::SystemString& path)
     }
 
 #ifdef URDE_BINARY_CONFIGS
-    HECL::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
-    Athena::io::FileReader r(urdeSpacesPath.getAbsolutePath(), 32 * 1024, false);
+    hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
+    athena::io::FileReader r(urdeSpacesPath.getAbsolutePath(), 32 * 1024, false);
     if (r.hasError())
         goto makeDefault;
 
     m_vm.SetupEditorView(r);
 
 #else
-    HECL::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
-    FILE* fp = HECL::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
+    hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
+    FILE* fp = hecl::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
 
-    Athena::io::YAMLDocReader r;
+    athena::io::YAMLDocReader r;
     if (!fp)
         goto makeDefault;
 
     yaml_parser_set_input_file(r.getParser(), fp);
-    if (!r.ValidateClassType(r.getParser(), "UrdeSpacesState"))
+    if (!r.ValidateClassType("UrdeSpacesState"))
     {
         fclose(fp);
         goto makeDefault;
@@ -129,7 +129,7 @@ makeDefault:
     return true;
 }
 
-bool ProjectManager::extractGame(const HECL::SystemString& path)
+bool ProjectManager::extractGame(const hecl::SystemString& path)
 {
     return false;
 }
@@ -140,46 +140,38 @@ bool ProjectManager::saveProject()
         return false;
 
 #ifdef URDE_BINARY_CONFIGS
-    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.bin"));
-    Athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
+    hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.bin"));
+    athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
     if (w.hasError())
         return false;
 
     m_vm.SaveEditorView(w);
     w.close();
 
-    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
+    hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
 
 #else
-    HECL::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
-    FILE* fp = HECL::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
+    hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
+    FILE* fp = hecl::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
     if (!fp)
         return false;
 
-    Athena::io::YAMLDocWriter w("UrdeSpacesState");
+    athena::io::YAMLDocWriter w("UrdeSpacesState");
     yaml_emitter_set_output_file(w.getEmitter(), fp);
-    if (!w.open())
-    {
-        fclose(fp);
-        return false;
-    }
-
     m_vm.SaveEditorView(w);
     if (!w.finish())
     {
         fclose(fp);
         return false;
     }
-
-    w.close();
     fclose(fp);
 
-    HECL::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
+    hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
 
 #endif
 
-    HECL::Unlink(newSpacesPath.getAbsolutePath().c_str());
-    HECL::Rename(oldSpacesPath.getAbsolutePath().c_str(),
+    hecl::Unlink(newSpacesPath.getAbsolutePath().c_str());
+    hecl::Rename(oldSpacesPath.getAbsolutePath().c_str(),
                  newSpacesPath.getAbsolutePath().c_str());
 
     m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());

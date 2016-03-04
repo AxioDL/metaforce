@@ -1,6 +1,6 @@
 #include "CRumbleGenerator.hpp"
 
-namespace pshag
+namespace urde
 {
 CRumbleGenerator::CRumbleGenerator()
 {

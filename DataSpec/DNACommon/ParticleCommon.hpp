@@ -7,7 +7,7 @@ namespace DataSpec
 {
 namespace DNAParticle
 {
-extern LogVisor::LogModule LogModule;
+extern logvisor::Module LogModule;
 
 struct IElement : BigYAML
 {
@@ -23,11 +23,11 @@ struct RealElementFactory : BigYAML
     std::unique_ptr<IRealElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IIntElement : IElement {Delete _d;};
@@ -37,11 +37,11 @@ struct IntElementFactory : BigYAML
     std::unique_ptr<IIntElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IVectorElement : IElement {Delete _d;};
@@ -51,11 +51,11 @@ struct VectorElementFactory : BigYAML
     std::unique_ptr<IVectorElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IColorElement : IElement {Delete _d;};
@@ -65,11 +65,11 @@ struct ColorElementFactory : BigYAML
     std::unique_ptr<IColorElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IModVectorElement : IElement {Delete _d;};
@@ -79,11 +79,11 @@ struct ModVectorElementFactory : BigYAML
     std::unique_ptr<IModVectorElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IEmitterElement : IElement {Delete _d;};
@@ -93,11 +93,11 @@ struct EmitterElementFactory : BigYAML
     std::unique_ptr<IEmitterElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 struct IUVElement : IElement {Delete _d;};
@@ -108,11 +108,11 @@ struct BoolHelper : IElement
     bool value = false;
     operator bool() const {return value;}
     BoolHelper& operator=(bool val) {value = val; return *this;}
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         value = r.readBool(nullptr);
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.writeBool(nullptr, value);
     }
@@ -120,7 +120,7 @@ struct BoolHelper : IElement
     {
         return __isz + 5;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         uint32_t clsId;
         r.readBytesToBuf(&clsId, 4);
@@ -129,7 +129,7 @@ struct BoolHelper : IElement
         else
             value = false;
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"CNST", 4);
         w.writeBool(value);
@@ -150,11 +150,11 @@ struct REConstant : IRealElement
     Delete _d;
     Value<float> val;
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         val = r.readFloat(nullptr);
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.writeFloat(nullptr, val);
     }
@@ -162,11 +162,11 @@ struct REConstant : IRealElement
     {
         return __isz + 4;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         val = r.readFloatBig();
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeFloatBig(val);
     }
@@ -463,11 +463,11 @@ struct IEConstant : IIntElement
     Delete _d;
     Value<atUint32> val;
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         val = r.readUint32(nullptr);
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.writeUint32(nullptr, val);
     }
@@ -475,11 +475,11 @@ struct IEConstant : IIntElement
     {
         return __isz + 4;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         val = r.readUint32Big();
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeUint32Big(val);
     }
@@ -624,7 +624,7 @@ struct VEConstant : IVectorElement
     Delete _d;
     RealElementFactory comps[3];
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         for (int i=0 ; i<3 ; ++i)
         {
@@ -633,7 +633,7 @@ struct VEConstant : IVectorElement
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubVector(nullptr);
         for (int i=0 ; i<3 ; ++i)
@@ -650,13 +650,13 @@ struct VEConstant : IVectorElement
         __isz = comps[1].binarySize(__isz);
         return comps[2].binarySize(__isz);
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         comps[0].read(r);
         comps[1].read(r);
         comps[2].read(r);
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         comps[0].write(w);
         comps[1].write(w);
@@ -772,7 +772,7 @@ struct CEConstant : IColorElement
     Delete _d;
     RealElementFactory comps[4];
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         for (int i=0 ; i<4 ; ++i)
         {
@@ -781,7 +781,7 @@ struct CEConstant : IColorElement
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubVector(nullptr);
         for (int i=0 ; i<4 ; ++i)
@@ -799,14 +799,14 @@ struct CEConstant : IColorElement
         __isz = comps[2].binarySize(__isz);
         return comps[3].binarySize(__isz);
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         comps[0].read(r);
         comps[1].read(r);
         comps[2].read(r);
         comps[3].read(r);
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         comps[0].write(w);
         comps[1].write(w);
@@ -902,7 +902,7 @@ struct MVEConstant : IModVectorElement
     Delete _d;
     RealElementFactory comps[3];
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         for (int i=0 ; i<3 ; ++i)
         {
@@ -911,7 +911,7 @@ struct MVEConstant : IModVectorElement
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubVector(nullptr);
         for (int i=0 ; i<3 ; ++i)
@@ -928,13 +928,13 @@ struct MVEConstant : IModVectorElement
         __isz = comps[1].binarySize(__isz);
         return comps[2].binarySize(__isz);
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         comps[0].read(r);
         comps[1].read(r);
         comps[2].read(r);
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         comps[0].write(w);
         comps[1].write(w);
@@ -1039,7 +1039,7 @@ struct EESimpleEmitterTR : EESimpleEmitter
 {
     Delete _d;
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         position.m_elem.reset();
         velocity.m_elem.reset();
@@ -1054,7 +1054,7 @@ struct EESimpleEmitterTR : EESimpleEmitter
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubRecord("ILOC");
         position.write(w);
@@ -1070,7 +1070,7 @@ struct EESimpleEmitterTR : EESimpleEmitter
         __isz = velocity.binarySize(__isz);
         return __isz;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         position.m_elem.reset();
         velocity.m_elem.reset();
@@ -1084,7 +1084,7 @@ struct EESimpleEmitterTR : EESimpleEmitter
                 velocity.read(r);
         }
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"ILOC", 4);
         position.write(w);
@@ -1099,7 +1099,7 @@ struct UVEConstant : IUVElement
 {
     Delete _d;
     IDType tex;
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         tex.clear();
         if (r.enterSubRecord("tex"))
@@ -1108,7 +1108,7 @@ struct UVEConstant : IUVElement
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubRecord("tex");
         tex.write(w);
@@ -1118,7 +1118,7 @@ struct UVEConstant : IUVElement
     {
         return tex.binarySize(__isz + 4);
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         tex.clear();
         uint32_t clsId;
@@ -1126,7 +1126,7 @@ struct UVEConstant : IUVElement
         if (clsId == SBIG('CNST'))
             tex.read(r);
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"CNST", 4);
         tex.write(w);
@@ -1145,7 +1145,7 @@ struct UVEAnimTexture : IUVElement
     IntElementFactory strideH;
     IntElementFactory cycleFrames;
     Value<bool> loop = false;
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         tex.clear();
         if (r.enterSubRecord("tex"))
@@ -1184,7 +1184,7 @@ struct UVEAnimTexture : IUVElement
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         w.enterSubRecord("tex");
         tex.write(w);
@@ -1217,7 +1217,7 @@ struct UVEAnimTexture : IUVElement
         __isz = cycleFrames.binarySize(__isz);
         return __isz;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         tex.clear();
         uint32_t clsId;
@@ -1233,7 +1233,7 @@ struct UVEAnimTexture : IUVElement
         if (clsId == SBIG('CNST'))
             loop = r.readBool();
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"CNST", 4);
         tex.write(w);
@@ -1255,7 +1255,7 @@ struct UVElementFactory : BigYAML
     std::unique_ptr<IUVElement> m_elem;
     operator bool() const {return m_elem.operator bool();}
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         if (r.enterSubRecord("CNST"))
         {
@@ -1273,7 +1273,7 @@ struct UVElementFactory : BigYAML
             m_elem.reset();
     }
 
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         if (m_elem)
         {
@@ -1291,7 +1291,7 @@ struct UVElementFactory : BigYAML
             return __isz + 4;
     }
 
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         uint32_t clsId;
         r.readBytesToBuf(&clsId, 4);
@@ -1310,7 +1310,7 @@ struct UVElementFactory : BigYAML
         m_elem->read(r);
     }
 
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         if (m_elem)
         {
@@ -1339,7 +1339,7 @@ struct SpawnSystemKeyframeData : BigYAML
         Value<atUint32> b;
         Value<atUint32> c;
 
-        void read(Athena::io::YAMLDocReader& r)
+        void read(athena::io::YAMLDocReader& r)
         {
             if (r.enterSubRecord("id"))
             {
@@ -1362,7 +1362,7 @@ struct SpawnSystemKeyframeData : BigYAML
                 r.leaveSubRecord();
             }
         }
-        void write(Athena::io::YAMLDocWriter& w) const
+        void write(athena::io::YAMLDocWriter& w) const
         {
             w.enterSubRecord("id");
             id.write(w);
@@ -1375,14 +1375,14 @@ struct SpawnSystemKeyframeData : BigYAML
         {
             return id.binarySize(__isz + 12);
         }
-        void read(Athena::io::IStreamReader& r)
+        void read(athena::io::IStreamReader& r)
         {
             id.read(r);
             a = r.readUint32Big();
             b = r.readUint32Big();
             c = r.readUint32Big();
         }
-        void write(Athena::io::IStreamWriter& w) const
+        void write(athena::io::IStreamWriter& w) const
         {
             id.write(w);
             w.writeUint32Big(a);
@@ -1393,7 +1393,7 @@ struct SpawnSystemKeyframeData : BigYAML
 
     std::vector<std::pair<atUint32, std::vector<SpawnSystemKeyframeInfo>>> spawns;
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         if (r.enterSubRecord("a"))
         {
@@ -1416,18 +1416,20 @@ struct SpawnSystemKeyframeData : BigYAML
             r.leaveSubRecord();
         }
         spawns.clear();
-        if (r.enterSubVector("spawns"))
+        size_t spawnCount;
+        if (r.enterSubVector("spawns", spawnCount))
         {
-            spawns.reserve(r.getCurNode()->m_seqChildren.size());
+            spawns.reserve(spawnCount);
             for (const auto& child : r.getCurNode()->m_seqChildren)
             {
                 if (r.enterSubRecord(nullptr))
                 {
                     spawns.emplace_back();
                     spawns.back().first = r.readUint32("startFrame");
-                    if (r.enterSubVector("systems"))
+                    size_t systemCount;
+                    if (r.enterSubVector("systems", systemCount))
                     {
-                        spawns.back().second.reserve(r.getCurNode()->m_seqChildren.size());
+                        spawns.back().second.reserve(systemCount);
                         for (const auto& in : r.getCurNode()->m_seqChildren)
                         {
                             spawns.back().second.emplace_back();
@@ -1444,7 +1446,7 @@ struct SpawnSystemKeyframeData : BigYAML
             r.leaveSubVector();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         if (spawns.empty())
             return;
@@ -1480,7 +1482,7 @@ struct SpawnSystemKeyframeData : BigYAML
         }
         return __isz;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         uint32_t clsId;
         r.readBytesToBuf(&clsId, 4);
@@ -1507,7 +1509,7 @@ struct SpawnSystemKeyframeData : BigYAML
             }
         }
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         if (spawns.empty())
         {
@@ -1537,7 +1539,7 @@ struct ChildResourceFactory : BigYAML
 {
     Delete _d;
     IDType id;
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         id.clear();
         if (r.enterSubRecord("CNST"))
@@ -1546,7 +1548,7 @@ struct ChildResourceFactory : BigYAML
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         if (id)
         {
@@ -1562,7 +1564,7 @@ struct ChildResourceFactory : BigYAML
         else
             return __isz + 4;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         id.clear();
         uint32_t clsId;
@@ -1570,7 +1572,7 @@ struct ChildResourceFactory : BigYAML
         if (clsId == SBIG('CNST'))
             id.read(r);
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         if (id)
         {

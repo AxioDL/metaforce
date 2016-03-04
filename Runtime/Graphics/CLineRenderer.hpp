@@ -2,11 +2,11 @@
 #define __PSHAG_CLINERENDERER_HPP__
 
 #include "RetroTypes.hpp"
-#include "CVector3f.hpp"
-#include "CColor.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CColor.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CLineRenderer
@@ -26,16 +26,16 @@ private:
     bool m_final = false;
     bool m_textured;
 
-    Zeus::CVector3f m_firstPos;
-    Zeus::CVector3f m_secondPos;
-    Zeus::CVector2f m_firstUV;
-    Zeus::CColor m_firstColor;
+    zeus::CVector3f m_firstPos;
+    zeus::CVector3f m_secondPos;
+    zeus::CVector2f m_firstUV;
+    zeus::CColor m_firstColor;
     float m_firstWidth;
 
-    Zeus::CVector3f m_lastPos;
-    Zeus::CVector3f m_lastPos2;
-    Zeus::CVector2f m_lastUV;
-    Zeus::CColor m_lastColor;
+    zeus::CVector3f m_lastPos;
+    zeus::CVector3f m_lastPos2;
+    zeus::CVector2f m_lastUV;
+    zeus::CColor m_lastColor;
     float m_lastWidth;
 
 public:
@@ -47,9 +47,9 @@ public:
     CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive);
 
     void Reset();
-    void AddVertex(const Zeus::CVector3f& position, const Zeus::CColor& color, float width,
-                   const Zeus::CVector2f& uv=Zeus::CVector2f::skZero);
-    void Render(const Zeus::CColor& moduColor=Zeus::CColor::skWhite);
+    void AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,
+                   const zeus::CVector2f& uv=zeus::CVector2f::skZero);
+    void Render(const zeus::CColor& moduColor=zeus::CColor::skWhite);
 
     static void Initialize();
     static void Shutdown();

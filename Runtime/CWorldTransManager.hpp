@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CWORLDTRANSMANAGER_HPP__
 #define __PSHAG_CWORLDTRANSMANAGER_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CWorldTransManager

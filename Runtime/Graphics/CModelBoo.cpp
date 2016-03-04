@@ -1,6 +1,6 @@
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CModel::Draw(const CModelFlags& flags) const

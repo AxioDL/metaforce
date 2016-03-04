@@ -14,7 +14,7 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/PART_(File_Format) */
 
-namespace pshag
+namespace urde
 {
 
 class CGenDescription

@@ -268,7 +268,7 @@ struct MaterialSet : BigDNA
                 Eight
             } mode;
             float vals[9];
-            void read(Athena::io::IStreamReader& reader)
+            void read(athena::io::IStreamReader& reader)
             {
                 mode = Mode(reader.readUint32Big());
                 switch (mode)
@@ -303,7 +303,7 @@ struct MaterialSet : BigDNA
                     break;
                 }
             }
-            void write(Athena::io::IStreamWriter& writer) const
+            void write(athena::io::IStreamWriter& writer) const
             {
                 writer.writeUint32Big(atUint32(mode));
                 switch (mode)
@@ -365,21 +365,21 @@ struct MaterialSet : BigDNA
         };
         Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
 
-        static void AddTexture(HECL::BlenderConnection::PyOutStream& out,
+        static void AddTexture(hecl::BlenderConnection::PyOutStream& out,
                                GX::TexGenSrc type, int mtxIdx, uint32_t texIdx);
-        static void AddTextureAnim(HECL::BlenderConnection::PyOutStream& out,
+        static void AddTextureAnim(hecl::BlenderConnection::PyOutStream& out,
                                    MaterialSet::Material::UVAnimation::Mode type,
                                    unsigned idx, const float* vals);
-        static void AddKcolor(HECL::BlenderConnection::PyOutStream& out,
+        static void AddKcolor(hecl::BlenderConnection::PyOutStream& out,
                               const GX::Color& col, unsigned idx);
-        static void AddDynamicColor(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
-        static void AddDynamicAlpha(HECL::BlenderConnection::PyOutStream& out, unsigned idx);
+        static void AddDynamicColor(hecl::BlenderConnection::PyOutStream& out, unsigned idx);
+        static void AddDynamicAlpha(hecl::BlenderConnection::PyOutStream& out, unsigned idx);
 
         Material() = default;
-        Material(const HECL::Backend::GX& gx,
+        Material(const hecl::Backend::GX& gx,
                  const std::unordered_map<std::string, int32_t>& iprops,
-                 const std::vector<HECL::ProjectPath>& texPathsIn,
-                 std::vector<HECL::ProjectPath>& texPathsOut,
+                 const std::vector<hecl::ProjectPath>& texPathsIn,
+                 std::vector<hecl::ProjectPath>& texPathsOut,
                  int colorCount,
                  int uvCount,
                  bool lightmapUVs,
@@ -388,12 +388,12 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
-    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out);
-    static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out);
+    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)
@@ -416,7 +416,7 @@ struct MaterialSet : BigDNA
                     ++stageIdx;
                     continue;
                 }
-                const NOD::Node* node;
+                const nod::Node* node;
                 typename PAKRouter::EntryType* texEntry = (typename PAKRouter::EntryType*)
                 pakRouter.lookupEntry(head.textureIDs[mat.textureIdxs[texInfo.texSlot]], &node);
                 if (texEntry->name.size())
@@ -427,9 +427,9 @@ struct MaterialSet : BigDNA
                     continue;
                 }
                 if (setIdx < 0)
-                    texEntry->name = HECL::Format("%s_%d_%d", prefix, matIdx, stageIdx);
+                    texEntry->name = hecl::Format("%s_%d_%d", prefix, matIdx, stageIdx);
                 else
-                    texEntry->name = HECL::Format("%s_%d_%d_%d", prefix, setIdx, matIdx, stageIdx);
+                    texEntry->name = hecl::Format("%s_%d_%d_%d", prefix, setIdx, matIdx, stageIdx);
 
                 if (mat.flags.lightmap() && stageIdx == 0)
                 {
@@ -468,14 +468,14 @@ struct HMDLMaterialSet : BigDNA
         Vector<MaterialSet::Material::UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
 
         String<-1> heclSource;
-        HECL::Frontend::IR heclIr;
+        hecl::Frontend::IR heclIr;
 
         Material() = default;
-        Material(HECL::Frontend::Frontend& FE,
+        Material(hecl::Frontend::Frontend& FE,
                  const std::string& diagName,
-                 const HECL::BlenderConnection::DataStream::Mesh::Material& mat,
+                 const hecl::BlenderConnection::DataStream::Mesh::Material& mat,
                  const std::unordered_map<std::string, int32_t>& iprops,
-                 const std::vector<HECL::ProjectPath>& texPaths);
+                 const std::vector<hecl::ProjectPath>& texPaths);
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 };

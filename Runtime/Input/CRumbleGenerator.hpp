@@ -3,7 +3,7 @@
 
 #include "CRumbleVoice.hpp"
 
-namespace pshag
+namespace urde
 {
 class CRumbleGenerator
 {

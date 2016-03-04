@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-namespace pshag
+namespace urde
 {
 class CArchitectureMessage;
 class CArchitectureQueue;

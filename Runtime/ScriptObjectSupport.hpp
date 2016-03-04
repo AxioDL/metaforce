@@ -1,7 +1,7 @@
 #ifndef __SCRIPT_OBJECT_SUPPORT_HPP__
 #define __SCRIPT_OBJECT_SUPPORT_HPP__
 
-namespace pshag
+namespace urde
 {
 
 enum class EScriptObjectState

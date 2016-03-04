@@ -1,6 +1,6 @@
 #include "CDvdRequest.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CNODDvdRequest::WaitUntilComplete()

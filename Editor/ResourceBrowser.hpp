@@ -3,12 +3,12 @@
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
-#include "Specter/PathButtons.hpp"
+#include "specter/PathButtons.hpp"
 
 namespace URDE
 {
 
-class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
+class ResourceBrowser : public Space, public specter::IPathButtonsBinding
 {
     struct State : Space::State
     {
@@ -22,22 +22,22 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
             Size
         };
         Value<SortColumn> sortColumn = SortColumn::Name;
-        Value<Specter::SortDirection> sortDir = Specter::SortDirection::Ascending;
+        Value<specter::SortDirection> sortDir = specter::SortDirection::Ascending;
     } m_state;
     const Space::State& spaceState() const {return m_state;}
 
-    HECL::ProjectPath m_path;
-    std::vector<HECL::SystemString> m_comps;
+    hecl::ProjectPath m_path;
+    std::vector<hecl::SystemString> m_comps;
 
     void pathButtonActivated(size_t idx);
 
-    struct ResListingDataBind : Specter::ITableDataBinding, Specter::ITableStateBinding
+    struct ResListingDataBind : specter::ITableDataBinding, specter::ITableStateBinding
     {
         ResourceBrowser& m_rb;
 
         struct Entry
         {
-            HECL::SystemString m_path;
+            hecl::SystemString m_path;
             std::string m_name;
             std::string m_type;
             std::string m_size;
@@ -97,21 +97,21 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
             m_rb.m_state.columnSplits[cIdx] = split;
         }
 
-        void updateListing(const HECL::DirectoryEnumerator& dEnum)
+        void updateListing(const hecl::DirectoryEnumerator& dEnum)
         {
             m_entries.clear();
             m_entries.reserve(dEnum.size());
 
-            for (const HECL::DirectoryEnumerator::Entry& d : dEnum)
+            for (const hecl::DirectoryEnumerator::Entry& d : dEnum)
             {
                 m_entries.emplace_back();
                 Entry& ent = m_entries.back();
                 ent.m_path = d.m_path;
-                HECL::SystemUTF8View nameUtf8(d.m_name);
+                hecl::SystemUTF8View nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
                 {
-                    if (HECL::SearchForProject(d.m_path))
+                    if (hecl::SearchForProject(d.m_path))
                         ent.m_type = m_projStr;
                     else
                         ent.m_type = m_dirStr;
@@ -119,8 +119,8 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
                 else
                 {
                     ent.m_type = m_fileStr;
-                    ent.m_size = HECL::HumanizeNumber(d.m_fileSz, 7, nullptr, int(HECL::HNScale::AutoScale),
-                                                      HECL::HNFlags::B | HECL::HNFlags::Decimal);
+                    ent.m_size = hecl::HumanizeNumber(d.m_fileSz, 7, nullptr, int(hecl::HNScale::AutoScale),
+                                                      hecl::HNFlags::B | hecl::HNFlags::Decimal);
                 }
             }
 
@@ -129,7 +129,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
 
         bool m_needsUpdate = false;
 
-        Specter::SortDirection getSort(size_t& cIdx) const
+        specter::SortDirection getSort(size_t& cIdx) const
         {
             cIdx = size_t(m_rb.m_state.sortColumn);
             if (cIdx > 2)
@@ -137,7 +137,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
             return m_rb.m_state.sortDir;
         }
 
-        void setSort(size_t cIdx, Specter::SortDirection dir)
+        void setSort(size_t cIdx, specter::SortDirection dir)
         {
             m_rb.m_state.sortDir = dir;
             m_needsUpdate = true;
@@ -151,7 +151,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
         {
         }
 
-        ResListingDataBind(ResourceBrowser& rb, const Specter::IViewManager& vm)
+        ResListingDataBind(ResourceBrowser& rb, const specter::IViewManager& vm)
         : m_rb(rb)
         {
             m_nameCol = vm.translateOr("name", "Name");
@@ -164,16 +164,16 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
 
     } m_fileListingBind;
 
-    struct View : Specter::View
+    struct View : specter::View
     {
         ResourceBrowser& m_ro;
-        Specter::ViewChild<std::unique_ptr<Specter::Table>> m_fileListing;
+        specter::ViewChild<std::unique_ptr<specter::Table>> m_fileListing;
 
-        View(ResourceBrowser& ro, Specter::ViewResources& res)
-        : Specter::View(res, ro.m_vm.rootView()), m_ro(ro)
+        View(ResourceBrowser& ro, specter::ViewResources& res)
+        : specter::View(res, ro.m_vm.rootView()), m_ro(ro)
         {
             commitResources(res);
-            m_fileListing.m_view.reset(new Specter::Table(res, *this, &ro.m_fileListingBind, &ro.m_fileListingBind, 3));
+            m_fileListing.m_view.reset(new specter::Table(res, *this, &ro.m_fileListingBind, &ro.m_fileListingBind, 3));
         }
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -186,7 +186,7 @@ class ResourceBrowser : public Space, public Specter::IPathButtonsBinding
     };
     std::unique_ptr<View> m_view;
 
-    std::unique_ptr<Specter::PathButtons> m_pathButtons;
+    std::unique_ptr<specter::PathButtons> m_pathButtons;
 
 public:
     ResourceBrowser(ViewManager& vm, Space* parent)
@@ -210,30 +210,30 @@ public:
 
     void reloadState()
     {
-        HECL::ProjectPath pp(*m_vm.project(), m_state.path);
-        if (m_state.path.empty() || pp.getPathType() == HECL::ProjectPath::Type::None)
+        hecl::ProjectPath pp(*m_vm.project(), m_state.path);
+        if (m_state.path.empty() || pp.getPathType() == hecl::ProjectPath::Type::None)
         {
             m_state.path = m_vm.project()->getProjectWorkingPath().getRelativePathUTF8();
-            navigateToPath(HECL::ProjectPath(*m_vm.project(), m_state.path));
+            navigateToPath(hecl::ProjectPath(*m_vm.project(), m_state.path));
         }
         else
             navigateToPath(pp);
     }
 
-    bool navigateToPath(const HECL::ProjectPath& path);
+    bool navigateToPath(const hecl::ProjectPath& path);
 
     Space* copy(Space* parent) const
     {
         return new ResourceBrowser(m_vm, parent, *this);
     }
 
-    void buildToolbarView(Specter::ViewResources &res, Specter::Toolbar &tb)
+    void buildToolbarView(specter::ViewResources &res, specter::Toolbar &tb)
     {
-        m_pathButtons.reset(new Specter::PathButtons(res, tb, *this, true));
+        m_pathButtons.reset(new specter::PathButtons(res, tb, *this, true));
         tb.push_back(m_pathButtons.get(), 0);
     }
 
-    Specter::View* buildContentView(Specter::ViewResources& res)
+    specter::View* buildContentView(specter::ViewResources& res)
     {
         m_view.reset(new View(*this, res));
         return m_view.get();

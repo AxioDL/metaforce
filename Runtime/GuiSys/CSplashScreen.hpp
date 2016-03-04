@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CSPLASHSCREEN_HPP__
 #define __PSHAG_CSPLASHSCREEN_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CSplashScreen

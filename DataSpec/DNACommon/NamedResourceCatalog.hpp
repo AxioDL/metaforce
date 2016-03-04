@@ -16,7 +16,7 @@ struct NamedResourceCatalog : BigYAML
         String<-1> name;
         IDType uid;
 
-        void read(Athena::io::IStreamReader& __dna_reader)
+        void read(athena::io::IStreamReader& __dna_reader)
         {
             /* type */
             type.read(__dna_reader);
@@ -26,7 +26,7 @@ struct NamedResourceCatalog : BigYAML
             uid.read(__dna_reader);
         }
 
-        void write(Athena::io::IStreamWriter& __dna_writer) const
+        void write(athena::io::IStreamWriter& __dna_writer) const
         {
             /* type */
             type.write(__dna_writer);
@@ -36,7 +36,7 @@ struct NamedResourceCatalog : BigYAML
             uid.write(__dna_writer);
         }
 
-        void read(Athena::io::YAMLDocReader& __dna_docin)
+        void read(athena::io::YAMLDocReader& __dna_docin)
         {
             /* type */
             __dna_docin.enumerate("type", type);
@@ -46,7 +46,7 @@ struct NamedResourceCatalog : BigYAML
             __dna_docin.enumerate("uid", uid);
         }
 
-        void write(Athena::io::YAMLDocWriter& __dna_docout) const
+        void write(athena::io::YAMLDocWriter& __dna_docout) const
         {
             /* type */
             __dna_docout.enumerate("type", type);
@@ -56,7 +56,7 @@ struct NamedResourceCatalog : BigYAML
             __dna_docout.enumerate("uid", uid);
         }
 
-        static const char* DNAType() { return "DataSpec::DNACommon::NameResourceCatalog::NamedResource"; }
+        static const char* DNAType() { return "DataSpec::DNACommon::NameResourceCatalogvisor::NamedResource"; }
 
         size_t binarySize(size_t __isz) const
         {
@@ -68,7 +68,7 @@ struct NamedResourceCatalog : BigYAML
     };
     Vector<NamedResource, DNA_COUNT(namedResCount)> namedResources;
 
-    void read(Athena::io::IStreamReader& __dna_reader)
+    void read(athena::io::IStreamReader& __dna_reader)
     {
         /* namedResCount */
         namedResCount = __dna_reader.readUint32Big();
@@ -76,7 +76,7 @@ struct NamedResourceCatalog : BigYAML
         __dna_reader.enumerate(namedResources, namedResCount);
     }
 
-    void write(Athena::io::IStreamWriter& __dna_writer) const
+    void write(athena::io::IStreamWriter& __dna_writer) const
     {
         /* namedResCount */
         __dna_writer.writeUint32Big(namedResCount);
@@ -84,18 +84,14 @@ struct NamedResourceCatalog : BigYAML
         __dna_writer.enumerate(namedResources);
     }
 
-    void read(Athena::io::YAMLDocReader& __dna_docin)
+    void read(athena::io::YAMLDocReader& __dna_docin)
     {
-        /* namedResCount */
-        namedResCount = __dna_docin.readUint32("namedResCount");
         /* namedResources */
-        __dna_docin.enumerate("namedResources", namedResources, namedResCount);
+        namedResCount = __dna_docin.enumerate("namedResources", namedResources);
     }
 
-    void write(Athena::io::YAMLDocWriter& __dna_docout) const
+    void write(athena::io::YAMLDocWriter& __dna_docout) const
     {
-        /* namedResCount */
-        __dna_docout.writeUint32("namedResCount", namedResCount);
         /* namedResources */
         __dna_docout.enumerate("namedResources", namedResources);
     }

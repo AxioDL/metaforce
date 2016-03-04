@@ -1,7 +1,7 @@
 #ifndef __PSHAG_IOBJECTSTORE_HPP__
 #define __PSHAG_IOBJECTSTORE_HPP__
 
-namespace pshag
+namespace urde
 {
 struct SObjectTag;
 class CVParamTransfer;

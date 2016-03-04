@@ -7,7 +7,7 @@
 #include "CGameOptions.hpp"
 #include "CWorldTransManager.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CGameState

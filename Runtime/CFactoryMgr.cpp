@@ -1,10 +1,10 @@
 #include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 
-namespace pshag
+namespace urde
 {
 
-CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, pshag::CInputStream& in,
+CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, urde::CInputStream& in,
                                          const CVParamTransfer& paramXfer)
 {
     auto search = m_factories.find(tag.type);
@@ -23,12 +23,12 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, void* 
 
     if (compressed)
     {
-        CZipInputStream r(std::make_unique<Athena::io::MemoryReader>(buf, size));
+        CZipInputStream r(std::make_unique<athena::io::MemoryReader>(buf, size));
         return search->second(tag, r, paramXfer);
     }
     else
     {
-        Athena::io::MemoryReader r(buf, size);
+        athena::io::MemoryReader r(buf, size);
         return search->second(tag, r, paramXfer);
     }
 }

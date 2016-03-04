@@ -7,7 +7,7 @@
 #include "rstl.hpp"
 #include "CArchitectureQueue.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CIOWinManager

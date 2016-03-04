@@ -11,7 +11,7 @@ namespace DataSpec
 namespace DNAANCS
 {
 
-using Actor = HECL::BlenderConnection::DataStream::Actor;
+using Actor = hecl::BlenderConnection::DataStream::Actor;
 
 template <typename IDTYPE>
 struct CharacterResInfo
@@ -20,7 +20,7 @@ struct CharacterResInfo
     IDTYPE cmdl;
     IDTYPE cskr;
     IDTYPE cinf;
-    std::vector<std::pair<HECL::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
+    std::vector<std::pair<hecl::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
 };
 
 template <typename IDTYPE>
@@ -33,13 +33,13 @@ struct AnimationResInfo
 };
 
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
-bool ReadANCSToBlender(HECL::BlenderConnection& conn,
+bool ReadANCSToBlender(hecl::BlenderConnection& conn,
                        const ANCSDNA& ancs,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
-                       std::function<void(const HECL::SystemChar*)> fileChanged,
+                       std::function<void(const hecl::SystemChar*)> fileChanged,
                        bool force=false)
 {    
     /* Extract character CMDL/CSKR first */
@@ -47,17 +47,18 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
     ancs.getCharacterResInfo(chResInfo);
     for (const auto& info : chResInfo)
     {
-        const NOD::Node* node;
+        const nod::Node* node;
         const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true, true);
         if (cmdlE)
         {
-            HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-            if (force || cmdlPath.getPathType() == HECL::ProjectPath::Type::None)
+            hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+            if (force || cmdlPath.getPathType() == hecl::ProjectPath::Type::None)
             {
-                if (!conn.createBlend(cmdlPath, HECL::BlenderConnection::BlendType::Mesh))
+                if (!conn.createBlend(cmdlPath, hecl::BlenderConnection::BlendType::Mesh))
                     return false;
 
-                HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(*cmdlE));
+                std::string bestName = pakRouter.getBestEntryName(*cmdlE);
+                hecl::SystemStringView bestNameView(bestName);
                 fileChanged(bestNameView.sys_str().c_str());
 
                 typename ANCSDNA::CSKRType cskr;
@@ -76,13 +77,14 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         }
     }
 
-    HECL::SystemStringView bestNameView(pakRouter.getBestEntryName(entry));
+    std::string bestName = pakRouter.getBestEntryName(entry);
+    hecl::SystemStringView bestNameView(bestName);
     fileChanged(bestNameView.sys_str().c_str());
 
     /* Establish ANCS blend */
-    if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Actor))
+    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Actor))
         return false;
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
     os.format("import bpy\n"
               "from mathutils import Vector\n"
@@ -125,7 +127,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
         const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true, true);
         if (cmdlE)
         {
-            HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+            hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
             os.linkBlend(cmdlPath.getAbsolutePathUTF8().c_str(),
                          pakRouter.getBestEntryName(*cmdlE).c_str(), true);
 
@@ -147,7 +149,7 @@ bool ReadANCSToBlender(HECL::BlenderConnection& conn,
             const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true, true);
             if (cmdlE)
             {
-                HECL::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+                hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
                 os.linkBlend(cmdlPath.getAbsolutePathUTF8().c_str(),
                              pakRouter.getBestEntryName(*cmdlE).c_str(), true);
 

@@ -1,7 +1,7 @@
 #include "IOStreams.hpp"
 #include "CMemory.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CZipSupport

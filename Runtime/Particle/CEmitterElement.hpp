@@ -5,7 +5,7 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Emitter_Elements */
 
-namespace pshag
+namespace urde
 {
 
 class CEESimpleEmitter : public CEmitterElement
@@ -15,7 +15,7 @@ class CEESimpleEmitter : public CEmitterElement
 public:
     CEESimpleEmitter(CVectorElement* a, CVectorElement* b)
     : x4_loc(a), x8_vec(b) {}
-    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
+    bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
 };
 
 class CVESphere : public CEmitterElement
@@ -26,7 +26,7 @@ class CVESphere : public CEmitterElement
 public:
     CVESphere(CVectorElement* a, CRealElement* b, CRealElement* c)
     : x4_sphereOrigin(a), x8_sphereRadius(b), xc_velocityMag(c) {}
-    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
+    bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
 };
 
 class CVEAngleSphere : public CEmitterElement
@@ -42,7 +42,7 @@ public:
     CVEAngleSphere(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d,
                    CRealElement* e, CRealElement* f, CRealElement* g)
     : x4_sphereOrigin(a), x8_sphereRadius(b), xc_velocityMag(c), x10_angleXBias(d), x14_angleYBias(e), x18_angleXRange(f), x1c_angleYRange(g) {}
-    bool GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const;
+    bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
 };
 
 }

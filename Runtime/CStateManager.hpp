@@ -5,7 +5,7 @@
 #include "CBasics.hpp"
 #include "ScriptObjectSupport.hpp"
 
-namespace pshag
+namespace urde
 {
 class CScriptMailbox;
 class CMapWorldInfo;

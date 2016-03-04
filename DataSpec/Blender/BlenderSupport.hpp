@@ -1,14 +1,14 @@
 #ifndef _RETRO_BLENDER_SUPPORT_HPP_
 #define _RETRO_BLENDER_SUPPORT_HPP_
 
-#include <HECL/HECL.hpp>
+#include <hecl/hecl.hpp>
 
 namespace DataSpec
 {
 namespace Blender
 {
 
-bool BuildMasterShader(const HECL::ProjectPath& path);
+bool BuildMasterShader(const hecl::ProjectPath& path);
 
 }
 }

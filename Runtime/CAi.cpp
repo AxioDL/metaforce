@@ -1,6 +1,6 @@
 #include "CAi.hpp"
 
-namespace pshag
+namespace urde
 {
 
 }

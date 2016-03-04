@@ -1,6 +1,6 @@
 #include "CDvdRequest.hpp"
 
-namespace Retro
+namespace urde
 {
 
 void CDvdRequest::WaitUntilComplete()

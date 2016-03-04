@@ -5,7 +5,7 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
 
-namespace pshag
+namespace urde
 {
 
 class CCEKeyframeEmitter : public CColorElement
@@ -16,10 +16,10 @@ class CCEKeyframeEmitter : public CColorElement
     bool xd_unk2;
     u32 x10_loopEnd;
     u32 x14_loopStart;
-    std::vector<Zeus::CColor> x18_keys;
+    std::vector<zeus::CColor> x18_keys;
 public:
     CCEKeyframeEmitter(CInputStream& in);
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEConstant : public CColorElement
@@ -31,16 +31,16 @@ class CCEConstant : public CColorElement
 public:
     CCEConstant(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d)
     : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEFastConstant : public CColorElement
 {
-    Zeus::CColor x4_val;
+    zeus::CColor x4_val;
 public:
     CCEFastConstant(float a, float b, float c, float d)
     : x4_val(a, b, c, d) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCETimeChain : public CColorElement
@@ -51,7 +51,7 @@ class CCETimeChain : public CColorElement
 public:
     CCETimeChain(CColorElement* a, CColorElement* b, CIntElement* c)
     : x4_a(a), x8_b(b), xc_swFrame(c) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEFadeEnd : public CColorElement
@@ -63,7 +63,7 @@ class CCEFadeEnd : public CColorElement
 public:
     CCEFadeEnd(CColorElement* a, CColorElement* b, CRealElement* c, CRealElement* d)
     : x4_a(a), x8_b(b), xc_startFrame(c), x10_endFrame(d) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEFade : public CColorElement
@@ -74,7 +74,7 @@ class CCEFade : public CColorElement
 public:
     CCEFade(CColorElement* a, CColorElement* b, CRealElement* c)
     : x4_a(a), x8_b(b), xc_endFrame(c) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEPulse : public CColorElement
@@ -86,13 +86,13 @@ class CCEPulse : public CColorElement
 public:
     CCEPulse(CIntElement* a, CIntElement* b, CColorElement* c, CColorElement* d)
     : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
 class CCEParticleColor : public CColorElement
 {
 public:
-    bool GetValue(int frame, Zeus::CColor& colorOut) const;
+    bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 }
 

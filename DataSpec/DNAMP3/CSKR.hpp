@@ -41,7 +41,7 @@ struct CSKR : BigDNA
         return mtxBindings.at(idx).mtxs;
     }
 
-    void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atInt16 skinIdx) const
+    void weightVertex(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, atInt16 skinIdx) const
     {
         if (skinIdx < 0)
             return;

@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CHIERARCHYPOSEBUILDER_HPP__
 #define __PSHAG_CHIERARCHYPOSEBUILDER_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CHierarchyPoseBuilder

@@ -1,7 +1,7 @@
 #include "CMainFlowBase.hpp"
 #include "CArchitectureMessage.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CIOWin::EMessageReturn CMainFlowBase::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)

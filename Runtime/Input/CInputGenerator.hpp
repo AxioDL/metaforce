@@ -6,7 +6,7 @@
 #include "CFinalInput.hpp"
 #include "CKeyboardMouseController.hpp"
 
-namespace pshag
+namespace urde
 {
 class CArchitectureQueue;
 

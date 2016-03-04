@@ -4,11 +4,11 @@
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
 #include "CGenDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
-namespace pshag
+namespace urde
 {
 static const std::vector<FourCC> SFXTypes =
 {

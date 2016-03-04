@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 cmake_policy(SET CMP0054 NEW)
-project(PathShagged)
+project(urde)
 if(MSVC)
   # Shaddup MSVC
   add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1 /wd4267 /wd4244 /wd4305 /MP)
@@ -53,7 +53,7 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
     endif()
 endif()
 
-set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/libBoo/include)
+set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)
 set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
                      ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)
 
@@ -67,25 +67,25 @@ set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace DataSpec
 {
-    extern HECL::Database::DataSpecEntry SpecEntMP1;
-    extern HECL::Database::DataSpecEntry SpecEntMP2;
-    extern HECL::Database::DataSpecEntry SpecEntMP3;
+    extern hecl::Database::DataSpecEntry SpecEntMP1;
+    extern hecl::Database::DataSpecEntry SpecEntMP2;
+    extern hecl::Database::DataSpecEntry SpecEntMP3;
 }")
 set(HECL_DATASPEC_PUSHES
 "    /* RetroCommon */
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
-    HECL::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);")
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);")
 add_subdirectory(hecl)
 add_definitions(${BOO_SYS_DEFINES})
-add_subdirectory(libSpecter)
-set(SPECTER_INCLUDE_DIR libSpecter/include libSpecter/freetype2/include)
-add_subdirectory(NODLib)
-set(NODLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NODLib/include)
+add_subdirectory(specter)
+set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
+add_subdirectory(nod)
+set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
 add_definitions(-DZE_ATHENA_TYPES=1)
-set(MATHLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libSpecter/MathLib/include)
-include_directories(${ATHENA_INCLUDE_DIR} ${LOG_VISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${NODLIB_INCLUDE_DIR} ${MATHLIB_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
+set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
+include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
+                    ${NOD_INCLUDE_DIR} ${ZEUS_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
                     ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 add_subdirectory(Editor)

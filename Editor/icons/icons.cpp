@@ -1,5 +1,5 @@
 #include "icons.hpp"
-#include "Athena/MemoryReader.hpp"
+#include "athena/MemoryReader.hpp"
 #include <zlib.h>
 
 extern "C" uint8_t URDE_ICONS[];
@@ -7,16 +7,16 @@ extern "C" size_t URDE_ICONS_SZ;
 
 namespace URDE
 {
-static LogVisor::LogModule Log("URDE::icons");
+static logvisor::Module Log("URDE::icons");
 
-Specter::IconAtlas<8,8> g_IconAtlas;
+specter::IconAtlas<8,8> g_IconAtlas;
 
-boo::GraphicsDataToken InitializeIcons(Specter::ViewResources& viewRes)
+boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
 {
-    Athena::io::MemoryReader r(URDE_ICONS, URDE_ICONS_SZ);
+    athena::io::MemoryReader r(URDE_ICONS, URDE_ICONS_SZ);
     size_t fmt = r.readUint32Big();
     if (fmt != 16)
-        Log.report(LogVisor::FatalError, "incorrect icon texture format");
+        Log.report(logvisor::Fatal, "incorrect icon texture format");
     size_t width = r.readUint16Big();
     size_t height = r.readUint16Big();
     size_t mips = r.readUint32Big();
@@ -26,14 +26,14 @@ boo::GraphicsDataToken InitializeIcons(Specter::ViewResources& viewRes)
     uLongf destSz = decompSz;
     size_t pos = r.position();
     if (uncompress(texels.get(), &destSz, URDE_ICONS + pos, URDE_ICONS_SZ - pos) != Z_OK)
-        Log.report(LogVisor::FatalError, "unable to decompress icons");
+        Log.report(logvisor::Fatal, "unable to decompress icons");
 
     g_IconAtlas.initializeAtlas(viewRes.m_factory->newStaticTexture(width, height, mips, boo::TextureFormat::RGBA8,
                                                                     texels.get(), destSz));
     return viewRes.m_factory->commit();
 }
 
-Specter::Icon& GetIcon(SpaceIcon icon)
+specter::Icon& GetIcon(SpaceIcon icon)
 {
     switch (icon)
     {
@@ -50,7 +50,7 @@ Specter::Icon& GetIcon(SpaceIcon icon)
     }
 }
 
-Specter::Icon& GetIcon(MonoIcon icon)
+specter::Icon& GetIcon(MonoIcon icon)
 {
     switch (icon)
     {

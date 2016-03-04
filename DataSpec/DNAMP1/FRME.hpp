@@ -3,7 +3,7 @@
 
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
-#include <Athena/FileWriter.hpp>
+#include <athena/FileWriter.hpp>
 
 namespace DataSpec
 {
@@ -39,8 +39,8 @@ struct FRME : BigDNA
         struct IWidgetInfo : BigDNA
         {
             Delete _d;
-            virtual void read(Athena::io::IStreamReader&) {}
-            void write(Athena::io::IStreamWriter&) const {}
+            virtual void read(athena::io::IStreamReader&) {}
+            void write(athena::io::IStreamWriter&) const {}
             size_t binarySize(size_t __isz) const { return __isz; }
         };
 
@@ -219,11 +219,11 @@ struct FRME : BigDNA
     Vector<Widget, DNA_COUNT(widgetCount)> widgets;
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged);
+                        std::function<void(const hecl::SystemChar*)> fileChanged);
 };
 
 }

@@ -1,6 +1,6 @@
 #ifndef __PSHAG__CTIMEPROVIDER_HPP__
 #define __PSHAG__CTIMEPROVIDER_HPP__
-namespace pshag
+namespace urde
 {
 class CTimeProvider;
 class CTimeProvider

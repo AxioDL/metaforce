@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_SCAN_HPP_
 #define _DNAMP1_SCAN_HPP_
 
-#include <Athena/FileWriter.hpp>
+#include <athena/FileWriter.hpp>
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
@@ -59,7 +59,7 @@ struct SCAN : BigYAML
         Value<float>    interval;     // 0.0 - 1.0
         Value<float>    fadeDuration; // 0.0 - 1.0
 
-        void read(Athena::io::IStreamReader& __dna_reader)
+        void read(athena::io::IStreamReader& __dna_reader)
         {
             /* texture */
             texture.read(__dna_reader);
@@ -77,7 +77,7 @@ struct SCAN : BigYAML
             fadeDuration = __dna_reader.readFloatBig();
         }
 
-        void write(Athena::io::IStreamWriter& __dna_writer) const
+        void write(athena::io::IStreamWriter& __dna_writer) const
         {
             /* texture */
             texture.write(__dna_writer);
@@ -95,7 +95,7 @@ struct SCAN : BigYAML
             __dna_writer.writeFloatBig(fadeDuration);
         }
 
-        void read(Athena::io::YAMLDocReader& __dna_docin)
+        void read(athena::io::YAMLDocReader& __dna_docin)
         {
             /* texture */
             __dna_docin.enumerate("texture", texture);
@@ -120,7 +120,7 @@ struct SCAN : BigYAML
             fadeDuration = __dna_docin.readFloat("fadeDuration");
         }
 
-        void write(Athena::io::YAMLDocWriter& __dna_docout) const
+        void write(athena::io::YAMLDocWriter& __dna_docout) const
         {
             /* texture */
             __dna_docout.enumerate("texture", texture);
@@ -141,7 +141,7 @@ struct SCAN : BigYAML
             __dna_docout.writeFloat("fadeDuration", fadeDuration);
         }
 
-        const char* DNAType() { return "Retro::DNAMP1::SCAN::Texture"; }
+        const char* DNAType() { return "urde::DNAMP1::SCAN::Texture"; }
         size_t binarySize(size_t __isz) const
         {
             __isz = texture.binarySize(__isz);
@@ -152,23 +152,23 @@ struct SCAN : BigYAML
 
     Texture textures[4];
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         SCAN scan;
         scan.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         scan.toYAMLFile(fp);
         fclose(fp);
         return true;
     }
 
-    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
     {
         SCAN scan;
-        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+        FILE* fp = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
         scan.fromYAMLFile(fp);
         fclose(fp);
-        Athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
         scan.write(ws);
         return true;
     }
@@ -183,7 +183,7 @@ struct SCAN : BigYAML
         if (scan.string)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(scan.string);
-            ent->name = HECL::Format("SCAN_%s_strg", entry.id.toString().c_str());
+            ent->name = hecl::Format("SCAN_%s_strg", entry.id.toString().c_str());
         }
         for (int i=0 ; i<4 ; ++i)
         {
@@ -191,7 +191,7 @@ struct SCAN : BigYAML
             if (tex.texture)
             {
                 PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tex.texture);
-                ent->name = HECL::Format("SCAN_%s_tex%d", entry.id.toString().c_str(), i+1);
+                ent->name = hecl::Format("SCAN_%s_tex%d", entry.id.toString().c_str(), i+1);
             }
         }
     }

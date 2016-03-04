@@ -1,6 +1,6 @@
 #include "CMapWorldInfo.hpp"
 
-namespace pshag
+namespace urde
 {
 
 }

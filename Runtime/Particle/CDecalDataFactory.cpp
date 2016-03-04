@@ -4,13 +4,13 @@
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
 #include "CParticleDataFactory.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CDecalDataFactory");
+static logvisor::Module Log("urde::CDecalDataFactory");
 
 using CPF = CParticleDataFactory;
 CDecalDescription* CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
@@ -92,7 +92,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown DPSC class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(logvisor::Fatal, "Unknown DPSC class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }

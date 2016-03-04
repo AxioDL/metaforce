@@ -2,11 +2,11 @@
 #include "CElementGen.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
-#include <math.h>
+#include "zeus/Math.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
 
-namespace pshag
+namespace urde
 {
 
 CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in)
@@ -24,7 +24,7 @@ CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in)
         x18_keys.push_back(in.readVec4fBig());
 }
 
-bool CCEKeyframeEmitter::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const
 {
     if (!x4_percent)
     {
@@ -60,24 +60,24 @@ bool CCEKeyframeEmitter::GetValue(int frame, Zeus::CColor& valOut) const
     return false;
 }
 
-bool CCEConstant::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEConstant::GetValue(int frame, zeus::CColor& valOut) const
 {
     float a, b, c, d;
     x4_a->GetValue(frame, a);
     x8_b->GetValue(frame, b);
     xc_c->GetValue(frame, c);
     x10_d->GetValue(frame, d);
-    valOut = Zeus::CColor(a, b, c, d);
+    valOut = zeus::CColor(a, b, c, d);
     return false;
 }
 
-bool CCEFastConstant::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEFastConstant::GetValue(int frame, zeus::CColor& valOut) const
 {
     valOut = x4_val;
     return false;
 }
 
-bool CCETimeChain::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCETimeChain::GetValue(int frame, zeus::CColor& valOut) const
 {
     int v;
     xc_swFrame->GetValue(frame, v);
@@ -87,7 +87,7 @@ bool CCETimeChain::GetValue(int frame, Zeus::CColor& valOut) const
         return x4_a->GetValue(frame, valOut);
 }
 
-bool CCEFadeEnd::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEFadeEnd::GetValue(int frame, zeus::CColor& valOut) const
 {
     float c;
     xc_startFrame->GetValue(frame, c);
@@ -101,17 +101,17 @@ bool CCEFadeEnd::GetValue(int frame, Zeus::CColor& valOut) const
     float d;
     x10_endFrame->GetValue(frame, d);
 
-    Zeus::CColor colA;
-    Zeus::CColor colB;
+    zeus::CColor colA;
+    zeus::CColor colB;
     x4_a->GetValue(frame, colA);
     x8_b->GetValue(frame, colB);
 
     float t = (frame - c) / (d - c);
-    valOut = Zeus::CColor::lerp(colA, colB, t);
+    valOut = zeus::CColor::lerp(colA, colB, t);
     return false;
 }
 
-bool CCEFade::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEFade::GetValue(int frame, zeus::CColor& valOut) const
 {
     float c;
     xc_endFrame->GetValue(frame, c);
@@ -123,21 +123,21 @@ bool CCEFade::GetValue(int frame, Zeus::CColor& valOut) const
         return false;
     }
 
-    Zeus::CColor colA;
-    Zeus::CColor colB;
+    zeus::CColor colA;
+    zeus::CColor colB;
     x4_a->GetValue(frame, colA);
     x8_b->GetValue(frame, colB);
 
-    valOut = Zeus::CColor::lerp(colA, colB, t);
+    valOut = zeus::CColor::lerp(colA, colB, t);
     return false;
 }
 
-bool CCEPulse::GetValue(int frame, Zeus::CColor& valOut) const
+bool CCEPulse::GetValue(int frame, zeus::CColor& valOut) const
 {
     int a, b;
     x4_aDuration->GetValue(frame, a);
     x8_bDuration->GetValue(frame, b);
-    int cv = std::max(1, a + b + 1);
+    int cv = zeus::max(1, a + b + 1);
 
     if (b >= 1)
     {
@@ -153,7 +153,7 @@ bool CCEPulse::GetValue(int frame, Zeus::CColor& valOut) const
     return false;
 }
 
-bool CCEParticleColor::GetValue(int /*frame*/, Zeus::CColor& colorOut) const
+bool CCEParticleColor::GetValue(int /*frame*/, zeus::CColor& colorOut) const
 {
     colorOut = CElementGen::g_currentParticle->x34_color;
     return false;

@@ -3,7 +3,7 @@
 namespace DataSpec
 {
 
-LogVisor::LogModule LogDNACommon("Retro::DNACommon");
+logvisor::Module LogDNACommon("urde::DNACommon");
 SpecBase* g_curSpec = nullptr;
 
 }

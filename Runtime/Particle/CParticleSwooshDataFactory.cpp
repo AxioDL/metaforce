@@ -2,13 +2,13 @@
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
 #include "CGenDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CRandom16.hpp"
 #include "CSimplePool.hpp"
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CParticleSwooshDataFactory");
+static logvisor::Module Log("urde::CParticleSwooshDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -127,7 +127,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown SWSH class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(logvisor::Fatal, "Unknown SWSH class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }
@@ -137,7 +137,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
     return true;
 }
 
-std::unique_ptr<pshag::IObj> FParticleSwooshDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
+std::unique_ptr<urde::IObj> FParticleSwooshDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
     return TToken<CSwooshDescription>::GetIObjObjectFor(std::unique_ptr<CSwooshDescription>(CParticleSwooshDataFactory::GetGeneratorDesc(in, sp)));

@@ -5,25 +5,25 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
-#include "Runtime/CModel.hpp"
-#include "Runtime/CTexture.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
 namespace URDE
 {
 
 ProjectResourceFactory::ProjectResourceFactory()
 {
-    m_factoryMgr.AddFactory(HECL::FOURCC('TXTR'), pshag::FTextureFactory);
-    m_factoryMgr.AddFactory(HECL::FOURCC('PART'), pshag::FParticleFactory);
+    m_factoryMgr.AddFactory(hecl::FOURCC('TXTR'), urde::FTextureFactory);
+    m_factoryMgr.AddFactory(hecl::FOURCC('PART'), urde::FParticleFactory);
 }
 
-void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::ProjectDataSpec &spec)
+void ProjectResourceFactory::BuildObjectMap(const hecl::Database::Project::ProjectDataSpec &spec)
 {
     m_resPaths.clear();
     m_namedResources.clear();
-    HECL::SystemString catalogPath = HECL::ProjectPath(spec.cookedPath, HECL::SystemString(spec.spec.m_name) + _S("/catalog.yaml")).getAbsolutePath();
-    FILE* catalogFile = HECL::Fopen(catalogPath.c_str(), _S("r"));
-    if (!HECL::StrCmp(spec.spec.m_name, _S("MP3")))
+    hecl::SystemString catalogPath = hecl::ProjectPath(spec.cookedPath, hecl::SystemString(spec.spec.m_name) + _S("/catalog.yaml")).getAbsolutePath();
+    FILE* catalogFile = hecl::Fopen(catalogPath.c_str(), _S("r"));
+    if (!hecl::StrCmp(spec.spec.m_name, _S("MP3")))
     {
         DataSpec::NamedResourceCatalog<DataSpec::UniqueID64> catalog;
         if (catalogFile)
@@ -39,51 +39,51 @@ void ProjectResourceFactory::BuildObjectMap(const HECL::Database::Project::Proje
     }
 }
 
-std::unique_ptr<pshag::IObj> ProjectResourceFactory::Build(const pshag::SObjectTag& tag,
-                                                           const pshag::CVParamTransfer& paramXfer)
+std::unique_ptr<urde::IObj> ProjectResourceFactory::Build(const urde::SObjectTag& tag,
+                                                           const urde::CVParamTransfer& paramXfer)
 {
     auto search = m_resPaths.find(tag);
     if (search == m_resPaths.end())
         return {};
 
     fprintf(stderr, "Loading resource %s\n", search->second.getRelativePath().c_str());
-    Athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
+    athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
     if (fr.hasError())
         return {};
 
     return m_factoryMgr.MakeObject(tag, fr, paramXfer);
 }
 
-void ProjectResourceFactory::BuildAsync(const pshag::SObjectTag& tag,
-                                        const pshag::CVParamTransfer& paramXfer,
-                                        pshag::IObj** objOut)
+void ProjectResourceFactory::BuildAsync(const urde::SObjectTag& tag,
+                                        const urde::CVParamTransfer& paramXfer,
+                                        urde::IObj** objOut)
 {
-    std::unique_ptr<pshag::IObj> obj = Build(tag, paramXfer);
+    std::unique_ptr<urde::IObj> obj = Build(tag, paramXfer);
     *objOut = obj.release();
 }
 
-void ProjectResourceFactory::CancelBuild(const pshag::SObjectTag&)
+void ProjectResourceFactory::CancelBuild(const urde::SObjectTag&)
 {
 }
 
-bool ProjectResourceFactory::CanBuild(const pshag::SObjectTag& tag)
+bool ProjectResourceFactory::CanBuild(const urde::SObjectTag& tag)
 {
     auto search = m_resPaths.find(tag);
     if (search == m_resPaths.end())
         return false;
 
-    Athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
+    athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
     if (fr.hasError())
         return false;
 
     return true;
 }
 
-const pshag::SObjectTag* ProjectResourceFactory::GetResourceIdByName(const char* name) const
+const urde::SObjectTag* ProjectResourceFactory::GetResourceIdByName(const char* name) const
 {
     if (m_namedResources.find(name) == m_namedResources.end())
         return nullptr;
-    const pshag::SObjectTag& tag = m_namedResources.at(name);
+    const urde::SObjectTag& tag = m_namedResources.at(name);
     return &tag;
 }
 

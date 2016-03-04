@@ -2,19 +2,19 @@
 #define __PSHAG_CELEMENTGEN_HPP__
 
 #include "RetroTypes.hpp"
-#include "CTransform.hpp"
-#include "CVector3f.hpp"
-#include "CColor.hpp"
-#include "CAABox.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CColor.hpp"
+#include "zeus/CAABox.hpp"
 #include "CToken.hpp"
-#include "CLight.hpp"
-#include "CGraphics.hpp"
+#include "Graphics/CLight.hpp"
+#include "Graphics/CGraphics.hpp"
 #include "CRandom16.hpp"
 #include "CParticleGen.hpp"
 #include "CElementGenShaders.hpp"
 #include "Graphics/CLineRenderer.hpp"
 
-namespace pshag
+namespace urde
 {
 class CWarp;
 class CLight;
@@ -48,7 +48,7 @@ public:
     {
         friend class CElementGen;
         s16 x0_partIdx;
-        Zeus::CVector3f x4_viewPoint;
+        zeus::CVector3f x4_viewPoint;
     public:
         CParticleListItem(s16 idx)
         : x0_partIdx(idx)
@@ -63,13 +63,13 @@ public:
     struct CParticle
     {
         int x0_endFrame = 0;
-        Zeus::CVector3f x4_pos;
-        Zeus::CVector3f x10_prevPos;
-        Zeus::CVector3f x1c_vel;
+        zeus::CVector3f x4_pos;
+        zeus::CVector3f x10_prevPos;
+        zeus::CVector3f x1c_vel;
         int x28_startFrame = 0;
         float x2c_lineLengthOrSize = 0.f;
         float x30_lineWidthOrRota = 0.f;
-        Zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
+        zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
     };
     static CParticle* g_currentParticle;
 private:
@@ -77,7 +77,7 @@ private:
     TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
     std::vector<CParticleListItem> x2c_particleLists;
-    std::vector<Zeus::CMatrix3f> x3c_parentMatrices;
+    std::vector<zeus::CMatrix3f> x3c_parentMatrices;
     u32 x4c_internalStartFrame = 0;
     u32 x50_curFrame = 0;
     double x58_curSeconds = 0.f;
@@ -88,23 +88,23 @@ private:
     int x70_MAXP = 0;
     u16 x74_randomSeed = 99;
     float x78_generatorRate = 1.f;
-    Zeus::CVector3f x7c_translation;
-    Zeus::CVector3f x88_globalTranslation;
-    Zeus::CVector3f x94_POFS;
-    Zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
-    Zeus::CTransform xac_globalScaleTransform = Zeus::CTransform::Identity();
-    Zeus::CTransform xdc_globalScaleTransformInverse = Zeus::CTransform::Identity();
-    Zeus::CVector3f x10c_localScale = {1.f, 1.f, 1.f};
-    Zeus::CTransform x118_localScaleTransform = Zeus::CTransform::Identity();
-    Zeus::CTransform x148_localScaleTransformInverse = Zeus::CTransform::Identity();
-    Zeus::CTransform x178_orientation = Zeus::CTransform::Identity();
-    Zeus::CTransform x1a8_orientationInverse = Zeus::CTransform::Identity();
-    Zeus::CTransform x1d8_globalOrientation = Zeus::CTransform::Identity();
+    zeus::CVector3f x7c_translation;
+    zeus::CVector3f x88_globalTranslation;
+    zeus::CVector3f x94_POFS;
+    zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
+    zeus::CTransform xac_globalScaleTransform = zeus::CTransform::Identity();
+    zeus::CTransform xdc_globalScaleTransformInverse = zeus::CTransform::Identity();
+    zeus::CVector3f x10c_localScale = {1.f, 1.f, 1.f};
+    zeus::CTransform x118_localScaleTransform = zeus::CTransform::Identity();
+    zeus::CTransform x148_localScaleTransformInverse = zeus::CTransform::Identity();
+    zeus::CTransform x178_orientation = zeus::CTransform::Identity();
+    zeus::CTransform x1a8_orientationInverse = zeus::CTransform::Identity();
+    zeus::CTransform x1d8_globalOrientation = zeus::CTransform::Identity();
     u32 x208_activeParticleCount = 0;
     u32 x20c_recursiveParticleCount = 0;
     u32 x210_curEmitterFrame = 0;
     int x214_PSLT = 90;//0x7fffff;
-    Zeus::CVector3f x218_PSIV;
+    zeus::CVector3f x218_PSIV;
     bool x224_24_translationDirty = false;
     bool x224_25_LIT_;
     bool x224_26_AAPH;
@@ -130,30 +130,30 @@ private:
     int x25c_PISY = 16;
     std::vector<std::unique_ptr<CParticleSwoosh>> x260_swhcChildren;
     int x270_SSSD = 0;
-    Zeus::CVector3f x274_SSPO;
+    zeus::CVector3f x274_SSPO;
     std::vector<std::unique_ptr<CParticleElectric>> x280_elscChildren;
     int x290_SESD = 0;
-    Zeus::CVector3f x294_SEPO;
+    zeus::CVector3f x294_SEPO;
     float x2a0 = 0.f;
     float x2a4 = 0.f;
-    Zeus::CVector3f x2a8_aabbMin;
-    Zeus::CVector3f x2b4_aabbMax;
+    zeus::CVector3f x2a8_aabbMin;
+    zeus::CVector3f x2b4_aabbMax;
     float x2c0_maxSize = 0.f;
-    Zeus::CAABox x2c4_systemBounds = Zeus::CAABox::skInvertedBox;
+    zeus::CAABox x2c4_systemBounds = zeus::CAABox::skInvertedBox;
     LightType x2dc_lightType;
-    Zeus::CColor x2e0_LCLR = Zeus::CColor::skWhite;
+    zeus::CColor x2e0_LCLR = zeus::CColor::skWhite;
     float x2e4_LINT = 1.f;
-    Zeus::CVector3f x2e8_LOFF;
-    Zeus::CVector3f x2f4_LDIR = {1.f, 0.f, 0.f};
+    zeus::CVector3f x2e8_LOFF;
+    zeus::CVector3f x2f4_LDIR = {1.f, 0.f, 0.f};
     EFalloffType x300_falloffType = EFalloffType::Linear;
     float x304_LFOR = 1.f;
     float x308_LSLA = 45.f;
-    Zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
+    zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
 
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     CElementGenShaders::EShaderClass m_shaderClass;
 
-    void AccumulateBounds(Zeus::CVector3f& pos, float size);
+    void AccumulateBounds(zeus::CVector3f& pos, float size);
 
 public:
     CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
@@ -210,22 +210,22 @@ public:
 
     void Update(double);
     void Render();
-    void SetOrientation(const Zeus::CTransform&);
-    void SetTranslation(const Zeus::CVector3f&);
-    void SetGlobalOrientation(const Zeus::CTransform&);
-    void SetGlobalTranslation(const Zeus::CVector3f&);
-    void SetGlobalScale(const Zeus::CVector3f&);
-    void SetLocalScale(const Zeus::CVector3f&);
+    void SetOrientation(const zeus::CTransform&);
+    void SetTranslation(const zeus::CVector3f&);
+    void SetGlobalOrientation(const zeus::CTransform&);
+    void SetGlobalTranslation(const zeus::CVector3f&);
+    void SetGlobalScale(const zeus::CVector3f&);
+    void SetLocalScale(const zeus::CVector3f&);
     void SetParticleEmission(bool);
-    void SetModulationColor(const Zeus::CColor&);
-    const Zeus::CTransform& GetOrientation() const;
-    const Zeus::CVector3f& GetTranslation() const;
-    const Zeus::CTransform& GetGlobalOrientation() const;
-    const Zeus::CVector3f& GetGlobalTranslation() const;
-    const Zeus::CVector3f& GetGlobalScale() const;
-    const Zeus::CColor& GetModulationColor() const;
+    void SetModulationColor(const zeus::CColor&);
+    const zeus::CTransform& GetOrientation() const;
+    const zeus::CVector3f& GetTranslation() const;
+    const zeus::CTransform& GetGlobalOrientation() const;
+    const zeus::CVector3f& GetGlobalTranslation() const;
+    const zeus::CVector3f& GetGlobalScale() const;
+    const zeus::CColor& GetModulationColor() const;
     bool IsSystemDeletable() const;
-    std::pair<Zeus::CAABox, bool> GetBounds() const;
+    std::pair<zeus::CAABox, bool> GetBounds() const;
     u32 GetParticleCount() const;
     bool SystemHasLight() const;
     CLight GetLight() const;

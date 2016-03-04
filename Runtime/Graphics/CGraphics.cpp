@@ -1,10 +1,10 @@
-#include "CGraphics.hpp"
-#include <Math.hpp>
+#include "Graphics/CGraphics.hpp"
+#include "zeus/Math.hpp"
 
 #undef near
 #undef far
 
-namespace pshag
+namespace urde
 {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
@@ -12,14 +12,14 @@ float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
 ERglLight CGraphics::g_LightActive = ERglLight::None;
 ERglLight CGraphics::g_LightsWereOn = ERglLight::None;
-Zeus::CTransform CGraphics::g_GXModelView;
-Zeus::CTransform CGraphics::g_GXModelMatrix;
-Zeus::CTransform CGraphics::g_ViewMatrix;
-Zeus::CVector3f CGraphics::g_ViewPoint;
-Zeus::CTransform CGraphics::g_GXViewPointMatrix;
-Zeus::CTransform CGraphics::g_CameraMatrix;
-Zeus::CVector2i CGraphics::g_ViewportResolution;
-Zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
+zeus::CTransform CGraphics::g_GXModelView;
+zeus::CTransform CGraphics::g_GXModelMatrix;
+zeus::CTransform CGraphics::g_ViewMatrix;
+zeus::CVector3f CGraphics::g_ViewPoint;
+zeus::CTransform CGraphics::g_GXViewPointMatrix;
+zeus::CTransform CGraphics::g_CameraMatrix;
+zeus::CVector2i CGraphics::g_ViewportResolution;
+zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
 int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity;
 
@@ -45,7 +45,7 @@ void CGraphics::SetLightState(ERglLight lightState)
 {
     // TODO: set state for real
     g_LightActive = lightState;
-    g_NumLightsActive = Zeus::Math::PopCount(lightState);
+    g_NumLightsActive = zeus::PopCount(lightState);
 }
 
 void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write)
@@ -65,18 +65,18 @@ void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ER
 {
 }
 
-void CGraphics::SetViewPointMatrix(const Zeus::CTransform& xf)
+void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf)
 {
     g_ViewMatrix = xf;
     g_ViewPoint = xf.m_origin;
-    Zeus::CMatrix3f tmp(xf.m_basis[0], xf.m_basis[2], -xf.m_basis[1]);
-    g_GXViewPointMatrix = Zeus::CTransform(tmp.transposed());
+    zeus::CMatrix3f tmp(xf.m_basis[0], xf.m_basis[2], -xf.m_basis[1]);
+    g_GXViewPointMatrix = zeus::CTransform(tmp.transposed());
     SetViewMatrix();
 }
 
 void CGraphics::SetViewMatrix()
 {
-    g_CameraMatrix = g_GXViewPointMatrix * Zeus::CTransform::Translate(-g_ViewPoint);
+    g_CameraMatrix = g_GXViewPointMatrix * zeus::CTransform::Translate(-g_ViewPoint);
     if (g_IsGXModelMatrixIdentity)
         g_GXModelView = g_CameraMatrix;
     else
@@ -86,14 +86,14 @@ void CGraphics::SetViewMatrix()
     /* Load normal matrix */
 }
 
-void CGraphics::SetModelMatrix(const Zeus::CTransform& xf)
+void CGraphics::SetModelMatrix(const zeus::CTransform& xf)
 {
     g_IsGXModelMatrixIdentity = false;
     g_GXModelMatrix = xf;
     SetViewMatrix();
 }
 
-Zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
+zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
 {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
@@ -101,7 +101,7 @@ Zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
-    return Zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+    return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
                            0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
                            0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
                            0.f, 0.f, -1.f, 0.f);
@@ -122,7 +122,7 @@ void CGraphics::SetPerspective(float fovy, float aspect, float near, float far)
 {
     g_ProjAspect = aspect;
 
-    float tfov = tanf(fovy * 0.5f * M_PI / 180.f);
+    float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
     g_Proj.x0_persp = true;
     g_Proj.x14_near = near;
     g_Proj.x18_far = far;
@@ -144,23 +144,23 @@ void CGraphics::FlushProjection()
     }
 }
 
-Zeus::CVector2i CGraphics::ProjectPoint(const Zeus::CVector3f& point)
+zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
-    Zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
+    zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
     return {int(projPt.x * g_ViewportResolutionHalf.x) + g_ViewportResolutionHalf.x,
             g_ViewportResolution.y - (int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y)};
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromMS(const Zeus::CVector3f& p1,
-                                                const Zeus::CVector3f& p2)
+SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1,
+                                                const zeus::CVector3f& p2)
 {
-    Zeus::CVector3f xf1 = g_GXModelView * p1;
-    Zeus::CVector3f xf2 = g_GXModelView * p2;
+    zeus::CVector3f xf1 = g_GXModelView * p1;
+    zeus::CVector3f xf2 = g_GXModelView * p2;
     return ClipScreenRectFromVS(xf1, xf2);
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
-                                                const Zeus::CVector3f& p2)
+SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
+                                                const zeus::CVector3f& p2)
 {
     if (p1.x == 0.f && p1.y == 0.f && p1.z == 0.f)
         return {};
@@ -172,8 +172,8 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
     if (p1.y > GetProjectionState().x18_far || p2.y > GetProjectionState().x18_far)
         return {};
 
-    Zeus::CVector2i sp1 = ProjectPoint(p1);
-    Zeus::CVector2i sp2 = ProjectPoint(p2);
+    zeus::CVector2i sp1 = ProjectPoint(p1);
+    zeus::CVector2i sp2 = ProjectPoint(p2);
     int minX = std::min(sp2.x, sp1.x);
     int minX2 = minX & 0xfffffffe;
     int minY = std::min(sp2.y, sp1.y);
@@ -211,13 +211,13 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const Zeus::CVector3f& p1,
 
 }
 
-Zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const Zeus::CVector3f& point)
+zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point)
 {
-    Zeus::CVector3f pt = g_GXModelView * point;
+    zeus::CVector3f pt = g_GXModelView * point;
     return GetPerspectiveProjectionMatrix().multiplyOneOverW(pt);
 }
 
-void CGraphics::SetViewportResolution(const Zeus::CVector2i& res)
+void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 {
     g_ViewportResolution = res;
     g_ViewportResolutionHalf = {res.x / 2, res.y / 2};

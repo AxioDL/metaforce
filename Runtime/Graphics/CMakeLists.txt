@@ -10,5 +10,8 @@ add_library(RuntimeCommonGraphics
             CLineRenderer.hpp CLineRenderer.cpp
             CLineRendererShaders.hpp CLineRendererShadersGLSL.cpp
             CMetroidModelInstance.hpp
-            CLight.hpp
+            CLight.hpp CLight.cpp
+            CTexture.hpp CTextureBoo.cpp
+            CModel.hpp CModelBoo.cpp
+            CGraphics.hpp CGraphics.cpp
             ${PLAT_SRCS})

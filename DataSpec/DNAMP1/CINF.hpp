@@ -56,7 +56,7 @@ struct CINF : BigDNA
         return nullptr;
     }
 
-    void sendVertexGroupsToBlender(HECL::BlenderConnection::PyOutStream& os) const
+    void sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) const
     {
         for (atUint32 bid : boneIds)
         {
@@ -71,7 +71,7 @@ struct CINF : BigDNA
         }
     }
 
-    void sendCINFToBlender(HECL::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const
+    void sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const
     {
         os.format("arm = bpy.data.armatures.new('CINF_%08X')\n"
                   "arm_obj = bpy.data.objects.new(arm.name, arm)\n"

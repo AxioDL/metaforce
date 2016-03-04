@@ -1,5 +1,4 @@
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include "zeus/Math.hpp"
 #include "ANIM.hpp"
 
 namespace DataSpec
@@ -39,50 +38,50 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 
 static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
 {
-    float q = M_PI / 2.0 / div;
+    float q = M_PI / 2.0f / float(div);
     return
     {
         {
-            atInt16(asinf(quat.v4.vec[1]) / q),
-            atInt16(asinf(quat.v4.vec[2]) / q),
-            atInt16(asinf(quat.v4.vec[3]) / q),
+            atInt16(std::asin(quat.v4.vec[1]) / q),
+            atInt16(std::asin(quat.v4.vec[2]) / q),
+            atInt16(std::asin(quat.v4.vec[3]) / q),
         },
-        (quat.v4.vec[0] < 0) ? true : false
+        (quat.v4.vec[0] < 0.f) ? true : false
     };
 }
 
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
 {
-    float q = M_PI / 2.0 / div;
+    float q = M_PI / 2.0f / float(div);
     Value retval =
     {
-        0.0,
-        sinf(v.v[0] * q),
-        sinf(v.v[1] * q),
-        sinf(v.v[2] * q),
+        0.0f,
+        std::sin(v.v[0] * q),
+        std::sin(v.v[1] * q),
+        std::sin(v.v[2] * q),
     };
-    retval.v4.vec[0] = sqrtf(std::max((1.0 -
+    retval.v4.vec[0] = std::sqrt(std::max((1.0f -
                                (retval.v4.vec[1] * retval.v4.vec[1] +
                                 retval.v4.vec[2] * retval.v4.vec[2] +
-                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0));
+                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0f));
     retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
     return retval;
 }
 
 static inline Value DequantizeRotation_3(const QuantizedRot& v, atUint32 div)
 {
-    float q = 1.0 / div;
+    float q = 1.0f / float(div);
     Value retval =
     {
-        0.0,
+        0.0f,
         v.v[0] * q,
         v.v[1] * q,
         v.v[2] * q,
     };
-    retval.v4.vec[0] = sqrtf(std::max((1.0 -
+    retval.v4.vec[0] = std::sqrt(std::max((1.0f -
                                (retval.v4.vec[1] * retval.v4.vec[1] +
                                 retval.v4.vec[2] * retval.v4.vec[2] +
-                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0));
+                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0f));
     retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
     return retval;
 }
@@ -94,7 +93,7 @@ bool BitstreamReader::dequantizeBit(const atUint8* data)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    atUint32 tempBuf = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
+    atUint32 tempBuf = hecl::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
 
     /* That's it */
     m_bitCur += 1;
@@ -108,13 +107,13 @@ atInt16 BitstreamReader::dequantize(const atUint8* data, atUint8 q)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    atUint32 tempBuf = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
+    atUint32 tempBuf = hecl::SBig(*reinterpret_cast<const atUint32*>(data + byteCur)) >> bitRem;
 
     /* If this shift underflows the value, buffer the next 32 bits */
     /* And tack onto shifted buffer */
     if ((bitRem + q) > 32)
     {
-        atUint32 tempBuf2 = HECL::SBig(*reinterpret_cast<const atUint32*>(data + byteCur + 4));
+        atUint32 tempBuf2 = hecl::SBig(*reinterpret_cast<const atUint32*>(data + byteCur + 4));
         tempBuf |= (tempBuf2 << (32 - bitRem));
     }
 
@@ -256,7 +255,7 @@ void BitstreamWriter::quantizeBit(atUint8* data, bool val)
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
     *(atUint32*)(data + byteCur) =
-    HECL::SBig(HECL::SBig(*(atUint32*)(data + byteCur)) | (val << bitRem));
+    hecl::SBig(hecl::SBig(*(atUint32*)(data + byteCur)) | (val << bitRem));
 
     m_bitCur += 1;
 }
@@ -271,14 +270,14 @@ void BitstreamWriter::quantize(atUint8* data, atUint8 q, atInt16 val)
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
     *(atUint32*)(data + byteCur) =
-    HECL::SBig(HECL::SBig(*(atUint32*)(data + byteCur)) | (masked << bitRem));
+    hecl::SBig(hecl::SBig(*(atUint32*)(data + byteCur)) | (masked << bitRem));
 
     /* If this shift underflows the value, buffer the next 32 bits */
     /* And tack onto shifted buffer */
     if ((bitRem + q) > 32)
     {
         *(atUint32*)(data + byteCur + 4) =
-        HECL::SBig(HECL::SBig(*(atUint32*)(data + byteCur + 4)) | (masked >> (32 - bitRem)));
+        hecl::SBig(hecl::SBig(*(atUint32*)(data + byteCur + 4)) | (masked >> (32 - bitRem)));
     }
 
     m_bitCur += q;
@@ -295,7 +294,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     rotDivOut = 32767; /* Normalized range of values */
 
     /* Pre-pass to calculate translation multiplier */
-    float maxTransDiff = 0.0;
+    float maxTransDiff = 0.0f;
     auto kit = chanKeys.begin();
     for (Channel& chan : channels)
     {

@@ -3,7 +3,7 @@
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
-#include "Athena/FileWriter.hpp"
+#include "athena/FileWriter.hpp"
 
 namespace DataSpec
 {
@@ -13,7 +13,7 @@ namespace DNAParticle
 template <class IDType>
 struct GPSM : BigYAML
 {
-    static const char* DNAType() {return "Retro::GPSM";}
+    static const char* DNAType() {return "urde::GPSM";}
     const char* DNATypeV() const {return DNAType();}
 
     VectorElementFactory x0_PSIV;
@@ -107,13 +107,13 @@ struct GPSM : BigYAML
         x45_25_PMOO = true;
     }
 
-    void read(Athena::io::YAMLDocReader& r)
+    void read(athena::io::YAMLDocReader& r)
     {
         for (const auto& elem : r.getCurNode()->m_mapChildren)
         {
             if (elem.first.size() < 4)
             {
-                LogModule.report(LogVisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+                LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
                 continue;
             }
 
@@ -366,7 +366,7 @@ struct GPSM : BigYAML
             r.leaveSubRecord();
         }
     }
-    void write(Athena::io::YAMLDocWriter& w) const
+    void write(athena::io::YAMLDocWriter& w) const
     {
         if (x0_PSIV)
         {
@@ -950,13 +950,13 @@ struct GPSM : BigYAML
             __isz = x128_ADV8.binarySize(__isz + 4);
         return __isz;
     }
-    void read(Athena::io::IStreamReader& r)
+    void read(athena::io::IStreamReader& r)
     {
         uint32_t clsId;
         r.readBytesToBuf(&clsId, 4);
         if (clsId != SBIG('GPSM'))
         {
-            LogModule.report(LogVisor::Warning, "non GPSM provided to GPSM parser");
+            LogModule.report(logvisor::Warning, "non GPSM provided to GPSM parser");
             return;
         }
         r.readBytesToBuf(&clsId, 4);
@@ -1226,13 +1226,13 @@ struct GPSM : BigYAML
                 xd8_SELC.read(r);
                 break;
             default:
-                LogModule.report(LogVisor::FatalError, "Unknown GPSM class %.4s @%" PRIi64, &clsId, r.position());
+                LogModule.report(logvisor::Fatal, "Unknown GPSM class %.4s @%" PRIi64, &clsId, r.position());
                 break;
             }
             r.readBytesToBuf(&clsId, 4);
         }
     }
-    void write(Athena::io::IStreamWriter& w) const
+    void write(athena::io::IStreamWriter& w) const
     {
         w.writeBytes((atInt8*)"GPSM", 4);
         if (x0_PSIV)
@@ -1626,9 +1626,9 @@ struct GPSM : BigYAML
 };
 
 template <class IDType>
-bool ExtractGPSM(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+bool ExtractGPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
+    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
     if (fp)
     {
         GPSM<IDType> gpsm;
@@ -1641,9 +1641,9 @@ bool ExtractGPSM(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
 }
 
 template <class IDType>
-bool WriteGPSM(const GPSM<IDType>& gpsm, const HECL::ProjectPath& outPath)
+bool WriteGPSM(const GPSM<IDType>& gpsm, const hecl::ProjectPath& outPath)
 {
-    Athena::io::FileWriter w(outPath.getAbsolutePath(), true, false);
+    athena::io::FileWriter w(outPath.getAbsolutePath(), true, false);
     if (w.hasError())
         return false;
     gpsm.write(w);

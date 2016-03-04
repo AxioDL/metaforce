@@ -1,6 +1,6 @@
 #include "CParticleGlobals.hpp"
 
-namespace pshag
+namespace urde
 {
 
 int CParticleGlobals::g_EmitterTime = 0;

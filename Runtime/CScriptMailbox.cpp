@@ -1,6 +1,6 @@
 #include "CScriptMailbox.hpp"
 
-namespace pshag
+namespace urde
 {
 
 }

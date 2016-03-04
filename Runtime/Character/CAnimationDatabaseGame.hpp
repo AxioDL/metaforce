@@ -3,7 +3,7 @@
 
 #include "CAnimationDatabase.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CAnimationDatabaseGame : public CAnimationDatabase

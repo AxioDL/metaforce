@@ -5,9 +5,9 @@ namespace DataSpec
 namespace DNAMP2
 {
 
-using ANIMOutStream = HECL::BlenderConnection::PyOutStream::ANIMOutStream;
+using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf) const
 {
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
@@ -92,7 +92,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     }
 }
 
-void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
+void ANIM::ANIM0::read(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -215,7 +215,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
+void ANIM::ANIM0::write(athena::io::IStreamWriter& writer) const
 {
     Header head;
     head.unk0 = 0;
@@ -372,7 +372,7 @@ size_t ANIM::ANIM0::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
+void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -450,7 +450,7 @@ void ANIM::ANIM2::read(Athena::io::IStreamReader& reader)
     chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult);
 }
 
-void ANIM::ANIM2::write(Athena::io::IStreamWriter& writer) const
+void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
 {
     Header head;
     head.unk1 = 1;

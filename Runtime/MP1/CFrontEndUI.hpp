@@ -4,7 +4,7 @@
 #include "CIOWin.hpp"
 #include "CGameDebug.hpp"
 
-namespace pshag
+namespace urde
 {
 class CGuiSliderGroup;
 class CGuiTableGroup;

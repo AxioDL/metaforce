@@ -5,21 +5,21 @@
 #include "RetroTypes.hpp"
 #include "IOStreams.hpp"
 
-namespace pshag
+namespace urde
 {
 struct SObjectTag;
 class CVParamTransfer;
 class IObj;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
-using FFactoryFunc = std::function<CFactoryFnReturn(const pshag::SObjectTag& tag,
-                                                    pshag::CInputStream& in,
-                                                    const pshag::CVParamTransfer& vparms)>;
+using FFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag,
+                                                    urde::CInputStream& in,
+                                                    const urde::CVParamTransfer& vparms)>;
 class CFactoryMgr
 {
     std::unordered_map<FourCC, FFactoryFunc> m_factories;
 public:
-    CFactoryFnReturn MakeObject(const SObjectTag& tag, pshag::CInputStream& in,
+    CFactoryFnReturn MakeObject(const SObjectTag& tag, urde::CInputStream& in,
                                 const CVParamTransfer& paramXfer);
     CFactoryFnReturn MakeObjectFromMemory(const SObjectTag& tag, void* buf, int size, bool compressed,
                                           const CVParamTransfer& paramXfer);

@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CSFXHANDLE_HPP__
 #define __PSHAG_CSFXHANDLE_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CSfxHandle

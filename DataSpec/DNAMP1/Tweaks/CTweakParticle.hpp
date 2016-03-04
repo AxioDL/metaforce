@@ -15,7 +15,7 @@ struct CTweakParticle : ITweakParticle
     String<-1> m_powerBeam;
     String<-1> m_genThrust;
 
-    CTweakParticle(Athena::io::IStreamReader& reader) { this->read(reader); }
+    CTweakParticle(athena::io::IStreamReader& reader) { this->read(reader); }
 };
 
 }

@@ -14,7 +14,7 @@ struct STRG : ISTRG
 {
     DECL_YAML
     Delete expl;
-    void _read(Athena::io::IStreamReader& reader);
+    void _read(athena::io::IStreamReader& reader);
     std::vector<std::pair<DNAFourCC, std::vector<std::string>>> langs;
     std::unordered_map<DNAFourCC, std::vector<std::string>*> langMap;
     std::map<std::string, int32_t> names;
@@ -49,37 +49,37 @@ struct STRG : ISTRG
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
-            return HECL::UTF8ToWide(search->second->at(idx));
+            return hecl::UTF8ToWide(search->second->at(idx));
         return std::wstring();
     }
-    inline HECL::SystemString getSystemString(const FourCC& lang, size_t idx) const
+    inline hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
 #if HECL_UCS2
-            return HECL::UTF8ToWide(search->second->at(idx));
+            return hecl::UTF8ToWide(search->second->at(idx));
 #else
             return search->second->at(idx);
 #endif
-        return HECL::SystemString();
+        return hecl::SystemString();
     }
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         std::unique_ptr<ISTRG> strg = LoadSTRG(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         strg->toYAMLFile(fp);
         fclose(fp);
         return true;
     }
 
-    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
     {
         STRG strg;
-        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+        FILE* fp = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
         strg.fromYAMLFile(fp);
         fclose(fp);
-        Athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;
     }

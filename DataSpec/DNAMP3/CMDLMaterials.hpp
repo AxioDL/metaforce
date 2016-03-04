@@ -64,7 +64,7 @@ struct MaterialSet : BigDNA
                 INT = SBIG('INT ')
             } m_type;
             ISection(Type type) : m_type(type) {}
-            virtual void constructNode(HECL::BlenderConnection::PyOutStream& out,
+            virtual void constructNode(hecl::BlenderConnection::PyOutStream& out,
                                        const PAKRouter<PAKBridge>& pakRouter,
                                        const PAK::Entry& entry,
                                        const Material::ISection* prevSection,
@@ -115,7 +115,7 @@ struct MaterialSet : BigDNA
             };
             Vector<UVAnimation, DNA_COUNT(uvAnimSize != 0)> uvAnim;
 
-            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::BlenderConnection::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -136,7 +136,7 @@ struct MaterialSet : BigDNA
             DNAFourCC subtype;
             GX::Color color;
 
-            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::BlenderConnection::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -160,7 +160,7 @@ struct MaterialSet : BigDNA
             DNAFourCC subtype;
             Value<atUint32> value;
 
-            void constructNode(HECL::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::BlenderConnection::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -173,7 +173,7 @@ struct MaterialSet : BigDNA
         {
             Delete expl;
             std::unique_ptr<ISection> section;
-            void read(Athena::io::IStreamReader& reader)
+            void read(athena::io::IStreamReader& reader)
             {
                 DNAFourCC type;
                 type.read(reader);
@@ -196,7 +196,7 @@ struct MaterialSet : BigDNA
                     break;
                 }
             }
-            void write(Athena::io::IStreamWriter& writer) const
+            void write(athena::io::IStreamWriter& writer) const
             {
                 if (!section)
                     return;
@@ -209,7 +209,7 @@ struct MaterialSet : BigDNA
             }
         };
         std::vector<SectionFactory> sections;
-        void read(Athena::io::IStreamReader& reader)
+        void read(athena::io::IStreamReader& reader)
         {
             header.read(reader);
             sections.clear();
@@ -219,7 +219,7 @@ struct MaterialSet : BigDNA
             } while (sections.back().section);
             sections.pop_back();
         }
-        void write(Athena::io::IStreamWriter& writer) const
+        void write(athena::io::IStreamWriter& writer) const
         {
             header.write(writer);
             for (const SectionFactory& section : sections)
@@ -236,14 +236,14 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;
 
-    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out);
-    static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out);
+    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
                                   const PAKRouter<PAKBridge>& pakRouter,
                                   const PAK::Entry& entry,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)

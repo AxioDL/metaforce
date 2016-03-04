@@ -4,10 +4,10 @@
 #include "GCNTypes.hpp"
 #include "IObj.hpp"
 #include "IOStreams.hpp"
-#include "CGraphics.hpp"
+#include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
-namespace pshag
+namespace urde
 {
 class CVParamTransfer;
 

@@ -1,6 +1,6 @@
 #include "CMDLMaterials.hpp"
 
-using Stream = HECL::BlenderConnection::PyOutStream;
+using Stream = hecl::BlenderConnection::PyOutStream;
 
 namespace DataSpec
 {
@@ -108,7 +108,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
            "    new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], final_node.inputs['Alpha'])\n";
 }
 
-void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& out,
+void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& out,
                                           const PAKRouter<PAKBridge>& pakRouter,
                                           const PAK::Entry& entry,
                                           const Material::ISection* prevSection,
@@ -121,16 +121,16 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     if (txtrId)
     {
         std::string texName = pakRouter.getBestEntryName(txtrId);
-        const NOD::Node* node;
+        const nod::Node* node;
         const PAK::Entry* texEntry = pakRouter.lookupEntry(txtrId, &node);
-        HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-        if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
+        hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+        if (txtrPath.getPathType() == hecl::ProjectPath::Type::None)
         {
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
         }
-        HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, txtrId);
-        HECL::SystemUTF8View resPathView(resPath);
+        hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, txtrId);
+        hecl::SystemUTF8View resPathView(resPath);
         out.format("if '%s' in bpy.data.textures:\n"
                    "    image = bpy.data.images['%s']\n"
                    "    texture = bpy.data.textures[image.name]\n"
@@ -258,7 +258,7 @@ void Material::SectionPASS::constructNode(HECL::BlenderConnection::PyOutStream& 
     out << "gridder.row_break(2)\n";
 }
 
-void Material::SectionCLR::constructNode(HECL::BlenderConnection::PyOutStream& out,
+void Material::SectionCLR::constructNode(hecl::BlenderConnection::PyOutStream& out,
                                          const PAKRouter<PAKBridge>& pakRouter,
                                          const PAK::Entry& entry,
                                          const Material::ISection* prevSection,
@@ -278,7 +278,7 @@ void Material::SectionCLR::constructNode(HECL::BlenderConnection::PyOutStream& o
     }
 }
 
-void Material::SectionINT::constructNode(HECL::BlenderConnection::PyOutStream& out,
+void Material::SectionINT::constructNode(hecl::BlenderConnection::PyOutStream& out,
                                          const PAKRouter<PAKBridge>& pakRouter,
                                          const PAK::Entry& entry,
                                          const Material::ISection* prevSection,

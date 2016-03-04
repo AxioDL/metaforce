@@ -7,7 +7,7 @@
 #include "IOStreams.hpp"
 
 
-namespace pshag
+namespace urde
 {
 struct SQuadDescr;
 class CDecalDescription;

@@ -15,7 +15,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> m_rightDiv;
     float GetLeftLogicalThreshold() const {return m_leftDiv;}
     float GetRightLogicalThreshold() const {return m_rightDiv;}
-    CTweakPlayer(Athena::io::IStreamReader& reader) {this->read(reader);}
+    CTweakPlayer(athena::io::IStreamReader& reader) {this->read(reader);}
 };
 
 }

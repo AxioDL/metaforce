@@ -6,12 +6,12 @@
 namespace DataSpec
 {
 
-std::unique_ptr<ISTRG> LoadSTRG(Athena::io::IStreamReader& reader)
+std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader)
 {
     uint32_t magic = reader.readUint32Big();
     if (magic != 0x87654321)
     {
-        LogDNACommon.report(LogVisor::Error, "invalid STRG magic");
+        LogDNACommon.report(logvisor::Error, "invalid STRG magic");
         return std::unique_ptr<ISTRG>();
     }
 

@@ -1,4 +1,4 @@
-#include <Athena/FileWriter.hpp>
+#include <athena/FileWriter.hpp>
 #include <lzo/lzo1x.h>
 #include "MREA.hpp"
 #include "../DNAMP1/MREA.hpp"
@@ -13,7 +13,7 @@ namespace DNAMP2
 void MREA::StreamReader::nextBlock()
 {
     if (m_nextBlk >= m_blkCount)
-        Log.report(LogVisor::FatalError, "MREA stream overrun");
+        Log.report(logvisor::Fatal, "MREA stream overrun");
 
     BlockInfo& info = m_blockInfos[m_nextBlk++];
 
@@ -68,7 +68,7 @@ void MREA::StreamReader::nextBlock()
     m_blkSz = info.decompSize;
 }
 
-MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source, atUint32 blkCount)
+MREA::StreamReader::StreamReader(athena::io::IStreamReader& source, atUint32 blkCount)
 : m_compBufSz(0x4120), m_compBuf(new atUint8[0x4120]),
   m_decompBufSz(0x4120), m_decompBuf(new atUint8[0x4120]),
   m_source(source), m_blkCount(blkCount)
@@ -86,16 +86,16 @@ MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source, atUint32 blk
     nextBlock();
 }
 
-void MREA::StreamReader::seek(atInt64 diff, Athena::SeekOrigin whence)
+void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence)
 {
     atUint64 target = diff;
-    if (whence == Athena::Current)
+    if (whence == athena::Current)
         target = m_pos + diff;
-    else if (whence == Athena::End)
+    else if (whence == athena::End)
         target = m_totalDecompLen - diff;
 
     if (target >= m_totalDecompLen)
-        Log.report(LogVisor::FatalError, "MREA stream seek overrun");
+        Log.report(logvisor::Fatal, "MREA stream seek overrun");
 
     /* Determine which block contains position */
     atUint32 dAccum = 0;
@@ -117,7 +117,7 @@ void MREA::StreamReader::seek(atInt64 diff, Athena::SeekOrigin whence)
     /* Seek source if needed */
     if (bIdx != m_nextBlk-1)
     {
-        m_source.seek(m_blkBase + cAccum, Athena::Begin);
+        m_source.seek(m_blkBase + cAccum, athena::Begin);
         m_nextBlk = bIdx;
         nextBlock();
     }
@@ -147,7 +147,7 @@ atUint64 MREA::StreamReader::readUBytesToBuf(void* buf, atUint64 len)
     return len;
 }
 
-void MREA::StreamReader::writeDecompInfos(Athena::io::IStreamWriter& writer) const
+void MREA::StreamReader::writeDecompInfos(athena::io::IStreamWriter& writer) const
 {
     for (const BlockInfo& info : m_blockInfos)
     {
@@ -159,18 +159,18 @@ void MREA::StreamReader::writeDecompInfos(Athena::io::IStreamWriter& writer) con
 
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
-                   const HECL::ProjectPath& outPath,
+                   const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
                    const DNAMP1::PAK::Entry& entry,
                    bool force,
-                   std::function<void(const HECL::SystemChar*)>)
+                   std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
     /* Rename MREA for consistency */
-    HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
-    if (!force && mreaPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
     /* Do extract */
@@ -180,7 +180,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount);
-    Athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
+    athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
     head.write(mreaDecompOut);
     mreaDecompOut.seekAlign32();
     drs.writeDecompInfos(mreaDecompOut);
@@ -188,11 +188,11 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint64 decompLen = drs.length();
     mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
     mreaDecompOut.close();
-    drs.seek(0, Athena::Begin);
+    drs.seek(0, athena::Begin);
 
     /* Start up blender connection */
-    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::BlendType::Area))
+    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 
     /* Calculate offset to EGMC section */
@@ -201,15 +201,15 @@ bool MREA::Extract(const SpecBase& dataSpec,
         egmcOffset += head.secSizes[i];
 
     /* Load EGMC if possible so we can assign meshes to scanIds */
-    drs.seek(egmcOffset, Athena::Begin);
+    drs.seek(egmcOffset, athena::Begin);
     UniqueID32 egmcId(drs);
     DNACommon::EGMC egmc;
     bool hasEGMC = pakRouter.lookupAndReadDNA(egmcId, egmc);
 
-    drs.seek(0, Athena::Begin);
+    drs.seek(0, athena::Begin);
 
     /* Open Py Stream and read sections */
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"
@@ -241,7 +241,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint64 secStart = drs.position();
     matSet.read(drs);
     matSet.readToBlender(os, pakRouter, entry, 0);
-    drs.seek(secStart + head.secSizes[0], Athena::Begin);
+    drs.seek(secStart + head.secSizes[0], athena::Begin);
     std::vector<DNACMDL::VertexAttributes> vertAttribs;
     DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -252,7 +252,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         MeshHeader mHeader;
         secStart = drs.position();
         mHeader.read(drs);
-        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
         curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>
                       (os, drs, pakRouter, entry, dummy, true,
                        true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
@@ -266,25 +266,25 @@ bool MREA::Extract(const SpecBase& dataSpec,
                   mHeader.visorFlags.thermalLevelStr());
 
         /* Seek through AROT-relation sections */
-        drs.seek(head.secSizes[curSec++], Athena::Current);
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
     }
 
     /* Skip AROT */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Skip BVH */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Skip Bitmap */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Skip SCLY (for now) */
     for (atUint32 l=0 ; l<head.sclyLayerCount ; ++l)
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Skip SCGN (for now) */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Read collision meshes */
     DeafBabe collision;
@@ -292,15 +292,15 @@ bool MREA::Extract(const SpecBase& dataSpec,
     collision.read(drs);
     DeafBabe::BlenderInit(os);
     collision.sendToBlender(os);
-    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Skip unknown section */
-    drs.seek(head.secSizes[curSec++], Athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Read BABEDEAD Lights as Cycles emissives */
     secStart = drs.position();
     DNAMP1::MREA::ReadBabeDeadToBlender_1_2(os, drs);
-    drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Origins to center of mass */
     os << "bpy.context.scene.layers[1] = True\n"

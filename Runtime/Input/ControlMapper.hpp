@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CCONTROLMAPPER_HPP__
 #define __PSHAG_CCONTROLMAPPER_HPP__
 
-namespace pshag
+namespace urde
 {
 class CFinalInput;
 

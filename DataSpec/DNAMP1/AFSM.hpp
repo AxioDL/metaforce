@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_AFSM_HPP_
 #define _DNAMP1_AFSM_HPP_
 
-#include <Athena/FileWriter.hpp>
+#include <athena/FileWriter.hpp>
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
@@ -32,7 +32,7 @@ struct AFSM : public BigYAML
                 String<-1> name;
                 Value<float> parameter;
                 Value<atUint32> targetState;
-                void read(Athena::io::IStreamReader& __dna_reader)
+                void read(athena::io::IStreamReader& __dna_reader)
                 {
                     /* name */
                     name = __dna_reader.readString(-1);
@@ -45,7 +45,7 @@ struct AFSM : public BigYAML
                     }
                 }
 
-                void write(Athena::io::IStreamWriter& __dna_writer) const
+                void write(athena::io::IStreamWriter& __dna_writer) const
                 {
                     /* name */
                     __dna_writer.writeString(name, -1);
@@ -58,7 +58,7 @@ struct AFSM : public BigYAML
                     }
                 }
 
-                void read(Athena::io::YAMLDocReader& __dna_docin)
+                void read(athena::io::YAMLDocReader& __dna_docin)
                 {
                     /* name */
                     name = __dna_docin.readString("name");
@@ -71,7 +71,7 @@ struct AFSM : public BigYAML
                     }
                 }
 
-                void write(Athena::io::YAMLDocWriter& __dna_docout) const
+                void write(athena::io::YAMLDocWriter& __dna_docout) const
                 {
                     /* name */
                     __dna_docout.writeString("name", name);
@@ -86,7 +86,7 @@ struct AFSM : public BigYAML
 
                 static const char* DNAType()
                 {
-                    return "Retro::DNAMP1::AFSM::Transition::Trigger";
+                    return "urde::DNAMP1::AFSM::Transition::Trigger";
                 }
 
                 size_t binarySize(size_t __isz) const
@@ -98,21 +98,21 @@ struct AFSM : public BigYAML
 
             Vector<Trigger, DNA_COUNT(triggerCount)> triggers;
 
-            void read(Athena::io::IStreamReader& __dna_reader)
+            void read(athena::io::IStreamReader& __dna_reader)
             {
                 /* triggerCount */
                 triggerCount = __dna_reader.readUint32Big();
                 int i = 0;
                 /* triggers */
                 __dna_reader.enumerate<Trigger>(triggers, triggerCount,
-                                                [&](Athena::io::IStreamReader& in, Trigger& tr){
+                                                [&](athena::io::IStreamReader& in, Trigger& tr){
                     tr.first = i == 0;
                     tr.read(in);
                     i++;
                 });
             }
 
-            void write(Athena::io::IStreamWriter& __dna_writer) const
+            void write(athena::io::IStreamWriter& __dna_writer) const
             {
                 /* triggerCount */
                 __dna_writer.writeInt32Big(triggerCount);
@@ -120,31 +120,27 @@ struct AFSM : public BigYAML
                 __dna_writer.enumerate(triggers);
             }
 
-            void read(Athena::io::YAMLDocReader& __dna_docin)
+            void read(athena::io::YAMLDocReader& __dna_docin)
             {
-                /* triggerCount */
-                triggerCount = __dna_docin.readUint32("triggerCount");
                 int i = 0;
                 /* triggers */
-                __dna_docin.enumerate<Trigger>("triggers", triggers, triggerCount,
-                                               [&](Athena::io::YAMLDocReader& in, Trigger& tr){
+                triggerCount = __dna_docin.enumerate<Trigger>("triggers", triggers,
+                [&](athena::io::YAMLDocReader& in, Trigger& tr){
                     tr.first = i == 0;
                     tr.read(in);
                     i++;
                 });
             }
 
-            void write(Athena::io::YAMLDocWriter& __dna_docout) const
+            void write(athena::io::YAMLDocWriter& __dna_docout) const
             {
-                /* triggerCount */
-                __dna_docout.writeUint32("triggerCount", triggerCount);
                 /* triggers */
                 __dna_docout.enumerate("triggers", triggers);
             }
 
             static const char* DNAType()
             {
-                return "Retro::DNAMP1::AFSM::Transition";
+                return "urde::DNAMP1::AFSM::Transition";
             }
 
             size_t binarySize(size_t __isz) const
@@ -159,11 +155,11 @@ struct AFSM : public BigYAML
 
     Vector<State, DNA_COUNT(stateCount)> states;
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         AFSM afsm;
         afsm.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         afsm.toYAMLFile(fp);
         fclose(fp);
         return true;

@@ -13,7 +13,7 @@ namespace DataSpec
 {
 namespace DNAMP2
 {
-LogVisor::LogModule Log("Retro::DNAMP2");
+logvisor::Module Log("urde::DNAMP2");
 
 static bool GetNoShare(const std::string& name)
 {
@@ -24,12 +24,12 @@ static bool GetNoShare(const std::string& name)
     return true;
 }
 
-PAKBridge::PAKBridge(HECL::Database::Project& project,
-                     const NOD::Node& node,
+PAKBridge::PAKBridge(hecl::Database::Project& project,
+                     const nod::Node& node,
                      bool doExtract)
 : m_project(project), m_node(node), m_pak(true, GetNoShare(node.getName())), m_doExtract(doExtract)
 {
-    NOD::AthenaPartReadStream rs(node.beginReadStream());
+    nod::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
 
     /* Append Level String */
@@ -54,12 +54,12 @@ PAKBridge::PAKBridge(HECL::Database::Project& project,
     }
 }
 
-static HECL::SystemString LayerName(const std::string& name)
+static hecl::SystemString LayerName(const std::string& name)
 {
 #if HECL_UCS2
-    HECL::SystemString ret = HECL::UTF8ToWide(name);
+    hecl::SystemString ret = hecl::UTF8ToWide(name);
 #else
-    HECL::SystemString ret = name;
+    hecl::SystemString ret = name;
 #endif
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
@@ -82,7 +82,7 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
 #if HECL_UCS2
-            level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry));
+            level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry));
 #else
             level.name = m_pak.bestEntryName(entry);
 #endif
@@ -95,7 +95,7 @@ void PAKBridge::build()
             if (worldMapEnt)
             {
                 PAKEntryReadStream rs = worldMapEnt->beginReadStream(m_node);
-                rs.seek(8, Athena::Current);
+                rs.seek(8, athena::Current);
                 atUint32 areaCount = rs.readUint32Big();
                 mapw.reserve(areaCount);
                 for (atUint32 i=0 ; i<areaCount ; ++i)
@@ -130,21 +130,21 @@ void PAKBridge::build()
                 if (areaDeps.name.empty())
                 {
 #if HECL_UCS2
-                    areaDeps.name = HECL::UTF8ToWide(area.internalAreaName);
+                    areaDeps.name = hecl::UTF8ToWide(area.internalAreaName);
 #else
                     areaDeps.name = area.internalAreaName;
 #endif
                     if (areaDeps.name.empty())
                     {
 #if HECL_UCS2
-                        areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+                        areaDeps.name = _S("MREA_") + hecl::UTF8ToWide(area.areaMREAId.toString());
 #else
                         areaDeps.name = "MREA_" + area.areaMREAId.toString();
 #endif
                     }
                 }
-                HECL::SystemChar num[16];
-                HECL::SNPrintf(num, 16, _S("%02u "), ai);
+                hecl::SystemChar num[16];
+                hecl::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
                 areaDeps.layers.reserve(area.depLayerCount-1);
@@ -163,7 +163,7 @@ void PAKBridge::build()
                     while (layer.name.size() && isspace(layer.name.back()))
                         layer.name.pop_back();
 #endif
-                    HECL::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
+                    hecl::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
                     layer.name = num + layer.name;
 
                     layer.resources.reserve(area.depLayers[l] - r);

@@ -9,7 +9,7 @@
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
-#include "Athena/FileReader.hpp"
+#include "athena/FileReader.hpp"
 
 namespace DataSpec
 {
@@ -390,34 +390,34 @@ struct ANCS : BigYAML
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
+                        std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        HECL::ProjectPath::Type yamlType = yamlPath.getPathType();
-        HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        HECL::ProjectPath::Type blendType = blendPath.getPathType();
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+        hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+        hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
-            yamlType == HECL::ProjectPath::Type::None ||
-            blendType == HECL::ProjectPath::Type::None)
+            yamlType == hecl::ProjectPath::Type::None ||
+            blendType == hecl::ProjectPath::Type::None)
         {
             ANCS ancs;
             ancs.read(rs);
 
-            if (force || yamlType == HECL::ProjectPath::Type::None)
+            if (force || yamlType == hecl::ProjectPath::Type::None)
             {
-                FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
+                FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
                 ancs.toYAMLFile(fp);
                 fclose(fp);
             }
 
-            if (force || blendType == HECL::ProjectPath::Type::None)
+            if (force || blendType == hecl::ProjectPath::Type::None)
             {
-                HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+                hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1, 2>
                         (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
@@ -426,19 +426,19 @@ struct ANCS : BigYAML
         return true;
     }
 
-    static bool Cook(const HECL::ProjectPath& outPath,
-                     const HECL::ProjectPath& inPath,
+    static bool Cook(const hecl::ProjectPath& outPath,
+                     const hecl::ProjectPath& inPath,
                      const DNAANCS::Actor& actor)
     {
         /* Search for yaml */
-        HECL::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
-        if (yamlPath.getPathType() != HECL::ProjectPath::Type::File)
-            Log.report(LogVisor::FatalError, _S("'%s' not found as file"),
+        hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
+        if (yamlPath.getPathType() != hecl::ProjectPath::Type::File)
+            Log.report(logvisor::Fatal, _S("'%s' not found as file"),
                        yamlPath.getRelativePath().c_str());
 
-        Athena::io::FileReader yamlReader(yamlPath.getAbsolutePath());
+        athena::io::FileReader yamlReader(yamlPath.getAbsolutePath());
         if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlReader))
-            Log.report(LogVisor::FatalError, _S("'%s' is not Retro::DNAMP1::ANCS type"),
+            Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
                        yamlPath.getRelativePath().c_str());
         ANCS ancs;
         ancs.read(yamlReader);

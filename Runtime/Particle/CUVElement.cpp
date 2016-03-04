@@ -2,7 +2,7 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#UV_Elements */
 
-namespace pshag
+namespace urde
 {
 
 CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,

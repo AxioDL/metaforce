@@ -5,7 +5,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-void DeafBabe::BlenderInit(HECL::BlenderConnection::PyOutStream& os)
+void DeafBabe::BlenderInit(hecl::BlenderConnection::PyOutStream& os)
 {
     os << "TYPE_COLORS = {'Ground':(1.0, 0.43, 0.15),\n"
           "               'Stone':(0.28, 0.28, 0.28),\n"

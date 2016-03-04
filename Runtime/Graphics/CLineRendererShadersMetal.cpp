@@ -1,7 +1,7 @@
 #include "CLineRendererShaders.hpp"
 #include "CLineRenderer.hpp"
 
-namespace pshag
+namespace urde
 {
 
 static const char* VS_METAL_TEX =

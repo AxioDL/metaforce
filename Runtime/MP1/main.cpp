@@ -37,7 +37,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 
-namespace pshag
+namespace urde
 {
 CMemoryCardSys* g_MemoryCardSys = nullptr;
 CResFactory*  g_ResFactory = nullptr;
@@ -223,7 +223,7 @@ void CMain::LoadAudio()
 
 int CMain::appMain(boo::IApplication* app)
 {
-    Zeus::detectCPU();
+    zeus::detectCPU();
     mainWindow = app->newWindow(_S("Metroid Prime 1 Reimplementation vZygote"), 1);
     mainWindow->showWindow();
     TOneStatic<CGameGlobalObjects> globalObjs;
@@ -278,8 +278,8 @@ int main(int argc, const char* argv[])
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
 
-    LogVisor::RegisterConsoleLogger();
-    pshag::TOneStatic<pshag::MP1::CMain> main;
+    logvisor::RegisterConsoleLogger();
+    urde::TOneStatic<urde::MP1::CMain> main;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, *main,
                                   _S("mp1"), _S("MP1"), argc, argv);
     return ret;

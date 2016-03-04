@@ -3,7 +3,7 @@
 
 #include "CBasics.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CBasics::Init()

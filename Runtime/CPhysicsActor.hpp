@@ -3,13 +3,13 @@
 
 #include "CActor.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CCollisionPrimitive
 {
 public:
-    Zeus::CVector3f x1d8_offset;
+    zeus::CVector3f x1d8_offset;
 };
 
 class CCollisionInfoList
@@ -23,7 +23,7 @@ protected:
     float xdc_massRecip;
     float xe0_inertialTensor;
     float xe4_inertialTensorRecip;
-    Zeus::CAABox x194_baseBoundingBox;
+    zeus::CAABox x194_baseBoundingBox;
     CCollisionPrimitive x1b0_collisionPrimitive;
     float x228_stepUpHeight;
     float x22c_stepDownHeight;
@@ -49,15 +49,15 @@ public:
     void Render(const CStateManager&)
     {}
 
-    Zeus::CVector3f GetAimPosition(const CStateManager&, float val)
+    zeus::CVector3f GetAimPosition(const CStateManager&, float val)
     {
         if (val <= 0.0)
             return GetBoundingBox().center();
-        //Zeus::CVector3f delta = PredictMotion(val);
-        return Zeus::CVector3f();
+        //zeus::CVector3f delta = PredictMotion(val);
+        return zeus::CVector3f();
     }
 
-    Zeus::CVector3f GetOrbitPosition(const CStateManager&)
+    zeus::CVector3f GetOrbitPosition(const CStateManager&)
     { return GetBoundingBox().center(); }
 
     float GetStepUpHeight()
@@ -66,33 +66,33 @@ public:
     float GetStepDownHeight()
     { return x22c_stepDownHeight; }
 
-    void SetPrimitiveOffset(const Zeus::CVector2f& offset)
+    void SetPrimitiveOffset(const zeus::CVector2f& offset)
     { x1b0_collisionPrimitive.x1d8_offset = offset; }
 
-    Zeus::CVector3f GetPrimitiveOffset()
+    zeus::CVector3f GetPrimitiveOffset()
     { return x1b0_collisionPrimitive.x1d8_offset; }
 
     float GetWeight()
     { return 24.525002f * xd8_mass; }
 
-    void SetBoundingBox(const Zeus::CAABox& box)
+    void SetBoundingBox(const zeus::CAABox& box)
     { x194_baseBoundingBox = box; }
 
-    Zeus::CAABox GetMotionVolume()
-    { return Zeus::CAABox::skInvertedBox; }
+    zeus::CAABox GetMotionVolume()
+    { return zeus::CAABox::skInvertedBox; }
 
-    Zeus::CAABox GetBoundingBox()
-    { return Zeus::CAABox::skInvertedBox; }
+    zeus::CAABox GetBoundingBox()
+    { return zeus::CAABox::skInvertedBox; }
 
-    const Zeus::CAABox& GetBaseBoundingBox() const
+    const zeus::CAABox& GetBaseBoundingBox() const
     { return x194_baseBoundingBox; }
 
     void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&)
     {}
 
-    Zeus::CTransform GetPrimitiveTransform()
+    zeus::CTransform GetPrimitiveTransform()
     {
-        return Zeus::CTransform();
+        return zeus::CTransform();
     }
 
     const CCollisionPrimitive& GetCollisionPrimitive() const

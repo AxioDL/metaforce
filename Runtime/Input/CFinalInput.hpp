@@ -5,7 +5,7 @@
 #include "CKeyboardMouseController.hpp"
 #include <boo/inputdev/DolphinSmashAdapter.hpp>
 
-namespace pshag
+namespace urde
 {
 
 class CFinalInput

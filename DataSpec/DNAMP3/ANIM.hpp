@@ -27,7 +27,7 @@ struct ANIM : BigDNA
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
 
-        void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&, bool additive) const;
+        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const CINF&, bool additive) const;
     };
 
     struct ANIM0 : IANIM
@@ -80,7 +80,7 @@ struct ANIM : BigDNA
     };
 
     std::unique_ptr<IANIM> m_anim;
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {
         atUint32 version = reader.readUint32Big();
         switch (version)
@@ -94,12 +94,12 @@ struct ANIM : BigDNA
             m_anim->read(reader);
             break;
         default:
-            Log.report(LogVisor::FatalError, "unrecognized ANIM version");
+            Log.report(logvisor::Fatal, "unrecognized ANIM version");
             break;
         }
     }
 
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {
         writer.writeUint32Big(m_anim->m_version);
         m_anim->write(writer);
@@ -110,7 +110,7 @@ struct ANIM : BigDNA
         return m_anim->binarySize(__isz + 4);
     }
 
-    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
+    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
     {
         m_anim->sendANIMToBlender(os, cinf, additive);
     }

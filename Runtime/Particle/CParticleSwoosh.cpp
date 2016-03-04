@@ -1,6 +1,6 @@
 #include "CParticleSwoosh.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int)
@@ -15,27 +15,27 @@ void CParticleSwoosh::Render()
 {
 }
 
-void CParticleSwoosh::SetOrientation(const Zeus::CTransform&)
+void CParticleSwoosh::SetOrientation(const zeus::CTransform&)
 {
 }
 
-void CParticleSwoosh::SetTranslation(const Zeus::CVector3f&)
+void CParticleSwoosh::SetTranslation(const zeus::CVector3f&)
 {
 }
 
-void CParticleSwoosh::SetGlobalOrientation(const Zeus::CTransform&)
+void CParticleSwoosh::SetGlobalOrientation(const zeus::CTransform&)
 {
 }
 
-void CParticleSwoosh::SetGlobalTranslation(const Zeus::CVector3f&)
+void CParticleSwoosh::SetGlobalTranslation(const zeus::CVector3f&)
 {
 }
 
-void CParticleSwoosh::SetGlobalScale(const Zeus::CVector3f&)
+void CParticleSwoosh::SetGlobalScale(const zeus::CVector3f&)
 {
 }
 
-void CParticleSwoosh::SetLocalScale(const Zeus::CVector3f&)
+void CParticleSwoosh::SetLocalScale(const zeus::CVector3f&)
 {
 }
 
@@ -43,43 +43,43 @@ void CParticleSwoosh::SetParticleEmission(bool)
 {
 }
 
-void CParticleSwoosh::SetModulationColor(const Zeus::CColor&)
+void CParticleSwoosh::SetModulationColor(const zeus::CColor&)
 {
 }
 
-const Zeus::CTransform& CParticleSwoosh::GetOrientation() const
+const zeus::CTransform& CParticleSwoosh::GetOrientation() const
 {
-    static Zeus::CTransform dummy;
+    static zeus::CTransform dummy;
     return dummy;
 }
 
-const Zeus::CVector3f& CParticleSwoosh::GetTranslation() const
+const zeus::CVector3f& CParticleSwoosh::GetTranslation() const
 {
-    static Zeus::CVector3f dummy;
+    static zeus::CVector3f dummy;
     return dummy;
 }
 
-const Zeus::CTransform& CParticleSwoosh::GetGlobalOrientation() const
+const zeus::CTransform& CParticleSwoosh::GetGlobalOrientation() const
 {
-    static Zeus::CTransform dummy;
+    static zeus::CTransform dummy;
     return dummy;
 }
 
-const Zeus::CVector3f& CParticleSwoosh::GetGlobalTranslation() const
+const zeus::CVector3f& CParticleSwoosh::GetGlobalTranslation() const
 {
-    static Zeus::CVector3f dummy;
+    static zeus::CVector3f dummy;
     return dummy;
 }
 
-const Zeus::CVector3f& CParticleSwoosh::GetGlobalScale() const
+const zeus::CVector3f& CParticleSwoosh::GetGlobalScale() const
 {
-    static Zeus::CVector3f dummy;
+    static zeus::CVector3f dummy;
     return dummy;
 }
 
-const Zeus::CColor& CParticleSwoosh::GetModulationColor() const
+const zeus::CColor& CParticleSwoosh::GetModulationColor() const
 {
-    static Zeus::CColor dummy;
+    static zeus::CColor dummy;
     return dummy;
 }
 
@@ -88,9 +88,9 @@ bool CParticleSwoosh::IsSystemDeletable() const
     return false;
 }
 
-std::pair<Zeus::CAABox, bool> CParticleSwoosh::GetBounds() const
+std::pair<zeus::CAABox, bool> CParticleSwoosh::GetBounds() const
 {
-    return std::make_pair(Zeus::CAABox(), false);
+    return std::make_pair(zeus::CAABox(), false);
 }
 
 u32 CParticleSwoosh::GetParticleCount() const

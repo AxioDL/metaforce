@@ -1,15 +1,15 @@
 #include "ANIM.hpp"
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include "zeus/Math.hpp"
 
 namespace DataSpec
 {
 namespace DNAMP3
 {
 
-using ANIMOutStream = HECL::BlenderConnection::PyOutStream::ANIMOutStream;
+using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
+void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
 {
     os.format("act.hecl_fps = round(%f)\n"
               "act.hecl_additive = %s\n",
@@ -109,7 +109,7 @@ void ANIM::IANIM::sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, co
     }
 }
 
-void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
+void ANIM::ANIM0::read(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -235,7 +235,7 @@ void ANIM::ANIM0::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void ANIM::ANIM0::write(Athena::io::IStreamWriter& writer) const
+void ANIM::ANIM0::write(athena::io::IStreamWriter& writer) const
 {
     Header head;
     head.unk0 = 0;
@@ -425,7 +425,7 @@ static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUin
     return mainInterval;
 }
 
-void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
+void ANIM::ANIM1::read(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -522,7 +522,7 @@ void ANIM::ANIM1::read(Athena::io::IStreamReader& reader)
     chanKeys = bsReader.read(bsData.get(), head.keyCount-1, channels, 32767, head.translationMult);
 }
 
-void ANIM::ANIM1::write(Athena::io::IStreamWriter& writer) const
+void ANIM::ANIM1::write(athena::io::IStreamWriter& writer) const
 {
 }
 

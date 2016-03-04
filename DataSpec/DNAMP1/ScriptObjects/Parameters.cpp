@@ -10,7 +10,7 @@ UniqueID32 AnimationParameters::getCINF(PAKRouter<PAKBridge>& pakRouter) const
 {
     if (!animationCharacterSet)
         return UniqueID32();
-    const NOD::Node* node;
+    const nod::Node* node;
     const PAK::Entry* ancsEnt = pakRouter.lookupEntry(animationCharacterSet, &node);
     ANCS ancs;
     {

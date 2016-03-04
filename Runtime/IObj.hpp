@@ -3,7 +3,7 @@
 
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class IObj

@@ -8,11 +8,11 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-void PAK::read(Athena::io::IStreamReader& reader)
+void PAK::read(athena::io::IStreamReader& reader)
 {
     atUint32 version = reader.readUint32Big();
     if (version != 0x00030005)
-        Log.report(LogVisor::FatalError, "unexpected PAK magic");
+        Log.report(logvisor::Fatal, "unexpected PAK magic");
     reader.readUint32Big();
 
     atUint32 nameCount = reader.readUint32Big();
@@ -62,7 +62,7 @@ void PAK::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void PAK::write(Athena::io::IStreamWriter& writer) const
+void PAK::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(0x00030005);
     writer.writeUint32Big(0);
@@ -98,15 +98,15 @@ size_t PAK::binarySize(size_t __isz) const
 }
 
 std::unique_ptr<atUint8[]>
-PAK::Entry::getBuffer(const NOD::Node& pak, atUint64& szOut) const
+PAK::Entry::getBuffer(const nod::Node& pak, atUint64& szOut) const
 {
     if (compressed)
     {
-        std::unique_ptr<NOD::IPartReadStream> strm = pak.beginReadStream(offset);
+        std::unique_ptr<nod::IPartReadStream> strm = pak.beginReadStream(offset);
 
         atUint32 decompSz;
         strm->read(&decompSz, 4);
-        decompSz = HECL::SBig(decompSz);
+        decompSz = hecl::SBig(decompSz);
         atUint8* buf = new atUint8[decompSz];
         atUint8* bufCur = buf;
 
@@ -135,7 +135,7 @@ PAK::Entry::getBuffer(const NOD::Node& pak, atUint64& szOut) const
             {
                 atUint16 chunkSz;
                 strm->read(&chunkSz, 2);
-                chunkSz = HECL::SBig(chunkSz);
+                chunkSz = hecl::SBig(chunkSz);
                 strm->read(compBuf, chunkSz);
                 lzo_uint dsz = rem;
                 lzo1x_decompress(compBuf, chunkSz, bufCur, &dsz, nullptr);

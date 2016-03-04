@@ -5,8 +5,8 @@ namespace DataSpec
 namespace DNACMDL
 {
 
-void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
-                            const HECL::ProjectPath& masterShaderPath)
+void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
+                            const hecl::ProjectPath& masterShaderPath)
 {
     os << "# Using 'Blender Game'\n"
           "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
@@ -87,7 +87,7 @@ void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
               "\n", masterShaderPath.getAbsolutePathUTF8().c_str());
 }
 
-void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
+void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
                        unsigned matSetCount, int meshIdx)
 {
     if (meshIdx < 0)

@@ -6,7 +6,7 @@
 #include "CStaticInterference.hpp"
 #include "IOStreams.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CPlayerState

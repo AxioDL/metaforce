@@ -3,7 +3,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
 
-namespace pshag
+namespace urde
 {
 namespace MP1
 {

@@ -2,10 +2,10 @@
 #include "CGenDescription.hpp"
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
-#include "CModel.hpp"
-#include "CGraphics.hpp"
+#include "Graphics/CModel.hpp"
+#include "Graphics/CGraphics.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& desc)
@@ -24,14 +24,14 @@ void CParticleElectric::RenderLines()
     CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
     CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
 
-    Zeus::CTransform viewXfrm = CGraphics::g_ViewMatrix;
-    Zeus::CTransform localScale;
+    zeus::CTransform viewXfrm = CGraphics::g_ViewMatrix;
+    zeus::CTransform localScale;
     localScale.Scale(xec_localScale);
-    Zeus::CTransform globalScale;
+    zeus::CTransform globalScale;
     globalScale.Scale(xe0_globalScale);
-    Zeus::CTransform localTranslation;
+    zeus::CTransform localTranslation;
     localTranslation.Translate(x38_translation);
-    Zeus::CTransform globalTranslation;
+    zeus::CTransform globalTranslation;
     globalTranslation.Translate(xa4_globalTranslation);
     CGraphics::SetModelMatrix(xb0_globalOrientation * globalTranslation * localTranslation * x44_orientation * globalScale);
     CGraphics::SetCullMode(ERglCullMode::None);
@@ -51,37 +51,37 @@ void CParticleElectric::Render()
 {
 }
 
-void CParticleElectric::SetOrientation(const Zeus::CTransform& orientation)
+void CParticleElectric::SetOrientation(const zeus::CTransform& orientation)
 {
     x44_orientation = orientation;
     x438_28 = true;
 }
 
-void CParticleElectric::SetTranslation(const Zeus::CVector3f& translation)
+void CParticleElectric::SetTranslation(const zeus::CVector3f& translation)
 {
     x38_translation = translation;
     x438_28 = true;
 }
 
-void CParticleElectric::SetGlobalOrientation(const Zeus::CTransform& orientation)
+void CParticleElectric::SetGlobalOrientation(const zeus::CTransform& orientation)
 {
     xb0_globalOrientation = orientation;
     x438_28 = true;
 }
 
-void CParticleElectric::SetGlobalTranslation(const Zeus::CVector3f& translation)
+void CParticleElectric::SetGlobalTranslation(const zeus::CVector3f& translation)
 {
     xa4_globalTranslation = translation;
     x438_28 = true;
 }
 
-void CParticleElectric::SetGlobalScale(const Zeus::CVector3f& scale)
+void CParticleElectric::SetGlobalScale(const zeus::CVector3f& scale)
 {
     xe0_globalScale = scale;
     x438_28 = true;
 }
 
-void CParticleElectric::SetLocalScale(const Zeus::CVector3f& scale)
+void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
 {
     xec_localScale = scale;
     x438_28 = true;
@@ -95,7 +95,7 @@ void CParticleElectric::SetParticleEmission(bool)
 {
 }
 
-void CParticleElectric::SetModulationColor(const Zeus::CColor& color)
+void CParticleElectric::SetModulationColor(const zeus::CColor& color)
 {
     if (!x1bc_hasModuColor)
         x1bc_hasModuColor = true;
@@ -104,35 +104,35 @@ void CParticleElectric::SetModulationColor(const Zeus::CColor& color)
     /* TODO: Add child particle systems */
 }
 
-const Zeus::CTransform& CParticleElectric::GetOrientation() const
+const zeus::CTransform& CParticleElectric::GetOrientation() const
 {
     return x44_orientation;
 }
 
-const Zeus::CVector3f& CParticleElectric::GetTranslation() const
+const zeus::CVector3f& CParticleElectric::GetTranslation() const
 {
     return x38_translation;
 }
 
-const Zeus::CTransform& CParticleElectric::GetGlobalOrientation() const
+const zeus::CTransform& CParticleElectric::GetGlobalOrientation() const
 {
     return xb0_globalOrientation;
 }
 
-const Zeus::CVector3f& CParticleElectric::GetGlobalTranslation() const
+const zeus::CVector3f& CParticleElectric::GetGlobalTranslation() const
 {
     return xa4_globalTranslation;
 }
 
-const Zeus::CVector3f& CParticleElectric::GetGlobalScale() const
+const zeus::CVector3f& CParticleElectric::GetGlobalScale() const
 {
     return xe0_globalScale;
 }
 
-const Zeus::CColor& CParticleElectric::GetModulationColor() const
+const zeus::CColor& CParticleElectric::GetModulationColor() const
 {
     if (!x1bc_hasModuColor)
-        return Zeus::CColor::skWhite;
+        return zeus::CColor::skWhite;
     return x1b8_moduColor;
 }
 
@@ -141,9 +141,9 @@ bool CParticleElectric::IsSystemDeletable() const
     return false;
 }
 
-std::pair<Zeus::CAABox, bool> CParticleElectric::GetBounds() const
+std::pair<zeus::CAABox, bool> CParticleElectric::GetBounds() const
 {
-    return std::make_pair(Zeus::CAABox(), false);
+    return std::make_pair(zeus::CAABox(), false);
 }
 
 u32 CParticleElectric::GetParticleCount() const

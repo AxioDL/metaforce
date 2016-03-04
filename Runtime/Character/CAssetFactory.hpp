@@ -4,7 +4,7 @@
 #include "../IFactory.hpp"
 #include "../IObj.hpp"
 
-namespace pshag
+namespace urde
 {
 class CCharacterFactoryBuilder : public IFactory
 {

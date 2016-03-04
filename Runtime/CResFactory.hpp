@@ -6,7 +6,7 @@
 #include "CResLoader.hpp"
 #include "IVParamObj.hpp"
 
-namespace pshag
+namespace urde
 {
 class IDvdRequest;
 

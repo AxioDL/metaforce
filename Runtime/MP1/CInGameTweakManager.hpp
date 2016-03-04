@@ -3,7 +3,7 @@
 
 #include "CInGameTweakManagerBase.hpp"
 
-namespace pshag
+namespace urde
 {
 namespace MP1
 {

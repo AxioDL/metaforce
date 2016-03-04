@@ -13,9 +13,9 @@
 namespace DataSpec
 {
 
-static LogVisor::LogModule Log("Retro::SpecBase");
+static logvisor::Module Log("urde::SpecBase");
 
-static const HECL::SystemChar* MomErr[] =
+static const hecl::SystemChar* MomErr[] =
 {
     _S("Your metroid is in another castle"),
     _S("HECL is experiencing a PTSD attack"),
@@ -31,13 +31,13 @@ static const HECL::SystemChar* MomErr[] =
 };
 
 constexpr uint32_t MomErrCount = 11;
-SpecBase::SpecBase(HECL::Database::Project& project)
+SpecBase::SpecBase(hecl::Database::Project& project)
 : m_project(project),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
-    m_disc = NOD::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
+    m_disc = nod::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
     if (!m_disc)
         return false;
     const char* gameID = m_disc->getHeader().m_gameID;
@@ -51,7 +51,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 #else
         int r = rand_r(&t) % MomErrCount;
 #endif
-        Log.report(LogVisor::FatalError, MomErr[r]);
+        Log.report(logvisor::Fatal, MomErr[r]);
     }
 
     m_standalone = true;
@@ -62,11 +62,11 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         return false;
 
     char region = m_disc->getHeader().m_gameID[3];
-    static const HECL::SystemString regNONE = _S("");
-    static const HECL::SystemString regE = _S("NTSC");
-    static const HECL::SystemString regJ = _S("NTSC-J");
-    static const HECL::SystemString regP = _S("PAL");
-    const HECL::SystemString* regstr = &regNONE;
+    static const hecl::SystemString regNONE = _S("");
+    static const hecl::SystemString regE = _S("NTSC");
+    static const hecl::SystemString regJ = _S("NTSC-J");
+    static const hecl::SystemString regP = _S("PAL");
+    const hecl::SystemString* regstr = &regNONE;
     switch (region)
     {
     case 'E':
@@ -90,13 +90,13 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 {
     DataSpec::g_curSpec = this;
     if (!Blender::BuildMasterShader(m_masterShader))
-        Log.report(LogVisor::FatalError, "Unable to build master shader blend");
+        Log.report(logvisor::Fatal, "Unable to build master shader blend");
     if (m_isWii)
     {
         /* Extract update partition for repacking later */
-        const HECL::SystemString& target = m_project.getProjectWorkingPath().getAbsolutePath();
-        NOD::Partition* update = m_disc->getUpdatePartition();
-        NOD::ExtractionContext ctx = {true, info.force, nullptr};
+        const hecl::SystemString& target = m_project.getProjectWorkingPath().getAbsolutePath();
+        nod::Partition* update = m_disc->getUpdatePartition();
+        nod::ExtractionContext ctx = {true, info.force, nullptr};
 
         if (update)
         {
@@ -104,7 +104,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
             progress(_S("Update Partition"), _S(""), 0, 0.0);
             const atUint64 nodeCount = update->getFSTRoot().rawEnd() - update->getFSTRoot().rawBegin();
             ctx.progressCB = [&](const std::string& name) {
-                HECL::SystemStringView nameView(name);
+                hecl::SystemStringView nameView(name);
                 progress(_S("Update Partition"), nameView.sys_str().c_str(), 0, idx / (float)nodeCount);
                 idx++;
             };
@@ -116,10 +116,10 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
         if (!m_standalone)
         {
             progress(_S("Trilogy Files"), _S(""), 1, 0.0);
-            NOD::Partition* data = m_disc->getDataPartition();
-            const NOD::Node& root = data->getFSTRoot();
-            for (const NOD::Node& child : root)
-                if (child.getKind() == NOD::Node::Kind::File)
+            nod::Partition* data = m_disc->getDataPartition();
+            const nod::Node& root = data->getFSTRoot();
+            for (const nod::Node& child : root)
+                if (child.getKind() == nod::Node::Kind::File)
                     child.extractToDirectory(target, ctx);
             progress(_S("Trilogy Files"), _S(""), 1, 1.0);
         }
@@ -127,25 +127,25 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     extractFromDisc(*m_disc, info.force, progress);
 }
 
-bool SpecBase::canCook(const HECL::ProjectPath& path)
+bool SpecBase::canCook(const hecl::ProjectPath& path)
 {
     if (!checkPathPrefix(path))
         return false;
-    if (HECL::IsPathBlend(path))
+    if (hecl::IsPathBlend(path))
     {
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
         if (!conn.openBlend(path))
             return false;
-        if (conn.getBlendType() != HECL::BlenderConnection::BlendType::None)
+        if (conn.getBlendType() != hecl::BlenderConnection::BlendType::None)
             return true;
     }
-    else if (HECL::IsPathPNG(path))
+    else if (hecl::IsPathPNG(path))
     {
         return true;
     }
-    else if (HECL::IsPathYAML(path))
+    else if (hecl::IsPathYAML(path))
     {
-        FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+        FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
         bool retval = validateYAMLDNAType(fp);
         fclose(fp);
         return retval;
@@ -153,41 +153,41 @@ bool SpecBase::canCook(const HECL::ProjectPath& path)
     return false;
 }
 
-void SpecBase::doCook(const HECL::ProjectPath& path, const HECL::ProjectPath& cookedPath,
+void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
                       bool fast, FCookProgress progress)
 {
     DataSpec::g_curSpec = this;
-    if (HECL::IsPathBlend(path))
+    if (hecl::IsPathBlend(path))
     {
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
         if (!conn.openBlend(path))
             return;
         switch (conn.getBlendType())
         {
-        case HECL::BlenderConnection::BlendType::Mesh:
+        case hecl::BlenderConnection::BlendType::Mesh:
         {
-            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
             cookMesh(cookedPath, path, ds, fast, progress);
             break;
         }
-        case HECL::BlenderConnection::BlendType::Actor:
+        case hecl::BlenderConnection::BlendType::Actor:
         {
-            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
             cookActor(cookedPath, path, ds, fast, progress);
             break;
         }
-        case HECL::BlenderConnection::BlendType::Area:
+        case hecl::BlenderConnection::BlendType::Area:
         {
-            HECL::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
             cookArea(cookedPath, path, ds, fast, progress);
             break;
         }
         default: break;
         }
     }
-    else if (HECL::IsPathYAML(path))
+    else if (hecl::IsPathYAML(path))
     {
-        FILE* fp = HECL::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+        FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
         cookYAML(cookedPath, path, fp, progress);
     }
 }
@@ -198,7 +198,7 @@ bool SpecBase::canPackage(const PackagePassInfo& info)
 }
 
 void SpecBase::gatherDependencies(const PackagePassInfo& info,
-                                  std::unordered_set<HECL::ProjectPath>& implicitsOut)
+                                  std::unordered_set<hecl::ProjectPath>& implicitsOut)
 {
 }
 

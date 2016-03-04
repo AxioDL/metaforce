@@ -18,7 +18,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-LogVisor::LogModule Log("Retro::DNAMP1");
+logvisor::Module Log("urde::DNAMP1");
 
 static bool GetNoShare(const std::string& name)
 {
@@ -29,12 +29,12 @@ static bool GetNoShare(const std::string& name)
     return true;
 }
 
-PAKBridge::PAKBridge(HECL::Database::Project& project,
-                     const NOD::Node& node,
+PAKBridge::PAKBridge(hecl::Database::Project& project,
+                     const nod::Node& node,
                      bool doExtract)
 : m_project(project), m_node(node), m_pak(false, GetNoShare(node.getName())), m_doExtract(doExtract)
 {
-    NOD::AthenaPartReadStream rs(node.beginReadStream());
+    nod::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);
 
     /* Append Level String */
@@ -60,12 +60,12 @@ PAKBridge::PAKBridge(HECL::Database::Project& project,
     }
 }
 
-static HECL::SystemString LayerName(const std::string& name)
+static hecl::SystemString LayerName(const std::string& name)
 {
 #if HECL_UCS2
-    HECL::SystemString ret = HECL::UTF8ToWide(name);
+    hecl::SystemString ret = hecl::UTF8ToWide(name);
 #else
-    HECL::SystemString ret = name;
+    hecl::SystemString ret = name;
 #endif
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
@@ -88,7 +88,7 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
 #if HECL_UCS2
-            level.name = HECL::UTF8ToWide(m_pak.bestEntryName(entry));
+            level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry));
 #else
             level.name = m_pak.bestEntryName(entry);
 #endif
@@ -102,7 +102,7 @@ void PAKBridge::build()
             {
                 worldMapEnt->name = entry.name + "_mapw";
                 PAKEntryReadStream rs = worldMapEnt->beginReadStream(m_node);
-                rs.seek(8, Athena::Current);
+                rs.seek(8, athena::Current);
                 atUint32 areaCount = rs.readUint32Big();
                 mapw.reserve(areaCount);
                 for (atUint32 i=0 ; i<areaCount ; ++i)
@@ -145,17 +145,17 @@ void PAKBridge::build()
                 if (areaDeps.name.empty())
                 {
 #if HECL_UCS2
-                    areaDeps.name = _S("MREA_") + HECL::UTF8ToWide(area.areaMREAId.toString());
+                    areaDeps.name = _S("MREA_") + hecl::UTF8ToWide(area.areaMREAId.toString());
 #else
                     areaDeps.name = "MREA_" + area.areaMREAId.toString();
 #endif
                 }
-                HECL::SystemChar num[16];
-                HECL::SNPrintf(num, 16, _S("%02u "), ai);
+                hecl::SystemChar num[16];
+                hecl::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
 #if HECL_UCS2
-                std::string lowerName = HECL::WideToUTF8(areaDeps.name);
+                std::string lowerName = hecl::WideToUTF8(areaDeps.name);
 #else
                 std::string lowerName(areaDeps.name);
 #endif
@@ -187,7 +187,7 @@ void PAKBridge::build()
                     while (layer.name.size() && isspace(layer.name.back()))
                         layer.name.pop_back();
 #endif
-                    HECL::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
+                    hecl::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
                     layer.name = num + layer.name;
 
                     layer.resources.reserve(area.depLayers[l] - r);
@@ -228,16 +228,16 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
                 PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
                 PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
-                cmdlEnt->name = HECL::Format("ANCS_%08X_%s_model", entry.first.toUint32(), ci.name.c_str());
-                cskrEnt->name = HECL::Format("ANCS_%08X_%s_skin", entry.first.toUint32(), ci.name.c_str());
-                cinfEnt->name = HECL::Format("ANCS_%08X_%s_skel", entry.first.toUint32(), ci.name.c_str());
+                cmdlEnt->name = hecl::Format("ANCS_%08X_%s_model", entry.first.toUint32(), ci.name.c_str());
+                cskrEnt->name = hecl::Format("ANCS_%08X_%s_skin", entry.first.toUint32(), ci.name.c_str());
+                cinfEnt->name = hecl::Format("ANCS_%08X_%s_skel", entry.first.toUint32(), ci.name.c_str());
                 if (ci.cmdlOverlay && ci.cskrOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
                     PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
                     PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
-                    cmdlEnt->name = HECL::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
-                    cskrEnt->name = HECL::Format("ANCS_%08X_%s_overskin", entry.first.toUint32(), ci.name.c_str());
+                    cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
+                    cskrEnt->name = hecl::Format("ANCS_%08X_%s_overskin", entry.first.toUint32(), ci.name.c_str());
                 }
             }
             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
@@ -245,11 +245,11 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             for (auto& ae : animInfo)
             {
                 PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
-                animEnt->name = HECL::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
+                animEnt->name = hecl::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
                 if (ae.second.evntId)
                 {
                     PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.evntId);
-                    evntEnt->name = HECL::Format("ANCS_%08X_%s_evnt", entry.first.toUint32(), ae.second.name.c_str());
+                    evntEnt->name = hecl::Format("ANCS_%08X_%s_evnt", entry.first.toUint32(), ae.second.name.c_str());
                 }
             }
         }

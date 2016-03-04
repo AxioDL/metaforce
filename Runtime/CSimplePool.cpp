@@ -2,7 +2,7 @@
 #include "IVParamObj.hpp"
 #include "CToken.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CSimplePool::CSimplePool(IFactory& factory)

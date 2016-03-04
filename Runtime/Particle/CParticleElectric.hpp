@@ -5,7 +5,7 @@
 #include "CToken.hpp"
 #include "CRandom16.hpp"
 
-namespace pshag
+namespace urde
 {
 class CElectricDescription;
 
@@ -21,25 +21,25 @@ private:
     u32              x28 = 0;
     u32              x2c = 0;
     double           x30 = 0.0;
-    Zeus::CVector3f  x38_translation;
-    Zeus::CTransform x44_orientation;
-    Zeus::CVector3f  xa4_globalTranslation;
-    Zeus::CTransform xb0_globalOrientation;
-    Zeus::CVector3f  xe0_globalScale;
-    Zeus::CVector3f  xec_localScale;
+    zeus::CVector3f  x38_translation;
+    zeus::CTransform x44_orientation;
+    zeus::CVector3f  xa4_globalTranslation;
+    zeus::CTransform xb0_globalOrientation;
+    zeus::CVector3f  xe0_globalScale;
+    zeus::CVector3f  xec_localScale;
     float            x128 = 0.f;
     float            x12c = 0.f;
-    Zeus::CVector3f  x130;
+    zeus::CVector3f  x130;
     CRandom16        x14c_randState;
     u32              x150 = 0;
     u32              x154 = 1;
     u32              x158 = 0;
     float            x15c = 0.f;
-    Zeus::CAABox     x160_systemBounds = Zeus::CAABox::skInvertedBox;
+    zeus::CAABox     x160_systemBounds = zeus::CAABox::skInvertedBox;
     bool             x184 = false;
     bool             x194 = false;
     bool             x1b4 = false;
-    Zeus::CColor     x1b8_moduColor;
+    zeus::CColor     x1b8_moduColor;
     bool             x1bc_hasModuColor = false;
     rstl::reserved_vector<std::unique_ptr<CLineManager>, 32> x1c0_lineManagers;
 
@@ -57,22 +57,22 @@ public:
     void RenderLines();
     void Update(double);
     void Render();
-    void SetOrientation(const Zeus::CTransform&);
-    void SetTranslation(const Zeus::CVector3f&);
-    void SetGlobalOrientation(const Zeus::CTransform&);
-    void SetGlobalTranslation(const Zeus::CVector3f&);
-    void SetGlobalScale(const Zeus::CVector3f&);
-    void SetLocalScale(const Zeus::CVector3f&);
+    void SetOrientation(const zeus::CTransform&);
+    void SetTranslation(const zeus::CVector3f&);
+    void SetGlobalOrientation(const zeus::CTransform&);
+    void SetGlobalTranslation(const zeus::CVector3f&);
+    void SetGlobalScale(const zeus::CVector3f&);
+    void SetLocalScale(const zeus::CVector3f&);
     void SetParticleEmission(bool);
-    void SetModulationColor(const Zeus::CColor&);
-    const Zeus::CTransform& GetOrientation() const;
-    const Zeus::CVector3f& GetTranslation() const;
-    const Zeus::CTransform& GetGlobalOrientation() const;
-    const Zeus::CVector3f& GetGlobalTranslation() const;
-    const Zeus::CVector3f& GetGlobalScale() const;
-    const Zeus::CColor& GetModulationColor() const;
+    void SetModulationColor(const zeus::CColor&);
+    const zeus::CTransform& GetOrientation() const;
+    const zeus::CVector3f& GetTranslation() const;
+    const zeus::CTransform& GetGlobalOrientation() const;
+    const zeus::CVector3f& GetGlobalTranslation() const;
+    const zeus::CVector3f& GetGlobalScale() const;
+    const zeus::CColor& GetModulationColor() const;
     bool IsSystemDeletable() const;
-    std::pair<Zeus::CAABox, bool> GetBounds() const;
+    std::pair<zeus::CAABox, bool> GetBounds() const;
     u32 GetParticleCount() const;
     bool SystemHasLight() const;
     CLight GetLight() const;

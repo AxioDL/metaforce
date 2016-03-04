@@ -2,23 +2,19 @@
 #include "SCLY.hpp"
 #include "DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
-
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES 1
-#endif
-#include <math.h>
+#include "zeus/Math.hpp"
 
 namespace DataSpec
 {
 namespace DNAMP1
 {
 
-void MREA::ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
-                                     Athena::io::IStreamReader& rs)
+void MREA::ReadBabeDeadToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
+                                     athena::io::IStreamReader& rs)
 {
     atUint32 bdMagic = rs.readUint32Big();
     if (bdMagic != 0xBABEDEAD)
-        Log.report(LogVisor::FatalError, "invalid BABEDEAD magic");
+        Log.report(logvisor::Fatal, "invalid BABEDEAD magic");
     os << "bpy.context.scene.render.engine = 'CYCLES'\n"
           "bpy.context.scene.world.use_nodes = True\n"
           "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
@@ -49,7 +45,7 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
     atUint64 secStart = rs.position();
     while (curSec != head.sclySecIdx)
         secStart += head.secSizes[curSec++];
-    rs.seek(secStart, Athena::Begin);
+    rs.seek(secStart, athena::Begin);
     SCLY scly;
     scly.read(rs);
     scly.addCMDLRigPairs(pakRouter, addTo);
@@ -57,18 +53,18 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
 
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
-                   const HECL::ProjectPath& outPath,
+                   const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
-                   std::function<void(const HECL::SystemChar*)>)
+                   std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
     /* Rename MREA for consistency */
-    HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
-    if (!force && mreaPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
     /* Do extract */
@@ -76,12 +72,12 @@ bool MREA::Extract(const SpecBase& dataSpec,
     head.read(rs);
     rs.seekAlign32();
 
-    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::BlendType::Area))
+    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"
@@ -113,7 +109,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint64 secStart = rs.position();
     matSet.read(rs);
     matSet.readToBlender(os, pakRouter, entry, 0);
-    rs.seek(secStart + head.secSizes[0], Athena::Begin);
+    rs.seek(secStart + head.secSizes[0], athena::Begin);
     std::vector<DNACMDL::VertexAttributes> vertAttribs;
     DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -124,7 +120,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         MeshHeader mHeader;
         secStart = rs.position();
         mHeader.read(rs);
-        rs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
         curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1>
                       (os, rs, pakRouter, entry, dummy, true,
                        true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
@@ -139,14 +135,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
     }
 
     /* Skip AROT */
-    rs.seek(head.secSizes[curSec++], Athena::Current);
+    rs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Read SCLY layers */
     secStart = rs.position();
     SCLY scly;
     scly.read(rs);
     scly.exportToLayerDirectories(entry, pakRouter, force);
-    rs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Read collision meshes */
     DeafBabe collision;
@@ -154,15 +150,15 @@ bool MREA::Extract(const SpecBase& dataSpec,
     collision.read(rs);
     DeafBabe::BlenderInit(os);
     collision.sendToBlender(os);
-    rs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Skip unknown section */
-    rs.seek(head.secSizes[curSec++], Athena::Current);
+    rs.seek(head.secSizes[curSec++], athena::Current);
 
     /* Read BABEDEAD Lights as Cycles emissives */
     secStart = rs.position();
     ReadBabeDeadToBlender_1_2(os, rs);
-    rs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+    rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Origins to center of mass */
     os << "bpy.context.scene.layers[1] = True\n"
@@ -193,15 +189,15 @@ void MREA::Name(const SpecBase& dataSpec,
     atUint64 secStart = rs.position();
     MaterialSet matSet;
     matSet.read(rs);
-    matSet.nameTextures(pakRouter, HECL::Format("MREA_%s", entry.id.toString().c_str()).c_str(), -1);
-    rs.seek(secStart + head.secSizes[0], Athena::Begin);
+    matSet.nameTextures(pakRouter, hecl::Format("MREA_%s", entry.id.toString().c_str()).c_str(), -1);
+    rs.seek(secStart + head.secSizes[0], athena::Begin);
 
     /* Skip to SCLY */
     atUint32 curSec = 1;
     secStart = rs.position();
     while (curSec != head.sclySecIdx)
         secStart += head.secSizes[curSec++];
-    rs.seek(secStart, Athena::Begin);
+    rs.seek(secStart, athena::Begin);
     SCLY scly;
     scly.read(rs);
     scly.nameIDs(pakRouter);
@@ -209,10 +205,10 @@ void MREA::Name(const SpecBase& dataSpec,
     /* Skip to PATH */
     while (curSec != head.pathSecIdx)
         secStart += head.secSizes[curSec++];
-    rs.seek(secStart, Athena::Begin);
+    rs.seek(secStart, athena::Begin);
 
     UniqueID32 pathID(rs);
-    const NOD::Node* node;
+    const nod::Node* node;
     PAK::Entry* pathEnt = (PAK::Entry*)pakRouter.lookupEntry(pathID, &node);
     pathEnt->name = entry.name + "_path";
 }

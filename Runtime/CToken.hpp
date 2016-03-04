@@ -8,7 +8,7 @@
 #include "IObjectStore.hpp"
 #include "IFactory.hpp"
 
-namespace pshag
+namespace urde
 {
 class IObjectStore;
 class IObj;

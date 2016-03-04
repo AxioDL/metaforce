@@ -8,10 +8,10 @@
 #include "rstl.hpp"
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
-namespace pshag
+namespace urde
 {
 
-using FourCC = HECL::FourCC;
+using FourCC = hecl::FourCC;
 using TResId = u64;
 
 struct SObjectTag
@@ -72,9 +72,9 @@ using TAreaId = u32;
 namespace std
 {
 template<>
-struct hash<pshag::SObjectTag>
+struct hash<urde::SObjectTag>
 {
-    inline size_t operator()(const pshag::SObjectTag& tag) const
+    inline size_t operator()(const urde::SObjectTag& tag) const
     {return tag.id;}
 };
 }

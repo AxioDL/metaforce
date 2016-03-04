@@ -13,7 +13,7 @@ namespace DNAMP3
 struct CINF : DNAMP2::CINF
 {
     Delete expl;
-    void sendCINFToBlender(HECL::BlenderConnection::PyOutStream& os, const UniqueID64& cinfId) const
+    void sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID64& cinfId) const
     {
         os.format("arm = bpy.data.armatures.new('CINF_%016" PRIX64 "')\n"
                   "arm_obj = bpy.data.objects.new(arm.name, arm)\n"

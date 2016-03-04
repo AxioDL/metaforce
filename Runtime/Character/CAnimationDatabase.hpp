@@ -6,7 +6,7 @@
 #include <set>
 #include <string>
 
-namespace pshag
+namespace urde
 {
 class IMetaAnim;
 class CPrimitive;

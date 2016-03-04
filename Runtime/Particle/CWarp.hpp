@@ -1,11 +1,11 @@
 #ifndef __PSHAG_CWARP_HPP__
 #define __PSHAG_CWARP_HPP__
 
-#include <CColor.hpp>
-#include <CVector3f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CVector3f.hpp"
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CWarp
@@ -14,10 +14,10 @@ public:
     virtual ~CWarp() {}
     virtual bool UpdateWarp()=0;
     virtual void ModifyParticles(int, int, int*,
-                                 Zeus::CVector3f*,
-                                 Zeus::CVector3f*,
-                                 Zeus::CVector3f*,
-                                 Zeus::CColor*,
+                                 zeus::CVector3f*,
+                                 zeus::CVector3f*,
+                                 zeus::CVector3f*,
+                                 zeus::CColor*,
                                  float*, float*)=0;
     virtual void Activate(bool)=0;
     virtual bool IsActivated()=0;

@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CMAPWORLDINFO_HPP__
 #define __PSHAG_CMAPWORLDINFO_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CMapWorldInfo

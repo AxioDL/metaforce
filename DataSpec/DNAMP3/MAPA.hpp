@@ -13,15 +13,15 @@ struct MAPA : DNAMAPA::MAPA
 {
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
+                        std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MAPA mapa;
         mapa.read(rs);
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
         return DNAMAPA::ReadMAPAToBlender(conn, mapa, outPath, pakRouter, entry, force);
     }
 };

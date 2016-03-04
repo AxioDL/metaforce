@@ -3,7 +3,7 @@
 #include "CMemory.hpp"
 #include "CCallStack.hpp"
 
-namespace pshag
+namespace urde
 {
 
 const std::vector<u32>* CResLoader::GetTagListForFile(const std::string& name) const

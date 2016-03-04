@@ -3,9 +3,9 @@
 namespace URDE
 {
 
-Space::Class Resource::DeduceDefaultSpaceClass(const HECL::ProjectPath& path)
+Space::Class Resource::DeduceDefaultSpaceClass(const hecl::ProjectPath& path)
 {
-    Athena::io::FileReader r(path.getAbsolutePath(), 32*1024, false);
+    athena::io::FileReader r(path.getAbsolutePath(), 32*1024, false);
     if (r.hasError())
         return Space::Class::None;
     return Space::Class::None;

@@ -1,12 +1,12 @@
 #include "CMemory.hpp"
 #include "CGameAllocator.hpp"
 #include "CCallStack.hpp"
-#include <LogVisor/LogVisor.hpp>
+#include "logvisor/logvisor.hpp"
 
-namespace pshag
+namespace urde
 {
 
-LogVisor::LogModule Log("CMemory");
+logvisor::Module Log("CMemory");
 
 static CGameAllocator g_gameAllocator;
 static IAllocator* g_memoryAllocator = &g_gameAllocator;
@@ -52,7 +52,7 @@ void* CMemory::Alloc(size_t sz, IAllocator::EHint hint, IAllocator::EScope scope
 {
     void* newPtr = g_memoryAllocator->Alloc(sz, hint, scope, type, cs);
     if (!newPtr)
-        Log.report(LogVisor::Error, "Alloc Failed! - Size %d", sz);
+        Log.report(logvisor::Error, "Alloc Failed! - Size %d", sz);
     return newPtr;
 }
 
@@ -73,70 +73,70 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 void* operator new(std::size_t sz)
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
         return malloc(sz);
-    pshag::CCallStack cs("?\?(?\?)", "UnknownType");
-    return pshag::CMemory::Alloc(sz,
-                                 pshag::IAllocator::EHint::None,
-                                 pshag::IAllocator::EScope::Default,
-                                 pshag::IAllocator::EType::Primitive,
+    urde::CCallStack cs("?\?(?\?)", "UnknownType");
+    return urde::CMemory::Alloc(sz,
+                                 urde::IAllocator::EHint::None,
+                                 urde::IAllocator::EScope::Default,
+                                 urde::IAllocator::EType::Primitive,
                                  cs);
 }
 
 void* operator new(std::size_t sz,
                    const char* funcName, const char* typeName)
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
         return malloc(sz);
-    pshag::CCallStack cs(funcName, typeName);
-    return pshag::CMemory::Alloc(sz,
-                                 pshag::IAllocator::EHint::None,
-                                 pshag::IAllocator::EScope::Default,
-                                 pshag::IAllocator::EType::Primitive,
+    urde::CCallStack cs(funcName, typeName);
+    return urde::CMemory::Alloc(sz,
+                                 urde::IAllocator::EHint::None,
+                                 urde::IAllocator::EScope::Default,
+                                 urde::IAllocator::EType::Primitive,
                                  cs);
 }
 
 void operator delete(void* ptr) noexcept
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
     {
         free(ptr);
         return;
     }
-    pshag::CMemory::Free(ptr);
+    urde::CMemory::Free(ptr);
 }
 
 void* operator new[](std::size_t sz)
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
         return malloc(sz);
-    pshag::CCallStack cs("?\?(?\?)", "UnknownType");
-    return pshag::CMemory::Alloc(sz,
-                                 pshag::IAllocator::EHint::None,
-                                 pshag::IAllocator::EScope::Default,
-                                 pshag::IAllocator::EType::Array,
+    urde::CCallStack cs("?\?(?\?)", "UnknownType");
+    return urde::CMemory::Alloc(sz,
+                                 urde::IAllocator::EHint::None,
+                                 urde::IAllocator::EScope::Default,
+                                 urde::IAllocator::EType::Array,
                                  cs);
 }
 
 void* operator new[](std::size_t sz,
                      const char* funcName, const char* typeName)
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
         return malloc(sz);
-    pshag::CCallStack cs(funcName, typeName);
-    return pshag::CMemory::Alloc(sz,
-                                 pshag::IAllocator::EHint::None,
-                                 pshag::IAllocator::EScope::Default,
-                                 pshag::IAllocator::EType::Array,
+    urde::CCallStack cs(funcName, typeName);
+    return urde::CMemory::Alloc(sz,
+                                 urde::IAllocator::EHint::None,
+                                 urde::IAllocator::EScope::Default,
+                                 urde::IAllocator::EType::Array,
                                  cs);
 }
 
 void operator delete[](void* ptr) noexcept
 {
-    if (!pshag::g_memoryAllocatorReady)
+    if (!urde::g_memoryAllocatorReady)
     {
         free(ptr);
         return;
     }
-    pshag::CMemory::Free(ptr);
+    urde::CMemory::Free(ptr);
 }

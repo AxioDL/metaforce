@@ -3,7 +3,7 @@
 
 #include "CMFGameBase.hpp"
 
-namespace pshag
+namespace urde
 {
 namespace MP1
 {

@@ -16,13 +16,13 @@ class InformationCenter : public ViewerSpace
 
     const Space::State& spaceState() const { return m_state; }
 
-    struct View : Specter::View
+    struct View : specter::View
     {
         InformationCenter& m_ic;
-        std::vector<HECL::SystemString> m_log;
+        std::vector<hecl::SystemString> m_log;
 
-        View(InformationCenter& ic, Specter::ViewResources& res)
-            : Specter::View(res, ic.m_vm.rootView()), m_ic(ic)
+        View(InformationCenter& ic, specter::ViewResources& res)
+            : specter::View(res, ic.m_vm.rootView()), m_ic(ic)
         {
             commitResources(res);
         }
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    virtual Specter::View* buildContentView(Specter::ViewResources& res)
+    virtual specter::View* buildContentView(specter::ViewResources& res)
     {
         m_view.reset(new View(*this, res));
         return m_view.get();

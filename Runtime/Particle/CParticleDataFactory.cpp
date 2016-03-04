@@ -3,13 +3,13 @@
 #include "CSimplePool.hpp"
 #include "CGenDescription.hpp"
 #include "CRandom16.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CParticleDataFactory");
+static logvisor::Module Log("urde::CParticleDataFactory");
 
 float CParticleDataFactory::GetReal(CInputStream& in)
 {
@@ -25,7 +25,7 @@ bool CParticleDataFactory::GetBool(CInputStream& in)
 {
     FourCC cid = GetClassID(in);
     if (cid != FOURCC('CNST'))
-        Log.report(LogVisor::FatalError, "bool element does not begin with CNST");
+        Log.report(logvisor::Fatal, "bool element does not begin with CNST");
     return in.readBool();
 }
 
@@ -1110,7 +1110,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown GPSM class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(logvisor::Fatal, "Unknown GPSM class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }

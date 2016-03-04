@@ -7,7 +7,7 @@
 #include "CFrontEndUI.hpp"
 #include "GameGlobalObjects.hpp"
 
-namespace pshag
+namespace urde
 {
 namespace MP1
 {
