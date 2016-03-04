@@ -1,11 +1,11 @@
-#include <LogVisor/LogVisor.hpp>
-#include "Specter/Space.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "logvisor/logvisor.hpp"
+#include "specter/Space.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::Space");
+static logvisor::Module Log("specter::Space");
 
 #define TRIANGLE_DIM 12
 #define TRIANGLE_DIM1 10
@@ -22,21 +22,21 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
 {
     commitResources(res);
     setBackground(res.themeData().spaceBackground());
-    static const Zeus::CColor triColor = {0.75, 0.75, 0.75, 1.0};
+    static const zeus::CColor triColor = {0.75, 0.75, 0.75, 1.0};
     if (controller.spaceSplitAllowed())
         m_cornerView.m_view.reset(new CornerView(res, *this, triColor));
     if (tbPos != Toolbar::Position::None)
         m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
 }
 
-Space::CornerView::CornerView(ViewResources& res, Space& space, const Zeus::CColor& triColor)
+Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor)
 : View(res, space), m_space(space)
 {
     m_vertexBinding.initSolid(res, 34, m_viewVertBlockBuf);
     float pf = res.pixelFactor();
 
-    Zeus::CColor edgeColor1 = triColor * res.themeData().spaceTriangleShading1();
-    Zeus::CColor edgeColor2 = triColor * res.themeData().spaceTriangleShading2();
+    zeus::CColor edgeColor1 = triColor * res.themeData().spaceTriangleShading1();
+    zeus::CColor edgeColor2 = triColor * res.themeData().spaceTriangleShading2();
     View::SolidShaderVert verts[34];
 
     verts[0].m_pos.assign(0, TRIANGLE_DIM * pf, 0);

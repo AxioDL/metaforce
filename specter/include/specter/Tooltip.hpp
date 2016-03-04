@@ -1,10 +1,10 @@
 #ifndef SPECTER_TOOLTIP_HPP
 #define SPECTER_TOOLTIP_HPP
 
-#include "Specter/View.hpp"
-#include "Specter/MultiLineTextView.hpp"
+#include "specter/View.hpp"
+#include "specter/MultiLineTextView.hpp"
 
-namespace Specter
+namespace specter
 {
 
 class Tooltip : public View

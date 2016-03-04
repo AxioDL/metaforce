@@ -6,7 +6,7 @@
 #include "ScrollView.hpp"
 #include "IMenuNode.hpp"
 
-namespace Specter
+namespace specter
 {
 
 class Menu : public View

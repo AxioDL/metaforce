@@ -1,9 +1,9 @@
-#include "Specter/ScrollView.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/Button.hpp"
+#include "specter/ScrollView.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
+#include "specter/Button.hpp"
 
-namespace Specter
+namespace specter
 {
 #define MAX_SCROLL_SPEED 100
 
@@ -169,7 +169,7 @@ void ScrollView::scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta&
         updateSize();
 }
 
-void ScrollView::setMultiplyColor(const Zeus::CColor& color)
+void ScrollView::setMultiplyColor(const zeus::CColor& color)
 {
     View::setMultiplyColor(color);
     if (m_style == Style::SideButtons)
@@ -270,7 +270,7 @@ void ScrollView::resized(const boo::SWindowRect& root, const boo::SWindowRect& s
                 m_verts[1].m_pos.assign(x, y-barHeight, 0);
                 m_verts[2].m_pos.assign(x+2*pf, y, 0);
                 m_verts[3].m_pos.assign(x+2*pf, y-barHeight, 0);
-                const Zeus::CColor& color = rootView().themeData().scrollIndicator();
+                const zeus::CColor& color = rootView().themeData().scrollIndicator();
                 for (int i=0 ; i<4 ; ++i)
                     m_verts[i].m_color = color;
                 m_vertsBinding.load(m_verts, sizeof(m_verts));

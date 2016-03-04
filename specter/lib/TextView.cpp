@@ -1,13 +1,13 @@
-#include "Specter/TextView.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/TextView.hpp"
+#include "specter/ViewResources.hpp"
 #include "utf8proc.h"
 
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftobjs.h>
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::TextView");
+static logvisor::Module Log("specter::TextView");
 
 static const char* GLSLVS =
 "#version 330\n"
@@ -351,7 +351,7 @@ TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, 
 TextView::TextView(ViewResources& res, View& parentView, FontTag font, Alignment align, size_t capacity)
 : TextView(res, parentView, res.m_textRes.m_fcache->lookupAtlas(font), align, capacity) {}
 
-TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor)
+TextView::RenderGlyph::RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const zeus::CColor& defaultColor)
 {
     m_pos[0].assign(adv + glyph.m_leftPadding, glyph.m_verticalOffset + glyph.m_height, 0.f);
     m_pos[1].assign(adv + glyph.m_leftPadding, glyph.m_verticalOffset, 0.f);
@@ -381,7 +381,7 @@ int TextView::DoKern(FT_Pos val, const FontAtlas& atlas)
     return FT_PIX_ROUND(val) >> 6;
 }
 
-void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& defaultColor)
+void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& defaultColor)
 {
     size_t rem = str.size();
     const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
@@ -397,7 +397,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
         utf8proc_int32_t ch;
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (sz < 0)
-            Log.report(LogVisor::FatalError, "invalid UTF-8 char");
+            Log.report(logvisor::Fatal, "invalid UTF-8 char");
         if (ch == '\n')
             break;
 
@@ -450,7 +450,7 @@ void TextView::typesetGlyphs(const std::string& str, const Zeus::CColor& default
     updateSize();
 }
 
-void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaultColor)
+void TextView::typesetGlyphs(const std::wstring& str, const zeus::CColor& defaultColor)
 {
     uint32_t lCh = -1;
     m_glyphs.clear();
@@ -507,13 +507,13 @@ void TextView::typesetGlyphs(const std::wstring& str, const Zeus::CColor& defaul
     updateSize();
 }
 
-void TextView::colorGlyphs(const Zeus::CColor& newColor)
+void TextView::colorGlyphs(const zeus::CColor& newColor)
 {
     for (RenderGlyph& glyph : m_glyphs)
         glyph.m_color = newColor;
     m_valid = false;
 }
-void TextView::colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval, float fadeTime)
+void TextView::colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterval, float fadeTime)
 {
 }
 void TextView::think()
@@ -543,7 +543,7 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
 std::pair<int,int> TextView::queryGlyphDimensions(size_t pos) const
 {
     if (pos >= m_glyphInfo.size())
-        Log.report(LogVisor::FatalError,
+        Log.report(logvisor::Fatal,
                    "TextView::queryGlyphWidth(%" PRISize ") out of bounds: %" PRISize,
                    pos, m_glyphInfo.size());
 
@@ -571,7 +571,7 @@ size_t TextView::reverseSelectGlyph(int x) const
 int TextView::queryReverseAdvance(size_t idx) const
 {
     if (idx > m_glyphInfo.size())
-        Log.report(LogVisor::FatalError,
+        Log.report(logvisor::Fatal,
                    "TextView::queryReverseGlyph(%" PRISize ") out of inclusive bounds: %" PRISize,
                    idx, m_glyphInfo.size());
     if (!idx) return 0;
@@ -581,7 +581,7 @@ int TextView::queryReverseAdvance(size_t idx) const
 std::pair<size_t,size_t> TextView::queryWholeWordRange(size_t idx) const
 {
     if (idx > m_glyphInfo.size())
-        Log.report(LogVisor::FatalError,
+        Log.report(logvisor::Fatal,
                    "TextView::queryWholeWordRange(%" PRISize ") out of inclusive bounds: %" PRISize,
                    idx, m_glyphInfo.size());
     if (m_glyphInfo.empty())

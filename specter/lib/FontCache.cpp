@@ -2,9 +2,9 @@
 #define NOMINMAX 1
 #endif
 
-#include "Specter/FontCache.hpp"
-#include <LogVisor/LogVisor.hpp>
-#include <Athena/MemoryReader.hpp>
+#include "specter/FontCache.hpp"
+#include "logvisor/logvisor.hpp"
+#include <athena/MemoryReader.hpp>
 #include <stdint.h>
 #include <zlib.h>
 
@@ -26,9 +26,9 @@ extern "C" size_t SPECTERCURVES_SZ;
 
 extern "C" const FT_Driver_ClassRec tt_driver_class;
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::FontCache");
+static logvisor::Module Log("specter::FontCache");
 
 const FCharFilter AllCharFilter =
 std::make_pair("all-glyphs", [](uint32_t)->bool
@@ -70,7 +70,7 @@ void FreeTypeGZipMemFace::open()
         return;
 
     if (FT_Stream_OpenGzip(&m_decomp, &m_comp))
-        Log.report(LogVisor::FatalError, "unable to open FreeType gzip stream");
+        Log.report(logvisor::Fatal, "unable to open FreeType gzip stream");
 
     FT_Open_Args args =
     {
@@ -82,7 +82,7 @@ void FreeTypeGZipMemFace::open()
     };
 
     if (FT_Open_Face(m_lib, &args, 0, &m_face))
-        Log.report(LogVisor::FatalError, "unable to open FreeType gzip face");
+        Log.report(logvisor::Fatal, "unable to open FreeType gzip face");
 }
 
 void FreeTypeGZipMemFace::close()
@@ -155,7 +155,7 @@ void FontAtlas::buildKernTable(FT_Face face)
         TT_Face ttface = reinterpret_cast<TT_Face>(face);
         if (!ttface->kern_table)
             return;
-        Athena::io::MemoryReader r(ttface->kern_table, ttface->kern_table_size);
+        athena::io::MemoryReader r(ttface->kern_table, ttface->kern_table_size);
         auto it = m_kernAdjs.end();
         atUint32 nSubs = r.readUint32Big();
         for (atUint32 i=0 ; i<nSubs ; ++i)
@@ -164,7 +164,7 @@ void FontAtlas::buildKernTable(FT_Face face)
             kernHead.read(r);
             if (kernHead.coverage >> 8 != 0)
             {
-                r.seek(kernHead.length - 6, Athena::Current);
+                r.seek(kernHead.length - 6, athena::Current);
                 continue;
             }
 
@@ -187,7 +187,7 @@ void FontAtlas::buildKernTable(FT_Face face)
 #define NO_ZLIB 0
 #define ZLIB_BUF_SZ 32768
 
-static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data, size_t sz)
+static void WriteCompressed(athena::io::FileWriter& writer, const atUint8* data, size_t sz)
 {
 #if NO_ZLIB
     writer.writeUBytes(data, sz);
@@ -219,13 +219,13 @@ static void WriteCompressed(Athena::io::FileWriter& writer, const atUint8* data,
         writer.writeUBytes(compBuf, ZLIB_BUF_SZ - z.avail_out);
     }
 
-    writer.seek(adlerPos, Athena::Begin);
+    writer.seek(adlerPos, athena::Begin);
     writer.writeUint32Big(z.adler);
 
     deflateEnd(&z);
 }
 
-static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size_t sz)
+static bool ReadDecompressed(athena::io::FileReader& reader, atUint8* data, size_t sz)
 {
 #if NO_ZLIB
     reader.readUBytesToBuf(data, sz);
@@ -253,7 +253,7 @@ static bool ReadDecompressed(Athena::io::FileReader& reader, atUint8* data, size
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-                     bool subpixel, FCharFilter& filter, Athena::io::FileWriter& writer)
+                     bool subpixel, FCharFilter& filter, athena::io::FileWriter& writer)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
   m_ftXPpem(face->size->metrics.x_ppem),
@@ -481,7 +481,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 }
 
 FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-                     bool subpixel, FCharFilter& filter, Athena::io::FileReader& reader)
+                     bool subpixel, FCharFilter& filter, athena::io::FileReader& reader)
 : m_dpi(dpi),
   m_ftXscale(face->size->metrics.x_scale),
   m_ftXPpem(face->size->metrics.x_ppem),
@@ -685,7 +685,7 @@ FontCache::Library::Library()
 {
     FT_Error err = FT_Init_FreeType(&m_lib);
     if (err)
-        Log.report(LogVisor::FatalError, "unable to FT_Init_FreeType");
+        Log.report(logvisor::Fatal, "unable to FT_Init_FreeType");
 }
 
 FontCache::Library::~Library()
@@ -693,13 +693,13 @@ FontCache::Library::~Library()
     FT_Done_FreeType(m_lib);
 }
 
-FontCache::FontCache(const HECL::Runtime::FileStoreManager& fileMgr)
+FontCache::FontCache(const hecl::Runtime::FileStoreManager& fileMgr)
 : m_fileMgr(fileMgr),
   m_cacheRoot(m_fileMgr.getStoreRoot() + _S("/fontcache")),
   m_regFace(m_fontLib, DROIDSANS_PERMISSIVE, DROIDSANS_PERMISSIVE_SZ),
   m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ),
   m_curvesFace(m_fontLib, SPECTERCURVES, SPECTERCURVES_SZ)
-{HECL::MakeDir(m_cacheRoot.c_str());}
+{hecl::MakeDir(m_cacheRoot.c_str());}
 
 FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
                                   FCharFilter filter, bool subpixel,
@@ -707,10 +707,10 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::stri
 {
     /* Quick validation */
     if (!face)
-        Log.report(LogVisor::FatalError, "invalid freetype face");
+        Log.report(logvisor::Fatal, "invalid freetype face");
 
     if (!face->charmap || face->charmap->encoding != FT_ENCODING_UNICODE)
-        Log.report(LogVisor::FatalError, "font does not contain a unicode char map");
+        Log.report(logvisor::Fatal, "font does not contain a unicode char map");
 
     /* Set size with FreeType */
     FT_Set_Char_Size(face, 0, points * 64.0, 0, dpi);
@@ -722,11 +722,11 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::stri
         return tag;
 
     /* Now check filesystem cache */
-    HECL::SystemString cachePath = m_cacheRoot + _S('/') + HECL::SysFormat(_S("%" PRIx64), tag.hash());
-    HECL::Sstat st;
-    if (!HECL::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode))
+    hecl::SystemString cachePath = m_cacheRoot + _S('/') + hecl::SysFormat(_S("%" PRIx64), tag.hash());
+    hecl::Sstat st;
+    if (!hecl::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode))
     {
-        Athena::io::FileReader r(cachePath);
+        athena::io::FileReader r(cachePath);
         if (!r.hasError())
         {
             atUint32 magic = r.readUint32Big();
@@ -743,9 +743,9 @@ FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::stri
     }
 
     /* Nada, build and cache now */
-    Athena::io::FileWriter w(cachePath);
+    athena::io::FileWriter w(cachePath);
     if (w.hasError())
-        Log.report(LogVisor::FatalError, "unable to open '%s' for writing", cachePath.c_str());
+        Log.report(logvisor::Fatal, "unable to open '%s' for writing", cachePath.c_str());
     w.writeUint32Big('FONT');
     m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(gf, face, dpi, subpixel, filter, w));
     return tag;
@@ -755,7 +755,7 @@ const FontAtlas& FontCache::lookupAtlas(FontTag tag) const
 {
     auto search = m_cachedAtlases.find(tag);
     if (search == m_cachedAtlases.cend())
-        Log.report(LogVisor::FatalError, "invalid font");
+        Log.report(logvisor::Fatal, "invalid font");
     return *search->second.get();
 }
 

@@ -2,23 +2,23 @@
 #define SPECTER_TRANSLATOR_HPP
 
 #include <string>
-#include <Athena/DNAYaml.hpp>
+#include <athena/DNAYaml.hpp>
 
-namespace Specter
+namespace specter
 {
 
 class Locale
 {
     std::string m_name;
     std::string m_fullName;
-    std::unique_ptr<Athena::io::YAMLNode> m_rootNode;
-    const Athena::io::YAMLNode* m_langNode;
+    std::unique_ptr<athena::io::YAMLNode> m_rootNode;
+    const athena::io::YAMLNode* m_langNode;
 public:
     Locale(const std::string& name, const std::string& fullName,
            const unsigned char* yamlSource, size_t yamlLength);
     const std::string& name() const {return m_name;}
     const std::string& fullName() const {return m_fullName;}
-    const Athena::io::YAMLNode* rootNode() const {return m_langNode;}
+    const athena::io::YAMLNode* rootNode() const {return m_langNode;}
 };
 
 class Translator

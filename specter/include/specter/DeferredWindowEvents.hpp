@@ -5,7 +5,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace Specter
+namespace specter
 {
 
 template <class Receiver>

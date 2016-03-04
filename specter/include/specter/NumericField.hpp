@@ -1,9 +1,9 @@
 #ifndef SPECTER_NUMERICFIELD_HPP
 #define SPECTER_NUMERICFIELD_HPP
 
-#include "Specter/TextView.hpp"
+#include "specter/TextView.hpp"
 
-namespace Specter
+namespace specter
 {
 class ViewResources;
 

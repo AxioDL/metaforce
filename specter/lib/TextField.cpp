@@ -1,8 +1,8 @@
-#include "Specter/TextField.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/TextField.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
 
-namespace Specter
+namespace specter
 {
 
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
@@ -109,13 +109,13 @@ void TextField::setInactive()
     const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
-        m_verts[0].m_color = theme.textfield1Inactive() * Zeus::CColor::skRed;
-        m_verts[1].m_color = theme.textfield2Inactive() * Zeus::CColor::skRed;
-        m_verts[2].m_color = theme.textfield1Inactive() * Zeus::CColor::skRed;
-        m_verts[3].m_color = theme.textfield2Inactive() * Zeus::CColor::skRed;
-        m_verts[4].m_color = theme.textfield2Inactive() * Zeus::CColor::skRed;
+        m_verts[0].m_color = theme.textfield1Inactive() * zeus::CColor::skRed;
+        m_verts[1].m_color = theme.textfield2Inactive() * zeus::CColor::skRed;
+        m_verts[2].m_color = theme.textfield1Inactive() * zeus::CColor::skRed;
+        m_verts[3].m_color = theme.textfield2Inactive() * zeus::CColor::skRed;
+        m_verts[4].m_color = theme.textfield2Inactive() * zeus::CColor::skRed;
         for (int i=5 ; i<28 ; ++i)
-            m_verts[i].m_color = theme.textfield2Inactive() * Zeus::CColor::skRed;
+            m_verts[i].m_color = theme.textfield2Inactive() * zeus::CColor::skRed;
     }
     else
     {
@@ -136,13 +136,13 @@ void TextField::setHover()
     const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
-        m_verts[0].m_color = theme.textfield1Hover() * Zeus::CColor::skRed;
-        m_verts[1].m_color = theme.textfield2Hover() * Zeus::CColor::skRed;
-        m_verts[2].m_color = theme.textfield1Hover() * Zeus::CColor::skRed;
-        m_verts[3].m_color = theme.textfield2Hover() * Zeus::CColor::skRed;
-        m_verts[4].m_color = theme.textfield2Hover() * Zeus::CColor::skRed;
+        m_verts[0].m_color = theme.textfield1Hover() * zeus::CColor::skRed;
+        m_verts[1].m_color = theme.textfield2Hover() * zeus::CColor::skRed;
+        m_verts[2].m_color = theme.textfield1Hover() * zeus::CColor::skRed;
+        m_verts[3].m_color = theme.textfield2Hover() * zeus::CColor::skRed;
+        m_verts[4].m_color = theme.textfield2Hover() * zeus::CColor::skRed;
         for (int i=5 ; i<28 ; ++i)
-            m_verts[i].m_color = theme.textfield2Inactive() * Zeus::CColor::skRed;
+            m_verts[i].m_color = theme.textfield2Inactive() * zeus::CColor::skRed;
     }
     else
     {
@@ -163,13 +163,13 @@ void TextField::setDisabled()
     const IThemeData& theme = rootView().themeData();
     if (m_error)
     {
-        m_verts[0].m_color = theme.textfield1Disabled() * Zeus::CColor::skRed;
-        m_verts[1].m_color = theme.textfield2Disabled() * Zeus::CColor::skRed;
-        m_verts[2].m_color = theme.textfield1Disabled() * Zeus::CColor::skRed;
-        m_verts[3].m_color = theme.textfield2Disabled() * Zeus::CColor::skRed;
-        m_verts[4].m_color = theme.textfield2Disabled() * Zeus::CColor::skRed;
+        m_verts[0].m_color = theme.textfield1Disabled() * zeus::CColor::skRed;
+        m_verts[1].m_color = theme.textfield2Disabled() * zeus::CColor::skRed;
+        m_verts[2].m_color = theme.textfield1Disabled() * zeus::CColor::skRed;
+        m_verts[3].m_color = theme.textfield2Disabled() * zeus::CColor::skRed;
+        m_verts[4].m_color = theme.textfield2Disabled() * zeus::CColor::skRed;
         for (int i=5 ; i<28 ; ++i)
-            m_verts[i].m_color = theme.textfield2Disabled() * Zeus::CColor::skRed;
+            m_verts[i].m_color = theme.textfield2Disabled() * zeus::CColor::skRed;
     }
     else
     {
@@ -579,8 +579,8 @@ void TextField::think()
 
     if (m_error && m_errorFrames <= 360)
     {
-        Zeus::CColor errMult;
-        Zeus::CColor errBg;
+        zeus::CColor errMult;
+        zeus::CColor errBg;
         if (m_errorFrames < 300)
         {
             errMult = m_viewVertBlock.m_color;
@@ -588,16 +588,16 @@ void TextField::think()
         }
         else if (m_errorFrames >= 360)
         {
-            errMult = Zeus::CColor::skClear;
+            errMult = zeus::CColor::skClear;
             errBg = rootView().themeData().tooltipBackground();
             errBg[3] = 0.0;
         }
         else
         {
             float t = (m_errorFrames - 300) / 60.0;
-            errMult = Zeus::CColor::lerp(m_viewVertBlock.m_color, Zeus::CColor::skClear, t);
-            errBg = Zeus::CColor::lerp(rootView().themeData().tooltipBackground() * m_viewVertBlock.m_color,
-                                       Zeus::CColor::skClear, t);
+            errMult = zeus::CColor::lerp(m_viewVertBlock.m_color, zeus::CColor::skClear, t);
+            errBg = zeus::CColor::lerp(rootView().themeData().tooltipBackground() * m_viewVertBlock.m_color,
+                                       zeus::CColor::skClear, t);
         }
         for (size_t i=32 ; i<41 ; ++i)
             m_verts[i].m_color = errBg;
@@ -635,7 +635,7 @@ void TextField::_reallySetCursorPos(size_t pos)
     float pf = rootView().viewRes().pixelFactor();
     int offset1 = 4 * pf + m_text->queryReverseAdvance(pos);
     int offset2 = offset1 + 2 * pf;
-    const Zeus::CColor& selColor = rootView().viewRes().themeData().textfieldSelection();
+    const zeus::CColor& selColor = rootView().viewRes().themeData().textfieldSelection();
     m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
     m_verts[28].m_color = selColor;
     m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
@@ -708,8 +708,8 @@ void TextField::_reallySetSelectionRange(size_t start, size_t len)
     std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
     offset1 += glyphs[start].m_pos[0][0];
     offset2 += glyphs[start+len-1].m_pos[2][0];
-    const Zeus::CColor& selColor = rootView().themeData().selectedFieldText();
-    const Zeus::CColor& deselColor = m_error ? rootView().themeData().uiText() :
+    const zeus::CColor& selColor = rootView().themeData().selectedFieldText();
+    const zeus::CColor& deselColor = m_error ? rootView().themeData().uiText() :
                                                rootView().themeData().fieldText();
 
     for (size_t i=0 ; i<glyphs.size() ; ++i)
@@ -741,7 +741,7 @@ void TextField::_reallySetMarkRange(size_t start, size_t len)
     offset1 += glyphs[start].m_pos[0][0];
     offset2 += glyphs[start+len-1].m_pos[2][0];
     
-    const Zeus::CColor& selColor = rootView().themeData().textfieldMarkSelection();
+    const zeus::CColor& selColor = rootView().themeData().textfieldMarkSelection();
     m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
     m_verts[28].m_color = selColor;
     m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
@@ -793,7 +793,7 @@ void TextField::_clearSelectionRange()
         m_selectionStart = 0;
         m_selectionCount = 0;
         
-        const Zeus::CColor& deselColor = m_error ? rootView().themeData().uiText() :
+        const zeus::CColor& deselColor = m_error ? rootView().themeData().uiText() :
                                                    rootView().themeData().fieldText();
 
         std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
@@ -877,7 +877,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_verts[39].m_pos.assign(eX, eY + eHeight, 0);
         m_verts[40].m_pos.assign(eX + 14 * pf, eY + eHeight, 0);
         for (size_t i=32 ; i<41 ; ++i)
-            m_verts[i].m_color = Zeus::CColor::skClear;
+            m_verts[i].m_color = zeus::CColor::skClear;
     }
 
     m_vertsBinding.load(m_verts, sizeof(m_verts));

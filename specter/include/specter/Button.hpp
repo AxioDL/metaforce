@@ -1,11 +1,11 @@
 #ifndef SPECTER_BUTTON_HPP
 #define SPECTER_BUTTON_HPP
 
-#include "Specter/TextView.hpp"
-#include "Specter/Control.hpp"
-#include "Specter/Icon.hpp"
+#include "specter/TextView.hpp"
+#include "specter/Control.hpp"
+#include "specter/Icon.hpp"
 
-namespace Specter
+namespace specter
 {
 
 class Button : public Control
@@ -20,8 +20,8 @@ public:
 private:
     Style m_style;
     IButtonBinding::MenuStyle m_menuStyle = IButtonBinding::MenuStyle::None;
-    Zeus::CColor m_textColor;
-    Zeus::CColor m_bgColor;
+    zeus::CColor m_textColor;
+    zeus::CColor m_bgColor;
     std::string m_textStr;
     std::unique_ptr<TextView> m_text;
     std::unique_ptr<IconView> m_icon;
@@ -87,11 +87,11 @@ public:
     ~Button() {closeMenu({});}
     Button(ViewResources& res, View& parentView,
            IButtonBinding* controlBinding, const std::string& text, Icon* icon=nullptr,
-           Style style=Style::Block, const Zeus::CColor& bgColor=Zeus::CColor::skWhite,
+           Style style=Style::Block, const zeus::CColor& bgColor=zeus::CColor::skWhite,
            RectangleConstraint constraint=RectangleConstraint());
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
-           Icon* icon=nullptr, Style style=Style::Block, const Zeus::CColor& bgColor=Zeus::CColor::skWhite,
+           IButtonBinding* controlBinding, const std::string& text, const zeus::CColor& textColor,
+           Icon* icon=nullptr, Style style=Style::Block, const zeus::CColor& bgColor=zeus::CColor::skWhite,
            RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -101,18 +101,18 @@ public:
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    void setText(const std::string& text, const Zeus::CColor& textColor);
+    void setText(const std::string& text, const zeus::CColor& textColor);
     void setText(const std::string& text);
     void setIcon(Icon* icon=nullptr);
     const std::string& getText() const {return m_textStr;}
-    void colorGlyphs(const Zeus::CColor& newColor);
+    void colorGlyphs(const zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}
     int nominalHeight() const {return m_nomHeight;}
 
     void closeMenu(const boo::SWindowCoord& coord);
     ViewChild<std::unique_ptr<View>>& getMenu() {return m_modalMenu;}
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;

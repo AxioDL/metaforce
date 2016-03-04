@@ -9,7 +9,7 @@
 
 #include "FontCache.hpp"
 
-namespace Specter
+namespace specter
 {
 class ViewResources;
 
@@ -64,12 +64,12 @@ public:
 
     struct RenderGlyph
     {
-        Zeus::CVector3f m_pos[4];
-        Zeus::CMatrix4f m_mv;
-        Zeus::CVector3f m_uv[4];
-        Zeus::CColor m_color;
+        zeus::CVector3f m_pos[4];
+        zeus::CMatrix4f m_mv;
+        zeus::CVector3f m_uv[4];
+        zeus::CColor m_color;
 
-        RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const Zeus::CColor& defaultColor);
+        RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const zeus::CColor& defaultColor);
     };
     struct RenderGlyphInfo
     {
@@ -86,12 +86,12 @@ public:
     void updateGlyphs() {m_valid = false;}
 
     void typesetGlyphs(const std::string& str,
-                       const Zeus::CColor& defaultColor=Zeus::CColor::skWhite);
+                       const zeus::CColor& defaultColor=zeus::CColor::skWhite);
     void typesetGlyphs(const std::wstring& str,
-                       const Zeus::CColor& defaultColor=Zeus::CColor::skWhite);
+                       const zeus::CColor& defaultColor=zeus::CColor::skWhite);
 
-    void colorGlyphs(const Zeus::CColor& newColor);
-    void colorGlyphsTypeOn(const Zeus::CColor& newColor, float startInterval=0.2, float fadeTime=0.5);
+    void colorGlyphs(const zeus::CColor& newColor);
+    void colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterval=0.2, float fadeTime=0.5);
     void think();
 
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

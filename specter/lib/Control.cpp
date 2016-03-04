@@ -1,6 +1,6 @@
-#include "Specter/Control.hpp"
+#include "specter/Control.hpp"
 
-namespace Specter
+namespace specter
 {
 
 Control::Control(ViewResources& res, View& parentView,

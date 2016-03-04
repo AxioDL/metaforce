@@ -1,16 +1,16 @@
-#include <LogVisor/LogVisor.hpp>
-#include "Specter/SplitView.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/Space.hpp"
+#include "logvisor/logvisor.hpp"
+#include "specter/SplitView.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/Space.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::SplitView");
+static logvisor::Module Log("specter::SplitView");
 
 void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
-    static const Zeus::RGBA32 tex[3] =
+    static const zeus::RGBA32 tex[3] =
     {
         {0,0,0,64},
         {0,0,0,255},
@@ -32,7 +32,7 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
 View* SplitView::setContentView(int slot, View* view)
 {
     if (slot < 0 || slot > 1)
-        Log.report(LogVisor::FatalError, "out-of-range slot to RootView::SplitView::setContentView");
+        Log.report(logvisor::Fatal, "out-of-range slot to RootView::SplitView::setContentView");
     View* ret = m_views[slot].m_view;
     m_views[slot].m_view = view;
     m_views[slot].m_mouseDown = 0;

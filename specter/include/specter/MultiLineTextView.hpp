@@ -5,7 +5,7 @@
 #include "TextView.hpp"
 #include "FontCache.hpp"
 
-namespace Specter
+namespace specter
 {
 
 class MultiLineTextView : public View
@@ -29,15 +29,15 @@ public:
                       size_t lineCapacity=256, float lineHeight=1.0);
 
     void typesetGlyphs(const std::string& str,
-                       const Zeus::CColor& defaultColor=Zeus::CColor::skWhite,
+                       const zeus::CColor& defaultColor=zeus::CColor::skWhite,
                        unsigned wrap=0);
     void typesetGlyphs(const std::wstring& str,
-                       const Zeus::CColor& defaultColor=Zeus::CColor::skWhite,
+                       const zeus::CColor& defaultColor=zeus::CColor::skWhite,
                        unsigned wrap=0);
 
-    void colorGlyphs(const Zeus::CColor& newColor);
+    void colorGlyphs(const zeus::CColor& newColor);
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         for (std::unique_ptr<TextView>& l : m_lines)
             l->setMultiplyColor(color);

@@ -1,10 +1,10 @@
-#include "Specter/View.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "specter/View.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::View");
+static logvisor::Module Log("specter::View");
 
 static const char* GLSLSolidVS =
 "#version 330\n"
@@ -375,7 +375,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 void View::commitResources(ViewResources& res)
 {
     if (m_gfxData)
-        Log.report(LogVisor::FatalError, "multiple resource commits not allowed");
+        Log.report(logvisor::Fatal, "multiple resource commits not allowed");
     m_gfxData = res.m_factory->commit();
 }
 

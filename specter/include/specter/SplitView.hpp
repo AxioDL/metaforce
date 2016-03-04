@@ -1,9 +1,9 @@
 #ifndef SPECTER_SPLITVIEW_HPP
 #define SPECTER_SPLITVIEW_HPP
 
-#include "Specter/View.hpp"
+#include "specter/View.hpp"
 
-namespace Specter
+namespace specter
 {
 struct ISplitSpaceController;
 
@@ -100,7 +100,7 @@ public:
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         View::setMultiplyColor(color);
         m_splitBlock.m_color = color;

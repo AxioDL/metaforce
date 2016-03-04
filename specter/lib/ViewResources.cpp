@@ -1,14 +1,14 @@
-#include "Specter/ViewResources.hpp"
+#include "specter/ViewResources.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::ViewResources");
+static logvisor::Module Log("specter::ViewResources");
 
 void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
                          const IThemeData* theme, float pf)
 {
     if (!factory || !fcache || !theme)
-        Log.report(LogVisor::FatalError, "all arguments of ViewResources::init() must be non-null");
+        Log.report(logvisor::Fatal, "all arguments of ViewResources::init() must be non-null");
     m_pixelFactor = pf;
     m_theme = theme;
     m_factory = factory;
@@ -37,7 +37,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
         break;
 #endif
     default:
-        Log.report(LogVisor::FatalError, _S("unable to init view system for %s"), factory->platformName());
+        Log.report(logvisor::Fatal, _S("unable to init view system for %s"), factory->platformName());
     }
     m_resData = factory->commit();
 }

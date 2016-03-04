@@ -1,20 +1,20 @@
-#include "Specter/FileBrowser.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/MessageWindow.hpp"
+#include "specter/FileBrowser.hpp"
+#include "specter/RootView.hpp"
+#include "specter/MessageWindow.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::FileBrowser");
+static logvisor::Module Log("specter::FileBrowser");
 
 #define BROWSER_MARGIN 8
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
 
-std::vector<HECL::SystemString> FileBrowser::PathComponents(const HECL::SystemString& path)
+std::vector<hecl::SystemString> FileBrowser::PathComponents(const hecl::SystemString& path)
 {
-    std::vector<HECL::SystemString> ret;
-    HECL::SystemString sPath = path;
-    HECL::SanitizePath(sPath);
+    std::vector<hecl::SystemString> ret;
+    hecl::SystemString sPath = path;
+    hecl::SanitizePath(sPath);
     if (sPath.empty())
         return ret;
     auto it = sPath.cbegin();
@@ -23,7 +23,7 @@ std::vector<HECL::SystemString> FileBrowser::PathComponents(const HECL::SystemSt
         ret.push_back(_S("/"));
         ++it;
     }
-    HECL::SystemString comp;
+    hecl::SystemString comp;
     for (; it != sPath.cend() ; ++it)
     {
         if (*it == _S('/'))
@@ -42,8 +42,8 @@ std::vector<HECL::SystemString> FileBrowser::PathComponents(const HECL::SystemSt
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string& title,
-                         Type type, const HECL::SystemString& initialPath,
-                         std::function<void(bool, const HECL::SystemString&)> returnFunc)
+                         Type type, const hecl::SystemString& initialPath,
+                         std::function<void(bool, const hecl::SystemString&)> returnFunc)
 : ModalWindow(res, parentView, RectangleConstraint(BROWSER_MIN_WIDTH * res.pixelFactor(),
                                                    BROWSER_MIN_HEIGHT * res.pixelFactor(),
                                                    RectangleConstraint::Test::Minimum,
@@ -78,18 +78,18 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
     m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
 
     /* Populate system bookmarks */
-    std::vector<std::pair<HECL::SystemString, std::string>> systemLocs = HECL::GetSystemLocations();
+    std::vector<std::pair<hecl::SystemString, std::string>> systemLocs = hecl::GetSystemLocations();
     for (auto& loc : systemLocs)
         m_systemBookmarkBind.m_entries.emplace_back(std::move(loc));
     m_systemBookmarks.m_view->updateData();
 
-    const std::vector<HECL::SystemString>* recentProjects = vm.recentProjects();
+    const std::vector<hecl::SystemString>* recentProjects = vm.recentProjects();
 
     for (auto& proj : *recentProjects)
         m_projectBookmarkBind.m_entries.emplace_back(proj);
     m_projectBookmarks.m_view->updateData();
 
-    const std::vector<HECL::SystemString>* recentFiles = vm.recentFiles();
+    const std::vector<hecl::SystemString>* recentFiles = vm.recentFiles();
 
     for (auto& file : *recentFiles)
         m_recentBookmarkBind.m_entries.emplace_back(file);
@@ -106,7 +106,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
 }
 
 void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
-                                         const HECL::SystemString& sel)
+                                         const hecl::SystemString& sel)
 {
     size_t idx = 0;
     for (const BookmarkDataBind::Entry& e : binding.m_entries)
@@ -122,25 +122,25 @@ void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding
         table.selectRow(-1);
 }
 
-void FileBrowser::navigateToPath(const HECL::SystemString& path)
+void FileBrowser::navigateToPath(const hecl::SystemString& path)
 {
-    HECL::Sstat theStat;
-    if (HECL::Stat(path.c_str(), &theStat))
+    hecl::Sstat theStat;
+    if (hecl::Stat(path.c_str(), &theStat))
         return;
 
     m_path = path;
     m_comps = PathComponents(m_path);
     if (S_ISREG(theStat.st_mode))
     {
-        HECL::SystemUTF8View utf8(m_comps.back());
+        hecl::SystemUTF8View utf8(m_comps.back());
         m_fileField.m_view->setText(utf8);
         m_fileField.m_view->clearErrorState();
         m_comps.pop_back();
     }
 
-    HECL::SystemString dir;
+    hecl::SystemString dir;
     bool needSlash = false;
-    for (const HECL::SystemString& d : m_comps)
+    for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
             dir += _S('/');
@@ -153,7 +153,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
     SyncBookmarkSelections(*m_projectBookmarks.m_view, m_projectBookmarkBind, dir);
     SyncBookmarkSelections(*m_recentBookmarks.m_view, m_recentBookmarkBind, dir);
 
-    HECL::DirectoryEnumerator dEnum(dir, HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+    hecl::DirectoryEnumerator dEnum(dir, hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
                                     m_fileListingBind.m_sizeSort,
                                     m_fileListingBind.m_sortDir==SortDirection::Descending,
                                     !m_showingHidden);
@@ -168,7 +168,7 @@ void FileBrowser::navigateToPath(const HECL::SystemString& path)
 
 void FileBrowser::updateContentOpacity(float opacity)
 {
-    Zeus::CColor color = Zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
+    zeus::CColor color = zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
     m_split.m_view->setMultiplyColor(color);
     m_pathButtons.m_view->setMultiplyColor(color);
     m_fileField.m_view->setMultiplyColor(color);
@@ -187,9 +187,9 @@ void FileBrowser::okActivated(bool viaButton)
 {
     IViewManager& vm = rootView().viewManager();
 
-    HECL::SystemString path;
+    hecl::SystemString path;
     bool needSlash = false;
-    for (const HECL::SystemString& d : m_comps)
+    for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
             path += _S('/');
@@ -198,20 +198,20 @@ void FileBrowser::okActivated(bool viaButton)
         path += d;
     }
 
-    HECL::Sstat theStat;
-    if (HECL::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
+    hecl::Sstat theStat;
+    if (hecl::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
     {
-        HECL::SystemUTF8View utf8(path);
+        hecl::SystemUTF8View utf8(path);
         m_fileField.m_view->setErrorState(
-            HECL::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+            hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
                          utf8.c_str()));
         return;
     }
 
     path += _S('/');
-    path += HECL::SystemStringView(m_fileField.m_view->getText()).sys_str();
+    path += hecl::SystemStringView(m_fileField.m_view->getText()).sys_str();
 
-    int err = HECL::Stat(path.c_str(), &theStat);
+    int err = hecl::Stat(path.c_str(), &theStat);
     if (m_type == Type::SaveFile)
     {
         if (m_fileField.m_view->getText().empty())
@@ -224,7 +224,7 @@ void FileBrowser::okActivated(bool viaButton)
         {
             m_confirmWindow.reset(new MessageWindow(rootView().viewRes(), *this,
                                                     MessageWindow::Type::ConfirmOkCancel,
-                                                    HECL::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").c_str(), path.c_str()),
+                                                    hecl::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").c_str(), path.c_str()),
                                                     [&,path](bool ok)
             {
                 if (ok)
@@ -266,7 +266,7 @@ void FileBrowser::okActivated(bool viaButton)
         {
             if (m_type == Type::NewHECLProject)
             {
-                HECL::ProjectRootPath projRoot = HECL::SearchForProject(path);
+                hecl::ProjectRootPath projRoot = hecl::SearchForProject(path);
                 if (projRoot)
                 {
                     m_fileField.m_view->setErrorState(
@@ -291,9 +291,9 @@ void FileBrowser::okActivated(bool viaButton)
         }
         else if (err || !S_ISREG(theStat.st_mode))
         {
-            HECL::SystemUTF8View utf8(path);
+            hecl::SystemUTF8View utf8(path);
             m_fileField.m_view->setErrorState(
-                HECL::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").c_str(),
+                hecl::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").c_str(),
                              utf8.c_str()));
             return;
         }
@@ -307,7 +307,7 @@ void FileBrowser::okActivated(bool viaButton)
         {
             if (m_type == Type::OpenHECLProject)
             {
-                HECL::ProjectRootPath projRoot = HECL::SearchForProject(path);
+                hecl::ProjectRootPath projRoot = hecl::SearchForProject(path);
                 if (projRoot)
                 {
                     m_returnFunc(true, projRoot.getAbsolutePath());
@@ -320,9 +320,9 @@ void FileBrowser::okActivated(bool viaButton)
         }
         if (err || !S_ISDIR(theStat.st_mode))
         {
-            HECL::SystemUTF8View utf8(path);
+            hecl::SystemUTF8View utf8(path);
             m_fileField.m_view->setErrorState(
-                HECL::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+                hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
                              utf8.c_str()));
             return;
         }
@@ -334,9 +334,9 @@ void FileBrowser::okActivated(bool viaButton)
 
 void FileBrowser::cancelActivated()
 {
-    HECL::SystemString path;
+    hecl::SystemString path;
     bool needSlash = false;
-    for (const HECL::SystemString& d : m_comps)
+    for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
             path += _S('/');
@@ -346,7 +346,7 @@ void FileBrowser::cancelActivated()
     }
 
     path += _S('/');
-    path += HECL::SystemStringView(m_fileField.m_view->getText()).sys_str();
+    path += hecl::SystemStringView(m_fileField.m_view->getText()).sys_str();
 
     m_returnFunc(false, path);
     close();
@@ -357,10 +357,10 @@ void FileBrowser::pathButtonActivated(size_t idx)
     if (idx >= m_comps.size())
         return;
 
-    HECL::SystemString dir;
+    hecl::SystemString dir;
     bool needSlash = false;
     size_t i = 0;
-    for (const HECL::SystemString& d : m_comps)
+    for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
             dir += _S('/');

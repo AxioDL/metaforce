@@ -1,9 +1,9 @@
 #ifndef SPECTER_TOOLBAR_HPP
 #define SPECTER_TOOLBAR_HPP
 
-#include "Specter/View.hpp"
+#include "specter/View.hpp"
 
-namespace Specter
+namespace specter
 {
 #define SPECTER_TOOLBAR_GAUGE 28
 
@@ -63,7 +63,7 @@ public:
     }
     void push_back(View* v, unsigned unit);
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         View::setMultiplyColor(color);
         for (std::vector<ViewChild<View*>>& u : m_children)

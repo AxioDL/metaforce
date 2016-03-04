@@ -1,17 +1,17 @@
-#include <LogVisor/LogVisor.hpp>
-#include "Specter/Toolbar.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "logvisor/logvisor.hpp"
+#include "specter/Toolbar.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
 #define TOOLBAR_PADDING 10
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::Space");
+static logvisor::Module Log("specter::Space");
 
 void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
-    static const Zeus::RGBA32 tex[] =
+    static const zeus::RGBA32 tex[] =
     {
         {{255,255,255,64}},
         {{255,255,255,64}},
@@ -123,7 +123,7 @@ void Toolbar::setVerticalVerts(int height)
 void Toolbar::push_back(View* v, unsigned unit)
 {
     if (unit >= m_units)
-        Log.report(LogVisor::FatalError, "unit %u out of range %u", unit, m_units);
+        Log.report(logvisor::Fatal, "unit %u out of range %u", unit, m_units);
     std::vector<ViewChild<View*>>& u = m_children[unit];
     u.emplace_back();
     u.back().m_view = v;

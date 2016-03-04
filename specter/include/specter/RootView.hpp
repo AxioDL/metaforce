@@ -13,7 +13,7 @@
 #include "IViewManager.hpp"
 #include <boo/boo.hpp>
 
-namespace Specter
+namespace specter
 {
 
 class RootView : public View

@@ -3,9 +3,9 @@
 
 #include "Translator.hpp"
 #include "SplitView.hpp"
-#include <HECL/HECL.hpp>
+#include <hecl/hecl.hpp>
 
-namespace Specter
+namespace specter
 {
 struct ISpaceController;
 
@@ -24,11 +24,11 @@ public:
     virtual void deferSpaceSplit(ISpaceController* split, SplitView::Axis axis, int thisSlot,
                                  const boo::SWindowCoord& coord) {}
 
-    virtual const std::vector<HECL::SystemString>* recentProjects() const {return nullptr;}
-    virtual void pushRecentProject(const HECL::SystemString& path) {}
+    virtual const std::vector<hecl::SystemString>* recentProjects() const {return nullptr;}
+    virtual void pushRecentProject(const hecl::SystemString& path) {}
 
-    virtual const std::vector<HECL::SystemString>* recentFiles() const {return nullptr;}
-    virtual void pushRecentFile(const HECL::SystemString& path) {}
+    virtual const std::vector<hecl::SystemString>* recentFiles() const {return nullptr;}
+    virtual void pushRecentFile(const hecl::SystemString& path) {}
 };
 
 }

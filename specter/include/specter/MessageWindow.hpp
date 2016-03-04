@@ -5,7 +5,7 @@
 #include "MultiLineTextView.hpp"
 #include "Button.hpp"
 
-namespace Specter
+namespace specter
 {
 
 class MessageWindow : public ModalWindow
@@ -56,7 +56,7 @@ public:
 
     void updateContentOpacity(float opacity)
     {
-        Zeus::CColor color = Zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
+        zeus::CColor color = zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, opacity);
         ModalWindow::setMultiplyColor(color);
         m_text->setMultiplyColor(color);
         m_ok.m_view->setMultiplyColor(color);

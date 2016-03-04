@@ -1,11 +1,11 @@
-#include "Specter/RootView.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/Space.hpp"
-#include "Specter/Menu.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/Space.hpp"
+#include "specter/Menu.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::RootView");
+static logvisor::Module Log("specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
 : View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this),
@@ -25,7 +25,7 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv)
     m_viewVertBlockBuf = rv.m_viewRes->m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(View::ViewBlock), 1);
     m_vertsBinding.initSolid(*rv.m_viewRes, 32, m_viewVertBlockBuf);
 
-    Zeus::CColor col = {0.0,0.0,0.0,0.5};
+    zeus::CColor col = {0.0,0.0,0.0,0.5};
     for (int i=0 ; i<32 ; ++i)
         m_verts[i].m_color = col;
 
@@ -208,7 +208,7 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
         else if (button == boo::EMouseButton::Secondary)
         {
             m_splitMenuSystem.m_splitView = m_hoverSplitDragView;
-            adoptRightClickMenu(std::make_unique<Specter::Menu>(*m_viewRes, *this, &m_splitMenuSystem), coord);
+            adoptRightClickMenu(std::make_unique<specter::Menu>(*m_viewRes, *this, &m_splitMenuSystem), coord);
         }
         return;
     }

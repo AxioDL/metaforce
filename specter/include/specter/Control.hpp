@@ -3,7 +3,7 @@
 
 #include "View.hpp"
 
-namespace Specter
+namespace specter
 {
 class Control;
 class Button;
@@ -35,10 +35,10 @@ struct IButtonBinding : IControlBinding
     };
 
     /** Informs button which MenuStyle to present to user */
-    virtual MenuStyle menuStyle(const Specter::Button* button) const {return MenuStyle::None;}
+    virtual MenuStyle menuStyle(const specter::Button* button) const {return MenuStyle::None;}
 
     /** Called when user requests menu, Button assumes modal ownership */
-    virtual std::unique_ptr<View> buildMenu(const Specter::Button* button) {return std::unique_ptr<View>();}
+    virtual std::unique_ptr<View> buildMenu(const specter::Button* button) {return std::unique_ptr<View>();}
 };
 
 struct IFloatBinding : IControlBinding
@@ -63,8 +63,8 @@ struct IStringBinding : IControlBinding
 
 struct CVarControlBinding : IControlBinding
 {
-    HECL::CVar* m_cvar;
-    CVarControlBinding(HECL::CVar* cvar)
+    hecl::CVar* m_cvar;
+    CVarControlBinding(hecl::CVar* cvar)
     : m_cvar(cvar) {}
     const char* name(const Control* control) const {return m_cvar->name().c_str();}
     const char* help(const Control* control) const {return m_cvar->rawHelp().c_str();}

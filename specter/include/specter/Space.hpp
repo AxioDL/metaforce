@@ -5,7 +5,7 @@
 #include "Toolbar.hpp"
 #include "SplitView.hpp"
 
-namespace Specter
+namespace specter
 {
 class Space;
 struct ISplitSpaceController;
@@ -39,7 +39,7 @@ class Space : public View
         Space& m_space;
         VertexBufferBinding m_vertexBinding;
         bool m_flip;
-        CornerView(ViewResources& res, Space& space, const Zeus::CColor& triColor);
+        CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor);
         void mouseEnter(const boo::SWindowCoord&);
         void mouseLeave(const boo::SWindowCoord&);
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -65,7 +65,7 @@ public:
 
     SplitView* findSplitViewOnSide(SplitView::Axis axis, int side);
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         View::setMultiplyColor(color);
         if (m_contentView.m_view)

@@ -1,8 +1,8 @@
-#include "Specter/PathButtons.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/PathButtons.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
 
-namespace Specter
+namespace specter
 {
 
 PathButtons::PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding, bool fillContainer)
@@ -12,17 +12,17 @@ PathButtons::PathButtons(ViewResources& res, View& parentView, IPathButtonsBindi
     setContentView(m_contentView.m_view.get());
 }
 
-void PathButtons::setButtons(const std::vector<HECL::SystemString>& comps)
+void PathButtons::setButtons(const std::vector<hecl::SystemString>& comps)
 {
     m_pathButtons.clear();
     m_pathButtons.reserve(comps.size());
     size_t idx = 0;
     ViewResources& res = rootView().viewRes();
-    for (const HECL::SystemString& c : comps)
+    for (const hecl::SystemString& c : comps)
         m_pathButtons.emplace_back(*this, res, idx++, c);
 }
 
-void PathButtons::setMultiplyColor(const Zeus::CColor& color)
+void PathButtons::setMultiplyColor(const zeus::CColor& color)
 {
     ScrollView::setMultiplyColor(color);
     for (PathButton& b : m_pathButtons)

@@ -3,7 +3,7 @@
 
 #include "View.hpp"
 
-namespace Specter
+namespace specter
 {
 
 struct IMenuNode

@@ -1,8 +1,8 @@
-#include "Specter/Tooltip.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "specter/Tooltip.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
 
 #define TOOLTIP_MAX_WIDTH 316
@@ -37,7 +37,7 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
     m_title.reset(new TextView(res, *this, res.m_heading14));
     m_title->typesetGlyphs(m_titleStr);
     m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
-    m_message->typesetGlyphs(m_messageStr, Zeus::CColor::skWhite,
+    m_message->typesetGlyphs(m_messageStr, zeus::CColor::skWhite,
                              int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
 
     float pf = res.pixelFactor();

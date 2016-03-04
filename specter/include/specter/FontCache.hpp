@@ -5,11 +5,11 @@
 #include FT_FREETYPE_H
 
 #include <boo/boo.hpp>
-#include <HECL/Runtime.hpp>
-#include <Athena/FileReader.hpp>
-#include <Athena/FileWriter.hpp>
+#include <hecl/Runtime.hpp>
+#include <athena/FileReader.hpp>
+#include <athena/FileWriter.hpp>
 
-namespace Specter
+namespace specter
 {
 class FontTag
 {
@@ -26,14 +26,14 @@ public:
 
 namespace std
 {
-template <> struct hash<Specter::FontTag>
+template <> struct hash<specter::FontTag>
 {
-    size_t operator() (const Specter::FontTag& handle) const NOEXCEPT
+    size_t operator() (const specter::FontTag& handle) const NOEXCEPT
     {return size_t(handle.hash());}
 };
 }
 
-namespace Specter
+namespace specter
 {
 
 class FreeTypeGZipMemFace
@@ -85,14 +85,14 @@ private:
     std::vector<Glyph> m_glyphs;
     std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>> m_kernAdjs;
 
-    struct TT_KernHead : Athena::io::DNA<Athena::BigEndian>
+    struct TT_KernHead : athena::io::DNA<athena::BigEndian>
     {
         DECL_DNA
         Value<atUint32> length;
         Value<atUint16> coverage;
     };
 
-    struct TT_KernSubHead : Athena::io::DNA<Athena::BigEndian>
+    struct TT_KernSubHead : athena::io::DNA<athena::BigEndian>
     {
         DECL_DNA
         Value<atUint16> nPairs;
@@ -101,7 +101,7 @@ private:
         Value<atUint16> rangeShift;
     };
 
-    struct TT_KernPair : Athena::io::DNA<Athena::BigEndian>
+    struct TT_KernPair : athena::io::DNA<athena::BigEndian>
     {
         DECL_DNA
         Value<atUint16> left;
@@ -115,9 +115,9 @@ private:
 
 public:
     FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-              bool subpixel, FCharFilter& filter, Athena::io::FileWriter& writer);
+              bool subpixel, FCharFilter& filter, athena::io::FileWriter& writer);
     FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
-              bool subpixel, FCharFilter& filter, Athena::io::FileReader& reader);
+              bool subpixel, FCharFilter& filter, athena::io::FileReader& reader);
     FontAtlas(const FontAtlas& other) = delete;
     FontAtlas& operator=(const FontAtlas& other) = delete;
 
@@ -153,8 +153,8 @@ extern const FCharFilter LatinAndJapaneseCharFilter;
 
 class FontCache
 {
-    const HECL::Runtime::FileStoreManager& m_fileMgr;
-    HECL::SystemString m_cacheRoot;
+    const hecl::Runtime::FileStoreManager& m_fileMgr;
+    hecl::SystemString m_cacheRoot;
     struct Library
     {
         FT_Library m_lib;
@@ -168,7 +168,7 @@ class FontCache
 
     std::unordered_map<FontTag, std::unique_ptr<FontAtlas>> m_cachedAtlases;
 public:
-    FontCache(const HECL::Runtime::FileStoreManager& fileMgr);
+    FontCache(const hecl::Runtime::FileStoreManager& fileMgr);
     FontCache(const FontCache& other) = delete;
     FontCache& operator=(const FontCache& other) = delete;
 

@@ -11,9 +11,9 @@
 #include "IViewManager.hpp"
 #include "MessageWindow.hpp"
 #include "PathButtons.hpp"
-#include <HECL/HECL.hpp>
+#include <hecl/hecl.hpp>
 
-namespace Specter
+namespace specter
 {
 
 class FileBrowser : public ModalWindow, public IPathButtonsBinding
@@ -30,8 +30,8 @@ public:
     };
 private:
     Type m_type;
-    HECL::SystemString m_path;
-    std::vector<HECL::SystemString> m_comps;
+    hecl::SystemString m_path;
+    std::vector<hecl::SystemString> m_comps;
     bool m_showingHidden = false;
 
     class LeftSide : public View
@@ -63,7 +63,7 @@ private:
         OKButton(FileBrowser& fb, ViewResources& res, const std::string& text)
         : m_fb(fb), m_text(text)
         {
-            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, Zeus::CColor::skWhite,
+            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
         }
         const char* name(const Control* control) const {return m_text.c_str();}
@@ -79,7 +79,7 @@ private:
         CancelButton(FileBrowser& fb, ViewResources& res, const std::string& text)
         : m_fb(fb), m_text(text)
         {
-            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, Zeus::CColor::skWhite,
+            m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
                 RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
         }
         const char* name(const Control* control) const {return m_text.c_str();}
@@ -110,7 +110,7 @@ private:
 
         struct Entry
         {
-            HECL::SystemString m_path;
+            hecl::SystemString m_path;
             std::string m_name;
             std::string m_type;
             std::string m_size;
@@ -172,21 +172,21 @@ private:
             m_columnSplits[cIdx] = split;
         }
 
-        void updateListing(const HECL::DirectoryEnumerator& dEnum)
+        void updateListing(const hecl::DirectoryEnumerator& dEnum)
         {
             m_entries.clear();
             m_entries.reserve(dEnum.size());
 
-            for (const HECL::DirectoryEnumerator::Entry& d : dEnum)
+            for (const hecl::DirectoryEnumerator::Entry& d : dEnum)
             {
                 m_entries.emplace_back();
                 Entry& ent = m_entries.back();
                 ent.m_path = d.m_path;
-                HECL::SystemUTF8View nameUtf8(d.m_name);
+                hecl::SystemUTF8View nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
                 {
-                    if (HECL::SearchForProject(d.m_path))
+                    if (hecl::SearchForProject(d.m_path))
                         ent.m_type = m_projStr;
                     else
                         ent.m_type = m_dirStr;
@@ -194,8 +194,8 @@ private:
                 else
                 {
                     ent.m_type = m_fileStr;
-                    ent.m_size = HECL::HumanizeNumber(d.m_fileSz, 7, nullptr, int(HECL::HNScale::AutoScale),
-                                                      HECL::HNFlags::B | HECL::HNFlags::Decimal);
+                    ent.m_size = hecl::HumanizeNumber(d.m_fileSz, 7, nullptr, int(hecl::HNScale::AutoScale),
+                                                      hecl::HNFlags::B | hecl::HNFlags::Decimal);
                 }
             }
 
@@ -256,16 +256,16 @@ private:
 
         struct Entry
         {
-            HECL::SystemString m_path;
+            hecl::SystemString m_path;
             std::string m_name;
 
-            Entry(std::pair<HECL::SystemString, std::string>&& path)
+            Entry(std::pair<hecl::SystemString, std::string>&& path)
             : m_path(std::move(path.first)), m_name(std::move(path.second)) {}
 
-            Entry(const HECL::SystemString& path)
+            Entry(const hecl::SystemString& path)
             : m_path(path)
             {
-                HECL::SystemUTF8View utf8(path);
+                hecl::SystemUTF8View utf8(path);
                 if (utf8.str().size() == 1 && utf8.str()[0] == '/')
                 {
                     m_name = "/";
@@ -307,21 +307,21 @@ private:
     std::unique_ptr<TextView> m_recentBookmarksLabel;
     ViewChild<std::unique_ptr<Table>> m_recentBookmarks;
 
-    std::function<void(bool, const HECL::SystemString&)> m_returnFunc;
+    std::function<void(bool, const hecl::SystemString&)> m_returnFunc;
 
 public:
     FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
-                std::function<void(bool, const HECL::SystemString&)> returnFunc)
-    : FileBrowser(res, parentView, title, type, HECL::GetcwdStr(), returnFunc) {}
+                std::function<void(bool, const hecl::SystemString&)> returnFunc)
+    : FileBrowser(res, parentView, title, type, hecl::GetcwdStr(), returnFunc) {}
     FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
-                const HECL::SystemString& initialPath,
-                std::function<void(bool, const HECL::SystemString&)> returnFunc);
+                const hecl::SystemString& initialPath,
+                std::function<void(bool, const hecl::SystemString&)> returnFunc);
 
-    static std::vector<HECL::SystemString> PathComponents(const HECL::SystemString& path);
+    static std::vector<hecl::SystemString> PathComponents(const hecl::SystemString& path);
     static void SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
-                                       const HECL::SystemString& sel);
+                                       const hecl::SystemString& sel);
 
-    void navigateToPath(const HECL::SystemString& path);
+    void navigateToPath(const hecl::SystemString& path);
     bool showingHidden() const {return m_showingHidden;}
     void setShowingHidden(bool showingHidden)
     {

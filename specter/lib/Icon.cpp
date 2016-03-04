@@ -1,7 +1,7 @@
-#include "Specter/Icon.hpp"
-#include "Specter/RootView.hpp"
+#include "specter/Icon.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
 
 IconView::IconView(ViewResources& res, View& parentView, Icon& icon)
@@ -17,7 +17,7 @@ IconView::IconView(ViewResources& res, View& parentView, Icon& icon)
         {{1, 0, 0}, icon.m_uvCoords[3]},
     };
     m_vertexBinding.load(verts, sizeof(verts));
-    setBackground(Zeus::CColor::skBlue);
+    setBackground(zeus::CColor::skBlue);
 }
 
 void IconView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

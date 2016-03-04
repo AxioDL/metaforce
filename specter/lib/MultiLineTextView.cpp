@@ -1,9 +1,9 @@
-#include "Specter/MultiLineTextView.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/MultiLineTextView.hpp"
+#include "specter/ViewResources.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::MultiLineTextView");
+static logvisor::Module Log("specter::MultiLineTextView");
 
 std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
 {
@@ -22,7 +22,7 @@ std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
         utf8proc_int32_t ch;
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (sz < 0)
-            Log.report(LogVisor::FatalError, "invalid UTF-8 char");
+            Log.report(logvisor::Fatal, "invalid UTF-8 char");
         if (ch == '\n')
         {
             ret += '\n';
@@ -156,7 +156,7 @@ MultiLineTextView::MultiLineTextView(ViewResources& res,
                     lineHeight) {}
 
 void MultiLineTextView::typesetGlyphs(const std::string& str,
-                                      const Zeus::CColor& defaultColor,
+                                      const zeus::CColor& defaultColor,
                                       unsigned wrap)
 {
     if (wrap)
@@ -176,7 +176,7 @@ void MultiLineTextView::typesetGlyphs(const std::string& str,
         utf8proc_int32_t ch;
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (sz < 0)
-            Log.report(LogVisor::FatalError, "invalid UTF-8 char");
+            Log.report(logvisor::Fatal, "invalid UTF-8 char");
         if (ch == '\n' || ch == '\0')
             ++lineCount;
         rem -= sz;
@@ -207,7 +207,7 @@ void MultiLineTextView::typesetGlyphs(const std::string& str,
 }
 
 void MultiLineTextView::typesetGlyphs(const std::wstring& str,
-                                      const Zeus::CColor& defaultColor,
+                                      const zeus::CColor& defaultColor,
                                       unsigned wrap)
 {
     if (wrap)
@@ -251,7 +251,7 @@ void MultiLineTextView::typesetGlyphs(const std::wstring& str,
     updateSize();
 }
 
-void MultiLineTextView::colorGlyphs(const Zeus::CColor& newColor)
+void MultiLineTextView::colorGlyphs(const zeus::CColor& newColor)
 {
     for (std::unique_ptr<TextView>& tv : m_lines)
         tv->colorGlyphs(newColor);

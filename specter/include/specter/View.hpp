@@ -2,18 +2,18 @@
 #define SPECTER_VIEW_HPP
 
 #include <boo/boo.hpp>
-#include "CVector3f.hpp"
-#include "CMatrix4f.hpp"
-#include "CTransform.hpp"
-#include "CColor.hpp"
-#include "HECL/CVar.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CMatrix4f.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CColor.hpp"
+#include "hecl/CVar.hpp"
 
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
 #include <boo/graphicsdev/Metal.hpp>
 #include <boo/graphicsdev/Vulkan.hpp>
 
-namespace Specter
+namespace specter
 {
 class IThemeData;
 class ViewResources;
@@ -83,13 +83,13 @@ class View
 public:
     struct SolidShaderVert
     {
-        Zeus::CVector3f m_pos;
-        Zeus::CColor m_color = Zeus::CColor::skClear;
+        zeus::CVector3f m_pos;
+        zeus::CColor m_color = zeus::CColor::skClear;
     };
     struct TexShaderVert
     {
-        Zeus::CVector3f m_pos;
-        Zeus::CVector2f m_uv;
+        zeus::CVector3f m_pos;
+        zeus::CVector2f m_uv;
     };
 
     struct VertexBufferBinding
@@ -119,8 +119,8 @@ private:
 protected:
     struct ViewBlock
     {
-        Zeus::CMatrix4f m_mv;
-        Zeus::CColor m_color = Zeus::CColor::skWhite;
+        zeus::CMatrix4f m_mv;
+        zeus::CColor m_color = zeus::CColor::skWhite;
         void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
         {
             m_mv[0][0] = 2.0f / root.size[0];
@@ -188,14 +188,14 @@ public:
     int height() const {return m_subRect.size[1];}
     void updateSize();
 
-    void setBackground(const Zeus::CColor& color)
+    void setBackground(const zeus::CColor& color)
     {
         for (int i=0 ; i<4 ; ++i)
             m_bgRect[i].m_color = color;
         m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
     }
 
-    virtual void setMultiplyColor(const Zeus::CColor& color)
+    virtual void setMultiplyColor(const zeus::CColor& color)
     {
         m_viewVertBlock.m_color = color;
         m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));

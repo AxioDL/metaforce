@@ -4,7 +4,7 @@
 #include "Button.hpp"
 #include "IViewManager.hpp"
 
-namespace Specter
+namespace specter
 {
 class ViewResources;
 class Button;
@@ -90,7 +90,7 @@ public:
     int nominalWidth() const {return subRect().size[0];}
     int nominalHeight() const {return subRect().size[1];}
 
-    void setMultiplyColor(const Zeus::CColor& color);
+    void setMultiplyColor(const zeus::CColor& color);
 
     void think();
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

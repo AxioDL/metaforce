@@ -1,11 +1,11 @@
-#include <LogVisor/LogVisor.hpp>
-#include "Specter/Button.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "logvisor/logvisor.hpp"
+#include "specter/Button.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::Button");
+static logvisor::Module Log("specter::Button");
 
 void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
 {
@@ -13,12 +13,12 @@ void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeDat
 
 Button::Button(ViewResources& res, View& parentView,
                IButtonBinding* controlBinding, const std::string& text, Icon* icon,
-               Style style, const Zeus::CColor& bgColor, RectangleConstraint constraint)
+               Style style, const zeus::CColor& bgColor, RectangleConstraint constraint)
 : Button(res, parentView, controlBinding, text, res.themeData().uiText(), icon, style, bgColor, constraint) {}
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text, const Zeus::CColor& textColor,
-               Icon* icon, Style style, const Zeus::CColor& bgColor, RectangleConstraint constraint)
+               IButtonBinding* controlBinding, const std::string& text, const zeus::CColor& textColor,
+               Icon* icon, Style style, const zeus::CColor& bgColor, RectangleConstraint constraint)
 : Control(res, parentView, controlBinding),
   m_style(style), m_textColor(textColor), m_bgColor(bgColor), m_textStr(text), m_constraint(constraint)
 {
@@ -30,8 +30,8 @@ Button::Button(ViewResources& res, View& parentView,
 
     if (style == Style::Block)
     {
-        Zeus::CColor c1 = res.themeData().button1Inactive() * bgColor;
-        Zeus::CColor c2 = res.themeData().button2Inactive() * bgColor;
+        zeus::CColor c1 = res.themeData().button1Inactive() * bgColor;
+        zeus::CColor c2 = res.themeData().button2Inactive() * bgColor;
         m_verts[0].m_color = c1;
         m_verts[1].m_color = c2;
         m_verts[2].m_color = c1;
@@ -49,9 +49,9 @@ Button::Button(ViewResources& res, View& parentView,
     else
     {
         for (int i=0 ; i<4 ; ++i)
-            m_verts[i].m_color = Zeus::CColor::skClear;
+            m_verts[i].m_color = zeus::CColor::skClear;
         for (int i=31 ; i<35 ; ++i)
-            m_verts[i].m_color = Zeus::CColor::skClear;
+            m_verts[i].m_color = zeus::CColor::skClear;
     }
     for (int i=28 ; i<31 ; ++i)
         m_verts[i].m_color = m_textColor;
@@ -72,7 +72,7 @@ void Button::setText(const std::string& text)
     setText(text, m_textColor);
 }
 
-void Button::setText(const std::string& text, const Zeus::CColor& textColor)
+void Button::setText(const std::string& text, const zeus::CColor& textColor)
 {
     m_textStr = text;
     m_textColor = textColor;
@@ -204,7 +204,7 @@ void Button::setIcon(Icon* icon)
     updateSize();
 }
 
-void Button::colorGlyphs(const Zeus::CColor& newColor)
+void Button::colorGlyphs(const zeus::CColor& newColor)
 {
     m_textColor = newColor;
     m_text->colorGlyphs(newColor);
@@ -217,8 +217,8 @@ void Button::ButtonTarget::setInactive()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
         m_button.m_verts[0].m_color = c1;
         m_button.m_verts[1].m_color = c2;
         m_button.m_verts[2].m_color = c1;
@@ -229,7 +229,7 @@ void Button::ButtonTarget::setInactive()
     else
     {
         for (int i=0 ; i<4 ; ++i)
-            m_button.m_verts[i].m_color = Zeus::CColor::skClear;
+            m_button.m_verts[i].m_color = zeus::CColor::skClear;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
         m_button.m_text->colorGlyphs(m_button.m_textColor);
     }
@@ -239,8 +239,8 @@ void Button::MenuTarget::setInactive()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Inactive() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Inactive() * m_button.m_bgColor;
         m_button.m_verts[31].m_color = c1;
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
@@ -252,7 +252,7 @@ void Button::MenuTarget::setInactive()
         for (int i=28 ; i<31 ; ++i)
             m_button.m_verts[i].m_color = m_button.m_textColor;
         for (int i=31 ; i<35 ; ++i)
-            m_button.m_verts[i].m_color = Zeus::CColor::skClear;
+            m_button.m_verts[i].m_color = zeus::CColor::skClear;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
 }
@@ -261,8 +261,8 @@ void Button::ButtonTarget::setHover()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
         m_button.m_verts[0].m_color = c1;
         m_button.m_verts[1].m_color = c2;
         m_button.m_verts[2].m_color = c1;
@@ -283,8 +283,8 @@ void Button::MenuTarget::setHover()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Hover() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Hover() * m_button.m_bgColor;
         m_button.m_verts[31].m_color = c1;
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
@@ -305,8 +305,8 @@ void Button::ButtonTarget::setPressed()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
         m_button.m_verts[0].m_color = c1;
         m_button.m_verts[1].m_color = c2;
         m_button.m_verts[2].m_color = c1;
@@ -327,8 +327,8 @@ void Button::MenuTarget::setPressed()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Press() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Press() * m_button.m_bgColor;
         m_button.m_verts[31].m_color = c1;
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
@@ -349,8 +349,8 @@ void Button::ButtonTarget::setDisabled()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
         m_button.m_verts[0].m_color = c1;
         m_button.m_verts[1].m_color = c2;
         m_button.m_verts[2].m_color = c1;
@@ -361,9 +361,9 @@ void Button::ButtonTarget::setDisabled()
     else
     {
         for (int i=0 ; i<4 ; ++i)
-            m_button.m_verts[i].m_color = Zeus::CColor::skClear;
+            m_button.m_verts[i].m_color = zeus::CColor::skClear;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
-        Zeus::CColor dimText = m_button.m_textColor;
+        zeus::CColor dimText = m_button.m_textColor;
         dimText[3] *= 0.5;
         m_button.m_text->colorGlyphs(dimText);
     }
@@ -373,8 +373,8 @@ void Button::MenuTarget::setDisabled()
 {
     if (m_button.m_style == Style::Block)
     {
-        Zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
-        Zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
+        zeus::CColor c1 = rootView().themeData().button1Disabled() * m_button.m_bgColor;
+        zeus::CColor c2 = rootView().themeData().button2Disabled() * m_button.m_bgColor;
         m_button.m_verts[31].m_color = c1;
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
@@ -383,12 +383,12 @@ void Button::MenuTarget::setDisabled()
     }
     else
     {
-        Zeus::CColor dimText = m_button.m_textColor;
+        zeus::CColor dimText = m_button.m_textColor;
         dimText[3] *= 0.5;
         for (int i=28 ; i<31 ; ++i)
             m_button.m_verts[i].m_color = dimText;
         for (int i=31 ; i<35 ; ++i)
-            m_button.m_verts[i].m_color = Zeus::CColor::skClear;
+            m_button.m_verts[i].m_color = zeus::CColor::skClear;
         m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
     }
 }
@@ -414,7 +414,7 @@ void Button::MenuTarget::mouseDown(const boo::SWindowCoord& coord, boo::EMouseBu
     setPressed();
     if (m_hovered)
     {
-        Log.report(LogVisor::Info, "button menu '%s' activated", m_button.m_textStr.c_str());
+        Log.report(logvisor::Info, "button menu '%s' activated", m_button.m_textStr.c_str());
         if (m_button.m_controlBinding)
         {
             m_button.m_modalMenu.m_view = static_cast<IButtonBinding&>(*m_button.m_controlBinding).buildMenu(&m_button);
@@ -439,7 +439,7 @@ void Button::ButtonTarget::mouseUp(const boo::SWindowCoord& coord, boo::EMouseBu
             static_cast<IButtonBinding&>(*m_button.m_controlBinding).up(&m_button, coord);
         if (m_hovered)
         {
-            Log.report(LogVisor::Info, "button '%s' activated", m_button.m_textStr.c_str());
+            Log.report(logvisor::Info, "button '%s' activated", m_button.m_textStr.c_str());
             if (m_button.m_controlBinding)
                 static_cast<IButtonBinding&>(*m_button.m_controlBinding).activated(&m_button, coord);
         }

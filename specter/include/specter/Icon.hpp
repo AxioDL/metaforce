@@ -3,13 +3,13 @@
 
 #include "View.hpp"
 
-namespace Specter
+namespace specter
 {
 
 struct Icon
 {
     boo::ITexture* m_tex = nullptr;
-    Zeus::CVector2f m_uvCoords[4];
+    zeus::CVector2f m_uvCoords[4];
     Icon() = default;
     Icon(boo::ITexture* tex, float rect[4])
     : m_tex(tex)

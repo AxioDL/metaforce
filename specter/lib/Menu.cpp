@@ -1,11 +1,11 @@
-#include "Specter/Menu.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/Menu.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
 
 #define ROW_HEIGHT 18
 #define ITEM_MARGIN 1
 
-namespace Specter
+namespace specter
 {
 
 Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode)
@@ -92,7 +92,7 @@ Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text
 : View(res, menu), m_menu(menu), m_idx(idx), m_node(node)
 {
     commitResources(res);
-    m_textView.reset(new Specter::TextView(res, *this, res.m_mainFont));
+    m_textView.reset(new specter::TextView(res, *this, res.m_mainFont));
     m_textView->typesetGlyphs(text, res.themeData().uiText());
 }
 

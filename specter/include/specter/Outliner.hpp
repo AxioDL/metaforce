@@ -1,7 +1,7 @@
 #ifndef SPECTER_OUTLINER_HPP
 #define SPECTER_OUTLINER_HPP
 
-namespace Specter
+namespace specter
 {
 class Outliner
 {

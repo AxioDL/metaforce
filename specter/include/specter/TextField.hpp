@@ -5,7 +5,7 @@
 #include "TextView.hpp"
 #include <boo/IWindow.hpp>
 
-namespace Specter
+namespace specter
 {
 
 class TextField : public ITextInputView
@@ -113,7 +113,7 @@ public:
     void setSelectionRange(size_t start, size_t count);
     void clearSelectionRange();
 
-    void setMultiplyColor(const Zeus::CColor& color)
+    void setMultiplyColor(const zeus::CColor& color)
     {
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;

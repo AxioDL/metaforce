@@ -1,11 +1,11 @@
-#include "Specter/Table.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/ScrollView.hpp"
+#include "specter/Table.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ScrollView.hpp"
 
-namespace Specter
+namespace specter
 {
-static LogVisor::LogModule Log("Specter::Table");
+static logvisor::Module Log("specter::Table");
 #define ROW_HEIGHT 18
 #define CELL_MARGIN 1
 
@@ -15,7 +15,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
   m_hVerts(new SolidShaderVert[maxColumns * 6]), m_rowsView(*this, res)
 {
     if (!maxColumns)
-        Log.report(LogVisor::FatalError, "0-column tables not supported");
+        Log.report(logvisor::Fatal, "0-column tables not supported");
 
     m_vertsBinding.initSolid(res, maxColumns * 6, m_viewVertBlockBuf);
     commitResources(res);
@@ -64,8 +64,8 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
     for (c=0 ; c<std::min(m_maxColumns, m_columns) ; ++c)
     {
         const ViewChild<std::unique_ptr<CellView>>& hv = *it;
-        const Zeus::CColor* c1 = &theme.button1Inactive();
-        const Zeus::CColor* c2 = &theme.button2Inactive();
+        const zeus::CColor* c1 = &theme.button1Inactive();
+        const zeus::CColor* c2 = &theme.button2Inactive();
         if (hv.m_mouseDown && hv.m_mouseIn)
         {
             c1 = &theme.button1Press();
@@ -77,19 +77,19 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
             c2 = &theme.button2Hover();
         }
 
-        Zeus::CColor cm1 = *c1;
-        Zeus::CColor cm2 = *c2;
+        zeus::CColor cm1 = *c1;
+        zeus::CColor cm2 = *c2;
         if (sCol == c)
         {
             if (sDir == SortDirection::Ascending)
             {
-                cm1 *= Zeus::CColor::skGreen;
-                cm2 *= Zeus::CColor::skGreen;
+                cm1 *= zeus::CColor::skGreen;
+                cm2 *= zeus::CColor::skGreen;
             }
             else if (sDir == SortDirection::Descending)
             {
-                cm1 *= Zeus::CColor::skRed;
-                cm2 *= Zeus::CColor::skRed;
+                cm1 *= zeus::CColor::skRed;
+                cm2 *= zeus::CColor::skRed;
             }
         }
 
@@ -143,7 +143,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     for (r=0, c=0 ; r<SPECTER_TABLE_MAX_ROWS &&
          (sub.location[1] + yOff + spacing) >= scissor.location[1] ; ++r)
     {
-        const Zeus::CColor& color = (startIdx+r==m_t.m_selectedRow) ? theme.tableCellBgSelected() :
+        const zeus::CColor& color = (startIdx+r==m_t.m_selectedRow) ? theme.tableCellBgSelected() :
                                     ((r&1) ? theme.tableCellBg1() : theme.tableCellBg2());
         int xOff = 0;
         auto cellRectsIt = cellRects.begin();
@@ -175,7 +175,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
 void Table::cycleSortColumn(size_t c)
 {
     if (c >= m_columns)
-        Log.report(LogVisor::FatalError, "cycleSortColumn out of bounds (%" PRISize ", %" PRISize ")",
+        Log.report(logvisor::Fatal, "cycleSortColumn out of bounds (%" PRISize ", %" PRISize ")",
                    c, m_columns);
     if (m_state)
     {
@@ -195,7 +195,7 @@ void Table::selectRow(size_t r)
     if (m_inSelectRow)
         return;
     if (r >= m_rows && r != -1)
-        Log.report(LogVisor::FatalError, "selectRow out of bounds (%" PRISize ", %" PRISize ")",
+        Log.report(logvisor::Fatal, "selectRow out of bounds (%" PRISize ", %" PRISize ")",
                    r, m_rows);
     if (r == m_selectedRow)
     {
@@ -270,7 +270,7 @@ void Table::selectRow(size_t r)
     }
 }
 
-void Table::setMultiplyColor(const Zeus::CColor& color)
+void Table::setMultiplyColor(const zeus::CColor& color)
 {
     View::setMultiplyColor(color);
     if (m_scroll.m_view)

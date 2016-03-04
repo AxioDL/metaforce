@@ -1,8 +1,8 @@
-#include "Specter/ModalWindow.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
+#include "specter/ModalWindow.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 
-namespace Specter
+namespace specter
 {
 
 #define WIRE_START 0
@@ -19,17 +19,17 @@ namespace Specter
 void ModalWindow::setLineVerts(int width, int height, float pf, float t)
 {
     std::pair<int,int> margin = m_cornersOutline[0]->queryGlyphDimensions(0);
-    float t1 = Zeus::Math::clamp(0.f, t * 2.f, 1.f);
-    float t2 = Zeus::Math::clamp(0.f, t * 2.f - 1.f, 1.f);
+    float t1 = zeus::clamp(0.f, t * 2.f, 1.f);
+    float t2 = zeus::clamp(0.f, t * 2.f - 1.f, 1.f);
 
     float lineLeft = 0;
     float lineRight = pf*LINE_WIDTH;
     float lineTop = height-margin.second;
     float lineBottom = margin.second;
     m_verts.lineVerts[0].m_pos.assign(lineLeft, lineTop, 0);
-    m_verts.lineVerts[1].m_pos = Zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineLeft, lineBottom, 0}, t1);
+    m_verts.lineVerts[1].m_pos = zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineLeft, lineBottom, 0}, t1);
     m_verts.lineVerts[2].m_pos.assign(lineRight, lineTop, 0);
-    m_verts.lineVerts[3].m_pos = Zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineRight, lineBottom, 0}, t1);
+    m_verts.lineVerts[3].m_pos = zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineRight, lineBottom, 0}, t1);
     m_verts.lineVerts[4].m_pos = m_verts.lineVerts[3].m_pos;
 
     lineLeft = margin.first;
@@ -39,8 +39,8 @@ void ModalWindow::setLineVerts(int width, int height, float pf, float t)
     m_verts.lineVerts[5].m_pos.assign(lineLeft, lineTop, 0);
     m_verts.lineVerts[6].m_pos = m_verts.lineVerts[5].m_pos;
     m_verts.lineVerts[7].m_pos.assign(lineLeft, lineBottom, 0);
-    m_verts.lineVerts[8].m_pos = Zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineRight, lineTop, 0}, t1);
-    m_verts.lineVerts[9].m_pos = Zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineRight, lineBottom, 0}, t1);
+    m_verts.lineVerts[8].m_pos = zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineRight, lineTop, 0}, t1);
+    m_verts.lineVerts[9].m_pos = zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineRight, lineBottom, 0}, t1);
     m_verts.lineVerts[10].m_pos = m_verts.lineVerts[9].m_pos;
 
     lineLeft = width-pf*LINE_WIDTH;
@@ -49,9 +49,9 @@ void ModalWindow::setLineVerts(int width, int height, float pf, float t)
     lineBottom = margin.second;
     m_verts.lineVerts[11].m_pos.assign(lineLeft, lineTop, 0);
     m_verts.lineVerts[12].m_pos = m_verts.lineVerts[11].m_pos;
-    m_verts.lineVerts[13].m_pos = Zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineLeft, lineBottom, 0}, t2);
+    m_verts.lineVerts[13].m_pos = zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineLeft, lineBottom, 0}, t2);
     m_verts.lineVerts[14].m_pos.assign(lineRight, lineTop, 0);
-    m_verts.lineVerts[15].m_pos = Zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineRight, lineBottom, 0}, t2);
+    m_verts.lineVerts[15].m_pos = zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineRight, lineBottom, 0}, t2);
     m_verts.lineVerts[16].m_pos = m_verts.lineVerts[15].m_pos;
 
     lineLeft = margin.first;
@@ -61,23 +61,23 @@ void ModalWindow::setLineVerts(int width, int height, float pf, float t)
     m_verts.lineVerts[17].m_pos.assign(lineLeft, lineTop, 0);
     m_verts.lineVerts[18].m_pos = m_verts.lineVerts[17].m_pos;
     m_verts.lineVerts[19].m_pos.assign(lineLeft, lineBottom, 0);
-    m_verts.lineVerts[20].m_pos = Zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineRight, lineTop, 0}, t2);
-    m_verts.lineVerts[21].m_pos = Zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineRight, lineBottom, 0}, t2);
+    m_verts.lineVerts[20].m_pos = zeus::CVector3f::lerp({lineLeft, lineTop, 0}, {lineRight, lineTop, 0}, t2);
+    m_verts.lineVerts[21].m_pos = zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineRight, lineBottom, 0}, t2);
 }
 
 void ModalWindow::setLineVertsOut(int width, int height, float pf, float t)
 {
     std::pair<int,int> margin = m_cornersOutline[0]->queryGlyphDimensions(0);
-    float t1 = Zeus::Math::clamp(0.f, t * 2.f - 1.f, 1.f);
-    float t2 = Zeus::Math::clamp(0.f, t * 2.f, 1.f);
+    float t1 = zeus::clamp(0.f, t * 2.f - 1.f, 1.f);
+    float t2 = zeus::clamp(0.f, t * 2.f, 1.f);
 
     float lineLeft = 0;
     float lineRight = pf*LINE_WIDTH;
     float lineTop = height-margin.second;
     float lineBottom = margin.second;
-    m_verts.lineVerts[0].m_pos = Zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineLeft, lineTop, 0}, t1);
+    m_verts.lineVerts[0].m_pos = zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineLeft, lineTop, 0}, t1);
     m_verts.lineVerts[1].m_pos.assign(lineLeft, lineBottom, 0);
-    m_verts.lineVerts[2].m_pos = Zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineRight, lineTop, 0}, t1);
+    m_verts.lineVerts[2].m_pos = zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineRight, lineTop, 0}, t1);
     m_verts.lineVerts[3].m_pos.assign(lineRight, lineBottom, 0);
     m_verts.lineVerts[4].m_pos = m_verts.lineVerts[3].m_pos;
 
@@ -85,9 +85,9 @@ void ModalWindow::setLineVertsOut(int width, int height, float pf, float t)
     lineRight = width-margin.first;
     lineTop = height;
     lineBottom = height-pf*LINE_WIDTH;
-    m_verts.lineVerts[5].m_pos = Zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineLeft, lineTop, 0}, t1);
+    m_verts.lineVerts[5].m_pos = zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineLeft, lineTop, 0}, t1);
     m_verts.lineVerts[6].m_pos = m_verts.lineVerts[5].m_pos;
-    m_verts.lineVerts[7].m_pos = Zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineLeft, lineBottom, 0}, t1);
+    m_verts.lineVerts[7].m_pos = zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineLeft, lineBottom, 0}, t1);
     m_verts.lineVerts[8].m_pos.assign(lineRight, lineTop, 0);
     m_verts.lineVerts[9].m_pos.assign(lineRight, lineBottom, 0);
     m_verts.lineVerts[10].m_pos = m_verts.lineVerts[9].m_pos;
@@ -96,10 +96,10 @@ void ModalWindow::setLineVertsOut(int width, int height, float pf, float t)
     lineRight = width;
     lineTop = height-margin.second;
     lineBottom = margin.second;
-    m_verts.lineVerts[11].m_pos = Zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineLeft, lineTop, 0}, t2);
+    m_verts.lineVerts[11].m_pos = zeus::CVector3f::lerp({lineLeft, lineBottom, 0}, {lineLeft, lineTop, 0}, t2);
     m_verts.lineVerts[12].m_pos = m_verts.lineVerts[11].m_pos;
     m_verts.lineVerts[13].m_pos.assign(lineLeft, lineBottom, 0);
-    m_verts.lineVerts[14].m_pos = Zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineRight, lineTop, 0}, t2);
+    m_verts.lineVerts[14].m_pos = zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineRight, lineTop, 0}, t2);
     m_verts.lineVerts[15].m_pos.assign(lineRight, lineBottom, 0);
     m_verts.lineVerts[16].m_pos = m_verts.lineVerts[15].m_pos;
 
@@ -107,34 +107,34 @@ void ModalWindow::setLineVertsOut(int width, int height, float pf, float t)
     lineRight = width-margin.first;
     lineTop = pf*LINE_WIDTH;
     lineBottom = 0;
-    m_verts.lineVerts[17].m_pos = Zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineLeft, lineTop, 0}, t2);
+    m_verts.lineVerts[17].m_pos = zeus::CVector3f::lerp({lineRight, lineTop, 0}, {lineLeft, lineTop, 0}, t2);
     m_verts.lineVerts[18].m_pos = m_verts.lineVerts[17].m_pos;
-    m_verts.lineVerts[19].m_pos = Zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineLeft, lineBottom, 0}, t2);
+    m_verts.lineVerts[19].m_pos = zeus::CVector3f::lerp({lineRight, lineBottom, 0}, {lineLeft, lineBottom, 0}, t2);
     m_verts.lineVerts[20].m_pos.assign(lineRight, lineTop, 0);
     m_verts.lineVerts[21].m_pos.assign(lineRight, lineBottom, 0);
 }
 
 void ModalWindow::setLineColors(float t)
 {
-    float t1 = Zeus::Math::clamp(0.f, t * 2.f, 1.f);
-    float t2 = Zeus::Math::clamp(0.f, t * 2.f - 1.f, 1.f);
-    float t3 = Zeus::Math::clamp(0.f, t * 2.f - 2.f, 1.f);
+    float t1 = zeus::clamp(0.f, t * 2.f, 1.f);
+    float t2 = zeus::clamp(0.f, t * 2.f - 1.f, 1.f);
+    float t3 = zeus::clamp(0.f, t * 2.f - 2.f, 1.f);
 
-    Zeus::CColor c1 = Zeus::CColor::lerp(m_line1, m_line2, t1);
-    Zeus::CColor c2 = Zeus::CColor::lerp(m_line1, m_line2, t2);
-    Zeus::CColor c3 = Zeus::CColor::lerp(m_line1, m_line2, t3);
+    zeus::CColor c1 = zeus::CColor::lerp(m_line1, m_line2, t1);
+    zeus::CColor c2 = zeus::CColor::lerp(m_line1, m_line2, t2);
+    zeus::CColor c3 = zeus::CColor::lerp(m_line1, m_line2, t3);
 
     m_cornersOutline[0]->colorGlyphs(c1);
     if (t < 0.5)
     {
-        m_cornersOutline[1]->colorGlyphs(Zeus::CColor::skClear);
-        m_cornersOutline[2]->colorGlyphs(Zeus::CColor::skClear);
-        m_cornersOutline[3]->colorGlyphs(Zeus::CColor::skClear);
+        m_cornersOutline[1]->colorGlyphs(zeus::CColor::skClear);
+        m_cornersOutline[2]->colorGlyphs(zeus::CColor::skClear);
+        m_cornersOutline[3]->colorGlyphs(zeus::CColor::skClear);
     }
     else if (t < 1.0)
     {
         m_cornersOutline[1]->colorGlyphs(c2);
-        m_cornersOutline[2]->colorGlyphs(Zeus::CColor::skClear);
+        m_cornersOutline[2]->colorGlyphs(zeus::CColor::skClear);
         m_cornersOutline[3]->colorGlyphs(c2);
     }
     else
@@ -173,25 +173,25 @@ void ModalWindow::setLineColors(float t)
 
 void ModalWindow::setLineColorsOut(float t)
 {
-    float t1 = Zeus::Math::clamp(0.f, t * 2.f, 1.f);
-    float t2 = Zeus::Math::clamp(0.f, t * 2.f - 1.f, 1.f);
-    float t3 = Zeus::Math::clamp(0.f, t * 2.f - 2.f, 1.f);
+    float t1 = zeus::clamp(0.f, t * 2.f, 1.f);
+    float t2 = zeus::clamp(0.f, t * 2.f - 1.f, 1.f);
+    float t3 = zeus::clamp(0.f, t * 2.f - 2.f, 1.f);
 
-    Zeus::CColor c1 = Zeus::CColor::lerp(m_line2Clear, m_line2, t1);
-    Zeus::CColor c2 = Zeus::CColor::lerp(m_line2Clear, m_line2, t2);
-    Zeus::CColor c3 = Zeus::CColor::lerp(m_line2Clear, m_line2, t3);
+    zeus::CColor c1 = zeus::CColor::lerp(m_line2Clear, m_line2, t1);
+    zeus::CColor c2 = zeus::CColor::lerp(m_line2Clear, m_line2, t2);
+    zeus::CColor c3 = zeus::CColor::lerp(m_line2Clear, m_line2, t3);
 
     m_cornersOutline[2]->colorGlyphs(c1);
     if (t < 0.5)
     {
-        m_cornersOutline[1]->colorGlyphs(Zeus::CColor::skClear);
-        m_cornersOutline[0]->colorGlyphs(Zeus::CColor::skClear);
-        m_cornersOutline[3]->colorGlyphs(Zeus::CColor::skClear);
+        m_cornersOutline[1]->colorGlyphs(zeus::CColor::skClear);
+        m_cornersOutline[0]->colorGlyphs(zeus::CColor::skClear);
+        m_cornersOutline[3]->colorGlyphs(zeus::CColor::skClear);
     }
     else if (t < 1.0)
     {
         m_cornersOutline[1]->colorGlyphs(c2);
-        m_cornersOutline[0]->colorGlyphs(Zeus::CColor::skClear);
+        m_cornersOutline[0]->colorGlyphs(zeus::CColor::skClear);
         m_cornersOutline[3]->colorGlyphs(c2);
     }
     else
@@ -266,8 +266,8 @@ void ModalWindow::setFillVerts(int width, int height, float pf)
 
 void ModalWindow::setFillColors(float t)
 {
-    t = Zeus::Math::clamp(0.f, t, 1.f);
-    Zeus::CColor color = Zeus::CColor::lerp(m_windowBgClear, m_windowBg, t);
+    t = zeus::clamp(0.f, t, 1.f);
+    zeus::CColor color = zeus::CColor::lerp(m_windowBgClear, m_windowBg, t);
 
     for (int i=0 ; i<16 ; ++i)
         m_verts.fillVerts[i].m_color = color;
@@ -278,7 +278,7 @@ void ModalWindow::setFillColors(float t)
 ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint)
 : ModalWindow(res, parentView, constraint, res.themeData().splashBackground()) {}
 
-ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const Zeus::CColor& bgColor)
+ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const zeus::CColor& bgColor)
 : View(res, parentView),
   m_constraint(constraint),
   m_windowBg(bgColor),
@@ -297,8 +297,8 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleCo
 
     for (int i=0 ; i<4 ; ++i)
     {
-        m_cornersOutline[i].reset(new Specter::TextView(res, *this, res.m_curveFont, Specter::TextView::Alignment::Left, 1));
-        m_cornersFilled[i].reset(new Specter::TextView(res, *this, res.m_curveFont, Specter::TextView::Alignment::Left, 1));
+        m_cornersOutline[i].reset(new specter::TextView(res, *this, res.m_curveFont, specter::TextView::Alignment::Left, 1));
+        m_cornersFilled[i].reset(new specter::TextView(res, *this, res.m_curveFont, specter::TextView::Alignment::Left, 1));
     }
     m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
     m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().splashBackground());
@@ -325,7 +325,7 @@ static float CubicEase(float t)
 
 void ModalWindow::think()
 {
-    Specter::ViewResources& res = rootView().viewRes();
+    specter::ViewResources& res = rootView().viewRes();
     float pf = res.pixelFactor();
 
     switch (m_phase)
@@ -337,7 +337,7 @@ void ModalWindow::think()
         if (m_frame > WIRE_START)
         {
             float wt = (m_frame-WIRE_START) / float(WIRE_FRAMES);
-            wt = Zeus::Math::clamp(0.f, wt, 2.f);
+            wt = zeus::clamp(0.f, wt, 2.f);
             m_lineTime = CubicEase(wt);
             setLineVerts(m_width, m_height, pf, m_lineTime);
             setLineColors(wt);
@@ -348,7 +348,7 @@ void ModalWindow::think()
         if (m_frame > SOLID_START)
         {
             float ft = (m_frame-SOLID_START) / float(SOLID_FRAMES);
-            ft = Zeus::Math::clamp(0.f, ft, 2.f);
+            ft = zeus::clamp(0.f, ft, 2.f);
             setFillColors(ft);
             if (ft == 2.f)
                 ++doneCount;
@@ -359,7 +359,7 @@ void ModalWindow::think()
             if (!m_contentStartFrame)
                 m_contentStartFrame = m_frame;
             float tt = (m_frame-m_contentStartFrame) / float(CONTENT_FRAMES);
-            tt = Zeus::Math::clamp(0.f, tt, 1.f);
+            tt = zeus::clamp(0.f, tt, 1.f);
             updateContentOpacity(tt);
             if (tt == 1.f)
                 ++doneCount;
@@ -384,7 +384,7 @@ void ModalWindow::think()
     {
         {
             float wt = (WIRE_FRAMES - m_frame) / float(WIRE_FRAMES);
-            wt = Zeus::Math::clamp(0.f, wt, 1.f);
+            wt = zeus::clamp(0.f, wt, 1.f);
             m_lineTime = CubicEase(wt);
             setLineVertsOut(m_width, m_height, pf, m_lineTime);
             setLineColorsOut(wt);
@@ -393,13 +393,13 @@ void ModalWindow::think()
         }
         {
             float ft = (SOLID_FRAMES - m_frame) / float(SOLID_FRAMES);
-            ft = Zeus::Math::clamp(0.f, ft, 1.f);
+            ft = zeus::clamp(0.f, ft, 1.f);
             setFillColors(ft);
         }
         if (res.fontCacheReady())
         {
             float tt = (CONTENT_FRAMES - m_frame) / float(CONTENT_FRAMES);
-            tt = Zeus::Math::clamp(0.f, tt, 1.f);
+            tt = zeus::clamp(0.f, tt, 1.f);
             updateContentOpacity(tt);
         }
         m_vertsBinding.load(&m_verts, sizeof(m_verts));
@@ -415,7 +415,7 @@ bool ModalWindow::skipBuildInAnimation()
     if (m_phase != Phase::BuildIn)
         return false;
 
-    Specter::ViewResources& res = rootView().viewRes();
+    specter::ViewResources& res = rootView().viewRes();
     float pf = res.pixelFactor();
 
     m_lineTime = 1.0;

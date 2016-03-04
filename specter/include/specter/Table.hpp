@@ -6,7 +6,7 @@
 #include "TextView.hpp"
 #include <array>
 
-namespace Specter
+namespace specter
 {
 #define SPECTER_TABLE_MAX_ROWS 128ul
 
@@ -125,7 +125,7 @@ public:
 
     void cycleSortColumn(size_t c);
     void selectRow(size_t r);
-    void setMultiplyColor(const Zeus::CColor& color);
+    void setMultiplyColor(const zeus::CColor& color);
 
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

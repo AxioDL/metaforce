@@ -4,7 +4,7 @@
 #include "Button.hpp"
 #include "ScrollView.hpp"
 
-namespace Specter
+namespace specter
 {
 
 struct IPathButtonsBinding
@@ -52,10 +52,10 @@ class PathButtons : public ScrollView
         PathButtons& m_pb;
         size_t m_idx;
         ViewChild<std::unique_ptr<Button>> m_button;
-        PathButton(PathButtons& pb, ViewResources& res, size_t idx, const HECL::SystemString& str)
+        PathButton(PathButtons& pb, ViewResources& res, size_t idx, const hecl::SystemString& str)
         : m_pb(pb), m_idx(idx)
         {
-            m_button.m_view.reset(new Button(res, pb, this, HECL::SystemUTF8View(str).str()));
+            m_button.m_view.reset(new Button(res, pb, this, hecl::SystemUTF8View(str).str()));
         }
         const char* name(const Control* control) const {return m_button.m_view->getText().c_str();}
         void activated(const Button* button, const boo::SWindowCoord&) {m_pb.m_pathButtonPending = m_idx;}
@@ -66,8 +66,8 @@ class PathButtons : public ScrollView
 public:
     PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding, bool fillContainer=false);
 
-    void setButtons(const std::vector<HECL::SystemString>& comps);
-    void setMultiplyColor(const Zeus::CColor& color);
+    void setButtons(const std::vector<hecl::SystemString>& comps);
+    void setMultiplyColor(const zeus::CColor& color);
 
     /* Fill all available space in container when requested */
     void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

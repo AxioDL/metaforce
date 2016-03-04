@@ -1,9 +1,9 @@
-#include "Specter/MessageWindow.hpp"
-#include "Specter/ViewResources.hpp"
-#include "Specter/RootView.hpp"
-#include "Specter/Menu.hpp"
+#include "specter/MessageWindow.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
+#include "specter/Menu.hpp"
 
-namespace Specter
+namespace specter
 {
 
 MessageWindow::MessageWindow(ViewResources& res, View& parentView,
@@ -22,11 +22,11 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView,
     constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());
 
     m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name, nullptr,
-                                 Button::Style::Block, Zeus::CColor::skWhite,
+                                 Button::Style::Block, zeus::CColor::skWhite,
                                  RectangleConstraint(150 * res.pixelFactor())));
     if (type == Type::ConfirmOkCancel)
         m_cancel.m_view.reset(new Button(res, *this, &m_cancelBind, m_cancelBind.m_name, nullptr,
-                                         Button::Style::Block, Zeus::CColor::skWhite,
+                                         Button::Style::Block, zeus::CColor::skWhite,
                                          RectangleConstraint(150 * res.pixelFactor())));
 
     updateContentOpacity(0.0);

@@ -1,10 +1,10 @@
 #ifndef SPECTER_MODAL_WINDOW_HPP
 #define SPECTER_MODAL_WINDOW_HPP
 
-#include <Specter/View.hpp>
-#include <Specter/MultiLineTextView.hpp>
+#include <specter/View.hpp>
+#include <specter/MultiLineTextView.hpp>
 
-namespace Specter
+namespace specter
 {
 class ModalWindow : public View
 {
@@ -29,11 +29,11 @@ private:
     int m_height = 0;
     RectangleConstraint m_constraint;
 
-    Zeus::CColor m_windowBg;
-    Zeus::CColor m_windowBgClear;
-    Zeus::CColor m_line1;
-    Zeus::CColor m_line2;
-    Zeus::CColor m_line2Clear;
+    zeus::CColor m_windowBg;
+    zeus::CColor m_windowBgClear;
+    zeus::CColor m_line1;
+    zeus::CColor m_line2;
+    zeus::CColor m_line2Clear;
 
     ViewBlock m_viewBlock;
     boo::IGraphicsBufferD* m_viewBlockBuf;
@@ -62,7 +62,7 @@ protected:
     RectangleConstraint& constraint() {return m_constraint;}
 
 public:
-    ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const Zeus::CColor& bgColor);
+    ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const zeus::CColor& bgColor);
     ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
     void think();
     bool skipBuildInAnimation();
