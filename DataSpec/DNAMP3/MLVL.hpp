@@ -72,7 +72,12 @@ struct MLVL : BigYAML
     Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
 
     Value<atUint32> layerIDCount;
-    Vector<UniqueID128, DNA_COUNT(layerIDCount)> layerIDs;
+    struct LayerID : BigYAML
+    {
+        DECL_YAML
+        Value<atUint64> id[2];
+    };
+    Vector<LayerID, DNA_COUNT(layerIDCount)> layerIDs;
 
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
