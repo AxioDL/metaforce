@@ -1701,7 +1701,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
                 float sinT = sinf(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = cosf(theta) * size;
 
                 switch (m_shaderClass)
                 {
@@ -1836,7 +1836,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
                 float sinT = sinf(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = cosf(theta) * size;
 
                 for (int i=0 ; i<mbspVal ; ++i)
                 {
