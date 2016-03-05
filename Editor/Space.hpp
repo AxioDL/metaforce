@@ -172,13 +172,9 @@ public:
     : RootSpace(vm)
     {
         m_state.read(r);
-#ifdef URDE_BINARY_CONFIGS
-        m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
-#else
         r.enterSubRecord("spaceTree");
         m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
         r.leaveSubRecord();
-#endif
     }
 
     void think()
@@ -251,17 +247,12 @@ public:
     : SplitSpace(vm, parent, specter::SplitView::Axis::Horizontal)
     {
         m_state.read(r);
-#ifdef URDE_BINARY_CONFIGS
-        m_slots[0].reset(NewSpaceFromConfigStream(vm, this, r));
-        m_slots[1].reset(NewSpaceFromConfigStream(vm, this, r));
-#else
         r.enterSubRecord("slot0");
         m_slots[0].reset(NewSpaceFromConfigStream(vm, this, r));
         r.leaveSubRecord();
         r.enterSubRecord("slot1");
         m_slots[1].reset(NewSpaceFromConfigStream(vm, this, r));
         r.leaveSubRecord();
-#endif
         reloadState();
     }
 

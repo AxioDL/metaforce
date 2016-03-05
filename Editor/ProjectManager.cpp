@@ -72,15 +72,6 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
         return false;
     }
 
-#ifdef URDE_BINARY_CONFIGS
-    hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
-    athena::io::FileReader r(urdeSpacesPath.getAbsolutePath(), 32 * 1024, false);
-    if (r.hasError())
-        goto makeDefault;
-
-    m_vm.SetupEditorView(r);
-
-#else
     hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
     FILE* fp = hecl::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
 
@@ -106,8 +97,6 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     fclose(fp);
 
     m_vm.SetupEditorView(r);
-
-#endif
 
     IndexMP1Resources();
     m_vm.BuildTestPART(m_objStore);
@@ -141,18 +130,6 @@ bool ProjectManager::saveProject()
     if (!m_proj)
         return false;
 
-#ifdef URDE_BINARY_CONFIGS
-    hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.bin"));
-    athena::io::FileWriter w(oldSpacesPath.getAbsolutePath(), true, false);
-    if (w.hasError())
-        return false;
-
-    m_vm.SaveEditorView(w);
-    w.close();
-
-    hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.bin"));
-
-#else
     hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
     FILE* fp = hecl::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
     if (!fp)
@@ -169,8 +146,6 @@ bool ProjectManager::saveProject()
     fclose(fp);
 
     hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
-
-#endif
 
     hecl::Unlink(newSpacesPath.getAbsolutePath().c_str());
     hecl::Rename(oldSpacesPath.getAbsolutePath().c_str(),

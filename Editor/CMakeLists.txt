@@ -2,20 +2,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ./../Runtime)
 add_subdirectory(locale)
 add_subdirectory(icons)
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  option(RUDE_BINARY_CONFIGS
-         "Use binary Athena formats for serializing save data structures, rather than YAML"
-         YES)
-else()
-  option(RUDE_BINARY_CONFIGS
-         "Use binary Athena formats for serializing save data structures, rather than YAML"
-         NO)
-endif()
-
-if(RUDE_BINARY_CONFIGS)
-  add_definitions("-DURDE_BINARY_CONFIGS=1")
-endif()
-
 atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 atdna(atdna_ModelViewer.cpp ModelViewer.hpp)

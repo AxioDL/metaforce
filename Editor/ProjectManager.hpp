@@ -10,13 +10,8 @@ namespace urde
 {
 class ViewManager;
 
-#ifdef URDE_BINARY_CONFIGS
-using ConfigReader = athena::io::IStreamReader;
-using ConfigWriter = athena::io::IStreamWriter;
-#else
 using ConfigReader = athena::io::YAMLDocReader;
 using ConfigWriter = athena::io::YAMLDocWriter;
-#endif
 
 class ProjectManager
 {

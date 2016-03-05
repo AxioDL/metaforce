@@ -226,21 +226,13 @@ void Space::saveState(athena::io::YAMLDocWriter& w) const
 
 Space* Space::NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigReader& r)
 {
-#ifdef URDE_BINARY_CONFIGS
-    Class cls = Class(r.readUint32Big());
-#else
     Class cls = Class(r.readUint32("class"));
-#endif
     return BuildNewSpace(vm, cls, parent, r);
 }
 
 RootSpace* Space::NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)
 {
-#ifdef URDE_BINARY_CONFIGS
-    Class cls = Class(r.readUint32Big());
-#else
     Class cls = Class(r.readUint32("class"));
-#endif
     if (cls != Class::RootSpace)
         return nullptr;
     return new RootSpace(vm, r);
