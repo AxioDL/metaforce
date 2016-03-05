@@ -7,7 +7,7 @@
 #include "CPakFile.hpp"
 #include "IOStreams.hpp"
 
-namespace pshag
+namespace urde
 {
 struct SObjectTag;
 class IDvdRequest;

@@ -8,7 +8,7 @@ namespace DataSpec
 {
 
 template<class DEAFBABE>
-void DeafBabeSendToBlender(HECL::BlenderConnection::PyOutStream& os, const DEAFBABE& db)
+void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db)
 {
     os << "material_index = []\n"
           "col_bm = bmesh.new()\n";

@@ -2,14 +2,14 @@
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
 #include "CGenDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CToken.hpp"
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CParticleElectricDataFactory");
+static logvisor::Module Log("urde::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -113,7 +113,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown ELSM class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(logvisor::Fatal, "Unknown ELSM class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }

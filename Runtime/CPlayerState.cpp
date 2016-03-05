@@ -1,6 +1,6 @@
 #include "CPlayerState.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CPlayerState::CPlayerState(CInputStream& stream)

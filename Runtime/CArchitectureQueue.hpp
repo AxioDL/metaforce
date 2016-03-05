@@ -4,7 +4,7 @@
 #include <list>
 #include "CArchitectureMessage.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CArchitectureQueue

@@ -5,7 +5,7 @@
 #include "ViewManager.hpp"
 #include "Camera.hpp"
 
-namespace URDE
+namespace urde
 {
 class ModelViewer : public ViewerSpace
 {
@@ -20,20 +20,20 @@ class ModelViewer : public ViewerSpace
         };
 
         Value<Mode>    renderMode = Mode::Material;
-        Value<Zeus::CVector3f>   cameraPosition;
-        Value<Zeus::CQuaternion> cameraOrientation;
+        Value<zeus::CVector3f>   cameraPosition;
+        Value<zeus::CQuaternion> cameraOrientation;
 
     } m_state;
 
     const Space::State& spaceState() const { return m_state; }
-    std::unique_ptr<pshag::CLineRenderer> m_lineRenderer;
-    struct View : Specter::View
+    std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
+    struct View : specter::View
     {
         ModelViewer& m_mv;
         boo::SWindowRect m_scissorRect;
 
-        View(ModelViewer& mv, Specter::ViewResources& res)
-            : Specter::View(res, mv.m_vm.rootView()), m_mv(mv)
+        View(ModelViewer& mv, specter::ViewResources& res)
+            : specter::View(res, mv.m_vm.rootView()), m_mv(mv)
         {
             commitResources(res);
         }
@@ -50,7 +50,7 @@ public:
         : ViewerSpace(vm, Class::ModelViewer, parent)
     {
         reloadState();
-        m_lineRenderer.reset(new pshag::CLineRenderer(pshag::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
+        m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     }
 
     ModelViewer(ViewManager& vm, Space* parent, const ModelViewer& other)
@@ -78,7 +78,7 @@ public:
         return new ModelViewer(m_vm, parent, *this);
     }
 
-    virtual Specter::View* buildContentView(Specter::ViewResources& res)
+    virtual specter::View* buildContentView(specter::ViewResources& res)
     {
         m_view.reset(new View(*this, res));
         return m_view.get();

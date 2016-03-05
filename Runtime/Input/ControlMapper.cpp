@@ -4,7 +4,7 @@
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
 #include "../GameGlobalObjects.hpp"
 
-namespace pshag
+namespace urde
 {
 
 static const char* skCommandDescs[] =

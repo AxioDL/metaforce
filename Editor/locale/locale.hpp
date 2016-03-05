@@ -1,14 +1,14 @@
 #ifndef URDE_LOCALE_HPP
 #define URDE_LOCALE_HPP
 
-#include <Specter/Translator.hpp>
+#include <specter/Translator.hpp>
 
-namespace URDE
+namespace urde
 {
 
 std::vector<std::pair<const std::string*, const std::string*>> ListLocales();
-const Specter::Locale* LookupLocale(const std::string& name);
-const Specter::Locale* SystemLocaleOrEnglish();
+const specter::Locale* LookupLocale(const std::string& name);
+const specter::Locale* SystemLocaleOrEnglish();
 
 }
 

@@ -5,7 +5,7 @@ namespace DataSpec
 namespace DNAMP2
 {
 
-void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
+void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
 {
     idx = reader.readUint32Big();
     atUint16 sectionCount = reader.readUint16Big();
@@ -78,7 +78,7 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(Athena::io::IStreamWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(idx);
 
@@ -238,7 +238,7 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
+void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -298,7 +298,7 @@ void ANCS::CharacterSet::CharacterInfo::read(Athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer) const
+void ANCS::CharacterSet::CharacterInfo::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("idx", idx);
 
@@ -373,10 +373,10 @@ void ANCS::CharacterSet::CharacterInfo::write(Athena::io::YAMLDocWriter& writer)
 
 const char* ANCS::CharacterSet::CharacterInfo::DNAType()
 {
-    return "Retro::DNAMP2::ANCS::CharacterSet::CharacterInfo";
+    return "urde::DNAMP2::ANCS::CharacterSet::CharacterInfo";
 }
 
-void ANCS::AnimationSet::read(Athena::io::IStreamReader& reader)
+void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
 {
     atUint16 sectionCount = reader.readUint16Big();
 
@@ -411,7 +411,7 @@ void ANCS::AnimationSet::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(Athena::io::IStreamWriter& writer) const
+void ANCS::AnimationSet::write(athena::io::IStreamWriter& writer) const
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -494,7 +494,7 @@ size_t ANCS::AnimationSet::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
@@ -524,7 +524,7 @@ void ANCS::AnimationSet::read(Athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::write(athena::io::YAMLDocWriter& writer) const
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -538,16 +538,13 @@ void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 
     writer.writeUint16("sectionCount", sectionCount);
 
-    writer.writeUint32("animationCount", animations.size());
     writer.enumerate("animations", animations);
 
-    writer.writeUint32("transitionCount", transitions.size());
     writer.enumerate("transitions", transitions);
     writer.enumerate("defaultTransition", defaultTransition);
 
     if (sectionCount > 1)
     {
-        writer.writeUint32("additiveAnimCount", additiveAnims.size());
         writer.enumerate("additiveAnims", additiveAnims);
         writer.writeFloat("floatA", floatA);
         writer.writeFloat("floatB", floatB);
@@ -555,23 +552,21 @@ void ANCS::AnimationSet::write(Athena::io::YAMLDocWriter& writer) const
 
     if (sectionCount > 2)
     {
-        writer.writeUint32("halfTransitionCount", halfTransitions.size());
         writer.enumerate("halfTransitions", halfTransitions);
     }
 
     if (sectionCount > 3)
     {
-        writer.writeUint32("evntsCount", evnts.size());
         writer.enumerate("evnts", evnts);
     }
 }
 
 const char* ANCS::AnimationSet::DNAType()
 {
-    return "Retro::DNAMP2::ANCS::AnimationSet";
+    return "urde::DNAMP2::ANCS::AnimationSet";
 }
 
-void ANCS::AnimationSet::EVNT::read(Athena::io::IStreamReader& reader)
+void ANCS::AnimationSet::EVNT::read(athena::io::IStreamReader& reader)
 {
     version = reader.readUint32Big();
 
@@ -592,7 +587,7 @@ void ANCS::AnimationSet::EVNT::read(Athena::io::IStreamReader& reader)
     reader.enumerate(sfxEvents, sfxCount);
 }
 
-void ANCS::AnimationSet::EVNT::write(Athena::io::IStreamWriter& writer) const
+void ANCS::AnimationSet::EVNT::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(version);
 
@@ -634,7 +629,7 @@ size_t ANCS::AnimationSet::EVNT::binarySize(size_t __isz) const
     return __isz;
 }
 
-void ANCS::AnimationSet::EVNT::read(Athena::io::YAMLDocReader& reader)
+void ANCS::AnimationSet::EVNT::read(athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
@@ -651,7 +646,7 @@ void ANCS::AnimationSet::EVNT::read(Athena::io::YAMLDocReader& reader)
     reader.enumerate("sfxEvents", sfxEvents);
 }
 
-void ANCS::AnimationSet::EVNT::write(Athena::io::YAMLDocWriter& writer) const
+void ANCS::AnimationSet::EVNT::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
@@ -669,7 +664,7 @@ void ANCS::AnimationSet::EVNT::write(Athena::io::YAMLDocWriter& writer) const
 
 const char* ANCS::AnimationSet::EVNT::DNAType()
 {
-    return "Retro::DNAMP2::ANCS::AnimationSet::EVNT";
+    return "urde::DNAMP2::ANCS::AnimationSet::EVNT";
 }
 
 }

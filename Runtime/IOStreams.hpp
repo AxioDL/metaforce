@@ -2,18 +2,18 @@
 #define __PSHAG_IOSTREAMS_HPP__
 
 #include "RetroTypes.hpp"
-#include <Athena/IStreamReader.hpp>
-#include <Athena/IStreamWriter.hpp>
-#include <Athena/MemoryReader.hpp>
+#include <athena/IStreamReader.hpp>
+#include <athena/IStreamWriter.hpp>
+#include <athena/MemoryReader.hpp>
 #include <zlib.h>
 
-namespace pshag
+namespace urde
 {
 
-using CInputStream = Athena::io::IStreamReader;
-using COutputStream = Athena::io::IStreamWriter;
+using CInputStream = athena::io::IStreamReader;
+using COutputStream = athena::io::IStreamWriter;
 
-using CMemoryInStream = Athena::io::MemoryReader;
+using CMemoryInStream = athena::io::MemoryReader;
 
 class CZipInputStream : public CInputStream
 {
@@ -24,7 +24,7 @@ public:
     CZipInputStream(std::unique_ptr<CInputStream>&& strm);
     ~CZipInputStream();
     atUint64 readUBytesToBuf(void *buf, atUint64 len);
-    void seek(atInt64, Athena::SeekOrigin) {}
+    void seek(atInt64, athena::SeekOrigin) {}
     atUint64 position() const {return 0;}
     atUint64 length() const {return 0;}
 };

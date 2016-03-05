@@ -1,7 +1,7 @@
 #include "CMDLMaterials.hpp"
 #include "../DNAMP2/CMDLMaterials.hpp"
 
-using Stream = HECL::BlenderConnection::PyOutStream;
+using Stream = hecl::BlenderConnection::PyOutStream;
 
 namespace DataSpec
 {
@@ -914,10 +914,10 @@ void MaterialSet::ConstructMaterial(Stream& out,
                                     unsigned matIdx)
 {_ConstructMaterial(out, material, groupIdx, matIdx);}
 
-MaterialSet::Material::Material(const HECL::Backend::GX& gx,
+MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                                 const std::unordered_map<std::string, int32_t>& iprops,
-                                const std::vector<HECL::ProjectPath>& texPathsIn,
-                                std::vector<HECL::ProjectPath>& texPathsOut,
+                                const std::vector<hecl::ProjectPath>& texPathsIn,
+                                std::vector<hecl::ProjectPath>& texPathsOut,
                                 int colorCount,
                                 int uvCount,
                                 bool lightmapUVs,
@@ -969,7 +969,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     textureIdxs.reserve(gx.m_tevCount);
     for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
-        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        const hecl::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         tevStageTexInfo.emplace_back();
         TEVStageTexInfo& texInfo = tevStageTexInfo.back();
         if (stage.m_texGenIdx != -1)
@@ -977,7 +977,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
         if (stage.m_texMapIdx != -1)
         {
             texInfo.texSlot = textureIdxs.size();
-            const HECL::ProjectPath& texPath = texPathsIn.at(stage.m_texMapIdx);
+            const hecl::ProjectPath& texPath = texPathsIn.at(stage.m_texMapIdx);
             texFlags |= 1 << i;
             ++textureCount;
             bool found = false;
@@ -1056,11 +1056,11 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     ColorChannel& ch = colorChannels.back();
     for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
-        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        const hecl::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         for (int c=0 ; c<4 ; ++c)
-            if (stage.m_color[c] == HECL::Backend::GX::CC_RASC ||
-                stage.m_color[c] == HECL::Backend::GX::CC_RASA ||
-                stage.m_alpha[c] == HECL::Backend::GX::CA_RASA)
+            if (stage.m_color[c] == hecl::Backend::GX::CC_RASC ||
+                stage.m_color[c] == hecl::Backend::GX::CC_RASA ||
+                stage.m_alpha[c] == hecl::Backend::GX::CA_RASA)
             {
                 ch.setLighting(true);
                 break;
@@ -1075,7 +1075,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     tevStages.reserve(gx.m_tevCount);
     for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
-        const HECL::Backend::GX::TEVStage& stage = gx.m_tevs[i];
+        const hecl::Backend::GX::TEVStage& stage = gx.m_tevs[i];
         tevStages.emplace_back();
         TEVStage& target = tevStages.back();
 
@@ -1104,7 +1104,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     tcgCount = gx.m_tcgCount;
     for (unsigned i=0 ; i<gx.m_tcgCount ; ++i)
     {
-        const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[i];
+        const hecl::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[i];
         tcgs.emplace_back();
         TexCoordGen& target = tcgs.back();
         target.setType(GX::TG_MTX3x4);
@@ -1132,7 +1132,7 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
         bool found = false;
         for (unsigned t=0 ; t<gx.m_tcgCount ; ++t)
         {
-            const HECL::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[t];
+            const hecl::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[t];
             if (tcg.m_mtx == GX::IDENTITY)
                 continue;
             if ((tcg.m_mtx - GX::TEXMTX0) / 3 == uvAnimsCount)
@@ -1149,11 +1149,11 @@ MaterialSet::Material::Material(const HECL::Backend::GX& gx,
     }
 }
 
-HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
+HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,
                                     const std::string& diagName,
-                                    const HECL::BlenderConnection::DataStream::Mesh::Material& mat,
+                                    const hecl::BlenderConnection::DataStream::Mesh::Material& mat,
                                     const std::unordered_map<std::string, int32_t>& iprops,
-                                    const std::vector<HECL::ProjectPath>& texPaths)
+                                    const std::vector<hecl::ProjectPath>& texPaths)
 {
     auto search = iprops.find("retro_depth_sort");
     if (search != iprops.end())
@@ -1187,10 +1187,10 @@ HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
     if (search != iprops.end())
         flags.setLightmap(search->second != 0);
 
-    for (const HECL::ProjectPath& path : mat.texs)
+    for (const hecl::ProjectPath& path : mat.texs)
     {
         size_t idx = 0;
-        for (const HECL::ProjectPath& tPath : texPaths)
+        for (const hecl::ProjectPath& tPath : texPaths)
         {
             if (path == tPath)
             {
@@ -1210,15 +1210,15 @@ HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
 
     uvAnimsSize = 4;
     uvAnimsCount = 0;
-    for (const HECL::Frontend::IR::Instruction& inst : heclIr.m_instructions)
+    for (const hecl::Frontend::IR::Instruction& inst : heclIr.m_instructions)
     {
-        if (inst.m_op != HECL::Frontend::IR::OpType::Call)
+        if (inst.m_op != hecl::Frontend::IR::OpType::Call)
             continue;
         if (inst.m_call.m_name.compare("Texture"))
             continue;
 
-        const HECL::Frontend::IR::Instruction& sourceInst = inst.getChildInst(heclIr, 1);
-        if (sourceInst.m_op != HECL::Frontend::IR::OpType::Call)
+        const hecl::Frontend::IR::Instruction& sourceInst = inst.getChildInst(heclIr, 1);
+        if (sourceInst.m_op != hecl::Frontend::IR::OpType::Call)
             continue;
         if (sourceInst.m_call.m_name.compare(0, 11, "RetroUVMode"))
             continue;
@@ -1227,7 +1227,7 @@ HMDLMaterialSet::Material::Material(HECL::Frontend::Frontend& FE,
         gameArgs.reserve(sourceInst.getChildCount() - 1);
         for (int i=1 ; i<sourceInst.getChildCount() ; ++i)
         {
-            const HECL::Frontend::IR::Instruction& ci = sourceInst.getChildInst(heclIr, i);
+            const hecl::Frontend::IR::Instruction& ci = sourceInst.getChildInst(heclIr, i);
             gameArgs.push_back(ci.getImmVec());
         }
 
@@ -1248,7 +1248,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     {
         mode = Mode::Scroll;
         if (gameArgs.size() < 2)
-            Log.report(LogVisor::FatalError, "Mode2 UV anim requires 2 vector arguments");
+            Log.report(logvisor::Fatal, "Mode2 UV anim requires 2 vector arguments");
         vals[0] = gameArgs[0].vec[0];
         vals[1] = gameArgs[0].vec[1];
         vals[2] = gameArgs[1].vec[0];
@@ -1258,7 +1258,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     {
         mode = Mode::Rotation;
         if (gameArgs.size() < 2)
-            Log.report(LogVisor::FatalError, "Mode3 UV anim requires 2 arguments");
+            Log.report(logvisor::Fatal, "Mode3 UV anim requires 2 arguments");
         vals[0] = gameArgs[0].vec[0];
         vals[1] = gameArgs[1].vec[0];
     }
@@ -1266,7 +1266,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     {
         mode = Mode::HStrip;
         if (gameArgs.size() < 4)
-            Log.report(LogVisor::FatalError, "Mode4 UV anim requires 4 arguments");
+            Log.report(logvisor::Fatal, "Mode4 UV anim requires 4 arguments");
         vals[0] = gameArgs[0].vec[0];
         vals[1] = gameArgs[1].vec[0];
         vals[2] = gameArgs[2].vec[0];
@@ -1276,7 +1276,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     {
         mode = Mode::VStrip;
         if (gameArgs.size() < 4)
-            Log.report(LogVisor::FatalError, "Mode5 UV anim requires 4 arguments");
+            Log.report(logvisor::Fatal, "Mode5 UV anim requires 4 arguments");
         vals[0] = gameArgs[0].vec[0];
         vals[1] = gameArgs[1].vec[0];
         vals[2] = gameArgs[2].vec[0];
@@ -1288,12 +1288,12 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     {
         mode = Mode::WhoMustNotBeNamed;
         if (gameArgs.size() < 2)
-            Log.report(LogVisor::FatalError, "Mode7 UV anim requires 2 arguments");
+            Log.report(logvisor::Fatal, "Mode7 UV anim requires 2 arguments");
         vals[0] = gameArgs[0].vec[0];
         vals[1] = gameArgs[1].vec[0];
     }
     else
-        Log.report(LogVisor::FatalError, "unsupported UV anim '%s'", gameFunction.c_str());
+        Log.report(logvisor::Fatal, "unsupported UV anim '%s'", gameFunction.c_str());
 }
 
 }

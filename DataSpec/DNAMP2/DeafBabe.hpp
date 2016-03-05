@@ -65,11 +65,11 @@ struct DeafBabe : BigDNA
     Value<atUint32> vertCount;
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
-    static void BlenderInit(HECL::BlenderConnection::PyOutStream& os)
+    static void BlenderInit(hecl::BlenderConnection::PyOutStream& os)
     {
         DNAMP1::DeafBabe::BlenderInit(os);
     }
-    void insertNoClimb(HECL::BlenderConnection::PyOutStream& os) const
+    void insertNoClimb(hecl::BlenderConnection::PyOutStream& os) const
     {
         for (atInt16 edgeIdx : noClimbEdges)
         {
@@ -82,7 +82,7 @@ struct DeafBabe : BigDNA
                       edge.verts[0], edge.verts[1]);
         }
     }
-    void sendToBlender(HECL::BlenderConnection::PyOutStream& os) const
+    void sendToBlender(hecl::BlenderConnection::PyOutStream& os) const
     {
         DeafBabeSendToBlender(os, *this);
     }

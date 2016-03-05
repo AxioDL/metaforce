@@ -20,7 +20,7 @@ struct CSKR : DNAMP1::CSKR
         return nullptr;
     }
 
-    void weightVertex(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
+    void weightVertex(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
     {
         atUint32 accum = 0;
         for (const SkinningRule& rule : skinningRules)

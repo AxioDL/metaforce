@@ -3,7 +3,7 @@
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
-#include "Athena/FileWriter.hpp"
+#include "athena/FileWriter.hpp"
 
 namespace DataSpec
 {
@@ -13,7 +13,7 @@ namespace DNAParticle
 template <class IDType>
 struct GPSM : BigYAML
 {
-    static const char* DNAType() {return "Retro::GPSM";}
+    static const char* DNAType() {return "urde::GPSM";}
     const char* DNATypeV() const {return DNAType();}
 
     VectorElementFactory x0_PSIV;
@@ -107,18 +107,18 @@ struct GPSM : BigYAML
         x45_25_PMOO = true;
     }
 
-    void read(Athena::io::YAMLDocReader& r);
-    void write(Athena::io::YAMLDocWriter& w) const;
+    void read(athena::io::YAMLDocReader& r);
+    void write(athena::io::YAMLDocWriter& w) const;
     size_t binarySize(size_t __isz) const;
-    void read(Athena::io::IStreamReader& r);
-    void write(Athena::io::IStreamWriter& w) const;
+    void read(athena::io::IStreamReader& r);
+    void write(athena::io::IStreamWriter& w) const;
 };
 
 template <class IDType>
-bool ExtractGPSM(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath);
+bool ExtractGPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 
 template <class IDType>
-bool WriteGPSM(const GPSM<IDType>& gpsm, const HECL::ProjectPath& outPath);
+bool WriteGPSM(const GPSM<IDType>& gpsm, const hecl::ProjectPath& outPath);
 
 }
 }

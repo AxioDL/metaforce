@@ -1,7 +1,7 @@
 #include "CResFactory.hpp"
 #include "IObj.hpp"
 
-namespace pshag
+namespace urde
 {
 
 std::unique_ptr<IObj> CResFactory::Build(const SObjectTag&, const CVParamTransfer&)

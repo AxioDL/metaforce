@@ -15,7 +15,7 @@ struct STRG : ISTRG
 {
     DECL_YAML
     Delete expl;
-    void _read(Athena::io::IStreamReader& reader);
+    void _read(athena::io::IStreamReader& reader);
     std::vector<std::pair<FourCC, std::vector<std::wstring>>> langs;
     std::unordered_map<FourCC, std::vector<std::wstring>*> langMap;
 
@@ -36,7 +36,7 @@ struct STRG : ISTRG
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
-            return HECL::WideToUTF8(search->second->at(idx));
+            return hecl::WideToUTF8(search->second->at(idx));
         return std::string();
     }
     inline std::wstring getUTF16(const FourCC& lang, size_t idx) const
@@ -46,35 +46,35 @@ struct STRG : ISTRG
             return search->second->at(idx);
         return std::wstring();
     }
-    inline HECL::SystemString getSystemString(const FourCC& lang, size_t idx) const
+    inline hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
 #if HECL_UCS2
             return search->second->at(idx);
 #else
-            return HECL::WideToUTF8(search->second->at(idx));
+            return hecl::WideToUTF8(search->second->at(idx));
 #endif
-        return HECL::SystemString();
+        return hecl::SystemString();
     }
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         STRG strg;
         strg.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         strg.toYAMLFile(fp);
         fclose(fp);
         return true;
     }
 
-    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
     {
         STRG strg;
-        FILE* fp = HECL::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+        FILE* fp = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
         strg.fromYAMLFile(fp);
         fclose(fp);
-        Athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;
     }

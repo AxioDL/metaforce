@@ -5,7 +5,7 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */
 
-namespace pshag
+namespace urde
 {
 
 class CREKeyframeEmitter : public CRealElement

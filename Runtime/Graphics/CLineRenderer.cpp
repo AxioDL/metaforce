@@ -1,9 +1,9 @@
 #include "CLineRenderer.hpp"
 #include "CLineRendererShaders.hpp"
 
-namespace pshag
+namespace urde
 {
-LogVisor::LogModule LineRendererLog("pshag::CLineRenderer");
+logvisor::Module LineRendererLog("urde::CLineRenderer");
 
 boo::IShaderPipeline* CLineRendererShaders::m_texAlpha = nullptr;
 boo::IShaderPipeline* CLineRendererShaders::m_texAdditive = nullptr;
@@ -66,20 +66,20 @@ void CLineRenderer::Shutdown()
 
 struct SDrawVertTex
 {
-    Zeus::CVector4f pos;
-    Zeus::CColor color;
-    Zeus::CVector2f uv;
+    zeus::CVector4f pos;
+    zeus::CColor color;
+    zeus::CVector2f uv;
 };
 
 struct SDrawVertNoTex
 {
-    Zeus::CVector4f pos;
-    Zeus::CColor color;
+    zeus::CVector4f pos;
+    zeus::CColor color;
 };
 
 struct SDrawUniform
 {
-    Zeus::CColor moduColor;
+    zeus::CColor moduColor;
 };
 
 void CLineRendererShaders::BuildShaderDataBinding(CLineRenderer& renderer,
@@ -109,7 +109,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
 {
     if (maxVerts < 2)
     {
-        LineRendererLog.report(LogVisor::FatalError, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
+        LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
     }
     m_textured = texture != nullptr;
@@ -139,11 +139,11 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
 static rstl::reserved_vector<SDrawVertTex, 256> g_StaticLineVertsTex;
 static rstl::reserved_vector<SDrawVertNoTex, 256> g_StaticLineVertsNoTex;
 
-static Zeus::CVector2f IntersectLines(const Zeus::CVector2f& pa1, const Zeus::CVector2f& pa2,
-                                      const Zeus::CVector2f& pb1, const Zeus::CVector2f& pb2)
+static zeus::CVector2f IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa2,
+                                      const zeus::CVector2f& pb1, const zeus::CVector2f& pb2)
 {
-    Zeus::CVector2f pa1mpa2 = pa1 - pa2;
-    Zeus::CVector2f pb1mpb2 = pb1 - pb2;
+    zeus::CVector2f pa1mpa2 = pa1 - pa2;
+    zeus::CVector2f pb1mpb2 = pb1 - pb2;
     float denom = pa1mpa2.x * pb1mpb2.y - pa1mpa2.y * pb1mpb2.x;
     float numt1 = pa1.x * pa2.y - pa1.y * pa2.x;
     float numt2 = pb1.x * pb2.y - pb1.y * pb2.x;
@@ -161,14 +161,14 @@ void CLineRenderer::Reset()
         g_StaticLineVertsNoTex.clear();
 }
 
-void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColor& color, float width,
-                              const Zeus::CVector2f& uv)
+void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,
+                              const zeus::CVector2f& uv)
 {
     if (m_final || !m_shaderBind || m_nextVert >= m_maxVerts)
         return;
 
     float adjWidth = width / 480.f;
-    Zeus::CVector3f projPt = CGraphics::ProjectModelPointToViewportSpace(position);
+    zeus::CVector3f projPt = CGraphics::ProjectModelPointToViewportSpace(position);
 
     if (m_mode == EPrimitiveMode::LineLoop)
     {
@@ -188,13 +188,13 @@ void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColo
 
     if (m_nextVert > 1)
     {
-        Zeus::CVector2f dva = (m_lastPos - m_lastPos2).toVec2f();
+        zeus::CVector2f dva = (m_lastPos - m_lastPos2).toVec2f();
         if (!dva.canBeNormalized())
             dva = {0.f, 1.f};
         dva = dva.normalized().perpendicularVector() * m_lastWidth;
         dva.x /= CGraphics::g_ProjAspect;
 
-        Zeus::CVector2f dvb = (projPt - m_lastPos).toVec2f();
+        zeus::CVector2f dvb = (projPt - m_lastPos).toVec2f();
         if (!dvb.canBeNormalized())
             dvb = {0.f, 1.f};
         dvb = dvb.normalized().perpendicularVector() * m_lastWidth;
@@ -219,11 +219,11 @@ void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColo
             }
             else
             {
-                Zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                                             m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb);
                 intersect1.z = m_lastPos.z;
 
-                Zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
                 intersect2.z = m_lastPos.z;
 
@@ -250,11 +250,11 @@ void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColo
             }
             else
             {
-                Zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                                             m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb);
                 intersect1.z = m_lastPos.z;
 
-                Zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
                 intersect2.z = m_lastPos.z;
 
@@ -265,7 +265,7 @@ void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColo
     }
     else if (m_nextVert == 1)
     {
-        Zeus::CVector2f dv = (projPt - m_lastPos).toVec2f();
+        zeus::CVector2f dv = (projPt - m_lastPos).toVec2f();
         if (!dv.canBeNormalized())
             dv = {0.f, 1.f};
         dv = dv.normalized().perpendicularVector() * m_lastWidth;
@@ -290,30 +290,30 @@ void CLineRenderer::AddVertex(const Zeus::CVector3f& position, const Zeus::CColo
     ++m_nextVert;
 }
 
-void CLineRenderer::Render(const Zeus::CColor& moduColor)
+void CLineRenderer::Render(const zeus::CColor& moduColor)
 {
     if (!m_final && m_nextVert > 1)
     {
         if (m_mode == EPrimitiveMode::LineLoop)
         {
             {
-                Zeus::CVector2f dva = (m_lastPos - m_lastPos2).toVec2f();
+                zeus::CVector2f dva = (m_lastPos - m_lastPos2).toVec2f();
                 if (!dva.canBeNormalized())
                     dva = {0.f, 1.f};
                 dva = dva.normalized().perpendicularVector() * m_lastWidth;
                 dva.x /= CGraphics::g_ProjAspect;
 
-                Zeus::CVector2f dvb = (m_firstPos - m_lastPos).toVec2f();
+                zeus::CVector2f dvb = (m_firstPos - m_lastPos).toVec2f();
                 if (!dvb.canBeNormalized())
                     dvb = {0.f, 1.f};
                 dvb = dvb.normalized().perpendicularVector() * m_lastWidth;
                 dvb.x /= CGraphics::g_ProjAspect;
 
-                Zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                                             m_lastPos.toVec2f() + dvb, m_firstPos.toVec2f() + dvb);
                 intersect1.z = m_lastPos.z;
 
-                Zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                                             m_lastPos.toVec2f() - dvb, m_firstPos.toVec2f() - dvb);
                 intersect2.z = m_lastPos.z;
 
@@ -329,23 +329,23 @@ void CLineRenderer::Render(const Zeus::CColor& moduColor)
                 }
             }
             {
-                Zeus::CVector2f dva = (m_firstPos - m_lastPos).toVec2f();
+                zeus::CVector2f dva = (m_firstPos - m_lastPos).toVec2f();
                 if (!dva.canBeNormalized())
                     dva = {0.f, 1.f};
                 dva = dva.normalized().perpendicularVector() * m_firstWidth;
                 dva.x /= CGraphics::g_ProjAspect;
 
-                Zeus::CVector2f dvb = (m_secondPos - m_firstPos).toVec2f();
+                zeus::CVector2f dvb = (m_secondPos - m_firstPos).toVec2f();
                 if (!dvb.canBeNormalized())
                     dvb = {0.f, 1.f};
                 dvb = dvb.normalized().perpendicularVector() * m_firstWidth;
                 dvb.x /= CGraphics::g_ProjAspect;
 
-                Zeus::CVector3f intersect1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
+                zeus::CVector3f intersect1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
                                                             m_firstPos.toVec2f() + dvb, m_secondPos.toVec2f() + dvb);
                 intersect1.z = m_firstPos.z;
 
-                Zeus::CVector3f intersect2 = IntersectLines(m_lastPos.toVec2f() - dva, m_firstPos.toVec2f() - dva,
+                zeus::CVector3f intersect2 = IntersectLines(m_lastPos.toVec2f() - dva, m_firstPos.toVec2f() - dva,
                                                             m_firstPos.toVec2f() - dvb, m_secondPos.toVec2f() - dvb);
                 intersect2.z = m_firstPos.z;
 
@@ -363,7 +363,7 @@ void CLineRenderer::Render(const Zeus::CColor& moduColor)
         }
         else
         {
-            Zeus::CVector2f dv = (m_lastPos - m_lastPos2).toVec2f();
+            zeus::CVector2f dv = (m_lastPos - m_lastPos2).toVec2f();
             if (!dv.canBeNormalized())
                 dv = {0.f, 1.f};
             dv = dv.normalized().perpendicularVector() * m_lastWidth;

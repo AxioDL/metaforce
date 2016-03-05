@@ -2,9 +2,9 @@
 #define __PSHAG_CAUDIOSYS_HPP__
 
 #include "../GCNTypes.hpp"
-#include "CVector3f.hpp"
+#include "zeus/CVector3f.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CAudioSys
@@ -12,8 +12,8 @@ class CAudioSys
 public:
     struct C3DEmitterParmData
     {
-        Zeus::CVector3f pos;
-        Zeus::CVector3f dir;
+        zeus::CVector3f pos;
+        zeus::CVector3f dir;
         float maxDist;
         float distComp;
         u32 flags;

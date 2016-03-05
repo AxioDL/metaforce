@@ -4,7 +4,7 @@
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
 
-namespace pshag
+namespace urde
 {
 class CSwooshDescription;
 
@@ -15,22 +15,22 @@ public:
 
     void Update(double);
     void Render();
-    void SetOrientation(const Zeus::CTransform&);
-    void SetTranslation(const Zeus::CVector3f&);
-    void SetGlobalOrientation(const Zeus::CTransform&);
-    void SetGlobalTranslation(const Zeus::CVector3f&);
-    void SetGlobalScale(const Zeus::CVector3f&);
-    void SetLocalScale(const Zeus::CVector3f&);
+    void SetOrientation(const zeus::CTransform&);
+    void SetTranslation(const zeus::CVector3f&);
+    void SetGlobalOrientation(const zeus::CTransform&);
+    void SetGlobalTranslation(const zeus::CVector3f&);
+    void SetGlobalScale(const zeus::CVector3f&);
+    void SetLocalScale(const zeus::CVector3f&);
     void SetParticleEmission(bool);
-    void SetModulationColor(const Zeus::CColor&);
-    const Zeus::CTransform& GetOrientation() const;
-    const Zeus::CVector3f& GetTranslation() const;
-    const Zeus::CTransform& GetGlobalOrientation() const;
-    const Zeus::CVector3f& GetGlobalTranslation() const;
-    const Zeus::CVector3f& GetGlobalScale() const;
-    const Zeus::CColor& GetModulationColor() const;
+    void SetModulationColor(const zeus::CColor&);
+    const zeus::CTransform& GetOrientation() const;
+    const zeus::CVector3f& GetTranslation() const;
+    const zeus::CTransform& GetGlobalOrientation() const;
+    const zeus::CVector3f& GetGlobalTranslation() const;
+    const zeus::CVector3f& GetGlobalScale() const;
+    const zeus::CColor& GetModulationColor() const;
     bool IsSystemDeletable() const;
-    std::pair<Zeus::CAABox, bool> GetBounds() const;
+    std::pair<zeus::CAABox, bool> GetBounds() const;
     u32 GetParticleCount() const;
     bool SystemHasLight() const;
     CLight GetLight() const;

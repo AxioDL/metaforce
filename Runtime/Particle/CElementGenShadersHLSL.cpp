@@ -3,9 +3,9 @@
 #include "CGenDescription.hpp"
 #include "CElectricDescription.hpp"
 #include "CSwooshDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 
-namespace pshag
+namespace urde
 {
 
 static const char* VS_HLSL_TEX =

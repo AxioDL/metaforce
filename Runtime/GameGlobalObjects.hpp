@@ -4,7 +4,7 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
 
-namespace pshag
+namespace urde
 {
 
 extern class CMemoryCardSys* g_MemoryCardSys;

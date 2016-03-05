@@ -3,7 +3,7 @@
 
 #include <boo/boo.hpp>
 
-namespace pshag
+namespace urde
 {
 
 struct CKeyboardMouseControllerData

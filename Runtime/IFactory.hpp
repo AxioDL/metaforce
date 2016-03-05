@@ -4,7 +4,7 @@
 #include <memory>
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 class CVParamTransfer;
 class IObj;

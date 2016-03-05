@@ -1,5 +1,5 @@
 #include "CActor.hpp"
 
-namespace pshag
+namespace urde
 {
 }

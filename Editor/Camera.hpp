@@ -1,26 +1,26 @@
 #ifndef URDE_CAMERA_HPP
 #define URDE_CAMERA_HPP
-#include <CProjection.hpp>
-#include <CFrustum.hpp>
-#include <CQuaternion.hpp>
-#include <CVector3f.hpp>
-#include <Math.hpp>
+#include "zeus/CProjection.hpp"
+#include "zeus/CFrustum.hpp"
+#include "zeus/CQuaternion.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/Math.hpp"
 
-namespace URDE
+namespace urde
 {
 class Camera
 {
-    Zeus::CFrustum    m_frustum;
-    Zeus::CProjection m_projection;
-    Zeus::CVector3f   m_position;
-    Zeus::CQuaternion m_orientation;
+    zeus::CFrustum    m_frustum;
+    zeus::CProjection m_projection;
+    zeus::CVector3f   m_position;
+    zeus::CQuaternion m_orientation;
 public:
 
-    void setPosition(const Zeus::CVector3f& position) { m_position = position; }
-    void setOrientation(const Zeus::CQuaternion& orientation) { m_orientation = orientation; }
+    void setPosition(const zeus::CVector3f& position) { m_position = position; }
+    void setOrientation(const zeus::CQuaternion& orientation) { m_orientation = orientation; }
 
-    const Zeus::CMatrix4f& projectionMatrix() const { return m_projection.getCachedMatrix(); }
-    const Zeus::CProjection& projection() const { return m_projection; }
+    const zeus::CMatrix4f& projectionMatrix() const { return m_projection.getCachedMatrix(); }
+    const zeus::CProjection& projection() const { return m_projection; }
 
     virtual void think()
     {}

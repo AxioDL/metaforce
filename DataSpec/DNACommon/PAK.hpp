@@ -7,7 +7,7 @@ namespace DataSpec
 {
 
 /** PAK entry stream reader */
-class PAKEntryReadStream : public Athena::io::IStreamReader
+class PAKEntryReadStream : public athena::io::IStreamReader
 {
     std::unique_ptr<atUint8[]> m_buf;
     atUint64 m_sz;
@@ -23,18 +23,18 @@ public:
     : m_buf(std::move(buf)), m_sz(sz), m_pos(pos)
     {
         if (m_pos >= m_sz)
-            LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
+            LogDNACommon.report(logvisor::Fatal, "PAK stream cursor overrun");
     }
-    void seek(atInt64 pos, Athena::SeekOrigin origin)
+    void seek(atInt64 pos, athena::SeekOrigin origin)
     {
-        if (origin == Athena::Begin)
+        if (origin == athena::Begin)
             m_pos = pos;
-        else if (origin == Athena::Current)
+        else if (origin == athena::Current)
             m_pos += pos;
-        else if (origin == Athena::End)
+        else if (origin == athena::End)
             m_pos = m_sz + pos;
         if (m_pos > m_sz)
-            LogDNACommon.report(LogVisor::FatalError, "PAK stream cursor overrun");
+            LogDNACommon.report(logvisor::Fatal, "PAK stream cursor overrun");
     }
     atUint64 position() const {return m_pos;}
     atUint64 length() const {return m_sz;}
@@ -60,16 +60,16 @@ struct UniqueResult
         Area,
         Layer
     } m_type = Type::NotFound;
-    const HECL::SystemString* m_levelName = nullptr;
-    const HECL::SystemString* m_areaName = nullptr;
-    const HECL::SystemString* m_layerName = nullptr;
+    const hecl::SystemString* m_levelName = nullptr;
+    const hecl::SystemString* m_areaName = nullptr;
+    const hecl::SystemString* m_layerName = nullptr;
     UniqueResult() = default;
     UniqueResult(Type tp) : m_type(tp) {}
 
     template <class PAKBRIDGE>
     void checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRIDGE::PAKType::Entry& entry);
 
-    HECL::ProjectPath uniquePath(const HECL::ProjectPath& pakPath) const;
+    hecl::ProjectPath uniquePath(const hecl::ProjectPath& pakPath) const;
 };
 
 template <class BRIDGETYPE>
@@ -79,11 +79,11 @@ class PAKRouter;
 template <class PAKBRIDGE>
 struct ResExtractor
 {
-    std::function<bool(PAKEntryReadStream&, const HECL::ProjectPath&)> func_a;
-    std::function<bool(const SpecBase&, PAKEntryReadStream&, const HECL::ProjectPath&, PAKRouter<PAKBRIDGE>&,
+    std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func_a;
+    std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&, bool,
-                       std::function<void(const HECL::SystemChar*)>)> func_b;
-    const HECL::SystemChar* fileExts[4];
+                       std::function<void(const hecl::SystemChar*)>)> func_b;
+    const hecl::SystemChar* fileExts[4];
     unsigned weight;
     std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
                        typename PAKBRIDGE::PAKType::Entry&)> func_name;
@@ -93,13 +93,13 @@ struct ResExtractor
 template <class IDType>
 struct Level
 {
-    HECL::SystemString name;
+    hecl::SystemString name;
     struct Area
     {
-        HECL::SystemString name;
+        hecl::SystemString name;
         struct Layer
         {
-            HECL::SystemString name;
+            hecl::SystemString name;
             bool active;
             std::unordered_set<IDType> resources;
         };
@@ -120,19 +120,19 @@ public:
     using RigPair = std::pair<IDType, IDType>;
 private:
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
-    std::vector<std::pair<HECL::ProjectPath,HECL::ProjectPath>> m_bridgePaths;
+    std::vector<std::pair<hecl::ProjectPath,hecl::ProjectPath>> m_bridgePaths;
     size_t m_curBridgeIdx = 0;
-    const HECL::ProjectPath& m_gameWorking;
-    const HECL::ProjectPath& m_gameCooked;
-    HECL::ProjectPath m_sharedWorking;
-    HECL::ProjectPath m_sharedCooked;
+    const hecl::ProjectPath& m_gameWorking;
+    const hecl::ProjectPath& m_gameCooked;
+    hecl::ProjectPath m_sharedWorking;
+    hecl::ProjectPath m_sharedCooked;
     const PAKType* m_pak = nullptr;
-    const NOD::Node* m_node = nullptr;
+    const nod::Node* m_node = nullptr;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
 public:
-    PAKRouter(const SpecBase& dataSpec, const HECL::ProjectPath& working, const HECL::ProjectPath& cooked)
+    PAKRouter(const SpecBase& dataSpec, const hecl::ProjectPath& working, const hecl::ProjectPath& cooked)
     : PAKRouterBase(dataSpec),
       m_gameWorking(working), m_gameCooked(cooked),
       m_sharedWorking(working, "Shared"), m_sharedCooked(cooked, "Shared") {}
@@ -141,30 +141,30 @@ public:
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge);
 
-    HECL::ProjectPath getWorking(const EntryType* entry,
+    hecl::ProjectPath getWorking(const EntryType* entry,
                                  const ResExtractor<BRIDGETYPE>& extractor) const;
-    HECL::ProjectPath getWorking(const EntryType* entry) const;
-    HECL::ProjectPath getWorking(const IDType& id) const;
-    HECL::ProjectPath getCooked(const EntryType* entry) const;
-    HECL::ProjectPath getCooked(const IDType& id) const;
+    hecl::ProjectPath getWorking(const EntryType* entry) const;
+    hecl::ProjectPath getWorking(const IDType& id) const;
+    hecl::ProjectPath getCooked(const EntryType* entry) const;
+    hecl::ProjectPath getCooked(const IDType& id) const;
 
-    HECL::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
+    hecl::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
 
     std::string getBestEntryName(const EntryType& entry) const;
     std::string getBestEntryName(const IDType& entry) const;
 
     bool extractResources(const BRIDGETYPE& pakBridge, bool force,
-                          std::function<void(const HECL::SystemChar*, float)> progress);
+                          std::function<void(const hecl::SystemChar*, float)> progress);
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
-                                                           const NOD::Node** nodeOut=nullptr,
+                                                           const nod::Node** nodeOut=nullptr,
                                                            bool silenceWarnings=false,
                                                            bool currentPAK=false) const;
 
     template <typename DNA>
     bool lookupAndReadDNA(const IDType& id, DNA& out, bool silenceWarnings=false)
     {
-        const NOD::Node* node;
+        const nod::Node* node;
         const EntryType* entry = lookupEntry(id, &node, silenceWarnings);
         if (!entry)
             return false;
@@ -175,8 +175,8 @@ public:
 
     const RigPair* lookupCMDLRigPair(const IDType& id) const;
 
-    HECL::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const;
-    HECL::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx) const;
+    hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const;
+    hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx) const;
 };
 
 }

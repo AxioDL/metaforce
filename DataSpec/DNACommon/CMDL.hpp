@@ -1,9 +1,9 @@
 #ifndef _DNACOMMON_CMDL_HPP_
 #define _DNACOMMON_CMDL_HPP_
 
-#include <Athena/FileWriter.hpp>
-#include <HECL/Frontend.hpp>
-#include <HECL/Backend/GX.hpp>
+#include <athena/FileWriter.hpp>
+#include <hecl/Frontend.hpp>
+#include <hecl/Backend/GX.hpp>
 #include "PAK.hpp"
 #include "BlenderConnection.hpp"
 #include "GX.hpp"
@@ -14,7 +14,7 @@ namespace DataSpec
 namespace DNACMDL
 {
 
-using Mesh = HECL::BlenderConnection::DataStream::Mesh;
+using Mesh = hecl::BlenderConnection::DataStream::Mesh;
 
 struct Header : BigDNA
 {
@@ -49,7 +49,7 @@ struct SurfaceHeader_1 : BigDNA
     Value<atUint32> unk2 = 0;
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
-    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return false;}
@@ -69,7 +69,7 @@ struct SurfaceHeader_2 : BigDNA
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
     Value<atUint16> surfaceGroup;
-    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return false;}
@@ -89,7 +89,7 @@ struct SurfaceHeader_3 : BigDNA
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
     Value<atUint16> surfaceGroup;
-    Seek<DNA_COUNT(aabbSz), Athena::Current> seek2;
+    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
     Value<atUint8> unk3;
     Align<32> align;
 
@@ -116,27 +116,27 @@ void GetVertexAttributes(const MaterialSet& matSet,
                          std::vector<VertexAttributes>& attributesOut);
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
                                   unsigned setIdx);
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_3(hecl::BlenderConnection::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
                                 unsigned setIdx);
 
-void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
-                            const HECL::ProjectPath& masterShaderPath);
-void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
+void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
+                            const hecl::ProjectPath& masterShaderPath);
+void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
                        unsigned matSetCount, int meshIdx);
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader>
-atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
-                                   Athena::io::IStreamReader& reader,
+atUint32 ReadGeomSectionsToBlender(hecl::BlenderConnection::PyOutStream& os,
+                                   athena::io::IStreamReader& reader,
                                    PAKRouter& pakRouter,
                                    const typename PAKRouter::EntryType& entry,
                                    const RigPair& rp,
@@ -150,24 +150,24 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
                                    atUint32 surfaceCount=0);
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader, atUint32 Version>
-bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
-                       Athena::io::IStreamReader& reader,
+bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
+                       athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
                        const RigPair& rp);
 
 template <class PAKRouter, class MaterialSet>
-void NameCMDL(Athena::io::IStreamReader& reader,
+void NameCMDL(athena::io::IStreamReader& reader,
               PAKRouter& pakRouter,
               typename PAKRouter::EntryType& entry,
               const SpecBase& dataspec);
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
-bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh);
+bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
-bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh);
+bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 }
 }

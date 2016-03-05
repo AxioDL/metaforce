@@ -10,13 +10,13 @@ namespace DataSpec
 namespace Blender
 {
 
-bool BuildMasterShader(const HECL::ProjectPath& path)
+bool BuildMasterShader(const hecl::ProjectPath& path)
 {
-    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(path, HECL::BlenderConnection::BlendType::None))
+    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    if (!conn.createBlend(path, hecl::BlenderConnection::BlendType::None))
         return false;
     {
-        HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+        hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
         os << RETRO_MASTER_SHADER;
         os << "make_master_shader_library()\n";
     }

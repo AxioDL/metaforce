@@ -66,7 +66,7 @@ void GetVertexAttributes(const MaterialSet& matSet,
 }
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
@@ -77,16 +77,16 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
     for (const UniqueID32& tex : matSet.head.textureIDs)
     {
         std::string texName = pakRouter.getBestEntryName(tex);
-        const NOD::Node* node;
+        const nod::Node* node;
         const typename PAKRouter::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);
-        HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-        if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
+        hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+        if (txtrPath.getPathType() == hecl::ProjectPath::Type::None)
         {
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
         }
-        HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
-        HECL::SystemUTF8View resPathView(resPath);
+        hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
+        hecl::SystemUTF8View resPathView(resPath);
         os.format("if '%s' in bpy.data.textures:\n"
                   "    image = bpy.data.images['%s']\n"
                   "    texture = bpy.data.textures[image.name]\n"
@@ -109,7 +109,7 @@ void ReadMaterialSetToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_3(hecl::BlenderConnection::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
@@ -124,7 +124,7 @@ void ReadMaterialSetToBlender_3(HECL::BlenderConnection::PyOutStream& os,
 }
 
 template void ReadMaterialSetToBlender_3<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet>
-(HECL::BlenderConnection::PyOutStream& os,
+(hecl::BlenderConnection::PyOutStream& os,
  const DNAMP3::MaterialSet& matSet,
  const PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
@@ -158,7 +158,7 @@ public:
         }
 
         template<class RigPair>
-        void sendAdditionalVertsToBlender(HECL::BlenderConnection::PyOutStream& os,
+        void sendAdditionalVertsToBlender(hecl::BlenderConnection::PyOutStream& os,
                                           const RigPair& rp) const
         {
             atUint32 nextVert = 1;
@@ -219,7 +219,7 @@ private:
         case GX::INDEX16:
             if ((m_cur - m_dl.get() + 1) >= intptr_t(m_dlSize))
                 return 0;
-            retval = HECL::SBig(*(atUint16*)m_cur);
+            retval = hecl::SBig(*(atUint16*)m_cur);
             m_cur += 2;
             break;
         default: break;
@@ -253,7 +253,7 @@ public:
 
     atUint16 readVertCount()
     {
-        atUint16 retval = HECL::SBig(*(atUint16*)m_cur);
+        atUint16 retval = hecl::SBig(*(atUint16*)m_cur);
         m_cur += 2;
         return retval;
     }
@@ -417,8 +417,8 @@ public:
     }
 };
 
-void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
-                            const HECL::ProjectPath& masterShaderPath)
+void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
+                            const hecl::ProjectPath& masterShaderPath)
 {
     os << "# Using 'Blender Game'\n"
           "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
@@ -499,7 +499,7 @@ void InitGeomBlenderContext(HECL::BlenderConnection::PyOutStream& os,
               "\n", masterShaderPath.getAbsolutePathUTF8().c_str());
 }
 
-void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
+void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
                        unsigned matSetCount, int meshIdx)
 {
     if (meshIdx < 0)
@@ -570,8 +570,8 @@ void FinishBlenderMesh(HECL::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader>
-atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
-                                   Athena::io::IStreamReader& reader,
+atUint32 ReadGeomSectionsToBlender(hecl::BlenderConnection::PyOutStream& os,
+                                   athena::io::IStreamReader& reader,
                                    PAKRouter& pakRouter,
                                    const typename PAKRouter::EntryType& entry,
                                    const RigPair& rp,
@@ -694,10 +694,10 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
         }
 
         if (s < secCount - 1)
-            reader.seek(secStart + secSizes[s], Athena::Begin);
+            reader.seek(secStart + secSizes[s], athena::Begin);
     }
 
-    reader.seek(afterHeaderPos, Athena::Begin);
+    reader.seek(afterHeaderPos, athena::Begin);
 
     visitedDLOffsets = false;
     unsigned createdUVLayers = 0;
@@ -1040,7 +1040,7 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
         }
 
         if (s < secCount - 1)
-            reader.seek(secStart + secSizes[s], Athena::Begin);
+            reader.seek(secStart + secSizes[s], athena::Begin);
     }
 
     /* Finish Mesh */
@@ -1053,8 +1053,8 @@ atUint32 ReadGeomSectionsToBlender(HECL::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader, atUint32 Version>
-bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
-                       Athena::io::IStreamReader& reader,
+bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
+                       athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        const SpecBase& dataspec,
@@ -1065,18 +1065,18 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
 
     if (head.magic != 0xDEADBABE)
     {
-        LogDNACommon.report(LogVisor::Error, "invalid CMDL magic");
+        LogDNACommon.report(logvisor::Error, "invalid CMDL magic");
         return false;
     }
 
     if (head.version != Version)
     {
-        LogDNACommon.report(LogVisor::Error, "invalid CMDL version");
+        LogDNACommon.report(logvisor::Error, "invalid CMDL version");
         return false;
     }
 
     /* Open Py Stream and read sections */
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "\n"
@@ -1101,8 +1101,8 @@ bool ReadCMDLToBlender(HECL::BlenderConnection& conn,
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
                                 std::pair<DNAMP1::CSKR*,DNAMP1::CINF*>, DNACMDL::SurfaceHeader_1, 2>
-(HECL::BlenderConnection& conn,
- Athena::io::IStreamReader& reader,
+(hecl::BlenderConnection& conn,
+ athena::io::IStreamReader& reader,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
@@ -1110,8 +1110,8 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
                                 std::pair<DNAMP2::CSKR*,DNAMP2::CINF*>, DNACMDL::SurfaceHeader_2, 4>
-(HECL::BlenderConnection& conn,
- Athena::io::IStreamReader& reader,
+(hecl::BlenderConnection& conn,
+ athena::io::IStreamReader& reader,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
@@ -1119,8 +1119,8 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
                                 std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 4>
-(HECL::BlenderConnection& conn,
- Athena::io::IStreamReader& reader,
+(hecl::BlenderConnection& conn,
+ athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
@@ -1128,22 +1128,22 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
                                 std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 5>
-(HECL::BlenderConnection& conn,
- Athena::io::IStreamReader& reader,
+(hecl::BlenderConnection& conn,
+ athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
  const std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>& rp);
 
 template <class PAKRouter, class MaterialSet>
-void NameCMDL(Athena::io::IStreamReader& reader,
+void NameCMDL(athena::io::IStreamReader& reader,
               PAKRouter& pakRouter,
               typename PAKRouter::EntryType& entry,
               const SpecBase& dataspec)
 {
     Header head;
     head.read(reader);
-    std::string bestName = HECL::Format("CMDL_%s", entry.id.toString().c_str());
+    std::string bestName = hecl::Format("CMDL_%s", entry.id.toString().c_str());
 
     /* Pre-read pass to determine maximum used vert indices */
     atUint32 matSecCount = 0;
@@ -1161,17 +1161,17 @@ void NameCMDL(Athena::io::IStreamReader& reader,
         }
 
         if (s < head.secCount - 1)
-            reader.seek(secStart + head.secSizes[s], Athena::Begin);
+            reader.seek(secStart + head.secSizes[s], athena::Begin);
     }
 }
 
 template void NameCMDL<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet>
-(Athena::io::IStreamReader& reader,
+(athena::io::IStreamReader& reader,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
  typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec);
 
-static void WriteDLVal(Athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)
+static void WriteDLVal(athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)
 {
     switch (type)
     {
@@ -1187,7 +1187,7 @@ static void WriteDLVal(Athena::io::FileWriter& writer, GX::AttrType type, atUint
 }
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
-bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
+bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh)
 {
     Header head;
     head.magic = 0xDEADBABE;
@@ -1206,23 +1206,23 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     std::vector<MaterialSet> matSets;
     matSets.reserve(mesh.materialSets.size());
     {
-        HECL::Frontend::Frontend FE;
+        hecl::Frontend::Frontend FE;
         for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
         {
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
-            std::vector<HECL::ProjectPath> texPaths;
-            std::vector<HECL::Backend::GX> setBackends;
+            std::vector<hecl::ProjectPath> texPaths;
+            std::vector<hecl::Backend::GX> setBackends;
             setBackends.reserve(mset.size());
 
             size_t endOff = 0;
             atUint32 nextGroupIdx = 0;
             for (const Mesh::Material& mat : mset)
             {
-                std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
-                HECL::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
+                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
                 setBackends.emplace_back();
-                HECL::Backend::GX& matGX = setBackends.back();
+                hecl::Backend::GX& matGX = setBackends.back();
                 matGX.reset(matIR, FE.getDiagnostics());
 
                 atUint32 groupIdx = -1;
@@ -1230,7 +1230,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
                 {
                     for (size_t i=0 ; i<setBackends.size()-1 ; ++i)
                     {
-                        const HECL::Backend::GX& other = setBackends[i];
+                        const hecl::Backend::GX& other = setBackends[i];
                         if (matGX == other)
                         {
                             groupIdx = i;
@@ -1249,16 +1249,16 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
                 targetMSet.head.addMaterialEndOff(endOff);
             }
 
-            for (const HECL::ProjectPath& path : texPaths)
+            for (const hecl::ProjectPath& path : texPaths)
             {
-                const HECL::SystemString& relPath = path.getRelativePath();
+                const hecl::SystemString& relPath = path.getRelativePath();
 
                 /* TODO: incorporate hecl hashes */
                 size_t search = relPath.find(_S("TXTR_"));
-                if (search != HECL::SystemString::npos)
+                if (search != hecl::SystemString::npos)
                     targetMSet.head.addTexture(relPath.c_str() + search + 5);
                 else
-                    LogDNACommon.report(LogVisor::FatalError, "unable to get hash from path");
+                    LogDNACommon.report(logvisor::Fatal, "unable to get hash from path");
             }
 
             size_t secSz = targetMSet.binarySize(0);
@@ -1316,7 +1316,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     {
         size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
         if (surf.verts.size() > 65536)
-            LogDNACommon.report(LogVisor::FatalError, "GX DisplayList overflow");
+            LogDNACommon.report(logvisor::Fatal, "GX DisplayList overflow");
         size_t secSz = 67 + surf.verts.size() * vertSz;
         secSz32 = ROUND_UP_32(secSz);
         if (secSz32 == 0)
@@ -1328,7 +1328,7 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
     }
 
     /* Write sections */
-    Athena::io::FileWriter writer(outPath.getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
     head.write(writer);
     std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
 
@@ -1376,12 +1376,12 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
 
     /* Surfaces */
     GX::Primitive prim;
-    if (mesh.topology == HECL::HMDLTopology::Triangles)
+    if (mesh.topology == hecl::HMDLTopology::Triangles)
         prim = GX::TRIANGLES;
-    else if (mesh.topology == HECL::HMDLTopology::TriStrips)
+    else if (mesh.topology == hecl::HMDLTopology::TriStrips)
         prim = GX::TRIANGLESTRIP;
     else
-        LogDNACommon.report(LogVisor::FatalError, "unrecognized mesh output mode");
+        LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
     for (const Mesh::Surface& surf : mesh.surfaces)
     {
         const typename MaterialSet::Material::VAFlags& vaFlags =
@@ -1431,10 +1431,10 @@ bool WriteCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath
 }
 
 template bool WriteCMDL<DNAMP1::MaterialSet, DNACMDL::SurfaceHeader_1, 2>
-(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh);
+(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
-bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& inPath, const Mesh& mesh)
+bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh)
 {
     Header head;
     head.magic = 0xDEADBABE;
@@ -1453,19 +1453,19 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     std::vector<MaterialSet> matSets;
     matSets.reserve(mesh.materialSets.size());
     {
-        HECL::Frontend::Frontend FE;
+        hecl::Frontend::Frontend FE;
         for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
         {
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
-            std::vector<HECL::ProjectPath> texPaths;
+            std::vector<hecl::ProjectPath> texPaths;
             texPaths.reserve(mset.size()*4);
             for (const Mesh::Material& mat : mset)
             {
-                for (const HECL::ProjectPath& path : mat.texs)
+                for (const hecl::ProjectPath& path : mat.texs)
                 {
                     bool found = false;
-                    for (const HECL::ProjectPath& ePath : texPaths)
+                    for (const hecl::ProjectPath& ePath : texPaths)
                     {
                         if (path == ePath)
                         {
@@ -1481,22 +1481,22 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
             size_t endOff = 0;
             for (const Mesh::Material& mat : mset)
             {
-                std::string diagName = HECL::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
                 targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
                 endOff = targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
             }
 
-            for (const HECL::ProjectPath& path : texPaths)
+            for (const hecl::ProjectPath& path : texPaths)
             {
-                const HECL::SystemString& relPath = path.getRelativePath();
+                const hecl::SystemString& relPath = path.getRelativePath();
 
                 /* TODO: incorporate hecl hashes */
                 size_t search = relPath.find(_S("TXTR_"));
-                if (search != HECL::SystemString::npos)
+                if (search != hecl::SystemString::npos)
                     targetMSet.head.addTexture(relPath.c_str() + search + 5);
                 else
-                    LogDNACommon.report(LogVisor::FatalError, "unable to get hash from path");
+                    LogDNACommon.report(logvisor::Fatal, "unable to get hash from path");
             }
 
             size_t secSz = targetMSet.binarySize(0);
@@ -1506,7 +1506,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
         }
     }
 
-    HECL::HMDLBuffers bufs = mesh.getHMDLBuffers();
+    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers();
 
     /* Metadata */
     size_t secSz = bufs.m_meta.binarySize(0);
@@ -1544,7 +1544,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
 
     /* Surfaces */
     size_t endOff = 0;
-    for (const HECL::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
     {
         head.secSizes.push_back(64);
         paddingSizes.push_back(0);
@@ -1553,7 +1553,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     }
 
     /* Write sections */
-    Athena::io::FileWriter writer(outPath.getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
     head.write(writer);
     std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
 
@@ -1588,7 +1588,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     ++padIt;
 
     /* Surfaces */
-    for (const HECL::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
     {
         const Mesh::Surface& osurf = surf.m_origSurf;
 
@@ -1605,7 +1605,7 @@ bool WriteHMDLCMDL(const HECL::ProjectPath& outPath, const HECL::ProjectPath& in
     }
 
     /* Ensure final surface's alignment writes zeros */
-    writer.seek(-1, Athena::Current);
+    writer.seek(-1, athena::Current);
     writer.writeUByte(0);
     writer.close();
     return true;

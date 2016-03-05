@@ -17,11 +17,11 @@ struct CMDL
 {
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        std::function<void(const HECL::SystemChar*)>)
+                        std::function<void(const hecl::SystemChar*)>)
     {
         /* Check for RigPair */
         const PAKRouter<PAKBridge>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id);
@@ -37,8 +37,8 @@ struct CMDL
         }
 
         /* Do extract */
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-        if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Mesh))
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Mesh))
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_3, 5>
                 (conn, rs, pakRouter, entry, dataSpec, loadRp);

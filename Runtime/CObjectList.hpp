@@ -4,7 +4,7 @@
 #include "CEntity.hpp"
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 
 enum class EGameObjectList

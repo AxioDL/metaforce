@@ -6,21 +6,21 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-void SCLY::read(Athena::io::IStreamReader& rs)
+void SCLY::read(athena::io::IStreamReader& rs)
 {
     fourCC = rs.readUint32Little();
     version = rs.readUint32Big();
     layerCount = rs.readUint32Big();
     rs.enumerateBig(layerSizes, layerCount);
     atUint32 i = 0;
-    rs.enumerate<ScriptLayer>(layers, layerCount, [&i,this](Athena::io::IStreamReader& rs, ScriptLayer& layer) {
+    rs.enumerate<ScriptLayer>(layers, layerCount, [&i,this](athena::io::IStreamReader& rs, ScriptLayer& layer) {
         atUint64 start = rs.position();
         layer.read(rs);
-        rs.seek(start + layerSizes[i++], Athena::Begin);
+        rs.seek(start + layerSizes[i++], athena::Begin);
     });
 }
 
-void SCLY::write(Athena::io::IStreamWriter& ws) const
+void SCLY::write(athena::io::IStreamWriter& ws) const
 {
     ws.writeUint32Big(fourCC);
     ws.writeUint32Big(version);
@@ -40,14 +40,14 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
 {
     for (atUint32 i = 0; i < layerCount; i++)
     {
-        HECL::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i);
-        if (layerPath.getPathType() == HECL::ProjectPath::Type::None)
+        hecl::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i);
+        if (layerPath.getPathType() == hecl::ProjectPath::Type::None)
             layerPath.makeDir();
 
-        HECL::ProjectPath yamlFile = HECL::ProjectPath(layerPath, _S("objects.yaml"));
-        if (force || yamlFile.getPathType() == HECL::ProjectPath::Type::None)
+        hecl::ProjectPath yamlFile = hecl::ProjectPath(layerPath, _S("objects.yaml"));
+        if (force || yamlFile.getPathType() == hecl::ProjectPath::Type::None)
         {
-            FILE* yaml = HECL::Fopen(yamlFile.getAbsolutePath().c_str(), _S("wb"));
+            FILE* yaml = hecl::Fopen(yamlFile.getAbsolutePath().c_str(), _S("wb"));
             layers[i].toYAMLFile(yaml);
             fclose(yaml);
         }
@@ -80,7 +80,7 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
         obj->nameIDs(pakRouter);
 }
 
-void SCLY::read(Athena::io::YAMLDocReader& docin)
+void SCLY::read(athena::io::YAMLDocReader& docin)
 {
     fourCC = docin.readUint32("fourCC");
     version = docin.readUint32("version");
@@ -88,7 +88,7 @@ void SCLY::read(Athena::io::YAMLDocReader& docin)
     docin.enumerate("layers", layers);
 }
 
-void SCLY::write(Athena::io::YAMLDocWriter& docout) const
+void SCLY::write(athena::io::YAMLDocWriter& docout) const
 {
     docout.writeUint32("fourCC", fourCC);
     docout.writeUint32("version", version);
@@ -98,13 +98,14 @@ void SCLY::write(Athena::io::YAMLDocWriter& docout) const
 
 const char* SCLY::DNAType()
 {
-    return "Retro::DNAMP1::SCLY";
+    return "urde::DNAMP1::SCLY";
 }
 
-void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
+void SCLY::ScriptLayer::read(athena::io::IStreamReader& rs)
 {
     unknown = rs.readUByte();
     objectCount = rs.readUint32Big();
+    objects.clear();
     objects.reserve(objectCount);
     for (atUint32 i = 0; i < objectCount; i++)
     {
@@ -123,15 +124,15 @@ void SCLY::ScriptLayer::read(Athena::io::IStreamReader& rs)
             objects.push_back(std::move(obj));
             size_t actualLen = rs.position() - start;
             if (actualLen != len)
-                Log.report(LogVisor::FatalError, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
-            rs.seek(start + len, Athena::Begin);
+                Log.report(logvisor::Fatal, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
+            rs.seek(start + len, athena::Begin);
         }
         else
-            Log.report(LogVisor::FatalError, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+            Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
     }
 }
 
-void SCLY::ScriptLayer::read(Athena::io::YAMLDocReader& rs)
+void SCLY::ScriptLayer::read(athena::io::YAMLDocReader& rs)
 {
     unknown = rs.readUByte("unknown");
     size_t objCount;
@@ -155,7 +156,7 @@ void SCLY::ScriptLayer::read(Athena::io::YAMLDocReader& rs)
                 objects.push_back(std::move(obj));
             }
             else
-                Log.report(LogVisor::FatalError, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+                Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
 
             rs.leaveSubRecord();
         }
@@ -165,7 +166,7 @@ void SCLY::ScriptLayer::read(Athena::io::YAMLDocReader& rs)
         objectCount = 0;
 }
 
-void SCLY::ScriptLayer::write(Athena::io::IStreamWriter& ws) const
+void SCLY::ScriptLayer::write(athena::io::IStreamWriter& ws) const
 {
     ws.writeUByte(unknown);
     ws.writeUint32Big(objectCount);
@@ -187,7 +188,7 @@ size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
     return __isz;
 }
 
-void SCLY::ScriptLayer::write(Athena::io::YAMLDocWriter& ws) const
+void SCLY::ScriptLayer::write(athena::io::YAMLDocWriter& ws) const
 {
     ws.writeUByte("unknown", unknown);
     ws.enterSubVector("objects");
@@ -203,7 +204,7 @@ void SCLY::ScriptLayer::write(Athena::io::YAMLDocWriter& ws) const
 
 const char* SCLY::ScriptLayer::DNAType()
 {
-    return "Retro::DNAMP1::SCLY::ScriptLayer";
+    return "urde::DNAMP1::SCLY::ScriptLayer";
 }
 
 }

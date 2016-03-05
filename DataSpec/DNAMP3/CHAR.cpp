@@ -5,7 +5,7 @@ namespace DataSpec
 namespace DNAMP3
 {
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::IStreamReader& reader)
+void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::IStreamReader& reader)
 {
     EventBase::read(reader);
     caudId.read(reader);
@@ -17,10 +17,10 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::IStreamReader& reader
     if (extraType == 1)
         extraFloat = reader.readFloatBig();
     else if (extraType == 2)
-        reader.seek(35, Athena::Current);
+        reader.seek(35, athena::Current);
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::IStreamWriter& writer) const
+void CHAR::AnimationInfo::EVNT::SFXEvent::write(athena::io::IStreamWriter& writer) const
 {
     EventBase::write(writer);
     caudId.write(writer);
@@ -32,7 +32,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::IStreamWriter& write
     if (extraType == 1)
         writer.writeFloatBig(extraFloat);
     else if (extraType == 2)
-        writer.seek(35, Athena::Current);
+        writer.seek(35, athena::Current);
 }
 
 size_t CHAR::AnimationInfo::EVNT::SFXEvent::binarySize(size_t __isz) const
@@ -48,7 +48,7 @@ size_t CHAR::AnimationInfo::EVNT::SFXEvent::binarySize(size_t __isz) const
     return __isz;
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::YAMLDocReader& reader)
+void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::YAMLDocReader& reader)
 {
     EventBase::read(reader);
     reader.enumerate("caudId", caudId);
@@ -60,7 +60,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(Athena::io::YAMLDocReader& reader
         extraFloat = reader.readFloat("extraFloat");
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::YAMLDocWriter& writer) const
+void CHAR::AnimationInfo::EVNT::SFXEvent::write(athena::io::YAMLDocWriter& writer) const
 {
     EventBase::write(writer);
     writer.enumerate("caudId", caudId);
@@ -74,10 +74,10 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(Athena::io::YAMLDocWriter& write
 
 const char* CHAR::AnimationInfo::EVNT::SFXEvent::DNAType()
 {
-    return "Retro::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent";
+    return "urde::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent";
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::IStreamReader& reader)
+void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::IStreamReader& reader)
 {
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
@@ -108,7 +108,7 @@ void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::IStreamReader& reade
     }
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::IStreamWriter& writer) const
+void CHAR::AnimationInfo::MetaAnimFactory::write(athena::io::IStreamWriter& writer) const
 {
     if (!m_anim)
         return;
@@ -123,7 +123,7 @@ size_t CHAR::AnimationInfo::MetaAnimFactory::binarySize(size_t __isz) const
     return m_anim->binarySize(__isz + 4);
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::YAMLDocReader& reader)
+void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
@@ -159,7 +159,7 @@ void CHAR::AnimationInfo::MetaAnimFactory::read(Athena::io::YAMLDocReader& reade
 
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::YAMLDocWriter& writer) const
+void CHAR::AnimationInfo::MetaAnimFactory::write(athena::io::YAMLDocWriter& writer) const
 {
     if (!m_anim)
         return;
@@ -169,7 +169,7 @@ void CHAR::AnimationInfo::MetaAnimFactory::write(Athena::io::YAMLDocWriter& writ
 
 const char* CHAR::AnimationInfo::MetaAnimFactory::DNAType()
 {
-    return "Retro::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory";
+    return "urde::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory";
 }
 
 }

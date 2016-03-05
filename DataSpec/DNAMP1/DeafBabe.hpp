@@ -86,10 +86,10 @@ struct DeafBabe : BigDNA
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
     /* Dummy MP2 member */
-    void insertNoClimb(HECL::BlenderConnection::PyOutStream&) const {}
+    void insertNoClimb(hecl::BlenderConnection::PyOutStream&) const {}
 
-    static void BlenderInit(HECL::BlenderConnection::PyOutStream& os);
-    void sendToBlender(HECL::BlenderConnection::PyOutStream& os) const
+    static void BlenderInit(hecl::BlenderConnection::PyOutStream& os);
+    void sendToBlender(hecl::BlenderConnection::PyOutStream& os) const
     {
         DeafBabeSendToBlender(os, *this);
     }

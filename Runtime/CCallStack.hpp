@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CCALLSTACK_HPP__
 #define __PSHAG_CCALLSTACK_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CCallStack

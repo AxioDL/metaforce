@@ -3,7 +3,7 @@
 
 #include "CRumbleGenerator.hpp"
 
-namespace pshag
+namespace urde
 {
 class CStateManager;
 class CRumbleManager

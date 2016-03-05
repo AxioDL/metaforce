@@ -2,10 +2,10 @@
 #include "CGenDescription.hpp"
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CSimplePool.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in)

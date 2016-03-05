@@ -3,7 +3,7 @@
 
 #include "CIOWin.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CMFGameBase : public CIOWin

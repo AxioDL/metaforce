@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include <lzo/lzo1x.h>
-#include <NOD/DiscBase.hpp>
+#include <nod/DiscBase.hpp>
 #include "../DNACommon/PAK.hpp"
 
 namespace DataSpec
@@ -12,7 +12,7 @@ namespace DataSpec
 namespace DNAMP3
 {
 
-extern const HECL::FourCC CMPD;
+extern const hecl::FourCC CMPD;
 
 struct PAK : BigDNA
 {
@@ -25,7 +25,7 @@ struct PAK : BigDNA
         Value<atUint32> version;
         Value<atUint32> headSz;
         Value<atUint8> md5sum[16];
-        Seek<40, Athena::Current> seek;
+        Seek<40, athena::Current> seek;
     } m_header;
 
     struct NameEntry : BigDNA
@@ -47,8 +47,8 @@ struct PAK : BigDNA
         UniqueResult unique;
         std::string name;
 
-        std::unique_ptr<atUint8[]> getBuffer(const NOD::Node& pak, atUint64& szOut) const;
-        inline PAKEntryReadStream beginReadStream(const NOD::Node& pak, atUint64 off=0) const
+        std::unique_ptr<atUint8[]> getBuffer(const nod::Node& pak, atUint64& szOut) const;
+        inline PAKEntryReadStream beginReadStream(const nod::Node& pak, atUint64 off=0) const
         {
             atUint64 sz;
             std::unique_ptr<atUint8[]> buf = getBuffer(pak, sz);

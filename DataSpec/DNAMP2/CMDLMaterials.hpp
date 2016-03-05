@@ -59,15 +59,15 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
-    static void RegisterMaterialProps(HECL::BlenderConnection::PyOutStream& out)
+    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out)
     {
         DNAMP1::MaterialSet::RegisterMaterialProps(out);
     }
-    static void ConstructMaterial(HECL::BlenderConnection::PyOutStream& out,
+    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(HECL::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)

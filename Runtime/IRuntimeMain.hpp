@@ -1,7 +1,7 @@
 #ifndef IRUNTIMEMAIN_HPP
 #define IRUNTIMEMAIN_HPP
 
-namespace pshag
+namespace urde
 {
 struct IRuntimeMain
 {

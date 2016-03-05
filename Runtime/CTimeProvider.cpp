@@ -1,9 +1,9 @@
 #include "CTimeProvider.hpp"
 #if 0
-#include "CGraphics.hpp"
+#include "Graphics/CGraphics.hpp"
 #endif
 
-namespace pshag
+namespace urde
 {
 CTimeProvider* CTimeProvider::g_currentTimeProvider = nullptr;
 CTimeProvider::CTimeProvider(const float& time)

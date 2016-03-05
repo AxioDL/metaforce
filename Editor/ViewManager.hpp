@@ -1,65 +1,65 @@
 #ifndef URDE_VIEW_MANAGER_HPP
 #define URDE_VIEW_MANAGER_HPP
 
-#include <HECL/CVarManager.hpp>
+#include <hecl/CVarManager.hpp>
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 
-namespace URDE
+namespace urde
 {
 class SplashScreen;
 
-class ViewManager : public Specter::IViewManager
+class ViewManager : public specter::IViewManager
 {
     friend class ProjectManager;
     friend class Space;
     friend class RootSpace;
     friend class SplitSpace;
 
-    HECL::Runtime::FileStoreManager& m_fileStoreManager;
-    HECL::CVarManager& m_cvarManager;
+    hecl::Runtime::FileStoreManager& m_fileStoreManager;
+    hecl::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
-    Specter::FontCache m_fontCache;
-    Specter::DefaultThemeData m_themeData;
-    Specter::ViewResources m_viewResources;
+    specter::FontCache m_fontCache;
+    specter::DefaultThemeData m_themeData;
+    specter::ViewResources m_viewResources;
     boo::GraphicsDataToken m_iconsToken;
-    Specter::Translator m_translator;
+    specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
 
-    std::unique_ptr<Specter::RootView> m_rootView;
+    std::unique_ptr<specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
     std::unique_ptr<RootSpace> m_rootSpace;
-    Specter::View* m_rootSpaceView = nullptr;
+    specter::View* m_rootSpaceView = nullptr;
 
-    class ParticleView : public Specter::View
+    class ParticleView : public specter::View
     {
         ViewManager& m_vm;
     public:
-        ParticleView(ViewManager& vm, Specter::ViewResources& res, Specter::View& parent)
+        ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
         : View(res, parent), m_vm(vm) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<ParticleView> m_particleView;
-    pshag::TLockedToken<pshag::CGenDescription> m_partGenDesc;
-    std::unique_ptr<pshag::CElementGen> m_partGen;
-    std::unique_ptr<pshag::CLineRenderer> m_lineRenderer;
+    urde::TLockedToken<urde::CGenDescription> m_partGenDesc;
+    std::unique_ptr<urde::CElementGen> m_partGen;
+    std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
 
-    HECL::SystemString m_recentProjectsPath;
-    std::vector<HECL::SystemString> m_recentProjects;
-    HECL::SystemString m_recentFilesPath;
-    std::vector<HECL::SystemString> m_recentFiles;
+    hecl::SystemString m_recentProjectsPath;
+    std::vector<hecl::SystemString> m_recentProjects;
+    hecl::SystemString m_recentFilesPath;
+    std::vector<hecl::SystemString> m_recentFiles;
 
     bool m_updatePf = false;
     float m_reqPf;
 
-    Specter::View* BuildSpaceViews();
-    Specter::RootView* SetupRootView();
+    specter::View* BuildSpaceViews();
+    specter::RootView* SetupRootView();
     SplashScreen* SetupSplashView();
-    void RootSpaceViewBuilt(Specter::View* view);
+    void RootSpaceViewBuilt(specter::View* view);
     void SetupEditorView();
     void SetupEditorView(ConfigReader& r);
     void SaveEditorView(ConfigWriter& w);
@@ -70,18 +70,18 @@ class ViewManager : public Specter::IViewManager
     unsigned m_editorFrames = 120;
     void FadeInEditors() {m_editorFrames = 0;}
 
-    void BuildTestPART(pshag::IObjectStore& objStore);
+    void BuildTestPART(urde::IObjectStore& objStore);
 
     Space* m_deferSplit = nullptr;
-    Specter::SplitView::Axis m_deferSplitAxis;
+    specter::SplitView::Axis m_deferSplitAxis;
     int m_deferSplitThisSlot;
     boo::SWindowCoord m_deferSplitCoord;
 
 public:
-    ViewManager(HECL::Runtime::FileStoreManager& fileMgr, HECL::CVarManager& cvarMgr);
+    ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr);
     ~ViewManager();
 
-    Specter::RootView& rootView() const {return *m_rootView;}
+    specter::RootView& rootView() const {return *m_rootView;}
     void requestPixelFactor(float pf)
     {
         m_reqPf = pf;
@@ -89,10 +89,10 @@ public:
     }
 
     ProjectManager& projectManager() {return m_projManager;}
-    HECL::Database::Project* project() {return m_projManager.project();}
-    const Specter::Translator* getTranslator() const {return &m_translator;}
+    hecl::Database::Project* project() {return m_projManager.project();}
+    const specter::Translator* getTranslator() const {return &m_translator;}
 
-    void deferSpaceSplit(Specter::ISpaceController* split, Specter::SplitView::Axis axis, int thisSlot,
+    void deferSpaceSplit(specter::ISpaceController* split, specter::SplitView::Axis axis, int thisSlot,
                          const boo::SWindowCoord& coord)
     {
         m_deferSplit = static_cast<Space*>(split);
@@ -101,11 +101,11 @@ public:
         m_deferSplitCoord = coord;
     }
 
-    const std::vector<HECL::SystemString>* recentProjects() const {return &m_recentProjects;}
-    void pushRecentProject(const HECL::SystemString& path);
+    const std::vector<hecl::SystemString>* recentProjects() const {return &m_recentProjects;}
+    void pushRecentProject(const hecl::SystemString& path);
 
-    const std::vector<HECL::SystemString>* recentFiles() const {return &m_recentFiles;}
-    void pushRecentFile(const HECL::SystemString& path);
+    const std::vector<hecl::SystemString>* recentFiles() const {return &m_recentFiles;}
+    void pushRecentFile(const hecl::SystemString& path);
 
     void init(boo::IApplication* app);
     bool proc();

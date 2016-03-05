@@ -2,49 +2,49 @@
 #define __DNA_COMMON_HPP__
 
 #include <stdio.h>
-#include <Athena/DNAYaml.hpp>
-#include <NOD/DiscBase.hpp>
-#include "HECL/HECL.hpp"
-#include "HECL/Database.hpp"
+#include <athena/DNAYaml.hpp>
+#include <nod/DiscBase.hpp>
+#include "hecl/hecl.hpp"
+#include "hecl/Database.hpp"
 #include "../SpecBase.hpp"
 
 namespace DataSpec
 {
 
-extern LogVisor::LogModule LogDNACommon;
+extern logvisor::Module LogDNACommon;
 extern SpecBase* g_curSpec;
 extern class PAKRouterBase* g_PakRouter;
 
 /* This comes up a great deal */
-typedef Athena::io::DNA<Athena::BigEndian> BigDNA;
-typedef Athena::io::DNAYaml<Athena::BigEndian> BigYAML;
+typedef athena::io::DNA<athena::BigEndian> BigDNA;
+typedef athena::io::DNAYaml<athena::BigEndian> BigYAML;
 
 /** FourCC with DNA read/write */
-class DNAFourCC final : public BigYAML, public HECL::FourCC
+class DNAFourCC final : public BigYAML, public hecl::FourCC
 {
 public:
-    DNAFourCC() : HECL::FourCC() {}
-    DNAFourCC(const HECL::FourCC& other)
-    : HECL::FourCC() {num = other.toUint32();}
+    DNAFourCC() : hecl::FourCC() {}
+    DNAFourCC(const hecl::FourCC& other)
+    : hecl::FourCC() {num = other.toUint32();}
     DNAFourCC(const char* name)
-    : HECL::FourCC(name) {}
+    : hecl::FourCC(name) {}
     DNAFourCC(uint32_t n)
-    : HECL::FourCC(n) {}
+    : hecl::FourCC(n) {}
 
     Delete expl;
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {reader.readUBytesToBuf(fcc, 4);}
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {writer.writeUBytes((atUint8*)fcc, 4);}
-    void read(Athena::io::YAMLDocReader& reader)
+    void read(athena::io::YAMLDocReader& reader)
     {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
-    void write(Athena::io::YAMLDocWriter& writer) const
+    void write(athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
 };
 
-using FourCC = HECL::FourCC;
+using FourCC = hecl::FourCC;
 class UniqueID32;
 class UniqueID64;
 class UniqueID128;
@@ -56,24 +56,24 @@ protected:
     const SpecBase& m_dataSpec;
 public:
     PAKRouterBase(const SpecBase& dataSpec) : m_dataSpec(dataSpec) {}
-    HECL::Database::Project& getProject() const {return m_dataSpec.getProject();}
-    virtual HECL::ProjectPath getWorking(const UniqueID32&) const
+    hecl::Database::Project& getProject() const {return m_dataSpec.getProject();}
+    virtual hecl::ProjectPath getWorking(const UniqueID32&) const
     {
-        LogDNACommon.report(LogVisor::FatalError,
+        LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID32 specialization");
-        return HECL::ProjectPath();
+        return hecl::ProjectPath();
     }
-    virtual HECL::ProjectPath getWorking(const UniqueID64&) const
+    virtual hecl::ProjectPath getWorking(const UniqueID64&) const
     {
-        LogDNACommon.report(LogVisor::FatalError,
+        LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID64 specialization");
-        return HECL::ProjectPath();
+        return hecl::ProjectPath();
     }
-    virtual HECL::ProjectPath getWorking(const UniqueID128&) const
+    virtual hecl::ProjectPath getWorking(const UniqueID128&) const
     {
-        LogDNACommon.report(LogVisor::FatalError,
+        LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID128 specialization");
-        return HECL::ProjectPath();
+        return hecl::ProjectPath();
     }
 };
 
@@ -85,16 +85,16 @@ class UniqueIDBridge
     friend class UniqueID64;
 public:
     template <class IDType>
-    static HECL::ProjectPath TranslatePakIdToPath(const IDType& id)
+    static hecl::ProjectPath TranslatePakIdToPath(const IDType& id)
     {
         if (!g_PakRouter)
-            LogDNACommon.report(LogVisor::FatalError,
+            LogDNACommon.report(logvisor::Fatal,
             "UniqueIDBridge::setPakRouter must be called before translatePakIdToPath");
         return g_PakRouter->getWorking(id);
     }
-    static HECL::ProjectPath MakePathFromString(const std::string& str)
+    static hecl::ProjectPath MakePathFromString(const std::string& str)
     {
-        return HECL::ProjectPath(g_PakRouter->getProject(), str);
+        return hecl::ProjectPath(g_PakRouter->getProject(), str);
     }
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id)
@@ -110,19 +110,19 @@ class UniqueID32 : public BigYAML
 public:
     Delete expl;
     operator bool() const {return m_id != 0xffffffff && m_id != 0;}
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {m_id = reader.readUint32Big();}
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {writer.writeUint32Big(m_id);}
-    void read(Athena::io::YAMLDocReader& reader)
+    void read(athena::io::YAMLDocReader& reader)
     {
         *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
     }
-    void write(Athena::io::YAMLDocWriter& writer) const
+    void write(athena::io::YAMLDocWriter& writer) const
     {
         if (!operator bool())
             return;
-        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
         if (!path)
             return;
         writer.writeString(nullptr, path.getRelativePathUTF8());
@@ -130,7 +130,7 @@ public:
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
 
-    UniqueID32& operator=(const HECL::ProjectPath& path)
+    UniqueID32& operator=(const hecl::ProjectPath& path)
     {m_id = path.hash().val32(); return *this;}
 
     bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
@@ -146,8 +146,8 @@ public:
     void clear() {m_id = 0xffffffff;}
 
     UniqueID32() = default;
-    UniqueID32(Athena::io::IStreamReader& reader) {read(reader);}
-    UniqueID32(const HECL::ProjectPath& path) {*this = path;}
+    UniqueID32(athena::io::IStreamReader& reader) {read(reader);}
+    UniqueID32(const hecl::ProjectPath& path) {*this = path;}
     UniqueID32(const char* hexStr)
     {
         char copy[9];
@@ -173,19 +173,19 @@ class UniqueID64 : public BigYAML
 public:
     Delete expl;
     operator bool() const {return m_id != 0xffffffffffffffff && m_id != 0;}
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {m_id = reader.readUint64Big();}
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {writer.writeUint64Big(m_id);}
-    void read(Athena::io::YAMLDocReader& reader)
+    void read(athena::io::YAMLDocReader& reader)
     {
         *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
     }
-    void write(Athena::io::YAMLDocWriter& writer) const
+    void write(athena::io::YAMLDocWriter& writer) const
     {
         if (!operator bool())
             return;
-        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
         if (!path)
             return;
         writer.writeString(nullptr, path.getRelativePathUTF8());
@@ -193,7 +193,7 @@ public:
     size_t binarySize(size_t __isz) const
     {return __isz + 8;}
 
-    UniqueID64& operator=(const HECL::ProjectPath& path)
+    UniqueID64& operator=(const hecl::ProjectPath& path)
     {m_id = path.hash().val64(); return *this;}
 
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
@@ -208,8 +208,8 @@ public:
     void clear() {m_id = 0xffffffffffffffff;}
 
     UniqueID64() = default;
-    UniqueID64(Athena::io::IStreamReader& reader) {read(reader);}
-    UniqueID64(const HECL::ProjectPath& path) {*this = path;}
+    UniqueID64(athena::io::IStreamReader& reader) {read(reader);}
+    UniqueID64(const hecl::ProjectPath& path) {*this = path;}
     UniqueID64(const char* hexStr)
     {
         char copy[17];
@@ -251,25 +251,25 @@ public:
     UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
     operator bool() const
     {return m_id[0] != 0xffffffffffffffff && m_id[0] != 0 && m_id[1] != 0xffffffffffffffff && m_id[1] != 0;}
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {
         m_id[0] = reader.readUint64Big();
         m_id[1] = reader.readUint64Big();
     }
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {
         writer.writeUint64Big(m_id[0]);
         writer.writeUint64Big(m_id[1]);
     }
-    void read(Athena::io::YAMLDocReader& reader)
+    void read(athena::io::YAMLDocReader& reader)
     {
         *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
     }
-    void write(Athena::io::YAMLDocWriter& writer) const
+    void write(athena::io::YAMLDocWriter& writer) const
     {
         if (!operator bool())
             return;
-        HECL::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
         if (!path)
             return;
         writer.writeString(nullptr, path.getRelativePathUTF8());
@@ -277,7 +277,7 @@ public:
     size_t binarySize(size_t __isz) const
     {return __isz + 16;}
 
-    UniqueID128& operator=(const HECL::ProjectPath& path)
+    UniqueID128& operator=(const hecl::ProjectPath& path)
     {
         m_id[0] = path.hash().val64();
         m_id[1] = 0;
@@ -323,7 +323,7 @@ class WordBitmap
     std::vector<atUint32> m_words;
     size_t m_bitCount = 0;
 public:
-    void read(Athena::io::IStreamReader& reader, size_t bitCount)
+    void read(athena::io::IStreamReader& reader, size_t bitCount)
     {
         m_bitCount = bitCount;
         size_t wordCount = (bitCount + 31) / 32;
@@ -332,7 +332,7 @@ public:
         for (size_t w=0 ; w<wordCount ; ++w)
             m_words.push_back(reader.readUint32Big());
     }
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {
         for (atUint32 word : m_words)
             writer.writeUint32(word);
@@ -384,7 +384,7 @@ public:
 };
 
 /** Resource cooker function */
-typedef std::function<bool(const HECL::ProjectPath&, const HECL::ProjectPath&)> ResCooker;
+typedef std::function<bool(const hecl::ProjectPath&, const hecl::ProjectPath&)> ResCooker;
 
 }
 

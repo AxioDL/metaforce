@@ -7,7 +7,7 @@
 #include "CDvdFile.hpp"
 #include "CDvdRequest.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CPakFile : public CDvdFile

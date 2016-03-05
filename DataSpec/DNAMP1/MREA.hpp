@@ -100,8 +100,8 @@ struct MREA
         Value<float> unk9;
     };
 
-    static void ReadBabeDeadToBlender_1_2(HECL::BlenderConnection::PyOutStream& os,
-                                          Athena::io::IStreamReader& rs);
+    static void ReadBabeDeadToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
+                                          athena::io::IStreamReader& rs);
 
     static void AddCMDLRigPairs(PAKEntryReadStream& rs,
                                 PAKRouter<PAKBridge>& pakRouter,
@@ -109,11 +109,11 @@ struct MREA
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        std::function<void(const HECL::SystemChar*)>);
+                        std::function<void(const hecl::SystemChar*)>);
 
     static void Name(const SpecBase& dataSpec,
                      PAKEntryReadStream& rs,

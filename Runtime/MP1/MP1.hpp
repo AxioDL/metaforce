@@ -7,7 +7,7 @@
 #include "CPlayMovie.hpp"
 #include "IOStreams.hpp"
 
-namespace pshag
+namespace urde
 {
 class CStopwatch;
 

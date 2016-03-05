@@ -3,7 +3,7 @@
 
 #include "CTransitionDatabase.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CTransitionDatabaseGame : public CTransitionDatabase

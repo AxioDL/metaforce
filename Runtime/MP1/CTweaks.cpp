@@ -1,4 +1,4 @@
-#include <LogVisor/LogVisor.hpp>
+#include "logvisor/logvisor.hpp"
 #include "CTweaks.hpp"
 #include "CResFactory.hpp"
 #include "CResLoader.hpp"
@@ -7,7 +7,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
 
-namespace pshag
+namespace urde
 {
 DataSpec::ITweakGame*   g_tweakGame = nullptr;
 DataSpec::ITweakPlayer* g_tweakPlayer = nullptr;
@@ -16,13 +16,13 @@ DataSpec::ITweakPlayerControl* g_tweakPlayerControl = nullptr;
 namespace MP1
 {
 
-LogVisor::LogModule Log("MP1::CTweaks");
+static logvisor::Module Log("MP1::CTweaks");
 
 static const SObjectTag& IDFromFactory(CResFactory& factory, const char* name)
 {
     const SObjectTag* tag = factory.GetResourceIdByName(name);
     if (!tag)
-        Log.report(LogVisor::FatalError, "Tweak Asset not found when loading... '%s'", name);
+        Log.report(logvisor::Fatal, "Tweak Asset not found when loading... '%s'", name);
     return *tag;
 }
 

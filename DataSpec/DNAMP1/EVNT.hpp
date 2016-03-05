@@ -66,11 +66,11 @@ struct EVNT : BigYAML
     };
     std::vector<SFXEvent> sfxEvents;
 
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         EVNT evnt;
         evnt.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
         evnt.toYAMLFile(fp);
         fclose(fp);
         return true;

@@ -1,18 +1,14 @@
 #ifndef _DNACOMMON_BABEDEAD_HPP_
 #define _DNACOMMON_BABEDEAD_HPP_
 
-#include <BlenderConnection.hpp>
-
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES 1
-#endif
-#include <math.h>
+#include "BlenderConnection.hpp"
+#include "zeus/Math.hpp"
 
 namespace DataSpec
 {
 
 template<class BabeDeadLight>
-void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
+void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
                                 const BabeDeadLight& light, unsigned s, unsigned l)
 {
     switch (light.lightType)
@@ -45,7 +41,7 @@ void ReadBabeDeadLightToBlender(HECL::BlenderConnection::PyOutStream& os,
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                   "\n", s, l,
-                  light.spotCutoff * M_PI / 180.f,
+                  zeus::degToRad(light.spotCutoff),
                   light.direction.vec[0], light.direction.vec[1], light.direction.vec[2]);
         break;
     default: return;

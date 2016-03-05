@@ -1,6 +1,6 @@
 #include "CMoviePlayer.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CMoviePlayer::CMoviePlayer(const char* path, float startTime, bool flag)

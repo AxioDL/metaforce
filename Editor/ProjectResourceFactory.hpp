@@ -4,26 +4,26 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 
-namespace URDE
+namespace urde
 {
 
-class ProjectResourceFactory : public pshag::IFactory
+class ProjectResourceFactory : public urde::IFactory
 {
-    std::unordered_map<pshag::SObjectTag, HECL::ProjectPath> m_tagToPath;
-    std::unordered_map<std::string, pshag::SObjectTag> m_catalogNameToTag;
-    std::unordered_map<std::string, HECL::ProjectPath> m_catalogNameToPath;
-    pshag::CFactoryMgr m_factoryMgr;
-    void RecursiveAddDirObjects(const HECL::ProjectPath& path)
+    std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
+    std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
+    std::unordered_map<std::string, hecl::ProjectPath> m_catalogNameToPath;
+    urde::CFactoryMgr m_factoryMgr;
+    void RecursiveAddDirObjects(const hecl::ProjectPath& path)
     {
-        HECL::DirectoryEnumerator de = path.enumerateDir();
+        hecl::DirectoryEnumerator de = path.enumerateDir();
         const int idLen = 5 + 8;
-        for (const HECL::DirectoryEnumerator::Entry& ent : de)
+        for (const hecl::DirectoryEnumerator::Entry& ent : de)
         {
             if (ent.m_isDir)
-                RecursiveAddDirObjects(HECL::ProjectPath(path, ent.m_name));
+                RecursiveAddDirObjects(hecl::ProjectPath(path, ent.m_name));
             if (ent.m_name.size() == idLen && ent.m_name[4] == _S('_'))
             {
-                HECL::SystemUTF8View entu8(ent.m_name);
+                hecl::SystemUTF8View entu8(ent.m_name);
 #if _WIN32
                 u64 id = _strtoui64(entu8.c_str() + 5, nullptr, 16);
 #else
@@ -32,15 +32,15 @@ class ProjectResourceFactory : public pshag::IFactory
 
                 if (id)
                 {
-                    pshag::SObjectTag objTag = {HECL::FourCC(entu8.c_str()), id};
+                    urde::SObjectTag objTag = {hecl::FourCC(entu8.c_str()), id};
                     if (m_tagToPath.find(objTag) == m_tagToPath.end())
-                        m_tagToPath[objTag] = HECL::ProjectPath(path, ent.m_name);
+                        m_tagToPath[objTag] = hecl::ProjectPath(path, ent.m_name);
                 }
             }
             else
             {
 #if 0
-                HECL::SystemUTF8View nameView(ent.m_name);
+                hecl::SystemUTF8View nameView(ent.m_name);
                 auto it = std::find_if(catalog.namedResources.begin(), catalog.namedResources.end(),
                                        [&nameView](const typename DataSpec::NamedResourceCatalog<IDType>::NamedResource& res) -> bool
                 { return res.name == nameView.str(); });
@@ -71,13 +71,13 @@ class ProjectResourceFactory : public pshag::IFactory
 
 public:
     ProjectResourceFactory();
-    void BuildObjectMap(const HECL::Database::Project::ProjectDataSpec& spec);
+    void BuildObjectMap(const hecl::Database::Project::ProjectDataSpec& spec);
 
-    std::unique_ptr<pshag::IObj> Build(const pshag::SObjectTag&, const pshag::CVParamTransfer&);
-    void BuildAsync(const pshag::SObjectTag&, const pshag::CVParamTransfer&, pshag::IObj**);
-    void CancelBuild(const pshag::SObjectTag&);
-    bool CanBuild(const pshag::SObjectTag&);
-    const pshag::SObjectTag* GetResourceIdByName(const char*) const;
+    std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&);
+    void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
+    void CancelBuild(const urde::SObjectTag&);
+    bool CanBuild(const urde::SObjectTag&);
+    const urde::SObjectTag* GetResourceIdByName(const char*) const;
 };
 
 }

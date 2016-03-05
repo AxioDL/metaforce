@@ -9,23 +9,23 @@ namespace DNAMLVL
 {
 
 template <class PAKRouter, typename MLVL>
-bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
+bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                        const MLVL& mlvl,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force,
-                       std::function<void(const HECL::SystemChar*)> fileChanged)
+                       std::function<void(const hecl::SystemChar*)> fileChanged)
 {
     /* Rename MLVL for consistency */
-    HECL::ProjectPath mlvlPath(outPath.getParentPath(), _S("!world.blend"));
-    if (!force && mlvlPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mlvlPath(outPath.getParentPath(), _S("!world.blend"));
+    if (!force && mlvlPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
     /* Create World Blend */
-    if (!conn.createBlend(mlvlPath, HECL::BlenderConnection::BlendType::World))
+    if (!conn.createBlend(mlvlPath, hecl::BlenderConnection::BlendType::World))
         return false;
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Matrix\n"
@@ -42,7 +42,7 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
     for (const auto& area : mlvl.areas)
     {
         const typename PAKRouter::EntryType* mreaEntry = pakRouter.lookupEntry(area.areaMREAId);
-        HECL::SystemUTF8View areaDirName(*mreaEntry->unique.m_areaName);
+        hecl::SystemUTF8View areaDirName(*mreaEntry->unique.m_areaName);
 
         os.AABBToBMesh(area.aabb[0], area.aabb[1]);
         os.format("box_mesh = bpy.data.meshes.new('''%s''')\n"
@@ -66,14 +66,14 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
         for (const auto& dock : area.docks)
         {
             os << "bm = bmesh.new()\n";
-            Zeus::CVector3f pvAvg;
+            zeus::CVector3f pvAvg;
             for (const atVec3f& pv : dock.planeVerts)
                 pvAvg += pv;
             pvAvg /= dock.planeVerts.size();
             int idx = 0;
             for (const atVec3f& pv : dock.planeVerts)
             {
-                Zeus::CVector3f pvRel = Zeus::CVector3f(pv) - pvAvg;
+                zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
                 os.format("bm.verts.new((%f,%f,%f))\n"
                           "bm.verts.ensure_lookup_table()\n",
                           pvRel[0], pvRel[1], pvRel[2]);
@@ -102,31 +102,31 @@ bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
 }
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MLVL>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const DNAMP1::MLVL& mlvl,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  bool force,
- std::function<void(const HECL::SystemChar*)> fileChanged);
+ std::function<void(const hecl::SystemChar*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MLVL>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const DNAMP2::MLVL& mlvl,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  bool force,
- std::function<void(const HECL::SystemChar*)> fileChanged);
+ std::function<void(const hecl::SystemChar*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MLVL>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const DNAMP3::MLVL& mlvl,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  bool force,
- std::function<void(const HECL::SystemChar*)> fileChanged);
+ std::function<void(const hecl::SystemChar*)> fileChanged);
 
 }
 }

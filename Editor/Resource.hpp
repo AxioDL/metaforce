@@ -1,10 +1,10 @@
 #ifndef URDE_RESOURCE_HPP
 #define URDE_RESOURCE_HPP
 
-#include <HECL/Database.hpp>
+#include <hecl/Database.hpp>
 #include "Space.hpp"
 
-namespace URDE
+namespace urde
 {
 
 /** Combines a ProjectPath with actively used Space references
@@ -19,17 +19,17 @@ namespace URDE
 class Resource
 {
 public:
-    using ProjectDataSpec = HECL::Database::Project::ProjectDataSpec;
+    using ProjectDataSpec = hecl::Database::Project::ProjectDataSpec;
 private:
-    HECL::ProjectPath m_path;
+    hecl::ProjectPath m_path;
     Space::Class m_defaultClass = Space::Class::None;
     EditorSpace* m_editingSpace = nullptr;
     std::vector<ViewerSpace*> m_viewingSpaces;
 public:
-    static Space::Class DeduceDefaultSpaceClass(const HECL::ProjectPath& path);
-    explicit Resource(HECL::ProjectPath&& path)
+    static Space::Class DeduceDefaultSpaceClass(const hecl::ProjectPath& path);
+    explicit Resource(hecl::ProjectPath&& path)
     : m_path(std::move(path)), m_defaultClass(DeduceDefaultSpaceClass(m_path)) {}
-    const HECL::ProjectPath& path() const {return m_path;}
+    const hecl::ProjectPath& path() const {return m_path;}
 };
 
 /** Provides centralized hierarchical lookup and ownership of Resource nodes */
@@ -38,8 +38,8 @@ class ResourceTree
 public:
     struct Node
     {
-        std::map<HECL::ProjectPath, std::unique_ptr<Node>> m_subnodes;
-        std::map<HECL::ProjectPath, std::unique_ptr<Resource>> m_resources;
+        std::map<hecl::ProjectPath, std::unique_ptr<Node>> m_subnodes;
+        std::map<hecl::ProjectPath, std::unique_ptr<Resource>> m_resources;
     };
 private:
     std::unique_ptr<Node> m_rootNode;

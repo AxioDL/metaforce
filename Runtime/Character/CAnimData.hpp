@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CANIMDATA_HPP__
 #define __PSHAG_CANIMDATA_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CAnimData

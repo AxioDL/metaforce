@@ -1,22 +1,22 @@
 #include "ResourceBrowser.hpp"
 
-namespace URDE
+namespace urde
 {
 #define BROWSER_MARGIN 8
 
-bool ResourceBrowser::navigateToPath(const HECL::ProjectPath& pathIn)
+bool ResourceBrowser::navigateToPath(const hecl::ProjectPath& pathIn)
 {
-    if (pathIn.getPathType() == HECL::ProjectPath::Type::File)
+    if (pathIn.getPathType() == hecl::ProjectPath::Type::File)
         m_path = pathIn.getParentPath();
     else
         m_path = pathIn;
 
     m_comps = m_path.getPathComponents();
 
-    HECL::DirectoryEnumerator dEnum(m_path.getAbsolutePath(),
-                                    HECL::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+    hecl::DirectoryEnumerator dEnum(m_path.getAbsolutePath(),
+                                    hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
                                     m_state.sortColumn==State::SortColumn::Size,
-                                    m_state.sortDir==Specter::SortDirection::Descending &&
+                                    m_state.sortDir==specter::SortDirection::Descending &&
                                     (m_state.sortColumn == State::SortColumn::Name || m_state.sortColumn == State::SortColumn::Size),
                                     true);
     m_resListingBind.updateListing(dEnum);
@@ -38,10 +38,10 @@ void ResourceBrowser::pathButtonActivated(size_t idx)
     if (idx >= m_comps.size())
         return;
 
-    HECL::SystemString dir;
+    hecl::SystemString dir;
     bool needSlash = false;
     size_t i = 0;
-    for (const HECL::SystemString& d : m_comps)
+    for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
             dir += _S('/');
@@ -51,7 +51,7 @@ void ResourceBrowser::pathButtonActivated(size_t idx)
         if (++i > idx)
             break;
     }
-    navigateToPath(HECL::ProjectPath(*m_vm.project(), dir));
+    navigateToPath(hecl::ProjectPath(*m_vm.project(), dir));
 }
 
 void ResourceBrowser::View::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
@@ -76,7 +76,7 @@ void ResourceBrowser::View::mouseLeave(const boo::SWindowCoord& coord)
 
 void ResourceBrowser::View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
-    Specter::View::resized(root, sub);
+    specter::View::resized(root, sub);
     m_resListing.m_view->resized(root, sub);
 }
 void ResourceBrowser::View::draw(boo::IGraphicsCommandQueue* gfxQ)

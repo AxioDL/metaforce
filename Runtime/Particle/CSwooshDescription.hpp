@@ -9,7 +9,7 @@
 #include "CColorElement.hpp"
 #include "CUVElement.hpp"
 
-namespace pshag
+namespace urde
 {
 class CSwooshDescription
 {

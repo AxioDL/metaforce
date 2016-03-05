@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CDECALMANAGER_HPP__
 #define __PSHAG_CDECALMANAGER_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CDecalManager

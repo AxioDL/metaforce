@@ -1,7 +1,7 @@
 #include "CEntity.hpp"
 #include "CStateManager.hpp"
 
-namespace pshag
+namespace urde
 {
 
 CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active)

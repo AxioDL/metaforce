@@ -6,7 +6,7 @@
 #include "CToken.hpp"
 #include "IOStreams.hpp"
 
-namespace pshag
+namespace urde
 {
 class CSimplePool;
 class CGenDescription;

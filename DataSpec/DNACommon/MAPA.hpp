@@ -74,8 +74,8 @@ struct MAPA : BigDNA
     };
 
 
-    void read(Athena::io::IStreamReader& __dna_reader);
-    void write(Athena::io::IStreamWriter& __dna_writer) const;
+    void read(athena::io::IStreamReader& __dna_reader);
+    void write(athena::io::IStreamWriter& __dna_writer) const;
     size_t binarySize(size_t __isz) const;
 
     std::unique_ptr<IMAPAHeader> header;
@@ -117,9 +117,9 @@ struct MAPA : BigDNA
         Value<Type> type;
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
-        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Seek<DNA_COUNT(4), athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        Seek<DNA_COUNT(0x10), athena::Current> seek2;
         virtual ~MappableObjectMP1_2()  {}
     };
 
@@ -130,9 +130,9 @@ struct MAPA : BigDNA
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
         Buffer<DNA_COUNT(0x10)> unknownHash;
-        Seek<DNA_COUNT(4), Athena::Current> seek1;
+        Seek<DNA_COUNT(4), athena::Current> seek1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), Athena::Current> seek2;
+        Seek<DNA_COUNT(0x10), athena::Current> seek2;
         virtual ~MappableObjectMP3()  {}
     };
 
@@ -180,9 +180,9 @@ struct MAPA : BigDNA
 };
 
 template <typename PAKRouter>
-bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
+bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const MAPA& mapa,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force);

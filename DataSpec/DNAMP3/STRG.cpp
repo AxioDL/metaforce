@@ -6,7 +6,7 @@ namespace DataSpec
 namespace DNAMP3
 {
 
-void STRG::_read(Athena::io::IStreamReader& reader)
+void STRG::_read(athena::io::IStreamReader& reader)
 {
     atUint32 langCount = reader.readUint32Big();
     atUint32 strCount = reader.readUint32Big();
@@ -24,8 +24,8 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         }* nameIndex = (NameIdxEntry*)nameTableBuf.get();
         for (atUint32 n=0 ; n<nameCount ; ++n)
         {
-            const char* name = (char*)(nameTableBuf.get() + HECL::SBig(nameIndex[n].nameOff));
-            names[name] = HECL::SBig(nameIndex[n].strIdx);
+            const char* name = (char*)(nameTableBuf.get() + hecl::SBig(nameIndex[n].nameOff));
+            names[name] = hecl::SBig(nameIndex[n].strIdx);
         }
     }
 
@@ -53,7 +53,7 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         std::vector<std::string> strs;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
-            reader.seek(strBase + strOffs[l*strCount+s], Athena::Begin);
+            reader.seek(strBase + strOffs[l*strCount+s], athena::Begin);
             atUint32 len = reader.readUint32Big();
             strs.emplace_back(reader.readString(len));
         }
@@ -66,28 +66,28 @@ void STRG::_read(Athena::io::IStreamReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::read(Athena::io::IStreamReader& reader)
+void STRG::read(athena::io::IStreamReader& reader)
 {
     atUint32 magic = reader.readUint32Big();
     if (magic != 0x87654321)
     {
-        Log.report(LogVisor::Error, "invalid STRG magic");
+        Log.report(logvisor::Error, "invalid STRG magic");
         return;
     }
 
     atUint32 version = reader.readUint32Big();
     if (version != 3)
     {
-        Log.report(LogVisor::Error, "invalid STRG version");
+        Log.report(logvisor::Error, "invalid STRG version");
         return;
     }
 
     _read(reader);
 }
 
-void STRG::read(Athena::io::YAMLDocReader& reader)
+void STRG::read(athena::io::YAMLDocReader& reader)
 {
-    const Athena::io::YAMLNode* root = reader.getRootNode();
+    const athena::io::YAMLNode* root = reader.getRootNode();
 
     /* Validate Pass */
     if (root->m_type == YAML_MAPPING_NODE)
@@ -98,12 +98,12 @@ void STRG::read(Athena::io::YAMLDocReader& reader)
                 continue;
             if (lang.first.size() != 4)
             {
-                Log.report(LogVisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
+                Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
                 return;
             }
             if (lang.second->m_type != YAML_SEQUENCE_NODE)
             {
-                Log.report(LogVisor::Warning,
+                Log.report(logvisor::Warning,
                            "STRG language string '%s' must contain a sequence; skipping", lang.first.c_str());
                 return;
             }
@@ -111,7 +111,7 @@ void STRG::read(Athena::io::YAMLDocReader& reader)
             {
                 if (str->m_type != YAML_SCALAR_NODE)
                 {
-                    Log.report(LogVisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+                    Log.report(logvisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
                     return;
                 }
             }
@@ -119,16 +119,16 @@ void STRG::read(Athena::io::YAMLDocReader& reader)
     }
     else
     {
-        Log.report(LogVisor::Warning, "STRG must have a mapping root node; skipping");
+        Log.report(logvisor::Warning, "STRG must have a mapping root node; skipping");
         return;
     }
 
-    const Athena::io::YAMLNode* nameYAML = root->findMapChild("names");
+    const athena::io::YAMLNode* nameYAML = root->findMapChild("names");
     names.clear();
     if (nameYAML && nameYAML->m_type == YAML_MAPPING_NODE)
         for (const auto& item : nameYAML->m_mapChildren)
             if (item.second->m_type == YAML_SCALAR_NODE)
-                names[item.first] = Athena::io::NodeToVal<atInt32>(item.second.get());
+                names[item.first] = athena::io::NodeToVal<atInt32>(item.second.get());
 
     langs.clear();
     langs.reserve(root->m_mapChildren.size());
@@ -151,7 +151,7 @@ void STRG::read(Athena::io::YAMLDocReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::write(Athena::io::IStreamWriter& writer) const
+void STRG::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(0x87654321);
     writer.writeUint32Big(3);
@@ -243,7 +243,7 @@ size_t STRG::binarySize(size_t __isz) const
     return __isz;
 }
 
-void STRG::write(Athena::io::YAMLDocWriter& writer) const
+void STRG::write(athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& item : langs)
     {
@@ -268,7 +268,7 @@ void STRG::write(Athena::io::YAMLDocWriter& writer) const
 
 const char* STRG::DNAType()
 {
-    return "Retro::DNAMP3::STRG";
+    return "urde::DNAMP3::STRG";
 }
 
 }

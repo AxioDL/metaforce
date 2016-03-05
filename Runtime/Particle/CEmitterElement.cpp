@@ -3,24 +3,24 @@
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Emitter_Elements */
 
-namespace pshag
+namespace urde
 {
 
-bool CEESimpleEmitter::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const
+bool CEESimpleEmitter::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const
 {
     x4_loc->GetValue(frame, pPos);
 
     if (x8_vec)
         x8_vec->GetValue(frame, pVel);
     else
-        pVel = Zeus::CVector3f();
+        pVel = zeus::CVector3f();
 
     return false;
 }
 
-bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const
+bool CVESphere::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_sphereOrigin->GetValue(frame, a);
     float b;
     x8_sphereRadius->GetValue(frame, b);
@@ -29,7 +29,7 @@ bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel
     int rand2 = rand->Range(-100, 100);
     int rand3 = rand->Range(-100, 100);
 
-    Zeus::CVector3f normVec1 = Zeus::CVector3f(0.0099999998f * float(rand3),
+    zeus::CVector3f normVec1 = zeus::CVector3f(0.0099999998f * float(rand3),
                                                0.0099999998f * float(rand2),
                                                0.0099999998f * float(rand1));
     if (normVec1.canBeNormalized())
@@ -37,7 +37,7 @@ bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel
 
     pPos = b * normVec1 + a;
 
-    Zeus::CVector3f normVec2 = (pPos - a);
+    zeus::CVector3f normVec2 = (pPos - a);
     if (normVec2.canBeNormalized())
         normVec2.normalize();
 
@@ -48,9 +48,9 @@ bool CVESphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel
     return false;
 }
 
-bool CVEAngleSphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f& pVel) const
+bool CVEAngleSphere::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_sphereOrigin->GetValue(frame, a);
 
     float b, d, e, f, g;
@@ -60,14 +60,14 @@ bool CVEAngleSphere::GetValue(int frame, Zeus::CVector3f& pPos, Zeus::CVector3f&
     x18_angleXRange->GetValue(frame, f);
     x1c_angleYRange->GetValue(frame, g);
     CRandom16* rand = CRandom16::GetRandomNumber();
-    d = (d + ((0.5f * (f * rand->Float())) - f)) * M_PI / 180.f;
-    e = (e + ((0.5f * (g * rand->Float())) - g)) * M_PI / 180.f;
+    d = zeus::degToRad(d + ((0.5f * (f * rand->Float())) - f));
+    e = zeus::degToRad(e + ((0.5f * (g * rand->Float())) - g));
 
-    float cosD = Zeus::Math::fastCosR(d);
-    pPos.x = a.x + (b * (-Zeus::Math::fastSinR(e) * cosD));
-    pPos.y = a.y + (b * Zeus::Math::fastSinR(d));
+    float cosD = zeus::fastCosF(d);
+    pPos.x = a.x + (b * (-zeus::fastSinF(e) * cosD));
+    pPos.y = a.y + (b * zeus::fastSinF(d));
     pPos.z = a.z + (b * (cosD * cosD));
-    Zeus::CVector3f normVec = (pPos - a).normalized();
+    zeus::CVector3f normVec = (pPos - a).normalized();
 
     float c;
     xc_velocityMag->GetValue(frame, c);

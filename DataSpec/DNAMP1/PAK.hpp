@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-#include <NOD/DiscBase.hpp>
+#include <nod/DiscBase.hpp>
 #include "../DNACommon/PAK.hpp"
 
 namespace DataSpec
@@ -38,8 +38,8 @@ struct PAK : BigDNA
         UniqueResult unique;
         std::string name; /* backreferencing name for RE purposes */
 
-        std::unique_ptr<atUint8[]> getBuffer(const NOD::Node& pak, atUint64& szOut) const;
-        inline PAKEntryReadStream beginReadStream(const NOD::Node& pak, atUint64 off=0) const
+        std::unique_ptr<atUint8[]> getBuffer(const nod::Node& pak, atUint64& szOut) const;
+        inline PAKEntryReadStream beginReadStream(const nod::Node& pak, atUint64 off=0) const
         {
             atUint64 sz;
             std::unique_ptr<atUint8[]> buf = getBuffer(pak, sz);

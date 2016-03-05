@@ -58,8 +58,6 @@ add_library(RuntimeCommon
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
             CCallStack.hpp
-            CTexture.hpp CTextureBoo.cpp
-            CLight.hpp CLight.cpp
             IOStreams.hpp IOStreams.cpp
             CMainFlowBase.hpp CMainFlowBase.cpp
             CMFGameBase.hpp
@@ -67,8 +65,6 @@ add_library(RuntimeCommon
             CPlayMovieBase.hpp
             CMoviePlayer.hpp CMoviePlayer.cpp
             CGameDebug.hpp CGameDebug.cpp
-            CGraphics.hpp CGraphics.cpp
-            CModel.hpp CModelBoo.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp
             RetroTypes.hpp

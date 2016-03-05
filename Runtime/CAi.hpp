@@ -7,9 +7,9 @@
 #include "CEntity.hpp"
 #include "CPhysicsActor.hpp"
 
-#include <MathLib.hpp>
+#include "zeus/zeus.hpp"
 
-namespace pshag
+namespace urde
 {
 
 /* TODO: Figure out what all this is for and move it somewhere appropriate */
@@ -55,10 +55,10 @@ public:
     virtual CHealthInfo GetHealthInfo(const CStateManager&) { return x240_healthInfo; }
     virtual CDamageVulnerability GetDamageVulnerability()  { return x248_damageVulnerability; }
 
-    virtual void TakeDamage(const Zeus::CVector3f&, float) {}
+    virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() { return false; }
-    virtual int Listen(const Zeus::CVector3f&, EListenNoiseType) { return 0; }
+    virtual int Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
 
     virtual void Patrol(CStateManager&, EStateMsg, float) {}
     virtual void FollowPattern(CStateManager&, EStateMsg, float) {}

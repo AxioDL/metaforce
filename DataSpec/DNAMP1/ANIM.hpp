@@ -28,7 +28,7 @@ struct ANIM : BigDNA
         float mainInterval = 0.0;
         UniqueID32 evnt;
 
-        void sendANIMToBlender(HECL::BlenderConnection::PyOutStream&, const CINF&) const;
+        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const CINF&) const;
     };
 
     struct ANIM0 : IANIM
@@ -90,7 +90,7 @@ struct ANIM : BigDNA
             Value<atUint16> initTZ = 0;
             Value<atUint8> qTZ = 0;
 
-            void read(Athena::io::IStreamReader& reader)
+            void read(athena::io::IStreamReader& reader)
             {
                 id = reader.readUint32Big();
                 keyCount1 = reader.readUint16Big();
@@ -111,7 +111,7 @@ struct ANIM : BigDNA
                     qTZ = reader.readUByte();
                 }
             }
-            void write(Athena::io::IStreamWriter& writer) const
+            void write(athena::io::IStreamWriter& writer) const
             {
                 writer.writeUint32Big(id);
                 writer.writeUint16Big(keyCount1);
@@ -143,7 +143,7 @@ struct ANIM : BigDNA
     };
 
     std::unique_ptr<IANIM> m_anim;
-    void read(Athena::io::IStreamReader& reader)
+    void read(athena::io::IStreamReader& reader)
     {
         atUint32 version = reader.readUint32Big();
         switch (version)
@@ -157,12 +157,12 @@ struct ANIM : BigDNA
             m_anim->read(reader);
             break;
         default:
-            Log.report(LogVisor::Error, "unrecognized ANIM version");
+            Log.report(logvisor::Error, "unrecognized ANIM version");
             break;
         }
     }
 
-    void write(Athena::io::IStreamWriter& writer) const
+    void write(athena::io::IStreamWriter& writer) const
     {
         writer.writeUint32Big(m_anim->m_version);
         m_anim->write(writer);
@@ -173,7 +173,7 @@ struct ANIM : BigDNA
         return m_anim->binarySize(__isz + 4);
     }
 
-    void sendANIMToBlender(HECL::BlenderConnection::PyOutStream& os, const CINF& cinf, bool) const
+    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, bool) const
     {
         m_anim->sendANIMToBlender(os, cinf);
     }

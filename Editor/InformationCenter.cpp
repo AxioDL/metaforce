@@ -1,5 +1,5 @@
 #include "InformationCenter.hpp"
 
-namespace URDE
+namespace urde
 {
 }

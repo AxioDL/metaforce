@@ -4,7 +4,7 @@
 #include "RetroTypes.hpp"
 #include "CDvdFile.hpp"
 
-namespace pshag
+namespace urde
 {
 class CVector3f;
 

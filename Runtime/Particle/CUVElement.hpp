@@ -3,11 +3,11 @@
 
 #include "IElement.hpp"
 #include "CToken.hpp"
-#include "CTexture.hpp"
+#include "Graphics/CTexture.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#UV_Elements */
 
-namespace pshag
+namespace urde
 {
 class CToken;
 

@@ -5,7 +5,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-void EVNT::read(Athena::io::IStreamReader& reader)
+void EVNT::read(athena::io::IStreamReader& reader)
 {
     version = reader.readUint32Big();
 
@@ -26,7 +26,7 @@ void EVNT::read(Athena::io::IStreamReader& reader)
     }
 }
 
-void EVNT::write(Athena::io::IStreamWriter& writer) const
+void EVNT::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(version);
 
@@ -46,7 +46,7 @@ void EVNT::write(Athena::io::IStreamWriter& writer) const
     }
 }
 
-void EVNT::read(Athena::io::YAMLDocReader& reader)
+void EVNT::read(athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
@@ -63,7 +63,7 @@ void EVNT::read(Athena::io::YAMLDocReader& reader)
     }
 }
 
-void EVNT::write(Athena::io::YAMLDocWriter& writer) const
+void EVNT::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
@@ -81,7 +81,7 @@ void EVNT::write(Athena::io::YAMLDocWriter& writer) const
 
 const char* EVNT::DNAType()
 {
-    return "Retro::DNAMP1::EVNT";
+    return "urde::DNAMP1::EVNT";
 }
 
 size_t EVNT::binarySize(size_t __isz) const

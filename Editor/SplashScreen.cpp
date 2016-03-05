@@ -1,7 +1,7 @@
 #include "SplashScreen.hpp"
 #include "version.h"
 
-namespace URDE
+namespace urde
 {
 
 #define SPLASH_WIDTH 555
@@ -17,9 +17,9 @@ namespace URDE
 #define LINE_WIDTH 2
 #define TEXT_MARGIN 10
 
-SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
+SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 : ModalWindow(res, vm.rootView(),
-              Specter::RectangleConstraint(SPLASH_WIDTH * res.pixelFactor(),
+              specter::RectangleConstraint(SPLASH_WIDTH * res.pixelFactor(),
                                            SPLASH_HEIGHT * res.pixelFactor())),
   m_vm(vm),
   m_textColor(res.themeData().uiText()),
@@ -35,7 +35,7 @@ SplashScreen::SplashScreen(ViewManager& vm, Specter::ViewResources& res)
         GIT_COMMIT_HASH[0] != '\0' &&
         GIT_BRANCH[0]      != '\0')
     {
-        m_buildInfoStr = HECL::Format("%s: %s\n%s: %s\n%s: %s",
+        m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
                                       vm.translateOr("branch", "Branch").c_str(), GIT_BRANCH,
                                       vm.translateOr("commit", "Commit").c_str(), GIT_COMMIT_HASH,
                                       vm.translateOr("date", "Date").c_str(), GIT_COMMIT_DATE);
@@ -64,19 +64,19 @@ void SplashScreen::think()
 
     if (m_newProjBind.m_deferPath.size())
     {
-        Log.report(LogVisor::Info, _S("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _S("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
         m_vm.projectManager().newProject(m_newProjBind.m_deferPath);
         m_newProjBind.m_deferPath.clear();
     }
     else if (m_openProjBind.m_deferPath.size())
     {
-        Log.report(LogVisor::Info, _S("Opening project '%s'"), m_openProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _S("Opening project '%s'"), m_openProjBind.m_deferPath.c_str());
         m_vm.projectManager().openProject(m_openProjBind.m_deferPath);
         m_openProjBind.m_deferPath.clear();
     }
     else if (m_extractProjBind.m_deferPath.size())
     {
-        Log.report(LogVisor::Info, _S("Extracting game '%s'"), m_extractProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _S("Extracting game '%s'"), m_extractProjBind.m_deferPath.c_str());
         m_vm.projectManager().extractGame(m_extractProjBind.m_deferPath);
         m_extractProjBind.m_deferPath.clear();
     }
@@ -84,31 +84,31 @@ void SplashScreen::think()
 
 void SplashScreen::updateContentOpacity(float opacity)
 {
-    Specter::ViewResources& res = rootView().viewRes();
+    specter::ViewResources& res = rootView().viewRes();
 
     if (!m_title && res.fontCacheReady())
     {
-        m_title.reset(new Specter::TextView(res, *this, res.m_titleFont));
-        Zeus::CColor clearColor = res.themeData().uiText();
+        m_title.reset(new specter::TextView(res, *this, res.m_titleFont));
+        zeus::CColor clearColor = res.themeData().uiText();
         clearColor[3] = 0.0;
         m_title->typesetGlyphs("URDE", clearColor);
 
-        m_buildInfo.reset(new Specter::MultiLineTextView(res, *this, res.m_mainFont, Specter::TextView::Alignment::Right));
+        m_buildInfo.reset(new specter::MultiLineTextView(res, *this, res.m_mainFont, specter::TextView::Alignment::Right));
         m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);
 
-        m_newButt.m_view.reset(new Specter::Button(res, *this, &m_newProjBind, m_newString,
-                                                   nullptr, Specter::Button::Style::Text));
-        m_openButt.m_view.reset(new Specter::Button(res, *this, &m_openProjBind, m_openString,
-                                                    nullptr, Specter::Button::Style::Text));
-        m_extractButt.m_view.reset(new Specter::Button(res, *this, &m_extractProjBind, m_extractString,
-                                                       nullptr, Specter::Button::Style::Text));
+        m_newButt.m_view.reset(new specter::Button(res, *this, &m_newProjBind, m_newString,
+                                                   nullptr, specter::Button::Style::Text));
+        m_openButt.m_view.reset(new specter::Button(res, *this, &m_openProjBind, m_openString,
+                                                    nullptr, specter::Button::Style::Text));
+        m_extractButt.m_view.reset(new specter::Button(res, *this, &m_extractProjBind, m_extractString,
+                                                       nullptr, specter::Button::Style::Text));
 
         updateSize();
     }
 
-    Zeus::CColor clearColor = res.themeData().uiText();
+    zeus::CColor clearColor = res.themeData().uiText();
     clearColor[3] = 0.0;
-    Zeus::CColor color = Zeus::CColor::lerp(clearColor, res.themeData().uiText(), opacity);
+    zeus::CColor color = zeus::CColor::lerp(clearColor, res.themeData().uiText(), opacity);
     m_title->colorGlyphs(color);
     m_buildInfo->colorGlyphs(color);
     m_newButt.m_view->colorGlyphs(color);

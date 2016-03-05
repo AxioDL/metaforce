@@ -2,9 +2,9 @@
 #define __PSHAG_CACTOR_HPP__
 
 #include "CEntity.hpp"
-#include <MathLib.hpp>
+#include "zeus/zeus.hpp"
 
-namespace pshag
+namespace urde
 {
 
 enum class ECollisionResponseType
@@ -31,7 +31,7 @@ protected:
         Unknown7 = (1 << 7),
     };
 
-    Zeus::CTransform x34_transform;
+    zeus::CTransform x34_transform;
     float x40_unknown;
     float x50_unknown;
     float x60_unknown;
@@ -42,20 +42,20 @@ protected:
     bool    xd0_b2_flags : 1;
 public:
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
-           const Zeus::CTransform&, const CModelData&, const CMaterialList&,
+           const zeus::CTransform&, const CModelData&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
-    virtual Zeus::CVector3f GetAimPosition(const CStateManager&, float)
-    { return Zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
+    virtual zeus::CVector3f GetAimPosition(const CStateManager&, float)
+    { return zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
 
     virtual bool ValidAimTarget() { return true; }
     virtual bool ValidOrbitTarget() { return true; }
     virtual bool GetOrbitDistanceCheck() { return true; }
-    virtual Zeus::CVector3f GetOrbitPosition()
-    { return Zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
+    virtual zeus::CVector3f GetOrbitPosition()
+    { return zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
 
-    virtual ECollisionResponseType GetCollisionResponseType(const Zeus::CVector3f&, const Zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
+    virtual ECollisionResponseType GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){}
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){ }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&){ }

@@ -4,9 +4,9 @@ namespace DataSpec
 {
 namespace DNAParticle
 {
-LogVisor::LogModule LogModule("Retro::DNAParticle");
+logvisor::Module LogModule("urde::DNAParticle");
 
-void RealElementFactory::read(Athena::io::YAMLDocReader& r)
+void RealElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -17,7 +17,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -130,7 +130,7 @@ void RealElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void RealElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void RealElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -148,7 +148,7 @@ size_t RealElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void RealElementFactory::read(Athena::io::IStreamReader& r)
+void RealElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -259,13 +259,13 @@ void RealElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown RealElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown RealElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void RealElementFactory::write(Athena::io::IStreamWriter& w) const
+void RealElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
@@ -277,7 +277,7 @@ void RealElementFactory::write(Athena::io::IStreamWriter& w) const
 }
 
 
-void IntElementFactory::read(Athena::io::YAMLDocReader& r)
+void IntElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -288,7 +288,7 @@ void IntElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -353,7 +353,7 @@ void IntElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void IntElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void IntElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -371,7 +371,7 @@ size_t IntElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void IntElementFactory::read(Athena::io::IStreamReader& r)
+void IntElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -434,13 +434,13 @@ void IntElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown IntElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown IntElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void IntElementFactory::write(Athena::io::IStreamWriter& w) const
+void IntElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
@@ -451,7 +451,7 @@ void IntElementFactory::write(Athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"NONE", 4);
 }
 
-void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
+void VectorElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -462,7 +462,7 @@ void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -527,7 +527,7 @@ void VectorElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void VectorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void VectorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -545,7 +545,7 @@ size_t VectorElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void VectorElementFactory::read(Athena::io::IStreamReader& r)
+void VectorElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -608,13 +608,13 @@ void VectorElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown VectorElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown VectorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void VectorElementFactory::write(Athena::io::IStreamWriter& w) const
+void VectorElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
@@ -626,7 +626,7 @@ void VectorElementFactory::write(Athena::io::IStreamWriter& w) const
 }
 
 
-void ColorElementFactory::read(Athena::io::YAMLDocReader& r)
+void ColorElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -637,7 +637,7 @@ void ColorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -669,7 +669,7 @@ void ColorElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void ColorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void ColorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -687,7 +687,7 @@ size_t ColorElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void ColorElementFactory::read(Athena::io::IStreamReader& r)
+void ColorElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -717,13 +717,13 @@ void ColorElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown ColorElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown ColorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void ColorElementFactory::write(Athena::io::IStreamWriter& w) const
+void ColorElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
@@ -735,7 +735,7 @@ void ColorElementFactory::write(Athena::io::IStreamWriter& w) const
 }
 
 
-void ModVectorElementFactory::read(Athena::io::YAMLDocReader& r)
+void ModVectorElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -746,7 +746,7 @@ void ModVectorElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -795,7 +795,7 @@ void ModVectorElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void ModVectorElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void ModVectorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -813,7 +813,7 @@ size_t ModVectorElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void ModVectorElementFactory::read(Athena::io::IStreamReader& r)
+void ModVectorElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -860,13 +860,13 @@ void ModVectorElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown ModVectorElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown ModVectorElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void ModVectorElementFactory::write(Athena::io::IStreamWriter& w) const
+void ModVectorElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {
@@ -878,7 +878,7 @@ void ModVectorElementFactory::write(Athena::io::IStreamWriter& w) const
 }
 
 
-void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
+void EmitterElementFactory::read(athena::io::YAMLDocReader& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -889,7 +889,7 @@ void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
 
     const auto& elem = mapChildren[0];
     if (elem.first.size() < 4)
-        LogModule.report(LogVisor::FatalError, "short FourCC in element '%s'", elem.first.c_str());
+        LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
 
     switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
     {
@@ -914,7 +914,7 @@ void EmitterElementFactory::read(Athena::io::YAMLDocReader& r)
     r.leaveSubRecord();
 }
 
-void EmitterElementFactory::write(Athena::io::YAMLDocWriter& w) const
+void EmitterElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
     {
@@ -932,7 +932,7 @@ size_t EmitterElementFactory::binarySize(size_t __isz) const
         return __isz + 4;
 }
 
-void EmitterElementFactory::read(Athena::io::IStreamReader& r)
+void EmitterElementFactory::read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -955,13 +955,13 @@ void EmitterElementFactory::read(Athena::io::IStreamReader& r)
         return;
     default:
         m_elem.reset();
-        LogModule.report(LogVisor::FatalError, "Unknown EmitterElement class %.4s @%" PRIi64, &clsId, r.position());
+        LogModule.report(logvisor::Fatal, "Unknown EmitterElement class %.4s @%" PRIi64, &clsId, r.position());
         return;
     }
     m_elem->read(r);
 }
 
-void EmitterElementFactory::write(Athena::io::IStreamWriter& w) const
+void EmitterElementFactory::write(athena::io::IStreamWriter& w) const
 {
     if (m_elem)
     {

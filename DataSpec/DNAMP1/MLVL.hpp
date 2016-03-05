@@ -108,18 +108,18 @@ struct MLVL : BigYAML
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
+                        std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MLVL mlvl;
         mlvl.read(rs);
-        FILE* fp = HECL::Fopen(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath().c_str(), _S("w"));
+        FILE* fp = hecl::Fopen(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath().c_str(), _S("w"));
         mlvl.toYAMLFile(fp);
         fclose(fp);
-        HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);
     }

@@ -1,19 +1,19 @@
 #include "CModVectorElement.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
-#include <math.h>
+#include "zeus/Math.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Mod_Vector_Elements */
 
-namespace pshag
+namespace urde
 {
 
-bool CMVEImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVEImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
-    Zeus::CVector3f av;
+    zeus::CVector3f av;
     x4_implPoint->GetValue(frame, av);
 
-    Zeus::CVector3f dv = av - pPos;
+    zeus::CVector3f dv = av - pPos;
     float dvm = dv.magnitude();
 
     float c;
@@ -31,16 +31,16 @@ bool CMVEImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& 
 
     float b;
     x8_magScale->GetValue(frame, b);
-    pVel += Zeus::CVector3f(b / dvm) * dv;
+    pVel += zeus::CVector3f(b / dvm) * dv;
     return false;
 }
 
-bool CMVEExponentialImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVEExponentialImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
-    Zeus::CVector3f av;
+    zeus::CVector3f av;
     x4_implPoint->GetValue(frame, av);
 
-    Zeus::CVector3f dv = av - pPos;
+    zeus::CVector3f dv = av - pPos;
     float dvm = dv.magnitude();
 
     float c;
@@ -58,16 +58,16 @@ bool CMVEExponentialImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::
 
     float b;
     x8_magScale->GetValue(frame, b);
-    pVel += Zeus::CVector3f(b) * dv;
+    pVel += zeus::CVector3f(b) * dv;
     return false;
 }
 
-bool CMVELinearImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVELinearImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
-    Zeus::CVector3f av;
+    zeus::CVector3f av;
     x4_implPoint->GetValue(frame, av);
 
-    Zeus::CVector3f dv = av - pPos;
+    zeus::CVector3f dv = av - pPos;
     float dvm = dv.magnitude();
 
     float c;
@@ -85,11 +85,11 @@ bool CMVELinearImplosion::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVect
 
     float b;
     x8_magScale->GetValue(frame, b);
-    pVel = Zeus::CVector3f(b / dvm) * dv;
+    pVel = zeus::CVector3f(b / dvm) * dv;
     return false;
 }
 
-bool CMVETimeChain::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVETimeChain::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
     int v;
     xc_swFrame->GetValue(frame, v);
@@ -111,21 +111,21 @@ CMVEBounce::CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CR
 
         if (x18_planeValidatedNormal.magSquared() > 0.0)
             x18_planeValidatedNormal.normalize();
-        Zeus::CVector3f a;
+        zeus::CVector3f a;
         x4_planePoint->GetValue(0, a);
         x24_planeD = x18_planeValidatedNormal.dot(a);
     }
 }
 
-bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVEBounce::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
     if (!x14_planePrecomputed)
     {
         /* Compute Hesse normal form of plane (for penetration testing) */
-        x8_planeNormal->GetValue(frame, ((Zeus::CVector3f&)x18_planeValidatedNormal));
-        ((Zeus::CVector3f&)x18_planeValidatedNormal).normalize();
+        x8_planeNormal->GetValue(frame, ((zeus::CVector3f&)x18_planeValidatedNormal));
+        ((zeus::CVector3f&)x18_planeValidatedNormal).normalize();
 
-        Zeus::CVector3f a;
+        zeus::CVector3f a;
         x4_planePoint->GetValue(frame, a);
 
         (float&)(x24_planeD) = x18_planeValidatedNormal.dot(a);
@@ -145,8 +145,8 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPo
     if (pVel.magSquared() > 0.0f)
         return false;
 
-    Zeus::CVector3f delta = pPos - pVel;
-    pPos += Zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_planeValidatedNormal.y))
+    zeus::CVector3f delta = pPos - pVel;
+    pPos += zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_planeValidatedNormal.y))
                                              + ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x))) + x18_planeValidatedNormal.z) - x24_planeD)) /
                              ((pVel.z * ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x)) + x18_planeValidatedNormal.z)) - (
                 (x18_planeValidatedNormal.z * ((x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
@@ -157,11 +157,11 @@ bool CMVEBounce::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPo
 
     float c = 0.0f;
     xc_friction->GetValue(frame, c);
-    pVel -= Zeus::CVector3f{(1.0f + c) * ((x18_planeValidatedNormal.z * (x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x) + pVel.x)} * x18_planeValidatedNormal;
+    pVel -= zeus::CVector3f{(1.0f + c) * ((x18_planeValidatedNormal.z * (x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x) + pVel.x)} * x18_planeValidatedNormal;
     return false;
 }
 
-bool CMVEConstant::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
+bool CMVEConstant::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
     x4_x->GetValue(frame, pVel.x);
     x8_y->GetValue(frame, pVel.y);
@@ -169,26 +169,26 @@ bool CMVEConstant::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /
     return false;
 }
 
-bool CMVEFastConstant::GetValue(int /*frame*/, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
+bool CMVEFastConstant::GetValue(int /*frame*/, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
     pVel = x4_val;
     return false;
 }
 
-bool CMVEGravity::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
+bool CMVEGravity::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
-    Zeus::CVector3f grav;
+    zeus::CVector3f grav;
     x4_a->GetValue(frame, grav);
     pVel += grav;
     return false;
 }
 
-bool CMVEExplode::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
+bool CMVEExplode::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
     if (frame == 0)
     {
         CRandom16* rand = CRandom16::GetRandomNumber();
-        Zeus::CVector3f vec = {rand->Float() - 0.5f, rand->Float() - 0.5f, rand->Float() - 0.5f};
+        zeus::CVector3f vec = {rand->Float() - 0.5f, rand->Float() - 0.5f, rand->Float() - 0.5f};
         vec.normalize();
         float a;
         x4_a->GetValue(frame, a);
@@ -204,13 +204,13 @@ bool CMVEExplode::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*
     return false;
 }
 
-bool CMVESetPosition::GetValue(int frame, Zeus::CVector3f& /*pVel*/, Zeus::CVector3f& pPos) const
+bool CMVESetPosition::GetValue(int frame, zeus::CVector3f& /*pVel*/, zeus::CVector3f& pPos) const
 {
     x4_a->GetValue(frame, pPos);
     return false;
 }
 
-bool CMVEPulse::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVEPulse::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
     int a, b;
     x4_aDuration->GetValue(frame, a);
@@ -231,9 +231,9 @@ bool CMVEPulse::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos
     return false;
 }
 
-bool CMVEWind::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPos*/) const
+bool CMVEWind::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
-    Zeus::CVector3f wVel;
+    zeus::CVector3f wVel;
     x4_velocity->GetValue(frame, wVel);
     float factor;
     x8_factor->GetValue(frame, factor);
@@ -241,15 +241,15 @@ bool CMVEWind::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& /*pPo
     return false;
 }
 
-bool CMVESwirl::GetValue(int frame, Zeus::CVector3f& pVel, Zeus::CVector3f& pPos) const
+bool CMVESwirl::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const
 {
-    Zeus::CVector3f a, b;
+    zeus::CVector3f a, b;
     x4_helixPoint->GetValue(frame, a);
     x8_curveBinormal->GetValue(frame, b);
 
     /* Compute Frenet–Serret normal
      * https://en.wikipedia.org/wiki/Frenet–Serret_formulas */
-    const Zeus::CVector3f diff = a - pPos;
+    const zeus::CVector3f diff = a - pPos;
     float x = (diff.x - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.x));
     float y = (diff.y - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.y));
     float z = (diff.z - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.z));

@@ -3,7 +3,7 @@
 
 #include "../IFactory.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CCharacterFactory : public IFactory

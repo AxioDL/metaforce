@@ -12,7 +12,7 @@ namespace DNAMP2
 
 struct MREA
 {
-    class StreamReader : public Athena::io::IStreamReader
+    class StreamReader : public athena::io::IStreamReader
     {
     protected:
         struct BlockInfo : BigDNA
@@ -29,7 +29,7 @@ struct MREA
         std::unique_ptr<atUint8[]> m_compBuf;
         size_t m_decompBufSz;
         std::unique_ptr<atUint8[]> m_decompBuf;
-        Athena::io::IStreamReader& m_source;
+        athena::io::IStreamReader& m_source;
         atUint64 m_blkBase;
         atUint32 m_blkCount;
         atUint32 m_totalDecompLen = 0;
@@ -40,18 +40,18 @@ struct MREA
         atUint32 m_blkSz = 0;
         void nextBlock();
 
-        StreamReader(Athena::io::IStreamReader& source)
+        StreamReader(athena::io::IStreamReader& source)
         : m_compBufSz(0x4120), m_compBuf(new atUint8[0x4120]),
           m_decompBufSz(0x4120), m_decompBuf(new atUint8[0x4120]),
           m_source(source) {} /* Empty constructor for inheriting */
 
     public:
-        StreamReader(Athena::io::IStreamReader& source, atUint32 blkCount);
-        void seek(atInt64 diff, Athena::SeekOrigin whence);
+        StreamReader(athena::io::IStreamReader& source, atUint32 blkCount);
+        void seek(atInt64 diff, athena::SeekOrigin whence);
         atUint64 position() const {return m_pos;}
         atUint64 length() const {return m_totalDecompLen;}
         atUint64 readUBytesToBuf(void* buf, atUint64 len);
-        void writeDecompInfos(Athena::io::IStreamWriter& writer) const;
+        void writeDecompInfos(athena::io::IStreamWriter& writer) const;
     };
 
     struct Header : BigDNA
@@ -75,7 +75,7 @@ struct MREA
         Value<atUint32> unk3SecIdx;
         Value<atUint32> egmcSecIdx;
         Value<atUint32> compressedBlockCount;
-        Seek<12, Athena::Current> align1;
+        Seek<12, athena::Current> align1;
         Vector<atUint32, DNA_COUNT(secCount)> secSizes;
     };
 
@@ -119,11 +119,11 @@ struct MREA
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool,
-                        std::function<void(const HECL::SystemChar*)>);
+                        std::function<void(const hecl::SystemChar*)>);
 };
 
 }

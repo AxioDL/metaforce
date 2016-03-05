@@ -6,7 +6,7 @@
 namespace DataSpec
 {
 
-static LogVisor::LogModule Log("libpng");
+static logvisor::Module Log("libpng");
 
 /* GX uses this upsampling technique to prevent banding on downsampled texture formats */
 static inline uint8_t Convert3To8(uint8_t v)
@@ -80,10 +80,10 @@ static inline void LookupRGBA8(const uint8_t* texels, int width, int x, int y,
     int bidx = (by * bwidth + bx) * 2;
     const uint16_t* artexels = (uint16_t*)&texels[32*bidx];
     const uint16_t* gbtexels = (uint16_t*)&texels[32*(bidx+1)];
-    uint16_t ar = HECL::SBig(artexels[ry*4+rx]);
+    uint16_t ar = hecl::SBig(artexels[ry*4+rx]);
     *a = ar >> 8 & 0xff;
     *r = ar & 0xff;
-    uint16_t gb = HECL::SBig(gbtexels[ry*4+rx]);
+    uint16_t gb = hecl::SBig(gbtexels[ry*4+rx]);
     *g = gb >> 8 & 0xff;
     *b = gb & 0xff;
 }
@@ -160,7 +160,7 @@ static void DecodeIA8(png_structrp png, png_infop info,
 static const uint8_t* DecodePalette(png_structrp png, png_infop info,
                                     int numEntries, const uint8_t* data)
 {
-    uint32_t format = HECL::SBig(*(uint32_t*)data);
+    uint32_t format = hecl::SBig(*(uint32_t*)data);
     data += 8;
     png_color cEntries[256];
     png_byte aEntries[256];
@@ -184,7 +184,7 @@ static const uint8_t* DecodePalette(png_structrp png, png_infop info,
         const uint16_t* data16 = (uint16_t*)data;
         for (int e=0 ; e<numEntries ; ++e)
         {
-            uint16_t texel = HECL::SBig(data16[e]);
+            uint16_t texel = hecl::SBig(data16[e]);
             cEntries[e].red = Convert5To8(texel >> 11 & 0x1f);
             cEntries[e].green = Convert6To8(texel >> 5 & 0x3f);
             cEntries[e].blue = Convert5To8(texel & 0x1f);
@@ -197,7 +197,7 @@ static const uint8_t* DecodePalette(png_structrp png, png_infop info,
         const uint16_t* data16 = (uint16_t*)data;
         for (int e=0 ; e<numEntries ; ++e)
         {
-            uint16_t texel = HECL::SBig(data16[e]);
+            uint16_t texel = hecl::SBig(data16[e]);
             if (texel & 0x8000)
             {
                 cEntries[e].red = Convert5To8(texel >> 10 & 0x1f);
@@ -226,7 +226,7 @@ static const uint8_t* DecodePalette(png_structrp png, png_infop info,
 static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
                                         int numEntries, const uint8_t* data)
 {
-    uint32_t format = HECL::SBig(*(uint32_t*)data);
+    uint32_t format = hecl::SBig(*(uint32_t*)data);
     data += 8;
     png_sPLT_entry entries[256] = {};
     png_sPLT_t GXEntry =
@@ -258,7 +258,7 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         const uint16_t* data16 = (uint16_t*)data;
         for (int e=0 ; e<numEntries ; ++e)
         {
-            uint16_t texel = HECL::SBig(data16[e]);
+            uint16_t texel = hecl::SBig(data16[e]);
             entries[e].red = Convert5To8(texel >> 11 & 0x1f);
             entries[e].green = Convert6To8(texel >> 5 & 0x3f);
             entries[e].blue = Convert5To8(texel & 0x1f);
@@ -273,7 +273,7 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         const uint16_t* data16 = (uint16_t*)data;
         for (int e=0 ; e<numEntries ; ++e)
         {
-            uint16_t texel = HECL::SBig(data16[e]);
+            uint16_t texel = hecl::SBig(data16[e]);
             if (texel & 0x8000)
             {
                 entries[e].red = Convert5To8(texel >> 10 & 0x1f);
@@ -369,7 +369,7 @@ static void DecodeRGB565(png_structrp png, png_infop info,
     {
         for (int x=0 ; x<width ; ++x)
         {
-            uint16_t texel = HECL::SBig(Lookup16BPP(texels, width, x, y));
+            uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
             buf[x*3] = Convert5To8(texel >> 11 & 0x1f);
             buf[x*3+1] = Convert6To8(texel >> 5 & 0x3f);
             buf[x*3+2] = Convert5To8(texel & 0x1f);
@@ -390,7 +390,7 @@ static void DecodeRGB5A3(png_structrp png, png_infop info,
     {
         for (int x=0 ; x<width ; ++x)
         {
-            uint16_t texel = HECL::SBig(Lookup16BPP(texels, width, x, y));
+            uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
             if (texel & 0x8000)
             {
                 buf[x*4] = Convert5To8(texel >> 10 & 0x1f);
@@ -473,25 +473,25 @@ static void DecodeCMPR(png_structrp png, png_infop info,
 
 static void PNGErr(png_structp png, png_const_charp msg)
 {
-    Log.report(LogVisor::Error, msg);
+    Log.report(logvisor::Error, msg);
 }
 
 static void PNGWarn(png_structp png, png_const_charp msg)
 {
-    Log.report(LogVisor::Warning, msg);
+    Log.report(logvisor::Warning, msg);
 }
 
-bool TXTR::Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
+bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
     uint32_t format = rs.readUint32Big();
     uint16_t width = rs.readUint16Big();
     uint16_t height = rs.readUint16Big();
     uint32_t numMips = rs.readUint32Big();
 
-    FILE* fp = HECL::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
     if (!fp)
     {
-        Log.report(LogVisor::Error,
+        Log.report(logvisor::Error,
                    _S("Unable to open '%s' for writing"),
                    outPath.getAbsolutePath().c_str());
         return false;
@@ -542,7 +542,7 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath)
     return true;
 }
 
-bool TXTR::Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath)
+bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
 {
     return false;
 }

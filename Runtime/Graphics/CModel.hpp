@@ -2,9 +2,9 @@
 #define __PSHAG_CMODEL_HPP__
 
 #include "RetroTypes.hpp"
-#include "CColor.hpp"
+#include "zeus/CColor.hpp"
 
-namespace pshag
+namespace urde
 {
 
 struct CModelFlags
@@ -12,7 +12,7 @@ struct CModelFlags
     u8 f1;
     u8 f2;
     u16 f3;
-    Zeus::CColor color;
+    zeus::CColor color;
 };
 
 class CModel

@@ -4,13 +4,13 @@
 #include "CElectricDescription.hpp"
 #include "CSwooshDescription.hpp"
 #include "CGenDescription.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 #include "CRandom16.hpp"
 #include "CSimplePool.hpp"
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CProjectileWeaponDataFactory");
+static logvisor::Module Log("urde::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -149,7 +149,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         default:
         {
             uint32_t clsName = clsId.toUint32();
-            Log.report(LogVisor::FatalError, "Unknown WPSM class %.4s @%" PRIi64, &clsName, in.position());
+            Log.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsName, in.position());
             return false;
         }
         }

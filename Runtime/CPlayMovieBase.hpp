@@ -4,7 +4,7 @@
 #include "CIOWin.hpp"
 #include "CMoviePlayer.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CPlayMovieBase : public CIOWin

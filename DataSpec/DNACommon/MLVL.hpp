@@ -3,7 +3,7 @@
 
 #include "DNACommon.hpp"
 #include "BlenderConnection.hpp"
-#include "CVector3f.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace DataSpec
 {
@@ -11,13 +11,13 @@ namespace DNAMLVL
 {
 
 template <class PAKRouter, typename MLVL>
-bool ReadMLVLToBlender(HECL::BlenderConnection& conn,
+bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                        const MLVL& mlvl,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force,
-                       std::function<void(const HECL::SystemChar*)> fileChanged);
+                       std::function<void(const hecl::SystemChar*)> fileChanged);
 
 }
 }

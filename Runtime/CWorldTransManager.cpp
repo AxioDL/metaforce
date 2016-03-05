@@ -1,6 +1,6 @@
 #include "CWorldTransManager.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CWorldTransManager::DrawEnabled() const

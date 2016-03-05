@@ -1,4 +1,4 @@
-#include <Athena/FileWriter.hpp>
+#include <athena/FileWriter.hpp>
 #include "MREA.hpp"
 #include "../DNAMP2/DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP3
 {
 
-MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source,
+MREA::StreamReader::StreamReader(athena::io::IStreamReader& source,
                                  atUint32 blkCount, atUint32 secIdxCount)
 : DNAMP2::MREA::StreamReader(source)
 {
@@ -35,7 +35,7 @@ MREA::StreamReader::StreamReader(Athena::io::IStreamReader& source,
     nextBlock();
 }
 
-void MREA::StreamReader::writeSecIdxs(Athena::io::IStreamWriter& writer) const
+void MREA::StreamReader::writeSecIdxs(athena::io::IStreamWriter& writer) const
 {
     for (const std::pair<DNAFourCC, atUint32>& idx : m_secIdxs)
     {
@@ -44,12 +44,12 @@ void MREA::StreamReader::writeSecIdxs(Athena::io::IStreamWriter& writer) const
     }
 }
 
-void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
-                                   Athena::io::IStreamReader& rs)
+void MREA::ReadBabeDeadToBlender_3(hecl::BlenderConnection::PyOutStream& os,
+                                   athena::io::IStreamReader& rs)
 {
     atUint32 bdMagic = rs.readUint32Big();
     if (bdMagic != 0xBABEDEAD)
-        Log.report(LogVisor::FatalError, "invalid BABEDEAD magic");
+        Log.report(logvisor::Fatal, "invalid BABEDEAD magic");
     os << "bpy.context.scene.render.engine = 'CYCLES'\n"
           "bpy.context.scene.world.use_nodes = True\n"
           "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
@@ -68,18 +68,18 @@ void MREA::ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
 
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
-                   const HECL::ProjectPath& outPath,
+                   const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
-                   std::function<void(const HECL::SystemChar*)>)
+                   std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
     /* Rename MREA for consistency */
-    HECL::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
-    if (!force && mreaPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
     /* Do extract */
@@ -89,7 +89,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
-    Athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
+    athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
     head.write(mreaDecompOut);
     mreaDecompOut.seekAlign32();
     drs.writeDecompInfos(mreaDecompOut);
@@ -99,16 +99,16 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint64 decompLen = drs.length();
     mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
     mreaDecompOut.close();
-    drs.seek(0, Athena::Begin);
+    drs.seek(0, athena::Begin);
 
 
     /* Start up blender connection */
-    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
-    if (!conn.createBlend(mreaPath, HECL::BlenderConnection::BlendType::Area))
+    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"
@@ -133,7 +133,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     atUint64 secStart = drs.position();
     matSet.read(drs);
     matSet.readToBlender(os, pakRouter, entry, 0);
-    drs.seek(secStart + head.secSizes[0], Athena::Begin);
+    drs.seek(secStart + head.secSizes[0], athena::Begin);
     std::vector<DNACMDL::VertexAttributes> vertAttribs;
     DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -147,16 +147,16 @@ bool MREA::Extract(const SpecBase& dataSpec,
         MeshHeader mHeader;
         secStart = drs.position();
         mHeader.read(drs);
-        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
         /* Surface count from here */
         secStart = drs.position();
         surfaceCounts.push_back(drs.readUint32Big());
-        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
         /* Seek through AROT-relation sections */
-        drs.seek(head.secSizes[curSec++], Athena::Current);
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
     }
 
     /* Skip though WOBJs */
@@ -167,14 +167,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
     /* Skip AROT */
     if (secIdxIt->first == FOURCC('ROCT'))
     {
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
         ++secIdxIt;
     }
 
     /* Skip AABB */
     if (secIdxIt->first == FOURCC('AABB'))
     {
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
         ++secIdxIt;
     }
 
@@ -193,7 +193,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     /* Skip DEPS */
     if (secIdxIt->first == FOURCC('DEPS'))
     {
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
         ++secIdxIt;
     }
 
@@ -201,14 +201,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
     if (secIdxIt->first == FOURCC('SOBJ'))
     {
         for (atUint32 l=0 ; l<head.sclyLayerCount ; ++l)
-            drs.seek(head.secSizes[curSec++], Athena::Current);
+            drs.seek(head.secSizes[curSec++], athena::Current);
         ++secIdxIt;
     }
 
     /* Skip SGEN */
     if (secIdxIt->first == FOURCC('SGEN'))
     {
-        drs.seek(head.secSizes[curSec++], Athena::Current);
+        drs.seek(head.secSizes[curSec++], athena::Current);
         ++secIdxIt;
     }
 
@@ -220,7 +220,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         collision.read(drs);
         DNAMP2::DeafBabe::BlenderInit(os);
         collision.sendToBlender(os);
-        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
         ++secIdxIt;
     }
 
@@ -229,7 +229,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     {
         secStart = drs.position();
         ReadBabeDeadToBlender_3(os, drs);
-        drs.seek(secStart + head.secSizes[curSec++], Athena::Begin);
+        drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
         ++secIdxIt;
     }
 
@@ -258,7 +258,7 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
     {
         if (idx.first == FOURCC('DEPS'))
         {
-            drs.seek(head.getSecOffset(idx.second), Athena::Begin);
+            drs.seek(head.getSecOffset(idx.second), athena::Begin);
             DEPS deps;
             deps.read(drs);
 

@@ -3,7 +3,7 @@
 
 #include "../CIOWin.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CAudioStateWin : public CIOWin

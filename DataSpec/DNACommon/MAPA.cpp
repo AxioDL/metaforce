@@ -8,13 +8,13 @@ namespace DataSpec
 namespace DNAMAPA
 {
 
-void MAPA::read(Athena::io::IStreamReader& __dna_reader)
+void MAPA::read(athena::io::IStreamReader& __dna_reader)
 {
     /* magic */
     magic = __dna_reader.readUint32Big();
     if (magic != 0xDEADD00D)
     {
-        LogDNACommon.report(LogVisor::Error, "invalid MAPA magic");
+        LogDNACommon.report(logvisor::Error, "invalid MAPA magic");
         return;
     }
     /* version */
@@ -27,7 +27,7 @@ void MAPA::read(Athena::io::IStreamReader& __dna_reader)
         header.reset(new HeaderMP3);
     else
     {
-        LogDNACommon.report(LogVisor::Error, "invalid MAPA version");
+        LogDNACommon.report(logvisor::Error, "invalid MAPA version");
         return;
     }
 
@@ -52,7 +52,7 @@ void MAPA::read(Athena::io::IStreamReader& __dna_reader)
     __dna_reader.enumerate(surfaces, header->surfaceCount());
 }
 
-void MAPA::write(Athena::io::IStreamWriter& __dna_writer) const
+void MAPA::write(athena::io::IStreamWriter& __dna_writer) const
 {
     /* magic */
     __dna_writer.writeUint32Big(magic);
@@ -85,21 +85,21 @@ size_t MAPA::binarySize(size_t __isz) const
 }
 
 template <typename PAKRouter>
-bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
+bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const MAPA& mapa,
-                       const HECL::ProjectPath& outPath,
+                       const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force)
 {
     /* Rename MAPA for consistency */
-    HECL::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
-    if (!force && mapaPath.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
+    if (!force && mapaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
-    if (!conn.createBlend(mapaPath, HECL::BlenderConnection::BlendType::MapArea))
+    if (!conn.createBlend(mapaPath, hecl::BlenderConnection::BlendType::MapArea))
         return false;
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy, bmesh\n"
           "from mathutils import Matrix\n"
@@ -283,8 +283,8 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
           "bm.free()\n";
 
     /* World background */
-    HECL::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
-    if (worldBlend.getPathType() == HECL::ProjectPath::Type::File)
+    hecl::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
+    if (worldBlend.getPathType() == hecl::ProjectPath::Type::File)
         os.linkBackground("//../!world.blend", "World");
 
     os.centerView();
@@ -294,25 +294,25 @@ bool ReadMAPAToBlender(HECL::BlenderConnection& conn,
 }
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP1::PAKBridge>>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const MAPA& mapa,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP2::PAKBridge>>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const MAPA& mapa,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
-(HECL::BlenderConnection& conn,
+(hecl::BlenderConnection& conn,
  const MAPA& mapa,
- const HECL::ProjectPath& outPath,
+ const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  bool force);

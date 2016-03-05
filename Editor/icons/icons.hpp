@@ -1,12 +1,12 @@
 #ifndef URDE_ICONS_HPP
 #define URDE_ICONS_HPP
 
-#include "Specter/Icon.hpp"
-#include "Specter/ViewResources.hpp"
+#include "specter/Icon.hpp"
+#include "specter/ViewResources.hpp"
 
-namespace URDE
+namespace urde
 {
-boo::GraphicsDataToken InitializeIcons(Specter::ViewResources& viewRes);
+boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes);
 
 enum class SpaceIcon
 {
@@ -16,7 +16,7 @@ enum class SpaceIcon
     ModelViewer,
     InformationCenter
 };
-Specter::Icon& GetIcon(SpaceIcon icon);
+specter::Icon& GetIcon(SpaceIcon icon);
 
 enum class MonoIcon
 {
@@ -37,7 +37,7 @@ enum class MonoIcon
     Folder,
     Info
 };
-Specter::Icon& GetIcon(MonoIcon icon);
+specter::Icon& GetIcon(MonoIcon icon);
 
 }
 

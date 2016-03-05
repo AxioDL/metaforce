@@ -3,7 +3,7 @@
 
 #include "CMainFlowBase.hpp"
 
-namespace pshag
+namespace urde
 {
 class CArchitectureMessage;
 class CArchitectureQueue;

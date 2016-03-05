@@ -2,11 +2,11 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include "CElementGen.hpp"
-#include <math.h>
+#include "zeus/Math.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */
 
-namespace pshag
+namespace urde
 {
 
 CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in)
@@ -133,7 +133,7 @@ bool CRERandom::GetValue(int frame, float& valOut) const
 
 bool CREDotProduct::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a, b;
+    zeus::CVector3f a, b;
     x4_a->GetValue(frame, a);
     x8_b->GetValue(frame, b);
     valOut = a.dot(b);
@@ -194,7 +194,7 @@ bool CRESineWave::GetValue(int frame, float& valOut) const
     x4_magnitude->GetValue(frame, a);
     x8_linearFrame->GetValue(frame, b);
     xc_constantFrame->GetValue(frame, c);
-    valOut = sinf((frame * b + c) * M_PI / 180.f) * a;
+    valOut = std::sin(zeus::degToRad(frame * b + c)) * a;
     return false;
 }
 
@@ -224,7 +224,7 @@ bool CRECompareEquals::GetValue(int frame, float& valOut) const
     float a, b;
     x4_a->GetValue(frame, a);
     x8_b->GetValue(frame, b);
-    if (fabsf(a-b) < 0.00001)
+    if (std::fabs(a-b) < 0.00001f)
         xc_c->GetValue(frame, valOut);
     else
         x10_d->GetValue(frame, valOut);
@@ -302,7 +302,7 @@ bool CRESubtract::GetValue(int frame, float& valOut) const
 
 bool CREVectorMagnitude::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_a->GetValue(frame, a);
     valOut = a.magnitude();
     return false;
@@ -310,7 +310,7 @@ bool CREVectorMagnitude::GetValue(int frame, float& valOut) const
 
 bool CREVectorXToReal::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_a->GetValue(frame, a);
     valOut = a[0];
     return false;
@@ -318,7 +318,7 @@ bool CREVectorXToReal::GetValue(int frame, float& valOut) const
 
 bool CREVectorYToReal::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_a->GetValue(frame, a);
     valOut = a[1];
     return false;
@@ -326,7 +326,7 @@ bool CREVectorYToReal::GetValue(int frame, float& valOut) const
 
 bool CREVectorZToReal::GetValue(int frame, float& valOut) const
 {
-    Zeus::CVector3f a;
+    zeus::CVector3f a;
     x4_a->GetValue(frame, a);
     valOut = a[2];
     return false;
@@ -368,7 +368,7 @@ bool CREConstantRange::GetValue(int frame, float& valOut) const
 
 bool CREGetComponentRed::GetValue(int frame, float& valOut) const
 {
-    Zeus::CColor a = Zeus::CColor::skBlack;
+    zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
     valOut = a.r;
     return false;
@@ -376,7 +376,7 @@ bool CREGetComponentRed::GetValue(int frame, float& valOut) const
 
 bool CREGetComponentGreen::GetValue(int frame, float& valOut) const
 {
-    Zeus::CColor a = Zeus::CColor::skBlack;
+    zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
     valOut = a.g;
     return false;
@@ -384,7 +384,7 @@ bool CREGetComponentGreen::GetValue(int frame, float& valOut) const
 
 bool CREGetComponentBlue::GetValue(int frame, float& valOut) const
 {
-    Zeus::CColor a = Zeus::CColor::skBlack;
+    zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
     valOut = a.b;
     return false;
@@ -392,7 +392,7 @@ bool CREGetComponentBlue::GetValue(int frame, float& valOut) const
 
 bool CREGetComponentAlpha::GetValue(int frame, float& valOut) const
 {
-    Zeus::CColor a = Zeus::CColor::skBlack;
+    zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
     valOut = a.a;
     return false;

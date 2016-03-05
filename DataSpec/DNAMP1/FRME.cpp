@@ -5,7 +5,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-void FRME::read(Athena::io::IStreamReader& __dna_reader)
+void FRME::read(athena::io::IStreamReader& __dna_reader)
 {
     /* version */
     version = __dna_reader.readUint32Big();
@@ -18,13 +18,13 @@ void FRME::read(Athena::io::IStreamReader& __dna_reader)
     /* widgetCount */
     widgetCount = __dna_reader.readUint32Big();
     /* widgets */
-    __dna_reader.enumerate<Widget>(widgets, widgetCount, [this](Athena::io::IStreamReader& reader, Widget& w) {
+    __dna_reader.enumerate<Widget>(widgets, widgetCount, [this](athena::io::IStreamReader& reader, Widget& w) {
         w.owner = this;
         w.read(reader);
     });
 }
 
-void FRME::write(Athena::io::IStreamWriter& __dna_writer) const
+void FRME::write(athena::io::IStreamWriter& __dna_writer) const
 {
     /* version */
     __dna_writer.writeUint32Big(version);
@@ -46,7 +46,7 @@ size_t FRME::binarySize(size_t __isz) const
     return __isz + 20;
 }
 
-void FRME::Widget::read(Athena::io::IStreamReader& __dna_reader)
+void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
 {
     /* type */
     type.read(__dna_reader);
@@ -67,7 +67,7 @@ void FRME::Widget::read(Athena::io::IStreamReader& __dna_reader)
     case SBIG('TBGP'): widgetInfo.reset(new TBGPInfo); break;
     case SBIG('SLGP'): widgetInfo.reset(new SLGPInfo); break;
     default:
-        Log.report(LogVisor::FatalError, _S("Unsupported FRME widget type %.8X"), type.toUint32());
+        Log.report(logvisor::Fatal, _S("Unsupported FRME widget type %.8X"), type.toUint32());
     }
 
     /* widgetInfo */
@@ -98,7 +98,7 @@ void FRME::Widget::read(Athena::io::IStreamReader& __dna_reader)
     unk4 = __dna_reader.readBool();
 }
 
-void FRME::Widget::write(Athena::io::IStreamWriter& __dna_writer) const
+void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
 {
     /* type */
     type.write(__dna_writer);
@@ -143,7 +143,7 @@ size_t FRME::Widget::binarySize(size_t __isz) const
     return __isz + 67;
 }
 
-void FRME::Widget::CAMRInfo::read(Athena::io::IStreamReader& __dna_reader)
+void FRME::Widget::CAMRInfo::read(athena::io::IStreamReader& __dna_reader)
 {
     projectionType = ProjectionType(__dna_reader.readUint32Big());
     if (projectionType == ProjectionType::Perspective)
@@ -151,17 +151,17 @@ void FRME::Widget::CAMRInfo::read(Athena::io::IStreamReader& __dna_reader)
     else if (projectionType == ProjectionType::Orthographic)
         projection.reset(new OrthographicProjection);
     else
-        Log.report(LogVisor::FatalError, _S("Invalid CAMR projection mode! %i"), int(projectionType));
+        Log.report(logvisor::Fatal, _S("Invalid CAMR projection mode! %i"), int(projectionType));
 
     projection->read(__dna_reader);
 }
 
-void FRME::Widget::CAMRInfo::write(Athena::io::IStreamWriter& __dna_writer) const
+void FRME::Widget::CAMRInfo::write(athena::io::IStreamWriter& __dna_writer) const
 {
     if (!projection)
-        Log.report(LogVisor::FatalError, _S("Invalid CAMR projection object!"));
+        Log.report(logvisor::Fatal, _S("Invalid CAMR projection object!"));
     if (projection->type != projectionType)
-        Log.report(LogVisor::FatalError, _S("CAMR projection type does not match actual projection type!"));
+        Log.report(logvisor::Fatal, _S("CAMR projection type does not match actual projection type!"));
 
     __dna_writer.writeUint32Big(atUint32(projectionType));
     projection->write(__dna_writer);
@@ -173,7 +173,7 @@ size_t FRME::Widget::CAMRInfo::binarySize(size_t __isz) const
     return __isz + 4;
 }
 
-void FRME::Widget::TXPNInfo::read(Athena::io::IStreamReader& __dna_reader)
+void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
 {
     IWidgetInfo::read(__dna_reader);
     /* frameVals[0] */
@@ -213,7 +213,7 @@ void FRME::Widget::TXPNInfo::read(Athena::io::IStreamReader& __dna_reader)
     }
 }
 
-void FRME::Widget::TXPNInfo::write(Athena::io::IStreamWriter& __dna_writer) const
+void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) const
 {
     IWidgetInfo::write(__dna_writer);
     /* frameVals[0] */
@@ -263,22 +263,22 @@ size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
     return __isz + (version == 1 ? 78 : 66);
 }
 
-bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL::ProjectPath &outPath, PAKRouter<PAKBridge> &pakRouter, const PAK::Entry &entry, bool force, std::function<void (const HECL::SystemChar *)> fileChanged)
+bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const hecl::ProjectPath &outPath, PAKRouter<PAKBridge> &pakRouter, const PAK::Entry &entry, bool force, std::function<void (const hecl::SystemChar *)> fileChanged)
 {
     FRME frme;
     frme.read(rs);
 
-    HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
 
 #if 0
-    if (!force && outPath.getPathType() == HECL::ProjectPath::Type::File)
+    if (!force && outPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 #endif
 
-    if (!conn.createBlend(outPath, HECL::BlenderConnection::BlendType::Frame))
+    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Frame))
         return false;
 
-    HECL::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy, math\n"
           "from mathutils import Matrix, Quaternion\n"
@@ -347,7 +347,7 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
         {
             using MODLInfo = FRME::Widget::MODLInfo;
             MODLInfo* info = dynamic_cast<MODLInfo*>(w.widgetInfo.get());
-            HECL::ProjectPath modelPath = pakRouter.getWorking(info->model);
+            hecl::ProjectPath modelPath = pakRouter.getWorking(info->model);
             const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
             os.linkBlend(modelPath.getAbsolutePathUTF8().c_str(),
@@ -366,16 +366,16 @@ bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const HECL:
             if (info && info->texture)
             {
                 std::string texName = pakRouter.getBestEntryName(info->texture);
-                const NOD::Node* node;
+                const nod::Node* node;
                 const PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(info->texture, &node);
-                HECL::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-                if (txtrPath.getPathType() == HECL::ProjectPath::Type::None)
+                hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+                if (txtrPath.getPathType() == hecl::ProjectPath::Type::None)
                 {
                     PAKEntryReadStream rs = texEntry->beginReadStream(*node);
                     TXTR::Extract(rs, txtrPath);
                 }
-                HECL::SystemString resPath = pakRouter.getResourceRelativePath(entry, info->texture);
-                HECL::SystemUTF8View resPathView(resPath);
+                hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, info->texture);
+                hecl::SystemUTF8View resPathView(resPath);
                 os.format("if '%s' in bpy.data.images:\n"
                           "    image = bpy.data.images['%s']\n"
                           "else:\n"

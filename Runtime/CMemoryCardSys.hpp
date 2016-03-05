@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CMEMORYCARDSYS_HPP__
 #define __PSHAG_CMEMORYCARDSYS_HPP__
 
-namespace pshag
+namespace urde
 {
 
 class CMemoryCardSys

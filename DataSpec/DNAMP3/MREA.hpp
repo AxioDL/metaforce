@@ -16,13 +16,13 @@ struct MREA
     struct StreamReader : DNAMP2::MREA::StreamReader
     {
         std::vector<std::pair<DNAFourCC, atUint32>> m_secIdxs;
-        StreamReader(Athena::io::IStreamReader& source,
+        StreamReader(athena::io::IStreamReader& source,
                      atUint32 blkCount, atUint32 secIdxCount);
         std::vector<std::pair<DNAFourCC, atUint32>>::const_iterator beginSecIdxs()
         {
             return m_secIdxs.begin();
         }
-        void writeSecIdxs(Athena::io::IStreamWriter& writer) const;
+        void writeSecIdxs(athena::io::IStreamWriter& writer) const;
     };
 
     struct Header : BigDNA
@@ -36,7 +36,7 @@ struct MREA
         Value<atUint32> secCount;
         Value<atUint32> compressedBlockCount;
         Value<atUint32> secIndexCount;
-        Seek<20, Athena::Current> align1;
+        Seek<20, athena::Current> align1;
         Vector<atUint32, DNA_COUNT(secCount)> secSizes;
 
         atUint32 getSecOffset(atUint32 idx) const
@@ -111,16 +111,16 @@ struct MREA
         Value<atUint32> unk13;
     };
 
-    static void ReadBabeDeadToBlender_3(HECL::BlenderConnection::PyOutStream& os,
-                                        Athena::io::IStreamReader& rs);
+    static void ReadBabeDeadToBlender_3(hecl::BlenderConnection::PyOutStream& os,
+                                        athena::io::IStreamReader& rs);
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        std::function<void(const HECL::SystemChar*)>);
+                        std::function<void(const hecl::SystemChar*)>);
 
     static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& areaOut);
 };

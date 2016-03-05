@@ -5,15 +5,15 @@
 #include "CParticleGlobals.hpp"
 #include "CParticleSwoosh.hpp"
 #include "CParticleElectric.hpp"
-#include "CModel.hpp"
+#include "Graphics/CModel.hpp"
 
 #include "CElementGenShaders.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 
-namespace pshag
+namespace urde
 {
-static LogVisor::LogModule Log("pshag::CElementGen");
+static logvisor::Module Log("urde::CElementGen");
 
 static bool s_inCreateNewParticles = false;
 
@@ -210,39 +210,39 @@ void CElementGenShaders::Shutdown()
 
 struct SParticleInstanceTex
 {
-    Zeus::CVector4f pos[4];
-    Zeus::CColor color;
-    Zeus::CVector2f uvs[4];
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
+    zeus::CVector2f uvs[4];
 };
 static std::vector<SParticleInstanceTex> g_instTexData;
 
 struct SParticleInstanceIndTex
 {
-    Zeus::CVector4f pos[4];
-    Zeus::CColor color;
-    Zeus::CVector4f texrTindUVs[4];
-    Zeus::CVector4f sceneUVs;
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
+    zeus::CVector4f texrTindUVs[4];
+    zeus::CVector4f sceneUVs;
 };
 static std::vector<SParticleInstanceIndTex> g_instIndTexData;
 
 struct SParticleInstanceNoTex
 {
-    Zeus::CVector4f pos[4];
-    Zeus::CColor color;
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
 };
 static std::vector<SParticleInstanceNoTex> g_instNoTexData;
 
 struct SParticleUniforms
 {
-    Zeus::CMatrix4f mvp;
-    Zeus::CColor moduColor;
+    zeus::CMatrix4f mvp;
+    zeus::CColor moduColor;
 };
 
 void CElementGen::Initialize()
 {
     if (g_StaticListInitialized)
         return;
-    Log.report(LogVisor::Info, "Initialize - Static Particle List - ");
+    Log.report(logvisor::Info, "Initialize - Static Particle List - ");
 
     g_ParticleAliveCount = 0;
     g_ParticleSystemAliveCount = 0;
@@ -255,7 +255,7 @@ void CElementGen::Initialize()
         g_StaticFreeList.push_back(i);
 
     g_FreeIndex = MAX_GLOBAL_PARTICLES - 1;
-    Log.report(LogVisor::Info, "size %d (%d each part).",
+    Log.report(logvisor::Info, "size %d (%d each part).",
                (sizeof(CParticle) + sizeof(u16)) * MAX_GLOBAL_PARTICLES, sizeof(CParticle));
     g_StaticListInitialized = true;
 
@@ -369,7 +369,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     if (x28_orientType == EModelOrientationType::One)
     {
         x3c_parentMatrices.insert(x3c_parentMatrices.end(), x70_MAXP,
-                                  Zeus::CMatrix3f::skIdentityMatrix3f);
+                                  zeus::CMatrix3f::skIdentityMatrix3f);
     }
 
     x225_26_LINE = desc->x44_24_x30_24_LINE;
@@ -464,7 +464,7 @@ void CElementGen::Update(double t)
         pswtElem->GetValue(x50_curFrame, pswt);
         if (pswt > 32)
         {
-            Log.report(LogVisor::Info,
+            Log.report(logvisor::Info,
                        "Running warmup on particle system 0x%08x for %d ticks.",
                        desc, pswt);
             InternalUpdate(pswt / 60.0);
@@ -479,8 +479,8 @@ bool CElementGen::InternalUpdate(double dt)
     CGlobalRandom gr(x230_randState);
     CGenDescription* desc = x1c_genDesc.GetObj();
 
-    double dt1 = 1 / 60.0;
-    if (fabs(dt - 1 / 60.0) >= 1 / 60000.0)
+    double dt1 = 1.0 / 60.0;
+    if (std::fabs(dt - 1.0 / 60.0) >= 1.0 / 60000.0)
         dt1 = dt;
     double t = x50_curFrame / 60.0;
     CParticleGlobals::SetEmitterTime(x50_curFrame);
@@ -505,7 +505,7 @@ bool CElementGen::InternalUpdate(double dt)
     }
 
     int frameUpdateCount = 0;
-    while (t < x58_curSeconds && fabs(t - x58_curSeconds) >= 1 / 60000.0)
+    while (t < x58_curSeconds && std::fabs(t - x58_curSeconds) >= 1.0 / 60000.0)
     {
         x2a8_aabbMin.splat(FLT_MAX);
         x2b4_aabbMax.splat(FLT_MIN);
@@ -551,7 +551,7 @@ bool CElementGen::InternalUpdate(double dt)
     }
 
     UpdateChildParticleSystems(-(frameUpdateCount / 60.0 - dt1));
-    if (fabs(t - x58_curSeconds) < 1 / 60000.0)
+    if (std::fabs(t - x58_curSeconds) < 1.0 / 60000.0)
         x58_curSeconds = t;
 
     BuildParticleSystemBounds();
@@ -563,7 +563,7 @@ bool CElementGen::InternalUpdate(double dt)
     return false;
 }
 
-void CElementGen::AccumulateBounds(Zeus::CVector3f& pos, float size)
+void CElementGen::AccumulateBounds(zeus::CVector3f& pos, float size)
 {
     x2b4_aabbMax[0] = std::max(pos[0], x2b4_aabbMax[0]);
     x2b4_aabbMax[1] = std::max(pos[1], x2b4_aabbMax[1]);
@@ -625,8 +625,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x224_30_VMD1)
             {
-                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
+                zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err = vel1->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -642,8 +642,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x224_31_VMD2)
             {
-                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
+                zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel2->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -659,8 +659,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x225_24_VMD3)
             {
-                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
+                zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel3->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -676,8 +676,8 @@ void CElementGen::UpdateExistingParticles()
         {
             if (x225_25_VMD4)
             {
-                Zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
-                Zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
+                zeus::CVector3f xfVel = x1a8_orientationInverse * particle.x1c_vel;
+                zeus::CVector3f xfPos = x1a8_orientationInverse * (particle.x4_pos - x7c_translation);
                 err |= vel4->GetValue(particleFrame, xfVel, xfPos);
                 particle.x1c_vel = x178_orientation * xfVel;
                 particle.x4_pos = x178_orientation * xfPos + x7c_translation;
@@ -757,20 +757,20 @@ void CElementGen::CreateNewParticles(int count)
         if (colr)
             colr->GetValue(0, particle.x34_color);
         else
-            particle.x34_color = Zeus::CColor::skWhite;
+            particle.x34_color = zeus::CColor::skWhite;
 
         CEmitterElement* emtr = desc->x40_x2c_EMTR.get();
         if (emtr)
         {
             emtr->GetValue(x210_curEmitterFrame, particle.x4_pos, particle.x1c_vel);
-            Zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
-            Zeus::CVector3f compXf2 = x178_orientation * particle.x4_pos;
+            zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
+            zeus::CVector3f compXf2 = x178_orientation * particle.x4_pos;
             particle.x4_pos = compXf1 + compXf2 + x94_POFS;
             particle.x1c_vel = x178_orientation * particle.x1c_vel;
         }
         else
         {
-            Zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
+            zeus::CVector3f compXf1 = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x7c_translation;
             particle.x4_pos = compXf1 + x94_POFS;
             particle.x1c_vel.zeroOut();
         }
@@ -823,7 +823,7 @@ void CElementGen::UpdatePSTranslationAndOrientation()
     CModVectorElement* psvm = desc->x4_PSVM.get();
     if (psvm)
     {
-        Zeus::CVector3f pos = x7c_translation;
+        zeus::CVector3f pos = x7c_translation;
         psvm->GetValue(x50_curFrame, x218_PSIV, pos);
         if (pos != x7c_translation)
         {
@@ -832,17 +832,17 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         }
     }
 
-    Zeus::CVector3f v = x178_orientation * x218_PSIV;
-    if (v != Zeus::CVector3f::skZero)
+    zeus::CVector3f v = x178_orientation * x218_PSIV;
+    if (v != zeus::CVector3f::skZero)
         x224_24_translationDirty = true;
     x7c_translation += v;
 
     CVectorElement* psov = desc->x8_PSOV.get();
     if (psov)
     {
-        Zeus::CVector3f angles;
+        zeus::CVector3f angles;
         psov->GetValue(x50_curFrame, angles);
-        Zeus::CTransform xf(x178_orientation);
+        zeus::CTransform xf(x178_orientation);
         xf.rotateLocalX(angles[0] * M_PI / 180.f);
         xf.rotateLocalY(angles[1] * M_PI / 180.f);
         xf.rotateLocalZ(angles[2] * M_PI / 180.f);
@@ -1006,7 +1006,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
 
         if ((x50_curFrame == x270_SSSD || x224_24_translationDirty) && x64_prevFrame != x50_curFrame)
         {
-            Zeus::CVector3f trans = x7c_translation + x274_SSPO;
+            zeus::CVector3f trans = x7c_translation + x274_SSPO;
             ch->SetTranslation(trans);
             ch->SetOrientation(x178_orientation);
         }
@@ -1027,7 +1027,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
 
         if ((x50_curFrame == x290_SESD || x224_24_translationDirty) && x64_prevFrame != x50_curFrame)
         {
-            Zeus::CVector3f trans = x7c_translation + x294_SEPO;
+            zeus::CVector3f trans = x7c_translation + x294_SEPO;
             ch->SetTranslation(trans);
             ch->SetOrientation(x178_orientation);
         }
@@ -1119,12 +1119,12 @@ void CElementGen::EndLifetime()
 
 void CElementGen::BuildParticleSystemBounds()
 {
-    Zeus::CAABox aabb;
+    zeus::CAABox aabb;
     bool accumulated = false;
 
     for (std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
     {
-        std::pair<Zeus::CAABox, bool> chBounds = ch->GetBounds();
+        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
         if (chBounds.second)
         {
             accumulated = true;
@@ -1134,7 +1134,7 @@ void CElementGen::BuildParticleSystemBounds()
 
     for (std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
     {
-        std::pair<Zeus::CAABox, bool> chBounds = ch->GetBounds();
+        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
         if (chBounds.second)
         {
             accumulated = true;
@@ -1144,7 +1144,7 @@ void CElementGen::BuildParticleSystemBounds()
 
     for (std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
     {
-        std::pair<Zeus::CAABox, bool> chBounds = ch->GetBounds();
+        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
         if (chBounds.second)
         {
             accumulated = true;
@@ -1154,7 +1154,7 @@ void CElementGen::BuildParticleSystemBounds()
 
     for (std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
     {
-        std::pair<Zeus::CAABox, bool> chBounds = ch->GetBounds();
+        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
         if (chBounds.second)
         {
             accumulated = true;
@@ -1165,15 +1165,15 @@ void CElementGen::BuildParticleSystemBounds()
     x20c_recursiveParticleCount = GetParticleCountAllInternal();
     if (GetParticleCount())
     {
-        Zeus::CVector3f scale = xa0_globalScale * x2c0_maxSize;
-        Zeus::CTransform xf = (xac_globalScaleTransform * x1d8_globalOrientation) * x118_localScaleTransform;
-        Zeus::CAABox box = Zeus::CAABox(x2a8_aabbMin, x2b4_aabbMax).getTransformedAABox(xf);
-        Zeus::CVector3f min = box.m_min + x88_globalTranslation - scale;
-        Zeus::CVector3f max = box.m_max + x88_globalTranslation + scale;
-        x2c4_systemBounds = Zeus::CAABox(min, max);
+        zeus::CVector3f scale = xa0_globalScale * x2c0_maxSize;
+        zeus::CTransform xf = (xac_globalScaleTransform * x1d8_globalOrientation) * x118_localScaleTransform;
+        zeus::CAABox box = zeus::CAABox(x2a8_aabbMin, x2b4_aabbMax).getTransformedAABox(xf);
+        zeus::CVector3f min = box.m_min + x88_globalTranslation - scale;
+        zeus::CVector3f max = box.m_max + x88_globalTranslation + scale;
+        x2c4_systemBounds = zeus::CAABox(min, max);
     }
     else
-        x2c4_systemBounds = Zeus::CAABox::skInvertedBox;
+        x2c4_systemBounds = zeus::CAABox::skInvertedBox;
 
     if (accumulated)
         x2c4_systemBounds.accumulateBounds(aabb);
@@ -1277,7 +1277,7 @@ void CElementGen::RenderModels()
         }
     }
 
-    Zeus::CTransform orient = Zeus::CTransform::Identity();
+    zeus::CTransform orient = zeus::CTransform::Identity();
     if (desc->x45_25_x31_27_PMOO)
         orient = x178_orientation;
     orient = orient * x1d8_globalOrientation;
@@ -1287,23 +1287,23 @@ void CElementGen::RenderModels()
     if (pmrt)
         pmrtConst = pmrt->IsFastConstant();
 
-    Zeus::CVector3f trans = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x88_globalTranslation;
+    zeus::CVector3f trans = (xdc_globalScaleTransformInverse * x148_localScaleTransformInverse) * x88_globalTranslation;
 
-    Zeus::CTransform rot = Zeus::CTransform::Identity();
+    zeus::CTransform rot = zeus::CTransform::Identity();
     if (pmrtConst)
     {
-        Zeus::CVector3f pmrtVal;
+        zeus::CVector3f pmrtVal;
         pmrt->GetValue(x50_curFrame, pmrtVal);
-        rot = Zeus::CTransform::RotateZ(pmrtVal[2] * M_PI / 180.f);
-        rot.rotateLocalY(pmrtVal[1] * M_PI / 180.f);
-        rot.rotateLocalX(pmrtVal[0] * M_PI / 180.f);
+        rot = zeus::CTransform::RotateZ(zeus::degToRad(pmrtVal[2]));
+        rot.rotateLocalY(zeus::degToRad(pmrtVal[1]));
+        rot.rotateLocalX(zeus::degToRad(pmrtVal[0]));
     }
     rot = orient * rot;
 
     CParticleGlobals::SetEmitterTime(x50_curFrame);
-    Zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
+    zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
 
-    Zeus::CVector3f pmopVec;
+    zeus::CVector3f pmopVec;
     auto matrixIt = x3c_parentMatrices.begin();
     for (CParticleListItem& item : x2c_particleLists)
     {
@@ -1322,11 +1322,11 @@ void CElementGen::RenderModels()
         if (pmop)
             pmop->GetValue(partFrame, pmopVec);
 
-        Zeus::CTransform partTrans = Zeus::CTransform::Translate(particle.x4_pos + trans);
+        zeus::CTransform partTrans = zeus::CTransform::Translate(particle.x4_pos + trans);
         if (x28_orientType == EModelOrientationType::One)
         {
-            Zeus::CTransform partRot(*matrixIt);
-            Zeus::CVector3f pmopRotateOffset = (orient * partRot) * pmopVec;
+            zeus::CTransform partRot(*matrixIt);
+            zeus::CVector3f pmopRotateOffset = (orient * partRot) * pmopVec;
             partTrans = partTrans * partRot;
             partTrans += pmopRotateOffset;
         }
@@ -1343,11 +1343,11 @@ void CElementGen::RenderModels()
         {
             if (pmrt)
             {
-                Zeus::CVector3f pmrtVal;
+                zeus::CVector3f pmrtVal;
                 pmrt->GetValue(partFrame, pmrtVal);
-                rot = Zeus::CTransform::RotateZ(pmrtVal[2] * M_PI / 180.f);
-                rot.rotateLocalY(pmrtVal[1] * M_PI / 180.f);
-                rot.rotateLocalX(pmrtVal[0] * M_PI / 180.f);
+                rot = zeus::CTransform::RotateZ(zeus::degToRad(pmrtVal[2]));
+                rot.rotateLocalY(zeus::degToRad(pmrtVal[1]));
+                rot.rotateLocalX(zeus::degToRad(pmrtVal[0]));
                 partTrans = partTrans * (orient * rot);
             }
             else
@@ -1359,9 +1359,9 @@ void CElementGen::RenderModels()
         CVectorElement* pmsc = desc->x74_x60_PMSC.get();
         if (pmsc)
         {
-            Zeus::CVector3f pmscVal;
+            zeus::CVector3f pmscVal;
             pmsc->GetValue(partFrame, pmscVal);
-            partTrans = partTrans * Zeus::CTransform::Scale(pmscVal);
+            partTrans = partTrans * zeus::CTransform::Scale(pmscVal);
         }
 
         CColorElement* pmcl = desc->x78_x64_PMCL.get();
@@ -1398,7 +1398,7 @@ void CElementGen::RenderModels()
             else
             {
                 if (1.f == col.a)
-                    model->Draw({0, 0, 3, Zeus::CColor::skWhite});
+                    model->Draw({0, 0, 3, zeus::CColor::skWhite});
                 else
                     model->Draw({4, 0, 1, col});
             }
@@ -1422,10 +1422,10 @@ void CElementGen::RenderLines()
     CGenDescription* desc = x1c_genDesc.GetObj();
     CGlobalRandom gr(x230_randState);
 
-    Zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+    zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
     systemViewPointMatrix.m_origin.zeroOut();
-    Zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
-    systemViewPointMatrix = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
+    zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
+    systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
 
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
@@ -1451,7 +1451,7 @@ void CElementGen::RenderLines()
     bool constTexr = true;
     bool constUVs = true;
     CTexture* cachedTex = nullptr;
-    Zeus::CColor moduColor = Zeus::CColor::skWhite;
+    zeus::CColor moduColor = zeus::CColor::skWhite;
     if (texr)
     {
         CParticle& target = g_StaticParticleList[x2c_particleLists[0].x0_partIdx];
@@ -1461,7 +1461,7 @@ void CElementGen::RenderLines()
 
         /* Set TEXC * RASC */
 
-        if (x30c_moduColor != Zeus::CColor::skBlack)
+        if (x30c_moduColor != zeus::CColor::skBlack)
         {
             /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
             moduColor = x30c_moduColor;
@@ -1501,13 +1501,13 @@ void CElementGen::RenderLines()
         if (!constUVs)
             texr->GetValueUV(partFrame, uvs);
 
-        Zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
+        zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
         if (x225_27_FXLL)
             if (dVec.magSquared() >= 0.f)
                 dVec.normalize();
 
-        Zeus::CVector3f p1 = systemCameraMatrix * particle.x4_pos;
-        Zeus::CVector3f p2 = systemCameraMatrix * (particle.x2c_lineLengthOrSize * dVec + particle.x4_pos);
+        zeus::CVector3f p1 = systemCameraMatrix * particle.x4_pos;
+        zeus::CVector3f p2 = systemCameraMatrix * (particle.x2c_lineLengthOrSize * dVec + particle.x4_pos);
 
         if (widtConst)
         {
@@ -1553,10 +1553,10 @@ void CElementGen::RenderParticles()
         }
     }
 
-    Zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+    zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
     systemViewPointMatrix.m_origin.zeroOut();
-    Zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
-    systemViewPointMatrix = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
+    zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
+    systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
 
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
@@ -1579,7 +1579,7 @@ void CElementGen::RenderParticles()
         cachedTex = texr->GetValueTexture(partFrame).GetObj();
         cachedTex->Load(0, CTexture::EClampMode::One);
 
-        if (x30c_moduColor != Zeus::CColor::skBlack)
+        if (x30c_moduColor != zeus::CColor::skBlack)
         {
             /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
             uniformData.moduColor = x30c_moduColor;
@@ -1630,7 +1630,7 @@ void CElementGen::RenderParticles()
             g_instNoTexData.reserve(x2c_particleLists.size());
             break;
         default:
-            Log.report(LogVisor::FatalError, "unexpected particle shader class");
+            Log.report(logvisor::Fatal, "unexpected particle shader class");
             break;
         }
         for (CParticleListItem& item : x2c_particleLists)
@@ -1639,7 +1639,7 @@ void CElementGen::RenderParticles()
             g_currentParticle = &particle;
 
             int partFrame = x50_curFrame - particle.x28_startFrame - 1;
-            Zeus::CVector3f viewPoint;
+            zeus::CVector3f viewPoint;
             if (desc->x44_28_x30_28_SORT)
                 viewPoint = item.x4_viewPoint;
             else
@@ -1672,10 +1672,10 @@ void CElementGen::RenderParticles()
                 {
                     g_instTexData.emplace_back();
                     SParticleInstanceTex& inst = g_instTexData.back();
-                    inst.pos[0] = Zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[1] = Zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[2] = Zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
-                    inst.pos[3] = Zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
+                    inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
+                    inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
+                    inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
+                    inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
                     inst.color = particle.x34_color;
                     inst.uvs[0] = {uvs.xMax, uvs.yMax};
                     inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1687,10 +1687,10 @@ void CElementGen::RenderParticles()
                 {
                     g_instNoTexData.emplace_back();
                     SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                    inst.pos[0] = Zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[1] = Zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[2] = Zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
-                    inst.pos[3] = Zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
+                    inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
+                    inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
+                    inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
+                    inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
                     inst.color = particle.x34_color;
                     break;
                 }
@@ -1699,9 +1699,9 @@ void CElementGen::RenderParticles()
             }
             else
             {
-                float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
-                float sinT = sinf(theta) * size;
-                float cosT = cosf(theta) * size;
+                float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+                float sinT = std::sin(theta) * size;
+                float cosT = sinf(theta) * size;
 
                 switch (m_shaderClass)
                 {
@@ -1709,10 +1709,10 @@ void CElementGen::RenderParticles()
                 {
                     g_instTexData.emplace_back();
                     SParticleInstanceTex& inst = g_instTexData.back();
-                    inst.pos[0] = Zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
-                    inst.pos[1] = Zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
-                    inst.pos[2] = Zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
-                    inst.pos[3] = Zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
+                    inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
+                    inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
+                    inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
+                    inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
                     inst.color = particle.x34_color;
                     inst.uvs[0] = {uvs.xMax, uvs.yMax};
                     inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1724,10 +1724,10 @@ void CElementGen::RenderParticles()
                 {
                     g_instNoTexData.emplace_back();
                     SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                    inst.pos[0] = Zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
-                    inst.pos[1] = Zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
-                    inst.pos[2] = Zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
-                    inst.pos[3] = Zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
+                    inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
+                    inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
+                    inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
+                    inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
                     inst.color = particle.x34_color;
                     break;
                 }
@@ -1761,7 +1761,7 @@ void CElementGen::RenderParticles()
             g_instNoTexData.reserve(x2c_particleLists.size() * mbspVal);
             break;
         default:
-            Log.report(LogVisor::FatalError, "unexpected particle shader class");
+            Log.report(logvisor::Fatal, "unexpected particle shader class");
             break;
         }
         float mbspFac = 1.f / float(mbspVal);
@@ -1789,16 +1789,16 @@ void CElementGen::RenderParticles()
                 texr->GetValueUV(partFrame, uvs);
             }
 
-            Zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
-            Zeus::CVector3f vec = dVec * x60_timeDeltaScale + particle.x10_prevPos;
-            Zeus::CVector3f mbspVec = dVec * mbspFac;
+            zeus::CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
+            zeus::CVector3f vec = dVec * x60_timeDeltaScale + particle.x10_prevPos;
+            zeus::CVector3f mbspVec = dVec * mbspFac;
             float size = 0.5f * particle.x2c_lineLengthOrSize;
             if (0.f == particle.x30_lineWidthOrRota)
             {
                 for (int i=0 ; i<mbspVal ; ++i)
                 {
                     vec += mbspVec;
-                    Zeus::CVector3f vec2 = systemCameraMatrix * vec;
+                    zeus::CVector3f vec2 = systemCameraMatrix * vec;
 
                     switch (m_shaderClass)
                     {
@@ -1806,10 +1806,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = Zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[1] = Zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[2] = Zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
-                        inst.pos[3] = Zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
                         inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1821,10 +1821,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = Zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[1] = Zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[2] = Zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
-                        inst.pos[3] = Zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
                         inst.color = particle.x34_color;
                         break;
                     }
@@ -1834,14 +1834,14 @@ void CElementGen::RenderParticles()
             }
             else
             {
-                float theta = particle.x30_lineWidthOrRota * M_PI / 180.f;
-                float sinT = sinf(theta) * size;
-                float cosT = cosf(theta) * size;
+                float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+                float sinT = std::sin(theta) * size;
+                float cosT = sinf(theta) * size;
 
                 for (int i=0 ; i<mbspVal ; ++i)
                 {
                     vec += mbspVec;
-                    Zeus::CVector3f vec2 = systemCameraMatrix * vec;
+                    zeus::CVector3f vec2 = systemCameraMatrix * vec;
 
                     switch (m_shaderClass)
                     {
@@ -1849,10 +1849,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = Zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
-                        inst.pos[1] = Zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
-                        inst.pos[2] = Zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
-                        inst.pos[3] = Zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
                         inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1864,10 +1864,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = Zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
-                        inst.pos[1] = Zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
-                        inst.pos[2] = Zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
-                        inst.pos[3] = Zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
                         inst.color = particle.x34_color;
                         break;
                     }
@@ -1895,10 +1895,10 @@ void CElementGen::RenderParticlesIndirectTexture()
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
-    Zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+    zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
     systemViewPointMatrix.m_origin.zeroOut();
-    Zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
-    systemViewPointMatrix = ((Zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
+    zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
+    systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
 
     SParticleUniforms uniformData =
@@ -1963,7 +1963,7 @@ void CElementGen::RenderParticlesIndirectTexture()
         g_currentParticle = &particle;
 
         int partFrame = x50_curFrame - particle.x28_startFrame;
-        Zeus::CVector3f viewPoint;
+        zeus::CVector3f viewPoint;
         if (desc->x44_28_x30_28_SORT)
             viewPoint = item.x4_viewPoint;
         else
@@ -1996,8 +1996,8 @@ void CElementGen::RenderParticlesIndirectTexture()
             tind->GetValueUV(partFrame, uvsInd);
 
         float size = 0.5f * particle.x2c_lineLengthOrSize;
-        Zeus::CVector3f p1 = {viewPoint.x - size, viewPoint.y, viewPoint.z - size};
-        Zeus::CVector3f p2 = {viewPoint.x + size, viewPoint.y, viewPoint.z + size};
+        zeus::CVector3f p1 = {viewPoint.x - size, viewPoint.y, viewPoint.z - size};
+        zeus::CVector3f p2 = {viewPoint.x + size, viewPoint.y, viewPoint.z + size};
         SClipScreenRect clipRect = CGraphics::ClipScreenRectFromMS(p1, p2);
 
         if (!clipRect.x0_valid)
@@ -2007,16 +2007,16 @@ void CElementGen::RenderParticlesIndirectTexture()
 
         g_instIndTexData.emplace_back();
         SParticleInstanceIndTex& inst = g_instIndTexData.back();
-        inst.pos[0] = Zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z + size, 1.f};
-        inst.pos[1] = Zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z + size, 1.f};
-        inst.pos[2] = Zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
-        inst.pos[3] = Zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
+        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z + size, 1.f};
+        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z + size, 1.f};
+        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
+        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.color = particle.x34_color;
-        inst.texrTindUVs[0] = Zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
-        inst.texrTindUVs[1] = Zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
-        inst.texrTindUVs[2] = Zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
-        inst.texrTindUVs[3] = Zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
-        inst.sceneUVs = Zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
+        inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
+        inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
+        inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
+        inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
+        inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
     }
 
     if (g_instIndTexData.size())
@@ -2027,7 +2027,7 @@ void CElementGen::RenderParticlesIndirectTexture()
     }
 }
 
-void CElementGen::SetOrientation(const Zeus::CTransform& orientation)
+void CElementGen::SetOrientation(const zeus::CTransform& orientation)
 {
     x178_orientation = orientation;
     x1a8_orientationInverse = x178_orientation.inverse();
@@ -2045,7 +2045,7 @@ void CElementGen::SetOrientation(const Zeus::CTransform& orientation)
         ch->SetOrientation(orientation);
 }
 
-void CElementGen::SetTranslation(const Zeus::CVector3f& translation)
+void CElementGen::SetTranslation(const zeus::CVector3f& translation)
 {
     x7c_translation = translation;
 
@@ -2062,7 +2062,7 @@ void CElementGen::SetTranslation(const Zeus::CVector3f& translation)
         ch->SetTranslation(translation + x294_SEPO);
 }
 
-void CElementGen::SetGlobalOrientation(const Zeus::CTransform& rotation)
+void CElementGen::SetGlobalOrientation(const zeus::CTransform& rotation)
 {
     x1d8_globalOrientation.setRotation(rotation);
 
@@ -2076,7 +2076,7 @@ void CElementGen::SetGlobalOrientation(const Zeus::CTransform& rotation)
         ch->SetGlobalOrientation(x1d8_globalOrientation);
 }
 
-void CElementGen::SetGlobalTranslation(const Zeus::CVector3f& translation)
+void CElementGen::SetGlobalTranslation(const zeus::CVector3f& translation)
 {
     x88_globalTranslation = translation;
 
@@ -2093,11 +2093,11 @@ void CElementGen::SetGlobalTranslation(const Zeus::CVector3f& translation)
         ch->SetGlobalTranslation(translation);
 }
 
-void CElementGen::SetGlobalScale(const Zeus::CVector3f& scale)
+void CElementGen::SetGlobalScale(const zeus::CVector3f& scale)
 {
     xa0_globalScale = scale;
-    xac_globalScaleTransform = Zeus::CTransform::Scale(scale);
-    xdc_globalScaleTransformInverse = Zeus::CTransform::Scale(Zeus::CVector3f::skOne / scale);
+    xac_globalScaleTransform = zeus::CTransform::Scale(scale);
+    xdc_globalScaleTransformInverse = zeus::CTransform::Scale(zeus::CVector3f::skOne / scale);
 
     for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
         ch->SetGlobalScale(scale);
@@ -2112,11 +2112,11 @@ void CElementGen::SetGlobalScale(const Zeus::CVector3f& scale)
         ch->SetGlobalScale(scale);
 }
 
-void CElementGen::SetLocalScale(const Zeus::CVector3f& scale)
+void CElementGen::SetLocalScale(const zeus::CVector3f& scale)
 {
     x10c_localScale = scale;
-    x118_localScaleTransform = Zeus::CTransform::Scale(scale);
-    x148_localScaleTransformInverse = Zeus::CTransform::Scale(Zeus::CVector3f::skOne / scale);
+    x118_localScaleTransform = zeus::CTransform::Scale(scale);
+    x148_localScaleTransformInverse = zeus::CTransform::Scale(zeus::CVector3f::skOne / scale);
 
     for (const std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
         ch->SetLocalScale(scale);
@@ -2142,7 +2142,7 @@ void CElementGen::SetParticleEmission(bool enabled)
         ch->SetParticleEmission(enabled);
 }
 
-void CElementGen::SetModulationColor(const Zeus::CColor& color)
+void CElementGen::SetModulationColor(const zeus::CColor& color)
 {
     x30c_moduColor = color;
 
@@ -2159,32 +2159,32 @@ void CElementGen::SetModulationColor(const Zeus::CColor& color)
         ch->SetModulationColor(color);
 }
 
-const Zeus::CTransform& CElementGen::GetOrientation() const
+const zeus::CTransform& CElementGen::GetOrientation() const
 {
     return x178_orientation;
 }
 
-const Zeus::CVector3f& CElementGen::GetTranslation() const
+const zeus::CVector3f& CElementGen::GetTranslation() const
 {
     return x7c_translation;
 }
 
-const Zeus::CTransform& CElementGen::GetGlobalOrientation() const
+const zeus::CTransform& CElementGen::GetGlobalOrientation() const
 {
     return x1d8_globalOrientation;
 }
 
-const Zeus::CVector3f& CElementGen::GetGlobalTranslation() const
+const zeus::CVector3f& CElementGen::GetGlobalTranslation() const
 {
     return x88_globalTranslation;
 }
 
-const Zeus::CVector3f& CElementGen::GetGlobalScale() const
+const zeus::CVector3f& CElementGen::GetGlobalScale() const
 {
     return xa0_globalScale;
 }
 
-const Zeus::CColor& CElementGen::GetModulationColor() const
+const zeus::CColor& CElementGen::GetModulationColor() const
 {
     return x30c_moduColor;
 }
@@ -2213,10 +2213,10 @@ bool CElementGen::IsSystemDeletable() const
     return false;
 }
 
-std::pair<Zeus::CAABox, bool> CElementGen::GetBounds() const
+std::pair<zeus::CAABox, bool> CElementGen::GetBounds() const
 {
     if (GetParticleCountAll() == 0)
-        return {Zeus::CAABox(), false};
+        return {zeus::CAABox(), false};
     else
         return {x2c4_systemBounds, true};
 }

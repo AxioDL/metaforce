@@ -4,7 +4,7 @@
 #include <vector>
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 class CStateManager;
 

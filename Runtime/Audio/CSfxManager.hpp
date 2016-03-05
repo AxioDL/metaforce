@@ -4,10 +4,10 @@
 #include <vector>
 #include "../RetroTypes.hpp"
 #include "CSfxHandle.hpp"
-#include "CVector3f.hpp"
+#include "zeus/CVector3f.hpp"
 #include "CAudioSys.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class CSfxManager

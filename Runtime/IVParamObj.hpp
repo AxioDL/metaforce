@@ -4,7 +4,7 @@
 #include <memory>
 #include "IObj.hpp"
 
-namespace pshag
+namespace urde
 {
 
 class IVParamObj : public IObj

@@ -1,6 +1,6 @@
 #include "ParticleEditor.hpp"
 
-namespace URDE
+namespace urde
 {
 
 }

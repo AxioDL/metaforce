@@ -308,34 +308,34 @@ struct CHAR : BigYAML
 
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
-                        const HECL::ProjectPath& outPath,
+                        const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        std::function<void(const HECL::SystemChar*)> fileChanged)
+                        std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        HECL::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
-        HECL::ProjectPath::Type yamlType = yamlPath.getPathType();
-        HECL::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
-        HECL::ProjectPath::Type blendType = blendPath.getPathType();
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+        hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+        hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
-            yamlType == HECL::ProjectPath::Type::None ||
-            blendType == HECL::ProjectPath::Type::None)
+            yamlType == hecl::ProjectPath::Type::None ||
+            blendType == hecl::ProjectPath::Type::None)
         {
             CHAR aChar;
             aChar.read(rs);
 
-            if (force || yamlType == HECL::ProjectPath::Type::None)
+            if (force || yamlType == hecl::ProjectPath::Type::None)
             {
-                FILE* fp = HECL::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
+                FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
                 aChar.toYAMLFile(fp);
                 fclose(fp);
             }
 
-            if (force || blendType == HECL::ProjectPath::Type::None)
+            if (force || blendType == hecl::ProjectPath::Type::None)
             {
-                HECL::BlenderConnection& conn = HECL::BlenderConnection::SharedConnection();
+                hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, CHAR, MaterialSet, DNACMDL::SurfaceHeader_3, 4>
                         (conn, aChar, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }

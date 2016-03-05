@@ -124,7 +124,7 @@ struct Ridley : IScriptObject
     /* Trilogy addition */
     DamageInfo damageInfo9;
 
-    void read(Athena::io::IStreamReader& __dna_reader)
+    void read(athena::io::IStreamReader& __dna_reader)
     {
         IScriptObject::read(__dna_reader);
         /* name */
@@ -234,7 +234,7 @@ struct Ridley : IScriptObject
             damageInfo9.read(__dna_reader);
     }
 
-    void write(Athena::io::IStreamWriter& __dna_writer) const
+    void write(athena::io::IStreamWriter& __dna_writer) const
     {
         IScriptObject::write(__dna_writer);
         /* name */
@@ -344,7 +344,7 @@ struct Ridley : IScriptObject
             damageInfo9.write(__dna_writer);
     }
 
-    void read(Athena::io::YAMLDocReader& __dna_docin)
+    void read(athena::io::YAMLDocReader& __dna_docin)
     {
         IScriptObject::read(__dna_docin);
         /* name */
@@ -454,7 +454,7 @@ struct Ridley : IScriptObject
             __dna_docin.enumerate("damageInfo9", damageInfo9);
     }
 
-    void write(Athena::io::YAMLDocWriter& __dna_docout) const
+    void write(athena::io::YAMLDocWriter& __dna_docout) const
     {
         IScriptObject::write(__dna_docout);
         /* name */
@@ -566,7 +566,7 @@ struct Ridley : IScriptObject
 
     static const char* DNAType()
     {
-        return "Retro::DNAMP1::Ridley";
+        return "urde::DNAMP1::Ridley";
     }
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,

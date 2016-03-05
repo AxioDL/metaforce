@@ -3,7 +3,7 @@
 
 #include "IAllocator.hpp"
 
-namespace pshag
+namespace urde
 {
 class COsContext;
 

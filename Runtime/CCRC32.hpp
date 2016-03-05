@@ -2,7 +2,7 @@
 #define RETRO_CRC32_HPP
 #include <cstdint>
 
-namespace pshag
+namespace urde
 {
 
 class CCRC32

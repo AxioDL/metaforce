@@ -1,6 +1,6 @@
 #include "CRumbleManager.hpp"
 
-namespace pshag
+namespace urde
 {
 
 void CRumbleManager::Update(float dt) { x0_rumbleGenerator.Update(dt); }

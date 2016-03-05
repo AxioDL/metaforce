@@ -2,15 +2,15 @@
 #define __PSHAG_CPARTICLEGEN_HPP__
 
 #include "RetroTypes.hpp"
-#include "CLight.hpp"
+#include "Graphics/CLight.hpp"
 #include "CWarp.hpp"
-#include "CColor.hpp"
-#include "CVector3f.hpp"
-#include "CTransform.hpp"
-#include "CAABox.hpp"
+#include "zeus/CColor.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CAABox.hpp"
 #include <list>
 
-namespace pshag
+namespace urde
 {
 
 class CParticleGen
@@ -21,22 +21,22 @@ public:
 
     virtual void Update(double)=0;
     virtual void Render()=0;
-    virtual void SetOrientation(const Zeus::CTransform&)=0;
-    virtual void SetTranslation(const Zeus::CVector3f&)=0;
-    virtual void SetGlobalOrientation(const Zeus::CTransform&)=0;
-    virtual void SetGlobalTranslation(const Zeus::CVector3f&)=0;
-    virtual void SetGlobalScale(const Zeus::CVector3f&)=0;
-    virtual void SetLocalScale(const Zeus::CVector3f&)=0;
+    virtual void SetOrientation(const zeus::CTransform&)=0;
+    virtual void SetTranslation(const zeus::CVector3f&)=0;
+    virtual void SetGlobalOrientation(const zeus::CTransform&)=0;
+    virtual void SetGlobalTranslation(const zeus::CVector3f&)=0;
+    virtual void SetGlobalScale(const zeus::CVector3f&)=0;
+    virtual void SetLocalScale(const zeus::CVector3f&)=0;
     virtual void SetParticleEmission(bool)=0;
-    virtual void SetModulationColor(const Zeus::CColor&)=0;
-    virtual const Zeus::CTransform& GetOrientation() const=0;
-    virtual const Zeus::CVector3f& GetTranslation() const=0;
-    virtual const Zeus::CTransform& GetGlobalOrientation() const=0;
-    virtual const Zeus::CVector3f& GetGlobalTranslation() const=0;
-    virtual const Zeus::CVector3f& GetGlobalScale() const=0;
-    virtual const Zeus::CColor& GetModulationColor() const=0;
+    virtual void SetModulationColor(const zeus::CColor&)=0;
+    virtual const zeus::CTransform& GetOrientation() const=0;
+    virtual const zeus::CVector3f& GetTranslation() const=0;
+    virtual const zeus::CTransform& GetGlobalOrientation() const=0;
+    virtual const zeus::CVector3f& GetGlobalTranslation() const=0;
+    virtual const zeus::CVector3f& GetGlobalScale() const=0;
+    virtual const zeus::CColor& GetModulationColor() const=0;
     virtual bool IsSystemDeletable() const=0;
-    virtual std::pair<Zeus::CAABox, bool> GetBounds() const=0;
+    virtual std::pair<zeus::CAABox, bool> GetBounds() const=0;
     virtual u32 GetParticleCount() const=0;
     virtual bool SystemHasLight() const=0;
     virtual CLight GetLight() const=0;

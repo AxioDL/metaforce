@@ -1,13 +1,13 @@
 #ifndef __PSHAG_CELEMENTGENSHADERS_HPP__
 #define __PSHAG_CELEMENTGENSHADERS_HPP__
 
-#include "CGraphics.hpp"
+#include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/GL.hpp"
 #include "boo/graphicsdev/D3D.hpp"
 #include "boo/graphicsdev/Metal.hpp"
 #include "boo/graphicsdev/Vulkan.hpp"
 
-namespace pshag
+namespace urde
 {
 class CElementGen;
 

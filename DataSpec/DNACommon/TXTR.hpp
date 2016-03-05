@@ -9,8 +9,8 @@ class PAKEntryReadStream;
 
 struct TXTR
 {
-    static bool Extract(PAKEntryReadStream& rs, const HECL::ProjectPath& outPath);
-    static bool Cook(const HECL::ProjectPath& inPath, const HECL::ProjectPath& outPath);
+    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };
 
 }

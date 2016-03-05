@@ -1,6 +1,6 @@
 #include "CMemoryCardSys.hpp"
 
-namespace pshag
+namespace urde
 {
 
 }

@@ -15,7 +15,7 @@ struct CTweakGame : ITweakGame
     String<-1> m_ruinsArea; // ????
 
     virtual const std::string& GetWorldPrefix() const { return m_worldPrefix; }
-    CTweakGame(Athena::io::IStreamReader& in) { this->read(in); }
+    CTweakGame(athena::io::IStreamReader& in) { this->read(in); }
 };
 }
 }

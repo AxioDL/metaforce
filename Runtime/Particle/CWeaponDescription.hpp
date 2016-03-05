@@ -8,7 +8,7 @@
 #include "CModVectorElement.hpp"
 #include "CColorElement.hpp"
 
-namespace pshag
+namespace urde
 {
 class CCollisionResponseData;
 

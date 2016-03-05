@@ -4,12 +4,12 @@
 #include <vector>
 #include "../RetroTypes.hpp"
 #include "../CToken.hpp"
-#include "CAABox.hpp"
-#include "CPlane.hpp"
+#include "zeus/CAABox.hpp"
+#include "zeus/CPlane.hpp"
 #include "CFrustum.hpp"
-#include "CColor.hpp"
+#include "zeus/CColor.hpp"
 
-namespace pshag
+namespace urde
 {
 class CMetroidModelInstance;
 class CLight;

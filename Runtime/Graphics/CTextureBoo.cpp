@@ -1,9 +1,9 @@
 #include "CTexture.hpp"
 #include "CSimplePool.hpp"
 #include "CToken.hpp"
-#include "CGraphics.hpp"
+#include "Graphics/CGraphics.hpp"
 
-namespace pshag
+namespace urde
 {
 
 /* GX uses this upsampling technique to prevent banding on downsampled texture formats */
@@ -606,8 +606,8 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
                     in.readBytesToBuf(source, 16);
                     for (int x=0 ; x<2 ; ++x)
                     {
-                        target[x].color1 = HECL::SBig(source[x].color1);
-                        target[x].color2 = HECL::SBig(source[x].color2);
+                        target[x].color1 = hecl::SBig(source[x].color1);
+                        target[x].color2 = hecl::SBig(source[x].color2);
                         for (int i=0 ; i<4 ; ++i)
                         {
                             u8 ind[4];

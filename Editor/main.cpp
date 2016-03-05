@@ -1,20 +1,20 @@
-#include <LogVisor/LogVisor.hpp>
-#include <boo/boo.hpp>
-#include <Specter/Specter.hpp>
-#include <HECL/CVarManager.hpp>
-#include <Runtime/CGameAllocator.hpp>
+#include "logvisor/logvisor.hpp"
+#include "boo/boo.hpp"
+#include "specter/specter.hpp"
+#include "hecl/CVarManager.hpp"
+#include "Runtime/CGameAllocator.hpp"
 #include <functional>
 #include "ViewManager.hpp"
-#include <Runtime/Particle/CElementGen.hpp>
+#include "Runtime/Particle/CElementGen.hpp"
 
-namespace URDE
+namespace urde
 {
-LogVisor::LogModule Log{"URDE"};
+static logvisor::Module Log{"URDE"};
 
 struct Application : boo::IApplicationCallback
 {
-    HECL::Runtime::FileStoreManager m_fileMgr;
-    HECL::CVarManager m_cvarManager;
+    hecl::Runtime::FileStoreManager m_fileMgr;
+    hecl::CVarManager m_cvarManager;
     std::unique_ptr<ViewManager> m_viewManager;
 
     bool m_running = true;
@@ -51,12 +51,12 @@ struct Application : boo::IApplicationCallback
 
     void initialize(boo::IApplication* app)
     {
-        Zeus::detectCPU();
+        zeus::detectCPU();
 
-        const Zeus::CPUInfo& cpuInf = Zeus::cpuFeatures();
-        Log.report(LogVisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
-        Log.report(LogVisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
-        HECL::SystemString features;
+        const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
+        Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
+        Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
+        hecl::SystemString features;
         if (cpuInf.AESNI)
             features += _S("AES-NI");
         if (cpuInf.SSE1)
@@ -68,14 +68,14 @@ struct Application : boo::IApplicationCallback
         }
         else
         {
-            Log.report(LogVisor::FatalError, _S("URDE requires SSE1 minimum"));
+            Log.report(logvisor::Fatal, _S("URDE requires SSE1 minimum"));
             return;
         }
         if (cpuInf.SSE2)
             features += _S(", SSE2");
         else
         {
-            Log.report(LogVisor::FatalError, _S("URDE requires SSE2 minimum"));
+            Log.report(logvisor::Fatal, _S("URDE requires SSE2 minimum"));
             return;
         }
         if (cpuInf.SSE3)
@@ -88,7 +88,7 @@ struct Application : boo::IApplicationCallback
             features += _S(", SSE4.1");
         if (cpuInf.SSE42)
             features += _S(", SSE4.2");
-        Log.report(LogVisor::Info, _S("CPU Features: %s"), features.c_str());
+        Log.report(logvisor::Info, _S("CPU Features: %s"), features.c_str());
     }
 };
 
@@ -100,8 +100,8 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
-    LogVisor::RegisterConsoleLogger();
-    URDE::Application appCb;
+    logvisor::RegisterConsoleLogger();
+    urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("urde"), _S("URDE"), argc, argv, false);
     printf("IM DYING!!\n");
@@ -120,7 +120,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
     for (int i=0 ; i<argc ; ++i)
         booArgv[i+1] = argv[i];
 
-    LogVisor::CreateWin32Console();
+    logvisor::CreateWin32Console();
     return wmain(argc+1, booArgv);
 }
 #endif

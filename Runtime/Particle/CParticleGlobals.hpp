@@ -1,11 +1,11 @@
 #ifndef __PSHAG_CPARTICLEGLOBALS_HPP__
 #define __PSHAG_CPARTICLEGLOBALS_HPP__
 
-#include "CVector3f.hpp"
-#include "CColor.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
 
-namespace pshag
+namespace urde
 {
 class CParticleGen;
 class CParticleGlobals

@@ -8,7 +8,7 @@
 #include "CUVElement.hpp"
 #include "CParticleDataFactory.hpp"
 
-namespace pshag
+namespace urde
 {
 struct SQuadDescr
 {

@@ -2,13 +2,13 @@
 #define __PSHAG_CGRAPHICS_HPP__
 
 #include "RetroTypes.hpp"
-#include "CTransform.hpp"
-#include "CVector2i.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CVector2i.hpp"
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
 
-namespace pshag
+namespace urde
 {
 
 enum class ERglLight : u8
@@ -152,14 +152,14 @@ public:
     static u32 g_NumLightsActive;
     static ERglLight g_LightActive;
     static ERglLight g_LightsWereOn;
-    static Zeus::CTransform g_GXModelView;
-    static Zeus::CTransform g_GXModelMatrix;
-    static Zeus::CTransform g_ViewMatrix;
-    static Zeus::CVector3f g_ViewPoint;
-    static Zeus::CTransform g_GXViewPointMatrix;
-    static Zeus::CTransform g_CameraMatrix;
-    static Zeus::CVector2i g_ViewportResolution;
-    static Zeus::CVector2i g_ViewportResolutionHalf;
+    static zeus::CTransform g_GXModelView;
+    static zeus::CTransform g_GXModelMatrix;
+    static zeus::CTransform g_ViewMatrix;
+    static zeus::CVector3f g_ViewPoint;
+    static zeus::CTransform g_GXViewPointMatrix;
+    static zeus::CTransform g_CameraMatrix;
+    static zeus::CVector2i g_ViewportResolution;
+    static zeus::CVector2i g_ViewportResolutionHalf;
     static int g_ViewportSamples;
     static bool g_IsGXModelMatrixIdentity;
 
@@ -170,19 +170,19 @@ public:
     static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
     static void SetCullMode(ERglCullMode);
     static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
-    static void SetViewPointMatrix(const Zeus::CTransform& xf);
+    static void SetViewPointMatrix(const zeus::CTransform& xf);
     static void SetViewMatrix();
-    static void SetModelMatrix(const Zeus::CTransform& xf);
-    static Zeus::CMatrix4f GetPerspectiveProjectionMatrix();
+    static void SetModelMatrix(const zeus::CTransform& xf);
+    static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
     static const CProjectionState& GetProjectionState();
     static void SetProjectionState(const CProjectionState&);
     static void SetPerspective(float fovy, float aspect, float near, float far);
     static void FlushProjection();
-    static Zeus::CVector2i ProjectPoint(const Zeus::CVector3f& point);
-    static SClipScreenRect ClipScreenRectFromMS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
-    static SClipScreenRect ClipScreenRectFromVS(const Zeus::CVector3f& p1, const Zeus::CVector3f& p2);
-    static Zeus::CVector3f ProjectModelPointToViewportSpace(const Zeus::CVector3f& point);
-    static void SetViewportResolution(const Zeus::CVector2i& res);
+    static zeus::CVector2i ProjectPoint(const zeus::CVector3f& point);
+    static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
+    static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
+    static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point);
+    static void SetViewportResolution(const zeus::CVector2i& res);
 
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;

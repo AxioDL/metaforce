@@ -6,7 +6,7 @@
 #include "IVParamObj.hpp"
 #include <unordered_map>
 
-namespace pshag
+namespace urde
 {
 class IFactory;
 class CObjectReference;
