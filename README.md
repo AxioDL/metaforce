@@ -16,7 +16,8 @@ Precompiled builds are available at https://github.com/AxioDL/urde/releases
 * LLVM
     * [Specialized Windows Package](https://www.dropbox.com/s/4u0rckvh3d3tvr1/LLVM-3.7.0-win64.exe)
     * [OS X Package](http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-apple-darwin.tar.xz)
-* [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) (windows users)
+* [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) (Windows builders)
+* [Xcode Tools](https://developer.apple.com/xcode/download/) (Mac builders)
 
 ### Build Directions (Release)
 
@@ -42,7 +43,30 @@ mkdir urde-build
 cd urde
 git submodule update --init --recursive
 cd ../urde-build
+```
+Windows 7/8 users should then run:
+
+```sh
 cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release ../urde
 ```
 
+Windows 10 users should then run:
+
+```sh
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Release ../urde
+```
+
 Then open `urde.sln`
+
+#### Xcode
+
+```sh
+git clone https://github.com/AxioDL/urde.git
+mkdir urde-build
+cd urde
+git submodule update --init --recursive
+cd ../urde-build
+cmake -G Xcode -DCMAKE_BUILD_TYPE=Release ../urde
+```
+
+Then open `urde.xcodeproj`
