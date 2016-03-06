@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 3.0)
 cmake_policy(SET CMP0054 NEW)
 project(urde)
 if(MSVC)
+  if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
+    set(VS_DEFINES "/MP")
+  endif()
+
   # Shaddup MSVC
-  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1 /wd4267 /wd4244 /wd4305 /MP)
+  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1 /wd4267 /wd4244 /wd4305 ${VS_DEFINES})
 
   # Link-time Code Generation for Release builds
   set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
