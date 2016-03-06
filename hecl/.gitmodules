@@ -7,3 +7,7 @@
 [submodule "extern/boo"]
 	path = extern/boo
 	url = https://github.com/AxioDL/boo.git
+[submodule "extern/libjpeg-turbo"]
+	path = extern/libjpeg-turbo
+	url = https://github.com/jackoalan/libjpeg-turbo.git
+	branch = thp
