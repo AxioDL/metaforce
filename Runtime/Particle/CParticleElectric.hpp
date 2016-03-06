@@ -8,6 +8,8 @@
 namespace urde
 {
 class CElectricDescription;
+class CParticleSwoosh;
+class CElementGen;
 
 class CParticleElectric : public CParticleGen
 {
@@ -18,8 +20,8 @@ public:
     };
 private:
     TLockedToken<CElectricDescription> x1c_elecDesc;
-    u32              x28 = 0;
-    u32              x2c = 0;
+    int              x28_currentFrame = 0;
+    int              x2c_LIFE = 0x7FFFFF;
     double           x30 = 0.0;
     zeus::CVector3f  x38_translation;
     zeus::CTransform x44_orientation;
@@ -31,9 +33,9 @@ private:
     float            x12c = 0.f;
     zeus::CVector3f  x130;
     CRandom16        x14c_randState;
-    u32              x150 = 0;
-    u32              x154 = 1;
-    u32              x158 = 0;
+    int              x150_SSEG = 8;
+    int              x154_SCNT = 1;
+    int              x158 = 0;
     float            x15c = 0.f;
     zeus::CAABox     x160_systemBounds = zeus::CAABox::skInvertedBox;
     bool             x184 = false;
@@ -41,11 +43,39 @@ private:
     bool             x1b4 = false;
     zeus::CColor     x1b8_moduColor;
     bool             x1bc_hasModuColor = false;
-    rstl::reserved_vector<std::unique_ptr<CLineManager>, 32> x1c0_lineManagers;
+    int              x1c0 = 32;
+    char             x1c4[4][8];
+    std::unique_ptr<CParticleSwoosh> x1e0_SSWH;
+    int              x2e4 = 0;
+    int              x3ec = 0;
+    int              x3f4 = 0; // actually the offset of itself
+    int              x3f0 = x3f4;
+    int              x3f8 = x3f4;
+    int              x3fc = 0;
+    std::unique_ptr<CElementGen>     x400_GPSM;
+    int              x404 = 0;
+    int              x408 = 0;
+    int              x40c = 0;
+    int              x414 = 0;
+    int              x418 = 0;
+    int              x41c = 0;
+    int              x424 = 0;
+    int              x428 = 0;
+    int              x42c = 0;
+    int              x434 = 0;
+    int              x438 = 0;
+    int              x43c = 0;
+    int              x444 = 0;
+    int              x448 = 0; // retail
+    int              x44c = 0; // retail
 
     union
     {
-        struct { bool x438_25 : 1; bool x438_26 : 1; bool x438_28: 1; };
+        struct
+        {
+            bool x438_24_x450_24 : 1; bool x438_25_x450_25 : 1; bool x438_26_x450_26 : 1; bool x438_27_x450_27 : 1;
+            bool x438_28_x450_28: 1; bool x450_29 : 1;
+        };
         u8 dummy = 0;
     };
 public:

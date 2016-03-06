@@ -1,16 +1,56 @@
 #include "CParticleElectric.hpp"
+#include "CElectricDescription.hpp"
 #include "CGenDescription.hpp"
 #include "CSwooshDescription.hpp"
-#include "CElectricDescription.hpp"
+#include "CParticleSwoosh.hpp"
+#include "CElementGen.hpp"
 #include "Graphics/CModel.hpp"
 #include "Graphics/CGraphics.hpp"
 
 namespace urde
 {
 
-CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& desc)
-    : x1c_elecDesc(desc)
+CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
+    : x1c_elecDesc(token)
 {
+    x438_24_x450_24 = true;
+    /* x438_28_x450_28 = true; demo */
+    x450_29 = true; // are 28 and 29 the same between retail and demo?
+    CElectricDescription* desc = x1c_elecDesc.GetObj();
+    if (desc->x10_SSEG)
+        desc->x10_SSEG->GetValue(x28_currentFrame, x150_SSEG);
+    else
+    {
+        x150_SSEG++;
+        x154_SCNT = 1;
+    }
+
+    if (desc->xc_SCNT)
+        desc->xc_SCNT->GetValue(x28_currentFrame, x154_SCNT);
+    std::max(0, std::min(x154_SCNT, 32));
+
+    if (desc->x0_LIFE)
+        desc->x0_LIFE->GetValue(x28_currentFrame, x2c_LIFE);
+    else
+        x2c_LIFE = 0x7FFFFF;
+    /* TODO: figure this out more */
+    if (desc->x40_SSWH.m_found)
+    {
+        x438_27_x450_27 = true;
+        //x1e0_SSWH.reset(new CParticleSwoosh(desc->x40_SSWH.m_token
+    }
+
+    if (desc->x50_GPSM.m_found)
+    {
+        x438_25_x450_25 = true;
+        //x400_GPSM.reset(new CElementGen(desc->x50_GPSM.m_token
+    }
+
+    if (desc->x60_EPSM.m_found)
+    {
+        x438_26_x450_26 = true;
+        //x410_GPSM.reset(new CElementGen(desc->x60_EPSM.m_token
+    }
 }
 
 void CParticleElectric::SetupLineGXMaterial()
@@ -54,38 +94,38 @@ void CParticleElectric::Render()
 void CParticleElectric::SetOrientation(const zeus::CTransform& orientation)
 {
     x44_orientation = orientation;
-    x438_28 = true;
+    x438_28_x450_28 = true;
 }
 
 void CParticleElectric::SetTranslation(const zeus::CVector3f& translation)
 {
     x38_translation = translation;
-    x438_28 = true;
+    x438_28_x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalOrientation(const zeus::CTransform& orientation)
 {
     xb0_globalOrientation = orientation;
-    x438_28 = true;
+    x438_28_x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalTranslation(const zeus::CVector3f& translation)
 {
     xa4_globalTranslation = translation;
-    x438_28 = true;
+    x438_28_x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalScale(const zeus::CVector3f& scale)
 {
     xe0_globalScale = scale;
-    x438_28 = true;
+    x438_28_x450_28 = true;
 }
 
 void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
 {
     xec_localScale = scale;
-    x438_28 = true;
-    if (x438_26)
+    x438_28_x450_28 = true;
+    if (x438_26_x450_26)
     {
 
     }
