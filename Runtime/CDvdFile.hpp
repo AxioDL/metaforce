@@ -3,6 +3,10 @@
 
 #include "RetroTypes.hpp"
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 namespace urde
 {
 
@@ -24,18 +28,51 @@ class IDvdRequest;
 class CDvdFile
 {
     friend class CResLoader;
-    std::string x18_name;
+    friend class CFileDvdRequest;
+    static hecl::ProjectPath m_DvdRoot;
+    static std::thread m_WorkerThread;
+    static std::mutex m_WorkerMutex;
+    static std::condition_variable m_WorkerCV;
+    static bool m_WorkerRun;
+    static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
+    static void WorkerProc();
+
+    std::string x18_path;
+    athena::io::FileReader m_reader;
+
 public:
-    CDvdFile(const char*) {}
-    void UpdateFilePos(int) {}
-    void CalcFileOffset(int, ESeekOrigin) {}
+    static void Initialize(const hecl::ProjectPath& path);
+    static void Shutdown();
+
+    CDvdFile(const char* path)
+    : x18_path(path), m_reader(hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath()) {}
+    void UpdateFilePos(int pos)
+    {
+        m_reader.seek(pos, athena::SeekOrigin::Begin);
+    }
     static void internalCallback(s32, DVDFileInfo*) {}
-    static bool FileExists(const char*) {return false;}
-    void CloseFile() {}
-    IDvdRequest* AsyncSeekRead(void*, u32, ESeekOrigin, int) {return nullptr;}
-    void SyncSeekRead(void*, u32, ESeekOrigin, int) {}
-    IDvdRequest* AsyncRead(void*, u32) {return nullptr;}
-    void SyncRead(void*, u32) {}
+    static bool FileExists(const char* path)
+    {
+        return hecl::ProjectPath(m_DvdRoot, path).getPathType() != hecl::ProjectPath::Type::File;
+    }
+    void CloseFile()
+    {
+        m_reader.close();
+    }
+    std::shared_ptr<IDvdRequest> AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off);
+    void SyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int offset)
+    {
+        m_reader.seek(offset, athena::SeekOrigin(whence));
+        m_reader.readBytesToBuf(buf, len);
+    }
+    std::shared_ptr<IDvdRequest> AsyncRead(void* buf, u32 len)
+    {
+        return AsyncSeekRead(buf, len, ESeekOrigin::Cur, 0);
+    }
+    void SyncRead(void* buf, u32 len)
+    {
+        m_reader.readBytesToBuf(buf, len);
+    }
     void StallForARAMFile() {}
     void StartARAMFileLoad() {}
     void PopARAMFileLoad() {}

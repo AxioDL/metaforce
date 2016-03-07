@@ -4,6 +4,8 @@ elseif(APPLE)
   set(PLAT_SRCS CLineRendererShadersMetal.cpp)
 endif()
 
+include_directories(${LIBJPEG_INCLUDE_DIR})
+
 add_library(RuntimeCommonGraphics
             IRenderer.hpp
             CBooRenderer.hpp CBooRenderer.cpp
@@ -13,5 +15,6 @@ add_library(RuntimeCommonGraphics
             CLight.hpp CLight.cpp
             CTexture.hpp CTextureBoo.cpp
             CModel.hpp CModelBoo.cpp
+            CMoviePlayer.hpp CMoviePlayer.cpp
             CGraphics.hpp CGraphics.cpp
             ${PLAT_SRCS})

@@ -7,6 +7,7 @@
 
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/CMoviePlayer.hpp"
 
 namespace urde
 {
@@ -47,6 +48,7 @@ class ViewManager : public specter::IViewManager
     urde::TLockedToken<urde::CGenDescription> m_partGenDesc;
     std::unique_ptr<urde::CElementGen> m_partGen;
     std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
+    std::unique_ptr<urde::CMoviePlayer> m_moviePlayer;
 
     hecl::SystemString m_recentProjectsPath;
     std::vector<hecl::SystemString> m_recentProjects;
@@ -60,6 +62,7 @@ class ViewManager : public specter::IViewManager
     specter::RootView* SetupRootView();
     SplashScreen* SetupSplashView();
     void RootSpaceViewBuilt(specter::View* view);
+    void ProjectChanged(hecl::Database::Project& proj);
     void SetupEditorView();
     void SetupEditorView(ConfigReader& r);
     void SaveEditorView(ConfigWriter& w);

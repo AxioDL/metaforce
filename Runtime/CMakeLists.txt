@@ -32,8 +32,8 @@ add_library(RuntimeCommon
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
             CResLoader.hpp CResLoader.cpp
-            CDvdRequest.hpp CNODDvdRequest.cpp
-            CDvdFile.hpp CNODDvdFile.cpp
+            CDvdRequest.hpp
+            CDvdFile.hpp CDvdFile.cpp
             CVirtualDvdFile.hpp CVirtualDvdFile.cpp
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
@@ -63,7 +63,6 @@ add_library(RuntimeCommon
             CMFGameBase.hpp
             CInGameTweakManagerBase.hpp
             CPlayMovieBase.hpp
-            CMoviePlayer.hpp CMoviePlayer.cpp
             CGameDebug.hpp CGameDebug.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp

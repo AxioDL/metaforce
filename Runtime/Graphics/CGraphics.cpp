@@ -10,6 +10,10 @@ namespace urde
 CGraphics::CProjectionState CGraphics::g_Proj;
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
+u32 CGraphics::g_NumBreakpointsWaiting = 0;
+u32 CGraphics::g_FlippingState;
+bool CGraphics::g_LastFrameUsedAbove = false;
+bool CGraphics::g_InterruptLastFrameUsedAbove = false;
 ERglLight CGraphics::g_LightActive = ERglLight::None;
 ERglLight CGraphics::g_LightsWereOn = ERglLight::None;
 zeus::CTransform CGraphics::g_GXModelView;
@@ -59,6 +63,15 @@ void CGraphics::SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ER
 
 void CGraphics::SetCullMode(ERglCullMode)
 {
+}
+
+void CGraphics::EndScene()
+{
+    /* Spinwait until g_NumBreakpointsWaiting is 0 */
+    /* ++g_NumBreakpointsWaiting; */
+    /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
+    /* Register next breakpoint with GP FIFO */
+    /* g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove; */
 }
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1)

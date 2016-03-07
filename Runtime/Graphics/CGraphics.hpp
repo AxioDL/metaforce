@@ -150,6 +150,10 @@ public:
     static CProjectionState g_Proj;
     static float g_ProjAspect;
     static u32 g_NumLightsActive;
+    static u32 g_NumBreakpointsWaiting;
+    static u32 g_FlippingState;
+    static bool g_LastFrameUsedAbove;
+    static bool g_InterruptLastFrameUsedAbove;
     static ERglLight g_LightActive;
     static ERglLight g_LightsWereOn;
     static zeus::CTransform g_GXModelView;
@@ -169,6 +173,7 @@ public:
     static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
     static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
     static void SetCullMode(ERglCullMode);
+    static void EndScene();
     static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
     static void SetViewPointMatrix(const zeus::CTransform& xf);
     static void SetViewMatrix();

@@ -41,11 +41,12 @@ target_link_libraries(urde
                       RuntimeCommonInput
                       RuntimeCommonParticle
                       RuntimeCommonGraphics
+                      RuntimeCommonAudio
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
                       DNACommon specter specter-fonts freetype ${DATA_SPEC_LIBS}
                       hecl-database hecl-backend hecl-frontend hecl-blender hecl-runtime hecl-common athena-core nod
-                      logvisor athena-libyaml boo ${PNG_LIB} squish xxhash zeus
+                      logvisor athena-libyaml boo ${PNG_LIB} libjpeg-turbo squish xxhash zeus
                       ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
 

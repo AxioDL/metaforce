@@ -47,9 +47,13 @@ bool ProjectManager::newProject(const hecl::SystemString& path)
         return false;
     }
 
+    m_vm.ProjectChanged(*m_proj);
     m_vm.SetupEditorView();
     saveProject();
-    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+
+    hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
+    windowTitle += _S(" - URDE");
+    m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
 
@@ -96,11 +100,17 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     }
     fclose(fp);
 
+    m_vm.ProjectChanged(*m_proj);
     m_vm.SetupEditorView(r);
 
     IndexMP1Resources();
     m_vm.BuildTestPART(m_objStore);
-    m_vm.m_mainWindow->setTitle(m_proj->getProjectRootPath().getLastComponent());
+
+    {
+        hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
+        windowTitle += _S(" - URDE");
+        m_vm.m_mainWindow->setTitle(windowTitle.c_str());
+    }
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
 
@@ -109,12 +119,15 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     return true;
 
 makeDefault:
+    m_vm.ProjectChanged(*m_proj);
     m_vm.SetupEditorView();
     saveProject();
 
-    hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-    windowTitle += _S(" - URDE");
-    m_vm.m_mainWindow->setTitle(windowTitle.c_str());
+    {
+        hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
+        windowTitle += _S(" - URDE");
+        m_vm.m_mainWindow->setTitle(windowTitle.c_str());
+    }
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
     return true;

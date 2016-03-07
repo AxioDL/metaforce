@@ -21,13 +21,17 @@ namespace urde
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
+    /*
     m_partGenDesc = objStore.GetObj("BusterSparks");
     m_partGen.reset(new urde::CElementGen(m_partGenDesc,
                                            urde::CElementGen::EModelOrientationType::Normal,
                                            urde::CElementGen::EOptionalSystemFlags::None));
     m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
-    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
+    */
+    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
+    hecl::ProjectPath thpPath(m_projManager.project()->getProjectWorkingPath(), _S("out/MP1/Video/creditBG.thp"));
+    m_moviePlayer.reset(new CMoviePlayer(thpPath.getAbsolutePathUTF8().c_str(), 0.f, true, true));
 
     //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
@@ -96,6 +100,12 @@ void ViewManager::RootSpaceViewBuilt(specter::View *view)
     cViews.push_back(view);
     cViews.push_back(m_splash.get());
     m_rootView->updateSize();
+}
+
+void ViewManager::ProjectChanged(hecl::Database::Project& proj)
+{
+    CDvdFile::Shutdown();
+    CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _S("out/MP1")));
 }
 
 void ViewManager::SetupEditorView()
@@ -224,9 +234,10 @@ void ViewManager::init(boo::IApplication* app)
 
     m_mainWindow->setWaitCursor(false);
 
-    urde::CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
-    urde::CElementGen::Initialize();
-    urde::CLineRenderer::Initialize();
+    CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
+    CElementGen::Initialize();
+    CMoviePlayer::Initialize();
+    CLineRenderer::Initialize();
 }
 
 bool ViewManager::proc()
@@ -277,8 +288,9 @@ bool ViewManager::proc()
 
 void ViewManager::stop()
 {
-    urde::CElementGen::Shutdown();
-    urde::CLineRenderer::Shutdown();
+    CElementGen::Shutdown();
+    CMoviePlayer::Shutdown();
+    CLineRenderer::Shutdown();
     m_iconsToken.doDestroy();
     m_viewResources.destroyResData();
     m_fontCache.destroyAtlases();

@@ -10,7 +10,7 @@ const std::vector<u32>* CResLoader::GetTagListForFile(const std::string& name) c
 {
     std::string namePak = name + ".pak";
     for (const std::unique_ptr<CPakFile>& pak : x1c_pakLoadedList)
-        if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_name))
+        if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path))
             return &pak->GetDepList();
     return nullptr;
 }
@@ -100,13 +100,13 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
     return newStrm;
 }
 
-IDvdRequest* CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
+std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
                                                       ESeekOrigin::Begin, x50_cachedResInfo->x4_offset + offset);
 }
 
-IDvdRequest* CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
+std::shared_ptr<IDvdRequest> CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->x8_size),
                                                       ESeekOrigin::Begin, x50_cachedResInfo->x4_offset);
