@@ -14,9 +14,11 @@ class CElementGen;
 class CParticleElectric : public CParticleGen
 {
 public:
-    class CLineManager
+    struct CLineManager
     {
-
+        std::unique_ptr<CParticleSwoosh> SSWH;
+        std::unique_ptr<CElementGen> GPSM;
+        std::unique_ptr<CElementGen> EPSM;
     };
 private:
     TLockedToken<CElectricDescription> x1c_elecDesc;
@@ -45,17 +47,7 @@ private:
     bool             x1bc_hasModuColor = false;
     int              x1c0 = 32;
     char             x1c4[4][8];
-    std::unique_ptr<CParticleSwoosh> x1e0_SSWH;
-    int              x2e4 = 0;
-    int              x3ec = 0;
-    int              x3f4 = 0; // actually the offset of itself
-    int              x3f0 = x3f4;
-    int              x3f8 = x3f4;
-    int              x3fc = 0;
-    std::unique_ptr<CElementGen>     x400_GPSM;
-    int              x404 = 0;
-    int              x408 = 0;
-    int              x40c = 0;
+    rstl::reserved_vector<CLineManager, 32> x1e0_lineManagers;
     int              x414 = 0;
     int              x418 = 0;
     int              x41c = 0;
@@ -73,7 +65,7 @@ private:
     {
         struct
         {
-            bool x438_24_x450_24 : 1; bool x438_25_x450_25 : 1; bool x438_26_x450_26 : 1; bool x438_27_x450_27 : 1;
+            bool x438_24_x450_24 : 1; bool x438_25_x450_25_HaveGPSM : 1; bool x438_26_x450_26_HaveEPSM : 1; bool x438_27_x450_27_HaveSSWH : 1;
             bool x438_28_x450_28: 1; bool x450_29 : 1;
         };
         u8 dummy = 0;
