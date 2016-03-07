@@ -33,6 +33,7 @@ class CDvdFile
     static std::thread m_WorkerThread;
     static std::mutex m_WorkerMutex;
     static std::condition_variable m_WorkerCV;
+    static std::mutex m_WaitMutex;
     static bool m_WorkerRun;
     static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
     static void WorkerProc();

@@ -5,10 +5,10 @@
 #include "CDvdFile.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "specter/View.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde
 {
-class CVector3f;
 
 class CMoviePlayer : public CDvdFile
 {
@@ -96,15 +96,15 @@ private:
 
     u32 xb0_nextReadSize = 0;
     u32 xb4_nextReadOff = 0;
-    u32 xb8_readSize = 0;
-    u32 xbc_readOff = 0;
-    u32 xc0_loadedFrames = 0;
-    u32 xc4_ = 0;
+    u32 xb8_readSizeWrapped = 0;
+    u32 xbc_readOffWrapped = 0;
+    u32 xc0_curLoadFrame = 0;
+    u32 xc4_requestFrameWrapped = 0;
     u32 xc8_curFrame = 0;
     u32 xcc_decodedTexSlot = 0;
-    u32 xd0_ = 0;
-    u32 xd4_ = 0;
-    s32 xd8_ = 0;
+    u32 xd0_drawTexSlot = -1;
+    u32 xd4_ = -1;
+    s32 xd8_decodedTexCount = 0;
     float xdc_frameRem = 0.f;
     EPlayMode xe0_playMode = EPlayMode::Playing;
     float xe4_totalSeconds = 0.f;
@@ -112,7 +112,7 @@ private:
     float xec_preLoadSeconds;
     u32 xf0_preLoadFrames = 0;
     u32 xf8_ = 0;
-    u32 xfc_ = 0;
+    u32 xfc_fieldIndex = 0;
 
     boo::GraphicsDataToken m_token;
     std::unique_ptr<uint8_t[]> m_yuvBuf;
@@ -127,15 +127,11 @@ private:
         u8 m_dummy = 0;
     };
 
-    struct ViewBlock
-    {
-        zeus::CMatrix4f m_mv;
-        zeus::CColor m_color = zeus::CColor::skWhite;
-    } m_viewVertBlock;
+    specter::View::ViewBlock m_viewVertBlock;
     boo::IGraphicsBufferD* m_blockBuf;
+    boo::IGraphicsBufferD* m_vertBuf;
 
-    uint64_t m_loadedFrameCount = 0;
-    uint64_t m_playedFrameCount = 0;
+    specter::View::TexShaderVert m_frame[4];
 
 public:
 
@@ -161,7 +157,9 @@ public:
     float GetPlayedSeconds() const {return xdc_frameRem + xe8_curSeconds;}
     float GetTotalSeconds() const {return xe4_totalSeconds;}
     void SetPlayMode(EPlayMode mode) {xe0_playMode = mode;}
-    void DrawFrame(const CVector3f& a, const CVector3f& b, const CVector3f& c, const CVector3f& d);
+    void SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b,
+                  const zeus::CVector3f& c, const zeus::CVector3f& d);
+    void DrawFrame();
     void Update(float dt);
     void DecodeFromRead(const void* data);
     void ReadCompleted();

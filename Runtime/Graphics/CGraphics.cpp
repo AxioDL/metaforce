@@ -71,7 +71,15 @@ void CGraphics::EndScene()
     /* ++g_NumBreakpointsWaiting; */
     /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
     /* Register next breakpoint with GP FIFO */
-    /* g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove; */
+
+    /* Yup, GX had fences long before D3D12 and Vulkan
+     * (same functionality implemented in boo's execute method) */
+
+    /* This usually comes from VI register during interrupt;
+     * we don't care in the era of progressive-scan dominance,
+     * so simulate field-flipping with XOR instead */
+    g_InterruptLastFrameUsedAbove ^= 1;
+    g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
 }
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1)

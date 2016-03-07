@@ -30,8 +30,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     */
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    hecl::ProjectPath thpPath(m_projManager.project()->getProjectWorkingPath(), _S("out/MP1/Video/creditBG.thp"));
-    m_moviePlayer.reset(new CMoviePlayer(thpPath.getAbsolutePathUTF8().c_str(), 0.f, true, true));
+    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, true, false));
 
     //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
@@ -69,6 +68,11 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_lineRenderer->AddVertex({0.5f, 0.f, -0.5f}, zeus::CColor::skBlue, 1.f);
         m_vm.m_lineRenderer->Render();
         */
+    }
+    if (m_vm.m_moviePlayer)
+    {
+        m_vm.m_moviePlayer->Update(1.f / 60.f);
+        m_vm.m_moviePlayer->DrawFrame();
     }
 }
 
@@ -280,6 +284,7 @@ bool ViewManager::proc()
         m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
 
     m_rootView->draw(gfxQ);
+    CGraphics::EndScene();
     gfxQ->execute();
     m_mainWindow->waitForRetrace();
 
@@ -291,6 +296,7 @@ void ViewManager::stop()
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();
+    CDvdFile::Shutdown();
     m_iconsToken.doDestroy();
     m_viewResources.destroyResData();
     m_fontCache.destroyAtlases();

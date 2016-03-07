@@ -7,8 +7,6 @@
 #include "CDvdRequest.hpp"
 #include <turbojpeg.h>
 
-#define THP_BUFFER_FRAMES 30
-
 namespace urde
 {
 
@@ -124,7 +122,7 @@ SPECTER_METAL_VIEW_VERT_BLOCK
 static const char* FS_METAL_YUV =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat);\n"
+"constexpr sampler samp(address::repeat, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -269,7 +267,7 @@ void CMoviePlayer::THPAudioFrameHeader::swapBig()
     }
 }
 
-/* Slightly modified THPAudioDecode present in SDK, always interleaves */
+/* Slightly modified from THPAudioDecode present in SDK; always interleaves */
 u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
 {
     THPAudioFrameHeader header = *((const THPAudioFrameHeader*)audioFrame);
@@ -350,6 +348,11 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         }
     }
 
+    xb4_nextReadOff = x28_thpHead.firstFrameOffset;
+    xb0_nextReadSize = x28_thpHead.firstFrameSize;
+    xb8_readSizeWrapped = x28_thpHead.firstFrameSize;
+    xbc_readOffWrapped = x28_thpHead.firstFrameOffset;
+
     xe4_totalSeconds = x28_thpHead.numFrames / x28_thpHead.fps;
     if (xec_preLoadSeconds < 0.f)
     {
@@ -368,15 +371,18 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     if (xf0_preLoadFrames > 0)
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
-    m_blockBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(m_viewVertBlock), 1);
+    m_blockBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Uniform,
+                                                           sizeof(m_viewVertBlock), 1);
+    m_vertBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Vertex,
+                                                          sizeof(specter::View::TexShaderVert), 4);
 
     boo::IVertexFormat* vtxFmt = YUVVTXFmt;
     if (CGraphics::g_BooFactory->bindingNeedsVertexFormat())
     {
         boo::VertexElementDescriptor texvdescs[] =
         {
-            {m_blockBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_blockBuf, nullptr, boo::VertexSemantic::UV4}
+            {m_vertBuf, nullptr, boo::VertexSemantic::Position4},
+            {m_vertBuf, nullptr, boo::VertexSemantic::UV4}
         };
         vtxFmt = CGraphics::g_BooFactory->newVertexFormat(2, texvdescs);
     }
@@ -405,7 +411,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
             for (int j=0 ; j<2 ; ++j)
             {
                 boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
-                set.binding[j] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_blockBuf,
+                set.binding[j] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
                                                                                nullptr, nullptr, 1, bufs, 3, texs);
             }
         }
@@ -423,7 +429,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
 
             boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
             boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
-            set.binding[0] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_blockBuf,
+            set.binding[0] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
                                                                            nullptr, nullptr, 1, bufs, 3, texs);
         }
         if (xf4_25_hasAudio)
@@ -434,6 +440,14 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
 
     m_token = CGraphics::CommitResources();
     PostDVDReadRequestIfNeeded();
+
+    m_frame[0].m_uv = {0.f, 0.f};
+    m_frame[1].m_uv = {0.f, 1.f};
+    m_frame[2].m_uv = {1.f, 0.f};
+    m_frame[3].m_uv = {1.f, 1.f};
+    SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
+
+    m_blockBuf->load(&m_viewVertBlock, sizeof(m_viewVertBlock));
 }
 
 void CMoviePlayer::VerifyCallbackStatus()
@@ -467,34 +481,51 @@ void CMoviePlayer::Rewind()
 
     xb0_nextReadSize = x28_thpHead.firstFrameSize;
     xb4_nextReadOff = x28_thpHead.firstFrameOffset;
-    xb8_readSize = x28_thpHead.firstFrameSize;
-    xbc_readOff = x28_thpHead.firstFrameOffset;
+    xb8_readSizeWrapped = x28_thpHead.firstFrameSize;
+    xbc_readOffWrapped = x28_thpHead.firstFrameOffset;
 
-    xc0_loadedFrames = 0;
-    xc4_ = 0;
+    xc0_curLoadFrame = 0;
+    xc4_requestFrameWrapped = 0;
     xc8_curFrame = 0;
     xcc_decodedTexSlot = 0;
-    xd0_ = -1;
+    xd0_drawTexSlot = -1;
     xd4_ = -1;
-    xd8_ = 0;
+    xd8_decodedTexCount = 0;
     xdc_frameRem = 0.f;
     xe8_curSeconds = 0.f;
 }
 
-void CMoviePlayer::DrawFrame(const CVector3f& a, const CVector3f& b,
-                             const CVector3f& c, const CVector3f& d)
+void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b,
+                            const zeus::CVector3f& c, const zeus::CVector3f& d)
 {
+    m_frame[0].m_pos = a;
+    m_frame[1].m_pos = b;
+    m_frame[2].m_pos = d;
+    m_frame[3].m_pos = c;
+    m_vertBuf->load(m_frame, sizeof(m_frame));
+}
+
+void CMoviePlayer::DrawFrame()
+{
+    if (xd0_drawTexSlot == -1)
+        return;
+    CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
+    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(tex.binding[m_deinterlace ? xf4_26_fieldFlip : 0]);
+    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    if (!xfc_fieldIndex && CGraphics::g_LastFrameUsedAbove)
+        xf4_26_fieldFlip = true;
+    ++xfc_fieldIndex;
 }
 
 void CMoviePlayer::Update(float dt)
 {
-    if (xc0_loadedFrames < xf0_preLoadFrames)
+    if (xc0_curLoadFrame < xf0_preLoadFrames)
     {
         if (x98_request && x98_request->IsComplete())
         {
             ReadCompleted();
-            if (xc0_loadedFrames >= xa0_bufferQueue.size() &&
-                xc0_loadedFrames < xf0_preLoadFrames &&
+            if (xc0_curLoadFrame >= xa0_bufferQueue.size() &&
+                xc0_curLoadFrame < xf0_preLoadFrames &&
                 xa0_bufferQueue.size() < x28_thpHead.numFrames)
             {
                 PostDVDReadRequestIfNeeded();
@@ -506,17 +537,18 @@ void CMoviePlayer::Update(float dt)
         if (x98_request)
         {
             bool flag = false;
-            if (xc4_ >= xa0_bufferQueue.size() && xc0_loadedFrames >= xa0_bufferQueue.size())
+            if (xc4_requestFrameWrapped >= xa0_bufferQueue.size() &&
+                xc0_curLoadFrame >= xa0_bufferQueue.size())
                 flag = true;
-            if (x98_request->IsComplete() && xd8_ < 2 && flag)
+            if (x98_request->IsComplete() && xd8_decodedTexCount < 2 && flag)
             {
                 DecodeFromRead(x90_requestBuf.get());
                 ReadCompleted();
                 PostDVDReadRequestIfNeeded();
-                ++xd8_;
-                ++xc4_;
-                if (xc4_ >= x28_thpHead.numFrames && xf4_24_loop)
-                    xc4_ = 0;
+                ++xd8_decodedTexCount;
+                ++xc4_requestFrameWrapped;
+                if (xc4_requestFrameWrapped >= x28_thpHead.numFrames && xf4_24_loop)
+                    xc4_requestFrameWrapped = 0;
             }
         }
     }
@@ -527,23 +559,23 @@ void CMoviePlayer::Update(float dt)
         PostDVDReadRequestIfNeeded();
     }
 
-    if (xd8_ < 2)
+    if (xd8_decodedTexCount < 2)
     {
-        if (xe0_playMode == EPlayMode::Playing && xc4_ < xf0_preLoadFrames)
+        if (xe0_playMode == EPlayMode::Playing && xc4_requestFrameWrapped < xf0_preLoadFrames)
         {
-            u32 minFrame = std::min(u32(xa0_bufferQueue.size()) - 1, xc4_);
+            u32 minFrame = std::min(u32(xa0_bufferQueue.size()) - 1, xc4_requestFrameWrapped);
             if (minFrame == -1)
                 return;
             std::unique_ptr<uint8_t[]>& frameData = xa0_bufferQueue[minFrame];
             DecodeFromRead(frameData.get());
-            ++xd8_;
-            ++xc4_;
-            if (xc4_ >= x28_thpHead.numFrames && xf4_24_loop)
-                xc4_ = 0;
+            ++xd8_decodedTexCount;
+            ++xc4_requestFrameWrapped;
+            if (xc4_requestFrameWrapped >= x28_thpHead.numFrames && xf4_24_loop)
+                xc4_requestFrameWrapped = 0;
         }
     }
 
-    if (xd8_ <= 0 || xe0_playMode != EPlayMode::Playing)
+    if (xd8_decodedTexCount <= 0 || xe0_playMode != EPlayMode::Playing)
         return;
 
     xe8_curSeconds += dt;
@@ -558,17 +590,17 @@ void CMoviePlayer::Update(float dt)
     {
         if (!xf4_26_fieldFlip)
         {
-            ++xd0_;
-            if (xd0_ >= x80_textures.size())
-                xd0_ = 0;
+            ++xd0_drawTexSlot;
+            if (xd0_drawTexSlot >= x80_textures.size())
+                xd0_drawTexSlot = 0;
             if (xd4_ == -1)
                 xd4_ = 0;
-            --xd8_;
+            --xd8_decodedTexCount;
             ++xc8_curFrame;
             if (xc8_curFrame == x28_thpHead.numFrames && xf4_24_loop)
                 xc8_curFrame = 0;
             rem += frameDt;
-            xfc_ = 0;
+            xfc_fieldIndex = 0;
         }
         else
         {
@@ -650,11 +682,40 @@ void CMoviePlayer::DecodeFromRead(const void* data)
 
 void CMoviePlayer::ReadCompleted()
 {
+    const THPFrameHeader* frameHeader =
+        reinterpret_cast<const THPFrameHeader*>(x90_requestBuf.get());
+    if (xc0_curLoadFrame == xa0_bufferQueue.size() && xf0_preLoadFrames > xc0_curLoadFrame)
+        xa0_bufferQueue.push_back(std::move(x90_requestBuf));
+
+    xb4_nextReadOff += xb0_nextReadSize;
+    xb0_nextReadSize = hecl::SBig(frameHeader->nextSize);
+    ++xc0_curLoadFrame;
+
+    if (xc0_curLoadFrame == xf0_preLoadFrames)
+    {
+        if (x28_thpHead.numFrames == xc0_curLoadFrame)
+        {
+            xb8_readSizeWrapped = x28_thpHead.firstFrameSize;
+            xbc_readOffWrapped = x28_thpHead.firstFrameOffset;
+        }
+        else
+        {
+            xb8_readSizeWrapped = xb0_nextReadSize;
+            xbc_readOffWrapped = xb4_nextReadOff;
+        }
+    }
+
+    if (xc0_curLoadFrame >= x28_thpHead.numFrames && xf4_24_loop)
+    {
+        xb4_nextReadOff = xbc_readOffWrapped;
+        xb0_nextReadSize = xb8_readSizeWrapped;
+        xc0_curLoadFrame = xf0_preLoadFrames;
+    }
 }
 
 void CMoviePlayer::PostDVDReadRequestIfNeeded()
 {
-    if (xc0_loadedFrames < x28_thpHead.numFrames)
+    if (xc0_curLoadFrame < x28_thpHead.numFrames)
     {
         x90_requestBuf.reset(new uint8_t[xb0_nextReadSize]);
         x98_request = AsyncSeekRead(x90_requestBuf.get(), xb0_nextReadSize,

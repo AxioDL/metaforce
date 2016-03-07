@@ -19,6 +19,7 @@ ProjectResourceFactory::ProjectResourceFactory()
 
 void ProjectResourceFactory::BuildObjectMap(const hecl::Database::Project::ProjectDataSpec &spec)
 {
+#if 0
     m_tagToPath.clear();
     m_catalogNameToTag.clear();
     hecl::SystemString catalogPath = hecl::ProjectPath(spec.cookedPath, hecl::SystemString(spec.spec.m_name) + _S("/catalog.yaml")).getAbsolutePath();
@@ -45,6 +46,7 @@ void ProjectResourceFactory::BuildObjectMap(const hecl::Database::Project::Proje
     {
         RecursiveAddDirObjects(spec.cookedPath);
     }
+#endif
 }
 
 std::unique_ptr<urde::IObj> ProjectResourceFactory::Build(const urde::SObjectTag& tag,

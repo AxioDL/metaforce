@@ -7,6 +7,16 @@
 #include "ViewManager.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 
+static logvisor::Module AthenaLog("Athena");
+static void AthenaExc(athena::error::Level level, const char* file,
+                      const char*, int line, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    AthenaLog.reportSource(logvisor::Level(level), file, line, fmt, ap);
+    va_end(ap);
+}
+
 namespace urde
 {
 static logvisor::Module Log{"URDE"};
@@ -101,6 +111,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
     logvisor::RegisterConsoleLogger();
+    atSetExceptionHandler(AthenaExc);
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("urde"), _S("URDE"), argc, argv, false);
