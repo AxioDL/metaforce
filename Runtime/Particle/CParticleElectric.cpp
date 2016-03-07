@@ -33,23 +33,30 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
         desc->x0_LIFE->GetValue(x28_currentFrame, x2c_LIFE);
     else
         x2c_LIFE = 0x7FFFFF;
-    /* TODO: figure this out more */
+
     if (desc->x40_SSWH.m_found)
     {
-        x438_27_x450_27 = true;
-        //x1e0_SSWH.reset(new CParticleSwoosh(desc->x40_SSWH.m_token
+        x438_27_x450_27_HaveSSWH = true;
+        for (int i = 0 ; i < x154_SCNT ; i++)
+            x1e0_lineManagers[i].SSWH.reset(new CParticleSwoosh(desc->x40_SSWH.m_token, x150_SSEG));
     }
 
     if (desc->x50_GPSM.m_found)
     {
-        x438_25_x450_25 = true;
-        //x400_GPSM.reset(new CElementGen(desc->x50_GPSM.m_token
+        x438_25_x450_25_HaveGPSM = true;
+        for (int i = 0 ; i < x154_SCNT ; i++)
+            x1e0_lineManagers[i].GPSM.reset(new CElementGen(desc->x50_GPSM.m_token,
+                                                            CElementGen::EModelOrientationType::Normal,
+                                                            CElementGen::EOptionalSystemFlags::One));
     }
 
     if (desc->x60_EPSM.m_found)
     {
-        x438_26_x450_26 = true;
-        //x410_GPSM.reset(new CElementGen(desc->x60_EPSM.m_token
+        x438_26_x450_26_HaveEPSM = true;
+        for (int i = 0 ; i < x154_SCNT ; i++)
+            x1e0_lineManagers[i].EPSM.reset(new CElementGen(desc->x60_EPSM.m_token,
+                                                             CElementGen::EModelOrientationType::Normal,
+                                                             CElementGen::EOptionalSystemFlags::One));
     }
 }
 
@@ -125,7 +132,7 @@ void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
 {
     xec_localScale = scale;
     x438_28_x450_28 = true;
-    if (x438_26_x450_26)
+    if (x438_26_x450_26_HaveEPSM)
     {
 
     }
