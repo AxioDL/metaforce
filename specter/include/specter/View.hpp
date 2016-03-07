@@ -91,6 +91,18 @@ public:
         zeus::CVector3f m_pos;
         zeus::CVector2f m_uv;
     };
+    struct ViewBlock
+    {
+        zeus::CMatrix4f m_mv;
+        zeus::CColor m_color = zeus::CColor::skWhite;
+        void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+        {
+            m_mv[0][0] = 2.0f / root.size[0];
+            m_mv[1][1] = 2.0f / root.size[1];
+            m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
+            m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
+        }
+    };
 
     struct VertexBufferBinding
     {
@@ -117,18 +129,7 @@ private:
     View(ViewResources& res);
 
 protected:
-    struct ViewBlock
-    {
-        zeus::CMatrix4f m_mv;
-        zeus::CColor m_color = zeus::CColor::skWhite;
-        void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub)
-        {
-            m_mv[0][0] = 2.0f / root.size[0];
-            m_mv[1][1] = 2.0f / root.size[1];
-            m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
-            m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
-        }
-    } m_viewVertBlock;
+    ViewBlock m_viewVertBlock;
 #define SPECTER_GLSL_VIEW_VERT_BLOCK\
     "UBINDING0 uniform SpecterViewBlock\n"\
     "{\n"\
