@@ -12,12 +12,13 @@ class IAllocator
 {
 public:
     virtual ~IAllocator() {}
-    enum class EHint
+    enum class EHint : u32
     {
-        None = 0x0,
-        TopOfHeap = 0x1,
-        Large = 0x2
+        None      = 0,
+        TopOfHeap = (1 << 0),
+        Large     = (1 << 1)
     };
+
     enum class EScope
     {
         None = 0,
@@ -30,6 +31,12 @@ public:
     };
     struct SAllocInfo
     {
+        void* x0_memInfo;
+        size_t x4_size;
+        bool  x8_hasPrev; // Retro puts memInfo's prev pointer here o.o
+        bool  x9_unk2;  // this is always set to 0
+        const char**    xc_fileAndLine;
+        const char**    x10_type;
     };
     struct SMetrics
     {
@@ -62,7 +69,7 @@ public:
     virtual bool Initialize()=0;
     virtual void Shutdown()=0;
     virtual void* Alloc(size_t, EHint, EScope, EType, const CCallStack&)=0;
-    virtual void Free(void*)=0;
+    virtual bool Free(void*)=0;
     virtual void ReleaseAll()=0;
     virtual void* AllocSecondary(size_t, EHint, EScope, EType, const CCallStack&)=0;
     virtual void FreeSecondary(void*)=0;
@@ -73,7 +80,7 @@ public:
     virtual void OffsetFakeStatics(int)=0;
     virtual SMetrics GetMetrics() const=0;
 };
-
+ENABLE_BITWISE_ENUM(IAllocator::EHint)
 }
 
 #endif // __PSHAG_IALLOCATOR_HPP__
