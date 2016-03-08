@@ -493,9 +493,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i)
                 {
                     out[0] = DSPSampClamp(in[0] +
-                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
                     out[1] = DSPSampClamp(in[1] +
-                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
                     out += 2;
                     in += 2;
                 }
@@ -505,9 +505,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i)
                 {
                     out[0] = DSPSampClamp(
-                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
                     out[1] = DSPSampClamp(
-                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
                     out += 2;
                 }
             }
