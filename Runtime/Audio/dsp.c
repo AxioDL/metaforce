@@ -2,13 +2,6 @@
 
 static const int NibbleToInt[16] = {0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1};
 
-static inline short SampClamp(int val)
-{
-    if (val < -32768) val = -32768;
-    if (val > 32767) val = 32767;
-    return val;
-}
-
 void DSPDecompressFrame(int16_t* out, const uint8_t* in,
                         const int16_t coefs[8][2], int16_t* prev1, int16_t* prev2,
                         unsigned lastSample)
@@ -29,7 +22,7 @@ void DSPDecompressFrame(int16_t* out, const uint8_t* in,
         factor1 * *prev1 +
         factor2 * *prev2;
         sampleData >>= 11;
-        sampleData = SampClamp(sampleData);
+        sampleData = DSPSampClamp(sampleData);
         out[s] = sampleData;
         *prev2 = *prev1;
         *prev1 = sampleData;
@@ -56,7 +49,7 @@ void DSPDecompressFrameStereoStride(int16_t* out, const uint8_t* in,
         factor1 * *prev1 +
         factor2 * *prev2;
         sampleData >>= 11;
-        sampleData = SampClamp(sampleData);
+        sampleData = DSPSampClamp(sampleData);
         out[s*2] = sampleData;
         *prev2 = *prev1;
         *prev1 = sampleData;
@@ -83,7 +76,7 @@ void DSPDecompressFrameStereoDupe(int16_t* out, const uint8_t* in,
         factor1 * *prev1 +
         factor2 * *prev2;
         sampleData >>= 11;
-        sampleData = SampClamp(sampleData);
+        sampleData = DSPSampClamp(sampleData);
         out[s*2] = sampleData;
         out[s*2+1] = sampleData;
         *prev2 = *prev1;

@@ -462,10 +462,70 @@ void CMoviePlayer::SetStaticAudioVolume(int vol)
 void CMoviePlayer::SetStaticAudio(const void* data, u32 length, u32 loopStart, u32 loopEnd)
 {
 }
-void CMoviePlayer::MixAudio(short* out, const short* in, u32 length)
+
+void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
 {
+    if (xd4_audioSlot == -1)
+    {
+        if (in)
+            memcpy(out, in, samples * 4);
+        else
+            memset(out, 0, samples * 4);
+        return;
+    }
+
+    while (samples)
+    {
+        CTHPTextureSet* tex = &x80_textures[xd4_audioSlot];
+        u32 thisSamples = std::min(tex->audioSamples - tex->playedSamples, samples);
+        if (!thisSamples)
+        {
+            ++xd4_audioSlot;
+            if (xd4_audioSlot >= x80_textures.size())
+                xd4_audioSlot = 0;
+            tex = &x80_textures[xd4_audioSlot];
+            thisSamples = std::min(tex->audioSamples - tex->playedSamples, samples);
+        }
+        if (thisSamples)
+        {
+            if (in)
+            {
+                for (u32 i=0 ; i<thisSamples ; ++i)
+                {
+                    out[0] = DSPSampClamp(in[0] +
+                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                    out[1] = DSPSampClamp(in[1] +
+                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                    out += 2;
+                    in += 2;
+                }
+            }
+            else
+            {
+                for (u32 i=0 ; i<thisSamples ; ++i)
+                {
+                    out[0] = DSPSampClamp(
+                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                    out[1] = DSPSampClamp(
+                        s16(s32(tex->audioBuf.get()[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                    out += 2;
+                }
+            }
+            tex->playedSamples += thisSamples;
+            samples -= thisSamples;
+        }
+        else
+        {
+            if (in)
+                memcpy(out, in, samples * 4);
+            else
+                memset(out, 0, samples * 4);
+            return;
+        }
+    }
 }
-void CMoviePlayer::MixStaticAudio(short* out, const short* in, u32 length)
+
+void CMoviePlayer::MixStaticAudio(short* out, const short* in, u32 samples)
 {
 }
 void CMoviePlayer::StaticMyAudioCallback()
@@ -489,7 +549,7 @@ void CMoviePlayer::Rewind()
     xc8_curFrame = 0;
     xcc_decodedTexSlot = 0;
     xd0_drawTexSlot = -1;
-    xd4_ = -1;
+    xd4_audioSlot = -1;
     xd8_decodedTexCount = 0;
     xdc_frameRem = 0.f;
     xe8_curSeconds = 0.f;
@@ -510,7 +570,8 @@ void CMoviePlayer::DrawFrame()
     if (xd0_drawTexSlot == -1)
         return;
     CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(tex.binding[m_deinterlace ? xf4_26_fieldFlip : 0]);
+    CGraphics::g_BooMainCommandQueue->setShaderDataBinding
+        (tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0]);
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
     if (!xfc_fieldIndex && CGraphics::g_LastFrameUsedAbove)
         xf4_26_fieldFlip = true;
@@ -593,8 +654,8 @@ void CMoviePlayer::Update(float dt)
             ++xd0_drawTexSlot;
             if (xd0_drawTexSlot >= x80_textures.size())
                 xd0_drawTexSlot = 0;
-            if (xd4_ == -1)
-                xd4_ = 0;
+            if (xd4_audioSlot == -1)
+                xd4_audioSlot = 0;
             --xd8_decodedTexCount;
             ++xc8_curFrame;
             if (xc8_curFrame == x28_thpHead.numFrames && xf4_24_loop)
@@ -668,7 +729,8 @@ void CMoviePlayer::DecodeFromRead(const void* data)
             break;
         }
         case THPComponents::Type::Audio:
-            THPAudioDecode(tex.audioBuf.get(), (u8*)inptr, x74_audioInfo.numChannels == 2);
+            tex.audioSamples = THPAudioDecode(tex.audioBuf.get(), (u8*)inptr, x74_audioInfo.numChannels == 2);
+            tex.playedSamples = 0;
             inptr += frameHeader.audioSize;
             break;
         default: break;

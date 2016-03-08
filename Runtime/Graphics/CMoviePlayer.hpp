@@ -86,6 +86,8 @@ private:
         boo::ITextureD* Y[2] = {};
         boo::ITextureD* U = nullptr;
         boo::ITextureD* V = nullptr;
+        u32 playedSamples = 0;
+        u32 audioSamples = 0;
         std::unique_ptr<s16[]> audioBuf;
         boo::IShaderDataBinding* binding[2] = {};
     };
@@ -103,7 +105,7 @@ private:
     u32 xc8_curFrame = 0;
     u32 xcc_decodedTexSlot = 0;
     u32 xd0_drawTexSlot = -1;
-    u32 xd4_ = -1;
+    u32 xd4_audioSlot = -1;
     s32 xd8_decodedTexCount = 0;
     float xdc_frameRem = 0.f;
     EPlayMode xe0_playMode = EPlayMode::Playing;
@@ -142,8 +144,8 @@ public:
     static void DisableStaticAudio();
     static void SetStaticAudioVolume(int vol);
     static void SetStaticAudio(const void* data, u32 length, u32 loopStart, u32 loopEnd);
-    void MixAudio(short* out, const short* in, u32 length);
-    static void MixStaticAudio(short* out, const short* in, u32 length);
+    void MixAudio(s16* out, const s16* in, u32 samples);
+    static void MixStaticAudio(short* out, const short* in, u32 samples);
     static void StaticMyAudioCallback();
     void Rewind();
 

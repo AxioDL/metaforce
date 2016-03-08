@@ -1,7 +1,9 @@
 #ifndef URDE_VIEW_MANAGER_HPP
 #define URDE_VIEW_MANAGER_HPP
 
-#include <hecl/CVarManager.hpp>
+#include "hecl/CVarManager.hpp"
+#include "boo/audiodev/IAudioVoiceAllocator.hpp"
+#include "boo/audiodev/AudioMatrix.hpp"
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
@@ -49,6 +51,23 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<urde::CElementGen> m_partGen;
     std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
     std::unique_ptr<urde::CMoviePlayer> m_moviePlayer;
+    std::unique_ptr<boo::IAudioVoiceAllocator> m_voiceAllocator;
+    std::unique_ptr<boo::IAudioVoice> m_videoVoice;
+    boo::AudioMatrixStereo m_stereoMatrix;
+    struct AudioVoiceCallback : boo::IAudioVoiceCallback
+    {
+        ViewManager& m_vm;
+        std::vector<s16> m_stereoBuf;
+        void needsNextBuffer(boo::IAudioVoice& voice, size_t frames)
+        {
+            m_stereoBuf.clear();
+            m_stereoBuf.resize(frames * 2);
+            if (m_vm.m_moviePlayer)
+                m_vm.m_moviePlayer->MixAudio(m_stereoBuf.data(), nullptr, frames);
+            m_vm.m_stereoMatrix.bufferStereoSampleData(voice, m_stereoBuf.data(), frames);
+        }
+        AudioVoiceCallback(ViewManager& vm) : m_vm(vm) {}
+    } m_voiceCallback;
 
     hecl::SystemString m_recentProjectsPath;
     std::vector<hecl::SystemString> m_recentProjects;

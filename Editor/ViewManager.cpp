@@ -30,7 +30,8 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     */
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, true, false));
+    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", -1.f, true, true));
+    m_videoVoice->start();
 
     //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
@@ -147,7 +148,7 @@ void ViewManager::DismissSplash()
 
 ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
-  m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()),
+  m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()), m_voiceCallback(*this),
   m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().c_str())),
   m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().c_str()))
 {
@@ -238,6 +239,11 @@ void ViewManager::init(boo::IApplication* app)
 
     m_mainWindow->setWaitCursor(false);
 
+    m_voiceAllocator = boo::NewAudioVoiceAllocator();
+    boo::AudioChannelSet audioSet = m_voiceAllocator->getAvailableSet();
+    m_stereoMatrix.setAudioChannelSet(audioSet);
+    m_stereoMatrix.setDefaultMatrixCoefficients();
+    m_videoVoice = m_voiceAllocator->allocateNewVoice(audioSet, 32000, &m_voiceCallback);
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CElementGen::Initialize();
     CMoviePlayer::Initialize();
@@ -286,6 +292,7 @@ bool ViewManager::proc()
     m_rootView->draw(gfxQ);
     CGraphics::EndScene();
     gfxQ->execute();
+    m_voiceAllocator->pumpVoices();
     m_mainWindow->waitForRetrace();
 
     return true;
@@ -293,6 +300,7 @@ bool ViewManager::proc()
 
 void ViewManager::stop()
 {
+    m_videoVoice.reset();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();
