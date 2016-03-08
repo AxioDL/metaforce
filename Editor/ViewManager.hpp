@@ -47,10 +47,11 @@ class ViewManager : public specter::IViewManager
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<ParticleView> m_particleView;
-    urde::TLockedToken<urde::CGenDescription> m_partGenDesc;
-    std::unique_ptr<urde::CElementGen> m_partGen;
-    std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
-    std::unique_ptr<urde::CMoviePlayer> m_moviePlayer;
+    urde::TLockedToken<CGenDescription> m_partGenDesc;
+    std::unique_ptr<CElementGen> m_partGen;
+    std::unique_ptr<CLineRenderer> m_lineRenderer;
+    std::unique_ptr<CMoviePlayer> m_moviePlayer;
+    std::unique_ptr<u8[]> m_rsfBuf;
     std::unique_ptr<boo::IAudioVoiceAllocator> m_voiceAllocator;
     std::unique_ptr<boo::IAudioVoice> m_videoVoice;
     boo::AudioMatrixStereo m_stereoMatrix;
@@ -64,6 +65,7 @@ class ViewManager : public specter::IViewManager
             m_stereoBuf.resize(frames * 2);
             if (m_vm.m_moviePlayer)
                 m_vm.m_moviePlayer->MixAudio(m_stereoBuf.data(), nullptr, frames);
+            CMoviePlayer::MixStaticAudio(m_stereoBuf.data(), m_stereoBuf.data(), frames);
             m_vm.m_stereoMatrix.bufferStereoSampleData(voice, m_stereoBuf.data(), frames);
         }
         AudioVoiceCallback(ViewManager& vm) : m_vm(vm) {}

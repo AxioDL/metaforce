@@ -140,13 +140,11 @@ public:
     CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace);
 
     static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
-    static void VerifyCallbackStatus();
-    static void DisableStaticAudio();
+    static void DisableStaticAudio() {SetStaticAudio(nullptr, 0, 0, 0);}
     static void SetStaticAudioVolume(int vol);
-    static void SetStaticAudio(const void* data, u32 length, u32 loopStart, u32 loopEnd);
+    static void SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32 loopEnd);
     void MixAudio(s16* out, const s16* in, u32 samples);
-    static void MixStaticAudio(short* out, const short* in, u32 samples);
-    static void StaticMyAudioCallback();
+    static void MixStaticAudio(s16* out, const s16* in, u32 samples);
     void Rewind();
 
     bool GetIsMovieFinishedPlaying() const

@@ -51,7 +51,6 @@ public:
     {
         m_reader.seek(pos, athena::SeekOrigin::Begin);
     }
-    static void internalCallback(s32, DVDFileInfo*) {}
     static bool FileExists(const char* path)
     {
         return hecl::ProjectPath(m_DvdRoot, path).getPathType() != hecl::ProjectPath::Type::File;
@@ -74,16 +73,7 @@ public:
     {
         m_reader.readBytesToBuf(buf, len);
     }
-    void StallForARAMFile() {}
-    void StartARAMFileLoad() {}
-    void PopARAMFileLoad() {}
-    void PushARAMFileLoad() {}
-    void TryARAMFile() {}
-    void PingARAMTransfer() {}
-    void HandleDVDInterrupt() {}
-    void HandleARAMInterrupt() {}
-    static void ARAMARAMXferCallback(u32) {}
-    static void DVDARAMXferCallback(s32, DVDFileInfo*) {}
+    u64 Length() {return m_reader.length();}
 };
 }
 

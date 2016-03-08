@@ -30,7 +30,12 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     */
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", -1.f, true, true));
+    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, true, false));
+    CDvdFile testRSF("Audio/frontend_1.rsf");
+    u64 rsfLen = testRSF.Length();
+    m_rsfBuf.reset(new u8[rsfLen]);
+    testRSF.SyncRead(m_rsfBuf.get(), rsfLen);
+    CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
     m_videoVoice->start();
 
     //m_rootView->accessContentViews().clear();

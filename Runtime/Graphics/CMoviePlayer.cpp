@@ -144,10 +144,40 @@ static const char* FS_METAL_YUV =
 "    return float4(yuv.r+1.5958*yuv.b, yuv.r-0.39173*yuv.g-0.81290*yuv.b, yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
 
+static const u16 StaticVolumeLookup[] =
+{
+    0x0000, 0x0002, 0x0008, 0x0012, 0x0020, 0x0032, 0x0049, 0x0063,
+    0x0082, 0x00A4, 0x00CB, 0x00F5, 0x0124, 0x0157, 0x018E, 0x01C9,
+    0x0208, 0x024B, 0x0292, 0x02DD, 0x032C, 0x037F, 0x03D7, 0x0432,
+    0x0492, 0x04F5, 0x055D, 0x05C9, 0x0638, 0x06AC, 0x0724, 0x07A0,
+    0x0820, 0x08A4, 0x092C, 0x09B8, 0x0A48, 0x0ADD, 0x0B75, 0x0C12,
+    0x0CB2, 0x0D57, 0x0DFF, 0x0EAC, 0x0F5D, 0x1012, 0x10CA, 0x1187,
+    0x1248, 0x130D, 0x13D7, 0x14A4, 0x1575, 0x164A, 0x1724, 0x1801,
+    0x18E3, 0x19C8, 0x1AB2, 0x1BA0, 0x1C91, 0x1D87, 0x1E81, 0x1F7F,
+    0x2081, 0x2187, 0x2291, 0x239F, 0x24B2, 0x25C8, 0x26E2, 0x2801,
+    0x2923, 0x2A4A, 0x2B75, 0x2CA3, 0x2DD6, 0x2F0D, 0x3048, 0x3187,
+    0x32CA, 0x3411, 0x355C, 0x36AB, 0x37FF, 0x3956, 0x3AB1, 0x3C11,
+    0x3D74, 0x3EDC, 0x4048, 0x41B7, 0x432B, 0x44A3, 0x461F, 0x479F,
+    0x4923, 0x4AAB, 0x4C37, 0x4DC7, 0x4F5C, 0x50F4, 0x5290, 0x5431,
+    0x55D6, 0x577E, 0x592B, 0x5ADC, 0x5C90, 0x5E49, 0x6006, 0x61C7,
+    0x638C, 0x6555, 0x6722, 0x68F4, 0x6AC9, 0x6CA2, 0x6E80, 0x7061,
+    0x7247, 0x7430, 0x761E, 0x7810, 0x7A06, 0x7C00, 0x7DFE, 0x8000
+};
+
 static boo::GraphicsDataToken GraphicsData;
 static boo::IVertexFormat* YUVVTXFmt = nullptr;
 static boo::IShaderPipeline* YUVShaderPipeline = nullptr;
 static tjhandle TjHandle = nullptr;
+
+static const u8* StaticAudio = nullptr;
+static u32 StaticAudioSize = 0;
+static u32 StaticAudioOffset = 0;
+static u16 StaticVolumeAtten = 0x50F4;
+static u32 StaticLoopBegin = 0;
+static u32 StaticLoopEnd = 0;
+
+static g72x_state StaticStateLeft = {};
+static g72x_state StaticStateRight = {};
 
 void CMoviePlayer::Initialize()
 {
@@ -450,17 +480,21 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     m_blockBuf->load(&m_viewVertBlock, sizeof(m_viewVertBlock));
 }
 
-void CMoviePlayer::VerifyCallbackStatus()
-{
-}
-void CMoviePlayer::DisableStaticAudio()
-{
-}
 void CMoviePlayer::SetStaticAudioVolume(int vol)
 {
+    StaticVolumeAtten = StaticVolumeLookup[std::max(0, std::min(127, vol))];
 }
-void CMoviePlayer::SetStaticAudio(const void* data, u32 length, u32 loopStart, u32 loopEnd)
+
+void CMoviePlayer::SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32 loopEnd)
 {
+    StaticAudio = reinterpret_cast<const u8*>(data);
+    StaticAudioSize = size;
+    StaticLoopBegin = loopBegin;
+    StaticLoopEnd = loopEnd;
+    StaticAudioOffset = 0;
+
+    g72x_init_state(&StaticStateLeft);
+    g72x_init_state(&StaticStateRight);
 }
 
 void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
@@ -525,12 +559,59 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
     }
 }
 
-void CMoviePlayer::MixStaticAudio(short* out, const short* in, u32 samples)
+void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples)
 {
+    if (!StaticAudio)
+        return;
+    while (samples)
+    {
+        u32 thisSamples = std::min(StaticLoopEnd - StaticAudioOffset, samples);
+        const u8* thisOffsetLeft = &StaticAudio[StaticAudioOffset/2];
+        const u8* thisOffsetRight = &StaticAudio[StaticAudioSize + StaticAudioOffset/2];
+
+        if (in)
+        {
+            for (u32 i=0 ; i<thisSamples ; i+=2)
+            {
+                out[0] = DSPSampClamp(in[0] +
+                    s16(s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                out[1] = DSPSampClamp(in[1] +
+                    s16(s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                out[2] = DSPSampClamp(in[2] +
+                    s16(s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                out[3] = DSPSampClamp(in[3] +
+                    s16(s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                thisOffsetLeft += 1;
+                thisOffsetRight += 1;
+                out += 4;
+                in += 4;
+            }
+        }
+        else
+        {
+            for (u32 i=0 ; i<thisSamples ; i+=2)
+            {
+                out[0] = DSPSampClamp(
+                    s16(s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                out[1] = DSPSampClamp(
+                    s16(s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                out[2] = DSPSampClamp(
+                    s16(s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                out[3] = DSPSampClamp(
+                    s16(s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                thisOffsetLeft += 1;
+                thisOffsetRight += 1;
+                out += 4;
+            }
+        }
+
+        StaticAudioOffset += thisSamples;
+        if (StaticAudioOffset == StaticLoopEnd)
+            StaticAudioOffset = StaticLoopBegin;
+        samples -= thisSamples;
+    }
 }
-void CMoviePlayer::StaticMyAudioCallback()
-{
-}
+
 void CMoviePlayer::Rewind()
 {
     if (x98_request)
