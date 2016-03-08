@@ -42,7 +42,7 @@ class ViewManager : public specter::IViewManager
         ViewManager& m_vm;
     public:
         ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
-        : View(res, parent), m_vm(vm) {}
+        : View(res, parent), m_vm(vm) {commitResources(res);}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };

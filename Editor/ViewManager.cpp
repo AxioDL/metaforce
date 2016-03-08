@@ -30,7 +30,8 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     */
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, true, false));
+    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, false, false));
+    m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     CDvdFile testRSF("Audio/frontend_1.rsf");
     u64 rsfLen = testRSF.Length();
     m_rsfBuf.reset(new u8[rsfLen]);
@@ -77,6 +78,11 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     }
     if (m_vm.m_moviePlayer)
     {
+        if (m_vm.m_moviePlayer->GetIsMovieFinishedPlaying())
+        {
+            m_vm.m_moviePlayer.reset(new CMoviePlayer("Video/01_startloop.thp", -1.f, true, false));
+            m_vm.m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
+        }
         m_vm.m_moviePlayer->Update(1.f / 60.f);
         m_vm.m_moviePlayer->DrawFrame();
     }
