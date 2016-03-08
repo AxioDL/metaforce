@@ -8,9 +8,10 @@ Precompiled builds are available at https://github.com/AxioDL/urde/releases
 * Windows 7+ (64-bit support only)
 * Mac OS X 10.9+
 * Linux
-    * With development packages of recent udev, xorg+xcb, xinput, glx, asound
-    * Arch is known to function with [vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
+    * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
+    * [WIP] Vulkan loader detection is also integrated into the cmake for Linux
 * **[Coming Soon]** FreeBSD
+    * Much multimedia functionality is in place, but not fully tested
 
 ### Build Prerequisites:
 * [CMake 3+](https://cmake.org)
@@ -18,8 +19,9 @@ Precompiled builds are available at https://github.com/AxioDL/urde/releases
 * LLVM
     * [Specialized Windows Package](https://www.dropbox.com/s/4u0rckvh3d3tvr1/LLVM-3.7.0-win64.exe)
     * [OS X Package](http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-apple-darwin.tar.xz)
-* [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) (Windows builders)
-* [Xcode Tools](https://developer.apple.com/xcode/download/) (Mac builders)
+* **[Windows]** [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+* **[OS X]** [Xcode Tools](https://developer.apple.com/xcode/download/)
+* **[Linux]** recent development packages of `udev`, `xorg+xcb`, `xinput`, `glx`, `asound`
 
 ### Build Directions (Release)
 
