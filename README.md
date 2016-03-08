@@ -7,7 +7,9 @@ Precompiled builds are available at https://github.com/AxioDL/urde/releases
 ### Platform Support
 * Windows 7+ (64-bit support only)
 * Mac OS X 10.9+
-* Linux (with recent udev, xcb, xinput, glx)
+* Linux
+    * With development packages of recent udev, xorg+xcb, xinput, glx, asound
+    * Arch is known to function with [vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
 * **[Coming Soon]** FreeBSD
 
 ### Build Prerequisites:
