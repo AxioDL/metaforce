@@ -56,7 +56,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactory::Build(const urde::SObjectTag
     if (search == m_tagToPath.end())
         return {};
 
-    fprintf(stderr, "Loading resource %s\n", search->second.getRelativePath().c_str());
+    //fprintf(stderr, "Loading resource %s\n", search->second.getRelativePath().c_str());
     athena::io::FileReader fr(search->second.getAbsolutePath(), 32 * 1024, false);
     if (fr.hasError())
         return {};

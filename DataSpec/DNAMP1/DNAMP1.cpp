@@ -89,11 +89,7 @@ void PAKBridge::build()
             }
             bool named;
 #if HECL_UCS2
-<<<<<<< HEAD
             level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry, named));
-=======
-            level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry));
->>>>>>> master
 #else
             level.name = m_pak.bestEntryName(entry, named);
 #endif

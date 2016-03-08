@@ -106,7 +106,7 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MLVL>
  const DNAMP1::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  bool force,
  std::function<void(const hecl::SystemChar*)> fileChanged);
 
@@ -115,7 +115,7 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MLVL>
  const DNAMP2::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  bool force,
  std::function<void(const hecl::SystemChar*)> fileChanged);
 
@@ -124,7 +124,7 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MLVL>
  const DNAMP3::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  bool force,
  std::function<void(const hecl::SystemChar*)> fileChanged);
 

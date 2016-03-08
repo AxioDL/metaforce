@@ -298,7 +298,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP1::PAKBridge>>
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP2::PAKBridge>>
@@ -306,7 +306,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP2::PAKBridge>>
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
@@ -314,7 +314,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  bool force);
 
 }

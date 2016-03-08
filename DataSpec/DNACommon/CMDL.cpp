@@ -127,7 +127,7 @@ template void ReadMaterialSetToBlender_3<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::M
 (hecl::BlenderConnection::PyOutStream& os,
  const DNAMP3::MaterialSet& matSet,
  const PAKRouter<DNAMP3::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  unsigned setIdx);
 
 class DLReader
@@ -1104,7 +1104,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSe
 (hecl::BlenderConnection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
  const std::pair<DNAMP1::CSKR*,DNAMP1::CINF*>& rp);
 
@@ -1113,7 +1113,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSe
 (hecl::BlenderConnection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
  const std::pair<DNAMP2::CSKR*,DNAMP2::CINF*>& rp);
 
@@ -1122,7 +1122,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSe
 (hecl::BlenderConnection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
  const std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>& rp);
 
@@ -1131,7 +1131,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSe
 (hecl::BlenderConnection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
- const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+ const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec,
  const std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>& rp);
 
@@ -1168,7 +1168,7 @@ void NameCMDL(athena::io::IStreamReader& reader,
 template void NameCMDL<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet>
 (athena::io::IStreamReader& reader,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
- typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+ PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec);
 
 static void WriteDLVal(athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)

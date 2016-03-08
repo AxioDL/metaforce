@@ -47,6 +47,8 @@ specter::Icon& GetIcon(SpaceIcon icon)
         return g_IconAtlas.getIcon(0, 3);
     case SpaceIcon::ModelViewer:
         return g_IconAtlas.getIcon(0, 4);
+    default:
+        return g_IconAtlas.getIcon(6, 0);
     }
 }
 
@@ -84,6 +86,8 @@ specter::Icon& GetIcon(MonoIcon icon)
         return g_IconAtlas.getIcon(6, 5);
     case MonoIcon::Info:
         return g_IconAtlas.getIcon(6, 6);
+    default:
+        return g_IconAtlas.getIcon(6, 0);
     }
 }
 
