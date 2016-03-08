@@ -567,7 +567,7 @@ void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples)
     {
         u32 thisSamples = std::min(StaticLoopEnd - StaticAudioOffset, samples);
         const u8* thisOffsetLeft = &StaticAudio[StaticAudioOffset/2];
-        const u8* thisOffsetRight = &StaticAudio[StaticAudioSize + StaticAudioOffset/2];
+        const u8* thisOffsetRight = &StaticAudio[StaticAudioSize/2 + StaticAudioOffset/2];
 
         if (in)
         {
@@ -825,10 +825,12 @@ void CMoviePlayer::DecodeFromRead(const void* data)
 
 void CMoviePlayer::ReadCompleted()
 {
+    std::unique_ptr<uint8_t[]> buffer = std::move(x90_requestBuf);
+    x98_request.reset();
     const THPFrameHeader* frameHeader =
-        reinterpret_cast<const THPFrameHeader*>(x90_requestBuf.get());
+        reinterpret_cast<const THPFrameHeader*>(buffer.get());
     if (xc0_curLoadFrame == xa0_bufferQueue.size() && xf0_preLoadFrames > xc0_curLoadFrame)
-        xa0_bufferQueue.push_back(std::move(x90_requestBuf));
+        xa0_bufferQueue.push_back(std::move(buffer));
 
     xb4_nextReadOff += xb0_nextReadSize;
     xb0_nextReadSize = hecl::SBig(frameHeader->nextSize);
