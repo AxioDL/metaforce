@@ -8,6 +8,7 @@
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/PART.hpp"
 #include "../DNACommon/ELSC.hpp"
+#include "../DNACommon/FONT.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
 #include "ANCS.hpp"
@@ -291,6 +292,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".gpsm.yaml")}};
     case SBIG('ELSC'):
         return {DNAParticle::ExtractELSM<UniqueID32>, nullptr, {_S(".elsm.yaml")}};
+    case SBIG('FONT'):
+        return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
     }
     return {};
 }

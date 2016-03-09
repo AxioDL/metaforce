@@ -20,6 +20,7 @@ add_library(DNACommon
             SWHC.hpp
             ELSC.hpp ELSC.cpp
             ParticleCommon.cpp
+            FONT.hpp FONT.cpp
             DeafBabe.hpp
             BabeDead.hpp
             Tweaks/ITweakGame.hpp
