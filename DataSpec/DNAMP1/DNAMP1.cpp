@@ -7,6 +7,7 @@
 #include "MLVL.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/PART.hpp"
+#include "../DNACommon/ELSC.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
 #include "ANCS.hpp"
@@ -287,7 +288,9 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
     case SBIG('PART'):
-        return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".gpsm.yaml")}};
+    case SBIG('ELSC'):
+        return {DNAParticle::ExtractELSM<UniqueID32>, nullptr, {_S(".elsm.yaml")}};
     }
     return {};
 }

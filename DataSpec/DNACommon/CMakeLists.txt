@@ -18,7 +18,7 @@ add_library(DNACommon
             ANIM.hpp ANIM.cpp
             PART.hpp PART.cpp
             SWHC.hpp
-            ELSC.hpp
+            ELSC.hpp ELSC.cpp
             ParticleCommon.cpp
             DeafBabe.hpp
             BabeDead.hpp
