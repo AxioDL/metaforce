@@ -53,6 +53,7 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<CMoviePlayer> m_moviePlayer;
     std::unique_ptr<u8[]> m_rsfBuf;
     std::unique_ptr<boo::IAudioVoiceAllocator> m_voiceAllocator;
+    boo::AudioChannelSet m_audioSet = boo::AudioChannelSet::Unknown;
     std::unique_ptr<boo::IAudioVoice> m_videoVoice;
     boo::AudioMatrixStereo m_stereoMatrix;
     struct AudioVoiceCallback : boo::IAudioVoiceCallback

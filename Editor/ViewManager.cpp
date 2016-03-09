@@ -30,13 +30,15 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
     */
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
-    m_moviePlayer.reset(new CMoviePlayer("Video/00_first_start.thp", -1.f, false, false));
+    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", -1.f, false, true));
     m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     CDvdFile testRSF("Audio/frontend_1.rsf");
     u64 rsfLen = testRSF.Length();
     m_rsfBuf.reset(new u8[rsfLen]);
     testRSF.SyncRead(m_rsfBuf.get(), rsfLen);
-    CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
+    //CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
+
+    m_videoVoice = m_voiceAllocator->allocateNewVoice(m_audioSet, 32000, &m_voiceCallback);
     m_videoVoice->start();
 
     //m_rootView->accessContentViews().clear();
@@ -83,6 +85,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
             m_vm.m_moviePlayer.reset(new CMoviePlayer("Video/01_startloop.thp", -1.f, true, false));
             m_vm.m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
         }
+
         m_vm.m_moviePlayer->Update(1.f / 60.f);
         m_vm.m_moviePlayer->DrawFrame();
     }
@@ -251,10 +254,9 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->setWaitCursor(false);
 
     m_voiceAllocator = boo::NewAudioVoiceAllocator();
-    boo::AudioChannelSet audioSet = m_voiceAllocator->getAvailableSet();
-    m_stereoMatrix.setAudioChannelSet(audioSet);
+    m_audioSet = m_voiceAllocator->getAvailableSet();
+    m_stereoMatrix.setAudioChannelSet(m_audioSet);
     m_stereoMatrix.setDefaultMatrixCoefficients();
-    m_videoVoice = m_voiceAllocator->allocateNewVoice(audioSet, 32000, &m_voiceCallback);
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CElementGen::Initialize();
     CMoviePlayer::Initialize();

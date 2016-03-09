@@ -310,16 +310,15 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
         {
             unsigned samples = header.numSamples;
             s16* bufferCur = buffer+i;
-            const u8* audioFrameCur = audioFrame;
             int16_t prev1 = header.channelPrevs[i][0];
             int16_t prev2 = header.channelPrevs[i][1];
-            for (int f=0 ; f<header.channelSize/8 ; ++f)
+            for (int f=0 ; f<(header.numSamples + 13) / 14 ; ++f)
             {
-                DSPDecompressFrameStereoStride(bufferCur, audioFrameCur,
+                DSPDecompressFrameStereoStride(bufferCur, audioFrame,
                                                header.channelCoefs[i], &prev1, &prev2, samples);
                 samples -= 14;
                 bufferCur += 28;
-                audioFrameCur += 8;
+                audioFrame += 8;
             }
         }
     }
@@ -327,16 +326,15 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
     {
         unsigned samples = header.numSamples;
         s16* bufferCur = buffer;
-        const u8* audioFrameCur = audioFrame;
         int16_t prev1 = header.channelPrevs[0][0];
         int16_t prev2 = header.channelPrevs[0][1];
-        for (int f=0 ; f<header.channelSize/8 ; ++f)
+        for (int f=0 ; f<(header.numSamples + 13) / 14 ; ++f)
         {
-            DSPDecompressFrameStereoDupe(bufferCur, audioFrameCur,
+            DSPDecompressFrameStereoDupe(bufferCur, audioFrame,
                                          header.channelCoefs[0], &prev1, &prev2, samples);
             samples -= 14;
             bufferCur += 28;
-            audioFrameCur += 8;
+            audioFrame += 8;
         }
     }
 
@@ -524,25 +522,22 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
         {
             if (in)
             {
-                for (u32 i=0 ; i<thisSamples ; ++i)
+                for (u32 i=0 ; i<thisSamples ; ++i, out += 2, in += 2)
                 {
                     out[0] = DSPSampClamp(in[0] +
                         s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
                     out[1] = DSPSampClamp(in[1] +
                         s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
-                    out += 2;
-                    in += 2;
                 }
             }
             else
             {
-                for (u32 i=0 ; i<thisSamples ; ++i)
+                for (u32 i=0 ; i<thisSamples ; ++i, out += 2)
                 {
                     out[0] = DSPSampClamp(
                         s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
                     out[1] = DSPSampClamp(
                         s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
-                    out += 2;
                 }
             }
             tex->playedSamples += thisSamples;
@@ -554,6 +549,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 memcpy(out, in, samples * 4);
             else
                 memset(out, 0, samples * 4);
+            //fprintf(stderr, "dropped %d samples\n", samples);
             return;
         }
     }
@@ -810,6 +806,7 @@ void CMoviePlayer::DecodeFromRead(const void* data)
             break;
         }
         case THPComponents::Type::Audio:
+            memset(tex.audioBuf.get(), 0, x28_thpHead.maxAudioSamples * 4);
             tex.audioSamples = THPAudioDecode(tex.audioBuf.get(), (u8*)inptr, x74_audioInfo.numChannels == 2);
             tex.playedSamples = 0;
             inptr += frameHeader.audioSize;
