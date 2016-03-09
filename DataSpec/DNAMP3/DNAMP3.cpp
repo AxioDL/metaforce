@@ -9,6 +9,7 @@
 #include "MREA.hpp"
 #include "MAPA.hpp"
 #include "../DNACommon/TXTR.hpp"
+#include "../DNACommon/FONT.hpp"
 
 namespace DataSpec
 {
@@ -237,6 +238,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {nullptr, MREA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+    case SBIG('FONT'):
+        return {DNAFont::ExtractFONT<UniqueID64>, nullptr, {_S(".yaml")}};
     }
     return {};
 }
