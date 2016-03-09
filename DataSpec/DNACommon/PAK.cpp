@@ -274,9 +274,9 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
     auto uniqueSearch = m_uniqueEntries.find(entry->id);
     if (uniqueSearch != m_uniqueEntries.end())
     {
+        const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
         const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
         pakPath.makeDir();
-        hecl::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
 #if HECL_UCS2
         hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
 #else
@@ -284,7 +284,15 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #endif
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
-        return hecl::ProjectPath(uniquePath, entName);
+        if (bridge.getPAK().m_noShare)
+        {
+            return hecl::ProjectPath(pakPath, entName);
+        }
+        else
+        {
+            hecl::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
+            return hecl::ProjectPath(uniquePath, entName);
+        }
     }
 
     auto sharedSearch = m_sharedEntries.find(entry->id);
@@ -342,10 +350,18 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
     auto uniqueSearch = m_uniqueEntries.find(entry->id);
     if (uniqueSearch != m_uniqueEntries.end())
     {
+        const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
         const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].second;
         pakPath.makeDir();
-        hecl::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
-        return hecl::ProjectPath(uniquePath, getBestEntryName(*entry));
+        if (bridge.getPAK().m_noShare)
+        {
+            return hecl::ProjectPath(pakPath, getBestEntryName(*entry));
+        }
+        else
+        {
+            hecl::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
+            return hecl::ProjectPath(uniquePath, getBestEntryName(*entry));
+        }
     }
     auto sharedSearch = m_sharedEntries.find(entry->id);
     if (sharedSearch != m_sharedEntries.end())
