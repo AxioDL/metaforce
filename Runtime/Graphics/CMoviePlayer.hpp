@@ -135,16 +135,19 @@ private:
 
     specter::View::TexShaderVert m_frame[4];
 
-public:
+    static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
+    void DecodeFromRead(const void* data);
+    void ReadCompleted();
+    void PostDVDReadRequestIfNeeded();
 
+public:
     CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace);
 
-    static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
     static void DisableStaticAudio() {SetStaticAudio(nullptr, 0, 0, 0);}
     static void SetStaticAudioVolume(int vol);
     static void SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32 loopEnd);
-    void MixAudio(s16* out, const s16* in, u32 samples);
     static void MixStaticAudio(s16* out, const s16* in, u32 samples);
+    void MixAudio(s16* out, const s16* in, u32 samples);
     void Rewind();
 
     bool GetIsMovieFinishedPlaying() const
@@ -161,9 +164,6 @@ public:
                   const zeus::CVector3f& c, const zeus::CVector3f& d);
     void DrawFrame();
     void Update(float dt);
-    void DecodeFromRead(const void* data);
-    void ReadCompleted();
-    void PostDVDReadRequestIfNeeded();
 
     static void Initialize();
     static void Shutdown();

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSPLASHSCREEN_HPP__
-#define __PSHAG_CSPLASHSCREEN_HPP__
+#ifndef __URDE_CSPLASHSCREEN_HPP__
+#define __URDE_CSPLASHSCREEN_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CSplashScreen
 
 }
 
-#endif // __PSHAG_CSPLASHSCREEN_HPP__
+#endif // __URDE_CSPLASHSCREEN_HPP__

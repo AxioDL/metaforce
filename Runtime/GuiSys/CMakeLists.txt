@@ -1,4 +1,54 @@
 add_library(RuntimeCommonGuiSys
-            CGuiSys.hpp CGuiSys.cpp
-            CSplashScreen.hpp CSplashScreen.cpp
-            CConsoleOutputWindow.hpp CConsoleOutputWindow.cpp)
+            CSplashScreen.cpp
+            CSplashScreen.hpp
+            CGuiObject.cpp
+            CGuiObject.hpp
+            CConsoleOutputWindow.cpp
+            CConsoleOutputWindow.hpp
+            CAuiEnergyBarT01.cpp
+            CAuiEnergyBarT01.hpp
+            CAuiImagePane.cpp
+            CAuiImagePane.hpp
+            CAuiMeter.cpp
+            CAuiMeter.hpp
+            CConsoleOutputWindow.cpp
+            CConsoleOutputWindow.hpp
+            CGuiAnimBase.cpp
+            CGuiAnimBase.hpp
+            CGuiAnimController.cpp
+            CGuiAnimController.hpp
+            CGuiAutoRepeatData.cpp
+            CGuiAutoRepeatData.hpp
+            CGuiCamera.cpp
+            CGuiCamera.hpp
+            CGuiFactories.cpp
+            CGuiFactories.hpp
+            CGuiFrame.cpp
+            CGuiFrame.hpp
+            CGuiLight.cpp
+            CGuiLight.hpp
+            CGuiModel.cpp
+            CGuiModel.hpp
+            CGuiRandomVar.cpp
+            CGuiRandomVar.hpp
+            CGuiSliderGroup.cpp
+            CGuiSliderGroup.hpp
+            CGuiStaticImage.cpp
+            CGuiStaticImage.hpp
+            CGuiSys.cpp
+            CGuiSys.hpp
+            CGuiTableGroup.cpp
+            CGuiTableGroup.hpp
+            CGuiTextPane.cpp
+            CGuiTextPane.hpp
+            CGuiTextSupport.cpp
+            CGuiTextSupport.hpp
+            CGuiWidget.cpp
+            CGuiWidgetDrawParams.cpp
+            CGuiWidgetDrawParams.hpp
+            CGuiWidget.hpp
+            CMakeLists.txt
+            CSplashScreen.cpp
+            CSplashScreen.hpp
+            CGuiCompoundWidget.cpp
+            CGuiCompoundWidget.hpp)

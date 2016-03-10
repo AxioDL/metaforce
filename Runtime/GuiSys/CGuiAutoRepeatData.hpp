@@ -1,0 +1,10 @@
+#ifndef __URDE_CGUIAUTOREPEATDATA_HPP__
+#define __URDE_CGUIAUTOREPEATDATA_HPP__
+
+namespace urde
+{
+
+
+}
+
+#endif // __URDE_CGUIAUTOREPEATDATA_HPP__

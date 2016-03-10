@@ -49,7 +49,9 @@ BOO_GLSL_BINDING_HEAD
 "    yuv.r = 1.1643*(yuv.r-0.0625);\n"
 "    yuv.g = yuv.g-0.5;\n"
 "    yuv.b = yuv.b-0.5;\n"
-"    colorOut = vec4(yuv.r+1.5958*yuv.b, yuv.r-0.39173*yuv.g-0.81290*yuv.b, yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
+"    colorOut = vec4(yuv.r+1.5958*yuv.b,\n"
+"                    yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
+"                    yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
 
 static const char* VS_HLSL_YUV =
@@ -92,7 +94,9 @@ static const char* FS_HLSL_YUV =
 "    yuv.r = 1.1643*(yuv.r-0.0625);\n"
 "    yuv.g = yuv.g-0.5;\n"
 "    yuv.b = yuv.b-0.5;\n"
-"    return float4(yuv.r+1.5958*yuv.b, yuv.r-0.39173*yuv.g-0.81290*yuv.b, yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
+"    return float4(yuv.r+1.5958*yuv.b,\n"
+"                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
+"                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
 
 static const char* VS_METAL_YUV =
@@ -141,9 +145,13 @@ static const char* FS_METAL_YUV =
 "    yuv.r = 1.1643*(yuv.r-0.0625);\n"
 "    yuv.g = yuv.g-0.5;\n"
 "    yuv.b = yuv.b-0.5;\n"
-"    return float4(yuv.r+1.5958*yuv.b, yuv.r-0.39173*yuv.g-0.81290*yuv.b, yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
+"    return float4(yuv.r+1.5958*yuv.b,\n"
+"                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
+"                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
 
+/* used in the original to look up fixed-point dividends on a
+ * MIDI-style volume scale (0-127) -> (n/0x8000) */
 static const u16 StaticVolumeLookup[] =
 {
     0x0000, 0x0002, 0x0008, 0x0012, 0x0020, 0x0032, 0x0049, 0x0063,
@@ -164,18 +172,19 @@ static const u16 StaticVolumeLookup[] =
     0x7247, 0x7430, 0x761E, 0x7810, 0x7A06, 0x7C00, 0x7DFE, 0x8000
 };
 
+/* shared boo resources */
 static boo::GraphicsDataToken GraphicsData;
 static boo::IVertexFormat* YUVVTXFmt = nullptr;
 static boo::IShaderPipeline* YUVShaderPipeline = nullptr;
 static tjhandle TjHandle = nullptr;
 
+/* RSF audio state */
 static const u8* StaticAudio = nullptr;
 static u32 StaticAudioSize = 0;
 static u32 StaticAudioOffset = 0;
 static u16 StaticVolumeAtten = 0x50F4;
 static u32 StaticLoopBegin = 0;
 static u32 StaticLoopEnd = 0;
-
 static g72x_state StaticStateLeft = {};
 static g72x_state StaticStateRight = {};
 
@@ -344,6 +353,7 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
 CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace)
 : CDvdFile(path), xec_preLoadSeconds(preLoadSeconds), xf4_24_loop(loop), m_deinterlace(deinterlace)
 {
+    /* Read THP header information */
     u8 buf[64];
     SyncRead(buf, 64);
     memcpy(&x28_thpHead, buf, 48);
@@ -376,6 +386,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         }
     }
 
+    /* Initial read state */
     xb4_nextReadOff = x28_thpHead.firstFrameOffset;
     xb0_nextReadSize = x28_thpHead.firstFrameSize;
     xb8_readSizeWrapped = x28_thpHead.firstFrameSize;
@@ -399,6 +410,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     if (xf0_preLoadFrames > 0)
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
+    /* Establish GPU resources */
     m_blockBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Uniform,
                                                            sizeof(m_viewVertBlock), 1);
     m_vertBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Vertex,
@@ -415,6 +427,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         vtxFmt = CGraphics::g_BooFactory->newVertexFormat(2, texvdescs);
     }
 
+    /* Allocate textures here (rather than at decode time) */
     x80_textures.reserve(3);
     for (int i=0 ; i<3 ; ++i)
     {
@@ -422,6 +435,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         CTHPTextureSet& set = x80_textures.back();
         if (deinterlace)
         {
+            /* urde addition: this way interlaced THPs don't look horrible */
             set.Y[0] = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width,
                                                                   x6c_videoInfo.height / 2,
                                                                   boo::TextureFormat::I8);
@@ -445,6 +459,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         }
         else
         {
+            /* normal progressive presentation */
             set.Y[0] = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width,
                                                                   x6c_videoInfo.height,
                                                                   boo::TextureFormat::I8);
@@ -464,9 +479,13 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
             set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
     }
 
+    /* Temporary planar YUV decode buffer, resulting planes copied to Boo */
     m_yuvBuf.reset(new uint8_t[tjBufSizeYUV(x6c_videoInfo.width, x6c_videoInfo.height, TJ_420)]);
 
+    /* All set for GPU resources */
     m_token = CGraphics::CommitResources();
+
+    /* Schedule initial read */
     PostDVDReadRequestIfNeeded();
 
     m_frame[0].m_uv = {0.f, 0.f};
@@ -497,6 +516,7 @@ void CMoviePlayer::SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32
 
 void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
 {
+    /* No audio frames ready */
     if (xd4_audioSlot == -1)
     {
         if (in)
@@ -512,6 +532,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
         u32 thisSamples = std::min(tex->audioSamples - tex->playedSamples, samples);
         if (!thisSamples)
         {
+            /* Advance frame */
             ++xd4_audioSlot;
             if (xd4_audioSlot >= x80_textures.size())
                 xd4_audioSlot = 0;
@@ -520,6 +541,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
         }
         if (thisSamples)
         {
+            /* mix samples with `in` or no mix */
             if (in)
             {
                 for (u32 i=0 ; i<thisSamples ; ++i, out += 2, in += 2)
@@ -545,6 +567,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
         }
         else
         {
+            /* urde addition: failsafe for buffer overrun */
             if (in)
                 memcpy(out, in, samples * 4);
             else
@@ -565,6 +588,7 @@ void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples)
         const u8* thisOffsetLeft = &StaticAudio[StaticAudioOffset/2];
         const u8* thisOffsetRight = &StaticAudio[StaticAudioSize/2 + StaticAudioOffset/2];
 
+        /* urde addition: mix samples with `in` or no mix */
         if (in)
         {
             for (u32 i=0 ; i<thisSamples ; i+=2)
@@ -646,12 +670,18 @@ void CMoviePlayer::DrawFrame()
 {
     if (xd0_drawTexSlot == -1)
         return;
+
+    /* draw appropriate field */
     CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
     CGraphics::g_BooMainCommandQueue->setShaderDataBinding
         (tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0]);
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
+
+    /* ensure second field is being displayed by VI to signal advance
+     * (faked in urde with continuous xor) */
     if (!xfc_fieldIndex && CGraphics::g_LastFrameUsedAbove)
         xf4_26_fieldFlip = true;
+
     ++xfc_fieldIndex;
 }
 
@@ -659,6 +689,7 @@ void CMoviePlayer::Update(float dt)
 {
     if (xc0_curLoadFrame < xf0_preLoadFrames)
     {
+        /* in buffering phase, ensure read data is stored for mem-cache access */
         if (x98_request && x98_request->IsComplete())
         {
             ReadCompleted();
@@ -672,6 +703,7 @@ void CMoviePlayer::Update(float dt)
     }
     else
     {
+        /* out of buffering phase, skip mem-cache straight to decode */
         if (x98_request)
         {
             bool flag = false;
@@ -691,12 +723,15 @@ void CMoviePlayer::Update(float dt)
         }
     }
 
+    /* submit request for additional read to keep stream-consumer happy
+     * (if buffer slot is available) */
     if (!x98_request && xe0_playMode == EPlayMode::Playing &&
         xa0_bufferQueue.size() < x28_thpHead.numFrames)
     {
         PostDVDReadRequestIfNeeded();
     }
 
+    /* decode frame directly from mem-cache if needed */
     if (xd8_decodedTexCount < 2)
     {
         if (xe0_playMode == EPlayMode::Playing && xc4_requestFrameWrapped < xf0_preLoadFrames)
@@ -713,21 +748,25 @@ void CMoviePlayer::Update(float dt)
         }
     }
 
+    /* paused THPs shall not pass */
     if (xd8_decodedTexCount <= 0 || xe0_playMode != EPlayMode::Playing)
         return;
 
+    /* timing update */
     xe8_curSeconds += dt;
     if (xf4_24_loop)
         xe8_curSeconds = std::fmod(xe8_curSeconds, xe4_totalSeconds);
     else
         xe8_curSeconds = std::min(xe4_totalSeconds, xe8_curSeconds);
 
+    /* test remainder threshold, determine if frame needs to be advanced */
     float frameDt = 1.f / x28_thpHead.fps;
     float rem = xdc_frameRem - dt;
     if (rem <= 0.f)
     {
         if (!xf4_26_fieldFlip)
         {
+            /* second field has drawn, advance consumer-queue to next THP frame */
             ++xd0_drawTexSlot;
             if (xd0_drawTexSlot >= x80_textures.size())
                 xd0_drawTexSlot = 0;
@@ -742,6 +781,7 @@ void CMoviePlayer::Update(float dt)
         }
         else
         {
+            /* advance timing within second field */
             rem += dt;
             xf4_26_fieldFlip = false;
         }
@@ -815,6 +855,7 @@ void CMoviePlayer::DecodeFromRead(const void* data)
         }
     }
 
+    /* advance YUV producer-queue slot */
     ++xcc_decodedTexSlot;
     if (xcc_decodedTexSlot == x80_textures.size())
         xcc_decodedTexSlot = 0;
@@ -826,9 +867,12 @@ void CMoviePlayer::ReadCompleted()
     x98_request.reset();
     const THPFrameHeader* frameHeader =
         reinterpret_cast<const THPFrameHeader*>(buffer.get());
+
+    /* transfer request buffer to mem-cache if needed */
     if (xc0_curLoadFrame == xa0_bufferQueue.size() && xf0_preLoadFrames > xc0_curLoadFrame)
         xa0_bufferQueue.push_back(std::move(buffer));
 
+    /* store params of next read operation */
     xb4_nextReadOff += xb0_nextReadSize;
     xb0_nextReadSize = hecl::SBig(frameHeader->nextSize);
     ++xc0_curLoadFrame;
@@ -847,6 +891,7 @@ void CMoviePlayer::ReadCompleted()
         }
     }
 
+    /* handle loop-event read */
     if (xc0_curLoadFrame >= x28_thpHead.numFrames && xf4_24_loop)
     {
         xb4_nextReadOff = xbc_readOffWrapped;

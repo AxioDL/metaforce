@@ -1,0 +1,10 @@
+#ifndef __URDE_CGUIWIDGETDRAWPARAMS_HPP__
+#define __URDE_CGUIWIDGETDRAWPARAMS_HPP__
+
+namespace urde
+{
+
+
+}
+
+#endif // __URDE_CGUIWIDGETDRAWPARAMS_HPP__
