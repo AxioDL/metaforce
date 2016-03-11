@@ -145,7 +145,8 @@ public:
     CGameArchitectureSupport()
         : m_audioSys(0,0,0,0,0),
           m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
-                           0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/)
+                           0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/),
+          m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
     {
         m_inputGenerator.startScanning();
     }

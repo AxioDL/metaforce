@@ -4,6 +4,12 @@
 namespace urde
 {
 
+CGuiObject::~CGuiObject()
+{
+    delete x74_child;
+    delete x78_nextSibling;
+}
+
 void CGuiObject::Update(float dt)
 {
     if (x74_child)
@@ -31,18 +37,24 @@ void CGuiObject::MoveInWorld(const zeus::CVector3f& vec)
 
 void CGuiObject::RotateReset()
 {
+    x4_localXF.m_basis = zeus::CMatrix3f::skIdentityMatrix3f;
+    Reorthogonalize();
+    RecalculateTransforms();
 }
 
 zeus::CVector3f CGuiObject::RotateW2O(const zeus::CVector3f& vec) const
 {
+    return x34_worldXF.transposeRotate(vec);
 }
 
 zeus::CVector3f CGuiObject::RotateO2P(const zeus::CVector3f& vec) const
 {
+    return x4_localXF.rotate(vec);
 }
 
 zeus::CVector3f CGuiObject::RotateTranslateW2O(const zeus::CVector3f& vec) const
 {
+    return x34_worldXF.transposeRotate(vec - x34_worldXF.m_origin);
 }
 
 void CGuiObject::MultiplyO2P(const zeus::CTransform& xf)
@@ -54,7 +66,7 @@ void CGuiObject::MultiplyO2P(const zeus::CTransform& xf)
     RecalculateTransforms();
 }
 
-void CGuiObject::AddChildObject(CGuiObject* obj, bool calcChildWorld, bool atEnd)
+void CGuiObject::AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd)
 {
     obj->x70_parent = this;
 
@@ -76,9 +88,15 @@ void CGuiObject::AddChildObject(CGuiObject* obj, bool calcChildWorld, bool atEnd
         x74_child = obj;
     }
 
-    if (calcChildWorld)
+    if (makeWorldLocal)
     {
-        // TODO: do
+        zeus::CVector3f negParentWorld = -x34_worldXF.m_origin;
+        zeus::CMatrix3f basisMat(
+            x34_worldXF.m_basis[0] / x34_worldXF.m_basis[0].magnitude(),
+            x34_worldXF.m_basis[1] / x34_worldXF.m_basis[1].magnitude(),
+            x34_worldXF.m_basis[2] / x34_worldXF.m_basis[2].magnitude());
+        zeus::CVector3f xfWorld = basisMat * negParentWorld;
+        obj->x4_localXF = zeus::CTransform(basisMat, xfWorld) * obj->x34_worldXF;
     }
 
     RecalculateTransforms();

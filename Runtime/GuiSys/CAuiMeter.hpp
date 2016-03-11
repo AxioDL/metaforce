@@ -8,6 +8,8 @@ namespace urde
 
 class CAuiMeter : public CGuiCompoundWidget
 {
+public:
+    static void LoadWidgetFnMap();
 };
 
 }
