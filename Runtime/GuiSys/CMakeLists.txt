@@ -61,4 +61,8 @@ add_library(RuntimeCommonGuiSys
             CGuiGroup.cpp
             CGuiGroup.hpp
             CGuiMenuRadial.cpp
-            CGuiMenuRadial.hpp)
+            CGuiMenuRadial.hpp
+            CGuiFunctionDef.cpp
+            CGuiFunctionDef.hpp
+            CGuiFuncParm.cpp
+            CGuiFuncParm.hpp)
