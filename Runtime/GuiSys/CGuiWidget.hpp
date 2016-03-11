@@ -3,6 +3,7 @@
 
 #include "IOStreams.hpp"
 #include "CGuiObject.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {
@@ -25,12 +26,37 @@ enum class EGuiAnimInitMode
 class CGuiWidget : public CGuiObject
 {
 public:
+    enum class EGuiModelDrawFlags
+    {
+        Two = 2
+    };
     struct CGuiWidgetParms
     {
+        CGuiFrame* x0_frame;
+        bool x4_a;
+        s16 x6_selfId;
+        s16 x8_parentId;
+        bool xa_d;
+        bool xb_e;
+        bool xc_f;
+        bool xd_g;
+        bool xe_h;
+        zeus::CColor x10_color;
+        EGuiModelDrawFlags x14_drawFlags;
+        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId, bool d, bool e, bool f,
+                        const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
+        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_d(d), xb_e(e), xc_f(f),
+          xd_g(g), xe_h(h), x10_color(color), x14_drawFlags(drawFlags) {}
     };
     static void LoadWidgetFnMap();
+    virtual hecl::FourCC GetWidgetTypeID() const {return hecl::FOURCC('BWIG');}
 private:
 public:
+    CGuiWidget(const CGuiWidgetParms& parms);
+
+    static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool);
+    static CGuiWidget* Create(CGuiFrame* frame, CInputStream& in, bool);
+
     virtual void Message(const CGuiMessage& msg);
     virtual void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseMessages(CInputStream& in, const CGuiWidgetParms& parms);
@@ -49,7 +75,6 @@ public:
     virtual void AddAnim(EGuiAnimBehListID, CGuiAnimBase*);
     virtual void AddChildWidget(CGuiWidget* widget, bool, bool);
     virtual void RemoveChildWidget(CGuiWidget* widget, bool);
-    virtual void GetWidgetTypeID() const;
     virtual void AddWorkerWidget(CGuiWidget* worker);
     virtual void GetFinishedLoadingWidgetSpecific() const;
     virtual void OnVisible();
