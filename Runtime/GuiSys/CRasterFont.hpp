@@ -62,13 +62,11 @@ public:
 
     static s32 KernLookup(const std::vector<CKernPair>& kernTable, s32 kernStart, s32 chr)
     {
-        /* FIXME: I think this is mostly wrong */
         auto iter = kernTable.cbegin() + kernStart;
-        for (;iter != kernTable.cend(); ++iter)
+        for (; iter != kernTable.cend() && iter->GetFirst() == kernTable[kernStart].GetFirst() ; ++iter)
         {
-            const CKernPair& pair = *iter;
-            if (pair.GetSecond() == chr)
-                return pair.GetHowMuch();
+            if (iter->GetSecond() == chr)
+                return iter->GetHowMuch();
         }
 
         return 0;
