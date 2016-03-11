@@ -20,6 +20,7 @@ public:
     struct CGuiWidgetParms
     {
     };
+    static void LoadWidgetFnMap();
 private:
 public:
     virtual void Message(const CGuiMessage& msg);
@@ -49,6 +50,13 @@ public:
     virtual void OnDeActivate();
     virtual void DoRegisterEventHandler();
     virtual void DoUnregisterEventHandler();
+
+    bool MAF_StartAnimationSet(CGuiFunctionDef* def, CGuiControllerInfo* info);
+    bool MAF_SendMessage(CGuiFunctionDef* def, CGuiControllerInfo* info);
+    bool MAF_PauseAnim(CGuiFunctionDef* def, CGuiControllerInfo* info);
+    bool MAF_ResumeAnim(CGuiFunctionDef* def, CGuiControllerInfo* info);
+    bool MAF_SetState(CGuiFunctionDef* def, CGuiControllerInfo* info);
+    bool MAF_SetStateOfWidget(CGuiFunctionDef* def, CGuiControllerInfo* info);
 };
 
 }

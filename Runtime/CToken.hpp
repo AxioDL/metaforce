@@ -11,7 +11,6 @@
 namespace urde
 {
 class IObjectStore;
-class IObj;
 
 /** Shared data-structure for CToken references, analogous to std::shared_ptr */
 class CObjectReference
@@ -86,7 +85,7 @@ public:
     /** Pointer-synchronized object-destructor, another building Lock cycle may be performed after */
     void Unload()
     {
-        delete x10_object;
+        std::default_delete<IObj>()(x10_object);
         x10_object = nullptr;
         x3_loading = false;
     }
@@ -109,7 +108,7 @@ public:
     ~CObjectReference()
     {
         if (x10_object)
-            delete x10_object;
+            std::default_delete<IObj>()(x10_object);
         else if (x3_loading)
             xC_objectStore->GetFactory().CancelBuild(x4_objTag);
     }
@@ -145,7 +144,7 @@ public:
     {
         if (x0_objRef && x0_objRef->RemoveReference() == 0)
         {
-            delete x0_objRef;
+            std::default_delete<CObjectReference>()(x0_objRef);
             x0_objRef = nullptr;
         }
     }
@@ -183,7 +182,8 @@ public:
     CToken(const CToken& other)
     : x0_objRef(other.x0_objRef)
     {
-        ++x0_objRef->x0_refCount;
+        if (x0_objRef)
+            ++x0_objRef->x0_refCount;
     }
     CToken(CToken&& other)
     : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld)
@@ -230,8 +230,7 @@ public:
     TToken() = default;
     TToken(const CToken& other) : CToken(other) {}
     TToken(CToken&& other) : CToken(std::move(other)) {}
-    TToken(T* obj)
-    : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
+    TToken(T* obj) : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
     TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
     T* GetObj()
     {

@@ -8,6 +8,9 @@
 namespace urde
 {
 class CGuiWidgetDrawParms;
+class CGuiMessage;
+class CGuiFunctionDef;
+class CGuiControllerInfo;
 
 class CGuiObject
 {
@@ -18,9 +21,10 @@ class CGuiObject
     CGuiObject* x74_child = nullptr;
     CGuiObject* x78_nextSibling = nullptr;
 public:
-    virtual ~CGuiObject() = default;
+    virtual ~CGuiObject();
     virtual void Update(float dt);
     virtual void Draw(const CGuiWidgetDrawParms& parms) const;
+    virtual void Message(const CGuiMessage& msg)=0;
 
     void MoveInWorld(const zeus::CVector3f& vec);
     const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.m_origin;}
@@ -31,7 +35,7 @@ public:
     zeus::CVector3f RotateO2P(const zeus::CVector3f& vec) const;
     zeus::CVector3f RotateTranslateW2O(const zeus::CVector3f& vec) const;
     void MultiplyO2P(const zeus::CTransform& xf);
-    void AddChildObject(CGuiObject* obj, bool, bool);
+    void AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd);
     CGuiObject* RemoveChildObject(CGuiObject* obj, bool makeWorldLocal);
     CGuiObject* GetParent() {return x70_parent;}
     CGuiObject* GetChildObject() {return x74_child;}

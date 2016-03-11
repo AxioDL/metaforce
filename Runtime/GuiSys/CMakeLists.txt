@@ -51,4 +51,14 @@ add_library(RuntimeCommonGuiSys
             CSplashScreen.cpp
             CSplashScreen.hpp
             CGuiCompoundWidget.cpp
-            CGuiCompoundWidget.hpp)
+            CGuiCompoundWidget.hpp
+            CSaveableState.cpp
+            CSaveableState.hpp
+            CDrawStringOptions.cpp
+            CDrawStringOptions.hpp
+            CRasterFont.cpp
+            CRasterFont.hpp
+            CGuiGroup.cpp
+            CGuiGroup.hpp
+            CGuiMenuRadial.cpp
+            CGuiMenuRadial.hpp)
