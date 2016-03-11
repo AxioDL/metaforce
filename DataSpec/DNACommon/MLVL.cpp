@@ -17,8 +17,13 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                        bool force,
                        std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    /* Rename MLVL for consistency */
-    hecl::ProjectPath mlvlPath(outPath.getParentPath(), _S("!world.blend"));
+    hecl::ProjectPath mlvlPath;
+    if (pakRouter.isShared())
+        /* Rename MLVL for consistency */
+        mlvlPath = hecl::ProjectPath(outPath.getParentPath(), _S("!world.blend"));
+    else
+        /* We're not in a world pak, so lets keep the original name */
+        mlvlPath = outPath;
     if (!force && mlvlPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 

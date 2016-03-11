@@ -147,6 +147,7 @@ public:
     hecl::ProjectPath getWorking(const IDType& id) const;
     hecl::ProjectPath getCooked(const EntryType* entry) const;
     hecl::ProjectPath getCooked(const IDType& id) const;
+    bool isShared() { return m_pak ? !m_pak->m_noShare : false;  }
 
     hecl::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
 

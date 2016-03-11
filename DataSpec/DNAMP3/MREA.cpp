@@ -77,8 +77,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
-    /* Rename MREA for consistency */
-    hecl::ProjectPath mreaPath(outPath.getParentPath(), _S("!area.blend"));
+    hecl::ProjectPath mreaPath;
+    if (pakRouter.isShared())
+        /* Rename MREA for consistency */
+        mreaPath = hecl::ProjectPath(outPath.getParentPath(), _S("!area.blend"));
+    else
+        /* We're not in a world pak, so lets keep the original name */
+        mreaPath = outPath;
+
     if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 

@@ -92,8 +92,14 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const typename PAKRouter::EntryType& entry,
                        bool force)
 {
-    /* Rename MAPA for consistency */
-    hecl::ProjectPath mapaPath(outPath.getParentPath(), _S("!map.blend"));
+    hecl::ProjectPath mapaPath;
+    if (pakRouter.isShared())
+        /* Rename MAPA for consistency */
+        mapaPath = hecl::ProjectPath(outPath.getParentPath(), _S("!map.blend"));
+    else
+        /* We're not in a world pak, so lets keep the original name */
+        mapaPath = outPath;
+
     if (!force && mapaPath.getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
