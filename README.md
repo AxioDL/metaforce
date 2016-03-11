@@ -72,7 +72,7 @@ mkdir urde-build
 cd urde
 git submodule update --init --recursive
 cd ../urde-build
-cmake -G Xcode -DCMAKE_BUILD_TYPE=Release ../urde
+cmake -G Xcode -DCMAKE_BUILD_TYPE=Release -DLLVM_ROOT_DIR=<path-to-llvm-dev-lib-package> ../urde
 ```
 
 Then open `urde.xcodeproj`
