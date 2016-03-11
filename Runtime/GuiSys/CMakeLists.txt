@@ -65,4 +65,13 @@ add_library(RuntimeCommonGuiSys
             CGuiFunctionDef.cpp
             CGuiFunctionDef.hpp
             CGuiFuncParm.cpp
-            CGuiFuncParm.hpp)
+            CGuiFuncParm.hpp
+            CGuiPhysicalMsg.cpp
+            CGuiPhysicalMsg.hpp
+            CGuiControllerInfo.hpp
+            CGuiLogicalEventTrigger.cpp
+            CGuiLogicalEventTrigger.hpp
+            CGuiWidgetIdDB.cpp
+            CGuiWidgetIdDB.hpp
+            CGuiHeadWidget.cpp
+            CGuiHeadWidget.hpp)

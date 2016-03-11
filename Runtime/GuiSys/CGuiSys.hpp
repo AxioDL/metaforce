@@ -9,14 +9,6 @@
 #include "CGuiAutoRepeatData.hpp"
 #include "CSaveableState.hpp"
 
-namespace std
-{
-template <> struct hash<urde::EPhysicalControllerID>
-{
-    size_t operator() (const urde::EPhysicalControllerID& id) const NOEXCEPT {return size_t(id);}
-};
-}
-
 namespace urde
 {
 class CGuiObject;
@@ -40,6 +32,7 @@ public:
 
 class CGuiSys
 {
+    friend class CGuiFrame;
 public:
     enum class EUsageMode
     {
