@@ -183,6 +183,14 @@ struct FRME : BigDNA
 
         struct TXPNInfo : IWidgetInfo
         {
+            enum class Justification
+            {
+            };
+
+            enum class VerticalJustification
+            {
+            };
+
             DECL_EXPLICIT_DNA
             atUint32 version = 0;
             TXPNInfo() {}
@@ -193,8 +201,8 @@ struct FRME : BigDNA
             UniqueID32 font;
             Value<bool> unk1;
             Value<bool> unk2;
-            Value<atUint32> unk3;
-            Value<atUint32> unk4;
+            Value<Justification> justification;
+            Value<VerticalJustification> verticalJustification;
             Value<atVec4f> fillColor;
             Value<atVec4f> outlineColor;
             Value<atVec2f> pointScale;

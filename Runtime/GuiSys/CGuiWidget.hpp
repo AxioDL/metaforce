@@ -23,6 +23,14 @@ enum class EGuiAnimInitMode
 {
 };
 
+enum class EGuiTextureClampModeHorz
+{
+};
+
+enum class EGuiTextureClampModeVert
+{
+};
+
 class CGuiWidget : public CGuiObject
 {
 public:
@@ -112,7 +120,7 @@ public:
     void SetColor(const zeus::CColor& color);
     void RecalculateAllRGBA();
     void InitializeRGBAFactor();
-    void FindWidget(u16);
+    CGuiWidget* FindWidget(s16 id);
     bool GetIsFinishedLoading() const;
     void InitializeRecursive();
 

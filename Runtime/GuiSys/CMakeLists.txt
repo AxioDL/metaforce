@@ -60,8 +60,6 @@ add_library(RuntimeCommonGuiSys
             CRasterFont.hpp
             CGuiGroup.cpp
             CGuiGroup.hpp
-            CGuiMenuRadial.cpp
-            CGuiMenuRadial.hpp
             CGuiFunctionDef.cpp
             CGuiFunctionDef.hpp
             CGuiFuncParm.cpp
@@ -74,4 +72,8 @@ add_library(RuntimeCommonGuiSys
             CGuiWidgetIdDB.cpp
             CGuiWidgetIdDB.hpp
             CGuiHeadWidget.cpp
-            CGuiHeadWidget.hpp)
+            CGuiHeadWidget.hpp
+            CGuiBackground.cpp
+            CGuiBackground.hpp
+            CGuiPane.cpp
+            CGuiPane.hpp)

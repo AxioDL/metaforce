@@ -8,6 +8,7 @@
 #include <chrono>
 #include "CGuiAutoRepeatData.hpp"
 #include "CSaveableState.hpp"
+#include "IOStreams.hpp"
 
 namespace urde
 {
@@ -16,6 +17,8 @@ class CVParamTransfer;
 class SObjectTag;
 class IFactory;
 class CSimplePool;
+class CGuiWidget;
+class CGuiFrame;
 
 typedef CGuiObject*(*FGuiFactoryFunc)(const SObjectTag&, const CVParamTransfer&);
 
@@ -36,7 +39,9 @@ class CGuiSys
 public:
     enum class EUsageMode
     {
-        Zero
+        Zero,
+        One,
+        Two
     };
 private:
     IFactory& x0_resFactory;
@@ -44,14 +49,18 @@ private:
     CGuiFactoryMgr x8_factoryMgr;
     std::unordered_map<EPhysicalControllerID, CGuiAutoRepeatData> x18_repeatMap;
     EUsageMode x2c_mode;
-    std::stack<CSaveableState, std::vector<CSaveableState>> x28_saveStack;
+    std::stack<CSaveableState, std::vector<CSaveableState>> x30_saveStack;
     CVParamTransfer x38_frameFactoryParams;
     std::chrono::time_point<std::chrono::steady_clock> x40_constructTime;
 
     void AddFactories(EUsageMode mode);
     void LoadWidgetFunctions();
+    CGuiWidget* CreateWidgetInGame(hecl::FourCC type, CInputStream& in, CGuiFrame* frame);
 public:
     CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);
+
+    CSimplePool& GetResStore() {return x4_resStore;}
+    EUsageMode GetUsageMode() const {return x2c_mode;}
 };
 
 /** Parameter pack for FRME factory */

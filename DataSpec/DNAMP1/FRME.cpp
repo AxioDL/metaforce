@@ -192,10 +192,10 @@ void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
     unk1 = __dna_reader.readBool();
     /* unk2 */
     unk2 = __dna_reader.readBool();
-    /* unk3 */
-    unk3 = __dna_reader.readUint32Big();
-    /* unk4 */
-    unk4 = __dna_reader.readUint32Big();
+    /* justification */
+    justification = Justification(__dna_reader.readUint32Big());
+    /* verticalJustification */
+    verticalJustification = VerticalJustification(__dna_reader.readUint32Big());
     /* fillColor */
     fillColor = __dna_reader.readVec4fBig();
     /* outlineColor */
@@ -232,10 +232,10 @@ void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) cons
     __dna_writer.writeBool(unk1);
     /* unk2 */
     __dna_writer.writeBool(unk2);
-    /* unk3 */
-    __dna_writer.writeUint32Big(unk3);
-    /* unk4 */
-    __dna_writer.writeUint32Big(unk4);
+    /* justification */
+    __dna_writer.writeUint32Big(atUint32(justification));
+    /* verticalJustification */
+    __dna_writer.writeUint32Big(atUint32(verticalJustification));
     /* fillColor */
     __dna_writer.writeVec4fBig(fillColor);
     /* outlineColor */

@@ -8,6 +8,9 @@ namespace urde
 
 class CAuiEnergyBarT01 : public CGuiWidget
 {
+public:
+    CAuiEnergyBarT01(const CGuiWidgetParms& parms, u32);
+    static CAuiEnergyBarT01* Create(CGuiFrame* frame, CInputStream& in, bool);
 };
 
 }

@@ -3,6 +3,7 @@
 
 #include "CDrawStringOptions.hpp"
 #include "CToken.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {
@@ -12,14 +13,7 @@ class CSaveableState
 {
     CDrawStringOptions x0_drawStrOpts;
     TToken<CRasterFont> x14_token;
-    struct VecElem
-    {
-        u8 a = 0;
-        u8 b = 0;
-        u8 c = 0;
-        u8 d = 0xff;
-    };
-    std::vector<VecElem> x20_;
+    std::vector<zeus::CColor> x20_;
     std::vector<u8> x30_;
     float x40_ = 1.f;
     u32 x44_ = 0;
@@ -29,7 +23,7 @@ class CSaveableState
 
     CSaveableState()
     {
-        x20_.resize(3);
+        x20_.resize(3, zeus::CColor::skBlack);
         x30_.resize(16);
     }
 };

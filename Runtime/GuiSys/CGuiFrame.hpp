@@ -48,6 +48,7 @@ public:
     {
     };
 private:
+    bool x0_controllerStatus[4] = {};
     std::string x4_name;
     u32 x14_id;
     CGuiFrameTransitionOptions x1c_transitionOpts;
@@ -55,15 +56,15 @@ private:
     u32 x38_ = 0;
     CGuiSys& x3c_guiSys;
     u32 x40_ = 0;
-    u32 x44_ = 0;
+    CGuiHeadWidget* x44_headWidget = nullptr;
     std::unique_ptr<CGuiWidget> x48_rootWidget;
-    u32 x4c_ = 0;
-    u32 x50_ = 0;
+    CGuiCamera* x4c_camera = nullptr;
+    CGuiWidget* x50_background = nullptr;
     zeus::CQuaternion x54_;
     CGuiWidgetIdDB x64_idDB;
     std::unordered_map<u32, u32> x7c_;
     std::vector<u32> x90_;
-    std::vector<u32> xa0_;
+    std::vector<CGuiLight*> xa0_lights;
     int xb0_a;
     int xb4_b;
     int xb8_c;
@@ -73,15 +74,16 @@ private:
 public:
     CGuiFrame(u32 id, const std::string& name, CGuiSys& sys, int a, int b, int c);
 
-    CGuiLight* GetFrameLight(int);
-    CGuiWidget* FindWidget(const char* name) const;
+    CGuiSys& GetGuiSys() {return x3c_guiSys;}
+
+    CGuiLight* GetFrameLight(int idx) {return xa0_lights[idx];}
     CGuiWidget* FindWidget(const std::string& name) const;
     CGuiWidget* FindWidget(s16 id) const;
     void ResetControllerStatus();
-    void SetControllerStatus(int, bool);
-    void SetFrameBackground(CGuiWidget* widget);
-    void SetFrameCamera(CGuiCamera* camr);
-    void SetHeadWidget(CGuiHeadWidget* hwig);
+    void SetControllerStatus(int idx, bool set) {x0_controllerStatus[idx] = set;}
+    void SetFrameBackground(CGuiWidget* bg) {x50_background = bg;}
+    void SetFrameCamera(CGuiCamera* camr) {x4c_camera = camr;}
+    void SetHeadWidget(CGuiHeadWidget* hwig) {x44_headWidget = hwig;}
     void InterpretGUIControllerState(const CFinalInput& input,
         CGuiPhysicalMsg::PhysicalMap& state,
         char&, char&, char&, char&);
