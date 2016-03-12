@@ -30,7 +30,7 @@ class CGlyph
     float GetStartV()   const { return xc_startV; }
     float GetEndU()     const { return x10_endU; }
     float GetEndV()     const { return x14_endV; }
-    s16 GetCellWidth()  const { return x18_cellWidth;}
+    s16 GetCellWidth()  const { return x18_cellWidth; }
     s16 GetCellHeight() const { return x1a_cellHeight; }
     s16 GetBaseline()   const { return x1c_baseline; }
     s16 GetKernStart()  const { return x1e_kernStart; }
