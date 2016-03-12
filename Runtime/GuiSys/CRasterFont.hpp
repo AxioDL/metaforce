@@ -2,11 +2,13 @@
 #define __URDE_CRASTERFONT_HPP__
 
 #include "IOStreams.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
 
 class IObjectStore;
+class CTexture;
 
 class CGlyph
 {
@@ -50,16 +52,32 @@ struct CKernPair
 class CRasterFont
 {
     bool x0_ = false;
-    s32 x4_ = 16;
-    s32 x8_ = 16;
-    std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
+    s32 x4_monoWidth = 16;
+    s32 x8_monoHeight = 16;
+    std::unordered_map<wchar_t, CGlyph> xc_glyphs;
     std::vector<CKernPair> x1c_kerning;
+    s32 x2c_mode;
     s32 x30_;
-    s32 x8c_;
+    TToken<CTexture> x80_texture;
+    s32 x8c_baseline;
     s32 x90_;
+
+    CGlyph* InternalGetGlyph(wchar_t chr)
+    {
+        if (xc_glyphs.find(chr) == xc_glyphs.end())
+            return nullptr;
+
+        return &xc_glyphs[chr];
+    }
+
 public:
     CRasterFont(CInputStream& in, IObjectStore& store);
 
+    s32 GetMonoWidth() { return x4_monoWidth; }
+    s32 GetMonoHeight() { return x8_monoHeight; }
+    s32 GetMode() { return x2c_mode; }
+    s32 sub_802FFF5C() { return x90_; }
+    s32 GetBaseline()  { return x8c_baseline; }
     static s32 KernLookup(const std::vector<CKernPair>& kernTable, s32 kernStart, s32 chr)
     {
         auto iter = kernTable.cbegin() + kernStart;
@@ -73,6 +91,7 @@ public:
     }
 };
 
+std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
 #endif // __URDE_CRASTERFONT_HPP__
