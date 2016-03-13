@@ -25,9 +25,7 @@ Everything else is much too experimental to make portable/stable release builds 
 * **[OS X]** [Xcode Tools](https://developer.apple.com/xcode/download/)
 * **[Linux]** recent development packages of `udev`, `xorg+xcb`, `xinput`, `glx`, `asound`
 
-### Build Directions (Release)
-
-#### make
+### Prep Directions
 
 ```sh
 git clone https://github.com/AxioDL/urde.git
@@ -35,31 +33,39 @@ mkdir urde-build
 cd urde
 git submodule update --init --recursive
 cd ../urde-build
-cmake -DCMAKE_BUILD_TYPE=Release ../urde
+```
+
+### Build Directions (Debug)
+
+#### make
+
+```sh
+cmake -DCMAKE_BUILD_TYPE=Debug ../urde
 make
 ```
+
+#### Qt Creator *(main development / debugging IDE)*
+
+Open the repository's `CMakeLists.txt` via File > Open Project.
+
+Configure the desired CMake targets to build in the *Projects* area of the IDE.
+
+Build / Debug / Run on Windows, OS X and Linux in a unified way.
 
 #### Visual Studio
 
 Using *Git Shell* with [GitHub for Windows](https://desktop.github.com/)
 
-```sh
-git clone https://github.com/AxioDL/urde.git
-mkdir urde-build
-cd urde
-git submodule update --init --recursive
-cd ../urde-build
-```
-Windows 7/8 users should then run:
+Windows 7/8 users should run:
 
 ```sh
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release ../urde
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug ../urde
 ```
 
-Windows 10 users should then run:
+Windows 10 users should run:
 
 ```sh
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Release ../urde
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug ../urde
 ```
 
 Then open `urde.sln`
@@ -67,12 +73,7 @@ Then open `urde.sln`
 #### Xcode
 
 ```sh
-git clone https://github.com/AxioDL/urde.git
-mkdir urde-build
-cd urde
-git submodule update --init --recursive
-cd ../urde-build
-cmake -G Xcode -DCMAKE_BUILD_TYPE=Release -DLLVM_ROOT_DIR=<path-to-llvm-dev-lib-package> ../urde
+cmake -G Xcode -DCMAKE_BUILD_TYPE=Debug -DLLVM_ROOT_DIR=<path-to-llvm-dev-package> ../urde
 ```
 
 Then open `urde.xcodeproj`
