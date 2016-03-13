@@ -2,6 +2,7 @@
 #define __URDE_CGUIFUNCTIONDEF_HPP__
 
 #include "CGuiFuncParm.hpp"
+#include <array>
 
 namespace urde
 {
