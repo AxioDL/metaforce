@@ -46,7 +46,7 @@ make
 
 #### Qt Creator *(main development / debugging IDE)*
 
-Open the repository's `CMakeLists.txt` via File > Open Project.
+Open the repository's `CMakeLists.txt` via File > Open File or Project.
 
 Configure the desired CMake targets to build in the *Projects* area of the IDE.
 
