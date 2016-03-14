@@ -45,14 +45,14 @@ struct FRME : BigDNA
         };
 
         std::unique_ptr<IWidgetInfo> widgetInfo;
-        Value<bool> hasGroup;
-        Value<atUint16> group;
+        Value<bool> isWorker;
+        Value<atUint16> workerId;
         Value<atVec3f> origin;
         Value<atVec3f> basis[3];
         Value<atVec3f> rotationCenter;
-        Value<atUint32> unk2;
-        Value<bool> unk3;
-        Value<bool> unk4;
+        Value<atInt16> msgCount;
+        Value<atInt16> funcDefCount;
+        Value<atInt16> animControllerCount;
 
         struct BWIGInfo : IWidgetInfo
         { Delete _d; };

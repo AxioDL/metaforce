@@ -28,6 +28,7 @@ public:
 
     void MoveInWorld(const zeus::CVector3f& vec);
     const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.m_origin;}
+    void SetLocalPosition(const zeus::CVector3f& pos);
     const zeus::CVector3f& GetWorldPosition() const {return x34_worldXF.m_origin;}
     void SetRotationCenter(const zeus::CVector3f& center) {x64_rotationCenter = center;}
     void RotateReset();

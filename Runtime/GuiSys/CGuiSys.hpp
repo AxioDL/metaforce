@@ -25,9 +25,9 @@ typedef CGuiObject*(*FGuiFactoryFunc)(const SObjectTag&, const CVParamTransfer&)
 class CGuiFactoryMgr
 {
     friend class CGuiSys;
-    std::unordered_map<hecl::FourCC, FGuiFactoryFunc> m_factories;
+    std::unordered_map<FourCC, FGuiFactoryFunc> m_factories;
 public:
-    void AddFactory(hecl::FourCC key, FGuiFactoryFunc func)
+    void AddFactory(FourCC key, FGuiFactoryFunc func)
     {
         m_factories[key] = func;
     }
@@ -55,7 +55,7 @@ private:
 
     void AddFactories(EUsageMode mode);
     void LoadWidgetFunctions();
-    CGuiWidget* CreateWidgetInGame(hecl::FourCC type, CInputStream& in, CGuiFrame* frame);
+    static CGuiWidget* CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame);
 public:
     CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);
 

@@ -3,6 +3,7 @@
 
 #include "IOStreams.hpp"
 #include "CGuiObject.hpp"
+#include "CGuiFunctionDef.hpp"
 #include "zeus/CColor.hpp"
 
 namespace urde
@@ -10,6 +11,8 @@ namespace urde
 class CGuiAnimBase;
 class CGuiFrame;
 class CGuiMessage;
+class CGuiAnimController;
+class CGuiLogicalEventTrigger;
 
 enum class EGuiAnimBehListID
 {
@@ -17,6 +20,8 @@ enum class EGuiAnimBehListID
 
 enum class ETraversalMode
 {
+    Recursive = 1,
+    NonRecursive = 2
 };
 
 enum class EGuiAnimInitMode
@@ -33,6 +38,7 @@ enum class EGuiTextureClampModeVert
 
 class CGuiWidget : public CGuiObject
 {
+    friend class CGuiFrame;
 public:
     enum class EGuiModelDrawFlags
     {
@@ -45,20 +51,48 @@ public:
         s16 x6_selfId;
         s16 x8_parentId;
         bool xa_d;
-        bool xb_e;
+        bool xb_defaultActive;
         bool xc_f;
         bool xd_g;
         bool xe_h;
         zeus::CColor x10_color;
         EGuiModelDrawFlags x14_drawFlags;
-        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId, bool d, bool e, bool f,
-                        const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
-        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_d(d), xb_e(e), xc_f(f),
-          xd_g(g), xe_h(h), x10_color(color), x14_drawFlags(drawFlags) {}
+        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId, bool d, bool defaultActive,
+                        bool f, const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
+        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_d(d),
+          xb_defaultActive(defaultActive), xc_f(f), xd_g(g), xe_h(h), x10_color(color),
+          x14_drawFlags(drawFlags) {}
     };
     static void LoadWidgetFnMap();
-    virtual hecl::FourCC GetWidgetTypeID() const {return hecl::FOURCC('BWIG');}
+    virtual FourCC GetWidgetTypeID() const {return hecl::FOURCC('BWIG');}
 private:
+    s16 x7c_selfId;
+    s16 x7e_parentId;
+    zeus::CTransform x80_transform;
+    std::unique_ptr<CGuiAnimController> xb0_animController;
+    zeus::CColor xb4_ = zeus::CColor::skWhite;
+    zeus::CColor xb8_ = zeus::CColor::skClear;
+    zeus::CColor xbc_color;
+    zeus::CColor xc0_color2;
+    EGuiModelDrawFlags xc4_drawFlags;
+    CGuiFrame* xc8_frame;
+    std::unordered_map<int, std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>> xcc_functionMap;
+    u32 xe4_ = 0;
+    u32 xe8_ = 0;
+    u32 xec_ = 0;
+    u32 xf0_ = 0;
+    s16 xf4_workerId = -1;
+    bool xf6_24_pg : 1;
+    bool xf6_25_pd : 1;
+    bool xf6_26_isActive : 1;
+    bool xf6_27_ : 1;
+    bool xf6_28_ : 1;
+    bool xf6_29_pf : 1;
+    bool xf6_30_ : 1;
+    bool xf6_31_ : 1;
+    bool xf7_24_ : 1;
+    bool xf7_25_ : 1;
+
 public:
     CGuiWidget(const CGuiWidgetParms& parms);
 
@@ -76,21 +110,21 @@ public:
     virtual void Initialize();
     virtual void Touch() const;
     virtual void GetIsVisible() const;
-    virtual void GetIsActive() const;
+    virtual bool GetIsActive() const;
     virtual void TextSupport();
     virtual void GetTextSupport() const;
     virtual void ModifyRGBA(CGuiWidget* widget);
     virtual void AddAnim(EGuiAnimBehListID, CGuiAnimBase*);
     virtual void AddChildWidget(CGuiWidget* widget, bool, bool);
     virtual void RemoveChildWidget(CGuiWidget* widget, bool);
-    virtual void AddWorkerWidget(CGuiWidget* worker);
+    virtual bool AddWorkerWidget(CGuiWidget* worker);
     virtual void GetFinishedLoadingWidgetSpecific() const;
     virtual void OnVisible();
     virtual void OnInvisible();
     virtual void OnActivate(bool);
     virtual void OnDeActivate();
-    virtual void DoRegisterEventHandler();
-    virtual void DoUnregisterEventHandler();
+    virtual bool DoRegisterEventHandler();
+    virtual bool DoUnregisterEventHandler();
 
     void AddFunctionDef(u32, CGuiFunctionDef* def);
     void FindFunctionDefList(int);
@@ -99,6 +133,9 @@ public:
     void ReapplyXform();
     void SetIsVisible(bool);
     void SetIsActive(bool, bool);
+    void EnsureHasAnimController();
+    std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>* FindTriggerList(int);
+    void AddTrigger(std::unique_ptr<CGuiLogicalEventTrigger>&& trigger);
 
     void BroadcastMessage(int, CGuiControllerInfo* info);
     void LockEvents(bool);

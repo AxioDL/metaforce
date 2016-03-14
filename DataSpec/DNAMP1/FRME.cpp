@@ -73,12 +73,12 @@ void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
     /* widgetInfo */
     widgetInfo->read(__dna_reader);
 
-    /* hasGroup */
-    hasGroup = __dna_reader.readBool();
-    if (hasGroup)
+    /* isWorker */
+    isWorker = __dna_reader.readBool();
+    if (isWorker)
     {
-        /* group */
-        group = __dna_reader.readUint16Big();
+        /* workerId */
+        workerId = __dna_reader.readUint16Big();
     }
     /* origin */
     origin = __dna_reader.readVec3fBig();
@@ -90,12 +90,12 @@ void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
     basis[2] = __dna_reader.readVec3fBig();
     /* rotationCenter */
     rotationCenter = __dna_reader.readVec3fBig();
-    /* unk2 */
-    unk2 = __dna_reader.readUint32Big();
-    /* unk3 */
-    unk3 = __dna_reader.readBool();
-    /* unk4 */
-    unk4 = __dna_reader.readBool();
+    /* msgCount */
+    msgCount = __dna_reader.readInt16Big();
+    /* funcDefCount */
+    funcDefCount = __dna_reader.readInt16Big();
+    /* animControllerCount */
+    animControllerCount = __dna_reader.readInt16Big();
 }
 
 void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
@@ -108,12 +108,12 @@ void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
     /* widgetInfo */
     widgetInfo->write(__dna_writer);
 
-    /* hasGroup */
-    __dna_writer.writeBool(hasGroup);
-    if (hasGroup)
+    /* isWorker */
+    __dna_writer.writeBool(isWorker);
+    if (isWorker)
     {
-        /* group */
-        __dna_writer.writeUint16Big(group);
+        /* workerId */
+        __dna_writer.writeUint16Big(workerId);
     }
     /* origin */
     __dna_writer.writeVec3fBig(origin);
@@ -125,12 +125,12 @@ void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeVec3fBig(basis[2]);
     /* rotationCenter */
     __dna_writer.writeVec3fBig(rotationCenter);
-    /* unk2 */
-    __dna_writer.writeUint32Big(unk2);
-    /* unk3 */
-    __dna_writer.writeBool(unk3);
-    /* unk4 */
-    __dna_writer.writeBool(unk4);
+    /* msgCount */
+    __dna_writer.writeInt16Big(msgCount);
+    /* funcDefCount */
+    __dna_writer.writeInt16Big(funcDefCount);
+    /* animControllerCount */
+    __dna_writer.writeInt16Big(animControllerCount);
 }
 
 size_t FRME::Widget::binarySize(size_t __isz) const
@@ -138,7 +138,7 @@ size_t FRME::Widget::binarySize(size_t __isz) const
     __isz = type.binarySize(__isz);
     __isz = header.binarySize(__isz);
     __isz = widgetInfo->binarySize(__isz);
-    if (hasGroup)
+    if (isWorker)
         __isz += 4;
     return __isz + 67;
 }

@@ -1,5 +1,6 @@
 #include "CGuiHeadWidget.hpp"
 #include "CGuiFrame.hpp"
+#include "CGuiAnimController.hpp"
 
 namespace urde
 {

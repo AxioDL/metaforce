@@ -1,4 +1,6 @@
 #include "CGuiTextPane.hpp"
+#include "CGuiAnimController.hpp"
+#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
@@ -17,7 +19,7 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     float a = in.readFloatBig();
     float b = in.readFloatBig();
     zeus::CVector3f vec;
-    vec.read(in);
+    vec.readBig(in);
     u32 c = in.readUint32Big();
     bool d = in.readBool();
     bool e = in.readBool();
@@ -25,9 +27,9 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     EVerticalJustification vJustification = EVerticalJustification(in.readUint32Big());
     CGuiTextProperties props(d, e, 0, justification, vJustification);
     zeus::CColor col1;
-    col1.readRGBA(in);
+    col1.readRGBABig(in);
     zeus::CColor col2;
-    col2.readRGBA(in);
+    col2.readRGBABig(in);
     int f = in.readFloatBig();
     int g = in.readFloatBig();
     return new CGuiTextPane(parms, a, b, vec, c, props, col1, col2, f, g);

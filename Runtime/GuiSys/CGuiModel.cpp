@@ -2,6 +2,7 @@
 #include "CGuiFrame.hpp"
 #include "CGuiSys.hpp"
 #include "CSimplePool.hpp"
+#include "CGuiAnimController.hpp"
 
 namespace urde
 {

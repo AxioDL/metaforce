@@ -1,4 +1,6 @@
 #include "CGuiLight.hpp"
+#include "CGuiAnimController.hpp"
+#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {

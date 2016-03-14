@@ -1,5 +1,6 @@
 #include "CGuiCamera.hpp"
 #include "CGuiFrame.hpp"
+#include "CGuiAnimController.hpp"
 
 namespace urde
 {

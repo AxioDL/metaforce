@@ -23,16 +23,16 @@ void CGuiPhysicalMsg::SetMessage(const PhysicalMap& map, bool pressed)
         else
             x0_curStates &= ~physicalBit;
 
-        if (item.second.x4_pressed)
+        if (item.second.x4_active)
             x8_repeatStates |= physicalBit;
         else
             x8_repeatStates &= ~physicalBit;
     }
 }
 
-void CGuiPhysicalMsg::AddControllerID(PhysicalMap& map, EPhysicalControllerID key, bool pressed)
+void CGuiPhysicalMsg::AddControllerID(PhysicalMap& map, EPhysicalControllerID key, bool active)
 {
-    map.emplace(std::make_pair(key, CPhysicalID{key, pressed}));
+    map.emplace(std::make_pair(key, CPhysicalID{key, active}));
 }
 
 CGuiPhysicalMsg::ControllerState
@@ -41,7 +41,7 @@ CGuiPhysicalMsg::FindControllerID(const PhysicalMap& map, EPhysicalControllerID 
     auto search = map.find(key);
     if (search == map.cend())
         return ControllerState::NotFound;
-    return search->second.x4_pressed ? ControllerState::Pressed : ControllerState::NotPressed;
+    return search->second.x4_active ? ControllerState::Pressed : ControllerState::NotPressed;
 }
 
 }

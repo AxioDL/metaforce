@@ -1,4 +1,6 @@
 #include "CGuiPane.hpp"
+#include "CGuiAnimController.hpp"
+#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
@@ -15,7 +17,7 @@ CGuiPane* CGuiPane::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     float a = in.readFloatBig();
     float b = in.readFloatBig();
     zeus::CVector3f vec;
-    vec.read(in);
+    vec.readBig(in);
     return new CGuiPane(parms, a, b, vec);
 }
 

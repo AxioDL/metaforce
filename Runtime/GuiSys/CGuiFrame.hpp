@@ -39,6 +39,7 @@ class CGuiFrameMessageMapNode
 public:
     CGuiFrameMessageMapNode(const CGuiPhysicalMsg& msg, int val)
     : x0_trigger(msg, val, false) {}
+    const CGuiLogicalEventTrigger& GetTrigger() const {return x0_trigger;}
 };
 
 class CGuiFrame
@@ -50,7 +51,7 @@ public:
 private:
     bool x0_controllerStatus[4] = {};
     std::string x4_name;
-    u32 x14_id;
+    TResId x14_id;
     CGuiFrameTransitionOptions x1c_transitionOpts;
     u32 x34_ = 0;
     u32 x38_ = 0;
@@ -62,8 +63,11 @@ private:
     CGuiWidget* x50_background = nullptr;
     zeus::CQuaternion x54_;
     CGuiWidgetIdDB x64_idDB;
-    std::unordered_map<u32, u32> x7c_;
-    std::vector<u32> x90_;
+    using LogicalEventList = std::list<std::unique_ptr<CGuiFrameMessageMapNode>>;
+    using WidgetToLogicalEventMap =
+    std::unordered_map<s16, std::unique_ptr<LogicalEventList>>;
+    std::unordered_map<u64, std::unique_ptr<WidgetToLogicalEventMap>> x7c_messageMap;
+    std::vector<CGuiWidget*> x90_widgets;
     std::vector<CGuiLight*> xa0_lights;
     int xb0_a;
     int xb4_b;
@@ -72,7 +76,7 @@ private:
     bool xbd_flag2 = false;
 
 public:
-    CGuiFrame(u32 id, const std::string& name, CGuiSys& sys, int a, int b, int c);
+    CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, int b, int c);
 
     CGuiSys& GetGuiSys() {return x3c_guiSys;}
 
@@ -87,13 +91,15 @@ public:
     void InterpretGUIControllerState(const CFinalInput& input,
         CGuiPhysicalMsg::PhysicalMap& state,
         char&, char&, char&, char&);
-    void FindWidget2LogicalEventMap(u64);
-    void FindLogicalEventList(u64, s16);
+    WidgetToLogicalEventMap* FindWidget2LogicalEventMap(u64 events);
+    LogicalEventList* FindLogicalEventList(u64 events, s16 id);
     void SendWidgetMessage(s16,
         std::list<std::unique_ptr<CGuiFrameMessageMapNode>>&,
         CGuiPhysicalMsg::PhysicalMap& state,
         CGuiControllerInfo::CGuiControllerStateInfo& csInfo);
     void ClearAllMessageMap();
+    void ClearMessageMap(const CGuiLogicalEventTrigger* trigger, s16 id);
+    void AddMessageMap(const CGuiLogicalEventTrigger* trigger, s16 id);
     void SortDrawOrder();
     void EnableLights(u32) const;
     void DisableLights() const;
@@ -112,8 +118,8 @@ public:
 
     CGuiWidgetIdDB& GetWidgetIdDB() {return x64_idDB;}
 
-    static CGuiFrame* CreateFrame(u32, CGuiSys& sys, CInputStream& in);
-    static std::string CreateFrameName(u32);
+    static CGuiFrame* CreateFrame(TResId frmeId, CGuiSys& sys, CInputStream& in);
+    static std::string CreateFrameName(TResId frmeId);
 };
 
 }

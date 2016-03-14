@@ -62,8 +62,8 @@ struct CGuiPhysicalMsg
     struct CPhysicalID
     {
         EPhysicalControllerID x0_key;
-        bool x4_pressed;
-        CPhysicalID(EPhysicalControllerID key, bool pressed) : x0_key(key), x4_pressed(pressed) {}
+        bool x4_active;
+        CPhysicalID(EPhysicalControllerID key, bool active) : x0_key(key), x4_active(active) {}
     };
     using PhysicalMap = std::unordered_map<EPhysicalControllerID, CPhysicalID>;
 

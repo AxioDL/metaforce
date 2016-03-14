@@ -1,4 +1,6 @@
 #include "CGuiStaticImage.hpp"
+#include "CGuiAnimController.hpp"
+#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
@@ -22,7 +24,7 @@ CGuiStaticImage* CGuiStaticImage::Create(CGuiFrame* frame, CInputStream& in, boo
     std::vector<float> floats = {a, b, a, d, c, b, c, d};
 
     zeus::CVector3f vec;
-    vec.read(in);
+    vec.readBig(in);
     u32 e = in.readUint32Big();
     u32 f = in.readUint32Big();
     u32 g = in.readUint32Big();

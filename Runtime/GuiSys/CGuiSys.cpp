@@ -27,7 +27,7 @@ void CGuiSys::LoadWidgetFunctions()
 {
 }
 
-CGuiWidget* CGuiSys::CreateWidgetInGame(hecl::FourCC type, CInputStream& in, CGuiFrame* frame)
+CGuiWidget* CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame)
 {
     switch (type)
     {

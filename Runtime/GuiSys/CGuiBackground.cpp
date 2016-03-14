@@ -1,4 +1,6 @@
 #include "CGuiBackground.hpp"
+#include "CGuiAnimController.hpp"
+#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
@@ -21,7 +23,7 @@ CGuiBackground* CGuiBackground::Create(CGuiFrame* frame, CInputStream& in, bool 
     std::vector<float> floats = {a, b, a, d, c, b, c, d};
 
     zeus::CVector3f vec;
-    vec.read(in);
+    vec.readBig(in);
     in.readUint32Big();
     in.readUint32Big();
     in.readUint32Big();
