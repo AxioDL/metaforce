@@ -74,6 +74,7 @@ public:
     CFinalInput& operator|=(const CFinalInput& other);
     bool operator==(const CFinalInput& other)
     { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
+    u32 controllerIdx() const {return x4_controllerIdx;}
 
     bool PStart() const {return x2e_b31_PStart;}
     bool PR() const {return x2e_b26_PR;}
@@ -141,6 +142,13 @@ public:
     float ALALeft() const {return x8_anaLeftX < 0.0 ? -x8_anaLeftX : 0.0;}
     float ALADown() const {return xc_anaLeftY < 0.0 ? -xc_anaLeftY : 0.0;}
     float ALAUp() const {return xc_anaLeftY > 0.0 ? xc_anaLeftY : 0.0;}
+
+    float ALeftX() const {return x8_anaLeftX;}
+    float ALeftY() const {return xc_anaLeftY;}
+    float ARightX() const {return x10_anaRightX;}
+    float ARightY() const {return x14_anaRightY;}
+    float ALeftTrigger() const {return x18_anaLeftTrigger;}
+    float ARightTrigger() const {return x1c_anaRightTrigger;}
 };
 
 }

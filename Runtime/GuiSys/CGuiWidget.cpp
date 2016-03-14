@@ -2,6 +2,7 @@
 #include "CGuiFrame.hpp"
 #include "CGuiAnimController.hpp"
 #include "CGuiLogicalEventTrigger.hpp"
+#include "CGuiMessage.hpp"
 
 namespace urde
 {
@@ -59,6 +60,10 @@ CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     CGuiWidget* ret = new CGuiWidget(parms);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
+}
+
+bool CGuiWidget::Message(const CGuiMessage& msg)
+{
 }
 
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms)

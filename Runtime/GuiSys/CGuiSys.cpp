@@ -74,50 +74,50 @@ CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
     AddFactories(mode);
     LoadWidgetFunctions();
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::Seventeen,
-    CGuiAutoRepeatData(EPhysicalControllerID::Seventeen, EPhysicalControllerID::Eighteen)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::DPadUpInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::DPadUpInst, EPhysicalControllerID::DPadUp)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::Nineteen,
-    CGuiAutoRepeatData(EPhysicalControllerID::Nineteen, EPhysicalControllerID::Twenty)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::DPadRightInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::DPadRightInst, EPhysicalControllerID::DPadRight)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::TwentyOne,
-    CGuiAutoRepeatData(EPhysicalControllerID::TwentyOne, EPhysicalControllerID::TwentyTwo)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::DPadDownInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::DPadDownInst, EPhysicalControllerID::DPadDown)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::TwentyThree,
-    CGuiAutoRepeatData(EPhysicalControllerID::TwentyThree, EPhysicalControllerID::TwentyFour)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::DPadLeftInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::DPadLeftInst, EPhysicalControllerID::DPadLeft)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::ThirtyFive,
-    CGuiAutoRepeatData(EPhysicalControllerID::ThirtyFive, EPhysicalControllerID::ThirtySix)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftStickRightInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftStickRightInst, EPhysicalControllerID::LeftStickRight)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::ThirtySeven,
-    CGuiAutoRepeatData(EPhysicalControllerID::ThirtySeven, EPhysicalControllerID::ThirtyEight)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftStickDownInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftStickDownInst, EPhysicalControllerID::LeftStickDown)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::ThirtyNine,
-    CGuiAutoRepeatData(EPhysicalControllerID::ThirtyNine, EPhysicalControllerID::Forty)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftStickLeftInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftStickLeftInst, EPhysicalControllerID::LeftStickLeft)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::FortyOne,
-    CGuiAutoRepeatData(EPhysicalControllerID::FortyOne, EPhysicalControllerID::FortyTwo)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::RightStickUpInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::RightStickUpInst, EPhysicalControllerID::RightStickUp)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::FortyThree,
-    CGuiAutoRepeatData(EPhysicalControllerID::FortyThree, EPhysicalControllerID::FortyFour)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::RightStickRightInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::RightStickRightInst, EPhysicalControllerID::RightStickRight)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::FortyFive,
-    CGuiAutoRepeatData(EPhysicalControllerID::FortyFive, EPhysicalControllerID::FortySix)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::RightStickDownInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::RightStickDownInst, EPhysicalControllerID::RightStickDown)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::FortySeven,
-    CGuiAutoRepeatData(EPhysicalControllerID::FortySeven, EPhysicalControllerID::FortyEight)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::RightStickLeftInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::RightStickLeftInst, EPhysicalControllerID::RightStickLeft)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::TwentyFive,
-    CGuiAutoRepeatData(EPhysicalControllerID::TwentyFive, EPhysicalControllerID::TwentySix)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftUpInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftUpInst, EPhysicalControllerID::LeftUp)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::TwentySeven,
-    CGuiAutoRepeatData(EPhysicalControllerID::TwentySeven, EPhysicalControllerID::TwentyEight)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftRightInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftRightInst, EPhysicalControllerID::LeftRight)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::TwentyNine,
-    CGuiAutoRepeatData(EPhysicalControllerID::TwentyNine, EPhysicalControllerID::Thirty)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftDownInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftDownInst, EPhysicalControllerID::LeftDown)));
 
-    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::ThirtyOne,
-    CGuiAutoRepeatData(EPhysicalControllerID::ThirtyOne, EPhysicalControllerID::ThirtyTwo)));
+    x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftLeftInst,
+    CGuiAutoRepeatData(EPhysicalControllerID::LeftLeftInst, EPhysicalControllerID::LeftLeft)));
 }
 
 }

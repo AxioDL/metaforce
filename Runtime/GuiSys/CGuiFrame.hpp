@@ -52,6 +52,7 @@ private:
     bool x0_controllerStatus[4] = {};
     std::string x4_name;
     TResId x14_id;
+    u32 x18_ = 0;
     CGuiFrameTransitionOptions x1c_transitionOpts;
     u32 x34_ = 0;
     u32 x38_ = 0;
@@ -75,6 +76,10 @@ private:
     bool xbc_24_flag1 : 1;
     bool xbd_flag2 = false;
 
+    static void InterpretGUIControllerState(const CFinalInput& input,
+                                            CGuiPhysicalMsg::PhysicalMap& state,
+                                            char& lx, char& ly, char& rx, char& ry);
+
 public:
     CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, int b, int c);
 
@@ -88,12 +93,9 @@ public:
     void SetFrameBackground(CGuiWidget* bg) {x50_background = bg;}
     void SetFrameCamera(CGuiCamera* camr) {x4c_camera = camr;}
     void SetHeadWidget(CGuiHeadWidget* hwig) {x44_headWidget = hwig;}
-    void InterpretGUIControllerState(const CFinalInput& input,
-        CGuiPhysicalMsg::PhysicalMap& state,
-        char&, char&, char&, char&);
     WidgetToLogicalEventMap* FindWidget2LogicalEventMap(u64 events);
     LogicalEventList* FindLogicalEventList(u64 events, s16 id);
-    void SendWidgetMessage(s16,
+    bool SendWidgetMessage(s16,
         std::list<std::unique_ptr<CGuiFrameMessageMapNode>>&,
         CGuiPhysicalMsg::PhysicalMap& state,
         CGuiControllerInfo::CGuiControllerStateInfo& csInfo);

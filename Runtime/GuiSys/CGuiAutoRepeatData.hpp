@@ -8,13 +8,23 @@ namespace urde
 
 class CGuiAutoRepeatData
 {
-    EPhysicalControllerID x0_a;
-    EPhysicalControllerID x4_b;
-    float x8_[8] = {0.f, 0.f, 0.f, 0.f, 0.2f, 0.2f, 0.2f, 0.2f};
-    bool x28_[8] = {};
+    EPhysicalControllerID x0_instEvent;
+    EPhysicalControllerID x4_contEvent;
+    float x8_nextDue[4] = {0.f, 0.f, 0.f, 0.f};
+    float x18_remainder[4] = {0.2f, 0.2f, 0.2f, 0.2f};
+    bool x28_pressed[4] = {};
+    bool x2c_defer[4] = {};
 public:
-    CGuiAutoRepeatData(EPhysicalControllerID a, EPhysicalControllerID b)
-    : x0_a(a), x4_b(b) {}
+    CGuiAutoRepeatData(EPhysicalControllerID inst, EPhysicalControllerID cont)
+    : x0_instEvent(inst), x4_contEvent(cont) {}
+    void SetActive(int cIdx, float eTime)
+    {
+        x8_nextDue[cIdx] = eTime + 0.6f;
+        x28_pressed[cIdx] = true;
+        x2c_defer[cIdx] = true;
+        x18_remainder[cIdx] = 0.2f;
+    }
+    void AddAutoEvent(int cIdx, CGuiPhysicalMsg::PhysicalMap& events, float eTime);
 };
 
 }

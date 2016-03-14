@@ -7,8 +7,10 @@ namespace urde
 class CGuiControllerInfo
 {
 public:
-    class CGuiControllerStateInfo
+    struct CGuiControllerStateInfo
     {
+        char cIdx;
+        char lx, ly, rx, ry;
     };
 };
 

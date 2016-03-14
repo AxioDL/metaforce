@@ -60,6 +60,7 @@ public:
     CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);
 
     CSimplePool& GetResStore() {return x4_resStore;}
+    std::unordered_map<EPhysicalControllerID, CGuiAutoRepeatData>& GetRepeatMap() {return x18_repeatMap;}
     EUsageMode GetUsageMode() const {return x2c_mode;}
 };
 

@@ -8,6 +8,7 @@ namespace urde
 
 class CGuiFuncParm
 {
+    friend class CGuiMessage;
 public:
     enum class Type
     {
@@ -21,14 +22,14 @@ private:
     Type x0_type = Type::Null;
     union
     {
-        u32 x4_int;
+        uintptr_t x4_int;
         float x4_float;
         void* x4_ptr = nullptr;
     };
 
 public:
     CGuiFuncParm() = default;
-    CGuiFuncParm(int arg) : x0_type(Type::Int), x4_int(arg) {}
+    CGuiFuncParm(uintptr_t arg) : x0_type(Type::Int), x4_int(arg) {}
     CGuiFuncParm(float arg) : x0_type(Type::Float), x4_float(arg) {}
     CGuiFuncParm(void* arg) : x0_type(Type::IntrusivePointer), x4_ptr(arg) {}
     ~CGuiFuncParm()

@@ -76,4 +76,6 @@ add_library(RuntimeCommonGuiSys
             CGuiBackground.cpp
             CGuiBackground.hpp
             CGuiPane.cpp
-            CGuiPane.hpp)
+            CGuiPane.hpp
+            CGuiMessage.cpp
+            CGuiMessage.hpp)

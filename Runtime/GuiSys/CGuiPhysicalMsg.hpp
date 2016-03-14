@@ -8,38 +8,63 @@ namespace urde
 {
 enum class EPhysicalControllerID
 {
-    Seventeen = 17,
-    Eighteen = 18,
-    Nineteen = 19,
-    Twenty = 20,
-    TwentyOne = 21,
-    TwentyTwo = 22,
-    TwentyThree = 23,
-    TwentyFour = 24,
-    ThirtyThree = 33,
-    ThirtyFour = 34,
-    ThirtyFive = 35,
-    ThirtySix = 36,
-    ThirtySeven = 37,
-    ThirtyEight = 38,
-    ThirtyNine = 39,
-    Forty = 40,
-    FortyOne = 41,
-    FortyTwo = 42,
-    FortyThree = 43,
-    FortyFour = 44,
-    FortyFive = 45,
-    FortySix = 46,
-    FortySeven = 47,
-    FortyEight = 48,
-    TwentyFive = 25,
-    TwentySix = 26,
-    TwentySeven = 27,
-    TwentyEight = 28,
-    TwentyNine = 29,
-    Thirty = 30,
-    ThirtyOne = 31,
-    ThirtyTwo = 32
+    AInst = 1,
+    A = 2,
+    BInst = 3,
+    B = 4,
+    LInst = 5,
+    L = 6,
+    RInst = 7,
+    R = 8,
+    XInst = 9,
+    X = 10,
+    YInst = 11,
+    Y = 12,
+    ZInst = 13,
+    Z = 14,
+    StartInst = 15,
+    Start = 16,
+
+    DPadUpInst = 17,
+    DPadUp = 18,
+    DPadRightInst = 19,
+    DPadRight = 20,
+    DPadDownInst = 21,
+    DPadDown = 22,
+    DPadLeftInst = 23,
+    DPadLeft = 24,
+
+    LeftUpInst = 25,
+    LeftUp = 26,
+    LeftRightInst = 27,
+    LeftRight = 28,
+    LeftDownInst = 29,
+    LeftDown = 30,
+    LeftLeftInst = 31,
+    LeftLeft = 32,
+
+    LeftStickUpInst = 33,
+    LeftStickUp = 34,
+    LeftStickRightInst = 35,
+    LeftStickRight = 36,
+    LeftStickDownInst = 37,
+    LeftStickDown = 38,
+    LeftStickLeftInst = 39,
+    LeftStickLeft = 40,
+
+    RightStickUpInst = 41,
+    RightStickUp = 42,
+    RightStickRightInst = 43,
+    RightStickRight = 44,
+    RightStickDownInst = 45,
+    RightStickDown = 46,
+    RightStickLeftInst = 47,
+    RightStickLeft = 48,
+
+    LeftStickThreshold = 49,
+    LeftStickRelease = 50,
+    RightStickThreshold = 51,
+    RightStickRelease = 52
 };
 }
 
@@ -62,23 +87,23 @@ struct CGuiPhysicalMsg
     struct CPhysicalID
     {
         EPhysicalControllerID x0_key;
-        bool x4_active;
-        CPhysicalID(EPhysicalControllerID key, bool active) : x0_key(key), x4_active(active) {}
+        bool x4_repeat;
+        CPhysicalID(EPhysicalControllerID key, bool repeat) : x0_key(key), x4_repeat(repeat) {}
     };
     using PhysicalMap = std::unordered_map<EPhysicalControllerID, CPhysicalID>;
 
     CGuiPhysicalMsg(const PhysicalMap& map);
     bool Exists(const CGuiPhysicalMsg& other) const;
     void SetMessage(const PhysicalMap& map, bool pressed);
-    static void AddControllerID(PhysicalMap& map, EPhysicalControllerID key, bool pressed);
+    static void AddControllerID(PhysicalMap& map, EPhysicalControllerID key, bool repeat);
 
-    enum class ControllerState
+    enum class EControllerState
     {
-        NotFound = -1,
-        NotPressed = 0,
-        Pressed = 1
+        NotPressed = -1,
+        Press = 0,
+        PressRepeat = 1
     };
-    static ControllerState FindControllerID(const PhysicalMap& map, EPhysicalControllerID key);
+    static EControllerState FindControllerID(const PhysicalMap& map, EPhysicalControllerID key);
 };
 
 }

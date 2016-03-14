@@ -99,7 +99,7 @@ public:
     static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool);
     static CGuiWidget* Create(CGuiFrame* frame, CInputStream& in, bool);
 
-    virtual void Message(const CGuiMessage& msg);
+    virtual bool Message(const CGuiMessage& msg);
     virtual void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseMessages(CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseAnimations(CInputStream& in, const CGuiWidgetParms& parms);
