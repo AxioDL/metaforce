@@ -22,12 +22,14 @@ enum class EFrameTransitionOptions
     Zero
 };
 
-class CGuiFrameTransitionOptions
+struct CGuiFrameTransitionOptions
 {
     EFrameTransitionOptions x0_opts;
     bool x4_ = true;
     float x8_ = 1.f;
-    zeus::CVector3f xc_;
+    float xc_ = 0.f;
+    float x10_ = 0.f;
+    float x14_ = 0.f;
 public:
     CGuiFrameTransitionOptions(EFrameTransitionOptions opts)
     : x0_opts(opts) {}
@@ -47,6 +49,11 @@ class CGuiFrame
 public:
     enum class EFrameStates
     {
+        Zero = 0,
+        One = 1,
+        Two = 2,
+        Three = 3,
+        Four = 4
     };
 private:
     bool x0_controllerStatus[4] = {};
@@ -54,8 +61,8 @@ private:
     TResId x14_id;
     u32 x18_ = 0;
     CGuiFrameTransitionOptions x1c_transitionOpts;
-    u32 x34_ = 0;
-    u32 x38_ = 0;
+    EFrameStates x34_ = EFrameStates::Zero;
+    EFrameStates x38_ = EFrameStates::Zero;
     CGuiSys& x3c_guiSys;
     u32 x40_ = 0;
     CGuiHeadWidget* x44_headWidget = nullptr;
@@ -73,7 +80,7 @@ private:
     int xb0_a;
     int xb4_b;
     int xb8_c;
-    bool xbc_24_flag1 : 1;
+    bool xbc_24_loaded : 1;
     bool xbd_flag2 = false;
 
     static void InterpretGUIControllerState(const CFinalInput& input,
@@ -103,7 +110,7 @@ public:
     void ClearMessageMap(const CGuiLogicalEventTrigger* trigger, s16 id);
     void AddMessageMap(const CGuiLogicalEventTrigger* trigger, s16 id);
     void SortDrawOrder();
-    void EnableLights(u32) const;
+    void EnableLights(u32 lights) const;
     void DisableLights() const;
     void RemoveLight(CGuiLight* light);
     void AddLight(CGuiLight* light);
@@ -111,7 +118,7 @@ public:
     void Touch() const;
     void ProcessControllerInput(const CFinalInput& input);
 
-    void Update(float dt);
+    bool Update(float dt);
     void Draw(const CGuiWidgetDrawParms& parms) const;
     void Stop(const CGuiFrameTransitionOptions&, EFrameStates, bool);
     void Run(CGuiFrame*, const CGuiFrameTransitionOptions&, EFrameStates, bool);

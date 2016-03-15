@@ -74,7 +74,7 @@ public:
     CFinalInput& operator|=(const CFinalInput& other);
     bool operator==(const CFinalInput& other)
     { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
-    u32 controllerIdx() const {return x4_controllerIdx;}
+    u32 ControllerIdx() const {return x4_controllerIdx;}
 
     bool PStart() const {return x2e_b31_PStart;}
     bool PR() const {return x2e_b26_PR;}

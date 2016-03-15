@@ -4,6 +4,9 @@
 #include "CGuiHeadWidget.hpp"
 #include "CGuiAnimController.hpp"
 #include "CGuiMessage.hpp"
+#include "CGuiLight.hpp"
+#include "CGuiCamera.hpp"
+#include "Graphics/CGraphics.hpp"
 #include "Input/CFinalInput.hpp"
 #include "zeus/CColor.hpp"
 
@@ -12,7 +15,7 @@ namespace urde
 
 CGuiFrame::CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, int b, int c)
 : x4_name(name), x14_id(id), x1c_transitionOpts(EFrameTransitionOptions::Zero),
-  x3c_guiSys(sys), xb0_a(a), xb4_b(b), xb8_c(c), xbc_24_flag1(false)
+  x3c_guiSys(sys), xb0_a(a), xb4_b(b), xb8_c(c), xbc_24_loaded(false)
 {
     xa0_lights.resize(8);
     x48_rootWidget.reset(new CGuiWidget(
@@ -293,8 +296,8 @@ bool CGuiFrame::SendWidgetMessage(s16 id,
     for (std::unique_ptr<CGuiFrameMessageMapNode>& node : list)
     {
         CGuiMessage msg(CGuiMessage::Type(node->GetTrigger().GetTriggerId()),
-                        reinterpret_cast<uintptr_t>(&state),
-                        reinterpret_cast<uintptr_t>(&csInfo));
+                        reinterpret_cast<intptr_t>(&state),
+                        reinterpret_cast<intptr_t>(&csInfo));
         if (!widget->Message(msg))
             return false;
     }
@@ -345,13 +348,66 @@ void CGuiFrame::SortDrawOrder()
     });
 }
 
+void CGuiFrame::EnableLights(u32 lights) const
+{
+    CGraphics::DisableAllLights();
+    zeus::CColor accumColor(zeus::CColor::skBlack);
+    ERglLight lightId = ERglLight::Zero;
+    for (CGuiLight* light : xa0_lights)
+    {
+        // accumulate color
+        CGraphics::LoadLight(lightId, light->BuildLight());
+        CGraphics::EnableLight(lightId);
+        ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
+    }
+    if (xa0_lights.empty())
+        CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+    else
+        CGraphics::SetAmbientColor(accumColor);
+}
+
+void CGuiFrame::DisableLights() const
+{
+    CGraphics::DisableAllLights();
+}
+
+void CGuiFrame::RemoveLight(CGuiLight* light)
+{
+    xa0_lights[light->GetLoadedIdx()] = nullptr;
+}
+
+void CGuiFrame::AddLight(CGuiLight* light)
+{
+    xa0_lights[light->GetLoadedIdx()] = light;
+}
+
+bool CGuiFrame::GetIsFinishedLoading() const
+{
+    if (xbc_24_loaded)
+        return true;
+    for (const CGuiWidget* widget : x90_widgets)
+    {
+        if (widget->GetIsFinishedLoading())
+            continue;
+        return false;
+    }
+    ((CGuiFrame*)this)->xbc_24_loaded = true;
+    return true;
+}
+
+void CGuiFrame::Touch() const
+{
+    for (const CGuiWidget* widget : x90_widgets)
+        widget->Touch();
+}
+
 void CGuiFrame::ProcessControllerInput(const CFinalInput& input)
 {
-    if (x18_ & 0x4 && input.controllerIdx() == 0)
+    if (x18_ & 0x4 && input.ControllerIdx() == 0)
     {
         CGuiPhysicalMsg::PhysicalMap state;
         CGuiControllerInfo::CGuiControllerStateInfo stateInfo;
-        stateInfo.cIdx = input.controllerIdx();
+        stateInfo.cIdx = input.ControllerIdx();
         InterpretGUIControllerState(input, state, stateInfo.lx, stateInfo.ly, stateInfo.rx, stateInfo.ry);
         float eventTime = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - x3c_guiSys.x40_constructTime).count() / 1000.f;
@@ -360,16 +416,16 @@ void CGuiFrame::ProcessControllerInput(const CFinalInput& input)
         {
             auto search = x3c_guiSys.GetRepeatMap().find(newPair.first);
             if (search != x3c_guiSys.GetRepeatMap().end())
-                search->second.SetActive(input.controllerIdx(), eventTime);
+                search->second.SetActive(input.ControllerIdx(), eventTime);
         }
 
         for (std::pair<const EPhysicalControllerID, CGuiAutoRepeatData>& pair : x3c_guiSys.GetRepeatMap())
         {
-            pair.second.AddAutoEvent(input.controllerIdx(), state, eventTime);
+            pair.second.AddAutoEvent(input.ControllerIdx(), state, eventTime);
         }
 
         CGuiPhysicalMsg msg(state);
-        SetControllerStatus(input.controllerIdx(), true);
+        SetControllerStatus(input.ControllerIdx(), true);
 
         for (std::pair<const u64, std::unique_ptr<WidgetToLogicalEventMap>>& outer : x7c_messageMap)
         {
@@ -388,6 +444,139 @@ void CGuiFrame::ProcessControllerInput(const CFinalInput& input)
             }
         }
     }
+}
+
+bool CGuiFrame::Update(float dt)
+{
+    if (x34_ != EFrameStates::Four)
+        return false;
+    if (x18_ & 2)
+    {
+        EGuiAnimBehListID listId = EGuiAnimBehListID::NegOne;
+        bool something = true;
+        x44_headWidget->InitializeRGBAFactor();
+        x44_headWidget->Update(dt);
+        x44_headWidget->RecalculateAllRGBA();
+        switch (x34_)
+        {
+        case EFrameStates::One:
+            if (!xbd_flag2)
+            {
+                CGuiControllerInfo cInfo;
+                x44_headWidget->BroadcastMessage(0, &cInfo);
+                xbd_flag2 = true;
+            }
+            break;
+        case EFrameStates::Three:
+            listId = EGuiAnimBehListID::One;
+            break;
+        default:
+            break;
+        }
+
+        if (listId != EGuiAnimBehListID::NegOne)
+            x44_headWidget->IsAllAnimsDone(listId, something, ETraversalMode::Zero);
+
+        if (something)
+        {
+            switch (x34_)
+            {
+            case EFrameStates::One:
+            {
+                x34_ = x38_;
+                x44_headWidget->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::NonRecursive);
+                x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::Two, 0.f, false,
+                                                          EGuiAnimInitMode::Five, ETraversalMode::NonRecursive);
+                CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
+                if (camSib)
+                {
+                    camSib->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::Zero);
+                    camSib->InitializeAnimControllers(EGuiAnimBehListID::Two, 0.f, false,
+                                                      EGuiAnimInitMode::Five, ETraversalMode::Zero);
+                }
+                xbd_flag2 = false;
+                break;
+            }
+            case EFrameStates::Three:
+            {
+                CGuiControllerInfo cInfo;
+                x44_headWidget->BroadcastMessage(1, &cInfo);
+                ClearAllMessageMap();
+                x18_ &= ~0x3;
+                x44_headWidget->ResetAllAnimUpdateState();
+                xbd_flag2 = false;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        return x34_ != EFrameStates::Zero;
+    }
+
+    return false;
+}
+
+void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const
+{
+    if (x18_)
+    {
+        CGraphics::SetCullMode(ERglCullMode::None);
+        CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+        DisableLights();
+        x4c_camera->Draw(parms);
+        // Set one-stage modulate
+        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
+                                ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
+        if (x50_background)
+            x50_background->Draw(parms);
+
+        for (const CGuiWidget* widget : x90_widgets)
+            if (widget->GetIsVisible())
+                widget->Draw(parms);
+    }
+    CGraphics::SetCullMode(ERglCullMode::Front);
+}
+
+void CGuiFrame::Stop(const CGuiFrameTransitionOptions& transOpts, EFrameStates states, bool flag)
+{
+    x18_ &= 0xFFFFFFFB;
+    x38_ = states;
+    if (flag)
+        x34_ = x38_;
+    else
+    {
+        x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::One, transOpts.xc_, true,
+                                                  EGuiAnimInitMode::Two, ETraversalMode::NonRecursive);
+        CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
+        if (camSib)
+        {
+            camSib->InitializeAnimControllers(EGuiAnimBehListID::One, transOpts.xc_, true,
+                                              EGuiAnimInitMode::Two, ETraversalMode::Zero);
+        }
+    }
+}
+
+void CGuiFrame::Run(CGuiFrame* frame, const CGuiFrameTransitionOptions& transOpts,
+                    EFrameStates states, bool flag)
+{
+    ResetControllerStatus();
+    x34_ = EFrameStates::One;
+    x38_ = EFrameStates::Two;
+    float len = 0.f;
+    x4c_camera->GetBranchAnimLen(EGuiAnimBehListID::Zero, len, ETraversalMode::NonRecursive);
+    len += transOpts.xc_ + transOpts.x10_ + transOpts.x14_;
+    x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::Zero, len, true,
+                                              EGuiAnimInitMode::One, ETraversalMode::NonRecursive);
+    CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
+    if (camSib)
+    {
+        camSib->InitializeAnimControllers(EGuiAnimBehListID::Zero, len, true,
+                                          EGuiAnimInitMode::One, ETraversalMode::Zero);
+    }
+    x18_ |= 0x7;
+    x44_headWidget->RegisterEventHandler(ETraversalMode::Zero);
 }
 
 void CGuiFrame::Initialize()

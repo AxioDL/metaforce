@@ -20,9 +20,10 @@ private:
     CGuiFuncParm x8_a;
     CGuiFuncParm x10_b;
 public:
-    CGuiMessage(Type type, uintptr_t a, uintptr_t b)
+    CGuiMessage(Type type, intptr_t a, intptr_t b)
     : x4_type(type), x8_a(a), x10_b(b) {}
-    uintptr_t GetInt(u32 val) const
+    Type GetType() const {return x4_type;}
+    intptr_t GetInt(u32 val) const
     {
         if (val == 0x60EF4DB0)
             return x8_a.x4_int;

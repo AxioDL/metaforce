@@ -1,4 +1,5 @@
 #include "Graphics/CGraphics.hpp"
+#include "Graphics/CLight.hpp"
 #include "zeus/Math.hpp"
 
 #undef near
@@ -14,8 +15,8 @@ u32 CGraphics::g_NumBreakpointsWaiting = 0;
 u32 CGraphics::g_FlippingState;
 bool CGraphics::g_LastFrameUsedAbove = false;
 bool CGraphics::g_InterruptLastFrameUsedAbove = false;
-ERglLight CGraphics::g_LightActive = ERglLight::None;
-ERglLight CGraphics::g_LightsWereOn = ERglLight::None;
+ERglLightBits CGraphics::g_LightActive = ERglLightBits::None;
+ERglLightBits CGraphics::g_LightsWereOn = ERglLightBits::None;
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelMatrix;
 zeus::CTransform CGraphics::g_ViewMatrix;
@@ -30,26 +31,37 @@ bool CGraphics::g_IsGXModelMatrixIdentity;
 void CGraphics::DisableAllLights()
 {
     g_NumLightsActive = 0;
-    g_LightActive = ERglLight::None;
+    g_LightActive = ERglLightBits::None;
     // TODO: turn lights off for real
+}
+
+void CGraphics::LoadLight(ERglLight light, const CLight& info)
+{
+    // TODO: load light for real
 }
 
 void CGraphics::EnableLight(ERglLight light)
 {
-    if ((light & g_LightActive) == ERglLight::None)
+    ERglLightBits lightBit = ERglLightBits(1 << int(light));
+    if ((lightBit & g_LightActive) == ERglLightBits::None)
     {
-        g_LightActive |= light;
+        g_LightActive |= lightBit;
         ++g_NumLightsActive;
         // TODO: turn light on for real
     }
     g_LightsWereOn = g_LightActive;
 }
 
-void CGraphics::SetLightState(ERglLight lightState)
+void CGraphics::SetLightState(ERglLightBits lightState)
 {
     // TODO: set state for real
     g_LightActive = lightState;
     g_NumLightsActive = zeus::PopCount(lightState);
+}
+
+void CGraphics::SetAmbientColor(const zeus::CColor& col)
+{
+    // TODO: set for real
 }
 
 void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write)

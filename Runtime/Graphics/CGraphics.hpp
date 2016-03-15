@@ -10,8 +10,21 @@
 
 namespace urde
 {
+class CLight;
 
 enum class ERglLight : u8
+{
+    Zero = 0,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven
+};
+
+enum class ERglLightBits : u8
 {
     None  = 0,
     Zero  = 1,
@@ -23,7 +36,7 @@ enum class ERglLight : u8
     Six   = 1 << 6,
     Seven = 1 << 7
 };
-ENABLE_BITWISE_ENUM(ERglLight)
+ENABLE_BITWISE_ENUM(ERglLightBits)
 
 enum class ERglEnum
 {
@@ -154,8 +167,8 @@ public:
     static u32 g_FlippingState;
     static bool g_LastFrameUsedAbove;
     static bool g_InterruptLastFrameUsedAbove;
-    static ERglLight g_LightActive;
-    static ERglLight g_LightsWereOn;
+    static ERglLightBits g_LightActive;
+    static ERglLightBits g_LightsWereOn;
     static zeus::CTransform g_GXModelView;
     static zeus::CTransform g_GXModelMatrix;
     static zeus::CTransform g_ViewMatrix;
@@ -168,8 +181,10 @@ public:
     static bool g_IsGXModelMatrixIdentity;
 
     static void DisableAllLights();
+    static void LoadLight(ERglLight light, const CLight& info);
     static void EnableLight(ERglLight light);
-    static void SetLightState(ERglLight lightState);
+    static void SetLightState(ERglLightBits lightState);
+    static void SetAmbientColor(const zeus::CColor& col);
     static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
     static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
     static void SetCullMode(ERglCullMode);

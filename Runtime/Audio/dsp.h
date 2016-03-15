@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-static inline short DSPSampClamp(int32_t val)
+static inline int16_t DSPSampClamp(int32_t val)
 {
     if (val < -32768) val = -32768;
     else if (val > 32767) val = 32767;

@@ -121,7 +121,7 @@ private:
     bool x225_29_modelsUseLights = false;
     bool x226_enableOPTS;
     int x228_MBSP = 0; int m_maxMBSP = 0;
-    ERglLight x22c_backupLightActive = ERglLight::None;
+    ERglLightBits x22c_backupLightActive = ERglLightBits::None;
     CRandom16 x230_randState;
     std::vector<std::unique_ptr<CElementGen>> x234_activePartChildren;
     int x244_CSSD = 0;

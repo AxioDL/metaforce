@@ -16,16 +16,24 @@ class CGuiLogicalEventTrigger;
 
 enum class EGuiAnimBehListID
 {
+    NegOne = -1,
+    Zero = 0,
+    One = 1,
+    Two = 2
 };
 
 enum class ETraversalMode
 {
+    Zero = 0,
     Recursive = 1,
     NonRecursive = 2
 };
 
 enum class EGuiAnimInitMode
 {
+    One = 1,
+    Two = 2,
+    Five = 5
 };
 
 enum class EGuiTextureClampModeHorz
@@ -109,7 +117,7 @@ public:
     virtual void GetKFAMAssets() const;
     virtual void Initialize();
     virtual void Touch() const;
-    virtual void GetIsVisible() const;
+    virtual bool GetIsVisible() const;
     virtual bool GetIsActive() const;
     virtual void TextSupport();
     virtual void GetTextSupport() const;

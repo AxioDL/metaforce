@@ -547,9 +547,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i, out += 2, in += 2)
                 {
                     out[0] = DSPSampClamp(in[0] +
-                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000);
                     out[1] = DSPSampClamp(in[1] +
-                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000);
                 }
             }
             else
@@ -557,9 +557,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i, out += 2)
                 {
                     out[0] = DSPSampClamp(
-                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000));
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000);
                     out[1] = DSPSampClamp(
-                        s16(s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000));
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000);
                 }
             }
             tex->playedSamples += thisSamples;
@@ -594,13 +594,13 @@ void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples)
             for (u32 i=0 ; i<thisSamples ; i+=2)
             {
                 out[0] = DSPSampClamp(in[0] +
-                    s16(s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000));
                 out[1] = DSPSampClamp(in[1] +
-                    s16(s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000));
                 out[2] = DSPSampClamp(in[2] +
-                    s16(s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000));
                 out[3] = DSPSampClamp(in[3] +
-                    s16(s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000));
                 thisOffsetLeft += 1;
                 thisOffsetRight += 1;
                 out += 4;
@@ -612,13 +612,13 @@ void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples)
             for (u32 i=0 ; i<thisSamples ; i+=2)
             {
                 out[0] = DSPSampClamp(
-                    s16(s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetLeft[0] & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000));
                 out[1] = DSPSampClamp(
-                    s16(s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetRight[0] & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000));
                 out[2] = DSPSampClamp(
-                    s16(s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetLeft[0] >> 4 & 0xf, &StaticStateLeft) * StaticVolumeAtten / 0x8000));
                 out[3] = DSPSampClamp(
-                    s16(s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000)));
+                    s32(g721_decoder(thisOffsetRight[0] >> 4 & 0xf, &StaticStateRight) * StaticVolumeAtten / 0x8000));
                 thisOffsetLeft += 1;
                 thisOffsetRight += 1;
                 out += 4;
