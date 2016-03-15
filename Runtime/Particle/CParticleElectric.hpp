@@ -70,6 +70,8 @@ private:
         };
         u8 dummy = 0;
     };
+
+    void RenderSwooshes();
 public:
 
 

@@ -9,9 +9,15 @@
 
 namespace urde
 {
-
 using CInputStream = athena::io::IStreamReader;
 using COutputStream = athena::io::IStreamWriter;
+
+struct DecryptionCtx
+{
+    s32 x1c_encVal;
+    s32 x20_encShift;
+    s32 DecryptRead(CInputStream& in, s32 key);
+};
 
 using CMemoryInStream = athena::io::MemoryReader;
 

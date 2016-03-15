@@ -28,7 +28,7 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, void* 
     }
     else
     {
-        athena::io::MemoryReader r(buf, size);
+        CMemoryInStream r(buf, size);
         return search->second(tag, r, paramXfer);
     }
 }

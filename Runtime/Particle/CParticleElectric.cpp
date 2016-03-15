@@ -10,6 +10,10 @@
 namespace urde
 {
 
+void CParticleElectric::RenderSwooshes()
+{
+}
+
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     : x1c_elecDesc(token)
 {
