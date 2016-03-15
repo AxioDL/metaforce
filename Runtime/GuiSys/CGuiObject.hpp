@@ -10,7 +10,7 @@ namespace urde
 class CGuiWidgetDrawParms;
 class CGuiMessage;
 class CGuiFunctionDef;
-class CGuiControllerInfo;
+struct CGuiControllerInfo;
 
 class CGuiObject
 {

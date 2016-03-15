@@ -6,6 +6,7 @@ namespace urde
 
 class CGuiRandomVar
 {
+public:
     enum class Type
     {
         Zero,

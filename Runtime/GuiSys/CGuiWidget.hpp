@@ -13,26 +13,29 @@ class CGuiFrame;
 class CGuiMessage;
 class CGuiAnimController;
 class CGuiLogicalEventTrigger;
+class CGuiTextSupport;
 
 enum class EGuiAnimBehListID
 {
     NegOne = -1,
     Zero = 0,
     One = 1,
-    Two = 2
+    Two = 2,
+    EGuiAnimBehListIDMAX = 13
 };
 
 enum class ETraversalMode
 {
-    Zero = 0,
-    Recursive = 1,
-    NonRecursive = 2
+    ChildrenAndSiblings = 0,
+    Children = 1,
+    Single = 2
 };
 
 enum class EGuiAnimInitMode
 {
     One = 1,
     Two = 2,
+    Three = 3,
     Five = 5
 };
 
@@ -58,22 +61,23 @@ public:
         bool x4_a;
         s16 x6_selfId;
         s16 x8_parentId;
-        bool xa_d;
+        bool xa_defaultVisible;
         bool xb_defaultActive;
         bool xc_f;
         bool xd_g;
         bool xe_h;
         zeus::CColor x10_color;
         EGuiModelDrawFlags x14_drawFlags;
-        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId, bool d, bool defaultActive,
+        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId,
+                        bool defaultVisible, bool defaultActive,
                         bool f, const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
-        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_d(d),
+        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_defaultVisible(defaultVisible),
           xb_defaultActive(defaultActive), xc_f(f), xd_g(g), xe_h(h), x10_color(color),
           x14_drawFlags(drawFlags) {}
     };
     static void LoadWidgetFnMap();
     virtual FourCC GetWidgetTypeID() const {return hecl::FOURCC('BWIG');}
-private:
+protected:
     s16 x7c_selfId;
     s16 x7e_parentId;
     zeus::CTransform x80_transform;
@@ -84,17 +88,14 @@ private:
     zeus::CColor xc0_color2;
     EGuiModelDrawFlags xc4_drawFlags;
     CGuiFrame* xc8_frame;
-    std::unordered_map<int, std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>> xcc_functionMap;
-    u32 xe4_ = 0;
-    u32 xe8_ = 0;
-    u32 xec_ = 0;
-    u32 xf0_ = 0;
+    std::unordered_map<int, std::unique_ptr<std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>>> xcc_triggerMap;
+    std::unordered_map<int, std::unique_ptr<std::vector<std::unique_ptr<CGuiFunctionDef>>>> xe0_functionMap;
     s16 xf4_workerId = -1;
     bool xf6_24_pg : 1;
-    bool xf6_25_pd : 1;
+    bool xf6_25_isVisible : 1;
     bool xf6_26_isActive : 1;
     bool xf6_27_ : 1;
-    bool xf6_28_ : 1;
+    bool xf6_28_eventLock : 1;
     bool xf6_29_pf : 1;
     bool xf6_30_ : 1;
     bool xf6_31_ : 1;
@@ -111,22 +112,21 @@ public:
     virtual void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseMessages(CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseAnimations(CInputStream& in, const CGuiWidgetParms& parms);
-    virtual void GetTextureAssets() const;
-    virtual void GetModelAssets() const;
-    virtual void GetFontAssets() const;
-    virtual void GetKFAMAssets() const;
+    virtual std::vector<TResId> GetTextureAssets() const;
+    virtual std::vector<TResId> GetModelAssets() const;
+    virtual std::vector<TResId> GetFontAssets() const;
     virtual void Initialize();
     virtual void Touch() const;
     virtual bool GetIsVisible() const;
     virtual bool GetIsActive() const;
-    virtual void TextSupport();
-    virtual void GetTextSupport() const;
+    virtual CGuiTextSupport* TextSupport();
+    virtual CGuiTextSupport* GetTextSupport() const;
     virtual void ModifyRGBA(CGuiWidget* widget);
     virtual void AddAnim(EGuiAnimBehListID, CGuiAnimBase*);
-    virtual void AddChildWidget(CGuiWidget* widget, bool, bool);
-    virtual void RemoveChildWidget(CGuiWidget* widget, bool);
+    virtual void AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool atEnd);
+    virtual CGuiWidget* RemoveChildWidget(CGuiWidget* widget, bool makeWorldLocal);
     virtual bool AddWorkerWidget(CGuiWidget* worker);
-    virtual void GetFinishedLoadingWidgetSpecific() const;
+    virtual bool GetIsFinishedLoadingWidgetSpecific() const;
     virtual void OnVisible();
     virtual void OnInvisible();
     virtual void OnActivate(bool);
@@ -134,16 +134,19 @@ public:
     virtual bool DoRegisterEventHandler();
     virtual bool DoUnregisterEventHandler();
 
-    void AddFunctionDef(u32, CGuiFunctionDef* def);
-    void FindFunctionDefList(int);
-    zeus::CVector3f GetIdlePosition() const;
-    void SetIdlePosition(const zeus::CVector3f& pos);
+    s16 GetSelfId() const {return x7c_selfId;}
+    s16 GetParentId() const {return x7e_parentId;}
+    const zeus::CTransform& GetTransform() const {return x80_transform;}
+    std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>* FindTriggerList(int id);
+    void AddTrigger(std::unique_ptr<CGuiLogicalEventTrigger>&& trigger);
+    std::vector<std::unique_ptr<CGuiFunctionDef>>* FindFunctionDefList(int id);
+    void AddFunctionDef(s32 id, std::unique_ptr<CGuiFunctionDef>&& def);
+    const zeus::CVector3f& GetIdlePosition() const {return x80_transform.m_origin;}
+    void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
     void ReapplyXform();
     void SetIsVisible(bool);
     void SetIsActive(bool, bool);
     void EnsureHasAnimController();
-    std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>* FindTriggerList(int);
-    void AddTrigger(std::unique_ptr<CGuiLogicalEventTrigger>&& trigger);
 
     void BroadcastMessage(int, CGuiControllerInfo* info);
     void LockEvents(bool);

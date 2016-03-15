@@ -29,8 +29,8 @@ struct FRME : BigDNA
             String<-1> name;
             String<-1> parent;
             Value<bool> unk1;
-            Value<bool> unk2;
-            Value<bool> unk3;
+            Value<bool> defaultVisible;
+            Value<bool> defaultActive;
             Value<bool> unk4;
             Value<atVec4f> color;
             Value<atUint32> modelDrawFlags;

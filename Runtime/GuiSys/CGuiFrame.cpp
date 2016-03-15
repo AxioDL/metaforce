@@ -475,7 +475,7 @@ bool CGuiFrame::Update(float dt)
         }
 
         if (listId != EGuiAnimBehListID::NegOne)
-            x44_headWidget->IsAllAnimsDone(listId, something, ETraversalMode::Zero);
+            x44_headWidget->IsAllAnimsDone(listId, something, ETraversalMode::ChildrenAndSiblings);
 
         if (something)
         {
@@ -484,15 +484,15 @@ bool CGuiFrame::Update(float dt)
             case EFrameStates::One:
             {
                 x34_ = x38_;
-                x44_headWidget->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::NonRecursive);
+                x44_headWidget->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::Single);
                 x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::Two, 0.f, false,
-                                                          EGuiAnimInitMode::Five, ETraversalMode::NonRecursive);
+                                                          EGuiAnimInitMode::Five, ETraversalMode::Single);
                 CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
                 if (camSib)
                 {
-                    camSib->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::Zero);
+                    camSib->SetAnimUpdateState(EGuiAnimBehListID::Zero, false, ETraversalMode::ChildrenAndSiblings);
                     camSib->InitializeAnimControllers(EGuiAnimBehListID::Two, 0.f, false,
-                                                      EGuiAnimInitMode::Five, ETraversalMode::Zero);
+                                                      EGuiAnimInitMode::Five, ETraversalMode::ChildrenAndSiblings);
                 }
                 xbd_flag2 = false;
                 break;
@@ -548,12 +548,12 @@ void CGuiFrame::Stop(const CGuiFrameTransitionOptions& transOpts, EFrameStates s
     else
     {
         x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::One, transOpts.xc_, true,
-                                                  EGuiAnimInitMode::Two, ETraversalMode::NonRecursive);
+                                                  EGuiAnimInitMode::Two, ETraversalMode::Single);
         CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
         if (camSib)
         {
             camSib->InitializeAnimControllers(EGuiAnimBehListID::One, transOpts.xc_, true,
-                                              EGuiAnimInitMode::Two, ETraversalMode::Zero);
+                                              EGuiAnimInitMode::Two, ETraversalMode::ChildrenAndSiblings);
         }
     }
 }
@@ -565,18 +565,18 @@ void CGuiFrame::Run(CGuiFrame* frame, const CGuiFrameTransitionOptions& transOpt
     x34_ = EFrameStates::One;
     x38_ = EFrameStates::Two;
     float len = 0.f;
-    x4c_camera->GetBranchAnimLen(EGuiAnimBehListID::Zero, len, ETraversalMode::NonRecursive);
+    x4c_camera->GetBranchAnimLen(EGuiAnimBehListID::Zero, len, ETraversalMode::Single);
     len += transOpts.xc_ + transOpts.x10_ + transOpts.x14_;
     x44_headWidget->InitializeAnimControllers(EGuiAnimBehListID::Zero, len, true,
-                                              EGuiAnimInitMode::One, ETraversalMode::NonRecursive);
+                                              EGuiAnimInitMode::One, ETraversalMode::Single);
     CGuiWidget* camSib = static_cast<CGuiWidget*>(x4c_camera->GetNextSibling());
     if (camSib)
     {
         camSib->InitializeAnimControllers(EGuiAnimBehListID::Zero, len, true,
-                                          EGuiAnimInitMode::One, ETraversalMode::Zero);
+                                          EGuiAnimInitMode::One, ETraversalMode::ChildrenAndSiblings);
     }
     x18_ |= 0x7;
-    x44_headWidget->RegisterEventHandler(ETraversalMode::Zero);
+    x44_headWidget->RegisterEventHandler(ETraversalMode::ChildrenAndSiblings);
 }
 
 void CGuiFrame::Initialize()
