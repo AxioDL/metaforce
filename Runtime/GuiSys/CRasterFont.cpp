@@ -127,7 +127,7 @@ void CRasterFont::DrawSpace(const CDrawStringOptions& opts, int x, int y, int& x
     yout = y;
 }
 
-void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int xout, int& yout, CTextRenderBuffer* renderBuf, const wchar_t* str, int len) const
+void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, CTextRenderBuffer* renderBuf, const wchar_t* str, int len) const
 {
     if (!x0_)
         return;

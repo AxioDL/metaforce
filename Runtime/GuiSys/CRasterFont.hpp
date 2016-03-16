@@ -150,7 +150,7 @@ public:
                               CTextRenderBuffer* renderBuf,
                               const wchar_t* str, s32 len) const;
     void DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const;
-    void DrawString(const CDrawStringOptions& opts, int x, int y, int xout, int& yout,
+    void DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                     CTextRenderBuffer* renderBuf,
                     const wchar_t* str, int len) const;
     CGlyph* GetGlyph(wchar_t chr)
