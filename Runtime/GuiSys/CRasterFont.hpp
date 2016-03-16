@@ -12,10 +12,10 @@ class CTexture;
 
 class CGlyph
 {
-    wchar_t x0_char;
-    s16     x2_leftPadding;
-    s16     x4_advance;
-    s16     x6_rightPadding;
+private:
+    s16     x0_leftPadding;
+    s16     x2_advance;
+    s16     x4_rightPadding;
     float   x8_startU;
     float   xc_startV;
     float   x10_endU;
@@ -24,10 +24,19 @@ class CGlyph
     s16     x1a_cellHeight;
     s16     x1c_baseline;
     s16     x1e_kernStart;
+public:
+    CGlyph() = default;
+    CGlyph(s16 a, s16 b, s32 c, float startU, float startV, float endU, float endV,
+           s16 cellWidth, s16 cellHeight, s16 baseline, s16 kernStart)
+        : x0_leftPadding(a), x2_advance(b), x4_rightPadding(c),
+          x8_startU(startU), xc_startV(startV), x10_endU(endU), x14_endV(endV),
+          x18_cellWidth(cellWidth), x1a_cellHeight(cellHeight),
+          x1c_baseline(baseline), x1e_kernStart(kernStart)
+    {}
 
-    s16 GetA()          const { return x2_leftPadding; }
-    s16 GetB()          const { return x4_advance; }
-    s16 GetC()          const { return x6_rightPadding; }
+    s16 GetA()          const { return x0_leftPadding; }
+    s16 GetB()          const { return x2_advance; }
+    s16 GetC()          const { return x4_rightPadding; }
     float GetStartU()   const { return x8_startU; }
     float GetStartV()   const { return xc_startV; }
     float GetEndU()     const { return x10_endU; }
@@ -36,38 +45,67 @@ class CGlyph
     s16 GetCellHeight() const { return x1a_cellHeight; }
     s16 GetBaseline()   const { return x1c_baseline; }
     s16 GetKernStart()  const { return x1e_kernStart; }
+
 };
 
-struct CKernPair
+class CKernPair
 {
+private:
     wchar_t x0_first;
     wchar_t x2_second;
     s32     x4_howMuch;
+
+public:
+    CKernPair() = default;
+    CKernPair(wchar_t first, wchar_t second, s32 howMuch)
+        : x0_first(first), x2_second(second), x4_howMuch(howMuch)
+    {}
 
     wchar_t GetFirst()  const { return x0_first; }
     wchar_t GetSecond() const { return x2_second; }
     s32 GetHowMuch()    const { return x4_howMuch; }
 };
 
-class CRasterFont
+class CFontInfo
 {
     bool x0_ = false;
+    bool x1_ = false;
+    s32 x4_ = 0;
+    s32 x8_fontSize = 0;
+    char* xc_name = 0;
+
+public:
+    CFontInfo() = default;
+    CFontInfo(bool a, bool b, s32 c, s32 fontSize, const char* name)
+        : x0_(a), x1_(b), x4_(c), x8_fontSize(fontSize)
+    {
+        strcpy(xc_name, name);
+    }
+};
+
+class CRasterFont
+{
     s32 x4_monoWidth = 16;
     s32 x8_monoHeight = 16;
-    std::unordered_map<wchar_t, CGlyph> xc_glyphs;
+    std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
     std::vector<CKernPair> x1c_kerning;
-    s32 x2c_mode;
-    s32 x30_;
+    s32 x28_lineMargin = 0;
+    s32 x2c_mode = 0;
+    CFontInfo x30_fontInfo;
     TToken<CTexture> x80_texture;
+    bool x88_ = false;
     s32 x8c_baseline;
-    s32 x90_;
+    s32 x90_ = 0;
+    char* fontName;
 
     CGlyph* InternalGetGlyph(wchar_t chr)
     {
-        if (xc_glyphs.find(chr) == xc_glyphs.end())
-            return nullptr;
+        u32 i = 0;
+        for (; i < xc_glyphs.size(); ++i)
+            if (chr == xc_glyphs[i].first)
+                break;
 
-        return &xc_glyphs[chr];
+        return &xc_glyphs[i].second;
     }
 
 public:
