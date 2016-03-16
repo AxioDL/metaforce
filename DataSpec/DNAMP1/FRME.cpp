@@ -173,6 +173,62 @@ size_t FRME::Widget::CAMRInfo::binarySize(size_t __isz) const
     return __isz + 4;
 }
 
+void FRME::Widget::LITEInfo::read(athena::io::IStreamReader& __dna_reader)
+{
+    IWidgetInfo::read(__dna_reader);
+    /* type */
+    type = ELightType(__dna_reader.readUint32Big());
+    /* distC */
+    distC = __dna_reader.readFloatBig();
+    /* distL */
+    distL = __dna_reader.readFloatBig();
+    /* distQ */
+    distQ = __dna_reader.readFloatBig();
+    /* angC */
+    angC = __dna_reader.readFloatBig();
+    /* angL */
+    angL = __dna_reader.readFloatBig();
+    /* angQ */
+    angQ = __dna_reader.readFloatBig();
+    /* loadedIdx */
+    loadedIdx = __dna_reader.readUint32Big();
+
+    /* cutoff */
+    if (type == ELightType::Spot)
+        cutoff = __dna_reader.readFloatBig();
+}
+
+void FRME::Widget::LITEInfo::write(athena::io::IStreamWriter& __dna_writer) const
+{
+    IWidgetInfo::write(__dna_writer);
+    /* type */
+    __dna_writer.writeUint32Big(atUint32(type));
+    /* distC */
+    __dna_writer.writeFloatBig(distC);
+    /* distL */
+    __dna_writer.writeFloatBig(distL);
+    /* distQ */
+    __dna_writer.writeFloatBig(distQ);
+    /* angC */
+    __dna_writer.writeFloatBig(angC);
+    /* angL */
+    __dna_writer.writeFloatBig(angL);
+    /* angQ */
+    __dna_writer.writeFloatBig(angQ);
+    /* loadedIdx */
+    __dna_writer.writeUint32Big(loadedIdx);
+
+    /* cutoff */
+    if (type == ELightType::Spot)
+        __dna_writer.writeFloatBig(cutoff);
+}
+
+size_t FRME::Widget::LITEInfo::binarySize(size_t __isz) const
+{
+    __isz = IWidgetInfo::binarySize(__isz);
+    return __isz + ((type == ELightType::Spot) ? 36 : 32);
+}
+
 void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
 {
     IWidgetInfo::read(__dna_reader);

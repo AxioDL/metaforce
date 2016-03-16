@@ -11,6 +11,26 @@ CGuiPane::CGuiPane(const CGuiWidgetParms& parms, float a, float b, const zeus::C
     InitializeBuffers();
 }
 
+void CGuiPane::ScaleDimensions(const zeus::CVector3f& scale)
+{
+}
+
+void CGuiPane::SetDimensions(const zeus::CVector2f& dim, bool flag)
+{
+}
+
+const zeus::CVector3f& CGuiPane::GetDimensions() const
+{
+}
+
+void CGuiPane::InitializeBuffers()
+{
+}
+
+void CGuiPane::WriteData(COutputStream& out, bool flag) const
+{
+}
+
 CGuiPane* CGuiPane::Create(CGuiFrame* frame, CInputStream& in, bool flag)
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);

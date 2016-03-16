@@ -10,7 +10,7 @@ class CGuiCompoundWidget : public CGuiWidget
 {
 public:
     CGuiCompoundWidget(const CGuiWidgetParms& parms);
-    virtual FourCC GetWidgetTypeID() const {return FourCC(-1);}
+    FourCC GetWidgetTypeID() const {return FourCC(-1);}
 
     void OnInvisible();
     void OnVisible();

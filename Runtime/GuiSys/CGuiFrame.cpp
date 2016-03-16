@@ -304,6 +304,11 @@ bool CGuiFrame::SendWidgetMessage(s16 id,
     return true;
 }
 
+void CGuiFrame::ClearAllMessageMap()
+{
+    x7c_messageMap.clear();
+}
+
 void CGuiFrame::ClearMessageMap(const CGuiLogicalEventTrigger* trigger, s16 id)
 {
     CGuiFrame::LogicalEventList* list =
@@ -620,6 +625,14 @@ CGuiFrame* CGuiFrame::CreateFrame(TResId frmeId, CGuiSys& sys, CInputStream& in)
     CGuiFrame* ret = new CGuiFrame(frmeId, name, sys, a, b, c);
     ret->LoadWidgetsInGame(in);
     return ret;
+}
+
+std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,
+                                             const CVParamTransfer& vparms)
+{
+    CGuiResFrameData& rfData = static_cast<TObjOwnerParam<CGuiResFrameData>*>(vparms.GetObj())->GetParam();
+    std::unique_ptr<CGuiFrame> frame(CGuiFrame::CreateFrame(tag.id, rfData.x0_guiSys, in));
+    return TToken<CGuiFrame>::GetIObjObjectFor(std::move(frame));
 }
 
 std::string CGuiFrame::CreateFrameName(TResId frmeId)

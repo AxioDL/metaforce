@@ -5,6 +5,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
@@ -13,8 +14,9 @@ namespace urde
 
 ProjectResourceFactory::ProjectResourceFactory()
 {
-    m_factoryMgr.AddFactory(hecl::FOURCC('TXTR'), urde::FTextureFactory);
-    m_factoryMgr.AddFactory(hecl::FOURCC('PART'), urde::FParticleFactory);
+    m_factoryMgr.AddFactory(FOURCC('TXTR'), urde::FTextureFactory);
+    m_factoryMgr.AddFactory(FOURCC('PART'), urde::FParticleFactory);
+    m_factoryMgr.AddFactory(FOURCC('FRME'), urde::RGuiFrameFactoryInGame);
 }
 
 void ProjectResourceFactory::BuildObjectMap(const hecl::Database::Project::ProjectDataSpec &spec)

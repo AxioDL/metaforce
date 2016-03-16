@@ -209,7 +209,8 @@ bool CParticleElectric::SystemHasLight() const
 
 CLight CParticleElectric::GetLight() const
 {
-    return CLight();
+    return CLight(zeus::CVector3f::skZero, zeus::CVector3f::skZero,
+                  zeus::CColor::skBlack, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f);
 }
 
 bool CParticleElectric::GetParticleEmission() const

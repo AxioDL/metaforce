@@ -7,6 +7,7 @@
 #include "CGuiControllerInfo.hpp"
 #include "CGuiLogicalEventTrigger.hpp"
 #include "CGuiWidgetIdDB.hpp"
+#include "IObj.hpp"
 
 namespace urde
 {
@@ -16,6 +17,7 @@ class CGuiCamera;
 class CGuiHeadWidget;
 class CFinalInput;
 class CGuiLight;
+class CVParamTransfer;
 
 enum class EFrameTransitionOptions
 {
@@ -130,6 +132,9 @@ public:
     static CGuiFrame* CreateFrame(TResId frmeId, CGuiSys& sys, CInputStream& in);
     static std::string CreateFrameName(TResId frmeId);
 };
+
+std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,
+                                             const CVParamTransfer& vparms);
 
 }
 

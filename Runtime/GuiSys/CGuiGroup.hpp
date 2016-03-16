@@ -13,7 +13,7 @@ class CGuiGroup : public CGuiCompoundWidget
     bool x100_b;
 public:
     CGuiGroup(const CGuiWidgetParms& parms, int defaultWorker, bool b);
-    virtual FourCC GetWidgetTypeID() const {return FOURCC('GRUP');}
+    FourCC GetWidgetTypeID() const {return FOURCC('GRUP');}
 
     void SelectWorkerWidget(int workerId, bool setActive, bool setVisible);
     CGuiWidget* GetSelectedWidget();

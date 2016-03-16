@@ -372,6 +372,11 @@ void CGuiWidget::AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool at
     AddChildObject(widget, makeWorldLocal, atEnd);
 }
 
+bool CGuiWidget::AddWorkerWidget(CGuiWidget* worker)
+{
+    return false;
+}
+
 void CGuiWidget::AddAnim(EGuiAnimBehListID id, CGuiAnimBase* anim)
 {
     if (!xb0_animController)

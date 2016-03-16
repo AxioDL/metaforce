@@ -105,7 +105,8 @@ bool CParticleSwoosh::SystemHasLight() const
 
 CLight CParticleSwoosh::GetLight() const
 {
-    return CLight();
+    return CLight(zeus::CVector3f::skZero, zeus::CVector3f::skZero,
+                  zeus::CColor::skBlack, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f);
 }
 
 bool CParticleSwoosh::GetParticleEmission() const

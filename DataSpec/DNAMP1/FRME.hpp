@@ -119,15 +119,25 @@ struct FRME : BigDNA
 
         struct LITEInfo : IWidgetInfo
         {
-            DECL_DNA
-            Value<atUint32> unk1;
-            Value<float> unk2;
-            Value<float> unk3;
-            Value<float> unk4;
-            Value<float> unk5;
-            Value<float> unk6;
-            Value<float> unk7;
-            Value<atUint32> unk8;
+            DECL_EXPLICIT_DNA
+            enum class ELightType : atUint32
+            {
+                Spot = 0,
+                Point = 1,
+                Directional = 2,
+                LocalAmbient = 3,
+                Custom = 4,
+            };
+
+            Value<ELightType> type;
+            Value<float> distC;
+            Value<float> distL;
+            Value<float> distQ;
+            Value<float> angC;
+            Value<float> angL;
+            Value<float> angQ;
+            Value<atUint32> loadedIdx;
+            Value<float> cutoff; /* Spot only */
         };
 
         struct ENRGInfo : IWidgetInfo
