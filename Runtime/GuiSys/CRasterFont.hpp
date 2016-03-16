@@ -3,13 +3,29 @@
 
 #include "IOStreams.hpp"
 #include "CToken.hpp"
+#include "zeus/CVector2i.hpp"
 
 namespace urde
 {
 
 class IObjectStore;
 class CTexture;
+/* TODO: Move these elsewhere */
+struct CDrawStringOptions
+{
+    s32 x0_;
+    u32 x10_;
+};
 
+class CTextRenderBuffer
+{
+public:
+    void AddCharacter(const zeus::CVector2i& pos, s16 chr, u32 unk)
+    {
+    }
+};
+
+/* NOTE: Is this a good place for CGlyph and CKernPair? */
 class CGlyph
 {
 private:
@@ -85,6 +101,7 @@ public:
 
 class CRasterFont
 {
+    bool x0_ = false;
     s32 x4_monoWidth = 16;
     s32 x8_monoHeight = 16;
     std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
@@ -127,6 +144,21 @@ public:
 
         return 0;
     }
+
+
+    void SinglePassDrawString(const CDrawStringOptions&, int x, int y, int& xout, int& yout,
+                              CTextRenderBuffer* renderBuf,
+                              const wchar_t* str, s32 len) const;
+    void DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const;
+    void DrawString(const CDrawStringOptions& opts, int x, int y, int xout, int& yout,
+                    CTextRenderBuffer* renderBuf,
+                    const wchar_t* str, int len) const;
+    CGlyph* GetGlyph(wchar_t chr)
+    {
+        return InternalGetGlyph(chr);
+    }
+    void GetSize(const CDrawStringOptions& opts, int& width, int& height,
+                 const wchar_t* str, int len) const;
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

@@ -73,6 +73,123 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     }
 }
 
+void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
+                                       CTextRenderBuffer* renderBuf,
+                                       const wchar_t* str, s32 length) const
+{
+    if (!x0_)
+        return;
+
+    const wchar_t* chr = str;
+    const CGlyph* prevGlyph = nullptr;
+    while (*chr == '\0')
+    {
+        const CGlyph* glyph = GetGlyph(*chr);
+        if (glyph)
+        {
+            if (opts.x0_ == 0)
+            {
+                x += glyph->GetA();
+
+                if (prevGlyph != 0)
+                    x += KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
+                int left = 0;
+                int top = 0;
+
+                if (renderBuf)
+                {
+                    left += x;
+                    top += glyph->GetBaseline() - y;
+                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x10_);
+                }
+                x += glyph->GetC() + glyph->GetB();
+            }
+        }
+        prevGlyph = glyph;
+        chr++;
+        if (length == -1)
+            continue;
+
+        if ((string - tmpString) >= length)
+            break;
+    }
+
+    xout = x;
+    yout = y;
+}
+
+void CRasterFont::DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const
+{
+    if (opts.x0_ != 0)
+        return;
+
+    xout = x + len;
+    yout = y;
+}
+
+void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int xout, int& yout, CTextRenderBuffer* renderBuf, const wchar_t* str, int len) const
+{
+    if (!x0_)
+        return;
+
+    if (renderBuf)
+    {
+        /* TODO: Implement this */
+        /* CGraphicsPalette pal = CGraphicsPalette::CGraphcisPalette(2, 4); */
+        /* zeus::CColor color = zeus::CColor(0.f, 0.f, 0.f, 0.f) */
+        /* tmp = color.ToRGB5A3(); */
+        /* tmp2 = opts.x8_.ToRGB5A3(); */
+        /* tmp3 = opts.xc_.ToRGB5A3(); */
+        /* tmp4 = zeus::CColor(0.f, 0.f, 0.f, 0.f); */
+        /* tmp5 = tmp4.ToRGBA5A3(); */
+        /* pal.UnLock(); */
+        /* renderBuf->AddPaletteChange(pal); */
+    }
+
+    SinglePassDrawString(opts, x, y, xout, yout, renderBuf, str, len);
+}
+
+void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& height, const wchar_t* str, int len) const
+{
+    width = 0;
+    height = 0;
+
+    wchar_t* chr = str;
+    CGlyph* prevGlyph = nullptr;
+    int prevWidth = 0;
+    while (*chr != L'\0')
+    {
+        const CGlyph* glyph = GetGlyph(*chr);
+
+        if (glyph)
+        {
+            if (opts.x0_ == 0)
+            {
+                int advance = 0;
+                if (prevGlyph)
+                    advance = KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
+
+                s16 curWidth = prevWidth - (glyph->GetA() + glyph->GetB() + glyph->GetC() + advance);
+                s16 curHeight = glyph->GetBaseline() - (x8_monoHeight + glyph->GetCellHeight());
+
+                width = curWidth;
+                prevWidth = curWidth;
+
+                if (curHeight > height)
+                    height = curHeight;
+            }
+        }
+
+        prevGlyph = glyph;
+        chr++;
+        if (length == -1)
+            continue;
+
+        if ((string - tmpString) >= length)
+            break;
+    }
+}
+
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
     return TToken<CRasterFont>::GetIObjObjectFor(std::make_unique<CRasterFont>(in, *(reinterpret_cast<IObjectStore*>(vparms.GetObj()))));
