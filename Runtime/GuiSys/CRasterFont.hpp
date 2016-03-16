@@ -115,7 +115,7 @@ class CRasterFont
     s32 x90_ = 0;
     char* fontName;
 
-    CGlyph* InternalGetGlyph(wchar_t chr)
+    const CGlyph* InternalGetGlyph(wchar_t chr) const
     {
         u32 i = 0;
         for (; i < xc_glyphs.size(); ++i)
@@ -153,7 +153,7 @@ public:
     void DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                     CTextRenderBuffer* renderBuf,
                     const wchar_t* str, int len) const;
-    CGlyph* GetGlyph(wchar_t chr)
+    const CGlyph* GetGlyph(wchar_t chr) const
     {
         return InternalGetGlyph(chr);
     }
