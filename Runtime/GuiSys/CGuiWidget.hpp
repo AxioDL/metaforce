@@ -58,7 +58,7 @@ public:
     struct CGuiWidgetParms
     {
         CGuiFrame* x0_frame;
-        bool x4_a;
+        bool x4_useAnimController;
         s16 x6_selfId;
         s16 x8_parentId;
         bool xa_defaultVisible;
@@ -68,15 +68,15 @@ public:
         bool xe_h;
         zeus::CColor x10_color;
         EGuiModelDrawFlags x14_drawFlags;
-        CGuiWidgetParms(CGuiFrame* frame, bool a, s16 selfId, s16 parentId,
+        CGuiWidgetParms(CGuiFrame* frame, bool useAnimController, s16 selfId, s16 parentId,
                         bool defaultVisible, bool defaultActive,
                         bool f, const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
-        : x0_frame(frame), x4_a(a), x6_selfId(selfId), x8_parentId(parentId), xa_defaultVisible(defaultVisible),
-          xb_defaultActive(defaultActive), xc_f(f), xd_g(g), xe_h(h), x10_color(color),
-          x14_drawFlags(drawFlags) {}
+        : x0_frame(frame), x4_useAnimController(useAnimController), x6_selfId(selfId),
+          x8_parentId(parentId), xa_defaultVisible(defaultVisible), xb_defaultActive(defaultActive),
+          xc_f(f), xd_g(g), xe_h(h), x10_color(color), x14_drawFlags(drawFlags) {}
     };
     static void LoadWidgetFnMap();
-    virtual FourCC GetWidgetTypeID() const {return hecl::FOURCC('BWIG');}
+    virtual FourCC GetWidgetTypeID() const {return FOURCC('BWIG');}
 protected:
     s16 x7c_selfId;
     s16 x7e_parentId;
@@ -136,6 +136,7 @@ public:
 
     s16 GetSelfId() const {return x7c_selfId;}
     s16 GetParentId() const {return x7e_parentId;}
+    s16 GetWorkerId() const {return xf4_workerId;}
     const zeus::CTransform& GetTransform() const {return x80_transform;}
     std::vector<std::unique_ptr<CGuiLogicalEventTrigger>>* FindTriggerList(int id);
     void AddTrigger(std::unique_ptr<CGuiLogicalEventTrigger>&& trigger);
