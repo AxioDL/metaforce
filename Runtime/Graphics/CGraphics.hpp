@@ -193,10 +193,15 @@ public:
     static void SetViewPointMatrix(const zeus::CTransform& xf);
     static void SetViewMatrix();
     static void SetModelMatrix(const zeus::CTransform& xf);
+    static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect,
+                                                      float near, float far);
     static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
     static const CProjectionState& GetProjectionState();
     static void SetProjectionState(const CProjectionState&);
     static void SetPerspective(float fovy, float aspect, float near, float far);
+    static void SetOrtho(float left, float right,
+                         float top, float bottom,
+                         float znear, float zfar);
     static void FlushProjection();
     static zeus::CVector2i ProjectPoint(const zeus::CVector3f& point);
     static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);

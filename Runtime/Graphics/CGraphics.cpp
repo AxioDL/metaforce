@@ -126,6 +126,30 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf)
     SetViewMatrix();
 }
 
+zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
+                                                      float near, float far)
+{
+    CProjectionState st;
+    float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
+    st.x14_near = near;
+    st.x18_far = far;
+    st.xc_top = near * tfov;
+    st.x10_bottom = -st.xc_top;
+    st.x8_right = aspect * near * tfov;
+    st.x4_left = -st.x8_right;
+
+    float rml = st.x8_right - st.x4_left;
+    float rpl = st.x8_right + st.x4_left;
+    float tmb = st.xc_top - st.x10_bottom;
+    float tpb = st.xc_top + st.x10_bottom;
+    float fmn = st.x18_far - st.x14_near;
+    float fpn = st.x18_far + st.x14_near;
+    return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
+                           0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                           0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
+                           0.f, 0.f, -1.f, 0.f);
+}
+
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
 {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
@@ -163,6 +187,23 @@ void CGraphics::SetPerspective(float fovy, float aspect, float near, float far)
     g_Proj.x10_bottom = -g_Proj.xc_top;
     g_Proj.x8_right = aspect * near * tfov;
     g_Proj.x4_left = -g_Proj.x8_right;
+
+    FlushProjection();
+}
+
+void CGraphics::SetOrtho(float left, float right,
+                         float top, float bottom,
+                         float znear, float zfar)
+{
+    g_Proj.x0_persp = false;
+    g_Proj.x4_left = left;
+    g_Proj.x8_right = right;
+    g_Proj.xc_top = top;
+    g_Proj.x10_bottom = bottom;
+    g_Proj.x14_near = znear;
+    g_Proj.x18_far = zfar;
+
+    FlushProjection();
 }
 
 void CGraphics::FlushProjection()

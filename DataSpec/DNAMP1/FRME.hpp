@@ -28,7 +28,7 @@ struct FRME : BigDNA
             DECL_DNA
             String<-1> name;
             String<-1> parent;
-            Value<bool> unk1;
+            Value<bool> useAnimController;
             Value<bool> defaultVisible;
             Value<bool> defaultActive;
             Value<bool> unk4;
@@ -183,11 +183,11 @@ struct FRME : BigDNA
 
         struct TXPNInfo : IWidgetInfo
         {
-            enum class Justification
+            enum class Justification : atUint32
             {
             };
 
-            enum class VerticalJustification
+            enum class VerticalJustification : atUint32
             {
             };
 

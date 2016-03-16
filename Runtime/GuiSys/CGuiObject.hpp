@@ -14,6 +14,7 @@ struct CGuiControllerInfo;
 
 class CGuiObject
 {
+protected:
     zeus::CTransform x4_localXF;
     zeus::CTransform x34_worldXF;
     zeus::CVector3f x64_rotationCenter;

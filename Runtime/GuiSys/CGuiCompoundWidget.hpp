@@ -8,6 +8,15 @@ namespace urde
 
 class CGuiCompoundWidget : public CGuiWidget
 {
+public:
+    CGuiCompoundWidget(const CGuiWidgetParms& parms);
+    virtual FourCC GetWidgetTypeID() const {return FourCC(-1);}
+
+    void OnInvisible();
+    void OnVisible();
+    void OnDeActivate();
+    void OnActivate(bool);
+    virtual CGuiWidget* GetWorkerWidget(int id);
 };
 
 }

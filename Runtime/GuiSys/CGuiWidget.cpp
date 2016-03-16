@@ -30,7 +30,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xf6_27_(true), xf6_28_eventLock(false), xf6_29_pf(parms.xc_f), xf6_30_(false),
   xf6_31_(true), xf7_24_(false), xf7_25_(true)
 {
-    if (parms.x4_a)
+    if (parms.x4_useAnimController)
         EnsureHasAnimController();
     RecalcWidgetColor(ETraversalMode::Single);
 }
@@ -43,7 +43,7 @@ CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool flag)
     std::string parent = in.readString(-1);
     s16 parentId = frame->GetWidgetIdDB().AddWidget(parent);
 
-    bool a = in.readBool();
+    bool useAnimController = in.readBool();
     bool defaultVis = in.readBool();
     bool defaultActive = in.readBool();
     bool f = in.readBool();
@@ -51,7 +51,8 @@ CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool flag)
     color.readRGBABig(in);
     EGuiModelDrawFlags df = EGuiModelDrawFlags(in.readUint32Big());
 
-    return CGuiWidget::CGuiWidgetParms(frame, a, selfId, parentId, defaultVis, defaultActive,
+    return CGuiWidget::CGuiWidgetParms(frame, useAnimController, selfId,
+                                       parentId, defaultVis, defaultActive,
                                        f, color, df, true, flag);
 }
 

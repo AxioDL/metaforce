@@ -9,7 +9,7 @@ namespace urde
 class CGuiHeadWidget : public CGuiWidget
 {
 public:
-    FourCC GetWidgetTypeID() const {return hecl::FOURCC('HWIG');}
+    FourCC GetWidgetTypeID() const {return FOURCC('HWIG');}
     CGuiHeadWidget(const CGuiWidgetParms& parms);
     static CGuiHeadWidget* Create(CGuiFrame* frame, CInputStream& in, bool);
 };
