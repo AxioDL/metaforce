@@ -18,7 +18,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         x8c_baseline = x8_monoHeight;
 
     if (version >= 2)
-        x90_ = in.readUint32Big();
+        x90_lineMargin = in.readUint32Big();
 
     bool tmp1 = in.readBool();
     bool tmp2 = in.readBool();

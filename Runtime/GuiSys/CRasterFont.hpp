@@ -112,7 +112,7 @@ class CRasterFont
     TToken<CTexture> x80_texture;
     bool x88_ = false;
     s32 x8c_baseline;
-    s32 x90_ = 0;
+    s32 x90_lineMargin = 0;
     char* fontName;
 
     const CGlyph* InternalGetGlyph(wchar_t chr) const
@@ -128,11 +128,13 @@ class CRasterFont
 public:
     CRasterFont(CInputStream& in, IObjectStore& store);
 
-    s32 GetMonoWidth() { return x4_monoWidth; }
-    s32 GetMonoHeight() { return x8_monoHeight; }
-    s32 GetMode() { return x2c_mode; }
-    s32 sub_802FFF5C() { return x90_; }
-    s32 GetBaseline()  { return x8c_baseline; }
+    s32 GetMonoWidth()        const { return x4_monoWidth; }
+    s32 GetMonoHeight()       const { return x8_monoHeight; }
+    s32 GetMode()             const { return x2c_mode; }
+    s32 GetLineMargin()       const { return x90_lineMargin; }
+    s32 GetCarriageAdvance()  const { return GetLineMargin() + GetMonoHeight(); }
+
+    s32 GetBaseline() const  { return x8c_baseline; }
     static s32 KernLookup(const std::vector<CKernPair>& kernTable, s32 kernStart, s32 chr)
     {
         auto iter = kernTable.cbegin() + kernStart;
