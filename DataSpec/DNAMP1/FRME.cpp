@@ -232,16 +232,12 @@ size_t FRME::Widget::LITEInfo::binarySize(size_t __isz) const
 void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
 {
     IWidgetInfo::read(__dna_reader);
-    /* frameVals[0] */
-    frameVals[0] = __dna_reader.readFloatBig();
-    /* frameVals[1] */
-    frameVals[1] = __dna_reader.readFloatBig();
-    /* frameVals[2] */
-    frameVals[2] = __dna_reader.readFloatBig();
-    /* frameVals[3] */
-    frameVals[3] = __dna_reader.readFloatBig();
-    /* frameVals[4] */
-    frameVals[4] = __dna_reader.readFloatBig();
+    /* xDim */
+    xDim = __dna_reader.readFloatBig();
+    /* zDim */
+    zDim = __dna_reader.readFloatBig();
+    /* scaleCenter */
+    scaleCenter = __dna_reader.readVec3fBig();
     /* font */
     font.read(__dna_reader);
     /* unk1 */
@@ -272,16 +268,12 @@ void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
 void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) const
 {
     IWidgetInfo::write(__dna_writer);
-    /* frameVals[0] */
-    __dna_writer.writeFloatBig(frameVals[0]);
-    /* frameVals[1] */
-    __dna_writer.writeFloatBig(frameVals[1]);
-    /* frameVals[2] */
-    __dna_writer.writeFloatBig(frameVals[2]);
-    /* frameVals[3] */
-    __dna_writer.writeFloatBig(frameVals[3]);
-    /* frameVals[4] */
-    __dna_writer.writeFloatBig(frameVals[4]);
+    /* xDim */
+    __dna_writer.writeFloatBig(xDim);
+    /* zDim */
+    __dna_writer.writeFloatBig(zDim);
+    /* scaleCenter */
+    __dna_writer.writeVec3fBig(scaleCenter);
     /* font */
     font.write(__dna_writer);
     /* unk1 */

@@ -20,7 +20,7 @@ CGuiFrame::CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, in
     xa0_lights.resize(8);
     x48_rootWidget.reset(new CGuiWidget(
         CGuiWidget::CGuiWidgetParms(this, false, 0, 0, false, false, false, zeus::CColor::skWhite,
-                                    CGuiWidget::EGuiModelDrawFlags::Two, false,
+                                    CGuiWidget::EGuiModelDrawFlags::Alpha, false,
                                     x3c_guiSys.x2c_mode != CGuiSys::EUsageMode::Zero)));
 }
 
@@ -420,8 +420,8 @@ void CGuiFrame::ProcessControllerInput(const CFinalInput& input)
         CGuiControllerInfo::CGuiControllerStateInfo stateInfo;
         stateInfo.cIdx = input.ControllerIdx();
         InterpretGUIControllerState(input, state, stateInfo.lx, stateInfo.ly, stateInfo.rx, stateInfo.ry);
-        float eventTime = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - x3c_guiSys.x40_constructTime).count() / 1000.f;
+        float eventTime = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - x3c_guiSys.x40_constructTime).count() / 1000000.f;
 
         for (const std::pair<EPhysicalControllerID, CGuiPhysicalMsg::CPhysicalID>& newPair : state)
         {
