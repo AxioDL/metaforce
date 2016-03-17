@@ -44,8 +44,8 @@ add_library(RuntimeCommonGuiSys
             CGuiTextSupport.cpp
             CGuiTextSupport.hpp
             CGuiWidget.cpp
-            CGuiWidgetDrawParams.cpp
-            CGuiWidgetDrawParams.hpp
+            CGuiWidgetDrawParms.cpp
+            CGuiWidgetDrawParms.hpp
             CGuiWidget.hpp
             CMakeLists.txt
             CSplashScreen.cpp

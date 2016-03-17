@@ -1,5 +1,5 @@
 #include "CGuiObject.hpp"
-#include "CGuiWidgetDrawParams.hpp"
+#include "CGuiWidgetDrawParms.hpp"
 
 namespace urde
 {

@@ -358,12 +358,18 @@ void CGuiFrame::EnableLights(u32 lights) const
     CGraphics::DisableAllLights();
     zeus::CColor accumColor(zeus::CColor::skBlack);
     ERglLight lightId = ERglLight::Zero;
+    int idx = 0;
     for (CGuiLight* light : xa0_lights)
     {
-        // accumulate color
-        CGraphics::LoadLight(lightId, light->BuildLight());
-        CGraphics::EnableLight(lightId);
+        if ((lights & (1 << idx)) != 0)
+        {
+            // accumulate color
+            accumColor += light->GetColor();
+            CGraphics::LoadLight(lightId, light->BuildLight());
+            CGraphics::EnableLight(lightId);
+        }
         ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
+        ++idx;
     }
     if (xa0_lights.empty())
         CGraphics::SetAmbientColor(zeus::CColor::skWhite);

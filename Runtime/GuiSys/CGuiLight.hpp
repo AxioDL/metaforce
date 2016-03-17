@@ -27,6 +27,7 @@ public:
     CLight BuildLight() const;
     void SetIsVisible(bool vis);
     u32 GetLoadedIdx() const {return x118_loadedIdx;}
+    const zeus::CColor& GetColor() const {return x11c_color;}
 
     static CGuiLight* Create(CGuiFrame* frame, CInputStream& in, bool);
 };

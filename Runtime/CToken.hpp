@@ -249,8 +249,8 @@ public:
     TLockedToken() : m_obj(nullptr) {}
     TLockedToken(const CToken& other) : TToken<T>(other) {m_obj = TToken<T>::GetObj();}
     TLockedToken(CToken&& other) : TToken<T>(std::move(other)) {m_obj = TToken<T>::GetObj();}
-    T* GetObj() {return m_obj;}
-    T* operator->() {return m_obj;}
+    T* GetObj() const {return m_obj;}
+    T* operator->() const {return m_obj;}
 };
 
 }

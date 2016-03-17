@@ -31,7 +31,7 @@ struct FRME : BigDNA
             Value<bool> useAnimController;
             Value<bool> defaultVisible;
             Value<bool> defaultActive;
-            Value<bool> unk4;
+            Value<bool> cullFaces;
             Value<atVec4f> color;
             Value<atUint32> modelDrawFlags;
         } header;
@@ -114,7 +114,7 @@ struct FRME : BigDNA
             };
 
             Value<atUint32> blendMode;
-            Value<atUint32> lightMode;
+            Value<atUint32> lightMask;
         };
 
         struct LITEInfo : IWidgetInfo

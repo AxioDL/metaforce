@@ -53,7 +53,11 @@ class CGuiWidget : public CGuiObject
 public:
     enum class EGuiModelDrawFlags
     {
-        Two = 2
+        Zero = 0,
+        One = 1,
+        Two = 2,
+        Three = 3,
+        Four = 4
     };
     struct CGuiWidgetParms
     {
@@ -63,17 +67,18 @@ public:
         s16 x8_parentId;
         bool xa_defaultVisible;
         bool xb_defaultActive;
-        bool xc_f;
+        bool xc_cullFaces;
         bool xd_g;
         bool xe_h;
         zeus::CColor x10_color;
         EGuiModelDrawFlags x14_drawFlags;
         CGuiWidgetParms(CGuiFrame* frame, bool useAnimController, s16 selfId, s16 parentId,
-                        bool defaultVisible, bool defaultActive,
-                        bool f, const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g, bool h)
+                        bool defaultVisible, bool defaultActive, bool cullFaces,
+                        const zeus::CColor& color, EGuiModelDrawFlags drawFlags,
+                        bool g, bool h)
         : x0_frame(frame), x4_useAnimController(useAnimController), x6_selfId(selfId),
           x8_parentId(parentId), xa_defaultVisible(defaultVisible), xb_defaultActive(defaultActive),
-          xc_f(f), xd_g(g), xe_h(h), x10_color(color), x14_drawFlags(drawFlags) {}
+          xc_cullFaces(cullFaces), xd_g(g), xe_h(h), x10_color(color), x14_drawFlags(drawFlags) {}
     };
     static void LoadWidgetFnMap();
     virtual FourCC GetWidgetTypeID() const {return FOURCC('BWIG');}
@@ -96,7 +101,7 @@ protected:
     bool xf6_26_isActive : 1;
     bool xf6_27_ : 1;
     bool xf6_28_eventLock : 1;
-    bool xf6_29_pf : 1;
+    bool xf6_29_cullFaces : 1;
     bool xf6_30_ : 1;
     bool xf6_31_ : 1;
     bool xf7_24_ : 1;

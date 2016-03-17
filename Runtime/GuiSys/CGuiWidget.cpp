@@ -27,7 +27,8 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xc4_drawFlags(parms.x14_drawFlags), xc8_frame(parms.x0_frame),
   xf6_24_pg(parms.xd_g), xf6_25_isVisible(parms.xa_defaultVisible),
   xf6_26_isActive(parms.xb_defaultActive),
-  xf6_27_(true), xf6_28_eventLock(false), xf6_29_pf(parms.xc_f), xf6_30_(false),
+  xf6_27_(true), xf6_28_eventLock(false),
+  xf6_29_cullFaces(parms.xc_cullFaces), xf6_30_(false),
   xf6_31_(true), xf7_24_(false), xf7_25_(true)
 {
     if (parms.x4_useAnimController)
@@ -46,14 +47,14 @@ CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool flag)
     bool useAnimController = in.readBool();
     bool defaultVis = in.readBool();
     bool defaultActive = in.readBool();
-    bool f = in.readBool();
+    bool cullFaces = in.readBool();
     zeus::CColor color;
     color.readRGBABig(in);
     EGuiModelDrawFlags df = EGuiModelDrawFlags(in.readUint32Big());
 
     return CGuiWidget::CGuiWidgetParms(frame, useAnimController, selfId,
                                        parentId, defaultVis, defaultActive,
-                                       f, color, df, true, flag);
+                                       cullFaces, color, df, true, flag);
 }
 
 CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)

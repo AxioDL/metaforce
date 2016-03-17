@@ -7,7 +7,7 @@
 
 namespace urde
 {
-class CGuiWidgetDrawParms;
+struct CGuiWidgetDrawParms;
 class CGuiMessage;
 class CGuiFunctionDef;
 struct CGuiControllerInfo;
