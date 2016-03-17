@@ -113,7 +113,6 @@ class CRasterFont
     bool x88_ = false;
     s32 x8c_baseline;
     s32 x90_lineMargin = 0;
-    char* fontName;
 
     const CGlyph* InternalGetGlyph(wchar_t chr) const
     {
