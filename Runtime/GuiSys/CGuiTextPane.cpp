@@ -25,7 +25,7 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     bool e = in.readBool();
     EJustification justification = EJustification(in.readUint32Big());
     EVerticalJustification vJustification = EVerticalJustification(in.readUint32Big());
-    CGuiTextProperties props(d, e, 0, justification, vJustification);
+    CGuiTextProperties props(d, e, false, justification, vJustification);
     zeus::CColor col1;
     col1.readRGBABig(in);
     zeus::CColor col2;
