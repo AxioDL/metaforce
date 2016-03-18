@@ -63,7 +63,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
 
         switch (xc4_drawFlags)
         {
-        case EGuiModelDrawFlags::Zero:
+        case EGuiModelDrawFlags::Shadeless:
         {
             CModelFlags flags;
             flags.f1 = 0;
@@ -73,7 +73,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             model->Draw(flags);
             break;
         }
-        case EGuiModelDrawFlags::One:
+        case EGuiModelDrawFlags::Opaque:
         {
             CModelFlags flags;
             flags.f1 = 1;
@@ -83,7 +83,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             model->Draw(flags);
             break;
         }
-        case EGuiModelDrawFlags::Two:
+        case EGuiModelDrawFlags::Alpha:
         {
             CModelFlags flags;
             flags.f1 = 4;
@@ -93,7 +93,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             model->Draw(flags);
             break;
         }
-        case EGuiModelDrawFlags::Three:
+        case EGuiModelDrawFlags::Additive:
         {
             CModelFlags flags;
             flags.f1 = 3;
@@ -103,7 +103,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             model->Draw(flags);
             break;
         }
-        case EGuiModelDrawFlags::Four:
+        case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
             CModelFlags flags;
             flags.f1 = 4;
@@ -124,6 +124,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
 
         if (xf6_29_cullFaces)
             CGraphics::SetCullMode(ERglCullMode::None);
+        xc8_frame->DisableLights();
     }
 
     CGuiWidget::Draw(parms);

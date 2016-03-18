@@ -245,7 +245,7 @@ void CGuiWidget::EnsureHasAnimController()
     {
         xb0_animController.reset(new CGuiAnimController(
             CGuiWidgetParms(xc8_frame, false, -1, -1, true, false, false,
-                            zeus::CColor::skWhite, EGuiModelDrawFlags::Two,
+                            zeus::CColor::skWhite, EGuiModelDrawFlags::Alpha,
                             true, false), this));
     }
 }
@@ -384,7 +384,7 @@ void CGuiWidget::AddAnim(EGuiAnimBehListID id, CGuiAnimBase* anim)
     {
         xb0_animController.reset(new CGuiAnimController(
             CGuiWidgetParms(xc8_frame, false, -1, -1, false, false, false,
-                            zeus::CColor::skWhite, EGuiModelDrawFlags::Two, true, false), this));
+                            zeus::CColor::skWhite, EGuiModelDrawFlags::Alpha, true, false), this));
     }
     xb0_animController->AddAnimation(anim, id);
 }

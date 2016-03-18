@@ -2,26 +2,34 @@
 #define __URDE_CGUIPANE_HPP__
 
 #include "CGuiWidget.hpp"
+#include "specter/View.hpp"
 
 namespace urde
 {
 
 class CGuiPane : public CGuiWidget
 {
-    float xf8_a;
-    float xfc_b;
-    u32 x100_ = 0;
-    u32 x104_ = 4;
-    zeus::CVector3f x108_vec;
+protected:
+    float xf8_xDim;
+    float xfc_zDim;
+
+    /* Originally a vert-buffer pointer for GX */
+    std::vector<specter::View::TexShaderVert> x100_verts;
+    // u32 x104_ = 4; /* vert count */
+
+    zeus::CVector3f x108_scaleCenter;
+
 public:
-    CGuiPane(const CGuiWidgetParms& parms, float a, float b, const zeus::CVector3f& vec);
-    static CGuiPane* Create(CGuiFrame* frame, CInputStream& in, bool);
+    CGuiPane(const CGuiWidgetParms& parms, float xDim, float zDim, const zeus::CVector3f& scaleCenter);
+    FourCC GetWidgetTypeID() const {return FOURCC('PANE');}
 
     virtual void ScaleDimensions(const zeus::CVector3f& scale);
-    virtual void SetDimensions(const zeus::CVector2f& dim, bool flag);
-    virtual const zeus::CVector3f& GetDimensions() const;
+    virtual void SetDimensions(const zeus::CVector2f& dim, bool initVBO);
+    virtual zeus::CVector2f GetDimensions() const;
     virtual void InitializeBuffers();
     virtual void WriteData(COutputStream& out, bool flag) const;
+
+    static CGuiPane* Create(CGuiFrame* frame, CInputStream& in, bool);
 };
 
 }

@@ -41,10 +41,18 @@ enum class EGuiAnimInitMode
 
 enum class EGuiTextureClampModeHorz
 {
+    NoClamp = 0,
+    Right = 1,
+    Left = 2,
+    Center = 3
 };
 
 enum class EGuiTextureClampModeVert
 {
+    NoClamp = 0,
+    Top = 1,
+    Bottom = 2,
+    Center = 3
 };
 
 class CGuiWidget : public CGuiObject
@@ -53,11 +61,11 @@ class CGuiWidget : public CGuiObject
 public:
     enum class EGuiModelDrawFlags
     {
-        Zero = 0,
-        One = 1,
-        Two = 2,
-        Three = 3,
-        Four = 4
+        Shadeless = 0,
+        Opaque = 1,
+        Alpha = 2,
+        Additive = 3,
+        AlphaAdditiveOverdraw = 4
     };
     struct CGuiWidgetParms
     {

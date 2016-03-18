@@ -157,8 +157,7 @@ struct FRME : BigDNA
         struct GRUPInfo : IWidgetInfo
         {
             DECL_DNA
-            Value<bool> unk1;
-            Value<bool> unk2;
+            Value<atInt16> defaultWorker;
             Value<bool> unk3;
         };
 
@@ -187,8 +186,8 @@ struct FRME : BigDNA
             DECL_DNA
             Value<float> min;
             Value<float> max;
-            Value<float> unk1;
-            Value<float> unk2;
+            Value<float> cur;
+            Value<float> increment;
         };
 
         struct TXPNInfo : IWidgetInfo
@@ -207,7 +206,9 @@ struct FRME : BigDNA
             TXPNInfo(atUint32 version)
                 : version(version)
             {}
-            Value<float> frameVals[5];
+            Value<float> xDim;
+            Value<float> zDim;
+            Value<atVec3f> scaleCenter;
             UniqueID32 font;
             Value<bool> unk1;
             Value<bool> unk2;
