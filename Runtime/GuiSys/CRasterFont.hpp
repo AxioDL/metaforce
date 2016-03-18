@@ -88,7 +88,7 @@ class CFontInfo
     bool x1_ = false;
     s32 x4_ = 0;
     s32 x8_fontSize = 0;
-    char* xc_name = 0;
+    char xc_name[40];
 
 public:
     CFontInfo() = default;
@@ -109,7 +109,7 @@ class CRasterFont
     s32 x28_lineMargin = 0;
     s32 x2c_mode = 0;
     CFontInfo x30_fontInfo;
-    TToken<CTexture> x80_texture;
+    TLockedToken<CTexture> x80_texture;
     bool x88_ = false;
     s32 x8c_baseline;
     s32 x90_lineMargin = 0;

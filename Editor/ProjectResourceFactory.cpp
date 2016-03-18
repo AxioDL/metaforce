@@ -6,6 +6,7 @@
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
@@ -17,6 +18,7 @@ ProjectResourceFactory::ProjectResourceFactory()
     m_factoryMgr.AddFactory(FOURCC('TXTR'), urde::FTextureFactory);
     m_factoryMgr.AddFactory(FOURCC('PART'), urde::FParticleFactory);
     m_factoryMgr.AddFactory(FOURCC('FRME'), urde::RGuiFrameFactoryInGame);
+    m_factoryMgr.AddFactory(FOURCC('FONT'), urde::FRasterFontFactory);
 }
 
 void ProjectResourceFactory::BuildObjectMap(const hecl::Database::Project::ProjectDataSpec &spec)

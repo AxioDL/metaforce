@@ -4,7 +4,8 @@ namespace urde
 {
 CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
 {
-    u32 magic = in.readUint32Big();
+    u32 magic;
+    in.readBytesToBuf(&magic, 4);
     if (magic != SBIG('FONT'))
         return;
 
@@ -27,8 +28,8 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     u32 tmp4 = in.readUint32Big();
     std::string name= in.readString();
     u32 txtrId = in.readUint32Big();
-    x80_texture = store.GetObj({'TXTR', txtrId});
     x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
+    x80_texture = store.GetObj({'TXTR', txtrId});
     u32 mode = in.readUint32Big();
     /* TODO: Make an enum */
     if (mode == 1)
@@ -52,7 +53,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         s32 cellWidth = in.readInt32Big();
         s32 cellHeight = in.readInt32Big();
         s32 baseline = in.readInt32Big();
-        s32 kernStart = in.readUint32();
+        s32 kernStart = in.readInt32Big();
         xc_glyphs[i] = std::make_pair(chr, CGlyph(a, b, c, startU, startV, endU, endV,
                                                   cellWidth, cellHeight, baseline, kernStart));
     }
@@ -192,7 +193,8 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
-    return TToken<CRasterFont>::GetIObjObjectFor(std::make_unique<CRasterFont>(in, *(reinterpret_cast<IObjectStore*>(vparms.GetObj()))));
+    return TToken<CRasterFont>::GetIObjObjectFor(
+                std::make_unique<CRasterFont>(in, *static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam()));
 }
 
 }
