@@ -154,19 +154,19 @@ public:
     bool GetValue(int frame, int& valOut) const;
 };
 
-class CIEGTCP : public CIntElement
+class CIEGetCumulativeParticleCount : public CIntElement
 {
 public:
     bool GetValue(int frame, int& valOut) const;
 };
 
-class CIEGAPC : public CIntElement
+class CIEGetActiveParticleCount : public CIntElement
 {
 public:
     bool GetValue(int frame, int &valOut) const;
 };
 
-class CIEGEMT : public CIntElement
+class CIEGetEmitterTime : public CIntElement
 {
 public:
     bool GetValue(int frame, int &valOut) const;

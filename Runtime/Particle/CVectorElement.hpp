@@ -149,37 +149,37 @@ public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPLCO : public CVectorElement
+class CVEParticleColor : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPLOC : public CVectorElement
+class CVEParticleLocation : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPSOF : public CVectorElement
+class CVEParticleSystemOrientationFront : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPSOU : public CVectorElement
+class CVEParticleSystemOrientationUp : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPSOR : public CVectorElement
+class CVEParticleSystemOrientationRight : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
-class CVEPSTR : public CVectorElement
+class CVEParticleSystemTranslation : public CVectorElement
 {
 public:
     bool GetValue(int frame, zeus::CVector3f& valOut) const;

@@ -15,56 +15,62 @@ struct EVNT : BigYAML
     Delete expl;
     Value<atUint32> version;
 
-    struct EventBase : BigYAML
+    struct POINode : BigYAML
     {
         DECL_YAML
         Value<atUint16> unk0;
         String<-1> name;
         Value<atUint16> type;
-        Value<float> startTime;
-        Value<atUint32> unk1;
+        struct CharAnimTime : BigYAML
+        {
+            DECL_YAML
+            Value<float> time;
+            Value<atUint32> unk1;
+        };
+
+        CharAnimTime animTime;
         Value<atUint32> idx;
-        Value<atUint8> unk2;
+        Value<bool> unk2;
         Value<float> unk3;
         Value<atUint32> unk4;
         Value<atUint32> unk5;
     };
 
-    struct LoopEvent : EventBase
+    struct BoolPOINode : POINode
     {
         DECL_YAML
-        Value<atUint8> flag;
+        Value<atUint8> value;
     };
-    std::vector<LoopEvent> loopEvents;
+    std::vector<BoolPOINode> boolPOINodes;
 
-    struct UEVTEvent : EventBase
+    struct Int32POINode : POINode
     {
         DECL_YAML
-        Value<atUint32> uevtType;
-        String<-1> boneName;
+        Value<atUint32> value;
+        String<-1> locatorName;
     };
-    std::vector<UEVTEvent> uevtEvents;
+    std::vector<Int32POINode> int32POINodes;
 
-    struct EffectEvent : EventBase
+    struct ParticlePOINode : POINode
     {
         DECL_YAML
-        Value<atUint32> frameCount;
+        Value<atUint32> duration;
         DNAFourCC effectType;
         UniqueID32 effectId;
-        String<-1> boneName;
+        String<-1> locatorName;
         Value<float> scale;
         Value<atUint32> parentMode;
     };
-    std::vector<EffectEvent> effectEvents;
+    std::vector<ParticlePOINode> particlePOINodes;
 
-    struct SFXEvent : EventBase
+    struct SoundPOINode : POINode
     {
         DECL_YAML
         Value<atUint32> soundId;
-        Value<float> smallNum;
-        Value<float> bigNum;
+        Value<float> falloff;
+        Value<float> maxDist;
     };
-    std::vector<SFXEvent> sfxEvents;
+    std::vector<SoundPOINode> soundPOINodes;
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
