@@ -3,42 +3,49 @@
 
 namespace urde
 {
-
-s32 DecryptionCtx::DecryptRead(CInputStream& in, s32 key)
+/*!
+ * \brief CBitStreamReader::ReadBit
+ * Reads and decodes an encoded value from a bitstream.
+ * \param bitCount How many bits to read
+ * \return s32 The encoded value
+ */
+s32 CBitStreamReader::ReadEncoded(u32 bitCount)
 {
-    int ret = 0;
-    if (x20_encShift >= key)
+    s32 ret = 0;
+    if (bitCount < x20_bitOffset)
     {
-        int diff = x20_encShift - 0x20;
-        int baseVal = -1;
-        if (x20_encShift != 0x20)
-            baseVal = 1 << (x20_encShift - 1);
-        x20_encShift = key - x20_encShift;
-        ret = baseVal | (x1c_encVal >> diff);
+        u32 diff = 0x20 - bitCount;
+        u32 baseVal = -1;
+        if (x20_bitOffset != 0x20)
+            baseVal = (1 << bitCount) - 1;
+        x20_bitOffset -= bitCount;
+        ret = baseVal & (x1c_val >> diff);
+        x1c_val <<= bitCount;
     }
     else
     {
-        int diff = x20_encShift - key;
-        int rem = x20_encShift - 0x20;
-        int baseVal1 = -1;
-        if (x20_encShift != 0x20)
-            baseVal1 = 1 << (x20_encShift - 1);
+        u32 diff = bitCount - x20_bitOffset;
+        u32 baseVal = -1;
+        if (x20_bitOffset != 32)
+            baseVal = (1 << x20_bitOffset) - 1;
 
-        int bit = diff & 7;
-        x20_encShift = 0;
-        int count = (diff >> 3) + ((-bit | bit) >> 31);
-        int baseVal2 = (baseVal1 & (x1c_encVal >> rem)) << diff;
-        in.readBytesToBuf(&x1c_encVal, count);
+        u32 bit = diff & 7;
+        baseVal &= (x1c_val >> (32 - x20_bitOffset));
+        baseVal <<= diff;
+        x20_bitOffset = 0;
+        u32 count = (diff >> 3) + ((-bit | bit) >> 31);
+        readUBytesToBuf(&x1c_val, count);
+        /* The game uses Big Endian, which doesn't work for us */
+        /* Little Endian sucks */
+        athena::utility::BigUint32(x1c_val);
 
-        int baseVal3 = -1;
-        if (diff != 0x20)
-            baseVal3 = 1 << (diff - 1);
+        u32 baseVal2 = -1;
+        if (diff != 32)
+            baseVal2 = (1 << diff) - 1;
 
-        int tmpShift = x20_encShift;
-        x20_encShift = (count << 3);
-        ret = baseVal2 | (baseVal3 & (x1c_encVal >> (diff - 0x20))) << tmpShift;
-        x20_encShift = diff - x20_encShift;
-        x1c_encVal = x1c_encVal >> diff;
+        ret = baseVal | (baseVal2 & (x1c_val >> (32 - diff))) << x20_bitOffset;
+        x20_bitOffset = (count << 3) - diff;
+        x1c_val <<= diff;
     }
 
     return ret;
