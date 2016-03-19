@@ -18,6 +18,8 @@
 namespace urde
 {
 
+CGuiSys* g_GuiSys = nullptr;
+
 void CGuiSys::AddFactories(EUsageMode /* mode */)
 {
     x8_factoryMgr.m_factories.clear();

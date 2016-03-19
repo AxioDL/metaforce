@@ -7,12 +7,16 @@
 
 namespace urde
 {
+class CLineInstruction;
 
 class CFontRenderState : public CSaveableState
 {
-    u32 x54_ = 0;
+    friend class CLineInstruction;
+
+    /* void* x54_ = 0; top-to-bottom state */
     CDrawStringOptions x58_drawOpts;
     u32 x6c_ = 0;
+    const CLineInstruction* x74_currentLineInst = nullptr;
     bool xa0_ = true;
     std::vector<CSaveableState> xa4_pushedStates;
 public:

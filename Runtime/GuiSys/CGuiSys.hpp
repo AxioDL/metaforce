@@ -64,6 +64,9 @@ public:
     EUsageMode GetUsageMode() const {return x2c_mode;}
 };
 
+/** Global GuiSys instance */
+extern CGuiSys* g_GuiSys;
+
 /** Parameter pack for FRME factory */
 struct CGuiResFrameData
 {

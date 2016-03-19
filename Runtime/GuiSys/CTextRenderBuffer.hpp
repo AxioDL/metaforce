@@ -26,6 +26,8 @@ public:
     };
     enum class EMode
     {
+        Zero,
+        One
     };
 private:
     EMode x0_mode;
