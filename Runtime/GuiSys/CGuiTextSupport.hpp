@@ -3,11 +3,13 @@
 
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
+#include "CToken.hpp"
 #include <string>
 
 namespace urde
 {
 class CSimplePool;
+class CRasterFont;
 
 enum class EJustification
 {
@@ -15,6 +17,25 @@ enum class EJustification
 
 enum class EVerticalJustification
 {
+};
+
+enum class EColorType
+{
+    Zero,
+    One,
+    Two,
+    Three,
+    Four
+};
+
+enum class ETextDirection
+{
+};
+
+class CTextColor : public zeus::CColor
+{
+public:
+    CTextColor(const zeus::CColor& col) : zeus::CColor(col) {}
 };
 
 class CGuiTextProperties
@@ -33,8 +54,10 @@ public:
 
 class CGuiTextSupport
 {
+    TResId x50_fontId;
+    TLockedToken<CRasterFont> x2c0_font;
 public:
-    CGuiTextSupport(u32, const CGuiTextProperties& props,
+    CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& col1, const zeus::CColor& col2,
                     const zeus::CColor& col3, int, int, CSimplePool*);
     void GetCurrentAnimationOverAge() const;

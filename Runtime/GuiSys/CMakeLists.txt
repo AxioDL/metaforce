@@ -78,4 +78,18 @@ add_library(RuntimeCommonGuiSys
             CGuiPane.cpp
             CGuiPane.hpp
             CGuiMessage.cpp
-            CGuiMessage.hpp)
+            CGuiMessage.hpp
+            CFontRenderState.cpp
+            CFontRenderState.hpp
+            CTextExecuteBuffer.cpp
+            CTextExecuteBuffer.hpp
+            CTextRenderBuffer.cpp
+            CTextRenderBuffer.hpp
+            CInstruction.cpp
+            CInstruction.hpp
+            CTextParser.cpp
+            CTextParser.hpp
+            CWordBreakTables.cpp
+            CWordBreakTables.hpp
+            CFontImageDef.cpp
+            CFontImageDef.hpp)

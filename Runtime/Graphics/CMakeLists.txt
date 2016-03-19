@@ -16,5 +16,6 @@ add_library(RuntimeCommonGraphics
             CTexture.hpp CTextureBoo.cpp
             CModel.hpp CModelBoo.cpp
             CMoviePlayer.hpp CMoviePlayer.cpp
+            CGraphicsPalette.hpp CGraphicsPalette.cpp
             CGraphics.hpp CGraphics.cpp
             ${PLAT_SRCS})

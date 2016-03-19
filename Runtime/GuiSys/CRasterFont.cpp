@@ -1,4 +1,6 @@
 #include "GuiSys/CRasterFont.hpp"
+#include "CDrawStringOptions.hpp"
+#include "CTextRenderBuffer.hpp"
 
 namespace urde
 {
@@ -30,12 +32,12 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     u32 txtrId = in.readUint32Big();
     x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
     x80_texture = store.GetObj({'TXTR', txtrId});
-    u32 mode = in.readUint32Big();
+    EColorType mode = EColorType(in.readUint32Big());
     /* TODO: Make an enum */
-    if (mode == 1)
-        x2c_mode = 1;
-    else if (mode == 0)
-        x2c_mode = 0;
+    if (mode == EColorType::One)
+        x2c_mode = EColorType::One;
+    else if (mode == EColorType::Zero)
+        x2c_mode = EColorType::Zero;
 
     u32 glyphCount = in.readUint32Big();
     xc_glyphs.reserve(glyphCount);
@@ -101,7 +103,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
                 {
                     left += x;
                     top += glyph->GetBaseline() - y;
-                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x10_);
+                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_vec[0]);
                 }
                 x += glyph->GetC() + glyph->GetB();
             }

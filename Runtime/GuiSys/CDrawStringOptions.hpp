@@ -3,14 +3,18 @@
 
 #include <vector>
 #include "RetroTypes.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {
 
 class CDrawStringOptions
 {
+    friend class CColorOverrideInstruction;
+    friend class CFontRenderState;
+    friend class CRasterFont;
     u32 x0_ = 0;
-    std::vector<u32> x4_vec;
+    std::vector<zeus::CColor> x4_vec;
 public:
     CDrawStringOptions()
     {

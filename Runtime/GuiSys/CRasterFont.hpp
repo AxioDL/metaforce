@@ -4,26 +4,14 @@
 #include "IOStreams.hpp"
 #include "CToken.hpp"
 #include "zeus/CVector2i.hpp"
+#include "CGuiTextSupport.hpp"
 
 namespace urde
 {
-
 class IObjectStore;
 class CTexture;
-/* TODO: Move these elsewhere */
-struct CDrawStringOptions
-{
-    s32 x0_;
-    u32 x10_;
-};
-
-class CTextRenderBuffer
-{
-public:
-    void AddCharacter(const zeus::CVector2i& pos, s16 chr, u32 unk)
-    {
-    }
-};
+class CDrawStringOptions;
+class CTextRenderBuffer;
 
 /* NOTE: Is this a good place for CGlyph and CKernPair? */
 class CGlyph
@@ -107,7 +95,7 @@ class CRasterFont
     std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
     std::vector<CKernPair> x1c_kerning;
     s32 x28_lineMargin = 0;
-    s32 x2c_mode = 0;
+    EColorType x2c_mode = EColorType::Zero;
     CFontInfo x30_fontInfo;
     TLockedToken<CTexture> x80_texture;
     bool x88_ = false;
@@ -129,7 +117,7 @@ public:
 
     s32 GetMonoWidth()        const { return x4_monoWidth; }
     s32 GetMonoHeight()       const { return x8_monoHeight; }
-    s32 GetMode()             const { return x2c_mode; }
+    EColorType GetMode()      const { return x2c_mode; }
     s32 GetLineMargin()       const { return x90_lineMargin; }
     s32 GetCarriageAdvance()  const { return GetLineMargin() + GetMonoHeight(); }
 
