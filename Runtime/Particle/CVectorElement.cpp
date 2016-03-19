@@ -270,46 +270,40 @@ bool CVEParticleVelocity::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
     return false;
 }
 
-bool CVEPLCO::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleColor::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x10_prevPos;
     return false;
 }
 
-bool CVEPLOC::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleLocation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x4_pos;
     return false;
 }
 
-bool CVEPSOF::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleSystemOrientationFront::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
+    /* TODO: Get front vector */
     zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
-    valOut.x = trans.m_basis[0].y;
-    valOut.y = trans.m_basis[1].z;
-    valOut.z = trans.m_origin.x;
     return false;
 }
 
-bool CVEPSOU::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleSystemOrientationUp::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
+    /* TODO: Get up vector */
     zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
-    valOut.x = trans.m_basis[0].z;
-    valOut.y = trans.m_basis[1].x;
-    valOut.z = trans.m_origin.y;
     return false;
 }
 
-bool CVEPSOR::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleSystemOrientationRight::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
+    /* TODO: Get right vector */
     zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
-    valOut.x = trans.m_basis[0].x;
-    valOut.y = trans.m_basis[1].y;
-    valOut.z = trans.m_basis[2].z;
     return false;
 }
 
-bool CVEPSTR::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
+bool CVEParticleSystemTranslation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetTranslation();
     return false;

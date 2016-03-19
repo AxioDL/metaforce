@@ -456,6 +456,9 @@ CElementGen::~CElementGen()
 
 void CElementGen::Update(double t)
 {
+    CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+    CParticleGlobals::SParticleSystem thisSystem { FOURCC('PART'), this };
+    CParticleGlobals::g_currentParticleSystem = &thisSystem;
     CGenDescription* desc = x1c_genDesc.GetObj();
     CIntElement* pswtElem = desc->x10_x4_PSWT.get();
     if (pswtElem && !x225_28_warmedUp)
@@ -472,6 +475,7 @@ void CElementGen::Update(double t)
         }
     }
     InternalUpdate(t);
+    CParticleGlobals::g_currentParticleSystem = prevSystem;
 }
 
 bool CElementGen::InternalUpdate(double dt)
@@ -806,6 +810,7 @@ void CElementGen::CreateNewParticles(int count)
         }
 
         AccumulateBounds(particle.x4_pos, particle.x2c_lineLengthOrSize);
+        ++x260_cumulativeParticles;
         ++x210_curEmitterFrame;
         --g_FreeIndex;
     }
@@ -1117,6 +1122,17 @@ void CElementGen::EndLifetime()
         ch->SetParticleEmission(false);
 }
 
+void CElementGen::ForceParticleCreation(int amount)
+{
+    CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+    CParticleGlobals::SParticleSystem thisSystem{ FOURCC('PART'), this };
+    CParticleGlobals::g_currentParticleSystem = &thisSystem;
+    /* This is a guess, but it seems right, retail loads x74 */
+    CParticleGlobals::SetEmitterTime(x50_curFrame);
+    CreateNewParticles(amount);
+    CParticleGlobals::g_currentParticleSystem = prevSystem;
+}
+
 void CElementGen::BuildParticleSystemBounds()
 {
     zeus::CAABox aabb;
@@ -1193,6 +1209,9 @@ u32 CElementGen::GetSystemCount()
 
 void CElementGen::Render()
 {
+    CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+    CParticleGlobals::SParticleSystem thisSystem{ FOURCC('PART'), this };
+    CParticleGlobals::g_currentParticleSystem = &thisSystem;
     CGenDescription* desc = x1c_genDesc.GetObj();
 
     x22c_backupLightActive = CGraphics::g_LightActive;
@@ -1222,6 +1241,7 @@ void CElementGen::Render()
         else
             RenderParticles();
     }
+    CParticleGlobals::g_currentParticleSystem = prevSystem;
 }
 
 void CElementGen::RenderModels()

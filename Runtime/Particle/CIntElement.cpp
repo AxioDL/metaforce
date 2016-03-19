@@ -1,7 +1,7 @@
 #include "CIntElement.hpp"
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
-
+#include "CElementGen.hpp"
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
 
 namespace urde
@@ -203,21 +203,21 @@ bool CIETimeScale::GetValue(int frame, int& valOut) const
     return false;
 }
 
-bool CIEGTCP::GetValue(int frame, int& valOut) const
+bool CIEGetCumulativeParticleCount::GetValue(int frame, int& valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetCumulativeParticleCount();
     return false;
 }
 
-bool CIEGAPC::GetValue(int frame, int &valOut) const
+bool CIEGetActiveParticleCount::GetValue(int frame, int &valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetParticleCount();
     return false;
 }
 
-bool CIEGEMT::GetValue(int frame, int &valOut) const
+bool CIEGetEmitterTime::GetValue(int frame, int &valOut) const
 {
-    /* TODO: Do */
+    valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetEmitterTime();
     return false;
 }
 

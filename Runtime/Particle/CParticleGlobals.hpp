@@ -7,7 +7,7 @@
 
 namespace urde
 {
-class CParticleGen;
+class CElementGen;
 class CParticleGlobals
 {
 public:
@@ -43,7 +43,7 @@ public:
     struct SParticleSystem
     {
         FourCC x0_type;
-        CParticleGen* x4_system;
+        CElementGen* x4_system;
     };
 
     static SParticleSystem* g_currentParticleSystem;

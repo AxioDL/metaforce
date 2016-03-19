@@ -446,27 +446,27 @@ CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
     }
     case SBIG('PLCO'):
     {
-        return new CVEPLCO;
+        return new CVEParticleColor;
     }
     case SBIG('PLOC'):
     {
-        return new CVEPLOC;
+        return new CVEParticleLocation;
     }
     case SBIG('PSOF'):
     {
-        return new CVEPSOF;
+        return new CVEParticleSystemOrientationFront;
     }
     case SBIG('PSOU'):
     {
-        return new CVEPSOU;
+        return new CVEParticleSystemOrientationUp;
     }
     case SBIG('PSOR'):
     {
-        return new CVEPSOR;
+        return new CVEParticleSystemOrientationRight;
     }
     case SBIG('PSTR'):
     {
-        return new CVEPSTR;
+        return new CVEParticleSystemTranslation;
     }
     case SBIG('SUB_'):
     {
@@ -798,15 +798,15 @@ CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
     }
     case SBIG('GAPC'):
     {
-        return new CIEGAPC;
+        return new CIEGetActiveParticleCount;
     }
     case SBIG('GTCP'):
     {
-        return new CIEGTCP;
+        return new CIEGetCumulativeParticleCount;
     }
     case SBIG('GEMT'):
     {
-        return new CIEGEMT;
+        return new CIEGetEmitterTime;
     }
     case SBIG('MODU'):
     {

@@ -10,19 +10,19 @@ void EVNT::read(athena::io::IStreamReader& reader)
     version = reader.readUint32Big();
 
     atUint32 loopCount = reader.readUint32Big();
-    reader.enumerate(loopEvents, loopCount);
+    reader.enumerate(boolPOINodes, loopCount);
 
-    uevtEvents.clear();
+    int32POINodes.clear();
     atUint32 uevtCount = reader.readUint32Big();
-    reader.enumerate(uevtEvents, uevtCount);
+    reader.enumerate(int32POINodes, uevtCount);
 
     atUint32 effectCount = reader.readUint32Big();
-    reader.enumerate(effectEvents, effectCount);
+    reader.enumerate(particlePOINodes, effectCount);
 
     if (version == 2)
     {
         atUint32 sfxCount = reader.readUint32Big();
-        reader.enumerate(sfxEvents, sfxCount);
+        reader.enumerate(soundPOINodes, sfxCount);
     }
 }
 
@@ -30,19 +30,19 @@ void EVNT::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(version);
 
-    writer.writeUint32Big(loopEvents.size());
-    writer.enumerate(loopEvents);
+    writer.writeUint32Big(boolPOINodes.size());
+    writer.enumerate(boolPOINodes);
 
-    writer.writeUint32Big(uevtEvents.size());
-    writer.enumerate(uevtEvents);
+    writer.writeUint32Big(int32POINodes.size());
+    writer.enumerate(int32POINodes);
 
-    writer.writeUint32Big(effectEvents.size());
-    writer.enumerate(effectEvents);
+    writer.writeUint32Big(particlePOINodes.size());
+    writer.enumerate(particlePOINodes);
 
     if (version == 2)
     {
-        writer.writeUint32Big(sfxEvents.size());
-        writer.enumerate(sfxEvents);
+        writer.writeUint32Big(soundPOINodes.size());
+        writer.enumerate(soundPOINodes);
     }
 }
 
@@ -50,16 +50,16 @@ void EVNT::read(athena::io::YAMLDocReader& reader)
 {
     version = reader.readUint32("version");
 
-    reader.enumerate("loopEvents", loopEvents);
+    reader.enumerate("boolPOINodes", boolPOINodes);
 
-    uevtEvents.clear();
-    reader.enumerate("uevtEvents", uevtEvents);
+    int32POINodes.clear();
+    reader.enumerate("int32POINodes", int32POINodes);
 
-    reader.enumerate("effectEvents", effectEvents);
+    reader.enumerate("particlePOINodes", particlePOINodes);
 
     if (version == 2)
     {
-        reader.enumerate("sfxEvents", sfxEvents);
+        reader.enumerate("soundPOINodes", soundPOINodes);
     }
 }
 
@@ -67,15 +67,15 @@ void EVNT::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("version", version);
 
-    writer.enumerate("loopEvents", loopEvents);
+    writer.enumerate("boolPOINodes", boolPOINodes);
 
-    writer.enumerate("uevtEvents", uevtEvents);
+    writer.enumerate("int32POINodes", int32POINodes);
 
-    writer.enumerate("effectEvents", effectEvents);
+    writer.enumerate("particlePOINodes", particlePOINodes);
 
     if (version == 2)
     {
-        writer.enumerate("sfxEvents", sfxEvents);
+        writer.enumerate("soundPOINodes", soundPOINodes);
     }
 }
 
@@ -86,11 +86,11 @@ const char* EVNT::DNAType()
 
 size_t EVNT::binarySize(size_t __isz) const
 {
-    __isz = __EnumerateSize(__isz, loopEvents);
-    __isz = __EnumerateSize(__isz, uevtEvents);
-    __isz = __EnumerateSize(__isz, effectEvents);
+    __isz = __EnumerateSize(__isz, boolPOINodes);
+    __isz = __EnumerateSize(__isz, int32POINodes);
+    __isz = __EnumerateSize(__isz, particlePOINodes);
     if (version == 2)
-        __isz = __EnumerateSize(__isz, sfxEvents);
+        __isz = __EnumerateSize(__isz, soundPOINodes);
 
     return __isz + (version == 2 ? 20 : 16);
 }

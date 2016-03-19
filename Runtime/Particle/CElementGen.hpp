@@ -128,6 +128,7 @@ private:
     std::vector<std::unique_ptr<CElementGen>> x248_finishPartChildren;
     int x258_SISY = 16;
     int x25c_PISY = 16;
+    u32 x260_cumulativeParticles = 0; /* Retail */
     std::vector<std::unique_ptr<CParticleSwoosh>> x260_swhcChildren;
     int x270_SSSD = 0;
     zeus::CVector3f x274_SSPO;
@@ -196,11 +197,17 @@ public:
     CElementGen* ConstructChildParticleSystem(const TToken<CGenDescription>&);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
+    u32 GetEmitterTime() const
+    {
+        /* Game returns x74, guessing x50 is what it's asking for */
+        return x50_curFrame;
+    }
     u32 GetSystemCount();
+    u32 GetCumulativeParticleCount() const { return x260_cumulativeParticles; }
     u32 GetParticleCountAllInternal() const;
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
     void EndLifetime();
-    void ForceParticleCreation(int amount) { CreateNewParticles(amount); }
+    void ForceParticleCreation(int amount);
 
     bool InternalUpdate(double);
     void RenderModels();
