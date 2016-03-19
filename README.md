@@ -1,6 +1,8 @@
 ## URDE
 **Status:** Extract Only
 
+[![Project Stats](https://www.openhub.net/p/URDE/widgets/project_partner_badge?format=gif)](https://www.openhub.net/p/URDE)
+
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://github.com/AxioDL/urde/releases. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
 
