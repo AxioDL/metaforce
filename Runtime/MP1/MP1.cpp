@@ -148,6 +148,7 @@ public:
                            0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/),
           m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
     {
+        g_GuiSys = &m_guiSys;
         m_inputGenerator.startScanning();
     }
     bool Update()

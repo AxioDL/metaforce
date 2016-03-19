@@ -32,11 +32,7 @@ enum class ETextDirection
 {
 };
 
-class CTextColor : public zeus::CColor
-{
-public:
-    CTextColor(const zeus::CColor& col) : zeus::CColor(col) {}
-};
+using CTextColor = zeus::CColor;
 
 class CGuiTextProperties
 {

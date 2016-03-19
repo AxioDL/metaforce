@@ -9,18 +9,21 @@ namespace urde
 {
 class CInstruction;
 class CFontImageDef;
+class CTextRenderBuffer;
+class CBlockInstruction;
+class CLineInstruction;
 
 class CTextExecuteBuffer
 {
-    std::list<std::weak_ptr<CInstruction>> x0_instList;
+    std::list<std::shared_ptr<CInstruction>> x0_instList;
     u32 x14_ = 0;
     CSaveableState x18_;
-    u32 x6c_ = 0;
-    u32 x70_ = 0;
+    CBlockInstruction* x6c_curBlock = nullptr;
+    CLineInstruction* x70_curLine = nullptr;
     std::list<std::shared_ptr<CInstruction>>::iterator x74_curInst;
     u32 x80_ = 0;
     u32 x84_ = 0;
-    u32 x88_ = 0;
+    u32 x88_curFontSize = 0;
     u32 x90_ = 0;
     u32 x94_ = 0;
     u32 x98_ = 0;
@@ -31,7 +34,7 @@ public:
         x74_curInst = x0_instList.begin();
     }
 
-    void CreateTextRenderBuffer() const;
+    CTextRenderBuffer CreateTextRenderBuffer() const;
     std::vector<TResId> GetAssets() const;
     void AddString(const wchar_t* str, int);
     void AddStringFragment(const wchar_t* str, int);

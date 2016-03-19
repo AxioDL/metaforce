@@ -12,14 +12,17 @@ class CRasterFont;
 
 class CSaveableState
 {
+    friend class CTextExecuteBuffer;
     friend class CColorOverrideInstruction;
+    friend class CFontInstruction;
+    friend class CExtraLineSpaceInstruction;
 protected:
     CDrawStringOptions x0_drawStrOpts;
     TToken<CRasterFont> x14_token;
     std::vector<CTextColor> x20_;
     std::vector<bool> x30_;
     float x40_ = 1.f;
-    u32 x44_ = 0;
+    s32 x44_extraLineSpace = 0;
     bool x48_ = false;
     u32 x4c_ = 0;
     u32 x50_ = 0;

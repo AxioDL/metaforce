@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "RetroTypes.hpp"
-#include "zeus/CColor.hpp"
+#include "CGuiTextSupport.hpp"
 
 namespace urde
 {
@@ -14,7 +14,7 @@ class CDrawStringOptions
     friend class CFontRenderState;
     friend class CRasterFont;
     u32 x0_ = 0;
-    std::vector<zeus::CColor> x4_vec;
+    std::vector<CTextColor> x4_vec;
 public:
     CDrawStringOptions()
     {
