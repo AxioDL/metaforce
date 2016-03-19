@@ -39,25 +39,25 @@ struct EVNT : BigYAML
     struct BoolPOINode : POINode
     {
         DECL_YAML
-        Value<atUint8> flag;
+        Value<atUint8> value;
     };
     std::vector<BoolPOINode> boolPOINodes;
 
     struct Int32POINode : POINode
     {
         DECL_YAML
-        Value<atUint32> uevtType;
-        String<-1> boneName;
+        Value<atUint32> value;
+        String<-1> locatorName;
     };
     std::vector<Int32POINode> int32POINodes;
 
     struct ParticlePOINode : POINode
     {
         DECL_YAML
-        Value<atUint32> frameCount;
+        Value<atUint32> duration;
         DNAFourCC effectType;
         UniqueID32 effectId;
-        String<-1> boneName;
+        String<-1> locatorName;
         Value<float> scale;
         Value<atUint32> parentMode;
     };
@@ -67,8 +67,8 @@ struct EVNT : BigYAML
     {
         DECL_YAML
         Value<atUint32> soundId;
-        Value<float> smallNum;
-        Value<float> bigNum;
+        Value<float> falloff;
+        Value<float> maxDist;
     };
     std::vector<SoundPOINode> soundPOINodes;
 
