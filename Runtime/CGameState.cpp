@@ -4,7 +4,7 @@
 namespace urde
 {
 
-CGameState::CGameState(CInputStream& stream)
+CGameState::CGameState(CBitStreamReader& stream)
 : m_stateFlag(stream.readUint32Big()), m_playerState(stream), m_gameTime(stream.readFloatBig())
 {}
 

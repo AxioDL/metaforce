@@ -5,7 +5,6 @@
 #include "Runtime/CGameAllocator.hpp"
 #include <functional>
 #include "ViewManager.hpp"
-#include "Runtime/Particle/CElementGen.hpp"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file,

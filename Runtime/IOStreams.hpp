@@ -12,11 +12,41 @@ namespace urde
 using CInputStream = athena::io::IStreamReader;
 using COutputStream = athena::io::IStreamWriter;
 
-struct DecryptionCtx
+struct CBitStreamReader : athena::io::MemoryCopyReader
 {
-    s32 x1c_encVal;
-    s32 x20_encShift;
-    s32 DecryptRead(CInputStream& in, s32 key);
+    u32 x1c_val = 0;
+    u32 x20_bitOffset = 0;
+public:
+    static s32 GetBitCount(s32 unk)
+    {
+        s32 ret = 0;
+        while (unk != 0)
+        {
+            unk /= 2;
+            ret++;
+        }
+
+        return ret;
+    }
+
+    CBitStreamReader(const void* data, atUint64 length)
+        : MemoryCopyReader(data, length)
+    {
+    }
+
+    CBitStreamReader(const std::string& filename)
+        : MemoryCopyReader(filename)
+    {
+    }
+
+    atUint64 readUBytesToBuf(void *buf, atUint64 len)
+    {
+        x20_bitOffset = 0;
+        atUint64 tmp = MemoryCopyReader::readUBytesToBuf(buf, len);
+        return tmp;
+    }
+
+    s32 ReadEncoded(u32 key);
 };
 
 using CMemoryInStream = athena::io::MemoryReader;

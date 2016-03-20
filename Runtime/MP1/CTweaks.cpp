@@ -34,14 +34,14 @@ void CTweaks::RegisterTweaks()
     std::unique_ptr<CInputStream> strm;
 
     strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "Game"), nullptr));
-    TOneStatic<DNAMP1::CTweakGame> game(*strm);
+    TOneStatic<DataSpec::DNAMP1::CTweakGame> game(*strm);
     g_tweakGame = game.GetAllocSpace();
     strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "Player"), nullptr));
-    TOneStatic<DNAMP1::CTweakPlayer> player(*strm);
+    TOneStatic<DataSpec::DNAMP1::CTweakPlayer> player(*strm);
     g_tweakPlayer = player.GetAllocSpace();
 
     strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "PlayerControls"), nullptr));
-    TOneStatic<DNAMP1::CTweakPlayerControl> playerControl(*strm);
+    TOneStatic<DataSpec::DNAMP1::CTweakPlayerControl> playerControl(*strm);
     g_tweakPlayerControl = playerControl.GetAllocSpace();
 #endif
 }

@@ -19,7 +19,7 @@ class CGameState
     CGameOptions m_gameOpts;
 public:
     CGameState() {}
-    CGameState(CInputStream& stream);
+    CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
     CWorldTransManager& WorldTransitionManager() {return m_transManager;}
 };
