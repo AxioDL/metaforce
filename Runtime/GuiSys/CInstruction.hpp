@@ -3,12 +3,14 @@
 
 #include "CToken.hpp"
 #include "CGuiTextSupport.hpp"
+#include "CFontImageDef.hpp"
 #include <vector>
 
 namespace urde
 {
 class CFontRenderState;
 class CTextRenderBuffer;
+class CFontImageDef;
 
 class CInstruction
 {
@@ -60,6 +62,7 @@ public:
 class CLineInstruction : public CInstruction
 {
     friend class CTextExecuteBuffer;
+    friend class CTextInstruction;
     s32 x4_ = 0;
     s32 x8_curX = 0;
     s32 xc_curY = 0;
@@ -71,7 +74,7 @@ class CLineInstruction : public CInstruction
 public:
     CLineInstruction(EJustification just, EVerticalJustification vjust)
     : x1c_just(just), x20_vjust(vjust) {}
-    void TestLargestFont(s32 w, s32 h, s32 b);
+    void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
     void InvokeLTR(CFontRenderState& state) const;
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
@@ -106,38 +109,45 @@ public:
 
 class CImageInstruction : public CInstruction
 {
+    CFontImageDef x0_image;
 public:
+    CImageInstruction(const CFontImageDef& image) : x0_image(image) {}
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CTextInstruction : public CInstruction
 {
+    std::wstring x4_str; /* used to be a placement-new sized allocation */
 public:
-    CTextInstruction(const wchar_t* str, int len);
+    CTextInstruction(const wchar_t* str, int len) : x4_str(str, len) {}
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CBlockInstruction : public CInstruction
 {
     friend class CTextExecuteBuffer;
-    s32 x4_;
-    s32 x8_;
-    s32 xc_;
-    s32 x10_;
+    friend class CLineInstruction;
+    s32 x4_offsetX;
+    s32 x8_offsetY;
+    s32 xc_blockPaddingX;
+    s32 x10_blockPaddingY;
     ETextDirection x14_direction;
     EJustification x18_justification;
     EVerticalJustification x1c_vertJustification;
-    s32 x20_ = 0;
-    s32 x24_ = 0;
-    s32 x28_ = 0;
-    s32 x2c_ = 0;
+    s32 x20_largestMonoW = 0;
+    s32 x24_largestMonoH = 0;
+    s32 x28_largestBaseline = 0;
+    s32 x2c_lineX = 0;
     s32 x30_lineY = 0;
     s32 x34_lineCount = 0;
 public:
-    CBlockInstruction(s32 a, s32 b, s32 c, s32 d, ETextDirection dir,
+    CBlockInstruction(s32 offX, s32 offY, s32 padX, s32 padY, ETextDirection dir,
                       EJustification just, EVerticalJustification vjust)
-    : x4_(a), x8_(b), xc_(c), x10_(d), x14_direction(dir),
+    : x4_offsetX(offX), x8_offsetY(offY),
+      xc_blockPaddingX(padX), x10_blockPaddingY(padY), x14_direction(dir),
       x18_justification(just), x1c_vertJustification(vjust) {}
+    void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
+    void SetupPositionLTR(CFontRenderState& state) const;
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 

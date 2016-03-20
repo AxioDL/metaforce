@@ -13,7 +13,9 @@ class CDrawStringOptions
     friend class CColorOverrideInstruction;
     friend class CFontRenderState;
     friend class CRasterFont;
-    u32 x0_ = 0;
+    friend class CTextExecuteBuffer;
+    friend class CBlockInstruction;
+    ETextDirection x0_direction = ETextDirection::Horizontal;
     std::vector<CTextColor> x4_vec;
 public:
     CDrawStringOptions()

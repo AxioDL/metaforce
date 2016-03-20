@@ -164,6 +164,10 @@ public:
         Lock();
         return x0_objRef->GetObject();
     }
+    const IObj* GetObj() const
+    {
+        return ((CToken*)this)->GetObj();
+    }
     CToken& operator=(const CToken& other)
     {
         Unlock();
@@ -246,6 +250,10 @@ public:
         if (CToken::GetObj())
             return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();
         return nullptr;
+    }
+    const T* GetObj() const
+    {
+        return ((TToken<T>*)this)->GetObj();
     }
     T* operator->() {return GetObj();}
 };

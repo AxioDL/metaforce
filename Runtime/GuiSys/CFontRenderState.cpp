@@ -59,9 +59,9 @@ void CFontRenderState::RefreshColor(EColorType tp)
     switch (tp)
     {
     case EColorType::Zero:
-        if (!x14_token)
+        if (!x14_font)
             return;
-        switch (x14_token.GetObj()->GetMode())
+        switch (x14_font.GetObj()->GetMode())
         {
         case EColorType::Zero:
             if (!x30_[0])
@@ -75,11 +75,11 @@ void CFontRenderState::RefreshColor(EColorType tp)
         }
         break;
     case EColorType::One:
-        if (!x14_token)
+        if (!x14_font)
             return;
         if (x30_[1])
             return;
-        if (x14_token.GetObj()->GetMode() == EColorType::One)
+        if (x14_font.GetObj()->GetMode() == EColorType::One)
             x0_drawStrOpts.x4_vec[1] = ConvertToTextureSpace(x20_[1]);
         break;
     case EColorType::Two:

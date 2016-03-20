@@ -11,10 +11,11 @@ class CTexture;
 
 class CFontImageDef
 {
+public:
     float x0_interval;
     std::vector<TToken<CTexture>> x4_texs;
-    zeus::CVector2f x14_;
-public:
+    zeus::CVector2f x14_pointsPerTexel;
+
     CFontImageDef(std::vector<TToken<CTexture>>&& texs, float interval,
                   const zeus::CVector2f& vec);
     CFontImageDef(TToken<CTexture>&& tex, const zeus::CVector2f& vec);

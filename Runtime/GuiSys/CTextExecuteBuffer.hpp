@@ -36,9 +36,9 @@ public:
 
     CTextRenderBuffer CreateTextRenderBuffer() const;
     std::vector<CToken> GetAssets() const;
-    void AddString(const wchar_t* str, int);
-    void AddStringFragment(const wchar_t* str, int);
-    int WrapOneLTR(const wchar_t* str, int);
+    void AddString(const wchar_t* str, int len);
+    void AddStringFragment(const wchar_t* str, int len);
+    int WrapOneLTR(const wchar_t* str, int len);
     void MoveWordLTR();
     void StartNewLine();
     void StartNewWord();
@@ -46,16 +46,18 @@ public:
     void TerminateLineLTR();
     void AddPopState();
     void AddPushState();
-    void AddVerticalJustification(EVerticalJustification);
-    void AddJustification(EJustification);
+    void AddVerticalJustification(EVerticalJustification vjust);
+    void AddJustification(EJustification just);
     void AddLineExtraSpace(s32 space);
-    void AddLineSpacing(float);
-    void AddRemoveColorOverride(int);
-    void AddColorOverride(int, const CTextColor& color);
+    void AddLineSpacing(float spacing);
+    void AddRemoveColorOverride(int idx);
+    void AddColorOverride(int idx, const CTextColor& color);
     void AddColor(EColorType, const CTextColor& color);
     void AddImage(const CFontImageDef& image);
     void EndBlock();
-    void BeginBlock(int,int,int,int,ETextDirection,EJustification,EVerticalJustification);
+    void BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
+                    ETextDirection dir, EJustification just,
+                    EVerticalJustification vjust);
     void Clear();
 };
 

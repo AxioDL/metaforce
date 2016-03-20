@@ -16,9 +16,10 @@ class CSaveableState
     friend class CColorOverrideInstruction;
     friend class CFontInstruction;
     friend class CLineExtraSpaceInstruction;
+    friend class CTextInstruction;
 protected:
     CDrawStringOptions x0_drawStrOpts;
-    TToken<CRasterFont> x14_token;
+    TToken<CRasterFont> x14_font;
     std::vector<CTextColor> x20_;
     std::vector<bool> x30_;
     float x40_lineSpacing = 1.f;

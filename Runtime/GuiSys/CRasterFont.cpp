@@ -90,7 +90,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
         const CGlyph* glyph = GetGlyph(*chr);
         if (glyph)
         {
-            if (opts.x0_ == 0)
+            if (opts.x0_direction == ETextDirection::Horizontal)
             {
                 x += glyph->GetA();
 
@@ -123,7 +123,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
 
 void CRasterFont::DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const
 {
-    if (opts.x0_ != 0)
+    if (opts.x0_direction != ETextDirection::Horizontal)
         return;
 
     xout = x + len;
@@ -166,7 +166,7 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
 
         if (glyph)
         {
-            if (opts.x0_ == 0)
+            if (opts.x0_direction == ETextDirection::Horizontal)
             {
                 int advance = 0;
                 if (prevGlyph)
