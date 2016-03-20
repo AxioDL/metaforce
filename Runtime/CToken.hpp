@@ -34,6 +34,9 @@ public:
     /** Indicates an asynchronous load transaction has been submitted and is not yet finished */
     bool IsLoading() const {return x3_loading;}
 
+    /** Indicates an asynchronous load transaction has finished and object is completely loaded */
+    bool IsLoaded() const {return x10_object != nullptr;}
+
     /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
     void Unlock()
     {
@@ -139,6 +142,12 @@ public:
             x0_objRef->Lock();
             x4_lockHeld = true;
         }
+    }
+    bool IsLoaded() const
+    {
+        if (!x0_objRef)
+            return false;
+        return x0_objRef->IsLoaded();
     }
     void RemoveRef()
     {

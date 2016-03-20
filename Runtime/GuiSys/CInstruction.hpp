@@ -49,73 +49,92 @@ public:
     size_t GetAssetCount() const;
 };
 
-class CExtraLineSpaceInstruction : public CInstruction
+class CLineExtraSpaceInstruction : public CInstruction
 {
     s32 x4_extraSpace;
 public:
-    CExtraLineSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
+    CLineExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CLineInstruction : public CInstruction
 {
-    u32 x4_ = 0;
-    u32 x8_ = 0;
-    u32 xc_ = 0;
-    u32 x10_ = 0;
-    u32 x14_ = 0;
-    u32 x18_ = 0;
-    u32 x1c_;
-    u32 x20_;
+    friend class CTextExecuteBuffer;
+    s32 x4_ = 0;
+    s32 x8_curX = 0;
+    s32 xc_curY = 0;
+    s32 x10_largestMonoHeight = 0;
+    s32 x14_largestMonoWidth = 0;
+    s32 x18_largestBaseline = 0;
+    EJustification x1c_just;
+    EVerticalJustification x20_vjust;
 public:
-    CLineInstruction(u32 a, u32 b) : x1c_(a), x20_(b) {}
-    void TestLargestFont(int, int, int);
+    CLineInstruction(EJustification just, EVerticalJustification vjust)
+    : x1c_just(just), x20_vjust(vjust) {}
+    void TestLargestFont(s32 w, s32 h, s32 b);
     void InvokeLTR(CFontRenderState& state) const;
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CLineSpacingInstruction : public CInstruction
 {
+    float x4_lineSpacing;
+public:
+    CLineSpacingInstruction(float spacing) : x4_lineSpacing(spacing) {}
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CPopStateInstruction : public CInstruction
 {
+public:
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CPushStateInstruction : public CInstruction
 {
+public:
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CRemoveColorOverrideInstruction : public CInstruction
 {
+    int x4_idx;
+public:
+    CRemoveColorOverrideInstruction(int idx) : x4_idx(idx) {}
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CImageInstruction : public CInstruction
 {
+public:
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CTextInstruction : public CInstruction
 {
+public:
+    CTextInstruction(const wchar_t* str, int len);
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 class CBlockInstruction : public CInstruction
 {
     friend class CTextExecuteBuffer;
-    int x4_;
-    int x8_;
-    int xc_;
-    int x10_;
+    s32 x4_;
+    s32 x8_;
+    s32 xc_;
+    s32 x10_;
     ETextDirection x14_direction;
     EJustification x18_justification;
     EVerticalJustification x1c_vertJustification;
-    int x20_ = 0;
-    int x24_ = 0;
-    int x28_ = 0;
-    int x2c_ = 0;
-    int x30_ = 0;
-    int x34_wordCount = 0;
+    s32 x20_ = 0;
+    s32 x24_ = 0;
+    s32 x28_ = 0;
+    s32 x2c_ = 0;
+    s32 x30_lineY = 0;
+    s32 x34_lineCount = 0;
 public:
-    CBlockInstruction(int a, int b, int c, int d, ETextDirection dir,
+    CBlockInstruction(s32 a, s32 b, s32 c, s32 d, ETextDirection dir,
                       EJustification just, EVerticalJustification vjust)
     : x4_(a), x8_(b), xc_(c), x10_(d), x14_direction(dir),
       x18_justification(just), x1c_vertJustification(vjust) {}
@@ -124,6 +143,8 @@ public:
 
 class CWordInstruction : public CInstruction
 {
+public:
+    void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
 }

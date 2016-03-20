@@ -1,0 +1,190 @@
+#include "CWordBreakTables.hpp"
+
+namespace urde
+{
+
+struct CCharacterIdentifier
+{
+    wchar_t chr;
+    u32 rank;
+};
+
+static const CCharacterIdentifier gCantBeginChars[]=
+{
+    {0x21, 1},
+    {0x29, 1},
+    {0x2C, 1},
+    {0x2D, 1},
+    {0x2E, 1},
+    {0x3A, 1},
+    {0x3B, 1},
+    {0x3F, 1},
+    {0x5D, 1},
+    {0x7D, 1},
+    {0x92, 1},
+    {0x94, 1},
+    {0xBB, 1},
+    {0x3001, 1},
+    {0x3002, 1},
+    {0x3005, 1},
+    {0x300D, 1},
+    {0x300F, 1},
+    {0x3011, 1},
+    {0x3015, 1},
+    {0x3017, 1},
+    {0x3019, 1},
+    {0x301B, 1},
+    {0x301C, 3},
+    {0x301E, 1},
+    {0x302B, 3},
+    {0x3041, 2},
+    {0x3043, 2},
+    {0x3045, 2},
+    {0x3047, 2},
+    {0x3049, 2},
+    {0x3063, 2},
+    {0x3083, 2},
+    {0x3085, 2},
+    {0x3087, 2},
+    {0x308E, 2},
+    {0x309D, 3},
+    {0x309E, 3},
+    {0x30A1, 2},
+    {0x30A3, 2},
+    {0x30A5, 2},
+    {0x30A7, 2},
+    {0x30A9, 2},
+    {0x30C3, 2},
+    {0x30E3, 2},
+    {0x30E5, 2},
+    {0x30E7, 2},
+    {0x30EE, 2},
+    {0x30F5, 2},
+    {0x30F6, 2},
+    {0x30FC, 2},
+    {0x30FD, 3},
+    {0x30FE, 3},
+    {0xFF01, 1},
+    {0xFF05, 3},
+    {0xFF09, 1},
+    {0xFF0D, 1},
+    {0xFF3D, 1},
+    {0xFF5D, 1},
+    {0xFF61, 1},
+    {0xFF63, 1},
+    {0xFF64, 1},
+    {0xFF1F, 1}
+};
+
+static const CCharacterIdentifier gCantEndChars[] =
+{
+    {0x23, 2},
+    {0x24, 2},
+    {0x28, 1},
+    {0x40, 2},
+    {0x42, 4},
+    {0x43, 4},
+    {0x44, 4},
+    {0x46, 4},
+    {0x47, 4},
+    {0x48, 4},
+    {0x4A, 4},
+    {0x4B, 4},
+    {0x4C, 4},
+    {0x4D, 4},
+    {0x4E, 4},
+    {0x50, 4},
+    {0x51, 4},
+    {0x52, 4},
+    {0x53, 4},
+    {0x54, 4},
+    {0x56, 4},
+    {0x57, 4},
+    {0x58, 4},
+    {0x59, 4},
+    {0x5A, 4},
+    {0x62, 4},
+    {0x63, 4},
+    {0x64, 4},
+    {0x66, 4},
+    {0x67, 4},
+    {0x68, 4},
+    {0x6A, 4},
+    {0x6B, 4},
+    {0x6C, 4},
+    {0x6D, 4},
+    {0x6E, 4},
+    {0x70, 4},
+    {0x71, 4},
+    {0x72, 4},
+    {0x73, 4},
+    {0x74, 4},
+    {0x76, 4},
+    {0x77, 4},
+    {0x78, 4},
+    {0x79, 4},
+    {0x7A, 4},
+    {0xD1, 4},
+    {0xF1, 4},
+    {0x5B, 1},
+    {0x7B, 1},
+    {0x91, 1},
+    {0x93, 1},
+    {0x91, 1},
+    {0x93, 1},
+    {0xA2, 2},
+    {0xA3, 2},
+    {0xA5, 2},
+    {0xA7, 2},
+    {0xA9, 2},
+    {0xAB, 1},
+    {0x20A0, 2},
+    {0x20A1, 2},
+    {0x20A2, 2},
+    {0x20A3, 2},
+    {0x20A4, 2},
+    {0x20A5, 2},
+    {0x20A6, 2},
+    {0x20A7, 2},
+    {0x20A8, 2},
+    {0x20A9, 2},
+    {0x20AA, 2},
+    {0x20AB, 2},
+    {0x20AC, 2},
+    {0x300C, 1},
+    {0x300E, 1},
+    {0x3010, 1},
+    {0x3012, 2},
+    {0x3014, 1},
+    {0x3016, 1},
+    {0x3018, 1},
+    {0x301A, 1},
+    {0xFF03, 2},
+    {0xFF04, 2},
+    {0xFF20, 2},
+    {0xFF3C, 1},
+    {0xFF5C, 1},
+    {0xFFE0, 2},
+    {0xFFE1, 2},
+    {0xFFEF, 2},
+};
+
+int CWordBreakTables::GetBeginRank(wchar_t ch)
+{
+    auto search = std::lower_bound(std::cbegin(gCantBeginChars), std::cend(gCantBeginChars), ch,
+    [](const CCharacterIdentifier& item, const wchar_t& test) -> bool {return item.chr < test;});
+    if (search == std::cend(gCantBeginChars))
+        return 5;
+    return search->rank;
+}
+
+int CWordBreakTables::GetEndRank(wchar_t ch)
+{
+    auto search = std::lower_bound(std::cbegin(gCantEndChars), std::cend(gCantEndChars), ch,
+    [](const CCharacterIdentifier& item, const wchar_t& test) -> bool {return item.chr < test;});
+    if (search == std::cend(gCantEndChars))
+        return 5;
+    return search->rank;
+}
+
+}

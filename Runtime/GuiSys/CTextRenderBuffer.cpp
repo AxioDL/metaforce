@@ -27,11 +27,6 @@ void CTextRenderBuffer::GetOutStream()
 {
 }
 
-void CTextRenderBuffer::SetMode(EMode mode)
-{
-    x0_mode = mode;
-}
-
 void CTextRenderBuffer::VerifyBuffer()
 {
     if (x34_blob.empty())

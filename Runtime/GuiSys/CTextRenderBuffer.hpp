@@ -44,7 +44,7 @@ public:
     void SetPrimitive(const Primitive&, int);
     Primitive GetPrimitive(int) const;
     void GetOutStream();
-    void SetMode(EMode mode);
+    void SetMode(EMode mode) {x0_mode = mode;}
     void VerifyBuffer();
     void Render(const zeus::CColor& col, float) const;
     void AddImage(const zeus::CVector2i& vec, const CFontImageDef&);

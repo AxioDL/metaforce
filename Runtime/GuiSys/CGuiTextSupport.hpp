@@ -13,10 +13,13 @@ class CRasterFont;
 
 enum class EJustification
 {
+    Zero = 0
 };
 
 enum class EVerticalJustification
 {
+    Zero = 0,
+    Three = 3
 };
 
 enum class EColorType
@@ -30,6 +33,8 @@ enum class EColorType
 
 enum class ETextDirection
 {
+    Horizontal,
+    Vertical
 };
 
 using CTextColor = zeus::CColor;

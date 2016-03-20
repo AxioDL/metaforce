@@ -43,13 +43,24 @@ size_t CFontInstruction::GetAssetCount() const
     return 1;
 }
 
-void CExtraLineSpaceInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+void CLineExtraSpaceInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.x44_extraLineSpace = x4_extraSpace;
 }
 
-void CLineInstruction::TestLargestFont(int, int, int)
+void CLineInstruction::TestLargestFont(s32 w, s32 h, s32 b)
 {
+    if (!x18_largestBaseline)
+        x18_largestBaseline = b;
+
+    if (x14_largestMonoWidth < w)
+        w = x14_largestMonoWidth;
+
+    if (x10_largestMonoHeight < h)
+    {
+        x10_largestMonoHeight = h;
+        x18_largestBaseline = b;
+    }
 }
 
 void CLineInstruction::InvokeLTR(CFontRenderState& state) const
@@ -61,6 +72,14 @@ void CLineInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) c
     InvokeLTR(state);
     state.xa0_ = true;
     state.x74_currentLineInst = this;
+}
+
+CTextInstruction::CTextInstruction(const wchar_t* str, int len)
+{
+}
+
+void CTextInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
 }
 
 }
