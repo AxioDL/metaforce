@@ -29,12 +29,9 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
         if (x20_bitOffset != 32)
             baseVal = (1 << x20_bitOffset) - 1;
 
-        u32 bit = diff & 7;
-        baseVal &= (x1c_val >> (32 - x20_bitOffset));
-        baseVal <<= diff;
+        baseVal = (baseVal & (x1c_val >> (32 - x20_bitOffset))) << diff;
         x20_bitOffset = 0;
-        u32 count = (diff >> 3) + ((-bit | bit) >> 31);
-        readUBytesToBuf(&x1c_val, count);
+        readUBytesToBuf(&x1c_val, 4);
         /* The game uses Big Endian, which doesn't work for us */
         /* Little Endian sucks */
         athena::utility::BigUint32(x1c_val);
@@ -44,11 +41,45 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
             baseVal2 = (1 << diff) - 1;
 
         ret = baseVal | (baseVal2 & (x1c_val >> (32 - diff))) << x20_bitOffset;
-        x20_bitOffset = (count << 3) - diff;
+        x20_bitOffset = (4 << 3) - diff;
         x1c_val <<= diff;
     }
 
     return ret;
+}
+
+
+void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
+{
+    if (x18_bitOffset >= bitCount)
+    {
+        int baseVal = -1;
+        if (bitCount != 32)
+            baseVal = (1 << bitCount) - 1;
+        x14_val |= (val & baseVal) << (x18_bitOffset - bitCount);
+        x18_bitOffset -= bitCount;
+    }
+    else
+    {
+        u32 diff = bitCount - x18_bitOffset;
+        u32 baseVal = -1;
+        if (x18_bitOffset != 32)
+            baseVal = (1 << x18_bitOffset) - 1;
+
+        x14_val |= (val >> diff) & baseVal;
+        x18_bitOffset = 0;
+        u32 tmp = x14_val;
+        athena::utility::BigUint32(tmp);
+        writeBytes(&tmp, 4);
+
+        u32 rem = 32 - diff;
+        baseVal = -1;
+        if (diff != 32)
+            baseVal = (1 << diff) - 1;
+
+        x14_val = (val & baseVal) << rem;
+        x18_bitOffset -= diff;
+    }
 }
 
 class CZipSupport

@@ -17,12 +17,12 @@ struct CBitStreamReader : athena::io::MemoryCopyReader
     u32 x1c_val = 0;
     u32 x20_bitOffset = 0;
 public:
-    static s32 GetBitCount(s32 unk)
+    static s32 GetBitCount(s32 maxVal)
     {
         s32 ret = 0;
-        while (unk != 0)
+        while (maxVal != 0)
         {
-            unk /= 2;
+            maxVal /= 2;
             ret++;
         }
 
@@ -47,6 +47,32 @@ public:
     }
 
     s32 ReadEncoded(u32 key);
+};
+
+class CBitStreamWriter : public athena::io::MemoryCopyWriter
+{
+private:
+    u32 x14_val = 0;
+    u32 x18_bitOffset = 32;
+public:
+    static inline u32 GetBitCount(u32 maxVal) {  return CBitStreamReader::GetBitCount(maxVal); }
+
+    CBitStreamWriter(atUint8* data = nullptr, atUint64 length=0x10)
+        : MemoryCopyWriter(data, length)
+    {}
+
+    CBitStreamWriter(const std::string& filename)
+        : MemoryCopyWriter(filename)
+    {}
+
+    void writeUBytes(const atUint8 *data, atUint64 len)
+    {
+        x14_val = 0;
+        x18_bitOffset = 0x20;
+        MemoryCopyWriter::writeUBytes(data, len);
+    }
+
+    void WriteEncoded(u32 val, u32 bitCount);
 };
 
 using CMemoryInStream = athena::io::MemoryReader;
