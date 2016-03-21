@@ -425,6 +425,16 @@ static inline std::string Format(const char* format, ...)
     return std::string(resultBuf, printSz);
 }
 
+static inline std::wstring WideFormat(const wchar_t* format, ...)
+{
+    wchar_t resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+    int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+    va_end(va);
+    return std::wstring(resultBuf, printSz);
+}
+
 
 static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
 {
