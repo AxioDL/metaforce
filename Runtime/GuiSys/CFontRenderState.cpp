@@ -33,12 +33,12 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)
 {
     switch (tp)
     {
-    case EColorType::Zero:
-    case EColorType::One:
-    case EColorType::Two:
+    case EColorType::Main:
+    case EColorType::Outline:
+    case EColorType::Geometry:
         x20_[int(tp)] = col;
         break;
-    case EColorType::Three:
+    case EColorType::Foreground:
         x20_[0] = col;
         break;
     case EColorType::Four:
@@ -50,7 +50,7 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)
 
 void CFontRenderState::RefreshPalette()
 {
-    RefreshColor(EColorType::Three);
+    RefreshColor(EColorType::Foreground);
     RefreshColor(EColorType::Four);
 }
 
@@ -58,40 +58,40 @@ void CFontRenderState::RefreshColor(EColorType tp)
 {
     switch (tp)
     {
-    case EColorType::Zero:
+    case EColorType::Main:
         if (!x14_font)
             return;
         switch (x14_font.GetObj()->GetMode())
         {
-        case EColorType::Zero:
-            if (!x30_[0])
-                x0_drawStrOpts.x4_vec[0] = ConvertToTextureSpace(x20_[0]);
+        case EColorType::Main:
+            if (!x30_colorOverrides[0])
+                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x20_[0]);
             break;
-        case EColorType::One:
-            if (!x30_[0])
-                x0_drawStrOpts.x4_vec[0] = ConvertToTextureSpace(x20_[0]);
+        case EColorType::Outline:
+            if (!x30_colorOverrides[0])
+                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x20_[0]);
             break;
         default: break;
         }
         break;
-    case EColorType::One:
+    case EColorType::Outline:
         if (!x14_font)
             return;
-        if (x30_[1])
+        if (x30_colorOverrides[1])
             return;
-        if (x14_font.GetObj()->GetMode() == EColorType::One)
-            x0_drawStrOpts.x4_vec[1] = ConvertToTextureSpace(x20_[1]);
+        if (x14_font.GetObj()->GetMode() == EColorType::Outline)
+            x0_drawStrOpts.x4_colors[1] = ConvertToTextureSpace(x20_[1]);
         break;
-    case EColorType::Two:
-        if (!x30_[2])
-            x0_drawStrOpts.x4_vec[2] = ConvertToTextureSpace(x20_[2]);
+    case EColorType::Geometry:
+        if (!x30_colorOverrides[2])
+            x0_drawStrOpts.x4_colors[2] = ConvertToTextureSpace(x20_[2]);
         break;
-    case EColorType::Three:
-        RefreshColor(EColorType::Zero);
-        RefreshColor(EColorType::Two);
+    case EColorType::Foreground:
+        RefreshColor(EColorType::Main);
+        RefreshColor(EColorType::Geometry);
         break;
     case EColorType::Four:
-        RefreshColor(EColorType::One);
+        RefreshColor(EColorType::Outline);
         break;
     }
 }

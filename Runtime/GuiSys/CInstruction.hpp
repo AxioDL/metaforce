@@ -63,7 +63,10 @@ class CLineInstruction : public CInstruction
 {
     friend class CTextExecuteBuffer;
     friend class CTextInstruction;
-    s32 x4_ = 0;
+    friend class CImageInstruction;
+    friend class CWordInstruction;
+
+    s32 x4_wordCount = 0;
     s32 x8_curX = 0;
     s32 xc_curY = 0;
     s32 x10_largestMonoHeight = 0;
@@ -109,9 +112,9 @@ public:
 
 class CImageInstruction : public CInstruction
 {
-    CFontImageDef x0_image;
+    CFontImageDef x4_image;
 public:
-    CImageInstruction(const CFontImageDef& image) : x0_image(image) {}
+    CImageInstruction(const CFontImageDef& image) : x4_image(image) {}
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
@@ -127,6 +130,9 @@ class CBlockInstruction : public CInstruction
 {
     friend class CTextExecuteBuffer;
     friend class CLineInstruction;
+    friend class CImageInstruction;
+    friend class CWordInstruction;
+
     s32 x4_offsetX;
     s32 x8_offsetY;
     s32 xc_blockPaddingX;
@@ -154,6 +160,7 @@ public:
 class CWordInstruction : public CInstruction
 {
 public:
+    void InvokeLTR(CFontRenderState& state) const;
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 

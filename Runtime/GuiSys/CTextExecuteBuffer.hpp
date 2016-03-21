@@ -54,6 +54,7 @@ public:
     void AddColorOverride(int idx, const CTextColor& color);
     void AddColor(EColorType, const CTextColor& color);
     void AddImage(const CFontImageDef& image);
+    void AddFont(const TToken<CRasterFont>& font);
     void EndBlock();
     void BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
                     ETextDirection dir, EJustification just,

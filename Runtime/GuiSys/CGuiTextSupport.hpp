@@ -13,13 +13,13 @@ class CRasterFont;
 
 enum class EJustification
 {
-    Zero = 0,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
+    Left = 0,
+    Center,
+    Right,
+    Full,
+    NLeft,
+    NCenter,
+    NRight,
     Seven,
     Eight,
     Nine
@@ -27,13 +27,13 @@ enum class EJustification
 
 enum class EVerticalJustification
 {
-    Zero = 0,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
+    Top = 0,
+    Center,
+    Bottom,
+    Full,
+    NTop,
+    NCenter,
+    NBottom,
     Seven,
     Eight,
     Nine
@@ -41,10 +41,10 @@ enum class EVerticalJustification
 
 enum class EColorType
 {
-    Zero,
-    One,
-    Two,
-    Three,
+    Main,
+    Outline,
+    Geometry,
+    Foreground,
     Four
 };
 

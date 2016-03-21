@@ -34,10 +34,10 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     x80_texture = store.GetObj({'TXTR', txtrId});
     EColorType mode = EColorType(in.readUint32Big());
     /* TODO: Make an enum */
-    if (mode == EColorType::One)
-        x2c_mode = EColorType::One;
-    else if (mode == EColorType::Zero)
-        x2c_mode = EColorType::Zero;
+    if (mode == EColorType::Outline)
+        x2c_mode = EColorType::Outline;
+    else if (mode == EColorType::Main)
+        x2c_mode = EColorType::Main;
 
     u32 glyphCount = in.readUint32Big();
     xc_glyphs.reserve(glyphCount);
@@ -103,7 +103,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
                 {
                     left += x;
                     top += glyph->GetBaseline() - y;
-                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_vec[0]);
+                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_colors[0]);
                 }
                 x += glyph->GetC() + glyph->GetB();
             }

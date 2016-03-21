@@ -111,7 +111,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
     if (x18_textState.x48_)
     {
         if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockPaddingX &&
-            x70_curLine->x4_ > 1 &&
+            x70_curLine->x4_wordCount > 1 &&
             x7c_curX + w < x6c_curBlock->xc_blockPaddingX)
         {
             MoveWordLTR();
@@ -167,7 +167,7 @@ void CTextExecuteBuffer::MoveWordLTR()
 {
     x70_curLine->xc_curY = std::min(x70_curLine->xc_curY, x84_);
     x88_spaceDistance = 0;
-    --x70_curLine->x4_;
+    --x70_curLine->x4_wordCount;
     TerminateLineLTR();
 
     x70_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(x74_curWordIt,
@@ -198,7 +198,7 @@ void CTextExecuteBuffer::StartNewWord()
     x78_curY = 0;
     x80_ = x70_curLine->x8_curX;
     x84_ = x70_curLine->xc_curY;
-    ++x70_curLine->x4_;
+    ++x70_curLine->x4_wordCount;
 }
 
 void CTextExecuteBuffer::TerminateLine()
@@ -214,7 +214,7 @@ void CTextExecuteBuffer::TerminateLineLTR()
         x70_curLine->xc_curY = x70_curLine->x10_largestMonoHeight;
     }
 
-    if (x6c_curBlock->x1c_vertJustification == EVerticalJustification::Three)
+    if (x6c_curBlock->x1c_vertJustification == EVerticalJustification::Full)
     {
         x6c_curBlock->x30_lineY += x70_curLine->xc_curY;
     }
@@ -310,6 +310,22 @@ void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
     }
 
     x0_instList.emplace(x0_instList.cend(), new CImageInstruction(image));
+}
+
+void CTextExecuteBuffer::AddFont(const TToken<CRasterFont>& font)
+{
+    x0_instList.emplace(x0_instList.cend(), new CFontInstruction(font));
+    x18_textState.x14_font = font;
+
+    if (x6c_curBlock)
+        x6c_curBlock->TestLargestFont(font->GetMonoWidth(),
+                                      font->GetMonoHeight(),
+                                      font->GetBaseline());
+
+    if (x70_curLine)
+        x70_curLine->TestLargestFont(font->GetMonoWidth(),
+                                     font->GetMonoHeight(),
+                                     font->GetBaseline());
 }
 
 void CTextExecuteBuffer::EndBlock()

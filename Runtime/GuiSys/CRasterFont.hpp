@@ -95,7 +95,7 @@ class CRasterFont
     std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
     std::vector<CKernPair> x1c_kerning;
     s32 x28_lineMargin = 0;
-    EColorType x2c_mode = EColorType::Zero;
+    EColorType x2c_mode = EColorType::Main;
     CFontInfo x30_fontInfo;
     TLockedToken<CTexture> x80_texture;
     bool x88_ = false;

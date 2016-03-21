@@ -2,6 +2,7 @@
 #include "CFontRenderState.hpp"
 #include "CTextRenderBuffer.hpp"
 #include "CRasterFont.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
@@ -22,9 +23,9 @@ void CColorInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
 
 void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x30_[x4_overrideIdx] = true;
+    state.x30_colorOverrides[x4_overrideIdx] = true;
     zeus::CColor convCol = state.ConvertToTextureSpace(x8_color);
-    state.x0_drawStrOpts.x4_vec[x4_overrideIdx] = convCol;
+    state.x0_drawStrOpts.x4_colors[x4_overrideIdx] = convCol;
 }
 
 void CFontInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -68,19 +69,19 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
 {
     switch (x1c_just)
     {
-    case EJustification::Zero:
-    case EJustification::Three:
-    case EJustification::Four:
+    case EJustification::Left:
+    case EJustification::Full:
+    case EJustification::NLeft:
     case EJustification::Seven:
         state.x6c_curX = state.x54_curBlock->x4_offsetX;
         break;
-    case EJustification::One:
+    case EJustification::Center:
     case EJustification::Eight:
         state.x6c_curX = state.x54_curBlock->x4_offsetX +
             state.x54_curBlock->xc_blockPaddingX / 2 - x8_curX / 2;
         break;
-    case EJustification::Five:
-        if (x4_ == 1)
+    case EJustification::NCenter:
+        if (x4_wordCount == 1)
         {
             state.x6c_curX = state.x54_curBlock->x4_offsetX +
                 state.x54_curBlock->xc_blockPaddingX / 2 - x8_curX / 2;
@@ -92,12 +93,12 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
                 state.x54_curBlock->x2c_lineX / 2;
         }
         break;
-    case EJustification::Two:
+    case EJustification::Right:
     case EJustification::Nine:
         state.x6c_curX = state.x54_curBlock->x4_offsetX +
             state.x54_curBlock->xc_blockPaddingX - x8_curX;
         break;
-    case EJustification::Six:
+    case EJustification::NRight:
         state.x6c_curX = state.x54_curBlock->x4_offsetX +
             state.x54_curBlock->xc_blockPaddingX -
             state.x54_curBlock->x2c_lineX;
@@ -111,15 +112,15 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
         s32 val = 0;
         switch (state.x54_curBlock->x1c_vertJustification)
         {
-        case EVerticalJustification::Zero:
-        case EVerticalJustification::One:
-        case EVerticalJustification::Two:
-        case EVerticalJustification::Four:
-        case EVerticalJustification::Five:
-        case EVerticalJustification::Six:
+        case EVerticalJustification::Top:
+        case EVerticalJustification::Center:
+        case EVerticalJustification::Bottom:
+        case EVerticalJustification::NTop:
+        case EVerticalJustification::NCenter:
+        case EVerticalJustification::NBottom:
             val = inst.xc_curY;
             break;
-        case EVerticalJustification::Three:
+        case EVerticalJustification::Full:
             val = state.x54_curBlock->x10_blockPaddingY - state.x54_curBlock->x30_lineY;
             if (state.x54_curBlock->x34_lineCount > 1)
                 val /= state.x54_curBlock->x34_lineCount - 1;
@@ -139,7 +140,7 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
             break;
         }
 
-        if (state.x54_curBlock->x1c_vertJustification != EVerticalJustification::Three)
+        if (state.x54_curBlock->x1c_vertJustification != EVerticalJustification::Full)
             val = val * state.x40_lineSpacing + state.x44_extraLineSpace;
 
         state.x70_curY += val;
@@ -149,8 +150,47 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
 void CLineInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     InvokeLTR(state);
-    state.xa0_ = true;
+    state.xa0_lineInitialized = true;
     state.x74_currentLineInst = this;
+}
+
+void CLineSpacingInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    state.x40_lineSpacing = x4_lineSpacing;
+}
+
+void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    state.PopState();
+}
+
+void CPushStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    state.PushState();
+}
+
+void CRemoveColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    state.x30_colorOverrides[x4_idx] = false;
+}
+
+void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    if (x4_image.IsLoaded() && x4_image.x4_texs.size())
+    {
+        if (state.x54_curBlock->x14_direction == ETextDirection::Horizontal)
+        {
+            const CTexture* tex = x4_image.x4_texs[0].GetObj();
+            if (buf)
+            {
+                zeus::CVector2i coords(state.x6c_curX,
+                state.x70_curY + state.x74_currentLineInst->x18_largestBaseline -
+                tex->GetHeight() * x4_image.x14_pointsPerTexel.y * 2 / 3);
+                buf->AddImage(coords, x4_image);
+            }
+            state.x6c_curX += tex->GetWidth() * x4_image.x14_pointsPerTexel.x;
+        }
+    }
 }
 
 void CTextInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -181,21 +221,21 @@ void CBlockInstruction::SetupPositionLTR(CFontRenderState& state) const
 {
     switch (x1c_vertJustification)
     {
-    case EVerticalJustification::Zero:
-    case EVerticalJustification::Three:
-    case EVerticalJustification::Four:
+    case EVerticalJustification::Top:
+    case EVerticalJustification::Full:
+    case EVerticalJustification::NTop:
     case EVerticalJustification::Seven:
         state.x70_curY = x8_offsetY;
         break;
-    case EVerticalJustification::One:
-    case EVerticalJustification::Five:
+    case EVerticalJustification::Center:
+    case EVerticalJustification::NCenter:
         state.x70_curY = x8_offsetY + (x10_blockPaddingY - x30_lineY) / 2;
         break;
     case EVerticalJustification::Eight:
         state.x70_curY = x8_offsetY + (x10_blockPaddingY - x34_lineCount * x24_largestMonoH) / 2;
         break;
-    case EVerticalJustification::Two:
-    case EVerticalJustification::Six:
+    case EVerticalJustification::Bottom:
+    case EVerticalJustification::NBottom:
         state.x70_curY = x8_offsetY + x10_blockPaddingY - x30_lineY;
         break;
     case EVerticalJustification::Nine:
@@ -210,6 +250,45 @@ void CBlockInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
     state.x54_curBlock = (CBlockInstruction*)this;
     if (x14_direction == ETextDirection::Horizontal)
         SetupPositionLTR(state);
+}
+
+void CWordInstruction::InvokeLTR(CFontRenderState& state) const
+{
+    CRasterFont* font = state.x14_font.GetObj();
+    wchar_t space = L' ';
+    int w, h;
+    font->GetSize(state.x0_drawStrOpts, w, h, &space, 1);
+
+    const CLineInstruction& inst = *state.x74_currentLineInst;
+    switch (state.x54_curBlock->x18_justification)
+    {
+    case EJustification::Full:
+        w += (state.x54_curBlock->xc_blockPaddingX - inst.x8_curX) / (inst.x4_wordCount - 1);
+        break;
+    case EJustification::NLeft:
+    case EJustification::NCenter:
+    case EJustification::NRight:
+        w += (state.x54_curBlock->x2c_lineX - inst.x8_curX) / (inst.x4_wordCount - 1);
+        break;
+    default: break;
+    }
+
+    int wOut = state.x6c_curX;
+    font->DrawSpace(state.x0_drawStrOpts, wOut,
+                    inst.xc_curY - font->GetMonoHeight() + state.x70_curY, wOut, h, w);
+    state.x6c_curX = wOut;
+}
+
+void CWordInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    if (state.xa0_lineInitialized)
+    {
+        state.xa0_lineInitialized = false;
+        return;
+    }
+
+    if (state.x0_drawStrOpts.x0_direction == ETextDirection::Horizontal)
+        InvokeLTR(state);
 }
 
 }

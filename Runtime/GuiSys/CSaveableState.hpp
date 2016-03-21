@@ -17,22 +17,25 @@ class CSaveableState
     friend class CFontInstruction;
     friend class CLineExtraSpaceInstruction;
     friend class CTextInstruction;
+    friend class CLineSpacingInstruction;
+    friend class CRemoveColorOverrideInstruction;
+    friend class CWordInstruction;
 protected:
     CDrawStringOptions x0_drawStrOpts;
     TToken<CRasterFont> x14_font;
     std::vector<CTextColor> x20_;
-    std::vector<bool> x30_;
+    std::vector<bool> x30_colorOverrides;
     float x40_lineSpacing = 1.f;
     s32 x44_extraLineSpace = 0;
     bool x48_ = false;
-    EJustification x4c_just = EJustification::Zero;
-    EVerticalJustification x50_vjust = EVerticalJustification::Zero;
+    EJustification x4c_just = EJustification::Left;
+    EVerticalJustification x50_vjust = EVerticalJustification::Top;
 
 public:
     CSaveableState()
     {
         x20_.resize(3, zeus::CColor::skBlack);
-        x30_.resize(16);
+        x30_colorOverrides.resize(16);
     }
 };
 
