@@ -12,17 +12,20 @@ class CFontImageDef;
 class CGraphicsPalette;
 class CRasterFont;
 
+using CTextColor = zeus::CColor;
+
 class CTextRenderBuffer
 {
+    friend class CGuiTextSupport;
 public:
     struct Primitive
     {
-        u32 x0_;
+        CTextColor x0_color1;
         u32 x4_;
         u16 x8_;
         u16 xa_;
         u16 xc_;
-        u16 xe_;
+        u8 xe_;
     };
     enum class EMode
     {

@@ -34,6 +34,7 @@
 #include "CArchitectureQueue.hpp"
 #include "MP1.hpp"
 #include "CTimeProvider.hpp"
+#include "GuiSys/CTextExecuteBuffer.hpp"
 
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"

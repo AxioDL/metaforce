@@ -20,6 +20,7 @@ class CSaveableState
     friend class CLineSpacingInstruction;
     friend class CRemoveColorOverrideInstruction;
     friend class CWordInstruction;
+    friend class CGuiTextSupport;
 protected:
     CDrawStringOptions x0_drawStrOpts;
     TToken<CRasterFont> x14_font;
@@ -27,7 +28,7 @@ protected:
     std::vector<bool> x30_colorOverrides;
     float x40_lineSpacing = 1.f;
     s32 x44_extraLineSpace = 0;
-    bool x48_ = false;
+    bool x48_enableWordWrap = false;
     EJustification x4c_just = EJustification::Left;
     EVerticalJustification x50_vjust = EVerticalJustification::Top;
 

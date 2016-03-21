@@ -20,6 +20,7 @@ class CSimplePool;
 class CGuiWidget;
 class CGuiFrame;
 class CTextParser;
+class CTextExecuteBuffer;
 
 typedef CGuiObject*(*FGuiFactoryFunc)(const SObjectTag&, const CVParamTransfer&);
 
@@ -50,7 +51,7 @@ private:
     CGuiFactoryMgr x8_factoryMgr;
     std::unordered_map<EPhysicalControllerID, CGuiAutoRepeatData> x18_repeatMap;
     EUsageMode x2c_mode;
-    std::stack<CSaveableState, std::vector<CSaveableState>> x30_saveStack;
+    std::unique_ptr<CTextExecuteBuffer> x30_textExecuteBuf;
     std::unique_ptr<CTextParser> x34_textParser;
     CVParamTransfer x38_frameFactoryParams;
     std::chrono::time_point<std::chrono::steady_clock> x40_constructTime;
@@ -68,6 +69,12 @@ public:
 
 /** Global GuiSys instance */
 extern CGuiSys* g_GuiSys;
+
+/** Global CTextExecuteBuffer instance */
+extern CTextExecuteBuffer* g_TextExecuteBuf;
+
+/** Global CTextParser instance */
+extern CTextParser* g_TextParser;
 
 /** Parameter pack for FRME factory */
 struct CGuiResFrameData

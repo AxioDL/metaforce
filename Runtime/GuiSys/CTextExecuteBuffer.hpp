@@ -15,6 +15,8 @@ class CLineInstruction;
 
 class CTextExecuteBuffer
 {
+    friend class CGuiTextSupport;
+
     std::list<std::shared_ptr<CInstruction>> x0_instList;
     u32 x14_ = 0;
     CSaveableState x18_textState;

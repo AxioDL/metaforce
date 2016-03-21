@@ -16,11 +16,14 @@
 #include "CAuiEnergyBarT01.hpp"
 #include "CTextParser.hpp"
 #include "CSimplePool.hpp"
+#include "CTextExecuteBuffer.hpp"
 
 namespace urde
 {
 
 CGuiSys* g_GuiSys = nullptr;
+CTextExecuteBuffer* g_TextExecuteBuf = nullptr;
+CTextParser* g_TextParser = nullptr;
 
 void CGuiSys::AddFactories(EUsageMode /* mode */)
 {
@@ -73,6 +76,7 @@ CGuiWidget* CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame
 CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 : x0_resFactory(resFactory), x4_resStore(resStore), x2c_mode(mode),
   x38_frameFactoryParams(new TObjOwnerParam<CGuiResFrameData>(CGuiResFrameData(*this))),
+  x30_textExecuteBuf(new CTextExecuteBuffer()),
   x34_textParser(new CTextParser(resStore)),
   x40_constructTime(std::chrono::steady_clock::now())
 {
@@ -123,6 +127,9 @@ CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 
     x18_repeatMap.emplace(std::make_pair(EPhysicalControllerID::LeftLeftInst,
     CGuiAutoRepeatData(EPhysicalControllerID::LeftLeftInst, EPhysicalControllerID::LeftLeft)));
+
+    g_TextExecuteBuf = x30_textExecuteBuf.get();
+    g_TextParser = x34_textParser.get();
 }
 
 }

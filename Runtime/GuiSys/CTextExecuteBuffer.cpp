@@ -108,7 +108,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
     x18_textState.x14_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
                                               w, h, str, len);
 
-    if (x18_textState.x48_)
+    if (x18_textState.x48_enableWordWrap)
     {
         if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockPaddingX &&
             x70_curLine->x4_wordCount > 1 &&

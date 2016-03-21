@@ -41,7 +41,7 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)
     case EColorType::Foreground:
         x20_[0] = col;
         break;
-    case EColorType::Four:
+    case EColorType::Background:
         x20_[1] = col;
         break;
     }
@@ -51,7 +51,7 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)
 void CFontRenderState::RefreshPalette()
 {
     RefreshColor(EColorType::Foreground);
-    RefreshColor(EColorType::Four);
+    RefreshColor(EColorType::Background);
 }
 
 void CFontRenderState::RefreshColor(EColorType tp)
@@ -90,7 +90,7 @@ void CFontRenderState::RefreshColor(EColorType tp)
         RefreshColor(EColorType::Main);
         RefreshColor(EColorType::Geometry);
         break;
-    case EColorType::Four:
+    case EColorType::Background:
         RefreshColor(EColorType::Outline);
         break;
     }

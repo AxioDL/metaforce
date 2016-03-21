@@ -48,7 +48,7 @@ enum class EColorType
     Outline,
     Geometry,
     Foreground,
-    Four
+    Background
 };
 
 enum class ETextDirection
@@ -57,52 +57,48 @@ enum class ETextDirection
     Vertical
 };
 
-using CTextColor = zeus::CColor;
-
 class CGuiTextProperties
 {
-    bool x0_a;
-    bool x1_b;
+    friend class CGuiTextSupport;
+    bool x0_wordWrap;
+    bool x1_vertical;
     bool x2_c;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
 public:
     CGuiTextProperties(bool a, bool b, bool c, EJustification justification,
                        EVerticalJustification vertJustification)
-        : x0_a(a), x1_b(b), x2_c(c), x4_justification(justification),
+        : x0_wordWrap(a), x1_vertical(b), x2_c(c), x4_justification(justification),
           x8_vertJustification(vertJustification) {}
 };
 
 class CGuiTextSupport
 {
-    u32 x4_ = 0;
-    u32 x8_ = 0;
+    std::wstring x0_string;
     CGuiTextProperties x10_props;
-    zeus::CColor x1c_;
-    zeus::CColor x20_;
-    zeus::CColor x24_;
-    s32 x28_;
-    s32 x2c_;
-    float x30_ = 0.f;
-    std::vector<u32> x34_;
-    s32 x44_ = 0;
-    float x48_ = 0.1f;
-    float x4c_ = 10.0f;
+    zeus::CColor x1c_fontColor;
+    zeus::CColor x20_outlineColor;
+    zeus::CColor x24_geometryColor;
+    s32 x28_padX;
+    s32 x2c_padY;
+    float x30_curTime = 0.f;
+    std::vector<std::pair<float, int>> x34_primStartTimes;
+    bool x44_typeEnable = false;
+    float x48_chFadeTime = 0.1f;
+    float x4c_chRate = 10.0f;
     TResId x50_fontId;
     std::experimental::optional<CTextRenderBuffer> x54_renderBuf;
-    bool x2ac_ = false;
-    s32 x2b4_ = 0;
-    s32 x2b8_ = 0;
-    s32 x2bc_ = 0;
+    bool x2ac_active = false;
+    std::vector<CToken> x2b0_assets;
     TLockedToken<CRasterFont> x2c0_font;
 public:
     CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& col1, const zeus::CColor& col2,
-                    const zeus::CColor& col3, s32, s32, CSimplePool*);
-    void GetCurrentAnimationOverAge() const;
-    int GetNumCharsPrinted() const;
-    int GetTotalAnimationTime() const;
-    void SetTypeWriteEffectOptions(bool, float, float);
+                    const zeus::CColor& col3, s32 padX, s32 padY, CSimplePool* store);
+    float GetCurrentAnimationOverAge() const;
+    float GetNumCharsPrinted() const;
+    float GetTotalAnimationTime() const;
+    void SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate);
     void Update(float dt);
     void ClearBuffer();
     void CheckAndRebuildTextRenderBuffer();
