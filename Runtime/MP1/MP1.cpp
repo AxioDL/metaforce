@@ -28,6 +28,7 @@
 #include "GuiSys/CSplashScreen.hpp"
 #include "CMainFlow.hpp"
 #include "GuiSys/CConsoleOutputWindow.hpp"
+#include "GuiSys/CTextParser.hpp"
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"

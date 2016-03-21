@@ -4,12 +4,15 @@
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
+#include "CTextRenderBuffer.hpp"
+#include "optional.hpp"
 #include <string>
 
 namespace urde
 {
 class CSimplePool;
 class CRasterFont;
+class CTextRenderBuffer;
 
 enum class EJustification
 {
@@ -72,12 +75,30 @@ public:
 
 class CGuiTextSupport
 {
+    u32 x4_ = 0;
+    u32 x8_ = 0;
+    CGuiTextProperties x10_props;
+    zeus::CColor x1c_;
+    zeus::CColor x20_;
+    zeus::CColor x24_;
+    s32 x28_;
+    s32 x2c_;
+    float x30_ = 0.f;
+    std::vector<u32> x34_;
+    s32 x44_ = 0;
+    float x48_ = 0.1f;
+    float x4c_ = 10.0f;
     TResId x50_fontId;
+    std::experimental::optional<CTextRenderBuffer> x54_renderBuf;
+    bool x2ac_ = false;
+    s32 x2b4_ = 0;
+    s32 x2b8_ = 0;
+    s32 x2bc_ = 0;
     TLockedToken<CRasterFont> x2c0_font;
 public:
     CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& col1, const zeus::CColor& col2,
-                    const zeus::CColor& col3, int, int, CSimplePool*);
+                    const zeus::CColor& col3, s32, s32, CSimplePool*);
     void GetCurrentAnimationOverAge() const;
     int GetNumCharsPrinted() const;
     int GetTotalAnimationTime() const;

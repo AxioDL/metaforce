@@ -19,6 +19,7 @@ class IFactory;
 class CSimplePool;
 class CGuiWidget;
 class CGuiFrame;
+class CTextParser;
 
 typedef CGuiObject*(*FGuiFactoryFunc)(const SObjectTag&, const CVParamTransfer&);
 
@@ -50,6 +51,7 @@ private:
     std::unordered_map<EPhysicalControllerID, CGuiAutoRepeatData> x18_repeatMap;
     EUsageMode x2c_mode;
     std::stack<CSaveableState, std::vector<CSaveableState>> x30_saveStack;
+    std::unique_ptr<CTextParser> x34_textParser;
     CVParamTransfer x38_frameFactoryParams;
     std::chrono::time_point<std::chrono::steady_clock> x40_constructTime;
 

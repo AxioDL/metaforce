@@ -14,6 +14,8 @@
 #include "CGuiSliderGroup.hpp"
 #include "CGuiTextPane.hpp"
 #include "CAuiEnergyBarT01.hpp"
+#include "CTextParser.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
@@ -71,6 +73,7 @@ CGuiWidget* CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame
 CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 : x0_resFactory(resFactory), x4_resStore(resStore), x2c_mode(mode),
   x38_frameFactoryParams(new TObjOwnerParam<CGuiResFrameData>(CGuiResFrameData(*this))),
+  x34_textParser(new CTextParser(resStore)),
   x40_constructTime(std::chrono::steady_clock::now())
 {
     AddFactories(mode);

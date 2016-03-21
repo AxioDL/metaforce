@@ -27,10 +27,11 @@ static const hecl::SystemChar* MomErr[] =
     _S("Unable to find Waldo"),
     _S("Expected Ridley, found furby"),
     _S("Adam has not authorized this, please do not bug the developers"),
-    _S("Error: Lady returned objection")
+    _S("Lady returned objection"),
+    _S("Unterminated plot thread 'Deleter' detected")
 };
 
-constexpr uint32_t MomErrCount = 11;
+constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
 SpecBase::SpecBase(hecl::Database::Project& project)
 : m_project(project),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
