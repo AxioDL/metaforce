@@ -241,9 +241,9 @@ void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
     /* font */
     font.read(__dna_reader);
     /* unk1 */
-    unk1 = __dna_reader.readBool();
+    wordWrap = __dna_reader.readBool();
     /* unk2 */
-    unk2 = __dna_reader.readBool();
+    vertical = __dna_reader.readBool();
     /* justification */
     justification = Justification(__dna_reader.readUint32Big());
     /* verticalJustification */
@@ -253,7 +253,7 @@ void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
     /* outlineColor */
     outlineColor = __dna_reader.readVec4fBig();
     /* pointScale */
-    pointScale = __dna_reader.readVec2fBig();
+    blockExtent = __dna_reader.readVec2fBig();
     if (version == 1)
     {
         /* jpnFont */
@@ -277,9 +277,9 @@ void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) cons
     /* font */
     font.write(__dna_writer);
     /* unk1 */
-    __dna_writer.writeBool(unk1);
+    __dna_writer.writeBool(wordWrap);
     /* unk2 */
-    __dna_writer.writeBool(unk2);
+    __dna_writer.writeBool(vertical);
     /* justification */
     __dna_writer.writeUint32Big(atUint32(justification));
     /* verticalJustification */
@@ -289,7 +289,7 @@ void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) cons
     /* outlineColor */
     __dna_writer.writeVec4fBig(outlineColor);
     /* pointScale */
-    __dna_writer.writeVec2fBig(pointScale);
+    __dna_writer.writeVec2fBig(blockExtent);
     if (version == 1)
     {
         /* jpnFont */

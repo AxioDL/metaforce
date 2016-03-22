@@ -11,10 +11,10 @@ namespace urde
 {
 
 CGuiTextSupport::CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
-                                 const zeus::CColor& col1, const zeus::CColor& col2,
-                                 const zeus::CColor& col3, s32 padX, s32 padY, CSimplePool* store)
-: x10_props(props), x1c_fontColor(col1), x20_outlineColor(col2),
-  x24_geometryColor(col3), x28_padX(padX), x2c_padY(padY)
+                                 const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
+                                 const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store)
+: x10_props(props), x1c_fontColor(fontCol), x20_outlineColor(outlineCol),
+  x24_geometryColor(geomCol), x28_extentX(padX), x2c_extentY(padY)
 {
     x2c0_font = store->GetObj({SBIG('FONT'), fontId});
 }
@@ -100,7 +100,7 @@ void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
 
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x48_enableWordWrap = x10_props.x0_wordWrap;
-    g_TextExecuteBuf->BeginBlock(0, 0, x28_padX, x2c_padY, ETextDirection(x10_props.x1_vertical),
+    g_TextExecuteBuf->BeginBlock(0, 0, x28_extentX, x2c_extentY, ETextDirection(x10_props.x1_vertical),
                                  x10_props.x4_justification, x10_props.x8_vertJustification);
     g_TextExecuteBuf->AddColor(EColorType::Main, x1c_fontColor);
     g_TextExecuteBuf->AddColor(EColorType::Outline, x20_outlineColor);

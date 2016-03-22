@@ -135,8 +135,8 @@ class CBlockInstruction : public CInstruction
 
     s32 x4_offsetX;
     s32 x8_offsetY;
-    s32 xc_blockPaddingX;
-    s32 x10_blockPaddingY;
+    s32 xc_blockExtentX;
+    s32 x10_blockExtentY;
     ETextDirection x14_direction;
     EJustification x18_justification;
     EVerticalJustification x1c_vertJustification;
@@ -147,10 +147,10 @@ class CBlockInstruction : public CInstruction
     s32 x30_lineY = 0;
     s32 x34_lineCount = 0;
 public:
-    CBlockInstruction(s32 offX, s32 offY, s32 padX, s32 padY, ETextDirection dir,
+    CBlockInstruction(s32 offX, s32 offY, s32 extX, s32 extY, ETextDirection dir,
                       EJustification just, EVerticalJustification vjust)
     : x4_offsetX(offX), x8_offsetY(offY),
-      xc_blockPaddingX(padX), x10_blockPaddingY(padY), x14_direction(dir),
+      xc_blockExtentX(extX), x10_blockExtentY(extY), x14_direction(dir),
       x18_justification(just), x1c_vertJustification(vjust) {}
     void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
     void SetupPositionLTR(CFontRenderState& state) const;

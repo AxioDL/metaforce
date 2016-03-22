@@ -88,7 +88,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             CModelFlags flags;
             flags.f1 = 4;
             flags.f2 = 0;
-            flags.f3 = (xf7_24_ << 1) | xf6_31_;
+            flags.f3 = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
             flags.color = moduCol;
             model->Draw(flags);
             break;
@@ -98,7 +98,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             CModelFlags flags;
             flags.f1 = 3;
             flags.f2 = 0;
-            flags.f3 = (xf7_24_ << 1) | xf6_31_;
+            flags.f3 = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
             flags.color = moduCol;
             model->Draw(flags);
             break;
@@ -108,13 +108,13 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             CModelFlags flags;
             flags.f1 = 4;
             flags.f2 = 0;
-            flags.f3 = xf6_31_;
+            flags.f3 = xf6_31_depthTest;
             flags.color = moduCol;
             model->Draw(flags);
 
             flags.f1 = 5;
             flags.f2 = 0;
-            flags.f3 = (xf7_24_ << 1) | xf6_31_;
+            flags.f3 = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
             flags.color = moduCol;
             model->Draw(flags);
             break;

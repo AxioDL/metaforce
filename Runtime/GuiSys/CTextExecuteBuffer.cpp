@@ -110,13 +110,13 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
 
     if (x18_textState.x48_enableWordWrap)
     {
-        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockPaddingX &&
+        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX &&
             x70_curLine->x4_wordCount > 1 &&
-            x7c_curX + w < x6c_curBlock->xc_blockPaddingX)
+            x7c_curX + w < x6c_curBlock->xc_blockExtentX)
         {
             MoveWordLTR();
         }
-        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockPaddingX && len > 1)
+        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX && len > 1)
         {
             const wchar_t* strEnd = str + len;
             int aRank = 5;
@@ -141,7 +141,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
                                                               w, h, str, rem);
                 }
 
-            } while (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockPaddingX && rem > 1);
+            } while (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX && rem > 1);
         }
     }
 

@@ -111,8 +111,8 @@ protected:
     bool xf6_28_eventLock : 1;
     bool xf6_29_cullFaces : 1;
     bool xf6_30_ : 1;
-    bool xf6_31_ : 1;
-    bool xf7_24_ : 1;
+    bool xf6_31_depthTest : 1;
+    bool xf7_24_depthWrite : 1;
     bool xf7_25_ : 1;
 
 public:
@@ -133,7 +133,7 @@ public:
     virtual bool GetIsVisible() const;
     virtual bool GetIsActive() const;
     virtual CGuiTextSupport* TextSupport();
-    virtual CGuiTextSupport* GetTextSupport() const;
+    virtual const CGuiTextSupport* GetTextSupport() const;
     virtual void ModifyRGBA(CGuiWidget* widget);
     virtual void AddAnim(EGuiAnimBehListID, CGuiAnimBase*);
     virtual void AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool atEnd);

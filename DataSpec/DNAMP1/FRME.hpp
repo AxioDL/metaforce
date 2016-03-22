@@ -194,10 +194,30 @@ struct FRME : BigDNA
         {
             enum class Justification : atUint32
             {
+                Left = 0,
+                Center,
+                Right,
+                Full,
+                NLeft,
+                NCenter,
+                NRight,
+                Seven,
+                Eight,
+                Nine
             };
 
             enum class VerticalJustification : atUint32
             {
+                Top = 0,
+                Center,
+                Bottom,
+                Full,
+                NTop,
+                NCenter,
+                NBottom,
+                Seven,
+                Eight,
+                Nine
             };
 
             DECL_EXPLICIT_DNA
@@ -210,13 +230,13 @@ struct FRME : BigDNA
             Value<float> zDim;
             Value<atVec3f> scaleCenter;
             UniqueID32 font;
-            Value<bool> unk1;
-            Value<bool> unk2;
+            Value<bool> wordWrap;
+            Value<bool> vertical;
             Value<Justification> justification;
             Value<VerticalJustification> verticalJustification;
             Value<atVec4f> fillColor;
             Value<atVec4f> outlineColor;
-            Value<atVec2f> pointScale;
+            Value<atVec2f> blockExtent; /* In points; converted to int by loader */
             /* The following is only found in V1 */
             UniqueID32 jpnFont;
             Value<atInt32> jpnPointScale[2];

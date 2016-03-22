@@ -29,7 +29,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xf6_26_isActive(parms.xb_defaultActive),
   xf6_27_(true), xf6_28_eventLock(false),
   xf6_29_cullFaces(parms.xc_cullFaces), xf6_30_(false),
-  xf6_31_(true), xf7_24_(false), xf7_25_(true)
+  xf6_31_depthTest(true), xf7_24_depthWrite(false), xf7_25_(true)
 {
     if (parms.x4_useAnimController)
         EnsureHasAnimController();
@@ -143,7 +143,7 @@ CGuiTextSupport* CGuiWidget::TextSupport()
     return nullptr;
 }
 
-CGuiTextSupport* CGuiWidget::GetTextSupport() const
+const CGuiTextSupport* CGuiWidget::GetTextSupport() const
 {
     return nullptr;
 }

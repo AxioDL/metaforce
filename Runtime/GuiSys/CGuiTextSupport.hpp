@@ -66,21 +66,22 @@ class CGuiTextProperties
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
 public:
-    CGuiTextProperties(bool a, bool b, bool c, EJustification justification,
+    CGuiTextProperties(bool wordWrap, bool vertical, bool c, EJustification justification,
                        EVerticalJustification vertJustification)
-        : x0_wordWrap(a), x1_vertical(b), x2_c(c), x4_justification(justification),
+        : x0_wordWrap(wordWrap), x1_vertical(vertical), x2_c(c), x4_justification(justification),
           x8_vertJustification(vertJustification) {}
 };
 
 class CGuiTextSupport
 {
+    friend class CGuiTextPane;
     std::wstring x0_string;
     CGuiTextProperties x10_props;
     zeus::CColor x1c_fontColor;
     zeus::CColor x20_outlineColor;
     zeus::CColor x24_geometryColor;
-    s32 x28_padX;
-    s32 x2c_padY;
+    s32 x28_extentX;
+    s32 x2c_extentY;
     float x30_curTime = 0.f;
     std::vector<std::pair<float, int>> x34_primStartTimes;
     bool x44_typeEnable = false;
@@ -93,8 +94,8 @@ class CGuiTextSupport
     TLockedToken<CRasterFont> x2c0_font;
 public:
     CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
-                    const zeus::CColor& col1, const zeus::CColor& col2,
-                    const zeus::CColor& col3, s32 padX, s32 padY, CSimplePool* store);
+                    const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
+                    const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store);
     float GetCurrentAnimationOverAge() const;
     float GetNumCharsPrinted() const;
     float GetTotalAnimationTime() const;
