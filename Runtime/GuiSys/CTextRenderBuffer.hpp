@@ -86,21 +86,29 @@ private:
     struct BooFontCharacters
     {
         TToken<CRasterFont> m_font;
-        boo::IGraphicsBufferD* m_instBuf;
-        boo::IShaderDataBinding* m_dataBinding;
+        boo::IGraphicsBufferD* m_instBuf = nullptr;
+        boo::IShaderDataBinding* m_dataBinding = nullptr;
         std::vector<BooCharacterInstance> m_charData;
         u32 m_charCount = 0;
         bool m_dirty = true;
+        BooFontCharacters(const CToken& token)
+            : m_font(token)
+        {
+        }
     };
     std::vector<BooFontCharacters> m_fontCharacters;
 
     struct BooImage
     {
         CFontImageDef m_imageDef;
-        boo::IGraphicsBufferD* m_instBuf;
+        boo::IGraphicsBufferD* m_instBuf = nullptr;
         std::vector<boo::IShaderDataBinding*> m_dataBinding;
         BooImageInstance m_imageData;
         bool m_dirty = true;
+        BooImage(const CFontImageDef& imgDef)
+            : m_imageDef(imgDef)
+        {
+        }
     };
     std::vector<BooImage> m_images;
 

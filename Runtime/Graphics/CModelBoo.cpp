@@ -13,6 +13,7 @@ void CModel::Touch(int) const
 
 bool CModel::IsLoaded(int) const
 {
+    return false;
 }
 
 }

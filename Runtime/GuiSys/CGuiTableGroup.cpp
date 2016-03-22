@@ -189,54 +189,67 @@ CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int a, int b, ETabl
 
 bool CGuiTableGroup::MAF_SelectNextColumn(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectPrevColumn(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectNextRow(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectPrevRow(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectNextColumnSkipUnActivated(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectPrevColumnSkipUnActivated(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectNextRowSkipUnActivated(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectPrevRowSkipUnActivated(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectColumnAtIndex(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_SelectRowAtIndex(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_InitializeTable(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_MenuAdvance(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiTableGroup::MAF_MenuCancel(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)

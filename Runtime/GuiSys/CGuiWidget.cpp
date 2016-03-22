@@ -67,6 +67,7 @@ CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)
 
 bool CGuiWidget::Message(const CGuiMessage& msg)
 {
+    return false;
 }
 
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms)
@@ -703,26 +704,32 @@ void CGuiWidget::SetIsActive(bool a, bool b)
 
 bool CGuiWidget::MAF_StartAnimationSet(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiWidget::MAF_SendMessage(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiWidget::MAF_PauseAnim(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiWidget::MAF_ResumeAnim(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiWidget::MAF_SetState(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 bool CGuiWidget::MAF_SetStateOfWidget(CGuiFunctionDef* def, CGuiControllerInfo* info)
 {
+    return false;
 }
 
 }

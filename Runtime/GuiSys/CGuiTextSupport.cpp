@@ -6,6 +6,7 @@
 #include "CTextParser.hpp"
 #include "Graphics/CGraphicsPalette.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "GuiSys/CRasterFont.hpp"
 
 namespace urde
 {

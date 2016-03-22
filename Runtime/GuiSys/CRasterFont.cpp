@@ -1,6 +1,7 @@
 #include "GuiSys/CRasterFont.hpp"
 #include "CDrawStringOptions.hpp"
 #include "CTextRenderBuffer.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {

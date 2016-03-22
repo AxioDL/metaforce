@@ -28,7 +28,7 @@ CGuiBackground* CGuiBackground::Create(CGuiFrame* frame, CInputStream& in, bool 
     in.readUint32Big();
     in.readUint32Big();
     in.readUint32Big();
-
+    return nullptr;
 }
 
 }
