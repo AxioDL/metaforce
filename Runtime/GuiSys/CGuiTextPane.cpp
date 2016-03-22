@@ -58,8 +58,9 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     else
         dims.y = 0.f;
 
-    zeus::CTransform local = zeus::CTransform::Translate(x100_verts.front().m_pos + x108_scaleCenter) *
-            zeus::CTransform::Scale(dims.x, 1.f, dims.y);
+    zeus::CTransform local =
+        zeus::CTransform::Translate(x100_verts.front().m_pos + x108_scaleCenter) *
+        zeus::CTransform::Scale(dims.x, 1.f, dims.y);
     CGraphics::SetModelMatrix(x34_worldXF * local);
 
     zeus::CColor geomCol = xb4_;
@@ -118,7 +119,8 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     outlineCol.readRGBABig(in);
     int extentX = in.readFloatBig();
     int extentY = in.readFloatBig();
-    return new CGuiTextPane(parms, xDim, zDim, vec, fontId, props, fontCol, outlineCol, extentX, extentY);
+    return new CGuiTextPane(parms, xDim, zDim, vec, fontId, props,
+                            fontCol, outlineCol, extentX, extentY);
 }
 
 }

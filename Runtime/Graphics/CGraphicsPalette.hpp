@@ -16,6 +16,7 @@ enum class EPaletteFormat
 
 class CGraphicsPalette
 {
+    friend class CTextRenderBuffer;
     EPaletteFormat x0_fmt;
     int x4_entryCount;
     std::unique_ptr<u16[]> x8_entries;

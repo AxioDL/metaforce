@@ -148,6 +148,7 @@ public:
     }
     void GetSize(const CDrawStringOptions& opts, int& width, int& height,
                  const wchar_t* str, int len) const;
+    TToken<CTexture>& GetTexture() { return x80_texture; }
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

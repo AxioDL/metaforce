@@ -26,13 +26,13 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const
 
     if (x34_primStartTimes.size())
     {
-        float val = (x54_renderBuf->x24_primOffsets.size() - x34_primStartTimes.back().second) /
+        float val = (x54_renderBuf->GetPrimitiveCount() - x34_primStartTimes.back().second) /
                     x4c_chRate + x34_primStartTimes.back().first;
         return std::max(0.f, val);
     }
     else
     {
-        float val = x54_renderBuf->x24_primOffsets.size() / x4c_chRate;
+        float val = x54_renderBuf->GetPrimitiveCount() / x4c_chRate;
         return std::max(0.f, val);
     }
 }
@@ -40,7 +40,7 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const
 float CGuiTextSupport::GetNumCharsPrinted() const
 {
     if (x2ac_active)
-        return std::min(x30_curTime * x4c_chRate, float(x54_renderBuf->x24_primOffsets.size()));
+        return std::min(x30_curTime * x4c_chRate, float(x54_renderBuf->GetPrimitiveCount()));
     return 0.f;
 }
 
@@ -49,7 +49,7 @@ float CGuiTextSupport::GetTotalAnimationTime() const
     if (!x2ac_active || !x44_typeEnable)
         return 0.f;
 
-    return x54_renderBuf->x24_primOffsets.size() / x4c_chRate;
+    return x54_renderBuf->GetPrimitiveCount() / x4c_chRate;
 }
 
 void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate)
@@ -66,7 +66,7 @@ void CGuiTextSupport::Update(float dt)
 
     if (x44_typeEnable)
     {
-        for (int i=0 ; i<x54_renderBuf->x24_primOffsets.size() ; ++i)
+        for (int i=0 ; i<x54_renderBuf->GetPrimitiveCount() ; ++i)
         {
             float chStartTime = 0.f;
             for (const std::pair<float, int>& p : x34_primStartTimes)
@@ -79,9 +79,14 @@ void CGuiTextSupport::Update(float dt)
                 break;
             }
 
+#if 0
             CTextRenderBuffer::Primitive prim = x54_renderBuf->GetPrimitive(i);
             prim.x0_color1.a = std::min(std::max(0.f, (x30_curTime - chStartTime) / x48_chFadeTime), 1.f);
             x54_renderBuf->SetPrimitive(prim, i);
+#else
+            x54_renderBuf->SetPrimitiveOpacity(i,
+                std::min(std::max(0.f, (x30_curTime - chStartTime) / x48_chFadeTime), 1.f));
+#endif
         }
     }
 
@@ -164,7 +169,7 @@ void CGuiTextSupport::AddText(const std::wstring& str)
     {
         float t = GetCurrentAnimationOverAge();
         x34_primStartTimes.push_back(std::make_pair(std::max(t, x30_curTime),
-                                                    x54_renderBuf->x24_primOffsets.size()));
+                                                    x54_renderBuf->GetPrimitiveCount()));
     }
     x0_string += str;
     ClearBuffer();

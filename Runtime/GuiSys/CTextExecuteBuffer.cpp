@@ -13,7 +13,7 @@ namespace urde
 
 CTextRenderBuffer CTextExecuteBuffer::CreateTextRenderBuffer() const
 {
-    CTextRenderBuffer ret(CTextRenderBuffer::EMode::Zero);
+    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);
 
     {
         CFontRenderState rendState;
@@ -21,7 +21,7 @@ CTextRenderBuffer CTextExecuteBuffer::CreateTextRenderBuffer() const
             inst->Invoke(rendState, &ret);
     }
 
-    ret.SetMode(CTextRenderBuffer::EMode::One);
+    ret.SetMode(CTextRenderBuffer::EMode::BufferFill);
 
     {
         CFontRenderState rendState;
