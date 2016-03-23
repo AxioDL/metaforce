@@ -113,6 +113,7 @@ private:
     CStaticInterference x188_staticIntf;
 public:
 
+    float GetBeamSwitchTime() const;
     u32 CalculateItemCollectionRate() const;
 
     u32 GetBaseHealthCapacityInt32() { return 99; }

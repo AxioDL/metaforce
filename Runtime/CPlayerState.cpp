@@ -179,7 +179,7 @@ float CPlayerState::GetBeamSwitchTime() const
         0.2, 0.1, 0.2, 0.2
     };
 
-    return switchTime[u32(x8_currentBeam)];
+    return switchTimes[u32(x8_currentBeam)];
 }
 
 u32 CPlayerState::CalculateItemCollectionRate() const
