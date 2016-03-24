@@ -422,7 +422,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         objOut =
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(m_gfxFactory),
-                                        m_backend.m_blendSrc, m_backend.m_blendDst,
+                                        m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!objOut)
@@ -495,7 +495,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         m_gfxFactory->newShaderPipeline(nullptr, nullptr,
                                         vertBlob, fragBlob, pipelineBlob,
                                         tag.newVertexFormat(m_gfxFactory),
-                                        blendSrc, blendDst,
+                                        blendSrc, blendDst, boo::Primitive::TriStrips,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!ret)
@@ -530,7 +530,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                             vertBlob, fragPipeBlob.first, fragPipeBlob.second,
                                             tag.newVertexFormat(m_gfxFactory),
-                                            m_backend.m_blendSrc, m_backend.m_blendDst,
+                                            m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
@@ -612,7 +612,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             m_gfxFactory->newShaderPipeline(nullptr, nullptr,
                                             vertBlob, fragBlob, pipelineBlob,
                                             tag.newVertexFormat(m_gfxFactory),
-                                            blendSrc, blendDst,
+                                            blendSrc, blendDst, boo::Primitive::TriStrips,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
