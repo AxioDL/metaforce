@@ -33,12 +33,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     u32 txtrId = in.readUint32Big();
     x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
     x80_texture = store.GetObj({'TXTR', txtrId});
-    EColorType mode = EColorType(in.readUint32Big());
-    /* TODO: Make an enum */
-    if (mode == EColorType::Outline)
-        x2c_mode = EColorType::Outline;
-    else if (mode == EColorType::Main)
-        x2c_mode = EColorType::Main;
+    x2c_mode = EColorType(in.readUint32Big());
 
     u32 glyphCount = in.readUint32Big();
     xc_glyphs.reserve(glyphCount);
@@ -75,13 +70,16 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         s32 howMuch = in.readUint32Big();
         x1c_kerning[i] = CKernPair(first, second, howMuch);
     }
+
+    if (magic == SBIG('FONT') && version <= 2)
+        x0_initialized = true;
 }
 
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                                        CTextRenderBuffer* renderBuf,
                                        const wchar_t* str, s32 length) const
 {
-    if (!x0_)
+    if (!x0_initialized)
         return;
 
     const wchar_t* chr = str;
@@ -133,7 +131,7 @@ void CRasterFont::DrawSpace(const CDrawStringOptions& opts, int x, int y, int& x
 
 void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, CTextRenderBuffer* renderBuf, const wchar_t* str, int len) const
 {
-    if (!x0_)
+    if (!x0_initialized)
         return;
 
     if (renderBuf)

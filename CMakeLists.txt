@@ -94,6 +94,7 @@ include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE
 add_subdirectory(DataSpec)
 add_subdirectory(Editor)
 add_subdirectory(Runtime)
+add_subdirectory(mpcksum)
 
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
