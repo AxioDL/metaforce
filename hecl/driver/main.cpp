@@ -96,7 +96,7 @@ int main(int argc, const char** argv)
 #else
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
-    
+
     /* Xterm check */
 #if _WIN32
     const char* conemuANSI = getenv("ConEmuANSI");
@@ -201,6 +201,8 @@ int main(int argc, const char** argv)
                     ++info.verbosityLevel;
                 else if (*chit == _S('f'))
                     info.force = true;
+                else if (*chit == _S('y'))
+                    info.yes = true;
                 else
                     info.flags.push_back(*chit);
             }

@@ -121,7 +121,7 @@ public:
             hecl::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
             hecl::Printf(_S("%s"), rep.name.c_str());
-        
+
         if (rep.desc.size())
             hecl::Printf(_S(" [%s]"), rep.desc.c_str());
         hecl::Printf(_S("\n"));
@@ -151,31 +151,34 @@ public:
             hecl::Printf(_S("\n"));
         }
 
-        if (XTERM_COLOR)
-            hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
-        else
-            hecl::Printf(_S("\nContinue? (Y/n) "));
-
-        int ch;
-#ifndef _WIN32
-        struct termios tioOld, tioNew;
-        tcgetattr(0, &tioOld);
-        tioNew = tioOld;
-        tioNew.c_lflag &= ~ICANON; 
-        tcsetattr(0, TCSANOW, &tioNew);
-        while ((ch = getchar()))
-#else
-        while ((ch = getch()))
-#endif
+        if (!m_info.yes)
         {
-            if (ch == 'n' || ch == 'N')
-                return 0;
-            if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
-                break;
-        }
+            if (XTERM_COLOR)
+                hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
+            else
+                hecl::Printf(_S("\nContinue? (Y/n) "));
+
+            int ch;
 #ifndef _WIN32
-        tcsetattr(0, TCSANOW, &tioOld);
+            struct termios tioOld, tioNew;
+            tcgetattr(0, &tioOld);
+            tioNew = tioOld;
+            tioNew.c_lflag &= ~ICANON;
+            tcsetattr(0, TCSANOW, &tioNew);
+            while ((ch = getchar()))
+#else
+            while ((ch = getch()))
 #endif
+            {
+                if (ch == 'n' || ch == 'N')
+                    return 0;
+                if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
+                    break;
+            }
+#ifndef _WIN32
+            tcsetattr(0, TCSANOW, &tioOld);
+#endif
+        }
 
         hecl::Printf(_S("\n"));
 

@@ -26,6 +26,7 @@ struct ToolPassInfo
     hecl::Database::Project* project = nullptr;
     unsigned verbosityLevel = 0;
     bool force = false;
+    bool yes = false;
 };
 
 class ToolBase
