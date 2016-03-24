@@ -289,7 +289,7 @@ void TextView::Resources::init(boo::VulkanDataFactory* factory, FontCache* fcach
     m_regular =
     factory->newShaderPipeline(GLSLVS, GLSLFSReg, m_vtxFmt,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif

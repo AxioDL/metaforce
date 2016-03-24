@@ -300,7 +300,7 @@ void View::Resources::init(boo::VulkanDataFactory* factory, const IThemeData& th
 
     m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               false, false, false);
+                                               boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -311,7 +311,7 @@ void View::Resources::init(boo::VulkanDataFactory* factory, const IThemeData& th
 
     m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, false, false);
+                                             boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
