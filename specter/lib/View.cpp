@@ -167,7 +167,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
     ComPtr<ID3DBlob> pipeBlob;
     m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, vertBlob, fragBlob, pipeBlob, m_solidVtxFmt,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               false, false, false);
+                                               boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -181,7 +181,7 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
     pipeBlob.Reset();
     m_texShader = factory->newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, false, false);
+                                             boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif

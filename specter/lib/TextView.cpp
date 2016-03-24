@@ -174,14 +174,14 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
     m_regular =
     factory->newShaderPipeline(VS, FSReg, blobVert, blobFrag, blobPipe, m_vtxFmt,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 
     blobFrag.Reset();
     blobPipe.Reset();
     m_subpixel =
     factory->newShaderPipeline(nullptr, FSSubpixel, blobVert, blobFrag, blobPipe, m_vtxFmt,
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
