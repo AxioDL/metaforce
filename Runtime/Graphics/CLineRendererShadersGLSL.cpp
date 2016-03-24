@@ -128,16 +128,16 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
 
     m_texAlpha = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           false, true, false);
+                                           boo::Primitive::TriStrips, false, true, false);
     m_texAdditive = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              false, false, false);
+                                              boo::Primitive::TriStrips, false, false, false);
     m_noTexAlpha = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, true, false);
+                                             boo::Primitive::TriStrips, false, true, false);
     m_noTexAdditive = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                false, false, false);
+                                                boo::Primitive::TriStrips, false, false, false);
 
     return new struct OGLLineDataBindingFactory;
 }
