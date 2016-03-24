@@ -127,19 +127,19 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_texAlpha = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                            ComPtr<ID3DBlob>(), m_texVtxFmt,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           false, true, false);
+                                           boo::Primitive::TriStrips,false, true, false);
     m_texAdditive = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                               ComPtr<ID3DBlob>(), m_texVtxFmt,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              false, false, false);
+                                              boo::Primitive::TriStrips,false, false, false);
     m_noTexAlpha = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                              ComPtr<ID3DBlob>(), m_noTexVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, true, false);
+                                             boo::Primitive::TriStrips, false, true, false);
     m_noTexAdditive = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                 ComPtr<ID3DBlob>(), m_noTexVtxFmt,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                false, false, false);
+                                                boo::Primitive::TriStrips, false, false, false);
 
     return new struct HLSLLineDataBindingFactory;
 }
