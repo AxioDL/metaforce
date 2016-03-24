@@ -77,11 +77,11 @@ void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
 
     m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               false, false, false);
+                                               boo::Primitive::TriStrips, false, false, false);
 
     m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, "tex", 1, BlockNames,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, false, false);
+                                             boo::Primitive::TriStrips, false, false, false);
 }
 
 #if _WIN32
@@ -272,7 +272,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
 
     m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               false, false, false);
+                                               boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -283,7 +283,7 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
 
     m_texShader = factory->newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             false, false, false);
+                                             boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif

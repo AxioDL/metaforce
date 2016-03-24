@@ -74,12 +74,12 @@ void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
     m_regular =
     factory->newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 
     m_subpixel =
     factory->newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, "fontTex", 1, BlockNames,
                                boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 }
 
 #if _WIN32
@@ -258,7 +258,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
     m_regular =
     factory->newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               false, false, false);
+                               boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
