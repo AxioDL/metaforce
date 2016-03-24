@@ -2,8 +2,7 @@
 #define URDE_VIEW_MANAGER_HPP
 
 #include "hecl/CVarManager.hpp"
-#include "boo/audiodev/IAudioVoiceAllocator.hpp"
-#include "boo/audiodev/AudioMatrix.hpp"
+#include "boo/audiodev/IAudioVoiceEngine.hpp"
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
@@ -52,22 +51,17 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     std::unique_ptr<CMoviePlayer> m_moviePlayer;
     std::unique_ptr<u8[]> m_rsfBuf;
-    std::unique_ptr<boo::IAudioVoiceAllocator> m_voiceAllocator;
-    boo::AudioChannelSet m_audioSet = boo::AudioChannelSet::Unknown;
+    std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
     std::unique_ptr<boo::IAudioVoice> m_videoVoice;
-    boo::AudioMatrixStereo m_stereoMatrix;
     struct AudioVoiceCallback : boo::IAudioVoiceCallback
     {
         ViewManager& m_vm;
-        std::vector<s16> m_stereoBuf;
-        void needsNextBuffer(boo::IAudioVoice& voice, size_t frames)
+        size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
         {
-            m_stereoBuf.clear();
-            m_stereoBuf.resize(frames * 2);
             if (m_vm.m_moviePlayer)
-                m_vm.m_moviePlayer->MixAudio(m_stereoBuf.data(), nullptr, frames);
-            CMoviePlayer::MixStaticAudio(m_stereoBuf.data(), m_stereoBuf.data(), frames);
-            m_vm.m_stereoMatrix.bufferStereoSampleData(voice, m_stereoBuf.data(), frames);
+                m_vm.m_moviePlayer->MixAudio(data, nullptr, frames);
+            CMoviePlayer::MixStaticAudio(data, data, frames);
+            return frames;
         }
         AudioVoiceCallback(ViewManager& vm) : m_vm(vm) {}
     } m_voiceCallback;

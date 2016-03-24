@@ -539,6 +539,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
             tex = &x80_textures[xd4_audioSlot];
             thisSamples = std::min(tex->audioSamples - tex->playedSamples, samples);
         }
+
         if (thisSamples)
         {
             /* mix samples with `in` or no mix */

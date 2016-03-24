@@ -38,7 +38,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     testRSF.SyncRead(m_rsfBuf.get(), rsfLen);
     //CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
 
-    m_videoVoice = m_voiceAllocator->allocateNewVoice(m_audioSet, 32000, &m_voiceCallback);
+    m_videoVoice = m_voiceEngine->allocateNewStereoVoice(32000, &m_voiceCallback);
     m_videoVoice->start();
 
     //m_rootView->accessContentViews().clear();
@@ -253,10 +253,7 @@ void ViewManager::init(boo::IApplication* app)
 
     m_mainWindow->setWaitCursor(false);
 
-    m_voiceAllocator = boo::NewAudioVoiceAllocator();
-    m_audioSet = m_voiceAllocator->getAvailableSet();
-    m_stereoMatrix.setAudioChannelSet(m_audioSet);
-    m_stereoMatrix.setDefaultMatrixCoefficients();
+    m_voiceEngine = boo::NewAudioVoiceEngine();
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CElementGen::Initialize();
     CMoviePlayer::Initialize();
@@ -305,7 +302,7 @@ bool ViewManager::proc()
     m_rootView->draw(gfxQ);
     CGraphics::EndScene();
     gfxQ->execute();
-    m_voiceAllocator->pumpVoices();
+    m_voiceEngine->pumpAndMixVoices();
     m_mainWindow->waitForRetrace();
 
     return true;
