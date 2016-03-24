@@ -276,7 +276,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         m_backend.m_texMapEnd, "texs",
                                         1, STD_BLOCKNAMES,
-                                        m_backend.m_blendSrc, m_backend.m_blendDst,
+                                        m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!objOut)
@@ -306,7 +306,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                         texMapEnd, "texs",
                                         1, STD_BLOCKNAMES,
-                                        blendSrc, blendDst,
+                                        blendSrc, blendDst, boo::Primitive::TriStrips,
                                         tag.getDepthTest(), tag.getDepthWrite(),
                                         tag.getBackfaceCulling());
         if (!ret)
@@ -339,7 +339,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
                                             m_backend.m_texMapEnd, "texs",
                                             1, STD_BLOCKNAMES,
-                                            m_backend.m_blendSrc, m_backend.m_blendDst,
+                                            m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
@@ -376,7 +376,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                             texMapEnd, "texs",
                                             1, STD_BLOCKNAMES,
-                                            blendSrc, blendDst,
+                                            blendSrc, blendDst, boo::Primitive::TriStrips,
                                             tag.getDepthTest(), tag.getDepthWrite(),
                                             tag.getBackfaceCulling());
             if (!ret)
