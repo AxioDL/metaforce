@@ -389,7 +389,7 @@ public:
      * @brief Return map populated with dataspecs targetable by this project interface
      * @return Platform map with name-string keys and enable-status values
      */
-    const std::vector<ProjectDataSpec>& getDataSpecs() {return m_compiledSpecs;}
+    const std::vector<ProjectDataSpec>& getDataSpecs() const {return m_compiledSpecs;}
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
