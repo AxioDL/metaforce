@@ -78,11 +78,7 @@ struct SpecMP2 : SpecBase
                         {
                             for (const hecl::SystemString& arg : args)
                             {
-#if HECL_UCS2
-                                std::string lowerArg = hecl::WideToUTF8(arg);
-#else
-                                std::string lowerArg = arg;
-#endif
+                                std::string lowerArg = hecl::SystemUTF8View(arg).str();
                                 std::transform(lowerArg.begin(), lowerArg.end(), lowerArg.begin(), tolower);
                                 if (!lowerArg.compare(0, lowerBase.size(), lowerBase))
                                     good = true;
@@ -308,5 +304,13 @@ hecl::Database::DataSpecEntry SpecEntMP2
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
     -> hecl::Database::IDataSpec* {return new struct SpecMP2(project);}
 );
+
+hecl::Database::DataSpecEntry SpecEntMP2PC =
+{
+    _S("MP2-PC"),
+    _S("Data specification for PC-optimized Metroid Prime 2 engine"),
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
+    -> hecl::Database::IDataSpec* {return nullptr;}
+};
 
 }

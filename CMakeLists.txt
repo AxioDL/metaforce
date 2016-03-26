@@ -72,14 +72,20 @@ set(HECL_DATASPEC_DECLS
 namespace DataSpec
 {
     extern hecl::Database::DataSpecEntry SpecEntMP1;
+    extern hecl::Database::DataSpecEntry SpecEntMP1PC;
     extern hecl::Database::DataSpecEntry SpecEntMP2;
+    extern hecl::Database::DataSpecEntry SpecEntMP2PC;
     extern hecl::Database::DataSpecEntry SpecEntMP3;
+    extern hecl::Database::DataSpecEntry SpecEntMP3PC;
 }")
 set(HECL_DATASPEC_PUSHES
 "    /* RetroCommon */
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);")
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2PC);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);")
 add_subdirectory(hecl)
 add_definitions(${BOO_SYS_DEFINES})
 add_subdirectory(specter)

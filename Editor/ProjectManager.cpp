@@ -6,22 +6,9 @@ namespace urde
 {
 static logvisor::Module Log("URDE::ProjectManager");
 
-void ProjectManager::IndexMP1Resources()
-{
-    const std::vector<hecl::Database::Project::ProjectDataSpec>& specs = m_proj->getDataSpecs();
-    for (const hecl::Database::Project::ProjectDataSpec& spec : m_proj->getDataSpecs())
-    {
-        if (&spec.spec == &DataSpec::SpecEntMP1)
-        {
-            m_factory.BuildObjectMap(spec);
-            break;
-        }
-    }
-}
-
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
-: m_vm(vm), m_objStore(m_factory)
+: m_vm(vm), m_objStore(m_factoryMP1)
 {
     if (!m_registeredSpecs)
     {
@@ -103,7 +90,7 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     m_vm.ProjectChanged(*m_proj);
     m_vm.SetupEditorView(r);
 
-    IndexMP1Resources();
+    m_factoryMP1.IndexMP1Resources(*m_proj);
     m_vm.BuildTestPART(m_objStore);
 
     {

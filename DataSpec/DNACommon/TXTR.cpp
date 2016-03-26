@@ -2,13 +2,67 @@
 #include <squish.h>
 #include "TXTR.hpp"
 #include "PAK.hpp"
+#include "athena/FileWriter.hpp"
 
 namespace DataSpec
 {
 
 static logvisor::Module Log("libpng");
 
-/* GX uses this upsampling technique to prevent banding on downsampled texture formats */
+static int CountBits(uint32_t n)
+{
+    int ret = 0;
+    for (int i=0 ; i<32 ; ++i)
+        if (((n >> i) & 1) != 0)
+            ++ret;
+    return ret;
+}
+
+/* Box filter algorithm (for mipmapping) */
+static void BoxFilter(const uint8_t* input, unsigned chanCount,
+                      unsigned inWidth, unsigned inHeight, uint8_t* output)
+{
+    unsigned mipWidth = 1;
+    unsigned mipHeight = 1;
+    if (inWidth > 1)
+        mipWidth = inWidth / 2;
+    if (inHeight > 1)
+        mipHeight = inHeight / 2;
+
+    int y,x,c;
+    for (y=0 ; y<mipHeight ; ++y)
+    {
+        unsigned mip_line_base = mipWidth * y;
+        unsigned in1_line_base = inWidth * (y*2);
+        unsigned in2_line_base = inWidth * (y*2+1);
+        for (x=0 ; x<mipWidth ; ++x)
+        {
+            uint8_t* out = &output[(mip_line_base+x)*chanCount];
+            for (c=0 ; c<chanCount ; ++c)
+            {
+                out[c] = 0;
+                out[c] += input[(in1_line_base+(x*2))*chanCount+c] / 4;
+                out[c] += input[(in1_line_base+(x*2+1))*chanCount+c] / 4;
+                out[c] += input[(in2_line_base+(x*2))*chanCount+c] / 4;
+                out[c] += input[(in2_line_base+(x*2+1))*chanCount+c] / 4;
+            }
+        }
+    }
+}
+
+static size_t ComputeMippedTexelCount(unsigned inWidth, unsigned inHeight)
+{
+    size_t ret = 0;
+    while (inWidth > 0 && inHeight > 0)
+    {
+        ret += inWidth * inHeight;
+        inWidth /= 2;
+        inHeight /= 2;
+    }
+    return ret;
+}
+
+/* GX uses this upsampling technique with downsampled texture formats */
 static inline uint8_t Convert3To8(uint8_t v)
 {
     /* Swizzle bits: 00000123 -> 12312312 */
@@ -500,6 +554,11 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     png_init_io(png, fp);
     png_infop info = png_create_info_struct(png);
 
+    png_text textStruct = {};
+    textStruct.key = png_charp("urde_nomip");
+    if (numMips == 1)
+        png_set_text(png, info, &textStruct, 1);
+
     switch (format)
     {
     case 0:
@@ -545,6 +604,228 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
 {
     return false;
+}
+
+bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+{
+    FILE* inf = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+    if (!inf)
+    {
+        Log.report(logvisor::Error,
+                   _S("Unable to open '%s' for reading"),
+                   inPath.getAbsolutePath().c_str());
+        return false;
+    }
+
+    /* Validate PNG */
+    char header[8];
+    fread(header, 1, 8, inf);
+    if (png_sig_cmp((png_const_bytep)header, 0, 8))
+    {
+        Log.report(logvisor::Error, _S("invalid PNG signature in '%s'"),
+                   inPath.getAbsolutePath().c_str());
+        fclose(inf);
+        return false;
+    }
+
+    /* Setup PNG reader */
+    png_structp pngRead = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!pngRead)
+    {
+        Log.report(logvisor::Error, "unable to initialize libpng");
+        fclose(inf);
+        return false;
+    }
+    png_infop info = png_create_info_struct(pngRead);
+    if (!info)
+    {
+        Log.report(logvisor::Error, "unable to initialize libpng info");
+        fclose(inf);
+        png_destroy_read_struct(&pngRead, nullptr, nullptr);
+        return false;
+    }
+
+    if (setjmp(png_jmpbuf(pngRead)))
+    {
+        Log.report(logvisor::Error, _S("unable to initialize libpng I/O for '%s'"),
+                   inPath.getAbsolutePath().c_str());
+        fclose(inf);
+        png_destroy_read_struct(&pngRead, &info, nullptr);
+        return false;
+    }
+
+    png_init_io(pngRead, inf);
+    png_set_sig_bytes(pngRead, 8);
+
+    png_read_info(pngRead, info);
+
+    png_uint_32 width = png_get_image_width(pngRead, info);
+    png_uint_32 height = png_get_image_height(pngRead, info);
+    png_byte colorType = png_get_color_type(pngRead, info);
+    png_byte bitDepth = png_get_bit_depth(pngRead, info);
+
+    /* Disable mipmapping if urde_nomip embedded */
+    bool mipmap = true;
+    png_text* textStruct;
+    int numText;
+    png_get_text(pngRead, info, &textStruct, &numText);
+    for (int i=0 ; i<numText ; ++i)
+        if (!strcmp(textStruct[i].key, "urde_nomip"))
+            mipmap = false;
+
+    /* Compute mipmap levels */
+    size_t numMips = 0;
+    if (mipmap && CountBits(width) == 1 && CountBits(height) == 1)
+    {
+        size_t index = std::min(width, height);
+        while (index >>= 1) ++numMips;
+    }
+    else
+        numMips = 1;
+
+    if (bitDepth != 8)
+    {
+        Log.report(logvisor::Error, _S("'%s' is not 8 bits-per-channel"),
+                   inPath.getAbsolutePath().c_str());
+        fclose(inf);
+        png_destroy_read_struct(&pngRead, &info, nullptr);
+        return false;
+    }
+
+    size_t rowSize = 0;
+    switch (colorType)
+    {
+    case PNG_COLOR_TYPE_GRAY:
+        rowSize = width;
+        break;
+    case PNG_COLOR_TYPE_GRAY_ALPHA:
+        rowSize = width * 2;
+        break;
+    case PNG_COLOR_TYPE_RGB:
+        rowSize = width * 3;
+        break;
+    case PNG_COLOR_TYPE_RGB_ALPHA:
+        rowSize = width * 4;
+        break;
+    default:
+        Log.report(logvisor::Error, _S("unsupported color type in '%s'"),
+                   inPath.getAbsolutePath().c_str());
+        fclose(inf);
+        png_destroy_read_struct(&pngRead, &info, nullptr);
+        return false;
+    }
+
+    /* Intermediate row-read buf (file components) */
+    std::unique_ptr<uint8_t[]> rowBuf(new uint8_t[rowSize]);
+
+    /* Final mipmapped buf (RGBA components) */
+    std::unique_ptr<uint8_t[]> bufOut;
+    size_t bufLen = 0;
+    if (numMips > 1)
+        bufLen = ComputeMippedTexelCount(width, height) * 4;
+    else
+        bufLen = width * height * 4;
+    bufOut.reset(new uint8_t[bufLen]);
+
+    if (setjmp(png_jmpbuf(pngRead)))
+    {
+        Log.report(logvisor::Error, _S("unable to read image in '%s'"),
+                   inPath.getAbsolutePath().c_str());
+        fclose(inf);
+        png_destroy_read_struct(&pngRead, &info, nullptr);
+        return false;
+    }
+
+    /* Read and make RGBA */
+    for (png_uint_32 r=0 ; r<height ; ++r)
+    {
+        png_read_row(pngRead, rowBuf.get(), nullptr);
+        switch (colorType)
+        {
+        case PNG_COLOR_TYPE_GRAY:
+            for (int i=0 ; i<width ; ++i)
+            {
+                size_t outbase = (r*width+i)*4;
+                bufOut[outbase] = rowBuf[i];
+                bufOut[outbase+1] = rowBuf[i];
+                bufOut[outbase+2] = rowBuf[i];
+                bufOut[outbase+3] = rowBuf[i];
+            }
+            break;
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            for (int i=0 ; i<width ; ++i)
+            {
+                size_t inbase = i*2;
+                size_t outbase = (r*width+i)*4;
+                bufOut[outbase] = rowBuf[inbase];
+                bufOut[outbase+1] = rowBuf[inbase];
+                bufOut[outbase+2] = rowBuf[inbase];
+                bufOut[outbase+3] = rowBuf[inbase+1];
+            }
+            break;
+        case PNG_COLOR_TYPE_RGB:
+            for (int i=0 ; i<width ; ++i)
+            {
+                size_t inbase = i*3;
+                size_t outbase = (r*width+i)*4;
+                bufOut[outbase] = rowBuf[inbase];
+                bufOut[outbase+1] = rowBuf[inbase+1];
+                bufOut[outbase+2] = rowBuf[inbase+2];
+                bufOut[outbase+3] = 0xff;
+            }
+            break;
+        case PNG_COLOR_TYPE_RGB_ALPHA:
+            for (int i=0 ; i<width ; ++i)
+            {
+                size_t inbase = i*4;
+                size_t outbase = (r*width+i)*4;
+                bufOut[outbase] = rowBuf[inbase];
+                bufOut[outbase+1] = rowBuf[inbase+1];
+                bufOut[outbase+2] = rowBuf[inbase+2];
+                bufOut[outbase+3] = rowBuf[inbase+3];
+            }
+            break;
+        default: break;
+        }
+    }
+
+    png_destroy_read_struct(&pngRead, &info, nullptr);
+    fclose(inf);
+
+    /* Perform box-filter mipmap */
+    if (numMips > 1)
+    {
+        const uint8_t* filterIn = bufOut.get();
+        uint8_t* filterOut = bufOut.get() + width * height * 4;
+        unsigned filterWidth = width;
+        unsigned filterHeight = height;
+        for (size_t i=1 ; i<numMips ; ++i)
+        {
+            BoxFilter(filterIn, 4, filterWidth, filterHeight, filterOut);
+            filterIn += filterWidth * filterHeight * 4;
+            filterWidth /= 2;
+            filterHeight /= 2;
+            filterOut += filterWidth * filterHeight * 4;
+        }
+    }
+
+    /* Do write out */
+    athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
+    if (outf.hasError())
+    {
+        Log.report(logvisor::Error,
+                   _S("Unable to open '%s' for writing"),
+                   outPath.getAbsolutePath().c_str());
+        return false;
+    }
+
+    outf.writeInt32Big(16);
+    outf.writeInt16Big(width);
+    outf.writeInt16Big(height);
+    outf.writeInt32Big(numMips);
+    outf.writeUBytes(bufOut.get(), bufLen);
+
+    return true;
 }
 
 }

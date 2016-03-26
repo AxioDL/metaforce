@@ -3,7 +3,7 @@
 
 #include <hecl/Database.hpp>
 #include <athena/DNAYaml.hpp>
-#include "ProjectResourceFactory.hpp"
+#include "ProjectResourceFactoryMP1.hpp"
 #include "Runtime/CSimplePool.hpp"
 
 namespace urde
@@ -18,10 +18,8 @@ class ProjectManager
     ViewManager& m_vm;
     std::unique_ptr<hecl::Database::Project> m_proj;
     static bool m_registeredSpecs;
-    ProjectResourceFactory m_factory;
+    ProjectResourceFactoryMP1 m_factoryMP1;
     urde::CSimplePool m_objStore;
-
-    void IndexMP1Resources();
 
 public:
     ProjectManager(ViewManager& vm);

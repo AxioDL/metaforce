@@ -29,7 +29,8 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                ParticleEditor.hpp ParticleEditor.cpp atdna_ParticleEditor.cpp
                InformationCenter.hpp InformationCenter.hpp atdna_InformationCenter.cpp
                ProjectManager.hpp ProjectManager.cpp
-               ProjectResourceFactory.hpp ProjectResourceFactory.cpp
+               ProjectResourceFactoryBase.hpp ProjectResourceFactoryBase.cpp
+               ProjectResourceFactoryMP1.hpp ProjectResourceFactoryMP1.cpp
                ViewManager.hpp ViewManager.cpp
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp)

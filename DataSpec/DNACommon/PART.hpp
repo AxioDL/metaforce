@@ -13,7 +13,7 @@ namespace DNAParticle
 template <class IDType>
 struct GPSM : BigYAML
 {
-    static const char* DNAType() {return "urde::GPSM";}
+    static const char* DNAType() {return "GPSM";}
     const char* DNATypeV() const {return DNAType();}
 
     VectorElementFactory x0_PSIV;

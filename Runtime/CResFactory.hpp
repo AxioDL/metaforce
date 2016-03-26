@@ -17,11 +17,15 @@ public:
     struct SLoadingData
     {
         SObjectTag x0_tag;
-        IDvdRequest* x8_dvdReq;
-        IObj** xc_targetPtr;
-        void* x10_loadBuffer;
-        u32 x14_resSize;
+        IDvdRequest* x8_dvdReq = nullptr;
+        IObj** xc_targetPtr = nullptr;
+        void* x10_loadBuffer = nullptr;
+        u32 x14_resSize = 0;
         CVParamTransfer x18_cvXfer;
+
+        SLoadingData() = default;
+        SLoadingData(const SObjectTag& tag, IObj** ptr, const CVParamTransfer& xfer)
+        : x0_tag(tag), xc_targetPtr(ptr), x18_cvXfer(xfer) {}
     };
 private:
     std::unordered_map<SObjectTag, SLoadingData> m_loadList;
@@ -31,8 +35,16 @@ public:
     std::unique_ptr<IObj> Build(const SObjectTag&, const CVParamTransfer&);
     void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**);
     void CancelBuild(const SObjectTag&);
-    bool CanBuild(const SObjectTag& tag) {return x4_loader.ResourceExists(tag);}
-    const SObjectTag* GetResourceIdByName(const char* name) const {return x4_loader.GetResourceIdByName(name);}
+
+    bool CanBuild(const SObjectTag& tag)
+    {
+        return x4_loader.ResourceExists(tag);
+    }
+
+    const SObjectTag* GetResourceIdByName(const char* name) const
+    {
+        return x4_loader.GetResourceIdByName(name);
+    }
 
     std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const
     {
