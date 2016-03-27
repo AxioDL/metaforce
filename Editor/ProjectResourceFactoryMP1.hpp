@@ -9,7 +9,7 @@ namespace urde
 class ProjectResourceFactoryMP1 : public ProjectResourceFactoryBase
 {
 public:
-    ProjectResourceFactoryMP1();
+    ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc);
     void IndexMP1Resources(const hecl::Database::Project& proj);
     SObjectTag TagFromPath(const hecl::ProjectPath& path) const;
     hecl::ProjectPath GetCookedPath(const SObjectTag& tag,

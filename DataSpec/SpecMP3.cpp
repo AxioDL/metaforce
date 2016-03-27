@@ -42,8 +42,8 @@ struct SpecMP3 : SpecBase
     hecl::ProjectPath m_feCookPath;
     PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
 
-    SpecMP3(hecl::Database::Project& project)
-    : SpecBase(project),
+    SpecMP3(hecl::Database::Project& project, bool pc)
+    : SpecBase(project, pc),
       m_workPath(project.getProjectWorkingPath(), _S("MP3")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP3), _S("MP3")),
       m_pakRouter(*this, m_workPath, m_cookPath),
@@ -439,7 +439,12 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
-    virtual hecl::ProjectPath getWorking(class UniqueID64& id)
+    const hecl::Database::DataSpecEntry* getOriginalSpec() const
+    {
+        return &SpecEntMP3;
+    }
+
+    hecl::ProjectPath getWorking(class UniqueID64& id)
     {
         return m_pakRouter.getWorking(id);
     }
@@ -486,15 +491,20 @@ hecl::Database::DataSpecEntry SpecEntMP3
     _S("MP3"),
     _S("Data specification for original Metroid Prime 3 engine"),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP3(project);}
+    -> hecl::Database::IDataSpec* {return new struct SpecMP3(project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP3PC =
 {
     _S("MP3-PC"),
     _S("Data specification for PC-optimized Metroid Prime 3 engine"),
-    [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return nullptr;}
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
+    -> hecl::Database::IDataSpec*
+    {
+        if (tool != hecl::Database::DataSpecTool::Extract)
+            return new struct SpecMP3(project, true);
+        return nullptr;
+    }
 };
 
 }

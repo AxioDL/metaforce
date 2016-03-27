@@ -21,7 +21,8 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 namespace urde
 {
 
-ProjectResourceFactoryMP1::ProjectResourceFactoryMP1()
+ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc)
+: ProjectResourceFactoryBase(clientProc)
 {
     m_factoryMgr.AddFactory(FOURCC('TXTR'), urde::FTextureFactory);
     m_factoryMgr.AddFactory(FOURCC('PART'), urde::FParticleFactory);

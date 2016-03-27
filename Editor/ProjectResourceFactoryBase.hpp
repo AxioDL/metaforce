@@ -1,6 +1,7 @@
 #ifndef URDE_PROJECT_RESOURCE_FACTORY_BASE_HPP
 #define URDE_PROJECT_RESOURCE_FACTORY_BASE_HPP
 
+#include "hecl/ClientProcess.hpp"
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CResFactory.hpp"
@@ -14,6 +15,7 @@ namespace urde
 
 class ProjectResourceFactoryBase : public urde::IFactory
 {
+    hecl::ClientProcess& m_clientProc;
 protected:
     std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
     std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
@@ -52,6 +54,7 @@ protected:
                                 const CVParamTransfer& paramXfer);
 
 public:
+    ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
     std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&);
     void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
     void CancelBuild(const urde::SObjectTag&);

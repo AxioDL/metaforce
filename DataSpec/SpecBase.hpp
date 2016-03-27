@@ -17,7 +17,10 @@ struct SpecBase : hecl::Database::IDataSpec
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 
     bool canCook(const hecl::ProjectPath& path);
-    void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath, bool fast, FCookProgress progress);
+    const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
+                                                          const hecl::Database::DataSpecEntry* oldEntry);
+    void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
+                bool fast, FCookProgress progress);
 
     bool canPackage(const PackagePassInfo& info);
     void gatherDependencies(const PackagePassInfo& info,
@@ -37,6 +40,9 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual bool extractFromDisc(nod::DiscBase& disc, bool force,
                                  FProgress progress)=0;
 
+    /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
+    virtual const hecl::Database::DataSpecEntry* getOriginalSpec() const=0;
+
     /* Basic path check (game directory matching) */
     virtual bool checkPathPrefix(const hecl::ProjectPath& path)=0;
 
@@ -48,10 +54,14 @@ struct SpecBase : hecl::Database::IDataSpec
     using Mesh = BlendStream::Mesh;
     using Actor = BlendStream::Actor;
 
-    virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
-    virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
-    virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast, FCookProgress progress) const=0;
-    virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FILE* fin, FCookProgress progress) const=0;
+    virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                          BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                           BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                          BlendStream& ds, bool fast, FCookProgress progress) const=0;
+    virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                          FILE* fin, FCookProgress progress) const=0;
 
     const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 
@@ -62,9 +72,10 @@ struct SpecBase : hecl::Database::IDataSpec
     /* Project accessor */
     hecl::Database::Project& getProject() const {return m_project;}
 
-    SpecBase(hecl::Database::Project& project);
+    SpecBase(hecl::Database::Project& project, bool pc);
 protected:
     hecl::Database::Project& m_project;
+    bool m_pc;
     hecl::ProjectPath m_masterShader;
 private:
     std::unique_ptr<nod::DiscBase> m_disc;

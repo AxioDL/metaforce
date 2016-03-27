@@ -18,6 +18,7 @@ class ProjectManager
     ViewManager& m_vm;
     std::unique_ptr<hecl::Database::Project> m_proj;
     static bool m_registeredSpecs;
+    hecl::ClientProcess m_clientProc;
     ProjectResourceFactoryMP1 m_factoryMP1;
     urde::CSimplePool m_objStore;
 

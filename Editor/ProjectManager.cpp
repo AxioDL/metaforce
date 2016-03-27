@@ -8,7 +8,7 @@ static logvisor::Module Log("URDE::ProjectManager");
 
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
-: m_vm(vm), m_objStore(m_factoryMP1)
+: m_vm(vm), m_clientProc(1), m_factoryMP1(m_clientProc), m_objStore(m_factoryMP1)
 {
     if (!m_registeredSpecs)
     {

@@ -7,6 +7,7 @@
 #include "Blender/BlenderSupport.hpp"
 #include "BlenderConnection.hpp"
 #include "DNACommon/DNACommon.hpp"
+#include "DNACommon/TXTR.hpp"
 
 #include <time.h>
 
@@ -32,8 +33,8 @@ static const hecl::SystemChar* MomErr[] =
 };
 
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
-SpecBase::SpecBase(hecl::Database::Project& project)
-: m_project(project),
+SpecBase::SpecBase(hecl::Database::Project& project, bool pc)
+: m_project(project), m_pc(pc),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
@@ -139,6 +140,32 @@ bool SpecBase::canCook(const hecl::ProjectPath& path)
     return false;
 }
 
+const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::ProjectPath& path,
+                                                                const hecl::Database::DataSpecEntry* oldEntry)
+{
+    if (!checkPathPrefix(path))
+        return nullptr;
+    if (hecl::IsPathBlend(path))
+    {
+        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        if (!conn.openBlend(path))
+        {
+            Log.report(logvisor::Error, _S("unable to cook '%s'"),
+                       path.getAbsolutePath().c_str());
+            return nullptr;
+        }
+        hecl::BlenderConnection::BlendType type = conn.getBlendType();
+        if (type == hecl::BlenderConnection::BlendType::Mesh ||
+            type == hecl::BlenderConnection::BlendType::Area)
+            return oldEntry;
+    }
+    else if (hecl::IsPathPNG(path))
+    {
+        return oldEntry;
+    }
+    return getOriginalSpec();
+}
+
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
                       bool fast, FCookProgress progress)
 {
@@ -170,6 +197,13 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
         }
         default: break;
         }
+    }
+    else if (hecl::IsPathPNG(path))
+    {
+        if (m_pc)
+            TXTR::CookPC(path, cookedPath);
+        else
+            TXTR::Cook(path, cookedPath);
     }
     else if (hecl::IsPathYAML(path))
     {

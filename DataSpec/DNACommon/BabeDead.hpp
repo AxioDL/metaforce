@@ -49,6 +49,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
 
     os.format("lamp.retro_layer = %u\n"
               "lamp.retro_origtype = %u\n"
+              "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
               "lamp.use_nodes = True\n"
               "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
               "lamp.energy = 0.0\n"
@@ -68,12 +69,15 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
     case BabeDeadLight::Falloff::Constant:
         os << "falloff_node.inputs[0].default_value *= 75.0\n"
               "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+        os.format("lamp.constant_coefficient = 2.0 / %f\n", light.q);
         break;
     case BabeDeadLight::Falloff::Linear:
         os << "lamp.node_tree.links.new(falloff_node.outputs[1], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+        os.format("lamp.linear_coefficient = 250 / %f\n", light.q);
         break;
     case BabeDeadLight::Falloff::Quadratic:
         os << "lamp.node_tree.links.new(falloff_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n";
+        os.format("lamp.quadratic_coefficient = 25000 / %f\n", light.q);
         break;
     default: break;
     }

@@ -32,19 +32,20 @@ static void BoxFilter(const uint8_t* input, unsigned chanCount,
     int y,x,c;
     for (y=0 ; y<mipHeight ; ++y)
     {
-        unsigned mip_line_base = mipWidth * y;
-        unsigned in1_line_base = inWidth * (y*2);
-        unsigned in2_line_base = inWidth * (y*2+1);
+        unsigned miplineBase = mipWidth * y;
+        unsigned in1LineBase = inWidth * (y*2);
+        unsigned in2LineBase = inWidth * (y*2+1);
         for (x=0 ; x<mipWidth ; ++x)
         {
-            uint8_t* out = &output[(mip_line_base+x)*chanCount];
+            uint8_t* out = &output[(miplineBase+x)*chanCount];
             for (c=0 ; c<chanCount ; ++c)
             {
-                out[c] = 0;
-                out[c] += input[(in1_line_base+(x*2))*chanCount+c] / 4;
-                out[c] += input[(in1_line_base+(x*2+1))*chanCount+c] / 4;
-                out[c] += input[(in2_line_base+(x*2))*chanCount+c] / 4;
-                out[c] += input[(in2_line_base+(x*2+1))*chanCount+c] / 4;
+                uint32_t tmp = 0;
+                tmp += input[(in1LineBase+(x*2))*chanCount+c];
+                tmp += input[(in1LineBase+(x*2+1))*chanCount+c];
+                tmp += input[(in2LineBase+(x*2))*chanCount+c];
+                tmp += input[(in2LineBase+(x*2+1))*chanCount+c];
+                out[c] = tmp / 4;
             }
         }
     }
