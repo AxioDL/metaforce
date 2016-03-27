@@ -102,6 +102,9 @@ public:
 
     virtual bool canCook(const ProjectPath& path)
     {(void)path;LogModule.report(logvisor::Error, "not implemented");return false;}
+    virtual const DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
+                                                  const hecl::Database::DataSpecEntry* oldEntry)
+    {(void)path;return oldEntry;}
     virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
                         bool fast, FCookProgress progress)
     {(void)path;(void)cookedPath;(void)fast;(void)progress;}

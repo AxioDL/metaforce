@@ -2,7 +2,7 @@ bl_info = {
     "name": "HECL",
     "author": "Jack Andersen <jackoalan@gmail.com>",
     "version": (1, 0),
-    "blender": (2, 76),
+    "blender": (2, 77),
     "tracker_url": "https://github.com/AxioDL/hecl/issues/new",
     "location": "Properties > Scene > HECL",
     "description": "Enables blender to gather meshes, materials, and textures for hecl",

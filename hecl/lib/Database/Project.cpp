@@ -381,17 +381,20 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
     {
         if (spec.second->canCook(path))
         {
-            ProjectPath cooked = path.getCookedPath(*spec.first);
+            const DataSpecEntry* override = spec.second->overrideDataSpec(path, spec.first);
+            if (!override)
+                continue;
+            ProjectPath cooked = path.getCookedPath(*override);
             if (fast)
                 cooked = cooked.getWithExtension(_S(".fast"));
             if (force || cooked.getPathType() == ProjectPath::Type::None ||
                 path.getModtime() > cooked.getModtime())
             {
-                progress.reportFile(spec.first);
+                progress.reportFile(override);
                 spec.second->doCook(path, cooked, fast,
                 [&](const SystemChar* extra)
                 {
-                    progress.reportFile(spec.first, extra);
+                    progress.reportFile(override, extra);
                 });
             }
         }
