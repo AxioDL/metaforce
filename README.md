@@ -44,7 +44,8 @@ cmake -DCMAKE_BUILD_TYPE=Debug ../urde
 make
 ```
 
-#### Qt Creator *(main development / debugging IDE)*
+#### Qt Creator 
+*(main development / debugging IDE)*
 
 Open the repository's `CMakeLists.txt` via File > Open File or Project.
 
