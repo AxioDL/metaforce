@@ -1529,6 +1529,7 @@ void GPSM<IDType>::write(athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"ADV8", 4);
         x128_ADV8.write(w);
     }
+    w.writeBytes("_END", 4);
 }
 
 template struct GPSM<UniqueID32>;

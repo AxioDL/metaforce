@@ -286,6 +286,7 @@ void CRSM<IDType>::write(athena::io::IStreamWriter& w) const
         w.writeBytes("FOFFCNST", 8);
         w.writeFloatBig(x34_FOFF);
     }
+    w.writeBytes("_END", 4);
 }
 
 template <class IDType>

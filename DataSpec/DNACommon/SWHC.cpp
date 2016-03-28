@@ -535,6 +535,7 @@ void SWSH<IDType>::write(athena::io::IStreamWriter& w) const
         w.writeBytes("ORNTCNST\x01", 9);
     if (x45_26_CRND)
         w.writeBytes("CRNDCNST\x01", 9);
+    w.writeBytes("_END", 4);
 }
 
 template struct SWSH<UniqueID32>;
