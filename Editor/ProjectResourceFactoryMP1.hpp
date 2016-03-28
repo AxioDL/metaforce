@@ -10,14 +10,8 @@ class ProjectResourceFactoryMP1 : public ProjectResourceFactoryBase
 {
 public:
     ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc);
-    void IndexMP1Resources(const hecl::Database::Project& proj);
+    void IndexMP1Resources(hecl::Database::Project& proj);
     SObjectTag TagFromPath(const hecl::ProjectPath& path) const;
-    hecl::ProjectPath GetCookedPath(const SObjectTag& tag,
-                                    const hecl::ProjectPath& working,
-                                    bool pcTarget) const;
-    bool DoCook(const SObjectTag& tag, const hecl::ProjectPath& working,
-                const hecl::ProjectPath& cooked,
-                bool pcTarget);
 };
 
 }

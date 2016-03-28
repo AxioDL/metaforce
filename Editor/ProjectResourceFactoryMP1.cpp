@@ -30,7 +30,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('FONT'), urde::FRasterFontFactory);
 }
 
-void ProjectResourceFactoryMP1::IndexMP1Resources(const hecl::Database::Project& proj)
+void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
 {
     BeginBackgroundIndex(proj, DataSpec::SpecEntMP1, DataSpec::SpecEntMP1PC);
 }
@@ -46,26 +46,26 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path)
         switch (conn.getBlendType())
         {
         case hecl::BlenderConnection::BlendType::Mesh:
-            return {SBIG('CMDL'), path.hash()};
+            return {SBIG('CMDL'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Actor:
-            return {SBIG('ANCS'), path.hash()};
+            return {SBIG('ANCS'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Area:
-            return {SBIG('MREA'), path.hash()};
+            return {SBIG('MREA'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::World:
-            return {SBIG('MLVL'), path.hash()};
+            return {SBIG('MLVL'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::MapArea:
-            return {SBIG('MAPA'), path.hash()};
+            return {SBIG('MAPA'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::MapUniverse:
-            return {SBIG('MAPU'), path.hash()};
+            return {SBIG('MAPU'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Frame:
-            return {SBIG('FRME'), path.hash()};
+            return {SBIG('FRME'), path.hash().val32()};
         default:
             return {};
         }
     }
     else if (hecl::IsPathPNG(path))
     {
-        return {SBIG('TXTR'), path.hash()};
+        return {SBIG('TXTR'), path.hash().val32()};
     }
     else if (hecl::IsPathYAML(path))
     {
@@ -75,10 +75,6 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path)
 
         athena::io::YAMLDocReader reader;
         yaml_parser_set_input_file(reader.getParser(), fp);
-        bool res = reader.parse();
-        fclose(fp);
-        if (!res)
-            return {};
 
         SObjectTag resTag;
         if (reader.ClassTypeOperation([&](const char* className) -> bool
@@ -96,47 +92,13 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path)
             return false;
         }))
         {
-            resTag.id = path.hash();
+            resTag.id = path.hash().val32();
+            fclose(fp);
             return resTag;
         }
+        fclose(fp);
     }
     return {};
-}
-
-hecl::ProjectPath ProjectResourceFactoryMP1::GetCookedPath(const SObjectTag& tag,
-                                                           const hecl::ProjectPath& working,
-                                                           bool pcTarget) const
-{
-    if (!pcTarget)
-        return working.getCookedPath(*m_origSpec);
-
-    switch (tag.type)
-    {
-    case SBIG('TXTR'):
-    case SBIG('CMDL'):
-    case SBIG('MREA'):
-        return working.getCookedPath(*m_pcSpec);
-    default: break;
-    }
-
-    return working.getCookedPath(*m_origSpec);
-}
-
-bool ProjectResourceFactoryMP1::DoCook(const SObjectTag& tag,
-                                       const hecl::ProjectPath& working,
-                                       const hecl::ProjectPath& cooked,
-                                       bool pcTarget)
-{
-    switch (tag.type)
-    {
-    case SBIG('TXTR'):
-        if (pcTarget)
-            return DataSpec::TXTR::CookPC(working, cooked);
-        else
-            return DataSpec::TXTR::Cook(working, cooked);
-    default: break;
-    }
-    return false;
 }
 
 }

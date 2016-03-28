@@ -31,9 +31,14 @@ public:
     bool newProject(const hecl::SystemString& path);
     bool openProject(const hecl::SystemString& path);
     bool extractGame(const hecl::SystemString& path);
-
     bool saveProject();
 
+    void asyncIdle() {m_factoryMP1.AsyncIdle();}
+    void shutdown()
+    {
+        m_clientProc.shutdown();
+        m_factoryMP1.Shutdown();
+    }
 };
 
 }

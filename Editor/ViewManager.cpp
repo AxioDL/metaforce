@@ -303,6 +303,7 @@ bool ViewManager::proc()
     CGraphics::EndScene();
     gfxQ->execute();
     m_voiceEngine->pumpAndMixVoices();
+    m_projManager.asyncIdle();
     m_mainWindow->waitForRetrace();
 
     return true;
@@ -311,6 +312,7 @@ bool ViewManager::proc()
 void ViewManager::stop()
 {
     m_videoVoice.reset();
+    m_projManager.shutdown();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();
