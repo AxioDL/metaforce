@@ -21,246 +21,246 @@ void GPSM<IDType>::read(athena::io::YAMLDocReader& r)
         {
         case SBIG('PMCL'):
             x78_PMCL.read(r);
-            break;
+        break;
         case SBIG('LFOR'):
             x118_LFOR.read(r);
-            break;
+        break;
         case SBIG('IDTS'):
             xa4_IDTS.read(r);
-            break;
+        break;
         case SBIG('EMTR'):
             x40_EMTR.read(r);
-            break;
+        break;
         case SBIG('COLR'):
             x30_COLR.read(r);
-            break;
+        break;
         case SBIG('CIND'):
             x45_30_CIND = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('AAPH'):
             x44_26_AAPH = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('CSSD'):
             xa0_CSSD.read(r);
-            break;
+        break;
         case SBIG('GRTE'):
             x2c_GRTE.read(r);
-            break;
+        break;
         case SBIG('FXLL'):
             x44_25_FXLL = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('ICTS'):
             x8c_ICTS.read(r);
-            break;
+        break;
         case SBIG('KSSM'):
             xd0_KSSM.read(r);
-            break;
+        break;
         case SBIG('ILOC'):
             x38_ILOC.read(r);
-            break;
+        break;
         case SBIG('IITS'):
             xb8_IITS.read(r);
-            break;
+        break;
         case SBIG('IVEC'):
             x3c_IVEC.read(r);
-            break;
+        break;
         case SBIG('LDIR'):
             x110_LDIR.read(r);
-            break;
+        break;
         case SBIG('LCLR'):
             x104_LCLR.read(r);
-            break;
+        break;
         case SBIG('LENG'):
             x20_LENG.read(r);
-            break;
+        break;
         case SBIG('MAXP'):
             x28_MAXP.read(r);
-            break;
+        break;
         case SBIG('LOFF'):
             x10c_LOFF.read(r);
-            break;
+        break;
         case SBIG('LINT'):
             x108_LINT.read(r);
-            break;
+        break;
         case SBIG('LINE'):
             x44_24_LINE = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('LFOT'):
             x114_LFOT.read(r);
-            break;
+        break;
         case SBIG('LIT_'):
             x44_29_LIT_ = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('LTME'):
             x34_LTME.read(r);
-            break;
+        break;
         case SBIG('LSLA'):
             x11c_LSLA.read(r);
-            break;
+        break;
         case SBIG('LTYP'):
             x100_LTYP.read(r);
-            break;
+        break;
         case SBIG('NDSY'):
             xb4_NDSY.read(r);
-            break;
+        break;
         case SBIG('MBSP'):
             x48_MBSP.read(r);
-            break;
+        break;
         case SBIG('MBLR'):
             x44_30_MBLR = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('NCSY'):
             x9c_NCSY.read(r);
-            break;
+        break;
         case SBIG('PISY'):
             xc8_PISY.read(r);
-            break;
+        break;
         case SBIG('OPTS'):
             x45_31_OPTS = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('PMAB'):
             x44_31_PMAB = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('SESD'):
             xf8_SESD.read(r);
-            break;
+        break;
         case SBIG('SEPO'):
             xfc_SEPO.read(r);
-            break;
+        break;
         case SBIG('PSLT'):
             xc_PSLT.read(r);
-            break;
+        break;
         case SBIG('PMSC'):
             x74_PMSC.read(r);
-            break;
+        break;
         case SBIG('PMOP'):
             x6c_PMOP.read(r);
-            break;
+        break;
         case SBIG('PMDL'):
             x5c_PMDL.read(r);
-            break;
+        break;
         case SBIG('PMRT'):
             x70_PMRT.read(r);
-            break;
+        break;
         case SBIG('POFS'):
             x18_POFS.read(r);
-            break;
+        break;
         case SBIG('PMUS'):
             x45_24_PMUS = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('PSIV'):
             x0_PSIV.read(r);
-            break;
+        break;
         case SBIG('ROTA'):
             x50_ROTA.read(r);
-            break;
+        break;
         case SBIG('PSVM'):
             x4_PSVM.read(r);
-            break;
+        break;
         case SBIG('PSTS'):
             x14_PSTS.read(r);
-            break;
+        break;
         case SBIG('PSOV'):
             x8_PSOV.read(r);
-            break;
+        break;
         case SBIG('PSWT'):
             x10_PSWT.read(r);
-            break;
+        break;
         case SBIG('PMLC'):
             xec_PMLC.read(r);
-            break;
+        break;
         case SBIG('SEED'):
             x1c_SEED.read(r);
-            break;
+        break;
         case SBIG('PMOO'):
             x45_25_PMOO = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('SSSD'):
             xe4_SSSD.read(r);
-            break;
+        break;
         case SBIG('SORT'):
             x44_28_SORT = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('SIZE'):
             x4c_SIZE.read(r);
-            break;
+        break;
         case SBIG('SISY'):
             xcc_SISY.read(r);
-            break;
+        break;
         case SBIG('SSPO'):
             xe8_SSPO.read(r);
-            break;
+        break;
         case SBIG('TEXR'):
             x54_TEXR.read(r);
-            break;
+        break;
         case SBIG('SSWH'):
             xd4_SSWH.read(r);
-            break;
+        break;
         case SBIG('TIND'):
             x58_TIND.read(r);
-            break;
+        break;
         case SBIG('VMD4'):
             x45_29_VMD4 = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('VMD3'):
             x45_28_VMD3 = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('VMD2'):
             x45_27_VMD2 = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('VMD1'):
             x45_26_VMD1 = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('VEL4'):
             x88_VEL4.read(r);
-            break;
+        break;
         case SBIG('VEL3'):
             x84_VEL3.read(r);
-            break;
+        break;
         case SBIG('VEL2'):
             x80_VEL2.read(r);
-            break;
+        break;
         case SBIG('VEL1'):
             x7c_VEL1.read(r);
-            break;
+        break;
         case SBIG('ZBUF'):
             x44_27_ZBUF = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('WIDT'):
             x24_WIDT.read(r);
-            break;
+        break;
         case SBIG('ORNT'):
             x30_30_ORNT = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('RSOP'):
             x30_31_RSOP = r.readBool(nullptr);
-            break;
+        break;
         case SBIG('ADV1'):
             x10c_ADV1.read(r);
-            break;
+        break;
         case SBIG('ADV2'):
             x110_ADV2.read(r);
-            break;
+        break;
         case SBIG('ADV3'):
             x114_ADV3.read(r);
-            break;
+        break;
         case SBIG('ADV4'):
             x118_ADV4.read(r);
-            break;
+        break;
         case SBIG('ADV5'):
             x11c_ADV5.read(r);
-            break;
+        break;
         case SBIG('ADV6'):
             x120_ADV6.read(r);
-            break;
+        break;
         case SBIG('ADV7'):
             x124_ADV7.read(r);
-            break;
+        break;
         case SBIG('SELC'):
             xd8_SELC.read(r);
-            break;
+        break;
         default:
-            break;
+        break;
         }
         r.leaveSubRecord();
     }
@@ -871,268 +871,268 @@ void GPSM<IDType>::read(athena::io::IStreamReader& r)
         {
         case SBIG('PMCL'):
             x78_PMCL.read(r);
-            break;
+        break;
         case SBIG('LFOR'):
             x118_LFOR.read(r);
-            break;
+        break;
         case SBIG('IDTS'):
             xa4_IDTS.read(r);
-            break;
+        break;
         case SBIG('EMTR'):
             x40_EMTR.read(r);
-            break;
+        break;
         case SBIG('COLR'):
             x30_COLR.read(r);
-            break;
+        break;
         case SBIG('CIND'):
             r.readUint32Big();
             x45_30_CIND = r.readBool();
-            break;
+        break;
         case SBIG('AAPH'):
             r.readUint32Big();
             x44_26_AAPH = r.readBool();
-            break;
+        break;
         case SBIG('CSSD'):
             xa0_CSSD.read(r);
-            break;
+        break;
         case SBIG('GRTE'):
             x2c_GRTE.read(r);
-            break;
+        break;
         case SBIG('FXLL'):
             r.readUint32Big();
             x44_25_FXLL = r.readBool();
-            break;
+        break;
         case SBIG('ICTS'):
             x8c_ICTS.read(r);
-            break;
+        break;
         case SBIG('KSSM'):
             xd0_KSSM.read(r);
-            break;
+        break;
         case SBIG('ILOC'):
             x38_ILOC.read(r);
-            break;
+        break;
         case SBIG('IITS'):
             xb8_IITS.read(r);
-            break;
+        break;
         case SBIG('IVEC'):
             x3c_IVEC.read(r);
-            break;
+        break;
         case SBIG('LDIR'):
             x110_LDIR.read(r);
-            break;
+        break;
         case SBIG('LCLR'):
             x104_LCLR.read(r);
-            break;
+        break;
         case SBIG('LENG'):
             x20_LENG.read(r);
-            break;
+        break;
         case SBIG('MAXP'):
             x28_MAXP.read(r);
-            break;
+        break;
         case SBIG('LOFF'):
             x10c_LOFF.read(r);
-            break;
+        break;
         case SBIG('LINT'):
             x108_LINT.read(r);
-            break;
+        break;
         case SBIG('LINE'):
             r.readUint32Big();
             x44_24_LINE = r.readBool();
-            break;
+        break;
         case SBIG('LFOT'):
             x114_LFOT.read(r);
-            break;
+        break;
         case SBIG('LIT_'):
             r.readUint32Big();
             x44_29_LIT_ = r.readBool();
-            break;
+        break;
         case SBIG('LTME'):
             x34_LTME.read(r);
-            break;
+        break;
         case SBIG('LSLA'):
             x11c_LSLA.read(r);
-            break;
+        break;
         case SBIG('LTYP'):
             x100_LTYP.read(r);
-            break;
+        break;
         case SBIG('NDSY'):
             xb4_NDSY.read(r);
-            break;
+        break;
         case SBIG('MBSP'):
             x48_MBSP.read(r);
-            break;
+        break;
         case SBIG('MBLR'):
             r.readUint32Big();
             x44_30_MBLR = r.readBool();
-            break;
+        break;
         case SBIG('NCSY'):
             x9c_NCSY.read(r);
-            break;
+        break;
         case SBIG('PISY'):
             xc8_PISY.read(r);
-            break;
+        break;
         case SBIG('OPTS'):
             r.readUint32Big();
             x45_31_OPTS = r.readBool();
-            break;
+        break;
         case SBIG('PMAB'):
             r.readUint32Big();
             x44_31_PMAB = r.readBool();
-            break;
+        break;
         case SBIG('SESD'):
             xf8_SESD.read(r);
-            break;
+        break;
         case SBIG('SEPO'):
             xfc_SEPO.read(r);
-            break;
+        break;
         case SBIG('PSLT'):
             xc_PSLT.read(r);
-            break;
+        break;
         case SBIG('PMSC'):
             x74_PMSC.read(r);
-            break;
+        break;
         case SBIG('PMOP'):
             x6c_PMOP.read(r);
-            break;
+        break;
         case SBIG('PMDL'):
             x5c_PMDL.read(r);
-            break;
+        break;
         case SBIG('PMRT'):
             x70_PMRT.read(r);
-            break;
+        break;
         case SBIG('POFS'):
             x18_POFS.read(r);
-            break;
+        break;
         case SBIG('PMUS'):
             r.readUint32Big();
             x45_24_PMUS = r.readBool();
-            break;
+        break;
         case SBIG('PSIV'):
             x0_PSIV.read(r);
-            break;
+        break;
         case SBIG('ROTA'):
             x50_ROTA.read(r);
-            break;
+        break;
         case SBIG('PSVM'):
             x4_PSVM.read(r);
-            break;
+        break;
         case SBIG('PSTS'):
             x14_PSTS.read(r);
-            break;
+        break;
         case SBIG('PSOV'):
             x8_PSOV.read(r);
-            break;
+        break;
         case SBIG('PSWT'):
             x10_PSWT.read(r);
-            break;
+        break;
         case SBIG('PMLC'):
             xec_PMLC.read(r);
-            break;
+        break;
         case SBIG('SEED'):
             x1c_SEED.read(r);
-            break;
+        break;
         case SBIG('PMOO'):
             r.readUint32Big();
             x45_25_PMOO = r.readBool();
-            break;
+        break;
         case SBIG('SSSD'):
             xe4_SSSD.read(r);
-            break;
+        break;
         case SBIG('SORT'):
             r.readUint32Big();
             x44_28_SORT = r.readBool();
-            break;
+        break;
         case SBIG('SIZE'):
             x4c_SIZE.read(r);
-            break;
+        break;
         case SBIG('SISY'):
             xcc_SISY.read(r);
-            break;
+        break;
         case SBIG('SSPO'):
             xe8_SSPO.read(r);
-            break;
+        break;
         case SBIG('TEXR'):
             x54_TEXR.read(r);
-            break;
+        break;
         case SBIG('SSWH'):
             xd4_SSWH.read(r);
-            break;
+        break;
         case SBIG('TIND'):
             x58_TIND.read(r);
-            break;
+        break;
         case SBIG('VMD4'):
             r.readUint32Big();
             x45_29_VMD4 = r.readBool();
-            break;
+        break;
         case SBIG('VMD3'):
             r.readUint32Big();
             x45_28_VMD3 = r.readBool();
-            break;
+        break;
         case SBIG('VMD2'):
             r.readUint32Big();
             x45_27_VMD2 = r.readBool();
-            break;
+        break;
         case SBIG('VMD1'):
             r.readUint32Big();
             x45_26_VMD1 = r.readBool();
-            break;
+        break;
         case SBIG('VEL4'):
             x88_VEL4.read(r);
-            break;
+        break;
         case SBIG('VEL3'):
             x84_VEL3.read(r);
-            break;
+        break;
         case SBIG('VEL2'):
             x80_VEL2.read(r);
-            break;
+        break;
         case SBIG('VEL1'):
             x7c_VEL1.read(r);
-            break;
+        break;
         case SBIG('ZBUF'):
             r.readUint32Big();
             x44_27_ZBUF = r.readBool();
-            break;
+        break;
         case SBIG('WIDT'):
             x24_WIDT.read(r);
-            break;
+        break;
         case SBIG('ORNT'):
             r.readUint32Big();
             x30_30_ORNT = r.readBool();
-            break;
+        break;
         case SBIG('RSOP'):
             r.readUint32Big();
             x30_31_RSOP = r.readBool();
-            break;
+        break;
         case SBIG('ADV1'):
             x10c_ADV1.read(r);
-            break;
+        break;
         case SBIG('ADV2'):
             x110_ADV2.read(r);
-            break;
+        break;
         case SBIG('ADV3'):
             x114_ADV3.read(r);
-            break;
+        break;
         case SBIG('ADV4'):
             x118_ADV4.read(r);
-            break;
+        break;
         case SBIG('ADV5'):
             x11c_ADV5.read(r);
-            break;
+        break;
         case SBIG('ADV6'):
             x120_ADV6.read(r);
-            break;
+        break;
         case SBIG('ADV7'):
             x124_ADV7.read(r);
-            break;
+        break;
         case SBIG('ADV8'):
             x128_ADV8.read(r);
-            break;
+        break;
         case SBIG('SELC'):
             xd8_SELC.read(r);
-            break;
+        break;
         default:
             LogModule.report(logvisor::Fatal, "Unknown GPSM class %.4s @%" PRIi64, &clsId, r.position());
-            break;
+        break;
         }
         r.readBytesToBuf(&clsId, 4);
     }
@@ -1529,6 +1529,7 @@ void GPSM<IDType>::write(athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"ADV8", 4);
         x128_ADV8.write(w);
     }
+    w.writeBytes("_END", 4);
 }
 
 template struct GPSM<UniqueID32>;

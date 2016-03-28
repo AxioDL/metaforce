@@ -41,6 +41,11 @@ public:
         };
         u16 dummy = 0;
     };
+
+    CSwooshDescription()
+    {
+        x44_25_CROS = true;
+    }
 };
 }
 

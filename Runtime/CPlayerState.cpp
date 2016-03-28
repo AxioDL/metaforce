@@ -4,12 +4,6 @@
 
 namespace urde
 {
-/* TODO: Implement this properly */
-/* NOTE: This is only to be used as a reference,
- * and is not indicative of how the actual format is structured
- * a proper RE is still required!
- */
-
 const u32 CPlayerState::PowerUpMaxValues[41] =
 {   1, 1, 1, 1, 250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 14,  1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -60,126 +54,81 @@ const char* PowerUpNames[41]=
     "Artifact of Newborn",
 };
 
-CPlayerState::CPlayerState(CBitStreamReader& in)
-    : x188_staticIntf(5)
+CPlayerState::CPlayerState(CBitStreamReader& stream)
+    : CPlayerState()
 {
-    x0_24_ = true;
-    u32 bitCount = 0;
-    std::for_each(std::cbegin(CPlayerState::PowerUpMaxValues), std::cend(CPlayerState::PowerUpMaxValues), [&bitCount](const u32& max){
-        bitCount += CBitStreamReader::GetBitCount(max);
-    });
-
-#if 1
-    in.readUint32Big();
-    in.readBool();
-    in.readBool();
-    in.readBool();
-
-    atInt8 data[0xAE];
-    in.readBytesToBuf(data, 0xAE);
-    for (u32 k = 0; k < 3; k++)
+    x4_ = stream.ReadEncoded(0x20);
+    u32 tmp = stream.ReadEncoded(0x20);
+    xc_currentHealth = *reinterpret_cast<float*>(&tmp);
+    x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
+    x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
+    x24_powerups.resize(41);
+    for (u32 i = 0; i < x24_powerups.size(); ++i)
     {
-        atInt8 save[0x3AC];
-        in.readBytesToBuf(save, 0x3AC);
-        {
-            CBitStreamReader stream(save, 0x1000);
-            std::string filename = athena::utility::sprintf("Game%i.dat", k + 1);
-            std::string logFilename = athena::utility::sprintf("Game%i.txt", k + 1);
-            FILE * f = fopen(logFilename.c_str(), "w");
-            CBitStreamWriter w{filename};
+        if (PowerUpMaxValues[i] == 0)
+            continue;
 
-            fprintf(f, "Game State\n");
-            for (u32 i = 0; i < 0x80; i++)
-            {
-                u32 tmp = stream.ReadEncoded(8);
-                if (!(i % 16))
-                    fprintf(f, "\n");
-                fprintf(f, "%.2i ", tmp);
-                w.WriteEncoded(tmp, 8);
-            }
-            fprintf(f, "\n\n");
-
-            s32 tmp = stream.ReadEncoded(32);
-            w.WriteEncoded(tmp, 0x20);
-            fprintf(f, "%i\n", tmp);
-            tmp = stream.ReadEncoded(1);
-            w.WriteEncoded(tmp, 1);
-            fprintf(f, "%i\n", tmp);
-            tmp = stream.ReadEncoded(1);
-            w.WriteEncoded(tmp, 1);
-            fprintf(f, "%i\n", tmp);
-            tmp = stream.ReadEncoded(32);
-            w.WriteEncoded(tmp, 0x20);
-            fprintf(f, "%f\n", *reinterpret_cast<float*>(&tmp));
-            tmp = stream.ReadEncoded(32);
-            w.WriteEncoded(tmp, 0x20);
-            fprintf(f, "%f\n", *reinterpret_cast<float*>(&tmp));
-            tmp = stream.ReadEncoded(32);
-            fprintf(f, "%x\n", tmp);
-            w.WriteEncoded(tmp, 0x20);
-
-            fprintf(f, "PlayerState\n");
-            x4_ = stream.ReadEncoded(0x20);
-            w.WriteEncoded(x4_, 0x20);
-            fprintf(f, "%x\n", x4_);
-            tmp = stream.ReadEncoded(0x20);
-            fprintf(f, "Base health %f\n", *reinterpret_cast<float*>(&tmp));
-            xc_currentHealth = *reinterpret_cast<float*>(&tmp);
-            w.WriteEncoded(tmp, 0x20);
-            x8_currentBeam = stream.ReadEncoded(CBitStreamReader::GetBitCount(5));
-            fprintf(f, "%i\n", x8_currentBeam);
-            w.WriteEncoded(x8_currentBeam, CBitStreamReader::GetBitCount(5));
-            x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
-            fprintf(f, "%i\n", x20_currentSuit);
-            w.WriteEncoded(u32(x20_currentSuit), CBitStreamReader::GetBitCount(4));
-            x24_powerups.resize(41);
-            fprintf(f, "Powerups\n");
-            for (u32 i = 0; i < x24_powerups.size(); ++i)
-            {
-                if (PowerUpMaxValues[i] == 0)
-                    continue;
-
-                u32 a = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
-                u32 b = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
-                w.WriteEncoded(a, CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
-                w.WriteEncoded(b, CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
-                x24_powerups[i] = CPowerUp(a, b);
-                fprintf(f, "%2i(%21s): cur=%3i max=%3i\n", i, PowerUpNames[i], a, b);
-            }
-
-            for (u32 i = 0; i < 832; i++)
-            {
-                u32 tmp = stream.ReadEncoded(1);
-                if (!(i % 32))
-                    fprintf(f, "\n");
-
-                fprintf(f, "%i ", tmp);
-                w.WriteEncoded(tmp, 1);
-            }
-            fprintf(f, "\n\n");
-
-            tmp = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
-            w.WriteEncoded(tmp, CBitStreamReader::GetBitCount(0x100));
-            fprintf(f, "%i\n", tmp);
-            tmp = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
-            w.WriteEncoded(tmp, CBitStreamReader::GetBitCount(0x100));
-            fprintf(f, "%i\n", tmp);
-
-            fprintf(f, "Final Offset %.8llx\n", stream.position());
-            fprintf(f, "Completion: %.2i%%\n", CalculateItemCollectionRate());
-            w.save();
-        }
+        u32 a = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
+        u32 b = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
+        x24_powerups[i] = CPowerUp(a, b);
     }
-#endif
+
+    x170_scanTimes.resize(846);
+    for (u32 i = 0; i < x170_scanTimes.size(); i++)
+    {
+        x170_scanTimes[i].first = stream.ReadEncoded(1);
+        if (x170_scanTimes[i].first)
+            x170_scanTimes[i].second = 1.f;
+        else
+            x170_scanTimes[i].second = 0.f;
+    }
+
+    x180_ = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
+    x184_ = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
 }
 
-float CPlayerState::GetBeamSwitchTime() const
+void CPlayerState::PutTo(CBitStreamWriter &stream)
 {
-    static const float switchTimes[4] {
-        0.2, 0.1, 0.2, 0.2
+    stream.WriteEncoded(x4_, 32);
+    u32 tmp = *reinterpret_cast<int*>(&xc_currentHealth);
+    stream.WriteEncoded(tmp, 32);
+    stream.WriteEncoded((u32)x8_currentBeam, CBitStreamWriter::GetBitCount(5));
+    stream.WriteEncoded((u32)x20_currentSuit, CBitStreamWriter::GetBitCount(4));
+    for (u32 i = 0; i < x24_powerups.size(); ++i)
+    {
+        const CPowerUp& pup = x24_powerups[i];
+        stream.WriteEncoded(pup.x0_amount, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
+        stream.WriteEncoded(pup.x4_capacity, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
+    }
+
+    for (const auto& scanTime : x170_scanTimes)
+    {
+        if (scanTime.second >= 1.f)
+            stream.WriteEncoded(true, 1);
+        else
+            stream.WriteEncoded(false, 1);
+    }
+
+    stream.WriteEncoded(x180_, CBitStreamWriter::GetBitCount(0x100));
+    stream.WriteEncoded(x184_, CBitStreamWriter::GetBitCount(0x100));
+}
+
+float CPlayerState::sub_80091204() const
+{
+    static const float unk[] {
+        0.2f, 0.1f, 0.2f, 0.2f, 1.f
     };
 
-    return switchTimes[u32(x8_currentBeam)];
+    return unk[u32(x8_currentBeam)];
+}
+
+u32 CPlayerState::GetMissileCostForAltAttack() const
+{
+    static const u32 costs[] {
+        5, 10, 10, 10, 1
+    };
+
+    return costs[u32(x8_currentBeam)];
 }
 
 u32 CPlayerState::CalculateItemCollectionRate() const
@@ -244,7 +193,7 @@ CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& sta
 #if 0
     CFirstPersionCamera* cam = dynamic_cast<CFirstPersonCamera*>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
     if (!cam)
-        return EVisorType::Zero;
+        return EVisorType::Combat;
 #endif
     return x14_currentVisor;
 }
@@ -254,8 +203,9 @@ void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float
     x188_staticIntf.Update(stateMgr, dt);
 }
 
-void CPlayerState::NewScanTime(u32 time)
+void CPlayerState::IncreaseScanTime(u32 time, float val)
 {
+
 }
 
 bool CPlayerState::GetIsVisorTransitioning() const

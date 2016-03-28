@@ -441,6 +441,7 @@ void ELSM<IDType>::write(athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"ZERY", 4);
         x70_ZERY.write(w);
     }
+    w.writeBytes("_END", 4);
 }
 
 template struct ELSM<UniqueID32>;
