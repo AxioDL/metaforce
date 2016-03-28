@@ -14,7 +14,8 @@ static logvisor::Module Log("hecl::ClientProcess");
 
 static bool ExecProcessAndWait(bool verbose,
                                const SystemChar* exePath,
-                               const SystemChar* args[])
+                               const SystemChar* args[],
+                               int& returnCode)
 {
 #if _WIN32
     std::wstring cmdLine;
@@ -53,6 +54,7 @@ static bool ExecProcessAndWait(bool verbose,
     WaitForSingleObject(pinfo.hProcess, INFINITE);
     DWORD exitCode;
     GetExitCodeProcess(pinfo.hProcess, &exitCode);
+    returnCode = exitCode;
     CloseHandle(pinfo.hProcess);
 
     if (exitCode == 0)
@@ -81,10 +83,7 @@ static bool ExecProcessAndWait(bool verbose,
 
         if (execvp(exePath, (char*const*)assembleArgs.data()) < 0)
         {
-            if (errno == ENOENT)
-                return false;
-            else
-                Log.report(logvisor::Fatal, _S("error execing '%s': %s"), exePath, strerror(errno));
+            Log.report(logvisor::Fatal, _S("error execing '%s': %s"), exePath, strerror(errno));
         }
 
         exit(1);
@@ -95,8 +94,13 @@ static bool ExecProcessAndWait(bool verbose,
         Log.report(logvisor::Fatal, "unable to wait for hecl process to complete: %s", strerror(errno));
 
     if (WIFEXITED(exitStatus))
+    {
+        returnCode = WEXITSTATUS(exitStatus);
         if (WEXITSTATUS(exitStatus) == 0)
+        {
             return true;
+        }
+    }
 
     return false;
 
@@ -126,14 +130,13 @@ void ClientProcess::BufferTransaction::run()
     if (m_offset)
         r.seek(m_offset, athena::Begin);
     r.readBytesToBuf(m_targetBuf, m_maxLen);
+    m_complete = true;
 }
 
 void ClientProcess::CookTransaction::run()
 {
-    const SystemChar* args[] = {_S("cook"), m_path.getAbsolutePath().c_str()};
-    if (!ExecProcessAndWait(m_verbose, _S("hecl"), args))
-        Log.report(logvisor::Fatal, _S("unable to background-cook '%s'"),
-                   m_path.getAbsolutePath().c_str());
+    m_returnVal = m_parent.syncCook(m_path);
+    m_complete = true;
 }
 
 ClientProcess::Worker::Worker(ClientProcess& proc)
@@ -169,19 +172,35 @@ ClientProcess::ClientProcess(int verbosityLevel)
         m_workers.emplace_back(*this);
 }
 
-void ClientProcess::addBufferTransaction(const ProjectPath& path, void* target,
-                                         size_t maxLen, size_t offset)
+const ClientProcess::BufferTransaction*
+ClientProcess::addBufferTransaction(const ProjectPath& path, void* target,
+                                    size_t maxLen, size_t offset)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    m_pendingQueue.emplace_back(new BufferTransaction(path, target, maxLen, offset));
+    BufferTransaction* ret = new BufferTransaction(*this, path, target, maxLen, offset);
+    m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
+    return ret;
 }
 
-void ClientProcess::addCookTransaction(const hecl::ProjectPath& path)
+const ClientProcess::CookTransaction*
+ClientProcess::addCookTransaction(const hecl::ProjectPath& path)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    m_pendingQueue.emplace_back(new CookTransaction(path, m_verbosity != 0));
+    CookTransaction* ret = new CookTransaction(*this, path);
+    m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
+    return ret;
+}
+
+int ClientProcess::syncCook(const hecl::ProjectPath& path)
+{
+    const SystemChar* args[] = {_S("cook"), path.getAbsolutePath().c_str()};
+    int returnCode;
+    if (!ExecProcessAndWait(m_verbosity != 0, _S("hecl"), args, returnCode))
+        Log.report(logvisor::Fatal, _S("unable to background-cook '%s'"),
+                   path.getAbsolutePath().c_str());
+    return returnCode;
 }
 
 void ClientProcess::swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue)
