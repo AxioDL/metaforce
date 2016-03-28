@@ -209,6 +209,7 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     {
         FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
         cookYAML(cookedPath, path, fp, progress);
+        fclose(fp);
     }
 }
 

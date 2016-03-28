@@ -626,12 +626,15 @@ struct VEConstant : IVectorElement
 
     void read(athena::io::YAMLDocReader& r)
     {
-        for (int i=0 ; i<3 ; ++i)
+        size_t elemCount;
+        r.enterSubVector(nullptr, elemCount);
+        for (int i=0 ; i<3 && i<elemCount ; ++i)
         {
             r.enterSubRecord(nullptr);
             comps[i].read(r);
             r.leaveSubRecord();
         }
+        r.leaveSubVector();
     }
     void write(athena::io::YAMLDocWriter& w) const
     {

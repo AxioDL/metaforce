@@ -9,6 +9,7 @@
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/ANCS.hpp"
+#include "DNACommon/PART.hpp"
 
 namespace DataSpec
 {
@@ -286,11 +287,18 @@ struct SpecMP1 : SpecBase
 
     bool validateYAMLDNAType(FILE* fp) const
     {
-        if (BigYAML::ValidateFromYAMLFile<DNAMP1::MLVL>(fp))
-            return true;
-        if (BigYAML::ValidateFromYAMLFile<DNAMP1::STRG>(fp))
-            return true;
-        return false;
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input_file(reader.getParser(), fp);
+        return reader.ClassTypeOperation([](const char* classType)
+        {
+            if (!strcmp(classType, DNAMP1::MLVL::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::STRG::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::GPSM<UniqueID32>::DNAType()))
+                return true;
+            return false;
+        });
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
@@ -319,6 +327,27 @@ struct SpecMP1 : SpecBase
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   FILE* fin, FCookProgress progress) const
     {
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input_file(reader.getParser(), fin);
+        if (reader.parse())
+        {
+            std::string classStr = reader.readString("DNAType");
+            if (classStr.empty())
+                return;
+
+            if (!classStr.compare(DNAMP1::STRG::DNAType()))
+            {
+                DNAMP1::STRG strg;
+                strg.read(reader);
+                DNAMP1::STRG::Cook(strg, out);
+            }
+            else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::GPSM<UniqueID32> gpsm;
+                gpsm.read(reader);
+                DNAParticle::WriteGPSM(gpsm, out);
+            }
+        }
     }
 };
 
