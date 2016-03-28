@@ -67,11 +67,13 @@ void ProjectPath::assign(Database::Project& project, const SystemString& path)
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-    m_hash = Hash(m_relPath);
 
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
+    m_hash = Hash(m_utf8RelPath);
+#else
+    m_hash = Hash(m_relPath);
 #endif
 }
 
@@ -97,11 +99,13 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
     m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-    m_hash = Hash(m_relPath);
 
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
+    m_hash = Hash(m_utf8RelPath);
+#else
+    m_hash = Hash(m_relPath);
 #endif
 }
 
