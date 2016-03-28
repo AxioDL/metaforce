@@ -84,6 +84,15 @@ public:
         FusionPhazon
     };
 
+    enum class EBeamId : u32
+    {
+        Power,
+        Ice,
+        Plasma,
+        Wave,
+        Phazon
+    };
+
 private:
 
     static const u32 PowerUpMaxValues[41];
@@ -101,7 +110,7 @@ private:
     };
 
     u32 x4_ = 0;
-    u32 x8_currentBeam = 0;
+    EBeamId x8_currentBeam = EBeamId::Power;
     float xc_currentHealth = 99.f;
     float x10_ = 50.f;
     EPlayerVisor x14_currentVisor = EPlayerVisor::Combat;
@@ -109,14 +118,17 @@ private:
     float x1c_visorTransitionFactor = 0.2f;
     EPlayerSuit x20_currentSuit = EPlayerSuit::Power;
     rstl::reserved_vector<CPowerUp, 41> x24_powerups;
-
+    rstl::reserved_vector<std::pair<u32, float>, 846> x170_scanTimes;
+    u32 x180_ = 0;
+    u32 x184_ = 0;
     CStaticInterference x188_staticIntf;
 public:
 
-    float GetBeamSwitchTime() const;
+    float sub_80091204() const;
+    u32 GetMissileCostForAltAttack() const;
     u32 CalculateItemCollectionRate() const;
 
-    u32 GetBaseHealthCapacityInt32() { return 99; }
+    u32 GetPickupTotal() { return 99; }
     void SetFusion(bool val) { x0_26_fusion = val; }
     bool GetFusion() const { return x0_26_fusion; }
     EPlayerSuit GetCurrentSuit() const;
@@ -124,7 +136,8 @@ public:
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);
     void IncreaseScanTime(u32 time, float val);
-    void NewScanTime(u32 time);
+    void SetScanTime(u32 time, float val);
+    float GetScanTime(u32 time, float val);
     bool GetIsVisorTransitioning() const;
     float GetVisorTransitionFactor() const;
     void UpdateVisorTransition(float dt);
@@ -146,6 +159,7 @@ public:
     void InitializePowerUp(EItemType type, u32 capacity);
     CPlayerState() : x188_staticIntf(5) { x0_24_ = true; }
     CPlayerState(CBitStreamReader& stream);
+    void PutTo(CBitStreamWriter& stream);
 };
 }
 

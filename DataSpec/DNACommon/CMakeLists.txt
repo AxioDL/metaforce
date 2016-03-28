@@ -17,7 +17,8 @@ add_library(DNACommon
             ANCS.hpp
             ANIM.hpp ANIM.cpp
             PART.hpp PART.cpp
-            SWHC.hpp
+            SWHC.hpp SWHC.cpp
+            CRSC.hpp CRSC.cpp
             ELSC.hpp ELSC.cpp
             ParticleCommon.cpp
             FONT.hpp FONT.cpp

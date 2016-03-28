@@ -5,6 +5,7 @@
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
+#include "optional.hpp"
 
 namespace urde
 {
@@ -38,9 +39,9 @@ enum class EWeaponCollisionResponseTypes
 class CCollisionResponseData
 {
 
-    std::vector<std::pair<TLockedToken<CGenDescription>, bool>> x0;
-    std::vector<s32> x10;
-    std::vector<std::pair<TLockedToken<CDecalDescription>, bool>> x20;
+    std::vector<std::experimental::optional<TLockedToken<CGenDescription>>> x0_generators;
+    std::vector<TResId> x10_sfx;
+    std::vector<std::experimental::optional<TLockedToken<CDecalDescription>>> x20_decals;
     float x30_RNGE;
     float x34_FOFF;
 

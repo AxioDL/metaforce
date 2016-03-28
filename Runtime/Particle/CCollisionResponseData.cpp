@@ -79,9 +79,7 @@ void CCollisionResponseData::AddParticleSystemToResponse(EWeaponCollisionRespons
     int i = int(type);
     std::vector<TResId> tracker;
     tracker.resize(8);
-    x0[i].first = std::move(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
-    if (x0[i].first)
-        x0[i].second = true;
+    x0_generators[i].emplace(std::move(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token));
 }
 
 bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
@@ -99,10 +97,7 @@ bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStre
             if (!id)
                 return true;
 
-            x20[i].first = std::move(resPool->GetObj({FOURCC('DPSC'), id}));
-            if (x0[i].first)
-                x0[i].second = true;
-
+            x20_decals[i].emplace(std::move(resPool->GetObj({FOURCC('DPSC'), id})));
             return true;
         }
         i++;
@@ -121,7 +116,7 @@ bool CCollisionResponseData::CheckAndAddSoundFXToResponse(FourCC clsId, CInputSt
             if (cls == SBIG('NONE'))
                 return true;
 
-            x10[i] = CPF::GetInt(in);
+            x10_sfx[i] = CPF::GetInt(in);
             return true;
         }
         i++;
@@ -140,6 +135,7 @@ bool CCollisionResponseData::CheckAndAddParticleSystemToResponse(FourCC clsId, C
             AddParticleSystemToResponse(EWeaponCollisionResponseTypes(i), in, resPool);
             return true;
         }
+        i++;
     }
     return false;
 }
@@ -159,9 +155,12 @@ bool CCollisionResponseData::CheckAndAddResourceToResponse(FourCC clsId, CInputS
 CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* resPool)
     : x30_RNGE(50.f), x34_FOFF(0.2f)
 {
-    x0.resize(94);
-    x10.resize(94);
-    x20.resize(94);
+    x0_generators.resize(94);
+    x10_sfx.resize(94);
+    x20_decals.resize(94);
+    for (TResId& id : x10_sfx)
+        id = ~0;
+
     FourCC clsId = CPF::GetClassID(in);
     if (clsId == SBIG('CRSM'))
     {
