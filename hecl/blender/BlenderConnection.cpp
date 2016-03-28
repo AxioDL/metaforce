@@ -34,7 +34,7 @@ namespace hecl
 {
 
 logvisor::Module BlenderLog("BlenderConnection");
-BlenderConnection* SharedBlenderConnection = nullptr;
+BlenderToken SharedBlenderToken;
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
@@ -950,6 +950,16 @@ void BlenderConnection::quitBlender()
     _writeLine("QUIT");
     char lineBuf[256];
     _readLine(lineBuf, sizeof(lineBuf));
+}
+
+BlenderConnection& BlenderConnection::SharedConnection()
+{
+    return SharedBlenderToken.getBlenderConnection();
+}
+
+void BlenderConnection::Shutdown()
+{
+    SharedBlenderToken.shutdown();
 }
 
 }

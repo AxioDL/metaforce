@@ -24,12 +24,13 @@
 #include "hecl/HMDLMeta.hpp"
 #include <athena/Types.hpp>
 #include <athena/MemoryWriter.hpp>
+#include <optional.hpp>
 
 namespace hecl
 {
 
 extern logvisor::Module BlenderLog;
-extern class BlenderConnection* SharedBlenderConnection;
+extern class BlenderToken SharedBlenderToken;
 class HMDLBuffers;
 
 class BlenderConnection
@@ -681,31 +682,35 @@ public:
 
     void quitBlender();
 
-    static BlenderConnection& SharedConnection()
-    {
-        if (!SharedBlenderConnection)
-            SharedBlenderConnection = new BlenderConnection(hecl::VerbosityLevel);
-        return *SharedBlenderConnection;
-    }
-
     void closeStream()
     {
         if (m_lock)
             deleteBlend();
     }
 
-    static void Shutdown()
+    static BlenderConnection& SharedConnection();
+    static void Shutdown();
+};
+
+class BlenderToken
+{
+    std::experimental::optional<BlenderConnection> m_conn;
+public:
+    BlenderConnection& getBlenderConnection()
     {
-        if (SharedBlenderConnection)
+        if (!m_conn)
+            m_conn.emplace();
+        return *m_conn;
+    }
+    void shutdown()
+    {
+        if (m_conn)
         {
-            SharedBlenderConnection->closeStream();
-            SharedBlenderConnection->quitBlender();
-            delete SharedBlenderConnection;
-            SharedBlenderConnection = nullptr;
+            m_conn->quitBlender();
+            m_conn = std::experimental::nullopt;
             BlenderLog.report(logvisor::Info, "BlenderConnection Shutdown Successful");
         }
     }
-
 };
 
 class HMDLBuffers

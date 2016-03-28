@@ -22,6 +22,8 @@
 
 namespace hecl
 {
+class BlenderToken;
+
 namespace Database
 {
 class Project;
@@ -64,7 +66,9 @@ public:
  */
 class IDataSpec
 {
+    const DataSpecEntry* m_specEntry;
 public:
+    IDataSpec(const DataSpecEntry* specEntry) : m_specEntry(specEntry) {}
     virtual ~IDataSpec() {}
     using FProgress = hecl::Database::FProgress;
     using FCookProgress = std::function<void(const SystemChar*)>;
@@ -100,13 +104,14 @@ public:
     virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
     {(void)info;(void)progress;}
 
-    virtual bool canCook(const ProjectPath& path)
+    virtual bool canCook(const ProjectPath& path, BlenderToken& btok)
     {(void)path;LogModule.report(logvisor::Error, "not implemented");return false;}
-    virtual const DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
-                                                  const hecl::Database::DataSpecEntry* oldEntry)
+    virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,
+                                                  const Database::DataSpecEntry* oldEntry,
+                                                  BlenderToken& btok)
     {(void)path;return oldEntry;}
     virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
-                        bool fast, FCookProgress progress)
+                        bool fast, BlenderToken& btok, FCookProgress progress)
     {(void)path;(void)cookedPath;(void)fast;(void)progress;}
 
     /**
@@ -130,6 +135,8 @@ public:
     {(void)info;(void)implicitsOut;}
     virtual void doPackage(const PackagePassInfo& info)
     {(void)info;}
+
+    const DataSpecEntry* getDataSpecEntry() const {return m_specEntry;}
 };
 
 /**

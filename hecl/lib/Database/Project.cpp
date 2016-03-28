@@ -10,6 +10,7 @@
 #endif
 
 #include "hecl/Database.hpp"
+#include "BlenderConnection.hpp"
 
 namespace hecl
 {
@@ -379,9 +380,9 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
 {
     for (SpecInst& spec : specInsts)
     {
-        if (spec.second->canCook(path))
+        if (spec.second->canCook(path, hecl::SharedBlenderToken))
         {
-            const DataSpecEntry* override = spec.second->overrideDataSpec(path, spec.first);
+            const DataSpecEntry* override = spec.second->overrideDataSpec(path, spec.first, hecl::SharedBlenderToken);
             if (!override)
                 continue;
             ProjectPath cooked = path.getCookedPath(*override);
@@ -391,7 +392,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
                 path.getModtime() > cooked.getModtime())
             {
                 progress.reportFile(override);
-                spec.second->doCook(path, cooked, fast,
+                spec.second->doCook(path, cooked, fast, hecl::SharedBlenderToken,
                 [&](const SystemChar* extra)
                 {
                     progress.reportFile(override, extra);

@@ -2,6 +2,8 @@
 #define HECL_CLIENT_PROCESS_HPP
 
 #include "hecl.hpp"
+#include "Database.hpp"
+#include "BlenderConnection.hpp"
 #include <list>
 #include <thread>
 #include <mutex>
@@ -26,7 +28,7 @@ public:
             Cook
         } m_type;
         bool m_complete = false;
-        virtual void run()=0;
+        virtual void run(BlenderToken& btok)=0;
         Transaction(ClientProcess& parent, Type tp) : m_parent(parent), m_type(tp) {}
     };
     struct BufferTransaction : Transaction
@@ -35,7 +37,7 @@ public:
         void* m_targetBuf;
         size_t m_maxLen;
         size_t m_offset;
-        void run();
+        void run(BlenderToken& btok);
         BufferTransaction(ClientProcess& parent, const ProjectPath& path,
                           void* target, size_t maxLen, size_t offset)
         : Transaction(parent, Type::Buffer),
@@ -45,10 +47,11 @@ public:
     struct CookTransaction : Transaction
     {
         ProjectPath m_path;
-        int m_returnVal = 0;
-        void run();
-        CookTransaction(ClientProcess& parent, const ProjectPath& path)
-        : Transaction(parent, Type::Cook), m_path(path) {}
+        Database::IDataSpec* m_dataSpec;
+        bool m_returnResult = false;
+        void run(BlenderToken& btok);
+        CookTransaction(ClientProcess& parent, const ProjectPath& path, Database::IDataSpec* spec)
+        : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec) {}
     };
 private:
     std::list<std::unique_ptr<Transaction>> m_pendingQueue;
@@ -59,6 +62,7 @@ private:
     {
         ClientProcess& m_proc;
         std::thread m_thr;
+        BlenderToken m_blendTok;
         Worker(ClientProcess& proc);
         void proc();
     };
@@ -69,8 +73,8 @@ public:
     ~ClientProcess() {shutdown();}
     const BufferTransaction* addBufferTransaction(const hecl::ProjectPath& path, void* target,
                                                   size_t maxLen, size_t offset);
-    const CookTransaction* addCookTransaction(const hecl::ProjectPath& path);
-    int syncCook(const hecl::ProjectPath& path);
+    const CookTransaction* addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec);
+    bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, BlenderToken& btok);
     void swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue);
     void shutdown();
 };
