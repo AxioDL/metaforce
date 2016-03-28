@@ -34,8 +34,8 @@ struct SpecMP1 : SpecBase
     hecl::ProjectPath m_cookPath;
     PAKRouter<DNAMP1::PAKBridge> m_pakRouter;
 
-    SpecMP1(hecl::Database::Project& project, bool pc)
-    : SpecBase(project, pc),
+    SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
+    : SpecBase(specEntry, project, pc),
       m_workPath(project.getProjectWorkingPath(), _S("MP1")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1")),
       m_pakRouter(*this, m_workPath, m_cookPath) {}
@@ -356,7 +356,7 @@ hecl::Database::DataSpecEntry SpecEntMP1 =
     _S("MP1"),
     _S("Data specification for original Metroid Prime engine"),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP1(project, false);}
+    -> hecl::Database::IDataSpec* {return new struct SpecMP1(&SpecEntMP1, project, false);}
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1PC =
@@ -367,7 +367,7 @@ hecl::Database::DataSpecEntry SpecEntMP1PC =
     -> hecl::Database::IDataSpec*
     {
         if (tool != hecl::Database::DataSpecTool::Extract)
-            return new struct SpecMP1(project, true);
+            return new struct SpecMP1(&SpecEntMP1PC, project, true);
         return nullptr;
     }
 };

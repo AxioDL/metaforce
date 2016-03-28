@@ -95,6 +95,8 @@ public:
 
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}
+
+    ~ProjectResourceFactoryBase() {Shutdown();}
 };
 
 }

@@ -244,12 +244,9 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
 
 void ProjectResourceFactoryBase::CancelBackgroundIndex()
 {
-    if (m_backgroundRunning)
-    {
-        m_backgroundRunning = false;
-        if (m_backgroundIndexTh.joinable())
-            m_backgroundIndexTh.join();
-    }
+    m_backgroundRunning = false;
+    if (m_backgroundIndexTh.joinable())
+        m_backgroundIndexTh.join();
 }
 
 void ProjectResourceFactoryBase::BeginBackgroundIndex
@@ -273,7 +270,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
 {
     const hecl::Database::DataSpecEntry* spec = m_origSpec;
     if (pcTarget)
-        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec);
+        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec, hecl::SharedBlenderToken);
     if (!spec)
         return {};
     return working.getCookedPath(*spec);
@@ -281,7 +278,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
-    return m_clientProc.syncCook(working) == 0;
+    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::SharedBlenderToken);
 }
 
 CFactoryFnReturn ProjectResourceFactoryBase::SyncMakeObject(const SObjectTag& tag,
@@ -348,7 +345,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const hecl::ProjectPath& 
             m_cookedPath.getModtime() < path.getModtime())
         {
             /* Start a background cook here */
-            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path);
+            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path, m_parent.m_cookSpec.get());
             return;
         }
 
