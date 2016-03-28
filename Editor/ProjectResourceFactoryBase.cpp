@@ -44,24 +44,29 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
         {
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
             m_catalogNameToTag[p.first] = pathTag;
+#if 0
+            fprintf(stderr, "%s %s %08X\n",
+                    p.first.c_str(),
+                    pathTag.type.toString().c_str(), uint32_t(pathTag.id));
+#endif
         }
     }
 }
 
-void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::SystemString& path, int level)
+void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir, int level)
 {
-    hecl::DirectoryEnumerator dEnum(path,
+    hecl::DirectoryEnumerator dEnum(dir.getAbsolutePath(),
                                     hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
                                     false, false, true);
 
     /* Enumerate all items */
     for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
     {
+        hecl::ProjectPath path(dir, ent.m_name);
         if (ent.m_isDir)
-            BackgroundIndexRecursiveProc(ent.m_path, level+1);
+            BackgroundIndexRecursiveProc(path, level+1);
         else
         {
-            hecl::ProjectPath path(path, ent.m_name);
             if (path.getPathType() != hecl::ProjectPath::Type::File)
                 continue;
 
@@ -78,6 +83,11 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::System
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath[pathTag] = path;
+#if 0
+                fprintf(stderr, "%s %08X %s\n",
+                        pathTag.type.toString().c_str(), uint32_t(pathTag.id),
+                        path.getRelativePathUTF8().c_str());
+#endif
             }
         }
 
@@ -90,7 +100,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::System
 void ProjectResourceFactoryBase::BackgroundIndexProc()
 {
     hecl::ProjectPath specRoot(m_proj->getProjectWorkingPath(), m_origSpec->m_name);
-    BackgroundIndexRecursiveProc(specRoot.getAbsolutePath(), 0);
+    BackgroundIndexRecursiveProc(specRoot, 0);
     m_backgroundRunning = false;
     m_backgroundBlender = std::experimental::nullopt;
 }
@@ -105,7 +115,7 @@ void ProjectResourceFactoryBase::CancelBackgroundIndex()
 }
 
 void ProjectResourceFactoryBase::BeginBackgroundIndex
-    (const hecl::Database::Project& proj,
+    (hecl::Database::Project& proj,
      const hecl::Database::DataSpecEntry& origSpec,
      const hecl::Database::DataSpecEntry& pcSpec)
 {
@@ -114,14 +124,31 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
     m_proj = &proj;
     m_origSpec = &origSpec;
     m_pcSpec = &pcSpec;
+    m_cookSpec.reset(pcSpec.m_factory(proj, hecl::Database::DataSpecTool::Cook));
     m_backgroundRunning = true;
     m_backgroundIndexTh =
         std::thread(std::bind(&ProjectResourceFactoryBase::BackgroundIndexProc, this));
 }
 
-CFactoryFnReturn ProjectResourceFactoryBase::MakeObject(const SObjectTag& tag,
-                                                        const hecl::ProjectPath& path,
-                                                        const CVParamTransfer& paramXfer)
+hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectPath& working,
+                                                            bool pcTarget) const
+{
+    const hecl::Database::DataSpecEntry* spec = m_origSpec;
+    if (pcTarget)
+        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec);
+    if (!spec)
+        return {};
+    return working.getCookedPath(*spec);
+}
+
+bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
+{
+    return m_clientProc.syncCook(working) == 0;
+}
+
+CFactoryFnReturn ProjectResourceFactoryBase::SyncMakeObject(const SObjectTag& tag,
+                                                            const hecl::ProjectPath& path,
+                                                            const CVParamTransfer& paramXfer)
 {
     /* Ensure requested resource is on the filesystem */
     if (path.getPathType() != hecl::ProjectPath::Type::File)
@@ -132,13 +159,14 @@ CFactoryFnReturn ProjectResourceFactoryBase::MakeObject(const SObjectTag& tag,
     }
 
     /* Get cooked representation path */
-    hecl::ProjectPath cooked = GetCookedPath(tag, path, true);
+    hecl::ProjectPath cooked = GetCookedPath(path, true);
 
     /* Perform mod-time comparison */
     if (cooked.getPathType() != hecl::ProjectPath::Type::File ||
         cooked.getModtime() < path.getModtime())
     {
-        if (!DoCook(tag, path, cooked, true))
+        /* Do a blocking cook here */
+        if (!SyncCook(path))
         {
             Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
                        path.getAbsolutePath().c_str());
@@ -157,6 +185,76 @@ CFactoryFnReturn ProjectResourceFactoryBase::MakeObject(const SObjectTag& tag,
 
     /* All good, build resource */
     return m_factoryMgr.MakeObject(tag, fr, paramXfer);
+}
+
+void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const hecl::ProjectPath& path)
+{
+    if (!m_workingPath)
+    {
+        m_workingPath = path;
+
+        /* Ensure requested resource is on the filesystem */
+        if (path.getPathType() != hecl::ProjectPath::Type::File)
+        {
+            Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
+                       path.getAbsolutePath().c_str());
+            m_failed = true;
+            return;
+        }
+
+        /* Get cooked representation path */
+        m_cookedPath = m_parent.GetCookedPath(path, true);
+
+        /* Perform mod-time comparison */
+        if (m_cookedPath.getPathType() != hecl::ProjectPath::Type::File ||
+            m_cookedPath.getModtime() < path.getModtime())
+        {
+            /* Start a background cook here */
+            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path);
+            return;
+        }
+
+        CookComplete();
+    }
+}
+
+void ProjectResourceFactoryBase::AsyncTask::CookComplete()
+{
+    /* Ensure cooked rep is on the filesystem */
+    athena::io::FileReader fr(m_cookedPath.getAbsolutePath(), 32 * 1024, false);
+    if (fr.hasError())
+    {
+        Log.report(logvisor::Error, _S("unable to open cooked resource path '%s'"),
+                   m_cookedPath.getAbsolutePath().c_str());
+        m_failed = true;
+        return;
+    }
+
+    /* Ready for buffer transaction at this point */
+    x14_resSize = fr.length();
+    x10_loadBuffer.reset(new u8[x14_resSize]);
+    m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
+                                                                  x10_loadBuffer.get(),
+                                                                  x14_resSize, 0);
+}
+
+bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
+{
+    if (m_failed)
+        return true;
+
+    if (m_bufTransaction)
+    {
+        if (m_bufTransaction->m_complete)
+            return true;
+    }
+    else if (m_cookTransaction)
+    {
+        if (m_cookTransaction->m_complete)
+            CookComplete();
+    }
+
+    return m_failed;
 }
 
 std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjectTag& tag,
@@ -181,7 +279,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
             return {};
     }
 
-    return MakeObject(tag, search->second, paramXfer);
+    return SyncMakeObject(tag, search->second, paramXfer);
 }
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
@@ -190,7 +288,7 @@ void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
 {
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return;
-    m_asyncLoadList[tag] = CResFactory::SLoadingData(tag, objOut, paramXfer);
+    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, objOut, paramXfer)));
 }
 
 void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
@@ -250,8 +348,13 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
 
 void ProjectResourceFactoryBase::AsyncIdle()
 {
+    /* Consume completed transactions, they will be processed this cycle at the latest */
+    std::list<std::unique_ptr<hecl::ClientProcess::Transaction>> completed;
+    m_clientProc.swapCompletedQueue(completed);
+
+    /* Begin self-profiling loop */
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    for (auto it=m_asyncLoadList.begin() ; it != m_asyncLoadList.end() ; ++it)
+    for (auto it=m_asyncLoadList.begin() ; it != m_asyncLoadList.end() ;)
     {
         /* Allow 8 milliseconds (roughly 1/2 frame-time) for each async build cycle */
         if (std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -260,7 +363,7 @@ void ProjectResourceFactoryBase::AsyncIdle()
 
         /* Ensure requested resource is in the index */
         std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        CResFactory::SLoadingData& data = it->second;
+        AsyncTask& data = it->second;
         auto search = m_tagToPath.find(data.x0_tag);
         if (search == m_tagToPath.end())
         {
@@ -272,11 +375,18 @@ void ProjectResourceFactoryBase::AsyncIdle()
             }
             continue;
         }
+        data.EnsurePath(search->second);
 
-        /* Perform build (data not actually loaded asynchronously for now) */
-        CFactoryFnReturn ret = MakeObject(data.x0_tag, search->second, data.x18_cvXfer);
-        *data.xc_targetPtr = ret.release();
-        it = m_asyncLoadList.erase(it);
+        /* Pump load pipeline (cooking if needed) */
+        if (data.AsyncPump())
+        {
+            /* Load complete, build resource */
+            athena::io::MemoryReader mr(data.x10_loadBuffer.get(), data.x14_resSize);
+            *data.xc_targetPtr = m_factoryMgr.MakeObject(data.x0_tag, mr, data.x18_cvXfer).release();
+            it = m_asyncLoadList.erase(it);
+            continue;
+        }
+        ++it;
     }
 }
 
