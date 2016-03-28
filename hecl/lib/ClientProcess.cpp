@@ -1,4 +1,5 @@
 #include "hecl/ClientProcess.hpp"
+#include "hecl/Database.hpp"
 #include "athena/FileReader.hpp"
 
 #ifdef _WIN32
@@ -14,6 +15,7 @@ static logvisor::Module Log("hecl::ClientProcess");
 
 static bool ExecProcessAndWait(bool verbose,
                                const SystemChar* exePath,
+                               const SystemChar* workDir,
                                const SystemChar* args[],
                                int& returnCode)
 {
@@ -39,7 +41,7 @@ static bool ExecProcessAndWait(bool verbose,
     }
 
     PROCESS_INFORMATION pinfo;
-    if (!CreateProcessW(exePath, cmdLine.c_str(), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &pinfo))
+    if (!CreateProcessW(exePath, cmdLine.c_str(), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, workDir, &sinfo, &pinfo))
     {
         LPWSTR messageBuffer = nullptr;
         size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -67,13 +69,26 @@ static bool ExecProcessAndWait(bool verbose,
     std::vector<const SystemChar*> assembleArgs;
     size_t argCount = 0;
     for (const SystemChar** it=args ; *it ; ++it) ++argCount;
-    assembleArgs.reserve(argCount+1);
+    assembleArgs.reserve(argCount+2);
     assembleArgs.push_back(exePath);
     for (const SystemChar** it=args ; *it ; ++it) assembleArgs.push_back(*it);
+    assembleArgs.push_back(nullptr);
+
+    if (verbose)
+    {
+        printf("cd %s\n", workDir);
+        for (const SystemChar* arg : assembleArgs)
+            if (arg)
+                printf("%s ", arg);
+        printf("\n");
+        fflush(stdout);
+    }
 
     pid_t pid = fork();
     if (!pid)
     {
+        chdir(workDir);
+
         if (!verbose)
         {
             int devNull = open("/dev/null", O_WRONLY);
@@ -195,9 +210,16 @@ ClientProcess::addCookTransaction(const hecl::ProjectPath& path)
 
 int ClientProcess::syncCook(const hecl::ProjectPath& path)
 {
-    const SystemChar* args[] = {_S("cook"), path.getAbsolutePath().c_str()};
+    const SystemChar* workDir = path.getProject().getProjectWorkingPath().getAbsolutePath().c_str();
+    const SystemChar* args[] = {_S("cook"), path.getAbsolutePath().c_str(), nullptr};
     int returnCode;
-    if (!ExecProcessAndWait(m_verbosity != 0, _S("hecl"), args, returnCode))
+    const SystemChar* heclOverride = hecl::GetEnv(_S("HECL_BIN"));
+    if (heclOverride)
+    {
+        if (ExecProcessAndWait(m_verbosity != 0, heclOverride, workDir, args, returnCode))
+            return returnCode;
+    }
+    if (!ExecProcessAndWait(m_verbosity != 0, _S("hecl"), workDir, args, returnCode))
         Log.report(logvisor::Fatal, _S("unable to background-cook '%s'"),
                    path.getAbsolutePath().c_str());
     return returnCode;

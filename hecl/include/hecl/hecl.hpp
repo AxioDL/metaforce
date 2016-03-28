@@ -194,6 +194,15 @@ static inline void MakeDir(const wchar_t* dir)
 }
 #endif
 
+static inline const SystemChar* GetEnv(const SystemChar* name)
+{
+#if HECL_UCS2
+    return _wgetenv(name);
+#else
+    return getenv(name);
+#endif
+}
+
 static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 {
 #if HECL_UCS2
