@@ -699,7 +699,7 @@ public:
     BlenderConnection& getBlenderConnection()
     {
         if (!m_conn)
-            m_conn.emplace();
+            m_conn.emplace(hecl::VerbosityLevel);
         return *m_conn;
     }
     void shutdown()
