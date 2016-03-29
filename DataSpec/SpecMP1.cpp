@@ -10,6 +10,11 @@
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/ANCS.hpp"
 #include "DNACommon/PART.hpp"
+#include "DNACommon/SWHC.hpp"
+#include "DNACommon/ELSC.hpp"
+#include "DNACommon/WPSC.hpp"
+#include "DNACommon/CRSC.hpp"
+#include "DNACommon/DPSC.hpp"
 
 namespace DataSpec
 {
@@ -297,6 +302,16 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAParticle::GPSM<UniqueID32>::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAParticle::SWSH<UniqueID32>::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::ELSM<UniqueID32>::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::WPSM<UniqueID32>::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::CRSM<UniqueID32>::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::DPSM<UniqueID32>::DNAType()))
+                return true;
             return false;
         });
     }
@@ -347,7 +362,38 @@ struct SpecMP1 : SpecBase
                 gpsm.read(reader);
                 DNAParticle::WriteGPSM(gpsm, out);
             }
+            else if (!classStr.compare(DNAParticle::SWSH<UniqueID32>::DNAType()))
+            {
+                DNAParticle::SWSH<UniqueID32> swsh;
+                swsh.read(reader);
+                DNAParticle::WriteSWSH(swsh, out);
+            }
+            else if (!classStr.compare(DNAParticle::ELSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::ELSM<UniqueID32> elsm;
+                elsm.read(reader);
+                DNAParticle::WriteELSM(elsm, out);
+            }
+            else if (!classStr.compare(DNAParticle::WPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::WPSM<UniqueID32> wpsm;
+                wpsm.read(reader);
+                DNAParticle::WriteWPSM(wpsm, out);
+            }
+            else if (!classStr.compare(DNAParticle::CRSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::CRSM<UniqueID32> crsm;
+                crsm.read(reader);
+                DNAParticle::WriteCRSM(crsm, out);
+            }
+            else if (!classStr.compare(DNAParticle::DPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::DPSM<UniqueID32> dpsm;
+                dpsm.read(reader);
+                DNAParticle::WriteDPSM(dpsm, out);
+            }
         }
+        progress(_S("Done"));
     }
 };
 
