@@ -528,6 +528,7 @@ void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
 
     os << "mesh.use_auto_smooth = True\n"
           "mesh.auto_smooth_angle = math.pi\n"
+          "mesh.show_edge_sharp = True\n"
           "\n"
           "for material in materials:\n"
           "    mesh.materials.append(material)\n"
