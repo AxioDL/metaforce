@@ -9,6 +9,7 @@
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/ANCS.hpp"
+#include "DNACommon/PART.hpp"
 
 namespace DataSpec
 {
@@ -33,8 +34,8 @@ struct SpecMP1 : SpecBase
     hecl::ProjectPath m_cookPath;
     PAKRouter<DNAMP1::PAKBridge> m_pakRouter;
 
-    SpecMP1(hecl::Database::Project& project, bool pc)
-    : SpecBase(project, pc),
+    SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
+    : SpecBase(specEntry, project, pc),
       m_workPath(project.getProjectWorkingPath(), _S("MP1")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1")),
       m_pakRouter(*this, m_workPath, m_cookPath) {}
@@ -286,11 +287,18 @@ struct SpecMP1 : SpecBase
 
     bool validateYAMLDNAType(FILE* fp) const
     {
-        if (BigYAML::ValidateFromYAMLFile<DNAMP1::MLVL>(fp))
-            return true;
-        if (BigYAML::ValidateFromYAMLFile<DNAMP1::STRG>(fp))
-            return true;
-        return false;
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input_file(reader.getParser(), fp);
+        return reader.ClassTypeOperation([](const char* classType)
+        {
+            if (!strcmp(classType, DNAMP1::MLVL::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::STRG::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAParticle::GPSM<UniqueID32>::DNAType()))
+                return true;
+            return false;
+        });
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
@@ -319,6 +327,27 @@ struct SpecMP1 : SpecBase
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   FILE* fin, FCookProgress progress) const
     {
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input_file(reader.getParser(), fin);
+        if (reader.parse())
+        {
+            std::string classStr = reader.readString("DNAType");
+            if (classStr.empty())
+                return;
+
+            if (!classStr.compare(DNAMP1::STRG::DNAType()))
+            {
+                DNAMP1::STRG strg;
+                strg.read(reader);
+                DNAMP1::STRG::Cook(strg, out);
+            }
+            else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::GPSM<UniqueID32> gpsm;
+                gpsm.read(reader);
+                DNAParticle::WriteGPSM(gpsm, out);
+            }
+        }
     }
 };
 
@@ -327,7 +356,7 @@ hecl::Database::DataSpecEntry SpecEntMP1 =
     _S("MP1"),
     _S("Data specification for original Metroid Prime engine"),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP1(project, false);}
+    -> hecl::Database::IDataSpec* {return new struct SpecMP1(&SpecEntMP1, project, false);}
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1PC =
@@ -338,7 +367,7 @@ hecl::Database::DataSpecEntry SpecEntMP1PC =
     -> hecl::Database::IDataSpec*
     {
         if (tool != hecl::Database::DataSpecTool::Extract)
-            return new struct SpecMP1(project, true);
+            return new struct SpecMP1(&SpecEntMP1PC, project, true);
         return nullptr;
     }
 };

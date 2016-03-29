@@ -16,11 +16,12 @@ struct SpecBase : hecl::Database::IDataSpec
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 
-    bool canCook(const hecl::ProjectPath& path);
+    bool canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok);
     const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
-                                                          const hecl::Database::DataSpecEntry* oldEntry);
+                                                          const hecl::Database::DataSpecEntry* oldEntry,
+                                                          hecl::BlenderToken& btok);
     void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
-                bool fast, FCookProgress progress);
+                bool fast, hecl::BlenderToken& btok, FCookProgress progress);
 
     bool canPackage(const PackagePassInfo& info);
     void gatherDependencies(const PackagePassInfo& info,
@@ -72,7 +73,7 @@ struct SpecBase : hecl::Database::IDataSpec
     /* Project accessor */
     hecl::Database::Project& getProject() const {return m_project;}
 
-    SpecBase(hecl::Database::Project& project, bool pc);
+    SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc);
 protected:
     hecl::Database::Project& m_project;
     bool m_pc;

@@ -79,6 +79,13 @@ struct STRG : ISTRG
         return true;
     }
 
+    static bool Cook(const STRG& strg, const hecl::ProjectPath& outPath)
+    {
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        strg.write(ws);
+        return true;
+    }
+
 };
 
 }

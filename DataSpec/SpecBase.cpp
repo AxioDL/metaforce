@@ -33,8 +33,8 @@ static const hecl::SystemChar* MomErr[] =
 };
 
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
-SpecBase::SpecBase(hecl::Database::Project& project, bool pc)
-: m_project(project), m_pc(pc),
+SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
+: hecl::Database::IDataSpec(specEntry), m_project(project), m_pc(pc),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
@@ -114,13 +114,13 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     extractFromDisc(*m_disc, info.force, progress);
 }
 
-bool SpecBase::canCook(const hecl::ProjectPath& path)
+bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 {
     if (!checkPathPrefix(path))
         return false;
     if (hecl::IsPathBlend(path))
     {
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(path))
             return false;
         if (conn.getBlendType() != hecl::BlenderConnection::BlendType::None)
@@ -141,13 +141,14 @@ bool SpecBase::canCook(const hecl::ProjectPath& path)
 }
 
 const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::ProjectPath& path,
-                                                                const hecl::Database::DataSpecEntry* oldEntry)
+                                                                const hecl::Database::DataSpecEntry* oldEntry,
+                                                                hecl::BlenderToken& btok)
 {
     if (!checkPathPrefix(path))
         return nullptr;
     if (hecl::IsPathBlend(path))
     {
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(path))
         {
             Log.report(logvisor::Error, _S("unable to cook '%s'"),
@@ -167,12 +168,12 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 }
 
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
-                      bool fast, FCookProgress progress)
+                      bool fast, hecl::BlenderToken& btok, FCookProgress progress)
 {
     DataSpec::g_curSpec = this;
     if (hecl::IsPathBlend(path))
     {
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(path))
             return;
         switch (conn.getBlendType())
@@ -209,6 +210,7 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     {
         FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
         cookYAML(cookedPath, path, fp, progress);
+        fclose(fp);
     }
 }
 

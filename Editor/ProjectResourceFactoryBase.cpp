@@ -20,7 +20,8 @@ hecl::BlenderConnection& ProjectResourceFactoryBase::GetBackgroundBlender() cons
     return *shareConn;
 }
 
-void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPath)
+void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPath,
+                                             athena::io::YAMLDocWriter& nameWriter)
 {
     FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().c_str(), _S("r"));
     if (!fp)
@@ -44,6 +45,10 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
         {
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
             m_catalogNameToTag[p.first] = pathTag;
+
+            char idStr[9];
+            snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
+            nameWriter.writeString(p.first.c_str(), idStr);
 #if 0
             fprintf(stderr, "%s %s %08X\n",
                     p.first.c_str(),
@@ -53,7 +58,43 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
     }
 }
 
-void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir, int level)
+void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir,
+                                                                  athena::io::YAMLDocWriter& nameWriter,
+                                                                  int level)
+{
+    hecl::DirectoryEnumerator dEnum(dir.getAbsolutePath(),
+                                    hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                    false, false, true);
+
+    /* Enumerate all items */
+    for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
+    {
+        hecl::ProjectPath path(dir, ent.m_name);
+        if (ent.m_isDir && level < 1)
+            BackgroundIndexRecursiveCatalogs(path, nameWriter, level+1);
+        else
+        {
+            if (path.getPathType() != hecl::ProjectPath::Type::File)
+                continue;
+
+            /* Read catalog.yaml for .pak directory if exists */
+            if (level == 1 && !ent.m_name.compare(_S("catalog.yaml")))
+            {
+                ReadCatalog(path, nameWriter);
+                continue;
+            }
+        }
+
+        /* bail if cancelled by client */
+        if (!m_backgroundRunning)
+            break;
+    }
+}
+
+void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
+                                                              athena::io::YAMLDocWriter& cacheWriter,
+                                                              athena::io::YAMLDocWriter& nameWriter,
+                                                              int level)
 {
     hecl::DirectoryEnumerator dEnum(dir.getAbsolutePath(),
                                     hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
@@ -64,7 +105,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
     {
         hecl::ProjectPath path(dir, ent.m_name);
         if (ent.m_isDir)
-            BackgroundIndexRecursiveProc(path, level+1);
+            BackgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level+1);
         else
         {
             if (path.getPathType() != hecl::ProjectPath::Type::File)
@@ -73,7 +114,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
             /* Read catalog.yaml for .pak directory if exists */
             if (level == 1 && !ent.m_name.compare(_S("catalog.yaml")))
             {
-                ReadCatalog(path);
+                ReadCatalog(path, nameWriter);
                 continue;
             }
 
@@ -83,7 +124,13 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath[pathTag] = path;
-#if 0
+                char idStr[9];
+                snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
+                cacheWriter.enterSubVector(idStr);
+                cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
+                cacheWriter.writeString(nullptr, path.getRelativePathUTF8().c_str());
+                cacheWriter.leaveSubVector();
+#if 1
                 fprintf(stderr, "%s %08X %s\n",
                         pathTag.type.toString().c_str(), uint32_t(pathTag.id),
                         path.getRelativePathUTF8().c_str());
@@ -99,19 +146,107 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
 
 void ProjectResourceFactoryBase::BackgroundIndexProc()
 {
+    hecl::ProjectPath tagCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("tag_cache.yaml"));
+    hecl::ProjectPath nameCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("name_cache.yaml"));
     hecl::ProjectPath specRoot(m_proj->getProjectWorkingPath(), m_origSpec->m_name);
-    BackgroundIndexRecursiveProc(specRoot, 0);
+
+    /* Read in tag cache */
+    if (tagCachePath.getPathType() == hecl::ProjectPath::Type::File)
+    {
+        FILE* cacheFile = hecl::Fopen(tagCachePath.getAbsolutePath().c_str(), _S("r"));
+        if (cacheFile)
+        {
+            Log.report(logvisor::Info, _S("Cache index of '%s' loading"), m_origSpec->m_name);
+            athena::io::YAMLDocReader cacheReader;
+            yaml_parser_set_input_file(cacheReader.getParser(), cacheFile);
+            if (cacheReader.parse())
+            {
+                std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+                m_tagToPath.reserve(cacheReader.getRootNode()->m_mapChildren.size());
+                for (const auto& child : cacheReader.getRootNode()->m_mapChildren)
+                {
+                    unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
+                    hecl::FourCC type(child.second->m_seqChildren.at(0)->m_scalarString.c_str());
+                    hecl::ProjectPath path(m_proj->getProjectWorkingPath(),
+                        child.second->m_seqChildren.at(1)->m_scalarString);
+                    m_tagToPath[SObjectTag(type, id)] = path;
+                }
+            }
+            fclose(cacheFile);
+            Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
+                       m_origSpec->m_name, m_tagToPath.size());
+
+            if (nameCachePath.getPathType() == hecl::ProjectPath::Type::File)
+            {
+                /* Read in name cache */
+                Log.report(logvisor::Info, _S("Name index of '%s' loading"), m_origSpec->m_name);
+                FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("r"));
+                athena::io::YAMLDocReader nameReader;
+                yaml_parser_set_input_file(nameReader.getParser(), nameFile);
+                if (nameReader.parse())
+                {
+                    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+                    m_catalogNameToTag.reserve(nameReader.getRootNode()->m_mapChildren.size());
+                    for (const auto& child : nameReader.getRootNode()->m_mapChildren)
+                    {
+                        unsigned long id = strtoul(child.second->m_scalarString.c_str(), nullptr, 16);
+                        auto search = m_tagToPath.find(SObjectTag(FourCC(), uint32_t(id)));
+                        if (search != m_tagToPath.cend())
+                            m_catalogNameToTag[child.first] = search->first;
+                    }
+                }
+                fclose(nameFile);
+                Log.report(logvisor::Info, _S("Name index of '%s' loaded; %d names"),
+                           m_origSpec->m_name, m_catalogNameToTag.size());
+            }
+            else
+            {
+                /* Build name cache */
+                Log.report(logvisor::Info, _S("Name index of '%s' started"), m_origSpec->m_name);
+                athena::io::YAMLDocWriter nameWriter(nullptr);
+                BackgroundIndexRecursiveCatalogs(specRoot, nameWriter, 0);
+                FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("w"));
+                yaml_emitter_set_output_file(nameWriter.getEmitter(), nameFile);
+                nameWriter.finish();
+                fclose(nameFile);
+                Log.report(logvisor::Info, _S("Name index of '%s' complete; %d names"),
+                           m_origSpec->m_name, m_catalogNameToTag.size());
+            }
+            m_backgroundRunning = false;
+            return;
+        }
+    }
+
+    Log.report(logvisor::Info, _S("Background index of '%s' started"), m_origSpec->m_name);
+    athena::io::YAMLDocWriter cacheWriter(nullptr);
+    athena::io::YAMLDocWriter nameWriter(nullptr);
+    BackgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
+
+    FILE* cacheFile = hecl::Fopen(tagCachePath.getAbsolutePath().c_str(), _S("w"));
+    yaml_emitter_set_output_file(cacheWriter.getEmitter(), cacheFile);
+    cacheWriter.finish();
+    fclose(cacheFile);
+
+    FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("w"));
+    yaml_emitter_set_output_file(nameWriter.getEmitter(), nameFile);
+    nameWriter.finish();
+    fclose(nameFile);
+
+    if (m_backgroundBlender)
+    {
+        m_backgroundBlender->quitBlender();
+        m_backgroundBlender = std::experimental::nullopt;
+    }
+    Log.report(logvisor::Info, _S("Background index of '%s' complete; %d tags, %d names"),
+               m_origSpec->m_name, m_tagToPath.size(), m_catalogNameToTag.size());
     m_backgroundRunning = false;
-    m_backgroundBlender = std::experimental::nullopt;
 }
 
 void ProjectResourceFactoryBase::CancelBackgroundIndex()
 {
-    if (m_backgroundRunning && m_backgroundIndexTh.joinable())
-    {
-        m_backgroundRunning = false;
+    m_backgroundRunning = false;
+    if (m_backgroundIndexTh.joinable())
         m_backgroundIndexTh.join();
-    }
 }
 
 void ProjectResourceFactoryBase::BeginBackgroundIndex
@@ -135,7 +270,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
 {
     const hecl::Database::DataSpecEntry* spec = m_origSpec;
     if (pcTarget)
-        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec);
+        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec, hecl::SharedBlenderToken);
     if (!spec)
         return {};
     return working.getCookedPath(*spec);
@@ -143,7 +278,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
-    return m_clientProc.syncCook(working) == 0;
+    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::SharedBlenderToken);
 }
 
 CFactoryFnReturn ProjectResourceFactoryBase::SyncMakeObject(const SObjectTag& tag,
@@ -210,7 +345,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const hecl::ProjectPath& 
             m_cookedPath.getModtime() < path.getModtime())
         {
             /* Start a background cook here */
-            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path);
+            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path, m_parent.m_cookSpec.get());
             return;
         }
 
@@ -246,7 +381,10 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
     if (m_bufTransaction)
     {
         if (m_bufTransaction->m_complete)
+        {
+            m_complete = true;
             return true;
+        }
     }
     else if (m_cookTransaction)
     {
@@ -274,6 +412,8 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                 if (search != m_tagToPath.end())
                     break;
             }
+            if (search == m_tagToPath.end())
+                return {};
         }
         else
             return {};
@@ -312,6 +452,8 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
                 if (search != m_tagToPath.end())
                     break;
             }
+            if (search == m_tagToPath.end())
+                return false;
         }
         else
             return false;
@@ -339,6 +481,8 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
                 if (search != m_catalogNameToTag.end())
                     break;
             }
+            if (search == m_catalogNameToTag.end())
+                return nullptr;
         }
         else
             return nullptr;
@@ -363,26 +507,29 @@ void ProjectResourceFactoryBase::AsyncIdle()
 
         /* Ensure requested resource is in the index */
         std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        AsyncTask& data = it->second;
-        auto search = m_tagToPath.find(data.x0_tag);
+        AsyncTask& task = it->second;
+        auto search = m_tagToPath.find(task.x0_tag);
         if (search == m_tagToPath.end())
         {
             if (!m_backgroundRunning)
             {
                 Log.report(logvisor::Error, _S("unable to find async load resource (%s, %08X)"),
-                           data.x0_tag.type.toString().c_str(), data.x0_tag.id);
+                           task.x0_tag.type.toString().c_str(), task.x0_tag.id);
                 it = m_asyncLoadList.erase(it);
             }
             continue;
         }
-        data.EnsurePath(search->second);
+        task.EnsurePath(search->second);
 
         /* Pump load pipeline (cooking if needed) */
-        if (data.AsyncPump())
+        if (task.AsyncPump())
         {
-            /* Load complete, build resource */
-            athena::io::MemoryReader mr(data.x10_loadBuffer.get(), data.x14_resSize);
-            *data.xc_targetPtr = m_factoryMgr.MakeObject(data.x0_tag, mr, data.x18_cvXfer).release();
+            if (task.m_complete)
+            {
+                /* Load complete, build resource */
+                athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                *task.xc_targetPtr = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer).release();
+            }
             it = m_asyncLoadList.erase(it);
             continue;
         }

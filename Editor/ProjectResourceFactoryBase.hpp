@@ -50,6 +50,7 @@ protected:
         const hecl::ClientProcess::CookTransaction* m_cookTransaction = nullptr;
         const hecl::ClientProcess::BufferTransaction* m_bufTransaction = nullptr;
         bool m_failed = false;
+        bool m_complete = false;
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
                   IObj** ptr, const CVParamTransfer& xfer)
@@ -64,8 +65,15 @@ protected:
     virtual SObjectTag TagFromPath(const hecl::ProjectPath& path) const=0;
 
     hecl::BlenderConnection& GetBackgroundBlender() const;
-    void ReadCatalog(const hecl::ProjectPath& catalogPath);
-    void BackgroundIndexRecursiveProc(const hecl::ProjectPath& path, int level);
+    void ReadCatalog(const hecl::ProjectPath& catalogPath,
+                     athena::io::YAMLDocWriter& nameWriter);
+    void BackgroundIndexRecursiveProc(const hecl::ProjectPath& path,
+                                      athena::io::YAMLDocWriter& cacheWriter,
+                                      athena::io::YAMLDocWriter& nameWriter,
+                                      int level);
+    void BackgroundIndexRecursiveCatalogs(const hecl::ProjectPath& path,
+                                          athena::io::YAMLDocWriter& nameWriter,
+                                          int level);
     void BackgroundIndexProc();
     void CancelBackgroundIndex();
     void BeginBackgroundIndex(hecl::Database::Project& proj,
@@ -87,6 +95,8 @@ public:
 
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}
+
+    ~ProjectResourceFactoryBase() {Shutdown();}
 };
 
 }
