@@ -20,6 +20,8 @@ add_library(DNACommon
             SWHC.hpp SWHC.cpp
             CRSC.hpp CRSC.cpp
             ELSC.hpp ELSC.cpp
+            WPSC.hpp WPSC.cpp
+            DPSC.hpp DPSC.cpp
             ParticleCommon.cpp
             FONT.hpp FONT.cpp
             DeafBabe.hpp

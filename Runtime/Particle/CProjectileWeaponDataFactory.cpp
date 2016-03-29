@@ -146,6 +146,12 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             desc->xa8_PJFX = CPF::GetInt(in);
             break;
         }
+        case SBIG('RNGE'):
+            desc->xac_RNGE.reset(CPF::GetRealElement(in));
+        break;
+        case SBIG('FOFF'):
+            desc->xb0_FOFF.reset(CPF::GetRealElement(in));
+        break;
         default:
         {
             uint32_t clsName = clsId.toUint32();

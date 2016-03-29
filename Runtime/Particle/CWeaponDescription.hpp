@@ -49,10 +49,12 @@ public:
     SSwooshGeneratorDesc x74_ASW3;
     SParticleModel x84_OHEF;
     SCollisionResponseData x94_COLR;
-    bool xa4_EWTR;
-    bool xa5_LWTR;
-    bool xa6_SWTR;
-    int xa8_PJFX;
+    bool xa4_EWTR = true;
+    bool xa5_LWTR = true;
+    bool xa6_SWTR = true;
+    u32 xa8_PJFX;
+    std::unique_ptr<CRealElement> xac_RNGE;
+    std::unique_ptr<CRealElement> xb0_FOFF;
 };
 }
 #endif // __PSHAG_CWEAPONDESCRIPTION_HPP__

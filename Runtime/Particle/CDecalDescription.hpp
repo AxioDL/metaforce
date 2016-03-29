@@ -27,7 +27,7 @@ public:
     SQuadDescr x0_Quad;
     SQuadDescr x1c_Quad;
     SParticleModel x38_DMDL;
-    std::unique_ptr<CIntElement> x48_DFLT;
+    std::unique_ptr<CIntElement> x48_DLFT;
     std::unique_ptr<CVectorElement> x4c_DMOP;
     std::unique_ptr<CVectorElement> x50_DMRT;
     std::unique_ptr<CVectorElement> x54_DMSC;

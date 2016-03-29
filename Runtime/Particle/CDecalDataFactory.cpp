@@ -68,8 +68,8 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
         case SBIG('DMDL'):
             desc->x38_DMDL = CPF::GetModel(in, resPool);
         break;
-        case SBIG('DFLT'):
-            desc->x48_DFLT.reset(CPF::GetIntElement(in));
+        case SBIG('DLFT'):
+            desc->x48_DLFT.reset(CPF::GetIntElement(in));
         break;
         case SBIG('DMOP'):
             desc->x4c_DMOP.reset(CPF::GetVectorElement(in));

@@ -1,5 +1,5 @@
-#ifndef CRSC_HPP
-#define CRSC_HPP
+#ifndef __COMMON_CRSC_HPP__
+#define __COMMON_CRSC_HPP__
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -37,4 +37,4 @@ template <class IDType>
 bool WriteCRSM(const CRSM<IDType>& crsm, const hecl::ProjectPath& outPath);
 }
 }
-#endif // CRSC_HPP
+#endif // __COMMON_CRSC_HPP__

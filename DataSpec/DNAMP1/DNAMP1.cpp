@@ -10,6 +10,8 @@
 #include "../DNACommon/ELSC.hpp"
 #include "../DNACommon/SWHC.hpp"
 #include "../DNACommon/CRSC.hpp"
+#include "../DNACommon/WPSC.hpp"
+#include "../DNACommon/DPSC.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
@@ -298,6 +300,10 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {DNAParticle::ExtractSWSH<UniqueID32>, nullptr, {_S(".swsh.yaml")}};
     case SBIG('CRSC'):
         return {DNAParticle::ExtractCRSM<UniqueID32>, nullptr, {_S(".crsm.yaml")}};
+    case SBIG('WPSC'):
+        return {DNAParticle::ExtractWPSM<UniqueID32>, nullptr, {_S(".wpsm.yaml")}};
+    case SBIG('DPSC'):
+        return {DNAParticle::ExtractDPSM<UniqueID32>, nullptr, {_S(".dpsm.yaml")}};
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
     }
