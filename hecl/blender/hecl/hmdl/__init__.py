@@ -49,10 +49,8 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
     bpy.ops.mesh.select_all(action='DESELECT')
     bpy.context.scene.update()
     bpy.ops.object.mode_set(mode='OBJECT')
-    rna_loops = None
-    if copy_mesh.has_custom_normals:
-        copy_mesh.calc_normals_split()
-        rna_loops = copy_mesh.loops
+    copy_mesh.calc_normals_split()
+    rna_loops = copy_mesh.loops
 
     # Filter out useless AABB points and send data
     pt = copy_obj.bound_box[0]
