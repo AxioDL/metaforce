@@ -358,7 +358,7 @@ void DPSM<IDType>::write(athena::io::IStreamWriter& w) const
     if (x5c_24_DMAB)
         w.writeBytes("DMABCNST\x01", 9);
     if (x5c_25_DMOO)
-        w.writeBytes("DMABCNST\x01", 9);
+        w.writeBytes("DMOOCNST\x01", 9);
     w.writeBytes("_END", 4);
 }
 
