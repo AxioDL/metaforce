@@ -28,6 +28,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('PART'), urde::FParticleFactory);
     m_factoryMgr.AddFactory(FOURCC('FRME'), urde::RGuiFrameFactoryInGame);
     m_factoryMgr.AddFactory(FOURCC('FONT'), urde::FRasterFontFactory);
+    m_factoryMgr.AddFactory(FOURCC('CMDL'), urde::FModelFactory);
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)

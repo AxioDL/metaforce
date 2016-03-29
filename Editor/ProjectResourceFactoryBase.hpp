@@ -82,8 +82,8 @@ protected:
 
     hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const;
     bool SyncCook(const hecl::ProjectPath& working);
-    CFactoryFnReturn SyncMakeObject(const SObjectTag& tag, const hecl::ProjectPath& path,
-                                    const CVParamTransfer& paramXfer);
+    CFactoryFnReturn BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path,
+                               const CVParamTransfer& paramXfer);
 
 public:
     ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}

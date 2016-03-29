@@ -281,9 +281,9 @@ bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
     return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::SharedBlenderToken);
 }
 
-CFactoryFnReturn ProjectResourceFactoryBase::SyncMakeObject(const SObjectTag& tag,
-                                                            const hecl::ProjectPath& path,
-                                                            const CVParamTransfer& paramXfer)
+CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
+                                                       const hecl::ProjectPath& path,
+                                                       const CVParamTransfer& paramXfer)
 {
     /* Ensure requested resource is on the filesystem */
     if (path.getPathType() != hecl::ProjectPath::Type::File)
@@ -319,6 +319,13 @@ CFactoryFnReturn ProjectResourceFactoryBase::SyncMakeObject(const SObjectTag& ta
     }
 
     /* All good, build resource */
+    if (m_factoryMgr.CanMakeMemory(tag))
+    {
+        u32 length = fr.length();
+        std::unique_ptr<u8[]> memBuf = fr.readUBytes(length);
+        return m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer);
+    }
+
     return m_factoryMgr.MakeObject(tag, fr, paramXfer);
 }
 
@@ -419,7 +426,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
             return {};
     }
 
-    return SyncMakeObject(tag, search->second, paramXfer);
+    return BuildSync(tag, search->second, paramXfer);
 }
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
