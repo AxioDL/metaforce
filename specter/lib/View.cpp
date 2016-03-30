@@ -268,22 +268,22 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
+    m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
-    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, false, false, false);
+    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
+    m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
-    m_texShader = factory->newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, false, false);
+    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif

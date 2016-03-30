@@ -253,12 +253,12 @@ void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* f
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_vtxFmt = factory->newVertexFormat(13, vdescs);
+    m_vtxFmt = ctx.newVertexFormat(13, vdescs);
 
     m_regular =
-    factory->newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
-                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               boo::Primitive::TriStrips, false, false, false);
+    ctx.newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
+                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                          boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
