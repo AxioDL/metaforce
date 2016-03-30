@@ -16,7 +16,9 @@ class CLineRendererShaders
 public:
     struct IDataBindingFactory
     {
-        virtual void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline,
+        virtual void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                            CLineRenderer& renderer,
+                                            boo::IShaderPipeline* pipeline,
                                             boo::ITexture* texture)=0;
     };
 
@@ -34,20 +36,21 @@ private:
     static boo::GraphicsDataToken m_gfxToken;
 
 public:
-    static IDataBindingFactory* Initialize(boo::GLDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
 #if _WIN32
-    static IDataBindingFactory* Initialize(boo::ID3DDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
 #endif
 #if BOO_HAS_METAL
-    static IDataBindingFactory* Initialize(boo::MetalDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::MetalDataFactory::Context& ctx);
 #endif
 #if BOO_HAS_VULKAN
-    static IDataBindingFactory* Initialize(boo::VulkanDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::VulkanDataFactory::Context& ctx);
 #endif
 
     static void Initialize();
     static void Shutdown();
-    static void BuildShaderDataBinding(CLineRenderer& renderer, boo::ITexture* texture, bool additive);
+    static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
+                                       boo::ITexture* texture, bool additive);
 };
 
 }

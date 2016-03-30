@@ -33,10 +33,7 @@ class ModelViewer : public ViewerSpace
         boo::SWindowRect m_scissorRect;
 
         View(ModelViewer& mv, specter::ViewResources& res)
-            : specter::View(res, mv.m_vm.rootView()), m_mv(mv)
-        {
-            commitResources(res);
-        }
+        : specter::View(res, mv.m_vm.rootView()), m_mv(mv) {}
 
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue *gfxQ);

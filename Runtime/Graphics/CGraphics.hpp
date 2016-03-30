@@ -222,13 +222,9 @@ public:
         g_SpareTexture = spareTex;
     }
 
-    static boo::IGraphicsBufferD* NewDynamicGPUBuffer(boo::BufferUse use, size_t stride, size_t count)
+    static boo::GraphicsDataToken CommitResources(const boo::FactoryCommitFunc& commitFunc)
     {
-        return g_BooFactory->newDynamicBuffer(use, stride, count);
-    }
-    static boo::GraphicsDataToken CommitResources()
-    {
-        return g_BooFactory->commit();
+        return g_BooFactory->commitTransaction(commitFunc);
     }
     static void SetShaderDataBinding(boo::IShaderDataBinding* binding)
     {

@@ -43,7 +43,6 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 
     m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");
     m_textColorClear[3] = 0.0;
-    commitResources(res);
 }
 
 void SplashScreen::think()

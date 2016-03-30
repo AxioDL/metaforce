@@ -16,7 +16,8 @@ class CElementGenShaders
 public:
     struct IDataBindingFactory
     {
-        virtual void BuildShaderDataBinding(CElementGen& gen,
+        virtual void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                            CElementGen& gen,
                                             boo::IShaderPipeline* regPipeline,
                                             boo::IShaderPipeline* redToAlphaPipeline)=0;
     };
@@ -61,21 +62,21 @@ private:
     static boo::GraphicsDataToken m_gfxToken;
 
 public:
-    static IDataBindingFactory* Initialize(boo::GLDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
 #if _WIN32
-    static IDataBindingFactory* Initialize(boo::ID3DDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
 #endif
 #if BOO_HAS_METAL
-    static IDataBindingFactory* Initialize(boo::MetalDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::MetalDataFactory::Context& ctx);
 #endif
 #if BOO_HAS_VULKAN
-    static IDataBindingFactory* Initialize(boo::VulkanDataFactory& factory);
+    static IDataBindingFactory* Initialize(boo::VulkanDataFactory::Context& ctx);
 #endif
 
     static void Initialize();
     static void Shutdown();
     static EShaderClass GetShaderClass(CElementGen& gen);
-    static void BuildShaderDataBinding(CElementGen& gen);
+    static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen);
 };
 
 }

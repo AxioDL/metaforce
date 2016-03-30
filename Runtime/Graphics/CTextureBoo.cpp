@@ -111,11 +111,12 @@ void CTexture::BuildI4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildI8FromGCN(CInputStream& in)
@@ -158,11 +159,12 @@ void CTexture::BuildI8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildIA4FromGCN(CInputStream& in)
@@ -206,11 +208,12 @@ void CTexture::BuildIA4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildIA8FromGCN(CInputStream& in)
@@ -254,11 +257,12 @@ void CTexture::BuildIA8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in)
@@ -361,11 +365,12 @@ void CTexture::BuildC4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildC8FromGCN(CInputStream& in)
@@ -404,11 +409,12 @@ void CTexture::BuildC8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildC14X2FromGCN(CInputStream& in)
@@ -455,11 +461,12 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildRGB5A3FromGCN(CInputStream& in)
@@ -511,11 +518,12 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 void CTexture::BuildRGBA8FromGCN(CInputStream& in)
@@ -567,11 +575,12 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::RGBA8,
-                                                                    buf.get(), texelCount * 4, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
 }
 
 struct DXT1Block
@@ -630,11 +639,12 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    boo::ITextureS* tmp;
-    m_booToken = CGraphics::g_BooFactory->newStaticTextureNoContext(x4_w, x6_h, x8_mips,
-                                                                    boo::TextureFormat::DXT1,
-                                                                    buf.get(), blockCount * 8, tmp);
-    m_booTex = tmp;
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1,
+                                        buf.get(), blockCount * 8);
+        return true;
+    });
 }
 
 CTexture::CTexture(CInputStream& in)

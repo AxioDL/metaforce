@@ -63,74 +63,74 @@ void CTextRenderBuffer::CommitResources()
         return;
     m_committed = true;
 
-    m_uniBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Uniform,
-                                              sizeof(BooUniform), 1);
-
-    for (BooFontCharacters& chs : m_fontCharacters)
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        chs.m_instBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex,
-                                                       sizeof(BooCharacterInstance),
-                                                       chs.m_charCount);
-        boo::IVertexFormat* vFmt = g_TextVtxFmt;
-        if (CGraphics::g_BooFactory->bindingNeedsVertexFormat())
+        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(BooUniform), 1);
+
+        for (BooFontCharacters& chs : m_fontCharacters)
         {
-            boo::VertexElementDescriptor elems[] =
+            chs.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
+                                                 sizeof(BooCharacterInstance),
+                                                 chs.m_charCount);
+            boo::IVertexFormat* vFmt = g_TextVtxFmt;
+            if (ctx.bindingNeedsVertexFormat())
             {
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
-                {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
-            };
-            vFmt = CGraphics::g_BooFactory->newVertexFormat(10, elems);
+                boo::VertexElementDescriptor elems[] =
+                {
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+                };
+                vFmt = ctx.newVertexFormat(10, elems);
+            }
+
+            boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
+            boo::ITexture* texs[] = {chs.m_font.GetObj()->GetTexture()->GetBooTexture()};
+            chs.m_dataBinding = ctx.newShaderDataBinding(g_TextShaderPipeline, vFmt,
+                                                         nullptr, chs.m_instBuf, nullptr,
+                                                         1, uniforms, 1, texs);
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
-        boo::ITexture* texs[] = {chs.m_font.GetObj()->GetTexture()->GetBooTexture()};
-        chs.m_dataBinding = CGraphics::g_BooFactory->newShaderDataBinding(g_TextShaderPipeline, vFmt,
-                                                                          nullptr, chs.m_instBuf, nullptr,
-                                                                          1, uniforms, 1, texs);
-    }
-
-    for (BooImage& img : m_images)
-    {
-        img.m_instBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex,
-                                                       sizeof(BooImageInstance), 1);
-        boo::IVertexFormat* vFmt = g_TextImageVtxFmt;
-        if (CGraphics::g_BooFactory->bindingNeedsVertexFormat())
+        for (BooImage& img : m_images)
         {
-            boo::VertexElementDescriptor elems[] =
+            img.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(BooImageInstance), 1);
+            boo::IVertexFormat* vFmt = g_TextImageVtxFmt;
+            if (ctx.bindingNeedsVertexFormat())
             {
-                {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                {img.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
-            };
-            vFmt = CGraphics::g_BooFactory->newVertexFormat(9, elems);
-        }
+                boo::VertexElementDescriptor elems[] =
+                {
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {img.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                };
+                vFmt = ctx.newVertexFormat(9, elems);
+            }
 
-        boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
-        img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
-        for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
-        {
-            boo::ITexture* texs[] = {tex->GetBooTexture()};
-            img.m_dataBinding.push_back(CGraphics::g_BooFactory->newShaderDataBinding(g_TextImageShaderPipeline, vFmt,
-                                                                                      nullptr, img.m_instBuf, nullptr,
-                                                                                      1, uniforms, 1, texs));
+            boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
+            img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
+            for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
+            {
+                boo::ITexture* texs[] = {tex->GetBooTexture()};
+                img.m_dataBinding.push_back(ctx.newShaderDataBinding(g_TextImageShaderPipeline, vFmt,
+                                                                     nullptr, img.m_instBuf, nullptr,
+                                                                     1, uniforms, 1, texs));
+            }
         }
-    }
-
-    m_booToken = CGraphics::CommitResources();
+        return true;
+    });
 }
 
 void CTextRenderBuffer::SetMode(EMode mode)

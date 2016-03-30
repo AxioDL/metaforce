@@ -22,31 +22,34 @@ void CLineRendererShaders::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    switch (CGraphics::g_BooFactory->platform())
+    m_gfxToken = CGraphics::CommitResources(
+    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
-        m_bindFactory.reset(Initialize(*static_cast<boo::GLDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        switch (ctx.platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OGL:
+            m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
+            break;
 #if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        m_bindFactory.reset(Initialize(*static_cast<boo::ID3DDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            m_bindFactory.reset(Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
+            break;
 #endif
 #if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-        m_bindFactory.reset(Initialize(*static_cast<boo::MetalDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            m_bindFactory.reset(Initialize(static_cast<boo::MetalDataFactory::Context&>(ctx)));
+            break;
 #endif
 #if BOO_HAS_VULKAN
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-        m_bindFactory.reset(Initialize(*static_cast<boo::VulkanDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            m_bindFactory.reset(Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
+            break;
 #endif
-    default: break;
-    }
-
-    m_gfxToken = CGraphics::CommitResources();
+        default: break;
+        }
+        return true;
+    });
 }
 
 void CLineRenderer::Initialize()
@@ -82,8 +85,10 @@ struct SDrawUniform
     zeus::CColor moduColor;
 };
 
-void CLineRendererShaders::BuildShaderDataBinding(CLineRenderer& renderer,
-                                                  boo::ITexture* texture, bool additive)
+void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                  CLineRenderer& renderer,
+                                                  boo::ITexture* texture,
+                                                  bool additive)
 {
     boo::IShaderPipeline* pipeline = nullptr;
     if (texture)
@@ -101,7 +106,7 @@ void CLineRendererShaders::BuildShaderDataBinding(CLineRenderer& renderer,
             pipeline = m_noTexAlpha;
     }
 
-    m_bindFactory->BuildShaderDataBinding(renderer, pipeline, texture);
+    m_bindFactory->BuildShaderDataBinding(ctx, renderer, pipeline, texture);
 }
 
 CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
@@ -128,12 +133,15 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
         break;
     }
 
-    m_vertBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex,
-                                               texture ? sizeof(SDrawVertTex) : sizeof(SDrawVertNoTex),
-                                               maxTriVerts);
-    m_uniformBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Uniform, sizeof(SDrawUniform), 1);
-    CLineRendererShaders::BuildShaderDataBinding(*this, texture, additive);
-    m_gfxToken = CGraphics::CommitResources();
+    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
+                                         texture ? sizeof(SDrawVertTex) : sizeof(SDrawVertNoTex),
+                                         maxTriVerts);
+        m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SDrawUniform), 1);
+        CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
+        return true;
+    });
 }
 
 static rstl::reserved_vector<SDrawVertTex, 256> g_StaticLineVertsTex;

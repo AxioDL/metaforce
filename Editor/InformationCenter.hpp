@@ -22,10 +22,7 @@ class InformationCenter : public ViewerSpace
         std::vector<hecl::SystemString> m_log;
 
         View(InformationCenter& ic, specter::ViewResources& res)
-            : specter::View(res, ic.m_vm.rootView()), m_ic(ic)
-        {
-            commitResources(res);
-        }
+        : specter::View(res, ic.m_vm.rootView()), m_ic(ic) {}
     };
 
     std::unique_ptr<View> m_view;

@@ -192,53 +192,56 @@ void CMoviePlayer::Initialize()
 {
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
-    if (!CGraphics::g_BooFactory->bindingNeedsVertexFormat())
+    GraphicsData = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        boo::VertexElementDescriptor texvdescs[] =
+        if (!ctx.bindingNeedsVertexFormat())
         {
-            {nullptr, nullptr, boo::VertexSemantic::Position4},
-            {nullptr, nullptr, boo::VertexSemantic::UV4}
-        };
-        YUVVTXFmt = CGraphics::g_BooFactory->newVertexFormat(2, texvdescs);
-    }
+            boo::VertexElementDescriptor texvdescs[] =
+            {
+                {nullptr, nullptr, boo::VertexSemantic::Position4},
+                {nullptr, nullptr, boo::VertexSemantic::UV4}
+            };
+            YUVVTXFmt = ctx.newVertexFormat(2, texvdescs);
+        }
 
-    switch (CGraphics::g_BooFactory->platform())
-    {
-    case boo::IGraphicsDataFactory::Platform::OGL:
-        YUVShaderPipeline = static_cast<boo::GLDataFactory*>(CGraphics::g_BooFactory)->newShaderPipeline
-                (VS_GLSL_YUV, FS_GLSL_YUV, 3, "texs", 1, BlockNames,
-                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                 boo::Primitive::TriStrips, false, false, false);
-        break;
+        switch (ctx.platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OGL:
+            YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
+                    (VS_GLSL_YUV, FS_GLSL_YUV, 3, "texs", 1, BlockNames,
+                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                     boo::Primitive::TriStrips, false, false, false);
+            break;
 #if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        YUVShaderPipeline = static_cast<boo::ID3DDataFactory*>(CGraphics::g_BooFactory)->newShaderPipeline
-                (VS_HLSL_YUV, FS_HLSL_YUV, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), YUVVTXFmt,
-                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                 boo::Primitive::TriStrips, false, false, false);
-        break;
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            YUVShaderPipeline = static_cast<boo::ID3DDataFactory::Context&>(ctx).newShaderPipeline
+                    (VS_HLSL_YUV, FS_HLSL_YUV, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), YUVVTXFmt,
+                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                     boo::Primitive::TriStrips, false, false, false);
+            break;
 #endif
 #if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-        YUVShaderPipeline = static_cast<boo::MetalDataFactory*>(CGraphics::g_BooFactory)->newShaderPipeline
-                (VS_METAL_YUV, FS_METAL_YUV, YUVVTXFmt, 1,
-                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                 boo::Primitive::TriStrips, false, false, false);
-        break;
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            YUVShaderPipeline = static_cast<boo::MetalDataFactory::Context&>(ctx).newShaderPipeline
+                    (VS_METAL_YUV, FS_METAL_YUV, YUVVTXFmt, 1,
+                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                     boo::Primitive::TriStrips, false, false, false);
+            break;
 #endif
 #if BOO_HAS_VULKAN
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-        YUVShaderPipeline = static_cast<boo::VulkanDataFactory*>(CGraphics::g_BooFactory)->newShaderPipeline
-                (VS_GLSL_YUV, FS_GLSL_YUV, YUVVTXFmt,
-                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                 boo::Primitive::TriStrips, false, false, false);
-        break;
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            YUVShaderPipeline = static_cast<boo::VulkanDataFactory::Context&>(ctx).newShaderPipeline
+                    (VS_GLSL_YUV, FS_GLSL_YUV, YUVVTXFmt,
+                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                     boo::Primitive::TriStrips, false, false, false);
+            break;
 #endif
-    default: break;
-    }
+        default: break;
+        }
+        return true;
+    });
 
-    GraphicsData = CGraphics::CommitResources();
     TjHandle = tjInitDecompress();
 }
 
@@ -410,80 +413,79 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     if (xf0_preLoadFrames > 0)
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
-    /* Establish GPU resources */
-    m_blockBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Uniform,
-                                                           sizeof(m_viewVertBlock), 1);
-    m_vertBuf = CGraphics::g_BooFactory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                                          sizeof(specter::View::TexShaderVert), 4);
-
-    boo::IVertexFormat* vtxFmt = YUVVTXFmt;
-    if (CGraphics::g_BooFactory->bindingNeedsVertexFormat())
+    /* All set for GPU resources */
+    m_token = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        boo::VertexElementDescriptor texvdescs[] =
-        {
-            {m_vertBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertBuf, nullptr, boo::VertexSemantic::UV4}
-        };
-        vtxFmt = CGraphics::g_BooFactory->newVertexFormat(2, texvdescs);
-    }
+        m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
+        m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
 
-    /* Allocate textures here (rather than at decode time) */
-    x80_textures.reserve(3);
-    for (int i=0 ; i<3 ; ++i)
-    {
-        x80_textures.emplace_back();
-        CTHPTextureSet& set = x80_textures.back();
-        if (deinterlace)
+        boo::IVertexFormat* vtxFmt = YUVVTXFmt;
+        if (ctx.bindingNeedsVertexFormat())
         {
-            /* urde addition: this way interlaced THPs don't look horrible */
-            set.Y[0] = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width,
-                                                                  x6c_videoInfo.height / 2,
-                                                                  boo::TextureFormat::I8);
-            set.Y[1] = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width,
-                                                                  x6c_videoInfo.height / 2,
-                                                                  boo::TextureFormat::I8);
-            set.U = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width / 2,
-                                                               x6c_videoInfo.height / 2,
-                                                               boo::TextureFormat::I8);
-            set.V = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width / 2,
-                                                               x6c_videoInfo.height / 2,
-                                                               boo::TextureFormat::I8);
-
-            boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
-            for (int j=0 ; j<2 ; ++j)
+            boo::VertexElementDescriptor texvdescs[] =
             {
-                boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
-                set.binding[j] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                                               nullptr, nullptr, 1, bufs, 3, texs);
-            }
+                {m_vertBuf, nullptr, boo::VertexSemantic::Position4},
+                {m_vertBuf, nullptr, boo::VertexSemantic::UV4}
+            };
+            vtxFmt = ctx.newVertexFormat(2, texvdescs);
         }
-        else
-        {
-            /* normal progressive presentation */
-            set.Y[0] = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width,
-                                                                  x6c_videoInfo.height,
-                                                                  boo::TextureFormat::I8);
-            set.U = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width / 2,
-                                                               x6c_videoInfo.height / 2,
-                                                               boo::TextureFormat::I8);
-            set.V = CGraphics::g_BooFactory->newDynamicTexture(x6c_videoInfo.width / 2,
-                                                               x6c_videoInfo.height / 2,
-                                                               boo::TextureFormat::I8);
 
-            boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
-            boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
-            set.binding[0] = CGraphics::g_BooFactory->newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                                           nullptr, nullptr, 1, bufs, 3, texs);
+        /* Allocate textures here (rather than at decode time) */
+        x80_textures.reserve(3);
+        for (int i=0 ; i<3 ; ++i)
+        {
+            x80_textures.emplace_back();
+            CTHPTextureSet& set = x80_textures.back();
+            if (deinterlace)
+            {
+                /* urde addition: this way interlaced THPs don't look horrible */
+                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width,
+                                                 x6c_videoInfo.height / 2,
+                                                 boo::TextureFormat::I8);
+                set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width,
+                                                 x6c_videoInfo.height / 2,
+                                                 boo::TextureFormat::I8);
+                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
+                                              x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8);
+                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
+                                              x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8);
+
+                boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
+                for (int j=0 ; j<2 ; ++j)
+                {
+                    boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
+                    set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
+                                                              nullptr, nullptr, 1, bufs, 3, texs);
+                }
+            }
+            else
+            {
+                /* normal progressive presentation */
+                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width,
+                                                 x6c_videoInfo.height,
+                                                 boo::TextureFormat::I8);
+                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
+                                              x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8);
+                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
+                                              x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8);
+
+                boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
+                boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
+                set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
+                                                          nullptr, nullptr, 1, bufs, 3, texs);
+            }
+            if (xf4_25_hasAudio)
+                set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
         }
-        if (xf4_25_hasAudio)
-            set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
-    }
+        return true;
+    });
 
     /* Temporary planar YUV decode buffer, resulting planes copied to Boo */
     m_yuvBuf.reset(new uint8_t[tjBufSizeYUV(x6c_videoInfo.width, x6c_videoInfo.height, TJ_420)]);
-
-    /* All set for GPU resources */
-    m_token = CGraphics::CommitResources();
 
     /* Schedule initial read */
     PostDVDReadRequestIfNeeded();

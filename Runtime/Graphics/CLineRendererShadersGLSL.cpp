@@ -86,7 +86,8 @@ static const char* FS_GLSL_NOTEX =
 
 struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
+                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
     {
         boo::IVertexFormat* vtxFmt = nullptr;
         int texCount = 0;
@@ -102,7 +103,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
                 {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Color},
                 {renderer.m_vertBuf, nullptr, boo::VertexSemantic::UV4}
             };
-            vtxFmt = CGraphics::g_BooFactory->newVertexFormat(3, TexFmtTex);
+            vtxFmt = ctx.newVertexFormat(3, TexFmtTex);
         }
         else
         {
@@ -111,31 +112,31 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
                 {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Position4},
                 {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Color}
             };
-            vtxFmt = CGraphics::g_BooFactory->newVertexFormat(2, TexFmtNoTex);
+            vtxFmt = ctx.newVertexFormat(2, TexFmtNoTex);
         }
 
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
-        renderer.m_shaderBind = CGraphics::g_BooFactory->newShaderDataBinding(pipeline, vtxFmt, renderer.m_vertBuf,
-                                                                              nullptr, nullptr, 1, uniforms,
-                                                                              texCount, textures);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, renderer.m_vertBuf,
+                                                         nullptr, nullptr, 1, uniforms,
+                                                         texCount, textures);
     }
 };
 
-CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::GLDataFactory& factory)
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::GLDataFactory::Context& ctx)
 {
     static const char* UniNames[] = {"LineUniform"};
 
-    m_texAlpha = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips, false, true, false);
-    m_texAdditive = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips, false, false, false);
-    m_noTexAlpha = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, true, false);
-    m_noTexAdditive = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, false, false, false);
 
@@ -145,7 +146,8 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
 #if BOO_HAS_VULKAN
 struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
+                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
     {
         int texCount = 0;
         boo::ITexture* textures[1];
@@ -158,13 +160,13 @@ struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
-        renderer.m_shaderBind = CGraphics::g_BooFactory->newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
-                                                                              nullptr, nullptr, 1, uniforms,
-                                                                              texCount, textures);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
+                                                         nullptr, nullptr, 1, uniforms,
+                                                         texCount, textures);
     }
 };
 
-CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::VulkanDataFactory& factory)
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor VtxFmtTex[] =
     {
@@ -172,25 +174,25 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
         {nullptr, nullptr, boo::VertexSemantic::Color},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory.newVertexFormat(3, VtxFmtTex);
+    m_texVtxFmt = ctx.newVertexFormat(3, VtxFmtTex);
 
     static const boo::VertexElementDescriptor VtxFmtNoTex[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_noTexVtxFmt = factory.newVertexFormat(2, VtxFmtNoTex);
+    m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
-    m_texAlpha = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+    m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips, false, true, false);
-    m_texAdditive = factory.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+    m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips, false, false, false);
-    m_noTexAlpha = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, true, false);
-    m_noTexAdditive = factory.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, false, false, false);
 

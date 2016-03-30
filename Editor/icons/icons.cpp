@@ -28,9 +28,13 @@ boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
     if (uncompress(texels.get(), &destSz, URDE_ICONS + pos, URDE_ICONS_SZ - pos) != Z_OK)
         Log.report(logvisor::Fatal, "unable to decompress icons");
 
-    g_IconAtlas.initializeAtlas(viewRes.m_factory->newStaticTexture(width, height, mips, boo::TextureFormat::RGBA8,
-                                                                    texels.get(), destSz));
-    return viewRes.m_factory->commit();
+    return viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        g_IconAtlas.initializeAtlas(ctx.newStaticTexture(width, height, mips,
+                                                         boo::TextureFormat::RGBA8,
+                                                         texels.get(), destSz));
+        return true;
+    });
 }
 
 specter::Icon& GetIcon(SpaceIcon icon)

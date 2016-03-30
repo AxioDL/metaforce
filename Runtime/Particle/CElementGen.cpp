@@ -72,7 +72,7 @@ CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen&
         return EShaderClass::NoTex;
 }
 
-void CElementGenShaders::BuildShaderDataBinding(CElementGen& gen)
+void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen)
 {
     CGenDescription* desc = gen.x1c_genDesc.GetObj();
     boo::IShaderPipeline* regPipeline = nullptr;
@@ -168,7 +168,7 @@ void CElementGenShaders::BuildShaderDataBinding(CElementGen& gen)
         }
     }
 
-    m_bindFactory->BuildShaderDataBinding(gen, regPipeline, redToAlphaPipeline);
+    m_bindFactory->BuildShaderDataBinding(ctx, gen, regPipeline, redToAlphaPipeline);
 }
 
 void CElementGenShaders::Initialize()
@@ -176,31 +176,33 @@ void CElementGenShaders::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    switch (CGraphics::g_BooFactory->platform())
+    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
-        m_bindFactory.reset(Initialize(*static_cast<boo::GLDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        switch (ctx.platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OGL:
+            m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
+            break;
 #if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        m_bindFactory.reset(Initialize(*static_cast<boo::ID3DDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            m_bindFactory.reset(Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
+            break;
 #endif
 #if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-        m_bindFactory.reset(Initialize(*static_cast<boo::MetalDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            m_bindFactory.reset(Initialize(static_cast<boo::MetalDataFactory::Context&>(ctx)));
+            break;
 #endif
 #if BOO_HAS_VULKAN
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-        m_bindFactory.reset(Initialize(*static_cast<boo::VulkanDataFactory*>(CGraphics::g_BooFactory)));
-        break;
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            m_bindFactory.reset(Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
+            break;
 #endif
-    default: break;
-    }
-
-    m_gfxToken = CGraphics::CommitResources();
+        default: break;
+        }
+        return true;
+    });
 }
 
 void CElementGenShaders::Shutdown()
@@ -442,10 +444,13 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
             sizeof(SParticleInstanceNoTex)
         };
         size_t maxInsts = x224_29_MBLR ? (m_maxMBSP * x70_MAXP) : x70_MAXP;
-        m_instBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
-        m_uniformBuf = CGraphics::NewDynamicGPUBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-        CElementGenShaders::BuildShaderDataBinding(*this);
-        m_gfxToken = CGraphics::CommitResources();
+        m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+            m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+            CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+            return true;
+        });
     }
 }
 

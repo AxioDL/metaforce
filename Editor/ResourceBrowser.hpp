@@ -173,7 +173,6 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding
         View(ResourceBrowser& ro, specter::ViewResources& res)
         : specter::View(res, ro.m_vm.rootView()), m_ro(ro)
         {
-            commitResources(res);
             m_resListing.m_view.reset(new specter::Table(res, *this, &ro.m_resListingBind, &ro.m_resListingBind, 3));
         }
 

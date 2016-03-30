@@ -1,16 +1,19 @@
 #include "Graphics/CModel.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "hecl/HMDLMeta.hpp"
 
 namespace urde
 {
 static logvisor::Module Log("urde::CModelBoo");
+bool CBooModel::g_DrawingOccluders = false;
 
-CBooModel::CBooModel(std::vector<CSurface>* surfaces, std::vector<TLockedToken<CTexture>>* textures,
-                     const u8* matSet, const void* vbo, const void* ibo, const zeus::CAABox& aabb,
+CBooModel::CBooModel(std::vector<CSurfaceView>* surfaces, std::vector<TLockedToken<CTexture>>* textures,
+                     const u8* matSet, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo, const zeus::CAABox& aabb,
                      u8 shortNormals, bool unk)
 : x0_surfaces(surfaces), x4_matSet(matSet), x8_vbo(vbo), xc_ibo(ibo), x1c_textures(textures),
   x20_aabb(aabb), x40_24_(unk), x40_25_(0), x41_shortNormals(shortNormals)
 {
-    for (CSurface& surf : *x0_surfaces)
+    for (CSurfaceView& surf : *x0_surfaces)
         surf.m_parent = this;
 
     for (auto it=x0_surfaces->rbegin() ; it != x0_surfaces->rend() ; ++it)
@@ -44,6 +47,42 @@ void CBooModel::MakeTexuresFromMats(const u8* dataIn,
         dataIn += 4;
         toksOut.emplace_back(store.GetObj({SBIG('TXTR'), id}));
     }
+}
+
+void CBooModel::TryLockTextures() const
+{
+}
+
+void CBooModel::UnlockTextures() const
+{
+}
+
+void CBooModel::DrawAlphaSurfaces(const CModelFlags& flags) const
+{
+}
+
+void CBooModel::DrawNormalSurfaces(const CModelFlags& flags) const
+{
+}
+
+void CBooModel::DrawSurfaces(const CModelFlags& flags) const
+{
+}
+
+void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const
+{
+}
+
+void CBooModel::DrawAlpha(const CModelFlags& flags) const
+{
+}
+
+void CBooModel::DrawNormal(const CModelFlags& flags) const
+{
+}
+
+void CBooModel::Draw(const CModelFlags& flags) const
+{
 }
 
 const u8* CBooModel::GetMaterialByIndex(int idx) const
@@ -95,9 +134,23 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
         CBooModel::MakeTexuresFromMats(sec, shader.x0_textures, *store);
     }
 
+    hecl::HMDLMeta hmdlMeta;
+    {
+        const u8* hmdlMetadata = MemoryFromPartData(dataCur, secSizeCur);
+        athena::io::MemoryReader r(hmdlMetadata, *secSizeCur);
+        hmdlMeta.read(r);
+    }
+
     const u8* vboData = MemoryFromPartData(dataCur, secSizeCur);
     const u8* iboData = MemoryFromPartData(dataCur, secSizeCur);
     const u8* surfInfo = MemoryFromPartData(dataCur, secSizeCur);
+
+    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
+        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
+        return true;
+    });
 
     u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
     x8_surfaces.reserve(surfCount);
@@ -105,7 +158,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
     {
         const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
         x8_surfaces.emplace_back();
-        CBooModel::CSurface& surf = x8_surfaces.back();
+        CBooModel::CSurfaceView& surf = x8_surfaces.back();
         surf.m_data = sec;
     }
 
@@ -113,7 +166,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
     zeus::CAABox aabb(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
                       hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
     x28_modelInst = std::make_unique<CBooModel>(&x8_surfaces, &x18_matSets[0].x0_textures,
-                                                x18_matSets[0].x10_data, vboData, iboData,
+                                                x18_matSets[0].x10_data, m_vbo, m_ibo,
                                                 aabb, flags & 0x2, true);
 }
 
