@@ -20,7 +20,11 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
              Toolbar::Position tbPos, unsigned tbUnits)
 : View(res, parentView), m_controller(controller), m_tbPos(tbPos)
 {
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        return true;
+    });
     setBackground(res.themeData().spaceBackground());
     static const zeus::CColor triColor = {0.75, 0.75, 0.75, 1.0};
     if (controller.spaceSplitAllowed())
@@ -32,7 +36,12 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
 Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor)
 : View(res, space), m_space(space)
 {
-    m_vertexBinding.initSolid(res, 34, m_viewVertBlockBuf);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertexBinding.initSolid(ctx, res, 34, m_viewVertBlockBuf);
+        return true;
+    });
     float pf = res.pixelFactor();
 
     zeus::CColor edgeColor1 = triColor * res.themeData().spaceTriangleShading1();

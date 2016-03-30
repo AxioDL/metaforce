@@ -11,8 +11,12 @@ namespace specter
 Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode)
 : View(res, parentView)
 {
-    m_vertsBinding.initSolid(res, 8, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, 8, m_viewVertBlockBuf);
+        return true;
+    });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
     m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
     m_content.reset(new ContentView(res, *this));
@@ -68,8 +72,12 @@ void Menu::reset(IMenuNode* rootNode)
 Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode* thisNode)
 : View(res, parentView), m_rootNode(rootNode), m_thisNode(thisNode)
 {
-    m_vertsBinding.initSolid(res, 8, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, 8, m_viewVertBlockBuf);
+        return true;
+    });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
     m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
     m_content.reset(new ContentView(res, *this));
@@ -79,8 +87,12 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode*
 Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
 : View(res, menu), m_menu(menu)
 {
-    m_hlVertsBinding.initSolid(res, 4, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_hlVertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
+        return true;
+    });
 
     m_hlVerts[0].m_color = res.themeData().button1Hover();
     m_hlVerts[1].m_color = res.themeData().button2Hover();
@@ -91,7 +103,11 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
 Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode* node)
 : View(res, menu), m_menu(menu), m_idx(idx), m_node(node)
 {
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        return true;
+    });
     m_textView.reset(new specter::TextView(res, *this, res.m_mainFont));
     m_textView->typesetGlyphs(text, res.themeData().uiText());
 }

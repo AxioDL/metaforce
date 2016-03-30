@@ -47,15 +47,15 @@ public:
         boo::IShaderPipeline* m_subpixel = nullptr;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* Not OpenGL */
 
-        void init(boo::GLDataFactory* factory, FontCache* fcache);
+        void init(boo::GLDataFactory::Context& ctx, FontCache* fcache);
 #if _WIN32
-        void init(boo::ID3DDataFactory* factory, FontCache* fcache);
+        void init(boo::ID3DDataFactory::Context& ctx, FontCache* fcache);
 #endif
 #if BOO_HAS_METAL
-        void init(boo::MetalDataFactory* factory, FontCache* fcache);
+        void init(boo::MetalDataFactory::Context& ctx, FontCache* fcache);
 #endif
 #if BOO_HAS_VULKAN
-        void init(boo::VulkanDataFactory* factory, FontCache* fcache);
+        void init(boo::VulkanDataFactory::Context& ctx, FontCache* fcache);
 #endif
     };
 

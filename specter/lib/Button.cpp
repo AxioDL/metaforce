@@ -7,7 +7,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::Button");
 
-void Button::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
+void Button::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
 }
 
@@ -22,8 +22,12 @@ Button::Button(ViewResources& res, View& parentView,
 : Control(res, parentView, controlBinding),
   m_style(style), m_textColor(textColor), m_bgColor(bgColor), m_textStr(text), m_constraint(constraint)
 {
-    m_vertsBinding.initSolid(res, 40, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, 40, m_viewVertBlockBuf);
+        return true;
+    });
 
     m_buttonTarget.m_view.reset(new ButtonTarget(res, *this));
     m_menuTarget.m_view.reset(new MenuTarget(res, *this));

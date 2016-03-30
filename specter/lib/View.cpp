@@ -71,17 +71,17 @@ BOO_GLSL_BINDING_HEAD
 "    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
 "}\n";
 
-void View::Resources::init(boo::GLDataFactory* factory, const IThemeData& theme)
+void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
-    m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, false, false, false);
+    m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, false, false, false);
 
-    m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, "tex", 1, BlockNames,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, false, false);
+    m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, "tex", 1, BlockNames,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, false, false, false);
 }
 
 #if _WIN32
@@ -289,16 +289,16 @@ void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& the
 #endif
 #if BOO_HAS_VULKAN
 
-void View::Resources::init(boo::VulkanDataFactory* factory, const IThemeData& theme)
+void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeData& theme)
 {
     boo::VertexElementDescriptor solidvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
+    m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
-    m_solidShader = factory->newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
+    m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, false, false, false);
 
@@ -307,36 +307,29 @@ void View::Resources::init(boo::VulkanDataFactory* factory, const IThemeData& th
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
+    m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
-    m_texShader = factory->newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
+    m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
 
-void View::buildResources(ViewResources& res)
+void View::buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res)
 {
     m_viewVertBlockBuf =
-    res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform,
-                                    sizeof(ViewBlock), 1);
-    m_bgVertsBinding.initSolid(res, 4, m_viewVertBlockBuf);
+    ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+    m_bgVertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
 }
 
 View::View(ViewResources& res)
 : m_rootView(*static_cast<RootView*>(this)),
-  m_parentView(*static_cast<RootView*>(this))
-{
-    buildResources(res);
-}
+  m_parentView(*static_cast<RootView*>(this)) {}
 
 View::View(ViewResources& res, View& parentView)
 : m_rootView(parentView.rootView()),
-  m_parentView(parentView)
-{
-    buildResources(res);
-}
+  m_parentView(parentView) {}
 
 void View::updateSize()
 {
@@ -351,7 +344,8 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[1].m_pos.assign(0.f, 0.f, 0.f);
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
-    m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+    if (m_viewVertBlockBuf)
+        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
     m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
 }
 
@@ -362,26 +356,32 @@ void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
     m_bgRect[1].m_pos.assign(0.f, 0.f, 0.f);
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
-    m_viewVertBlockBuf->load(&vb, sizeof(ViewBlock));
+    if (m_viewVertBlockBuf)
+        m_viewVertBlockBuf->load(&vb, sizeof(ViewBlock));
     m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->setShaderDataBinding(m_bgVertsBinding);
-    gfxQ->draw(0, 4);
+    if (m_bgVertsBinding.m_shaderBinding)
+    {
+        gfxQ->setShaderDataBinding(m_bgVertsBinding);
+        gfxQ->draw(0, 4);
+    }
 }
 
-void View::commitResources(ViewResources& res)
+void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
 {
     if (m_gfxData)
         Log.report(logvisor::Fatal, "multiple resource commits not allowed");
-    m_gfxData = res.m_factory->commit();
+    m_gfxData = res.m_factory->commitTransaction(commitFunc);
 }
 
-void View::VertexBufferBinding::initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf)
+void View::VertexBufferBinding::initSolid(boo::IGraphicsDataFactory::Context& ctx,
+                                          ViewResources& res, size_t count,
+                                          boo::IGraphicsBuffer* viewBlockBuf)
 {
-    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), count);
+    m_vertsBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), count);
 
     if (!res.m_viewRes.m_solidVtxFmt)
     {
@@ -390,25 +390,28 @@ void View::VertexBufferBinding::initSolid(ViewResources& res, size_t count, boo:
             {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
             {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
         };
-        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
+        m_vtxFmt = ctx.newVertexFormat(2, vdescs);
         boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              m_vtxFmt, m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
+        m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
+                                                   m_vtxFmt, m_vertsBuf, nullptr,
+                                                   nullptr, 1, bufs, 0, nullptr);
     }
     else
     {
         boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                              res.m_viewRes.m_solidVtxFmt,
-                                                              m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 0, nullptr);
+        m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
+                                                   res.m_viewRes.m_solidVtxFmt,
+                                                   m_vertsBuf, nullptr,
+                                                   nullptr, 1, bufs, 0, nullptr);
     }
 }
 
-void View::VertexBufferBinding::initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture)
+void View::VertexBufferBinding::initTex(boo::IGraphicsDataFactory::Context& ctx,
+                                        ViewResources& res, size_t count,
+                                        boo::IGraphicsBuffer* viewBlockBuf,
+                                        boo::ITexture* texture)
 {
-    m_vertsBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), count);
+    m_vertsBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), count);
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
@@ -417,21 +420,21 @@ void View::VertexBufferBinding::initTex(ViewResources& res, size_t count, boo::I
             {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
             {m_vertsBuf, nullptr, boo::VertexSemantic::UV4}
         };
-        m_vtxFmt = res.m_factory->newVertexFormat(2, vdescs);
+        m_vtxFmt = ctx.newVertexFormat(2, vdescs);
         boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
         boo::ITexture* tex[] = {texture};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                              m_vtxFmt, m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 1, tex);
+        m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                   m_vtxFmt, m_vertsBuf, nullptr,
+                                                   nullptr, 1, bufs, 1, tex);
     }
     else
     {
         boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
         boo::ITexture* tex[] = {texture};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                              res.m_viewRes.m_texVtxFmt,
-                                                              m_vertsBuf, nullptr,
-                                                              nullptr, 1, bufs, 1, tex);
+        m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
+                                                   res.m_viewRes.m_texVtxFmt,
+                                                   m_vertsBuf, nullptr,
+                                                   nullptr, 1, bufs, 1, tex);
     }
 }
 

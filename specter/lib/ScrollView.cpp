@@ -10,8 +10,12 @@ namespace specter
 ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
 : View(res, parentView), m_style(style), m_sideButtonBind(*this, rootView().viewManager())
 {
-    m_vertsBinding.initSolid(res, 4, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
+        return true;
+    });
 
     if (style == Style::SideButtons)
     {

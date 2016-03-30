@@ -7,8 +7,12 @@ namespace specter
 IconView::IconView(ViewResources& res, View& parentView, Icon& icon)
 : View(res, parentView)
 {
-    m_vertexBinding.initTex(res, 4, m_viewVertBlockBuf, icon.m_tex);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertexBinding.initTex(ctx, res, 4, m_viewVertBlockBuf, icon.m_tex);
+        return true;
+    });
     TexShaderVert verts[] =
     {
         {{0, 1, 0}, icon.m_uvCoords[0]},

@@ -81,7 +81,7 @@ public:
         friend class ViewResources;
         friend class Button;
 
-        void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
+        void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
     };
 
     ~Button() {closeMenu({});}
@@ -116,7 +116,8 @@ public:
     {
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;
-        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+        if (m_viewVertBlockBuf)
+            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
         if (m_icon)
             m_icon->setMultiplyColor(color);

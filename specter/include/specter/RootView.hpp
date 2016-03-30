@@ -11,6 +11,7 @@
 #include "IMenuNode.hpp"
 #include "DeferredWindowEvents.hpp"
 #include "IViewManager.hpp"
+#include "optional.hpp"
 #include <boo/boo.hpp>
 
 namespace specter
@@ -69,7 +70,7 @@ class RootView : public View
         void resized();
         void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-        SplitMenuSystem(RootView& rv);
+        SplitMenuSystem(RootView& rv, boo::IGraphicsDataFactory::Context& ctx);
         const std::string* text() const {return &m_text;}
         size_t subNodeCount() const {return 2;}
         IMenuNode* subNode(size_t idx)
@@ -108,7 +109,8 @@ class RootView : public View
                 m_smn.m_deferredCoord = coord;
             }
         } m_joinActionNode;
-    } m_splitMenuSystem;
+    };
+    std::experimental::optional<SplitMenuSystem> m_splitMenuSystem;
 
 public:
     RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
@@ -223,9 +225,9 @@ public:
 
     void beginInteractiveJoin(SplitView* sv, const boo::SWindowCoord& coord)
     {
-        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveJoin;
-        m_splitMenuSystem.m_splitView = sv;
-        m_splitMenuSystem.mouseMove(coord);
+        m_splitMenuSystem->m_phase = SplitMenuSystem::Phase::InteractiveJoin;
+        m_splitMenuSystem->m_splitView = sv;
+        m_splitMenuSystem->mouseMove(coord);
     }
 
 private:

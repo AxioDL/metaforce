@@ -10,36 +10,42 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     if (!factory || !fcache || !theme)
         Log.report(logvisor::Fatal, "all arguments of ViewResources::init() must be non-null");
     m_pixelFactor = pf;
-    m_theme = theme;
     m_factory = factory;
+    m_theme = theme;
     m_fcache = fcache;
     unsigned dpi = 72.f * m_pixelFactor;
-    m_curveFont = fcache->prepCurvesFont(m_factory, AllCharFilter, false, 8.f, dpi);
-    switch (factory->platform())
+
+    m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 8.f, dpi);
+
+    m_resData = factory->commitTransaction(
+    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
-        init<boo::GLDataFactory>(static_cast<boo::GLDataFactory*>(factory), *theme, fcache);
-        break;
+        switch (ctx.platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OGL:
+            init<boo::GLDataFactory::Context>(static_cast<boo::GLDataFactory::Context&>(ctx), *theme, fcache);
+            break;
 #if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        init<boo::ID3DDataFactory>(static_cast<boo::ID3DDataFactory*>(factory), *theme, fcache);
-        break;
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            init<boo::ID3DDataFactory::Context>(static_cast<boo::ID3DDataFactory::Context&>(ctx), *theme, fcache);
+            break;
 #endif
 #if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-        init<boo::MetalDataFactory>(static_cast<boo::MetalDataFactory*>(factory), *theme, fcache);
-        break;
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            init<boo::MetalDataFactory::Context>(static_cast<boo::MetalDataFactory::Context&>(ctx), *theme, fcache);
+            break;
 #endif
 #if BOO_HAS_VULKAN
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-        init<boo::VulkanDataFactory>(static_cast<boo::VulkanDataFactory*>(factory), *theme, fcache);
-        break;
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            init<boo::VulkanDataFactory::Context>(static_cast<boo::VulkanDataFactory::Context&>(ctx), *theme, fcache);
+            break;
 #endif
-    default:
-        Log.report(logvisor::Fatal, _S("unable to init view system for %s"), factory->platformName());
-    }
-    m_resData = factory->commit();
+        default:
+            Log.report(logvisor::Fatal, _S("unable to init view system for %s"), ctx.platformName());
+        }
+        return true;
+    });
 }
 
 void ViewResources::prepFontCacheSync()

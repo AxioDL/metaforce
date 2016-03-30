@@ -40,7 +40,7 @@ class PathButtons : public ScrollView
         void draw(boo::IGraphicsCommandQueue* gfxQ);
 
         ContentView(ViewResources& res, PathButtons& pb)
-        : View(res, pb), m_pb(pb) {commitResources(res);}
+        : View(res, pb), m_pb(pb) {}
     };
     ViewChild<std::unique_ptr<ContentView>> m_contentView;
 

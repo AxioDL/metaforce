@@ -65,26 +65,26 @@ BOO_GLSL_BINDING_HEAD
 "    blendOut = colorOut.a * texture(fontTex, vtf.uv);\n"
 "}\n";
 
-void TextView::Resources::init(boo::GLDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::GLDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 
     static const char* BlockNames[] = {"SpecterViewBlock"};
 
     m_regular =
-    factory->newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,
-                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               boo::Primitive::TriStrips, false, false, false);
+    ctx.newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,
+                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                          boo::Primitive::TriStrips, false, false, false);
 
     m_subpixel =
-    factory->newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, "fontTex", 1, BlockNames,
-                               boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
-                               boo::Primitive::TriStrips, false, false, false);
+    ctx.newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, "fontTex", 1, BlockNames,
+                          boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
+                          boo::Primitive::TriStrips, false, false, false);
 }
 
 #if _WIN32
 
-void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::ID3DDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 
@@ -187,7 +187,7 @@ void TextView::Resources::init(boo::ID3DDataFactory* factory, FontCache* fcache)
 #endif
 #if BOO_HAS_METAL
 
-void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 
@@ -264,7 +264,7 @@ void TextView::Resources::init(boo::MetalDataFactory* factory, FontCache* fcache
 #endif
 #if BOO_HAS_VULKAN
 
-void TextView::Resources::init(boo::VulkanDataFactory* factory, FontCache* fcache)
+void TextView::Resources::init(boo::VulkanDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 
@@ -284,68 +284,73 @@ void TextView::Resources::init(boo::VulkanDataFactory* factory, FontCache* fcach
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_vtxFmt = factory->newVertexFormat(13, vdescs);
+    m_vtxFmt = ctx.newVertexFormat(13, vdescs);
 
     m_regular =
-    factory->newShaderPipeline(GLSLVS, GLSLFSReg, m_vtxFmt,
-                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                               boo::Primitive::TriStrips, false, false, false);
+    ctx.newShaderPipeline(GLSLVS, GLSLFSReg, m_vtxFmt,
+                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                          boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
 
-TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align, size_t capacity)
+TextView::TextView(ViewResources& res,
+                   View& parentView, const FontAtlas& font,
+                   Alignment align, size_t capacity)
 : View(res, parentView),
   m_capacity(capacity),
   m_fontAtlas(font),
   m_align(align)
 {
-    m_glyphBuf =
-    res.m_factory->newDynamicBuffer(boo::BufferUse::Vertex,
-                                    sizeof(RenderGlyph), capacity);
-
-    boo::IShaderPipeline* shader;
-    if (font.subpixel())
-        shader = res.m_textRes.m_subpixel;
-    else
-        shader = res.m_textRes.m_regular;
-
-    if (!res.m_textRes.m_vtxFmt)
-    {
-        boo::VertexElementDescriptor vdescs[] =
-        {
-            {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-            {m_glyphBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
-        };
-        m_vtxFmt = res.m_factory->newVertexFormat(13, vdescs);
-        boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(shader, m_vtxFmt,
-                                                              nullptr, m_glyphBuf, nullptr, 1,
-                                                              (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                              1, texs);
-    }
-    else
-    {
-        boo::ITexture* texs[] = {m_fontAtlas.texture()};
-        m_shaderBinding = res.m_factory->newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
-                                                              nullptr, m_glyphBuf, nullptr, 1,
-                                                              (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                              1, texs);
-    }
-
     m_glyphs.reserve(capacity);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+
+        m_glyphBuf =
+        ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(RenderGlyph), capacity);
+
+        boo::IShaderPipeline* shader;
+        if (font.subpixel())
+            shader = res.m_textRes.m_subpixel;
+        else
+            shader = res.m_textRes.m_regular;
+
+        if (!res.m_textRes.m_vtxFmt)
+        {
+            boo::VertexElementDescriptor vdescs[] =
+            {
+                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                {m_glyphBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+            };
+            m_vtxFmt = ctx.newVertexFormat(13, vdescs);
+            boo::ITexture* texs[] = {m_fontAtlas.texture()};
+            m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
+                                                       nullptr, m_glyphBuf, nullptr, 1,
+                                                       (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                       1, texs);
+        }
+        else
+        {
+            boo::ITexture* texs[] = {m_fontAtlas.texture()};
+            m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
+                                                       nullptr, m_glyphBuf, nullptr, 1,
+                                                       (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
+                                                       1, texs);
+        }
+        return true;
+    });
 }
 
 TextView::TextView(ViewResources& res, View& parentView, FontTag font, Alignment align, size_t capacity)

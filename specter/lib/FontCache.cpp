@@ -390,10 +390,14 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         }
 
         WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
-        m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
-                                  boo::TextureFormat::RGBA8, texmap.get(), bufSz);
-        m_token = gf->commit();
+
+        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            m_tex =
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                      boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+            return true;
+        });
     }
     else
     {
@@ -471,10 +475,14 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         }
 
         WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
-        m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
-                                  boo::TextureFormat::I8, texmap.get(), bufSz);
-        m_token = gf->commit();
+
+        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            m_tex =
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                      boo::TextureFormat::I8, texmap.get(), bufSz);
+            return true;
+        });
     }
 
     buildKernTable(face);
@@ -591,10 +599,14 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 
         if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
             return;
-        m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
-                                  boo::TextureFormat::RGBA8, texmap.get(), bufSz);
-        m_token = gf->commit();
+
+        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            m_tex =
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                      boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+            return false;
+        });
     }
     else
     {
@@ -672,10 +684,14 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 
         if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
             return;
-        m_tex =
-        gf->newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
-                                  boo::TextureFormat::I8, texmap.get(), bufSz);
-        m_token = gf->commit();
+
+        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            m_tex =
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+                                      boo::TextureFormat::I8, texmap.get(), bufSz);
+            return true;
+        });
     }
 
     buildKernTable(face);

@@ -149,8 +149,8 @@ public:
 
 class ViewResources
 {
-    template <class Factory>
-    void init(Factory* factory, const IThemeData& theme, FontCache* fcache)
+    template <class FactoryCtx>
+    void init(FactoryCtx& factory, const IThemeData& theme, FontCache* fcache)
     {
         m_viewRes.init(factory, theme);
         m_textRes.init(factory, fcache);
@@ -160,7 +160,7 @@ class ViewResources
     }
 
 public:
-    boo::IGraphicsDataFactory* m_factory = nullptr;
+    boo::IGraphicsDataFactory* m_factory;
     FontCache* m_fcache = nullptr;
     View::Resources m_viewRes;
     TextView::Resources m_textRes;

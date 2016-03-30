@@ -17,19 +17,28 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
     if (!maxColumns)
         Log.report(logvisor::Fatal, "0-column tables not supported");
 
-    m_vertsBinding.initSolid(res, maxColumns * 6, m_viewVertBlockBuf);
-    commitResources(res);
-
     m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
+
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, maxColumns * 6, m_viewVertBlockBuf);
+        return true;
+    });
     m_scroll.m_view->setContentView(&m_rowsView);
+
     updateData();
 }
 
 Table::RowsView::RowsView(Table& t, ViewResources& res)
 : View(res, t), m_t(t), m_verts(new SolidShaderVert[SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6])
 {
-    m_vertsBinding.initSolid(res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
+        return true;
+    });
 }
 
 Table::CellView::CellView(Table& t, ViewResources& res)

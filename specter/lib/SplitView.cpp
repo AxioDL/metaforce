@@ -8,7 +8,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::SplitView");
 
-void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
+void SplitView::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const zeus::RGBA32 tex[3] =
     {
@@ -16,7 +16,7 @@ void SplitView::Resources::init(boo::IGraphicsDataFactory* factory, const ITheme
         {0,0,0,255},
         {255,255,255,64}
     };
-    m_shadingTex = factory->newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, tex, 12);
+    m_shadingTex = ctx.newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, tex, 12);
 }
 
 SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController* controller,
@@ -24,9 +24,13 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
 : View(res, parentView), m_controller(controller), m_axis(axis), m_slide(split),
   m_clearanceA(clearanceA), m_clearanceB(clearanceB)
 {
-    m_splitBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_splitVertsBinding.initTex(res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_splitBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+        m_splitVertsBinding.initTex(ctx, res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
+        return true;
+    });
 }
 
 View* SplitView::setContentView(int slot, View* view)

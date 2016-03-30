@@ -278,7 +278,9 @@ void ModalWindow::setFillColors(float t)
 ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint)
 : ModalWindow(res, parentView, constraint, res.themeData().splashBackground()) {}
 
-ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const zeus::CColor& bgColor)
+ModalWindow::ModalWindow(ViewResources& res, View& parentView,
+                         const RectangleConstraint& constraint,
+                         const zeus::CColor& bgColor)
 : View(res, parentView),
   m_constraint(constraint),
   m_windowBg(bgColor),
@@ -289,11 +291,14 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleCo
 {
     m_windowBgClear[3] = 0.0;
     m_line2Clear[3] = 0.0;
-    m_viewBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    
-    m_vertsBinding.initSolid(res, 38, m_viewBlockBuf);
-    
-    m_windowGfxData = res.m_factory->commit();
+
+    m_windowGfxData = res.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_viewBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+        m_vertsBinding.initSolid(ctx, res, 38, m_viewBlockBuf);
+        return true;
+    });
 
     for (int i=0 ; i<4 ; ++i)
     {

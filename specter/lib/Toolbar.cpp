@@ -9,7 +9,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::Space");
 
-void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeData& theme)
+void Toolbar::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const zeus::RGBA32 tex[] =
     {
@@ -18,7 +18,7 @@ void Toolbar::Resources::init(boo::IGraphicsDataFactory* factory, const IThemeDa
         {{0,0,0,64}},
         {{0,0,0,64}}
     };
-    m_shadingTex = factory->newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, tex, 16);
+    m_shadingTex = ctx.newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, tex, 16);
 }
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned units)
@@ -29,9 +29,13 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned 
     m_children.reserve(units);
     for (unsigned u=0 ; u<units ; ++u)
         m_children.emplace_back();
-    m_tbBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_vertsBinding.initTex(res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_tbBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+        m_vertsBinding.initTex(ctx, res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
+        return true;
+    });
     setBackground(res.themeData().toolbarBackground());
 }
 

@@ -117,7 +117,8 @@ public:
     {
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;
-        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+        if (m_viewVertBlockBuf)
+            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
         m_text->setMultiplyColor(color);
         if (m_errText)
             m_errText->setMultiplyColor(color);

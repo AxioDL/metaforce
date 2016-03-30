@@ -8,8 +8,12 @@ namespace specter
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
 : ITextInputView(res, parentView, strBind)
 {
-    m_vertsBinding.initSolid(res, 41, m_viewVertBlockBuf);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_vertsBinding.initSolid(ctx, res, 41, m_viewVertBlockBuf);
+        return true;
+    });
 
     for (int i=28 ; i<32 ; ++i)
         m_verts[i].m_color = res.themeData().textfieldSelection();

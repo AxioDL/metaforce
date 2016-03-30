@@ -110,10 +110,15 @@ public:
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
-        void initSolid(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf);
-        void initTex(ViewResources& res, size_t count, boo::IGraphicsBuffer* viewBlockBuf, boo::ITexture* texture);
+        void initSolid(boo::IGraphicsDataFactory::Context& ctx,
+                       ViewResources& res, size_t count,
+                       boo::IGraphicsBuffer* viewBlockBuf);
+        void initTex(boo::IGraphicsDataFactory::Context& ctx,
+                     ViewResources& res, size_t count,
+                     boo::IGraphicsBuffer* viewBlockBuf,
+                     boo::ITexture* texture);
 
-        void load(const void* data, size_t sz) {m_vertsBuf->load(data, sz);}
+        void load(const void* data, size_t sz) {if (m_vertsBuf) m_vertsBuf->load(data, sz);}
         operator boo::IShaderDataBinding*() {return m_shaderBinding;}
     };
 private:
@@ -125,7 +130,6 @@ private:
     boo::GraphicsDataToken m_gfxData;
 
     friend class RootView;
-    void buildResources(ViewResources& res);
     View(ViewResources& res);
 
 protected:
@@ -148,7 +152,7 @@ protected:
     "    float4x4 mv;\n"\
     "    float4 mulColor;\n"\
     "};\n"
-    boo::IGraphicsBufferD* m_viewVertBlockBuf;
+    boo::IGraphicsBufferD* m_viewVertBlockBuf = nullptr;
 
 public:
     struct Resources
@@ -159,21 +163,22 @@ public:
         boo::IShaderPipeline* m_texShader = nullptr;
         boo::IVertexFormat* m_texVtxFmt = nullptr; /* Not OpenGL */
 
-        void init(boo::GLDataFactory* factory, const IThemeData& theme);
+        void init(boo::GLDataFactory::Context& ctx, const IThemeData& theme);
 #if _WIN32
-        void init(boo::ID3DDataFactory* factory, const IThemeData& theme);
+        void init(boo::ID3DDataFactory::Context& ctx, const IThemeData& theme);
 #endif
 #if BOO_HAS_METAL
-        void init(boo::MetalDataFactory* factory, const IThemeData& theme);
+        void init(boo::MetalDataFactory::Context& ctx, const IThemeData& theme);
 #endif
 #if BOO_HAS_VULKAN
-        void init(boo::VulkanDataFactory* factory, const IThemeData& theme);
+        void init(boo::VulkanDataFactory::Context& ctx, const IThemeData& theme);
 #endif
     };
 
 protected:
     View(ViewResources& res, View& parentView);
-    void commitResources(ViewResources& res);
+    void buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res);
+    void commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc);
 
 public:
     virtual ~View() {}
@@ -199,7 +204,8 @@ public:
     virtual void setMultiplyColor(const zeus::CColor& color)
     {
         m_viewVertBlock.m_color = color;
-        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+        if (m_viewVertBlockBuf)
+            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
     }
 
     virtual int nominalWidth() const {return 0;}

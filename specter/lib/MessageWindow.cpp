@@ -15,8 +15,6 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView,
   m_okBind(*this, rootView().viewManager().translateOr("ok", "OK")),
   m_cancelBind(*this, rootView().viewManager().translateOr("cancel", "Cancel"))
 {
-    commitResources(res);
-
     m_text.reset(new MultiLineTextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
     m_text->typesetGlyphs(message, res.themeData().uiText(), 380 * res.pixelFactor());
     constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());

@@ -139,7 +139,11 @@ MultiLineTextView::MultiLineTextView(ViewResources& res,
   m_lineCapacity(lineCapacity),
   m_lineHeight(lineHeight)
 {
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        return true;
+    });
 }
 
 MultiLineTextView::MultiLineTextView(ViewResources& res,

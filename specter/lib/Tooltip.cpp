@@ -12,13 +12,16 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
                  const std::string& message)
 : View(res, parentView), m_titleStr(title), m_messageStr(message)
 {
-    m_ttBlockBuf = res.m_factory->newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_vertsBinding.initSolid(res, 16, m_ttBlockBuf);
-
     for (int i=0 ; i<16 ; ++i)
         m_ttVerts[i].m_color = res.themeData().tooltipBackground();
 
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_ttBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
+        m_vertsBinding.initSolid(ctx, res, 16, m_ttBlockBuf);
+        return true;
+    });
 
     for (int i=0 ; i<4 ; ++i)
     {

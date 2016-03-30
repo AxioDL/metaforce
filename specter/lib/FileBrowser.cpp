@@ -60,7 +60,6 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string
   m_recentBookmarkBind(*this),
   m_returnFunc(returnFunc)
 {
-    commitResources(res);
     setBackground({0,0,0,0.5});
 
     IViewManager& vm = rootView().viewManager();

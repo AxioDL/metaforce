@@ -8,22 +8,26 @@ namespace specter
 static logvisor::Module Log("specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
-: View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this),
-  m_splitMenuSystem(*this)
+: View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this)
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
-    m_renderTex = res.m_factory->newRenderTexture(rect.size[0], rect.size[1], true, false);
-    commitResources(res);
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+        m_splitMenuSystem.emplace(*this, ctx);
+        m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], true, false);
+        return true;
+    });
     resized(rect, rect);
 }
 
-RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv)
+RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFactory::Context& ctx)
 : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
   m_splitActionNode(*this), m_joinActionNode(*this)
 {
-    m_viewVertBlockBuf = rv.m_viewRes->m_factory->newDynamicBuffer(boo::BufferUse::Vertex, sizeof(View::ViewBlock), 1);
-    m_vertsBinding.initSolid(*rv.m_viewRes, 32, m_viewVertBlockBuf);
+    m_viewVertBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(View::ViewBlock), 1);
+    m_vertsBinding.initSolid(ctx, *rv.m_viewRes, 32, m_viewVertBlockBuf);
 
     zeus::CColor col = {0.0,0.0,0.0,0.5};
     for (int i=0 ; i<32 ; ++i)
@@ -153,7 +157,7 @@ void RootView::resized(const boo::SWindowRect& root, const boo::SWindowRect&)
          m_rightClickMenuRootAndLoc.location[1] *= hr;
          m_rightClickMenu.m_view->resized(root, m_rightClickMenuRootAndLoc);
     }
-    m_splitMenuSystem.resized();
+    m_splitMenuSystem->resized();
     m_resizeRTDirty = true;
 }
 
@@ -177,9 +181,9 @@ void RootView::SplitMenuSystem::resized()
 
 void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-    if (m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    if (m_splitMenuSystem->m_phase != SplitMenuSystem::Phase::Inactive)
     {
-        m_splitMenuSystem.mouseDown(coord, button, mods);
+        m_splitMenuSystem->mouseDown(coord, button, mods);
         return;
     }
 
@@ -207,8 +211,8 @@ void RootView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butto
         }
         else if (button == boo::EMouseButton::Secondary)
         {
-            m_splitMenuSystem.m_splitView = m_hoverSplitDragView;
-            adoptRightClickMenu(std::make_unique<specter::Menu>(*m_viewRes, *this, &m_splitMenuSystem), coord);
+            m_splitMenuSystem->m_splitView = m_hoverSplitDragView;
+            adoptRightClickMenu(std::make_unique<specter::Menu>(*m_viewRes, *this, &*m_splitMenuSystem), coord);
         }
         return;
     }
@@ -247,9 +251,9 @@ void RootView::SplitMenuSystem::mouseDown(const boo::SWindowCoord& coord, boo::E
 
 void RootView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods)
 {
-    if (m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    if (m_splitMenuSystem->m_phase != SplitMenuSystem::Phase::Inactive)
     {
-        m_splitMenuSystem.mouseUp(coord, button, mods);
+        m_splitMenuSystem->mouseUp(coord, button, mods);
         return;
     }
 
@@ -340,9 +344,9 @@ SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCo
 
 void RootView::mouseMove(const boo::SWindowCoord& coord)
 {
-    if (m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    if (m_splitMenuSystem->m_phase != SplitMenuSystem::Phase::Inactive)
     {
-        m_splitMenuSystem.mouseMove(coord);
+        m_splitMenuSystem->mouseMove(coord);
         return;
     }
 
@@ -455,9 +459,9 @@ void RootView::mouseEnter(const boo::SWindowCoord& coord)
 
 void RootView::mouseLeave(const boo::SWindowCoord& coord)
 {
-    if (m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    if (m_splitMenuSystem->m_phase != SplitMenuSystem::Phase::Inactive)
     {
-        m_splitMenuSystem.mouseLeave(coord);
+        m_splitMenuSystem->mouseLeave(coord);
         return;
     }
 
@@ -543,9 +547,9 @@ void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool
         m_window->setFullscreen(!m_window->isFullscreen());
         return;
     }
-    if (key == boo::ESpecialKey::Esc && m_splitMenuSystem.m_phase != SplitMenuSystem::Phase::Inactive)
+    if (key == boo::ESpecialKey::Esc && m_splitMenuSystem->m_phase != SplitMenuSystem::Phase::Inactive)
     {
-        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::Inactive;
+        m_splitMenuSystem->m_phase = SplitMenuSystem::Phase::Inactive;
         return;
     }
     for (View* v : m_views)
@@ -589,20 +593,20 @@ void RootView::displayTooltip(const std::string& name, const std::string& help)
 
 void RootView::internalThink()
 {
-    if (m_splitMenuSystem.m_deferredSplit)
+    if (m_splitMenuSystem->m_deferredSplit)
     {
-        m_splitMenuSystem.m_deferredSplit = false;
+        m_splitMenuSystem->m_deferredSplit = false;
         m_rightClickMenu.m_view.reset();
-        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveSplit;
-        m_splitMenuSystem.mouseMove(m_splitMenuSystem.m_deferredCoord);
+        m_splitMenuSystem->m_phase = SplitMenuSystem::Phase::InteractiveSplit;
+        m_splitMenuSystem->mouseMove(m_splitMenuSystem->m_deferredCoord);
     }
 
-    if (m_splitMenuSystem.m_deferredJoin)
+    if (m_splitMenuSystem->m_deferredJoin)
     {
-        m_splitMenuSystem.m_deferredJoin = false;
+        m_splitMenuSystem->m_deferredJoin = false;
         m_rightClickMenu.m_view.reset();
-        m_splitMenuSystem.m_phase = SplitMenuSystem::Phase::InteractiveJoin;
-        m_splitMenuSystem.mouseMove(m_splitMenuSystem.m_deferredCoord);
+        m_splitMenuSystem->m_phase = SplitMenuSystem::Phase::InteractiveJoin;
+        m_splitMenuSystem->mouseMove(m_splitMenuSystem->m_deferredCoord);
     }
 
     if (m_rightClickMenu.m_view)
@@ -625,7 +629,7 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
         v->draw(gfxQ);
     if (m_tooltip)
         m_tooltip->draw(gfxQ);
-    m_splitMenuSystem.draw(gfxQ);
+    m_splitMenuSystem->draw(gfxQ);
     if (m_rightClickMenu.m_view)
         m_rightClickMenu.m_view->draw(gfxQ);
     gfxQ->resolveDisplay(m_renderTex);
