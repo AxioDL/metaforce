@@ -86,7 +86,7 @@ void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& t
 
 #if _WIN32
 
-void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& theme)
+void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const char* SolidVS =
     "struct VertData\n"
@@ -160,34 +160,34 @@ void View::Resources::init(boo::ID3DDataFactory* factory, const IThemeData& them
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_solidVtxFmt = factory->newVertexFormat(2, solidvdescs);
+    m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
     ComPtr<ID3DBlob> vertBlob;
     ComPtr<ID3DBlob> fragBlob;
     ComPtr<ID3DBlob> pipeBlob;
-    m_solidShader = factory->newShaderPipeline(SolidVS, SolidFS, vertBlob, fragBlob, pipeBlob, m_solidVtxFmt,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, false, false, false);
+    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, vertBlob, fragBlob, pipeBlob, m_solidVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory->newVertexFormat(2, texvdescs);
+    m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
     vertBlob.Reset();
     fragBlob.Reset();
     pipeBlob.Reset();
-    m_texShader = factory->newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, false, false);
+    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
 #if BOO_HAS_METAL
 
-void View::Resources::init(boo::MetalDataFactory* factory, const IThemeData& theme)
+void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const char* SolidVS =
     "#include <metal_stdlib>\n"
