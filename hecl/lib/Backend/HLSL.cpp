@@ -240,14 +240,11 @@ namespace Runtime
 struct HLSLBackendFactory : IShaderBackendFactory
 {
     Backend::HLSL m_backend;
-    boo::ID3DDataFactory* m_gfxFactory;
-
-    HLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
-    : m_gfxFactory(dynamic_cast<boo::ID3DDataFactory*>(gfxFactory)) {}
 
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
+                                       boo::IGraphicsDataFactory::Context& ctx,
                                        boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
@@ -261,12 +258,13 @@ struct HLSLBackendFactory : IShaderBackendFactory
         ComPtr<ID3DBlob> fragBlob;
         ComPtr<ID3DBlob> pipelineBlob;
         objOut =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        vertBlob, fragBlob, pipelineBlob,
-                                        tag.newVertexFormat(m_gfxFactory),
-                                        m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::ID3DDataFactory::Context&>(ctx).
+            newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                              vertBlob, fragBlob, pipelineBlob,
+                              tag.newVertexFormat(ctx),
+                              m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getBackfaceCulling());
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -314,7 +312,8 @@ struct HLSLBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
+    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
+                                               boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
@@ -346,12 +345,13 @@ struct HLSLBackendFactory : IShaderBackendFactory
         }
 
         boo::IShaderPipeline* ret =
-        m_gfxFactory->newShaderPipeline(nullptr, nullptr,
-                                        vertBlob, fragBlob, pipelineBlob,
-                                        tag.newVertexFormat(m_gfxFactory),
-                                        blendSrc, blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::ID3DDataFactory::Context&>(ctx).
+            newShaderPipeline(nullptr, nullptr,
+                              vertBlob, fragBlob, pipelineBlob,
+                              tag.newVertexFormat(ctx),
+                              blendSrc, blendDst, boo::Primitive::TriStrips,
+                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getBackfaceCulling());
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -361,6 +361,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                                const hecl::Frontend::IR& ir,
                                                hecl::Frontend::Diagnostics& diag,
                                                const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                               boo::IGraphicsDataFactory::Context& ctx,
                                                FReturnExtensionShader returnFunc)
     {
         m_backend.reset(ir, diag);
@@ -380,12 +381,13 @@ struct HLSLBackendFactory : IShaderBackendFactory
             fragPipeBlobs.emplace_back();
             std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>& fragPipeBlob = fragPipeBlobs.back();
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                            vertBlob, fragPipeBlob.first, fragPipeBlob.second,
-                                            tag.newVertexFormat(m_gfxFactory),
-                                            m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::ID3DDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  vertBlob, fragPipeBlob.first, fragPipeBlob.second,
+                                  tag.newVertexFormat(ctx),
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             if (fragPipeBlob.first)
@@ -434,6 +436,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
 
     void buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                      boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
         const ShaderTag& tag = data.m_tag;
@@ -468,12 +471,13 @@ struct HLSLBackendFactory : IShaderBackendFactory
             }
 
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(nullptr, nullptr,
-                                            vertBlob, fragBlob, pipelineBlob,
-                                            tag.newVertexFormat(m_gfxFactory),
-                                            blendSrc, blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::ID3DDataFactory::Context&>(ctx).
+                newShaderPipeline(nullptr, nullptr,
+                                  vertBlob, fragBlob, pipelineBlob,
+                                  tag.newVertexFormat(ctx),
+                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -481,9 +485,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
     }
 };
 
-IShaderBackendFactory* _NewHLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+IShaderBackendFactory* _NewHLSLBackendFactory()
 {
-    return new struct HLSLBackendFactory(gfxFactory);
+    return new struct HLSLBackendFactory();
 }
 
 }
