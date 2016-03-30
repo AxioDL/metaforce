@@ -57,7 +57,7 @@ void ClientProcess::Worker::proc()
     while (m_proc.m_running)
     {
         std::unique_lock<std::mutex> lk(m_proc.m_mutex);
-        if (m_proc.m_pendingQueue.size())
+        while (m_proc.m_pendingQueue.size())
         {
             std::unique_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
             m_proc.m_pendingQueue.pop_front();
