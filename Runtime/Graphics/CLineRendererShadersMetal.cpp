@@ -102,7 +102,8 @@ static const char* FS_METAL_NOTEX =
 
 struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
+                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
     {
         int texCount = 0;
         boo::ITexture* textures[1];
@@ -115,13 +116,13 @@ struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
-        renderer.m_shaderBind = CGraphics::g_BooFactory->newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
-                                                                              nullptr, nullptr, 1, uniforms,
-                                                                              texCount, textures);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
+                                                         nullptr, nullptr, 1, uniforms,
+                                                         texCount, textures);
     }
 };
 
-CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::MetalDataFactory& factory)
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor VtxFmtTex[] =
     {
@@ -129,28 +130,28 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
         {nullptr, nullptr, boo::VertexSemantic::Color},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory.newVertexFormat(3, VtxFmtTex);
+    m_texVtxFmt = ctx.newVertexFormat(3, VtxFmtTex);
 
     static const boo::VertexElementDescriptor VtxFmtNoTex[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_noTexVtxFmt = factory.newVertexFormat(2, VtxFmtNoTex);
+    m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
-    m_texAlpha = factory.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
+    m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
                                            CGraphics::g_ViewportSamples,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips, false, true, false);
-    m_texAdditive = factory.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
+    m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
                                               CGraphics::g_ViewportSamples,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips, false, false, false);
-    m_noTexAlpha = factory.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
                                              CGraphics::g_ViewportSamples,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, true, false);
-    m_noTexAdditive = factory.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
                                                 CGraphics::g_ViewportSamples,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, false, false, false);
