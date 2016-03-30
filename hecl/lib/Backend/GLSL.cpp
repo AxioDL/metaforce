@@ -251,14 +251,11 @@ static const char* STD_BLOCKNAMES[] = {"HECLVertUniform"};
 struct GLSLBackendFactory : IShaderBackendFactory
 {
     Backend::GLSL m_backend;
-    boo::GLDataFactory* m_gfxFactory;
-
-    GLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
-    : m_gfxFactory(dynamic_cast<boo::GLDataFactory*>(gfxFactory)) {}
 
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
+                                       boo::IGraphicsDataFactory::Context& ctx,
                                        boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
@@ -273,12 +270,13 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string fragSource = m_backend.makeFrag("#version 330");
         cachedSz += fragSource.size() + 1;
         objOut =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        m_backend.m_texMapEnd, "texs",
-                                        1, STD_BLOCKNAMES,
-                                        m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::GLDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  m_backend.m_texMapEnd, "texs",
+                                  1, STD_BLOCKNAMES,
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -293,7 +291,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
+    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
+                                               boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
@@ -303,12 +302,13 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string vertSource = r.readString();
         std::string fragSource = r.readString();
         boo::IShaderPipeline* ret =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        texMapEnd, "texs",
-                                        1, STD_BLOCKNAMES,
-                                        blendSrc, blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::GLDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  texMapEnd, "texs",
+                                  1, STD_BLOCKNAMES,
+                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -318,6 +318,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                                const hecl::Frontend::IR& ir,
                                                hecl::Frontend::Diagnostics& diag,
                                                const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                               boo::IGraphicsDataFactory::Context& ctx,
                                                FReturnExtensionShader returnFunc)
     {
         m_backend.reset(ir, diag);
@@ -336,12 +337,13 @@ struct GLSLBackendFactory : IShaderBackendFactory
             fragSources.push_back(m_backend.makeFrag("#version 330", slot.lighting, slot.post));
             cachedSz += fragSources.back().size() + 1;
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
-                                            m_backend.m_texMapEnd, "texs",
-                                            1, STD_BLOCKNAMES,
-                                            m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::GLDataFactory::Context&>(ctx).
+                    newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
+                                      m_backend.m_texMapEnd, "texs",
+                                      1, STD_BLOCKNAMES,
+                                      m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -361,6 +363,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
 
     void buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                      boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
         const ShaderTag& tag = data.m_tag;
@@ -373,12 +376,13 @@ struct GLSLBackendFactory : IShaderBackendFactory
         {
             std::string fragSource = r.readString();
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                            texMapEnd, "texs",
-                                            1, STD_BLOCKNAMES,
-                                            blendSrc, blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::GLDataFactory::Context&>(ctx).
+                    newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                      texMapEnd, "texs",
+                                      1, STD_BLOCKNAMES,
+                                      blendSrc, blendDst, boo::Primitive::TriStrips,
+                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -386,9 +390,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
     }
 };
 
-IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+IShaderBackendFactory* _NewGLSLBackendFactory()
 {
-    return new struct GLSLBackendFactory(gfxFactory);
+    return new struct GLSLBackendFactory();
 }
 
 #if BOO_HAS_VULKAN
@@ -396,14 +400,11 @@ IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFact
 struct SPIRVBackendFactory : IShaderBackendFactory
 {
     Backend::GLSL m_backend;
-    boo::VulkanDataFactory* m_gfxFactory;
-
-    SPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
-    : m_gfxFactory(dynamic_cast<boo::VulkanDataFactory*>(gfxFactory)) {}
 
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
+                                       boo::IGraphicsDataFactory::Context& ctx,
                                        boo::IShaderPipeline*& objOut)
     {
         m_backend.reset(ir, diag);
@@ -420,11 +421,12 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         std::vector<unsigned char> pipelineBlob;
 
         objOut =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(m_gfxFactory),
-                                        m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::VulkanDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(ctx),
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -468,7 +470,8 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
+    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
+                                               boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
@@ -492,12 +495,13 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
 
         boo::IShaderPipeline* ret =
-        m_gfxFactory->newShaderPipeline(nullptr, nullptr,
-                                        vertBlob, fragBlob, pipelineBlob,
-                                        tag.newVertexFormat(m_gfxFactory),
-                                        blendSrc, blendDst, boo::Primitive::TriStrips,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::VulkanDataFactory::Context&>(ctx).
+                newShaderPipeline(nullptr, nullptr,
+                                  vertBlob, fragBlob, pipelineBlob,
+                                  tag.newVertexFormat(ctx),
+                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -507,6 +511,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                                const hecl::Frontend::IR& ir,
                                                hecl::Frontend::Diagnostics& diag,
                                                const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                               boo::IGraphicsDataFactory::Context& ctx,
                                                FReturnExtensionShader returnFunc)
     {
         m_backend.reset(ir, diag);
@@ -527,12 +532,13 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             fragPipeBlobs.emplace_back();
             std::pair<std::vector<unsigned int>, std::vector<unsigned char>>& fragPipeBlob = fragPipeBlobs.back();
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                            vertBlob, fragPipeBlob.first, fragPipeBlob.second,
-                                            tag.newVertexFormat(m_gfxFactory),
-                                            m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::VulkanDataFactory::Context&>(ctx).
+                    newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                      vertBlob, fragPipeBlob.first, fragPipeBlob.second,
+                                      tag.newVertexFormat(ctx),
+                                      m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             cachedSz += fragPipeBlob.first.size() * sizeof(unsigned int);
@@ -583,6 +589,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
 
     void buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                      boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
         const ShaderTag& tag = data.m_tag;
@@ -609,12 +616,13 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                 r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
 
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(nullptr, nullptr,
-                                            vertBlob, fragBlob, pipelineBlob,
-                                            tag.newVertexFormat(m_gfxFactory),
-                                            blendSrc, blendDst, boo::Primitive::TriStrips,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::VulkanDataFactory::Context&>(ctx).
+                    newShaderPipeline(nullptr, nullptr,
+                                      vertBlob, fragBlob, pipelineBlob,
+                                      tag.newVertexFormat(ctx),
+                                      blendSrc, blendDst, boo::Primitive::TriStrips,
+                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -622,9 +630,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
     }
 };
 
-IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+IShaderBackendFactory* _NewSPIRVBackendFactory()
 {
-    return new struct SPIRVBackendFactory(gfxFactory);
+    return new struct SPIRVBackendFactory();
 }
 
 #endif

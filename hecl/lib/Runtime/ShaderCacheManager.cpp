@@ -12,15 +12,15 @@ namespace hecl
 {
 namespace Runtime
 {
-IShaderBackendFactory* _NewGLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+IShaderBackendFactory* _NewGLSLBackendFactory();
 #if _WIN32
-IShaderBackendFactory* _NewHLSLBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+IShaderBackendFactory* _NewHLSLBackendFactory();
 #endif
 #if BOO_HAS_METAL
-IShaderBackendFactory* _NewMetalBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+IShaderBackendFactory* _NewMetalBackendFactory();
 #endif
 #if BOO_HAS_VULKAN
-IShaderBackendFactory* _NewSPIRVBackendFactory(boo::IGraphicsDataFactory* gfxFactory);
+IShaderBackendFactory* _NewSPIRVBackendFactory();
 #endif
 
 static logvisor::Module Log("ShaderCacheManager");
@@ -116,22 +116,22 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
     switch (plat)
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
-        m_factory.reset(_NewGLSLBackendFactory(gfxFactory));
+        m_factory.reset(_NewGLSLBackendFactory());
         break;
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:
-        m_factory.reset(_NewHLSLBackendFactory(gfxFactory));
+        m_factory.reset(_NewHLSLBackendFactory());
         break;
 #endif
 #if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
-        m_factory.reset(_NewMetalBackendFactory(gfxFactory));
+        m_factory.reset(_NewMetalBackendFactory());
         break;
 #endif
 #if BOO_HAS_VULKAN
     case boo::IGraphicsDataFactory::Platform::Vulkan:
-        m_factory.reset(_NewSPIRVBackendFactory(gfxFactory));
+        m_factory.reset(_NewSPIRVBackendFactory());
         break;
 #endif
     default:
@@ -352,41 +352,45 @@ bool ShaderCacheManager::addData(const ShaderCachedData& data)
 }
 
 boo::IShaderPipeline*
-ShaderCacheManager::buildFromCache(const ShaderCachedData& foundData)
+ShaderCacheManager::buildFromCache(const ShaderCachedData& foundData,
+                                   boo::IGraphicsDataFactory::Context& ctx)
 {
-    return m_factory->buildShaderFromCache(foundData);
+    return m_factory->buildShaderFromCache(foundData, ctx);
 }
 
 boo::IShaderPipeline*
 ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
-                                const std::string& diagName)
+                                const std::string& diagName,
+                                boo::IGraphicsDataFactory::Context& ctx)
 {
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildFromCache(foundData);
+        return buildFromCache(foundData, ctx);
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
-    return buildShader(tag, ir, diagName);
+    return buildShader(tag, ir, diagName, ctx);
 }
 
 boo::IShaderPipeline*
 ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                const std::string& diagName)
+                                const std::string& diagName,
+                                boo::IGraphicsDataFactory::Context& ctx)
 {
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildFromCache(foundData);
+        return buildFromCache(foundData, ctx);
     FE.getDiagnostics().reset(diagName);
     boo::IShaderPipeline* ret;
-    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ret));
+    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, ret));
     return ret;
 }
 
 std::vector<boo::IShaderPipeline*>
-ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData)
+ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData,
+                                           boo::IGraphicsDataFactory::Context& ctx)
 {
     std::vector<boo::IShaderPipeline*> shaders;
     shaders.reserve(m_extensions.m_extensionSlots.size());
-    m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots,
+    m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots, ctx,
     [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
     if (shaders.size() != m_extensions.m_extensionSlots.size())
         Log.report(logvisor::Fatal, "buildShaderFromCache returned %" PRISize " times, expected %" PRISize,
@@ -396,27 +400,29 @@ ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData)
 
 std::vector<boo::IShaderPipeline*>
 ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string& source,
-                                        const std::string& diagName)
+                                        const std::string& diagName,
+                                        boo::IGraphicsDataFactory::Context& ctx)
 {
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildExtendedFromCache(foundData);
+        return buildExtendedFromCache(foundData, ctx);
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
-    return buildExtendedShader(tag, ir, diagName);
+    return buildExtendedShader(tag, ir, diagName, ctx);
 }
 
 std::vector<boo::IShaderPipeline*>
 ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                        const std::string& diagName)
+                                        const std::string& diagName,
+                                        boo::IGraphicsDataFactory::Context& ctx)
 {
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildExtendedFromCache(foundData);
+        return buildExtendedFromCache(foundData, ctx);
     std::vector<boo::IShaderPipeline*> shaders;
     shaders.reserve(m_extensions.m_extensionSlots.size());
     FE.getDiagnostics().reset(diagName);
     ShaderCachedData data =
-    m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots,
+    m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots, ctx,
     [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
     if (shaders.size() != m_extensions.m_extensionSlots.size())
         Log.report(logvisor::Fatal, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,

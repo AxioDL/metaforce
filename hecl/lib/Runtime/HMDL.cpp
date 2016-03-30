@@ -8,7 +8,7 @@ namespace Runtime
 {
 static logvisor::Module Log("HMDL");
 
-HMDLData::HMDLData(boo::IGraphicsDataFactory* factory,
+HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx,
                    const void* metaData, const void* vbo, const void* ibo)
 {
     HMDLMeta meta;
@@ -19,15 +19,15 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory* factory,
     if (meta.magic != 'TACO')
         Log.report(logvisor::Fatal, "invalid HMDL magic");
 
-    m_vbo = factory->newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
-    m_ibo = factory->newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
+    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
 
-    if (factory->bindingNeedsVertexFormat())
-        m_vtxFmt = NewVertexFormat(factory, meta, m_vbo, m_ibo);
+    if (ctx.bindingNeedsVertexFormat())
+        m_vtxFmt = NewVertexFormat(ctx, meta, m_vbo, m_ibo);
 }
 
 /* For binding constructors that require vertex format up front (GLSL) */
-boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory* factory, const HMDLMeta& meta,
+boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory::Context& ctx, const HMDLMeta& meta,
                                               boo::IGraphicsBuffer* vbo, boo::IGraphicsBuffer* ibo)
 {
     size_t elemCount = 2 + meta.colorCount + meta.uvCount + meta.weightCount;
@@ -60,11 +60,11 @@ boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory* factory
         vdescs[e].semanticIdx = i;
     }
 
-    return factory->newVertexFormat(elemCount, vdescs.get());
+    return ctx.newVertexFormat(elemCount, vdescs.get());
 }
 
 /* For shader constructors that require vertex format up-front (HLSL/Metal/Vulkan) */
-boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory *factory) const
+boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory::Context& ctx) const
 {
     size_t elemCount = 2 + m_colorCount + m_uvCount + m_weightCount;
     std::unique_ptr<boo::VertexElementDescriptor[]> vdescs(new boo::VertexElementDescriptor[elemCount]);
@@ -96,7 +96,7 @@ boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory *factor
         vdescs[e].semanticIdx = i;
     }
 
-    return factory->newVertexFormat(elemCount, vdescs.get());
+    return ctx.newVertexFormat(elemCount, vdescs.get());
 }
 
 }
