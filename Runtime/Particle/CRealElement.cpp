@@ -2,6 +2,7 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include "CElementGen.hpp"
+#include "Graphics/CTexture.hpp"
 #include "zeus/Math.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */

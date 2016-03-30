@@ -24,11 +24,11 @@ namespace urde
 ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc)
 : ProjectResourceFactoryBase(clientProc)
 {
-    m_factoryMgr.AddFactory(FOURCC('TXTR'), urde::FTextureFactory);
-    m_factoryMgr.AddFactory(FOURCC('PART'), urde::FParticleFactory);
-    m_factoryMgr.AddFactory(FOURCC('FRME'), urde::RGuiFrameFactoryInGame);
-    m_factoryMgr.AddFactory(FOURCC('FONT'), urde::FRasterFontFactory);
-    m_factoryMgr.AddFactory(FOURCC('CMDL'), urde::FModelFactory);
+    m_factoryMgr.AddFactory(FOURCC('TXTR'), FFactoryFunc(urde::FTextureFactory));
+    m_factoryMgr.AddFactory(FOURCC('PART'), FFactoryFunc(urde::FParticleFactory));
+    m_factoryMgr.AddFactory(FOURCC('FRME'), FFactoryFunc(urde::RGuiFrameFactoryInGame));
+    m_factoryMgr.AddFactory(FOURCC('FONT'), FFactoryFunc(urde::FRasterFontFactory));
+    m_factoryMgr.AddFactory(FOURCC('CMDL'), FMemFactoryFunc(urde::FModelFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)

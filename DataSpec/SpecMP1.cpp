@@ -219,7 +219,7 @@ struct SpecMP1 : SpecBase
 
     bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)
     {
-        m_project.enableDataSpecs({"MP1-PC"});
+        m_project.enableDataSpecs({_S("MP1-PC")});
 
         nod::ExtractionContext ctx = {true, force, nullptr};
 

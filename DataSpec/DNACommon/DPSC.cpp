@@ -120,7 +120,7 @@ void DPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 
 template <class IDType>
 template <class Reader>
-void DPSM<IDType>::readQuadDecalInfo(Reader& r, uint32_t clsId, DPSM<IDType>::SQuadDescr& quad)
+void DPSM<IDType>::readQuadDecalInfo(Reader& r, uint32_t clsId, typename DPSM<IDType>::SQuadDescr& quad)
 {
     switch(clsId)
     {
@@ -156,7 +156,8 @@ void DPSM<IDType>::readQuadDecalInfo(Reader& r, uint32_t clsId, DPSM<IDType>::SQ
 }
 
 template <class IDType>
-void DPSM<IDType>::writeQuadDecalInfo(athena::io::YAMLDocWriter& w, const DPSM<IDType>::SQuadDescr& quad, bool first) const
+void DPSM<IDType>::writeQuadDecalInfo(athena::io::YAMLDocWriter& w,
+                                      const typename DPSM<IDType>::SQuadDescr& quad, bool first) const
 {
     if (quad.x0_LFT)
     {
@@ -229,7 +230,7 @@ size_t DPSM<IDType>::binarySize(size_t __isz) const
 }
 
 template <class IDType>
-size_t DPSM<IDType>::getQuadDecalBinarySize(size_t __isz, const DPSM<IDType>::SQuadDescr& quad) const
+size_t DPSM<IDType>::getQuadDecalBinarySize(size_t __isz, const typename DPSM<IDType>::SQuadDescr& quad) const
 {
     if (quad.x0_LFT)
         __isz = quad.x0_LFT.binarySize(__isz + 4);
@@ -363,7 +364,8 @@ void DPSM<IDType>::write(athena::io::IStreamWriter& w) const
 }
 
 template <class IDType>
-void DPSM<IDType>::writeQuadDecalInfo(athena::io::IStreamWriter& w, const DPSM<IDType>::SQuadDescr& quad, bool first) const
+void DPSM<IDType>::writeQuadDecalInfo(athena::io::IStreamWriter& w,
+                                      const typename DPSM<IDType>::SQuadDescr& quad, bool first) const
 {
     if (quad.x0_LFT)
     {

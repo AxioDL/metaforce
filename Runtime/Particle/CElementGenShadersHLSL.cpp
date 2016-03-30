@@ -190,7 +190,8 @@ static const char* FS_HLSL_NOTEX =
 
 struct D3DElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(CElementGen& gen,
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                CElementGen& gen,
                                 boo::IShaderPipeline* regPipeline,
                                 boo::IShaderPipeline* redToAlphaPipeline)
     {
@@ -216,17 +217,17 @@ struct D3DElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
         boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
         if (regPipeline)
-            gen.m_normalDataBind = CGraphics::g_BooFactory->newShaderDataBinding(regPipeline, nullptr, nullptr,
-                                                                                 gen.m_instBuf, nullptr, 1, uniforms,
-                                                                                 texCount, textures);
+            gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, nullptr,
+                                                            gen.m_instBuf, nullptr, 1, uniforms,
+                                                            texCount, textures);
         if (redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = CGraphics::g_BooFactory->newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
-                                                                                     gen.m_instBuf, nullptr, 1, uniforms,
-                                                                                     texCount, textures);
+            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
+                                                                gen.m_instBuf, nullptr, 1, uniforms,
+                                                                texCount, textures);
     }
 };
 
-CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3DDataFactory& factory)
+CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {
@@ -240,7 +241,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
     };
-    m_vtxFormatTex = factory.newVertexFormat(9, TexFmtTex);
+    m_vtxFormatTex = ctx.newVertexFormat(9, TexFmtTex);
 
     static const boo::VertexElementDescriptor TexFmtIndTex[] =
     {
@@ -255,7 +256,7 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4}
     };
-    m_vtxFormatIndTex = CGraphics::g_BooFactory->newVertexFormat(10, TexFmtIndTex);
+    m_vtxFormatIndTex = ctx.newVertexFormat(10, TexFmtIndTex);
 
     static const boo::VertexElementDescriptor TexFmtNoTex[] =
     {
@@ -265,91 +266,91 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
         {nullptr, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
     };
-    m_vtxFormatNoTex = CGraphics::g_BooFactory->newVertexFormat(5, TexFmtNoTex);
+    m_vtxFormatNoTex = ctx.newVertexFormat(5, TexFmtNoTex);
 
-    m_texZTestZWrite = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texZTestZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, true, true, false);
-    m_texNoZTestZWrite = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                    ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, false, true, false);
-    m_texZTestNoZWrite = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                    ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, true, false, false);
-    m_texNoZTestNoZWrite = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, false, false, false);
 
-    m_texAdditiveZTest = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texAdditiveZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                    ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                    boo::Primitive::TriStrips, true, false, false);
-    m_texAdditiveNoZTest = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                      boo::Primitive::TriStrips, false, false, false);
 
-    m_texRedToAlphaZTest = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, true, false, false);
-    m_texRedToAlphaNoZTest = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                        ComPtr<ID3DBlob>(), m_vtxFormatTex,
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                        boo::Primitive::TriStrips, false, false, false);
 
-    m_indTexZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_indTexZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, false, true, false);
-    m_indTexNoZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_indTexNoZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, false, false, false);
-    m_indTexAdditive = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_indTexAdditive = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                  boo::Primitive::TriStrips, false, true, false);
 
-    m_cindTexZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_cindTexZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                 ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                 boo::Primitive::TriStrips, false, true, false);
-    m_cindTexNoZWrite = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_cindTexNoZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                   ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                   boo::Primitive::TriStrips, false, false, false);
-    m_cindTexAdditive = factory.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_cindTexAdditive = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                   ComPtr<ID3DBlob>(), m_vtxFormatIndTex,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, false, true, false);
 
-    m_noTexZTestZWrite = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexZTestZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                    ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, true, true, false);
-    m_noTexNoZTestZWrite = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, false, true, false);
-    m_noTexZTestNoZWrite = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, true, false, false);
-    m_noTexNoZTestNoZWrite = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                        ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                        boo::Primitive::TriStrips, false, false, false);
 
-    m_noTexAdditiveZTest = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexAdditiveZTest = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                      ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                      boo::Primitive::TriStrips, true, false, false);
-    m_noTexAdditiveNoZTest = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexAdditiveNoZTest = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                        ComPtr<ID3DBlob>(), m_vtxFormatNoTex,
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                        boo::Primitive::TriStrips, false, false, false);

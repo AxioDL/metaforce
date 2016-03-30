@@ -88,7 +88,8 @@ static const char* FS_HLSL_NOTEX =
 
 struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(CLineRenderer& renderer, boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
+                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
     {
         int texCount = 0;
         boo::ITexture* textures[1];
@@ -101,13 +102,13 @@ struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
-        renderer.m_shaderBind = CGraphics::g_BooFactory->newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
-                                                                              nullptr, nullptr, 1, uniforms,
-                                                                              texCount, textures);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
+                                                         nullptr, nullptr, 1, uniforms,
+                                                         texCount, textures);
     }
 };
 
-CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::ID3DDataFactory& factory)
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor VtxFmtTex[] =
     {
@@ -115,28 +116,28 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
         {nullptr, nullptr, boo::VertexSemantic::Color},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    m_texVtxFmt = factory.newVertexFormat(3, VtxFmtTex);
+    m_texVtxFmt = ctx.newVertexFormat(3, VtxFmtTex);
 
     static const boo::VertexElementDescriptor VtxFmtNoTex[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    m_noTexVtxFmt = factory.newVertexFormat(2, VtxFmtNoTex);
+    m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
-    m_texAlpha = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texAlpha = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                            ComPtr<ID3DBlob>(), m_texVtxFmt,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips,false, true, false);
-    m_texAdditive = factory.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_texAdditive = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                               ComPtr<ID3DBlob>(), m_texVtxFmt,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips,false, false, false);
-    m_noTexAlpha = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexAlpha = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                              ComPtr<ID3DBlob>(), m_noTexVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, true, false);
-    m_noTexAdditive = factory.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    m_noTexAdditive = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                 ComPtr<ID3DBlob>(), m_noTexVtxFmt,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, false, false, false);
