@@ -11,15 +11,6 @@ void ProjectResourceFactoryBase::Clear()
     m_catalogNameToTag.clear();
 }
 
-hecl::BlenderConnection& ProjectResourceFactoryBase::GetBackgroundBlender() const
-{
-    std::experimental::optional<hecl::BlenderConnection>& shareConn =
-        ((ProjectResourceFactoryBase*)this)->m_backgroundBlender;
-    if (!shareConn)
-        shareConn.emplace(hecl::VerbosityLevel);
-    return *shareConn;
-}
-
 void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPath,
                                              athena::io::YAMLDocWriter& nameWriter)
 {
@@ -40,7 +31,7 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
         hecl::ProjectPath path(m_proj->getProjectWorkingPath(), p.second->m_scalarString);
         if (path.getPathType() != hecl::ProjectPath::Type::File)
             continue;
-        SObjectTag pathTag = TagFromPath(path);
+        SObjectTag pathTag = TagFromPath(path, m_backgroundBlender);
         if (pathTag)
         {
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
@@ -119,7 +110,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
             }
 
             /* Classify intermediate into tag */
-            SObjectTag pathTag = TagFromPath(path);
+            SObjectTag pathTag = TagFromPath(path, m_backgroundBlender);
             if (pathTag)
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
@@ -232,11 +223,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
     nameWriter.finish();
     fclose(nameFile);
 
-    if (m_backgroundBlender)
-    {
-        m_backgroundBlender->quitBlender();
-        m_backgroundBlender = std::experimental::nullopt;
-    }
+    m_backgroundBlender.shutdown();
     Log.report(logvisor::Info, _S("Background index of '%s' complete; %d tags, %d names"),
                m_origSpec->m_name, m_tagToPath.size(), m_catalogNameToTag.size());
     m_backgroundRunning = false;
@@ -293,6 +280,16 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
         return {};
     }
 
+    /* Last chance type validation */
+    urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
+    if (verifyTag.type != tag.type)
+    {
+        Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                   path.getRelativePath().c_str(),
+                   tag.type.toString().c_str(), verifyTag.type.toString().c_str());
+        return {};
+    }
+
     /* Get cooked representation path */
     hecl::ProjectPath cooked = GetCookedPath(path, true);
 
@@ -329,7 +326,8 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
     return m_factoryMgr.MakeObject(tag, fr, paramXfer);
 }
 
-void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const hecl::ProjectPath& path)
+void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& tag,
+                                                       const hecl::ProjectPath& path)
 {
     if (!m_workingPath)
     {
@@ -339,7 +337,18 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const hecl::ProjectPath& 
         if (path.getPathType() != hecl::ProjectPath::Type::File)
         {
             Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
-                       path.getAbsolutePath().c_str());
+                       path.getRelativePath().c_str());
+            m_failed = true;
+            return;
+        }
+
+        /* Last chance type validation */
+        urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::SharedBlenderToken);
+        if (verifyTag.type != tag.type)
+        {
+            Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                       path.getRelativePath().c_str(),
+                       tag.type.toString().c_str(), verifyTag.type.toString().c_str());
             m_failed = true;
             return;
         }
@@ -425,6 +434,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
         else
             return {};
     }
+    lk.unlock();
 
     return BuildSync(tag, search->second, paramXfer);
 }
@@ -526,7 +536,8 @@ void ProjectResourceFactoryBase::AsyncIdle()
             }
             continue;
         }
-        task.EnsurePath(search->second);
+        lk.unlock();
+        task.EnsurePath(task.x0_tag, search->second);
 
         /* Pump load pipeline (cooking if needed) */
         if (task.AsyncPump())

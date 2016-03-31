@@ -82,6 +82,7 @@ private:
         void ProcessAnimation(const UVAnimation& anim);
         void PadOutBuffer();
         void Update(const MaterialSet* matSet);
+        operator bool() const {return m_buffer.size() != 0;}
     } m_uvAnimBuffer;
 
     /* urde addition: boo! */

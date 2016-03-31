@@ -34,6 +34,7 @@ class CTexture
     void BuildRGB5A3FromGCN(CInputStream& in);
     void BuildRGBA8FromGCN(CInputStream& in);
     void BuildDXT1FromGCN(CInputStream& in);
+    void BuildRGBA8(CInputStream& in);
 
 public:
     CTexture(CInputStream& in);

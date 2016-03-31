@@ -5,6 +5,7 @@
 
 namespace urde
 {
+static logvisor::Module Log("urde::CTextureBoo");
 
 /* GX uses this upsampling technique to prevent banding on downsampled texture formats */
 static inline uint8_t Convert3To8(uint8_t v)
@@ -647,6 +648,19 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
     });
 }
 
+void CTexture::BuildRGBA8(CInputStream& in)
+{
+    size_t texelCount = ComputeMippedTexelCount();
+    std::unique_ptr<atInt8[]> buf = in.readBytes(texelCount * 4);
+
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
+                                        buf.get(), texelCount * 4);
+        return true;
+    });
+}
+
 CTexture::CTexture(CInputStream& in)
 {
     x0_fmt = ETexelFormat(in.readUint32Big());
@@ -689,6 +703,11 @@ CTexture::CTexture(CInputStream& in)
     case ETexelFormat::CMPR:
         BuildDXT1FromGCN(in);
         break;
+    case ETexelFormat::RGBA8PC:
+        BuildRGBA8(in);
+        break;
+    default:
+        Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
     }
 }
 

@@ -290,9 +290,12 @@ void CBooModel::UpdateUniformData() const
     unskinnedXf.proj = CGraphics::GetPerspectiveProjectionMatrix();
     m_unskinnedXfBuffer->load(&unskinnedXf, sizeof(unskinnedXf));
 
-    ((CBooModel*)this)->m_uvAnimBuffer.Update(x4_matSet);
-    m_uvMtxBuffer->load(m_uvAnimBuffer.m_buffer.data(),
-                        m_uvAnimBuffer.m_buffer.size() * 64);
+    if (m_uvAnimBuffer)
+    {
+        ((CBooModel*)this)->m_uvAnimBuffer.Update(x4_matSet);
+        m_uvMtxBuffer->load(m_uvAnimBuffer.m_buffer.data(),
+                            m_uvAnimBuffer.m_buffer.size() * 64);
+    }
 }
 
 void CBooModel::DrawAlpha(const CModelFlags& flags) const
@@ -331,7 +334,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
 {
     u32 version = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x4));
     u32 flags = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x8));
-    if (version != 16)
+    if (version != 0x10002)
         Log.report(logvisor::Fatal, "invalid CMDL for loading with boo");
 
     u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x24));
@@ -395,7 +398,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
         surf.m_data.read(r);
     }
 
-    const float* aabbPtr = reinterpret_cast<const float*>(x0_data.get() + 0x18);
+    const float* aabbPtr = reinterpret_cast<const float*>(x0_data.get() + 0xc);
     zeus::CAABox aabb(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
                       hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
     x28_modelInst = std::make_unique<CBooModel>(&x8_surfaces, x18_matSets[0],

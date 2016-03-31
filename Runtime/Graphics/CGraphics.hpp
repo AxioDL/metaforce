@@ -137,17 +137,18 @@ struct SClipScreenRect
 
 enum class ETexelFormat
 {
-    I4     = 0,
-    I8     = 1,
-    IA4    = 2,
-    IA8    = 3,
-    C4     = 4,
-    C8     = 5,
-    C14X2  = 6,
-    RGB565 = 7,
-    RGB5A3 = 8,
-    RGBA8  = 9,
-    CMPR   = 10
+    I4      = 0,
+    I8      = 1,
+    IA4     = 2,
+    IA8     = 3,
+    C4      = 4,
+    C8      = 5,
+    C14X2   = 6,
+    RGB565  = 7,
+    RGB5A3  = 8,
+    RGBA8   = 9,
+    CMPR    = 10,
+    RGBA8PC = 16
 };
 
 class CGraphics

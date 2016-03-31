@@ -36,11 +36,11 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
     BeginBackgroundIndex(proj, DataSpec::SpecEntMP1, DataSpec::SpecEntMP1PC);
 }
 
-SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path) const
+SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
 {
     if (hecl::IsPathBlend(path))
     {
-        hecl::BlenderConnection& conn = GetBackgroundBlender();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(path))
             return {};
 

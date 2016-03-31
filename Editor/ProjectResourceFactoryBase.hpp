@@ -29,7 +29,7 @@ protected:
     std::unique_ptr<hecl::Database::IDataSpec> m_cookSpec;
     urde::CFactoryMgr m_factoryMgr;
 
-    std::experimental::optional<hecl::BlenderConnection> m_backgroundBlender;
+    hecl::BlenderToken m_backgroundBlender;
     std::thread m_backgroundIndexTh;
     std::mutex m_backgroundIndexMutex;
     bool m_backgroundRunning = false;
@@ -56,15 +56,15 @@ protected:
                   IObj** ptr, const CVParamTransfer& xfer)
         : m_parent(parent), x0_tag(tag), xc_targetPtr(ptr), x18_cvXfer(xfer) {}
 
-        void EnsurePath(const hecl::ProjectPath& path);
+        void EnsurePath(const urde::SObjectTag& tag,
+                        const hecl::ProjectPath& path);
         void CookComplete();
         bool AsyncPump();
     };
     std::unordered_map<SObjectTag, AsyncTask> m_asyncLoadList;
 
-    virtual SObjectTag TagFromPath(const hecl::ProjectPath& path) const=0;
+    virtual SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const=0;
 
-    hecl::BlenderConnection& GetBackgroundBlender() const;
     void ReadCatalog(const hecl::ProjectPath& catalogPath,
                      athena::io::YAMLDocWriter& nameWriter);
     void BackgroundIndexRecursiveProc(const hecl::ProjectPath& path,

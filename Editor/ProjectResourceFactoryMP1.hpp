@@ -11,7 +11,7 @@ class ProjectResourceFactoryMP1 : public ProjectResourceFactoryBase
 public:
     ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc);
     void IndexMP1Resources(hecl::Database::Project& proj);
-    SObjectTag TagFromPath(const hecl::ProjectPath& path) const;
+    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;
 };
 
 }
