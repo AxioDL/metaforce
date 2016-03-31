@@ -379,7 +379,7 @@ public:
         m_diag.reset(diagName, source);
         m_parser.reset(source);
         m_lexer.consumeAllTokens(m_parser);
-        return m_lexer.compileIR(hash);
+        return m_lexer.compileIR(hash.val64());
     }
 
     Diagnostics& getDiagnostics() {return m_diag;}
