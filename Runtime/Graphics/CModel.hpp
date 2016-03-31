@@ -18,15 +18,15 @@ class CTexture;
 
 struct CModelFlags
 {
-    u8 f1; /* Blend state 3/5 enable additive */
-    u8 f2;
-    u16 f3; /* Depth state */
+    u8 m_blendMode = 0; /* Blend state 3/5 enable additive */
+    u8 m_matSetIdx = 0;
+    u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
 
-    /* depth flags
+    /* Flags
         0x4: render without texture lock
-        0x8: greater
-        0x10: non-inclusive
+        0x8: depth greater
+        0x10: depth non-inclusive
      */
 };
 
@@ -39,20 +39,30 @@ struct CBooSurface
     CBooSurface* m_next = nullptr;
 };
 
+struct SUnskinnedXf
+{
+    zeus::CMatrix4f mv;
+    zeus::CMatrix4f mvinv;
+    zeus::CMatrix4f proj;
+};
+
 class CBooModel
 {
+    friend class CModel;
 public:
+    using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+    using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
     struct SShader
     {
         std::vector<TCachedToken<CTexture>> x0_textures;
         std::vector<boo::IShaderPipeline*> m_shaders;
-        DataSpec::DNAMP1::HMDLMaterialSet m_matSet;
+        MaterialSet m_matSet;
         void UnlockTextures();
     };
 
 private:
     std::vector<CBooSurface>* x0_surfaces;
-    const DataSpec::DNAMP1::HMDLMaterialSet* x4_matSet;
+    const MaterialSet* x4_matSet;
     const std::vector<boo::IShaderPipeline*>* m_pipelines;
     boo::IVertexFormat* m_vtxFmt;
     boo::IGraphicsBufferS* x8_vbo;
@@ -65,17 +75,27 @@ private:
     bool x40_25_ : 1;
     u8 x41_shortNormals;
 
+    struct UVAnimationBuffer
+    {
+        std::vector<zeus::CMatrix4f> m_buffer;
+        std::vector<std::pair<size_t,size_t>> m_ranges;
+        void ProcessAnimation(const UVAnimation& anim);
+        void PadOutBuffer();
+        void Update(const MaterialSet* matSet);
+    } m_uvAnimBuffer;
+
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
-    boo::IGraphicsBufferD* m_uniformBuffer;
+    boo::IGraphicsBufferD* m_unskinnedXfBuffer;
+    boo::IGraphicsBufferD* m_uvMtxBuffer;
     std::vector<boo::IShaderDataBinding*> m_shaderDataBindings;
 
+    void BuildGfxToken();
+    void UpdateUniformData() const;
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
     void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
-
-    void BuildGfxToken();
 
 public:
     CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
@@ -83,7 +103,7 @@ public:
               const zeus::CAABox& aabb,
               u8 shortNormals, bool texturesLoaded);
 
-    static void MakeTexuresFromMats(const DataSpec::DNAMP1::HMDLMaterialSet& matSet,
+    static void MakeTexuresFromMats(const MaterialSet& matSet,
                                     std::vector<TCachedToken<CTexture>>& toksOut,
                                     IObjectStore& store);
 
@@ -94,7 +114,7 @@ public:
     void DrawNormal(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
 
-    const DataSpec::DNAMP1::HMDLMaterialSet::Material& GetMaterialByIndex(int idx) const
+    const MaterialSet::Material& GetMaterialByIndex(int idx) const
     {
         return x4_matSet->materials.at(idx);
     }
@@ -122,6 +142,8 @@ class CModel
     void VerifyCurrentShader(int shaderIdx) const;
 
 public:
+    using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+
     CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store);
     void DrawSortedParts(const CModelFlags& flags) const;
     void DrawUnsortedParts(const CModelFlags& flags) const;

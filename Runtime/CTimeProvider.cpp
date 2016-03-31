@@ -1,7 +1,5 @@
 #include "CTimeProvider.hpp"
-#if 0
 #include "Graphics/CGraphics.hpp"
-#endif
 
 namespace urde
 {
@@ -14,9 +12,7 @@ CTimeProvider::CTimeProvider(const float& time)
 
     g_currentTimeProvider = this;
 
-#if 0
     CGraphics::SetExternalTimeProvider(this);
-#endif
 }
 
 CTimeProvider::~CTimeProvider()
@@ -24,9 +20,7 @@ CTimeProvider::~CTimeProvider()
     g_currentTimeProvider = x8_lastProvider;
     if (g_currentTimeProvider)
         g_currentTimeProvider->x4_first = true;
-#if 0
-    CGraphics::SetExternalTimeProvider(g_TimeProvider);
-#endif
+    CGraphics::SetExternalTimeProvider(g_currentTimeProvider);
 }
 
 }

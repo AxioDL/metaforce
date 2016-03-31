@@ -20,6 +20,8 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
+    //m_modelTest = objStore.GetObj("CMDL_GameCube");
+
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
     m_partGenDesc = objStore.GetObj("BusterSparks");
     m_partGen.reset(new urde::CElementGen(m_partGenDesc,
@@ -56,6 +58,11 @@ void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
+    if (m_vm.m_modelTest)
+    {
+        CModelFlags flags;
+        m_vm.m_modelTest->Draw(flags);
+    }
     if (m_vm.m_partGen)
     {
         m_vm.m_partGen->Update(1.0 / 60.0);

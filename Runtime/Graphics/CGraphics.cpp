@@ -1,6 +1,7 @@
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CLight.hpp"
 #include "zeus/Math.hpp"
+#include "CTimeProvider.hpp"
 
 #undef near
 #undef far
@@ -18,6 +19,7 @@ bool CGraphics::g_InterruptLastFrameUsedAbove = false;
 ERglLightBits CGraphics::g_LightActive = ERglLightBits::None;
 ERglLightBits CGraphics::g_LightsWereOn = ERglLightBits::None;
 zeus::CTransform CGraphics::g_GXModelView;
+zeus::CTransform CGraphics::g_GXModelViewInvXpose;
 zeus::CTransform CGraphics::g_GXModelMatrix;
 zeus::CTransform CGraphics::g_ViewMatrix;
 zeus::CVector3f CGraphics::g_ViewPoint;
@@ -116,6 +118,8 @@ void CGraphics::SetViewMatrix()
         g_GXModelView = g_CameraMatrix * g_GXModelMatrix;
     /* Load position matrix */
     /* Inverse-transpose */
+    g_GXModelViewInvXpose = g_GXModelView.inverse();
+    g_GXModelViewInvXpose.m_basis.transpose();
     /* Load normal matrix */
 }
 
@@ -295,6 +299,16 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 {
     g_ViewportResolution = res;
     g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
+}
+
+CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;
+float CGraphics::g_DefaultSeconds;
+
+float CGraphics::GetSecondsMod900()
+{
+    if (!g_ExternalTimeProvider)
+        return g_DefaultSeconds;
+    return g_ExternalTimeProvider->x0_currentTime;
 }
 
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;

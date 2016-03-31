@@ -13,6 +13,7 @@
 namespace urde
 {
 class CLight;
+class CTimeProvider;
 
 enum class ERglLight : u8
 {
@@ -172,6 +173,7 @@ public:
     static ERglLightBits g_LightActive;
     static ERglLightBits g_LightsWereOn;
     static zeus::CTransform g_GXModelView;
+    static zeus::CTransform g_GXModelViewInvXpose;
     static zeus::CTransform g_GXModelMatrix;
     static zeus::CTransform g_ViewMatrix;
     static zeus::CVector3f g_ViewPoint;
@@ -210,6 +212,12 @@ public:
     static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
     static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point);
     static void SetViewportResolution(const zeus::CVector2i& res);
+
+    static CTimeProvider* g_ExternalTimeProvider;
+    static float g_DefaultSeconds;
+    static void SetExternalTimeProvider(CTimeProvider* provider)
+    {g_ExternalTimeProvider = provider;}
+    static float GetSecondsMod900();
 
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;

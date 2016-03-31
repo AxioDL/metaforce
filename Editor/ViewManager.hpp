@@ -9,6 +9,7 @@
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
+#include "Runtime/Graphics/CModel.hpp"
 
 namespace urde
 {
@@ -47,6 +48,7 @@ class ViewManager : public specter::IViewManager
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<ParticleView> m_particleView;
+    urde::TLockedToken<CModel> m_modelTest;
     urde::TLockedToken<CGenDescription> m_partGenDesc;
     std::unique_ptr<CElementGen> m_partGen;
     std::unique_ptr<CLineRenderer> m_lineRenderer;
