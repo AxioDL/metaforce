@@ -2,6 +2,7 @@
 #define __PSHAG_CTEXTURE_HPP__
 
 #include "GCNTypes.hpp"
+#include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 #include "IOStreams.hpp"
 #include "Graphics/CGraphics.hpp"
@@ -48,7 +49,7 @@ public:
     boo::ITexture* GetBooTexture() {return m_booTex;}
 };
 
-std::unique_ptr<IObj> FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 
 }
 

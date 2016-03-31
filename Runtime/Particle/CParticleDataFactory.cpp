@@ -1156,7 +1156,7 @@ void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc)
         desc->xd4_xc0_SSWH.m_swoosh = desc->xd4_xc0_SSWH.m_token.GetObj();
 }
 
-std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in,
+CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in,
                                        const CVParamTransfer& vparms)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());

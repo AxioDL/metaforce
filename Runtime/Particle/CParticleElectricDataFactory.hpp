@@ -2,6 +2,7 @@
 #define __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
+#include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
@@ -19,7 +20,7 @@ public:
     static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-std::unique_ptr<IObj> FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
 #endif // __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__

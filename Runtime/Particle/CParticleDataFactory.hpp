@@ -2,6 +2,7 @@
 #define __PSHAG_CPARTICLEDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
+#include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
@@ -96,7 +97,7 @@ public:
     static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-std::unique_ptr<IObj> FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 
 }
 

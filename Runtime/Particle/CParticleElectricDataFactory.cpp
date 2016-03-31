@@ -132,7 +132,7 @@ void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc)
         desc->x60_EPSM.m_gen = desc->x60_EPSM.m_token.GetObj();
 }
 
-std::unique_ptr<IObj> FParticleElectricDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
+CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
     return TToken<CElectricDescription>::GetIObjObjectFor(std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));
