@@ -47,6 +47,7 @@ void CBooModel::BuildGfxToken()
         m_unskinnedXfBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
                                                sizeof(SUnskinnedXf), 1);
         boo::IGraphicsBuffer* bufs[] = {m_unskinnedXfBuffer};
+        m_shaderDataBindings.clear();
         m_shaderDataBindings.reserve(x4_matSet->materials.size());
         auto pipelineIt = m_pipelines->begin();
         std::vector<boo::ITexture*> texs;
