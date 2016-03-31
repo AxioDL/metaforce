@@ -2,6 +2,7 @@
 #define __PSHAG_CPROJECTILEWEAPONDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
+#include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
@@ -18,7 +19,7 @@ public:
     static CWeaponDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-std::unique_ptr<IObj> FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
 #endif // __PSHAG_CPROJECTILEWEAPONDATAFACTORY_HPP__

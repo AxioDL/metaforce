@@ -187,7 +187,7 @@ CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* re
     }
 }
 
-std::unique_ptr<IObj> FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
+CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
     return TToken<CCollisionResponseData>::GetIObjObjectFor(std::unique_ptr<CCollisionResponseData>(new CCollisionResponseData(in, sp)));

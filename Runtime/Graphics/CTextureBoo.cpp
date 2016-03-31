@@ -697,7 +697,7 @@ void CTexture::Load(int slot, EClampMode clamp)
 
 }
 
-std::unique_ptr<IObj> FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
+CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
     return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in));
 }
