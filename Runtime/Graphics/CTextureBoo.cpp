@@ -692,7 +692,7 @@ CTexture::CTexture(CInputStream& in)
     }
 }
 
-void CTexture::Load(int slot, EClampMode clamp)
+void CTexture::Load(int slot, EClampMode clamp) const
 {
 
 }

@@ -44,7 +44,7 @@ public:
     ETexelFormat GetTexelFormat() const {return x0_fmt;}
     u16 GetWidth() const {return x4_w;}
     u16 GetHeight() const {return x6_h;}
-    void Load(int slot, EClampMode clamp);
+    void Load(int slot, EClampMode clamp) const;
     boo::ITexture* GetBooTexture() {return m_booTex;}
 };
 

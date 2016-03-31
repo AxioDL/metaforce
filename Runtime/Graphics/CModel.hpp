@@ -6,6 +6,8 @@
 #include "CFactoryMgr.hpp"
 #include "CToken.hpp"
 #include "zeus/CAABox.hpp"
+#include "DNACommon/CMDL.hpp"
+#include "DNAMP1/CMDLMaterials.hpp"
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
@@ -22,69 +24,80 @@ struct CModelFlags
     zeus::CColor color; /* Set into kcolor slot specified by material */
 
     /* depth flags
+        0x4: render without texture lock
         0x8: greater
         0x10: non-inclusive
      */
 };
 
-class CBooSurface
+/* urde addition: doesn't require hacky stashing of
+ * pointers within loaded CMDL buffer */
+struct CBooSurface
 {
-
+    DataSpec::DNACMDL::SurfaceHeader_1 m_data;
+    class CBooModel* m_parent = nullptr;
+    CBooSurface* m_next = nullptr;
 };
 
 class CBooModel
 {
 public:
-    /* urde addition: doesn't require hacky stashing of
-     * pointers within loaded CMDL buffer */
-    struct CSurfaceView
+    struct SShader
     {
-        const u8* m_data;
-        CBooModel* m_parent = nullptr;
-        CSurfaceView* m_next = nullptr;
+        std::vector<TCachedToken<CTexture>> x0_textures;
+        std::vector<boo::IShaderPipeline*> m_shaders;
+        DataSpec::DNAMP1::HMDLMaterialSet m_matSet;
+        void UnlockTextures();
     };
+
 private:
-    std::vector<CSurfaceView>* x0_surfaces;
-    const u8* x4_matSet;
+    std::vector<CBooSurface>* x0_surfaces;
+    const DataSpec::DNAMP1::HMDLMaterialSet* x4_matSet;
+    const std::vector<boo::IShaderPipeline*>* m_pipelines;
+    boo::IVertexFormat* m_vtxFmt;
     boo::IGraphicsBufferS* x8_vbo;
     boo::IGraphicsBufferS* xc_ibo;
-    std::vector<TLockedToken<CTexture>>* x1c_textures;
+    std::vector<TCachedToken<CTexture>>* x1c_textures;
     zeus::CAABox x20_aabb;
-    CSurfaceView* x38_firstUnsortedSurface = nullptr;
-    CSurfaceView* x3c_firstSortedSurface = nullptr;
-    bool x40_24_ : 1;
+    CBooSurface* x38_firstUnsortedSurface = nullptr;
+    CBooSurface* x3c_firstSortedSurface = nullptr;
+    bool x40_24_texturesLoaded : 1;
     bool x40_25_ : 1;
     u8 x41_shortNormals;
 
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
     boo::IGraphicsBufferD* m_uniformBuffer;
-    boo::IShaderDataBinding* m_shaderDataBinding;
+    std::vector<boo::IShaderDataBinding*> m_shaderDataBindings;
 
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
     void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
 
-public:
-    CBooModel(std::vector<CSurfaceView>* surfaces,
-              std::vector<TLockedToken<CTexture>>* textures,
-              const u8* matSet,
-              boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              const zeus::CAABox& aabb,
-              u8 shortNormals, bool unk);
+    void BuildGfxToken();
 
-    static void MakeTexuresFromMats(const u8* dataIn,
-                                    std::vector<TLockedToken<CTexture>>& toksOut,
+public:
+    CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
+              boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
+              const zeus::CAABox& aabb,
+              u8 shortNormals, bool texturesLoaded);
+
+    static void MakeTexuresFromMats(const DataSpec::DNAMP1::HMDLMaterialSet& matSet,
+                                    std::vector<TCachedToken<CTexture>>& toksOut,
                                     IObjectStore& store);
 
-    void TryLockTextures() const;
+    void RemapMaterialData(SShader& shader);
+    bool TryLockTextures() const;
     void UnlockTextures() const;
     void DrawAlpha(const CModelFlags& flags) const;
     void DrawNormal(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
 
-    const u8* GetMaterialByIndex(int idx) const;
+    const DataSpec::DNAMP1::HMDLMaterialSet::Material& GetMaterialByIndex(int idx) const
+    {
+        return x4_matSet->materials.at(idx);
+    }
 
     static bool g_DrawingOccluders;
     static void SetDrawingOccluders(bool occ) {g_DrawingOccluders = occ;}
@@ -92,17 +105,10 @@ public:
 
 class CModel
 {
-public:
-    struct SShader
-    {
-        std::vector<TLockedToken<CTexture>> x0_textures;
-        const u8* x10_data;
-    };
-private:
     std::unique_ptr<u8[]> x0_data;
     u32 x4_dataLen;
-    std::vector<CBooModel::CSurfaceView> x8_surfaces;
-    std::vector<SShader> x18_matSets;
+    std::vector<CBooSurface> x8_surfaces;
+    std::vector<CBooModel::SShader> x18_matSets;
     std::unique_ptr<CBooModel> x28_modelInst;
     CModel* x30_next = nullptr;
     CModel* x34_prev = nullptr;
@@ -111,12 +117,17 @@ private:
     boo::GraphicsDataToken m_gfxToken;
     boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferS* m_ibo;
+    boo::IVertexFormat* m_vtxFmt;
+
+    void VerifyCurrentShader(int shaderIdx) const;
 
 public:
     CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store);
+    void DrawSortedParts(const CModelFlags& flags) const;
+    void DrawUnsortedParts(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
-    void Touch(int) const;
-    bool IsLoaded(int) const;
+    void Touch(int shaderIdx) const;
+    bool IsLoaded(int shaderIdx) const;
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

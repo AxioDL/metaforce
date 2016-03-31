@@ -1,4 +1,5 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR}
+                    ${ZLIB_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec)
 
 add_subdirectory(Audio)
 add_subdirectory(Character)

@@ -8,6 +8,8 @@
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
 
+#include "hecl/Runtime.hpp"
+
 namespace urde
 {
 class CLight;
@@ -212,14 +214,17 @@ public:
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
+    static hecl::Runtime::ShaderCacheManager* g_ShaderCacheMgr;
 
     static void InitializeBoo(boo::IGraphicsDataFactory* factory,
                               boo::IGraphicsCommandQueue* cc,
-                              boo::ITextureR* spareTex)
+                              boo::ITextureR* spareTex,
+                              hecl::Runtime::ShaderCacheManager* shadCacheMgr)
     {
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
         g_SpareTexture = spareTex;
+        g_ShaderCacheMgr = shadCacheMgr;
     }
 
     static boo::GraphicsDataToken CommitResources(const boo::FactoryCommitFunc& commitFunc)
@@ -242,6 +247,10 @@ public:
     static void DrawArray(size_t start, size_t count)
     {
         g_BooMainCommandQueue->draw(start, count);
+    }
+    static void DrawArrayIndexed(size_t start, size_t count)
+    {
+        g_BooMainCommandQueue->drawIndexed(start, count);
     }
 };
 

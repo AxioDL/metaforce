@@ -1613,8 +1613,8 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
         header.centroid = osurf.centroid;
         header.matIdx = osurf.materialIdx;
         header.reflectionNormal = osurf.reflectionNormal;
-        header.unk1 = surf.m_start;
-        header.unk2 = surf.m_count;
+        header.idxStart = surf.m_start;
+        header.idxCount = surf.m_count;
         header.write(writer);
 
         writer.fill(atUint8(0), *padIt);

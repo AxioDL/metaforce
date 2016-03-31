@@ -143,6 +143,7 @@ public:
             x4_lockHeld = true;
         }
     }
+    bool IsLocked() const {return x4_lockHeld;}
     bool IsLoaded() const
     {
         if (!x0_objRef)
@@ -210,6 +211,12 @@ public:
         ++x0_objRef->x0_refCount;
         Lock();
     }
+    CToken(std::unique_ptr<IObj>&& obj)
+    {
+        x0_objRef = new CObjectReference(std::move(obj));
+        ++x0_objRef->x0_refCount;
+        Lock();
+    }
     CToken(CObjectReference* obj)
     {
         x0_objRef = obj;
@@ -243,12 +250,17 @@ public:
     TToken() = default;
     TToken(const CToken& other) : CToken(other) {}
     TToken(CToken&& other) : CToken(std::move(other)) {}
-    TToken(T* obj) : CToken(GetIObjObjectFor(std::unique_ptr<T>(obj))) {}
-    TToken& operator=(T* obj) {*this = CToken(GetIObjObjectFor(obj)); return this;}
+    TToken(std::unique_ptr<T>&& obj) : CToken(GetIObjObjectFor(std::move(obj))) {}
+    TToken& operator=(std::unique_ptr<T>&& obj)
+    {
+        *this = CToken(GetIObjObjectFor(std::move(obj)));
+        return this;
+    }
     T* GetObj()
     {
-        if (CToken::GetObj())
-            return static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj())->GetObj();
+        TObjOwnerDerivedFromIObj<T>* owner = static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj());
+        if (owner)
+            return owner->GetObj();
         return nullptr;
     }
     const T* GetObj() const
@@ -260,15 +272,38 @@ public:
 };
 
 template <class T>
-class TLockedToken : public TToken<T>
+class TCachedToken : public TToken<T>
 {
-    T* m_obj;
+protected:
+    T* m_obj = nullptr;
 public:
-    TLockedToken() : m_obj(nullptr) {}
-    TLockedToken(const CToken& other) : TToken<T>(other) {m_obj = TToken<T>::GetObj();}
-    TLockedToken(CToken&& other) : TToken<T>(std::move(other)) {m_obj = TToken<T>::GetObj();}
-    T* GetObj() const {return m_obj;}
-    T* operator->() const {return m_obj;}
+    TCachedToken() = default;
+    TCachedToken(const CToken& other) : TToken<T>(other) {}
+    TCachedToken(CToken&& other) : TToken<T>(std::move(other)) {}
+    T* GetObj()
+    {
+        if (!m_obj)
+            m_obj = TToken<T>::GetObj();
+        return m_obj;
+    }
+    const T* GetObj() const
+    {
+        return ((TCachedToken<T>*)this)->GetObj();
+    }
+    T* operator->() {return GetObj();}
+    const T* operator->() const {return GetObj();}
+    void Unlock() {TToken<T>::Unlock(); m_obj = nullptr;}
+};
+
+template <class T>
+class TLockedToken : public TCachedToken<T>
+{
+public:
+    TLockedToken() = default;
+    TLockedToken(const CToken& other) : TCachedToken<T>(other)
+    {TCachedToken<T>::m_obj = TToken<T>::GetObj();}
+    TLockedToken(CToken&& other) : TCachedToken<T>(std::move(other))
+    {TCachedToken<T>::m_obj = TToken<T>::GetObj();}
 };
 
 }

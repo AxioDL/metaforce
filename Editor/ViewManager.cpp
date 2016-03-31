@@ -245,6 +245,7 @@ void ViewManager::init(boo::IApplication* app)
     float pixelFactor = 1.0;
 
     boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
+    m_shaderCacheManager.emplace(m_fileStoreManager, gf);
     m_viewResources.init(gf, &m_fontCache, &m_themeData, pixelFactor);
     m_iconsToken = InitializeIcons(m_viewResources);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
@@ -256,7 +257,7 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->setWaitCursor(false);
 
     m_voiceEngine = boo::NewAudioVoiceEngine();
-    CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
+    CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex(), &*m_shaderCacheManager);
     CElementGen::Initialize();
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();
@@ -322,6 +323,7 @@ void ViewManager::stop()
     m_iconsToken.doDestroy();
     m_viewResources.destroyResData();
     m_fontCache.destroyAtlases();
+    m_shaderCacheManager = std::experimental::nullopt;
     m_mainWindow->getCommandQueue()->stopRenderer();
 }
 

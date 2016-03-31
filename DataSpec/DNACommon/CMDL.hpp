@@ -45,8 +45,8 @@ struct SurfaceHeader_1 : BigDNA
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
     Value<atUint16> dlSize = 0;
-    Value<atUint32> unk1 = 0;
-    Value<atUint32> unk2 = 0;
+    Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
+    Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
@@ -63,8 +63,8 @@ struct SurfaceHeader_2 : BigDNA
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
     Value<atUint16> dlSize = 0;
-    Value<atUint32> unk1 = 0;
-    Value<atUint32> unk2 = 0;
+    Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
+    Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
@@ -83,8 +83,8 @@ struct SurfaceHeader_3 : BigDNA
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
     Value<atUint16> dlSize = 0;
-    Value<atUint32> unk1 = 0;
-    Value<atUint32> unk2 = 0;
+    Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
+    Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
