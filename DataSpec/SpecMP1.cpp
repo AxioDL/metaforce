@@ -324,7 +324,10 @@ struct SpecMP1 : SpecBase
         {
             progress(hecl::SysFormat(_S("%d"), surfCount).c_str());
         });
-        DNAMP1::CMDL::Cook(out, in, mesh);
+        if (m_pc)
+            DNAMP1::CMDL::HMDLCook(out, in, mesh);
+        else
+            DNAMP1::CMDL::Cook(out, in, mesh);
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

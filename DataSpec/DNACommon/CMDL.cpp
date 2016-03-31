@@ -1628,5 +1628,8 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     return true;
 }
 
+template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>
+(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
+
 }
 }
