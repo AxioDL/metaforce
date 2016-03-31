@@ -1505,16 +1505,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
             }
 
             for (const hecl::ProjectPath& path : texPaths)
-            {
-                const hecl::SystemString& relPath = path.getRelativePath();
-
-                /* TODO: incorporate hecl hashes */
-                size_t search = relPath.find(_S("TXTR_"));
-                if (search != hecl::SystemString::npos)
-                    targetMSet.head.addTexture(relPath.c_str() + search + 5);
-                else
-                    LogDNACommon.report(logvisor::Fatal, "unable to get hash from path");
-            }
+                targetMSet.head.addTexture(path);
 
             size_t secSz = targetMSet.binarySize(0);
             size_t secSz32 = ROUND_UP_32(secSz);
@@ -1627,6 +1618,9 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     writer.close();
     return true;
 }
+
+template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>
+(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 }
 }

@@ -85,11 +85,10 @@ struct CMDL
                      const hecl::ProjectPath& inPath,
                      const DNACMDL::Mesh& mesh)
     {
-        hecl::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
         if (mesh.skins.size())
         {
             DNACMDL::Mesh skinMesh = mesh.getContiguousSkinningVersion();
-            if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, skinMesh))
+            if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, skinMesh))
                 return false;
 
             /* Output skinning intermediate */
@@ -111,7 +110,7 @@ struct CMDL
             for (const std::string& boneName : skinMesh.boneNames)
                 writer.writeString(boneName);
         }
-        else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
+        else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
             return false;
         return true;
     }
@@ -120,10 +119,9 @@ struct CMDL
                          const hecl::ProjectPath& inPath,
                          const DNACMDL::Mesh& mesh)
     {
-        hecl::ProjectPath tempOut = outPath.getWithExtension(_S(".recook"));
         if (mesh.skins.size())
         {
-            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
+            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
                 return false;
 
             /* Output skinning intermediate */
@@ -139,7 +137,7 @@ struct CMDL
             for (const std::string& boneName : mesh.boneNames)
                 writer.writeString(boneName);
         }
-        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(tempOut, inPath, mesh))
+        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
             return false;
         return true;
     }

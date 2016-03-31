@@ -20,7 +20,7 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    //m_modelTest = objStore.GetObj("CMDL_GameCube");
+    m_modelTest = objStore.GetObj("CMDL_GameCube");
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
     m_partGenDesc = objStore.GetObj("BusterSparks");
