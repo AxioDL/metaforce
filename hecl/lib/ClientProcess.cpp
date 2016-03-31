@@ -108,6 +108,7 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
         if (specEnt)
         {
             hecl::ProjectPath cooked = path.getCookedPath(*specEnt);
+            cooked.makeDirChain(false);
             spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
             return true;
         }

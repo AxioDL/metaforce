@@ -105,7 +105,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         else if (!name.compare("Lighting"))
         {
             m_lighting = true;
-            return EmitLighting();
+            return EmitLightingRGB();
         }
         else
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());
@@ -190,7 +190,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
         else if (!name.compare("Lighting"))
         {
             m_lighting = true;
-            return EmitLighting();
+            return EmitLightingAlpha();
         }
         else
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());

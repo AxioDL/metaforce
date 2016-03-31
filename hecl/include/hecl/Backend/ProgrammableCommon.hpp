@@ -78,9 +78,14 @@ private:
         return hecl::Format("colorReg%u", idx);
     }
 
-    std::string EmitLighting() const
+    std::string EmitLightingRGB() const
     {
-        return std::string("lighting");
+        return std::string("lighting.rgb");
+    }
+
+    std::string EmitLightingAlpha() const
+    {
+        return std::string("lighting.a");
     }
 
     virtual std::string EmitVec3(const atVec4f& vec) const=0;

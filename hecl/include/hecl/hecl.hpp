@@ -1110,6 +1110,25 @@ public:
     void makeDir() const {MakeDir(m_absPath.c_str());}
 
     /**
+     * @brief Create directory chain leading up to path
+     * @param includeLastComp if set, the ProjectPath is assumed to be a
+     *                        directory, creating the final component
+     */
+    void makeDirChain(bool includeLastComp) const
+    {
+        std::vector<hecl::SystemString> comps = getPathComponents();
+        auto end = comps.cend();
+        if (end != comps.cbegin() && !includeLastComp)
+            --end;
+        ProjectPath compPath(*m_proj, _S("."));
+        for (auto it=comps.cbegin() ; it != end ; ++it)
+        {
+            compPath = ProjectPath(compPath, *it);
+            compPath.makeDir();
+        }
+    }
+
+    /**
      * @brief Fetch project that contains path
      * @return Project
      */
