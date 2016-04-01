@@ -34,10 +34,10 @@ class CTexture
     void BuildRGB5A3FromGCN(CInputStream& in);
     void BuildRGBA8FromGCN(CInputStream& in);
     void BuildDXT1FromGCN(CInputStream& in);
-    void BuildRGBA8(CInputStream& in);
+    void BuildRGBA8(const void* data);
 
 public:
-    CTexture(CInputStream& in);
+    CTexture(std::unique_ptr<u8[]>&& in, u32 length);
     enum class EClampMode
     {
         None,
@@ -50,7 +50,9 @@ public:
     boo::ITexture* GetBooTexture() {return m_booTex;}
 };
 
-CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
+                                 std::unique_ptr<u8[]>&& in, u32 len,
+                                 const urde::CVParamTransfer& vparms);
 
 }
 

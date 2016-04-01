@@ -16,6 +16,7 @@ class IObjectStore;
 class CObjectReference
 {
     friend class CToken;
+    friend class CSimplePool;
     u16 x0_refCount = 0;
     u16 x2_lockCount = 0;
     bool x3_loading = false; /* Rightmost bit of lockCount */
@@ -23,7 +24,23 @@ class CObjectReference
     IObjectStore* xC_objectStore = nullptr;
     IObj* x10_object = nullptr;
     CVParamTransfer x14_params;
-public:
+
+    /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
+     *  Reaching 0 indicates the CToken should delete the CObjectReference */
+    u16 RemoveReference()
+    {
+        --x0_refCount;
+        if (x0_refCount == 0)
+        {
+            if (x10_object)
+                Unload();
+            if (IsLoading())
+                CancelLoad();
+            xC_objectStore->ObjectUnreferenced(x4_objTag);
+        }
+        return x0_refCount;
+    }
+
     CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj,
                      const SObjectTag& objTag, CVParamTransfer buildParams)
     : x4_objTag(objTag), xC_objectStore(&objStore),
@@ -61,21 +78,6 @@ public:
         }
     }
 
-    /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
-     *  Reaching 0 indicates the CToken should delete the CObjectReference */
-    u16 RemoveReference()
-    {
-        --x0_refCount;
-        if (x0_refCount == 0)
-        {
-            if (x10_object)
-                Unload();
-            if (IsLoading())
-                CancelLoad();
-            xC_objectStore->ObjectUnreferenced(x4_objTag);
-        }
-        return x0_refCount;
-    }
     void CancelLoad()
     {
         if (xC_objectStore && IsLoading())
@@ -108,6 +110,8 @@ public:
     {
         return x4_objTag;
     }
+
+public:
     ~CObjectReference()
     {
         if (x10_object)
@@ -122,8 +126,25 @@ public:
  *  (default/empty constructor, move constructor/assign) */
 class CToken
 {
+    friend class CSimplePool;
     CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
+
+    void RemoveRef()
+    {
+        if (x0_objRef && x0_objRef->RemoveReference() == 0)
+        {
+            std::default_delete<CObjectReference>()(x0_objRef);
+            x0_objRef = nullptr;
+        }
+    }
+
+    CToken(CObjectReference* obj)
+    {
+        x0_objRef = obj;
+        ++x0_objRef->x0_refCount;
+    }
+
 public:
     /* Added to test for non-null state */
     operator bool() const {return x0_objRef != nullptr;}
@@ -149,14 +170,6 @@ public:
         if (!x0_objRef)
             return false;
         return x0_objRef->IsLoaded();
-    }
-    void RemoveRef()
-    {
-        if (x0_objRef && x0_objRef->RemoveReference() == 0)
-        {
-            std::default_delete<CObjectReference>()(x0_objRef);
-            x0_objRef = nullptr;
-        }
     }
     IObj* GetObj()
     {
@@ -216,11 +229,6 @@ public:
         x0_objRef = new CObjectReference(std::move(obj));
         ++x0_objRef->x0_refCount;
         Lock();
-    }
-    CToken(CObjectReference* obj)
-    {
-        x0_objRef = obj;
-        ++x0_objRef->x0_refCount;
     }
     const SObjectTag* GetObjectTag() const
     {

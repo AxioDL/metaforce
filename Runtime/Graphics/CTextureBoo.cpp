@@ -648,63 +648,64 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
     });
 }
 
-void CTexture::BuildRGBA8(CInputStream& in)
+void CTexture::BuildRGBA8(const void* data)
 {
     size_t texelCount = ComputeMippedTexelCount();
-    std::unique_ptr<atInt8[]> buf = in.readBytes(texelCount * 4);
 
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        data, texelCount * 4);
         return true;
     });
 }
 
-CTexture::CTexture(CInputStream& in)
+CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
 {
-    x0_fmt = ETexelFormat(in.readUint32Big());
-    x4_w = in.readUint16Big();
-    x6_h = in.readUint16Big();
-    x8_mips = in.readUint32Big();
+    std::unique_ptr<u8[]> owned = std::move(in);
+    athena::io::MemoryReader r(owned.get(), length);
+    x0_fmt = ETexelFormat(r.readUint32Big());
+    x4_w = r.readUint16Big();
+    x6_h = r.readUint16Big();
+    x8_mips = r.readUint32Big();
 
     switch (x0_fmt)
     {
     case ETexelFormat::I4:
-        BuildI4FromGCN(in);
+        BuildI4FromGCN(r);
         break;
     case ETexelFormat::I8:
-        BuildI8FromGCN(in);
+        BuildI8FromGCN(r);
         break;
     case ETexelFormat::IA4:
-        BuildIA4FromGCN(in);
+        BuildIA4FromGCN(r);
         break;
     case ETexelFormat::IA8:
-        BuildIA8FromGCN(in);
+        BuildIA8FromGCN(r);
         break;
     case ETexelFormat::C4:
-        BuildC4FromGCN(in);
+        BuildC4FromGCN(r);
         break;
     case ETexelFormat::C8:
-        BuildC8FromGCN(in);
+        BuildC8FromGCN(r);
         break;
     case ETexelFormat::C14X2:
-        BuildC14X2FromGCN(in);
+        BuildC14X2FromGCN(r);
         break;
     case ETexelFormat::RGB565:
-        BuildRGB565FromGCN(in);
+        BuildRGB565FromGCN(r);
         break;
     case ETexelFormat::RGB5A3:
-        BuildRGB5A3FromGCN(in);
+        BuildRGB5A3FromGCN(r);
         break;
     case ETexelFormat::RGBA8:
-        BuildRGBA8FromGCN(in);
+        BuildRGBA8FromGCN(r);
         break;
     case ETexelFormat::CMPR:
-        BuildDXT1FromGCN(in);
+        BuildDXT1FromGCN(r);
         break;
     case ETexelFormat::RGBA8PC:
-        BuildRGBA8(in);
+        BuildRGBA8(owned.get() + 12);
         break;
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
@@ -716,9 +717,11 @@ void CTexture::Load(int slot, EClampMode clamp) const
 
 }
 
-CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
+CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
+                                 std::unique_ptr<u8[]>&& in, u32 len,
+                                 const urde::CVParamTransfer& vparms)
 {
-    return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in));
+    return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(std::move(in), len));
 }
 
 }

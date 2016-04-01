@@ -24,7 +24,7 @@ namespace urde
 ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc)
 : ProjectResourceFactoryBase(clientProc)
 {
-    m_factoryMgr.AddFactory(FOURCC('TXTR'), FFactoryFunc(FTextureFactory));
+    m_factoryMgr.AddFactory(FOURCC('TXTR'), FMemFactoryFunc(FTextureFactory));
     m_factoryMgr.AddFactory(FOURCC('PART'), FFactoryFunc(FParticleFactory));
     m_factoryMgr.AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
     m_factoryMgr.AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));

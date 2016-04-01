@@ -21,6 +21,7 @@ namespace urde
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
     m_modelTest = objStore.GetObj("CMDL_GameCube");
+    m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
     m_partGenDesc = objStore.GetObj("BusterSparks");
@@ -58,9 +59,16 @@ void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
-    if (m_vm.m_modelTest)
+    if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;
+
+        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+        CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
+        boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
+        float aspect = windowRect.size[0] / float(windowRect.size[1]);
+        CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+
         m_vm.m_modelTest->Draw(flags);
     }
     if (m_vm.m_partGen)
@@ -70,11 +78,11 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         if (m_vm.m_partGen->IsSystemDeletable())
             m_vm.m_partGen->Reset();
 
-        urde::CGraphics::SetModelMatrix(zeus::CTransform::Identity());
-        urde::CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
+        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+        CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
-        urde::CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+        CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
         //gfxQ->clearTarget(false, true);
         m_vm.m_partGen->Render();
 

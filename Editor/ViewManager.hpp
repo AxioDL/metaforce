@@ -48,8 +48,8 @@ class ViewManager : public specter::IViewManager
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<ParticleView> m_particleView;
-    urde::TLockedToken<CModel> m_modelTest;
-    urde::TLockedToken<CGenDescription> m_partGenDesc;
+    urde::TCachedToken<CModel> m_modelTest;
+    urde::TCachedToken<CGenDescription> m_partGenDesc;
     std::unique_ptr<CElementGen> m_partGen;
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     std::unique_ptr<CMoviePlayer> m_moviePlayer;

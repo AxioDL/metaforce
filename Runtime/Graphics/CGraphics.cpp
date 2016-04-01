@@ -156,6 +156,7 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
 
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
 {
+    CProjectionState& ref = g_Proj;
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
     float tmb = g_Proj.xc_top - g_Proj.x10_bottom;

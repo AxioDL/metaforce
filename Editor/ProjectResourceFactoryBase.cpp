@@ -436,6 +436,46 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     }
     lk.unlock();
 
+    auto asyncSearch = m_asyncLoadList.find(tag);
+    if (asyncSearch != m_asyncLoadList.end())
+    {
+        /* Async spinloop */
+        AsyncTask& task = asyncSearch->second;
+        task.EnsurePath(task.x0_tag, search->second);
+
+        /* Pump load pipeline (cooking if needed) */
+        while (!task.AsyncPump()) {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
+
+        if (task.m_complete)
+        {
+            /* Load complete, build resource */
+            std::unique_ptr<IObj> newObj;
+            if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+            {
+                newObj = m_factoryMgr.MakeObjectFromMemory(tag, std::move(task.x10_loadBuffer),
+                                                           task.x14_resSize, false, task.x18_cvXfer);
+            }
+            else
+            {
+                athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+            }
+
+            *task.xc_targetPtr = newObj.get();
+            Log.report(logvisor::Warning, "spin-built %.4s %08X",
+                       task.x0_tag.type.toString().c_str(),
+                       u32(task.x0_tag.id));
+            m_asyncLoadList.erase(asyncSearch);
+            return newObj;
+        }
+        Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
+                   task.x0_tag.type.toString().c_str(),
+                   u32(task.x0_tag.id));
+        m_asyncLoadList.erase(asyncSearch);
+        return {};
+    }
+
+    /* Fall-back to sync build */
     return BuildSync(tag, search->second, paramXfer);
 }
 
@@ -545,8 +585,22 @@ void ProjectResourceFactoryBase::AsyncIdle()
             if (task.m_complete)
             {
                 /* Load complete, build resource */
-                athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                *task.xc_targetPtr = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer).release();
+                std::unique_ptr<IObj> newObj;
+                if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+                {
+                    newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
+                                                               task.x14_resSize, false, task.x18_cvXfer);
+                }
+                else
+                {
+                    athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                    newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+                }
+
+                *task.xc_targetPtr = newObj.release();
+                Log.report(logvisor::Info, "async-built %.4s %08X",
+                           task.x0_tag.type.toString().c_str(),
+                           u32(task.x0_tag.id));
             }
             it = m_asyncLoadList.erase(it);
             continue;

@@ -117,36 +117,26 @@ void CBooModel::UnlockTextures() const
 
 void CBooModel::DrawAlphaSurfaces(const CModelFlags& flags) const
 {
-    if (TryLockTextures())
+    const CBooSurface* surf = x3c_firstSortedSurface;
+    while (surf)
     {
-        const CBooSurface* surf = x3c_firstSortedSurface;
-        while (surf)
-        {
-            DrawSurface(*surf, flags);
-            surf = surf->m_next;
-        }
+        DrawSurface(*surf, flags);
+        surf = surf->m_next;
     }
 }
 
 void CBooModel::DrawNormalSurfaces(const CModelFlags& flags) const
 {
-    if (TryLockTextures())
+    const CBooSurface* surf = x38_firstUnsortedSurface;
+    while (surf)
     {
-        const CBooSurface* surf = x38_firstUnsortedSurface;
-        while (surf)
-        {
-            DrawSurface(*surf, flags);
-            surf = surf->m_next;
-        }
+        DrawSurface(*surf, flags);
+        surf = surf->m_next;
     }
 }
 
 void CBooModel::DrawSurfaces(const CModelFlags& flags) const
 {
-    if (!(flags.m_flags & 0x4))
-        if (!TryLockTextures())
-            return;
-
     const CBooSurface* surf = x38_firstUnsortedSurface;
     while (surf)
     {
@@ -300,20 +290,29 @@ void CBooModel::UpdateUniformData() const
 
 void CBooModel::DrawAlpha(const CModelFlags& flags) const
 {
-    UpdateUniformData();
-    DrawAlphaSurfaces(flags);
+    if (TryLockTextures())
+    {
+        UpdateUniformData();
+        DrawAlphaSurfaces(flags);
+    }
 }
 
 void CBooModel::DrawNormal(const CModelFlags& flags) const
 {
-    UpdateUniformData();
-    DrawNormalSurfaces(flags);
+    if (TryLockTextures())
+    {
+        UpdateUniformData();
+        DrawNormalSurfaces(flags);
+    }
 }
 
 void CBooModel::Draw(const CModelFlags& flags) const
 {
-    UpdateUniformData();
-    DrawSurfaces(flags);
+    if (TryLockTextures())
+    {
+        UpdateUniformData();
+        DrawSurfaces(flags);
+    }
 }
 
 static const u8* MemoryFromPartData(const u8*& dataCur, const s32*& secSizeCur)
@@ -378,7 +377,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
             {
                 hecl::Runtime::ShaderTag tag(mat.heclIr,
                                              hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, mat.uvAnims.size(), true, true, true);
+                                             0, mat.uvAnims.size(), false, false, true);
                 matSet.m_shaders.push_back(CGraphics::g_ShaderCacheMgr->buildShader(tag, mat.heclIr, "CMDL", ctx));
             }
         }
@@ -403,7 +402,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
                       hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
     x28_modelInst = std::make_unique<CBooModel>(&x8_surfaces, x18_matSets[0],
                                                 m_vtxFmt, m_vbo, m_ibo,
-                                                aabb, flags & 0x2, true);
+                                                aabb, flags & 0x2, false);
 }
 
 void CBooModel::SShader::UnlockTextures()
@@ -465,7 +464,8 @@ CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
                                const urde::CVParamTransfer& vparms)
 {
     IObjectStore* store = static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam();
-    return TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, store));
+    CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, store));
+    return ret;
 }
 
 }
