@@ -25,7 +25,8 @@ public:
         enum class Type
         {
             Buffer,
-            Cook
+            Cook,
+            Lambda
         } m_type;
         bool m_complete = false;
         virtual void run(BlenderToken& btok)=0;
@@ -53,6 +54,13 @@ public:
         CookTransaction(ClientProcess& parent, const ProjectPath& path, Database::IDataSpec* spec)
         : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec) {}
     };
+    struct LambdaTransaction : Transaction
+    {
+        std::function<void(BlenderToken&)> m_func;
+        void run(BlenderToken& btok);
+        LambdaTransaction(ClientProcess& parent, std::function<void(BlenderToken&)>&& func)
+        : Transaction(parent, Type::Lambda), m_func(std::move(func)) {}
+    };
 private:
     std::list<std::unique_ptr<Transaction>> m_pendingQueue;
     std::list<std::unique_ptr<Transaction>> m_completedQueue;
@@ -74,6 +82,7 @@ public:
     const BufferTransaction* addBufferTransaction(const hecl::ProjectPath& path, void* target,
                                                   size_t maxLen, size_t offset);
     const CookTransaction* addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec);
+    const LambdaTransaction* addLambdaTransaction(std::function<void(BlenderToken&)>&& func);
     bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, BlenderToken& btok);
     void swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue);
     void shutdown();

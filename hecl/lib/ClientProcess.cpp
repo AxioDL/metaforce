@@ -46,6 +46,12 @@ void ClientProcess::CookTransaction::run(BlenderToken& btok)
     m_complete = true;
 }
 
+void ClientProcess::LambdaTransaction::run(BlenderToken& btok)
+{
+    m_func(btok);
+    m_complete = true;
+}
+
 ClientProcess::Worker::Worker(ClientProcess& proc)
 : m_proc(proc)
 {
@@ -66,8 +72,11 @@ void ClientProcess::Worker::proc()
             lk.lock();
             m_proc.m_completedQueue.push_back(std::move(trans));
         }
+        if (!m_proc.m_running)
+            break;
         m_proc.m_cv.wait(lk);
     }
+    m_blendTok.shutdown();
 }
 
 ClientProcess::ClientProcess(int verbosityLevel)
@@ -95,6 +104,16 @@ ClientProcess::addCookTransaction(const hecl::ProjectPath& path, Database::IData
 {
     std::unique_lock<std::mutex> lk(m_mutex);
     CookTransaction* ret = new CookTransaction(*this, path, spec);
+    m_pendingQueue.emplace_back(ret);
+    m_cv.notify_one();
+    return ret;
+}
+
+const ClientProcess::LambdaTransaction*
+ClientProcess::addLambdaTransaction(std::function<void(BlenderToken&)>&& func)
+{
+    std::unique_lock<std::mutex> lk(m_mutex);
+    LambdaTransaction* ret = new LambdaTransaction(*this, std::move(func));
     m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
     return ret;
