@@ -453,13 +453,17 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             if (extractor.weight != w)
                 continue;
 
+            /* This is used to ensure parallel extracts won't collide files */
             if (precedenceSharesOnly)
             {
                 auto sharedSearch = m_sharedEntries.find(item->id);
                 if (sharedSearch != m_sharedEntries.cend())
                 {
                     if (sharedSearch->second.first != reinterpret_cast<intptr_t>(m_curBridgeIdx.get()))
+                    {
+                        ++count;
                         continue;
+                    }
                 }
             }
 
