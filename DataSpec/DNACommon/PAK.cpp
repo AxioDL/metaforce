@@ -211,7 +211,8 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         }
 
         /* Write catalog */
-        const hecl::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
+        intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+        const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
         hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "catalog.yaml").getAbsolutePath();
         FILE* catalog = hecl::Fopen(catalogPath.c_str(), _S("w"));
         yaml_emitter_set_output_file(catalogWriter.getEmitter(), catalog);
@@ -232,9 +233,9 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
         {
             pit->first.makeDir();
             pit->second.makeDir();
-            m_pak = &pakBridge.getPAK();
-            m_node = &pakBridge.getNode();
-            m_curBridgeIdx = bridgeIdx;
+            m_pak.reset(&pakBridge.getPAK());
+            m_node.reset(&pakBridge.getNode());
+            m_curBridgeIdx.reset(reinterpret_cast<void*>(bridgeIdx));
             return;
         }
         ++pit;
@@ -250,15 +251,17 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 {
     if (!entry)
         return hecl::ProjectPath();
-    if (!m_pak)
+    const PAKType* pak = m_pak.get();
+    intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+    if (!pak)
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter::enterPAKBridge() must be called before PAKRouter::getWorkingPath()");
-    if (m_pak->m_noShare)
+    if (pak->m_noShare)
     {
-        const EntryType* singleSearch = m_pak->lookupEntry(entry->id);
+        const EntryType* singleSearch = pak->lookupEntry(entry->id);
         if (singleSearch)
         {
-            const hecl::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].first;
+            const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
             pakPath.makeDir();
 #if HECL_UCS2
             hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
@@ -334,15 +337,17 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
 {
     if (!entry)
         return hecl::ProjectPath();
-    if (!m_pak)
+    const PAKType* pak = m_pak.get();
+    intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+    if (!pak)
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter::enterPAKBridge() must be called before PAKRouter::getCookedPath()");
-    if (m_pak->m_noShare)
+    if (pak->m_noShare)
     {
-        const EntryType* singleSearch = m_pak->lookupEntry(entry->id);
+        const EntryType* singleSearch = pak->lookupEntry(entry->id);
         if (singleSearch)
         {
-            const hecl::ProjectPath& pakPath = m_bridgePaths[m_curBridgeIdx].second;
+            const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].second;
             pakPath.makeDir();
             return hecl::ProjectPath(pakPath, getBestEntryName(*entry));
         }
@@ -382,7 +387,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id) const
 template <class BRIDGETYPE>
 hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryType& a, const IDType& b) const
 {
-    if (!m_pak)
+    const PAKType* pak = m_pak.get();
+    if (!pak)
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()");
     const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
@@ -431,7 +437,8 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry) const
 }
 
 template <class BRIDGETYPE>
-bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force,
+bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, bool precedenceSharesOnly,
+                                             hecl::BlenderToken& btok,
                                              std::function<void(const hecl::SystemChar*, float)> progress)
 {
     enterPAKBridge(pakBridge);
@@ -446,16 +453,28 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             if (extractor.weight != w)
                 continue;
 
+            if (precedenceSharesOnly)
+            {
+                auto sharedSearch = m_sharedEntries.find(item->id);
+                if (sharedSearch != m_sharedEntries.cend())
+                {
+                    if (sharedSearch->second.first != reinterpret_cast<intptr_t>(m_curBridgeIdx.get()))
+                        continue;
+                }
+            }
+
             std::string bestName = getBestEntryName(*item);
             hecl::SystemStringView bestNameView(bestName);
             float thisFac = ++count / fsz;
             progress(bestNameView.sys_str().c_str(), thisFac);
 
+            const nod::Node* node = m_node.get();
+
             /* Extract first, so they start out invalid */
             hecl::ProjectPath cooked = getCooked(item);
             if (force || cooked.getPathType() == hecl::ProjectPath::Type::None)
             {
-                PAKEntryReadStream s = item->beginReadStream(*m_node);
+                PAKEntryReadStream s = item->beginReadStream(*node);
                 FILE* fout = hecl::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
                 fwrite(s.data(), 1, s.length(), fout);
                 fclose(fout);
@@ -466,7 +485,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 if (force || working.getPathType() == hecl::ProjectPath::Type::None)
                 {
-                    PAKEntryReadStream s = item->beginReadStream(*m_node);
+                    PAKEntryReadStream s = item->beginReadStream(*node);
                     extractor.func_a(s, working);
                 }
             }
@@ -474,8 +493,8 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 if (force || working.getPathType() == hecl::ProjectPath::Type::None)
                 {
-                    PAKEntryReadStream s = item->beginReadStream(*m_node);
-                    extractor.func_b(m_dataSpec, s, working, *this, *item, force,
+                    PAKEntryReadStream s = item->beginReadStream(*node);
+                    extractor.func_b(m_dataSpec, s, working, *this, *item, force, btok,
                                      [&progress, thisFac](const hecl::SystemChar* update)
                                      {
                                          progress(update, thisFac);
@@ -501,13 +520,15 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter::build() must be called before PAKRouter::lookupEntry()");
 
-    if (m_pak)
+    const PAKType* pak = m_pak.get();
+    const nod::Node* node = m_node.get();
+    if (pak)
     {
-        const EntryType* ent = m_pak->lookupEntry(entry);
+        const EntryType* ent = pak->lookupEntry(entry);
         if (ent)
         {
             if (nodeOut)
-                *nodeOut = m_node;
+                *nodeOut = node;
             return ent;
         }
     }

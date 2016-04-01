@@ -311,12 +311,19 @@ size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
     return __isz + (version == 1 ? 78 : 66);
 }
 
-bool FRME::Extract(const SpecBase &dataSpec, PAKEntryReadStream &rs, const hecl::ProjectPath &outPath, PAKRouter<PAKBridge> &pakRouter, const PAK::Entry &entry, bool force, std::function<void (const hecl::SystemChar *)> fileChanged)
+bool FRME::Extract(const SpecBase &dataSpec,
+                   PAKEntryReadStream &rs,
+                   const hecl::ProjectPath &outPath,
+                   PAKRouter<PAKBridge> &pakRouter,
+                   const PAK::Entry &entry,
+                   bool force,
+                   hecl::BlenderToken& btok,
+                   std::function<void (const hecl::SystemChar *)> fileChanged)
 {
     FRME frme;
     frme.read(rs);
 
-    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    hecl::BlenderConnection& conn = btok.getBlenderConnection();
 
 #if 0
     if (!force && outPath.getPathType() == hecl::ProjectPath::Type::File)

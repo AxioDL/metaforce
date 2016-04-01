@@ -163,6 +163,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const DNAMP1::PAK::Entry& entry,
                    bool force,
+                   hecl::BlenderToken& btok,
                    std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -197,7 +198,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     drs.seek(0, athena::Begin);
 
     /* Start up blender connection */
-    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    hecl::BlenderConnection& conn = btok.getBlenderConnection();
     if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 

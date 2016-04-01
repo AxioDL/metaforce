@@ -170,7 +170,6 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(const UVAnimation& anim)
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-
         matrixOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(
                         CGraphics::g_GXModelMatrix).toMatrix4f();
         matrixOut.vec[3].zeroOut();

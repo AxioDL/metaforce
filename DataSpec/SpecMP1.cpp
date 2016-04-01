@@ -16,6 +16,8 @@
 #include "DNACommon/CRSC.hpp"
 #include "DNACommon/DPSC.hpp"
 
+#include "hecl/ClientProcess.hpp"
+
 namespace DataSpec
 {
 
@@ -252,6 +254,8 @@ struct SpecMP1 : SpecBase
         }
         progress(_S("MP1 Root"), _S(""), 3, 1.0);
 
+        std::mutex msgLock;
+        hecl::ClientProcess process;
         int compIdx = 4;
         prog = 0;
         for (std::pair<std::string, DNAMP1::PAKBridge*> pair : m_orderedPaks)
@@ -263,13 +267,20 @@ struct SpecMP1 : SpecBase
             const std::string& name = pak.getName();
             hecl::SystemStringView sysName(name);
 
-            progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
-            m_pakRouter.extractResources(pak, force,
-            [&progress, &sysName, &compIdx](const hecl::SystemChar* substr, float factor)
             {
-                progress(sysName.sys_str().c_str(), substr, compIdx, factor);
+                std::unique_lock<std::mutex> lk(msgLock);
+                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+            }
+            hecl::SystemString pakName = sysName.sys_str();
+            process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
+            {
+                m_pakRouter.extractResources(pak, force, true, btok,
+                [&](const hecl::SystemChar* substr, float factor)
+                {
+                    std::unique_lock<std::mutex> lk(msgLock);
+                    progress(pakName.c_str(), substr, compIdx, factor);
+                });
             });
-            progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
         }
 
         return true;

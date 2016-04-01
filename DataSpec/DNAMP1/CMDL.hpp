@@ -23,6 +23,7 @@ struct CMDL
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         /* Check for RigPair */
@@ -39,7 +40,7 @@ struct CMDL
         }
 
         /* Do extract */
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Mesh))
             return false;
         DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1, 2>

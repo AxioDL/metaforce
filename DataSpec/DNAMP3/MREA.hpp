@@ -120,6 +120,7 @@ struct MREA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)>);
 
     static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& areaOut);

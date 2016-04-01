@@ -112,6 +112,7 @@ struct MLVL : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MLVL mlvl;
@@ -119,7 +120,7 @@ struct MLVL : BigYAML
         FILE* fp = hecl::Fopen(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath().c_str(), _S("w"));
         mlvl.toYAMLFile(fp);
         fclose(fp);
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);
     }

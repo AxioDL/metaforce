@@ -17,11 +17,12 @@ struct MAPA : DNAMAPA::MAPA
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool force,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MAPA mapa;
         mapa.read(rs);
-        hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
         return DNAMAPA::ReadMAPAToBlender(conn, mapa, outPath, pakRouter, entry, force);
     }
 };

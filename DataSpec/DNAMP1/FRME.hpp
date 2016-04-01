@@ -262,6 +262,7 @@ struct FRME : BigDNA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged);
 };
 

@@ -2,6 +2,7 @@
 #define __DNACOMMON_PAK_HPP__
 
 #include "DNACommon.hpp"
+#include "boo/ThreadLocalPtr.hpp"
 
 namespace DataSpec
 {
@@ -81,7 +82,7 @@ struct ResExtractor
 {
     std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
-                       const typename PAKBRIDGE::PAKType::Entry&, bool,
+                       const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
                        std::function<void(const hecl::SystemChar*)>)> func_b;
     const hecl::SystemChar* fileExts[4];
     unsigned weight;
@@ -121,13 +122,13 @@ public:
 private:
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     std::vector<std::pair<hecl::ProjectPath,hecl::ProjectPath>> m_bridgePaths;
-    size_t m_curBridgeIdx = 0;
+    ThreadLocalPtr<void> m_curBridgeIdx;
     const hecl::ProjectPath& m_gameWorking;
     const hecl::ProjectPath& m_gameCooked;
     hecl::ProjectPath m_sharedWorking;
     hecl::ProjectPath m_sharedCooked;
-    const PAKType* m_pak = nullptr;
-    const nod::Node* m_node = nullptr;
+    ThreadLocalPtr<const PAKType> m_pak;
+    ThreadLocalPtr<const nod::Node> m_node;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
@@ -147,14 +148,19 @@ public:
     hecl::ProjectPath getWorking(const IDType& id) const;
     hecl::ProjectPath getCooked(const EntryType* entry) const;
     hecl::ProjectPath getCooked(const IDType& id) const;
-    bool isShared() { return m_pak ? !m_pak->m_noShare : false;  }
+    bool isShared()
+    {
+        const PAKType* pak = m_pak.get();
+        return pak ? !pak->m_noShare : false;
+    }
 
     hecl::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
 
     std::string getBestEntryName(const EntryType& entry) const;
     std::string getBestEntryName(const IDType& entry) const;
 
-    bool extractResources(const BRIDGETYPE& pakBridge, bool force,
+    bool extractResources(const BRIDGETYPE& pakBridge, bool force, bool precedenceSharesOnly,
+                          hecl::BlenderToken& btok,
                           std::function<void(const hecl::SystemChar*, float)> progress);
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,

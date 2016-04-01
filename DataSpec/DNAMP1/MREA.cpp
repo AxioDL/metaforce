@@ -57,6 +57,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
+                   hecl::BlenderToken& btok,
                    std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -78,7 +79,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     head.read(rs);
     rs.seekAlign32();
 
-    hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+    hecl::BlenderConnection& conn = btok.getBlenderConnection();
     if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 

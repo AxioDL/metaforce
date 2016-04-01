@@ -312,6 +312,7 @@ struct CHAR : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
@@ -335,7 +336,7 @@ struct CHAR : BigYAML
 
             if (force || blendType == hecl::ProjectPath::Type::None)
             {
-                hecl::BlenderConnection& conn = hecl::BlenderConnection::SharedConnection();
+                hecl::BlenderConnection& conn = btok.getBlenderConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, CHAR, MaterialSet, DNACMDL::SurfaceHeader_3, 4>
                         (conn, aChar, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }

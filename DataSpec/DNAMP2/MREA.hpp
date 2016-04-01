@@ -123,6 +123,7 @@ struct MREA
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool,
+                        hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)>);
 };
 

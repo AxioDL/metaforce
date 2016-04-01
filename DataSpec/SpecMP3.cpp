@@ -8,6 +8,8 @@
 #include "DNAMP3/STRG.hpp"
 #include "DNAMP2/STRG.hpp"
 
+#include "hecl/ClientProcess.hpp"
+
 namespace DataSpec
 {
 
@@ -366,6 +368,8 @@ struct SpecMP3 : SpecBase
 
             progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
 
+            std::mutex msgLock;
+            hecl::ClientProcess process;
             prog = 0;
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
             {
@@ -376,13 +380,20 @@ struct SpecMP3 : SpecBase
                 const std::string& name = pak.getName();
                 hecl::SystemStringView sysName(name);
 
-                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
-                m_pakRouter.extractResources(pak, force,
-                [&progress, &sysName, &compIdx](const hecl::SystemChar* substr, float factor)
                 {
-                    progress(sysName.sys_str().c_str(), substr, compIdx, factor);
+                    std::unique_lock<std::mutex> lk(msgLock);
+                    progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+                }
+                hecl::SystemString pakName = sysName.sys_str();
+                process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
+                {
+                    m_pakRouter.extractResources(pak, force, true, btok,
+                    [&](const hecl::SystemChar* substr, float factor)
+                    {
+                        std::unique_lock<std::mutex> lk(msgLock);
+                        progress(pakName.c_str(), substr, compIdx, factor);
+                    });
                 });
-                progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
             }
         }
 
@@ -417,6 +428,8 @@ struct SpecMP3 : SpecBase
             }
             progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
 
+            std::mutex msgLock;
+            hecl::ClientProcess process;
             prog = 0;
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)
             {
@@ -427,13 +440,20 @@ struct SpecMP3 : SpecBase
                 const std::string& name = pak.getName();
                 hecl::SystemStringView sysName(name);
 
-                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
-                m_fePakRouter.extractResources(pak, force,
-                [&progress, &sysName, &compIdx](const hecl::SystemChar* substr, float factor)
                 {
-                    progress(sysName.sys_str().c_str(), substr, compIdx, factor);
+                    std::unique_lock<std::mutex> lk(msgLock);
+                    progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+                }
+                hecl::SystemString pakName = sysName.sys_str();
+                process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
+                {
+                    m_fePakRouter.extractResources(pak, force, true, btok,
+                    [&](const hecl::SystemChar* substr, float factor)
+                    {
+                        std::unique_lock<std::mutex> lk(msgLock);
+                        progress(pakName.c_str(), substr, compIdx, factor);
+                    });
                 });
-                progress(sysName.sys_str().c_str(), _S(""), compIdx++, 1.0);
             }
         }
         return true;
