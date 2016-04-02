@@ -437,8 +437,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry) const
 }
 
 template <class BRIDGETYPE>
-bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, bool precedenceSharesOnly,
-                                             hecl::BlenderToken& btok,
+bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::BlenderToken& btok,
                                              std::function<void(const hecl::SystemChar*, float)> progress)
 {
     enterPAKBridge(pakBridge);
@@ -452,22 +451,6 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item);
             if (extractor.weight != w)
                 continue;
-
-#if 0
-            /* This is used to ensure parallel extracts won't collide files */
-            if (precedenceSharesOnly)
-            {
-                auto sharedSearch = m_sharedEntries.find(item->id);
-                if (sharedSearch != m_sharedEntries.cend())
-                {
-                    if (sharedSearch->second.first != reinterpret_cast<intptr_t>(m_curBridgeIdx.get()))
-                    {
-                        ++count;
-                        continue;
-                    }
-                }
-            }
-#endif
 
             std::string bestName = getBestEntryName(*item);
             hecl::SystemStringView bestNameView(bestName);

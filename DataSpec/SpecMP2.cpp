@@ -256,7 +256,7 @@ struct SpecMP2 : SpecBase
             hecl::SystemString pakName = sysName.sys_str();
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
             {
-                m_pakRouter.extractResources(pak, force, true, btok,
+                m_pakRouter.extractResources(pak, force, btok,
                 [&](const hecl::SystemChar* substr, float factor)
                 {
                     std::unique_lock<std::mutex> lk(msgLock);
