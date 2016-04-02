@@ -262,7 +262,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                               vertBlob, fragBlob, pipelineBlob,
                               tag.newVertexFormat(ctx),
-                              m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                              m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
                               tag.getBackfaceCulling());
         if (!objOut)
@@ -349,7 +349,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             newShaderPipeline(nullptr, nullptr,
                               vertBlob, fragBlob, pipelineBlob,
                               tag.newVertexFormat(ctx),
-                              blendSrc, blendDst, boo::Primitive::TriStrips,
+                              blendSrc, blendDst, tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
                               tag.getBackfaceCulling());
         if (!ret)
@@ -385,7 +385,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   vertBlob, fragPipeBlob.first, fragPipeBlob.second,
                                   tag.newVertexFormat(ctx),
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
             if (!ret)
@@ -475,7 +475,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(nullptr, nullptr,
                                   vertBlob, fragBlob, pipelineBlob,
                                   tag.newVertexFormat(ctx),
-                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
             if (!ret)

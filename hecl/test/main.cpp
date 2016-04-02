@@ -86,7 +86,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
                 /* Compile HECL shader */
                 static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
-                hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, false, false, false);
+                hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, boo::Primitive::TriStrips, false, false, false);
                 boo::IShaderPipeline* testShaderObj =
                 shaderMgr.buildShader(testShaderTag, testShader, "testShader", ctx);
 

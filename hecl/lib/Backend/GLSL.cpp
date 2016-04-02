@@ -274,7 +274,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   m_backend.m_texMapEnd, "texs",
                                   1, STD_BLOCKNAMES,
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
         if (!objOut)
@@ -306,7 +306,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   texMapEnd, "texs",
                                   1, STD_BLOCKNAMES,
-                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
         if (!ret)
@@ -341,7 +341,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                     newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
                                       m_backend.m_texMapEnd, "texs",
                                       1, STD_BLOCKNAMES,
-                                      m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                      m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
@@ -380,7 +380,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                       texMapEnd, "texs",
                                       1, STD_BLOCKNAMES,
-                                      blendSrc, blendDst, boo::Primitive::TriStrips,
+                                      blendSrc, blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
@@ -424,7 +424,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         static_cast<boo::VulkanDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(ctx),
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
         if (!objOut)
@@ -499,7 +499,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                 newShaderPipeline(nullptr, nullptr,
                                   vertBlob, fragBlob, pipelineBlob,
                                   tag.newVertexFormat(ctx),
-                                  blendSrc, blendDst, boo::Primitive::TriStrips,
+                                  blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
         if (!ret)
@@ -536,7 +536,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                       vertBlob, fragPipeBlob.first, fragPipeBlob.second,
                                       tag.newVertexFormat(ctx),
-                                      m_backend.m_blendSrc, m_backend.m_blendDst, boo::Primitive::TriStrips,
+                                      m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
@@ -620,7 +620,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                     newShaderPipeline(nullptr, nullptr,
                                       vertBlob, fragBlob, pipelineBlob,
                                       tag.newVertexFormat(ctx),
-                                      blendSrc, blendDst, boo::Primitive::TriStrips,
+                                      blendSrc, blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)

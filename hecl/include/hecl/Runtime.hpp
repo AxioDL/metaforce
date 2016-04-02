@@ -47,6 +47,7 @@ class ShaderTag : public Hash
             uint8_t m_weightCount;
             uint8_t m_skinSlotCount;
             uint8_t m_texMtxCount;
+            uint8_t m_primitiveType;
             bool m_depthTest:1;
             bool m_depthWrite:1;
             bool m_backfaceCulling:1;
@@ -54,20 +55,20 @@ class ShaderTag : public Hash
     };
 public:
     ShaderTag() = default;
-    ShaderTag(const std::string& source, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t,
+    ShaderTag(const std::string& source, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t, boo::Primitive pt,
               bool depthTest, bool depthWrite, bool backfaceCulling)
     : Hash(source), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
-      m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+      m_primitiveType(uint8_t(pt)), m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
     {hash ^= m_meta;}
-    ShaderTag(const hecl::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t,
+    ShaderTag(const hecl::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t, boo::Primitive pt,
               bool depthTest, bool depthWrite, bool backfaceCulling)
     : Hash(ir.m_hash), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
-      m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+      m_primitiveType(uint8_t(pt)), m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
     {hash ^= m_meta;}
-    ShaderTag(uint64_t hashin, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t,
+    ShaderTag(uint64_t hashin, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t, boo::Primitive pt,
               bool depthTest, bool depthWrite, bool backfaceCulling)
     : Hash(hashin), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
-      m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+      m_primitiveType(uint8_t(pt)), m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
     {hash ^= m_meta;}
     ShaderTag(uint64_t comphashin, uint64_t meta)
     : Hash(comphashin), m_meta(meta) {}
@@ -77,6 +78,7 @@ public:
     uint8_t getWeightCount() const {return m_weightCount;}
     uint8_t getSkinSlotCount() const {return m_skinSlotCount;}
     uint8_t getTexMtxCount() const {return m_texMtxCount;}
+    boo::Primitive getPrimType() const {return boo::Primitive(m_primitiveType);}
     bool getDepthTest() const {return m_depthTest;}
     bool getDepthWrite() const {return m_depthWrite;}
     bool getBackfaceCulling() const {return m_backfaceCulling;}
@@ -220,7 +222,7 @@ public:
     /* Some platforms (like Metal) require information about the render target
      * for encoding the pipeline state. This must be called before building shaders */
     void setRenderTargetSamples(unsigned samps) {m_factory->m_rtHint = samps;}
-    
+
     boo::IShaderPipeline* buildShader(const ShaderTag& tag, const std::string& source,
                                       const std::string& diagName,
                                       boo::IGraphicsDataFactory::Context& ctx);
