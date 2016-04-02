@@ -159,8 +159,7 @@ public:
     std::string getBestEntryName(const EntryType& entry) const;
     std::string getBestEntryName(const IDType& entry) const;
 
-    bool extractResources(const BRIDGETYPE& pakBridge, bool force, bool precedenceSharesOnly,
-                          hecl::BlenderToken& btok,
+    bool extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::BlenderToken& btok,
                           std::function<void(const hecl::SystemChar*, float)> progress);
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,
