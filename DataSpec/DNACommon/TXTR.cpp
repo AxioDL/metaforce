@@ -675,14 +675,12 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
             mipmap = false;
 
     /* Compute mipmap levels */
-    size_t numMips = 0;
+    size_t numMips = 1;
     if (mipmap && CountBits(width) == 1 && CountBits(height) == 1)
     {
         size_t index = std::min(width, height);
         while (index >>= 1) ++numMips;
     }
-    else
-        numMips = 1;
 
     if (bitDepth != 8)
     {
