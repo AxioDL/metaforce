@@ -119,6 +119,7 @@ void CGraphics::SetViewMatrix()
     /* Load position matrix */
     /* Inverse-transpose */
     g_GXModelViewInvXpose = g_GXModelView.inverse();
+    g_GXModelViewInvXpose.m_origin.zeroOut();
     g_GXModelViewInvXpose.m_basis.transpose();
     /* Load normal matrix */
 }
@@ -156,16 +157,15 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
 
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
 {
-    CProjectionState& ref = g_Proj;
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
     float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float fmn = g_Proj.x18_far - g_Proj.x14_near;
+    float nmf = g_Proj.x14_near - g_Proj.x18_far;
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
     return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
                            0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                           0.f, 0.f, fpn / nmf, 2.f * g_Proj.x18_far * g_Proj.x14_near / nmf,
                            0.f, 0.f, -1.f, 0.f);
 }
 

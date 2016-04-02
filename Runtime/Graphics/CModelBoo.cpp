@@ -376,7 +376,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
             {
                 hecl::Runtime::ShaderTag tag(mat.heclIr,
                                              hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, mat.uvAnims.size(), false, false, true);
+                                             0, mat.uvAnims.size(), true, true, true);
                 matSet.m_shaders.push_back(CGraphics::g_ShaderCacheMgr->buildShader(tag, mat.heclIr, "CMDL", ctx));
             }
         }

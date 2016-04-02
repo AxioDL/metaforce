@@ -59,6 +59,7 @@ void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
+    gfxQ->clearTarget(false, true);
     if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;

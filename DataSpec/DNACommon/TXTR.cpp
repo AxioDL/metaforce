@@ -738,7 +738,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     }
 
     /* Read and make RGBA */
-    for (png_uint_32 r=0 ; r<height ; ++r)
+    for (int r=height-1 ; r>=0 ; --r)
     {
         png_read_row(pngRead, rowBuf.get(), nullptr);
         switch (colorType)

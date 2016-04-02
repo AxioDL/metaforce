@@ -453,6 +453,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             if (extractor.weight != w)
                 continue;
 
+#if 0
             /* This is used to ensure parallel extracts won't collide files */
             if (precedenceSharesOnly)
             {
@@ -466,6 +467,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
                     }
                 }
             }
+#endif
 
             std::string bestName = getBestEntryName(*item);
             hecl::SystemStringView bestNameView(bestName);
