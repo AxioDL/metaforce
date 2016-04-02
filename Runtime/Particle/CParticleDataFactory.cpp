@@ -1118,7 +1118,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
     }
 
     /* Now for our custom additions, if available */
-    if (!in.atEnd())
+    if (!in.atEnd() && (in.position() + 4) < in.length())
     {
         clsId = GetClassID(in);
         if (clsId == 0xFFFFFFFF)

@@ -278,6 +278,11 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
+    if (desc->x54_x40_TEXR)
+        desc->x54_x40_TEXR->GetValueTexture(0).GetObj();
+    if (desc->x58_x44_TIND)
+        desc->x58_x44_TIND->GetValueTexture(0).GetObj();
+
     CIntElement* seedElem = desc->x1c_x10_SEED.get();
     if (seedElem)
     {

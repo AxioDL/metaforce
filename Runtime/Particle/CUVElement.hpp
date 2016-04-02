@@ -30,7 +30,10 @@ struct CUVEConstant : public CUVElement
     TLockedToken<CTexture> x4_tex;
 public:
     CUVEConstant(TToken<CTexture>&& tex)
-    : x4_tex(std::move(tex)) {}
+    : x4_tex(std::move(tex))
+    {
+
+    }
     TLockedToken<CTexture> GetValueTexture(int frame) const
     {
         return TLockedToken<CTexture>(x4_tex);

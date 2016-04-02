@@ -83,23 +83,33 @@ class UniqueIDBridge
 {
     friend class UniqueID32;
     friend class UniqueID64;
+
+    static hecl::Database::Project* s_Project;
 public:
     template <class IDType>
     static hecl::ProjectPath TranslatePakIdToPath(const IDType& id)
     {
         if (!g_PakRouter)
             LogDNACommon.report(logvisor::Fatal,
-            "UniqueIDBridge::setPakRouter must be called before translatePakIdToPath");
+            "g_Project must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
         return g_PakRouter->getWorking(id);
     }
     static hecl::ProjectPath MakePathFromString(const std::string& str)
     {
-        return hecl::ProjectPath(g_PakRouter->getProject(), str);
+        if (!s_Project)
+            LogDNACommon.report(logvisor::Fatal,
+                                "UniqueIDBridge::setGlobalProject must be called before MakePathFromString");
+        return hecl::ProjectPath(*s_Project, str);
     }
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id)
     {
         id = TranslatePakIdToPath(id);
+    }
+
+    static void setGlobalProject(hecl::Database::Project& project)
+    {
+        s_Project = &project;
     }
 };
 

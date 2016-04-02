@@ -35,7 +35,10 @@ static const hecl::SystemChar* MomErr[] =
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
 SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
 : hecl::Database::IDataSpec(specEntry), m_project(project), m_pc(pc),
-  m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {}
+  m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend")
+{
+    DataSpec::UniqueIDBridge::setGlobalProject(m_project);
+}
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
