@@ -147,11 +147,11 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
     float rpl = st.x8_right + st.x4_left;
     float tmb = st.xc_top - st.x10_bottom;
     float tpb = st.xc_top + st.x10_bottom;
-    float fmn = st.x18_far - st.x14_near;
+    float nmf = g_Proj.x14_near - g_Proj.x18_far;
     float fpn = st.x18_far + st.x14_near;
     return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
                            0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
+                           0.f, 0.f, fpn / nmf, 2.f * st.x18_far * st.x14_near / nmf,
                            0.f, 0.f, -1.f, 0.f);
 }
 
