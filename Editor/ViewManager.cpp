@@ -64,7 +64,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     {
         CModelFlags flags;
 
-        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+        m_theta += 0.01f;
+        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
         CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);

@@ -41,6 +41,7 @@ class ViewManager : public specter::IViewManager
     class ParticleView : public specter::View
     {
         ViewManager& m_vm;
+        float m_theta = 0.f;
     public:
         ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
         : View(res, parent), m_vm(vm) {}
