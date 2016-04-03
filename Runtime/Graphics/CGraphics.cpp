@@ -132,7 +132,8 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf)
 }
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
-                                                      float near, float far)
+                                                      float near, float far,
+                                                      bool forRenderer)
 {
     CProjectionState st;
     float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
@@ -147,26 +148,86 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
     float rpl = st.x8_right + st.x4_left;
     float tmb = st.xc_top - st.x10_bottom;
     float tpb = st.xc_top + st.x10_bottom;
-    float nmf = g_Proj.x14_near - g_Proj.x18_far;
     float fpn = st.x18_far + st.x14_near;
-    return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
-                           0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, fpn / nmf, 2.f * st.x18_far * st.x14_near / nmf,
-                           0.f, 0.f, -1.f, 0.f);
+    float fmn = st.x18_far - st.x14_near;
+
+    if (!forRenderer)
+    {
+        return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
+                               0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                               0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
+                               0.f, 0.f, -1.f, 0.f);
+    }
+
+    switch (g_BooPlatform)
+    {
+    case boo::IGraphicsDataFactory::Platform::OGL:
+    default:
+    {
+        return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
+                               0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                               0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
+                               0.f, 0.f, -1.f, 0.f);
+    }
+    case boo::IGraphicsDataFactory::Platform::D3D11:
+    case boo::IGraphicsDataFactory::Platform::D3D12:
+    {
+        zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
+                             0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                             0.f, 0.f, st.x18_far / fmn, st.x14_near * st.x18_far / fmn,
+                             0.f, 0.f, -1.f, 0.f);
+
+        static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f,
+                                              0.f, 1.f, 0.f, 0.f,
+                                              0.f, 0.f, 1.f, 1.f,
+                                              0.f, 0.f, 0.f, 1.f);
+        return PlusOneZ * mat2;
+    }
+    }
 }
 
-zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix()
+zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
 {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
     float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float nmf = g_Proj.x14_near - g_Proj.x18_far;
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
-    return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
-                           0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, fpn / nmf, 2.f * g_Proj.x18_far * g_Proj.x14_near / nmf,
-                           0.f, 0.f, -1.f, 0.f);
+    float fmn = g_Proj.x18_far - g_Proj.x14_near;
+
+    if (!forRenderer)
+    {
+        return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                               0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                               0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                               0.f, 0.f, -1.f, 0.f);
+    }
+
+    switch (g_BooPlatform)
+    {
+    case boo::IGraphicsDataFactory::Platform::OGL:
+    default:
+    {
+        return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                               0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                               0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                               0.f, 0.f, -1.f, 0.f);
+    }
+    case boo::IGraphicsDataFactory::Platform::D3D11:
+    case boo::IGraphicsDataFactory::Platform::D3D12:
+    {
+        zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                             0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                             0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn,
+                             0.f, 0.f, -1.f, 0.f);
+
+        static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f,
+                                              0.f, 1.f, 0.f, 0.f,
+                                              0.f, 0.f, 1.f, 1.f,
+                                              0.f, 0.f, 0.f, 1.f);
+        return PlusOneZ * mat2;
+    }
+    }
 }
 
 const CGraphics::CProjectionState& CGraphics::GetProjectionState()
@@ -225,7 +286,7 @@ void CGraphics::FlushProjection()
 
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
-    zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
+    zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
     return {int(projPt.x * g_ViewportResolutionHalf.x) + g_ViewportResolutionHalf.x,
             g_ViewportResolution.y - (int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y)};
 }
@@ -293,7 +354,7 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
 zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point)
 {
     zeus::CVector3f pt = g_GXModelView * point;
-    return GetPerspectiveProjectionMatrix().multiplyOneOverW(pt);
+    return GetPerspectiveProjectionMatrix(false).multiplyOneOverW(pt);
 }
 
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
@@ -312,6 +373,7 @@ float CGraphics::GetSecondsMod900()
     return g_ExternalTimeProvider->x0_currentTime;
 }
 
+boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
 boo::ITextureR* CGraphics::g_SpareTexture = nullptr;

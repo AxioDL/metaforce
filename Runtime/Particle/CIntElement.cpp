@@ -2,6 +2,8 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include "CElementGen.hpp"
+#include "CGenDescription.hpp"
+
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
 
 namespace urde

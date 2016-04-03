@@ -3,6 +3,7 @@
 #include "CParticleGlobals.hpp"
 #include "CRandom16.hpp"
 #include "zeus/Math.hpp"
+#include "CGenDescription.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
 

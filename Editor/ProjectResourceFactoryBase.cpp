@@ -154,6 +154,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath.reserve(cacheReader.getRootNode()->m_mapChildren.size());
+                size_t loadIdx = 0;
                 for (const auto& child : cacheReader.getRootNode()->m_mapChildren)
                 {
                     unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
@@ -161,7 +162,10 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                     hecl::ProjectPath path(m_proj->getProjectWorkingPath(),
                         child.second->m_seqChildren.at(1)->m_scalarString);
                     m_tagToPath[SObjectTag(type, id)] = path;
+                    fprintf(stderr, "\r %" PRISize " / %" PRISize, loadIdx++,
+                            cacheReader.getRootNode()->m_mapChildren.size());
                 }
+                fprintf(stderr, "\n");
             }
             fclose(cacheFile);
             Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),

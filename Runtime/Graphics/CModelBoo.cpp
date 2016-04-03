@@ -44,8 +44,8 @@ void CBooModel::BuildGfxToken()
     m_gfxToken = CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_unskinnedXfBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
-                                               sizeof(SUnskinnedXf), 1);
+        m_unskinnedXfBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform,
+                                                   sizeof(SUnskinnedXf), 1);
         boo::IGraphicsBuffer* bufs[] = {m_unskinnedXfBuffer};
         m_shaderDataBindings.clear();
         m_shaderDataBindings.reserve(x4_matSet->materials.size());
@@ -276,7 +276,7 @@ void CBooModel::UpdateUniformData() const
     SUnskinnedXf unskinnedXf;
     unskinnedXf.mv = CGraphics::g_GXModelView.toMatrix4f();
     unskinnedXf.mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    unskinnedXf.proj = CGraphics::GetPerspectiveProjectionMatrix();
+    unskinnedXf.proj = CGraphics::GetPerspectiveProjectionMatrix(true);
     m_unskinnedXfBuffer->load(&unskinnedXf, sizeof(unskinnedXf));
 
     if (m_uvAnimBuffer)
@@ -376,7 +376,8 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
             {
                 hecl::Runtime::ShaderTag tag(mat.heclIr,
                                              hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology), true, true, true);
+                                             0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
+                                             true, true, true);
                 matSet.m_shaders.push_back(CGraphics::g_ShaderCacheMgr->buildShader(tag, mat.heclIr, "CMDL", ctx));
             }
         }

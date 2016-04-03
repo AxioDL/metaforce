@@ -153,7 +153,7 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
 {
     ((CTextRenderBuffer*)this)->CommitResources();
 
-    BooUniform uniforms = {CGraphics::GetPerspectiveProjectionMatrix() *
+    BooUniform uniforms = {CGraphics::GetPerspectiveProjectionMatrix(true) *
                            CGraphics::g_GXModelView.toMatrix4f(), col};
     m_uniBuf->load(&uniforms, sizeof(uniforms));
 

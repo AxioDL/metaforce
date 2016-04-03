@@ -14,7 +14,7 @@ namespace urde
 {
 class CGuiObject;
 class CVParamTransfer;
-class SObjectTag;
+struct SObjectTag;
 class IFactory;
 class CSimplePool;
 class CGuiWidget;

@@ -23,6 +23,10 @@ struct CModelFlags
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
 
+    CModelFlags() = default;
+    CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
+    : m_blendMode(blendMode), m_matSetIdx(shadIdx), m_flags(flags), color(col) {}
+
     /* Flags
         0x4: render without texture lock
         0x8: depth greater

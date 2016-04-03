@@ -10,6 +10,7 @@
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
 
 namespace urde
 {

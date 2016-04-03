@@ -199,11 +199,12 @@ public:
     static void SetViewMatrix();
     static void SetModelMatrix(const zeus::CTransform& xf);
     static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect,
-                                                      float near, float far);
-    static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
+                                                      float znear, float zfar,
+                                                      bool forRenderer);
+    static zeus::CMatrix4f GetPerspectiveProjectionMatrix(bool forRenderer);
     static const CProjectionState& GetProjectionState();
     static void SetProjectionState(const CProjectionState&);
-    static void SetPerspective(float fovy, float aspect, float near, float far);
+    static void SetPerspective(float fovy, float aspect, float znear, float zfar);
     static void SetOrtho(float left, float right,
                          float top, float bottom,
                          float znear, float zfar);
@@ -220,6 +221,7 @@ public:
     {g_ExternalTimeProvider = provider;}
     static float GetSecondsMod900();
 
+    static boo::IGraphicsDataFactory::Platform g_BooPlatform;
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
@@ -230,6 +232,7 @@ public:
                               boo::ITextureR* spareTex,
                               hecl::Runtime::ShaderCacheManager* shadCacheMgr)
     {
+        g_BooPlatform = factory->platform();
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
         g_SpareTexture = spareTex;

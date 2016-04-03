@@ -65,51 +65,31 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         {
         case EGuiModelDrawFlags::Shadeless:
         {
-            CModelFlags flags;
-            flags.m_blendMode = 0;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = 3;
-            flags.color = zeus::CColor::skWhite;
+            CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Opaque:
         {
-            CModelFlags flags;
-            flags.m_blendMode = 1;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = 3;
-            flags.color = moduCol;
+            CModelFlags flags(1, 0, 3, moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Alpha:
         {
-            CModelFlags flags;
-            flags.m_blendMode = 4;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
-            flags.color = moduCol;
+            CModelFlags flags(4, 0, (xf7_24_depthWrite << 1) | xf6_31_depthTest, moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
-            CModelFlags flags;
-            flags.m_blendMode = 3;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
-            flags.color = moduCol;
+            CModelFlags flags(3, 0, (xf7_24_depthWrite << 1) | xf6_31_depthTest, moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
-            CModelFlags flags;
-            flags.m_blendMode = 4;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = xf6_31_depthTest;
-            flags.color = moduCol;
+            CModelFlags flags(4, 0, xf6_31_depthTest, moduCol);
             model->Draw(flags);
 
             flags.m_blendMode = 5;

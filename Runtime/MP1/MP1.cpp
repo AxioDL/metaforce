@@ -20,6 +20,7 @@
 #include "Particle/CElementGen.hpp"
 #include "Character/CAnimData.hpp"
 #include "Particle/CDecalManager.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "Audio/CAudioSys.hpp"
 #include "Input/CInputGenerator.hpp"

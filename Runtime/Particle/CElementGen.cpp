@@ -1598,7 +1598,7 @@ void CElementGen::RenderParticles()
 
     SParticleUniforms uniformData =
     {
-        CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f(),
+        CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(),
         {1.f, 1.f, 1.f, 1.f}
     };
 
@@ -1933,7 +1933,7 @@ void CElementGen::RenderParticlesIndirectTexture()
 
     SParticleUniforms uniformData =
     {
-        CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f(),
+        CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(),
         {1.f, 1.f, 1.f, 1.f}
     };
     m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
