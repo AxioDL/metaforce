@@ -33,7 +33,7 @@ template <> struct hash<std::pair<uint32_t,uint32_t>>
 namespace hecl
 {
 
-logvisor::Module BlenderLog("BlenderConnection");
+logvisor::Module BlenderLog("hecl::BlenderConnection");
 BlenderToken SharedBlenderToken;
 
 #ifdef __APPLE__
