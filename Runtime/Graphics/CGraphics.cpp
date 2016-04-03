@@ -171,6 +171,7 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
     }
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:
+    case boo::IGraphicsDataFactory::Platform::Metal:
     {
         zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
                              0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
@@ -215,6 +216,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
     }
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:
+    case boo::IGraphicsDataFactory::Platform::Metal:
     {
         zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
                              0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
