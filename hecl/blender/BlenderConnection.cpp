@@ -47,7 +47,7 @@ extern "C" size_t HECL_BLENDERSHELL_SZ;
 
 extern "C" uint8_t HECL_ADDON[];
 extern "C" size_t HECL_ADDON_SZ;
-    
+
 extern "C" uint8_t HECL_STARTUP[];
 extern "C" size_t HECL_STARTUP_SZ;
 
@@ -59,7 +59,7 @@ static void InstallBlendershell(const SystemChar* path)
     fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
     fclose(fp);
 }
-    
+
 static void InstallAddon(const SystemChar* path)
 {
     FILE* fp = hecl::Fopen(path, _S("wb"));
@@ -77,7 +77,7 @@ static void InstallStartup(const char* path)
     fwrite(HECL_STARTUP, 1, HECL_STARTUP_SZ, fp);
     fclose(fp);
 }
-    
+
 size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
 {
     size_t readBytes = 0;
@@ -168,7 +168,7 @@ void BlenderConnection::_closePipe()
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
-    
+
     /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
@@ -188,7 +188,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
     hecl::SystemString blenderAddonPath(TMPDIR);
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
     InstallAddon(blenderAddonPath.c_str());
-    
+
     m_startupBlend += "/hecl_startup.blend";
     InstallStartup(m_startupBlend.c_str());
 
@@ -239,7 +239,9 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         if (verbosityLevel == 0)
         {
             SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
-            nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
+                                    &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            sinfo.hStdInput = nulHandle;
             sinfo.hStdError = nulHandle;
             sinfo.hStdOutput = nulHandle;
             sinfo.dwFlags = STARTF_USESTDHANDLES;

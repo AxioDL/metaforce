@@ -111,8 +111,8 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
     if (s)
     {
         /* skinned */
-        retval += "    vec4 posAccum = float4(0.0,0.0,0.0,0.0);\n"
-                  "    vec4 normAccum = float4(0.0,0.0,0.0,0.0);\n";
+        retval += "    float4 posAccum = float4(0.0,0.0,0.0,0.0);\n"
+                  "    float4 normAccum = float4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
             retval += hecl::Format("    posAccum += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n"
                                    "    normAccum += mul(mvInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
@@ -169,7 +169,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
         if (lighting.m_entry)
             retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
         else
-            retval += "    float4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
+            retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
 
     unsigned sampIdx = 0;

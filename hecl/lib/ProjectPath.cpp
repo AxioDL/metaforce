@@ -86,9 +86,9 @@ void ProjectPath::assign(Database::Project& project, const std::string& path)
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-    m_hash = Hash(m_relPath);
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
+    m_hash = Hash(m_utf8RelPath);
 }
 #endif
 
@@ -118,9 +118,9 @@ void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
     m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-    m_hash = Hash(m_relPath);
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
+    m_hash = Hash(m_utf8RelPath);
 }
 #endif
 

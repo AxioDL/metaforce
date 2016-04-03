@@ -701,12 +701,16 @@ public:
     {
         if (absPath.size() > m_projRoot.size())
         {
-            if (!absPath.compare(0, m_projRoot.size(), m_projRoot))
+            SystemString absPathForward(absPath);
+            for (SystemChar& ch : absPathForward)
+                if (ch == _S('\\'))
+                    ch = _S('/');
+            if (!absPathForward.compare(0, m_projRoot.size(), m_projRoot))
             {
-                auto beginIt = absPath.cbegin() + m_projRoot.size();
-                while (*beginIt == _S('/') || *beginIt == _S('\\'))
+                auto beginIt = absPathForward.cbegin() + m_projRoot.size();
+                while (*beginIt == _S('/'))
                     ++beginIt;
-                return SystemString(beginIt, absPath.cend());
+                return SystemString(beginIt, absPathForward.cend());
             }
         }
         LogModule.report(logvisor::Fatal, "unable to resolve '%s' as project relative '%s'",
