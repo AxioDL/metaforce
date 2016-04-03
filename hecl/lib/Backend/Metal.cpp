@@ -49,26 +49,26 @@ std::string Metal::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) c
     "{\n"
     "    float3 posIn [[ attribute(0) ]];\n"
     "    float3 normIn [[ attribute(1) ]];\n";
-    
+
     unsigned idx = 2;
     if (col)
     {
         for (unsigned i=0 ; i<col ; ++i, ++idx)
             retval += hecl::Format("    float4 colIn%u [[ attribute(%u) ]];\n", i, idx);
     }
-    
+
     if (uv)
     {
         for (unsigned i=0 ; i<uv ; ++i, ++idx)
             retval += hecl::Format("    float2 uvIn%u [[ attribute(%u) ]];\n", i, idx);
     }
-    
+
     if (w)
     {
         for (unsigned i=0 ; i<w ; ++i, ++idx)
         retval += hecl::Format("    float4 weightIn%u [[ attribute(%u) ]];\n", i, idx);
     }
-    
+
     return retval + "};\n";
 }
 
@@ -80,13 +80,13 @@ std::string Metal::GenerateVertToFragStruct() const
     "    float4 mvpPos [[ position ]];\n"
     "    float4 mvPos;\n"
     "    float4 mvNorm;\n";
-    
+
     if (m_tcgs.size())
     {
         for (size_t i=0 ; i<m_tcgs.size() ; ++i)
             retval += hecl::Format("    float2 tcgs%" PRISize ";\n", i);
     }
-    
+
     return retval + "};\n";
 }
 
@@ -120,7 +120,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
     GenerateVertUniformStruct(s, tm) +
     "\nvertex VertToFrag vmain(VertData v [[ stage_in ]], constant HECLVertUniform& vu [[ buffer(2) ]])\n{\n"
     "    VertToFrag vtf;\n";
-    
+
     if (s)
     {
         /* skinned */
@@ -142,7 +142,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
         "    vtf.mvNorm = vu.mvInv[0] * float4(v.normIn, 0.0);\n"
         "    vtf.mvpPos = vu.proj * vtf.mvPos;\n";
     }
-    
+
     int tcgIdx = 0;
     for (const TexCoordGen& tcg : m_tcgs)
     {
@@ -154,7 +154,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
                                    EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
-    
+
     return retval + "    return vtf;\n}\n";
 }
 
@@ -163,21 +163,21 @@ std::string Metal::makeFrag(const ShaderFunction& lighting) const
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
-    
+
     std::string texMapDecl;
     if (m_texMapEnd)
     {
         for (int i=0 ; i<m_texMapEnd ; ++i)
             texMapDecl += hecl::Format("\n, texture2d<float> tex%u [[ texture(%u) ]]", i, i);
     }
-    
+
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat);\n" +
+    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct() + "\n" +
     lightingSrc + "\n" +
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
-    
-    
+
+
     if (m_lighting)
     {
         if (lighting.m_entry)
@@ -185,17 +185,17 @@ std::string Metal::makeFrag(const ShaderFunction& lighting) const
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
-    
+
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
         retval += hecl::Format("    float4 sampling%u = tex%u.sample(samp, vtf.tcgs%u);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
-    
+
     if (m_alphaExpr.size())
         retval += "    return float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
     else
         retval += "    return float4(" + m_colorExpr + ", 1.0);\n";
-    
+
     return retval + "}\n";
 }
 
@@ -205,28 +205,28 @@ std::string Metal::makeFrag(const ShaderFunction& lighting,
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
-    
+
     std::string postSrc;
     if (post.m_source)
         postSrc = post.m_source;
-    
+
     std::string postEntry;
     if (post.m_entry)
         postEntry = post.m_entry;
-    
+
     std::string texMapDecl;
     if (m_texMapEnd)
     {
         for (int i=0 ; i<m_texMapEnd ; ++i)
             texMapDecl += hecl::Format("texture2d<float> tex%u [[ texture(%u) ]],\n", i, i);
     }
-    
+
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat);\n" +
+    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct() + "\n" +
     lightingSrc + "\n" +
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n" + texMapDecl + ")\n{\n";
-    
+
     if (m_lighting)
     {
         if (lighting.m_entry)
@@ -234,17 +234,17 @@ std::string Metal::makeFrag(const ShaderFunction& lighting,
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
-    
+
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
         retval += hecl::Format("    float4 sampling%u = tex%u.sample(samp, vtf.tcgs%u);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
-    
+
     if (m_alphaExpr.size())
         retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
     else
         retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", 1.0));\n";
-    
+
     return retval + "}\n";
 }
 
@@ -255,55 +255,55 @@ namespace Runtime
 struct MetalBackendFactory : IShaderBackendFactory
 {
     Backend::Metal m_backend;
-    boo::MetalDataFactory* m_gfxFactory;
-    
-    MetalBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
-    : m_gfxFactory(dynamic_cast<boo::MetalDataFactory*>(gfxFactory)) {}
-    
+
     ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
+                                       boo::IGraphicsDataFactory::Context& ctx,
                                        boo::IShaderPipeline*& objOut)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-        
+
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
-        
+
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                            tag.getSkinSlotCount(), tag.getTexMtxCount());
         cachedSz += vertSource.size() + 1;
-        
+
         std::string fragSource = m_backend.makeFrag();
         cachedSz += fragSource.size() + 1;
         objOut =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        tag.newVertexFormat(m_gfxFactory), m_rtHint,
-                                        m_backend.m_blendSrc, m_backend.m_blendDst,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
-        if (!*objOut)
+        static_cast<boo::MetalDataFactory::Context&>(ctx).
+            newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                              tag.newVertexFormat(ctx), m_rtHint,
+                              m_backend.m_blendSrc, m_backend.m_blendDst,
+                              tag.getPrimType(),
+                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getBackfaceCulling());
+        if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
-        
+
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
         w.writeString(vertSource);
         w.writeString(fragSource);
-        
+
         return dataOut;
     }
-    
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data)
+
+    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
+                                               boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-        
+
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
@@ -311,34 +311,36 @@ struct MetalBackendFactory : IShaderBackendFactory
         std::string vertSource = r.readString();
         std::string fragSource = r.readString();
         boo::IShaderPipeline* ret =
-        m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                        tag.newVertexFormat(m_gfxFactory), m_rtHint,
-                                        blendSrc, blendDst,
-                                        tag.getDepthTest(), tag.getDepthWrite(),
-                                        tag.getBackfaceCulling());
+        static_cast<boo::MetalDataFactory::Context&>(ctx).
+            newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                              tag.newVertexFormat(ctx), m_rtHint,
+                              blendSrc, blendDst, tag.getPrimType(),
+                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getBackfaceCulling());
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
     }
-    
+
     ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
                                                const hecl::Frontend::IR& ir,
                                                hecl::Frontend::Diagnostics& diag,
                                                const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                               boo::IGraphicsDataFactory::Context& ctx,
                                                FReturnExtensionShader returnFunc)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-        
+
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
-        
+
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                            tag.getSkinSlotCount(), tag.getTexMtxCount());
         cachedSz += vertSource.size() + 1;
-        
+
         std::vector<std::string> fragSources;
         fragSources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
@@ -346,16 +348,18 @@ struct MetalBackendFactory : IShaderBackendFactory
             fragSources.push_back(m_backend.makeFrag(slot.lighting, slot.post));
             cachedSz += fragSources.back().size() + 1;
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
-                                            tag.newVertexFormat(m_gfxFactory), m_rtHint,
-                                            m_backend.m_blendSrc, m_backend.m_blendDst,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::MetalDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
+                                  tag.newVertexFormat(ctx), m_rtHint,
+                                  m_backend.m_blendSrc, m_backend.m_blendDst,
+                                  tag.getPrimType(),
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
-        
+
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
@@ -363,18 +367,19 @@ struct MetalBackendFactory : IShaderBackendFactory
         w.writeString(vertSource);
         for (const std::string src : fragSources)
             w.writeString(src);
-        
+
         return dataOut;
     }
-    
+
     void buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
+                                      boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-        
+
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
@@ -384,11 +389,12 @@ struct MetalBackendFactory : IShaderBackendFactory
         {
             std::string fragSource = r.readString();
             boo::IShaderPipeline* ret =
-            m_gfxFactory->newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                            tag.newVertexFormat(m_gfxFactory), m_rtHint,
-                                            blendSrc, blendDst,
-                                            tag.getDepthTest(), tag.getDepthWrite(),
-                                            tag.getBackfaceCulling());
+            static_cast<boo::MetalDataFactory::Context&>(ctx).
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  tag.newVertexFormat(ctx), m_rtHint,
+                                  blendSrc, blendDst, tag.getPrimType(),
+                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -396,11 +402,11 @@ struct MetalBackendFactory : IShaderBackendFactory
     }
 };
 
-IShaderBackendFactory* _NewMetalBackendFactory(boo::IGraphicsDataFactory* gfxFactory)
+IShaderBackendFactory* _NewMetalBackendFactory()
 {
-    return new struct MetalBackendFactory(gfxFactory);
+    return new struct MetalBackendFactory();
 }
-    
+
 }
 }
 
