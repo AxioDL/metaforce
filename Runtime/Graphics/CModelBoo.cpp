@@ -215,6 +215,9 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
             lightOut.angAtt[0] = light.x30_angleC;
             lightOut.angAtt[1] = light.x34_angleL;
             lightOut.angAtt[2] = light.x38_angleQ;
+
+            if (light.x1c_type == ELightType::Directional)
+                lightOut.pos = (-lightOut.dir) * 1048576.f;
             break;
         }
         default: break;

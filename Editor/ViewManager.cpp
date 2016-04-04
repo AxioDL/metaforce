@@ -74,8 +74,9 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
 
         std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.5f, 0.5f, 0.5f, 1.f}),
-                                      CLight::BuildCustom({0.f, -2.f, 1.f}, {0.f, 1.f, 0.f},
-                                      {20.f, 20.f, 20.f, 1.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
+                                      CLight::BuildCustom({0.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
+                                      {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f),
+                                      CLight::BuildDirectional({0.f, 0.f, -1.f}, {0.3f, 0.3f, 0.3f})};
         m_vm.m_modelTest->GetInstance().ActivateLights(lights);
         m_vm.m_modelTest->Draw(flags);
     }
