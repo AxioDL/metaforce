@@ -107,18 +107,15 @@ void CBooModel::BuildGfxToken()
         m_uniformData.reset(new u8[uniBufSize]);
         m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
 
-        std::vector<boo::IGraphicsBuffer*> bufs;
-        bufs.resize(3, m_uniformBuffer);
+        boo::IGraphicsBuffer* bufs[] = {m_uniformBuffer, m_uniformBuffer, m_uniformBuffer};
 
         /* Binding for each surface */
         m_shaderDataBindings.clear();
         m_shaderDataBindings.reserve(x0_surfaces->size());
 
         std::vector<boo::ITexture*> texs;
-        std::vector<size_t> thisOffs;
-        std::vector<size_t> thisSizes;
-        thisOffs.reserve(3);
-        thisSizes.reserve(3);
+        size_t thisOffs[3];
+        size_t thisSizes[3];
 
         /* Enumerate surfaces and build data bindings */
         for (const CBooSurface& surf : *x0_surfaces)
@@ -133,28 +130,30 @@ void CBooModel::BuildGfxToken()
                 texs.push_back(tex.GetObj()->GetBooTexture());
             }
 
-            size_t thisBufCount = 2;
-
             if (m_skinBankCount)
             {
-                thisOffs.push_back(skinOffs[surf.m_data.skinMtxBankIdx]);
-                thisSizes.push_back(skinSizes[surf.m_data.skinMtxBankIdx]);
+                thisOffs[0] = skinOffs[surf.m_data.skinMtxBankIdx];
+                thisSizes[0] = skinSizes[surf.m_data.skinMtxBankIdx];
             }
             else
             {
-                thisOffs.push_back(0);
-                thisSizes.push_back(256);
+                thisOffs[0] = 0;
+                thisSizes[0] = 256;
             }
 
             if (mat.uvAnims.size())
             {
-                thisOffs.push_back(uvOffs[surf.m_data.matIdx]);
-                thisSizes.push_back(uvSizes[surf.m_data.matIdx]);
-                ++thisBufCount;
+                thisOffs[1] = uvOffs[surf.m_data.matIdx];
+                thisSizes[1] = uvSizes[surf.m_data.matIdx];
+            }
+            else
+            {
+                thisOffs[1] = 0;
+                thisSizes[1] = 0;
             }
 
-            thisOffs.push_back(lightOff);
-            thisSizes.push_back(lightSz);
+            thisOffs[2] = lightOff;
+            thisSizes[2] = lightSz;
 
             const std::vector<boo::IShaderPipeline*>& pipelines = m_pipelines->at(surf.m_data.matIdx);
 
@@ -165,11 +164,8 @@ void CBooModel::BuildGfxToken()
             for (boo::IShaderPipeline* pipeline : pipelines)
                 extendeds.push_back(
                     ctx.newShaderDataBinding(pipeline, m_vtxFmt,
-                                             x8_vbo, nullptr, xc_ibo, thisBufCount, bufs.data(),
-                                             thisOffs.data(), thisSizes.data(), mat.textureIdxs.size(), texs.data()));
-
-            thisOffs.clear();
-            thisSizes.clear();
+                                             x8_vbo, nullptr, xc_ibo, 3, bufs,
+                                             thisOffs, thisSizes, mat.textureIdxs.size(), texs.data()));
         }
         return true;
     });
@@ -186,7 +182,7 @@ void CBooModel::MakeTexuresFromMats(const MaterialSet& matSet,
 
 void CBooModel::ActivateLights(const std::vector<CLight>& lights)
 {
-    zeus::CColor ambientAccum = zeus::CColor::skBlack;
+    m_lightingData.ambient = zeus::CColor::skBlack;
     size_t curLight = 0;
 
     for (const CLight& light : lights)
@@ -194,7 +190,7 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
         switch (light.x1c_type)
         {
         case ELightType::LocalAmbient:
-            ambientAccum += light.x18_color;
+            m_lightingData.ambient += light.x18_color;
             break;
         case ELightType::Point:
         case ELightType::Spot:
@@ -206,6 +202,7 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
             CModelShaders::Light& lightOut = m_lightingData.lights[curLight++];
             lightOut.pos = CGraphics::g_CameraMatrix * light.x0_pos;
             lightOut.dir = CGraphics::g_CameraMatrix.m_basis * light.xc_dir;
+            lightOut.dir.normalize();
             lightOut.color = light.x18_color;
             lightOut.linAtt[0] = light.x24_distC;
             lightOut.linAtt[1] = light.x28_distL;

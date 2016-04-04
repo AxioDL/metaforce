@@ -64,6 +64,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;
+        flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
         CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
@@ -72,6 +73,10 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
         CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
 
+        std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.5f, 0.5f, 0.5f, 1.f}),
+                                      CLight::BuildCustom({0.f, -2.f, 1.f}, {0.f, 1.f, 0.f},
+                                      {20.f, 20.f, 20.f, 1.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
+        m_vm.m_modelTest->GetInstance().ActivateLights(lights);
         m_vm.m_modelTest->Draw(flags);
     }
     if (m_vm.m_partGen)

@@ -60,8 +60,8 @@ CLight::CLight(ELightType type,
                float cutoff)
 : x0_pos(pos), xc_dir(dir), x18_color(color),
   x1c_type(type), x20_spotCutoff(cutoff),
-  x24_distC(0.f), x28_distL(1.f), x2c_distQ(0.f),
-  x30_angleC(0.f), x34_angleL(1.f), x38_angleQ(0.f),
+  x24_distC(1.f), x28_distL(0.f), x2c_distQ(0.f),
+  x30_angleC(1.f), x34_angleL(0.f), x38_angleQ(0.f),
   x44_cachedRadius(0.f), x48_cachedIntensity(0.f),
   x4c_24_intensityDirty(true), x4c_25_radiusDirty(true)
 {

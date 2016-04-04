@@ -155,6 +155,8 @@ public:
     void Draw(const CModelFlags& flags) const;
     void Touch(int shaderIdx) const;
     bool IsLoaded(int shaderIdx) const;
+
+    CBooModel& GetInstance() {return *x28_modelInst;}
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
