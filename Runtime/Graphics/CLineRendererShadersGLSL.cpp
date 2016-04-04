@@ -162,7 +162,7 @@ struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
                                                          nullptr, nullptr, 1, uniforms,
-                                                         texCount, textures);
+                                                         nullptr, texCount, textures);
     }
 };
 
