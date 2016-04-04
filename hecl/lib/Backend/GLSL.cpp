@@ -253,7 +253,8 @@ std::string GLSL::makeFrag(const char* glslVer,
 namespace Runtime
 {
 
-static const char* STD_BLOCKNAMES[] = {"HECLVertUniform"};
+static const char* STD_BLOCKNAMES[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
+                                       HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME};
 
 struct GLSLBackendFactory : IShaderBackendFactory
 {
@@ -280,7 +281,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         static_cast<boo::GLDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   m_backend.m_texMapEnd, "texs",
-                                  1, STD_BLOCKNAMES,
+                                  2, STD_BLOCKNAMES,
                                   m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
@@ -312,7 +313,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         static_cast<boo::GLDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   texMapEnd, "texs",
-                                  1, STD_BLOCKNAMES,
+                                  2, STD_BLOCKNAMES,
                                   blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
@@ -341,13 +342,20 @@ struct GLSLBackendFactory : IShaderBackendFactory
         fragSources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
+            size_t bc = 2;
+            const char** bn = STD_BLOCKNAMES;
+            if (slot.blockCount)
+            {
+                bc = slot.blockCount;
+                bn = slot.blockNames;
+            }
+
             fragSources.push_back(m_backend.makeFrag("#version 330", slot.lighting, slot.post));
             cachedSz += fragSources.back().size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
-                                      m_backend.m_texMapEnd, "texs",
-                                      1, STD_BLOCKNAMES,
+                                      m_backend.m_texMapEnd, "texs", bc, bn,
                                       m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
@@ -381,12 +389,19 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string vertSource = r.readString();
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
+            size_t bc = 2;
+            const char** bn = STD_BLOCKNAMES;
+            if (slot.blockCount)
+            {
+                bc = slot.blockCount;
+                bn = slot.blockNames;
+            }
+
             std::string fragSource = r.readString();
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      texMapEnd, "texs",
-                                      1, STD_BLOCKNAMES,
+                                      texMapEnd, "texs", bc, bn,
                                       blendSrc, blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());

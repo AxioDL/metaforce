@@ -128,6 +128,8 @@ public:
     {
         Function lighting;
         Function post;
+        size_t blockCount = 0;
+        const char** blockNames = nullptr;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
 
@@ -139,12 +141,14 @@ public:
     operator bool() const {return m_plat != boo::IGraphicsDataFactory::Platform::Null;}
 
     /* Strings must remain resident!! (intended to be stored static const) */
-    unsigned registerExtensionSlot(Function lighting, Function post)
+    unsigned registerExtensionSlot(Function lighting, Function post, size_t blockCount, const char** blockNames)
     {
         m_extensionSlots.emplace_back();
         ExtensionSlot& slot = m_extensionSlots.back();
         slot.lighting = lighting;
         slot.post = post;
+        slot.blockCount = blockCount;
+        slot.blockNames = blockNames;
         return m_extensionSlots.size() - 1;
     }
 };

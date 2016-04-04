@@ -8,6 +8,9 @@ namespace hecl
 namespace Backend
 {
 
+#define HECL_GLSL_VERT_UNIFORM_BLOCK_NAME "HECLVertUniform"
+#define HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME "HECLTexMtxUniform"
+
 struct GLSL : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
