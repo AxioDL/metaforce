@@ -144,7 +144,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 vubo = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1);
 
                 /* Assemble data binding */
-                binding = testData.newShaderDataBindng(ctx, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, 1, &texture);
+                binding = testData.newShaderDataBindng(ctx, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, nullptr, 1, &texture);
                 return true;
             });
 

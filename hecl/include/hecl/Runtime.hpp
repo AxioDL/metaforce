@@ -260,9 +260,10 @@ struct HMDLData
     boo::IShaderDataBinding* newShaderDataBindng(boo::IGraphicsDataFactory::Context& ctx,
                                                  boo::IShaderPipeline* shader,
                                                  size_t ubufCount, boo::IGraphicsBuffer** ubufs,
+                                                 const boo::PipelineStage* ubufStages,
                                                  size_t texCount, boo::ITexture** texs)
     {return ctx.newShaderDataBinding(shader, m_vtxFmt, m_vbo, nullptr, m_ibo,
-                                     ubufCount, ubufs, nullptr, nullptr, texCount, texs);}
+                                     ubufCount, ubufs, ubufStages, nullptr, nullptr, texCount, texs);}
 };
 
 }

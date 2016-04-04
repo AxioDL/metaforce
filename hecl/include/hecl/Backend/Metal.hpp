@@ -24,14 +24,16 @@ struct Metal : ProgrammableCommon
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
                          unsigned skinSlots, unsigned texMtxs) const;
-    std::string makeFrag(const ShaderFunction& lighting=ShaderFunction()) const;
-    std::string makeFrag(const ShaderFunction& lighting,
+    std::string makeFrag(size_t blockCount, const char** blockNames,
+                         const ShaderFunction& lighting=ShaderFunction()) const;
+    std::string makeFrag(size_t blockCount, const char** blockNames,
+                         const ShaderFunction& lighting,
                          const ShaderFunction& post) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
     std::string GenerateVertToFragStruct() const;
-    std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const;
+    std::string GenerateVertUniformStruct(unsigned skinSlots) const;
 
     std::string EmitVec3(const atVec4f& vec) const
     {

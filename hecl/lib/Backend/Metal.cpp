@@ -90,7 +90,7 @@ std::string Metal::GenerateVertToFragStruct() const
     return retval + "};\n";
 }
 
-std::string Metal::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const
+std::string Metal::GenerateVertUniformStruct(unsigned skinSlots) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -98,11 +98,10 @@ std::string Metal::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtx
                                       "{\n"
                                       "    float4x4 mv[%u];\n"
                                       "    float4x4 mvInv[%u];\n"
-                                      "    float4x4 proj;\n",
+                                      "    float4x4 proj;\n"
+                                      "};\n",
                                       skinSlots, skinSlots);
-    if (texMtxs)
-        retval += hecl::Format("    float4x4 texMtxs[%u];\n", texMtxs);
-    return retval + "};\n";
+    return retval;
 }
 
 void Metal::reset(const IR& ir, Diagnostics& diag)
@@ -114,11 +113,16 @@ void Metal::reset(const IR& ir, Diagnostics& diag)
 std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
                             unsigned s, unsigned tm) const
 {
+    std::string tmStr;
+    if (tm)
+        tmStr = hecl::Format(",\nconstant float4x4 texMtxs[%u] [[ buffer(3) ]]", tm);
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertInStruct(col, uv, w) + "\n" +
     GenerateVertToFragStruct() + "\n" +
-    GenerateVertUniformStruct(s, tm) +
-    "\nvertex VertToFrag vmain(VertData v [[ stage_in ]], constant HECLVertUniform& vu [[ buffer(2) ]])\n{\n"
+    GenerateVertUniformStruct(s) +
+    "\nvertex VertToFrag vmain(VertData v [[ stage_in ]],\n"
+    "                          constant HECLVertUniform& vu [[ buffer(2) ]]" + tmStr + ")\n"
+    "{\n"
     "    VertToFrag vtf;\n";
 
     if (s)
@@ -150,7 +154,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs%u = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs%u = (vu.texMtxs[%u] * %s).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += hecl::Format("    vtf.tcgs%u = (texMtxs[%u] * %s).xy;\n", tcgIdx, tcg.m_mtx,
                                    EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
@@ -158,7 +162,8 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
     return retval + "    return vtf;\n}\n";
 }
 
-std::string Metal::makeFrag(const ShaderFunction& lighting) const
+std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
+                            const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -168,7 +173,16 @@ std::string Metal::makeFrag(const ShaderFunction& lighting) const
     if (m_texMapEnd)
     {
         for (int i=0 ; i<m_texMapEnd ; ++i)
-            texMapDecl += hecl::Format("\n, texture2d<float> tex%u [[ texture(%u) ]]", i, i);
+            texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
+    }
+
+    std::string blockCall;
+    for (size_t i=0 ; i<blockCount ; ++i)
+    {
+        texMapDecl += hecl::Format(",\nconstant %s& block%" PRISize " [[ buffer(%" PRISize ") ]]", blockNames[i], i, i + 4);
+        if (blockCall.size())
+            blockCall += ", ";
+        blockCall += hecl::Format("block%" PRISize, i);
     }
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
@@ -181,7 +195,7 @@ std::string Metal::makeFrag(const ShaderFunction& lighting) const
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry, blockCall.c_str());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -199,7 +213,8 @@ std::string Metal::makeFrag(const ShaderFunction& lighting) const
     return retval + "}\n";
 }
 
-std::string Metal::makeFrag(const ShaderFunction& lighting,
+std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
+                            const ShaderFunction& lighting,
                             const ShaderFunction& post) const
 {
     std::string lightingSrc;
@@ -218,19 +233,28 @@ std::string Metal::makeFrag(const ShaderFunction& lighting,
     if (m_texMapEnd)
     {
         for (int i=0 ; i<m_texMapEnd ; ++i)
-            texMapDecl += hecl::Format("texture2d<float> tex%u [[ texture(%u) ]],\n", i, i);
+            texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
+    }
+
+    std::string blockCall;
+    for (size_t i=0 ; i<blockCount ; ++i)
+    {
+        texMapDecl += hecl::Format(",\nconstant %s& block%" PRISize " [[ buffer(%" PRISize ") ]]", blockNames[i], i, i + 4);
+        if (blockCall.size())
+            blockCall += ", ";
+        blockCall += hecl::Format("block%" PRISize, i);
     }
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct() + "\n" +
     lightingSrc + "\n" +
-    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n" + texMapDecl + ")\n{\n";
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
 
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry, blockCall.c_str());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -274,7 +298,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                            tag.getSkinSlotCount(), tag.getTexMtxCount());
         cachedSz += vertSource.size() + 1;
 
-        std::string fragSource = m_backend.makeFrag();
+        std::string fragSource = m_backend.makeFrag(0, nullptr);
         cachedSz += fragSource.size() + 1;
         objOut =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
@@ -345,7 +369,8 @@ struct MetalBackendFactory : IShaderBackendFactory
         fragSources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            fragSources.push_back(m_backend.makeFrag(slot.lighting, slot.post));
+            fragSources.push_back(m_backend.makeFrag(slot.blockCount, slot.blockNames, slot.lighting, slot.post));
+            fprintf(stderr, "%s\n", fragSources.back().c_str());
             cachedSz += fragSources.back().size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
