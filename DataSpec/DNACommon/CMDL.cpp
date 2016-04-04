@@ -1606,6 +1606,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
         header.reflectionNormal = osurf.reflectionNormal;
         header.idxStart = surf.m_start;
         header.idxCount = surf.m_count;
+        header.skinMtxBankIdx = osurf.skinBankIdx;
         header.write(writer);
 
         writer.fill(atUint8(0), *padIt);
@@ -1619,7 +1620,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     return true;
 }
 
-template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>
+template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 }

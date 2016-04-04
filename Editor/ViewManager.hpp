@@ -24,7 +24,6 @@ class ViewManager : public specter::IViewManager
     friend class SplitSpace;
 
     hecl::Runtime::FileStoreManager& m_fileStoreManager;
-    std::experimental::optional<hecl::Runtime::ShaderCacheManager> m_shaderCacheManager;
     hecl::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
     specter::FontCache m_fontCache;

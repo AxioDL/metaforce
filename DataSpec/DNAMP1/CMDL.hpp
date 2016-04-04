@@ -122,7 +122,7 @@ struct CMDL
     {
         if (mesh.skins.size())
         {
-            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
+            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(outPath, inPath, mesh))
                 return false;
 
             /* Output skinning intermediate */
@@ -138,7 +138,7 @@ struct CMDL
             for (const std::string& boneName : mesh.boneNames)
                 writer.writeString(boneName);
         }
-        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
+        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(outPath, inPath, mesh))
             return false;
         return true;
     }

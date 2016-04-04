@@ -1,7 +1,7 @@
 if(WIN32)
-  set(PLAT_SRCS CLineRendererShadersHLSL.cpp)
+  set(PLAT_SRCS CLineRendererShadersHLSL.cpp CModelShadersHLSL.cpp)
 elseif(APPLE)
-  set(PLAT_SRCS CLineRendererShadersMetal.cpp)
+  set(PLAT_SRCS CLineRendererShadersMetal.cpp CModelShadersMetal.cpp)
 endif()
 
 include_directories(${LIBJPEG_INCLUDE_DIR})
@@ -15,6 +15,7 @@ add_library(RuntimeCommonGraphics
             CLight.hpp CLight.cpp
             CTexture.hpp CTextureBoo.cpp
             CModel.hpp CModelBoo.cpp
+            CModelShaders.hpp CModelShadersGLSL.cpp
             CMoviePlayer.hpp CMoviePlayer.cpp
             CGraphicsPalette.hpp CGraphicsPalette.cpp
             CGraphics.hpp CGraphics.cpp

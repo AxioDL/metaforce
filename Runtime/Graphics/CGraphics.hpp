@@ -225,18 +225,15 @@ public:
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
-    static hecl::Runtime::ShaderCacheManager* g_ShaderCacheMgr;
 
     static void InitializeBoo(boo::IGraphicsDataFactory* factory,
                               boo::IGraphicsCommandQueue* cc,
-                              boo::ITextureR* spareTex,
-                              hecl::Runtime::ShaderCacheManager* shadCacheMgr)
+                              boo::ITextureR* spareTex)
     {
         g_BooPlatform = factory->platform();
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
         g_SpareTexture = spareTex;
-        g_ShaderCacheMgr = shadCacheMgr;
     }
 
     static boo::GraphicsDataToken CommitResources(const boo::FactoryCommitFunc& commitFunc)

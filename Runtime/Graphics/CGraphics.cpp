@@ -379,6 +379,5 @@ boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDat
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
 boo::ITextureR* CGraphics::g_SpareTexture = nullptr;
-hecl::Runtime::ShaderCacheManager* CGraphics::g_ShaderCacheMgr = nullptr;
 
 }

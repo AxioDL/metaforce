@@ -8,6 +8,7 @@
 #include "zeus/CAABox.hpp"
 #include "DNACommon/CMDL.hpp"
 #include "DNAMP1/CMDLMaterials.hpp"
+#include "CModelShaders.hpp"
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
@@ -15,11 +16,13 @@ namespace urde
 {
 class IObjectStore;
 class CTexture;
+class CLight;
 
 struct CModelFlags
 {
     u8 m_blendMode = 0; /* Blend state 3/5 enable additive */
     u8 m_matSetIdx = 0;
+    u8 m_extendedShaderIdx = 0; /* 0 for shadeless, 1 for lighting, others defined in CModelShaders */
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
 
@@ -38,16 +41,10 @@ struct CModelFlags
  * pointers within loaded CMDL buffer */
 struct CBooSurface
 {
-    DataSpec::DNACMDL::SurfaceHeader_1 m_data;
+    DataSpec::DNACMDL::SurfaceHeader_2 m_data;
+    size_t selfIdx;
     class CBooModel* m_parent = nullptr;
     CBooSurface* m_next = nullptr;
-};
-
-struct SUnskinnedXf
-{
-    zeus::CMatrix4f mv;
-    zeus::CMatrix4f mvinv;
-    zeus::CMatrix4f proj;
 };
 
 class CBooModel
@@ -59,7 +56,7 @@ public:
     struct SShader
     {
         std::vector<TCachedToken<CTexture>> x0_textures;
-        std::vector<boo::IShaderPipeline*> m_shaders;
+        std::vector<std::vector<boo::IShaderPipeline*>> m_shaders;
         MaterialSet m_matSet;
         void UnlockTextures();
     };
@@ -67,10 +64,12 @@ public:
 private:
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
-    const std::vector<boo::IShaderPipeline*>* m_pipelines;
+    const std::vector<std::vector<boo::IShaderPipeline*>>* m_pipelines;
     boo::IVertexFormat* m_vtxFmt;
     boo::IGraphicsBufferS* x8_vbo;
     boo::IGraphicsBufferS* xc_ibo;
+    size_t m_weightVecCount;
+    size_t m_skinBankCount;
     std::vector<TCachedToken<CTexture>>* x1c_textures;
     zeus::CAABox x20_aabb;
     CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -81,19 +80,19 @@ private:
 
     struct UVAnimationBuffer
     {
-        std::vector<zeus::CMatrix4f> m_buffer;
-        std::vector<std::pair<size_t,size_t>> m_ranges;
-        void ProcessAnimation(const UVAnimation& anim);
-        void PadOutBuffer();
-        void Update(const MaterialSet* matSet);
-        operator bool() const {return m_buffer.size() != 0;}
-    } m_uvAnimBuffer;
+        static void ProcessAnimation(u8*& bufOut, const UVAnimation& anim);
+        static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
+        static void Update(u8*& bufOut, const MaterialSet* matSet);
+    };
+
+    CModelShaders::LightingUniform m_lightingData;
 
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
-    boo::IGraphicsBufferD* m_unskinnedXfBuffer;
-    boo::IGraphicsBufferD* m_uvMtxBuffer;
-    std::vector<boo::IShaderDataBinding*> m_shaderDataBindings;
+    std::unique_ptr<u8[]> m_uniformData;
+    size_t m_uniformDataSize = 0;
+    boo::IGraphicsBufferD* m_uniformBuffer = nullptr;
+    std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
 
     void BuildGfxToken();
     void UpdateUniformData() const;
@@ -105,13 +104,14 @@ private:
 public:
     CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              const zeus::CAABox& aabb,
+              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb,
               u8 shortNormals, bool texturesLoaded);
 
     static void MakeTexuresFromMats(const MaterialSet& matSet,
                                     std::vector<TCachedToken<CTexture>>& toksOut,
                                     IObjectStore& store);
 
+    void ActivateLights(const std::vector<CLight>& lights);
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;

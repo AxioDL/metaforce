@@ -26,6 +26,7 @@ enum class EFalloffType
 class CLight
 {
     friend class CGuiLight;
+    friend class CBooModel;
 
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_dir;
@@ -52,27 +53,13 @@ public:
            const zeus::CVector3f& dir,
            const zeus::CColor& color,
            float distC, float distL, float distQ,
-           float angleC, float angleL, float angleQ)
-    : x0_pos(pos), xc_dir(dir), x18_color(color),
-      x1c_type(ELightType::Custom), x20_spotCutoff(0.f),
-      x24_distC(distC), x28_distL(distL), x2c_distQ(distQ),
-      x30_angleC(angleC), x34_angleL(angleL), x38_angleQ(angleQ),
-      x44_cachedRadius(0.f), x48_cachedIntensity(0.f),
-      x4c_24_intensityDirty(true), x4c_25_radiusDirty(true)
-    {}
+           float angleC, float angleL, float angleQ);
 
     CLight(ELightType type,
            const zeus::CVector3f& pos,
            const zeus::CVector3f& dir,
            const zeus::CColor& color,
-           float cutoff)
-    : x0_pos(pos), xc_dir(dir), x18_color(color),
-      x1c_type(type), x20_spotCutoff(cutoff),
-      x24_distC(0.f), x28_distL(1.f), x2c_distQ(0.f),
-      x30_angleC(0.f), x34_angleL(1.f), x38_angleQ(0.f),
-      x44_cachedRadius(0.f), x48_cachedIntensity(0.f),
-      x4c_24_intensityDirty(true), x4c_25_radiusDirty(true)
-    {}
+           float cutoff);
 
     void SetPosition(const zeus::CVector3f& pos)
     {

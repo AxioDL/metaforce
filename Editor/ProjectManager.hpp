@@ -5,6 +5,7 @@
 #include <athena/DNAYaml.hpp>
 #include "ProjectResourceFactoryMP1.hpp"
 #include "Runtime/CSimplePool.hpp"
+#include "hecl/Runtime.hpp"
 
 namespace urde
 {
