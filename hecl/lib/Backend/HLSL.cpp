@@ -167,7 +167,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -215,7 +215,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
