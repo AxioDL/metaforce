@@ -199,7 +199,8 @@ while True:
 
     elif cmdargs[0] == 'OPEN':
         if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdargs[1]):
-            bpy.ops.object.mode_set(mode = 'OBJECT')
+            if bpy.ops.object.mode_set.poll():
+                bpy.ops.object.mode_set(mode = 'OBJECT')
             writepipeline(b'FINISHED')
         else:
             writepipeline(b'CANCELLED')
