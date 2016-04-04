@@ -89,7 +89,6 @@ private:
 
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
-    std::unique_ptr<u8[]> m_uniformData;
     size_t m_uniformDataSize = 0;
     boo::IGraphicsBufferD* m_uniformBuffer = nullptr;
     std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
