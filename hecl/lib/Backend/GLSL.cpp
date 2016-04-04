@@ -91,11 +91,18 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "{\n"
                                       "    mat4 mv[%u];\n"
                                       "    mat4 mvInv[%u];\n"
-                                      "    mat4 proj;\n",
+                                      "    mat4 proj;\n"
+                                      "};\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-        retval += hecl::Format("    mat4 texMtxs[%u];\n", texMtxs);
-    return retval + "};\n";
+    {
+        retval += hecl::Format("UBINDING1 uniform HECLTexMtxUniform\n"
+                               "{\n"
+                               "    mat4 texMtxs[%u];\n"
+                               "};\n", texMtxs);
+    }
+
+    return retval;
 }
 
 void GLSL::reset(const IR& ir, Diagnostics& diag)
@@ -174,7 +181,7 @@ std::string GLSL::makeFrag(const char* glslVer,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
@@ -224,7 +231,7 @@ std::string GLSL::makeFrag(const char* glslVer,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s();\n", lighting.m_entry);
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
