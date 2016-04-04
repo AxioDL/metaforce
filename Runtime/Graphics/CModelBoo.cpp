@@ -4,6 +4,7 @@
 #include "Graphics/CLight.hpp"
 #include "hecl/HMDLMeta.hpp"
 #include "hecl/Runtime.hpp"
+#include "boo/graphicsdev/Metal.hpp"
 #include "CModelShaders.hpp"
 
 namespace urde
@@ -117,6 +118,10 @@ void CBooModel::BuildGfxToken()
         size_t thisOffs[3];
         size_t thisSizes[3];
 
+        static const boo::PipelineStage stages[3] = {boo::PipelineStage::Vertex,
+                                                     boo::PipelineStage::Vertex,
+                                                     boo::PipelineStage::Fragment};
+
         /* Enumerate surfaces and build data bindings */
         for (const CBooSurface& surf : *x0_surfaces)
         {
@@ -164,7 +169,7 @@ void CBooModel::BuildGfxToken()
             for (boo::IShaderPipeline* pipeline : pipelines)
                 extendeds.push_back(
                     ctx.newShaderDataBinding(pipeline, m_vtxFmt,
-                                             x8_vbo, nullptr, xc_ibo, 3, bufs,
+                                             x8_vbo, nullptr, xc_ibo, 3, bufs, stages,
                                              thisOffs, thisSizes, mat.textureIdxs.size(), texs.data()));
         }
         return true;

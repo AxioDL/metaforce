@@ -457,7 +457,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 {
                     boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
                     set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                              nullptr, nullptr, 1, bufs, 3, texs);
+                                                              nullptr, nullptr, 1, bufs, nullptr, 3, texs);
                 }
             }
             else
@@ -476,7 +476,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
                 boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
                 set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                          nullptr, nullptr, 1, bufs, 3, texs);
+                                                          nullptr, nullptr, 1, bufs, nullptr, 3, texs);
             }
             if (xf4_25_hasAudio)
                 set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);

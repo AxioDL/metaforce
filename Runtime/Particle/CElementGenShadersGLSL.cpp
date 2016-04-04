@@ -259,11 +259,11 @@ struct OGLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
         if (regPipeline)
             gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, vtxFmt, nullptr,
                                                             gen.m_instBuf, nullptr, 1, uniforms,
-                                                            texCount, textures);
+                                                            nullptr, texCount, textures);
         if (redToAlphaPipeline)
             gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, vtxFmt, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
-                                                                texCount, textures);
+                                                                nullptr, texCount, textures);
     }
 };
 

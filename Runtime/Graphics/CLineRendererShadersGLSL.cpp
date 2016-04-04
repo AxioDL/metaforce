@@ -118,7 +118,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, renderer.m_vertBuf,
-                                                         nullptr, nullptr, 1, uniforms,
+                                                         nullptr, nullptr, 1, uniforms, nullptr,
                                                          texCount, textures);
     }
 };

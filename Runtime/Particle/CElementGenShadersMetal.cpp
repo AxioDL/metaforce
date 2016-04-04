@@ -240,11 +240,11 @@ struct MetalElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
         if (regPipeline)
             gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, nullptr,
                                                             gen.m_instBuf, nullptr, 1, uniforms,
-                                                            texCount, textures);
+                                                            nullptr, texCount, textures);
         if (redToAlphaPipeline)
             gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
-                                                                texCount, textures);
+                                                                nullptr, texCount, textures);
     }
 };
 

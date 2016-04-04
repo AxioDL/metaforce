@@ -95,7 +95,7 @@ void CTextRenderBuffer::CommitResources()
             boo::ITexture* texs[] = {chs.m_font.GetObj()->GetTexture()->GetBooTexture()};
             chs.m_dataBinding = ctx.newShaderDataBinding(g_TextShaderPipeline, vFmt,
                                                          nullptr, chs.m_instBuf, nullptr,
-                                                         1, uniforms, 1, texs);
+                                                         1, uniforms, nullptr, 1, texs);
         }
 
         for (BooImage& img : m_images)
@@ -126,7 +126,7 @@ void CTextRenderBuffer::CommitResources()
                 boo::ITexture* texs[] = {tex->GetBooTexture()};
                 img.m_dataBinding.push_back(ctx.newShaderDataBinding(g_TextImageShaderPipeline, vFmt,
                                                                      nullptr, img.m_instBuf, nullptr,
-                                                                     1, uniforms, 1, texs));
+                                                                     1, uniforms, nullptr, 1, texs));
             }
         }
         return true;
