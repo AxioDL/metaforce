@@ -105,7 +105,6 @@ void CBooModel::BuildGfxToken()
 
         /* Allocate resident buffer */
         m_uniformDataSize = uniBufSize;
-        m_uniformData.reset(new u8[uniBufSize]);
         m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
 
         boo::IGraphicsBuffer* bufs[] = {m_uniformBuffer, m_uniformBuffer, m_uniformBuffer};
@@ -407,7 +406,8 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
 
 void CBooModel::UpdateUniformData() const
 {
-    u8* dataOut = m_uniformData.get();
+    u8* dataOut = reinterpret_cast<u8*>(m_uniformBuffer->map(m_uniformDataSize));
+    u8* dataCur = dataOut;
 
     if (m_skinBankCount)
     {
@@ -416,47 +416,47 @@ void CBooModel::UpdateUniformData() const
         {
             for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
             {
-                zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+                zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                 mv = CGraphics::g_GXModelView.toMatrix4f();
-                dataOut += sizeof(zeus::CMatrix4f);
+                dataCur += sizeof(zeus::CMatrix4f);
             }
             for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
             {
-                zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+                zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                 mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-                dataOut += sizeof(zeus::CMatrix4f);
+                dataCur += sizeof(zeus::CMatrix4f);
             }
-            zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+            zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
             proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-            dataOut += sizeof(zeus::CMatrix4f);
+            dataCur += sizeof(zeus::CMatrix4f);
 
-            dataOut = m_uniformData.get() + ROUND_UP_256(dataOut - m_uniformData.get());
+            dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
         }
     }
     else
     {
         /* Non-Skinned */
-        zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+        zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
         mv = CGraphics::g_GXModelView.toMatrix4f();
-        dataOut += sizeof(zeus::CMatrix4f);
+        dataCur += sizeof(zeus::CMatrix4f);
 
-        zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+        zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
         mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-        dataOut += sizeof(zeus::CMatrix4f);
+        dataCur += sizeof(zeus::CMatrix4f);
 
-        zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataOut);
+        zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
         proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-        dataOut += sizeof(zeus::CMatrix4f);
+        dataCur += sizeof(zeus::CMatrix4f);
 
-        dataOut = m_uniformData.get() + ROUND_UP_256(dataOut - m_uniformData.get());
+        dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
     }
 
-    UVAnimationBuffer::Update(dataOut, x4_matSet);
+    UVAnimationBuffer::Update(dataCur, x4_matSet);
 
-    CModelShaders::LightingUniform& lightingOut = reinterpret_cast<CModelShaders::LightingUniform&>(*dataOut);
+    CModelShaders::LightingUniform& lightingOut = reinterpret_cast<CModelShaders::LightingUniform&>(*dataCur);
     lightingOut = m_lightingData;
 
-    m_uniformBuffer->load(m_uniformData.get(), m_uniformDataSize);
+    m_uniformBuffer->unmap();
 }
 
 void CBooModel::DrawAlpha(const CModelFlags& flags) const

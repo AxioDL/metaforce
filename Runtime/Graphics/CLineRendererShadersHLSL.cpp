@@ -103,7 +103,7 @@ struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
         boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
-                                                         nullptr, nullptr, 1, uniforms,
+                                                         nullptr, nullptr, 1, uniforms, nullptr,
                                                          texCount, textures);
     }
 };
