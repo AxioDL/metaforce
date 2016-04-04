@@ -394,7 +394,7 @@ void View::VertexBufferBinding::initSolid(boo::IGraphicsDataFactory::Context& ct
         boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                    m_vtxFmt, m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, 0, nullptr);
+                                                   nullptr, 1, bufs, nullptr, 0, nullptr);
     }
     else
     {
@@ -402,7 +402,7 @@ void View::VertexBufferBinding::initSolid(boo::IGraphicsDataFactory::Context& ct
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                    res.m_viewRes.m_solidVtxFmt,
                                                    m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, 0, nullptr);
+                                                   nullptr, 1, bufs, nullptr, 0, nullptr);
     }
 }
 
@@ -425,7 +425,7 @@ void View::VertexBufferBinding::initTex(boo::IGraphicsDataFactory::Context& ctx,
         boo::ITexture* tex[] = {texture};
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
                                                    m_vtxFmt, m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, 1, tex);
+                                                   nullptr, 1, bufs, nullptr, 1, tex);
     }
     else
     {
@@ -434,7 +434,7 @@ void View::VertexBufferBinding::initTex(boo::IGraphicsDataFactory::Context& ctx,
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
                                                    res.m_viewRes.m_texVtxFmt,
                                                    m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, 1, tex);
+                                                   nullptr, 1, bufs, nullptr, 1, tex);
     }
 }
 

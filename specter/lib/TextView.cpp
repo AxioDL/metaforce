@@ -339,7 +339,7 @@ TextView::TextView(ViewResources& res,
             m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
                                                        nullptr, m_glyphBuf, nullptr, 1,
                                                        (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                       1, texs);
+                                                       nullptr, 1, texs);
         }
         else
         {
@@ -347,7 +347,7 @@ TextView::TextView(ViewResources& res,
             m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
                                                        nullptr, m_glyphBuf, nullptr, 1,
                                                        (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                       1, texs);
+                                                       nullptr, 1, texs);
         }
         return true;
     });
