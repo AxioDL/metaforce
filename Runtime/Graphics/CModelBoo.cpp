@@ -16,12 +16,11 @@ static std::experimental::optional<CModelShaders> g_ModelShaders;
 
 CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 shortNormals,
-                     bool texturesLoaded)
+                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
 : x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_pipelines(&shader.m_shaders),
   m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
   m_skinBankCount(skinBankCount), x1c_textures(&shader.x0_textures), x20_aabb(aabb),
-  x40_24_texturesLoaded(texturesLoaded), x40_25_(0), x41_shortNormals(shortNormals)
+  x40_24_texturesLoaded(false), x40_25_(0)
 {
     for (CBooSurface& surf : *x0_surfaces)
         surf.m_parent = this;
@@ -502,19 +501,28 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const s32*& secSizeCur)
     return ret;
 }
 
-CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
-: x0_data(std::move(in)), x4_dataLen(dataLen)
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx)
 {
-    u32 version = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x4));
-    u32 flags = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x8));
+    if (shaderIdx >= x18_matSets.size())
+        shaderIdx = 0;
+    return std::make_unique<CBooModel>(&x8_surfaces, x18_matSets[shaderIdx],
+                                       m_vtxFmt, m_vbo, m_ibo, 0, 0, m_aabb);
+}
+
+CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store)
+{
+    std::unique_ptr<u8[]> data = std::move(in);
+
+    u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
+    u32 flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
     if (version != 0x10002)
         Log.report(logvisor::Fatal, "invalid CMDL for loading with boo");
 
-    u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x24));
-    u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(x0_data.get() + 0x28));
+    u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x24));
+    u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));
     x18_matSets.reserve(matSetCount);
-    const u8* dataCur = x0_data.get() + ROUND_UP_32(0x2c + secCount * 4);
-    const s32* secSizeCur = reinterpret_cast<const s32*>(x0_data.get() + 0x2c);
+    const u8* dataCur = data.get() + ROUND_UP_32(0x2c + secCount * 4);
+    const s32* secSizeCur = reinterpret_cast<const s32*>(data.get() + 0x2c);
     for (u32 i=0 ; i<matSetCount ; ++i)
     {
         u32 matSetSz = hecl::SBig(*secSizeCur);
@@ -573,12 +581,10 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store)
         surf.m_data.read(r);
     }
 
-    const float* aabbPtr = reinterpret_cast<const float*>(x0_data.get() + 0xc);
-    zeus::CAABox aabb(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
-                      hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
-    x28_modelInst = std::make_unique<CBooModel>(&x8_surfaces, x18_matSets[0],
-                                                m_vtxFmt, m_vbo, m_ibo, 0, 0,
-                                                aabb, flags & 0x2, false);
+    const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
+    m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
+                          hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
+    x28_modelInst = MakeNewInstance(0);
 }
 
 void CBooModel::SShader::UnlockTextures()

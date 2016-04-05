@@ -9,4 +9,7 @@ add_library(RuntimeCommonCharacter
             CAnimationDatabaseGame.hpp
             CTransitionDatabase.hpp
             CTransitionDatabaseGame.hpp
-            CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp)
+            CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp
+            CPoseAsTransforms.hpp CPoseAsTransforms.cpp
+            CSkinRules.hpp CSkinRules.cpp
+            CVirtualBone.hpp CVirtualBone.cpp)

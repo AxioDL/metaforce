@@ -365,6 +365,31 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
     g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
 }
 
+static boo::SWindowRect CachedVP;
+static float CachedDepthRange[2] = {0.f, 1.f};
+
+void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height)
+{
+    CachedVP.location[0] = leftOff;
+    CachedVP.location[1] = bottomOff;
+    CachedVP.size[0] = width;
+    CachedVP.size[1] = height;
+    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+}
+
+void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height)
+{
+    boo::SWindowRect rect(leftOff, bottomOff, width, height);
+    g_BooMainCommandQueue->setScissor(rect);
+}
+
+void CGraphics::SetDepthRange(float znear, float zfar)
+{
+    CachedDepthRange[0] = znear;
+    CachedDepthRange[1] = zfar;
+    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+}
+
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;
 float CGraphics::g_DefaultSeconds;
 

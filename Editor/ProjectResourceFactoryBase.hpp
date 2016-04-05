@@ -16,6 +16,7 @@ namespace urde
 
 class ProjectResourceFactoryBase : public urde::IFactory
 {
+    friend class ProjectResourcePool;
     hecl::ClientProcess& m_clientProc;
 protected:
     std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;

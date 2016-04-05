@@ -20,7 +20,8 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    m_modelTest = objStore.GetObj("CMDL_GameCube");
+    m_modelTest = objStore.GetObj("MP1/SamusGun/CMDL_0EF58656.blend");
+    //m_modelTest = objStore.GetObj("CMDL_GameCube");
     m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
@@ -67,8 +68,9 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
-        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
-        CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
+        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta) * zeus::CTransform::Scale(10.f));
+        //CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+        CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 4.f}, {0.f, 0.f, 0.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
         CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);

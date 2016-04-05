@@ -47,8 +47,16 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
         switch (conn.getBlendType())
         {
         case hecl::BlenderConnection::BlendType::Mesh:
+            if (!path.getAuxInfo().compare(_S("skin")))
+            {
+                if (!conn.getRigged())
+                    return {};
+                return {SBIG('CSKR'), path.hash().val32()};
+            }
             return {SBIG('CMDL'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Actor:
+            if (!path.getAuxInfo().compare(_S("layout")))
+                return {SBIG('CINF'), path.hash().val32()};
             return {SBIG('ANCS'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Area:
             return {SBIG('MREA'), path.hash().val32()};

@@ -6,9 +6,39 @@ namespace urde
 {
 static logvisor::Module Log("URDE::ProjectManager");
 
+CToken ProjectResourcePool::GetObj(char const* name)
+{
+    CToken ret = CSimplePool::GetObj(name);
+    if (ret)
+        return ret;
+
+    hecl::ProjectPath path(*m_parent.project(), name);
+    SObjectTag tag = static_cast<ProjectResourceFactoryBase&>(x30_factory).
+                     TagFromPath(path, hecl::SharedBlenderToken);
+    if (tag)
+        return CSimplePool::GetObj(tag);
+
+    return {};
+}
+
+CToken ProjectResourcePool::GetObj(char const* name, const CVParamTransfer& pvxfer)
+{
+    CToken ret = CSimplePool::GetObj(name, pvxfer);
+    if (ret)
+        return ret;
+
+    hecl::ProjectPath path(*m_parent.project(), name);
+    SObjectTag tag = static_cast<ProjectResourceFactoryBase&>(x30_factory).
+                     TagFromPath(path, hecl::SharedBlenderToken);
+    if (tag)
+        return CSimplePool::GetObj(tag, pvxfer);
+
+    return {};
+}
+
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
-: m_vm(vm), m_clientProc(1), m_factoryMP1(m_clientProc), m_objStore(m_factoryMP1)
+: m_vm(vm), m_clientProc(1), m_factoryMP1(m_clientProc), m_objStore(m_factoryMP1, *this)
 {
     if (!m_registeredSpecs)
     {

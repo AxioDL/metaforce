@@ -15,7 +15,9 @@ add_library(RuntimeCommonGraphics
             CLight.hpp CLight.cpp
             CTexture.hpp CTextureBoo.cpp
             CModel.hpp CModelBoo.cpp
+            CSkinnedModel.hpp CSkinnedModel.cpp
             CModelShaders.hpp CModelShadersGLSL.cpp
+            CVertexMorphEffect.hpp CVertexMorphEffect.cpp
             CMoviePlayer.hpp CMoviePlayer.cpp
             CGraphicsPalette.hpp CGraphicsPalette.cpp
             CGraphics.hpp CGraphics.cpp

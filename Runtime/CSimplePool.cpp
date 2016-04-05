@@ -38,6 +38,8 @@ CToken CSimplePool::GetObj(char const* resourceName)
 CToken CSimplePool::GetObj(char const* resourceName, const CVParamTransfer& paramXfer)
 {
     const SObjectTag* tag = x30_factory.GetResourceIdByName(resourceName);
+    if (!tag)
+        return {};
     return GetObj(*tag, paramXfer);
 }
 

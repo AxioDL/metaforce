@@ -82,6 +82,17 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::Pr
     }
 }
 
+static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
+                     const SObjectTag& pathTag, const hecl::ProjectPath& path)
+{
+    char idStr[9];
+    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
+    cacheWriter.enterSubVector(idStr);
+    cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
+    cacheWriter.writeString(nullptr, path.getRelativePathUTF8().c_str());
+    cacheWriter.leaveSubVector();
+}
+
 void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
                                                               athena::io::YAMLDocWriter& cacheWriter,
                                                               athena::io::YAMLDocWriter& nameWriter,
@@ -115,17 +126,34 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath[pathTag] = path;
-                char idStr[9];
-                snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
-                cacheWriter.enterSubVector(idStr);
-                cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
-                cacheWriter.writeString(nullptr, path.getRelativePathUTF8().c_str());
-                cacheWriter.leaveSubVector();
+                WriteTag(cacheWriter, pathTag, path);
 #if 1
                 fprintf(stderr, "%s %08X %s\n",
                         pathTag.type.toString().c_str(), uint32_t(pathTag.id),
                         path.getRelativePathUTF8().c_str());
 #endif
+
+                /* Special multi-resource intermediates */
+                if (pathTag.type == SBIG('CMDL'))
+                {
+                    hecl::ProjectPath subPath(path, ".|skin");
+                    SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
+                    if (pathTag)
+                    {
+                        m_tagToPath[pathTag] = path;
+                        WriteTag(cacheWriter, pathTag, path);
+                    }
+                }
+                else if (pathTag.type == SBIG('ANCS'))
+                {
+                    hecl::ProjectPath subPath(path, ".|layout");
+                    SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
+                    if (pathTag)
+                    {
+                        m_tagToPath[pathTag] = path;
+                        WriteTag(cacheWriter, pathTag, path);
+                    }
+                }
             }
         }
 

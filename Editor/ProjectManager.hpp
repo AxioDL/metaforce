@@ -14,6 +14,16 @@ class ViewManager;
 using ConfigReader = athena::io::YAMLDocReader;
 using ConfigWriter = athena::io::YAMLDocWriter;
 
+class ProjectResourcePool : public CSimplePool
+{
+    class ProjectManager& m_parent;
+public:
+    ProjectResourcePool(IFactory& factory, ProjectManager& parent)
+    : CSimplePool(factory), m_parent(parent) {}
+    CToken GetObj(char const*);
+    CToken GetObj(char const*, const CVParamTransfer&);
+};
+
 class ProjectManager
 {
     ViewManager& m_vm;
@@ -21,7 +31,7 @@ class ProjectManager
     static bool m_registeredSpecs;
     hecl::ClientProcess m_clientProc;
     ProjectResourceFactoryMP1 m_factoryMP1;
-    urde::CSimplePool m_objStore;
+    ProjectResourcePool m_objStore;
 
 public:
     ProjectManager(ViewManager& vm);

@@ -76,7 +76,6 @@ private:
     CBooSurface* x3c_firstSortedSurface = nullptr;
     bool x40_24_texturesLoaded : 1;
     bool x40_25_ : 1;
-    u8 x41_shortNormals;
 
     struct UVAnimationBuffer
     {
@@ -103,8 +102,7 @@ private:
 public:
     CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb,
-              u8 shortNormals, bool texturesLoaded);
+              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb);
 
     static void MakeTexuresFromMats(const MaterialSet& matSet,
                                     std::vector<TCachedToken<CTexture>>& toksOut,
@@ -129,8 +127,9 @@ public:
 
 class CModel
 {
-    std::unique_ptr<u8[]> x0_data;
-    u32 x4_dataLen;
+    //std::unique_ptr<u8[]> x0_data;
+    //u32 x4_dataLen;
+    zeus::CAABox m_aabb;
     std::vector<CBooSurface> x8_surfaces;
     std::vector<CBooModel::SShader> x18_matSets;
     std::unique_ptr<CBooModel> x28_modelInst;
@@ -156,6 +155,7 @@ public:
     bool IsLoaded(int shaderIdx) const;
 
     CBooModel& GetInstance() {return *x28_modelInst;}
+    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx);
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
