@@ -370,7 +370,6 @@ struct MetalBackendFactory : IShaderBackendFactory
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
             fragSources.push_back(m_backend.makeFrag(slot.blockCount, slot.blockNames, slot.lighting, slot.post));
-            fprintf(stderr, "%s\n", fragSources.back().c_str());
             cachedSz += fragSources.back().size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
