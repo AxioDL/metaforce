@@ -57,6 +57,7 @@ private:
     int m_readpipe[2];
     int m_writepipe[2];
     BlendType m_loadedType = BlendType::None;
+    bool m_loadedRigged = false;
     ProjectPath m_loadedBlend;
     std::string m_startupBlend;
     size_t _readLine(char* buf, size_t bufSz);
@@ -70,6 +71,7 @@ public:
 
     bool createBlend(const ProjectPath& path, BlendType type);
     BlendType getBlendType() const {return m_loadedType;}
+    bool getRigged() const {return m_loadedRigged;}
     bool openBlend(const ProjectPath& path, bool force=false);
     bool saveBlend();
     void deleteBlend();

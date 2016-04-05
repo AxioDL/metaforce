@@ -430,6 +430,14 @@ bool BlenderConnection::openBlend(const ProjectPath& path, bool force)
             }
             ++idx;
         }
+        m_loadedRigged = false;
+        if (m_loadedType == BlendType::Mesh)
+        {
+            _writeLine("GETMESHRIGGED");
+            _readLine(lineBuf, sizeof(lineBuf));
+            if (!strcmp("TRUE", lineBuf))
+                m_loadedRigged = true;
+        }
         return true;
     }
     return false;

@@ -765,10 +765,12 @@ class ProjectPath
     Database::Project* m_proj = nullptr;
     SystemString m_absPath;
     SystemString m_relPath;
+    SystemString m_auxInfo;
     Hash m_hash = 0;
 #if HECL_UCS2
     std::string m_utf8AbsPath;
     std::string m_utf8RelPath;
+    std::string m_utf8AuxInfo;
 #endif
 public:
     /**
@@ -1045,6 +1047,20 @@ public:
         return m_utf8RelPath;
 #else
         return m_relPath;
+#endif
+    }
+
+    const SystemString& getAuxInfo() const
+    {
+        return m_auxInfo;
+    }
+
+    const std::string& getAuxInfoUTF8() const
+    {
+#if HECL_UCS2
+        return m_utf8AuxInfo;
+#else
+        return m_auxInfo;
 #endif
     }
 

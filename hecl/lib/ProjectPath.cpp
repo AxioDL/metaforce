@@ -63,7 +63,18 @@ static SystemString CanonRelPath(const SystemString& path, const ProjectRootPath
 void ProjectPath::assign(Database::Project& project, const SystemString& path)
 {
     m_proj = &project;
-    m_relPath = CanonRelPath(path);
+
+    SystemString usePath;
+    size_t pipeFind = path.rfind(_S('|'));
+    if (pipeFind != SystemString::npos)
+    {
+        m_auxInfo.assign(path.cbegin() + pipeFind + 1, path.cend());
+        usePath.assign(path.cbegin(), path.cbegin() + pipeFind);
+    }
+    else
+        usePath = path;
+
+    m_relPath = CanonRelPath(usePath);
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -71,31 +82,42 @@ void ProjectPath::assign(Database::Project& project, const SystemString& path)
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
-    m_hash = Hash(m_utf8RelPath);
+    m_utf8AuxInfo = WideToUTF8(m_auxInfo);
+    if (m_utf8AuxInfo.size())
+        m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
+    else
+        m_hash = Hash(m_utf8RelPath);
 #else
-    m_hash = Hash(m_relPath);
+    if (m_auxInfo.size())
+        m_hash = Hash(m_relPath + '|' + m_auxInfo);
+    else
+        m_hash = Hash(m_relPath);
 #endif
 }
 
 #if HECL_UCS2
 void ProjectPath::assign(Database::Project& project, const std::string& path)
 {
-    m_proj = &project;
     std::wstring wpath = UTF8ToWide(path);
-    m_relPath = CanonRelPath(wpath);
-    m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
-    SanitizePath(m_relPath);
-    SanitizePath(m_absPath);
-    m_utf8AbsPath = WideToUTF8(m_absPath);
-    m_utf8RelPath = WideToUTF8(m_relPath);
-    m_hash = Hash(m_utf8RelPath);
+    assign(project, wpath);
 }
 #endif
 
 void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path)
 {
     m_proj = parentPath.m_proj;
-    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + path);
+
+    SystemString usePath;
+    size_t pipeFind = path.rfind(_S('|'));
+    if (pipeFind != SystemString::npos)
+    {
+        m_auxInfo.assign(path.cbegin() + pipeFind + 1, path.cend());
+        usePath.assign(path.cbegin(), path.cbegin() + pipeFind);
+    }
+    else
+        usePath = path;
+
+    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + usePath);
     m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -103,24 +125,24 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
 #if HECL_UCS2
     m_utf8AbsPath = WideToUTF8(m_absPath);
     m_utf8RelPath = WideToUTF8(m_relPath);
-    m_hash = Hash(m_utf8RelPath);
+    m_utf8AuxInfo = WideToUTF8(m_auxInfo);
+    if (m_utf8AuxInfo.size())
+        m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
+    else
+        m_hash = Hash(m_utf8RelPath);
 #else
-    m_hash = Hash(m_relPath);
+    if (m_auxInfo.size())
+        m_hash = Hash(m_relPath + '|' + m_auxInfo);
+    else
+        m_hash = Hash(m_relPath);
 #endif
 }
 
 #if HECL_UCS2
 void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 {
-    m_proj = parentPath.m_proj;
     std::wstring wpath = UTF8ToWide(path);
-    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + wpath);
-    m_absPath = m_proj->getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
-    SanitizePath(m_relPath);
-    SanitizePath(m_absPath);
-    m_utf8AbsPath = WideToUTF8(m_absPath);
-    m_utf8RelPath = WideToUTF8(m_relPath);
-    m_hash = Hash(m_utf8RelPath);
+    assign(parentPath, wpath);
 }
 #endif
 

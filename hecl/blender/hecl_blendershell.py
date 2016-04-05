@@ -221,6 +221,16 @@ while True:
     elif cmdargs[0] == 'GETTYPE':
         writepipeline(bpy.context.scene.hecl_type.encode())
 
+    elif cmdargs[0] == 'GETMESHRIGGED':
+        meshName = bpy.context.scene.hecl_mesh_obj
+        if meshName not in bpy.data.objects:
+            writepipeline(b'FALSE')
+        else:
+            if len(bpy.data.objects[meshName].vertex_groups):
+                writepipeline(b'TRUE')
+            else:
+                writepipeline(b'FALSE')
+
     elif cmdargs[0] == 'SAVE':
         bpy.context.user_preferences.filepaths.save_version = 0
         if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False, compress=True):
