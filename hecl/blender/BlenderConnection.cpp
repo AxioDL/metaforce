@@ -89,7 +89,8 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
             *(buf-1) = '\0';
             return bufSz - 1;
         }
-        int ret = read(m_readpipe[0], buf, 1);
+        int ret;
+        while ((ret = read(m_readpipe[0], buf, 1)) < 0 && errno == EINTR) {}
         if (ret < 0)
         {
             BlenderLog.report(logvisor::Fatal, strerror(errno));
