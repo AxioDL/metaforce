@@ -116,8 +116,10 @@ public:
 /** PAK 32-bit Unique ID */
 class UniqueID32 : public BigYAML
 {
+protected:
     uint32_t m_id = 0xffffffff;
 public:
+    static UniqueID32 kInvalidId;
     Delete expl;
     operator bool() const {return m_id != 0xffffffff && m_id != 0;}
     void read(athena::io::IStreamReader& reader)
@@ -174,6 +176,70 @@ public:
     }
 
     static constexpr size_t BinarySize() {return 4;}
+};
+
+class AuxiliaryID32 : public UniqueID32
+{
+    const hecl::SystemChar* m_auxStr;
+    const hecl::SystemChar* m_addExtension;
+    UniqueID32 m_baseId;
+public:
+    AuxiliaryID32(const hecl::SystemChar* auxStr,
+                  const hecl::SystemChar* addExtension=nullptr)
+    : m_auxStr(auxStr), m_addExtension(addExtension) {}
+
+    AuxiliaryID32& operator=(const hecl::ProjectPath& path)
+    {
+        m_id = path.ensureAuxInfo(m_auxStr).hash().val32();
+        return *this;
+    }
+
+    AuxiliaryID32& operator=(const UniqueID32& id)
+    {
+        m_baseId = id;
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
+        if (path)
+        {
+            if (m_addExtension)
+                path = path.getWithExtension(m_addExtension);
+            *this = path;
+        }
+        return *this;
+    }
+
+    void read(athena::io::IStreamReader& reader)
+    {
+        m_id = reader.readUint32Big();
+        m_baseId = *this;
+    }
+
+    void write(athena::io::IStreamWriter& writer) const
+    {
+        writer.writeUint32Big(m_id);
+    }
+
+    void read(athena::io::YAMLDocReader& reader)
+    {
+        hecl::ProjectPath readPath = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+        *this = readPath.ensureAuxInfo(m_auxStr);
+    }
+
+    void write(athena::io::YAMLDocWriter& writer) const
+    {
+        if (!operator bool())
+            return;
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        if (!path)
+            path = UniqueIDBridge::TranslatePakIdToPath(m_baseId);
+        if (!path)
+            return;
+        if (m_addExtension)
+            path = path.getWithExtension(m_addExtension);
+        hecl::SystemUTF8View ufx8AuxStr(m_auxStr);
+        writer.writeString(nullptr, path.getRelativePathUTF8() + '|' + ufx8AuxStr);
+    }
+
+    const UniqueID32& getBaseId() const {return m_baseId;}
 };
 
 /** PAK 64-bit Unique ID */

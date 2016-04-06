@@ -11,5 +11,4 @@ add_library(RuntimeCommonCharacter
             CTransitionDatabaseGame.hpp
             CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp
             CPoseAsTransforms.hpp CPoseAsTransforms.cpp
-            CSkinRules.hpp CSkinRules.cpp
             CVirtualBone.hpp CVirtualBone.cpp)

@@ -354,9 +354,9 @@ struct ActorParameters : BigYAML
     LightParameters lightParameters;
     ScannableParameters scannableParameters;
     UniqueID32   xrayModel;
-    UniqueID32   xraySkin;
+    AuxiliaryID32 xraySkin = _S("skin");
     UniqueID32   thermalModel;
-    UniqueID32   thermalSkin;
+    AuxiliaryID32 thermalSkin = _S("skin");
     Value<bool>  unknown1;
     Value<float> unknown2;
     Value<float> unknown3;

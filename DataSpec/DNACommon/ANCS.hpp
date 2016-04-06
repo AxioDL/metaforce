@@ -32,6 +32,20 @@ struct AnimationResInfo
     bool additive;
 };
 
+static void WriteOutAnimId(athena::io::YAMLDocWriter& __dna_docout,
+                           const UniqueID32& ancsId,
+                           const std::string& animName)
+{
+    __dna_docout.enterSubRecord("animId");
+    hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(ancsId);
+    if (path)
+    {
+        path = path.getWithExtension(_S(".blend"));
+        __dna_docout.writeString(nullptr, path.getRelativePathUTF8() + _S('|') + animName);
+    }
+    __dna_docout.leaveSubRecord();
+}
+
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
 bool ReadANCSToBlender(hecl::BlenderConnection& conn,
                        const ANCSDNA& ancs,

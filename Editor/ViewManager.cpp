@@ -11,6 +11,7 @@
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CSkinRules.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -20,6 +21,7 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
+    TToken<CSkinRules>
     m_modelTest = objStore.GetObj("MP1/SamusGun/CMDL_0EF58656.blend");
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
     m_modelTest.Lock();

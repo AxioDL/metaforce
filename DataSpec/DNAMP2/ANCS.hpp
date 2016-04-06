@@ -22,6 +22,8 @@ struct ANCS : BigYAML
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
+    ANCS(const UniqueID32& ancsId) : animationSet(ancsId) {}
+
     DECL_YAML
     Value<atUint16> version;
 
@@ -39,8 +41,8 @@ struct ANCS : BigYAML
             atUint32 idx;
             std::string name;
             UniqueID32 cmdl;
-            UniqueID32 cskr;
-            UniqueID32 cinf;
+            AuxiliaryID32 cskr = _S("skin");
+            AuxiliaryID32 cinf = {_S("layout"), _S("skin")};
 
             struct Animation : BigYAML
             {
@@ -86,7 +88,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
-            UniqueID32 cskrOverlay;
+            AuxiliaryID32 cskrOverlay = _S("skin");
 
             std::vector<atUint32> animIdxs;
 
@@ -108,6 +110,9 @@ struct ANCS : BigYAML
     {
         DECL_YAML
         Delete expl;
+        const UniqueID32& m_ancsId;
+        AnimationSet(const UniqueID32& ancsId) : m_ancsId(ancsId), defaultTransition(ancsId) {}
+
         using MP1AnimationSet = DNAMP1::ANCS::AnimationSet;
 
         std::vector<MP1AnimationSet::Animation> animations;
@@ -229,7 +234,7 @@ struct ANCS : BigYAML
             yamlType == hecl::ProjectPath::Type::None ||
             blendType == hecl::ProjectPath::Type::None)
         {
-            ANCS ancs;
+            ANCS ancs(entry.id);
             ancs.read(rs);
 
             if (force || yamlType == hecl::ProjectPath::Type::None)

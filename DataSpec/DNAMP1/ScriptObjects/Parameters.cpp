@@ -12,12 +12,12 @@ UniqueID32 AnimationParameters::getCINF(PAKRouter<PAKBridge>& pakRouter) const
         return UniqueID32();
     const nod::Node* node;
     const PAK::Entry* ancsEnt = pakRouter.lookupEntry(animationCharacterSet, &node);
-    ANCS ancs;
+    ANCS ancs(ancsEnt->id);
     {
         PAKEntryReadStream rs = ancsEnt->beginReadStream(*node);
         ancs.read(rs);
     }
-    return ancs.characterSet.characters.at(character).cinf;
+    return ancs.characterSet.characters.at(character).cinf.getBaseId();
 }
 
 }

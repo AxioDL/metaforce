@@ -292,7 +292,10 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
         spec = m_cookSpec->overrideDataSpec(working, m_pcSpec, hecl::SharedBlenderToken);
     if (!spec)
         return {};
-    return working.getCookedPath(*spec);
+    if (working.getAuxInfo().size())
+        return working.getCookedPath(*spec).getWithExtension((_S('.') + working.getAuxInfo()).c_str());
+    else
+        return working.getCookedPath(*spec);
 }
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)

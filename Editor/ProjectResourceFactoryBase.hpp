@@ -40,7 +40,7 @@ protected:
         ProjectResourceFactoryBase& m_parent;
 
         SObjectTag x0_tag;
-        IDvdRequest* x8_dvdReq = nullptr;
+        //IDvdRequest* x8_dvdReq = nullptr;
         IObj** xc_targetPtr = nullptr;
         std::unique_ptr<u8[]> x10_loadBuffer;
         u32 x14_resSize = 0;
