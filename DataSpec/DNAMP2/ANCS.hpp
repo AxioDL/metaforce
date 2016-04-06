@@ -41,6 +41,8 @@ struct ANCS : BigYAML
             atUint32 idx;
             std::string name;
             UniqueID32 cmdl;
+            UniqueID32 _cskrOld;
+            UniqueID32 _cinfOld;
             AuxiliaryID32 cskr = _S("skin");
             AuxiliaryID32 cinf = {_S("layout"), _S("skin")};
 
@@ -88,6 +90,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
+            UniqueID32 _cskrOverlayOld;
             AuxiliaryID32 cskrOverlay = _S("skin");
 
             std::vector<atUint32> animIdxs;
@@ -201,11 +204,11 @@ struct ANCS : BigYAML
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
             chOut.name = ci.name;
             chOut.cmdl = ci.cmdl;
-            chOut.cskr = ci.cskr.getBaseId();
-            chOut.cinf = ci.cinf.getBaseId();
+            chOut.cskr = ci._cskrOld;
+            chOut.cinf = ci._cinfOld;
 
             if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay.getBaseId()));
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci._cskrOverlayOld));
         }
     }
 
