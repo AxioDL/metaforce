@@ -569,11 +569,11 @@ struct ANCS : BigYAML
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
             chOut.name = ci.name;
             chOut.cmdl = ci.cmdl;
-            chOut.cskr = ci.cskr;
-            chOut.cinf = ci.cinf;
+            chOut.cskr = ci.cskr.getBaseId();
+            chOut.cinf = ci.cinf.getBaseId();
 
             if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay.getBaseId()));
         }
     }
 
