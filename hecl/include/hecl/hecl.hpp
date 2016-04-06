@@ -1065,6 +1065,15 @@ public:
     }
 
     /**
+     * @brief Construct a path with the aux info overwritten with specified string
+     * @param auxStr string to replace existing auxInfo with
+     */
+    hecl::ProjectPath ensureAuxInfo(const SystemChar* auxStr) const
+    {
+        return hecl::ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
+    }
+
+    /**
      * @brief Type of path
      */
     enum class Type

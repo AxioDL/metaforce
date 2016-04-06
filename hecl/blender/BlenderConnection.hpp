@@ -730,10 +730,8 @@ private:
       m_iboSz(iboData.size()*4), m_iboData(new uint8_t[iboData.size()*4]),
       m_surfaces(std::move(surfaces)), m_skinBanks(skinBanks)
     {
-        {
-            athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
-            w.enumerateLittle(iboData);
-        }
+        athena::io::MemoryWriter w(m_iboData.get(), m_iboSz);
+        w.enumerateLittle(iboData);
     }
 public:
     HMDLMeta m_meta;
