@@ -230,8 +230,6 @@ struct ANCS : BigYAML
 
             void read(athena::io::YAMLDocReader& __dna_docin)
             {
-                /* animId */
-                __dna_docin.enumerate("animId", animId);
                 /* animIdx */
                 animIdx = __dna_docin.readUint32("animIdx");
                 /* animName */
@@ -240,12 +238,17 @@ struct ANCS : BigYAML
                 unk1 = __dna_docin.readFloat("unk1");
                 /* unk2 */
                 unk2 = __dna_docin.readUint32("unk2");
+                
+                hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(m_ancsId);
+                if (path)
+                {
+                    hecl::SystemStringView sysView(animName);
+                    animId = path.ensureAuxInfo(sysView.sys_str().c_str());
+                }
             }
 
             void write(athena::io::YAMLDocWriter& __dna_docout) const
             {
-                /* animId */
-                DNAANCS::WriteOutAnimId(__dna_docout, m_ancsId, animName);
                 /* animIdx */
                 __dna_docout.writeUint32("animIdx", animIdx);
                 /* animName */
