@@ -327,9 +327,9 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry) cons
 }
 
 template <class BRIDGETYPE>
-hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const IDType& id) const
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const IDType& id, bool silenceWarnings) const
 {
-    return getWorking(lookupEntry(id));
+    return getWorking(lookupEntry(id, nullptr, silenceWarnings, false));
 }
 
 template <class BRIDGETYPE>
@@ -379,9 +379,9 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
 }
 
 template <class BRIDGETYPE>
-hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id) const
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id, bool silenceWarnings) const
 {
-    return getCooked(lookupEntry(id));
+    return getCooked(lookupEntry(id, nullptr, silenceWarnings, false));
 }
 
 template <class BRIDGETYPE>

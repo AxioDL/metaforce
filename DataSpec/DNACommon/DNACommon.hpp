@@ -57,19 +57,19 @@ protected:
 public:
     PAKRouterBase(const SpecBase& dataSpec) : m_dataSpec(dataSpec) {}
     hecl::Database::Project& getProject() const {return m_dataSpec.getProject();}
-    virtual hecl::ProjectPath getWorking(const UniqueID32&) const
+    virtual hecl::ProjectPath getWorking(const UniqueID32&, bool silenceWarnings=false) const
     {
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID32 specialization");
         return hecl::ProjectPath();
     }
-    virtual hecl::ProjectPath getWorking(const UniqueID64&) const
+    virtual hecl::ProjectPath getWorking(const UniqueID64&, bool silenceWarnings=false) const
     {
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID64 specialization");
         return hecl::ProjectPath();
     }
-    virtual hecl::ProjectPath getWorking(const UniqueID128&) const
+    virtual hecl::ProjectPath getWorking(const UniqueID128&, bool silenceWarnings=false) const
     {
         LogDNACommon.report(logvisor::Fatal,
         "PAKRouter IDType mismatch; expected UniqueID128 specialization");
@@ -87,12 +87,12 @@ class UniqueIDBridge
     static hecl::Database::Project* s_Project;
 public:
     template <class IDType>
-    static hecl::ProjectPath TranslatePakIdToPath(const IDType& id)
+    static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings=false)
     {
         if (!g_PakRouter)
             LogDNACommon.report(logvisor::Fatal,
             "g_Project must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
-        return g_PakRouter->getWorking(id);
+        return g_PakRouter->getWorking(id, silenceWarnings);
     }
     static hecl::ProjectPath MakePathFromString(const std::string& str)
     {
@@ -228,7 +228,7 @@ public:
     {
         if (!operator bool())
             return;
-        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this, true);
         if (!path)
             path = UniqueIDBridge::TranslatePakIdToPath(m_baseId);
         if (!path)
