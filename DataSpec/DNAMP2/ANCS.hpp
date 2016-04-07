@@ -22,8 +22,6 @@ struct ANCS : BigYAML
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
-    ANCS(const UniqueID32& ancsId) : animationSet(ancsId) {}
-
     DECL_YAML
     Value<atUint16> version;
 
@@ -41,10 +39,8 @@ struct ANCS : BigYAML
             atUint32 idx;
             std::string name;
             UniqueID32 cmdl;
-            UniqueID32 _cskrOld;
-            UniqueID32 _cinfOld;
-            AuxiliaryID32 cskr = _S("skin");
-            AuxiliaryID32 cinf = {_S("layout"), _S("skin")};
+            UniqueID32 cskr;
+            UniqueID32 cinf;
 
             struct Animation : BigYAML
             {
@@ -90,8 +86,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
-            UniqueID32 _cskrOverlayOld;
-            AuxiliaryID32 cskrOverlay = _S("skin");
+            UniqueID32 cskrOverlay;
 
             std::vector<atUint32> animIdxs;
 
@@ -113,8 +108,6 @@ struct ANCS : BigYAML
     {
         DECL_YAML
         Delete expl;
-        const UniqueID32& m_ancsId;
-        AnimationSet(const UniqueID32& ancsId) : m_ancsId(ancsId), defaultTransition(ancsId) {}
 
         using MP1AnimationSet = DNAMP1::ANCS::AnimationSet;
 
@@ -204,11 +197,11 @@ struct ANCS : BigYAML
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
             chOut.name = ci.name;
             chOut.cmdl = ci.cmdl;
-            chOut.cskr = ci._cskrOld;
-            chOut.cinf = ci._cinfOld;
+            chOut.cskr = ci.cskr;
+            chOut.cinf = ci.cinf;
 
             if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci._cskrOverlayOld));
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
         }
     }
 
@@ -217,6 +210,11 @@ struct ANCS : BigYAML
         out.clear();
         for (const DNAMP1::ANCS::AnimationSet::Animation& ai : animationSet.animations)
             ai.metaAnim.m_anim->gatherPrimitives(out);
+        for (const DNAMP1::ANCS::AnimationSet::Transition& ti : animationSet.transitions)
+            if (ti.metaTrans.m_trans)
+                ti.metaTrans.m_trans->gatherPrimitives(out);
+        if (animationSet.defaultTransition.m_trans)
+            animationSet.defaultTransition.m_trans->gatherPrimitives(out);
     }
 
     static bool Extract(const SpecBase& dataSpec,
@@ -237,7 +235,7 @@ struct ANCS : BigYAML
             yamlType == hecl::ProjectPath::Type::None ||
             blendType == hecl::ProjectPath::Type::None)
         {
-            ANCS ancs(entry.id);
+            ANCS ancs;
             ancs.read(rs);
 
             if (force || yamlType == hecl::ProjectPath::Type::None)

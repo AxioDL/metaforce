@@ -4,6 +4,7 @@
 #include "BlenderConnection.hpp"
 #include "DNAMP3.hpp"
 #include "../DNACommon/ANIM.hpp"
+#include "../DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 
 namespace DataSpec
@@ -27,7 +28,7 @@ struct ANIM : BigDNA
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
 
-        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const CINF&, bool additive) const;
+        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig, bool additive) const;
     };
 
     struct ANIM0 : IANIM
@@ -110,9 +111,9 @@ struct ANIM : BigDNA
         return m_anim->binarySize(__isz + 4);
     }
 
-    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
+    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool additive) const
     {
-        m_anim->sendANIMToBlender(os, cinf, additive);
+        m_anim->sendANIMToBlender(os, rig, additive);
     }
 
 };

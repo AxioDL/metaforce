@@ -146,12 +146,36 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                 }
                 else if (pathTag.type == SBIG('ANCS'))
                 {
-                    hecl::ProjectPath subPath(path, ".|layout");
-                    SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
-                    if (pathTag)
+                    hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
+                    if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
+                        continue;
+
+                    hecl::BlenderConnection::DataStream ds = conn.beginData();
+                    std::vector<std::string> armatureNames = ds.getArmatureNames();
+                    std::vector<std::string> actionNames = ds.getActionNames();
+
+                    for (const std::string& arm : armatureNames)
                     {
-                        m_tagToPath[pathTag] = path;
-                        WriteTag(cacheWriter, pathTag, path);
+                        hecl::SystemStringView sysStr(arm);
+                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.c_str());
+                        SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
+                        if (pathTag)
+                        {
+                            m_tagToPath[pathTag] = path;
+                            WriteTag(cacheWriter, pathTag, path);
+                        }
+                    }
+
+                    for (const std::string& act : actionNames)
+                    {
+                        hecl::SystemStringView sysStr(act);
+                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.c_str());
+                        SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
+                        if (pathTag)
+                        {
+                            m_tagToPath[pathTag] = path;
+                            WriteTag(cacheWriter, pathTag, path);
+                        }
                     }
                 }
             }

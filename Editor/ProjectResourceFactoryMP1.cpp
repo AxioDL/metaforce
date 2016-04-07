@@ -55,7 +55,7 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
             }
             return {SBIG('CMDL'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Actor:
-            if (!path.getAuxInfo().compare(_S("layout")))
+            if (path.getAuxInfo().size())
                 return {SBIG('CINF'), path.hash().val32()};
             return {SBIG('ANCS'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Area:

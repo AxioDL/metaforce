@@ -22,8 +22,6 @@ struct ANCS : BigYAML
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
-    ANCS(const UniqueID32& ancsId) : animationSet(ancsId) {}
-
     DECL_YAML
     Value<atUint16> version;
 
@@ -33,17 +31,15 @@ struct ANCS : BigYAML
         Value<atUint16> version;
         Value<atUint32> characterCount;
         struct CharacterInfo : BigYAML
-        {            
+        {
             DECL_YAML
             Delete expl;
 
             atUint32 idx;
             std::string name;
             UniqueID32 cmdl;
-            UniqueID32 _cskrOld;
-            UniqueID32 _cinfOld;
-            AuxiliaryID32 cskr = _S("skin");
-            AuxiliaryID32 cinf = {_S("layout"), _S(".blend")};
+            UniqueID32 cskr;
+            UniqueID32 cinf;
 
             struct Animation : BigYAML
             {
@@ -147,8 +143,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
-            UniqueID32 _cskrOverlayOld;
-            AuxiliaryID32 cskrOverlay = _S("skin");
+            UniqueID32 cskrOverlay;
 
             std::vector<atUint32> animIdxs;
         };
@@ -159,10 +154,8 @@ struct ANCS : BigYAML
     {
         DECL_YAML
         Delete expl;
-        const UniqueID32& m_ancsId;
-        AnimationSet(const UniqueID32& ancsId)
-        : m_ancsId(ancsId), defaultTransition(ancsId) {}
 
+        struct MetaAnimPrimitive;
         struct IMetaAnim : BigYAML
         {
             Delete expl;
@@ -176,24 +169,23 @@ struct ANCS : BigYAML
                 Sequence = 4
             } m_type;
             const char* m_typeStr;
-            const UniqueID32& m_ancsId;
-            IMetaAnim(Type type, const char* typeStr, const UniqueID32& ancsId)
-            : m_type(type), m_typeStr(typeStr), m_ancsId(ancsId) {}
+            IMetaAnim(Type type, const char* typeStr)
+            : m_type(type), m_typeStr(typeStr) {}
             virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)=0;
+            virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)=0;
         };
         struct MetaAnimFactory : BigYAML
         {
             DECL_YAML
             Delete expl;
-            const UniqueID32& m_ancsId;
             std::unique_ptr<IMetaAnim> m_anim;
-            MetaAnimFactory(const UniqueID32& ancsId) : m_ancsId(ancsId) {}
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
-            MetaAnimPrimitive(const UniqueID32& ancsId) : IMetaAnim(Type::Primitive, "Primitive", ancsId) {}
+            Delete expl;
 
-            Delete _d;
+            MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
+
             UniqueID32 animId;
             Value<atUint32> animIdx;
             String<-1> animName;
@@ -238,13 +230,6 @@ struct ANCS : BigYAML
                 unk1 = __dna_docin.readFloat("unk1");
                 /* unk2 */
                 unk2 = __dna_docin.readUint32("unk2");
-                
-                hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(m_ancsId);
-                if (path)
-                {
-                    hecl::SystemStringView sysView(animName);
-                    animId = path.ensureAuxInfo(sysView.sys_str().c_str());
-                }
             }
 
             void write(athena::io::YAMLDocWriter& __dna_docout) const
@@ -275,11 +260,16 @@ struct ANCS : BigYAML
             {
                 out[animIdx] = {animName, animId, UniqueID32(), false};
             }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                return func(*this);
+            }
         };
         struct MetaAnimBlend : IMetaAnim
         {
-            MetaAnimBlend(const UniqueID32& ancsId)
-            : IMetaAnim(Type::Blend, "Blend", ancsId), animA(ancsId), animB(ancsId) {}
+            MetaAnimBlend()
+            : IMetaAnim(Type::Blend, "Blend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -290,12 +280,21 @@ struct ANCS : BigYAML
             {
                 animA.m_anim->gatherPrimitives(out);
                 animB.m_anim->gatherPrimitives(out);
+            }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                if (!animA.m_anim->enumeratePrimitives(func))
+                    return false;
+                if (!animB.m_anim->enumeratePrimitives(func))
+                    return false;
+                return true;
             }
         };
         struct MetaAnimPhaseBlend : IMetaAnim
         {
-            MetaAnimPhaseBlend(const UniqueID32& ancsId)
-            : IMetaAnim(Type::PhaseBlend, "PhaseBlend", ancsId), animA(ancsId), animB(ancsId) {}
+            MetaAnimPhaseBlend()
+            : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
             DECL_YAML
             MetaAnimFactory animA;
             MetaAnimFactory animB;
@@ -307,156 +306,62 @@ struct ANCS : BigYAML
                 animA.m_anim->gatherPrimitives(out);
                 animB.m_anim->gatherPrimitives(out);
             }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                if (!animA.m_anim->enumeratePrimitives(func))
+                    return false;
+                if (!animB.m_anim->enumeratePrimitives(func))
+                    return false;
+                return true;
+            }
         };
         struct MetaAnimRandom : IMetaAnim
         {
-            MetaAnimRandom(const UniqueID32& ancsId) : IMetaAnim(Type::Random, "Random", ancsId) {}
-            Delete _d;
+            MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
+            DECL_YAML
             Value<atUint32> animCount;
             struct Child : BigYAML
             {
                 DECL_YAML
                 MetaAnimFactory anim;
                 Value<atUint32> probability;
-                Child(const UniqueID32& ancsId) : anim(ancsId) {}
             };
             Vector<Child, DNA_COUNT(animCount)> children;
-
-            void read(athena::io::IStreamReader& __dna_reader)
-            {
-                /* animCount */
-                animCount = __dna_reader.readUint32Big();
-                /* children */
-                children.clear();
-                children.reserve(animCount);
-                for (size_t i=0 ; i<animCount ; ++i)
-                {
-                    children.emplace_back(m_ancsId);
-                    children.back().read(__dna_reader);
-                }
-            }
-
-            void write(athena::io::IStreamWriter& __dna_writer) const
-            {
-                /* animCount */
-                __dna_writer.writeUint32Big(animCount);
-                /* children */
-                __dna_writer.enumerate(children);
-            }
-
-            void read(athena::io::YAMLDocReader& __dna_docin)
-            {
-                /* animCount squelched */
-                /* children */
-                size_t childCount;
-                __dna_docin.enterSubVector("children", childCount);
-                animCount = childCount;
-                children.clear();
-                children.reserve(childCount);
-                for (size_t i=0 ; i<childCount ; ++i)
-                {
-                    children.emplace_back(m_ancsId);
-                    __dna_docin.enterSubRecord(nullptr);
-                    children.back().read(__dna_docin);
-                    __dna_docin.leaveSubRecord();
-                }
-                __dna_docin.leaveSubVector();
-            }
-
-            void write(athena::io::YAMLDocWriter& __dna_docout) const
-            {
-                /* animCount squelched */
-                /* children */
-                __dna_docout.enumerate("children", children);
-            }
-
-            static const char* DNAType()
-            {
-                return "DataSpec::DNAMP1::ANCS::AnimationSet::MetaAnimRandom";
-            }
-
-            size_t binarySize(size_t __isz) const
-            {
-                __isz = __EnumerateSize(__isz, children);
-                return __isz + 4;
-            }
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
                 for (const auto& child : children)
                     child.anim.m_anim->gatherPrimitives(out);
             }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                for (auto& child : children)
+                    if (!child.anim.m_anim->enumeratePrimitives(func))
+                        return false;
+                return true;
+            }
         };
         struct MetaAnimSequence : IMetaAnim
         {
-            MetaAnimSequence(const UniqueID32& ancsId) : IMetaAnim(Type::Sequence, "Sequence", ancsId) {}
-            Delete _d;
+            MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
+            DECL_YAML
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
-
-            void read(athena::io::IStreamReader& __dna_reader)
-            {
-                /* animCount */
-                animCount = __dna_reader.readUint32Big();
-                /* children */
-                children.clear();
-                children.reserve(animCount);
-                for (size_t i=0 ; i<animCount ; ++i)
-                {
-                    children.emplace_back(m_ancsId);
-                    children.back().read(__dna_reader);
-                }
-            }
-
-            void write(athena::io::IStreamWriter& __dna_writer) const
-            {
-                /* animCount */
-                __dna_writer.writeUint32Big(animCount);
-                /* children */
-                __dna_writer.enumerate(children);
-            }
-
-            void read(athena::io::YAMLDocReader& __dna_docin)
-            {
-                /* animCount squelched */
-                /* children */
-                size_t childCount;
-                __dna_docin.enterSubVector("children", childCount);
-                animCount = childCount;
-                children.clear();
-                children.reserve(childCount);
-                for (size_t i=0 ; i<childCount ; ++i)
-                {
-                    children.emplace_back(m_ancsId);
-                    __dna_docin.enterSubRecord(nullptr);
-                    children.back().read(__dna_docin);
-                    __dna_docin.leaveSubRecord();
-                }
-                __dna_docin.leaveSubVector();
-            }
-
-            void write(athena::io::YAMLDocWriter& __dna_docout) const
-            {
-                /* animCount squelched */
-                /* children */
-                __dna_docout.enumerate("children", children);
-            }
-
-            static const char* DNAType()
-            {
-                return "DataSpec::DNAMP1::ANCS::AnimationSet::MetaAnimSequence";
-            }
-
-            size_t binarySize(size_t __isz) const
-            {
-                __isz = __EnumerateSize(__isz, children);
-                return __isz + 4;
-            }
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
                 for (const auto& child : children)
                     child.m_anim->gatherPrimitives(out);
+            }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                for (auto& child : children)
+                    if (!child.m_anim->enumeratePrimitives(func))
+                        return false;
+                return true;
             }
         };
 
@@ -465,7 +370,6 @@ struct ANCS : BigYAML
             DECL_YAML
             String<-1> name;
             MetaAnimFactory metaAnim;
-            Animation(const UniqueID32& ancsId) : metaAnim(ancsId) {}
         };
         std::vector<Animation> animations;
 
@@ -481,29 +385,38 @@ struct ANCS : BigYAML
                 NoTrans = 3,
             } m_type;
             const char* m_typeStr;
-            const UniqueID32& m_ancsId;
-            IMetaTrans(Type type, const char* typeStr, const UniqueID32& ancsId)
-            : m_type(type), m_typeStr(typeStr), m_ancsId(ancsId) {}
+            IMetaTrans(Type type, const char* typeStr)
+            : m_type(type), m_typeStr(typeStr) {}
+            virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {}
+            virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {return true;}
         };
         struct MetaTransFactory : BigYAML
         {
             DECL_YAML
             Delete expl;
-            const UniqueID32& m_ancsId;
             std::unique_ptr<IMetaTrans> m_trans;
-            MetaTransFactory(const UniqueID32& ancsId) : m_ancsId(ancsId) {}
         };
         struct MetaTransMetaAnim : IMetaTrans
         {
-            MetaTransMetaAnim(const UniqueID32& ancsId)
-            : IMetaTrans(Type::MetaAnim, "MetaAnim", ancsId), anim(ancsId) {}
+            MetaTransMetaAnim()
+            : IMetaTrans(Type::MetaAnim, "MetaAnim") {}
             DECL_YAML
             MetaAnimFactory anim;
+
+            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            {
+                anim.m_anim->gatherPrimitives(out);
+            }
+
+            bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
+            {
+                return anim.m_anim->enumeratePrimitives(func);
+            }
         };
         struct MetaTransTrans : IMetaTrans
         {
-            MetaTransTrans(const UniqueID32& ancsId)
-            : IMetaTrans(Type::Trans, "Trans", ancsId) {}
+            MetaTransTrans()
+            : IMetaTrans(Type::Trans, "Trans") {}
             DECL_YAML
             Value<float> time;
             Value<atUint32> unk1;
@@ -513,8 +426,8 @@ struct ANCS : BigYAML
         };
         struct MetaTransPhaseTrans : IMetaTrans
         {
-            MetaTransPhaseTrans(const UniqueID32& ancsId)
-            : IMetaTrans(Type::PhaseTrans, "PhaseTrans", ancsId) {}
+            MetaTransPhaseTrans()
+            : IMetaTrans(Type::PhaseTrans, "PhaseTrans") {}
             DECL_YAML
             Value<float> time;
             Value<atUint32> unk1;
@@ -530,7 +443,6 @@ struct ANCS : BigYAML
             Value<atUint32> animIdxA;
             Value<atUint32> animIdxB;
             MetaTransFactory metaTrans;
-            Transition(const UniqueID32& ancsId) : metaTrans(ancsId) {}
         };
         std::vector<Transition> transitions;
         MetaTransFactory defaultTransition;
@@ -552,7 +464,6 @@ struct ANCS : BigYAML
             DECL_YAML
             Value<atUint32> animIdx;
             MetaTransFactory metaTrans;
-            HalfTransition(const UniqueID32& ancsId) : metaTrans(ancsId) {}
         };
         std::vector<HalfTransition> halfTransitions;
 
@@ -575,11 +486,11 @@ struct ANCS : BigYAML
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
             chOut.name = ci.name;
             chOut.cmdl = ci.cmdl;
-            chOut.cskr = ci._cskrOld;
-            chOut.cinf = ci._cinfOld;
+            chOut.cskr = ci.cskr;
+            chOut.cinf = ci.cinf;
 
             if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci._cskrOverlayOld));
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
         }
     }
 
@@ -588,6 +499,11 @@ struct ANCS : BigYAML
         out.clear();
         for (const AnimationSet::Animation& ai : animationSet.animations)
             ai.metaAnim.m_anim->gatherPrimitives(out);
+        for (const AnimationSet::Transition& ti : animationSet.transitions)
+            if (ti.metaTrans.m_trans)
+                ti.metaTrans.m_trans->gatherPrimitives(out);
+        if (animationSet.defaultTransition.m_trans)
+            animationSet.defaultTransition.m_trans->gatherPrimitives(out);
         for (auto& anim : out)
         {
             for (const AnimationSet::AnimationResources& res : animationSet.animResources)
@@ -601,17 +517,13 @@ struct ANCS : BigYAML
         }
     }
 
-    void fixupPaths(const UniqueID32& ancsId)
+    void enumeratePrimitives(const std::function<bool(AnimationSet::MetaAnimPrimitive& prim)>& func)
     {
-        for (CharacterSet::CharacterInfo& character : characterSet.characters)
-        {
-            character._cskrOld = character.cskr;
-            character._cinfOld = character.cinf;
-            character.cskr = character.cmdl;
-            character.cinf = ancsId;
-            character._cskrOverlayOld = character.cskrOverlay;
-            character.cskrOverlay = character.cmdlOverlay;
-        }
+        for (const AnimationSet::Animation& ai : animationSet.animations)
+            ai.metaAnim.m_anim->enumeratePrimitives(func);
+        for (const AnimationSet::Transition& ti : animationSet.transitions)
+            ti.metaTrans.m_trans->enumeratePrimitives(func);
+        animationSet.defaultTransition.m_trans->enumeratePrimitives(func);
     }
 
     static bool Extract(const SpecBase& dataSpec,
@@ -632,9 +544,8 @@ struct ANCS : BigYAML
             yamlType == hecl::ProjectPath::Type::None ||
             blendType == hecl::ProjectPath::Type::None)
         {
-            ANCS ancs(entry.id);
+            ANCS ancs;
             ancs.read(rs);
-            ancs.fixupPaths(entry.id);
 
             if (force || yamlType == hecl::ProjectPath::Type::None)
             {
@@ -668,9 +579,54 @@ struct ANCS : BigYAML
         if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlReader))
             Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
                        yamlPath.getRelativePath().c_str());
-        ANCS ancs(UniqueID32::kInvalidId);
+        ANCS ancs;
         ancs.read(yamlReader);
 
+        /* Set Character Resource IDs */
+        for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
+        {
+            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(ch.cmdl);
+            if (path)
+                ch.cskr = path.ensureAuxInfo(_S("skin"));
+
+            for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+            {
+                if (!sub.name.compare(ch.name))
+                {
+                    if (sub.armature >= 0)
+                    {
+                        const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
+                        hecl::SystemStringView chSysName(arm.name);
+                        ch.cinf = inPath.ensureAuxInfo(chSysName.c_str());
+                        break;
+                    }
+                }
+            }
+
+            path = UniqueIDBridge::TranslatePakIdToPath(ch.cmdlOverlay);
+            if (path)
+                ch.cskrOverlay = path.ensureAuxInfo(_S("skin"));
+        }
+
+        /* Set Animation Resource IDs */
+        ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool
+        {
+            hecl::SystemStringView sysStr(prim.animName);
+            prim.animId = inPath.ensureAuxInfo(sysStr.c_str());
+            return true;
+        });
+
+        /* Write out CINF resources */
+        for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+        {
+            hecl::SystemStringView sysStr(arm.name);
+            hecl::ProjectPath pathOut = inPath.getWithExtension(sysStr.c_str(), true);
+            athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
+            if (w.hasError())
+                Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"), pathOut.getRelativePath().c_str());
+            CINF cinf(arm);
+            cinf.write(w);
+        }
 
         return true;
     }

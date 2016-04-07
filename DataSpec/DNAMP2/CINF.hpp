@@ -36,6 +36,18 @@ struct CINF : BigDNA
         Value<atUint32> boneId;
     };
     Vector<Name, DNA_COUNT(nameCount)> names;
+    
+    atUint32 getInternalBoneIdxFromId(atUint32 id) const
+    {
+        atUint32 idx = 0;
+        for (const Bone& b : bones)
+        {
+            if (b.id == id)
+                return idx;
+            ++idx;
+        }
+        return -1;
+    }
 
     atUint32 getBoneIdxFromId(atUint32 id) const
     {

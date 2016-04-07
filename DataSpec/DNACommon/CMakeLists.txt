@@ -26,6 +26,7 @@ add_library(DNACommon
             FONT.hpp FONT.cpp
             DeafBabe.hpp
             BabeDead.hpp
+            RigInverter.hpp RigInverter.cpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
             Tweaks/ITweakPlayer.hpp

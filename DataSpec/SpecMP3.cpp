@@ -333,7 +333,7 @@ struct SpecMP3 : SpecBase
         [&](const std::string& name)
         {
             hecl::SystemStringView nameView(name);
-            progress(currentTarget.c_str(), nameView.sys_str().c_str(), compIdx, prog / (float)nodeCount);
+            progress(currentTarget.c_str(), nameView.c_str(), compIdx, prog / (float)nodeCount);
         }};
         if (doMP3)
         {
@@ -382,7 +382,7 @@ struct SpecMP3 : SpecBase
 
                 {
                     std::unique_lock<std::mutex> lk(msgLock);
-                    progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+                    progress(sysName.c_str(), _S(""), compIdx, 0.0);
                 }
                 hecl::SystemString pakName = sysName.sys_str();
                 process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
@@ -442,7 +442,7 @@ struct SpecMP3 : SpecBase
 
                 {
                     std::unique_lock<std::mutex> lk(msgLock);
-                    progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+                    progress(sysName.c_str(), _S(""), compIdx, 0.0);
                 }
                 hecl::SystemString pakName = sysName.sys_str();
                 process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)

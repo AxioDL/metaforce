@@ -227,22 +227,22 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         if (entry.second->type == FOURCC('ANCS'))
         {
             PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
-            ANCS ancs(entry.first);
+            ANCS ancs;
             ancs.read(rs);
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
-                addTo[ci.cmdl] = std::make_pair(ci.cskr.getBaseId(), ci.cinf.getBaseId());
+                addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
                 PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
-                PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr.getBaseId());
-                PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf.getBaseId());
+                PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
+                PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
                 cmdlEnt->name = hecl::Format("ANCS_%08X_%s_model", entry.first.toUint32(), ci.name.c_str());
                 cskrEnt->name = hecl::Format("ANCS_%08X_%s_skin", entry.first.toUint32(), ci.name.c_str());
                 cinfEnt->name = hecl::Format("ANCS_%08X_%s_skel", entry.first.toUint32(), ci.name.c_str());
                 if (ci.cmdlOverlay && ci.cskrOverlay)
                 {
-                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay.getBaseId(), ci.cinf.getBaseId());
+                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
                     PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
-                    PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay.getBaseId());
+                    PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
                     cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
                     cskrEnt->name = hecl::Format("ANCS_%08X_%s_overskin", entry.first.toUint32(), ci.name.c_str());
                 }

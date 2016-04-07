@@ -198,13 +198,13 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         if (entry.second->type == FOURCC('ANCS'))
         {
             PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
-            ANCS ancs(entry.first);
+            ANCS ancs;
             ancs.read(rs);
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
-                addTo[ci.cmdl] = std::make_pair(ci.cskr.getBaseId(), ci.cinf.getBaseId());
+                addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
                 if (ci.cmdlOverlay)
-                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay.getBaseId(), ci.cinf.getBaseId());
+                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
             }
         }
     }

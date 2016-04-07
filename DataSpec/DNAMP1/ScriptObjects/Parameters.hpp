@@ -350,13 +350,14 @@ struct VisorParameters : BigYAML
 struct ActorParameters : BigYAML
 {
     DECL_YAML
+    Delete _d;
     Value<atUint32> propertyCount;
     LightParameters lightParameters;
     ScannableParameters scannableParameters;
     UniqueID32   xrayModel;
-    AuxiliaryID32 xraySkin = _S("skin");
+    UniqueID32   xraySkin;
     UniqueID32   thermalModel;
-    AuxiliaryID32 thermalSkin = _S("skin");
+    UniqueID32   thermalSkin;
     Value<bool>  unknown1;
     Value<float> unknown2;
     Value<float> unknown3;

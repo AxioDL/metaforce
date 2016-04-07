@@ -245,7 +245,7 @@ struct SpecMP1 : SpecBase
         int prog = 0;
         ctx.progressCB = [&](const std::string& name) {
             hecl::SystemStringView nameView(name);
-            progress(_S("MP1 Root"), nameView.sys_str().c_str(), 3, prog / (float)m_nonPaks.size());
+            progress(_S("MP1 Root"), nameView.c_str(), 3, prog / (float)m_nonPaks.size());
         };
         for (const nod::Node* node : m_nonPaks)
         {
@@ -269,7 +269,7 @@ struct SpecMP1 : SpecBase
 
             {
                 std::unique_lock<std::mutex> lk(msgLock);
-                progress(sysName.sys_str().c_str(), _S(""), compIdx, 0.0);
+                progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
             hecl::SystemString pakName = sysName.sys_str();
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)

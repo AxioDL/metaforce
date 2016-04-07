@@ -1,4 +1,5 @@
 #include "ANIM.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace DataSpec
 {
@@ -7,14 +8,14 @@ namespace DNAMP1
 
 using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf) const
+void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
 {
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin();
     for (const std::pair<atUint32, bool>& bone : bones)
     {
-        const std::string* bName = cinf.getBoneNameFromId(bone.first);
+        const std::string* bName = rig.getCINF().getBoneNameFromId(bone.first);
         if (!bName)
             continue;
 
@@ -29,9 +30,9 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
                   "\n";
 
         if (bone.second)
-            os << "bone_trans_head = (0.0,0.0,0.0)\n"
-                  "if arm_obj.data.bones[bone_string].parent is not None:\n"
-                  "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
+            os << "#bone_trans_head = (0.0,0.0,0.0)\n"
+                  "#if arm_obj.data.bones[bone_string].parent is not None:\n"
+                  "#    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
                   "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"
@@ -44,25 +45,57 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
               "\n";
 
-        const std::vector<DNAANIM::Value>& rotKeys = *kit++;
         ANIMOutStream ao = os.beginANIMCurve();
-        for (int c=0 ; c<4 ; ++c)
+        
         {
-            auto frameit = frames.begin();
-            ao.changeCurve(ANIMOutStream::CurveType::Rotate, c, rotKeys.size());
-            for (const DNAANIM::Value& val : rotKeys)
-                ao.write(*frameit++, val.v4.vec[c]);
+            const std::vector<DNAANIM::Value>& rotKeys = *kit++;
+            std::vector<zeus::CQuaternion> fixedRotKeys;
+            fixedRotKeys.resize(rotKeys.size());
+            fprintf(stderr, "alloc %d\n", rotKeys.size());
+            
+            for (int c=0 ; c<4 ; ++c)
+            {
+                size_t idx = 0;
+                for (const DNAANIM::Value& val : rotKeys)
+                    fixedRotKeys.at(idx++)[c] = val.v4.vec[c];
+            }
+            
+            for (zeus::CQuaternion& rot : fixedRotKeys)
+                rot = rig.transformRotation(bone.first, rot);
+            
+            for (int c=0 ; c<4 ; ++c)
+            {
+                auto frameit = frames.begin();
+                ao.changeCurve(ANIMOutStream::CurveType::Rotate, c, rotKeys.size());
+                for (const zeus::CQuaternion& val : fixedRotKeys)
+                    ao.write(*frameit++, val[c]);
+            }
+            
+            fprintf(stderr, "size %d\n", fixedRotKeys.size());
         }
 
         if (bone.second)
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
+            std::vector<zeus::CVector3f> fixedTransKeys;
+            fixedTransKeys.resize(transKeys.size());
+
+            for (int c=0 ; c<3 ; ++c)
+            {
+                size_t idx = 0;
+                for (const DNAANIM::Value& val : transKeys)
+                    fixedTransKeys.at(idx++)[c] = val.v3.vec[c];
+            }
+
+            for (zeus::CVector3f& t : fixedTransKeys)
+                t = rig.transformPosition(bone.first, t, true);
+
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, transKeys.size());
-                for (const DNAANIM::Value& val : transKeys)
-                    ao.write(*frameit++, val.v3.vec[c]);
+                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, fixedTransKeys.size());
+                for (const zeus::CVector3f& val : fixedTransKeys)
+                    ao.write(*frameit++, val[c]);
             }
         }
     }

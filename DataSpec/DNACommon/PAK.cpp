@@ -455,7 +455,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             std::string bestName = getBestEntryName(*item);
             hecl::SystemStringView bestNameView(bestName);
             float thisFac = ++count / fsz;
-            progress(bestNameView.sys_str().c_str(), thisFac);
+            progress(bestNameView.c_str(), thisFac);
 
             const nod::Node* node = m_node.get();
 

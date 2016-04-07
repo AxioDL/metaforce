@@ -243,9 +243,6 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
     name = reader.readString("name");
-    reader.enumerate("cmdl", cmdl);
-    reader.enumerate("cskr", cskr);
-    reader.enumerate("cinf", cinf);
 
     reader.enumerate("animations", animations);
 
@@ -280,7 +277,6 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
     if (sectionCount > 3)
     {
         reader.enumerate("cmdlOverlay", cmdlOverlay);
-        reader.enumerate("cskrOverlay", cskrOverlay);
     }
 
     animIdxs.clear();
@@ -321,8 +317,6 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::YAMLDocWriter& writer)
 
     writer.writeString("name", name);
     writer.enumerate("cmdl", cmdl);
-    writer.enumerate("cskr", cskr);
-    writer.enumerate("cinf", cinf);
 
     writer.enumerate("animations", animations);
 
@@ -355,7 +349,6 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::YAMLDocWriter& writer)
     if (sectionCount > 3)
     {
         writer.enumerate("cmdlOverlay", cmdlOverlay);
-        writer.enumerate("cskrOverlay", cskrOverlay);
     }
 
     if (sectionCount > 4)
@@ -381,23 +374,10 @@ void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
     atUint16 sectionCount = reader.readUint16Big();
 
     atUint32 animationCount = reader.readUint32Big();
-    animations.clear();
-    animations.reserve(animationCount);
-    for (atUint32 i=0 ; i<animationCount ; ++i)
-    {
-        animations.emplace_back(m_ancsId);
-        animations.back().read(reader);
-    }
+    reader.enumerate(animations, animationCount);
 
     atUint32 transitionCount = reader.readUint32Big();
-    transitions.clear();
-    transitions.reserve(transitionCount);
-    for (atUint32 i=0 ; i<transitionCount ; ++i)
-    {
-        transitions.emplace_back(m_ancsId);
-        transitions.back().read(reader);
-    }
-
+    reader.enumerate(transitions, transitionCount);
     defaultTransition.read(reader);
 
     additiveAnims.clear();
@@ -412,14 +392,8 @@ void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
     halfTransitions.clear();
     if (sectionCount > 2)
     {
-        atUint32 halfTransitionCount = reader.readUint32Big();        
-        halfTransitions.clear();
-        halfTransitions.reserve(halfTransitionCount);
-        for (atUint32 i=0 ; i<halfTransitionCount ; ++i)
-        {
-            halfTransitions.emplace_back(m_ancsId);
-            halfTransitions.back().read(reader);
-        }
+        atUint32 halfTransitionCount = reader.readUint32Big();
+        reader.enumerate(halfTransitions, halfTransitionCount);
     }
 
     evnts.clear();
@@ -517,32 +491,9 @@ void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
-    size_t animationCount;
-    reader.enterSubVector("animations", animationCount);
-    animations.clear();
-    animations.reserve(animationCount);
-    for (size_t i=0 ; i<animationCount ; ++i)
-    {
-        animations.emplace_back(m_ancsId);
-        reader.enterSubRecord(nullptr);
-        animations.back().read(reader);
-        reader.leaveSubRecord();
-    }
-    reader.leaveSubVector();
+    reader.enumerate("animations", animations);
 
-    size_t transitionCount;
-    reader.enterSubVector("transitions", transitionCount);
-    transitions.clear();
-    transitions.reserve(transitionCount);
-    for (size_t i=0 ; i<transitionCount ; ++i)
-    {
-        transitions.emplace_back(m_ancsId);
-        reader.enterSubRecord(nullptr);
-        transitions.back().read(reader);
-        reader.leaveSubRecord();
-    }
-    reader.leaveSubVector();
-
+    reader.enumerate("transitions", transitions);
     reader.enumerate("defaultTransition", defaultTransition);
 
     additiveAnims.clear();
@@ -556,17 +507,7 @@ void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
     halfTransitions.clear();
     if (sectionCount > 2)
     {
-        size_t halfTransitionCount;
-        reader.enterSubVector("halfTransitions", halfTransitionCount);
-        halfTransitions.reserve(halfTransitionCount);
-        for (size_t i=0 ; i<halfTransitionCount ; ++i)
-        {
-            halfTransitions.emplace_back(m_ancsId);
-            reader.enterSubRecord(nullptr);
-            halfTransitions.back().read(reader);
-            reader.leaveSubRecord();
-        }
-        reader.leaveSubVector();
+        reader.enumerate("halfTransitions", halfTransitions);
     }
 
     evnts.clear();

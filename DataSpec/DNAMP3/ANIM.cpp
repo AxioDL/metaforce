@@ -9,7 +9,7 @@ namespace DNAMP3
 
 using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, bool additive) const
+void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool additive) const
 {
     os.format("act.hecl_fps = round(%f)\n"
               "act.hecl_additive = %s\n",
@@ -18,7 +18,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
     auto kit = chanKeys.begin() + 1;
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
-        const std::string* bName = cinf.getBoneNameFromId(bone.first);
+        const std::string* bName = rig.getCINF().getBoneNameFromId(bone.first);
         if (!bName)
         {
             if (std::get<0>(bone.second))
@@ -45,11 +45,11 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
         if (std::get<1>(bone.second))
         {
             if (!additive)
-                os << "bone_trans_head = (0.0,0.0,0.0)\n"
-                      "if arm_obj.data.bones[bone_string].parent is not None:\n"
-                      "    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n";
+                os << "#bone_trans_head = (0.0,0.0,0.0)\n"
+                      "#if arm_obj.data.bones[bone_string].parent is not None:\n"
+                      "#    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n";
             else
-                os << "bone_trans_head = (0.0,0.0,0.0)\n";
+                os << "#bone_trans_head = (0.0,0.0,0.0)\n";
             os << "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"

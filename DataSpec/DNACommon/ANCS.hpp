@@ -5,6 +5,7 @@
 #include "DNACommon.hpp"
 #include "BlenderConnection.hpp"
 #include "CMDL.hpp"
+#include "RigInverter.hpp"
 
 namespace DataSpec
 {
@@ -59,7 +60,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
 
                 std::string bestName = pakRouter.getBestEntryName(*cmdlE);
                 hecl::SystemStringView bestNameView(bestName);
-                fileChanged(bestNameView.sys_str().c_str());
+                fileChanged(bestNameView.c_str());
 
                 typename ANCSDNA::CSKRType cskr;
                 pakRouter.lookupAndReadDNA(info.cskr, cskr);
@@ -79,7 +80,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
 
     std::string bestName = pakRouter.getBestEntryName(entry);
     hecl::SystemStringView bestNameView(bestName);
-    fileChanged(bestNameView.sys_str().c_str());
+    fileChanged(bestNameView.c_str());
 
     /* Establish ANCS blend */
     if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Actor))
@@ -163,6 +164,8 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
         }
     }
 
+    DNAANIM::RigInverter<typename ANCSDNA::CINFType> inverter(cinf);
+
     /* Get animation primitives */
     std::map<atUint32, AnimationResInfo<typename PAKRouter::IDType>> animResInfo;
     ancs.getAnimationResInfo(animResInfo);
@@ -173,7 +176,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
         {
             os.format("act = bpy.data.actions.new('%s')\n"
                       "act.use_fake_user = True\n", id.second.name.c_str());
-            anim.sendANIMToBlender(os, cinf, id.second.additive);
+            anim.sendANIMToBlender(os, inverter, id.second.additive);
         }
 
         os.format("actor_action = actor_data.actions.add()\n"
