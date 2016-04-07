@@ -138,7 +138,6 @@ void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
     x438_28_x450_28 = true;
     if (x438_26_x450_26_HaveEPSM)
     {
-
     }
 }
 
