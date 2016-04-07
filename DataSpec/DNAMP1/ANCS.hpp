@@ -40,6 +40,8 @@ struct ANCS : BigYAML
             atUint32 idx;
             std::string name;
             UniqueID32 cmdl;
+            UniqueID32 _cskrOld;
+            UniqueID32 _cinfOld;
             AuxiliaryID32 cskr = _S("skin");
             AuxiliaryID32 cinf = {_S("layout"), _S(".blend")};
 
@@ -145,6 +147,7 @@ struct ANCS : BigYAML
             std::vector<Effect> effects;
 
             UniqueID32 cmdlOverlay;
+            UniqueID32 _cskrOverlayOld;
             AuxiliaryID32 cskrOverlay = _S("skin");
 
             std::vector<atUint32> animIdxs;
@@ -227,8 +230,6 @@ struct ANCS : BigYAML
 
             void read(athena::io::YAMLDocReader& __dna_docin)
             {
-                /* animId */
-                __dna_docin.enumerate("animId", animId);
                 /* animIdx */
                 animIdx = __dna_docin.readUint32("animIdx");
                 /* animName */
@@ -237,12 +238,17 @@ struct ANCS : BigYAML
                 unk1 = __dna_docin.readFloat("unk1");
                 /* unk2 */
                 unk2 = __dna_docin.readUint32("unk2");
+                
+                hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(m_ancsId);
+                if (path)
+                {
+                    hecl::SystemStringView sysView(animName);
+                    animId = path.ensureAuxInfo(sysView.sys_str().c_str());
+                }
             }
 
             void write(athena::io::YAMLDocWriter& __dna_docout) const
             {
-                /* animId */
-                DNAANCS::WriteOutAnimId(__dna_docout, m_ancsId, animName);
                 /* animIdx */
                 __dna_docout.writeUint32("animIdx", animIdx);
                 /* animName */
@@ -569,11 +575,11 @@ struct ANCS : BigYAML
             DNAANCS::CharacterResInfo<UniqueID32>& chOut = out.back();
             chOut.name = ci.name;
             chOut.cmdl = ci.cmdl;
-            chOut.cskr = ci.cskr;
-            chOut.cinf = ci.cinf;
+            chOut.cskr = ci._cskrOld;
+            chOut.cinf = ci._cinfOld;
 
             if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
+                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci._cskrOverlayOld));
         }
     }
 
@@ -599,8 +605,11 @@ struct ANCS : BigYAML
     {
         for (CharacterSet::CharacterInfo& character : characterSet.characters)
         {
+            character._cskrOld = character.cskr;
+            character._cinfOld = character.cinf;
             character.cskr = character.cmdl;
             character.cinf = ancsId;
+            character._cskrOverlayOld = character.cskrOverlay;
             character.cskrOverlay = character.cmdlOverlay;
         }
     }
