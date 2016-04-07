@@ -25,4 +25,5 @@ endif()
 target_link_libraries(hecl
     ${DATA_SPEC_LIBS}
     hecl-database hecl-backend hecl-frontend hecl-blender hecl-common athena-core nod
-    logvisor athena-libyaml ${PNG_LIB} squish xxhash boo ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
+    logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
+    ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})

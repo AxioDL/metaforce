@@ -609,10 +609,32 @@ public:
                     Bone(BlenderConnection& conn);
                 };
                 std::vector<Bone> bones;
-                Bone* lookupBone(const char* name)
+                const Bone* lookupBone(const char* name) const
                 {
-                    for (Bone& b : bones)
+                    for (const Bone& b : bones)
                         if (!b.name.compare(name))
+                            return &b;
+                    return nullptr;
+                }
+                const Bone* getParent(const Bone* bone) const
+                {
+                    if (bone->parent < 0)
+                        return nullptr;
+                    return &bones[bone->parent];
+                }
+                const Bone* getChild(const Bone* bone, size_t child) const
+                {
+                    if (child >= bone->children.size())
+                        return nullptr;
+                    int32_t cIdx = bone->children[child];
+                    if (cIdx < 0)
+                        return nullptr;
+                    return &bones[cIdx];
+                }
+                const Bone* getRoot() const
+                {
+                    for (const Bone& b : bones)
+                        if (b.parent < 0)
                             return &b;
                     return nullptr;
                 }
@@ -673,6 +695,68 @@ public:
                 BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
 
             return Actor(*m_parent);
+        }
+
+        std::vector<std::string> getArmatureNames()
+        {
+            if (m_parent->m_loadedType != BlendType::Actor)
+                BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+            m_parent->_writeLine("GETARMATURENAMES");
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(logvisor::Fatal, "unable to get armatures of actor: %s", readBuf);
+
+            std::vector<std::string> ret;
+
+            uint32_t armCount;
+            m_parent->_readBuf(&armCount, 4);
+            ret.reserve(armCount);
+            for (uint32_t i=0 ; i<armCount ; ++i)
+            {
+                ret.emplace_back();
+                std::string& name = ret.back();
+                uint32_t bufSz;
+                m_parent->_readBuf(&bufSz, 4);
+                name.assign(bufSz, ' ');
+                m_parent->_readBuf(&name[0], bufSz);
+            }
+
+            return ret;
+        }
+
+        std::vector<std::string> getActionNames()
+        {
+            if (m_parent->m_loadedType != BlendType::Actor)
+                BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+            m_parent->_writeLine("GETACTIONNAMES");
+
+            char readBuf[256];
+            m_parent->_readLine(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(logvisor::Fatal, "unable to get actions of actor: %s", readBuf);
+
+            std::vector<std::string> ret;
+
+            uint32_t actCount;
+            m_parent->_readBuf(&actCount, 4);
+            ret.reserve(actCount);
+            for (uint32_t i=0 ; i<actCount ; ++i)
+            {
+                ret.emplace_back();
+                std::string& name = ret.back();
+                uint32_t bufSz;
+                m_parent->_readBuf(&bufSz, 4);
+                name.assign(bufSz, ' ');
+                m_parent->_readBuf(&name[0], bufSz);
+            }
+
+            return ret;
         }
     };
     DataStream beginData()

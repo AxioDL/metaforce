@@ -114,7 +114,8 @@ def animin_loop(globals):
         crv.keyframe_points.add(count=key_info[1])
 
         if crv_type[0] == 1:
-            trans_head = globals['bone_trans_head'][key_info[0]]
+            #trans_head = globals['bone_trans_head'][key_info[0]]
+            trans_head = 0
             for k in range(key_info[1]):
                 key_data = struct.unpack('if', os.read(readfd, 8))
                 pt = crv.keyframe_points[k]
@@ -187,6 +188,14 @@ def dataout_loop():
         elif cmdargs[0] == 'ACTORCOMPILE':
             writepipeline(b'OK')
             hecl.sact.cook(writepipebuf)
+
+        elif cmdargs[0] == 'GETARMATURENAMES':
+            writepipeline(b'OK')
+            hecl.sact.get_armature_names(writepipebuf)
+
+        elif cmdargs[0] == 'GETACTIONNAMES':
+            writepipeline(b'OK')
+            hecl.sact.get_action_names(writepipebuf)
 
 
 # Command loop

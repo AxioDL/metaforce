@@ -245,7 +245,7 @@ void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* 
     else
         hecl::Printf(_S("  "));
 
-    int width = hecl::ConsoleWidth();
+    int width = std::max(80, hecl::ConsoleWidth());
     int half;
     if (blocks)
         half = width / 2 - 2;

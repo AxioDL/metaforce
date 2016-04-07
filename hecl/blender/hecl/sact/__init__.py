@@ -303,6 +303,20 @@ def cook(writebuf):
             mesh = bpy.data.objects[subtype.linked_mesh]
             write_action_aabb(writebuf, arm, mesh)
 
+# Access actor's contained armature names
+def get_armature_names(writebuf):
+    writebuf(struct.pack('I', len(bpy.data.armatures)))
+    for arm in bpy.data.armatures:
+        writebuf(struct.pack('I', len(arm.name)))
+        writebuf(arm.name.encode())
+
+# Access actor's contained action names
+def get_action_names(writebuf):
+    writebuf(struct.pack('I', len(sact_data.actions)))
+    for action_idx in range(len(sact_data.actions)):
+        action = sact_data.actions[action_idx]
+        writebuf(struct.pack('I', len(action.name)))
+        writebuf(action.name.encode())
 
 
 # Panel draw

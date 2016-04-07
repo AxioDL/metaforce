@@ -82,7 +82,11 @@ void ClientProcess::Worker::proc()
 ClientProcess::ClientProcess(int verbosityLevel)
 : m_verbosity(verbosityLevel)
 {
+#ifdef NDEBUG
     int cpuCount = GetCPUCount();
+#else
+    constexpr int cpuCount = 1;
+#endif
     m_workers.reserve(cpuCount);
     for (int i=0 ; i<cpuCount ; ++i)
         m_workers.emplace_back(*this);
