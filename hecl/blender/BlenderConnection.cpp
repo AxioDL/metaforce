@@ -369,6 +369,30 @@ BlenderConnection::~BlenderConnection()
     _closePipe();
 }
 
+std::streambuf::int_type
+BlenderConnection::PyOutStream::StreamBuf::overflow(int_type ch)
+{
+    if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
+        BlenderLog.report(logvisor::Fatal, "lock not held for PyOutStream writing");
+    if (ch != traits_type::eof() && ch != '\n' && ch != '\0')
+    {
+        m_lineBuf += char_type(ch);
+        return ch;
+    }
+    //printf("FLUSHING %s\n", m_lineBuf.c_str());
+    m_parent.m_parent->_writeLine(m_lineBuf.c_str());
+    char readBuf[16];
+    m_parent.m_parent->_readLine(readBuf, 16);
+    if (strcmp(readBuf, "OK"))
+    {
+        if (m_deleteOnError)
+            m_parent.m_parent->deleteBlend();
+        BlenderLog.report(logvisor::Fatal, "error sending '%s' to blender", m_lineBuf.c_str());
+    }
+    m_lineBuf.clear();
+    return ch;
+}
+
 static const char* BlendTypeStrs[] =
 {
     "NONE",
@@ -954,6 +978,204 @@ BlenderConnection::DataStream::Actor::Action::Channel::Key::Key(BlenderConnectio
 
     if (attrMask & 4)
         scale.read(conn);
+}
+
+BlenderConnection::DataStream::Mesh
+BlenderConnection::DataStream::compileMesh(HMDLTopology topology,
+                                           int skinSlotCount,
+                                           Mesh::SurfProgFunc surfProg)
+{
+    if (m_parent->m_loadedType != BlendType::Mesh)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "MESHCOMPILE %s %d",
+             MeshOutputModeString(topology), skinSlotCount);
+    m_parent->_writeLine(req);
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to cook mesh: %s", readBuf);
+
+    return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+}
+
+BlenderConnection::DataStream::Mesh
+BlenderConnection::DataStream::compileMesh(const std::string& name,
+                                           HMDLTopology topology,
+                                           int skinSlotCount,
+                                           Mesh::SurfProgFunc surfProg)
+{
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.c_str(),
+             MeshOutputModeString(topology), skinSlotCount);
+    m_parent->_writeLine(req);
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
+
+    return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+}
+
+BlenderConnection::DataStream::Mesh
+BlenderConnection::DataStream::compileAllMeshes(HMDLTopology topology,
+                                                int skinSlotCount,
+                                                float maxOctantLength,
+                                                Mesh::SurfProgFunc surfProg)
+{
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "MESHCOMPILEALL %s %d %f",
+             MeshOutputModeString(topology),
+             skinSlotCount, maxOctantLength);
+    m_parent->_writeLine(req);
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to cook all meshes: %s", readBuf);
+
+    return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+}
+
+BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor()
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("ACTORCOMPILE");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
+
+    return Actor(*m_parent);
+}
+
+std::vector<std::string> BlenderConnection::DataStream::getArmatureNames()
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("GETARMATURENAMES");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get armatures of actor: %s", readBuf);
+
+    std::vector<std::string> ret;
+
+    uint32_t armCount;
+    m_parent->_readBuf(&armCount, 4);
+    ret.reserve(armCount);
+    for (uint32_t i=0 ; i<armCount ; ++i)
+    {
+        ret.emplace_back();
+        std::string& name = ret.back();
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+    }
+
+    return ret;
+}
+
+std::vector<std::string> BlenderConnection::DataStream::getActionNames()
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("GETACTIONNAMES");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get actions of actor: %s", readBuf);
+
+    std::vector<std::string> ret;
+
+    uint32_t actCount;
+    m_parent->_readBuf(&actCount, 4);
+    ret.reserve(actCount);
+    for (uint32_t i=0 ; i<actCount ; ++i)
+    {
+        ret.emplace_back();
+        std::string& name = ret.back();
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+    }
+
+    return ret;
+}
+
+std::unordered_map<std::string, BlenderConnection::DataStream::Matrix3f>
+BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
+{
+    if (name.empty())
+        return {};
+
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "GETBONEMATRICES %s", name.c_str());
+    m_parent->_writeLine(req);
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get matrices of armature: %s", readBuf);
+
+    std::unordered_map<std::string, Matrix3f> ret;
+
+    uint32_t boneCount;
+    m_parent->_readBuf(&boneCount, 4);
+    ret.reserve(boneCount);
+    for (uint32_t i=0 ; i<boneCount ; ++i)
+    {
+        std::string name;
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+
+        Matrix3f matOut;
+        for (int i=0 ; i<3 ; ++i)
+        {
+            for (int j=0 ; j<3 ; ++j)
+            {
+                float val;
+                m_parent->_readBuf(&val, 4);
+                matOut[i].vec[j] = val;
+            }
+            reinterpret_cast<atVec4f&>(matOut[i]).vec[3] = 0.f;
+        }
+
+        ret.emplace(std::make_pair(std::move(name), std::move(matOut)));
+    }
+
+    return ret;
+
 }
 
 void BlenderConnection::quitBlender()

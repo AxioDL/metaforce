@@ -197,6 +197,27 @@ def dataout_loop():
             writepipeline(b'OK')
             hecl.sact.get_action_names(writepipebuf)
 
+        elif cmdargs[0] == 'GETBONEMATRICES':
+            armName = cmdargs[1]
+
+            if armName not in bpy.data.objects:
+                writepipeline(('armature %s not found' % armName).encode())
+                continue
+
+            armObj = bpy.data.objects[armName]
+            if armObj.type != 'ARMATURE':
+                writepipeline(('object %s not an ARMATURE' % armName).encode())
+                continue
+
+            writepipeline(b'OK')
+            writepipebuf(struct.pack('I', len(armObj.data.bones)))
+            for bone in armObj.data.bones:
+                writepipebuf(struct.pack('I', len(bone.name)))
+                writepipebuf(bone.name.encode())
+                for r in bone.matrix:
+                    for c in r:
+                        writepipebuf(struct.pack('f', c))
+
 
 # Command loop
 while True:
