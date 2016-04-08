@@ -1,6 +1,8 @@
 #include "zeus/Math.hpp"
 #include "ANIM.hpp"
 
+#define DUMP_KEYS 0
+
 namespace DataSpec
 {
 namespace DNAANIM
@@ -181,12 +183,24 @@ BitstreamReader::read(const atUint8* data,
         default: break;
         }
     }
+
     for (size_t f=0 ; f<keyFrameCount ; ++f)
     {
+#if DUMP_KEYS
+        fprintf(stderr, "\nFRAME %" PRISize " %u %u\n", f, (m_bitCur / 32) * 4, m_bitCur % 32);
+        int lastId = -1;
+#endif
         auto kit = chanKeys.begin();
         auto ait = chanAccum.begin();
         for (const Channel& chan : channels)
         {
+#if DUMP_KEYS
+            if (chan.id != lastId)
+            {
+                lastId = chan.id;
+                fprintf(stderr, "\n");
+            }
+#endif
             QuantizedValue& p = *ait;
             switch (chan.type)
             {
@@ -198,6 +212,9 @@ BitstreamReader::read(const atUint8* data,
                 p[2] += dequantize(data, chan.q[2]);
                 QuantizedRot qr = {{p[0], p[1], p[2]}, wBit};
                 kit->emplace_back(DequantizeRotation(qr, rotDiv));
+#if DUMP_KEYS
+                fprintf(stderr, "%d R: %d %d %d %d\t", chan.id, wBit, p[0], p[1], p[2]);
+#endif
                 break;
             }
             case Channel::Type::Translation:
@@ -209,6 +226,9 @@ BitstreamReader::read(const atUint8* data,
                 atInt16 val3 = dequantize(data, chan.q[2]);
                 p[2] += val3;
                 kit->push_back({p[0] * transMult, p[1] * transMult, p[2] * transMult});
+#if DUMP_KEYS
+                fprintf(stderr, "%d T: %d %d %d\t", chan.id, p[0], p[1], p[2]);
+#endif
                 break;
             }
             case Channel::Type::Scale:
@@ -217,6 +237,9 @@ BitstreamReader::read(const atUint8* data,
                 p[1] += dequantize(data, chan.q[1]);
                 p[2] += dequantize(data, chan.q[2]);
                 kit->push_back({p[0] / float(rotDiv), p[1] / float(rotDiv), p[2] / float(rotDiv)});
+#if DUMP_KEYS
+                fprintf(stderr, "%d S: %d %d %d\t", chan.id, p[0], p[1], p[2]);
+#endif
                 break;
             }
             case Channel::Type::KfHead:
@@ -243,7 +266,11 @@ BitstreamReader::read(const atUint8* data,
             ++kit;
             ++ait;
         }
+#if DUMP_KEYS
+        fprintf(stderr, "\n");
+#endif
     }
+
     return chanKeys;
 }
 
