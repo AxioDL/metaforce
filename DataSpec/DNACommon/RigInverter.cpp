@@ -52,8 +52,6 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
         m_tail /= float(actualChildren);
         if (m_tail.magSquared() < 0.001f)
             m_tail = naturalTail;
-        else
-            m_inverter = zeus::CQuaternion(m_tail, naturalTail);
     }
     else if (parentIdx != -1)
     {
@@ -62,8 +60,6 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
         m_tail = zeus::CVector3f(origBone.origin) * 2.f - zeus::CVector3f(pBone.origin);
         if (m_tail.magSquared() < 0.001f)
             m_tail = naturalTail;
-        else
-            m_inverter = zeus::CQuaternion(m_tail, naturalTail);
     }
     else
     {
@@ -82,12 +78,37 @@ RigInverter<CINFType>::RigInverter(const CINFType& cinf)
 }
 
 template <class CINFType>
+RigInverter<CINFType>::RigInverter(const CINFType& cinf,
+                                   const std::unordered_map<std::string,
+                                   hecl::BlenderConnection::DataStream::Matrix3f>& matrices)
+: m_cinf(cinf)
+{
+    m_bones.reserve(cinf.bones.size());
+    for (const typename CINFType::Bone& b : cinf.bones)
+    {
+        m_bones.emplace_back(cinf, b);
+        const std::string* name = cinf.getBoneNameFromId(b.id);
+        if (name)
+        {
+            auto search = matrices.find(*name);
+            if (search != matrices.cend())
+            {
+                m_bones.back().m_inverter = zeus::CMatrix3f(search->second[0],
+                                                            search->second[1],
+                                                            search->second[2]);
+                m_bones.back().m_restorer = m_bones.back().m_inverter.transposed();
+            }
+        }
+    }
+}
+
+template <class CINFType>
 zeus::CQuaternion
 RigInverter<CINFType>::transformRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const
 {
     for (const Bone& b : m_bones)
         if (b.m_origBone.id == boneId)
-            return b.m_inverter * origRot;
+            return b.m_inverter * zeus::CMatrix3f(origRot) * b.m_restorer;
     return origRot;
 }
     

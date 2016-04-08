@@ -42,6 +42,11 @@ struct CINF : DNAMP2::CINF
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
     }
+
+    static std::string GetCINFArmatureName(const UniqueID64& cinfId)
+    {
+        return hecl::Format("CINF_%016" PRIX64, cinfId.toUint64());
+    }
 };
 
 }

@@ -13,6 +13,10 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin();
+
+    std::vector<zeus::CQuaternion> fixedRotKeys;
+    std::vector<zeus::CVector3f> fixedTransKeys;
+
     for (const std::pair<atUint32, bool>& bone : bones)
     {
         const std::string* bName = rig.getCINF().getBoneNameFromId(bone.first);
@@ -45,13 +49,14 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
               "\n";
 
+        if (bone.first == 3)
+            printf("");
         ANIMOutStream ao = os.beginANIMCurve();
         
         {
             const std::vector<DNAANIM::Value>& rotKeys = *kit++;
-            std::vector<zeus::CQuaternion> fixedRotKeys;
+            fixedRotKeys.clear();
             fixedRotKeys.resize(rotKeys.size());
-            fprintf(stderr, "alloc %d\n", rotKeys.size());
             
             for (int c=0 ; c<4 ; ++c)
             {
@@ -70,14 +75,12 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
                 for (const zeus::CQuaternion& val : fixedRotKeys)
                     ao.write(*frameit++, val[c]);
             }
-            
-            fprintf(stderr, "size %d\n", fixedRotKeys.size());
         }
 
         if (bone.second)
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
-            std::vector<zeus::CVector3f> fixedTransKeys;
+            fixedTransKeys.clear();
             fixedTransKeys.resize(transKeys.size());
 
             for (int c=0 ; c<3 ; ++c)

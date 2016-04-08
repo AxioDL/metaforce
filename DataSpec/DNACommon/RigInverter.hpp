@@ -2,7 +2,9 @@
 #define __COMMON_RIGINVERTER_HPP__
 
 #include "zeus/CVector3f.hpp"
+#include "zeus/CMatrix3f.hpp"
 #include "zeus/CQuaternion.hpp"
+#include "BlenderConnection.hpp"
 
 namespace DataSpec
 {
@@ -18,7 +20,8 @@ public:
     struct Bone
     {
         const typename CINFType::Bone& m_origBone;
-        zeus::CQuaternion m_inverter;
+        zeus::CMatrix3f m_inverter;
+        zeus::CMatrix3f m_restorer;
         zeus::CVector3f m_tail;
         zeus::CVector3f m_parentDelta;
         Bone(const CINFType& cinf, const typename CINFType::Bone& origBone);
@@ -28,6 +31,9 @@ private:
     std::vector<Bone> m_bones;
 public:
     RigInverter(const CINFType& cinf);
+    RigInverter(const CINFType& cinf,
+                const std::unordered_map<std::string,
+                hecl::BlenderConnection::DataStream::Matrix3f>& matrices);
     const CINFType& getCINF() const {return m_cinf;}
     const std::vector<Bone>& getBones() const {return m_bones;}
     zeus::CQuaternion transformRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const;

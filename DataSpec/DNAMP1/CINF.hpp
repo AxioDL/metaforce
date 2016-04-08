@@ -87,7 +87,7 @@ struct CINF : BigDNA
     void sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const
     {
         DNAANIM::RigInverter<CINF> inverter(*this);
-        
+
         os.format("arm = bpy.data.armatures.new('CINF_%08X')\n"
                   "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
                   "bpy.context.scene.objects.link(arm_obj)\n"
@@ -112,6 +112,11 @@ struct CINF : BigDNA
                 os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
+    }
+
+    static std::string GetCINFArmatureName(const UniqueID32& cinfId)
+    {
+        return hecl::Format("CINF_%08X", cinfId.toUint32());
     }
 
     CINF() = default;

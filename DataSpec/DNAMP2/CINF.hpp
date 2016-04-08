@@ -109,6 +109,11 @@ struct CINF : BigDNA
 
         os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
     }
+
+    static std::string GetCINFArmatureName(const UniqueID32& cinfId)
+    {
+        return hecl::Format("CINF_%08X", cinfId.toUint32());
+    }
 };
 
 }
