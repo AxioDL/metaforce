@@ -34,10 +34,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
                   "\n";
 
         if (bone.second)
-            os << "#bone_trans_head = (0.0,0.0,0.0)\n"
-                  "#if arm_obj.data.bones[bone_string].parent is not None:\n"
-                  "#    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n"
-                  "transCurves = []\n"
+            os << "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string))\n"
@@ -66,7 +63,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
             }
 
             for (zeus::CQuaternion& rot : fixedRotKeys)
-                rot = rig.transformRotation(bone.first, rot);
+                rot = rig.invertRotation(bone.first, rot);
 
             for (int c=0 ; c<4 ; ++c)
             {
@@ -91,7 +88,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
             }
 
             for (zeus::CVector3f& t : fixedTransKeys)
-                t = rig.transformPosition(bone.first, t, true);
+                t = rig.invertPosition(bone.first, t, true);
 
             for (int c=0 ; c<3 ; ++c)
             {

@@ -44,12 +44,6 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
 
         if (std::get<1>(bone.second))
         {
-            if (!additive)
-                os << "#bone_trans_head = (0.0,0.0,0.0)\n"
-                      "#if arm_obj.data.bones[bone_string].parent is not None:\n"
-                      "#    bone_trans_head = Vector(arm_obj.data.bones[bone_string].head_local) - Vector(arm_obj.data.bones[bone_string].parent.head_local)\n";
-            else
-                os << "#bone_trans_head = (0.0,0.0,0.0)\n";
             os << "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"

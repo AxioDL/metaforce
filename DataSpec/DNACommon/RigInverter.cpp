@@ -87,16 +87,18 @@ RigInverter<CINFType>::RigInverter(const CINFType& cinf,
     for (const typename CINFType::Bone& b : cinf.bones)
     {
         m_bones.emplace_back(cinf, b);
+
         const std::string* name = cinf.getBoneNameFromId(b.id);
         if (name)
         {
             auto search = matrices.find(*name);
             if (search != matrices.cend())
             {
-                m_bones.back().m_inverter = zeus::CMatrix3f(search->second[0],
-                                                            search->second[1],
-                                                            search->second[2]);
-                m_bones.back().m_restorer = m_bones.back().m_inverter.transposed();
+                zeus::CMatrix3f boneMtx(search->second[0],
+                                        search->second[1],
+                                        search->second[2]);
+                m_bones.back().m_inverter = boneMtx.transposed();
+                m_bones.back().m_restorer = boneMtx;
             }
         }
     }
@@ -104,17 +106,17 @@ RigInverter<CINFType>::RigInverter(const CINFType& cinf,
 
 template <class CINFType>
 zeus::CQuaternion
-RigInverter<CINFType>::transformRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const
+RigInverter<CINFType>::invertRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const
 {
     for (const Bone& b : m_bones)
         if (b.m_origBone.id == boneId)
-            return b.m_inverter * zeus::CMatrix3f(origRot) * b.m_restorer;
+            return b.m_restorer * zeus::CMatrix3f(origRot) * b.m_inverter;
     return origRot;
 }
     
 template <class CINFType>
 zeus::CVector3f
-RigInverter<CINFType>::transformPosition(atUint32 boneId, const zeus::CVector3f& origPos, bool subDelta) const
+RigInverter<CINFType>::invertPosition(atUint32 boneId, const zeus::CVector3f& origPos, bool subDelta) const
 {
     for (const Bone& b : m_bones)
         if (b.m_origBone.id == boneId)
@@ -122,7 +124,32 @@ RigInverter<CINFType>::transformPosition(atUint32 boneId, const zeus::CVector3f&
             zeus::CVector3f localPos = origPos;
             if (subDelta)
                 localPos -= b.m_parentDelta;
-            return zeus::CQuaternion::rotate(b.m_inverter, localPos);
+            return b.m_inverter * localPos;
+        }
+    return origPos;
+}
+
+template <class CINFType>
+zeus::CQuaternion
+RigInverter<CINFType>::restoreRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const
+{
+    for (const Bone& b : m_bones)
+        if (b.m_origBone.id == boneId)
+            return b.m_inverter * zeus::CMatrix3f(origRot) * b.m_restorer;
+    return origRot;
+}
+
+template <class CINFType>
+zeus::CVector3f
+RigInverter<CINFType>::restorePosition(atUint32 boneId, const zeus::CVector3f& origPos, bool subDelta) const
+{
+    for (const Bone& b : m_bones)
+        if (b.m_origBone.id == boneId)
+        {
+            zeus::CVector3f localPos = b.m_restorer * origPos;
+            if (subDelta)
+                localPos += b.m_parentDelta;
+            return localPos;
         }
     return origPos;
 }
