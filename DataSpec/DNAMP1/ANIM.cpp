@@ -59,7 +59,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : rotKeys)
-                    fixedRotKeys.at(idx++)[c] = val.v4.vec[c];
+                    fixedRotKeys[idx++][c] = val.v4.vec[c];
             }
 
             for (zeus::CQuaternion& rot : fixedRotKeys)
@@ -84,7 +84,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : transKeys)
-                    fixedTransKeys.at(idx++)[c] = val.v3.vec[c];
+                    fixedTransKeys[idx++][c] = val.v3.vec[c];
             }
 
             for (zeus::CVector3f& t : fixedTransKeys)

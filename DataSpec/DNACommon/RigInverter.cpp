@@ -124,7 +124,7 @@ RigInverter<CINFType>::invertPosition(atUint32 boneId, const zeus::CVector3f& or
             zeus::CVector3f localPos = origPos;
             if (subDelta)
                 localPos -= b.m_parentDelta;
-            return b.m_inverter * localPos;
+            return b.m_restorer * localPos;
         }
     return origPos;
 }
@@ -146,7 +146,7 @@ RigInverter<CINFType>::restorePosition(atUint32 boneId, const zeus::CVector3f& o
     for (const Bone& b : m_bones)
         if (b.m_origBone.id == boneId)
         {
-            zeus::CVector3f localPos = b.m_restorer * origPos;
+            zeus::CVector3f localPos = b.m_inverter * origPos;
             if (subDelta)
                 localPos += b.m_parentDelta;
             return localPos;
