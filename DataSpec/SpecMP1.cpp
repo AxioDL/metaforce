@@ -258,8 +258,21 @@ struct SpecMP1 : SpecBase
         hecl::ClientProcess process;
         int compIdx = 4;
         prog = 0;
-        for (std::pair<std::string, DNAMP1::PAKBridge*> pair : m_orderedPaks)
+        for (std::pair<const std::string, DNAMP1::PAKBridge*>& pair : m_orderedPaks)
         {
+#if 0
+            const DNAMP1::PAK::Entry* ent = pair.second->getPAK().lookupEntry(UniqueID32("AF974083"));
+            if (ent)
+            {
+                DNAMP1::ANIM anim;
+                PAKEntryReadStream rs = ent->beginReadStream(pair.second->getNode());
+                anim.read(rs);
+                exit(0);
+            }
+            else
+                continue;
+#endif
+
             DNAMP1::PAKBridge& pak = *pair.second;
             if (!pak.m_doExtract)
                 continue;

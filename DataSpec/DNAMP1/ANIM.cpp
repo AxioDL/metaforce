@@ -52,22 +52,22 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
         if (bone.first == 3)
             printf("");
         ANIMOutStream ao = os.beginANIMCurve();
-        
+
         {
             const std::vector<DNAANIM::Value>& rotKeys = *kit++;
             fixedRotKeys.clear();
             fixedRotKeys.resize(rotKeys.size());
-            
+
             for (int c=0 ; c<4 ; ++c)
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : rotKeys)
                     fixedRotKeys.at(idx++)[c] = val.v4.vec[c];
             }
-            
+
             for (zeus::CQuaternion& rot : fixedRotKeys)
                 rot = rig.transformRotation(bone.first, rot);
-            
+
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
@@ -310,6 +310,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
             chan.type = DNAANIM::Channel::Type::Rotation;
+            chan.id = desc.id;
             chan.i[0] = desc.initRX;
             chan.q[0] = desc.qRX;
             chan.i[1] = desc.initRY;
@@ -324,6 +325,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
             channels.emplace_back();
             DNAANIM::Channel& chan = channels.back();
             chan.type = DNAANIM::Channel::Type::Translation;
+            chan.id = desc.id;
             chan.i[0] = desc.initTX;
             chan.q[0] = desc.qTX;
             chan.i[1] = desc.initTY;

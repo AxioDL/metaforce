@@ -371,7 +371,7 @@ struct SpecMP3 : SpecBase
             std::mutex msgLock;
             hecl::ClientProcess process;
             prog = 0;
-            for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_orderedPaks)
+            for (std::pair<const std::string, DNAMP3::PAKBridge*>& pair : m_orderedPaks)
             {
                 DNAMP3::PAKBridge& pak = *pair.second;
                 if (!pak.m_doExtract)

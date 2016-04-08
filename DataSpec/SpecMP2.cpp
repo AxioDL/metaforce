@@ -240,7 +240,7 @@ struct SpecMP2 : SpecBase
         hecl::ClientProcess process;
         int compIdx = 4;
         prog = 0;
-        for (std::pair<std::string, DNAMP2::PAKBridge*> pair : m_orderedPaks)
+        for (std::pair<const std::string, DNAMP2::PAKBridge*>& pair : m_orderedPaks)
         {
             DNAMP2::PAKBridge& pak = *pair.second;
             if (!pak.m_doExtract)

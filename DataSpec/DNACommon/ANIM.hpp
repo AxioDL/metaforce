@@ -52,6 +52,7 @@ struct Channel
         KfHead,
         RotationMP3
     } type;
+    atInt32 id = -1;
     QuantizedValue i = {};
     atUint8 q[4] = {};
 };
