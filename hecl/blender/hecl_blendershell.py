@@ -114,13 +114,11 @@ def animin_loop(globals):
         crv.keyframe_points.add(count=key_info[1])
 
         if crv_type[0] == 1:
-            #trans_head = globals['bone_trans_head'][key_info[0]]
-            trans_head = 0
             for k in range(key_info[1]):
                 key_data = struct.unpack('if', os.read(readfd, 8))
                 pt = crv.keyframe_points[k]
                 pt.interpolation = 'LINEAR'
-                pt.co = (key_data[0], key_data[1] - trans_head)
+                pt.co = (key_data[0], key_data[1])
         else:
             for k in range(key_info[1]):
                 key_data = struct.unpack('if', os.read(readfd, 8))
@@ -214,7 +212,7 @@ def dataout_loop():
             for bone in armObj.data.bones:
                 writepipebuf(struct.pack('I', len(bone.name)))
                 writepipebuf(bone.name.encode())
-                for r in bone.matrix:
+                for r in bone.matrix_local.to_3x3():
                     for c in r:
                         writepipebuf(struct.pack('f', c))
 
