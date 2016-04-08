@@ -137,7 +137,7 @@ struct ANCS : BigYAML
                     String<-1> name;
                     DNAFourCC type;
                     UniqueID32 id;
-                    String<-1> name2;
+                    String<-1> locator;
                     Value<float> unk1;
                     Value<atUint32> unk2;
                     Value<atUint32> unk3;
