@@ -22,7 +22,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
                   light.q / 8.0);
         return;
     case BabeDeadLight::LightType::Directional:
-        os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
+        os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
@@ -37,7 +37,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
     case BabeDeadLight::LightType::Spot:
     case BabeDeadLight::LightType::Spot2:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
-                  "lamp.spot_size = %f\n"
+                  "lamp.spot_size = %.6g\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
