@@ -71,16 +71,18 @@ private:
         u8 dummy = 0;
     };
 
-    void RenderSwooshes();
 public:
 
 
     CParticleElectric(const TToken<CElectricDescription>& desc);
 
     void SetupLineGXMaterial();
-    void RenderLines();
     void Update(double);
+    void RenderLines();
+    void RenderSwooshes();
     void Render();
+    void CalculateFractal(s32, s32, float, float);
+    void CalculatePoints();
     void SetOrientation(const zeus::CTransform&);
     void SetTranslation(const zeus::CVector3f&);
     void SetGlobalOrientation(const zeus::CTransform&);
