@@ -20,6 +20,5 @@ add_library(RuntimeCommonGraphics
             CVertexMorphEffect.hpp CVertexMorphEffect.cpp
             CMoviePlayer.hpp CMoviePlayer.cpp
             CGraphicsPalette.hpp CGraphicsPalette.cpp
-            CSkinRules.hpp CSkinRules.cpp
             CGraphics.hpp CGraphics.cpp
             ${PLAT_SRCS})

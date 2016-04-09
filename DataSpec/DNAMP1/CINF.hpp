@@ -121,36 +121,49 @@ struct CINF : BigDNA
     CINF() = default;
     using Armature = hecl::BlenderConnection::DataStream::Actor::Armature;
 
-    int RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId)
+    int RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId,
+                                 std::unordered_map<std::string, atInt32>& idMap)
     {
+        int selId;
+        auto search = idMap.find(bone->name);
+        if (search == idMap.end())
+        {
+            selId = curId++;
+            idMap.emplace(std::make_pair(bone->name, selId));
+        }
+        else
+            selId = search->second;
+
         bones.emplace_back();
         names.emplace_back();
         Bone& boneOut = bones.back();
         Name& nameOut = names.back();
         nameOut.name = bone->name;
-        nameOut.boneId = curId;
-        boneOut.id = curId++;
+        nameOut.boneId = selId;
+        boneOut.id = selId;
         boneOut.parentId = parent;
         boneOut.origin = bone->origin;
-        boneOut.linkedCount = bone->children.size();
+        boneOut.linkedCount = bone->children.size() + 1;
         boneOut.linked.reserve(boneOut.linkedCount);
 
         const Armature::Bone* child;
+        boneOut.linked.push_back(parent);
         for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
-            boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, curId));
+            boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, selId, idMap));
 
         return boneOut.id;
     }
 
-    CINF(const Armature& armature)
+    CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& idMap)
     {
+        idMap.reserve(armature.bones.size());
         bones.reserve(armature.bones.size());
         names.reserve(armature.bones.size());
 
         const Armature::Bone* bone = armature.getRoot();
         int curId = 3;
         if (bone)
-            RecursiveAddArmatureBone(armature, bone, 2, curId);
+            RecursiveAddArmatureBone(armature, bone, 2, curId, idMap);
 
         boneCount = bones.size();
         nameCount = names.size();

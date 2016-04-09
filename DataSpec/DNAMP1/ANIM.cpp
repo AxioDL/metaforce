@@ -428,5 +428,76 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
     return __isz + DNAANIM::ComputeBitstreamSize(frames.size(), channels);
 }
 
+ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt32>& idMap)
+{
+    m_anim.reset(new struct ANIM0);
+    IANIM& newAnim = *m_anim;
+
+    newAnim.bones.reserve(act.channels.size());
+    size_t extChanCount = 0;
+    for (const BlenderAction::Channel& chan : act.channels)
+    {
+        auto search = idMap.find(chan.boneName);
+        if (search == idMap.cend())
+        {
+            Log.report(logvisor::Warning, "unable to find id for bone '%s'", chan.boneName.c_str());
+            continue;
+        }
+
+        extChanCount += std::max(zeus::PopCount(chan.attrMask), 2);
+        newAnim.bones.emplace_back(search->second, (chan.attrMask & 0x2) != 0);
+    }
+
+    newAnim.frames.reserve(act.frames.size());
+    for (int32_t frame : act.frames)
+        newAnim.frames.push_back(frame);
+
+    newAnim.channels.reserve(extChanCount);
+    newAnim.chanKeys.reserve(extChanCount);
+
+    for (const BlenderAction::Channel& chan : act.channels)
+    {
+        auto search = idMap.find(chan.boneName);
+        if (search == idMap.cend())
+            continue;
+
+        newAnim.channels.emplace_back();
+        DNAANIM::Channel& newChan = newAnim.channels.back();
+        newChan.type = DNAANIM::Channel::Type::Rotation;
+        newChan.id = search->second;
+
+        newAnim.chanKeys.emplace_back();
+        std::vector<DNAANIM::Value>& rotVals = newAnim.chanKeys.back();
+        rotVals.reserve(chan.keys.size());
+        for (const BlenderAction::Channel::Key& key : chan.keys)
+        {
+            rotVals.emplace_back(key.rotation.val.vec[0],
+                                 key.rotation.val.vec[1],
+                                 key.rotation.val.vec[2],
+                                 key.rotation.val.vec[3]);
+        }
+
+        if (chan.attrMask & 0x2)
+        {
+            newAnim.channels.emplace_back();
+            DNAANIM::Channel& newChan = newAnim.channels.back();
+            newChan.type = DNAANIM::Channel::Type::Translation;
+            newChan.id = search->second;
+
+            newAnim.chanKeys.emplace_back();
+            std::vector<DNAANIM::Value>& transVals = newAnim.chanKeys.back();
+            transVals.reserve(chan.keys.size());
+            for (const BlenderAction::Channel::Key& key : chan.keys)
+            {
+                transVals.emplace_back(key.position.val.vec[0],
+                                       key.position.val.vec[1],
+                                       key.position.val.vec[2]);
+            }
+        }
+    }
+
+    newAnim.mainInterval = act.interval;
+}
+
 }
 }

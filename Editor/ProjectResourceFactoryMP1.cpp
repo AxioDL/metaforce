@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
 
 #include "DataSpec/DNACommon/TXTR.hpp"
 
@@ -29,6 +30,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
     m_factoryMgr.AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
     m_factoryMgr.AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
+    m_factoryMgr.AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
@@ -96,6 +98,11 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
             else if (!strcmp(className, "FONT"))
             {
                 resTag.type = SBIG('FONT');
+                return true;
+            }
+            else if (!strcmp(className, "urde::DNAMP1::EVNT"))
+            {
+                resTag.type = SBIG('EVNT');
                 return true;
             }
             return false;

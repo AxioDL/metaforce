@@ -265,6 +265,8 @@ struct SpecMP2 : SpecBase
             });
         }
 
+        process.waitUntilComplete();
+
         return true;
     }
 

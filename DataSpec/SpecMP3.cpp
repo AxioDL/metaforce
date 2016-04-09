@@ -395,6 +395,8 @@ struct SpecMP3 : SpecBase
                     });
                 });
             }
+
+            process.waitUntilComplete();
         }
 
         if (doMPTFE)
@@ -455,6 +457,8 @@ struct SpecMP3 : SpecBase
                     });
                 });
             }
+
+            process.waitUntilComplete();
         }
         return true;
     }

@@ -157,7 +157,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& arm : armatureNames)
                     {
                         hecl::SystemStringView sysStr(arm);
-                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.c_str());
+                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         if (pathTag)
                         {
@@ -169,7 +169,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& act : actionNames)
                     {
                         hecl::SystemStringView sysStr(act);
-                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.c_str());
+                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         if (pathTag)
                         {

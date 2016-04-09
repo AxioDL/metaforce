@@ -179,6 +179,10 @@ struct ANIM : BigDNA
         m_anim->sendANIMToBlender(os, rig);
     }
 
+    using BlenderAction = hecl::BlenderConnection::DataStream::Actor::Action;
+
+    ANIM() = default;
+    ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt32>& idMap);
 };
 
 }

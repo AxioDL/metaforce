@@ -261,7 +261,7 @@ struct SpecMP1 : SpecBase
         for (std::pair<const std::string, DNAMP1::PAKBridge*>& pair : m_orderedPaks)
         {
 #if 0
-            const DNAMP1::PAK::Entry* ent = pair.second->getPAK().lookupEntry(UniqueID32("AF974083"));
+            const DNAMP1::PAK::Entry* ent = pair.second->getPAK().lookupEntry(UniqueID32("A4DFCAD6"));
             if (ent)
             {
                 DNAMP1::ANIM anim;
@@ -295,6 +295,8 @@ struct SpecMP1 : SpecBase
                 });
             });
         }
+
+        process.waitUntilComplete();
 
         return true;
     }
