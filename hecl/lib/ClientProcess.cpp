@@ -63,6 +63,11 @@ void ClientProcess::Worker::proc()
     while (m_proc.m_running)
     {
         std::unique_lock<std::mutex> lk(m_proc.m_mutex);
+        if (!m_didInit)
+        {
+            m_proc.m_initCv.notify_one();
+            m_didInit = true;
+        }
         while (m_proc.m_pendingQueue.size())
         {
             std::unique_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
@@ -89,7 +94,11 @@ ClientProcess::ClientProcess(int verbosityLevel)
 #endif
     m_workers.reserve(cpuCount);
     for (int i=0 ; i<cpuCount ; ++i)
+    {
+        std::unique_lock<std::mutex> lk(m_mutex);
         m_workers.emplace_back(*this);
+        m_initCv.wait(lk);
+    }
 }
 
 const ClientProcess::BufferTransaction*

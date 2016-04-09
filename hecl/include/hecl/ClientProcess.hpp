@@ -16,6 +16,7 @@ class ClientProcess
 {
     std::mutex m_mutex;
     std::condition_variable m_cv;
+    std::condition_variable m_initCv;
     int m_verbosity;
 
 public:
@@ -71,6 +72,7 @@ private:
         ClientProcess& m_proc;
         std::thread m_thr;
         BlenderToken m_blendTok;
+        bool m_didInit = false;
         Worker(ClientProcess& proc);
         void proc();
     };
