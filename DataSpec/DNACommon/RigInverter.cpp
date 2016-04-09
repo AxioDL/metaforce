@@ -13,11 +13,12 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
 : m_origBone(origBone)
 {
     atUint32 parentIdx = cinf.getInternalBoneIdxFromId(origBone.parentId);
-    zeus::CVector3f naturalTail = zeus::CVector3f(origBone.origin) + zeus::CVector3f{0.f, 0.5f, 0.f};
+    zeus::CVector3f boneOrigin(origBone.origin);
+    zeus::CVector3f naturalTail = boneOrigin + zeus::CVector3f{0.f, 0.5f, 0.f};
     if (parentIdx != -1)
     {
         const typename CINFType::Bone& pBone = cinf.bones[parentIdx];
-        m_parentDelta = zeus::CVector3f(origBone.origin) - zeus::CVector3f(pBone.origin);
+        m_parentDelta = boneOrigin - zeus::CVector3f(pBone.origin);
     }
     
     size_t actualChildren = 0;
@@ -29,6 +30,11 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
         if (chIdx != -1)
             ++actualChildren;
     }
+
+    const std::string* bName = cinf.getBoneNameFromId(origBone.id);
+    bool isLCTR = false;
+    if (bName)
+        isLCTR = bName->find("_LCTR") != std::string::npos;
 
     if (parentIdx == -1)
     {
@@ -52,14 +58,27 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
         m_tail /= float(actualChildren);
         if (m_tail.magSquared() < 0.001f)
             m_tail = naturalTail;
+
+        if (isLCTR)
+            m_tail = boneOrigin + zeus::CVector3f{0.f, 1.0f, 0.f} * (m_tail - boneOrigin).magnitude();
     }
     else if (parentIdx != -1)
     {
         /* Extrapolate by delta with parent */
-        const typename CINFType::Bone& pBone = cinf.bones[parentIdx];
-        m_tail = zeus::CVector3f(origBone.origin) * 2.f - zeus::CVector3f(pBone.origin);
+        m_tail = zeus::CVector3f(origBone.origin) + m_parentDelta;
         if (m_tail.magSquared() < 0.001f)
             m_tail = naturalTail;
+
+        float deltaMag = m_parentDelta.magnitude();
+        if (deltaMag > 0.5f)
+        {
+            /* Extreme bones capped to +0.5 value */
+            deltaMag = 0.5f;
+            m_tail = boneOrigin + m_parentDelta.normalized() * 0.5f;
+        }
+
+        if (isLCTR)
+            m_tail = boneOrigin + zeus::CVector3f{0.f, 1.0f, 0.f} * deltaMag;
     }
     else
     {
