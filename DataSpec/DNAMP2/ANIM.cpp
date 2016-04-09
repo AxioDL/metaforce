@@ -12,6 +12,10 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
     os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
 
     auto kit = chanKeys.begin();
+
+    std::vector<zeus::CQuaternion> fixedRotKeys;
+    std::vector<zeus::CVector3f> fixedTransKeys;
+
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
     {
         const std::string* bName = rig.getCINF().getBoneNameFromId(bone.first);
@@ -54,24 +58,50 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
         if (std::get<0>(bone.second))
         {
             const std::vector<DNAANIM::Value>& rotKeys = *kit++;
+            fixedRotKeys.clear();
+            fixedRotKeys.resize(rotKeys.size());
+
+            for (int c=0 ; c<4 ; ++c)
+            {
+                size_t idx = 0;
+                for (const DNAANIM::Value& val : rotKeys)
+                    fixedRotKeys[idx++][c] = val.v4.vec[c];
+            }
+
+            for (zeus::CQuaternion& rot : fixedRotKeys)
+                rot = rig.invertRotation(bone.first, rot);
+
             for (int c=0 ; c<4 ; ++c)
             {
                 auto frameit = frames.begin();
                 ao.changeCurve(ANIMOutStream::CurveType::Rotate, c, rotKeys.size());
-                for (const DNAANIM::Value& val : rotKeys)
-                    ao.write(*frameit++, val.v4.vec[c]);
+                for (const zeus::CQuaternion& val : fixedRotKeys)
+                    ao.write(*frameit++, val[c]);
             }
         }
 
         if (std::get<1>(bone.second))
         {
             const std::vector<DNAANIM::Value>& transKeys = *kit++;
+            fixedTransKeys.clear();
+            fixedTransKeys.resize(transKeys.size());
+
+            for (int c=0 ; c<3 ; ++c)
+            {
+                size_t idx = 0;
+                for (const DNAANIM::Value& val : transKeys)
+                    fixedTransKeys[idx++][c] = val.v3.vec[c];
+            }
+
+            for (zeus::CVector3f& t : fixedTransKeys)
+                t = rig.invertPosition(bone.first, t, true);
+
             for (int c=0 ; c<3 ; ++c)
             {
                 auto frameit = frames.begin();
-                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, transKeys.size());
-                for (const DNAANIM::Value& val : transKeys)
-                    ao.write(*frameit++, val.v3.vec[c]);
+                ao.changeCurve(ANIMOutStream::CurveType::Translate, c, fixedTransKeys.size());
+                for (const zeus::CVector3f& val : fixedTransKeys)
+                    ao.write(*frameit++, val[c]);
             }
         }
 

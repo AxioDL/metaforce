@@ -46,8 +46,6 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
               "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
               "\n";
 
-        if (bone.first == 3)
-            printf("");
         ANIMOutStream ao = os.beginANIMCurve();
 
         {

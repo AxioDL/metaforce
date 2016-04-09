@@ -100,7 +100,6 @@ struct CINF : BigDNA
             os.format("bone = arm.edit_bones.new('%s')\n"
                       "bone.head = (%f,%f,%f)\n"
                       "bone.tail = (%f,%f,%f)\n"
-                      "#bone.tail[1] += 0.5\n"
                       "bone.use_inherit_scale = False\n"
                       "arm_bone_table[%u] = bone\n", getBoneNameFromId(bone.m_origBone.id)->c_str(),
                       bone.m_origBone.origin.vec[0], bone.m_origBone.origin.vec[1], bone.m_origBone.origin.vec[2],

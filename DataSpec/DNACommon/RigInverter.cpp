@@ -56,7 +56,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
             }
         }
         m_tail /= float(actualChildren);
-        if (m_tail.magSquared() < 0.001f)
+        if ((m_tail - boneOrigin).magSquared() < 0.001f)
             m_tail = naturalTail;
 
         if (isLCTR)
@@ -65,8 +65,8 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
     else if (parentIdx != -1)
     {
         /* Extrapolate by delta with parent */
-        m_tail = zeus::CVector3f(origBone.origin) + m_parentDelta;
-        if (m_tail.magSquared() < 0.001f)
+        m_tail = boneOrigin + m_parentDelta;
+        if (m_parentDelta.magSquared() < 0.001f)
             m_tail = naturalTail;
 
         float deltaMag = m_parentDelta.magnitude();
