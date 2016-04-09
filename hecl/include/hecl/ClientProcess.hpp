@@ -17,6 +17,7 @@ class ClientProcess
     std::mutex m_mutex;
     std::condition_variable m_cv;
     std::condition_variable m_initCv;
+    std::condition_variable m_waitCv;
     int m_verbosity;
 
 public:
@@ -87,6 +88,7 @@ public:
     const LambdaTransaction* addLambdaTransaction(std::function<void(BlenderToken&)>&& func);
     bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, BlenderToken& btok);
     void swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue);
+    void waitUntilComplete();
     void shutdown();
 };
 

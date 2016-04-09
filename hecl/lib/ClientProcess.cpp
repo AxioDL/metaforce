@@ -77,6 +77,7 @@ void ClientProcess::Worker::proc()
             lk.lock();
             m_proc.m_completedQueue.push_back(std::move(trans));
         }
+        m_proc.m_waitCv.notify_one();
         if (!m_proc.m_running)
             break;
         m_proc.m_cv.wait(lk);
@@ -152,6 +153,13 @@ void ClientProcess::swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& 
 {
     std::unique_lock<std::mutex> lk(m_mutex);
     queue.swap(m_completedQueue);
+}
+
+void ClientProcess::waitUntilComplete()
+{
+    std::unique_lock<std::mutex> lk(m_mutex);
+    while (m_pendingQueue.size())
+        m_waitCv.wait(lk);
 }
 
 void ClientProcess::shutdown()
