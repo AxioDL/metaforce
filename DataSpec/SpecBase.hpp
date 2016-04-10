@@ -56,13 +56,16 @@ struct SpecBase : hecl::Database::IDataSpec
     using Actor = BlendStream::Actor;
 
     virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, FCookProgress progress) const=0;
+                          BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                          FCookProgress progress)=0;
     virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                           BlendStream& ds, bool fast, FCookProgress progress) const=0;
+                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                           FCookProgress progress)=0;
     virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, FCookProgress progress) const=0;
+                          BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                          FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          FILE* fin, FCookProgress progress) const=0;
+                          FILE* fin, FCookProgress progress)=0;
 
     const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

@@ -16,4 +16,13 @@ add_library(RuntimeCommonCharacter
             CSegIdList.hpp CSegIdList.cpp
             CSegId.hpp CSegId.cpp
             CSkinRules.hpp CSkinRules.cpp
+            CAnimCharacterSet.hpp CAnimCharacterSet.cpp
+            CAnimationSet.hpp CAnimationSet.cpp
+            CCharacterSet.hpp CCharacterSet.cpp
+            CCharacterInfo.hpp CCharacterInfo.cpp
+            CPASDatabase.hpp CPASDatabase.cpp
+            CPASAnimState.hpp CPASAnimState.cpp
+            CPASParmInfo.hpp CPASParmInfo.cpp
+            CPASAnimInfo.hpp CPASAnimInfo.cpp
+            CPASAnimParm.hpp CPASAnimParm.cpp
             CBodyState.hpp)

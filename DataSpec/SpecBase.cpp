@@ -93,7 +93,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 
 void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 {
-    DataSpec::g_curSpec = this;
+    DataSpec::g_curSpec.reset(this);
     if (!Blender::BuildMasterShader(m_masterShader))
         Log.report(logvisor::Fatal, "Unable to build master shader blend");
     if (m_isWii)
@@ -173,7 +173,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
                       bool fast, hecl::BlenderToken& btok, FCookProgress progress)
 {
-    DataSpec::g_curSpec = this;
+    DataSpec::g_curSpec.reset(this);
     if (hecl::IsPathBlend(path))
     {
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
@@ -184,19 +184,19 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
         case hecl::BlenderConnection::BlendType::Mesh:
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();
-            cookMesh(cookedPath, path, ds, fast, progress);
+            cookMesh(cookedPath, path, ds, fast, btok, progress);
             break;
         }
         case hecl::BlenderConnection::BlendType::Actor:
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();
-            cookActor(cookedPath, path, ds, fast, progress);
+            cookActor(cookedPath, path, ds, fast, btok, progress);
             break;
         }
         case hecl::BlenderConnection::BlendType::Area:
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();
-            cookArea(cookedPath, path, ds, fast, progress);
+            cookArea(cookedPath, path, ds, fast, btok, progress);
             break;
         }
         default: break;
