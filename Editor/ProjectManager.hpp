@@ -20,8 +20,8 @@ class ProjectResourcePool : public CSimplePool
 public:
     ProjectResourcePool(IFactory& factory, ProjectManager& parent)
     : CSimplePool(factory), m_parent(parent) {}
-    CToken GetObj(char const*);
-    CToken GetObj(char const*, const CVParamTransfer&);
+    CToken GetObj(const char*);
+    CToken GetObj(const char*, const CVParamTransfer&);
 };
 
 class ProjectManager

@@ -9,6 +9,10 @@ namespace urde
 
 class CMetaAnimBlend : public IMetaAnim
 {
+    std::shared_ptr<IMetaAnim> x4_animA;
+    std::shared_ptr<IMetaAnim> x8_animB;
+    float xc_blend;
+    bool x10_;
 public:
     CMetaAnimBlend(CInputStream& in);
     EMetaAnimType GetType() const {return EMetaAnimType::Blend;}

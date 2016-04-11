@@ -1,10 +1,12 @@
 #ifndef __PSHAG_CANIMTREETWEENBASE_HPP__
 #define __PSHAG_CANIMTREETWEENBASE_HPP__
 
+#include "CAnimTreeDoubleChild.hpp"
+
 namespace urde
 {
 
-class CAnimTreeTweenBase
+class CAnimTreeTweenBase : public CAnimTreeDoubleChild
 {
 };
 

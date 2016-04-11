@@ -22,8 +22,8 @@ public:
     CSimplePool(IFactory& factory);
     CToken GetObj(const SObjectTag&, const CVParamTransfer&);
     CToken GetObj(const SObjectTag&);
-    CToken GetObj(char const*);
-    CToken GetObj(char const*, const CVParamTransfer&);
+    CToken GetObj(const char*);
+    CToken GetObj(const char*, const CVParamTransfer&);
     bool HasObject(const SObjectTag&) const;
     bool ObjectIsLive(const SObjectTag&) const;
     IFactory& GetFactory() const {return x30_factory;}

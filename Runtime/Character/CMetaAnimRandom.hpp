@@ -9,6 +9,9 @@ namespace urde
 
 class CMetaAnimRandom : public IMetaAnim
 {
+    using RandomData = std::vector<std::pair<std::shared_ptr<IMetaAnim>, u32>>;
+    RandomData x4_randomData;
+    static RandomData CreateRandomData(CInputStream& in);
 public:
     CMetaAnimRandom(CInputStream& in);
     EMetaAnimType GetType() const {return EMetaAnimType::Random;}

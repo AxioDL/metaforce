@@ -9,6 +9,10 @@ namespace urde
 
 class CMetaAnimPhaseBlend : public IMetaAnim
 {
+    std::shared_ptr<IMetaAnim> x4_animA;
+    std::shared_ptr<IMetaAnim> x8_animB;
+    float xc_blend;
+    bool x10_;
 public:
     CMetaAnimPhaseBlend(CInputStream& in);
     EMetaAnimType GetType() const {return EMetaAnimType::PhaseBlend;}

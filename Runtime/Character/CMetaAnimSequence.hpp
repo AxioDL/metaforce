@@ -9,6 +9,8 @@ namespace urde
 
 class CMetaAnimSequence : public IMetaAnim
 {
+    std::vector<std::shared_ptr<IMetaAnim>> x4_sequence;
+    std::vector<std::shared_ptr<IMetaAnim>> CreateSequence(CInputStream& in);
 public:
     CMetaAnimSequence(CInputStream& in);
     EMetaAnimType GetType() const {return EMetaAnimType::Sequence;}

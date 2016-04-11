@@ -53,4 +53,5 @@ add_library(RuntimeCommonCharacter
             IAnimReader.hpp IAnimReader.cpp
             CPrimitive.hpp CPrimitive.cpp
             CHalfTransition.hpp CHalfTransition.cpp
+            CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
             CBodyState.hpp)

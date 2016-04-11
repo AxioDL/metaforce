@@ -4,8 +4,7 @@ namespace urde
 {
 
 CMetaAnimPlay::CMetaAnimPlay(CInputStream& in)
-{
-}
+: x4_primitive(in), x1c_(in.readFloatBig()), x20_(in.readUint32Big()) {}
 
 std::shared_ptr<CAnimTreeNode>
 CMetaAnimPlay::GetAnimationTree(const CAnimSysContext& animSys,

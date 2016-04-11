@@ -8,6 +8,10 @@ namespace urde
 
 class CAnimTreeNode : public IAnimReader
 {
+    std::string x4_name;
+public:
+    CAnimTreeNode(const std::string& name) : x4_name(name) {}
+    bool IsCAnimTreeNode() const {return true;}
 };
 
 }

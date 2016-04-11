@@ -10,7 +10,6 @@ namespace urde
 class CMetaTransSnap : public IMetaTrans
 {
 public:
-    CMetaTransSnap(CInputStream& in);
     EMetaTransType GetType() const {return EMetaTransType::Snap;}
 
     std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,

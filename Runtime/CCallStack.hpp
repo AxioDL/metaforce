@@ -9,7 +9,7 @@ class CCallStack
     const char* x0_fileAndLineStr;
     const char* x4_typeStr;
 public:
-    CCallStack(char const* fileAndLineStr, char const* typeStr)
+    CCallStack(const char* fileAndLineStr, const char* typeStr)
     : x0_fileAndLineStr(fileAndLineStr), x4_typeStr(typeStr) {}
     const char* GetFileAndLineText() const {return x0_fileAndLineStr;}
     const char* GetTypeText() const {return x4_typeStr;}

@@ -9,6 +9,11 @@ namespace urde
 
 class CMetaTransTrans : public IMetaTrans
 {
+    float x4_;
+    u32 x8_;
+    bool xc_;
+    bool xd_;
+    u32 x10_;
 public:
     CMetaTransTrans(CInputStream& in);
     EMetaTransType GetType() const {return EMetaTransType::Trans;}

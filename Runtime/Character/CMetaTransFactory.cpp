@@ -20,7 +20,7 @@ std::shared_ptr<IMetaTrans> CMetaTransFactory::CreateMetaTrans(CInputStream& in)
     case EMetaTransType::PhaseTrans:
         return std::make_shared<CMetaTransPhaseTrans>(in);
     case EMetaTransType::Snap:
-        return std::make_shared<CMetaTransSnap>(in);
+        return std::make_shared<CMetaTransSnap>();
     default: break;
     }
 

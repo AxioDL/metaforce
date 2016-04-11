@@ -13,7 +13,7 @@ enum class EMetaTransType
     MetaAnim,
     Trans,
     PhaseTrans,
-    Snap,
+    Snap
 };
 
 class IMetaTrans
