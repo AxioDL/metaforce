@@ -18,7 +18,7 @@ class CSegStatementSet;
 
 struct SAdvancementResults
 {
-    CCharAnimTime x0_animTime;
+    CCharAnimTime x0_remTime;
     zeus::CVector3f x8_posDelta;
     zeus::CQuaternion x14_rotDelta;
 };
@@ -28,7 +28,7 @@ class IAnimReader
 public:
     virtual ~IAnimReader() = default;
     virtual bool IsCAnimTreeNode() const {return false;}
-    virtual void VAdvanceView(const CCharAnimTime& a)=0;
+    virtual SAdvancementResults VAdvanceView(const CCharAnimTime& a)=0;
     virtual void VGetTimeRemaining() const=0;
     virtual void VGetSteadyStateAnimInfo() const=0;
     virtual bool VHasOffset(const CSegId& seg) const=0;
@@ -51,6 +51,11 @@ public:
     virtual void VGetContributionOfHighestInfluence() const=0;
     virtual void VGetNumChildren() const=0;
     virtual void VGetBestUnblendedChild() const=0;
+
+    void GetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32, u32, u32) const;
+    void GetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32, u32, u32) const;
+    void GetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32, u32, u32) const;
+    void GetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32, u32, u32) const;
 };
 
 }

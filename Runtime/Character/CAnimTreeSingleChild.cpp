@@ -9,7 +9,7 @@ CAnimTreeSingleChild::CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& n
 
 }
 
-void CAnimTreeSingleChild::VAdvanceView(const CCharAnimTime& a)
+SAdvancementResults CAnimTreeSingleChild::VAdvanceView(const CCharAnimTime& a)
 {
 }
 

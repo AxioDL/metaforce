@@ -9,7 +9,7 @@ namespace urde
 class CAnimTreeDoubleChild : public CAnimTreeNode
 {
 public:
-    void VAdvanceView(const CCharAnimTime& a);
+    SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     void VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32, u32, u32) const;
     void VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32, u32, u32) const;
     void VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32, u32, u32) const;

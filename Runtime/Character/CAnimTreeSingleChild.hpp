@@ -12,7 +12,7 @@ class CAnimTreeSingleChild : public CAnimTreeNode
 public:
     CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, const std::string& name);
 
-    void VAdvanceView(const CCharAnimTime& a);
+    SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     void VGetTimeRemaining() const;
     bool VHasOffset(const CSegId& seg) const;
     void VGetOffset(const CSegId& seg) const;

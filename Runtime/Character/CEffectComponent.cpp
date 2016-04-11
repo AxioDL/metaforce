@@ -5,9 +5,7 @@ namespace urde
 
 SObjectTag CEffectComponent::GetSObjectTagFromStream(CInputStream& in)
 {
-    char tpChars[4];
-    in.readBytesToBuf(tpChars, 4);
-    return {tpChars, in.readUint32Big()};
+    return SObjectTag(in);
 }
 
 CEffectComponent::CEffectComponent(CInputStream& in)

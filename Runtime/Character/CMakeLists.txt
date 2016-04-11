@@ -3,7 +3,7 @@ add_library(RuntimeCommonCharacter
             CCharacterFactory.hpp CCharacterFactory.cpp
             CAnimData.hpp CAnimData.cpp
             CCharAnimTime.hpp CCharAnimTime.cpp
-            IMetaAnim.hpp
+            IMetaAnim.hpp IMetaAnim.cpp
             IMetaTrans.hpp
             CAnimationDatabase.hpp
             CAnimationDatabaseGame.hpp
@@ -54,4 +54,10 @@ add_library(RuntimeCommonCharacter
             CPrimitive.hpp CPrimitive.cpp
             CHalfTransition.hpp CHalfTransition.cpp
             CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
+            CParticleData.hpp CParticleData.cpp
+            CPOINode.hpp CPOINode.cpp
+            CBoolPOINode.hpp CBoolPOINode.cpp
+            CInt32POINode.hpp CInt32POINode.cpp
+            CSoundPOINode.hpp CSoundPOINode.cpp
+            CParticlePOINode.hpp CParticlePOINode.cpp
             CBodyState.hpp)

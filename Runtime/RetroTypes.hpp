@@ -7,6 +7,7 @@
 #include "GCNTypes.hpp"
 #include "rstl.hpp"
 #include "DataSpec/DNACommon/DNACommon.hpp"
+#include "IOStreams.hpp"
 
 namespace urde
 {
@@ -23,6 +24,11 @@ struct SObjectTag
     bool operator==(const SObjectTag& other) const {return id == other.id;}
     SObjectTag() = default;
     SObjectTag(FourCC tp, TResId rid) : type(tp), id(rid) {}
+    SObjectTag(CInputStream& in)
+    {
+        in.readBytesToBuf(&type, 4);
+        id = in.readUint32Big();
+    }
 };
 
 /**

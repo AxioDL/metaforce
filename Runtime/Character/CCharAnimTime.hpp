@@ -1,7 +1,7 @@
 #ifndef __PSHAG_CCHARANIMTIME_HPP__
 #define __PSHAG_CCHARANIMTIME_HPP__
 
-#include <algorithm>
+#include "IOStreams.hpp"
 
 namespace urde
 {
@@ -19,6 +19,9 @@ class CCharAnimTime
     } m_type = Type::ZeroSteady;
 public:
     CCharAnimTime() = default;
+    CCharAnimTime(CInputStream& in)
+        : m_time(in.readFloatBig()),
+          m_type(Type(in.readUint32Big())) {}
     CCharAnimTime(float time)
         : m_time(time),
           m_type(m_time != 0.f ? Type::NonZero : Type::ZeroSteady) {}

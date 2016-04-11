@@ -23,9 +23,18 @@ struct EVNT : BigYAML
         Value<atUint16> type;
         struct CharAnimTime : BigYAML
         {
+            enum class Type : atUint32
+            {
+                NonZero,
+                ZeroIncreasing,
+                ZeroSteady,
+                ZeroDecreasing,
+                Infinity
+            };
+
             DECL_YAML
             Value<float> time;
-            Value<atUint32> unk1;
+            Value<Type> type;
         };
 
         CharAnimTime animTime;

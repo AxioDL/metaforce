@@ -1,10 +1,11 @@
 #ifndef __PSHAG_IOSTREAMS_HPP__
 #define __PSHAG_IOSTREAMS_HPP__
 
-#include "RetroTypes.hpp"
+#include "GCNTypes.hpp"
 #include <athena/IStreamReader.hpp>
 #include <athena/IStreamWriter.hpp>
 #include <athena/MemoryReader.hpp>
+#include <athena/MemoryWriter.hpp>
 #include <zlib.h>
 
 namespace urde

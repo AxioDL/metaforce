@@ -1,4 +1,5 @@
 #include "CCharAnimTime.hpp"
+#include <algorithm>
 
 namespace urde
 {

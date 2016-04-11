@@ -2,6 +2,7 @@
 #define __PSHAG_CEFFECTCOMPONENT_HPP__
 
 #include "IOStreams.hpp"
+#include "RetroTypes.hpp"
 
 namespace urde
 {
