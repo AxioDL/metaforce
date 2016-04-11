@@ -14,6 +14,8 @@ class CSegId
 public:
     CSegId() = default;
     CSegId(CInputStream& in) : x0_segId(in.readUint32Big()) {}
+    operator bool() const {return x0_segId != 0xff;}
+    u8 GetId() const {return x0_segId;}
 };
 
 }

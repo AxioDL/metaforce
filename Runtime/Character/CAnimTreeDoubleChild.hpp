@@ -21,8 +21,8 @@ public:
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Depth() const;
     void VGetContributionOfHighestInfluence() const;
-    void VGetNumChildren() const;
-    void VGetBestUnblendedChild() const;
+    u32 VGetNumChildren() const;
+    std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
 };
 
 }

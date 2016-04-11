@@ -55,9 +55,14 @@ add_library(RuntimeCommonCharacter
             CHalfTransition.hpp CHalfTransition.cpp
             CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
             CParticleData.hpp CParticleData.cpp
+            CAnimPOIData.hpp CAnimPOIData.cpp
             CPOINode.hpp CPOINode.cpp
             CBoolPOINode.hpp CBoolPOINode.cpp
             CInt32POINode.hpp CInt32POINode.cpp
             CSoundPOINode.hpp CSoundPOINode.cpp
             CParticlePOINode.hpp CParticlePOINode.cpp
+            CAnimSourceReader.hpp CAnimSourceReader.cpp
+            CAnimSource.hpp CAnimSource.cpp
+            CAllFormatsAnimSource.hpp CAllFormatsAnimSource.cpp
+            CSegStatementSet.hpp CSegStatementSet.cpp
             CBodyState.hpp)

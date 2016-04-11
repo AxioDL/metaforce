@@ -12,6 +12,10 @@ class CAnimTreeNode : public IAnimReader
 public:
     CAnimTreeNode(const std::string& name) : x4_name(name) {}
     bool IsCAnimTreeNode() const {return true;}
+
+    void GetContributionOfHighestInfluence() const;
+    u32 GetNumChildren() const;
+    std::shared_ptr<IAnimReader> GetBestUnblendedChild() const;
 };
 
 }

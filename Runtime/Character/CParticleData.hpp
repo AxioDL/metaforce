@@ -7,15 +7,16 @@
 namespace urde
 {
 
-enum class EParentedMode
-{
-    Initial,
-    ContinuousEmitter,
-    ContinuousSystem
-};
-
 class CParticleData
 {
+public:
+    enum class EParentedMode
+    {
+        Initial,
+        ContinuousEmitter,
+        ContinuousSystem
+    };
+private:
     u32 x0_duration;
     SObjectTag x4_particle;
     std::string xc_boneName;

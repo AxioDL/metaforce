@@ -29,7 +29,7 @@ public:
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Depth() const;
-    void VGetNumChildren() const;
+    u32 VGetNumChildren() const;
 };
 
 }

@@ -44,13 +44,13 @@ public:
     virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const=0;
     virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const=0;
     virtual void VClone() const=0;
-    virtual std::unique_ptr<IAnimReader> VSimplified() {return {};}
+    virtual std::shared_ptr<IAnimReader> VSimplified() {return {};}
     virtual void VSetPhase(float)=0;
     virtual SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
     virtual void Depth() const=0;
     virtual void VGetContributionOfHighestInfluence() const=0;
-    virtual void VGetNumChildren() const=0;
-    virtual void VGetBestUnblendedChild() const=0;
+    virtual u32 VGetNumChildren() const=0;
+    virtual std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const=0;
 
     u32 GetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 GetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;

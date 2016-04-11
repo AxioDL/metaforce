@@ -90,7 +90,7 @@ void CAnimTreeSingleChild::Depth() const
 {
 }
 
-void CAnimTreeSingleChild::VGetNumChildren() const
+u32 CAnimTreeSingleChild::VGetNumChildren() const
 {
 }
 
