@@ -6,7 +6,7 @@ namespace urde
 {
 static logvisor::Module Log("URDE::ProjectManager");
 
-CToken ProjectResourcePool::GetObj(char const* name)
+CToken ProjectResourcePool::GetObj(const char* name)
 {
     CToken ret = CSimplePool::GetObj(name);
     if (ret)
@@ -21,7 +21,7 @@ CToken ProjectResourcePool::GetObj(char const* name)
     return {};
 }
 
-CToken ProjectResourcePool::GetObj(char const* name, const CVParamTransfer& pvxfer)
+CToken ProjectResourcePool::GetObj(const char* name, const CVParamTransfer& pvxfer)
 {
     CToken ret = CSimplePool::GetObj(name, pvxfer);
     if (ret)

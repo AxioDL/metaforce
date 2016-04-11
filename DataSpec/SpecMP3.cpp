@@ -490,22 +490,25 @@ struct SpecMP3 : SpecBase
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, FCookProgress progress) const
+                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  FCookProgress progress)
     {
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, FCookProgress progress) const
+                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   FCookProgress progress)
     {
     }
 
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, FCookProgress progress) const
+                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  FCookProgress progress)
     {
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FILE* fin, FCookProgress progress) const
+                  FILE* fin, FCookProgress progress)
     {
     }
 };

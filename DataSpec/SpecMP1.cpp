@@ -23,6 +23,7 @@ namespace DataSpec
 
 static logvisor::Module Log("urde::SpecMP1");
 extern hecl::Database::DataSpecEntry SpecEntMP1;
+extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 
 struct SpecMP1 : SpecBase
 {
@@ -343,7 +344,8 @@ struct SpecMP1 : SpecBase
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, FCookProgress progress) const
+                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  FCookProgress progress)
     {
         Mesh mesh = ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
         [&progress](int surfCount)
@@ -358,19 +360,31 @@ struct SpecMP1 : SpecBase
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, FCookProgress progress) const
+                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   FCookProgress progress)
     {
         Actor actor = ds.compileActor();
-        DNAMP1::ANCS::Cook(out, in, actor);
+        DNAMP1::ANCS::Cook(out, in, actor,
+        [&](const hecl::ProjectPath& modelPath) -> bool
+        {
+            hecl::ProjectPath cooked;
+            if (m_pc)
+                cooked = modelPath.getCookedPath(SpecEntMP1PC);
+            else
+                cooked = modelPath.getCookedPath(SpecEntMP1);
+            doCook(modelPath, cooked, fast, btok, progress);
+            return true;
+        });
     }
 
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, FCookProgress progress) const
+                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  FCookProgress progress)
     {
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FILE* fin, FCookProgress progress) const
+                  FILE* fin, FCookProgress progress)
     {
         athena::io::YAMLDocReader reader;
         yaml_parser_set_input_file(reader.getParser(), fin);

@@ -16,4 +16,42 @@ add_library(RuntimeCommonCharacter
             CSegIdList.hpp CSegIdList.cpp
             CSegId.hpp CSegId.cpp
             CSkinRules.hpp CSkinRules.cpp
+            CAnimCharacterSet.hpp CAnimCharacterSet.cpp
+            CAnimationSet.hpp CAnimationSet.cpp
+            CCharacterSet.hpp CCharacterSet.cpp
+            CCharacterInfo.hpp CCharacterInfo.cpp
+            CPASDatabase.hpp CPASDatabase.cpp
+            CPASAnimState.hpp CPASAnimState.cpp
+            CPASParmInfo.hpp CPASParmInfo.cpp
+            CPASAnimInfo.hpp CPASAnimInfo.cpp
+            CPASAnimParm.hpp CPASAnimParm.cpp
+            CEffectComponent.hpp CEffectComponent.cpp
+            CAnimation.hpp CAnimation.cpp
+            CTransition.hpp CTransition.cpp
+            CMetaAnimFactory.hpp CMetaAnimFactory.cpp
+            CMetaAnimPlay.hpp CMetaAnimPlay.cpp
+            CMetaAnimBlend.hpp CMetaAnimBlend.cpp
+            CMetaAnimPhaseBlend.hpp CMetaAnimPhaseBlend.cpp
+            CMetaAnimRandom.hpp CMetaAnimRandom.cpp
+            CMetaAnimSequence.hpp CMetaAnimSequence.cpp
+            CMetaTransFactory.hpp CMetaTransFactory.cpp
+            CMetaTransMetaAnim.hpp CMetaTransMetaAnim.cpp
+            CMetaTransTrans.hpp CMetaTransTrans.cpp
+            CMetaTransPhaseTrans.hpp CMetaTransPhaseTrans.cpp
+            CMetaTransSnap.hpp CMetaTransSnap.cpp
+            CAnimTreeLoopIn.hpp CAnimTreeLoopIn.cpp
+            CAnimTreeSequence.hpp CAnimTreeSequence.cpp
+            CAnimTreeAnimReaderContainer.hpp CAnimTreeAnimReaderContainer.cpp
+            CAnimTreeBlend.hpp CAnimTreeBlend.cpp
+            CAnimTreeNode.hpp CAnimTreeNode.cpp
+            CAnimTreeScale.hpp CAnimTreeScale.cpp
+            CAnimTreeTimeScale.hpp CAnimTreeTimeScale.cpp
+            CAnimTreeTransition.hpp CAnimTreeTransition.cpp
+            CAnimTreeTweenBase.hpp CAnimTreeTweenBase.cpp
+            CAnimTreeSingleChild.hpp CAnimTreeSingleChild.cpp
+            CAnimTreeDoubleChild.hpp CAnimTreeDoubleChild.cpp
+            IAnimReader.hpp IAnimReader.cpp
+            CPrimitive.hpp CPrimitive.cpp
+            CHalfTransition.hpp CHalfTransition.cpp
+            CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
             CBodyState.hpp)

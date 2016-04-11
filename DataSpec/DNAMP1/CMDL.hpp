@@ -94,7 +94,7 @@ struct CMDL
 
             /* Output skinning intermediate */
             auto vertCountIt = skinMesh.contiguousSkinVertCounts.cbegin();
-            athena::io::FileWriter writer(outPath.getWithExtension(_S(".skin")).getAbsolutePath());
+            athena::io::FileWriter writer(outPath.getWithExtension(_S(".skinint")).getAbsolutePath());
             writer.writeUint32Big(skinMesh.skins.size());
             for (const std::vector<DNACMDL::Mesh::SkinBind> skin : skinMesh.skins)
             {
@@ -126,7 +126,7 @@ struct CMDL
                 return false;
 
             /* Output skinning intermediate */
-            athena::io::FileWriter writer(outPath.getWithExtension(_S(".skin")).getAbsolutePath());
+            athena::io::FileWriter writer(outPath.getWithExtension(_S(".skinint")).getAbsolutePath());
             writer.writeUint32Big(mesh.skinBanks.banks.size());
             for (const DNACMDL::Mesh::SkinBanks::Bank& sb : mesh.skinBanks.banks)
             {

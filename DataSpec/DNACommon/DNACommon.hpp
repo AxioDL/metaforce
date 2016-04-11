@@ -7,13 +7,14 @@
 #include "hecl/hecl.hpp"
 #include "hecl/Database.hpp"
 #include "../SpecBase.hpp"
+#include "boo/ThreadLocalPtr.hpp"
 
 namespace DataSpec
 {
 
 extern logvisor::Module LogDNACommon;
-extern SpecBase* g_curSpec;
-extern class PAKRouterBase* g_PakRouter;
+extern ThreadLocalPtr<SpecBase> g_curSpec;
+extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
 
 /* This comes up a great deal */
 typedef athena::io::DNA<athena::BigEndian> BigDNA;
@@ -84,22 +85,24 @@ class UniqueIDBridge
     friend class UniqueID32;
     friend class UniqueID64;
 
-    static hecl::Database::Project* s_Project;
+    static ThreadLocalPtr<hecl::Database::Project> s_Project;
 public:
     template <class IDType>
     static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings=false)
     {
-        if (!g_PakRouter)
+        PAKRouterBase* pakRouter = g_PakRouter.get();
+        if (!pakRouter)
             LogDNACommon.report(logvisor::Fatal,
             "g_Project must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
-        return g_PakRouter->getWorking(id, silenceWarnings);
+        return pakRouter->getWorking(id, silenceWarnings);
     }
     static hecl::ProjectPath MakePathFromString(const std::string& str)
     {
-        if (!s_Project)
+        hecl::Database::Project* project = s_Project.get();
+        if (!project)
             LogDNACommon.report(logvisor::Fatal,
                                 "UniqueIDBridge::setGlobalProject must be called before MakePathFromString");
-        return hecl::ProjectPath(*s_Project, str);
+        return hecl::ProjectPath(*project, str);
     }
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id)
@@ -109,7 +112,7 @@ public:
 
     static void setGlobalProject(hecl::Database::Project& project)
     {
-        s_Project = &project;
+        s_Project.reset(&project);
     }
 };
 

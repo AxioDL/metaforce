@@ -224,7 +224,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
 template <class BRIDGETYPE>
 void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
 {
-    g_PakRouter = this;
+    g_PakRouter.reset(this);
     auto pit = m_bridgePaths.begin();
     size_t bridgeIdx = 0;
     for (const BRIDGETYPE& bridge : *m_bridges)

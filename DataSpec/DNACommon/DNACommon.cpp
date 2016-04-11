@@ -1,13 +1,14 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
+#include "boo/ThreadLocalPtr.hpp"
 
 namespace DataSpec
 {
 
 logvisor::Module LogDNACommon("urde::DNACommon");
-SpecBase* g_curSpec = nullptr;
-PAKRouterBase* g_PakRouter = nullptr;
-hecl::Database::Project* UniqueIDBridge::s_Project = nullptr;
+ThreadLocalPtr<SpecBase> g_curSpec;
+ThreadLocalPtr<PAKRouterBase> g_PakRouter;
+ThreadLocalPtr<hecl::Database::Project> UniqueIDBridge::s_Project;
 UniqueID32 UniqueID32::kInvalidId;
 
 }

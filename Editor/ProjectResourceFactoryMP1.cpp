@@ -10,6 +10,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
 
 #include "DataSpec/DNACommon/TXTR.hpp"
 
@@ -31,6 +32,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
     m_factoryMgr.AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
     m_factoryMgr.AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
+    m_factoryMgr.AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)

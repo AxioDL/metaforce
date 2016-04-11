@@ -2,6 +2,8 @@
 
 namespace DataSpec
 {
+extern hecl::Database::DataSpecEntry SpecEntMP1PC;
+
 namespace DNAMP1
 {
 
@@ -1003,6 +1005,255 @@ void ANCS::AnimationSet::write(athena::io::YAMLDocWriter& writer) const
 const char* ANCS::AnimationSet::DNAType()
 {
     return "urde::DNAMP1::ANCS::AnimationSet";
+}
+
+bool ANCS::Extract(const SpecBase& dataSpec,
+                   PAKEntryReadStream& rs,
+                   const hecl::ProjectPath& outPath,
+                   PAKRouter<PAKBridge>& pakRouter,
+                   const PAK::Entry& entry,
+                   bool force,
+                   hecl::BlenderToken& btok,
+                   std::function<void(const hecl::SystemChar*)> fileChanged)
+{
+    hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+    hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
+    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+    hecl::ProjectPath::Type blendType = blendPath.getPathType();
+
+    ANCS ancs;
+    ancs.read(rs);
+
+    if (force ||
+        yamlType == hecl::ProjectPath::Type::None ||
+        blendType == hecl::ProjectPath::Type::None)
+    {
+        if (force || yamlType == hecl::ProjectPath::Type::None)
+        {
+            FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("w"));
+            ancs.toYAMLFile(fp);
+            fclose(fp);
+        }
+
+        if (force || blendType == hecl::ProjectPath::Type::None)
+        {
+            hecl::BlenderConnection& conn = btok.getBlenderConnection();
+            DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1, 2>
+                    (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
+        }
+    }
+
+    /* Extract EVNTs */
+    std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animRes;
+    ancs.getAnimationResInfo(animRes);
+    for (const auto& res : animRes)
+    {
+        if (res.second.evntId)
+        {
+            hecl::SystemStringView sysStr(res.second.name);
+            hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_S(".")) +
+                                                                       sysStr.sys_str() +
+                                                                       _S(".evnt.yaml")).c_str());
+            hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
+
+            if (force || evntYamlType == hecl::ProjectPath::Type::None)
+            {
+                EVNT evnt;
+                if (pakRouter.lookupAndReadDNA(res.second.evntId, evnt, true))
+                {
+                    FILE* fp = hecl::Fopen(evntYamlPath.getAbsolutePath().c_str(), _S("w"));
+                    evnt.toYAMLFile(fp);
+                    fclose(fp);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool ANCS::Cook(const hecl::ProjectPath& outPath,
+                const hecl::ProjectPath& inPath,
+                const DNAANCS::Actor& actor,
+                const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
+{
+    /* Search for yaml */
+    hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
+    if (yamlPath.getPathType() != hecl::ProjectPath::Type::File)
+        Log.report(logvisor::Fatal, _S("'%s' not found as file"),
+                   yamlPath.getRelativePath().c_str());
+
+    athena::io::FileReader yamlReader(yamlPath.getAbsolutePath());
+    if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlReader))
+        Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
+                   yamlPath.getRelativePath().c_str());
+    ANCS ancs;
+    ancs.read(yamlReader);
+
+    /* Set Character Resource IDs */
+    for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
+    {
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(ch.cmdl);
+        if (path)
+            ch.cskr = path.ensureAuxInfo(_S("skin"));
+
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+        {
+            if (!sub.name.compare(ch.name))
+            {
+                if (sub.armature >= 0)
+                {
+                    const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
+                    hecl::SystemStringView chSysName(arm.name);
+                    ch.cinf = inPath.ensureAuxInfo(chSysName.c_str());
+                    break;
+                }
+            }
+        }
+
+        path = UniqueIDBridge::TranslatePakIdToPath(ch.cmdlOverlay);
+        if (path)
+            ch.cskrOverlay = path.ensureAuxInfo(_S("skin"));
+    }
+
+    /* Set Animation Resource IDs */
+    ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool
+    {
+        hecl::SystemStringView sysStr(prim.animName);
+        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        prim.animId = pathOut;
+        return true;
+    });
+
+    std::unordered_map<std::string, atInt32> boneIdMap;
+
+    /* Write out CINF resources */
+    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    {
+        hecl::SystemStringView sysStr(arm.name);
+        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
+        if (w.hasError())
+            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
+                       pathOut.getRelativePath().c_str());
+        CINF cinf(arm, boneIdMap);
+        cinf.write(w);
+    }
+
+    /* Write out CSKR resources */
+    for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
+    {
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(ch.cmdl);
+
+        if (path.getPathType() != hecl::ProjectPath::Type::File)
+            Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), path.getRelativePath().c_str());
+
+        hecl::ProjectPath skinIntPath = path.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
+        if (skinIntPath.getModtime() < path.getModtime())
+            if (!modelCookFunc(path))
+                Log.report(logvisor::Fatal, _S("unable to cook '%s'"), path.getRelativePath().c_str());
+
+        athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
+        if (skinIO.hasError())
+            Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().c_str());
+
+        std::vector<std::vector<uint32_t>> skinBanks;
+        uint32_t bankCount = skinIO.readUint32Big();
+        skinBanks.reserve(bankCount);
+        for (uint32_t i=0 ; i<bankCount ; ++i)
+        {
+            skinBanks.emplace_back();
+            std::vector<uint32_t>& bonesOut = skinBanks.back();
+            uint32_t boneCount = skinIO.readUint32Big();
+            bonesOut.reserve(boneCount);
+            for (uint32_t j=0 ; j<boneCount ; ++j)
+            {
+                uint32_t idx = skinIO.readUint32Big();
+                bonesOut.push_back(idx);
+            }
+        }
+
+        std::vector<std::string> boneNames;
+        uint32_t boneNameCount = skinIO.readUint32Big();
+        boneNames.reserve(boneNameCount);
+        for (uint32_t i=0 ; i<boneNameCount ; ++i)
+            boneNames.push_back(skinIO.readString());
+
+        skinIO.close();
+
+        hecl::ProjectPath skinPath = path.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skin"));
+        athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
+        if (skinOut.hasError())
+            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
+                       skinPath.getRelativePath().c_str());
+
+        skinOut.writeUint32Big(bankCount);
+        for (const std::vector<uint32_t>& bank : skinBanks)
+        {
+            skinOut.writeUint32Big(bank.size());
+            for (uint32_t bIdx : bank)
+            {
+                const std::string& name = boneNames[bIdx];
+                auto search = boneIdMap.find(name);
+                if (search == boneIdMap.cend())
+                    Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                               name.c_str(), inPath.getRelativePathUTF8().c_str());
+                skinOut.writeUint32Big(search->second);
+            }
+        }
+    }
+
+    /* Write out ANIM resources */
+    ancs.animationSet.animResources.reserve(actor.actions.size());
+    for (const DNAANCS::Actor::Action& act : actor.actions)
+    {
+        hecl::SystemStringView sysStr(act.name);
+        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
+        if (w.hasError())
+            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
+                       pathOut.getRelativePath().c_str());
+        ANIM anim(act, boneIdMap);
+
+        ancs.animationSet.animResources.emplace_back();
+        ancs.animationSet.animResources.back().animId = pathOut;
+
+        /* Check for associated EVNT YAML */
+        hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) +
+                                                                  sysStr.sys_str() +
+                                                                  _S(".evnt.yaml")).c_str(), true);
+        if (evntYamlPath.getPathType() == hecl::ProjectPath::Type::File)
+        {
+            FILE* fp = hecl::Fopen(evntYamlPath.getAbsolutePath().c_str(), _S("r"));
+            if (fp)
+            {
+                EVNT evnt;
+                evnt.fromYAMLFile(fp);
+                fclose(fp);
+                anim.m_anim->evnt = evntYamlPath;
+
+                hecl::ProjectPath evntYamlOut = pathOut.getWithExtension(_S(".evnt"));
+                athena::io::FileWriter w(evntYamlOut.getAbsolutePath(), true, false);
+                if (w.hasError())
+                    Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
+                               evntYamlOut.getRelativePath().c_str());
+
+                evnt.write(w);
+                ancs.animationSet.animResources.back().evntId = evntYamlPath;
+            }
+        }
+
+        anim.write(w);
+    }
+
+    /* Write out ANCS */
+    athena::io::FileWriter w(outPath.getAbsolutePath(), true, false);
+    if (w.hasError())
+        Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
+                   outPath.getRelativePath().c_str());
+    ancs.write(w);
+
+    return true;
 }
 
 }
