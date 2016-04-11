@@ -12,6 +12,7 @@ class CBoolPOINode : public CPOINode
 public:
     CBoolPOINode();
     CBoolPOINode(CInputStream& in);
+    bool GetValue() const {return x38_val;}
 };
 
 }

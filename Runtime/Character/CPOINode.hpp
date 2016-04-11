@@ -22,6 +22,9 @@ public:
     CPOINode(const std::string& name, u16, const CCharAnimTime& time, u32 index, bool, float, u32, u32);
     CPOINode(CInputStream& in);
     virtual ~CPOINode() = default;
+
+    const std::string& GetName() const {return x8_name;}
+    const CCharAnimTime& GetTime() const {return x1c_time;}
 };
 
 }

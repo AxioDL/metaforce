@@ -13,7 +13,7 @@ SAdvancementResults CAnimTreeSingleChild::VAdvanceView(const CCharAnimTime& a)
 {
 }
 
-void CAnimTreeSingleChild::VGetTimeRemaining() const
+CCharAnimTime CAnimTreeSingleChild::VGetTimeRemaining() const
 {
 }
 
@@ -29,27 +29,27 @@ void CAnimTreeSingleChild::VGetRotation(const CSegId& seg) const
 {
 }
 
-void CAnimTreeSingleChild::VGetBoolPOIList(const CCharAnimTime& time,
-                                           CBoolPOINode* listOut,
-                                           u32, u32, u32) const
+u32 CAnimTreeSingleChild::VGetBoolPOIList(const CCharAnimTime& time,
+                                          CBoolPOINode* listOut,
+                                          u32 capacity, u32 iterator, u32) const
 {
 }
 
-void CAnimTreeSingleChild::VGetInt32POIList(const CCharAnimTime& time,
-                                            CInt32POINode* listOut,
-                                            u32, u32, u32) const
+u32 CAnimTreeSingleChild::VGetInt32POIList(const CCharAnimTime& time,
+                                           CInt32POINode* listOut,
+                                           u32 capacity, u32 iterator, u32) const
 {
 }
 
-void CAnimTreeSingleChild::VGetParticlePOIList(const CCharAnimTime& time,
-                                               CParticlePOINode* listOut,
-                                               u32, u32, u32) const
+u32 CAnimTreeSingleChild::VGetParticlePOIList(const CCharAnimTime& time,
+                                              CParticlePOINode* listOut,
+                                              u32 capacity, u32 iterator, u32) const
 {
 }
 
-void CAnimTreeSingleChild::VGetSoundPOIList(const CCharAnimTime& time,
-                                            CSoundPOINode* listOut,
-                                            u32, u32, u32) const
+u32 CAnimTreeSingleChild::VGetSoundPOIList(const CCharAnimTime& time,
+                                           CSoundPOINode* listOut,
+                                           u32 capacity, u32 iterator, u32) const
 {
 }
 

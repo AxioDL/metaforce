@@ -29,7 +29,18 @@ CCharAnimTime IMetaAnim::GetTime(const CPreAdvanceIndicator& ind, const IAnimRea
         return ind.GetTime();
 
     CBoolPOINode nodes[64];
+    CCharAnimTime rem = anim.VGetTimeRemaining();
+    u32 count = anim.VGetBoolPOIList(rem, nodes, 64, 0, 0);
+    const char* cmpStr = ind.GetString();
+    for (u32 i=0 ; i<count ; ++i)
+    {
+        CBoolPOINode& node = nodes[i];
+        if (node.GetName().compare(cmpStr) || !node.GetValue())
+            continue;
+        return node.GetTime();
+    }
 
+    return {};
 }
 
 }
