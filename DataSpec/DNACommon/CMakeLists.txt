@@ -9,6 +9,7 @@ add_library(DNACommon
             ${liblist}
             PAK.hpp PAK.cpp
             GX.hpp
+            FSM2.hpp FSM2.cpp
             MLVL.hpp MLVL.cpp
             CMDL.cpp
             MAPA.cpp
@@ -25,7 +26,7 @@ add_library(DNACommon
             ParticleCommon.cpp
             FONT.hpp FONT.cpp
             DeafBabe.hpp
-            BabeDead.hpp
+            BabeDead.hpp            
             RigInverter.hpp RigInverter.cpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
