@@ -7,6 +7,7 @@
 #include "MREA.hpp"
 #include "MAPA.hpp"
 #include "AFSM.hpp"
+#include "../DNACommon/FSM2.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
 
@@ -230,6 +231,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
         return {nullptr, MREA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+    case SBIG('FSM2'):
+        return {DNAFSM2::ExtractFSM2<UniqueID32>, nullptr, {_S(".yaml")}};
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
     }

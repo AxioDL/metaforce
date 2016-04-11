@@ -10,6 +10,7 @@
 #include "MAPA.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
+#include "../DNACommon/FSM2.hpp"
 
 namespace DataSpec
 {
@@ -238,6 +239,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {nullptr, MREA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPA'):
         return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+    case SBIG('FSM2'):
+        return {DNAFSM2::ExtractFSM2<UniqueID64>, nullptr, {_S(".yaml")}};
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID64>, nullptr, {_S(".yaml")}};
     }
