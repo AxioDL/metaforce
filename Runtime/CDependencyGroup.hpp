@@ -11,6 +11,7 @@ class CDependencyGroup
 public:
     CDependencyGroup(CInputStream& in);
     void ReadFromStream(CInputStream& in);
+    std::vector<SObjectTag> GetObjectTagVector() const { return x0_objectTags; }
 };
 
 CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param);
