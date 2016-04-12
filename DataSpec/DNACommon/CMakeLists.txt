@@ -25,6 +25,7 @@ add_library(DNACommon
             DPSC.hpp DPSC.cpp
             ParticleCommon.cpp
             FONT.hpp FONT.cpp
+            DGRP.hpp DGRP.cpp
             DeafBabe.hpp
             BabeDead.hpp            
             RigInverter.hpp RigInverter.cpp

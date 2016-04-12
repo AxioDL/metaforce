@@ -29,7 +29,7 @@ public:
 
     void AddMsg(TEditorId, EScriptObjectMessage, bool);
     void RemoveMsg(TEditorId, EScriptObjectMessage, bool);
-    void SendScriptMsgs(const TAreaId&, CStateManager&);
+    void SendMsgs(const TAreaId&, CStateManager&);
     void PutTo(CBitStreamWriter&);
 };
 

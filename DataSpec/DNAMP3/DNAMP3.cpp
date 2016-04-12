@@ -11,6 +11,7 @@
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/FSM2.hpp"
+#include "../DNACommon/DGRP.hpp"
 
 namespace DataSpec
 {
@@ -243,6 +244,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {DNAFSM2::ExtractFSM2<UniqueID64>, nullptr, {_S(".yaml")}};
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID64>, nullptr, {_S(".yaml")}};
+    case SBIG('DGRP'):
+        return {ExtractDGRP<UniqueID64>, nullptr, {_S(".yaml")}};
     }
     return {};
 }

@@ -13,6 +13,7 @@
 #include "../DNACommon/WPSC.hpp"
 #include "../DNACommon/DPSC.hpp"
 #include "../DNACommon/FONT.hpp"
+#include "../DNACommon/DGRP.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
 #include "ANCS.hpp"
@@ -306,6 +307,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {DNAParticle::ExtractDPSM<UniqueID32>, nullptr, {_S(".dpsm.yaml")}};
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
+    case SBIG('DGRP'):
+        return {ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
     }
     return {};
 }
