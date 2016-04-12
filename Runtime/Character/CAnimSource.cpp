@@ -123,8 +123,7 @@ void CAnimSource::CalcAverageVelocity()
 
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
 : x0_duration(in),
-  x8_interval(in.readFloatBig()),
-  xc_(in.readUint32Big()),
+  x8_interval(in),
   x10_frameCount(in.readUint32Big()),
   x1c_rootBone(in),
   x20_rotationChannels(ReadIndexTable(in)),
@@ -174,7 +173,7 @@ const std::vector<CBoolPOINode>& CAnimSource::GetBoolPOIStream() const
 
 zeus::CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTime& time) const
 {
-    u8 rotIdx = x20_rotationChannels[seg.GetId()];
+    u8 rotIdx = x20_rotationChannels[seg];
     if (rotIdx != 0xff)
     {
         u32 frameIdx = unsigned(time / x8_interval);
@@ -201,7 +200,7 @@ zeus::CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTim
 
 zeus::CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& time) const
 {
-    u8 rotIdx = x20_rotationChannels[seg.GetId()];
+    u8 rotIdx = x20_rotationChannels[seg];
     if (rotIdx != 0xff)
     {
         u8 transIdx = x30_translationChannels[rotIdx];
@@ -232,7 +231,7 @@ zeus::CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& t
 
 bool CAnimSource::HasOffset(const CSegId& seg) const
 {
-    u8 rotIdx = x20_rotationChannels[seg.GetId()];
+    u8 rotIdx = x20_rotationChannels[seg];
     if (rotIdx == 0xff)
         return false;
     u8 transIdx = x30_translationChannels[rotIdx];

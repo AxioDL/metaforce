@@ -6,6 +6,10 @@
 namespace urde
 {
 
+class CAnimSysContext
+{
+};
+
 class CCharacterFactory : public IFactory
 {
 public:

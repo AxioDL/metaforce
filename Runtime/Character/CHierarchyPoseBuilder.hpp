@@ -3,9 +3,12 @@
 
 namespace urde
 {
+class CLayoutDescription;
 
 class CHierarchyPoseBuilder
 {
+public:
+    CHierarchyPoseBuilder(const CLayoutDescription& layout);
 };
 
 }

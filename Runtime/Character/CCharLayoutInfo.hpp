@@ -34,6 +34,7 @@ class CCharLayoutInfo
     std::map<std::string, CSegId> x18_segIdMap;
 public:
     CCharLayoutInfo(CInputStream& in);
+    const CSegIdList& GetSegIdList() const {return x8_segIdList;}
 };
 
 CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&);

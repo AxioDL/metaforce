@@ -51,8 +51,7 @@ class CAnimSource
 {
     friend class CAnimSourceInfo;
     CCharAnimTime x0_duration;
-    float x8_interval;
-    u32 xc_;
+    CCharAnimTime x8_interval;
     u32 x10_frameCount;
     CSegId x1c_rootBone;
     std::vector<u8> x20_rotationChannels;

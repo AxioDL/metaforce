@@ -11,7 +11,7 @@ add_library(RuntimeCommonCharacter
             CTransitionDatabaseGame.hpp
             CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp
             CPoseAsTransforms.hpp CPoseAsTransforms.cpp
-            CVirtualBone.hpp CVirtualBone.cpp
+            CSkinBank.hpp CSkinBank.cpp
             CCharLayoutInfo.hpp CCharLayoutInfo.cpp
             CSegIdList.hpp CSegIdList.cpp
             CSegId.hpp CSegId.cpp
@@ -27,7 +27,9 @@ add_library(RuntimeCommonCharacter
             CPASAnimParm.hpp CPASAnimParm.cpp
             CEffectComponent.hpp CEffectComponent.cpp
             CAnimation.hpp CAnimation.cpp
+            CAnimationManager.hpp CAnimationManager.cpp
             CTransition.hpp CTransition.cpp
+            CTransitionManager.hpp CTransitionManager.cpp
             CMetaAnimFactory.hpp CMetaAnimFactory.cpp
             CMetaAnimPlay.hpp CMetaAnimPlay.cpp
             CMetaAnimBlend.hpp CMetaAnimBlend.cpp
@@ -55,6 +57,7 @@ add_library(RuntimeCommonCharacter
             CHalfTransition.hpp CHalfTransition.cpp
             CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
             CParticleData.hpp CParticleData.cpp
+            CParticleDatabase.hpp CParticleDatabase.cpp
             CAnimPOIData.hpp CAnimPOIData.cpp
             CPOINode.hpp CPOINode.cpp
             CBoolPOINode.hpp CBoolPOINode.cpp

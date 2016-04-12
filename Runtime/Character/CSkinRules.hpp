@@ -2,17 +2,21 @@
 #define __PSHAG_CSKINRULES_HPP__
 
 #include "RetroTypes.hpp"
-#include "CVirtualBone.hpp"
+#include "CSkinBank.hpp"
+#include "CFactoryMgr.hpp"
 
 namespace urde
 {
 
 class CSkinRules
 {
-    std::vector<CVirtualBone> x0_bones;
+    std::vector<CSkinBank> x0_skinBanks;
 public:
     CSkinRules(CInputStream& in);
+    void BuildAccumulatedTransforms();
 };
+
+CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);
 
 }
 

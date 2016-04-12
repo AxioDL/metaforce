@@ -10,6 +10,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 #include "Runtime/Character/CAnimPOIData.hpp"
@@ -34,6 +35,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
     m_factoryMgr.AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
     m_factoryMgr.AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
+    m_factoryMgr.AddFactory(FOURCC('CSKR'), FFactoryFunc(FSkinRulesFactory));
     m_factoryMgr.AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
     m_factoryMgr.AddFactory(FOURCC('ANIM'), FFactoryFunc(AnimSourceFactory));
     m_factoryMgr.AddFactory(FOURCC('EVNT'), FFactoryFunc(AnimPOIDataFactory));
@@ -56,16 +58,17 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
         switch (conn.getBlendType())
         {
         case hecl::BlenderConnection::BlendType::Mesh:
-            if (!path.getAuxInfo().compare(_S("skin")))
-            {
-                if (!conn.getRigged())
-                    return {};
-                return {SBIG('CSKR'), path.hash().val32()};
-            }
             return {SBIG('CMDL'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Actor:
             if (path.getAuxInfo().size())
-                return {SBIG('CINF'), path.hash().val32()};
+            {
+                if (!path.getAuxInfo().compare(_S("CINF")))
+                    return {SBIG('CINF'), path.hash().val32()};
+                else if (!path.getAuxInfo().compare(_S("CSKR")))
+                    return {SBIG('CSKR'), path.hash().val32()};
+                else if (!path.getAuxInfo().compare(_S("ANIM")))
+                    return {SBIG('ANIM'), path.hash().val32()};
+            }
             return {SBIG('ANCS'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::Area:
             return {SBIG('MREA'), path.hash().val32()};

@@ -134,17 +134,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
 #endif
 
                 /* Special multi-resource intermediates */
-                if (pathTag.type == SBIG('CMDL'))
-                {
-                    hecl::ProjectPath subPath(path, ".|skin");
-                    SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
-                    if (pathTag)
-                    {
-                        m_tagToPath[pathTag] = path;
-                        WriteTag(cacheWriter, pathTag, path);
-                    }
-                }
-                else if (pathTag.type == SBIG('ANCS'))
+                if (pathTag.type == SBIG('ANCS'))
                 {
                     hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
                     if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
@@ -152,12 +142,25 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
 
                     hecl::BlenderConnection::DataStream ds = conn.beginData();
                     std::vector<std::string> armatureNames = ds.getArmatureNames();
+                    std::vector<std::string> subtypeNames = ds.getSubtypeNames();
                     std::vector<std::string> actionNames = ds.getActionNames();
 
                     for (const std::string& arm : armatureNames)
                     {
                         hecl::SystemStringView sysStr(arm);
-                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
+                        SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
+                        if (pathTag)
+                        {
+                            m_tagToPath[pathTag] = path;
+                            WriteTag(cacheWriter, pathTag, path);
+                        }
+                    }
+
+                    for (const std::string& sub : subtypeNames)
+                    {
+                        hecl::SystemStringView sysStr(sub);
+                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         if (pathTag)
                         {
@@ -169,7 +172,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& act : actionNames)
                     {
                         hecl::SystemStringView sysStr(act);
-                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         if (pathTag)
                         {
