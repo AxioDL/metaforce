@@ -20,7 +20,11 @@ enum class EAnimFormat
 
 class CAnimFormatUnion
 {
-    EAnimFormat x0_format;
+    union
+    {
+        EAnimFormat x0_format;
+        intptr_t _align = 0;
+    };
     u8 x4_storage[sizeof(CAnimSource)];
     static void SubConstruct(u8* storage, EAnimFormat fmt,
                              CInputStream& in, IObjectStore& store);
