@@ -1096,6 +1096,37 @@ std::vector<std::string> BlenderConnection::DataStream::getArmatureNames()
     return ret;
 }
 
+std::vector<std::string> BlenderConnection::DataStream::getSubtypeNames()
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("GETSUBTYPENAMES");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get subtypes of actor: %s", readBuf);
+
+    std::vector<std::string> ret;
+
+    uint32_t subCount;
+    m_parent->_readBuf(&subCount, 4);
+    ret.reserve(subCount);
+    for (uint32_t i=0 ; i<subCount ; ++i)
+    {
+        ret.emplace_back();
+        std::string& name = ret.back();
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+    }
+
+    return ret;
+}
+
 std::vector<std::string> BlenderConnection::DataStream::getActionNames()
 {
     if (m_parent->m_loadedType != BlendType::Actor)

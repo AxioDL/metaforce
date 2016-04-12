@@ -191,6 +191,10 @@ def dataout_loop():
             writepipeline(b'OK')
             hecl.sact.get_armature_names(writepipebuf)
 
+        elif cmdargs[0] == 'GETSUBTYPENAMES':
+            writepipeline(b'OK')
+            hecl.sact.get_subtype_names(writepipebuf)
+
         elif cmdargs[0] == 'GETACTIONNAMES':
             writepipeline(b'OK')
             hecl.sact.get_action_names(writepipebuf)

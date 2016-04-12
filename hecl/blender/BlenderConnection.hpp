@@ -610,6 +610,7 @@ public:
 
         Actor compileActor();
         std::vector<std::string> getArmatureNames();
+        std::vector<std::string> getSubtypeNames();
         std::vector<std::string> getActionNames();
 
         struct Matrix3f

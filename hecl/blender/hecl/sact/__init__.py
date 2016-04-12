@@ -310,6 +310,14 @@ def get_armature_names(writebuf):
         writebuf(struct.pack('I', len(arm.name)))
         writebuf(arm.name.encode())
 
+# Access actor's contained subtype names
+def get_subtype_names(writebuf):
+    writebuf(struct.pack('I', len(sact_data.subtypes)))
+    for sub_idx in range(len(sact_data.subtypes)):
+        subtype = sact_data.subtypes[sub_idx]
+        writebuf(struct.pack('I', len(subtype.name)))
+        writebuf(subtype.name.encode())
+
 # Access actor's contained action names
 def get_action_names(writebuf):
     writebuf(struct.pack('I', len(sact_data.actions)))
