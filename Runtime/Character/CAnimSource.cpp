@@ -122,12 +122,11 @@ void CAnimSource::CalcAverageVelocity()
 }
 
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
-: x0_duration(in.readFloatBig()),
-  x4_(in.readUint32Big()),
+: x0_duration(in),
   x8_interval(in.readFloatBig()),
   xc_(in.readUint32Big()),
   x10_frameCount(in.readUint32Big()),
-  x1c_(in.readUint32Big()),
+  x1c_rootBone(in),
   x20_rotationChannels(ReadIndexTable(in)),
   x30_translationChannels(ReadIndexTable(in)),
   x40_data(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), x10_frameCount),
@@ -210,10 +209,10 @@ zeus::CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& t
             return {};
 
         u32 frameIdx = unsigned(time / x8_interval);
-        float tmp = time - frameIdx * x8_interval;
-        if (std::fabs(tmp) < 0.00001f)
-            tmp = 0.f;
-        float t = ClampZeroToOne(tmp / x8_interval);
+        float remTime = time - frameIdx * x8_interval;
+        if (std::fabs(remTime) < 0.00001f)
+            remTime = 0.f;
+        float t = ClampZeroToOne(remTime / x8_interval);
 
         const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
         const u32 rotFloatsPerFrame = x40_data.xc_rotPerFrame * 4;

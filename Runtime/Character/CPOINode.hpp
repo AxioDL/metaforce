@@ -9,6 +9,7 @@ namespace urde
 
 class CPOINode
 {
+protected:
     u16 x4_ = 1;
     std::string x8_name;
     u16 x18_;
@@ -25,6 +26,7 @@ public:
 
     const std::string& GetName() const {return x8_name;}
     const CCharAnimTime& GetTime() const {return x1c_time;}
+    u32 GetIndex() const {return x24_index;}
 };
 
 }

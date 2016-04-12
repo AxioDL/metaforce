@@ -4,10 +4,12 @@
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
 #include "CAnimSource.hpp"
+#include "CFactoryMgr.hpp"
 
 namespace urde
 {
 class IObjectStore;
+class CAnimSourceReaderBase;
 
 enum class EAnimFormat
 {
@@ -24,6 +26,7 @@ class CAnimFormatUnion
                              CInputStream& in, IObjectStore& store);
 public:
     CAnimFormatUnion(CInputStream& in, IObjectStore& store);
+    ~CAnimFormatUnion();
     operator CAnimSource&() {return *reinterpret_cast<CAnimSource*>(x4_storage);}
 };
 
@@ -33,7 +36,11 @@ class CAllFormatsAnimSource : public CAnimFormatUnion
     SObjectTag x74_tag;
 public:
     CAllFormatsAnimSource(CInputStream& in, IObjectStore& store, const SObjectTag& tag);
+    static std::shared_ptr<CAnimSourceReaderBase> GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
+                                                               const CCharAnimTime& startTime);
 };
+
+CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);
 
 }
 

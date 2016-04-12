@@ -24,6 +24,7 @@ private:
     EParentedMode x20_parentMode;
 public:
     CParticleData(CInputStream& in);
+    EParentedMode GetParentedMode() const {return x20_parentMode;}
 };
 
 }

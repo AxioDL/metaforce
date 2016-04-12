@@ -5,6 +5,7 @@
 #include "CCharAnimTime.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "zeus/CVector3f.hpp"
+#include "CSegId.hpp"
 #include "CToken.hpp"
 
 namespace urde
@@ -48,12 +49,12 @@ public:
 
 class CAnimSource
 {
-    float x0_duration;
-    u32 x4_;
+    friend class CAnimSourceInfo;
+    CCharAnimTime x0_duration;
     float x8_interval;
     u32 xc_;
     u32 x10_frameCount;
-    u32 x1c_;
+    CSegId x1c_rootBone;
     std::vector<u8> x20_rotationChannels;
     std::vector<u8> x30_translationChannels;
     RotationAndOffsetStorage x40_data;
@@ -77,6 +78,8 @@ public:
     zeus::CQuaternion GetRotation(const CSegId& seg, const CCharAnimTime& time) const;
     zeus::CVector3f GetOffset(const CSegId& seg, const CCharAnimTime& time) const;
     bool HasOffset(const CSegId& seg) const;
+    const CCharAnimTime& GetDuration() const {return x0_duration;}
+    const CSegId& GetRootBoneId() const {return x1c_rootBone;}
 };
 
 }

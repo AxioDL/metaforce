@@ -12,6 +12,7 @@ namespace urde
 
 class CAnimPOIData
 {
+    u32 x0_version;
     std::vector<CBoolPOINode> x4_boolNodes;
     std::vector<CInt32POINode> x14_int32Nodes;
     std::vector<CParticlePOINode> x24_particleNodes;

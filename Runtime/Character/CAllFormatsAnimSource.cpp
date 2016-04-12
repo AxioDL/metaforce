@@ -1,5 +1,7 @@
 #include "CAllFormatsAnimSource.hpp"
 #include "logvisor/logvisor.hpp"
+#include "CSimplePool.hpp"
+#include "CAnimSourceReader.hpp"
 
 namespace urde
 {
@@ -24,9 +26,36 @@ CAnimFormatUnion::CAnimFormatUnion(CInputStream& in, IObjectStore& store)
     SubConstruct(x4_storage, x0_format, in, store);
 }
 
+CAnimFormatUnion::~CAnimFormatUnion()
+{
+    switch (x0_format)
+    {
+    case EAnimFormat::Uncompressed:
+        reinterpret_cast<CAnimSource*>(x4_storage)->~CAnimSource();
+    default: break;
+    }
+}
+
+std::shared_ptr<CAnimSourceReaderBase>
+CAllFormatsAnimSource::GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
+                                    const CCharAnimTime& startTime)
+{
+    return std::make_shared<CAnimSourceReader>(tok, startTime);
+}
+
 CAllFormatsAnimSource::CAllFormatsAnimSource(CInputStream& in,
                                              IObjectStore& store,
                                              const SObjectTag& tag)
 : CAnimFormatUnion(in, store), x74_tag(tag) {}
+
+CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in,
+                                   const CVParamTransfer& params)
+{
+    CSimplePool* sp = static_cast<CSimplePool*>(
+        static_cast<TObjOwnerParam<IObjectStore*>*>(
+            params.GetObj())->GetParam());
+    return TToken<CAllFormatsAnimSource>::GetIObjObjectFor(
+        std::make_unique<CAllFormatsAnimSource>(in, *sp, tag));
+}
 
 }

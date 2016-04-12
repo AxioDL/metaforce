@@ -21,11 +21,11 @@ bool CAnimTreeSingleChild::VHasOffset(const CSegId& seg) const
 {
 }
 
-void CAnimTreeSingleChild::VGetOffset(const CSegId& seg) const
+zeus::CVector3f CAnimTreeSingleChild::VGetOffset(const CSegId& seg) const
 {
 }
 
-void CAnimTreeSingleChild::VGetRotation(const CSegId& seg) const
+zeus::CQuaternion CAnimTreeSingleChild::VGetRotation(const CSegId& seg) const
 {
 }
 
@@ -53,15 +53,15 @@ u32 CAnimTreeSingleChild::VGetSoundPOIList(const CCharAnimTime& time,
 {
 }
 
-void CAnimTreeSingleChild::VGetBoolPOIState(const char*) const
+bool CAnimTreeSingleChild::VGetBoolPOIState(const char* name) const
 {
 }
 
-void CAnimTreeSingleChild::VGetInt32POIState(const char*) const
+s32 CAnimTreeSingleChild::VGetInt32POIState(const char* name) const
 {
 }
 
-void CAnimTreeSingleChild::VGetParticlePOIState(const char*) const
+CParticleData::EParentedMode CAnimTreeSingleChild::VGetParticlePOIState(const char* name) const
 {
 }
 
