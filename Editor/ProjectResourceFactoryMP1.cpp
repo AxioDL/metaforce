@@ -13,7 +13,7 @@
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 #include "Runtime/Character/CAnimPOIData.hpp"
-
+#include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 
 namespace DataSpec
@@ -37,6 +37,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
     m_factoryMgr.AddFactory(FOURCC('ANIM'), FFactoryFunc(AnimSourceFactory));
     m_factoryMgr.AddFactory(FOURCC('EVNT'), FFactoryFunc(AnimPOIDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
@@ -110,6 +111,11 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
             {
                 resTag.type = SBIG('EVNT');
                 return true;
+            }
+            else if (!strcmp(className, "urde::DGRP"))
+            {
+               resTag.type = SBIG('DGRP');
+               return true;
             }
             return false;
         }))

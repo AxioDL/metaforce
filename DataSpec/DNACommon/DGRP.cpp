@@ -5,6 +5,8 @@
 
 namespace DataSpec
 {
+namespace DNADGRP
+{
 template <class IDType>
 void DGRP<IDType>::read(athena::io::IStreamReader& __dna_reader)
 {
@@ -137,5 +139,5 @@ bool WriteDGRP(const DGRP<IDType>& dgrp, const hecl::ProjectPath& outPath)
 }
 template bool WriteDGRP<UniqueID32>(const DGRP<UniqueID32>& dgrp, const hecl::ProjectPath& outPath);
 template bool WriteDGRP<UniqueID64>(const DGRP<UniqueID64>& dgrp, const hecl::ProjectPath& outPath);
-
+}
 }

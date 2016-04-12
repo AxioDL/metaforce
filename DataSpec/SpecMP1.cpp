@@ -15,6 +15,7 @@
 #include "DNACommon/WPSC.hpp"
 #include "DNACommon/CRSC.hpp"
 #include "DNACommon/DPSC.hpp"
+#include "DNACommon/DGRP.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -339,6 +340,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAParticle::DPSM<UniqueID32>::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNADGRP::DGRP<UniqueID32>::DNAType()))
+                return true;
             return false;
         });
     }
@@ -435,6 +438,12 @@ struct SpecMP1 : SpecBase
                 DNAParticle::DPSM<UniqueID32> dpsm;
                 dpsm.read(reader);
                 DNAParticle::WriteDPSM(dpsm, out);
+            }
+            else if (!classStr.compare(DNADGRP::DGRP<UniqueID32>::DNAType()))
+            {
+                DNADGRP::DGRP<UniqueID32> dgrp;
+                dgrp.read(reader);
+                DNADGRP::WriteDGRP(dgrp, out);
             }
         }
         progress(_S("Done"));

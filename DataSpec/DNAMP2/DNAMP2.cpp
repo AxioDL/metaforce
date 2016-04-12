@@ -237,7 +237,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     case SBIG('FONT'):
         return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
     case SBIG('DGRP'):
-        return {ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNADGRP::ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
     }
     return {};
 }

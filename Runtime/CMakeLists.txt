@@ -22,6 +22,7 @@ add_library(RuntimeCommon
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
             CPathFindArea.hpp CPathFindArea.cpp
+            CDependencyGroup.hpp CDependencyGroup.cpp
             CBasics.hpp CBasicsPC.cpp
             CIOWin.hpp
             CIOWinManager.hpp CIOWinManager.cpp
