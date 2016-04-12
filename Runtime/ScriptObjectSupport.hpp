@@ -6,6 +6,7 @@ namespace urde
 
 enum class EScriptObjectState
 {
+    Any = -1,
     Active,
     Arrived,
     Closed,
