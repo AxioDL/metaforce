@@ -123,14 +123,15 @@ def write_action_channels(writebuf, action):
 
             # Rotation curves
             if rotation_mode == 'rotation_quaternion':
-                writevec = [0.0]*4
+                quat = [0.0]*4
                 for comp in range(4):
                     if fc_dict['rotation_quaternion'][comp]:
-                        writevec[comp] = fc_dict['rotation_quaternion'][comp].evaluate(frame)
-                writebuf(struct.pack('ffff', writevec[0], writevec[1], writevec[2], writevec[3]))
+                        quat[comp] = fc_dict['rotation_quaternion'][comp].evaluate(frame)
+                quat = Quaternion(quat).normalized()
+                writebuf(struct.pack('ffff', quat[0], quat[1], quat[2], quat[3]))
 
             elif rotation_mode == 'rotation_euler':
-                euler = [0.0, 0.0, 0.0]
+                euler = [0.0]*3
                 for comp in range(3):
                     if fc_dict['rotation_euler'][comp]:
                         euler[comp] = fc_dict['rotation_euler'][comp].evaluate(frame)
@@ -139,7 +140,7 @@ def write_action_channels(writebuf, action):
                 writebuf(struct.pack('ffff', quat[0], quat[1], quat[2], quat[3]))
 
             elif rotation_mode == 'rotation_axis_angle':
-                axis_angle = [0.0, 0.0, 0.0, 0.0]
+                axis_angle = [0.0]*4
                 for comp in range(4):
                     if fc_dict['rotation_axis_angle'][comp]:
                         axis_angle[comp] = fc_dict['rotation_axis_angle'][comp].evaluate(frame)
@@ -312,6 +313,7 @@ def get_armature_names(writebuf):
 
 # Access actor's contained subtype names
 def get_subtype_names(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
     writebuf(struct.pack('I', len(sact_data.subtypes)))
     for sub_idx in range(len(sact_data.subtypes)):
         subtype = sact_data.subtypes[sub_idx]
@@ -320,6 +322,7 @@ def get_subtype_names(writebuf):
 
 # Access actor's contained action names
 def get_action_names(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
     writebuf(struct.pack('I', len(sact_data.actions)))
     for action_idx in range(len(sact_data.actions)):
         action = sact_data.actions[action_idx]
