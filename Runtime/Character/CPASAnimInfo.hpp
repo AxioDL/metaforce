@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPASANIMINFO_HPP__
-#define __PSHAG_CPASANIMINFO_HPP__
+#ifndef __URDE_CPASANIMINFO_HPP__
+#define __URDE_CPASANIMINFO_HPP__
 
 #include "IOStreams.hpp"
 #include "rstl.hpp"
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPASANIMINFO_HPP__
+#endif // __URDE_CPASANIMINFO_HPP__

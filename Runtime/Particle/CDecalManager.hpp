@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CDECALMANAGER_HPP__
-#define __PSHAG_CDECALMANAGER_HPP__
+#ifndef __URDE_CDECALMANAGER_HPP__
+#define __URDE_CDECALMANAGER_HPP__
 
 #include "RetroTypes.hpp"
 #include "rstl.hpp"
@@ -40,4 +40,4 @@ public:
 
 }
 
-#endif // __PSHAG_CDECALMANAGER_HPP__
+#endif // __URDE_CDECALMANAGER_HPP__

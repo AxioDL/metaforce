@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CINTELEMENT_HPP__
-#define __PSHAG_CINTELEMENT_HPP__
+#ifndef __URDE_CINTELEMENT_HPP__
+#define __URDE_CINTELEMENT_HPP__
 
 #include "IElement.hpp"
 
@@ -194,4 +194,4 @@ public:
 
 }
 
-#endif // __PSHAG_CINTELEMENT_HPP__
+#endif // __URDE_CINTELEMENT_HPP__

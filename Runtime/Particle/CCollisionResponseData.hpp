@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCOLLISIONRESPONSEDATA_HPP__
-#define __PSHAG_CCOLLISIONRESPONSEDATA_HPP__
+#ifndef __URDE_CCOLLISIONRESPONSEDATA_HPP__
+#define __URDE_CCOLLISIONRESPONSEDATA_HPP__
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -58,4 +58,4 @@ public:
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __PSHAG_CCOLLISIONRESPONSEDATA_HPP__
+#endif // __URDE_CCOLLISIONRESPONSEDATA_HPP__

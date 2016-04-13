@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSIMPLEPOOL_HPP__
-#define __PSHAG_CSIMPLEPOOL_HPP__
+#ifndef __URDE_CSIMPLEPOOL_HPP__
+#define __URDE_CSIMPLEPOOL_HPP__
 
 #include "IObjectStore.hpp"
 #include "RetroTypes.hpp"
@@ -33,4 +33,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSIMPLEPOOL_HPP__
+#endif // __URDE_CSIMPLEPOOL_HPP__

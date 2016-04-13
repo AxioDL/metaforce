@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCOLORELEMENT_HPP__
-#define __PSHAG_CCOLORELEMENT_HPP__
+#ifndef __URDE_CCOLORELEMENT_HPP__
+#define __URDE_CCOLORELEMENT_HPP__
 
 #include "IElement.hpp"
 
@@ -96,4 +96,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CCOLORELEMENT_HPP__
+#endif // __URDE_CCOLORELEMENT_HPP__

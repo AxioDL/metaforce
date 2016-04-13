@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CTWEAKS_HPP__
-#define __PSHAG_CTWEAKS_HPP__
+#ifndef __URDE_CTWEAKS_HPP__
+#define __URDE_CTWEAKS_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -19,4 +19,4 @@ public:
 }
 }
 
-#endif // __PSHAG_CTWEAKS_HPP__
+#endif // __URDE_CTWEAKS_HPP__

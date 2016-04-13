@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
-#define __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
+#ifndef __URDE_CPARTICLEELECTRICDATAFACTORY_HPP__
+#define __URDE_CPARTICLEELECTRICDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -23,4 +23,4 @@ public:
 CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __PSHAG_CPARTICLEELECTRICDATAFACTORY_HPP__
+#endif // __URDE_CPARTICLEELECTRICDATAFACTORY_HPP__

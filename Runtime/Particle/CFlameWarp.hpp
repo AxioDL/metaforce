@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CFLAMEWARP_HPP__
-#define __PSHAG_CFLAMEWARP_HPP__
+#ifndef __URDE_CFLAMEWARP_HPP__
+#define __URDE_CFLAMEWARP_HPP__
 
 #include "CWarp.hpp"
 
@@ -36,4 +36,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CFLAMEWARP_HPP__
+#endif // __URDE_CFLAMEWARP_HPP__

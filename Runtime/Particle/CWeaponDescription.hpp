@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CWEAPONDESCRIPTION_HPP__
-#define __PSHAG_CWEAPONDESCRIPTION_HPP__
+#ifndef __URDE_CWEAPONDESCRIPTION_HPP__
+#define __URDE_CWEAPONDESCRIPTION_HPP__
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -57,4 +57,4 @@ public:
     std::unique_ptr<CRealElement> xb0_FOFF;
 };
 }
-#endif // __PSHAG_CWEAPONDESCRIPTION_HPP__
+#endif // __URDE_CWEAPONDESCRIPTION_HPP__

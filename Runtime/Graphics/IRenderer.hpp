@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IRENDERER_HPP__
-#define __PSHAG_IRENDERER_HPP__
+#ifndef __URDE_IRENDERER_HPP__
+#define __URDE_IRENDERER_HPP__
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -95,4 +95,4 @@ public:
 
 }
 
-#endif // __PSHAG_IRENDERER_HPP__
+#endif // __URDE_IRENDERER_HPP__

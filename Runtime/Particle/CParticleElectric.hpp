@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEELECTRIC_HPP__
-#define __PSHAG_CPARTICLEELECTRIC_HPP__
+#ifndef __URDE_CPARTICLEELECTRIC_HPP__
+#define __URDE_CPARTICLEELECTRIC_HPP__
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
@@ -109,4 +109,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLEELECTRIC_HPP__
+#endif // __URDE_CPARTICLEELECTRIC_HPP__

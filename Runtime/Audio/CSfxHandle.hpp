@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSFXHANDLE_HPP__
-#define __PSHAG_CSFXHANDLE_HPP__
+#ifndef __URDE_CSFXHANDLE_HPP__
+#define __URDE_CSFXHANDLE_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CSfxHandle
 
 }
 
-#endif // __PSHAG_CSFXHANDLE_HPP__
+#endif // __URDE_CSFXHANDLE_HPP__

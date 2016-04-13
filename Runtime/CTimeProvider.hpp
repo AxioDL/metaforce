@@ -1,5 +1,5 @@
-#ifndef __PSHAG__CTIMEPROVIDER_HPP__
-#define __PSHAG__CTIMEPROVIDER_HPP__
+#ifndef __URDE__CTIMEPROVIDER_HPP__
+#define __URDE__CTIMEPROVIDER_HPP__
 namespace urde
 {
 class CTimeProvider;

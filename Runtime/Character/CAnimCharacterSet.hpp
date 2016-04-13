@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMCHARACTERSET_HPP__
-#define __PSHAG_CANIMCHARACTERSET_HPP__
+#ifndef __URDE_CANIMCHARACTERSET_HPP__
+#define __URDE_CANIMCHARACTERSET_HPP__
 
 #include "CFactoryMgr.hpp"
 #include "CCharacterSet.hpp"
@@ -15,10 +15,12 @@ class CAnimCharacterSet
     CAnimationSet x1c_animationSet;
 public:
     CAnimCharacterSet(CInputStream& in);
+    const CCharacterSet& GetCharacterSet() const {return x4_characterSet;}
+    const CAnimationSet& GetAnimationSet() const {return x1c_animationSet;}
 };
 
 CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream&, const CVParamTransfer&);
 
 }
 
-#endif // __PSHAG_CANIMCHARACTERSET_HPP__
+#endif // __URDE_CANIMCHARACTERSET_HPP__

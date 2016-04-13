@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMTREENODE_HPP__
-#define __PSHAG_CANIMTREENODE_HPP__
+#ifndef __URDE_CANIMTREENODE_HPP__
+#define __URDE_CANIMTREENODE_HPP__
 
 #include "IAnimReader.hpp"
 
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMTREENODE_HPP__
+#endif // __URDE_CANIMTREENODE_HPP__

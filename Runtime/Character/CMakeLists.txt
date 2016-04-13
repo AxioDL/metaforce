@@ -1,14 +1,15 @@
 add_library(RuntimeCommonCharacter
             CAssetFactory.hpp CAssetFactory.cpp
             CCharacterFactory.hpp CCharacterFactory.cpp
+            CModelData.hpp CModelData.cpp
             CAnimData.hpp CAnimData.cpp
             CCharAnimTime.hpp CCharAnimTime.cpp
             IMetaAnim.hpp IMetaAnim.cpp
             IMetaTrans.hpp
             CAnimationDatabase.hpp
-            CAnimationDatabaseGame.hpp
+            CAnimationDatabaseGame.hpp CAnimationDatabaseGame.cpp
             CTransitionDatabase.hpp
-            CTransitionDatabaseGame.hpp
+            CTransitionDatabaseGame.hpp CTransitionDatabaseGame.cpp
             CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp
             CPoseAsTransforms.hpp CPoseAsTransforms.cpp
             CSkinBank.hpp CSkinBank.cpp
@@ -68,4 +69,5 @@ add_library(RuntimeCommonCharacter
             CAnimSource.hpp CAnimSource.cpp
             CAllFormatsAnimSource.hpp CAllFormatsAnimSource.cpp
             CSegStatementSet.hpp CSegStatementSet.cpp
+            CAnimSysContext.hpp
             CBodyState.hpp)

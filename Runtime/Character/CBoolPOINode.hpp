@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CBOOLPOINODE_HPP__
-#define __PSHAG_CBOOLPOINODE_HPP__
+#ifndef __URDE_CBOOLPOINODE_HPP__
+#define __URDE_CBOOLPOINODE_HPP__
 
 #include "CPOINode.hpp"
 
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __PSHAG_CBOOLPOINODE_HPP__
+#endif // __URDE_CBOOLPOINODE_HPP__

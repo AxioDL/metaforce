@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__
-#define __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__
+#ifndef __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__
+#define __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -22,4 +22,4 @@ public:
 CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __PSHAG_CPARTICLESWOOSHDATAFACTORY_HPP__
+#endif // __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__

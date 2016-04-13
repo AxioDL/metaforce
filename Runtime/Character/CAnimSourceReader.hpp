@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMSOURCEREADER_HPP__
-#define __PSHAG_CANIMSOURCEREADER_HPP__
+#ifndef __URDE_CANIMSOURCEREADER_HPP__
+#define __URDE_CANIMSOURCEREADER_HPP__
 
 #include "IAnimReader.hpp"
 #include "CToken.hpp"
@@ -101,4 +101,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMSOURCEREADER_HPP__
+#endif // __URDE_CANIMSOURCEREADER_HPP__

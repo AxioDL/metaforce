@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETAANIMRANDOM_HPP__
-#define __PSHAG_CMETAANIMRANDOM_HPP__
+#ifndef __URDE_CMETAANIMRANDOM_HPP__
+#define __URDE_CMETAANIMRANDOM_HPP__
 
 #include "IMetaAnim.hpp"
 #include "IOStreams.hpp"
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETAANIMRANDOM_HPP__
+#endif // __URDE_CMETAANIMRANDOM_HPP__

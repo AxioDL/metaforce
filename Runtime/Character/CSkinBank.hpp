@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSKINBANK_HPP__
-#define __PSHAG_CSKINBANK_HPP__
+#ifndef __URDE_CSKINBANK_HPP__
+#define __URDE_CSKINBANK_HPP__
 
 #include "IOStreams.hpp"
 #include "CSegId.hpp"
@@ -16,4 +16,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSKINBANK_HPP__
+#endif // __URDE_CSKINBANK_HPP__

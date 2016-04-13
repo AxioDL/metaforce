@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPAKFILE_HPP__
-#define __PSHAG_CPAKFILE_HPP__
+#ifndef __URDE_CPAKFILE_HPP__
+#define __URDE_CPAKFILE_HPP__
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -74,4 +74,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPAKFILE_HPP__
+#endif // __URDE_CPAKFILE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMTREETIMESCALE_HPP__
-#define __PSHAG_CANIMTREETIMESCALE_HPP__
+#ifndef __URDE_CANIMTREETIMESCALE_HPP__
+#define __URDE_CANIMTREETIMESCALE_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CAnimTreeTimeScale
 
 }
 
-#endif // __PSHAG_CANIMTREETIMESCALE_HPP__
+#endif // __URDE_CANIMTREETIMESCALE_HPP__

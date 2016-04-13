@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CAUDIOSYS_HPP__
-#define __PSHAG_CAUDIOSYS_HPP__
+#ifndef __URDE_CAUDIOSYS_HPP__
+#define __URDE_CAUDIOSYS_HPP__
 
 #include "../GCNTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -29,4 +29,4 @@ public:
 
 }
 
-#endif // __PSHAG_CAUDIOSYS_HPP__
+#endif // __URDE_CAUDIOSYS_HPP__

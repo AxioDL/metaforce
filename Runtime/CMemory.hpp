@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMEMORY_HPP__
-#define __PSHAG_CMEMORY_HPP__
+#ifndef __URDE_CMEMORY_HPP__
+#define __URDE_CMEMORY_HPP__
 
 #include "IAllocator.hpp"
 
@@ -33,4 +33,4 @@ public:
 void* operator new(std::size_t sz, const char* funcName, const char* typeName);
 void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
 
-#endif // __PSHAG_CMEMORY_HPP__
+#endif // __URDE_CMEMORY_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CINT32POINODE_HPP__
-#define __PSHAG_CINT32POINODE_HPP__
+#ifndef __URDE_CINT32POINODE_HPP__
+#define __URDE_CINT32POINODE_HPP__
 
 #include "CPOINode.hpp"
 
@@ -28,4 +28,4 @@ public:
 
 }
 
-#endif // __PSHAG_CINT32POINODE_HPP__
+#endif // __URDE_CINT32POINODE_HPP__

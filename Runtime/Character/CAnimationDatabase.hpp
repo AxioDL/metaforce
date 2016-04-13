@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMATIONDATABASE_HPP__
-#define __PSHAG_CANIMATIONDATABASE_HPP__
+#ifndef __URDE_CANIMATIONDATABASE_HPP__
+#define __URDE_CANIMATIONDATABASE_HPP__
 
 #include "../RetroTypes.hpp"
 #include <vector>
@@ -14,7 +14,7 @@ class CPrimitive;
 class CAnimationDatabase
 {
 public:
-    virtual const IMetaAnim* GetMetaAnim(u32) const=0;
+    virtual const std::shared_ptr<IMetaAnim>& GetMetaAnim(u32) const=0;
     virtual u32 GetNumMetaAnims() const=0;
     virtual const char* GetMetaAnimName(u32) const=0;
     virtual void GetAllUniquePrimitives(std::vector<CPrimitive>&) const=0;
@@ -23,4 +23,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMATIONDATABASE_HPP__
+#endif // __URDE_CANIMATIONDATABASE_HPP__

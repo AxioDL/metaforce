@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CLIGHT_HPP__
-#define __PSHAG_CLIGHT_HPP__
+#ifndef __URDE_CLIGHT_HPP__
+#define __URDE_CLIGHT_HPP__
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
@@ -121,4 +121,4 @@ public:
 
 }
 
-#endif // __PSHAG_CLIGHT_HPP__
+#endif // __URDE_CLIGHT_HPP__

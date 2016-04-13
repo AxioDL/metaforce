@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETATRANSPHASETRANS_HPP__
-#define __PSHAG_CMETATRANSPHASETRANS_HPP__
+#ifndef __URDE_CMETATRANSPHASETRANS_HPP__
+#define __URDE_CMETATRANSPHASETRANS_HPP__
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETATRANSPHASETRANS_HPP__
+#endif // __URDE_CMETATRANSPHASETRANS_HPP__

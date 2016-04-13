@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEDATA_HPP__
-#define __PSHAG_CPARTICLEDATA_HPP__
+#ifndef __URDE_CPARTICLEDATA_HPP__
+#define __URDE_CPARTICLEDATA_HPP__
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -29,4 +29,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLEDATA_HPP__
+#endif // __URDE_CPARTICLEDATA_HPP__

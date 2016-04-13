@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSEGID_HPP__
-#define __PSHAG_CSEGID_HPP__
+#ifndef __URDE_CSEGID_HPP__
+#define __URDE_CSEGID_HPP__
 
 #include "RetroTypes.hpp"
 #include "IOStreams.hpp"
@@ -22,4 +22,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSEGID_HPP__
+#endif // __URDE_CSEGID_HPP__

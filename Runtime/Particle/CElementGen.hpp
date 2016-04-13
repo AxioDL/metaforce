@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CELEMENTGEN_HPP__
-#define __PSHAG_CELEMENTGEN_HPP__
+#ifndef __URDE_CELEMENTGEN_HPP__
+#define __URDE_CELEMENTGEN_HPP__
 
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
@@ -244,4 +244,4 @@ ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
 }
 
-#endif // __PSHAG_CELEMENTGEN_HPP__
+#endif // __URDE_CELEMENTGEN_HPP__

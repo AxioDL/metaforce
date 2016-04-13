@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCHARACTERINFO_HPP__
-#define __PSHAG_CCHARACTERINFO_HPP__
+#ifndef __URDE_CCHARACTERINFO_HPP__
+#define __URDE_CCHARACTERINFO_HPP__
 
 #include "IOStreams.hpp"
 #include "CPASDatabase.hpp"
@@ -40,8 +40,10 @@ private:
 
 public:
     CCharacterInfo(CInputStream& in);
+
+    TResId GetCharLayoutInfoId() const {return x1c_cinf;}
 };
 
 }
 
-#endif // __PSHAG_CCHARACTERINFO_HPP__
+#endif // __URDE_CCHARACTERINFO_HPP__

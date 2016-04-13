@@ -1,5 +1,5 @@
-#ifndef __PSHAG_TYPES_HPP__
-#define __PSHAG_TYPES_HPP__
+#ifndef __URDE_TYPES_HPP__
+#define __URDE_TYPES_HPP__
 
 #include <vector>
 #include <utility>
@@ -13,7 +13,7 @@ namespace urde
 {
 
 using FourCC = hecl::FourCC;
-using TResId = u64;
+using TResId = s64;
 
 struct SObjectTag
 {
@@ -86,4 +86,4 @@ struct hash<urde::SObjectTag>
 };
 }
 
-#endif // __PSHAG_TYPES_HPP__
+#endif // __URDE_TYPES_HPP__

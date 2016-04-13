@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMPOIDATA_HPP__
-#define __PSHAG_CANIMPOIDATA_HPP__
+#ifndef __URDE_CANIMPOIDATA_HPP__
+#define __URDE_CANIMPOIDATA_HPP__
 
 #include "CFactoryMgr.hpp"
 #include "CBoolPOINode.hpp"
@@ -31,4 +31,4 @@ CFactoryFnReturn AnimPOIDataFactory(const SObjectTag& tag, CInputStream& in,
 
 }
 
-#endif // __PSHAG_CANIMPOIDATA_HPP__
+#endif // __URDE_CANIMPOIDATA_HPP__

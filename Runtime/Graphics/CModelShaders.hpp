@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMODELSHADERS_HPP__
-#define __PSHAG_CMODELSHADERS_HPP__
+#ifndef __URDE_CMODELSHADERS_HPP__
+#define __URDE_CMODELSHADERS_HPP__
 
 #include "hecl/Runtime.hpp"
 #include "optional.hpp"
@@ -72,4 +72,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMODELSHADERS_HPP__
+#endif // __URDE_CMODELSHADERS_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMFGAMEBASE_HPP__
-#define __PSHAG_CMFGAMEBASE_HPP__
+#ifndef __URDE_CMFGAMEBASE_HPP__
+#define __URDE_CMFGAMEBASE_HPP__
 
 #include "CIOWin.hpp"
 
@@ -20,4 +20,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMFGAMEBASE_HPP__
+#endif // __URDE_CMFGAMEBASE_HPP__

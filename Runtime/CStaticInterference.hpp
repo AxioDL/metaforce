@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSTATICINTERFERENCE_HPP__
-#define __PSHAG_CSTATICINTERFERENCE_HPP__
+#ifndef __URDE_CSTATICINTERFERENCE_HPP__
+#define __URDE_CSTATICINTERFERENCE_HPP__
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -83,4 +83,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSTATICINTERFERENCE_HPP__
+#endif // __URDE_CSTATICINTERFERENCE_HPP__

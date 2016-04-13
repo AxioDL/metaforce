@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLESWOOSH_HPP__
-#define __PSHAG_CPARTICLESWOOSH_HPP__
+#ifndef __URDE_CPARTICLESWOOSH_HPP__
+#define __URDE_CPARTICLESWOOSH_HPP__
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
@@ -41,4 +41,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLESWOOSH_HPP__
+#endif // __URDE_CPARTICLESWOOSH_HPP__

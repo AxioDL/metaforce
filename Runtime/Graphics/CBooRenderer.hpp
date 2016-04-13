@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CBOORENDERER_HPP__
-#define __PSHAG_CBOORENDERER_HPP__
+#ifndef __URDE_CBOORENDERER_HPP__
+#define __URDE_CBOORENDERER_HPP__
 
 namespace urde
 {
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // __PSHAG_CBOORENDERER_HPP__
+#endif // __URDE_CBOORENDERER_HPP__

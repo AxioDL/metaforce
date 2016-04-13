@@ -1,5 +1,5 @@
-#ifndef __PSHAG_MP1_HPP__
-#define __PSHAG_MP1_HPP__
+#ifndef __URDE_MP1_HPP__
+#define __URDE_MP1_HPP__
 
 #include <boo/boo.hpp>
 #include "CMemory.hpp"
@@ -69,4 +69,4 @@ extern CMain* g_main;
 }
 }
 
-#endif // __PSHAG_MP1_HPP__
+#endif // __URDE_MP1_HPP__

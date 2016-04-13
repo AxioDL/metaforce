@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CEFFECTCOMPONENT_HPP__
-#define __PSHAG_CEFFECTCOMPONENT_HPP__
+#ifndef __URDE_CEFFECTCOMPONENT_HPP__
+#define __URDE_CEFFECTCOMPONENT_HPP__
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -22,4 +22,4 @@ public:
 
 }
 
-#endif // __PSHAG_CEFFECTCOMPONENT_HPP__
+#endif // __URDE_CEFFECTCOMPONENT_HPP__

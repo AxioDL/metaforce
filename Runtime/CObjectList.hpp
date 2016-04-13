@@ -1,5 +1,5 @@
-#ifndef __PSHAG_COBJECTLIST_HPP__
-#define __PSHAG_COBJECTLIST_HPP__
+#ifndef __URDE_COBJECTLIST_HPP__
+#define __URDE_COBJECTLIST_HPP__
 
 #include "CEntity.hpp"
 #include "RetroTypes.hpp"
@@ -95,4 +95,4 @@ public:
 
 }
 
-#endif // __PSHAG_COBJECTLIST_HPP__
+#endif // __URDE_COBJECTLIST_HPP__

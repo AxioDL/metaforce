@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CAI_HPP__
-#define __PSHAG_CAI_HPP__
+#ifndef __URDE_CAI_HPP__
+#define __URDE_CAI_HPP__
 
 #include "GCNTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -175,4 +175,4 @@ public:
 
 }
 
-#endif // __PSHAG_CAI_HPP__
+#endif // __URDE_CAI_HPP__

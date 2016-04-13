@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETAANIMSEQUENCE_HPP__
-#define __PSHAG_CMETAANIMSEQUENCE_HPP__
+#ifndef __URDE_CMETAANIMSEQUENCE_HPP__
+#define __URDE_CMETAANIMSEQUENCE_HPP__
 
 #include "IMetaAnim.hpp"
 #include "IOStreams.hpp"
@@ -24,4 +24,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETAANIMSEQUENCE_HPP__
+#endif // __URDE_CMETAANIMSEQUENCE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEGLOBALS_HPP__
-#define __PSHAG_CPARTICLEGLOBALS_HPP__
+#ifndef __URDE_CPARTICLEGLOBALS_HPP__
+#define __URDE_CPARTICLEGLOBALS_HPP__
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
@@ -51,4 +51,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLEGLOBALS_HPP__
+#endif // __URDE_CPARTICLEGLOBALS_HPP__

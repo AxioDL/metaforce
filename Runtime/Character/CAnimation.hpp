@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMATION_HPP__
-#define __PSHAG_CANIMATION_HPP__
+#ifndef __URDE_CANIMATION_HPP__
+#define __URDE_CANIMATION_HPP__
 
 #include "IOStreams.hpp"
 #include "CMetaAnimFactory.hpp"
@@ -14,8 +14,9 @@ class CAnimation
     std::shared_ptr<IMetaAnim> x10_anim;
 public:
     CAnimation(CInputStream& in);
+    const std::shared_ptr<IMetaAnim>& GetMetaAnim() const {return x10_anim;}
 };
 
 }
 
-#endif // __PSHAG_CANIMATION_HPP__
+#endif // __URDE_CANIMATION_HPP__

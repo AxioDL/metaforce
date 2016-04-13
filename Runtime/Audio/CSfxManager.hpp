@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSFXMANAGER_HPP__
-#define __PSHAG_CSFXMANAGER_HPP__
+#ifndef __URDE_CSFXMANAGER_HPP__
+#define __URDE_CSFXMANAGER_HPP__
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -130,4 +130,4 @@ class CSfxManager
 
 }
 
-#endif // __PSHAG_CSFXMANAGER_HPP__
+#endif // __URDE_CSFXMANAGER_HPP__

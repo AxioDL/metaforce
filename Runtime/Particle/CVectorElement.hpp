@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CVECTORELEMENT_HPP__
-#define __PSHAG_CVECTORELEMENT_HPP__
+#ifndef __URDE_CVECTORELEMENT_HPP__
+#define __URDE_CVECTORELEMENT_HPP__
 
 #include "IElement.hpp"
 
@@ -208,4 +208,4 @@ public:
 
 }
 
-#endif // __PSHAG_CVECTORELEMENT_HPP__
+#endif // __URDE_CVECTORELEMENT_HPP__

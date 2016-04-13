@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CASSETFACTORY_HPP__
-#define __PSHAG_CASSETFACTORY_HPP__
+#ifndef __URDE_CASSETFACTORY_HPP__
+#define __URDE_CASSETFACTORY_HPP__
 
 #include "../IFactory.hpp"
 #include "../IObj.hpp"
@@ -17,4 +17,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CASSETFACTORY_HPP__
+#endif // __URDE_CASSETFACTORY_HPP__

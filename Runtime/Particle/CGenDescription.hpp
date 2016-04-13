@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CGENDESCRIPTION_HPP__
-#define __PSHAG_CGENDESCRIPTION_HPP__
+#ifndef __URDE_CGENDESCRIPTION_HPP__
+#define __URDE_CGENDESCRIPTION_HPP__
 
 #include <memory>
 #include "CRealElement.hpp"
@@ -112,4 +112,4 @@ public:
 
 }
 
-#endif // __PSHAG_CGENDESCRIPTION_HPP__
+#endif // __URDE_CGENDESCRIPTION_HPP__

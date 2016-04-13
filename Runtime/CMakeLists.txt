@@ -46,6 +46,7 @@ add_library(RuntimeCommon
             CCRC32.hpp CCRC32.cpp
             CEntity.hpp CEntity.cpp
             IFactory.hpp
+            IObjFactory.hpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             CObjectList.hpp
             CArchitectureMessage.hpp

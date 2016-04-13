@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETAANIMPHASEBLEND_HPP__
-#define __PSHAG_CMETAANIMPHASEBLEND_HPP__
+#ifndef __URDE_CMETAANIMPHASEBLEND_HPP__
+#define __URDE_CMETAANIMPHASEBLEND_HPP__
 
 #include "IMetaAnim.hpp"
 #include "IOStreams.hpp"
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETAANIMPHASEBLEND_HPP__
+#endif // __URDE_CMETAANIMPHASEBLEND_HPP__

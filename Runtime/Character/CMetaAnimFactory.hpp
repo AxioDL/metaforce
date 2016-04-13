@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETAANIMFACTORY_HPP__
-#define __PSHAG_CMETAANIMFACTORY_HPP__
+#ifndef __URDE_CMETAANIMFACTORY_HPP__
+#define __URDE_CMETAANIMFACTORY_HPP__
 
 #include "IOStreams.hpp"
 #include "IMetaAnim.hpp"
@@ -15,4 +15,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETAANIMFACTORY_HPP__
+#endif // __URDE_CMETAANIMFACTORY_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSKINRULES_HPP__
-#define __PSHAG_CSKINRULES_HPP__
+#ifndef __URDE_CSKINRULES_HPP__
+#define __URDE_CSKINRULES_HPP__
 
 #include "RetroTypes.hpp"
 #include "CSkinBank.hpp"
@@ -20,4 +20,4 @@ CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, cons
 
 }
 
-#endif // __PSHAG_CSKINRULES_HPP__
+#endif // __URDE_CSKINRULES_HPP__

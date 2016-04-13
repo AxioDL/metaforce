@@ -1,5 +1,5 @@
-#ifndef __PSHAG_ICONTROLLER_HPP__
-#define __PSHAG_ICONTROLLER_HPP__
+#ifndef __URDE_ICONTROLLER_HPP__
+#define __URDE_ICONTROLLER_HPP__
 
 #include "../RetroTypes.hpp"
 
@@ -21,4 +21,4 @@ public:
 
 }
 
-#endif // __PSHAG_ICONTROLLER_HPP__
+#endif // __URDE_ICONTROLLER_HPP__

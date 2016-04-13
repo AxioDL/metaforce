@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CDVDREQUEST_HPP__
-#define __PSHAG_CDVDREQUEST_HPP__
+#ifndef __URDE_CDVDREQUEST_HPP__
+#define __URDE_CDVDREQUEST_HPP__
 
 namespace urde
 {
@@ -25,4 +25,4 @@ public:
 
 }
 
-#endif // __PSHAG_CDVDREQUEST_HPP__
+#endif // __URDE_CDVDREQUEST_HPP__

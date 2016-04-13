@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CGAMEDEBUG_HPP__
-#define __PSHAG_CGAMEDEBUG_HPP__
+#ifndef __URDE_CGAMEDEBUG_HPP__
+#define __URDE_CGAMEDEBUG_HPP__
 
 #include <string>
 
@@ -53,4 +53,4 @@ public:
 
 }
 
-#endif // __PSHAG_CGAMEDEBUG_HPP__
+#endif // __URDE_CGAMEDEBUG_HPP__

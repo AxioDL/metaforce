@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPLAYMOVIEBASE_HPP__
-#define __PSHAG_CPLAYMOVIEBASE_HPP__
+#ifndef __URDE_CPLAYMOVIEBASE_HPP__
+#define __URDE_CPLAYMOVIEBASE_HPP__
 
 #include "CIOWin.hpp"
 #include "Graphics/CMoviePlayer.hpp"
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPLAYMOVIEBASE_HPP__
+#endif // __URDE_CPLAYMOVIEBASE_HPP__

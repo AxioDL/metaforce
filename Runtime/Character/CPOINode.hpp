@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPOINODE_HPP__
-#define __PSHAG_CPOINODE_HPP__
+#ifndef __URDE_CPOINODE_HPP__
+#define __URDE_CPOINODE_HPP__
 
 #include "IOStreams.hpp"
 #include "CCharAnimTime.hpp"
@@ -31,4 +31,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPOINODE_HPP__
+#endif // __URDE_CPOINODE_HPP__

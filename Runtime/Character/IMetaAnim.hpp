@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IMETAANIM_HPP__
-#define __PSHAG_IMETAANIM_HPP__
+#ifndef __URDE_IMETAANIM_HPP__
+#define __URDE_IMETAANIM_HPP__
 
 #include "../RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -55,4 +55,4 @@ public:
 
 }
 
-#endif // __PSHAG_IMETAANIM_HPP__
+#endif // __URDE_IMETAANIM_HPP__

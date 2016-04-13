@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CALLFORMATANIMSOURCE_HPP__
-#define __PSHAG_CALLFORMATANIMSOURCE_HPP__
+#ifndef __URDE_CALLFORMATANIMSOURCE_HPP__
+#define __URDE_CALLFORMATANIMSOURCE_HPP__
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -48,4 +48,4 @@ CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, cons
 
 }
 
-#endif // __PSHAG_CALLFORMATANIMSOURCE_HPP__
+#endif // __URDE_CALLFORMATANIMSOURCE_HPP__

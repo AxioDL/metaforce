@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CGAMEOPTIONS_HPP__
-#define __PSHAG_CGAMEOPTIONS_HPP__
+#ifndef __URDE_CGAMEOPTIONS_HPP__
+#define __URDE_CGAMEOPTIONS_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -19,4 +19,4 @@ class CGameOptions
 
 }
 
-#endif // __PSHAG_CGAMEOPTIONS_HPP__
+#endif // __URDE_CGAMEOPTIONS_HPP__

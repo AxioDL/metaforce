@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPLAYMOVIE_HPP__
-#define __PSHAG_CPLAYMOVIE_HPP__
+#ifndef __URDE_CPLAYMOVIE_HPP__
+#define __URDE_CPLAYMOVIE_HPP__
 
 #include "CPlayMovieBase.hpp"
 
@@ -27,4 +27,4 @@ public:
 }
 }
 
-#endif // __PSHAG_CPLAYMOVIE_HPP__
+#endif // __URDE_CPLAYMOVIE_HPP__

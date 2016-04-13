@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CVERTEXMORPHEFFECT_HPP__
-#define __PSHAG_CVERTEXMORPHEFFECT_HPP__
+#ifndef __URDE_CVERTEXMORPHEFFECT_HPP__
+#define __URDE_CVERTEXMORPHEFFECT_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CVertexMorphEffect
 
 }
 
-#endif // __PSHAG_CVERTEXMORPHEFFECT_HPP__
+#endif // __URDE_CVERTEXMORPHEFFECT_HPP__

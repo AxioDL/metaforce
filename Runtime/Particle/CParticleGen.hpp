@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEGEN_HPP__
-#define __PSHAG_CPARTICLEGEN_HPP__
+#ifndef __URDE_CPARTICLEGEN_HPP__
+#define __URDE_CPARTICLEGEN_HPP__
 
 #include "RetroTypes.hpp"
 #include "Graphics/CLight.hpp"
@@ -49,4 +49,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLEGEN_HPP__
+#endif // __URDE_CPARTICLEGEN_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CDVDFILE_HPP__
-#define __PSHAG_CDVDFILE_HPP__
+#ifndef __URDE_CDVDFILE_HPP__
+#define __URDE_CDVDFILE_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -77,4 +77,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CDVDFILE_HPP__
+#endif // __URDE_CDVDFILE_HPP__

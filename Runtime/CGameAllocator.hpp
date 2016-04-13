@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CGAMEALLOCATOR_HPP__
-#define __PSHAG_CGAMEALLOCATOR_HPP__
+#ifndef __URDE_CGAMEALLOCATOR_HPP__
+#define __URDE_CGAMEALLOCATOR_HPP__
 
 #include "IAllocator.hpp"
 
@@ -48,4 +48,4 @@ public:
 
 }
 
-#endif // __PSHAG_CGAMEALLOCATOR_HPP__
+#endif // __URDE_CGAMEALLOCATOR_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CRUMBLEMANAGER_HPP__
-#define __PSHAG_CRUMBLEMANAGER_HPP__
+#ifndef __URDE_CRUMBLEMANAGER_HPP__
+#define __URDE_CRUMBLEMANAGER_HPP__
 
 #include "CRumbleGenerator.hpp"
 
@@ -18,4 +18,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CRUMBLEMANAGER_HPP__
+#endif // __URDE_CRUMBLEMANAGER_HPP__

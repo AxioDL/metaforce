@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPASANIMSTATE_HPP__
-#define __PSHAG_CPASANIMSTATE_HPP__
+#ifndef __URDE_CPASANIMSTATE_HPP__
+#define __URDE_CPASANIMSTATE_HPP__
 
 #include "IOStreams.hpp"
 #include "CPASParmInfo.hpp"
@@ -21,4 +21,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPASANIMSTATE_HPP__
+#endif // __URDE_CPASANIMSTATE_HPP__

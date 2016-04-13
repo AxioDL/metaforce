@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IELEMENT_HPP__
-#define __PSHAG_IELEMENT_HPP__
+#ifndef __URDE_IELEMENT_HPP__
+#define __URDE_IELEMENT_HPP__
 
 #include <memory>
 #include "GCNTypes.hpp"
@@ -56,4 +56,4 @@ public:
 
 }
 
-#endif // __PSHAG_IELEMENT_HPP__
+#endif // __URDE_IELEMENT_HPP__

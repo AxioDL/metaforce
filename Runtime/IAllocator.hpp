@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IALLOCATOR_HPP__
-#define __PSHAG_IALLOCATOR_HPP__
+#ifndef __URDE_IALLOCATOR_HPP__
+#define __URDE_IALLOCATOR_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -76,4 +76,4 @@ public:
 
 }
 
-#endif // __PSHAG_IALLOCATOR_HPP__
+#endif // __URDE_IALLOCATOR_HPP__

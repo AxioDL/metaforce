@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CTOKEN_HPP__
-#define __PSHAG_CTOKEN_HPP__
+#ifndef __URDE_CTOKEN_HPP__
+#define __URDE_CTOKEN_HPP__
 
 #include <memory>
 #include "IObj.hpp"
@@ -314,4 +314,4 @@ public:
 
 }
 
-#endif // __PSHAG_CTOKEN_HPP__
+#endif // __URDE_CTOKEN_HPP__

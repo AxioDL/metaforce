@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CELECTRICDESCRIPTION_HPP__
-#define __PSHAG_CELECTRICDESCRIPTION_HPP__
+#ifndef __URDE_CELECTRICDESCRIPTION_HPP__
+#define __URDE_CELECTRICDESCRIPTION_HPP__
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -37,4 +37,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CELECTRICDESCRIPTION_HPP__
+#endif // __URDE_CELECTRICDESCRIPTION_HPP__

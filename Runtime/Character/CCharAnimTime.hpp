@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCHARANIMTIME_HPP__
-#define __PSHAG_CCHARANIMTIME_HPP__
+#ifndef __URDE_CCHARANIMTIME_HPP__
+#define __URDE_CCHARANIMTIME_HPP__
 
 #include "IOStreams.hpp"
 
@@ -48,4 +48,4 @@ public:
 };
 }
 
-#endif // __PSHAG_CCHARANIMTIME_HPP__
+#endif // __URDE_CCHARANIMTIME_HPP__

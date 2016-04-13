@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CARCHITECTUREQUEUE_HPP__
-#define __PSHAG_CARCHITECTUREQUEUE_HPP__
+#ifndef __URDE_CARCHITECTUREQUEUE_HPP__
+#define __URDE_CARCHITECTUREQUEUE_HPP__
 
 #include <list>
 #include "CArchitectureMessage.hpp"
@@ -27,4 +27,4 @@ public:
 
 }
 
-#endif // __PSHAG_CARCHITECTUREQUEUE_HPP__
+#endif // __URDE_CARCHITECTUREQUEUE_HPP__

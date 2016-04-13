@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMDATA_HPP__
-#define __PSHAG_CANIMDATA_HPP__
+#ifndef __URDE_CANIMDATA_HPP__
+#define __URDE_CANIMDATA_HPP__
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -110,4 +110,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMDATA_HPP__
+#endif // __URDE_CANIMDATA_HPP__

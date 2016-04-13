@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCONTROLMAPPER_HPP__
-#define __PSHAG_CCONTROLMAPPER_HPP__
+#ifndef __URDE_CCONTROLMAPPER_HPP__
+#define __URDE_CCONTROLMAPPER_HPP__
 
 namespace urde
 {
@@ -112,4 +112,4 @@ public:
 
 }
 
-#endif // __PSHAG_CCONTROLMAPPER_HPP__
+#endif // __URDE_CCONTROLMAPPER_HPP__

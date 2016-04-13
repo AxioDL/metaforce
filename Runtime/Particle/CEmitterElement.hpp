@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CEMITTERELEMENT_HPP__
-#define __PSHAG_CEMITTERELEMENT_HPP__
+#ifndef __URDE_CEMITTERELEMENT_HPP__
+#define __URDE_CEMITTERELEMENT_HPP__
 
 #include "IElement.hpp"
 
@@ -47,4 +47,4 @@ public:
 
 }
 
-#endif // __PSHAG_CEMITTERELEMENT_HPP__
+#endif // __URDE_CEMITTERELEMENT_HPP__

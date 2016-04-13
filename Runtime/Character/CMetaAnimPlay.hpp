@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETAANIMPLAY_HPP__
-#define __PSHAG_CMETAANIMPLAY_HPP__
+#ifndef __URDE_CMETAANIMPLAY_HPP__
+#define __URDE_CMETAANIMPLAY_HPP__
 
 #include "IMetaAnim.hpp"
 #include "CPrimitive.hpp"
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETAANIMPLAY_HPP__
+#endif // __URDE_CMETAANIMPLAY_HPP__

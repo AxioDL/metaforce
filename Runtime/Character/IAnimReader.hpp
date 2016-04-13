@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IANIMREADER_HPP__
-#define __PSHAG_IANIMREADER_HPP__
+#ifndef __URDE_IANIMREADER_HPP__
+#define __URDE_IANIMREADER_HPP__
 
 #include "RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -57,4 +57,4 @@ public:
 
 }
 
-#endif // __PSHAG_IANIMREADER_HPP__
+#endif // __URDE_IANIMREADER_HPP__

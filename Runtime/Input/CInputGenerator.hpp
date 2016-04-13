@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CINPUTGENERATOR_HPP__
-#define __PSHAG_CINPUTGENERATOR_HPP__
+#ifndef __URDE_CINPUTGENERATOR_HPP__
+#define __URDE_CINPUTGENERATOR_HPP__
 
 #include <atomic>
 #include <boo/boo.hpp>
@@ -180,4 +180,4 @@ public:
 
 }
 
-#endif // __PSHAG_CINPUTGENERATOR_HPP__
+#endif // __URDE_CINPUTGENERATOR_HPP__

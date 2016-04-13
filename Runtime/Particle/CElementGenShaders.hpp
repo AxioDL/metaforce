@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CELEMENTGENSHADERS_HPP__
-#define __PSHAG_CELEMENTGENSHADERS_HPP__
+#ifndef __URDE_CELEMENTGENSHADERS_HPP__
+#define __URDE_CELEMENTGENSHADERS_HPP__
 
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/GL.hpp"
@@ -81,4 +81,4 @@ public:
 
 }
 
-#endif // __PSHAG_CELEMENTGENSHADERS_HPP__
+#endif // __URDE_CELEMENTGENSHADERS_HPP__

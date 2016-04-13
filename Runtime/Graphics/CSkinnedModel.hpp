@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSKINNEDMODEL_HPP__
-#define __PSHAG_CSKINNEDMODEL_HPP__
+#ifndef __URDE_CSKINNEDMODEL_HPP__
+#define __URDE_CSKINNEDMODEL_HPP__
 
 #include "CToken.hpp"
 #include "CModel.hpp"
@@ -28,4 +28,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSKINNEDMODEL_HPP__
+#endif // __URDE_CSKINNEDMODEL_HPP__

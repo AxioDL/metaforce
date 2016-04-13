@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CCHARACTERSET_HPP__
-#define __PSHAG_CCHARACTERSET_HPP__
+#ifndef __URDE_CCHARACTERSET_HPP__
+#define __URDE_CCHARACTERSET_HPP__
 
 #include "IOStreams.hpp"
 #include "CCharacterInfo.hpp"
@@ -13,8 +13,9 @@ class CCharacterSet
     std::map<u32, CCharacterInfo> x4_characters;
 public:
     CCharacterSet(CInputStream& in);
+    const std::map<u32, CCharacterInfo>& GetCharacterInfoMap() const {return x4_characters;}
 };
 
 }
 
-#endif // __PSHAG_CCHARACTERSET_HPP__
+#endif // __URDE_CCHARACTERSET_HPP__

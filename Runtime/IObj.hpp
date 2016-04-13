@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IOBJ_HPP__
-#define __PSHAG_IOBJ_HPP__
+#ifndef __URDE_IOBJ_HPP__
+#define __URDE_IOBJ_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -35,4 +35,4 @@ public:
 
 }
 
-#endif // __PSHAG_IOBJ_HPP__
+#endif // __URDE_IOBJ_HPP__

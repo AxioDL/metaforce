@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CGAMESTATE_HPP__
-#define __PSHAG_CGAMESTATE_HPP__
+#ifndef __URDE_CGAMESTATE_HPP__
+#define __URDE_CGAMESTATE_HPP__
 
 #include <memory>
 #include "CBasics.hpp"
@@ -28,4 +28,4 @@ public:
 
 }
 
-#endif // __PSHAG_CGAMESTATE_HPP__
+#endif // __URDE_CGAMESTATE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSOUNDPOINODE_HPP__
-#define __PSHAG_CSOUNDPOINODE_HPP__
+#ifndef __URDE_CSOUNDPOINODE_HPP__
+#define __URDE_CSOUNDPOINODE_HPP__
 
 #include "CPOINode.hpp"
 #include "CCharAnimTime.hpp"
@@ -31,4 +31,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSOUNDPOINODE_HPP__
+#endif // __URDE_CSOUNDPOINODE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CDECALDESCRIPTION_HPP__
-#define __PSHAG_CDECALDESCRIPTION_HPP__
+#ifndef __URDE_CDECALDESCRIPTION_HPP__
+#define __URDE_CDECALDESCRIPTION_HPP__
 
 #include "CRealElement.hpp"
 #include "CIntElement.hpp"
@@ -40,4 +40,4 @@ public:
 };
 
 }
-#endif // __PSHAG_CDECALDESCRIPTION_HPP__
+#endif // __URDE_CDECALDESCRIPTION_HPP__

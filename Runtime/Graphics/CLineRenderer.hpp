@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CLINERENDERER_HPP__
-#define __PSHAG_CLINERENDERER_HPP__
+#ifndef __URDE_CLINERENDERER_HPP__
+#define __URDE_CLINERENDERER_HPP__
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -57,4 +57,4 @@ public:
 
 }
 
-#endif // __PSHAG_CLINERENDERER_HPP__
+#endif // __URDE_CLINERENDERER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPASANIMPARM_HPP__
-#define __PSHAG_CPASANIMPARM_HPP__
+#ifndef __URDE_CPASANIMPARM_HPP__
+#define __URDE_CPASANIMPARM_HPP__
 
 #include "RetroTypes.hpp"
 
@@ -83,4 +83,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPASANIMPARM_HPP__
+#endif // __URDE_CPASANIMPARM_HPP__

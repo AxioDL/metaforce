@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CACTOR_HPP__
-#define __PSHAG_CACTOR_HPP__
+#ifndef __URDE_CACTOR_HPP__
+#define __URDE_CACTOR_HPP__
 
 #include "CEntity.hpp"
 #include "zeus/zeus.hpp"
@@ -80,4 +80,4 @@ public:
 
 }
 
-#endif // __PSHAG_CACTOR_HPP__
+#endif // __URDE_CACTOR_HPP__

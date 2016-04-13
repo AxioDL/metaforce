@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEPOINODE_HPP__
-#define __PSHAG_CPARTICLEPOINODE_HPP__
+#ifndef __URDE_CPARTICLEPOINODE_HPP__
+#define __URDE_CPARTICLEPOINODE_HPP__
 
 #include "CPOINode.hpp"
 #include "CParticleData.hpp"
@@ -27,4 +27,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPARTICLEPOINODE_HPP__
+#endif // __URDE_CPARTICLEPOINODE_HPP__

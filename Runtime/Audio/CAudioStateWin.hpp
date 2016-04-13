@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CAUDIOSTATEWIN_HPP__
-#define __PSHAG_CAUDIOSTATEWIN_HPP__
+#ifndef __URDE_CAUDIOSTATEWIN_HPP__
+#define __URDE_CAUDIOSTATEWIN_HPP__
 
 #include "../CIOWin.hpp"
 
@@ -18,4 +18,4 @@ public:
 
 }
 
-#endif // __PSHAG_CAUDIOSTATEWIN_HPP__
+#endif // __URDE_CAUDIOSTATEWIN_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSCRIPTMAILBOX_HPP__
-#define __PSHAG_CSCRIPTMAILBOX_HPP__
+#ifndef __URDE_CSCRIPTMAILBOX_HPP__
+#define __URDE_CSCRIPTMAILBOX_HPP__
 
 #include "IOStreams.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -35,4 +35,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSCRIPTMAILBOX_HPP__
+#endif // __URDE_CSCRIPTMAILBOX_HPP__

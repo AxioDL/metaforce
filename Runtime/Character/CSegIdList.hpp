@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSEGIDLIST_HPP__
-#define __PSHAG_CSEGIDLIST_HPP__
+#ifndef __URDE_CSEGIDLIST_HPP__
+#define __URDE_CSEGIDLIST_HPP__
 
 #include "IOStreams.hpp"
 #include "CSegId.hpp"
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSEGIDLIST_HPP__
+#endif // __URDE_CSEGIDLIST_HPP__

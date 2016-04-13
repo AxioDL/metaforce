@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CFRONTENDUI_HPP__
-#define __PSHAG_CFRONTENDUI_HPP__
+#ifndef __URDE_CFRONTENDUI_HPP__
+#define __URDE_CFRONTENDUI_HPP__
 
 #include "CIOWin.hpp"
 #include "CGameDebug.hpp"
@@ -56,4 +56,4 @@ public:
 }
 }
 
-#endif // __PSHAG_CFRONTENDUI_HPP__
+#endif // __URDE_CFRONTENDUI_HPP__

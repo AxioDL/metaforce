@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CRESLOADER_HPP__
-#define __PSHAG_CRESLOADER_HPP__
+#ifndef __URDE_CRESLOADER_HPP__
+#define __URDE_CRESLOADER_HPP__
 
 #include <memory>
 #include <string>
@@ -48,4 +48,4 @@ public:
 
 }
 
-#endif // __PSHAG_CRESLOADER_HPP__
+#endif // __URDE_CRESLOADER_HPP__

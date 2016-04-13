@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CTRANSITIONDATABASE_HPP__
-#define __PSHAG_CTRANSITIONDATABASE_HPP__
+#ifndef __URDE_CTRANSITIONDATABASE_HPP__
+#define __URDE_CTRANSITIONDATABASE_HPP__
 
 #include "../RetroTypes.hpp"
 
@@ -10,9 +10,9 @@ class IMetaTrans;
 class CTransitionDatabase
 {
 public:
-    virtual const IMetaTrans* GetMetaTrans(u32, u32) const=0;
+    virtual const std::shared_ptr<IMetaTrans>& GetMetaTrans(u32, u32) const=0;
 };
 
 }
 
-#endif // __PSHAG_CTRANSITIONDATABASE_HPP__
+#endif // __URDE_CTRANSITIONDATABASE_HPP__

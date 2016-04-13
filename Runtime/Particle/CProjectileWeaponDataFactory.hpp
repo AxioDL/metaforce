@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPROJECTILEWEAPONDATAFACTORY_HPP__
-#define __PSHAG_CPROJECTILEWEAPONDATAFACTORY_HPP__
+#ifndef __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__
+#define __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -22,4 +22,4 @@ public:
 CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
 }
 
-#endif // __PSHAG_CPROJECTILEWEAPONDATAFACTORY_HPP__
+#endif // __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__

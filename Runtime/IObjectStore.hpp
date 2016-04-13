@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IOBJECTSTORE_HPP__
-#define __PSHAG_IOBJECTSTORE_HPP__
+#ifndef __URDE_IOBJECTSTORE_HPP__
+#define __URDE_IOBJECTSTORE_HPP__
 
 namespace urde
 {
@@ -24,4 +24,4 @@ public:
 
 }
 
-#endif // __PSHAG_IOBJECTSTORE_HPP__
+#endif // __URDE_IOBJECTSTORE_HPP__

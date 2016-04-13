@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMTREELOOPIN_HPP__
-#define __PSHAG_CANIMTREELOOPIN_HPP__
+#ifndef __URDE_CANIMTREELOOPIN_HPP__
+#define __URDE_CANIMTREELOOPIN_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CAnimTreeLoopIn
 
 }
 
-#endif // __PSHAG_CANIMTREELOOPIN_HPP__
+#endif // __URDE_CANIMTREELOOPIN_HPP__

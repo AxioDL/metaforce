@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPRIMITIVE_HPP__
-#define __PSHAG_CPRIMITIVE_HPP__
+#ifndef __URDE_CPRIMITIVE_HPP__
+#define __URDE_CPRIMITIVE_HPP__
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -14,8 +14,9 @@ class CPrimitive
     std::string x8_animName;
 public:
     CPrimitive(CInputStream& in);
+    TResId GetAnimResId() const {return x0_animId;}
 };
 
 }
 
-#endif // __PSHAG_CPRIMITIVE_HPP__
+#endif // __URDE_CPRIMITIVE_HPP__

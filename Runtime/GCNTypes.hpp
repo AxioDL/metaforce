@@ -1,5 +1,5 @@
-#ifndef __PSHAG_GCTYPES_HPP__
-#define __PSHAG_GCTYPES_HPP__
+#ifndef __URDE_GCTYPES_HPP__
+#define __URDE_GCTYPES_HPP__
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -13,4 +13,4 @@ using u32 = uint32_t;
 using s64 = int64_t;
 using u64 = uint64_t;
 
-#endif // __PSHAG_GCTYPES_HPP__
+#endif // __URDE_GCTYPES_HPP__

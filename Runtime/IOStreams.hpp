@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IOSTREAMS_HPP__
-#define __PSHAG_IOSTREAMS_HPP__
+#ifndef __URDE_IOSTREAMS_HPP__
+#define __URDE_IOSTREAMS_HPP__
 
 #include "GCNTypes.hpp"
 #include <athena/IStreamReader.hpp>
@@ -94,4 +94,4 @@ public:
 
 }
 
-#endif // __PSHAG_IOSTREAMS_HPP__
+#endif // __URDE_IOSTREAMS_HPP__

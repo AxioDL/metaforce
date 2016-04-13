@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CAREAOCTTREE_HPP__
-#define __PSHAG_CAREAOCTTREE_HPP__
+#ifndef __URDE_CAREAOCTTREE_HPP__
+#define __URDE_CAREAOCTTREE_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CAreaOctTree
 
 }
 
-#endif // __PSHAG_CAREAOCTTREE_HPP__
+#endif // __URDE_CAREAOCTTREE_HPP__

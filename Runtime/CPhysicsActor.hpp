@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPHYSICSACTOR_HPP__
-#define __PSHAG_CPHYSICSACTOR_HPP__
+#ifndef __URDE_CPHYSICSACTOR_HPP__
+#define __URDE_CPHYSICSACTOR_HPP__
 
 #include "CActor.hpp"
 
@@ -120,4 +120,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPHYSICSACTOR_HPP__
+#endif // __URDE_CPHYSICSACTOR_HPP__

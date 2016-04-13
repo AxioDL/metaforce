@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CWARP_HPP__
-#define __PSHAG_CWARP_HPP__
+#ifndef __URDE_CWARP_HPP__
+#define __URDE_CWARP_HPP__
 
 #include "zeus/CColor.hpp"
 #include "zeus/CVector3f.hpp"
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __PSHAG_CWARP_HPP__
+#endif // __URDE_CWARP_HPP__

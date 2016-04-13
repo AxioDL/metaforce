@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMSOURCE_HPP__
-#define __PSHAG_CANIMSOURCE_HPP__
+#ifndef __URDE_CANIMSOURCE_HPP__
+#define __URDE_CANIMSOURCE_HPP__
 
 #include "RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -83,4 +83,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMSOURCE_HPP__
+#endif // __URDE_CANIMSOURCE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMODEL_HPP__
-#define __PSHAG_CMODEL_HPP__
+#ifndef __URDE_CMODEL_HPP__
+#define __URDE_CMODEL_HPP__
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
@@ -164,4 +164,4 @@ CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
 
 }
 
-#endif // __PSHAG_CMODEL_HPP__
+#endif // __URDE_CMODEL_HPP__

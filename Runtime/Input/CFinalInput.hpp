@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CFINALINPUT_HPP__
-#define __PSHAG_CFINALINPUT_HPP__
+#ifndef __URDE_CFINALINPUT_HPP__
+#define __URDE_CFINALINPUT_HPP__
 
 #include "../RetroTypes.hpp"
 #include "CKeyboardMouseController.hpp"
@@ -153,4 +153,4 @@ public:
 
 }
 
-#endif // __PSHAG_CFINALINPUT_HPP__
+#endif // __URDE_CFINALINPUT_HPP__

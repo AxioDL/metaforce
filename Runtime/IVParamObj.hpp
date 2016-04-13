@@ -1,5 +1,5 @@
-#ifndef __PSHAG_IVPARAMOBJ_HPP__
-#define __PSHAG_IVPARAMOBJ_HPP__
+#ifndef __URDE_IVPARAMOBJ_HPP__
+#define __URDE_IVPARAMOBJ_HPP__
 
 #include <memory>
 #include "IObj.hpp"
@@ -39,4 +39,4 @@ public:
 
 }
 
-#endif // __PSHAG_IVPARAMOBJ_HPP__
+#endif // __URDE_IVPARAMOBJ_HPP__

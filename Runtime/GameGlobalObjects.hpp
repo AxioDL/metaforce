@@ -1,5 +1,5 @@
-#ifndef __PSHAG_GAMEGLOBALOBJECTS_HPP__
-#define __PSHAG_GAMEGLOBALOBJECTS_HPP__
+#ifndef __URDE_GAMEGLOBALOBJECTS_HPP__
+#define __URDE_GAMEGLOBALOBJECTS_HPP__
 #include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
@@ -22,4 +22,4 @@ extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
 
 }
 
-#endif // __PSHAG_GAMEGLOBALOBJECTS_HPP__
+#endif // __URDE_GAMEGLOBALOBJECTS_HPP__

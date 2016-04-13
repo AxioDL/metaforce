@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMTREETRANSITION_HPP__
-#define __PSHAG_CANIMTREETRANSITION_HPP__
+#ifndef __URDE_CANIMTREETRANSITION_HPP__
+#define __URDE_CANIMTREETRANSITION_HPP__
 
 #include "RetroTypes.hpp"
 #include "CAnimTreeTweenBase.hpp"
@@ -15,4 +15,4 @@ public:
 
 }
 
-#endif // __PSHAG_CANIMTREETRANSITION_HPP__
+#endif // __URDE_CANIMTREETRANSITION_HPP__

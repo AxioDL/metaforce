@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPASPARMINFO_HPP__
-#define __PSHAG_CPASPARMINFO_HPP__
+#ifndef __URDE_CPASPARMINFO_HPP__
+#define __URDE_CPASPARMINFO_HPP__
 
 #include "IOStreams.hpp"
 #include "CPASAnimParm.hpp"
@@ -21,4 +21,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPASPARMINFO_HPP__
+#endif // __URDE_CPASPARMINFO_HPP__

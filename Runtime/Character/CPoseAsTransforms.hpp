@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPOSEASTRANSFORMS_HPP__
-#define __PSHAG_CPOSEASTRANSFORMS_HPP__
+#ifndef __URDE_CPOSEASTRANSFORMS_HPP__
+#define __URDE_CPOSEASTRANSFORMS_HPP__
 
 #include "RetroTypes.hpp"
 #include "CSegId.hpp"
@@ -28,4 +28,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPOSEASTRANSFORMS_HPP__
+#endif // __URDE_CPOSEASTRANSFORMS_HPP__

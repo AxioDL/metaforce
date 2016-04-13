@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSTATEMANAGER_HPP__
-#define __PSHAG_CSTATEMANAGER_HPP__
+#ifndef __URDE_CSTATEMANAGER_HPP__
+#define __URDE_CSTATEMANAGER_HPP__
 
 #include <memory>
 #include "CBasics.hpp"

@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CENTITY_HPP__
-#define __PSHAG_CENTITY_HPP__
+#ifndef __URDE_CENTITY_HPP__
+#define __URDE_CENTITY_HPP__
 
 #include "RetroTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -45,4 +45,4 @@ public:
 
 }
 
-#endif // __PSHAG_CENTITY_HPP__
+#endif // __URDE_CENTITY_HPP__

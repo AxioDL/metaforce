@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CARCHITECTUREMESSAGE_HPP__
-#define __PSHAG_CARCHITECTUREMESSAGE_HPP__
+#ifndef __URDE_CARCHITECTUREMESSAGE_HPP__
+#define __URDE_CARCHITECTUREMESSAGE_HPP__
 
 #include "GCNTypes.hpp"
 #include "Input/CFinalInput.hpp"
@@ -164,4 +164,4 @@ public:
 
 }
 
-#endif // __PSHAG_CARCHITECTUREMESSAGE_HPP__
+#endif // __URDE_CARCHITECTUREMESSAGE_HPP__

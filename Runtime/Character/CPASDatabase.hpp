@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPASDATABASE_HPP__
-#define __PSHAG_CPASDATABASE_HPP__
+#ifndef __URDE_CPASDATABASE_HPP__
+#define __URDE_CPASDATABASE_HPP__
 
 #include "IOStreams.hpp"
 #include "CPASAnimState.hpp"
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // __PSHAG_CPASDATABASE_HPP__
+#endif // __URDE_CPASDATABASE_HPP__

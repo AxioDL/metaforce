@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CSTRINGEXTRAS_HPP__
-#define __PSHAG_CSTRINGEXTRAS_HPP__
+#ifndef __URDE_CSTRINGEXTRAS_HPP__
+#define __URDE_CSTRINGEXTRAS_HPP__
 
 #include <string>
 #include <string.h>
@@ -26,4 +26,4 @@ public:
 
 }
 
-#endif // __PSHAG_CSTRINGEXTRAS_HPP__
+#endif // __URDE_CSTRINGEXTRAS_HPP__

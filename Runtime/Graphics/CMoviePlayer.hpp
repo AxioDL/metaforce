@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMOVIEPLAYER_HPP__
-#define __PSHAG_CMOVIEPLAYER_HPP__
+#ifndef __URDE_CMOVIEPLAYER_HPP__
+#define __URDE_CMOVIEPLAYER_HPP__
 
 #include "RetroTypes.hpp"
 #include "CDvdFile.hpp"
@@ -171,4 +171,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMOVIEPLAYER_HPP__
+#endif // __URDE_CMOVIEPLAYER_HPP__

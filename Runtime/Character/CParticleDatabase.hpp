@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CPARTICLEDATABASE_HPP__
-#define __PSHAG_CPARTICLEDATABASE_HPP__
+#ifndef __URDE_CPARTICLEDATABASE_HPP__
+#define __URDE_CPARTICLEDATABASE_HPP__
 
 namespace urde
 {
@@ -10,4 +10,4 @@ class CParticleDatabase
 
 }
 
-#endif // __PSHAG_CPARTICLEDATABASE_HPP__
+#endif // __URDE_CPARTICLEDATABASE_HPP__

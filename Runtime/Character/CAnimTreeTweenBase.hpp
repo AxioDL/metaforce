@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CANIMTREETWEENBASE_HPP__
-#define __PSHAG_CANIMTREETWEENBASE_HPP__
+#ifndef __URDE_CANIMTREETWEENBASE_HPP__
+#define __URDE_CANIMTREETWEENBASE_HPP__
 
 #include "CAnimTreeDoubleChild.hpp"
 
@@ -12,4 +12,4 @@ class CAnimTreeTweenBase : public CAnimTreeDoubleChild
 
 }
 
-#endif // __PSHAG_CANIMTREETWEENBASE_HPP__
+#endif // __URDE_CANIMTREETWEENBASE_HPP__

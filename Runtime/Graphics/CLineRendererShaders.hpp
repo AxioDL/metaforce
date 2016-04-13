@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CLINERENDERERSHADERS_HPP__
-#define __PSHAG_CLINERENDERERSHADERS_HPP__
+#ifndef __URDE_CLINERENDERERSHADERS_HPP__
+#define __URDE_CLINERENDERERSHADERS_HPP__
 
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/GL.hpp"
@@ -55,4 +55,4 @@ public:
 
 }
 
-#endif // __PSHAG_CLINERENDERERSHADERS_HPP__
+#endif // __URDE_CLINERENDERERSHADERS_HPP__

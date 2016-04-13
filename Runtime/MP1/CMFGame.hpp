@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMFGAME_HPP__
-#define __PSHAG_CMFGAME_HPP__
+#ifndef __URDE_CMFGAME_HPP__
+#define __URDE_CMFGAME_HPP__
 
 #include "CMFGameBase.hpp"
 
@@ -27,4 +27,4 @@ public:
 }
 }
 
-#endif // __PSHAG_CMFGAME_HPP__
+#endif // __URDE_CMFGAME_HPP__

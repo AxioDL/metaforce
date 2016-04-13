@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CTEXTURE_HPP__
-#define __PSHAG_CTEXTURE_HPP__
+#ifndef __URDE_CTEXTURE_HPP__
+#define __URDE_CTEXTURE_HPP__
 
 #include "GCNTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -56,4 +56,4 @@ CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
 
 }
 
-#endif // __PSHAG_CTEXTURE_HPP__
+#endif // __URDE_CTEXTURE_HPP__

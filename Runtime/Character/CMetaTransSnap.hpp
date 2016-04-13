@@ -1,5 +1,5 @@
-#ifndef __PSHAG_CMETATRANSSNAP_HPP__
-#define __PSHAG_CMETATRANSSNAP_HPP__
+#ifndef __URDE_CMETATRANSSNAP_HPP__
+#define __URDE_CMETATRANSSNAP_HPP__
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // __PSHAG_CMETATRANSSNAP_HPP__
+#endif // __URDE_CMETATRANSSNAP_HPP__
