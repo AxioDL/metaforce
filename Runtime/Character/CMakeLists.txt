@@ -14,8 +14,10 @@ add_library(RuntimeCommonCharacter
             CPoseAsTransforms.hpp CPoseAsTransforms.cpp
             CSkinBank.hpp CSkinBank.cpp
             CCharLayoutInfo.hpp CCharLayoutInfo.cpp
+            CLayoutDescription.hpp
             CSegIdList.hpp CSegIdList.cpp
             CSegId.hpp CSegId.cpp
+            TSegIdMap.hpp
             CSkinRules.hpp CSkinRules.cpp
             CAnimCharacterSet.hpp CAnimCharacterSet.cpp
             CAnimationSet.hpp CAnimationSet.cpp

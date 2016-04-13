@@ -4,6 +4,19 @@
 namespace urde
 {
 
+zeus::CVector3f CCharLayoutInfo::GetFromParentUnrotated(const CSegId& id) const
+{
+    const CCharLayoutNode::Bone& bone = x0_node->GetBone(id);
+    const CSegId& prev = x0_node->GetPrevBone(bone.x0_parentId);
+    if (prev == 0xff)
+        return bone.x4_origin;
+    else
+    {
+        const CCharLayoutNode::Bone& pBone = x0_node->GetBone(bone.x0_parentId);
+        return bone.x4_origin - pBone.x4_origin;
+    }
+}
+
 void CCharLayoutNode::Bone::read(CInputStream& in)
 {
     x0_parentId = CSegId(in);
@@ -17,17 +30,15 @@ void CCharLayoutNode::Bone::read(CInputStream& in)
 
 CCharLayoutNode::CCharLayoutNode(CInputStream& in)
 {
-    x0_boneCount = in.readUint32Big();
-    for (u32 i=0 ; i<x0_boneCount ; ++i)
+    u32 count = in.readUint32Big();
+    for (u32 i=0 ; i<count ; ++i)
     {
         u32 thisId = in.readUint32Big();
-        if (thisId >= 100)
-        {
-            Bone dummy;
-            dummy.read(in);
-        }
-        else
-            x108_bones[i].read(in);
+        Bone& bone = x6c_bones[thisId];
+        bone.read(in);
+        x8_prevBones[thisId] = x1_curPrevBone;
+        x1_curPrevBone = thisId;
+        ++x0_boneCount;
     }
 }
 

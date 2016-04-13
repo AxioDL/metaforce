@@ -7,7 +7,6 @@
 #include "CParticleDatabase.hpp"
 #include "CPoseAsTransforms.hpp"
 #include "CHierarchyPoseBuilder.hpp"
-#include "optional.hpp"
 
 namespace urde
 {
@@ -18,23 +17,6 @@ class CAnimationManager;
 class CTransitionManager;
 class CCharacterFactory;
 class IMetaAnim;
-
-class CLayoutDescription
-{
-public:
-    class CScaledLayoutDescription
-    {
-        TLockedToken<CCharLayoutInfo> x0_layoutToken;
-        float xc_scale;
-        std::experimental::optional<zeus::CVector3f> x10_scaleVec;
-    };
-private:
-    TLockedToken<CCharLayoutInfo> x0_layoutToken;
-    std::experimental::optional<CScaledLayoutDescription> xc_scaled;
-public:
-    CLayoutDescription(const TLockedToken<CCharLayoutInfo>& token)
-    : x0_layoutToken(token) {}
-};
 
 class CAnimData
 {

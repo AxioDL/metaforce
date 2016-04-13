@@ -122,7 +122,7 @@ struct CINF : BigDNA
     using Armature = hecl::BlenderConnection::DataStream::Actor::Armature;
 
     int RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId,
-                                 std::unordered_map<std::string, atInt32>& idMap)
+                                 std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap)
     {
         int selId;
         auto search = idMap.find(bone->name);
@@ -135,11 +135,8 @@ struct CINF : BigDNA
             selId = search->second;
 
         bones.emplace_back();
-        names.emplace_back();
         Bone& boneOut = bones.back();
-        Name& nameOut = names.back();
-        nameOut.name = bone->name;
-        nameOut.boneId = selId;
+        nameMap[bone->name] = selId;
         boneOut.id = selId;
         boneOut.parentId = parent;
         boneOut.origin = bone->origin;
@@ -149,7 +146,7 @@ struct CINF : BigDNA
         const Armature::Bone* child;
         boneOut.linked.push_back(parent);
         for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
-            boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, selId, idMap));
+            boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, selId, idMap, nameMap));
 
         return boneOut.id;
     }
@@ -158,15 +155,48 @@ struct CINF : BigDNA
     {
         idMap.reserve(armature.bones.size());
         bones.reserve(armature.bones.size());
-        names.reserve(armature.bones.size());
+
+        std::map<std::string, int> nameMap;
 
         const Armature::Bone* bone = armature.getRoot();
-        int curId = 3;
         if (bone)
-            RecursiveAddArmatureBone(armature, bone, 2, curId, idMap);
+        {
+            if (bone->children.size())
+            {
+                int curId = 4;
+                RecursiveAddArmatureBone(armature, armature.getChild(bone, 0), 3, curId, idMap, nameMap);
+            }
+
+            bones.emplace_back();
+            Bone& boneOut = bones.back();
+            nameMap[bone->name] = 3;
+            boneOut.id = 3;
+            boneOut.parentId = 2;
+            boneOut.origin = bone->origin;
+
+            if (bone->children.size())
+            {
+                boneOut.linkedCount = 2;
+                boneOut.linked = {2, 4};
+            }
+            else
+            {
+                boneOut.linkedCount = 1;
+                boneOut.linked = {2};
+            }
+        }
 
         boneCount = bones.size();
-        nameCount = names.size();
+
+        names.reserve(nameMap.size());
+        nameCount = nameMap.size();
+        for (const auto& name : nameMap)
+        {
+            names.emplace_back();
+            Name& nameOut = names.back();
+            nameOut.name = name.first;
+            nameOut.boneId = name.second;
+        }
 
         boneIdCount = boneCount;
         boneIds.reserve(boneIdCount);

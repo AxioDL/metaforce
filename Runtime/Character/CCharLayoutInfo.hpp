@@ -20,11 +20,15 @@ public:
         void read(CInputStream& in);
     };
 private:
-    u8 x0_boneCount;
-    CSegId x8_ids[100];
-    Bone x108_bones[100];
+    CSegId x0_boneCount = 0;
+    CSegId x1_curPrevBone = 0;
+    CSegId x8_prevBones[100];
+    Bone x6c_bones[100];
 public:
     CCharLayoutNode(CInputStream& in);
+
+    const Bone& GetBone(const CSegId& id) const {return x6c_bones[id];}
+    const CSegId& GetPrevBone(const CSegId& id) const {return x8_prevBones[id];}
 };
 
 class CCharLayoutInfo
@@ -34,7 +38,9 @@ class CCharLayoutInfo
     std::map<std::string, CSegId> x18_segIdMap;
 public:
     CCharLayoutInfo(CInputStream& in);
+    const std::shared_ptr<CCharLayoutNode>& GetRootNode() const {return x0_node;}
     const CSegIdList& GetSegIdList() const {return x8_segIdList;}
+    zeus::CVector3f GetFromParentUnrotated(const CSegId& id) const;
 };
 
 CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&);
