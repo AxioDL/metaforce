@@ -312,6 +312,7 @@ def get_armature_names(writebuf):
 
 # Access actor's contained subtype names
 def get_subtype_names(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
     writebuf(struct.pack('I', len(sact_data.subtypes)))
     for sub_idx in range(len(sact_data.subtypes)):
         subtype = sact_data.subtypes[sub_idx]
@@ -320,6 +321,7 @@ def get_subtype_names(writebuf):
 
 # Access actor's contained action names
 def get_action_names(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
     writebuf(struct.pack('I', len(sact_data.actions)))
     for action_idx in range(len(sact_data.actions)):
         action = sact_data.actions[action_idx]
