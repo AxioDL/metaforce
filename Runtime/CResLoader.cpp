@@ -131,7 +131,7 @@ bool CResLoader::ResourceExists(const SObjectTag& tag)
     return FindResource(tag.id);
 }
 
-FourCC CResLoader::GetResourceTypeById(u32 id)
+FourCC CResLoader::GetResourceTypeById(u32 id) const
 {
     if (FindResource(id))
         return x50_cachedResInfo->x0_type;
@@ -170,10 +170,10 @@ void CResLoader::AsyncIdlePakLoading()
     }
 }
 
-bool CResLoader::FindResource(u32 id)
+bool CResLoader::FindResource(u32 id) const
 {
     for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
-        if (CacheFromPak(*file, id))
+        if (((CResLoader*)this)->CacheFromPak(*file, id))
             return true;
     return false;
 }

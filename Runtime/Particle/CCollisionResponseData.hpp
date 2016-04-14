@@ -41,7 +41,7 @@ class CCollisionResponseData
 {
 
     std::vector<std::experimental::optional<TLockedToken<CGenDescription>>> x0_generators;
-    std::vector<TResId> x10_sfx;
+    std::vector<ResId> x10_sfx;
     std::vector<std::experimental::optional<TLockedToken<CDecalDescription>>> x20_decals;
     float x30_RNGE;
     float x34_FOFF;

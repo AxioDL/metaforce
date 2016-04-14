@@ -17,11 +17,16 @@ class CSoundPOINode;
 class CSegIdList;
 class CSegStatementSet;
 
+struct SAdvancementDeltas
+{
+    zeus::CVector3f x0_posDelta;
+    zeus::CQuaternion xc_rotDelta;
+};
+
 struct SAdvancementResults
 {
     CCharAnimTime x0_remTime;
-    zeus::CVector3f x8_posDelta;
-    zeus::CQuaternion x14_rotDelta;
+    SAdvancementDeltas x8_deltas;
 };
 
 class IAnimReader

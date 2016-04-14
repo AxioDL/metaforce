@@ -94,14 +94,14 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         break;
         case SBIG('APSM'):
         {
-            std::vector<TResId> tracker;
+            std::vector<ResId> tracker;
             tracker.reserve(8);
             desc->x34_APSM = CPF::GetChildGeneratorDesc(in, resPool, tracker);
             break;
         }
         case SBIG('APS2'):
         {
-            std::vector<TResId> tracker;
+            std::vector<ResId> tracker;
             tracker.reserve(8);
             desc->x44_APS2 = CPF::GetChildGeneratorDesc(in, resPool, tracker);
             break;
@@ -123,7 +123,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             FourCC cid = CPF::GetClassID(in);
             if (cid == SBIG('NONE'))
                 break;
-            TResId id = CPF::GetInt(in);
+            ResId id = CPF::GetInt(in);
             if (id)
                 desc->x94_COLR = {resPool->GetObj({FOURCC('CRSC'), id}), true};
             break;

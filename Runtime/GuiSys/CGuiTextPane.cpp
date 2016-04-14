@@ -12,7 +12,7 @@ namespace urde
 {
 
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, float xDim, float zDim,
-                           const zeus::CVector3f& vec, TResId fontId, const CGuiTextProperties& props,
+                           const zeus::CVector3f& vec, ResId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                            s32 extentX, s32 extentY)
 : CGuiPane(parms, xDim, zDim, vec), x114_textSupport(fontId, props, fontCol, outlineCol,

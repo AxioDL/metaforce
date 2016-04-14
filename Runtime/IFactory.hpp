@@ -26,6 +26,7 @@ public:
     virtual void CancelBuild(const SObjectTag&)=0;
     virtual bool CanBuild(const SObjectTag&)=0;
     virtual const SObjectTag* GetResourceIdByName(const char*) const=0;
+    virtual FourCC GetResourceTypeById(ResId id) const=0;
 };
 
 }

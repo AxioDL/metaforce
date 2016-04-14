@@ -34,11 +34,11 @@ public:
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
-    FourCC GetResourceTypeById(u32 id);
+    FourCC GetResourceTypeById(u32 id) const;
     const SObjectTag* GetResourceIdByName(const char* name) const;
     bool AreAllPaksLoaded() const;
     void AsyncIdlePakLoading();
-    bool FindResource(u32 id);
+    bool FindResource(u32 id) const;
     CPakFile* FindResourceForLoad(u32 id);
     CPakFile* FindResourceForLoad(const SObjectTag& tag);
     bool CacheFromPakForLoad(CPakFile& file, u32 id);

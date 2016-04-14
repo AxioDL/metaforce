@@ -111,17 +111,17 @@ void CGuiWidget::ParseAnimations(CInputStream& in, const CGuiWidgetParms& parms)
     assert(count == 0);
 }
 
-std::vector<TResId> CGuiWidget::GetTextureAssets() const
+std::vector<ResId> CGuiWidget::GetTextureAssets() const
 {
     return {};
 }
 
-std::vector<TResId> CGuiWidget::GetModelAssets() const
+std::vector<ResId> CGuiWidget::GetModelAssets() const
 {
     return {};
 }
 
-std::vector<TResId> CGuiWidget::GetFontAssets() const
+std::vector<ResId> CGuiWidget::GetFontAssets() const
 {
     return {};
 }

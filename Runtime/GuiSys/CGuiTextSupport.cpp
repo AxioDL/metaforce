@@ -11,7 +11,7 @@
 namespace urde
 {
 
-CGuiTextSupport::CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
+CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                                  const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                                  const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store)
 : x10_props(props), x1c_fontColor(fontCol), x20_outlineColor(outlineCol),

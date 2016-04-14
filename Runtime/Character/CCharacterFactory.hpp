@@ -18,6 +18,7 @@ class CTransitionDatabaseGame;
 class CAnimationManager;
 class CTransitionManager;
 class CAllFormatsAnimSource;
+class CAnimData;
 
 class CCharacterFactory : public IObjFactory
 {
@@ -30,6 +31,7 @@ public:
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;
+        FourCC GetResourceTypeById(ResId id) const;
     };
 
 private:
@@ -41,8 +43,8 @@ private:
     std::vector<TCachedToken<CAllFormatsAnimSource>> x30_animSourceDB;
     std::vector<std::pair<u32, CAdditiveAnimationInfo>> x40_additiveInfo;
     CAdditiveAnimationInfo x50_defaultAdditiveInfo;
-    std::vector<std::pair<TResId, TResId>> x58_animResources;
-    TResId x68_selfId;
+    std::vector<std::pair<ResId, ResId>> x58_animResources;
+    ResId x68_selfId;
     CDummyFactory x6c_dummyFactory;
     CSimplePool x70_cacheResPool;
 
@@ -52,10 +54,10 @@ private:
                         const std::vector<CCharacterInfo>& chars);
 
 public:
-    CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, TResId);
+    CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, ResId);
 
-    void CreateCharacter(int, bool, const TLockedToken<CCharacterFactory>& factory, int) const;
-    TResId GetEventResourceIdForAnimResourceId(TResId animId) const;
+    std::unique_ptr<CAnimData> CreateCharacter(int, bool, const TLockedToken<CCharacterFactory>& factory, int) const;
+    ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
 };
 
 }

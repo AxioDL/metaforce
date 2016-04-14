@@ -35,9 +35,11 @@ class CSkinRules;
 class CAnimTreeNode;
 class CSegIdList;
 class CSegStatementSet;
+struct SAdvancementDeltas;
 
 class CAnimData
 {
+    friend class CModelData;
     TLockedToken<CCharacterFactory> x0_charFactory;
     CCharacterInfo xc_charInfo;
     TLockedToken<CCharLayoutInfo> xcc_layoutData;
@@ -50,7 +52,7 @@ class CAnimData
     u32 x104_ = 0;
     zeus::CAABox x108_aabb;
     CParticleDatabase x120_particleDB;
-    TResId x1d8_selfId;
+    ResId x1d8_selfId;
     zeus::CVector3f x1dc_;
     zeus::CQuaternion x1e8_;
     std::shared_ptr<IMetaAnim> x1f8_animRoot;
@@ -69,8 +71,8 @@ class CAnimData
         u32 x21c_flags = 0;
         struct
         {
-            bool x21c_24_ : 1;
-            bool x21c_25_c : 1;
+            bool x21c_24_animating : 1;
+            bool x21c_25_loop : 1;
             bool x21c_26_ : 1;
             bool x21c_27_ : 1;
             bool x21c_28_ : 1;
@@ -96,7 +98,7 @@ class CAnimData
     u32 x1044_ = 0;
 
 public:
-    CAnimData(TResId, const CCharacterInfo& character, int a, int b, bool c,
+    CAnimData(ResId, const CCharacterInfo& character, int a, int b, bool c,
               const TLockedToken<CCharLayoutInfo>& layout,
               const TToken<CSkinnedModel>& model,
               const std::weak_ptr<CAnimSysContext>& ctx,
@@ -104,7 +106,7 @@ public:
               const std::shared_ptr<CTransitionManager>& transMgr,
               const TLockedToken<CCharacterFactory>& charFactory);
 
-    TResId GetEventResourceIdForAnimResourceId(TResId) const;
+    ResId GetEventResourceIdForAnimResourceId(ResId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
     void AdvanceAdditiveAnims(float);
     void UpdateAdditiveAnims(float);
@@ -115,8 +117,8 @@ public:
     void AddAdditiveAnimation(u32, float, bool, bool);
     std::shared_ptr<CAnimationManager> GetAnimationManager();
     void SetPhase(float);
-    void Touch(const CSkinnedModel& model, int) const;
-    zeus::CVector3f GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
+    void Touch(const CSkinnedModel& model, int shaderIdx) const;
+    SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     CCharAnimTime GetTimeOfUserEvent(EUserEventType, const CCharAnimTime& time) const;
     void MultiplyPlaybackRate(float);
     void SetPlaybackRate(float);
@@ -128,6 +130,9 @@ public:
     bool IsAnimTimeRemaining(float, const std::string& name) const;
     float GetAnimTimeRemaining(const std::string& name) const;
     float GetAnimationDuration(int) const;
+    bool GetIsLoop() const {return x21c_25_loop;}
+    void EnableLooping(bool val) {x21c_25_loop = val; x21c_24_animating = true;}
+    bool IsAnimating() const {return x21c_24_animating;}
     std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;
     void RecalcPoseBuilder(const CCharAnimTime*) const;
@@ -144,8 +149,8 @@ public:
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
     void SetAnimation(const CAnimPlaybackParms& parms, bool);
     void DoAdvance(float, bool&, CRandom16&, bool);
-    void Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool);
-    void AdvanceIgnoreParticles(float, CRandom16&, bool);
+    SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool);
+    SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool);
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
     void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
     void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
@@ -153,7 +158,7 @@ public:
     void PoseSkinnedModel(const CSkinnedModel& model, const CPoseAsTransforms& pose,
                           const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                           const float* morphMagnitudes) const;
-    void AdvanceParticles(const zeus::CTransform& xf, float,
+    void AdvanceParticles(const zeus::CTransform& xf, float dt,
                           const zeus::CVector3f&, CStateManager& stateMgr);
     void GetAverageVelocity(int) const;
     void ResetPOILists();

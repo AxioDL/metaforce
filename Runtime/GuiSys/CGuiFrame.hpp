@@ -60,7 +60,7 @@ public:
 private:
     bool x0_controllerStatus[4] = {};
     std::string x4_name;
-    TResId x14_id;
+    ResId x14_id;
     u32 x18_ = 0;
     CGuiFrameTransitionOptions x1c_transitionOpts;
     EFrameStates x34_ = EFrameStates::Zero;
@@ -90,7 +90,7 @@ private:
                                             char& lx, char& ly, char& rx, char& ry);
 
 public:
-    CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, int b, int c);
+    CGuiFrame(ResId id, const std::string& name, CGuiSys& sys, int a, int b, int c);
 
     CGuiSys& GetGuiSys() {return x3c_guiSys;}
 
@@ -129,8 +129,8 @@ public:
 
     CGuiWidgetIdDB& GetWidgetIdDB() {return x64_idDB;}
 
-    static CGuiFrame* CreateFrame(TResId frmeId, CGuiSys& sys, CInputStream& in);
-    static std::string CreateFrameName(TResId frmeId);
+    static CGuiFrame* CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in);
+    static std::string CreateFrameName(ResId frmeId);
 };
 
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,

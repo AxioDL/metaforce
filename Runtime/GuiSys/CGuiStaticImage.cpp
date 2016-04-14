@@ -14,7 +14,7 @@ CGuiStaticImage::CGuiStaticImage
     (const CGuiWidgetParms& parms, float xDim, float zDim,
      const zeus::CVector3f& scaleCenter,
      EGuiTextureClampModeHorz clampH, EGuiTextureClampModeVert clampV,
-     CGuiStaticImage::EMaterialType matType, TResId txtrId1, TResId txtrId2,
+     CGuiStaticImage::EMaterialType matType, ResId txtrId1, ResId txtrId2,
      const std::vector<float>& frame, bool useTexture)
 : CGuiPane(parms, xDim, zDim, scaleCenter),
   x114_materialType(matType),
@@ -124,9 +124,9 @@ void CGuiStaticImage::Draw(const CGuiWidgetDrawParms& parms) const
     CGuiWidget::Draw(parms);
 }
 
-std::vector<TResId> CGuiStaticImage::GetTextureAssets() const
+std::vector<ResId> CGuiStaticImage::GetTextureAssets() const
 {
-    std::vector<TResId> ret;
+    std::vector<ResId> ret;
     ret.reserve(2);
     if ((x120_textureID1 & 0xffff) != 0xffff)
         ret.push_back(x120_textureID1);
@@ -145,8 +145,8 @@ CGuiStaticImage* CGuiStaticImage::Create(CGuiFrame* frame, CInputStream& in, boo
     scaleCenter.readBig(in);
 
     CGuiStaticImage::EMaterialType matType = CGuiStaticImage::EMaterialType(in.readUint32Big());
-    TResId txtr1 = in.readUint32Big();
-    TResId txtr2 = in.readUint32Big();
+    ResId txtr1 = in.readUint32Big();
+    ResId txtr2 = in.readUint32Big();
 
     EGuiTextureClampModeHorz clampH = EGuiTextureClampModeHorz(in.readUint32Big());
     EGuiTextureClampModeVert clampV = EGuiTextureClampModeVert(in.readUint32Big());

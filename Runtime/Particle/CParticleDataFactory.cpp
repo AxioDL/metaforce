@@ -41,25 +41,25 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
     FourCC clsId = GetClassID(in);
     if (clsId == SBIG('NONE'))
         return {};
-    TResId id = in.readUint32Big();
+    ResId id = in.readUint32Big();
     if (!id)
         return {};
     return {std::move(resPool->GetObj({FOURCC('CMDL'), id})), true};
 }
 
-SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(TResId res, CSimplePool* resPool, const std::vector<TResId>& tracker)
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(ResId res, CSimplePool* resPool, const std::vector<ResId>& tracker)
 {
     if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
         return {std::move(resPool->GetObj({FOURCC('PART'), res})), true};
     return {};
 }
 
-SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<TResId>& tracker)
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<ResId>& tracker)
 {
     FourCC clsId = GetClassID(in);
     if (clsId == SBIG('NONE'))
         return {};
-    TResId id = in.readUint32Big();
+    ResId id = in.readUint32Big();
     if (!id)
         return {};
     return GetChildGeneratorDesc(id, resPool, tracker);
@@ -70,7 +70,7 @@ SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& 
     FourCC clsId = GetClassID(in);
     if (clsId == SBIG('NONE'))
         return {};
-    TResId id = in.readUint32Big();
+    ResId id = in.readUint32Big();
     if (!id)
         return {};
     return {std::move(resPool->GetObj({FOURCC('SWHC'), id})), true};
@@ -81,7 +81,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
     FourCC clsId = GetClassID(in);
     if (clsId == SBIG('NONE'))
         return {};
-    TResId id = in.readUint32Big();
+    ResId id = in.readUint32Big();
     if (!id)
         return {};
     return {std::move(resPool->GetObj({FOURCC('ELSC'), id})), true};
@@ -97,7 +97,7 @@ CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePoo
         FourCC subId = GetClassID(in);
         if (subId == SBIG('NONE'))
             return nullptr;
-        TResId id = in.readUint32Big();
+        ResId id = in.readUint32Big();
         TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
         return new CUVEConstant(std::move(txtr));
     }
@@ -106,7 +106,7 @@ CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePoo
         FourCC subId = GetClassID(in);
         if (subId == SBIG('NONE'))
             return nullptr;
-        TResId id = in.readUint32Big();
+        ResId id = in.readUint32Big();
         CIntElement* a = GetIntElement(in);
         CIntElement* b = GetIntElement(in);
         CIntElement* c = GetIntElement(in);
@@ -827,13 +827,13 @@ CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
 
 CGenDescription* CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
 {
-    std::vector<TResId> tracker;
+    std::vector<ResId> tracker;
     tracker.reserve(8);
     return CreateGeneratorDescription(in, tracker, 0, resPool);
 }
 
-CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& in, std::vector<TResId>& tracker,
-                                                                  TResId resId, CSimplePool* resPool)
+CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& in, std::vector<ResId>& tracker,
+                                                                  ResId resId, CSimplePool* resPool)
 {
     if (std::count(tracker.cbegin(), tracker.cend(), resId) == 0)
     {
@@ -851,7 +851,7 @@ CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& 
 }
 
 bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
-                                      std::vector<TResId>& tracker, CSimplePool* resPool)
+                                      std::vector<ResId>& tracker, CSimplePool* resPool)
 {
     CRandom16 rand{99};
     CGlobalRandom gr(rand);

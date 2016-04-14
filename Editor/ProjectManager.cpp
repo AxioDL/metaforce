@@ -5,6 +5,7 @@
 namespace urde
 {
 static logvisor::Module Log("URDE::ProjectManager");
+ProjectManager* ProjectManager::g_SharedManager = nullptr;
 
 CToken ProjectResourcePool::GetObj(const char* name)
 {
@@ -45,6 +46,7 @@ ProjectManager::ProjectManager(ViewManager &vm)
         HECLRegisterDataSpecs();
         m_registeredSpecs = true;
     }
+    g_SharedManager = this;
 }
 
 bool ProjectManager::newProject(const hecl::SystemString& path)

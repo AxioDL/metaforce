@@ -46,6 +46,11 @@ public:
         return x4_loader.GetResourceIdByName(name);
     }
 
+    FourCC GetResourceTypeById(ResId id) const
+    {
+        return x4_loader.GetResourceTypeById(id);
+    }
+
     std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const
     {
         std::vector<std::pair<std::string, SObjectTag>> retval;

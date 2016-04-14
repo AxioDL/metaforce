@@ -87,13 +87,13 @@ class CGuiTextSupport
     bool x44_typeEnable = false;
     float x48_chFadeTime = 0.1f;
     float x4c_chRate = 10.0f;
-    TResId x50_fontId;
+    ResId x50_fontId;
     std::experimental::optional<CTextRenderBuffer> x54_renderBuf;
     bool x2ac_active = false;
     std::vector<CToken> x2b0_assets;
     TLockedToken<CRasterFont> x2c0_font;
 public:
-    CGuiTextSupport(TResId fontId, const CGuiTextProperties& props,
+    CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                     const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store);
     float GetCurrentAnimationOverAge() const;

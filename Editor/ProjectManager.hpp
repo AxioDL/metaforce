@@ -34,10 +34,13 @@ class ProjectManager
     ProjectResourcePool m_objStore;
 
 public:
+    static ProjectManager* g_SharedManager;
     ProjectManager(ViewManager& vm);
     operator bool() const {return m_proj.operator bool();}
 
     hecl::Database::Project* project() {return m_proj.get();}
+    ProjectResourcePool& objectStore() {return m_objStore;}
+    ProjectResourceFactoryMP1& resourceFactoryMP1() {return m_factoryMP1;}
 
     bool newProject(const hecl::SystemString& path);
     bool openProject(const hecl::SystemString& path);

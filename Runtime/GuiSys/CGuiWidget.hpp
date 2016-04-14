@@ -125,9 +125,9 @@ public:
     virtual void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseMessages(CInputStream& in, const CGuiWidgetParms& parms);
     virtual void ParseAnimations(CInputStream& in, const CGuiWidgetParms& parms);
-    virtual std::vector<TResId> GetTextureAssets() const;
-    virtual std::vector<TResId> GetModelAssets() const;
-    virtual std::vector<TResId> GetFontAssets() const;
+    virtual std::vector<ResId> GetTextureAssets() const;
+    virtual std::vector<ResId> GetModelAssets() const;
+    virtual std::vector<ResId> GetFontAssets() const;
     virtual void Initialize();
     virtual void Touch() const;
     virtual bool GetIsVisible() const;

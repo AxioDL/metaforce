@@ -93,6 +93,7 @@ public:
     void CancelBuild(const urde::SObjectTag&);
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;
+    FourCC GetResourceTypeById(ResId id) const;
 
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}

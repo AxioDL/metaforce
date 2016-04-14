@@ -108,6 +108,7 @@ public:
                                     std::vector<TCachedToken<CTexture>>& toksOut,
                                     IObjectStore& store);
 
+    bool IsOpaque() const {return x3c_firstSortedSurface == nullptr;}
     void ActivateLights(const std::vector<CLight>& lights);
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
@@ -154,7 +155,9 @@ public:
     void Touch(int shaderIdx) const;
     bool IsLoaded(int shaderIdx) const;
 
+    const zeus::CAABox& GetAABB() const {return m_aabb;}
     CBooModel& GetInstance() {return *x28_modelInst;}
+    const CBooModel& GetInstance() const {return *x28_modelInst;}
     std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx);
 };
 

@@ -32,7 +32,7 @@ class CAnimationSet
     std::vector<std::pair<u32, CAdditiveAnimationInfo>> x28_additiveInfo;
     CAdditiveAnimationInfo x38_defaultAdditiveInfo;
     std::vector<CHalfTransition> x40_halfTransitions;
-    std::vector<std::pair<TResId, TResId>> x50_animRes;
+    std::vector<std::pair<ResId, ResId>> x50_animRes;
 
 public:
     CAnimationSet(CInputStream& in);
@@ -45,7 +45,7 @@ public:
     GetAdditiveInfo() const {return x28_additiveInfo;}
     const CAdditiveAnimationInfo&
     GetDefaultAdditiveInfo() const {return x38_defaultAdditiveInfo;}
-    const std::vector<std::pair<TResId, TResId>>&
+    const std::vector<std::pair<ResId, ResId>>&
     GetAnimResIds() const {return x50_animRes;}
 };
 

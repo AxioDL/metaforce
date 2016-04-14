@@ -45,8 +45,8 @@ CAnimationSet::CAnimationSet(CInputStream& in)
         x50_animRes.reserve(animResourcesCount);
         for (u32 i=0 ; i<animResourcesCount ; ++i)
         {
-            TResId anim = in.readUint32Big();
-            TResId evnt = in.readUint32Big();
+            ResId anim = in.readUint32Big();
+            ResId evnt = in.readUint32Big();
             x50_animRes.emplace_back(anim, evnt);
         }
     }

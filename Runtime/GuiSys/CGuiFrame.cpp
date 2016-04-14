@@ -13,7 +13,7 @@
 namespace urde
 {
 
-CGuiFrame::CGuiFrame(TResId id, const std::string& name, CGuiSys& sys, int a, int b, int c)
+CGuiFrame::CGuiFrame(ResId id, const std::string& name, CGuiSys& sys, int a, int b, int c)
 : x4_name(name), x14_id(id), x1c_transitionOpts(EFrameTransitionOptions::Zero),
   x3c_guiSys(sys), xb0_a(a), xb4_b(b), xb8_c(c), xbc_24_loaded(false)
 {
@@ -620,7 +620,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
     Initialize();
 }
 
-CGuiFrame* CGuiFrame::CreateFrame(TResId frmeId, CGuiSys& sys, CInputStream& in)
+CGuiFrame* CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in)
 {
     std::string name = CreateFrameName(frmeId);
     in.readInt32Big();
@@ -640,7 +640,7 @@ std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream
     return TToken<CGuiFrame>::GetIObjObjectFor(std::move(frame));
 }
 
-std::string CGuiFrame::CreateFrameName(TResId frmeId)
+std::string CGuiFrame::CreateFrameName(ResId frmeId)
 {
     /* formatting token originally "frame_%x" for 32-bit ids */
     return hecl::Format("frame_%016" PRIX64, frmeId);

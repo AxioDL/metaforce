@@ -9,12 +9,12 @@ namespace urde
 
 class CPrimitive
 {
-    TResId x0_animId;
+    ResId x0_animId;
     u32 x4_animIdx;
     std::string x8_animName;
 public:
     CPrimitive(CInputStream& in);
-    TResId GetAnimResId() const {return x0_animId;}
+    ResId GetAnimResId() const {return x0_animId;}
 };
 
 }

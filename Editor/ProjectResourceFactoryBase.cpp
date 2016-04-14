@@ -609,6 +609,33 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
     return &search->second;
 }
 
+FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
+{
+    std::unique_lock<std::mutex> lk(((ProjectResourceFactoryBase*)this)->m_backgroundIndexMutex);
+    SObjectTag searchTag = {FourCC(), id};
+    auto search = m_tagToPath.find(searchTag);
+    if (search == m_tagToPath.end())
+    {
+        if (m_backgroundRunning)
+        {
+            while (m_backgroundRunning)
+            {
+                lk.unlock();
+                lk.lock();
+                search = m_tagToPath.find(searchTag);
+                if (search != m_tagToPath.end())
+                    break;
+            }
+            if (search == m_tagToPath.end())
+                return {};
+        }
+        else
+            return {};
+    }
+
+    return search->first.type;
+}
+
 void ProjectResourceFactoryBase::AsyncIdle()
 {
     /* Consume completed transactions, they will be processed this cycle at the latest */

@@ -34,7 +34,11 @@ const SObjectTag* CCharacterFactory::CDummyFactory::GetResourceIdByName(const ch
     return nullptr;
 }
 
-TResId CCharacterFactory::GetEventResourceIdForAnimResourceId(TResId) const
+FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(ResId id) const
+{
+}
+
+ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId) const
 {
 }
 
@@ -62,7 +66,7 @@ CCharacterFactory::GetCharLayoutInfoDB(CSimplePool& store,
 
 CCharacterFactory::CCharacterFactory(CSimplePool& store,
                                      const CAnimCharacterSet& ancs,
-                                     TResId selfId)
+                                     ResId selfId)
 : x4_charInfoDB(GetCharacterInfoDB(ancs)),
   x14_charLayoutInfoDB(GetCharLayoutInfoDB(store, x4_charInfoDB)),
   x24_sysContext(std::make_shared<CAnimSysContext>(

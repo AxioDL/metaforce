@@ -13,17 +13,17 @@ namespace urde
 {
 
 using FourCC = hecl::FourCC;
-using TResId = s64;
+using ResId = s64;
 
 struct SObjectTag
 {
     FourCC type;
-    TResId id = -1;
+    ResId id = -1;
     operator bool() const {return id != -1;}
     bool operator!=(const SObjectTag& other) const {return id != other.id;}
     bool operator==(const SObjectTag& other) const {return id == other.id;}
     SObjectTag() = default;
-    SObjectTag(FourCC tp, TResId rid) : type(tp), id(rid) {}
+    SObjectTag(FourCC tp, ResId rid) : type(tp), id(rid) {}
     SObjectTag(CInputStream& in)
     {
         in.readBytesToBuf(&type, 4);

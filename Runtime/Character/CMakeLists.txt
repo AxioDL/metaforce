@@ -71,5 +71,6 @@ add_library(RuntimeCommonCharacter
             CAnimSource.hpp CAnimSource.cpp
             CAllFormatsAnimSource.hpp CAllFormatsAnimSource.cpp
             CSegStatementSet.hpp CSegStatementSet.cpp
+            CActorLights.hpp CActorLights.cpp
             CAnimSysContext.hpp
             CBodyState.hpp)

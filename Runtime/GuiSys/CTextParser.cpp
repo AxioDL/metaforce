@@ -283,7 +283,7 @@ CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
     return CFontImageDef(std::move(tex), zeus::CVector2f(1.f, 1.f));
 }
 
-TResId CTextParser::GetAssetIdFromString(const wchar_t* str)
+ResId CTextParser::GetAssetIdFromString(const wchar_t* str)
 {
     u8 r = GetColorValue(str);
     u8 g = GetColorValue(str + 2);

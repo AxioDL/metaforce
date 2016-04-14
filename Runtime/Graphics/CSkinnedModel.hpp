@@ -17,13 +17,21 @@ class IObjectStore;
 class CSkinnedModel
 {
     std::unique_ptr<CBooModel> m_modelInst;
+    TLockedToken<CModel> x4_model;
+    TLockedToken<CSkinRules> x10_skinRules;
+    TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
 public:
     CSkinnedModel(const TLockedToken<CModel>& model,
                   const TLockedToken<CSkinRules>& skinRules,
                   const TLockedToken<CCharLayoutInfo>& layoutInfo);
-    CSkinnedModel(IObjectStore& store, TResId model, TResId skinRules, TResId layoutInfo);
+    CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules, ResId layoutInfo);
+
+    const TLockedToken<CModel>& GetModel() const {return x4_model;}
+    const TLockedToken<CSkinRules>& GetSkinRules() const {return x10_skinRules;}
+    const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const {return x1c_layoutInfo;}
 
     void Calculate(const CPoseAsTransforms& pose, const std::experimental::optional<CVertexMorphEffect>&);
+    void Draw(const CModelFlags& drawFlags) const;
 };
 
 }

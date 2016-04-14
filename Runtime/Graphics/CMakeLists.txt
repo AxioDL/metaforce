@@ -19,6 +19,7 @@ add_library(RuntimeCommonGraphics
             CModelShaders.hpp CModelShadersGLSL.cpp
             CVertexMorphEffect.hpp CVertexMorphEffect.cpp
             CMoviePlayer.hpp CMoviePlayer.cpp
+            CFrustumPlanes.hpp CFrustumPlanes.cpp
             CGraphicsPalette.hpp CGraphicsPalette.cpp
             CGraphics.hpp CGraphics.cpp
             ${PLAT_SRCS})

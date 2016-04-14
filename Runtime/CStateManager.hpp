@@ -14,11 +14,14 @@ class CWorldTransManager;
 
 class CStateManager
 {
+    std::shared_ptr<CPlayerState> x8b8_playerState;
 public:
     CStateManager(const std::weak_ptr<CScriptMailbox>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&);
+
+    const std::shared_ptr<CPlayerState> GetPlayerState() const {return x8b8_playerState;}
 
     void GetObjectListById() const
     {

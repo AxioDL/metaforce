@@ -5,6 +5,7 @@
 #include "CCharacterFactory.hpp"
 #include "CAnimationManager.hpp"
 #include "CTransitionManager.hpp"
+#include "IAnimReader.hpp"
 
 namespace urde
 {
@@ -17,7 +18,7 @@ void CAnimData::InitializeCache()
 {
 }
 
-CAnimData::CAnimData(TResId id, const CCharacterInfo& character, int a, int b, bool c,
+CAnimData::CAnimData(ResId id, const CCharacterInfo& character, int a, int b, bool c,
                      const TLockedToken<CCharLayoutInfo>& layout,
                      const TToken<CSkinnedModel>& model,
                      const std::weak_ptr<CAnimSysContext>& ctx,
@@ -34,13 +35,13 @@ CAnimData::CAnimData(TResId id, const CCharacterInfo& character, int a, int b, b
   x1fc_transMgr(transMgr),
   x204_b(b),
   x208_a(a),
-  x21c_25_c(c),
+  x21c_25_loop(c),
   x220_pose(layout->GetSegIdList().GetList().size()),
   x2f8_poseBuilder(layout)
 {
 }
 
-TResId CAnimData::GetEventResourceIdForAnimResourceId(TResId) const
+ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId) const
 {
 }
 
@@ -88,7 +89,8 @@ void CAnimData::Touch(const CSkinnedModel& model, int) const
 {
 }
 
-zeus::CVector3f CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const
+SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a,
+                                                   const CCharAnimTime& b) const
 {
 }
 
@@ -185,11 +187,11 @@ void CAnimData::DoAdvance(float, bool&, CRandom16&, bool)
 {
 }
 
-void CAnimData::Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool)
+SAdvancementDeltas CAnimData::Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool)
 {
 }
 
-void CAnimData::AdvanceIgnoreParticles(float, CRandom16&, bool)
+SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float, CRandom16&, bool)
 {
 }
 

@@ -9,7 +9,7 @@
 namespace urde
 {
 
-CGuiModel::CGuiModel(const CGuiWidgetParms& parms, TResId modelId, u32 lightMask, bool flag)
+CGuiModel::CGuiModel(const CGuiWidgetParms& parms, ResId modelId, u32 lightMask, bool flag)
 : CGuiWidget(parms), x108_modelId(modelId), x10c_lightMask(lightMask)
 {
     if (!flag || (modelId & 0xffff) == 0xffff ||
@@ -19,7 +19,7 @@ CGuiModel::CGuiModel(const CGuiWidgetParms& parms, TResId modelId, u32 lightMask
     xf8_model = parms.x0_frame->GetGuiSys().GetResStore().GetObj({SBIG('CMDL'), modelId});
 }
 
-std::vector<TResId> CGuiModel::GetModelAssets() const
+std::vector<ResId> CGuiModel::GetModelAssets() const
 {
     return {x108_modelId};
 }
@@ -114,7 +114,7 @@ CGuiModel* CGuiModel::Create(CGuiFrame* frame, CInputStream& in, bool flag)
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
 
-    TResId model = in.readUint32Big();
+    ResId model = in.readUint32Big();
     in.readUint32Big();
     u32 lightMask = in.readUint32Big();
 

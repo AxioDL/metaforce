@@ -72,8 +72,8 @@ class CParticleDataFactory
     friend class CProjectileWeaponDataFactory;
 
     static SParticleModel GetModel(CInputStream& in, CSimplePool* resPool);
-    static SChildGeneratorDesc GetChildGeneratorDesc(TResId res, CSimplePool* resPool, const std::vector<TResId>& tracker);
-    static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<TResId>& tracker);
+    static SChildGeneratorDesc GetChildGeneratorDesc(ResId res, CSimplePool* resPool, const std::vector<ResId>& tracker);
+    static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<ResId>& tracker);
     static SSwooshGeneratorDesc GetSwooshGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static SElectricGeneratorDesc GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CUVElement* GetTextureElement(CInputStream& in, CSimplePool* resPool);
@@ -88,10 +88,10 @@ class CParticleDataFactory
     static int32_t GetInt(CInputStream& in);
     static bool GetBool(CInputStream& in);
     static FourCC GetClassID(CInputStream& in);
-    static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<TResId>& tracker,
-                                                       TResId resId, CSimplePool* resPool);
+    static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<ResId>& tracker,
+                                                       ResId resId, CSimplePool* resPool);
     static bool CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
-                           std::vector<TResId>& tracker, CSimplePool* resPool);
+                           std::vector<ResId>& tracker, CSimplePool* resPool);
     static void LoadGPSMTokens(CGenDescription* desc);
 public:
     static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);

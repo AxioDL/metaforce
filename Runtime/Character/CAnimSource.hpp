@@ -57,7 +57,7 @@ class CAnimSource
     std::vector<u8> x20_rotationChannels;
     std::vector<u8> x30_translationChannels;
     RotationAndOffsetStorage x40_data;
-    TResId x54_evntId;
+    ResId x54_evntId;
     TCachedToken<CAnimPOIData> x58_evntData;
     float x60_averageVelocity;
 
