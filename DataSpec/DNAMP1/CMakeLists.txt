@@ -26,6 +26,7 @@ add_library(DNAMP1
             STRG.hpp STRG.cpp
             ANCS.cpp
             ANIM.cpp
+            CINF.cpp
             EVNT.cpp
             CMDL.hpp
             CMDLMaterials.cpp
