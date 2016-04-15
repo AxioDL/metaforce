@@ -11,6 +11,7 @@
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
 
 namespace urde
 {
@@ -32,6 +33,7 @@ class ViewManager : public specter::IViewManager
     boo::GraphicsDataToken m_iconsToken;
     specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
+    CCharacterFactoryBuilder m_test;
 
     std::unique_ptr<specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;

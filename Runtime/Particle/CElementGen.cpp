@@ -858,9 +858,9 @@ void CElementGen::UpdatePSTranslationAndOrientation()
         zeus::CVector3f angles;
         psov->GetValue(x50_curFrame, angles);
         zeus::CTransform xf(x178_orientation);
-        xf.rotateLocalX(angles[0] * M_PI / 180.f);
-        xf.rotateLocalY(angles[1] * M_PI / 180.f);
-        xf.rotateLocalZ(angles[2] * M_PI / 180.f);
+        xf.rotateLocalX(angles[0] * M_PIF / 180.f);
+        xf.rotateLocalY(angles[1] * M_PIF / 180.f);
+        xf.rotateLocalZ(angles[2] * M_PIF / 180.f);
         SetOrientation(xf);
     }
     */

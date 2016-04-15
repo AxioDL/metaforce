@@ -14,8 +14,8 @@ class CObjectReference;
 class CSimplePool : public IObjectStore
 {
 protected:
-    std::list<std::pair<SObjectTag, CObjectReference*>> x4_resources;
-    //std::unordered_map<SObjectTag, CObjectReference*> x4_resources;
+    //std::list<std::pair<SObjectTag, CObjectReference*>> x4_resources;
+    std::unordered_map<SObjectTag, CObjectReference*> x4_resources;
     IFactory& x30_factory;
     CVParamTransfer x34_paramXfer;
 public:

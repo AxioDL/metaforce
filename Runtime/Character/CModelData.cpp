@@ -16,13 +16,15 @@
 namespace urde
 {
 
+CModelData::~CModelData() {}
+
 CModelData::CModelData() {}
+CModelData CModelData::CModelDataNull() {return CModelData();}
 
 CModelData::CModelData(const CStaticRes& res)
 : x0_particleScale(res.x4_particleScale)
 {
-    IObjectStore& objStore = ProjectManager::g_SharedManager->objectStore();
-    x1c_normalModel = objStore.GetObj({SBIG('CMDL'), res.x0_cmdlId});
+    x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.x0_cmdlId});
 }
 
 CModelData::CModelData(const CAnimRes& res)
@@ -96,19 +98,17 @@ void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
 {
     if (modelSkin.first)
     {
-        IObjectStore& objStore = ProjectManager::g_SharedManager->objectStore();
-        IFactory& resFactory = ProjectManager::g_SharedManager->resourceFactoryMP1();
-        if (resFactory.GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
+        if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
             if (xc_animData && modelSkin.second &&
-                resFactory.GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
+                g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
-                xc_animData->SetXRayModel(objStore.GetObj({SBIG('CMDL'), modelSkin.first}),
-                                          objStore.GetObj({SBIG('CSKR'), modelSkin.second}));
+                xc_animData->SetXRayModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
+                                          g_SimplePool->GetObj({SBIG('CSKR'), modelSkin.second}));
             }
             else
             {
-                x2c_xrayModel = objStore.GetObj({SBIG('CMDL'), modelSkin.first});
+                x2c_xrayModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
             }
         }
     }
@@ -118,19 +118,17 @@ void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
 {
     if (modelSkin.first)
     {
-        IObjectStore& objStore = ProjectManager::g_SharedManager->objectStore();
-        IFactory& resFactory = ProjectManager::g_SharedManager->resourceFactoryMP1();
-        if (resFactory.GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
+        if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
             if (xc_animData && modelSkin.second &&
-                resFactory.GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
+                g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
-                xc_animData->SetInfraModel(objStore.GetObj({SBIG('CMDL'), modelSkin.first}),
-                                           objStore.GetObj({SBIG('CSKR'), modelSkin.second}));
+                xc_animData->SetInfraModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
+                                           g_SimplePool->GetObj({SBIG('CSKR'), modelSkin.second}));
             }
             else
             {
-                x3c_infraModel = objStore.GetObj({SBIG('CMDL'), modelSkin.first});
+                x3c_infraModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
             }
         }
     }

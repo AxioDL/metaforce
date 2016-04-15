@@ -18,9 +18,12 @@ void CAnimData::InitializeCache()
 {
 }
 
-CAnimData::CAnimData(ResId id, const CCharacterInfo& character, int a, int b, bool c,
+CAnimData::CAnimData(ResId id,
+                     const CCharacterInfo& character,
+                     int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout,
                      const TToken<CSkinnedModel>& model,
+                     const std::experimental::optional<TToken<CMorphableSkinnedModel>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
@@ -33,12 +36,14 @@ CAnimData::CAnimData(ResId id, const CCharacterInfo& character, int a, int b, bo
   x100_animMgr(animMgr),
   x1d8_selfId(id),
   x1fc_transMgr(transMgr),
-  x204_b(b),
-  x208_a(a),
-  x21c_25_loop(c),
+  x204_charIdx(charIdx),
+  x208_defaultAnim(defaultAnim),
+  x21c_25_loop(loop),
   x220_pose(layout->GetSegIdList().GetList().size()),
   x2f8_poseBuilder(layout)
 {
+    if (iceModel)
+        xe4_iceModelData = *iceModel;
 }
 
 ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId) const

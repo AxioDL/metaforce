@@ -52,6 +52,9 @@ class CModelData
     TLockedToken<CModel> x1c_normalModel;
     TLockedToken<CModel> x2c_xrayModel;
     TLockedToken<CModel> x3c_infraModel;
+
+    CModelData();
+
 public:
     enum class EWhichModel
     {
@@ -60,10 +63,11 @@ public:
         Thermal
     };
 
-    CModelData();
+    ~CModelData();
     CModelData(const CStaticRes& res);
     CModelData(const CAnimRes& res);
-    CModelData CModelDataNull() {return CModelData();}
+    CModelData(CModelData&&) = default;
+    CModelData CModelDataNull();
 
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Render(const CStateManager& stateMgr, const zeus::CTransform& xf,

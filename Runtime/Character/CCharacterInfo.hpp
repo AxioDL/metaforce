@@ -41,7 +41,12 @@ private:
 public:
     CCharacterInfo(CInputStream& in);
 
+    ResId GetModelId() const {return x14_cmdl;}
+    ResId GetSkinRulesId() const {return x18_cskr;}
     ResId GetCharLayoutInfoId() const {return x1c_cinf;}
+
+    ResId GetIceModelId() const {return xa8_cmdlOverlay;}
+    ResId GetIceSkinRulesId() const {return xac_cskrOverlay;}
 };
 
 }

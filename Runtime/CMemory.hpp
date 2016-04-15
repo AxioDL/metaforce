@@ -30,7 +30,7 @@ public:
 }
 
 /* Custom new funcs */
-void* operator new(std::size_t sz, const char* funcName, const char* typeName);
-void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
+//void* operator new(std::size_t sz, const char* funcName, const char* typeName);
+//void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
 
 #endif // __URDE_CMEMORY_HPP__

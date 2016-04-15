@@ -56,7 +56,9 @@ private:
 public:
     CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, ResId);
 
-    std::unique_ptr<CAnimData> CreateCharacter(int, bool, const TLockedToken<CCharacterFactory>& factory, int) const;
+    std::unique_ptr<CAnimData> CreateCharacter(int charIdx, bool loop,
+                                               const TLockedToken<CCharacterFactory>& factory,
+                                               int defaultAnim) const;
     ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
 };
 

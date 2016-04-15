@@ -40,7 +40,7 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 
 static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
 {
-    float q = M_PI / 2.0f / float(div);
+    float q = M_PIF / 2.0f / float(div);
     return
     {
         {
@@ -54,7 +54,7 @@ static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
 
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
 {
-    float q = M_PI / 2.0f / float(div);
+    float q = M_PIF / 2.0f / float(div);
     Value retval =
     {
         0.0f,

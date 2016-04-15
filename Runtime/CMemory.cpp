@@ -71,6 +71,7 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 }
 
+#if 0
 void* operator new(std::size_t sz)
 {
     if (!urde::g_memoryAllocatorReady)
@@ -140,3 +141,5 @@ void operator delete[](void* ptr) noexcept
     }
     urde::CMemory::Free(ptr);
 }
+
+#endif

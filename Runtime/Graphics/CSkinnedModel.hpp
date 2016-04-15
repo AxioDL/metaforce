@@ -21,10 +21,16 @@ class CSkinnedModel
     TLockedToken<CSkinRules> x10_skinRules;
     TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
 public:
+    enum class EDataOwnership
+    {
+        Zero,
+        One
+    };
     CSkinnedModel(const TLockedToken<CModel>& model,
                   const TLockedToken<CSkinRules>& skinRules,
                   const TLockedToken<CCharLayoutInfo>& layoutInfo);
-    CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules, ResId layoutInfo);
+    CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
+                  ResId layoutInfo, EDataOwnership ownership);
 
     const TLockedToken<CModel>& GetModel() const {return x4_model;}
     const TLockedToken<CSkinRules>& GetSkinRules() const {return x10_skinRules;}
@@ -32,6 +38,13 @@ public:
 
     void Calculate(const CPoseAsTransforms& pose, const std::experimental::optional<CVertexMorphEffect>&);
     void Draw(const CModelFlags& drawFlags) const;
+};
+
+class CMorphableSkinnedModel : public CSkinnedModel
+{
+public:
+    CMorphableSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
+                           ResId layoutInfo, EDataOwnership ownership);
 };
 
 }

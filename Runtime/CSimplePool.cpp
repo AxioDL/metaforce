@@ -11,17 +11,12 @@ CSimplePool::CSimplePool(IFactory& factory)
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
 {
-    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(),
-    [&tag](std::pair<SObjectTag, CObjectReference*> pair) -> bool
-    {
-        return pair.first == tag;
-    });
-
+    auto iter = x4_resources.find(tag);
     if (iter != x4_resources.end())
         return CToken(iter->second);
 
     CObjectReference* ret = new CObjectReference(*this, std::unique_ptr<IObj>(), tag, paramXfer);
-    x4_resources.push_back(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
+    x4_resources.emplace(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
     return CToken(ret);
 }
 
@@ -45,16 +40,18 @@ CToken CSimplePool::GetObj(const char* resourceName, const CVParamTransfer& para
 
 bool CSimplePool::HasObject(const SObjectTag& tag) const
 {
-    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
-        return pair.first == tag;
-    });
-
-    return iter != x4_resources.end();
+    auto iter = x4_resources.find(tag);
+    if (iter != x4_resources.cend())
+        return true;
+    return x30_factory.CanBuild(tag);
 }
 
-bool CSimplePool::ObjectIsLive(const SObjectTag&) const
+bool CSimplePool::ObjectIsLive(const SObjectTag& tag) const
 {
-    return false;
+    auto iter = x4_resources.find(tag);
+    if (iter == x4_resources.cend())
+        return false;
+    return iter->second->IsLoaded();
 }
 
 void CSimplePool::Flush()
@@ -63,9 +60,7 @@ void CSimplePool::Flush()
 
 void CSimplePool::ObjectUnreferenced(const SObjectTag& tag)
 {
-    auto iter = std::find_if(x4_resources.begin(), x4_resources.end(), [&tag](std::pair<SObjectTag, CObjectReference*> pair)->bool{
-        return pair.first == tag;
-    });
+    auto iter = x4_resources.find(tag);
     if (iter != x4_resources.end())
         x4_resources.erase(iter);
 }

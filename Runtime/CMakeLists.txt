@@ -69,7 +69,7 @@ add_library(RuntimeCommon
             CPlayMovieBase.hpp
             CGameDebug.hpp CGameDebug.cpp
             rstl.hpp rstl.cpp
-            GameGlobalObjects.hpp
+            GameGlobalObjects.hpp GameGlobalObjects.cpp
             RetroTypes.hpp
             GCNTypes.hpp
             ${PLAT_SRCS})

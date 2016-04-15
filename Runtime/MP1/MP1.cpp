@@ -42,14 +42,6 @@
 
 namespace urde
 {
-CMemoryCardSys* g_MemoryCardSys = nullptr;
-CResFactory*  g_ResFactory = nullptr;
-CSimplePool* g_SimplePool = nullptr;
-CCharacterFactoryBuilder* g_CharFactoryBuilder = nullptr;
-CAiFuncMap* g_AiFuncMap = nullptr;
-CGameState* g_GameState = nullptr;
-CInGameTweakManagerBase* g_TweakManager = nullptr;
-CBooRenderer* g_Renderer = nullptr;
 
 namespace MP1
 {

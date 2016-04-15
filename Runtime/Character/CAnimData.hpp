@@ -17,6 +17,7 @@ namespace urde
 {
 class CCharLayoutInfo;
 class CSkinnedModel;
+class CMorphableSkinnedModel;
 class CAnimSysContext;
 class CAnimationManager;
 class CTransitionManager;
@@ -44,7 +45,7 @@ class CAnimData
     CCharacterInfo xc_charInfo;
     TLockedToken<CCharLayoutInfo> xcc_layoutData;
     TCachedToken<CSkinnedModel> xd8_modelData;
-    // TLockedToken<CSkinnedModelWithAvgNormals> xe4_modelAvgNormalData;
+    TLockedToken<CMorphableSkinnedModel> xe4_iceModelData;
     std::shared_ptr<CSkinnedModel> xf4_xrayModel;
     std::shared_ptr<CSkinnedModel> xf8_infraModel;
     std::shared_ptr<CAnimSysContext> xfc_animCtx;
@@ -59,8 +60,8 @@ class CAnimData
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
     float x200_ = 1.f;
-    u32 x204_b;
-    u16 x208_a;
+    u32 x204_charIdx;
+    u16 x208_defaultAnim;
     u32 x20c_passedBoolCount = 0;
     u32 x210_passedIntCount = 0;
     u32 x214_passedParticleCount = 0;
@@ -98,9 +99,12 @@ class CAnimData
     u32 x1044_ = 0;
 
 public:
-    CAnimData(ResId, const CCharacterInfo& character, int a, int b, bool c,
+    CAnimData(ResId,
+              const CCharacterInfo& character,
+              int defaultAnim, int charIdx, bool loop,
               const TLockedToken<CCharLayoutInfo>& layout,
               const TToken<CSkinnedModel>& model,
+              const std::experimental::optional<TToken<CMorphableSkinnedModel>>& iceModel,
               const std::weak_ptr<CAnimSysContext>& ctx,
               const std::shared_ptr<CAnimationManager>& animMgr,
               const std::shared_ptr<CTransitionManager>& transMgr,

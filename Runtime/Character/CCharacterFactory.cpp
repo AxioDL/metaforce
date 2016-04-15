@@ -7,17 +7,48 @@
 #include "CTransitionManager.hpp"
 #include "CRandom16.hpp"
 #include "CPrimitive.hpp"
+#include "CAnimData.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CSkinnedModel.hpp"
 
 namespace urde
 {
 
-CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag&, const CVParamTransfer&)
+CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
+                                                         const CVParamTransfer& params)
 {
+
+    const CCharacterInfo& charInfo =
+        *static_cast<TObjOwnerParam<const CCharacterInfo*>&>(*params.GetObj()).GetParam();
+
+    switch (tag.type.toUint32())
+    {
+    case 0:
+        return TToken<CSkinnedModel>::GetIObjObjectFor(
+            std::make_unique<CSkinnedModel>(*g_SimplePool,
+                                            charInfo.GetModelId(),
+                                            charInfo.GetSkinRulesId(),
+                                            charInfo.GetCharLayoutInfoId(),
+                                            CSkinnedModel::EDataOwnership::One));
+    case 1:
+        return TToken<CSkinnedModel>::GetIObjObjectFor(
+            std::make_unique<CMorphableSkinnedModel>(*g_SimplePool,
+                                                     charInfo.GetIceModelId(),
+                                                     charInfo.GetIceSkinRulesId(),
+                                                     charInfo.GetCharLayoutInfoId(),
+                                                     CSkinnedModel::EDataOwnership::One));
+    default:
+        break;
+    }
+
     return {};
 }
 
-void CCharacterFactory::CDummyFactory::BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**)
+void CCharacterFactory::CDummyFactory::BuildAsync(const SObjectTag& tag,
+                                                  const CVParamTransfer& parms,
+                                                  IObj** objOut)
 {
+    *objOut = Build(tag, parms).release();
 }
 
 void CCharacterFactory::CDummyFactory::CancelBuild(const SObjectTag&)
@@ -36,10 +67,40 @@ const SObjectTag* CCharacterFactory::CDummyFactory::GetResourceIdByName(const ch
 
 FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(ResId id) const
 {
+    return {};
 }
 
-ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId) const
+std::unique_ptr<CAnimData>
+CCharacterFactory::CreateCharacter(int charIdx, bool loop,
+                                   const TLockedToken<CCharacterFactory>& factory,
+                                   int defaultAnim) const
 {
+    const CCharacterInfo& charInfo = x4_charInfoDB[charIdx];
+    CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
+
+    TToken<CSkinnedModel> skinnedModel =
+        ((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(), charInfo.GetModelId()}, charParm);
+
+    std::experimental::optional<TToken<CMorphableSkinnedModel>> iceModel;
+    if (charInfo.GetIceModelId() && charInfo.GetIceSkinRulesId())
+        iceModel.emplace(((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(1), charInfo.GetIceModelId()}, charParm));
+
+    return std::make_unique<CAnimData>(x68_selfId, charInfo, defaultAnim, charIdx, loop,
+                                       x14_charLayoutInfoDB[charIdx], skinnedModel,
+                                       iceModel, x24_sysContext, x28_animMgr, x2c_transMgr,
+                                       factory);
+}
+
+ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId id) const
+{
+    auto search = std::find_if(x58_animResources.cbegin(), x58_animResources.cend(),
+    [&](const std::pair<ResId, ResId>& elem) -> bool
+    {
+        return id == elem.first;
+    });
+    if (search == x58_animResources.cend())
+        return -1;
+    return search->second;
 }
 
 std::vector<CCharacterInfo>

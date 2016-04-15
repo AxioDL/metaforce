@@ -30,8 +30,6 @@ template<class T>
 class TObjOwnerParam : public IVParamObj
 {
     T m_param;
-protected:
-    ~TObjOwnerParam() {}
 public:
     TObjOwnerParam(T&& obj) : m_param(std::move(obj)) {}
     T& GetParam() {return m_param;}

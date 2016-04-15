@@ -8,7 +8,7 @@ namespace urde
 {
 
 extern class CMemoryCardSys* g_MemoryCardSys;
-extern class CResFactory* g_ResFactory;
+extern class IFactory* g_ResFactory;
 extern class CSimplePool* g_SimplePool;
 extern class CCharacterFactoryBuilder* g_CharFactoryBuilder;
 extern class CAiFuncMap* g_AiFuncMap;

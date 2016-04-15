@@ -69,7 +69,7 @@ CLight::CLight(ELightType type,
     {
     case ELightType::Spot:
     {
-        float cosCutoff = std::cos(cutoff * M_PI / 180.0);
+        float cosCutoff = std::cos(cutoff * M_PIF / 180.f);
         x30_angleC = 0.f;
         x34_angleL = -cosCutoff / (1.0 - cosCutoff);
         x38_angleQ = 1.f / (1.0 - cosCutoff);

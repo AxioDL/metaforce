@@ -21,7 +21,7 @@ public:
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&);
 
-    const std::shared_ptr<CPlayerState> GetPlayerState() const {return x8b8_playerState;}
+    const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
 
     void GetObjectListById() const
     {

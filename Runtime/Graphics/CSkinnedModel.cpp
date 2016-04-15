@@ -11,8 +11,21 @@ CSkinnedModel::CSkinnedModel(const TLockedToken<CModel>& model,
 
 }
 
+CSkinnedModel::CSkinnedModel(IObjectStore& store, ResId model,
+                             ResId skinRules, ResId layoutInfo,
+                             EDataOwnership ownership)
+{
+}
+
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
                               const std::experimental::optional<CVertexMorphEffect>&)
+{
+}
+
+CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, ResId model,
+                                               ResId skinRules, ResId layoutInfo,
+                                               EDataOwnership ownership)
+: CSkinnedModel(store, model, skinRules, layoutInfo, ownership)
 {
 }
 

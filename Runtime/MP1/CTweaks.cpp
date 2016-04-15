@@ -9,9 +9,6 @@
 
 namespace urde
 {
-DataSpec::ITweakGame*   g_tweakGame = nullptr;
-DataSpec::ITweakPlayer* g_tweakPlayer = nullptr;
-DataSpec::ITweakPlayerControl* g_tweakPlayerControl = nullptr;
 
 namespace MP1
 {

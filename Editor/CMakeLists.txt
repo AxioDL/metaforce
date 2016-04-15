@@ -38,6 +38,7 @@ add_executable(urde WIN32 MACOSX_BUNDLE
 target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
+                      RuntimeMP1
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommonParticle
