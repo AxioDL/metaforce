@@ -66,6 +66,7 @@ public:
 private:
     std::list<std::unique_ptr<Transaction>> m_pendingQueue;
     std::list<std::unique_ptr<Transaction>> m_completedQueue;
+    int m_inProgress = 0;
     bool m_running = true;
 
     struct Worker

@@ -71,11 +71,13 @@ void ClientProcess::Worker::proc()
         while (m_proc.m_pendingQueue.size())
         {
             std::unique_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
+            ++m_proc.m_inProgress;
+            m_proc.m_pendingQueue.pop_front();
             lk.unlock();
             trans->run(m_blendTok);
             lk.lock();
             m_proc.m_completedQueue.push_back(std::move(trans));
-            m_proc.m_pendingQueue.pop_front();
+            --m_proc.m_inProgress;
         }
         m_proc.m_waitCv.notify_one();
         if (!m_proc.m_running)
@@ -158,7 +160,7 @@ void ClientProcess::swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& 
 void ClientProcess::waitUntilComplete()
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    while (m_pendingQueue.size())
+    while (m_pendingQueue.size() || m_inProgress)
         m_waitCv.wait(lk);
 }
 
