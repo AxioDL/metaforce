@@ -19,7 +19,7 @@ class PAKBridge
     DNAMP1::PAK m_pak;
 public:
     bool m_doExtract;
-    using Level = Level<UniqueID32>;
+    using Level = DataSpec::Level<UniqueID32>;
     std::unordered_map<UniqueID32, Level> m_levelDeps;
     hecl::SystemString m_levelString;
 

@@ -98,13 +98,18 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
     FILE* fp = hecl::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
 
+    bool needsSave = false;
     athena::io::YAMLDocReader r;
     if (!fp)
+    {
+        needsSave = true;
         goto makeDefault;
+    }
 
     yaml_parser_set_input_file(r.getParser(), fp);
     if (!r.ValidateClassType("UrdeSpacesState"))
     {
+        needsSave = true;
         fclose(fp);
         goto makeDefault;
     }
@@ -114,33 +119,23 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     yaml_parser_set_input_file(r.getParser(), fp);
     if (!r.parse())
     {
+        needsSave = true;
         fclose(fp);
         goto makeDefault;
     }
     fclose(fp);
 
-    m_vm.ProjectChanged(*m_proj);
-    m_vm.SetupEditorView(r);
-
-    m_factoryMP1.IndexMP1Resources(*m_proj);
-    m_vm.BuildTestPART(m_objStore);
-
-    {
-        hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-        windowTitle += _S(" - URDE");
-        m_vm.m_mainWindow->setTitle(windowTitle.c_str());
-    }
-    m_vm.DismissSplash();
-    m_vm.FadeInEditors();
-
-    m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
-
-    return true;
-
 makeDefault:
     m_vm.ProjectChanged(*m_proj);
     m_vm.SetupEditorView();
-    saveProject();
+
+    m_factoryMP1.IndexMP1Resources(*m_proj);
+    m_mainMP1.emplace(m_factoryMP1, m_objStore);
+    m_vm.InitMP1(*m_mainMP1);
+    m_vm.BuildTestPART(m_objStore);
+
+    if (needsSave)
+        saveProject();
 
     {
         hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
@@ -149,6 +144,7 @@ makeDefault:
     }
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
+    m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
     return true;
 }
 

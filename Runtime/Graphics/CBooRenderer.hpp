@@ -5,12 +5,12 @@ namespace urde
 {
 class IObjectStore;
 class CMemorySys;
-class CResFactory;
+class IFactory;
 
 class CBooRenderer
 {
 public:
-    CBooRenderer(IObjectStore&, CMemorySys&, CResFactory&)
+    CBooRenderer(IObjectStore&, IFactory&)
     {
     }
 };

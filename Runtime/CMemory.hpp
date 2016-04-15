@@ -1,6 +1,8 @@
 #ifndef __URDE_CMEMORY_HPP__
 #define __URDE_CMEMORY_HPP__
 
+#if 0
+
 #include "IAllocator.hpp"
 
 namespace urde
@@ -30,7 +32,9 @@ public:
 }
 
 /* Custom new funcs */
-//void* operator new(std::size_t sz, const char* funcName, const char* typeName);
-//void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
+void* operator new(std::size_t sz, const char* funcName, const char* typeName);
+void* operator new[](std::size_t sz, const char* funcName, const char* typeName);
+
+#endif
 
 #endif // __URDE_CMEMORY_HPP__

@@ -37,14 +37,7 @@ CInputStream* CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, int off
     void* buf = extBuf;
     CPakFile* file = FindResourceForLoad(tag);
     if (!buf)
-    {
-        CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
-        buf = CMemory::Alloc(length,
-                             IAllocator::EHint::Large,
-                             IAllocator::EScope::Default,
-                             IAllocator::EType::Primitive,
-                             cs);
-    }
+        buf = new u8[length];
     file->SyncSeekRead(buf, length, ESeekOrigin::Begin, x50_cachedResInfo->x4_offset + offset);
     return new CMemoryInStream((atUint8*)buf, length, !extBuf);
 }
@@ -52,12 +45,7 @@ CInputStream* CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, int off
 void CResLoader::LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut)
 {
     CPakFile* file = FindResourceForLoad(tag);
-    CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
-    void* buf = CMemory::Alloc(x50_cachedResInfo->x8_size,
-                               IAllocator::EHint::Large,
-                               IAllocator::EScope::Default,
-                               IAllocator::EType::Primitive,
-                               cs);
+    void* buf = new u8[x50_cachedResInfo->x8_size];
     file->SyncSeekRead(buf, x50_cachedResInfo->x8_size, ESeekOrigin::Begin,
                        x50_cachedResInfo->x4_offset);
     *bufOut = buf;
@@ -82,14 +70,7 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
     CPakFile* file = FindResourceForLoad(tag);
     size_t resSz = ROUND_UP_32(x50_cachedResInfo->x8_size);
     if (!buf)
-    {
-        CCallStack cs(AT_PRETTY_FUNCTION, "UnknownType");
-        buf = CMemory::Alloc(resSz,
-                             IAllocator::EHint::Large,
-                             IAllocator::EScope::Default,
-                             IAllocator::EType::Primitive,
-                             cs);
-    }
+        buf = new u8[resSz];
     file->SyncSeekRead(buf, resSz, ESeekOrigin::Begin, x50_cachedResInfo->x4_offset);
     CInputStream* newStrm = new CMemoryInStream((atUint8*)buf, resSz, !extBuf);
     if (x50_cachedResInfo->xb_compressed)

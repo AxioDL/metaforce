@@ -6,6 +6,7 @@
 #include "ProjectResourceFactoryMP1.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "hecl/Runtime.hpp"
+#include "MP1/MP1.hpp"
 
 namespace urde
 {
@@ -32,6 +33,7 @@ class ProjectManager
     hecl::ClientProcess m_clientProc;
     ProjectResourceFactoryMP1 m_factoryMP1;
     ProjectResourcePool m_objStore;
+    std::experimental::optional<MP1::CMain> m_mainMP1;
 
 public:
     static ProjectManager* g_SharedManager;
@@ -47,9 +49,21 @@ public:
     bool extractGame(const hecl::SystemString& path);
     bool saveProject();
 
-    void asyncIdle() {m_factoryMP1.AsyncIdle();}
+    void mainUpdate()
+    {
+        if (m_mainMP1)
+            m_mainMP1->Proc();
+    }
+
+    void asyncIdle()
+    {
+        m_factoryMP1.AsyncIdle();
+    }
+
     void shutdown()
     {
+        if (m_mainMP1)
+            m_mainMP1->Shutdown();
         m_clientProc.shutdown();
         m_factoryMP1.Shutdown();
     }

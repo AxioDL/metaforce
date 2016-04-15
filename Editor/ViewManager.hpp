@@ -33,7 +33,9 @@ class ViewManager : public specter::IViewManager
     boo::GraphicsDataToken m_iconsToken;
     specter::Translator m_translator;
     std::unique_ptr<boo::IWindow> m_mainWindow;
-    CCharacterFactoryBuilder m_test;
+    boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
+    boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
+    boo::ITextureR* m_renderTex = nullptr;
 
     std::unique_ptr<specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
@@ -96,6 +98,7 @@ class ViewManager : public specter::IViewManager
     void FadeInEditors() {m_editorFrames = 0;}
 
     void BuildTestPART(urde::IObjectStore& objStore);
+    void InitMP1(MP1::CMain& main);
 
     Space* m_deferSplit = nullptr;
     specter::SplitView::Axis m_deferSplitAxis;

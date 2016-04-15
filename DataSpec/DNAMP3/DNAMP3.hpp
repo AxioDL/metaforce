@@ -19,7 +19,7 @@ class PAKBridge
     PAK m_pak;
 public:
     bool m_doExtract;
-    using Level = Level<UniqueID64>;
+    using Level = DataSpec::Level<UniqueID64>;
     std::unordered_map<UniqueID64, Level> m_levelDeps;
     hecl::SystemString m_levelString;
 

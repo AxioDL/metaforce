@@ -17,7 +17,7 @@ else()
 endif()
 
 add_library(RuntimeCommon
-            CMemory.hpp CMemory.cpp
+            #CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp

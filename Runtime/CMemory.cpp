@@ -1,3 +1,5 @@
+#if 0
+
 #include "CMemory.hpp"
 #include "CGameAllocator.hpp"
 #include "CCallStack.hpp"
@@ -71,7 +73,6 @@ IAllocator& CMemorySys::GetGameAllocator() {return g_gameAllocator;}
 
 }
 
-#if 0
 void* operator new(std::size_t sz)
 {
     if (!urde::g_memoryAllocatorReady)

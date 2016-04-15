@@ -55,6 +55,11 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_rootView->updateSize();
 }
 
+void ViewManager::InitMP1(MP1::CMain& main)
+{
+    main.Init(m_mainBooFactory, m_mainCommandQueue, m_renderTex, m_fileStoreManager, m_voiceEngine.get());
+}
+
 void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     specter::View::resized(root, sub);
@@ -272,23 +277,25 @@ void ViewManager::init(boo::IApplication* app)
 
     float pixelFactor = 1.0;
 
-    boo::IGraphicsDataFactory* gf = m_mainWindow->getMainContextDataFactory();
-    m_viewResources.init(gf, &m_fontCache, &m_themeData, pixelFactor);
+    m_mainBooFactory = m_mainWindow->getMainContextDataFactory();
+    m_mainCommandQueue = m_mainWindow->getCommandQueue();
+    m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
     m_iconsToken = InitializeIcons(m_viewResources);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     specter::RootView* root = SetupRootView();
     m_showSplash = true;
     root->accessContentViews().push_back(SetupSplashView());
     root->updateSize();
-
+    m_renderTex = root->renderTex();
     m_mainWindow->setWaitCursor(false);
-
     m_voiceEngine = boo::NewAudioVoiceEngine();
+    /*
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CModelShaders::Initialize(m_fileStoreManager, gf);
     CElementGen::Initialize();
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();
+    */
 }
 
 bool ViewManager::proc()
@@ -329,6 +336,8 @@ bool ViewManager::proc()
     ++m_editorFrames;
     if (m_rootSpaceView && m_editorFrames <= 30)
         m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
+
+    m_projManager.mainUpdate();
 
     m_rootView->draw(gfxQ);
     CGraphics::EndScene();
