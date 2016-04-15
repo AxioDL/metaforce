@@ -16,6 +16,8 @@ static logvisor::Module Log("specter::Space");
 
 #define CORNER_DRAG_THRESHOLD 20
 
+static const zeus::CColor TriColor = {0.75, 0.75, 0.75, 1.0};
+
 Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
              Toolbar::Position tbPos, unsigned tbUnits)
 : View(res, parentView), m_controller(controller), m_tbPos(tbPos)
@@ -26,9 +28,8 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
         return true;
     });
     setBackground(res.themeData().spaceBackground());
-    static const zeus::CColor triColor = {0.75, 0.75, 0.75, 1.0};
     if (controller.spaceSplitAllowed())
-        m_cornerView.m_view.reset(new CornerView(res, *this, triColor));
+        m_cornerView.m_view.reset(new CornerView(res, *this, TriColor));
     if (tbPos != Toolbar::Position::None)
         m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
 }

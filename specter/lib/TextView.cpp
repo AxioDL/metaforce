@@ -65,11 +65,11 @@ BOO_GLSL_BINDING_HEAD
 "    blendOut = colorOut.a * texture(fontTex, vtf.uv);\n"
 "}\n";
 
+static const char* BlockNames[] = {"SpecterViewBlock"};
+
 void TextView::Resources::init(boo::GLDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
-
-    static const char* BlockNames[] = {"SpecterViewBlock"};
 
     m_regular =
     ctx.newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,

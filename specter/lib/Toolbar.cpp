@@ -9,16 +9,17 @@ namespace specter
 {
 static logvisor::Module Log("specter::Space");
 
+static const zeus::RGBA32 Tex[] =
+{
+    {{255,255,255,64}},
+    {{255,255,255,64}},
+    {{0,0,0,64}},
+    {{0,0,0,64}}
+};
+
 void Toolbar::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
-    static const zeus::RGBA32 tex[] =
-    {
-        {{255,255,255,64}},
-        {{255,255,255,64}},
-        {{0,0,0,64}},
-        {{0,0,0,64}}
-    };
-    m_shadingTex = ctx.newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, tex, 16);
+    m_shadingTex = ctx.newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, Tex, 16);
 }
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned units)

@@ -71,10 +71,10 @@ BOO_GLSL_BINDING_HEAD
 "    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
 "}\n";
 
+static const char* BlockNames[] = {"SpecterViewBlock"};
+
 void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& theme)
 {
-    static const char* BlockNames[] = {"SpecterViewBlock"};
-
     m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, false, false, false);
