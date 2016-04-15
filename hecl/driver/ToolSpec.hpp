@@ -28,11 +28,9 @@ public:
         hecl::SystemString firstArg = info.args.front();
         hecl::ToLower(firstArg);
 
-        static const hecl::SystemString enable(_S("enable"));
-        static const hecl::SystemString disable(_S("disable"));
-        if (!firstArg.compare(enable))
+        if (!firstArg.compare(_S("enable")))
             mode = MENABLE;
-        else if (!firstArg.compare(disable))
+        else if (!firstArg.compare(_S("disable")))
             mode = MDISABLE;
         else
             return;

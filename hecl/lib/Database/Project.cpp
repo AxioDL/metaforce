@@ -18,6 +18,7 @@ namespace Database
 {
 
 logvisor::Module LogModule("HECLDatabase");
+static const hecl::FourCC HECLfcc("HECL");
 
 /**********************************************
  * Project::ConfigFile
@@ -231,7 +232,6 @@ Project::Project(const ProjectRootPath& rootPath)
         uint32_t version;
     } beacon;
 #define DATA_VERSION 1
-    static const hecl::FourCC HECLfcc("HECL");
     if (fread(&beacon, 1, sizeof(beacon), bf) != sizeof(beacon))
     {
         fseek(bf, 0, SEEK_SET);

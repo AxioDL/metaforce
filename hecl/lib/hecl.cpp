@@ -20,6 +20,7 @@ namespace hecl
 {
 unsigned VerbosityLevel = 0;
 logvisor::Module LogModule("hecl");
+static const std::string Illegals {"<>?*\"|"};
 
 void SanitizePath(std::string& path)
 {
@@ -31,8 +32,7 @@ void SanitizePath(std::string& path)
     bool ic = false;
     std::transform(path.begin(), path.end(), path.begin(), [&](const char a) -> char {
         ++p1;
-        static const std::string illegals {"<>?*\"|"};
-        if (illegals.find_first_of(a) != std::string::npos)
+        if (Illegals.find_first_of(a) != std::string::npos)
         {
             ic = false;
             return '_';
@@ -52,6 +52,8 @@ void SanitizePath(std::string& path)
     });
 }
 
+static const std::wstring WIllegals {L"<>?*\"|"};
+
 void SanitizePath(std::wstring& path)
 {
     if (path.empty())
@@ -62,8 +64,7 @@ void SanitizePath(std::wstring& path)
     bool ic = false;
     std::transform(path.begin(), path.end(), path.begin(), [&](const wchar_t a) -> wchar_t {
         ++p1;
-        static const std::wstring illegals {L"<>?*\"|"};
-        if (illegals.find_first_of(a) != std::wstring::npos)
+        if (WIllegals.find_first_of(a) != std::wstring::npos)
         {
             ic = false;
             return L'_';
