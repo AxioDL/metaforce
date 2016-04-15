@@ -270,6 +270,13 @@ void CElementGen::Shutdown()
     CElementGenShaders::Shutdown();
 }
 
+static const size_t ShadClsSizes[] =
+{
+    sizeof(SParticleInstanceTex),
+    sizeof(SParticleInstanceIndTex),
+    sizeof(SParticleInstanceNoTex)
+};
+
 CElementGen::CElementGen(const TToken<CGenDescription>& gen,
                          EModelOrientationType orientType,
                          EOptionalSystemFlags flags)
@@ -442,12 +449,6 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     else
     {
         m_shaderClass = CElementGenShaders::GetShaderClass(*this);
-        static const size_t ShadClsSizes[] =
-        {
-            sizeof(SParticleInstanceTex),
-            sizeof(SParticleInstanceIndTex),
-            sizeof(SParticleInstanceNoTex)
-        };
         size_t maxInsts = x224_29_MBLR ? (m_maxMBSP * x70_MAXP) : x70_MAXP;
         m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {

@@ -40,10 +40,11 @@ static const char* LightingMetal =
 "    return saturate(ret);\n"
 "}\n";
 
+static const char* BlockNames[] = {"LightingUniform"};
+
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat)
 {
-    static const char* BlockNames[] = {"LightingUniform"};
     hecl::Runtime::ShaderCacheExtensions ext(plat);
     ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {}, 1, BlockNames);
     return ext;

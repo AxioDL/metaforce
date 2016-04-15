@@ -41,12 +41,13 @@ static const char* LightingGLSL =
 "    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
 "}\n";
 
+static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
+                                   HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
+                                   "LightingUniform"};
+
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
 {
-    static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                       HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
-                                       "LightingUniform"};
     hecl::Runtime::ShaderCacheExtensions ext(plat);
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {}, 3, BlockNames);
     return ext;

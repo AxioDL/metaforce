@@ -15,6 +15,16 @@ static int CountBits(uint32_t n)
     return ret;
 }
 
+static const int DIMS[] =
+{
+    16,
+    32,
+    48,
+    64,
+    128,
+    0
+};
+
 int main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -31,16 +41,6 @@ int main(int argc, char* argv[])
     }
 
     png_bytep row = malloc(4 * 128);
-
-    static const int DIMS[] =
-    {
-        16,
-        32,
-        48,
-        64,
-        128,
-        0
-    };
 
     char command[2048];
 

@@ -40,6 +40,11 @@ SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Databas
     DataSpec::UniqueIDBridge::setGlobalProject(m_project);
 }
 
+static const hecl::SystemString regNONE = _S("");
+static const hecl::SystemString regE = _S("NTSC");
+static const hecl::SystemString regJ = _S("NTSC-J");
+static const hecl::SystemString regP = _S("PAL");
+
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
     m_disc = nod::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
@@ -67,10 +72,6 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         return false;
 
     char region = m_disc->getHeader().m_gameID[3];
-    static const hecl::SystemString regNONE = _S("");
-    static const hecl::SystemString regE = _S("NTSC");
-    static const hecl::SystemString regJ = _S("NTSC-J");
-    static const hecl::SystemString regP = _S("PAL");
     const hecl::SystemString* regstr = &regNONE;
     switch (region)
     {

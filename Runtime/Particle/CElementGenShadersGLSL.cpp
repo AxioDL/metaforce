@@ -267,10 +267,10 @@ struct OGLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
     }
 };
 
+static const char* UniNames[] = {"ParticleUniform"};
+
 CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLDataFactory::Context& ctx)
 {
-    static const char* UniNames[] = {"ParticleUniform"};
-
     m_texZTestZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, true, true, false);

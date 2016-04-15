@@ -188,10 +188,10 @@ static u32 StaticLoopEnd = 0;
 static g72x_state StaticStateLeft = {};
 static g72x_state StaticStateRight = {};
 
+static const char* BlockNames[] = {"SpecterViewBlock"};
+
 void CMoviePlayer::Initialize()
 {
-    static const char* BlockNames[] = {"SpecterViewBlock"};
-
     GraphicsData = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         if (!ctx.bindingNeedsVertexFormat())
