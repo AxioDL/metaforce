@@ -103,7 +103,7 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     if (!fp)
     {
         needsSave = true;
-        goto makeDefault;
+        goto makeProj;
     }
 
     yaml_parser_set_input_file(r.getParser(), fp);
@@ -111,7 +111,7 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     {
         needsSave = true;
         fclose(fp);
-        goto makeDefault;
+        goto makeProj;
     }
 
     r.reset();
@@ -121,13 +121,17 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     {
         needsSave = true;
         fclose(fp);
-        goto makeDefault;
+        goto makeProj;
     }
     fclose(fp);
 
-makeDefault:
+makeProj:
     m_vm.ProjectChanged(*m_proj);
-    m_vm.SetupEditorView();
+
+    if (!needsSave)
+        m_vm.SetupEditorView(r);
+    else
+        m_vm.SetupEditorView();
 
     m_factoryMP1.IndexMP1Resources(*m_proj);
     m_mainMP1.emplace(m_factoryMP1, m_objStore);
