@@ -1,7 +1,7 @@
 #ifndef __URDE_COBJECTLIST_HPP__
 #define __URDE_COBJECTLIST_HPP__
 
-#include "CEntity.hpp"
+#include "World/CEntity.hpp"
 #include "RetroTypes.hpp"
 
 namespace urde

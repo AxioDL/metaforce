@@ -5,7 +5,7 @@
 #include "CBasics.hpp"
 #include "CPlayerState.hpp"
 #include "CGameOptions.hpp"
-#include "CWorldTransManager.hpp"
+#include "World/CWorldTransManager.hpp"
 
 namespace urde
 {

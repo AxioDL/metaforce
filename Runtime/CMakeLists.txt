@@ -5,6 +5,8 @@ add_subdirectory(Audio)
 add_subdirectory(Character)
 add_subdirectory(Graphics)
 add_subdirectory(Camera)
+add_subdirectory(World)
+add_subdirectory(AutoMapper)
 add_subdirectory(GuiSys)
 add_subdirectory(Input)
 add_subdirectory(Particle)
@@ -22,7 +24,6 @@ add_library(RuntimeCommon
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
-            CPathFindArea.hpp CPathFindArea.cpp
             CDependencyGroup.hpp CDependencyGroup.cpp
             CBasics.hpp CBasicsPC.cpp
             CIOWin.hpp
@@ -30,9 +31,7 @@ add_library(RuntimeCommon
             CStateManager.hpp CStateManager.cpp
             CGameState.hpp CGameState.cpp
             CScriptMailbox.hpp CScriptMailbox.cpp
-            CMapWorldInfo.hpp CMapWorldInfo.cpp
             CPlayerState.hpp CPlayerState.cpp
-            CWorldTransManager.hpp CWorldTransManager.cpp
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp
             CResLoader.hpp CResLoader.cpp
@@ -41,11 +40,9 @@ add_library(RuntimeCommon
             CVirtualDvdFile.hpp CVirtualDvdFile.cpp
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
-            CAi.hpp CAi.cpp
             CGameOptions.hpp CGameOptions.cpp
             CStaticInterference.hpp
             CCRC32.hpp CCRC32.cpp
-            CEntity.hpp CEntity.cpp
             IFactory.hpp
             IObjFactory.hpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
@@ -58,9 +55,6 @@ add_library(RuntimeCommon
             IVParamObj.hpp
             CTimeProvider.hpp CTimeProvider.cpp
             CToken.hpp
-            CAreaOctTree.hpp CAreaOctTree.cpp
-            CActor.hpp CActor.cpp
-            CPhysicsActor.hpp CPhysicsActor.cpp
             CFactoryMgr.hpp CFactoryMgr.cpp
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp

@@ -15,7 +15,7 @@
 #include "CResFactory.hpp"
 #include "CSimplePool.hpp"
 #include "Character/CAssetFactory.hpp"
-#include "CAi.hpp"
+#include "World/CAi.hpp"
 #include "CGameState.hpp"
 #include "CInGameTweakManager.hpp"
 #include "Particle/CElementGen.hpp"

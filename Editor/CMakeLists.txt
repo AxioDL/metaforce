@@ -39,6 +39,9 @@ target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
                       RuntimeMP1
+                      RuntimeCommonWorld
+                      RuntimeCommonAutoMapper
+                      RuntimeCommonCamera
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommonParticle
