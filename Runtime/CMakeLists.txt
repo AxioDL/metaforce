@@ -4,6 +4,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR}
 add_subdirectory(Audio)
 add_subdirectory(Character)
 add_subdirectory(Graphics)
+add_subdirectory(Camera)
 add_subdirectory(GuiSys)
 add_subdirectory(Input)
 add_subdirectory(Particle)
@@ -48,7 +49,9 @@ add_library(RuntimeCommon
             IFactory.hpp
             IObjFactory.hpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
-            CObjectList.hpp
+            CObjectList.hpp CObjectList.cpp
+            GameObjectLists.hpp GameObjectLists.cpp
+            CSortedLists.hpp CSortedLists.cpp
             CArchitectureMessage.hpp
             CArchitectureQueue.hpp CArchitectureQueue.cpp
             IObj.hpp

@@ -13,7 +13,7 @@ namespace urde
 class CGameState
 {
     int m_stateFlag = -1;
-    TOneStatic<CPlayerState> m_playerState;
+    CPlayerState m_playerState;
     CWorldTransManager m_transManager;
     float m_gameTime = 0.0;
     CGameOptions m_gameOpts;

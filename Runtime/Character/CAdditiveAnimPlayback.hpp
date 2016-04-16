@@ -13,37 +13,39 @@ class CSegStatementSet;
 
 class CAdditiveAnimationInfo
 {
-    float x0_a = 0.f;
-    float x4_b = 0.f;
+    float x0_fadeInDur = 0.f;
+    float x4_fadeOutDur = 0.f;
 public:
     void read(CInputStream& in)
     {
-        x0_a = in.readFloatBig();
-        x4_b = in.readFloatBig();
+        x0_fadeInDur = in.readFloatBig();
+        x4_fadeOutDur = in.readFloatBig();
     }
     CAdditiveAnimationInfo() = default;
     CAdditiveAnimationInfo(CInputStream& in) {read(in);}
+    float GetFadeInDuration() const {return x0_fadeInDur;}
+    float GetFadeOutDuration() const {return x4_fadeOutDur;}
 };
 
 class CAdditiveAnimPlayback
 {
 public:
-    enum class EAdditivePlaybackState
+    enum class EAdditivePlaybackPhase
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four
+        None,
+        FadingIn,
+        FadingOut,
+        FadedIn,
+        FadedOut
     };
 private:
     CAdditiveAnimationInfo x0_info;
-    std::weak_ptr<CAnimTreeNode> x8_anim;
-    float xc_weight;
-    float x10_ = 0.f;
+    std::shared_ptr<CAnimTreeNode> x8_anim;
+    float xc_targetWeight;
+    float x10_curWeight = 0.f;
     bool x14_a;
-    float x18_ = 0.f;
-    EAdditivePlaybackState x1c_ = EAdditivePlaybackState::One;
+    float x18_weightTimer = 0.f;
+    EAdditivePlaybackPhase x1c_phase = EAdditivePlaybackPhase::FadingIn;
     bool x20_ = false;
 public:
     CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim, float weight, bool a,
@@ -53,6 +55,9 @@ public:
     void Update(float dt);
     void FadeOut();
     void SetWeight(float w);
+    float GetTargetWeight() const {return xc_targetWeight;}
+    bool GetA() const {return x14_a;}
+    const std::shared_ptr<CAnimTreeNode>& GetAnim() const {return x8_anim;}
 };
 
 }

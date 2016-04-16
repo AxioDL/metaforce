@@ -4,6 +4,8 @@
 #include <memory>
 #include "CBasics.hpp"
 #include "ScriptObjectSupport.hpp"
+#include "GameObjectLists.hpp"
+#include "Camera/CCameraManager.hpp"
 
 namespace urde
 {
@@ -11,10 +13,27 @@ class CScriptMailbox;
 class CMapWorldInfo;
 class CPlayerState;
 class CWorldTransManager;
+class CObjectList;
 
 class CStateManager
 {
+    TUniqueId x8_idArr[1024] = {};
+    std::unique_ptr<CObjectList> x80c_allObjs;
+    std::unique_ptr<CActorList> x814_allObjs;
+    std::unique_ptr<CPhysicsActorList> x81c_allObjs;
+    std::unique_ptr<CGameCameraList> x824_allObjs;
+    std::unique_ptr<CGameLightList> x82c_allObjs;
+    std::unique_ptr<CListeningAiList> x834_allObjs;
+    std::unique_ptr<CAiWaypointList> x83c_allObjs;
+    std::unique_ptr<CPlatformAndDoorList> x844_allObjs;
+    std::list<u32> x858_;
+
+    // x86c_stateManagerContainer;
+
+
+
     std::shared_ptr<CPlayerState> x8b8_playerState;
+
 public:
     CStateManager(const std::weak_ptr<CScriptMailbox>&,
                   const std::weak_ptr<CMapWorldInfo>&,
@@ -31,6 +50,7 @@ public:
 
     }
     void SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state);
+    TUniqueId AllocateUniqueId();
 };
 
 }

@@ -61,6 +61,7 @@ add_library(RuntimeCommonCharacter
             CTimeScaleFunctions.hpp CTimeScaleFunctions.cpp
             CParticleData.hpp CParticleData.cpp
             CParticleDatabase.hpp CParticleDatabase.cpp
+            CParticleGenInfo.hpp CParticleGenInfo.cpp
             CAnimPOIData.hpp CAnimPOIData.cpp
             CPOINode.hpp CPOINode.cpp
             CBoolPOINode.hpp CBoolPOINode.cpp

@@ -6,10 +6,20 @@
 #include "CAnimationManager.hpp"
 #include "CTransitionManager.hpp"
 #include "CAdditiveAnimPlayback.hpp"
+#include "CBoolPOINode.hpp"
+#include "CInt32POINode.hpp"
+#include "CParticlePOINode.hpp"
+#include "CSoundPOINode.hpp"
+#include "CParticleGenInfo.hpp"
 #include "IAnimReader.hpp"
+#include "CAnimTreeNode.hpp"
 
 namespace urde
 {
+rstl::reserved_vector<CBoolPOINode, 8>CAnimData::g_BoolPOINodes;
+rstl::reserved_vector<CInt32POINode, 16> CAnimData::g_Int32POINodes;
+rstl::reserved_vector<CParticlePOINode, 20> CAnimData::g_ParticlePOINodes;
+rstl::reserved_vector<CSoundPOINode, 20> CAnimData::g_SoundPOINodes;
 
 void CAnimData::FreeCache()
 {
@@ -45,6 +55,14 @@ CAnimData::CAnimData(ResId id,
 {
     if (iceModel)
         xe4_iceModelData = *iceModel;
+
+    g_BoolPOINodes.resize(8);
+    g_Int32POINodes.resize(16);
+    g_ParticlePOINodes.resize(20);
+    g_SoundPOINodes.resize(20);
+
+    x108_aabb = xd8_modelData->GetModel()->GetAABB();
+    x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
 }
 
 ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
@@ -54,10 +72,32 @@ ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
 
 void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet)
 {
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1044_additiveAnims)
+        if (additive.second.GetTargetWeight() > 0.00001f)
+            additive.second.AddToSegStatementSet(list, *xcc_layoutData.GetObj(), stSet);
 }
 
-void CAnimData::AdvanceAdditiveAnims(float)
+static void AdvanceAnimationTree(std::weak_ptr<CAnimTreeNode>& anim, const CCharAnimTime& dt)
 {
+}
+
+void CAnimData::AdvanceAdditiveAnims(float dt)
+{
+    CCharAnimTime time(dt);
+
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1044_additiveAnims)
+    {
+        if (additive.second.GetA())
+        {
+            while (time.GreaterThanZero() && std::fabs(time) >= 0.00001f)
+            {
+                //additive.second.GetAnim()->GetInt32POIList(time, );
+            }
+        }
+        else
+        {
+        }
+    }
 }
 
 void CAnimData::UpdateAdditiveAnims(float)

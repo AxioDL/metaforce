@@ -37,6 +37,10 @@ class CAnimTreeNode;
 class CSegIdList;
 class CSegStatementSet;
 class CAdditiveAnimPlayback;
+class CBoolPOINode;
+class CInt32POINode;
+class CParticlePOINode;
+class CSoundPOINode;
 struct SAdvancementDeltas;
 
 class CAnimData
@@ -98,6 +102,11 @@ class CAnimData
     u32 x103c_ = 0;
     u32 x1040_ = 0;
     rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x1044_additiveAnims;
+
+    static rstl::reserved_vector<CBoolPOINode, 8> g_BoolPOINodes;
+    static rstl::reserved_vector<CInt32POINode, 16> g_Int32POINodes;
+    static rstl::reserved_vector<CParticlePOINode, 20> g_ParticlePOINodes;
+    static rstl::reserved_vector<CSoundPOINode, 20> g_SoundPOINodes;
 
 public:
     CAnimData(ResId,

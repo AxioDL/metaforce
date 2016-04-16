@@ -7,6 +7,7 @@
 namespace urde
 {
 class CStateManager;
+class IVisitor;
 
 struct SConnection
 {
@@ -34,12 +35,14 @@ protected:
 public:
     virtual ~CEntity() {}
     CEntity(TUniqueId uid, const CEntityInfo& info, bool active);
+    virtual void Accept(IVisitor&)=0;
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     virtual bool GetActive() const {return m_active;}
     virtual void SetActive(bool active) {m_active = active;}
 
+    TUniqueId GetUniqueId() const {return m_uid;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 };
 

@@ -10,6 +10,7 @@
 #include "CAnimData.hpp"
 #include "CAdditiveAnimPlayback.hpp"
 #include "GameGlobalObjects.hpp"
+#include "CParticleGenInfo.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 
 namespace urde

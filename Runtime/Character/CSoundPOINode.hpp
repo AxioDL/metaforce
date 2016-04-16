@@ -14,6 +14,7 @@ class CSoundPOINode : public CPOINode
     float x3c_falloff;
     float x40_maxDist;
 public:
+    CSoundPOINode();
     CSoundPOINode(CInputStream& in);
     CSoundPOINode(const std::string& name, u16 a,
                   const CCharAnimTime& time, u32 b, bool c,

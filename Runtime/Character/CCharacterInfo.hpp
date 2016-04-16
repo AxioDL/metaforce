@@ -47,6 +47,8 @@ public:
 
     ResId GetIceModelId() const {return xa8_cmdlOverlay;}
     ResId GetIceSkinRulesId() const {return xac_cskrOverlay;}
+
+    const CParticleResData& GetParticleResData() const {return x44_partRes;}
 };
 
 }

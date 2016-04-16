@@ -4,6 +4,13 @@
 namespace urde
 {
 
+CSoundPOINode::CSoundPOINode()
+: CPOINode("root", 8, CCharAnimTime(), -1, false, 1.f, -1, 0),
+  x38_sfxId(0),
+  x3c_falloff(0.f),
+  x40_maxDist(0.f)
+{}
+
 CSoundPOINode::CSoundPOINode(CInputStream& in)
 : CPOINode(in),
   x38_sfxId(in.readUint32Big()),

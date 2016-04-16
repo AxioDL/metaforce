@@ -12,6 +12,7 @@ class CParticlePOINode : public CPOINode
 {
     CParticleData x38_data;
 public:
+    CParticlePOINode();
     CParticlePOINode(CInputStream& in);
     const CParticleData& GetData() const {return x38_data;}
 
