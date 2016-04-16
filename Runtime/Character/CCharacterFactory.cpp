@@ -8,6 +8,7 @@
 #include "CRandom16.hpp"
 #include "CPrimitive.hpp"
 #include "CAnimData.hpp"
+#include "CAdditiveAnimPlayback.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 

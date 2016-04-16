@@ -39,6 +39,7 @@ public:
 
 class CAnimSourceReaderBase : public IAnimReader
 {
+protected:
     std::unique_ptr<IAnimSourceInfo> x4_sourceInfo;
     CCharAnimTime xc_curTime;
     u32 x14_passedBoolCount = 0;
@@ -56,10 +57,12 @@ class CAnimSourceReaderBase : public IAnimReader
 protected:
     void PostConstruct(const CCharAnimTime& time);
     void UpdatePOIStates();
-
+    CAnimSourceReaderBase(std::unique_ptr<IAnimSourceInfo>&& sourceInfo,
+                          const CAnimSourceReaderBase& other);
 public:
     CAnimSourceReaderBase(std::unique_ptr<IAnimSourceInfo>&& sourceInfo,
                           const CCharAnimTime& time);
+
 
     u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
@@ -77,11 +80,10 @@ public:
 class CAnimSourceReader : public CAnimSourceReaderBase
 {
     TSubAnimTypeToken<CAnimSource> x54_source;
-    CCharAnimTime x64_duration;
-    zeus::CVector3f x6c_curRootOffset;
-    bool x78_ = false;
+    CSteadyStateAnimInfo x64_steadyStateInfo;
 public:
     CAnimSourceReader(const TSubAnimTypeToken<CAnimSource>& source, const CCharAnimTime& time);
+    CAnimSourceReader(const CAnimSourceReader& other);
 
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
     bool VSupportsReverseView() const {return true;}
@@ -92,7 +94,7 @@ public:
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;
-    void VGetSteadyStateAnimInfo() const;
+    CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
     bool VHasOffset(const CSegId& seg) const;
     zeus::CVector3f VGetOffset(const CSegId& seg) const;
     zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& time) const;

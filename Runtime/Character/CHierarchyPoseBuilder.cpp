@@ -8,30 +8,26 @@ namespace urde
 void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout,
                                                const CSegId& boneId, const CSegId& nullId)
 {
-    const CSegId& idA = x8_prevBones[boneId];
-    if (idA == 0xff)
+    if (!x0_treeMap.HasElement(boneId))
     {
-        const CCharLayoutNode::Bone& bone = layout.GetRootNode()->GetBone(boneId);
+        const CCharLayoutNode::Bone& bone = layout.GetRootNode()->GetBoneMap()[boneId];
         if (bone.x0_parentId == nullId)
         {
             xcec_rootId = boneId;
             xcf0_hasRoot = true;
             zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
-            x6c_nodes[boneId] = CTreeNode(origin);
+            x0_treeMap[boneId] = CTreeNode(origin);
         }
         else
         {
             BuildIntoHierarchy(layout, bone.x0_parentId, nullId);
             zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
-            CTreeNode& pNode = x6c_nodes[bone.x0_parentId];
+            CTreeNode& pNode = x0_treeMap[bone.x0_parentId];
             CTreeNode node(origin);
             node.x1_sibling = pNode.x0_child;
             pNode.x0_child = boneId;
-            x6c_nodes[boneId] = node;
+            x0_treeMap[boneId] = node;
         }
-        x8_prevBones[boneId] = x1_curPrevBone;
-        x1_curPrevBone = boneId;
-        ++x0_boneCount;
     }
 }
 
@@ -47,7 +43,7 @@ void CHierarchyPoseBuilder::RecursivelyBuildNoScale(const CSegId& boneId, const 
     CSegId curBone = node.x0_child;
     while (curBone != 0)
     {
-        const CTreeNode& node = x6c_nodes[curBone];
+        const CTreeNode& node = x0_treeMap[curBone];
         RecursivelyBuild(curBone, node, pose, quat, xf, xfOffset);
         curBone = node.x1_sibling;
     }
@@ -77,7 +73,7 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
     CSegId curBone = node.x0_child;
     while (curBone != 0)
     {
-        const CTreeNode& node = x6c_nodes[curBone];
+        const CTreeNode& node = x0_treeMap[curBone];
         RecursivelyBuild(curBone, node, pose, quat, quat, xfOffset);
         curBone = node.x1_sibling;
     }
@@ -106,7 +102,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
         while (curId != 2)
         {
             buildIDs[idCount++] = curId;
-            curId = layoutInfo.GetRootNode()->GetBone(curId).x0_parentId;
+            curId = layoutInfo.GetRootNode()->GetBoneMap()[curId].x0_parentId;
         }
     }
 
@@ -116,7 +112,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
     for (CSegId* id=&buildIDs[idCount] ; id != buildIDs ; --id)
     {
         CSegId& thisId = id[-1];
-        const CTreeNode& node = x6c_nodes[thisId];
+        const CTreeNode& node = x0_treeMap[thisId];
         accumRot *= node.x4_rotation;
         accumPos += accumXF * node.x14_offset;
         if (scale == 1.f)
@@ -132,7 +128,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
 void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose)
 {
     pose.Clear();
-    const CTreeNode& node = x6c_nodes[xcec_rootId];
+    const CTreeNode& node = x0_treeMap[xcec_rootId];
     zeus::CQuaternion quat;
     zeus::CMatrix3f mtx;
     zeus::CVector3f vec;

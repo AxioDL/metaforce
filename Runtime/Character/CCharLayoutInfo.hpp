@@ -5,6 +5,7 @@
 #include "IOStreams.hpp"
 #include "CSegIdList.hpp"
 #include "CSegId.hpp"
+#include "TSegIdMap.hpp"
 
 namespace urde
 {
@@ -20,15 +21,10 @@ public:
         void read(CInputStream& in);
     };
 private:
-    CSegId x0_boneCount = 0;
-    CSegId x1_curPrevBone = 0;
-    CSegId x8_prevBones[100];
-    Bone x6c_bones[100];
+    TSegIdMap<Bone> x0_boneMap;
 public:
     CCharLayoutNode(CInputStream& in);
-
-    const Bone& GetBone(const CSegId& id) const {return x6c_bones[id];}
-    const CSegId& GetPrevBone(const CSegId& id) const {return x8_prevBones[id];}
+    const TSegIdMap<Bone>& GetBoneMap() const {return x0_boneMap;}
 };
 
 class CCharLayoutInfo

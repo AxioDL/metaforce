@@ -5,6 +5,7 @@
 #include "CCharacterFactory.hpp"
 #include "CAnimationManager.hpp"
 #include "CTransitionManager.hpp"
+#include "CAdditiveAnimPlayback.hpp"
 #include "IAnimReader.hpp"
 
 namespace urde
@@ -46,8 +47,9 @@ CAnimData::CAnimData(ResId id,
         xe4_iceModelData = *iceModel;
 }
 
-ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId) const
+ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
 {
+    return x0_charFactory->GetEventResourceIdForAnimResourceId(id);
 }
 
 void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet)

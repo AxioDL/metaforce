@@ -36,6 +36,7 @@ class CSkinRules;
 class CAnimTreeNode;
 class CSegIdList;
 class CSegStatementSet;
+class CAdditiveAnimPlayback;
 struct SAdvancementDeltas;
 
 class CAnimData
@@ -96,7 +97,7 @@ class CAnimData
     u32 x1038_ = 0;
     u32 x103c_ = 0;
     u32 x1040_ = 0;
-    u32 x1044_ = 0;
+    rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x1044_additiveAnims;
 
 public:
     CAnimData(ResId,

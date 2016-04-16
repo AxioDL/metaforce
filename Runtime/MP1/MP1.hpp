@@ -161,7 +161,7 @@ public:
         bool finished = false;
         m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
 
-        while(m_archQueue)
+        while (m_archQueue)
         {
             CArchitectureMessage msg = m_archQueue.Pop();
             if (msg.GetTarget() == EArchMsgTarget::ArchitectureSupport)

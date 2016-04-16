@@ -12,6 +12,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CAssetFactory.hpp"
 #include "CCharacterFactory.hpp"
+#include "CAdditiveAnimPlayback.hpp"
 
 namespace urde
 {

@@ -29,6 +29,13 @@ struct SAdvancementResults
     SAdvancementDeltas x8_deltas;
 };
 
+struct CSteadyStateAnimInfo
+{
+    CCharAnimTime x64_duration;
+    zeus::CVector3f x6c_curRootOffset;
+    bool x78_ = false;
+};
+
 class IAnimReader
 {
 public:
@@ -36,7 +43,7 @@ public:
     virtual bool IsCAnimTreeNode() const {return false;}
     virtual SAdvancementResults VAdvanceView(const CCharAnimTime& a)=0;
     virtual CCharAnimTime VGetTimeRemaining() const=0;
-    virtual void VGetSteadyStateAnimInfo() const=0;
+    virtual CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const=0;
     virtual bool VHasOffset(const CSegId& seg) const=0;
     virtual zeus::CVector3f VGetOffset(const CSegId& seg) const=0;
     virtual zeus::CQuaternion VGetRotation(const CSegId& seg) const=0;

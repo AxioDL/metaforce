@@ -49,6 +49,13 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
 
 SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
 {
+    if (!path.getAuxInfo().compare(_S("CINF")))
+        return SObjectTag(SBIG('CINF'), path.hash().val32());
+    else if (!path.getAuxInfo().compare(_S("CSKR")))
+        return SObjectTag(SBIG('CSKR'), path.hash().val32());
+    else if (!path.getAuxInfo().compare(_S("ANIM")))
+        return SObjectTag(SBIG('ANIM'), path.hash().val32());
+
     if (hecl::IsPathBlend(path))
     {
         hecl::BlenderConnection& conn = btok.getBlenderConnection();

@@ -5,23 +5,10 @@
 #include "CAnimation.hpp"
 #include "CTransition.hpp"
 #include "CHalfTransition.hpp"
+#include "CAdditiveAnimPlayback.hpp"
 
 namespace urde
 {
-
-class CAdditiveAnimationInfo
-{
-    float x0_a = 0.f;
-    float x4_b = 0.f;
-public:
-    void read(CInputStream& in)
-    {
-        x0_a = in.readFloatBig();
-        x4_b = in.readFloatBig();
-    }
-    CAdditiveAnimationInfo() = default;
-    CAdditiveAnimationInfo(CInputStream& in) {read(in);}
-};
 
 class CAnimationSet
 {

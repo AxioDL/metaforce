@@ -2,6 +2,7 @@
 #define __URDE_CHIERARCHYPOSEBUILDER_HPP__
 
 #include "CSegId.hpp"
+#include "TSegIdMap.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "CLayoutDescription.hpp"
 
@@ -13,10 +14,6 @@ class CPoseAsTransforms;
 
 class CHierarchyPoseBuilder
 {
-    CSegId x0_boneCount = 0;
-    CSegId x1_curPrevBone = 0;
-    CSegId x8_prevBones[100];
-
     struct CTreeNode
     {
         CSegId x0_child = 0;
@@ -26,7 +23,8 @@ class CHierarchyPoseBuilder
         CTreeNode() = default;
         CTreeNode(const zeus::CVector3f& offset) : x14_offset(offset) {}
     };
-    CTreeNode x6c_nodes[100];
+    TSegIdMap<CTreeNode> x0_treeMap;
+
     CSegId xcec_rootId;
     bool xcf0_hasRoot = false;
     CLayoutDescription xcf4_layoutDesc;

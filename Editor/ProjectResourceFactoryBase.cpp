@@ -1,6 +1,8 @@
 #include "ProjectResourceFactoryBase.hpp"
 #include "Runtime/IObj.hpp"
 
+#define DUMP_CACHE_FILL 1
+
 namespace urde
 {
 static logvisor::Module Log("urde::ProjectResourceFactoryBase");
@@ -93,6 +95,15 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
     cacheWriter.leaveSubVector();
 }
 
+#if DUMP_CACHE_FILL
+static void DumpCacheAdd(const SObjectTag& pathTag, const hecl::ProjectPath& path)
+{
+    fprintf(stderr, "%s %08X %s\n",
+            pathTag.type.toString().c_str(), uint32_t(pathTag.id),
+            path.getRelativePathUTF8().c_str());
+}
+#endif
+
 void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
                                                               athena::io::YAMLDocWriter& cacheWriter,
                                                               athena::io::YAMLDocWriter& nameWriter,
@@ -127,10 +138,8 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath[pathTag] = path;
                 WriteTag(cacheWriter, pathTag, path);
-#if 1
-                fprintf(stderr, "%s %08X %s\n",
-                        pathTag.type.toString().c_str(), uint32_t(pathTag.id),
-                        path.getRelativePathUTF8().c_str());
+#if DUMP_CACHE_FILL
+                DumpCacheAdd(pathTag, path);
 #endif
 
                 /* Special multi-resource intermediates */
@@ -150,11 +159,11 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                         hecl::SystemStringView sysStr(arm);
                         hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
-                        if (pathTag)
-                        {
-                            m_tagToPath[pathTag] = path;
-                            WriteTag(cacheWriter, pathTag, path);
-                        }
+                        m_tagToPath[pathTag] = subPath;
+                        WriteTag(cacheWriter, pathTag, subPath);
+#if DUMP_CACHE_FILL
+                        DumpCacheAdd(pathTag, subPath);
+#endif
                     }
 
                     for (const std::string& sub : subtypeNames)
@@ -162,11 +171,11 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                         hecl::SystemStringView sysStr(sub);
                         hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
-                        if (pathTag)
-                        {
-                            m_tagToPath[pathTag] = path;
-                            WriteTag(cacheWriter, pathTag, path);
-                        }
+                        m_tagToPath[pathTag] = subPath;
+                        WriteTag(cacheWriter, pathTag, subPath);
+#if DUMP_CACHE_FILL
+                        DumpCacheAdd(pathTag, subPath);
+#endif
                     }
 
                     for (const std::string& act : actionNames)
@@ -174,11 +183,11 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                         hecl::SystemStringView sysStr(act);
                         hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
-                        if (pathTag)
-                        {
-                            m_tagToPath[pathTag] = path;
-                            WriteTag(cacheWriter, pathTag, path);
-                        }
+                        m_tagToPath[pathTag] = subPath;
+                        WriteTag(cacheWriter, pathTag, subPath);
+#if DUMP_CACHE_FILL
+                        DumpCacheAdd(pathTag, subPath);
+#endif
                     }
                 }
             }

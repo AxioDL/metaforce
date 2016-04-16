@@ -1,6 +1,8 @@
 #include "CAnimSource.hpp"
 #include "CAnimPOIData.hpp"
 #include "CSegId.hpp"
+#include "CSegIdList.hpp"
+#include "CSegStatementSet.hpp"
 
 namespace urde
 {
@@ -148,7 +150,37 @@ void CAnimSource::GetSegStatementSet(const CSegIdList& list,
     if (std::fabs(remTime) < 0.00001f)
         remTime = 0.f;
     float t = ClampZeroToOne(remTime / x8_interval);
-    /* TODO: Finish */
+    const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
+    const u32 rotFloatsPerFrame = x40_data.xc_rotPerFrame * 4;
+
+    for (const CSegId& id : list.GetList())
+    {
+        u8 rotIdx = x20_rotationChannels[id];
+        if (rotIdx != 0xff)
+        {
+            const float* frameDataA =
+                &x40_data.x0_storage[frameIdx*floatsPerFrame+rotIdx*4];
+            const float* frameDataB =
+                &x40_data.x0_storage[(frameIdx+1)*floatsPerFrame+rotIdx*4];
+
+            zeus::CQuaternion quatA(frameDataA[0], frameDataA[1], frameDataA[2], frameDataA[3]);
+            zeus::CQuaternion quatB(frameDataB[0], frameDataB[1], frameDataB[2], frameDataB[3]);
+            set.x4_segData[id].x0_rotation = zeus::CQuaternion::slerp(quatA, quatB, t);
+
+            u8 transIdx = x30_translationChannels[rotIdx];
+            if (transIdx != 0xff)
+            {
+                const float* frameDataA =
+                    &x40_data.x0_storage[frameIdx*floatsPerFrame+rotFloatsPerFrame+transIdx*3];
+                const float* frameDataB =
+                    &x40_data.x0_storage[(frameIdx-1)*floatsPerFrame+rotFloatsPerFrame+transIdx*3];
+                zeus::CVector3f vecA(frameDataA[0], frameDataA[1], frameDataA[2]);
+                zeus::CVector3f vecB(frameDataB[0], frameDataB[1], frameDataB[2]);
+                set.x4_segData[id].x10_offset = zeus::CVector3f::lerp(vecA, vecB, t);
+                set.x4_segData[id].x1c_hasOffset = true;
+            }
+        }
+    }
 }
 
 const std::vector<CSoundPOINode>& CAnimSource::GetSoundPOIStream() const
