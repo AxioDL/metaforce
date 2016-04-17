@@ -5,4 +5,5 @@ add_library(RuntimeCommonCamera
             CBallCamera.hpp CBallCamera.cpp
             CPathCamera.hpp CPathCamera.cpp
             CCinematicCamera.hpp CCinematicCamera.cpp
-            CCameraShakeData.hpp CCameraShakeData.cpp)
+            CCameraShakeData.hpp CCameraShakeData.cpp
+            CCameraFilter.hpp CCameraFilter.cpp)

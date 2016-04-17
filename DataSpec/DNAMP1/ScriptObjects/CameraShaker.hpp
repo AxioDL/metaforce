@@ -13,14 +13,14 @@ struct CameraShaker : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<float> unknown1;
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<float> unknown4;
-    Value<float> unknown5;
-    Value<float> unknown6;
-    Value<float> unknown7;
-    Value<bool> unknown8;
+    Value<float> xA;
+    Value<float> xB;
+    Value<float> yA;
+    Value<float> yB;
+    Value<float> zA;
+    Value<float> zB;
+    Value<float> duration;
+    Value<bool> shakeY;
 };
 }
 }

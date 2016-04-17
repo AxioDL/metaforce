@@ -6,4 +6,8 @@ add_library(RuntimeCommonWorld
             CAi.hpp CAi.cpp
             CEntity.hpp CEntity.cpp
             CPhysicsActor.hpp CPhysicsActor.cpp
-            CWorldTransManager.hpp CWorldTransManager.cpp)
+            CWorldTransManager.hpp CWorldTransManager.cpp
+            CEnvFxManager.hpp CEnvFxManager.cpp
+            CActorModelParticles.hpp CActorModelParticles.cpp
+            CTeamAiTypes.hpp CTeamAiTypes.cpp
+            CScriptWater.hpp CScriptWater.cpp)

@@ -29,6 +29,8 @@ add_library(RuntimeCommon
             CIOWin.hpp
             CIOWinManager.hpp CIOWinManager.cpp
             CStateManager.hpp CStateManager.cpp
+            CWeaponMgr.hpp CWeaponMgr.cpp
+            CFluidPlaneManager.hpp CFluidPlaneManager.cpp
             CGameState.hpp CGameState.cpp
             CScriptMailbox.hpp CScriptMailbox.cpp
             CPlayerState.hpp CPlayerState.cpp

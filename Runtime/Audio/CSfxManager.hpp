@@ -12,8 +12,11 @@ namespace urde
 
 class CSfxManager
 {
+public:
     enum class ESfxChannels
     {
+        Zero,
+        One
     };
 
     enum class ESfxAudibility
@@ -58,7 +61,7 @@ class CSfxManager
         virtual void Play()=0;
         virtual void Stop()=0;
         virtual bool Ready()=0;
-        virtual ESfxAudibility GetAudible(const CVector3f&)=0;
+        virtual ESfxAudibility GetAudible(const zeus::CVector3f&)=0;
         virtual u32 GetVoice() const=0;
 
         void Release() {m_available = true;}
@@ -78,7 +81,7 @@ class CSfxManager
         void Play();
         void Stop();
         bool Ready();
-        ESfxAudibility GetAudible(const CVector3f&);
+        ESfxAudibility GetAudible(const zeus::CVector3f&);
         u32 GetVoice() const;
 
         u32 GetHandle() const {return m_emitterHandle;}
@@ -99,7 +102,7 @@ class CSfxManager
         void Play();
         void Stop();
         bool Ready();
-        ESfxAudibility GetAudible(const CVector3f&) {return Aud3;}
+        ESfxAudibility GetAudible(const zeus::CVector3f&) {return ESfxAudibility::Aud3;}
         u32 GetVoice() const {return m_voiceHandle;}
 
         void SetVolume(s16 vol) {m_vol = vol;}
@@ -126,6 +129,14 @@ class CSfxManager
     static u32 kAllAreas;
 
     static ESfxChannels GetCurrentChannel() {return m_currentChannel;}
+    static void AddListener(ESfxChannels,
+                            const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                            const zeus::CVector3f& heading, const zeus::CVector3f& up,
+                            float frontRadius, float surroundRadius, float soundSpeed,
+                            u32 flags /* 0x1 for doppler */, u8 vol);
+    static void UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                               const zeus::CVector3f& heading, const zeus::CVector3f& up,
+                               u8 vol);
 };
 
 }

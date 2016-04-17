@@ -7,11 +7,12 @@ namespace urde
 {
 enum class ERumbleFxId
 {
-
+    Seven = 7
 };
 enum class ERumblePriority
 {
-    None
+    None,
+    Two = 2
 };
 
 struct SAdsrData;
