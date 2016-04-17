@@ -45,6 +45,7 @@ target_link_libraries(urde
                       RuntimeCommonCharacter
                       RuntimeCommonInput
                       RuntimeCommonParticle
+                      RuntimeCommonCollision
                       RuntimeCommonGuiSys
                       RuntimeCommonGraphics
                       RuntimeCommonAudio

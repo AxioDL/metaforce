@@ -2,6 +2,7 @@
 #define __URDE_CSTATEMANAGER_HPP__
 
 #include <memory>
+#include <set>
 #include "CBasics.hpp"
 #include "ScriptObjectSupport.hpp"
 #include "GameObjectLists.hpp"
@@ -11,6 +12,8 @@
 #include "zeus/CAABox.hpp"
 #include "CWeaponMgr.hpp"
 #include "World/CAi.hpp"
+#include "CToken.hpp"
+#include "World/ScriptLoader.hpp"
 
 namespace urde
 {
@@ -30,10 +33,21 @@ class CLight;
 class CDamageInfo;
 class CMaterialFilter;
 class CFinalInput;
+class CWorld;
+class CTexture;
+
+struct SScriptObjectStream
+{
+    CEntity* x0_obj;
+    EScriptObjectType x4_type;
+    u32 x8_position;
+    u32 xc_length;
+};
 
 class CStateManager
 {
     TUniqueId x8_idArr[1024] = {};
+
     std::unique_ptr<CObjectList> x80c_allObjs;
     std::unique_ptr<CActorList> x814_actorObjs;
     std::unique_ptr<CPhysicsActorList> x81c_physActorObjs;
@@ -42,6 +56,8 @@ class CStateManager
     std::unique_ptr<CListeningAiList> x834_listenAiObjs;
     std::unique_ptr<CAiWaypointList> x83c_aiWaypointObjs;
     std::unique_ptr<CPlatformAndDoorList> x844_platformAndDoorObjs;
+
+    std::unique_ptr<CWorld> x850_world;
 
     /* Used to be a list of 32-element reserved_vectors */
     std::vector<TUniqueId> x858_objectGraveyard;
@@ -56,13 +72,58 @@ class CStateManager
     std::unique_ptr<CTeamAiTypes> x888_teamAiTypes;
     std::unique_ptr<CRumbleManager> x88c_rumbleManager;
 
+    std::map<TGameScriptId, TUniqueId> x890_scriptIdMap;
+    std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
+
+    std::shared_ptr<CPlayerState> x8b8_playerState;
+    std::shared_ptr<CScriptMailbox> x8bc_scriptMailbox;
+    std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
+    std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
+
+    TAreaId x8c8_currentAreaId;
+    TAreaId x8cc_nextAreaId;
+    u32 x8d0_extFrameIdx = 0;
+    u32 x8d4_updateFrameIdx = 0;
+    u32 x8d8_drawFrameIdx = 0;
+
+    std::vector<CLight> x8dc_dynamicLights;
+
+    TLockedToken<CTexture> x8ec_shadowTex; /* DefaultShadow in MiscData */
+
     CRandom16 x8f8_random;
     CRandom16* x8fc_activeRandom = nullptr;
 
-    std::shared_ptr<CPlayerState> x8b8_playerState;
+    FScriptLoader x904_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
+
+    bool xab0_worldLoaded = false;
+
+    std::set<std::string> xab4_uniqueInstanceNames;
 
     CCameraFilterPass xaf8_camFilterPasses[9];
     CCameraBlurPass xc88_camBlurPasses[9];
+
+    s32 xe60_ = -1;
+    zeus::CVector3f xe64_;
+
+    TUniqueId xe70_ = kInvalidUniqueId;
+    zeus::CVector3f xe74_ = {0.f, 1.f, 1.f};
+
+    s32 xe80_ = 2;
+    TUniqueId xe84_ = kInvalidUniqueId;
+
+    union
+    {
+        struct
+        {
+            bool xe86_24_;
+            bool xe86_25_;
+            bool xe86_26_;
+            bool xe86_27_;
+            bool xe86_28_;
+            bool xe86_29_;
+        };
+        u16 _dummy = 0;
+    };
 
 public:
     enum class EScriptPersistence

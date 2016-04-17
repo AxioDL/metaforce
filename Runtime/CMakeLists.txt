@@ -4,6 +4,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR}
 add_subdirectory(Audio)
 add_subdirectory(Character)
 add_subdirectory(Graphics)
+add_subdirectory(Collision)
 add_subdirectory(Camera)
 add_subdirectory(World)
 add_subdirectory(AutoMapper)

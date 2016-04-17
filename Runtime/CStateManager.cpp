@@ -7,6 +7,8 @@
 #include "World/CActorModelParticles.hpp"
 #include "World/CTeamAiTypes.hpp"
 #include "Input/CRumbleManager.hpp"
+#include "World/CWorld.hpp"
+#include "Graphics/CLight.hpp"
 
 namespace urde
 {
@@ -15,7 +17,149 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
                              const std::weak_ptr<CMapWorldInfo>&,
                              const std::weak_ptr<CPlayerState>&,
                              const std::weak_ptr<CWorldTransManager>&)
+: x80c_allObjs(new CObjectList(EGameObjectList::All)),
+  x814_actorObjs(new CActorList()),
+  x81c_physActorObjs(new CPhysicsActorList()),
+  x824_cameraObjs(new CGameCameraList()),
+  x82c_lightObjs(new CGameLightList()),
+  x834_listenAiObjs(new CListeningAiList()),
+  x83c_aiWaypointObjs(new CAiWaypointList()),
+  x844_platformAndDoorObjs(new CPlatformAndDoorList()),
+  x870_cameraManager(new CCameraManager(kInvalidUniqueId)),
+  x874_sortedListManager(new CSortedListManager()),
+  x878_weaponManager(new CWeaponMgr()),
+  x87c_fluidPlaneManager(new CFluidPlaneManager()),
+  x880_envFxManager(new CEnvFxManager()),
+  x884_actorModelParticles(new CActorModelParticles()),
+  x888_teamAiTypes(new CTeamAiTypes()),
+  x88c_rumbleManager(new CRumbleManager())
 {
+    x904_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
+    x904_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
+    x904_loaderFuncs[int(EScriptObjectType::DoorArea)] = ScriptLoader::LoadDoorArea;
+    x904_loaderFuncs[int(EScriptObjectType::Trigger)] = ScriptLoader::LoadTrigger;
+    x904_loaderFuncs[int(EScriptObjectType::Timer)] = ScriptLoader::LoadTimer;
+    x904_loaderFuncs[int(EScriptObjectType::Counter)] = ScriptLoader::LoadCounter;
+    x904_loaderFuncs[int(EScriptObjectType::Effect)] = ScriptLoader::LoadEffect;
+    x904_loaderFuncs[int(EScriptObjectType::Platform)] = ScriptLoader::LoadPlatform;
+    x904_loaderFuncs[int(EScriptObjectType::Sound)] = ScriptLoader::LoadSound;
+    x904_loaderFuncs[int(EScriptObjectType::Generator)] = ScriptLoader::LoadGenerator;
+    x904_loaderFuncs[int(EScriptObjectType::Camera)] = ScriptLoader::LoadCamera;
+    x904_loaderFuncs[int(EScriptObjectType::CameraWaypoint)] = ScriptLoader::LoadCameraWaypoint;
+    x904_loaderFuncs[int(EScriptObjectType::NewIntroBoss)] = ScriptLoader::LoadNewIntroBoss;
+    x904_loaderFuncs[int(EScriptObjectType::SpawnPoint)] = ScriptLoader::LoadSpawnPoint;
+    x904_loaderFuncs[int(EScriptObjectType::CameraHint)] = ScriptLoader::LoadCameraHint;
+    x904_loaderFuncs[int(EScriptObjectType::Pickup)] = ScriptLoader::LoadPickup;
+    x904_loaderFuncs[int(EScriptObjectType::MemoryRelay)] = ScriptLoader::LoadMemoryRelay;
+    x904_loaderFuncs[int(EScriptObjectType::RandomRelay)] = ScriptLoader::LoadRandomRelay;
+    x904_loaderFuncs[int(EScriptObjectType::Relay)] = ScriptLoader::LoadRelay;
+    x904_loaderFuncs[int(EScriptObjectType::Beetle)] = ScriptLoader::LoadBeetle;
+    x904_loaderFuncs[int(EScriptObjectType::HUDMemo)] = ScriptLoader::LoadHUDMemo;
+    x904_loaderFuncs[int(EScriptObjectType::CameraFilterKeyframe)] = ScriptLoader::LoadCameraFilterKeyframe;
+    x904_loaderFuncs[int(EScriptObjectType::CameraBlurKeyframe)] = ScriptLoader::LoadCameraBlurKeyframe;
+    x904_loaderFuncs[int(EScriptObjectType::DamageableTrigger)] = ScriptLoader::LoadDamageableTrigger;
+    x904_loaderFuncs[int(EScriptObjectType::Debris)] = ScriptLoader::LoadDebris;
+    x904_loaderFuncs[int(EScriptObjectType::CameraShaker)] = ScriptLoader::LoadCameraShaker;
+    x904_loaderFuncs[int(EScriptObjectType::ActorKeyframe)] = ScriptLoader::LoadActorKeyframe;
+    x904_loaderFuncs[int(EScriptObjectType::Water)] = ScriptLoader::LoadWater;
+    x904_loaderFuncs[int(EScriptObjectType::Warwasp)] = ScriptLoader::LoadWarwasp;
+    x904_loaderFuncs[int(EScriptObjectType::SpacePirate)] = ScriptLoader::LoadSpacePirate;
+    x904_loaderFuncs[int(EScriptObjectType::FlyingPirate)] = ScriptLoader::LoadFlyingPirate;
+    x904_loaderFuncs[int(EScriptObjectType::ElitePirate)] = ScriptLoader::LoadElitePirate;
+    x904_loaderFuncs[int(EScriptObjectType::MetroidBeta)] = ScriptLoader::LoadMetroidBeta;
+    x904_loaderFuncs[int(EScriptObjectType::ChozoGhost)] = ScriptLoader::LoadChozoGhost;
+    x904_loaderFuncs[int(EScriptObjectType::CoverPoint)] = ScriptLoader::LoadCoverPoint;
+    x904_loaderFuncs[int(EScriptObjectType::SpiderBallWaypoint)] = ScriptLoader::LoadSpiderBallWaypoint;
+    x904_loaderFuncs[int(EScriptObjectType::BloodFlower)] = ScriptLoader::LoadBloodFlower;
+    x904_loaderFuncs[int(EScriptObjectType::FlickerBat)] = ScriptLoader::LoadFlickerBat;
+    x904_loaderFuncs[int(EScriptObjectType::PathCamera)] = ScriptLoader::LoadPathCamera;
+    x904_loaderFuncs[int(EScriptObjectType::GrapplePoint)] = ScriptLoader::LoadGrapplePoint;
+    x904_loaderFuncs[int(EScriptObjectType::PuddleSpore)] = ScriptLoader::LoadPuddleSpore;
+    x904_loaderFuncs[int(EScriptObjectType::DebugCameraWaypoint)] = ScriptLoader::LoadDebugCameraWaypoint;
+    x904_loaderFuncs[int(EScriptObjectType::SpiderBallAttractionSurface)] = ScriptLoader::LoadSpiderBallAttractionSurface;
+    x904_loaderFuncs[int(EScriptObjectType::PuddleToadGamma)] = ScriptLoader::LoadPuddleToadGamma;
+    x904_loaderFuncs[int(EScriptObjectType::DistanceFog)] = ScriptLoader::LoadDistanceFog;
+    x904_loaderFuncs[int(EScriptObjectType::FireFlea)] = ScriptLoader::LoadFireFlea;
+    x904_loaderFuncs[int(EScriptObjectType::MetareeAlpha)] = ScriptLoader::LoadMetareeAlpha;
+    x904_loaderFuncs[int(EScriptObjectType::DockAreaChange)] = ScriptLoader::LoadDockAreaChange;
+    x904_loaderFuncs[int(EScriptObjectType::ActorRotate)] = ScriptLoader::LoadActorRotate;
+    x904_loaderFuncs[int(EScriptObjectType::SpecialFunction)] = ScriptLoader::LoadSpecialFunction;
+    x904_loaderFuncs[int(EScriptObjectType::SpankWeed)] = ScriptLoader::LoadSpankWeed;
+    x904_loaderFuncs[int(EScriptObjectType::Parasite)] = ScriptLoader::LoadParasite;
+    x904_loaderFuncs[int(EScriptObjectType::PlayerHint)] = ScriptLoader::LoadPlayerHint;
+    x904_loaderFuncs[int(EScriptObjectType::Ripper)] = ScriptLoader::LoadRipper;
+    x904_loaderFuncs[int(EScriptObjectType::PickupGenerator)] = ScriptLoader::LoadPickupGenerator;
+    x904_loaderFuncs[int(EScriptObjectType::AIKeyframe)] = ScriptLoader::LoadAIKeyframe;
+    x904_loaderFuncs[int(EScriptObjectType::PointOfInterest)] = ScriptLoader::LoadPointOfInterest;
+    x904_loaderFuncs[int(EScriptObjectType::Drone)] = ScriptLoader::LoadDrone;
+    x904_loaderFuncs[int(EScriptObjectType::MetroidAlpha)] = ScriptLoader::LoadMetroidAlpha;
+    x904_loaderFuncs[int(EScriptObjectType::DebrisExtended)] = ScriptLoader::LoadDebrisExtended;
+    x904_loaderFuncs[int(EScriptObjectType::Steam)] = ScriptLoader::LoadSteam;
+    x904_loaderFuncs[int(EScriptObjectType::Ripple)] = ScriptLoader::LoadRipple;
+    x904_loaderFuncs[int(EScriptObjectType::BallTrigger)] = ScriptLoader::LoadBallTrigger;
+    x904_loaderFuncs[int(EScriptObjectType::TargetingPoint)] = ScriptLoader::LoadTargetingPoint;
+    x904_loaderFuncs[int(EScriptObjectType::ElectroMagneticPulse)] = ScriptLoader::LoadElectroMagneticPulse;
+    x904_loaderFuncs[int(EScriptObjectType::IceSheegoth)] = ScriptLoader::LoadIceSheegoth;
+    x904_loaderFuncs[int(EScriptObjectType::PlayerActor)] = ScriptLoader::LoadPlayerActor;
+    x904_loaderFuncs[int(EScriptObjectType::Flaahgra)] = ScriptLoader::LoadFlaahgra;
+    x904_loaderFuncs[int(EScriptObjectType::AreaAttributes)] = ScriptLoader::LoadAreaAttributes;
+    x904_loaderFuncs[int(EScriptObjectType::FishCloud)] = ScriptLoader::LoadFishCloud;
+    x904_loaderFuncs[int(EScriptObjectType::FishCloudModifier)] = ScriptLoader::LoadFishCloudModifier;
+    x904_loaderFuncs[int(EScriptObjectType::VisorFlare)] = ScriptLoader::LoadVisorFlare;
+    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporterx52)] = ScriptLoader::LoadWorldTeleporter;
+    x904_loaderFuncs[int(EScriptObjectType::VisorGoo)] = ScriptLoader::LoadVisorGoo;
+    x904_loaderFuncs[int(EScriptObjectType::JellyZap)] = ScriptLoader::LoadJellyZap;
+    x904_loaderFuncs[int(EScriptObjectType::ControllerAction)] = ScriptLoader::LoadControllerAction;
+    x904_loaderFuncs[int(EScriptObjectType::Switch)] = ScriptLoader::LoadSwitch;
+    x904_loaderFuncs[int(EScriptObjectType::PlayerStateChange)] = ScriptLoader::LoadPlayerStateChange;
+    x904_loaderFuncs[int(EScriptObjectType::Thardus)] = ScriptLoader::LoadThardus;
+    x904_loaderFuncs[int(EScriptObjectType::WallCrawlerSwarm)] = ScriptLoader::LoadWallCrawlerSwarm;
+    x904_loaderFuncs[int(EScriptObjectType::AIJumpPoint)] = ScriptLoader::LoadAIJumpPoint;
+    x904_loaderFuncs[int(EScriptObjectType::FlaahgraTentacle)] = ScriptLoader::LoadFlaahgraTentacle;
+    x904_loaderFuncs[int(EScriptObjectType::RoomAcoustics)] = ScriptLoader::LoadRoomAcoustics;
+    x904_loaderFuncs[int(EScriptObjectType::ColorModulate)] = ScriptLoader::LoadColorModulate;
+    x904_loaderFuncs[int(EScriptObjectType::ThardusRockProjectile)] = ScriptLoader::LoadThardusRockProjectile;
+    x904_loaderFuncs[int(EScriptObjectType::Midi)] = ScriptLoader::LoadMidi;
+    x904_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedAudio;
+    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporterx62)] = ScriptLoader::LoadWorldTeleporter;
+    x904_loaderFuncs[int(EScriptObjectType::Repulsor)] = ScriptLoader::LoadRepulsor;
+    x904_loaderFuncs[int(EScriptObjectType::GunTurret)] = ScriptLoader::LoadGunTurret;
+    x904_loaderFuncs[int(EScriptObjectType::FogVolume)] = ScriptLoader::LoadFogVolume;
+    x904_loaderFuncs[int(EScriptObjectType::Babygoth)] = ScriptLoader::LoadBabygoth;
+    x904_loaderFuncs[int(EScriptObjectType::Eyeball)] = ScriptLoader::LoadEyeball;
+    x904_loaderFuncs[int(EScriptObjectType::RadialDamage)] = ScriptLoader::LoadRadialDamage;
+    x904_loaderFuncs[int(EScriptObjectType::CameraPitchVolume)] = ScriptLoader::LoadCameraPitchVolume;
+    x904_loaderFuncs[int(EScriptObjectType::EnvFxDensityController)] = ScriptLoader::LoadEnvFxDensityController;
+    x904_loaderFuncs[int(EScriptObjectType::Magdolite)] = ScriptLoader::LoadMagdolite;
+    x904_loaderFuncs[int(EScriptObjectType::TeamAIMgr)] = ScriptLoader::LoadTeamAIMgr;
+    x904_loaderFuncs[int(EScriptObjectType::SnakeWeedSwarm)] = ScriptLoader::LoadSnakeWeedSwarm;
+    x904_loaderFuncs[int(EScriptObjectType::ActorContraption)] = ScriptLoader::LoadActorContraption;
+    x904_loaderFuncs[int(EScriptObjectType::Oculus)] = ScriptLoader::LoadOculus;
+    x904_loaderFuncs[int(EScriptObjectType::Geemer)] = ScriptLoader::LoadGeemer;
+    x904_loaderFuncs[int(EScriptObjectType::SpindleCamera)] = ScriptLoader::LoadSpindleCamera;
+    x904_loaderFuncs[int(EScriptObjectType::AtomicAlpha)] = ScriptLoader::LoadAtomicAlpha;
+    x904_loaderFuncs[int(EScriptObjectType::CameraHintTrigger)] = ScriptLoader::LoadCameraHintTrigger;
+    x904_loaderFuncs[int(EScriptObjectType::RumbleEffect)] = ScriptLoader::LoadRumbleEffect;
+    x904_loaderFuncs[int(EScriptObjectType::AmbientAI)] = ScriptLoader::LoadAmbientAI;
+    x904_loaderFuncs[int(EScriptObjectType::AtomicBeta)] = ScriptLoader::LoadAtomicBeta;
+    x904_loaderFuncs[int(EScriptObjectType::IceZoomer)] = ScriptLoader::LoadIceZoomer;
+    x904_loaderFuncs[int(EScriptObjectType::Puffer)] = ScriptLoader::LoadPuffer;
+    x904_loaderFuncs[int(EScriptObjectType::Tryclops)] = ScriptLoader::LoadTryclops;
+    x904_loaderFuncs[int(EScriptObjectType::Ridley)] = ScriptLoader::LoadRidley;
+    x904_loaderFuncs[int(EScriptObjectType::Seedling)] = ScriptLoader::LoadSeedling;
+    x904_loaderFuncs[int(EScriptObjectType::ThermalHeatFader)] = ScriptLoader::LoadThermalHeatFader;
+    x904_loaderFuncs[int(EScriptObjectType::Burrower)] = ScriptLoader::LoadBurrower;
+    x904_loaderFuncs[int(EScriptObjectType::ScriptBeam)] = ScriptLoader::LoadScriptBeam;
+    x904_loaderFuncs[int(EScriptObjectType::WorldLightFader)] = ScriptLoader::LoadWorldLightFader;
+    x904_loaderFuncs[int(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeStage2;
+    x904_loaderFuncs[int(EScriptObjectType::MetroidPrimeStage1)] = ScriptLoader::LoadMetroidPrimeStage1;
+    x904_loaderFuncs[int(EScriptObjectType::MazeNode)] = ScriptLoader::LoadMazeNode;
+    x904_loaderFuncs[int(EScriptObjectType::OmegaPirate)] = ScriptLoader::LoadOmegaPirate;
+    x904_loaderFuncs[int(EScriptObjectType::PhazonPool)] = ScriptLoader::LoadPhazonPool;
+    x904_loaderFuncs[int(EScriptObjectType::PhazonHealingNodule)] = ScriptLoader::LoadPhazonHealingNodule;
+    x904_loaderFuncs[int(EScriptObjectType::NewCameraShaker)] = ScriptLoader::LoadNewCameraShaker;
+    x904_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
+    x904_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 }
 
 void CStateManager::RenderLast(TUniqueId)

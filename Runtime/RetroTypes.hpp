@@ -34,6 +34,7 @@ struct SObjectTag
 using TUniqueId = s16;
 using TEditorId = s32;
 using TAreaId = s32;
+using TGameScriptId = s32;
 
 #define kInvalidEditorId TEditorId(-1)
 #define kInvalidUniqueId TUniqueId(-1)
