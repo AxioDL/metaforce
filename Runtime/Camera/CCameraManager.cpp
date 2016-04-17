@@ -101,7 +101,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 
     if (x74_fluidCounter)
     {
-        CScriptWater* water = dynamic_cast<CScriptWater*>(stateMgr.GetObjectById(x78_fluidId));
+        const CScriptWater* water = dynamic_cast<const CScriptWater*>(stateMgr.GetObjectById(x78_fluidId));
         if (water)
         {
             // TODO: Finish
@@ -126,7 +126,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 
 CGameCamera* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
 {
-    CObjectList* camList = stateMgr.GetObjectListById(EGameObjectList::GameCamera);
+    CObjectList* camList = stateMgr.ObjectListById(EGameObjectList::GameCamera);
     return static_cast<CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
 }
 

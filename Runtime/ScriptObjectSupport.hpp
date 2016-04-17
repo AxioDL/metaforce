@@ -4,6 +4,10 @@
 namespace urde
 {
 
+enum class EScriptObjectType
+{
+};
+
 enum class EScriptObjectState
 {
     Any = -1,
@@ -66,7 +70,9 @@ enum class EScriptObjectMessage
     UNKM3,
     Action,
     Play,
-    Alert
+    Alert,
+    ObjectAdded = 0x1f,
+    DeleteRequested = 0x20
 };
 
 }

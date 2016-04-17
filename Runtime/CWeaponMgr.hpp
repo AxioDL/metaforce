@@ -4,6 +4,10 @@
 namespace urde
 {
 
+enum class EWeaponType
+{
+};
+
 class CWeaponMgr
 {
 };
