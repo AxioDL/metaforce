@@ -48,7 +48,6 @@ add_library(RuntimeCommon
             CCRC32.hpp CCRC32.cpp
             IFactory.hpp
             IObjFactory.hpp
-            ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             CObjectList.hpp CObjectList.cpp
             GameObjectLists.hpp GameObjectLists.cpp
             CSortedLists.hpp CSortedLists.cpp

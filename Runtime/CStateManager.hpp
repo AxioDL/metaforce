@@ -4,7 +4,7 @@
 #include <memory>
 #include <set>
 #include "CBasics.hpp"
-#include "ScriptObjectSupport.hpp"
+#include "World/ScriptObjectSupport.hpp"
 #include "GameObjectLists.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CCameraFilter.hpp"

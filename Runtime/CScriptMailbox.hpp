@@ -2,7 +2,7 @@
 #define __URDE_CSCRIPTMAILBOX_HPP__
 
 #include "IOStreams.hpp"
-#include "ScriptObjectSupport.hpp"
+#include "World/ScriptObjectSupport.hpp"
 #include "RetroTypes.hpp"
 
 namespace urde

@@ -347,6 +347,13 @@ struct VisorParameters : BigYAML
     Value<atUint32> unknown3;
 };
 
+struct PlayerParameters : BigYAML
+{
+    DECL_YAML
+    Value<atUint32> propertyCount;
+    Vector<bool, DNA_COUNT(propertyCount)> bools;
+};
+
 struct ActorParameters : BigYAML
 {
     DECL_YAML

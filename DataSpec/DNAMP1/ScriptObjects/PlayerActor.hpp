@@ -29,12 +29,7 @@ struct PlayerActor : IScriptObject
     Value<bool> unknown5;
     Value<bool> unknown6;
     Value<bool> unknown7;
-    struct PlayerParameters : BigYAML
-    {
-        DECL_YAML
-        Value<atUint32> propertyCount;
-        Vector<bool, DNA_COUNT(propertyCount)> bools;
-    } playerParameters;
+    PlayerParameters playerParameters;
     Value<atUint32> unknown8;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,

@@ -12,5 +12,11 @@ add_library(RuntimeCommonWorld
             CEnvFxManager.hpp CEnvFxManager.cpp
             CActorModelParticles.hpp CActorModelParticles.cpp
             CTeamAiTypes.hpp CTeamAiTypes.cpp
+            ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             ScriptLoader.hpp ScriptLoader.cpp
-            CScriptWater.hpp CScriptWater.cpp)
+            CScriptWater.hpp CScriptWater.cpp
+            CGrappleParameters.hpp
+            CActorParameters.hpp
+            CLightParameters.hpp
+            CScannableParameters.hpp
+            CVisorParameters.hpp)

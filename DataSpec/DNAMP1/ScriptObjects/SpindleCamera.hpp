@@ -16,7 +16,7 @@ struct SpindleCamera : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<bool> unknown1;
-    PlayerHintParameters playerHint;
+    PlayerParameters playerParameters;
     Value<float> unknown2;
     Value<float> unknown3;
     Value<float> unknown4;
@@ -25,9 +25,7 @@ struct SpindleCamera : IScriptObject
     {
         DECL_YAML
         Value<atUint32> unknown1;
-        Value<atUint32> unknown2;
-        Value<bool> unknown3;
-        Value<bool> unknown4;
+        PlayerParameters playerParameters;
         Value<float> unknown5;
         Value<float> unknown6;
         Value<float> unknown7;
