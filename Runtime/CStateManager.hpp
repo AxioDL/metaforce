@@ -147,7 +147,7 @@ public:
     void ResetEscapeSequenceTimer(float);
     void SetupParticleHook(const CActor& actor) const;
     void MurderScriptInstanceNames();
-    void HashInstanceName(CInputStream& in);
+    const std::string* HashInstanceName(CInputStream& in);
     void SetActorAreaId(CActor& actor, TAreaId);
     void TouchSky() const;
     void DrawSpaceWarp(const zeus::CVector3f&, float) const;

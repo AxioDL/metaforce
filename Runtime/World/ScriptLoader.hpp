@@ -2,6 +2,7 @@
 #define __URDE_SCRIPTLOADER_HPP__
 
 #include "IOStreams.hpp"
+#include "zeus/CTransform.hpp"
 
 namespace urde
 {
@@ -9,6 +10,11 @@ class CStateManager;
 class CEntityInfo;
 class CEntity;
 class CGrappleParameters;
+class CActorParameters;
+class CVisorParameters;
+class CScannableParameters;
+class CLightParameters;
+class CAnimationParameters;
 
 using FScriptLoader = std::function<CEntity*(CStateManager& mgr, CInputStream& in,
                                              int propCount, const CEntityInfo& info)>;
@@ -16,6 +22,16 @@ using FScriptLoader = std::function<CEntity*(CStateManager& mgr, CInputStream& i
 class ScriptLoader
 {
 public:
+    static u32 LoadParameterFlags(CInputStream& in);
+    static CGrappleParameters LoadGrappleParameters(CInputStream& in);
+    static CActorParameters LoadActorParameters(CInputStream& in);
+    static CVisorParameters LoadVisorParameters(CInputStream& in);
+    static CScannableParameters LoadScannableParameters(CInputStream& in);
+    static CLightParameters LoadLightParameters(CInputStream& in);
+    static CAnimationParameters LoadAnimationParameters(CInputStream& in);
+    static zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
+                                                            const zeus::CVector3f& position);
+
     static CEntity* LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadDoorArea(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
@@ -81,7 +97,7 @@ public:
     static CEntity* LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadBallTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadTargetingPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* LoadElectroMagneticPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+    static CEntity* LoadEMPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadPlayerActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
@@ -143,10 +159,6 @@ public:
     static CEntity* LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadShadowProjector(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-
-    static u32 LoadParameterFlags(CInputStream& in);
-    static CGrappleParameters LoadGrappleParameters(CInputStream& in);
-
 };
 
 }

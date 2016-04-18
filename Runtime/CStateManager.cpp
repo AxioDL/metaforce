@@ -98,7 +98,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
     x904_loaderFuncs[int(EScriptObjectType::Ripple)] = ScriptLoader::LoadRipple;
     x904_loaderFuncs[int(EScriptObjectType::BallTrigger)] = ScriptLoader::LoadBallTrigger;
     x904_loaderFuncs[int(EScriptObjectType::TargetingPoint)] = ScriptLoader::LoadTargetingPoint;
-    x904_loaderFuncs[int(EScriptObjectType::ElectroMagneticPulse)] = ScriptLoader::LoadElectroMagneticPulse;
+    x904_loaderFuncs[int(EScriptObjectType::EMPulse)] = ScriptLoader::LoadEMPulse;
     x904_loaderFuncs[int(EScriptObjectType::IceSheegoth)] = ScriptLoader::LoadIceSheegoth;
     x904_loaderFuncs[int(EScriptObjectType::PlayerActor)] = ScriptLoader::LoadPlayerActor;
     x904_loaderFuncs[int(EScriptObjectType::Flaahgra)] = ScriptLoader::LoadFlaahgra;
@@ -211,7 +211,7 @@ void CStateManager::MurderScriptInstanceNames()
 {
 }
 
-void CStateManager::HashInstanceName(CInputStream& in)
+const std::string* CStateManager::HashInstanceName(CInputStream& in)
 {
 }
 

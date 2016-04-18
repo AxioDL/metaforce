@@ -10,6 +10,8 @@ class CScannableParameters
 {
     ResId x0_scanId = -1;
 public:
+    CScannableParameters() = default;
+    CScannableParameters(ResId id) : x0_scanId(id) {}
 };
 
 }

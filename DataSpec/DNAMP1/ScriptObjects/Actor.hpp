@@ -15,8 +15,8 @@ struct Actor : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
-    Value<atVec3f> unkown1;
-    Value<atVec3f> scanOffset;
+    Value<atVec3f> collisionExtent;
+    Value<atVec3f> centroid;
     Value<float>   unknown2;
     Value<float>   unknown3;
     HealthInfo     healthInfo;

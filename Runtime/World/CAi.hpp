@@ -31,10 +31,61 @@ class CAiFuncMap
 /* TODO: Move these */
 class CHealthInfo
 {
+    float x0_;
+    float x4_;
+public:
+    CHealthInfo(CInputStream& in) : x0_(in.readFloatBig()), x4_(in.readFloatBig()) {}
+};
+
+enum class EVulnerability
+{
 };
 
 class CDamageVulnerability
 {
+    EVulnerability x0_power;
+    EVulnerability x4_ice;
+    EVulnerability x8_wave;
+    EVulnerability xc_plasma;
+    EVulnerability x10_bomb;
+    EVulnerability x14_powerbomb;
+    EVulnerability x18_missile;
+    EVulnerability x1c_boostBall;
+    EVulnerability x20_phazon;
+    EVulnerability x24_enemyWp1;
+    EVulnerability x28_enemyWp2Poison;
+    EVulnerability x2c_enemyWp3Lava;
+    EVulnerability x30_enemyWp4;
+    EVulnerability x34_unk1;
+    EVulnerability x38_unk2;
+    EVulnerability x3c_unk3;
+
+#if 0
+    struct ChargedBeams : BigYAML
+    {
+        DECL_YAML
+        Value<atUint32> propertyCount;
+        Value<atUint32> power;
+        Value<atUint32> ice;
+        Value<atUint32> wave;
+        Value<atUint32> plasma;
+        Value<atUint32> phazon;
+    } chargedBeams;
+
+    struct BeamCombos : BigYAML
+    {
+        DECL_YAML
+        Value<atUint32> propertyCount;
+        Value<atUint32> superMissiles;
+        Value<atUint32> iceSpreader;
+        Value<atUint32> wavebuster;
+        Value<atUint32> flameThrower;
+        Value<atUint32> phazonCombo;
+    } beamCombos;
+#endif
+
+public:
+    CDamageVulnerability(CInputStream& in) {}
 };
 
 class CStateManager;

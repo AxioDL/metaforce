@@ -19,4 +19,5 @@ add_library(RuntimeCommonWorld
             CActorParameters.hpp
             CLightParameters.hpp
             CScannableParameters.hpp
-            CVisorParameters.hpp)
+            CVisorParameters.hpp
+            CAnimationParameters.hpp)

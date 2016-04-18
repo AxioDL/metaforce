@@ -1,4 +1,12 @@
 #include "ScriptLoader.hpp"
+#include "CStateManager.hpp"
+#include "CGrappleParameters.hpp"
+#include "CActorParameters.hpp"
+#include "CVisorParameters.hpp"
+#include "CScannableParameters.hpp"
+#include "CLightParameters.hpp"
+#include "CAnimationParameters.hpp"
+#include "GameGlobalObjects.hpp"
 #include "logvisor/logvisor.hpp"
 
 namespace urde
@@ -16,12 +24,245 @@ static bool EnsurePropertyCount(int count, int expected, const char* structName)
     return true;
 }
 
+struct SActorHead
+{
+    std::string x0_name;
+    zeus::CTransform x10_transform;
+};
+
+struct SScaledActorHead : SActorHead
+{
+    zeus::CVector3f x40_scale;
+    SScaledActorHead(SActorHead&& head) : SActorHead(std::move(head)) {}
+};
+
+static zeus::CTransform LoadEditorTransform(CInputStream& in)
+{
+    zeus::CVector3f position;
+    position.readBig(in);
+    zeus::CVector3f orientation;
+    orientation.readBig(in);
+    return ScriptLoader::ConvertEditorEulerToTransform4f(orientation, position);
+}
+
+static zeus::CTransform LoadEditorTransformPivotOnly(CInputStream& in)
+{
+    zeus::CVector3f position;
+    position.readBig(in);
+    zeus::CVector3f orientation;
+    orientation.readBig(in);
+    orientation.x = 0.f;
+    orientation.y = 0.f;
+    return ScriptLoader::ConvertEditorEulerToTransform4f(orientation, position);
+}
+
+static SActorHead LoadActorHead(CInputStream& in, CStateManager& stateMgr)
+{
+    SActorHead ret;
+    ret.x0_name = *stateMgr.HashInstanceName(in);
+    ret.x10_transform = LoadEditorTransform(in);
+    return ret;
+}
+
+static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& stateMgr)
+{
+    SScaledActorHead ret = LoadActorHead(in, stateMgr);
+    ret.x40_scale.readBig(in);
+    return ret;
+}
+
+u32 ScriptLoader::LoadParameterFlags(CInputStream& in)
+{
+    u32 count = in.readUint32Big();
+    u32 ret = 0;
+    for (u32 i=0 ; i<count ; ++i)
+        if (in.readBool())
+            ret |= 1 << i;
+    return ret;
+}
+
+CGrappleParameters ScriptLoader::LoadGrappleParameters(CInputStream& in)
+{
+    float a = in.readFloatBig();
+    float b = in.readFloatBig();
+    float c = in.readFloatBig();
+    float d = in.readFloatBig();
+    float e = in.readFloatBig();
+    float f = in.readFloatBig();
+    float g = in.readFloatBig();
+    float h = in.readFloatBig();
+    float i = in.readFloatBig();
+    float j = in.readFloatBig();
+    float k = in.readFloatBig();
+    bool l = in.readBool();
+    return CGrappleParameters(a, b, c, d, e, f, g, h, i, j, k, l);
+}
+
+CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
+{
+    u32 propCount = in.readUint32Big();
+    if (propCount >= 5 && propCount <= 0xe)
+    {
+        CLightParameters lParms = ScriptLoader::LoadLightParameters(in);
+
+        CScannableParameters sParams;
+        if (propCount > 5)
+            sParams = LoadScannableParameters(in);
+
+        ResId xrayModel = in.readUint32Big();
+        ResId xraySkin = in.readUint32Big();
+        ResId infraModel = in.readUint32Big();
+        ResId infraSkin = in.readUint32Big();
+
+        bool b1 = true;
+        if (propCount > 7)
+            b1 = in.readBool();
+
+        float f1 = 1.f;
+        if (propCount > 8)
+            f1 = in.readFloatBig();
+
+        float f2 = 1.f;
+        if (propCount > 9)
+            f2 = in.readFloatBig();
+
+        CVisorParameters vParms;
+        if (propCount > 6)
+            vParms = LoadVisorParameters(in);
+
+        bool b2 = false;
+        if (propCount > 10)
+            b2 = in.readBool();
+
+        bool b3 = false;
+        if (propCount > 11)
+            b3 = in.readBool();
+
+        bool b4 = false;
+        if (propCount > 12)
+            b4 = in.readBool();
+
+        float f3 = 1.f;
+        if (propCount > 13)
+            f3 = in.readFloatBig();
+
+        std::pair<ResId, ResId> xray = {};
+        if (g_ResFactory->GetResourceTypeById(xrayModel))
+            xray = {xrayModel, xraySkin};
+
+        std::pair<ResId, ResId> infra = {};
+        if (g_ResFactory->GetResourceTypeById(infraModel))
+            infra = {infraModel, infraSkin};
+
+        return CActorParameters(lParms, sParams, xray, infra, vParms, b1, b2, b3, b4);
+    }
+    return CActorParameters::None();
+}
+
+CVisorParameters ScriptLoader::LoadVisorParameters(CInputStream& in)
+{
+    u32 propCount = in.readUint32Big();
+    if (propCount >= 1 && propCount <= 3)
+    {
+        bool b1 = in.readBool();
+        bool b2 = false;
+        u8 mask = 0xf;
+        if (propCount > 1)
+            b2 = in.readBool();
+        if (propCount > 2)
+            mask = in.readUint32Big();
+        return CVisorParameters(mask, b1, b2);
+    }
+    return CVisorParameters();
+}
+
+CScannableParameters ScriptLoader::LoadScannableParameters(CInputStream& in)
+{
+    u32 propCount = in.readUint32Big();
+    if (propCount == 1)
+        return CScannableParameters(in.readUint32Big());
+    return CScannableParameters();
+}
+
+CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
+{
+    u32 propCount = in.readUint32Big();
+    if (propCount == 14)
+    {
+        bool a = in.readBool();
+        float b = in.readFloatBig();
+        u32 c = in.readUint32Big();
+        float d = in.readFloatBig();
+        float e = in.readFloatBig();
+
+        zeus::CColor col;
+        col.readRGBABig(in);
+
+        bool f = in.readBool();
+        u32 g = in.readUint32Big();
+        u32 h = in.readUint32Big();
+
+        zeus::CVector3f vec;
+        vec.readBig(in);
+
+        s32 w1 = -1;
+        s32 w2 = -1;
+        if (propCount >= 0xc)
+        {
+            w1 = in.readUint32Big();
+            w2 = in.readUint32Big();
+        }
+
+        bool b1 = false;
+        if (propCount >= 0xd)
+            b1 = in.readBool();
+
+        s32 w3 = 0;
+        if (propCount >= 0xe)
+            w3 = in.readUint32Big();
+
+        return CLightParameters(a, b, c, d, e, col, f, g, h, vec, w1, w2, b1, w3);
+    }
+    return CLightParameters::None();
+}
+
+CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in)
+{
+    ResId ancs = in.readUint32Big();
+    s32 charIdx = in.readUint32Big();
+    u32 defaultAnim = in.readUint32Big();
+    return CAnimationParameters(ancs, charIdx, defaultAnim);
+}
+
+zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
+                                                               const zeus::CVector3f& position)
+{
+    return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
+           zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
+           zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) + position;
+}
+
 CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 24, "Actor"))
         return nullptr;
 
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
 
+    zeus::CVector3f collisionExtent;
+    collisionExtent.readBig(in);
+
+    zeus::CVector3f centroid;
+    centroid.readBig(in);
+
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+
+    CHealthInfo hInfo(in);
+
+    CDamageVulnerability dInfo(in);
+
+    // TODO: Finish
 }
 
 CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -280,7 +521,7 @@ CEntity* ScriptLoader::LoadTargetingPoint(CStateManager& mgr, CInputStream& in, 
 {
 }
 
-CEntity* ScriptLoader::LoadElectroMagneticPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
 }
 
@@ -526,16 +767,6 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-}
-
-u32 ScriptLoader::LoadParameterFlags(CInputStream& in)
-{
-    u32 count = in.readUint32Big();
-    u32 ret = 0;
-    for (u32 i=0 ; i<count ; ++i)
-        if (in.readBool())
-            ret |= 1 << i;
-    return ret;
 }
 
 }

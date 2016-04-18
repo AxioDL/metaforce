@@ -71,7 +71,7 @@ enum class EScriptObjectType
     Ripple = 0x47,
     BallTrigger = 0x48,
     TargetingPoint = 0x49,
-    ElectroMagneticPulse = 0x4A,
+    EMPulse = 0x4A,
     IceSheegoth = 0x4B,
     PlayerActor = 0x4C,
     Flaahgra = 0x4D,
