@@ -70,7 +70,7 @@ void ClientProcess::Worker::proc()
         }
         while (m_proc.m_pendingQueue.size())
         {
-            std::unique_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
+            std::shared_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
             ++m_proc.m_inProgress;
             m_proc.m_pendingQueue.pop_front();
             lk.unlock();
@@ -104,32 +104,32 @@ ClientProcess::ClientProcess(int verbosityLevel)
     }
 }
 
-const ClientProcess::BufferTransaction*
+std::shared_ptr<const ClientProcess::BufferTransaction>
 ClientProcess::addBufferTransaction(const ProjectPath& path, void* target,
                                     size_t maxLen, size_t offset)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    BufferTransaction* ret = new BufferTransaction(*this, path, target, maxLen, offset);
+    auto ret = std::make_shared<BufferTransaction>(*this, path, target, maxLen, offset);
     m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
     return ret;
 }
 
-const ClientProcess::CookTransaction*
+std::shared_ptr<const ClientProcess::CookTransaction>
 ClientProcess::addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    CookTransaction* ret = new CookTransaction(*this, path, spec);
+    auto ret = std::make_shared<CookTransaction>(*this, path, spec);
     m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
     return ret;
 }
 
-const ClientProcess::LambdaTransaction*
+std::shared_ptr<const ClientProcess::LambdaTransaction>
 ClientProcess::addLambdaTransaction(std::function<void(BlenderToken&)>&& func)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    LambdaTransaction* ret = new LambdaTransaction(*this, std::move(func));
+    auto ret = std::make_shared<LambdaTransaction>(*this, std::move(func));
     m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
     return ret;
@@ -151,7 +151,7 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
     return false;
 }
 
-void ClientProcess::swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue)
+void ClientProcess::swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& queue)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
     queue.swap(m_completedQueue);

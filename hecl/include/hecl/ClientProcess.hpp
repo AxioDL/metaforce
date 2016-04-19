@@ -64,8 +64,8 @@ public:
         : Transaction(parent, Type::Lambda), m_func(std::move(func)) {}
     };
 private:
-    std::list<std::unique_ptr<Transaction>> m_pendingQueue;
-    std::list<std::unique_ptr<Transaction>> m_completedQueue;
+    std::list<std::shared_ptr<Transaction>> m_pendingQueue;
+    std::list<std::shared_ptr<Transaction>> m_completedQueue;
     int m_inProgress = 0;
     bool m_running = true;
 
@@ -83,12 +83,15 @@ private:
 public:
     ClientProcess(int verbosityLevel=1);
     ~ClientProcess() {shutdown();}
-    const BufferTransaction* addBufferTransaction(const hecl::ProjectPath& path, void* target,
-                                                  size_t maxLen, size_t offset);
-    const CookTransaction* addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec);
-    const LambdaTransaction* addLambdaTransaction(std::function<void(BlenderToken&)>&& func);
+    std::shared_ptr<const BufferTransaction>
+    addBufferTransaction(const hecl::ProjectPath& path, void* target,
+                         size_t maxLen, size_t offset);
+    std::shared_ptr<const CookTransaction>
+    addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec);
+    std::shared_ptr<const LambdaTransaction>
+    addLambdaTransaction(std::function<void(BlenderToken&)>&& func);
     bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, BlenderToken& btok);
-    void swapCompletedQueue(std::list<std::unique_ptr<Transaction>>& queue);
+    void swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& queue);
     void waitUntilComplete();
     void shutdown();
 };
