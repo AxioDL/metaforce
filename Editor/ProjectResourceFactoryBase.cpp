@@ -648,7 +648,7 @@ FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
 void ProjectResourceFactoryBase::AsyncIdle()
 {
     /* Consume completed transactions, they will be processed this cycle at the latest */
-    std::list<std::unique_ptr<hecl::ClientProcess::Transaction>> completed;
+    std::list<std::shared_ptr<hecl::ClientProcess::Transaction>> completed;
     m_clientProc.swapCompletedQueue(completed);
 
     /* Begin self-profiling loop */

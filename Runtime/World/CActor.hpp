@@ -20,6 +20,9 @@ class CModelData;
 class CMaterialList;
 class CActorParameters;
 class CWeaponMode;
+class CHealthInfo;
+class CDamageVulnerability;
+class CLightParameters;
 
 class CActor : public CEntity
 {
@@ -45,6 +48,7 @@ public:
            const zeus::CTransform&, const CModelData&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
+    virtual void Accept(IVisitor&);
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float)
     { return zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }

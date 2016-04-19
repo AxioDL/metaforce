@@ -2,4 +2,12 @@
 
 namespace urde
 {
+
+CActor::CActor(TUniqueId uid, bool active, const std::string&, const CEntityInfo& info,
+               const zeus::CTransform&, const CModelData&, const CMaterialList&,
+               const CActorParameters&, TUniqueId)
+: CEntity(uid, info, active)
+{
+}
+
 }

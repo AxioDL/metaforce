@@ -231,6 +231,8 @@ public:
     CRandom16* GetActiveRandom() {return x8fc_activeRandom;}
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xaf8_camFilterPasses[idx];}
+
+    CWorld* GetWorld() {return x850_world.get();}
 };
 
 }

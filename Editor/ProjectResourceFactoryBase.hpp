@@ -48,8 +48,8 @@ protected:
 
         hecl::ProjectPath m_workingPath;
         hecl::ProjectPath m_cookedPath;
-        const hecl::ClientProcess::CookTransaction* m_cookTransaction = nullptr;
-        const hecl::ClientProcess::BufferTransaction* m_bufTransaction = nullptr;
+        std::shared_ptr<const hecl::ClientProcess::CookTransaction> m_cookTransaction;
+        std::shared_ptr<const hecl::ClientProcess::BufferTransaction> m_bufTransaction;
         bool m_failed = false;
         bool m_complete = false;
 

@@ -24,6 +24,7 @@ class CEntityInfo
 public:
     CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns)
     : m_aid(aid), m_conns(conns) {}
+    TAreaId GetAreaId() const {return m_aid;}
 };
 
 class CEntity

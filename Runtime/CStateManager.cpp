@@ -9,6 +9,8 @@
 #include "Input/CRumbleManager.hpp"
 #include "World/CWorld.hpp"
 #include "Graphics/CLight.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
@@ -160,6 +162,8 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
     x904_loaderFuncs[int(EScriptObjectType::NewCameraShaker)] = ScriptLoader::LoadNewCameraShaker;
     x904_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
     x904_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
+
+    x8ec_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
 
 void CStateManager::RenderLast(TUniqueId)

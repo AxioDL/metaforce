@@ -29,6 +29,11 @@ struct SObjectTag
         in.readBytesToBuf(&type, 4);
         id = in.readUint32Big();
     }
+    void readMLVL(CInputStream& in)
+    {
+        id = in.readUint32Big();
+        in.readBytesToBuf(&type, 4);
+    }
 };
 
 using TUniqueId = s16;

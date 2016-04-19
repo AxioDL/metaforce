@@ -5,6 +5,7 @@
 
 namespace urde
 {
+struct SMoverData;
 
 class CCollisionPrimitive
 {
@@ -14,6 +15,17 @@ public:
 
 class CCollisionInfoList
 {
+};
+
+struct SMoverData
+{
+    zeus::CVector3f x0_;
+    zeus::CAxisAngle xc_;
+    zeus::CVector3f x18_;
+    zeus::CAxisAngle x24_;
+    float x30_;
+
+    SMoverData(float a) : x30_(a) {}
 };
 
 class CPhysicsActor : public CActor
@@ -30,6 +42,10 @@ protected:
     float x230_restitutionCoefModifier;
     float x234_collisionAccuracyModifier;
 public:
+    CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
+                  const zeus::CTransform&, const CModelData&, const CMaterialList&,
+                  const zeus::CAABox&, const SMoverData&, const CActorParameters&,
+                  float, float);
 
     float GetCollisionAccuracyModifier()
     { return x234_collisionAccuracyModifier; }

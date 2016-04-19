@@ -7,6 +7,11 @@
 #include "CLightParameters.hpp"
 #include "CAnimationParameters.hpp"
 #include "GameGlobalObjects.hpp"
+#include "CWorld.hpp"
+#include "Character/CModelData.hpp"
+#include "Collision/CMaterialList.hpp"
+#include "CScriptActor.hpp"
+#include "CScriptWaypoint.hpp"
 #include "logvisor/logvisor.hpp"
 
 namespace urde
@@ -69,6 +74,14 @@ static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& sta
     SScaledActorHead ret = LoadActorHead(in, stateMgr);
     ret.x40_scale.readBig(in);
     return ret;
+}
+
+static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id,
+                                    const zeus::CVector3f& extent, const zeus::CVector3f& offset)
+{
+    zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
+    zeus::CTransform rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
+    return box.getTransformedAABox(rot);
 }
 
 u32 ScriptLoader::LoadParameterFlags(CInputStream& in)
@@ -242,7 +255,8 @@ zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVect
            zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) + position;
 }
 
-CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
+                                 int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 24, "Actor"))
         return nullptr;
@@ -262,11 +276,91 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
     CDamageVulnerability dInfo(in);
 
-    // TODO: Finish
+    ResId staticId = in.readUint32Big();
+    CAnimationParameters aParms = LoadAnimationParameters(in);
+
+    CActorParameters actParms = LoadActorParameters(in);
+
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+    bool b5 = in.readBool();
+    u32 w2 = in.readUint32Big();
+    float f3 = in.readFloatBig();
+    bool b6 = in.readBool();
+    bool b7 = in.readBool();
+    bool b8 = in.readBool();
+    bool b9 = in.readBool();
+
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.x0_ancs);
+    if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
+        return nullptr;
+
+    zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, centroid);
+
+    CMaterialList list;
+    if (b2)
+        list.x0_ = 0x80000000000;
+
+    if (b3)
+        list.x0_ |= 8;
+
+    if (b4)
+        list.x0_ |= 32;
+
+    bool generateExtent = false;
+    if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)
+        generateExtent = true;
+
+    CModelData data;
+    if (animType == SBIG('ANCS'))
+    {
+        CAnimRes aRes;
+        aRes.x0_ancsId = aParms.x0_ancs;
+        aRes.x4_charIdx = aParms.x4_charIdx;
+        aRes.x8_scale = head.x40_scale;
+        aRes.x14_ = true;
+        aRes.x1c_defaultAnim = aParms.x8_defaultAnim;
+        data = aRes;
+    }
+    else
+    {
+        CStaticRes sRes;
+        sRes.x0_cmdlId = staticId;
+        sRes.x4_scale = head.x40_scale;
+        data = sRes;
+    }
+
+    if (collisionExtent.isZero() || generateExtent)
+        aabb = data.GetBounds(head.x10_transform.getRotation());
+
+    return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info,
+                            head.x10_transform, data, aabb, f1, f2, list, hInfo, dInfo,
+                            actParms, b1, b5, w2, f3, b6, b7, b8, b9);
 }
 
-CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in,
+                                    int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 13, "Waypoint"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+    u32 w6 = in.readUint32Big();
+    u32 w7 = in.readUint32Big();
+
+    return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                               b1, f1, f2, w1, w2, w3, w4, w5, w6, w7);
 }
 
 CEntity* ScriptLoader::LoadDoorArea(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

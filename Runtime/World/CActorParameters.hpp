@@ -10,6 +10,7 @@ namespace urde
 
 class CActorParameters
 {
+    friend class ScriptLoader;
     CLightParameters x4_lightParms;
     CScannableParameters x40_scanParms;
     std::pair<ResId, ResId> x44_xrayAssets = {};

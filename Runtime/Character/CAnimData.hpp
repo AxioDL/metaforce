@@ -7,6 +7,7 @@
 #include "CParticleDatabase.hpp"
 #include "CPoseAsTransforms.hpp"
 #include "CHierarchyPoseBuilder.hpp"
+#include "CAdditiveAnimPlayback.hpp"
 #include <set>
 
 enum class EUserEventType
@@ -36,7 +37,6 @@ class CSkinRules;
 class CAnimTreeNode;
 class CSegIdList;
 class CSegStatementSet;
-class CAdditiveAnimPlayback;
 class CBoolPOINode;
 class CInt32POINode;
 class CParticlePOINode;

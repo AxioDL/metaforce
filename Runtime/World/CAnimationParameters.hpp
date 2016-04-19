@@ -8,10 +8,10 @@ namespace urde
 
 class CAnimationParameters
 {
+public:
     ResId x0_ancs;
     s32 x4_charIdx;
     u32 x8_defaultAnim;
-public:
     CAnimationParameters(ResId ancs, s32 charIdx, u32 defaultAnim)
     : x0_ancs(ancs), x4_charIdx(charIdx), x8_defaultAnim(defaultAnim) {}
 };

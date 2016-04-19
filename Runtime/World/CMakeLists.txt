@@ -15,9 +15,12 @@ add_library(RuntimeCommonWorld
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             ScriptLoader.hpp ScriptLoader.cpp
             CScriptWater.hpp CScriptWater.cpp
+            CScriptActor.hpp CScriptActor.cpp
+            CScriptWaypoint.hpp CScriptWaypoint.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp
             CScannableParameters.hpp
             CVisorParameters.hpp
-            CAnimationParameters.hpp)
+            CAnimationParameters.hpp
+            CDamageVulnerability.hpp)

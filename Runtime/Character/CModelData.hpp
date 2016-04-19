@@ -6,6 +6,7 @@
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
+#include "CAnimData.hpp"
 
 namespace urde
 {
@@ -23,16 +24,16 @@ struct SAdvancementDeltas;
 struct CStaticRes
 {
     ResId x0_cmdlId;
-    zeus::CVector3f x4_particleScale;
+    zeus::CVector3f x4_scale;
 };
 
 struct CAnimRes
 {
     ResId x0_ancsId;
-    u32 x4_charIdx;
-    zeus::CVector3f x8_particleScale;
+    s32 x4_charIdx;
+    zeus::CVector3f x8_scale;
     bool x14_;
-    int x1c_;
+    s32 x1c_defaultAnim;
 };
 
 class CModelData
@@ -53,8 +54,6 @@ class CModelData
     TLockedToken<CModel> x2c_xrayModel;
     TLockedToken<CModel> x3c_infraModel;
 
-    CModelData();
-
 public:
     enum class EWhichModel
     {
@@ -67,6 +66,8 @@ public:
     CModelData(const CStaticRes& res);
     CModelData(const CAnimRes& res);
     CModelData(CModelData&&) = default;
+    CModelData& operator=(CModelData&&) = default;
+    CModelData();
     CModelData CModelDataNull();
 
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
