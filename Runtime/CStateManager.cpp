@@ -38,7 +38,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
 {
     x904_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
     x904_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
-    x904_loaderFuncs[int(EScriptObjectType::DoorArea)] = ScriptLoader::LoadDoorArea;
+    x904_loaderFuncs[int(EScriptObjectType::DoorArea)] = ScriptLoader::LoadDoor;
     x904_loaderFuncs[int(EScriptObjectType::Trigger)] = ScriptLoader::LoadTrigger;
     x904_loaderFuncs[int(EScriptObjectType::Timer)] = ScriptLoader::LoadTimer;
     x904_loaderFuncs[int(EScriptObjectType::Counter)] = ScriptLoader::LoadCounter;

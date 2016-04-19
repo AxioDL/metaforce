@@ -34,7 +34,7 @@ public:
 
     static CEntity* LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* LoadDoorArea(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+    static CEntity* LoadDoor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadTimer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadCounter(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

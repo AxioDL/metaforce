@@ -23,17 +23,17 @@ struct SAdvancementDeltas;
 
 struct CStaticRes
 {
-    ResId x0_cmdlId;
+    ResId x0_cmdlId = 0;
     zeus::CVector3f x4_scale;
 };
 
 struct CAnimRes
 {
-    ResId x0_ancsId;
-    s32 x4_charIdx;
+    ResId x0_ancsId = 0;
+    s32 x4_charIdx = 0;
     zeus::CVector3f x8_scale;
-    bool x14_;
-    s32 x1c_defaultAnim;
+    bool x14_ = false;
+    s32 x1c_defaultAnim = 0;
 };
 
 class CModelData
@@ -68,7 +68,7 @@ public:
     CModelData(CModelData&&) = default;
     CModelData& operator=(CModelData&&) = default;
     CModelData();
-    CModelData CModelDataNull();
+    static CModelData CModelDataNull();
 
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Render(const CStateManager& stateMgr, const zeus::CTransform& xf,

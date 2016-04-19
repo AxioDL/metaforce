@@ -17,10 +17,15 @@ add_library(RuntimeCommonWorld
             CScriptWater.hpp CScriptWater.cpp
             CScriptActor.hpp CScriptActor.cpp
             CScriptWaypoint.hpp CScriptWaypoint.cpp
+            CScriptDoor.hpp CScriptDoor.cpp
+            CScriptTrigger.hpp CScriptTrigger.cpp
+            CScriptTimer.hpp CScriptTimer.cpp
+            CScriptCounter.hpp CScriptCounter.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp
             CScannableParameters.hpp
             CVisorParameters.hpp
             CAnimationParameters.hpp
+            CDamageInfo.hpp
             CDamageVulnerability.hpp)

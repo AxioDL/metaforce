@@ -98,6 +98,12 @@ public:
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}
 
+    SObjectTag TagFromPath(const hecl::SystemChar* path) const
+    {
+        return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path),
+                           hecl::SharedBlenderToken);
+    }
+
     ~ProjectResourceFactoryBase() {Shutdown();}
 };
 
