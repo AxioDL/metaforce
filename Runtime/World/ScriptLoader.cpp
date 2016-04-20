@@ -40,7 +40,7 @@ static bool EnsurePropertyCount(int count, int expected, const char* structName)
 {
     if (count < expected)
     {
-        Log.report(logvisor::Fatal, "Insufficient number of props (%d/%d) for %s entity",
+        Log.report(logvisor::Warning, "Insufficient number of props (%d/%d) for %s entity",
                    count, expected, structName);
         return false;
     }
@@ -657,7 +657,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     orientedForce.readBig(in);
     u32 triggerFlags = in.readUint32Big() | 2044;
     bool b1 = in.readBool();
-    bool b2 = in.readBool();
+    bool displaySurface = in.readBool();
     ResId textureId1 = in.readUint32Big();
     ResId textureId2 = in.readUint32Big();
     ResId textureId3 = in.readUint32Big();
@@ -692,7 +692,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     c1.readRGBABig(in);
     zeus::CColor c2;
     c2.readRGBABig(in);
-    ResId partId1 = in.readUint32Big();
+    ResId enterParticle = in.readUint32Big();
     ResId partId2 = in.readUint32Big();
     ResId partId3 = in.readUint32Big();
     ResId partId4 = in.readUint32Big();
@@ -710,10 +710,10 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     float f17 = in.readFloatBig();
     float f18 = in.readFloatBig();
     float f19 = in.readFloatBig();
-    float f20 = in.readFloatBig();
-    float f21 = in.readFloatBig();
-    zeus::CColor c3;
-    c3.readRGBABig(in);
+    float heatWaveHeight = in.readFloatBig();
+    float heatWaveSpeed = in.readFloatBig();
+    zeus::CColor heatWaveColor;
+    heatWaveColor.readRGBABig(in);
     ResId lightmap = in.readUint32Big();
     float f22 = in.readFloatBig();
     float f23 = in.readFloatBig();
@@ -745,11 +745,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     if (textureId4 == -1)
         realTextureId5 = textureId5;
 
-    return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, b2,
+    return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
                             textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2,
-                            f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, partId1,
+                            f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle,
                             partId2, partId3, partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5,
-                            f13, w19, f14, f15, f16, f17, f18, f19, f20, f21, c3, lightmap, f22, f23, f24,
+                            f13, w19, f14, f15, f16, f17, f18, f19, heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24,
                             w21, w22, b5, bitVal0, bitVal0, bitset);
 }
 
