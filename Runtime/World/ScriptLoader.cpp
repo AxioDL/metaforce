@@ -19,7 +19,12 @@
 #include "CScriptTimer.hpp"
 #include "CScriptCounter.hpp"
 #include "CScriptWater.hpp"
+#include "CScriptEffect.hpp"
+#include "CScriptPlatform.hpp"
+#include "CScriptSound.hpp"
+#include "CScriptGenerator.hpp"
 #include "CSimplePool.hpp"
+#include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
 #include "logvisor/logvisor.hpp"
 
@@ -534,21 +539,172 @@ CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in,
                                   int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 24, "Effect"))
+        return nullptr;
+
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+
+    ResId partId = in.readUint32Big();
+    ResId elscId = in.readUint32Big();
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+
+    if (partId == 0xffffffff && elscId == 0xffffffff)
+        return nullptr;
+
+    if (!g_ResFactory->GetResourceTypeById(partId) &&
+        !g_ResFactory->GetResourceTypeById(elscId))
+        return nullptr;
+
+    bool b5 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    bool b6 = in.readBool();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    bool b7 = in.readBool();
+    bool b8 = in.readBool();
+    bool b9 = in.readBool();
+    bool b10 = in.readBool();
+
+    CLightParameters lParms = LoadLightParameters(in);
+
+    return new CScriptEffect(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                             head.x40_scale, partId, elscId, b1, b2, b3, b4, b5, f1, f2, f3, f4,
+                             b6, f5, f6, f7, b7, b8, b9, lParms, b10);
 }
 
 CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
                                     int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 19, "Platform"))
+        return nullptr;
+
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+
+    zeus::CVector3f extent;
+    extent.readBig(in);
+
+    zeus::CVector3f centroid;
+    centroid.readBig(in);
+
+    ResId staticId = in.readUint32Big();
+    CAnimationParameters aParms = LoadAnimationParameters(in);
+
+    CActorParameters actParms = LoadActorParameters(in);
+
+    float f1 = in.readFloatBig();
+    bool b1 = in.readBool();
+    ResId dclnId = in.readUint32Big();
+
+    CHealthInfo hInfo(in);
+
+    CDamageVulnerability dInfo(in);
+
+    bool b2 = in.readBool();
+    float f2 = in.readFloatBig();
+    bool b3 = in.readBool();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.x0_ancs);
+    if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
+        return nullptr;
+
+    zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
+
+    FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
+    TLockedToken<CCollidableOBBTreeGroup> dclnToken;
+    if (dclnType)
+    {
+         dclnToken = g_SimplePool->GetObj({SBIG('DCLN'), dclnId});
+         dclnToken.GetObj();
+    }
+
+    CModelData data;
+    if (animType == SBIG('ANCS'))
+    {
+        CAnimRes aRes;
+        aRes.x0_ancsId = aParms.x0_ancs;
+        aRes.x4_charIdx = aParms.x4_charIdx;
+        aRes.x8_scale = head.x40_scale;
+        aRes.x14_ = true;
+        aRes.x1c_defaultAnim = aParms.x8_defaultAnim;
+        data = aRes;
+    }
+    else
+    {
+        CStaticRes sRes;
+        sRes.x0_cmdlId = staticId;
+        sRes.x4_scale = head.x40_scale;
+        data = sRes;
+    }
+
+    if (extent.isZero())
+        aabb = data.GetBounds(head.x10_transform.getRotation());
+
+    return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                               data, actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
 }
 
 CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in,
                                  int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 20, "Sound"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+
+    s32 soundId = in.readInt32Big();
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+    bool b5 = in.readBool();
+    bool b6 = in.readBool();
+    bool b7 = in.readBool();
+    bool b8 = in.readBool();
+    u32 w6 = in.readUint32Big();
+
+    if (soundId < 0)
+        return nullptr;
+
+    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                            soundId, b1, f1, f2, f3, w2, w3, w4, w5, w6, 0, b2, b3, b4, b5, b6, b7, b8, w6);
 }
 
 CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in,
                                      int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 8, "Generator"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+
+    u32 w1 = in.readUint32Big();
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+
+    zeus::CVector3f v1;
+    v1.readBig(in);
+
+    bool b3 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+
+    return new CScriptGenerator(mgr.AllocateUniqueId(), *name, info, w1, b1, v1, b2, b3, f1, f2);
 }
 
 CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,

@@ -14,6 +14,7 @@
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 #include "Runtime/Character/CAnimPOIData.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 
@@ -39,6 +40,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
     m_factoryMgr.AddFactory(FOURCC('ANIM'), FFactoryFunc(AnimSourceFactory));
     m_factoryMgr.AddFactory(FOURCC('EVNT'), FFactoryFunc(AnimPOIDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('DCLN'), FFactoryFunc(FCollidableOBBTreeGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
 }
 

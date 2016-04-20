@@ -21,6 +21,10 @@ add_library(RuntimeCommonWorld
             CScriptTrigger.hpp CScriptTrigger.cpp
             CScriptTimer.hpp CScriptTimer.cpp
             CScriptCounter.hpp CScriptCounter.cpp
+            CScriptEffect.hpp CScriptEffect.cpp
+            CScriptPlatform.hpp CScriptPlatform.cpp
+            CScriptSound.hpp CScriptSound.cpp
+            CScriptGenerator.hpp CScriptGenerator.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp

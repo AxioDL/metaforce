@@ -4,8 +4,9 @@
 namespace urde
 {
 
-CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active)
-: m_uid(uniqueId), m_info(info), m_active(active) {}
+CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, const std::string& name)
+: x4_areaId(info.x0_areaId), x8_uid(uniqueId), xc_savwId(info.x14_savwId), x10_name(name),
+  x20_conns(info.x4_conns), x30_24_active(active) {}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
@@ -43,9 +44,9 @@ void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateM
 
 void CEntity::SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage skipMsg)
 {
-    for (const SConnection& conn : m_info.m_conns)
-        if (conn.state == state && conn.msg != skipMsg)
-            stateMgr.SendScriptMsg(m_uid, conn.objId, conn.msg, state);
+    for (const SConnection& conn : x20_conns)
+        if (conn.x0_state == state && conn.x4_msg != skipMsg)
+            stateMgr.SendScriptMsg(x8_uid, conn.x8_objId, conn.x4_msg, state);
 }
 
 }

@@ -11,39 +11,54 @@ class IVisitor;
 
 struct SConnection
 {
-    EScriptObjectState state;
-    EScriptObjectMessage msg;
-    TEditorId objId;
+    EScriptObjectState x0_state;
+    EScriptObjectMessage x4_msg;
+    TEditorId x8_objId;
 };
 
 class CEntityInfo
 {
     friend class CEntity;
-    TAreaId m_aid;
-    std::vector<SConnection> m_conns;
+    TAreaId x0_areaId;
+    std::vector<SConnection> x4_conns;
+    ResId x14_savwId;
 public:
-    CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns)
-    : m_aid(aid), m_conns(conns) {}
-    TAreaId GetAreaId() const {return m_aid;}
+    CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns, ResId savwId=-1)
+    : x0_areaId(aid), x4_conns(conns) {}
+    TAreaId GetAreaId() const {return x0_areaId;}
 };
 
 class CEntity
 {
 protected:
-    TUniqueId m_uid;
-    CEntityInfo m_info;
-    bool m_active = false;
+    TAreaId x4_areaId;
+    TUniqueId x8_uid;
+    ResId xc_savwId;
+    std::string x10_name;
+    std::vector<SConnection> x20_conns;
+
+    union
+    {
+        struct
+        {
+            bool x30_24_active : 1;
+            bool x30_25_ : 1;
+            bool x30_26_ : 1;
+        };
+        u8 _dummy = 0;
+    };
+
 public:
     virtual ~CEntity() {}
-    CEntity(TUniqueId uid, const CEntityInfo& info, bool active);
+    CEntity(TUniqueId uid, const CEntityInfo& info, bool active, const std::string& name);
     virtual void Accept(IVisitor&)=0;
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-    virtual bool GetActive() const {return m_active;}
-    virtual void SetActive(bool active) {m_active = active;}
+    virtual bool GetActive() const {return x30_24_active;}
+    virtual void SetActive(bool active) {x30_24_active = active;}
 
-    TUniqueId GetUniqueId() const {return m_uid;}
+    TUniqueId GetUniqueId() const {return x8_uid;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 };
 
