@@ -11,7 +11,7 @@ class CMaterialList
 public:
     u64 x0_ = 0;
     CMaterialList() = default;
-    CMaterialList(int idx) : x0_(1 << idx) {}
+    CMaterialList(int idx) : x0_(1ull << idx) {}
 };
 
 }

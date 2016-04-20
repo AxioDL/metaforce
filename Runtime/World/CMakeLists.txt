@@ -14,7 +14,6 @@ add_library(RuntimeCommonWorld
             CTeamAiTypes.hpp CTeamAiTypes.cpp
             ScriptObjectSupport.hpp ScriptObjectSupport.cpp
             ScriptLoader.hpp ScriptLoader.cpp
-            CScriptWater.hpp CScriptWater.cpp
             CScriptActor.hpp CScriptActor.cpp
             CScriptWaypoint.hpp CScriptWaypoint.cpp
             CScriptDoor.hpp CScriptDoor.cpp
@@ -25,6 +24,9 @@ add_library(RuntimeCommonWorld
             CScriptPlatform.hpp CScriptPlatform.cpp
             CScriptSound.hpp CScriptSound.cpp
             CScriptGenerator.hpp CScriptGenerator.cpp
+            CScriptDock.hpp CScriptDock.cpp
+            CScriptWater.hpp CScriptWater.cpp
+            CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp
