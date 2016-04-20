@@ -37,23 +37,22 @@ struct Water : IScriptObject
     struct FluidUVMotion : BigYAML
     {
         DECL_YAML
-        Value<atUint32> unknown1;
+        struct FluidLayerMotion : BigYAML
+        {
+            DECL_YAML
+            Value<atUint32> unknown1;
+            Value<float> unknown2;
+            Value<float> unknown3;
+            Value<float> unknown4;
+            Value<float> unknown5;
+        };
+
+        /* BIG FAT WARNING: Do NOT re-order these, even if they seem incorrect */
+        FluidLayerMotion layer2;
+        FluidLayerMotion layer3;
+        FluidLayerMotion layer1;
+        Value<float> unknown1;
         Value<float> unknown2;
-        Value<float> unknown3;
-        Value<float> unknown4;
-        Value<float> unknown5;
-        Value<atUint32> unknown6;
-        Value<float> unknown7;
-        Value<float> unknown8;
-        Value<float> unknown9;
-        Value<float> unknown10;
-        Value<atUint32> unknown11;
-        Value<float> unknown12;
-        Value<float> unknown13;
-        Value<float> unknown14;
-        Value<float> unknown15;
-        Value<float> unknown16;
-        Value<float> unknown17;
     } fluidUVMotion;
 
     Value<float> unknown13;

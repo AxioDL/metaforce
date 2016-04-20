@@ -6,6 +6,7 @@
 #include "CScannableParameters.hpp"
 #include "CLightParameters.hpp"
 #include "CAnimationParameters.hpp"
+#include "CFluidUVMotion.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CWorld.hpp"
 #include "Character/CModelData.hpp"
@@ -17,6 +18,7 @@
 #include "CScriptTrigger.hpp"
 #include "CScriptTimer.hpp"
 #include "CScriptCounter.hpp"
+#include "CScriptWater.hpp"
 #include "CSimplePool.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
 #include "logvisor/logvisor.hpp"
@@ -38,7 +40,7 @@ static bool EnsurePropertyCount(int count, int expected, const char* structName)
 {
     if (count < expected)
     {
-        Log.report(logvisor::Fatal, "Insufficient number of props (%d/%d) for %s entity",
+        Log.report(logvisor::Warning, "Insufficient number of props (%d/%d) for %s entity",
                    count, expected, structName);
         return false;
     }
@@ -261,6 +263,40 @@ CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in)
     s32 charIdx = in.readUint32Big();
     u32 defaultAnim = in.readUint32Big();
     return CAnimationParameters(ancs, charIdx, defaultAnim);
+}
+
+CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
+{
+    CFluidUVMotion::EFluidUVMotion motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
+    float a = in.readFloatBig();
+    float b = in.readFloatBig();
+    b = ((M_PIF * b) / 180.f) - M_PIF;
+    float c = in.readFloatBig();
+    float d = in.readFloatBig();
+    CFluidUVMotion::SFluidLayerMotion motionLayer2(motion, a, b, c, d);
+
+    motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
+    a = in.readFloatBig();
+    b = in.readFloatBig();
+    b = ((M_PIF * b) / 180.f) - M_PIF;
+    c = in.readFloatBig();
+    d = in.readFloatBig();
+    CFluidUVMotion::SFluidLayerMotion motionLayer3(motion, a, b, c, d);
+
+    motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
+    a = in.readFloatBig();
+    b = in.readFloatBig();
+    b = ((M_PIF * b) / 180.f) - M_PIF;
+    c = in.readFloatBig();
+    d = in.readFloatBig();
+    CFluidUVMotion::SFluidLayerMotion motionLayer1(motion, a, b, c, d);
+
+    a = in.readFloatBig();
+    b = in.readFloatBig();
+
+    b = ((M_PIF * b) / 180.f) - M_PIF;
+
+    return CFluidUVMotion(a, b, motionLayer1, motionLayer2, motionLayer3);
 }
 
 zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
@@ -608,6 +644,113 @@ CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
                                  int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 63, "Water"))
+        return nullptr;
+
+    std::string name = *mgr.HashInstanceName(in);
+    zeus::CVector3f position;
+    position.readBig(in);
+    zeus::CVector3f extent;
+    extent.readBig(in);
+    CDamageInfo dInfo(in);
+    zeus::CVector3f orientedForce;
+    orientedForce.readBig(in);
+    u32 triggerFlags = in.readUint32Big() | 2044;
+    bool b1 = in.readBool();
+    bool displaySurface = in.readBool();
+    ResId textureId1 = in.readUint32Big();
+    ResId textureId2 = in.readUint32Big();
+    ResId textureId3 = in.readUint32Big();
+    ResId textureId4 = in.readUint32Big();
+    ResId textureId5 = in.readUint32Big();
+    ResId textureId6 = in.readUint32Big();
+    zeus::CVector3f v2;
+    v2.readBig(in);
+
+    zeus::CVector3f otherV2 = v2;
+    if (otherV2.canBeNormalized())
+        otherV2.assign(0.f, 0.f, -1.f);
+
+    float f1 = 1.f / in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    bool active = in.readBool();
+    CFluidPlane::EFluidType fluidType = CFluidPlane::EFluidType(in.readUint32Big());
+    bool b4 = in.readBool();
+    float f4 = in.readFloatBig();
+    CFluidUVMotion fluidMotion = LoadFluidUVMotion(in);
+
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = zeus::degToRad(in.readFloatBig());
+    float f10 = zeus::degToRad(in.readFloatBig());
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    zeus::CColor c1;
+    c1.readRGBABig(in);
+    zeus::CColor c2;
+    c2.readRGBABig(in);
+    ResId enterParticle = in.readUint32Big();
+    ResId partId2 = in.readUint32Big();
+    ResId partId3 = in.readUint32Big();
+    ResId partId4 = in.readUint32Big();
+    ResId partId5 = in.readUint32Big();
+    u32 soundId1 = in.readUint32Big();
+    u32 soundId2 = in.readUint32Big();
+    u32 soundId3 = in.readUint32Big();
+    u32 soundId4 = in.readUint32Big();
+    u32 soundId5 = in.readUint32Big();
+    float f13 = in.readFloatBig();
+    u32 w19 = in.readUint32Big();
+    float f14 = in.readFloatBig();
+    float f15 = in.readFloatBig();
+    float f16 = in.readFloatBig();
+    float f17 = in.readFloatBig();
+    float f18 = in.readFloatBig();
+    float f19 = in.readFloatBig();
+    float heatWaveHeight = in.readFloatBig();
+    float heatWaveSpeed = in.readFloatBig();
+    zeus::CColor heatWaveColor;
+    heatWaveColor.readRGBABig(in);
+    ResId lightmap = in.readUint32Big();
+    float f22 = in.readFloatBig();
+    float f23 = in.readFloatBig();
+    float f24 = in.readFloatBig();
+    u32 w21 = in.readUint32Big();
+    u32 w22 = in.readUint32Big();
+    bool b5 = in.readBool();
+
+    u32* bitset = nullptr;
+    u32  bitVal0 = 0;
+    u32  bitVal1 = 0;
+
+    if (b5)
+    {
+        bitVal0 = in.readUint16Big();
+        bitVal1 = in.readUint16Big();
+        u32 len = ((bitVal0 * bitVal1) + 31) / 31;
+        bitset = new u32[len];
+        in.readBytesToBuf(&bitset, len * 4);
+    }
+
+    zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
+
+    ResId realTextureId6 = -1;
+    if (textureId4 == -1)
+        realTextureId6 = textureId6;
+
+    ResId realTextureId5 = -1;
+    if (textureId4 == -1)
+        realTextureId5 = textureId5;
+
+    return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
+                            textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2,
+                            f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle,
+                            partId2, partId3, partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5,
+                            f13, w19, f14, f15, f16, f17, f18, f19, heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24,
+                            w21, w22, b5, bitVal0, bitVal0, bitset);
 }
 
 CEntity* ScriptLoader::LoadWarwasp(CStateManager& mgr, CInputStream& in,

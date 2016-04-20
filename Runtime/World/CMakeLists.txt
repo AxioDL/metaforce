@@ -28,4 +28,6 @@ add_library(RuntimeCommonWorld
             CVisorParameters.hpp
             CAnimationParameters.hpp
             CDamageInfo.hpp
-            CDamageVulnerability.hpp)
+            CDamageVulnerability.hpp
+            CFluidUVMotion.hpp CFluidUVMotion.cpp
+            CFluidPlane.hpp)
