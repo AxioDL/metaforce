@@ -277,7 +277,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     CFluidUVMotion::EFluidUVMotion motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     float a = in.readFloatBig();
     float b = in.readFloatBig();
-    b = ((M_PIF * b) / 180.f) - M_PIF;
+    b = zeus::degToRad(b) - M_PIF;
     float c = in.readFloatBig();
     float d = in.readFloatBig();
     CFluidUVMotion::SFluidLayerMotion motionLayer2(motion, a, b, c, d);
@@ -285,7 +285,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
     b = in.readFloatBig();
-    b = ((M_PIF * b) / 180.f) - M_PIF;
+    b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
     CFluidUVMotion::SFluidLayerMotion motionLayer3(motion, a, b, c, d);
@@ -293,7 +293,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
     b = in.readFloatBig();
-    b = ((M_PIF * b) / 180.f) - M_PIF;
+    b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
     CFluidUVMotion::SFluidLayerMotion motionLayer1(motion, a, b, c, d);
@@ -301,7 +301,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     a = in.readFloatBig();
     b = in.readFloatBig();
 
-    b = ((M_PIF * b) / 180.f) - M_PIF;
+    b = zeus::degToRad(b) - M_PIF;
 
     return CFluidUVMotion(a, b, motionLayer1, motionLayer2, motionLayer3);
 }
