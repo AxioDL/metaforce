@@ -13,7 +13,6 @@ public:
                     const zeus::CTransform&, bool, float, float,
                     u32, u32, u32, u32, u32, u32, u32);
 };
-
 }
 
 #endif // __URDE_CSCRIPTWAYPOINT_HPP__

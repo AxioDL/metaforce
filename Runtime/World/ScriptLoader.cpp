@@ -18,7 +18,9 @@
 #include "CScriptTrigger.hpp"
 #include "CScriptTimer.hpp"
 #include "CScriptCounter.hpp"
+#include "CScriptDock.hpp"
 #include "CScriptWater.hpp"
+#include "CScriptGrapplePoint.hpp"
 #include "CSimplePool.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
 #include "logvisor/logvisor.hpp"
@@ -553,7 +555,20 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
                                 int propCount, const CEntityInfo& info)
-{
+{    
+    if (!EnsurePropertyCount(propCount, 7, "Dock"))
+        return nullptr;
+
+    std::string name = *mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    zeus::CVector3f position;
+    position.readBig(in);
+    zeus::CVector3f scale;
+    scale.readBig(in);
+    u32 dock = in.readUint32Big();
+    TAreaId area = in.readUint32Big();
+    bool b1 = in.readBool();
+    return new CScriptDock(mgr.AllocateUniqueId(), name, info, position, scale, dock, area, active, 0, b1);
 }
 
 CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
@@ -811,6 +826,14 @@ CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in,
                                         int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 5, "GrapplePoint"))
+        return nullptr;
+
+    std::string name = *mgr.HashInstanceName(in);
+    zeus::CTransform grappleXf = LoadEditorTransform(in);
+    bool active = in.readBool();
+    CGrappleParameters parameters = LoadGrappleParameters(in);
+    return new CScriptGrapplePoint(mgr.AllocateUniqueId(), name, info, grappleXf, active, parameters);
 }
 
 CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in,
