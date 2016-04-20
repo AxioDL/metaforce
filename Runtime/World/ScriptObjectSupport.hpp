@@ -8,7 +8,7 @@ enum class EScriptObjectType
 {
     Actor = 0x00,
     Waypoint = 0x02,
-    DoorArea = 0x03,
+    Door = 0x03,
     Trigger = 0x04,
     Timer = 0x05,
     Counter = 0x06,

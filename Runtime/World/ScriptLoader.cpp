@@ -96,7 +96,7 @@ static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id,
                                     const zeus::CVector3f& extent, const zeus::CVector3f& offset)
 {
     zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
-    zeus::CTransform rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
+    const zeus::CTransform& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
     return box.getTransformedAABox(rot);
 }
 
@@ -455,7 +455,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in,
 
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-    zeus::CTransform areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
+    const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.m_basis * forceVec;
 
     return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo,
