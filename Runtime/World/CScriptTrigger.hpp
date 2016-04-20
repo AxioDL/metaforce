@@ -13,7 +13,7 @@ public:
     CScriptTrigger(TUniqueId, const std::string& name, const CEntityInfo& info,
                    const zeus::CVector3f& pos, const zeus::CAABox&,
                    const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
-                   u32, bool, bool, bool);
+                   u32 triggerFlags, bool, bool, bool);
 };
 
 }

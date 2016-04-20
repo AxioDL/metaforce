@@ -15,6 +15,7 @@ class CVisorParameters;
 class CScannableParameters;
 class CLightParameters;
 class CAnimationParameters;
+class CFluidUVMotion;
 
 using FScriptLoader = std::function<CEntity*(CStateManager& mgr, CInputStream& in,
                                              int propCount, const CEntityInfo& info)>;
@@ -29,6 +30,7 @@ public:
     static CScannableParameters LoadScannableParameters(CInputStream& in);
     static CLightParameters LoadLightParameters(CInputStream& in);
     static CAnimationParameters LoadAnimationParameters(CInputStream& in);
+    static CFluidUVMotion LoadFluidUVMotion(CInputStream& in);
     static zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
                                                             const zeus::CVector3f& position);
 
