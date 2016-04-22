@@ -16,6 +16,9 @@ public:
     static void InitBeginTypes();
     static void InitAddType(Type tp);
     static void InitEndTypes();
+
+    static void InitBeginColliders();
+    static void InitAddCollider(Type tp);
 };
 
 }
