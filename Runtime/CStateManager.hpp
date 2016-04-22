@@ -168,7 +168,7 @@ public:
     void SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state);
     void FreeScriptObjects(TAreaId);
     void GetBuildForScript(TEditorId) const;
-    void GetEditorIdForUniqueId() const;
+    TEditorId GetEditorIdForUniqueId(TUniqueId) const;
     TUniqueId GetIdForScript(TEditorId) const;
     void GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, EScriptPersistence);
@@ -233,6 +233,8 @@ public:
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xaf8_camFilterPasses[idx];}
 
     CWorld* GetWorld() {return x850_world.get();}
+
+    std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
 };
 
 }

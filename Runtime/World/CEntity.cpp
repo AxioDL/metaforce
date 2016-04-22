@@ -3,10 +3,11 @@
 
 namespace urde
 {
+const std::vector<SConnection> CEntity::NullConnectionList;
 
 CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, const std::string& name)
-: x4_areaId(info.x0_areaId), x8_uid(uniqueId), xc_savwId(info.x14_savwId), x10_name(name),
-  x20_conns(info.x4_conns), x30_24_active(active) {}
+: x4_areaId(info.GetAreaId()), x8_uid(uniqueId), xc_editorId(info.GetEditorId()), x10_name(name),
+  x20_conns(info.GetConnectionList()), x30_24_active(active) {}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
@@ -48,5 +49,4 @@ void CEntity::SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, 
         if (conn.x0_state == state && conn.x4_msg != skipMsg)
             stateMgr.SendScriptMsg(x8_uid, conn.x8_objId, conn.x4_msg, state);
 }
-
 }

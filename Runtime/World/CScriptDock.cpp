@@ -8,9 +8,9 @@ namespace urde
 CMaterialList MakeDockMaterialList()
 {
     CMaterialList list;
-    list.x0_ |= (1ull << 34);
-    list.x0_ |= (1ull << 43);
-    list.x0_ |= (1ull << 48);
+    list.Add(EMaterialTypes::ThirtyFour);
+    list.Add(EMaterialTypes::FourtyThree);
+    list.Add(EMaterialTypes::FourtyEight);
     return list;
 }
 

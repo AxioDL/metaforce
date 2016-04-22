@@ -3,4 +3,6 @@ add_library(RuntimeCommonCollision
             CCollisionInfo.hpp CCollisionInfo.cpp
             CCollidableOBBTree.hpp CCollidableOBBTree.cpp
             CCollidableOBBTreeGroup.hpp CCollidableOBBTreeGroup.cpp
-            CMaterialList.hpp)
+            CMaterialList.hpp
+            CMaterialFilter.hpp
+            CRayCastResult.hpp CRayCastResult.cpp)

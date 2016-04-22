@@ -11,7 +11,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
                                const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
                                u32 triggerFlags, bool active, bool, bool)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
-         CMaterialList(34), CActorParameters::None(), kInvalidUniqueId)
+         CMaterialList(EMaterialTypes::ThirtyFour), CActorParameters::None(), kInvalidUniqueId)
 {
 }
 

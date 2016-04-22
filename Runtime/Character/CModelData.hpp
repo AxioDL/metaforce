@@ -38,6 +38,7 @@ struct CAnimRes
 
 class CModelData
 {
+    friend class CActor;
     zeus::CVector3f x0_particleScale;
     std::unique_ptr<CAnimData> xc_animData;
     union
@@ -101,6 +102,8 @@ public:
                              const CActorLights* lights, const CModelFlags& drawFlags) const;
     void Render(EWhichModel, const zeus::CTransform& xf,
                 const CActorLights* lights, const CModelFlags& drawFlags) const;
+
+    std::unique_ptr<CAnimData>& AnimationData() { return xc_animData; }
 };
 
 }

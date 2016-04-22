@@ -55,6 +55,7 @@ add_library(RuntimeCommonCharacter
             CAnimTreeTweenBase.hpp CAnimTreeTweenBase.cpp
             CAnimTreeSingleChild.hpp CAnimTreeSingleChild.cpp
             CAnimTreeDoubleChild.hpp CAnimTreeDoubleChild.cpp
+            CAnimPlaybackParms.hpp
             IAnimReader.hpp IAnimReader.cpp
             CPrimitive.hpp CPrimitive.cpp
             CHalfTransition.hpp CHalfTransition.cpp

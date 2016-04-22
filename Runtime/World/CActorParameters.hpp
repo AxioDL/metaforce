@@ -30,6 +30,8 @@ public:
       x44_xrayAssets(xrayAssets), x4c_thermalAssets(thermalAssets),
       x54_visorParms(visorParms), b1(a), b2(b), b3(c), b4(d) {}
     static CActorParameters None() {return CActorParameters();}
+
+    CVisorParameters GetVisorParameters() const { return x54_visorParms; }
 };
 
 }

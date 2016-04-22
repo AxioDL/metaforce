@@ -285,22 +285,28 @@ bool CVEParticleLocation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 
 bool CVEParticleSystemOrientationFront::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
-    /* TODO: Get front vector */
     zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis.vec[1].x;
+    valOut.y = trans.m_basis.vec[2].y;
+    valOut.z = trans.m_origin.z;
     return false;
 }
 
 bool CVEParticleSystemOrientationUp::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
-    /* TODO: Get up vector */
     zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis.vec[2].x;
+    valOut.y = trans.m_basis.vec[0].z;
+    valOut.z = trans.m_origin.y;
     return false;
 }
 
 bool CVEParticleSystemOrientationRight::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
-    /* TODO: Get right vector */
-    zeus::CTransform trans= CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    zeus::CTransform trans = CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation();
+    valOut.x = trans.m_basis.vec[0].x;
+    valOut.y = trans.m_basis.vec[1].y;
+    valOut.z = trans.m_basis.vec[2].z;
     return false;
 }
 

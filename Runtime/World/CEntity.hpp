@@ -18,14 +18,15 @@ struct SConnection
 
 class CEntityInfo
 {
-    friend class CEntity;
     TAreaId x0_areaId;
     std::vector<SConnection> x4_conns;
-    ResId x14_savwId;
+    TEditorId x14_editorId;
 public:
     CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns, ResId savwId=-1)
     : x0_areaId(aid), x4_conns(conns) {}
     TAreaId GetAreaId() const {return x0_areaId;}
+    std::vector<SConnection> GetConnectionList() const { return x4_conns; }
+    ResId GetEditorId() const { return x14_editorId; }
 };
 
 class CEntity
@@ -33,7 +34,7 @@ class CEntity
 protected:
     TAreaId x4_areaId;
     TUniqueId x8_uid;
-    ResId xc_savwId;
+    ResId xc_editorId;
     std::string x10_name;
     std::vector<SConnection> x20_conns;
 
@@ -49,15 +50,17 @@ protected:
     };
 
 public:
+    static const std::vector<SConnection> NullConnectionList;
     virtual ~CEntity() {}
     CEntity(TUniqueId uid, const CEntityInfo& info, bool active, const std::string& name);
     virtual void Accept(IVisitor&)=0;
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-    virtual bool GetActive() const {return x30_24_active;}
+    bool GetActive() const {return x30_24_active;}
     virtual void SetActive(bool active) {x30_24_active = active;}
 
+    TAreaId GetAreaId() const { return x4_areaId; }
     TUniqueId GetUniqueId() const {return x8_uid;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 };

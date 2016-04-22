@@ -360,13 +360,13 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
 
     CMaterialList list;
     if (b2)
-        list.x0_ = 0x80000000000;
+        list.Add(EMaterialTypes::SixtyThree);
 
     if (b3)
-        list.x0_ |= 8;
+        list.Add(EMaterialTypes::Eight);
 
     if (b4)
-        list.x0_ |= 32;
+        list.Add(EMaterialTypes::ThirtyTwo);
 
     bool generateExtent = false;
     if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)
@@ -395,7 +395,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info,
-                            head.x10_transform, data, aabb, f1, f2, list, hInfo, dInfo,
+                            head.x10_transform, std::move(data), aabb, f1, f2, list, hInfo, dInfo,
                             actParms, b1, b5, w2, f3, b6, b7, b8, b9);
 }
 
@@ -469,7 +469,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
         isMorphballDoor = in.readBool();
 
     return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                           mData, actParms, v1, aabb, b1, b2, b3, f1, isMorphballDoor);
+                           std::move(mData), actParms, v1, aabb, b1, b2, b3, f1, isMorphballDoor);
 }
 
 CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in,
@@ -651,7 +651,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                               data, actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
+                               std::move(data), actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
 }
 
 CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in,

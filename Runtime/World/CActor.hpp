@@ -3,6 +3,8 @@
 
 #include "CEntity.hpp"
 #include "zeus/zeus.hpp"
+#include "Collision/CMaterialList.hpp"
+#include "Character/CModelData.hpp"
 
 namespace urde
 {
@@ -12,12 +14,6 @@ enum class ECollisionResponseType
     Unknown12 = 0xC,
 };
 
-enum class EMaterialTypes
-{
-};
-
-class CModelData;
-class CMaterialList;
 class CActorParameters;
 class CWeaponMode;
 class CHealthInfo;
@@ -35,51 +31,88 @@ protected:
     };
 
     zeus::CTransform x34_transform;
-    float x40_unknown;
-    float x50_unknown;
-    float x60_unknown;
-    u32   x68_unknown;
-    u32   x6c_unknown;
-    bool    xd0_b0_flags : 1;
-    bool    xd0_b1_flags : 1;
-    bool    xd0_b2_flags : 1;
+    std::unique_ptr<CModelData> x64_modelData;
+    CMaterialList x68_;
+    CMaterialList x70_;
+    union
+    {
+        struct
+        {
+            bool xe4_27_ : 1;
+            bool xe4_28_ : 1;
+            bool xe4_29_ : 1;
+            bool xe5_0_opaque : 1;
+            bool xe5_26_muted : 1;
+            bool xe5_27_useInSortedLists : 1;
+            bool xe5_28_callTouch : 1;
+        };
+        u32 dummy1 = 0;
+    };
+
+    union
+    {
+        struct
+        {
+            bool xe7_29_ : 1;
+        };
+        u32 dummy2 = 0;
+    };
 public:
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
-           const zeus::CTransform&, const CModelData&, const CMaterialList&,
+           const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
-    virtual void Accept(IVisitor&);
+    virtual void Accept(IVisitor&) /*= 0*/;
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+    virtual void SetActive(bool active)
+    {
+        xe4_27_ = true;
+        xe4_28_ = true;
+        xe4_29_ = true;
+        xe7_29_ = true;
+        CEntity::SetActive(active);
+    }
+
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float)
-    { return zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
+    { return x34_transform.m_origin; }
 
     virtual bool ValidAimTarget() { return true; }
     virtual bool ValidOrbitTarget() { return true; }
     virtual bool GetOrbitDistanceCheck() { return true; }
     virtual zeus::CVector3f GetOrbitPosition()
-    { return zeus::CVector3f(x40_unknown, x50_unknown, x60_unknown); }
+    { return x34_transform.m_origin; }
 
     virtual ECollisionResponseType GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
-    void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){}
-    void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){ }
-    void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&){ }
-    void RemoveMaterial(EMaterialTypes, CStateManager&){ }
-    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){ }
-    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){}
-    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&){ }
-    void AddMaterial(EMaterialTypes, EMaterialTypes, CStateManager&){ }
-    void AddMaterial(EMaterialTypes, CStateManager&){ }
+    void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
+    void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
+    void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
+    void RemoveMaterial(EMaterialTypes, CStateManager&);
+    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
+    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
+    void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
+    void AddMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
+    void AddMaterial(EMaterialTypes, CStateManager&);
 
-    virtual void SetActive(bool active)
+    void SetCallTouch(bool callTouch)
     {
-        //xd0_flags |= (Unknown5 | Unknown6 | Unknown7);
-        CEntity::SetActive(active);
+        xe5_28_callTouch = callTouch;
     }
 
-    virtual void SetCallTouch(bool callTouch)
+    bool GetCallTouch() const
     {
-        //xd1_flags = Unknown6
+        return xe5_28_callTouch;
     }
+
+    void SetUseInSortedList(bool use)
+    {
+        xe5_27_useInSortedLists = use;
+    }
+
+    bool GetUseInSortedLists() const
+    {
+        return xe5_27_useInSortedLists;
+    }
+
 };
 
 }

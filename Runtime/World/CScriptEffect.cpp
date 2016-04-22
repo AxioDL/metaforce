@@ -11,7 +11,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, const std::string& name, const CEnti
                              ResId partId, ResId elscId, bool, bool, bool, bool active,
                              bool, float, float, float, float, bool, float, float, float,
                              bool, bool, bool, const CLightParameters& lParms, bool)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(0),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
 {
 }

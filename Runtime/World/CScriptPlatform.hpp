@@ -13,7 +13,7 @@ class CScriptPlatform : public CPhysicsActor
 {
 public:
     CScriptPlatform(TUniqueId, const std::string& name, const CEntityInfo& info,
-                    const zeus::CTransform& xf, const CModelData& mData,
+                    const zeus::CTransform& xf, CModelData&& mData,
                     const CActorParameters& actParms, const zeus::CAABox& aabb,
                     float, bool, float, bool, const CHealthInfo& hInfo, const CDamageVulnerability& dInfo,
                     const TLockedToken<CCollidableOBBTreeGroup>& dcln, bool, u32, u32);

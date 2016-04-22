@@ -10,7 +10,7 @@ CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntity
                            const zeus::CTransform& xf, s16 soundId, bool active, float, float, float,
                            u32, u32, u32, u32, u32, bool, bool, bool, bool, bool, bool, bool, bool, u32)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(),
-         CMaterialList(0), CActorParameters::None(), kInvalidUniqueId)
+         CMaterialList(), CActorParameters::None(), kInvalidUniqueId)
 {
 }
 

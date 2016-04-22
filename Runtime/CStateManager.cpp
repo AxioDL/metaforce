@@ -300,7 +300,7 @@ void CStateManager::GetBuildForScript(TEditorId) const
 {
 }
 
-void CStateManager::GetEditorIdForUniqueId() const
+TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId) const
 {
 }
 
