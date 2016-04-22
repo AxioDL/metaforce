@@ -41,6 +41,12 @@ class CCameraManager
 public:
     CCameraManager(TUniqueId curCameraId);
 
+    static float DefaultAspect() {return 1.42f;}
+    static float DefaultFarPlane() {return 750.0f;}
+    static float DefaultNearPlane() {return 0.2f;}
+    static float DefaultFirstPersonFOV() {return 55.0f;}
+    static float DefaultThirdPersonFOV() {return 60.0f;}
+
     void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball)
     {
         x7c_fpCamera = &fp;

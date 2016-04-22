@@ -25,6 +25,7 @@
 #include "CScriptSound.hpp"
 #include "CScriptGenerator.hpp"
 #include "CScriptGrapplePoint.hpp"
+#include "Camera/CCinematicCamera.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
@@ -730,6 +731,33 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
                                   int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 14, "Camera"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+    bool b5 = in.readBool();
+    bool b6 = in.readBool();
+    bool b7 = in.readBool();
+    bool b8 = in.readBool();
+    float f2 = in.readFloatBig();
+    bool b9 = in.readBool();
+
+    bool b10 = false;
+    if (propCount > 14)
+        b10 = in.readBool();
+
+    u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
+
+    return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info,
+                                head.x10_transform, b1, f1, f2 / CCameraManager::DefaultAspect(),
+                                CCameraManager::DefaultNearPlane(), CCameraManager::DefaultFarPlane(),
+                                CCameraManager::DefaultAspect(), flags);
 }
 
 CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in,
