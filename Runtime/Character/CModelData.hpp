@@ -103,7 +103,7 @@ public:
     void Render(EWhichModel, const zeus::CTransform& xf,
                 const CActorLights* lights, const CModelFlags& drawFlags) const;
 
-    std::unique_ptr<CAnimData>& AnimationData() { return xc_animData; }
+    CAnimData* AnimationData() { return xc_animData.get(); }
 };
 
 }

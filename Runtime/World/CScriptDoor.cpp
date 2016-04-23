@@ -1,9 +1,11 @@
 #include "CScriptDoor.hpp"
+#include "CScriptDock.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Character/CAnimData.hpp"
 #include "Character/CAnimPlaybackParms.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "CStateManager.hpp"
+#include "CWorld.hpp"
 
 namespace urde
 {
@@ -30,6 +32,18 @@ CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityIn
     x264_ = GetBoundingBox();
 }
 
+/* ORIGINAL 0-00 OFFSET: 8007F054 */
+zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager &mgr) const
+{
+    return x34_transform.m_origin + x29c_;
+}
+
+/* ORIGINAL 0-00 OFFSET: 8007E550 */
+void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr)
+{
+}
+
+/* ORIGINAL 0-00 OFFSET: 8007E0BC */
 void CScriptDoor::ForceClosed(CStateManager & mgr)
 {
     if (x2a8_26_)
@@ -58,6 +72,23 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
     }
 }
 
+/* ORIGINAL 0-00 OFFSET: 8007E1C4 */
+bool CScriptDoor::IsConnectedToArea(const CStateManager& mgr, TAreaId area)
+{
+    const CScriptDock* dock = dynamic_cast<const CScriptDock*>(mgr.GetObjectById(x282_dockId));
+    if (dock)
+    {
+        if (dock->x260_area == area)
+            return true;
+        /*
+         * TODO: Determine what's going on here
+         * CWorld* world = mgr.GetWorld();
+         */
+    }
+    return false;
+}
+
+/* ORIGINAL 0-00 OFFSET: 8007EA64 */
 void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
 {
     TEditorId eid = mgr.GetEditorIdForUniqueId(uid);
@@ -79,6 +110,22 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     }
 }
 
+/* ORIGINAL 0-00 OFFSET: 8007ED4C */
+u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
+{
+    const CScriptDock* dock = dynamic_cast<const CScriptDock*>(mgr.GetObjectById(x282_dockId));
+
+    if (!dock)
+        return 2;
+
+    if (x25c_ < 0.05f)
+        return 1;
+
+    /* TODO: Finish this */
+    return 0;
+}
+
+/* ORIGINAL 0-00 OFFSET: 8007E9D0 */
 void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type)
 {
     CModelData* modelData = x64_modelData.get();

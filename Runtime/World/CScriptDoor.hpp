@@ -21,7 +21,9 @@ public:
     EDoorAnimType x260_doorState = EDoorAnimType::Zero;
     zeus::CAABox x264_;
     TUniqueId x27c_otherId = kInvalidUniqueId;
+    TUniqueId x282_dockId = kInvalidUniqueId;
 
+    zeus::CVector3f x29c_;
     union
     {
         struct
@@ -50,8 +52,12 @@ public:
                 const zeus::CVector3f&, const zeus::CAABox&,
                 bool active, bool material, bool, float, bool ballDoor);
 
+    zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
     void ForceClosed(CStateManager&);
+    bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
     void OpenDoor(TUniqueId, CStateManager&);
+    u32 GetDoorOpenCondition(CStateManager& mgr);
     void SetDoorAnimation(EDoorAnimType);
 };
 

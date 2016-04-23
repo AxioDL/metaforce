@@ -79,7 +79,7 @@ public:
     virtual bool ValidAimTarget() { return true; }
     virtual bool ValidOrbitTarget() { return true; }
     virtual bool GetOrbitDistanceCheck() { return true; }
-    virtual zeus::CVector3f GetOrbitPosition()
+    virtual zeus::CVector3f GetOrbitPosition(const CStateManager&)
     { return x34_transform.m_origin; }
 
     virtual ECollisionResponseType GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }

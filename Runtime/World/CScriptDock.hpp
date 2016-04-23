@@ -8,6 +8,7 @@ namespace urde
 
 class CScriptDock : public CPhysicsActor
 {
+    friend class CScriptDoor;
     s32 x258_;
     s32 x25c_dock;
     TAreaId x260_area;
