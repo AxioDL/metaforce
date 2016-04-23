@@ -13,13 +13,13 @@ class CAnimPlaybackParms
     bool  xc_;
     s32   x10_ = 0;
     s32   x14_ = 0;
-    bool  x28_ = false;
-    s32   x2c_ = 0;
-    s32   x30_ = 0;
-    s32   x34_ = 0;
+    bool  x18_ = false;
+    s32   x1c_ = 0;
+    s32   x20_ = 0;
+    s32   x24_ = 0;
 public:
     CAnimPlaybackParms(s32 a, s32 b, float c, bool d)
-        : x0_(a), x4_(b), xc_(c), x10_(d)
+        : x0_(a), x4_(b), x8_(c), xc_(d)
     {}
 };
 }

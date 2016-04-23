@@ -11,17 +11,19 @@ class CScriptDoor : public CPhysicsActor
 public:
     enum class EDoorAnimType
     {
-        Zero,
-        One,
-        Two,
+        Open,
+        Close,
+        Ready,
         Three
     };
 
     float x25c_;
-    EDoorAnimType x260_doorState = EDoorAnimType::Zero;
+    EDoorAnimType x260_doorState = EDoorAnimType::Open;
     zeus::CAABox x264_;
-    TUniqueId x27c_otherId = kInvalidUniqueId;
+    TUniqueId x27c_partner = kInvalidUniqueId;
+    TUniqueId x280_ = kInvalidUniqueId;
     TUniqueId x282_dockId = kInvalidUniqueId;
+    zeus::CAABox x284_modelBounds;
 
     zeus::CVector3f x29c_;
     union
@@ -41,7 +43,8 @@ public:
             bool x2a8_25_ : 1;
             bool x2a8_26_ : 1;
             bool x2a8_27_ : 1;
-            bool x2a8_29_ : 1;
+            bool x2a8_28_ : 1;
+            bool x2a8_29_ballDoor : 1;
             bool x2a8_30_ : 1;
         };
         u32 dummy2 = 0;

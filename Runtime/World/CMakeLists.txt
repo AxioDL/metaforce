@@ -1,5 +1,6 @@
 add_library(RuntimeCommonWorld
             CWorld.hpp CWorld.cpp
+            IGameArea.hpp IGameArea.cpp
             CGameArea.hpp CGameArea.cpp
             CPathFindArea.hpp CPathFindArea.cpp
             CAreaOctTree.hpp CAreaOctTree.cpp
@@ -27,6 +28,7 @@ add_library(RuntimeCommonWorld
             CScriptDock.hpp CScriptDock.cpp
             CScriptWater.hpp CScriptWater.cpp
             CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
+            CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp

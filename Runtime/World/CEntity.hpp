@@ -45,6 +45,7 @@ protected:
             bool x30_24_active : 1;
             bool x30_25_ : 1;
             bool x30_26_ : 1;
+            bool x30_27_ : 1;
         };
         u8 _dummy = 0;
     };
@@ -60,7 +61,12 @@ public:
     bool GetActive() const {return x30_24_active;}
     virtual void SetActive(bool active) {x30_24_active = active;}
 
-    TAreaId GetAreaId() const { return x4_areaId; }
+    TAreaId GetAreaId() const
+    {
+        if (x30_27_)
+            return x4_areaId;
+        return kInvalidAreaId;
+    }
     TUniqueId GetUniqueId() const {return x8_uid;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 };

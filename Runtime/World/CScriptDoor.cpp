@@ -25,15 +25,26 @@ static CMaterialList MakeDoorMaterialList(bool material)
 CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                          const zeus::CVector3f&, const zeus::CAABox& aabb, bool active,
-                         bool material, bool, float, bool ballDoor)
+                         bool material, bool b2, float, bool ballDoor)
     : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(material),
-                aabb, SMoverData(1.f), actParms, 0.3f, 0.1f)
+                aabb, SMoverData(1.f), actParms, 0.3f, 0.1f),
+      x2a8_29_ballDoor(ballDoor),
+      x2a8_25_(material),
+      x2a8_26_(material),
+      x2a8_28_(b2),
+      x2a8_27_(true)
 {
     x264_ = GetBoundingBox();
+    x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
+
+    if (material)
+        SetDoorAnimation(EDoorAnimType::Open);
+
+    SetMass(0.f);
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007F054 */
-zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager &mgr) const
+zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) const
 {
     return x34_transform.m_origin + x29c_;
 }
@@ -41,6 +52,9 @@ zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager &mgr) const
 /* ORIGINAL 0-00 OFFSET: 8007E550 */
 void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr)
 {
+    (void)mgr;
+    (void)uid;
+    (void)msg;
 }
 
 void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager &mgr)
@@ -63,7 +77,7 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
          * mgr->x870->x80_->sub_800830F4(x8_uid)
          */
 
-        SetDoorAnimation(EDoorAnimType::One);
+        SetDoorAnimation(EDoorAnimType::Close);
         SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
 
         x25c_ = 0.f;
@@ -103,10 +117,10 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     const CScriptDoor* door = dynamic_cast<const CScriptDoor*>(mgr.GetObjectById(uid));
 
     if (door)
-        x27c_otherId = door->x8_uid;
+        x27c_partner = door->x8_uid;
 
-    SetDoorAnimation(EDoorAnimType::Zero);
-    if (x27c_otherId != kInvalidUniqueId)
+    SetDoorAnimation(EDoorAnimType::Open);
+    if (x27c_partner != kInvalidUniqueId)
         SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
     else
     {
@@ -134,12 +148,10 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
 /* ORIGINAL 0-00 OFFSET: 8007E9D0 */
 void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type)
 {
+    x260_doorState = type;
     CModelData* modelData = x64_modelData.get();
-    if (x260_doorState == EDoorAnimType::Zero)
-        return;
-
-    if (modelData->AnimationData())
-        modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
+    if (modelData && modelData->AnimationData())
+        modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);
 }
 
 }

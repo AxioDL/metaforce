@@ -17,14 +17,18 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
 }
 
 CGameArea::CGameArea(CInputStream& in, int mlvlVersion)
-: x4_mlvlVersion(mlvlVersion), xf0_25_(true)
+: x4_mlvlVersion(mlvlVersion), xf0_25_active(true)
 {
     x8_nameSTRG = in.readUint32Big();
     xc_transform.read34RowMajor(in);
     x3c_invTransform = xc_transform.inverse();
     x6c_aabb.readBoundingBoxBig(in);
+
     x84_mrea = in.readUint32Big();
-    x88_areaId = in.readUint32Big();
+    if (mlvlVersion > 15)
+        x88_areaId = in.readUint32Big();
+    else
+        x88_areaId = -1;
 
     u32 attachedCount = in.readUint32Big();
     x8c_attachedAreaIndices.reserve(attachedCount);

@@ -41,7 +41,7 @@ class CGameArea : public IGameArea
         struct
         {
             bool xf0_24_ : 1;
-            bool xf0_25_ : 1;
+            bool xf0_25_active : 1;
             bool xf0_26_ : 1;
             bool xf0_27_ : 1;
             bool xf0_28_ : 1;

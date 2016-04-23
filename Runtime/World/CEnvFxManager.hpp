@@ -4,6 +4,20 @@
 namespace urde
 {
 
+enum class EEnvFxType
+{
+    None,
+    Rain,
+    Snow
+};
+
+enum class EPhazonType
+{
+    None,
+    Blue,
+    Orange
+};
+
 class CEnvFxManager
 {
 };

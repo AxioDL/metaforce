@@ -115,7 +115,6 @@ public:
     {
         return xe5_27_useInSortedLists;
     }
-
 };
 
 }

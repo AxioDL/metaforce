@@ -25,6 +25,7 @@
 #include "CScriptSound.hpp"
 #include "CScriptGenerator.hpp"
 #include "CScriptGrapplePoint.hpp"
+#include "CScriptAreaAttributes.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -1163,6 +1164,24 @@ CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in,
                                           int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 9, "AreaAttributes"))
+        return nullptr;
+
+    bool load = in.readUint32Big() != 0;
+    if (!load)
+        return nullptr;
+
+    bool showSkybox = in.readBool();
+    EEnvFxType fxType = EEnvFxType(in.readUint32Big());
+    float envFxDensity = in.readFloatBig();
+    float thermalHeat = in.readFloatBig();
+    float xrayFogDistance = in.readFloatBig();
+    float worldLightingLevel = in.readFloatBig();
+    ResId skybox = in.readUint32Big();
+    EPhazonType phazonType = EPhazonType(in.readUint32Big());
+
+    return new CScriptAreaAttributes(mgr.AllocateUniqueId(), info, showSkybox, fxType, envFxDensity, thermalHeat,
+                                     xrayFogDistance, worldLightingLevel, skybox, phazonType);
 }
 
 CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in,
