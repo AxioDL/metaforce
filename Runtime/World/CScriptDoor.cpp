@@ -43,6 +43,12 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 {
 }
 
+void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager &mgr)
+{
+    if (!xe4_30_)
+        CPhysicsActor::Render(mgr);
+}
+
 /* ORIGINAL 0-00 OFFSET: 8007E0BC */
 void CScriptDoor::ForceClosed(CStateManager & mgr)
 {

@@ -154,6 +154,7 @@ enum class ETexelFormat
 class CGraphics
 {
 public:
+
     struct CProjectionState
     {
         bool x0_persp;
@@ -193,6 +194,7 @@ public:
     static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
     static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
     static void SetCullMode(ERglCullMode);
+    static void BeginScene();
     static void EndScene();
     static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
     static void SetViewPointMatrix(const zeus::CTransform& xf);
@@ -221,9 +223,11 @@ public:
 
     static CTimeProvider* g_ExternalTimeProvider;
     static float g_DefaultSeconds;
+    static u32 g_RenderTimings;
     static void SetExternalTimeProvider(CTimeProvider* provider)
     {g_ExternalTimeProvider = provider;}
     static float GetSecondsMod900();
+    static void TickRenderTimings();
 
     static boo::IGraphicsDataFactory::Platform g_BooPlatform;
     static boo::IGraphicsDataFactory* g_BooFactory;

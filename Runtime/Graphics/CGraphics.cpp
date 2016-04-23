@@ -386,13 +386,20 @@ void CGraphics::SetDepthRange(float znear, float zfar)
 }
 
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;
-float CGraphics::g_DefaultSeconds;
+float CGraphics::g_DefaultSeconds = 0.f;
+u32 CGraphics::g_RenderTimings = 0;
 
 float CGraphics::GetSecondsMod900()
 {
     if (!g_ExternalTimeProvider)
         return g_DefaultSeconds;
     return g_ExternalTimeProvider->x0_currentTime;
+}
+
+void CGraphics::TickRenderTimings()
+{
+    g_RenderTimings++;
+    g_DefaultSeconds = float(g_RenderTimings) / 60.f;
 }
 
 boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;

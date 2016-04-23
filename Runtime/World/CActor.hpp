@@ -41,6 +41,7 @@ protected:
             bool xe4_27_ : 1;
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
+            bool xe4_30_ : 1;
             bool xe5_0_opaque : 1;
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
@@ -63,6 +64,8 @@ public:
            const CActorParameters&, TUniqueId);
 
     virtual void Accept(IVisitor&) /*= 0*/;
+    virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
+    virtual void Render(CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual void SetActive(bool active)
     {

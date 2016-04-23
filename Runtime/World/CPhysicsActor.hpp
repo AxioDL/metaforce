@@ -40,6 +40,9 @@ public:
                   const zeus::CAABox&, const SMoverData&, const CActorParameters&,
                   float, float);
 
+    void AddToRenderer(const zeus::CFrustum &, CStateManager &){}
+    void Render(CStateManager& mgr) { CActor::Render(mgr); }
+
     float GetCollisionAccuracyModifier()
     { return x248_collisionAccuracyModifier; }
 

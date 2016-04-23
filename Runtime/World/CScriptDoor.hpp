@@ -54,6 +54,9 @@ public:
 
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+    void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr);
+    zeus::CAABox GetTouchBounds() const {}
+    void Render(const CStateManager&) {}
     void ForceClosed(CStateManager&);
     bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
     void OpenDoor(TUniqueId, CStateManager&);
