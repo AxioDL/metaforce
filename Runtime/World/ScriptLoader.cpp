@@ -26,6 +26,7 @@
 #include "CScriptGenerator.hpp"
 #include "CScriptGrapplePoint.hpp"
 #include "CScriptAreaAttributes.hpp"
+#include "CScriptCameraWaypoint.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -764,6 +765,17 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in,
                                           int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 6, "CameraWaypoint"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+
+    return new CScriptCameraWaypoint(mgr.AllocateUniqueId(), head.x0_name, info,
+                                     head.x10_transform, b1, f1, w1);
 }
 
 CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
