@@ -7,6 +7,7 @@ namespace urde
 {
 enum class EMaterialTypes
 {
+    Zero = 0,
     Six = 6,
     Eight = 8,
     Ten = 10,

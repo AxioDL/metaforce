@@ -29,6 +29,7 @@ add_library(RuntimeCommonWorld
             CScriptWater.hpp CScriptWater.cpp
             CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
             CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
+            CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
             CGrappleParameters.hpp
             CActorParameters.hpp
             CLightParameters.hpp
