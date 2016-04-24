@@ -61,9 +61,9 @@ public:
         zeus::CVector3f x28_ = {0.5f};
         float x34_ = 0.f;
     public:
-        void SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec);
-        void DisableFog();
-        void Update(float dt);
+        void SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec) {}
+        void DisableFog() {}
+        void Update(float dt) {}
     };
 
     CGameArea(CInputStream& in, int mlvlVersion);

@@ -95,6 +95,11 @@ include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE
                     ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 add_subdirectory(Editor)
+set(CLIENT_SOURCES
+    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp
+    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.cpp
+    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.hpp
+    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.cpp)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
 

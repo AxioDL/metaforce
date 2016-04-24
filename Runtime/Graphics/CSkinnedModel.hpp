@@ -37,7 +37,7 @@ public:
     const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const {return x1c_layoutInfo;}
 
     void Calculate(const CPoseAsTransforms& pose, const std::experimental::optional<CVertexMorphEffect>&);
-    void Draw(const CModelFlags& drawFlags) const;
+    void Draw(const CModelFlags& drawFlags) const {}
 };
 
 class CMorphableSkinnedModel : public CSkinnedModel

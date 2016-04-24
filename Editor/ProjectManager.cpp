@@ -188,4 +188,23 @@ bool ProjectManager::saveProject()
     return true;
 }
 
+void ProjectManager::mainUpdate()
+{
+    if (m_mainMP1)
+        m_mainMP1->Proc();
+}
+
+void ProjectManager::asyncIdle()
+{
+    m_factoryMP1.AsyncIdle();
+}
+
+void ProjectManager::shutdown()
+{
+    if (m_mainMP1)
+        m_mainMP1->Shutdown();
+    m_clientProc.shutdown();
+    m_factoryMP1.Shutdown();
+}
+
 }

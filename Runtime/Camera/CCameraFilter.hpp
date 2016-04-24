@@ -22,8 +22,8 @@ public:
     };
 private:
 public:
-    void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32);
-    void DisableFilter(float);
+    void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32) {}
+    void DisableFilter(float) {}
 };
 
 class CCameraBlurPass

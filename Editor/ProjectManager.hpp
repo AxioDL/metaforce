@@ -49,24 +49,9 @@ public:
     bool extractGame(const hecl::SystemString& path);
     bool saveProject();
 
-    void mainUpdate()
-    {
-        if (m_mainMP1)
-            m_mainMP1->Proc();
-    }
-
-    void asyncIdle()
-    {
-        m_factoryMP1.AsyncIdle();
-    }
-
-    void shutdown()
-    {
-        if (m_mainMP1)
-            m_mainMP1->Shutdown();
-        m_clientProc.shutdown();
-        m_factoryMP1.Shutdown();
-    }
+    void mainUpdate();
+    void asyncIdle();
+    void shutdown();
 };
 
 }

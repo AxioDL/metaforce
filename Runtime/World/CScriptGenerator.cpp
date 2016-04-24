@@ -9,4 +9,6 @@ CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const
 {
 }
 
+void CScriptGenerator::Accept(IVisitor&) {}
+
 }

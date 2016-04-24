@@ -9,4 +9,6 @@ CScriptTimer::CScriptTimer(TUniqueId uid, const std::string& name, const CEntity
 {
 }
 
+void CScriptTimer::Accept(IVisitor&) {}
+
 }

@@ -7,7 +7,7 @@ namespace urde
 class CActorLights
 {
 public:
-    void ActivateLights() const;
+    void ActivateLights() const {}
 };
 
 }

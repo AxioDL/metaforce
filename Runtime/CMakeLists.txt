@@ -1,6 +1,14 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec)
 
+macro(runtime_add_list rel_path a_list)
+  unset(tmp_list)
+  foreach(path IN LISTS ${a_list})
+    list(APPEND tmp_list "${rel_path}/${path}")
+  endforeach(path)
+  set(${a_list} "${tmp_list}" PARENT_SCOPE)
+endmacro(runtime_add_list)
+
 add_subdirectory(Audio)
 add_subdirectory(Character)
 add_subdirectory(Graphics)
@@ -20,7 +28,23 @@ else()
   list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp CCallStackNix.cpp)
 endif()
 
+add_subdirectory(MP1)
+add_subdirectory(MP2)
+add_subdirectory(MP3)
+
 add_library(RuntimeCommon
+            ${CLIENT_SOURCES}
+            ${MP1_SOURCES}
+            ${AUDIO_SOURCES}
+            ${AUTOMAPPER_SOURCES}
+            ${CAMERA_SOURCES}
+            ${CHARACTER_SOURCES}
+            ${COLLISION_SOURCES}
+            ${GRAPHICS_SOURCES}
+            ${GUISYS_SOURCES}
+            ${INPUT_SOURCES}
+            ${PARTICLE_SOURCES}
+            ${WORLD_SOURCES}
             #CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
             IAllocator.hpp IAllocator.cpp
@@ -72,7 +96,3 @@ add_library(RuntimeCommon
             RetroTypes.hpp
             GCNTypes.hpp
             ${PLAT_SRCS})
-
-add_subdirectory(MP1)
-add_subdirectory(MP2)
-add_subdirectory(MP3)

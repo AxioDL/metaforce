@@ -29,8 +29,6 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                ParticleEditor.hpp ParticleEditor.cpp atdna_ParticleEditor.cpp
                InformationCenter.hpp InformationCenter.hpp atdna_InformationCenter.cpp
                ProjectManager.hpp ProjectManager.cpp
-               ProjectResourceFactoryBase.hpp ProjectResourceFactoryBase.cpp
-               ProjectResourceFactoryMP1.hpp ProjectResourceFactoryMP1.cpp
                ViewManager.hpp ViewManager.cpp
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp)
@@ -38,17 +36,6 @@ add_executable(urde WIN32 MACOSX_BUNDLE
 target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
-                      RuntimeMP1
-                      RuntimeCommonWorld
-                      RuntimeCommonAutoMapper
-                      RuntimeCommonCamera
-                      RuntimeCommonCharacter
-                      RuntimeCommonInput
-                      RuntimeCommonParticle
-                      RuntimeCommonCollision
-                      RuntimeCommonGuiSys
-                      RuntimeCommonGraphics
-                      RuntimeCommonAudio
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
                       DNACommon specter specter-fonts freetype ${DATA_SPEC_LIBS}
