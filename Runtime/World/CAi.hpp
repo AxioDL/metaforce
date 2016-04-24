@@ -22,14 +22,22 @@ enum class EListenNoiseType
 {
 };
 
+class CAi;
+class CStateMachine;
+
+typedef void (CAi::*CAiStateFunc)(CStateManager&, EStateMsg, float);
+typedef bool (CAi::*CAiTriggerFunc)(CStateManager&, float);
+
 class CAiFuncMap
 {
-    /* TODO: Figure out return type, I think it's a string */
-    void GetStateFunc(const char*);
-    void GetTriggerFunc(const char*);
+    std::map<const char*, CAiStateFunc> x0_stateFuncs;
+    std::map<const char*, CAiTriggerFunc> x10_triggerFuncs;
+public:
+    CAiFuncMap();
+    CAiStateFunc GetStateFunc(const char*);
+    CAiTriggerFunc GetTriggerFunc(const char*);
 };
 
-/* TODO: Move these */
 class CHealthInfo
 {
     float x0_;
@@ -41,20 +49,26 @@ public:
 class CStateManager;
 class CAi : public CPhysicsActor
 {
-    CHealthInfo          x240_healthInfo;
-    CDamageVulnerability x248_damageVulnerability;
+    static CAiFuncMap*   m_FuncMap;
+    CHealthInfo          x258_healthInfo;
+    CDamageVulnerability x260_damageVulnerability;
+    TLockedToken<CStateMachine> x2c8_stateMachine;
 public:
 
-    void CreateFuncLookup(CAiFuncMap* funcMap) { }
-    void GetStateFunc(const char*) {}
-    void GetTrigerFunc(const char*) {}
+    CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+             CModelData&& mData, const zeus::CAABox& box, float f1, const CHealthInfo& hInfo, const CDamageVulnerability&,
+             const CMaterialList& list, ResId, const CActorParameters&, float f2, float f3);
+
+    static void CreateFuncLookup(CAiFuncMap* funcMap);
+    CAiStateFunc GetStateFunc(const char* func);
+    CAiTriggerFunc GetTrigerFunc(const char* func);
+
     void GetStateMachine() {}
 
-    /* TODO: Figure out the return types, if any, and fix these prototypes */
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
-    virtual CHealthInfo HealthInfo(CStateManager&) { return x240_healthInfo; }
-    virtual CHealthInfo GetHealthInfo(const CStateManager&) { return x240_healthInfo; }
-    virtual CDamageVulnerability GetDamageVulnerability()  { return x248_damageVulnerability; }
+    virtual CHealthInfo HealthInfo(CStateManager&) { return x258_healthInfo; }
+    virtual CHealthInfo GetHealthInfo(const CStateManager&) { return x258_healthInfo; }
+    virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }
 
     virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
@@ -109,69 +123,82 @@ public:
     virtual void SpecialAttack(CStateManager&, EStateMsg, float) {}
     virtual void Growth(CStateManager&, EStateMsg, float) {}
     virtual void Faint(CStateManager&, EStateMsg, float) {}
+    virtual void Land(CStateManager&, EStateMsg, float) {}
+    virtual void Bounce(CStateManager&, EStateMsg, float) {}
+    virtual void PathFindEx(CStateManager&, EStateMsg, float) {}
+    virtual void Dizzy(CStateManager&, EStateMsg, float) {}
+    virtual void CallForBackup(CStateManager&, EStateMsg, float) {}
     virtual void BulbAttack(CStateManager&, EStateMsg, float) {}
     virtual void PodAttack(CStateManager&, EStateMsg, float) {}
 
-    virtual void InAttackPosition(CStateManager&, float) {}
-    virtual void Leash(CStateManager&, float) {}
-    virtual void OffLine(CStateManager&,float) {}
-    virtual void Attacked(CStateManager&, float) {}
-    virtual void PathShagged(CStateManager&,float) {}
-    virtual void PathOver(CStateManager&,float) {}
-    virtual void TooClose(CStateManager&,float) {}
-    virtual void InRange(CStateManager&,float) {}
-    virtual void InMaxRange(CStateManager&,float) {}
-    virtual void InDetectionRange(CStateManager&,float) {}
-    virtual void SpotPlayer(CStateManager&,float) {}
-    virtual void PlayerSpot(CStateManager&,float) {}
-    virtual void PatternOver(CStateManager&,float) {}
-    virtual void PatternedShagged(CStateManager&,float) {}
-    virtual void HasAttackPattern(CStateManager&,float) {}
-    virtual void HasPatrolPath(CStateManager&,float) {}
-    virtual void HasRetreatPattern(CStateManager&,float) {}
-    virtual void Delay(CStateManager&,float) {}
-    virtual void RandomDelay(CStateManager&,float) {}
-    virtual void FixedDelay(CStateManager&,float) {}
-    virtual void AnimOver(CStateManager&, float) {}
-    virtual void ShouldAttack(CStateManager&,float) {}
-    virtual void ShouldDoubleSnap(CStateManager&,float) {}
-    virtual void InPosition(CStateManager&,float) {}
-    virtual void ShouldTurn(CStateManager&,float) {}
-    virtual void HitSomething(CStateManager&,float) {}
-    virtual void ShouldJumpBack(CStateManager&,float) {}
-    virtual void Stuck(CStateManager&,float) {}
-    virtual void NoPathNodes(CStateManager&,float) {}
-    virtual void Landed(CStateManager&,float) {}
-    virtual void HearShot(CStateManager&,float) {}
-    virtual void HearPlayer(CStateManager&,float) {}
-    virtual void CoverCheck(CStateManager&, float) {}
-    virtual void CoverFind(CStateManager&, float) {}
-    virtual void CoverBlown(CStateManager&, float) {}
-    virtual void CoverNearlyBlown(CStateManager&, float) {}
-    virtual void CoveringFire(CStateManager&, float) {}
-    virtual void GotUp(CStateManager&,float) {}
-    virtual void LineOfSight(CStateManager&,float) {}
-    virtual void AggressionCheck(CStateManager&, float) {}
-    virtual void AttackOver(CStateManager&, float) {}
-    virtual void ShouldTaunt(CStateManager&,float) {}
-    virtual void Inside(CStateManager&,float) {}
-    virtual void ShouldFire(CStateManager&,float) {}
-    virtual void ShouldFlinch(CStateManager&,float) {}
-    virtual void PatrolPathOver(CStateManager&,float) {}
-    virtual void ShouldDodge(CStateManager&,float) {}
-    virtual void ShouldRetreat(CStateManager&,float) {}
-    virtual void ShouldCrouch(CStateManager&,float) {}
-    virtual void ShouldMove(CStateManager&,float) {}
-    virtual void ShotAt(CStateManager&,float) {}
-    virtual void HasTargettingPoint(CStateManager&,float) {}
-    virtual void ShouldWallHang(CStateManager&,float) {}
-    virtual void SetAIStage(CStateManager&,float) {}
-    virtual void AIStage(CStateManager&,float) {}
-    virtual void StartAttack(CStateManager&,float) {}
-    virtual void BreakAttack(CStateManager&, float) {}
-    virtual void ShoulStrafe(CStateManager&,float) {}
-    virtual void ShouldSpecialAttack(CStateManager&,float) {}
-    virtual void LostInterest(CStateManager&,float) {}
+    virtual bool InAttackPosition(CStateManager&, float) { return false; }
+    virtual bool Leash(CStateManager&, float) { return false; }
+    virtual bool OffLine(CStateManager&,float) { return false; }
+    virtual bool Attacked(CStateManager&, float) { return false; }
+    virtual bool PathShagged(CStateManager&, float) { return false; }
+    virtual bool PathOver(CStateManager&, float) { return false; }
+    virtual bool PathFound(CStateManager&, float) { return false; }
+    virtual bool TooClose(CStateManager&, float) { return false; }
+    virtual bool InRange(CStateManager&, float) { return false; }
+    virtual bool InMaxRange(CStateManager&, float) { return false; }
+    virtual bool InDetectionRange(CStateManager&, float) { return false; }
+    virtual bool SpotPlayer(CStateManager&, float) { return false; }
+    virtual bool PlayerSpot(CStateManager&, float) { return false; }
+    virtual bool PatternOver(CStateManager&, float) { return false; }
+    virtual bool PatternShagged(CStateManager&, float) { return false; }
+    virtual bool HasAttackPattern(CStateManager&, float) { return false; }
+    virtual bool HasPatrolPath(CStateManager&, float) { return false; }
+    virtual bool HasRetreatPattern(CStateManager&, float) { return false; }
+    virtual bool Delay(CStateManager&,float) { return false; }
+    virtual bool RandomDelay(CStateManager&, float) { return false; }
+    virtual bool FixedDelay(CStateManager&, float) { return false; }
+    virtual bool Default(CStateManager&, float) { return false; }
+    virtual bool AnimOver(CStateManager&, float) { return false; }
+    virtual bool ShouldAttack(CStateManager&, float) { return false; }
+    virtual bool ShouldDoubleSnap(CStateManager&, float) { return false; }
+    virtual bool InPosition(CStateManager&, float) { return false; }
+    virtual bool ShouldTurn(CStateManager&, float) { return false; }
+    virtual bool HitSomething(CStateManager&, float) { return false; }
+    virtual bool ShouldJumpBack(CStateManager&, float) { return false; }
+    virtual bool Stuck(CStateManager&, float) { return false; }
+    virtual bool NoPathNodes(CStateManager&, float) { return false; }
+    virtual bool Landed(CStateManager&, float) { return false; }
+    virtual bool HearShot(CStateManager&,float) { return false; }
+    virtual bool HearPlayer(CStateManager&,float) { return false; }
+    virtual bool CoverCheck(CStateManager&, float) { return false; }
+    virtual bool CoverFind(CStateManager&, float) { return false; }
+    virtual bool CoverBlown(CStateManager&, float) { return false; }
+    virtual bool CoverNearlyBlown(CStateManager&, float) { return false; }
+    virtual bool CoveringFire(CStateManager&, float) { return false; }
+    virtual bool GotUp(CStateManager&, float) { return false; }
+    virtual bool LineOfSight(CStateManager&,float) { return false; }
+    virtual bool AggressionCheck(CStateManager&, float) { return false; }
+    virtual bool AttackOver(CStateManager&, float) { return false; }
+    virtual bool ShouldTaunt(CStateManager&,float) { return false; }
+    virtual bool Inside(CStateManager&,float) { return false; }
+    virtual bool ShouldFire(CStateManager&,float) { return false; }
+    virtual bool ShouldFlinch(CStateManager&, float) { return false; }
+    virtual bool PatrolPathOver(CStateManager&, float) { return false; }
+    virtual bool ShouldDodge(CStateManager&, float) { return false; }
+    virtual bool ShouldRetreat(CStateManager&, float) { return false; }
+    virtual bool ShouldCrouch(CStateManager&, float) { return false; }
+    virtual bool ShouldMove(CStateManager&, float) { return false; }
+    virtual bool ShotAt(CStateManager&, float) { return false; }
+    virtual bool HasTargetingPoint(CStateManager&, float) { return false; }
+    virtual bool ShouldWallHang(CStateManager&, float) { return false; }
+    virtual bool SetAIStage(CStateManager&, float) { return false; }
+    virtual bool AIStage(CStateManager&, float) { return false; }
+    virtual bool StartAttack(CStateManager&, float) { return false; }
+    virtual bool BreakAttack(CStateManager&, float) { return false; }
+    virtual bool ShouldStrafe(CStateManager&, float) { return false; }
+    virtual bool ShouldSpecialAttack(CStateManager&, float) { return false; }
+    virtual bool LostInterest(CStateManager&, float) { return false; }
+    virtual bool CodeTrigger(CStateManager&, float) { return false; }
+    virtual bool BounceFind(CStateManager&, float) { return false; }
+    virtual bool Random(CStateManager&, float) { return false; }
+    virtual bool FixedRandom(CStateManager&, float) { return false; }
+    virtual bool IsDizzy(CStateManager&, float) { return false; }
+    virtual bool ShouldCallForBackup(CStateManager&, float) { return false; }
 };
 
 }

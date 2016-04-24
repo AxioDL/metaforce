@@ -34,7 +34,7 @@ class CEntity
 protected:
     TAreaId x4_areaId;
     TUniqueId x8_uid;
-    ResId xc_editorId;
+    TEditorId xc_editorId;
     std::string x10_name;
     std::vector<SConnection> x20_conns;
 

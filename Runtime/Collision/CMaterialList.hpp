@@ -16,6 +16,7 @@ enum class EMaterialTypes
     Fourteen = 14,
     Fifteen = 15,
     Nineteen = 19,
+    TwentyOne = 21,
     ThirtyTwo = 32,
     ThirtyFour = 34,
     FourtyOne = 41,

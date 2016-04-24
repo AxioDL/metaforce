@@ -63,7 +63,7 @@ public:
            const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
-    virtual void Accept(IVisitor&) /*= 0*/;
+    virtual void Accept(IVisitor&) {}/*= 0;*/
     virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
     virtual void Render(CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}

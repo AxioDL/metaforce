@@ -57,6 +57,18 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     (void)msg;
 }
 
+void CScriptDoor::Think(float dt, CStateManager& mgr)
+{
+    if (!GetActive())
+        return;
+
+    if (!x2a8_26_)
+    {
+        if (x25c_ < 0.5f)
+            x25c_ += dt;
+    }
+}
+
 void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager &mgr)
 {
     if (!xe4_30_)
@@ -117,7 +129,7 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     const CScriptDoor* door = dynamic_cast<const CScriptDoor*>(mgr.GetObjectById(uid));
 
     if (door)
-        x27c_partner = door->x8_uid;
+        x27c_partner = door->GetUniqueId();
 
     SetDoorAnimation(EDoorAnimType::Open);
     if (x27c_partner != kInvalidUniqueId)

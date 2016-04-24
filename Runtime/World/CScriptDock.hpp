@@ -26,6 +26,8 @@ class CScriptDock : public CPhysicsActor
 public:
     CScriptDock(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CVector3f position,
                 const zeus::CVector3f& extent, s32, TAreaId, bool active, s32 w1, bool b1);
+
+    s32 GetDockId() const { return x25c_dock; }
 };
 }
 #endif // __URDE_CSCRIPTDOCK_HPP__

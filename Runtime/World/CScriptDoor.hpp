@@ -57,6 +57,7 @@ public:
 
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+    void Think(float, CStateManager& mgr);
     void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr);
     zeus::CAABox GetTouchBounds() const {}
     void Render(const CStateManager&) {}

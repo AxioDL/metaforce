@@ -52,6 +52,7 @@ public:
     };
 
     CWorld(IObjectStore& objStore, CResFactory& resFactory, ResId);
+    bool DoesAreaExist(TAreaId area) const;
     std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() {return x18_areas;}
 };
 
