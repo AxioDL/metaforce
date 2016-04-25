@@ -7,13 +7,12 @@ namespace urde
 CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::ThirtyThree,
                                             EMaterialTypes::Nineteen,
                                             EMaterialTypes::FourtyOne,
+                                            EMaterialTypes::ThirtySeven,
                                             EMaterialTypes::Fourty);
 CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::ThirtyThree,
                                            EMaterialTypes::Nineteen,
                                            EMaterialTypes::FourtyOne,
-                                           EMaterialTypes::ThirtySeven,
                                            EMaterialTypes::Fourty);
-
 
 CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
