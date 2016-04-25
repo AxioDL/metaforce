@@ -64,7 +64,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
     x904_loaderFuncs[int(EScriptObjectType::CameraShaker)] = ScriptLoader::LoadCameraShaker;
     x904_loaderFuncs[int(EScriptObjectType::ActorKeyframe)] = ScriptLoader::LoadActorKeyframe;
     x904_loaderFuncs[int(EScriptObjectType::Water)] = ScriptLoader::LoadWater;
-    x904_loaderFuncs[int(EScriptObjectType::Warwasp)] = ScriptLoader::LoadWarwasp;
+    x904_loaderFuncs[int(EScriptObjectType::Warwasp)] = ScriptLoader::LoadWarWasp;
     x904_loaderFuncs[int(EScriptObjectType::SpacePirate)] = ScriptLoader::LoadSpacePirate;
     x904_loaderFuncs[int(EScriptObjectType::FlyingPirate)] = ScriptLoader::LoadFlyingPirate;
     x904_loaderFuncs[int(EScriptObjectType::ElitePirate)] = ScriptLoader::LoadElitePirate;

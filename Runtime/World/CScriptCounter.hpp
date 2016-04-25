@@ -11,7 +11,6 @@ class CScriptCounter : public CEntity
 public:
     CScriptCounter(TUniqueId, const std::string& name, const CEntityInfo& info,
                    u32, u32, bool, bool);
-    virtual void Accept(IVisitor&);
 };
 
 }

@@ -8,6 +8,7 @@ namespace urde
 enum class EMaterialTypes
 {
     Zero = 0,
+    Three = 3,
     Six = 6,
     Eight = 8,
     Ten = 10,
@@ -19,7 +20,10 @@ enum class EMaterialTypes
     Nineteen = 19,
     TwentyOne = 21,
     ThirtyTwo = 32,
+    ThirtyThree = 33,
     ThirtyFour = 34,
+    ThirtySeven = 37,
+    Fourty = 40,
     FourtyOne = 41,
     FourtyTwo = 42,
     FourtyThree = 43,

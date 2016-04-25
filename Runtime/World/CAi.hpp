@@ -8,37 +8,18 @@
 #include "CPhysicsActor.hpp"
 #include "CDamageVulnerability.hpp"
 #include "CHealthInfo.hpp"
+#include "CStateMachine.hpp"
 
 #include "zeus/zeus.hpp"
 
 namespace urde
 {
 
-/* TODO: Figure out what all this is for and move it somewhere appropriate */
-enum class EStateMsg
-{
-};
-
 enum class EListenNoiseType
 {
 };
 
-class CAi;
-class CStateMachine;
-
-typedef void (CAi::*CAiStateFunc)(CStateManager&, EStateMsg, float);
-typedef bool (CAi::*CAiTriggerFunc)(CStateManager&, float);
-
-class CAiFuncMap
-{
-    std::map<const char*, CAiStateFunc> x0_stateFuncs;
-    std::map<const char*, CAiTriggerFunc> x10_triggerFuncs;
-public:
-    CAiFuncMap();
-    CAiStateFunc GetStateFunc(const char*);
-    CAiTriggerFunc GetTriggerFunc(const char*);
-};
-
+class CAiFuncMap;
 class CStateManager;
 class CAi : public CPhysicsActor
 {
@@ -48,21 +29,22 @@ class CAi : public CPhysicsActor
     TLockedToken<CStateMachine> x2c8_stateMachine;
 public:
 
-    CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-        CModelData&& mData, const zeus::CAABox& box, float f1, const CHealthInfo& hInfo, const CDamageVulnerability&,
-        const CMaterialList& list, ResId, const CActorParameters&, float f2, float f3);
+  CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+      CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability&,
+      const CMaterialList& list, ResId, const CActorParameters&, float f1, float f2);
 
     static void CreateFuncLookup(CAiFuncMap* funcMap);
-    CAiStateFunc GetStateFunc(const char* func);
-    CAiTriggerFunc GetTrigerFunc(const char* func);
+    static CAiStateFunc GetStateFunc(const char* func);
+    static CAiTriggerFunc GetTrigerFunc(const char* func);
 
     void GetStateMachine() {}
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual CHealthInfo HealthInfo(CStateManager&) { return x258_healthInfo; }
     virtual CHealthInfo GetHealthInfo(const CStateManager&) { return x258_healthInfo; }
+    virtual void Death(const zeus::CVector3f&, CStateManager&)=0;
+    virtual void KnockBack(const zeus::CVector3f&, CStateManager&)=0;
     virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }
-
     virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() { return false; }

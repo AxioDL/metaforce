@@ -15,6 +15,7 @@ enum class ELocomotionAnim
 };
 
 }
+
 class CBodyController;
 class CStateManager;
 class CBodyState

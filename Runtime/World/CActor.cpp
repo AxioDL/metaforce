@@ -21,7 +21,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
                const CActorParameters& params, TUniqueId)
 : CEntity(uid, info, active, name),
   x68_(MakeActorMaterialList(list, params)),
-  x70_(EMaterialTypes::Nineteen)
+  x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero}))
 {
     if (mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));

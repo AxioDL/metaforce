@@ -27,8 +27,10 @@
 #include "CScriptGrapplePoint.hpp"
 #include "CScriptAreaAttributes.hpp"
 #include "CScriptCameraWaypoint.hpp"
+#include "CScriptCoverPoint.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
+#include "MP1/CWarWasp.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -44,7 +46,7 @@ static const SObjectTag& GetMorphballDoorANCS()
 {
     if (!MorphballDoorANCS)
         MorphballDoorANCS = static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
-            TagFromPath(_S("MP1/Shared/ANCS_1F9DA858.blend"));
+                TagFromPath(_S("MP1/Shared/ANCS_1F9DA858.blend"));
     return MorphballDoorANCS;
 }
 
@@ -315,8 +317,8 @@ zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVect
                                                                const zeus::CVector3f& position)
 {
     return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
-           zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
-           zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) + position;
+            zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
+            zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) + position;
 }
 
 CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
@@ -365,13 +367,13 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
 
     CMaterialList list;
     if (b2)
-        list.Add(EMaterialTypes::SixtyThree);
+        list.Add(EMaterialTypes::Eleven);
 
     if (b3)
-        list.Add(EMaterialTypes::Eight);
+        list.Add(EMaterialTypes::Three);
 
     if (b4)
-        list.Add(EMaterialTypes::ThirtyTwo);
+        list.Add(EMaterialTypes::Six);
 
     bool generateExtent = false;
     if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)
@@ -385,7 +387,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
         aRes.x4_charIdx = aParms.x4_charIdx;
         aRes.x8_scale = head.x40_scale;
         aRes.x14_ = true;
-        aRes.x1c_defaultAnim = aParms.x8_defaultAnim;
+        aRes.x18_defaultAnim = aParms.x8_defaultAnim;
         data = aRes;
     }
     else
@@ -457,7 +459,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
     CAnimRes aRes;
     aRes.x0_ancsId = aParms.x0_ancs;
     aRes.x4_charIdx = aParms.x4_charIdx;
-    aRes.x1c_defaultAnim = aParms.x8_defaultAnim;
+    aRes.x18_defaultAnim = aParms.x8_defaultAnim;
     aRes.x8_scale = head.x40_scale;
 
     CModelData mData = aRes;
@@ -562,7 +564,7 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in,
         return nullptr;
 
     if (!g_ResFactory->GetResourceTypeById(partId) &&
-        !g_ResFactory->GetResourceTypeById(elscId))
+            !g_ResFactory->GetResourceTypeById(elscId))
         return nullptr;
 
     bool b5 = in.readBool();
@@ -629,8 +631,8 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
     TLockedToken<CCollidableOBBTreeGroup> dclnToken;
     if (dclnType)
     {
-         dclnToken = g_SimplePool->GetObj({SBIG('DCLN'), dclnId});
-         dclnToken.GetObj();
+        dclnToken = g_SimplePool->GetObj({SBIG('DCLN'), dclnId});
+        dclnToken.GetObj();
     }
 
     CModelData data;
@@ -641,7 +643,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
         aRes.x4_charIdx = aParms.x4_charIdx;
         aRes.x8_scale = head.x40_scale;
         aRes.x14_ = true;
-        aRes.x1c_defaultAnim = aParms.x8_defaultAnim;
+        aRes.x18_defaultAnim = aParms.x8_defaultAnim;
         data = aRes;
     }
     else
@@ -815,7 +817,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
     res.x4_charIdx = animParms.x4_charIdx;
     res.x8_scale = head.x40_scale;
     res.x14_ = true;
-    res.x1c_defaultAnim = animParms.x8_defaultAnim;
+    res.x18_defaultAnim = animParms.x8_defaultAnim;
 
     return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info,
                                   head.x10_transform, res, pInfo, actParms, f1, w1,
@@ -1004,9 +1006,44 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
                             w21, w22, b5, bitVal0, bitVal0, bitset);
 }
 
-CEntity* ScriptLoader::LoadWarwasp(CStateManager& mgr, CInputStream& in,
+CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
                                    int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 13, "WarWasp"))
+        return nullptr;
+
+    std::string name = *mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransformPivotOnly(in);
+    zeus::CVector3f scale;
+    scale.readBig(in);
+
+    std::pair<bool, u32> verifyPair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!verifyPair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, verifyPair.second);
+    CActorParameters actorParms = LoadActorParameters(in);
+    CPatterned::EColliderType collider = CPatterned::EColliderType(in.readBool());
+    CDamageInfo damageInfo1(in);
+    ResId weaponDesc = in.readUint32Big();
+    CDamageInfo damageInfo2(in);
+    ResId particle = in.readUint32Big();
+    u32 w1 = in.readUint32Big();
+
+    FourCC animType = g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().x0_ancs);
+    if (animType != SBIG('ANCS'))
+        return nullptr;
+
+    CAnimRes res;
+    res.x0_ancsId = pInfo.GetAnimationParameters().x0_ancs;
+    res.x4_charIdx = pInfo.GetAnimationParameters().x4_charIdx;
+    res.x8_scale = scale;
+    res.x14_ = true;
+    res.x18_defaultAnim = pInfo.GetAnimationParameters().x8_defaultAnim;
+    CModelData mData(res);
+    return new MP1::CWarWasp(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, flavor, collider, damageInfo1, actorParms, weaponDesc,
+                             damageInfo2, particle, w1);
 }
 
 CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
@@ -1037,6 +1074,18 @@ CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in,
                                       int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 9, "CoverPoint"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+    bool b1 = in.readBool();
+    u32 w1 = in.readUint32Big();
+    bool b2 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+
+    return new CScriptCoverPoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, w1, b2, f1, f2, f3);
 }
 
 CEntity* ScriptLoader::LoadSpiderBallWaypoint(CStateManager& mgr, CInputStream& in,

@@ -3,7 +3,7 @@
 
 #include "CEntity.hpp"
 #include "zeus/zeus.hpp"
-#include "Collision/CMaterialList.hpp"
+#include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
 
 namespace urde
@@ -33,7 +33,7 @@ protected:
     zeus::CTransform x34_transform;
     std::unique_ptr<CModelData> x64_modelData;
     CMaterialList x68_;
-    CMaterialList x70_;
+    CMaterialFilter x70_;
     union
     {
         struct
@@ -63,7 +63,6 @@ public:
            const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
-    virtual void Accept(IVisitor&) {}/*= 0;*/
     virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
     virtual void Render(CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
@@ -84,6 +83,8 @@ public:
     virtual bool GetOrbitDistanceCheck() { return true; }
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&)
     { return x34_transform.m_origin; }
+
+    virtual const zeus::CAABox* GetTouchBounds() const { return nullptr; }
 
     virtual ECollisionResponseType GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -115,6 +116,8 @@ public:
     {
         return xe5_27_useInSortedLists;
     }
+
+    const CMaterialFilter& GetMaterialFilter() const { return x70_; }
 };
 
 }

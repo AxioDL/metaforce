@@ -32,7 +32,7 @@ CModelData::CModelData(const CAnimRes& res)
 : x0_particleScale(res.x8_scale)
 {
     TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
-    xc_animData = factory->CreateCharacter(res.x4_charIdx, res.x14_, factory, res.x1c_defaultAnim);
+    xc_animData = factory->CreateCharacter(res.x4_charIdx, res.x14_, factory, res.x18_defaultAnim);
 }
 
 SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a,

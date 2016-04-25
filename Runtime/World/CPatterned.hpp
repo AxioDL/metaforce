@@ -9,7 +9,8 @@ class CPatternedInfo;
 
 enum class EBodyType
 {
-    Two = 2
+    Two = 2,
+    Three
 };
 
 class CPatterned : public CAi
@@ -17,7 +18,8 @@ class CPatterned : public CAi
 public:
     enum class EUnknown
     {
-        TwentyThree = 23
+        TwentyThree = 23,
+        ThirtyNine
     };
     enum class EFlavorType
     {
@@ -25,21 +27,24 @@ public:
     };
     enum class EMovementType
     {
-        One = 1
-    };
-    enum class EColliderType
-    {
         Ground = 0,
         Flyer = 1
     };
+    enum class EColliderType
+    {
+        One = 1
+    };
 private:
 public:
-    CPatterned(EUnknown, TUniqueId, const std::string& name, EFlavorType, const CEntityInfo& info,
-               const zeus::CTransform& xf, CModelData&& mData,
-               const CPatternedInfo& pInfo, EMovementType, EColliderType,
-               EBodyType, const CActorParameters& actParms);
-};
 
+    CPatterned(EUnknown unk, TUniqueId uid, const std::string& name, EFlavorType flavor,
+               const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+               const CPatternedInfo& pinfo, CPatterned::EMovementType movement, EColliderType collider,
+               EBodyType body, const CActorParameters& params, u32 w1);
+
+    virtual void Death(const zeus::CVector3f& , CStateManager& ) {}
+    virtual void KnockBack(const zeus::CVector3f &, CStateManager &) {}
+};
 }
 
-#endif // __URDE_CPATTERNED_HPP__
+#endif // CPATTERNED_HPP
