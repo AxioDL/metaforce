@@ -16,4 +16,8 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
 {
 }
 
+u16 CSfxManager::TranslateSFXID(u16)
+{
+}
+
 }

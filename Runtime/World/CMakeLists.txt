@@ -39,6 +39,9 @@ set(WORLD_SOURCES
     CDamageInfo.hpp
     CDamageVulnerability.hpp
     CFluidUVMotion.hpp CFluidUVMotion.cpp
+    CPatternedInfo.hpp CPatternedInfo.cpp
+    CHealthInfo.hpp CHealthInfo.cpp
+    CPatterned.hpp CPatterned.cpp
     CFluidPlane.hpp)
 
 runtime_add_list(World WORLD_SOURCES)

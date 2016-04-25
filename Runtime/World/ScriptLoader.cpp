@@ -28,6 +28,8 @@
 #include "CScriptAreaAttributes.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "Camera/CCinematicCamera.hpp"
+#include "MP1/CNewIntroBoss.hpp"
+#include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
@@ -781,6 +783,43 @@ CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
                                         int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 13, "NewIntroBoss"))
+        return nullptr;
+
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+
+    std::pair<bool, u32> pcount = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pcount.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pcount.second);
+
+    CActorParameters actParms = LoadActorParameters(in);
+
+    float f1 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+
+    CDamageInfo dInfo(in);
+
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    if (animParms.x0_ancs < 0)
+        return nullptr;
+
+    CAnimRes res;
+    res.x0_ancsId = animParms.x0_ancs;
+    res.x4_charIdx = animParms.x4_charIdx;
+    res.x8_scale = head.x40_scale;
+    res.x14_ = true;
+    res.x1c_defaultAnim = animParms.x8_defaultAnim;
+
+    return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info,
+                                  head.x10_transform, res, pInfo, actParms, f1, w1,
+                                  dInfo, w2, w3, w4, w5);
 }
 
 CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,

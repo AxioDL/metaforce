@@ -6,6 +6,7 @@ set(MP1_SOURCES
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp
     CFrontEndUI.hpp CFrontEndUI.cpp
+    CNewIntroBoss.hpp CNewIntroBoss.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)

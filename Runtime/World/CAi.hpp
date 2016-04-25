@@ -7,6 +7,7 @@
 #include "CEntity.hpp"
 #include "CPhysicsActor.hpp"
 #include "CDamageVulnerability.hpp"
+#include "CHealthInfo.hpp"
 
 #include "zeus/zeus.hpp"
 
@@ -38,14 +39,6 @@ public:
     CAiTriggerFunc GetTriggerFunc(const char*);
 };
 
-class CHealthInfo
-{
-    float x0_;
-    float x4_;
-public:
-    CHealthInfo(CInputStream& in) : x0_(in.readFloatBig()), x4_(in.readFloatBig()) {}
-};
-
 class CStateManager;
 class CAi : public CPhysicsActor
 {
@@ -56,8 +49,8 @@ class CAi : public CPhysicsActor
 public:
 
     CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-             CModelData&& mData, const zeus::CAABox& box, float f1, const CHealthInfo& hInfo, const CDamageVulnerability&,
-             const CMaterialList& list, ResId, const CActorParameters&, float f2, float f3);
+        CModelData&& mData, const zeus::CAABox& box, float f1, const CHealthInfo& hInfo, const CDamageVulnerability&,
+        const CMaterialList& list, ResId, const CActorParameters&, float f2, float f3);
 
     static void CreateFuncLookup(CAiFuncMap* funcMap);
     CAiStateFunc GetStateFunc(const char* func);

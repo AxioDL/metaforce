@@ -137,6 +137,8 @@ public:
     static void UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                const zeus::CVector3f& heading, const zeus::CVector3f& up,
                                u8 vol);
+
+    static u16 TranslateSFXID(u16);
 };
 
 }
