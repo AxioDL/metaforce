@@ -2,7 +2,7 @@
 
 namespace DataSpec
 {
-namespace DNAMP1
+namespace DNAMP2
 {
 
 atUint32 CINF::getInternalBoneIdxFromId(atUint32 id) const
@@ -76,7 +76,7 @@ void CINF::sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const Uni
                   bone.m_origBone.id);
 
     for (const Bone& bone : bones)
-        if (bone.parentId != 2)
+        if (bone.parentId != 97)
             os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
 
     os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
@@ -90,89 +90,6 @@ void CINF::sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const Uni
 std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId)
 {
     return hecl::Format("CINF_%08X", cinfId.toUint32());
-}
-
-int CINF::RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId,
-                                   std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap)
-{
-    int selId;
-    auto search = idMap.find(bone->name);
-    if (search == idMap.end())
-    {
-        selId = curId++;
-        idMap.emplace(std::make_pair(bone->name, selId));
-    }
-    else
-        selId = search->second;
-
-    bones.emplace_back();
-    Bone& boneOut = bones.back();
-    nameMap[bone->name] = selId;
-    boneOut.id = selId;
-    boneOut.parentId = parent;
-    boneOut.origin = bone->origin;
-    boneOut.linkedCount = bone->children.size() + 1;
-    boneOut.linked.reserve(boneOut.linkedCount);
-
-    const Armature::Bone* child;
-    boneOut.linked.push_back(parent);
-    for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
-        boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, selId, idMap, nameMap));
-
-    return boneOut.id;
-}
-
-CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& idMap)
-{
-    idMap.reserve(armature.bones.size());
-    bones.reserve(armature.bones.size());
-
-    std::map<std::string, int> nameMap;
-
-    const Armature::Bone* bone = armature.getRoot();
-    if (bone)
-    {
-        if (bone->children.size())
-        {
-            int curId = 4;
-            RecursiveAddArmatureBone(armature, armature.getChild(bone, 0), 3, curId, idMap, nameMap);
-        }
-
-        bones.emplace_back();
-        Bone& boneOut = bones.back();
-        nameMap[bone->name] = 3;
-        boneOut.id = 3;
-        boneOut.parentId = 2;
-        boneOut.origin = bone->origin;
-
-        if (bone->children.size())
-        {
-            boneOut.linkedCount = 2;
-            boneOut.linked = {2, 4};
-        }
-        else
-        {
-            boneOut.linkedCount = 1;
-            boneOut.linked = {2};
-        }
-    }
-
-    boneCount = bones.size();
-
-    names.reserve(nameMap.size());
-    nameCount = nameMap.size();
-    for (const auto& name : nameMap)
-    {
-        names.emplace_back();
-        Name& nameOut = names.back();
-        nameOut.name = name.first;
-        nameOut.boneId = name.second;
-    }
-
-    boneIdCount = boneCount;
-    boneIds.reserve(boneIdCount);
-    for (auto it=bones.crbegin() ; it != bones.crend() ; ++it)
-        boneIds.push_back(it->id);
 }
 
 }

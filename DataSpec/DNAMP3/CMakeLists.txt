@@ -12,6 +12,7 @@ add_library(DNAMP3
             ${liblist}
             PAK.cpp
             ANIM.cpp
+            CINF.cpp
             CHAR.cpp
             CMDL.hpp
             CMDLMaterials.cpp

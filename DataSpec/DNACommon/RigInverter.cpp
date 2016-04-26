@@ -65,11 +65,13 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
     {
         /* Extrapolate by delta with parent */
         m_tail = boneOrigin + m_parentDelta;
-        if (m_parentDelta.magSquared() < 0.001f)
-            m_tail = naturalTail;
-
         float deltaMag = m_parentDelta.magnitude();
-        if (deltaMag > 0.5f)
+        if (deltaMag < 0.001f)
+        {
+            deltaMag = 0.5f;
+            m_tail = naturalTail;
+        }
+        else if (deltaMag > 0.5f)
         {
             /* Extreme bones capped to +0.5 value */
             deltaMag = 0.5f;

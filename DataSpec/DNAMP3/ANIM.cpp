@@ -62,12 +62,6 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
                   "scaleCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].scale', index=2, action_group=bone_string))\n"
                   "\n";
 
-        os << "crv = act.fcurves.new('pose.bones[\"'+bone_string+'\"].rotation_mode', action_group=bone_string)\n"
-              "crv.keyframe_points.add()\n"
-              "crv.keyframe_points[-1].co = (0, 0)\n"
-              "crv.keyframe_points[-1].interpolation = 'LINEAR'\n"
-              "\n";
-
         ANIMOutStream ao = os.beginANIMCurve();
         if (std::get<0>(bone.second))
         {
