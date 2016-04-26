@@ -66,6 +66,12 @@ ackbytes = readpipeline()
 if ackbytes != b'ACK':
     quitblender()
 
+# slerp branch check
+if b'quat-slerp' in bpy.app.build_branch:
+    writepipeline(b'SLERP1')
+else:
+    writepipeline(b'SLERP0')
+
 # Count brackets
 def count_brackets(linestr):
     bracket_count = 0

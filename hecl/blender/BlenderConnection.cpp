@@ -360,6 +360,17 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         }
         _writeLine("ACK");
 
+        _readLine(lineBuf, 7);
+        if (!strcmp(lineBuf, "SLERP0"))
+            m_hasSlerp = false;
+        else if (!strcmp(lineBuf, "SLERP1"))
+            m_hasSlerp = true;
+        else
+        {
+            _closePipe();
+            BlenderLog.report(logvisor::Fatal, "read '%s' from blender; expected 'SLERP(0|1)'", lineBuf);
+        }
+
         break;
     }
 }

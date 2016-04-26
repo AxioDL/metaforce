@@ -56,6 +56,7 @@ private:
 #endif
     int m_readpipe[2];
     int m_writepipe[2];
+    bool m_hasSlerp;
     BlendType m_loadedType = BlendType::None;
     bool m_loadedRigged = false;
     ProjectPath m_loadedBlend;
@@ -68,6 +69,8 @@ private:
 public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
+
+    bool hasSLERP() const {return m_hasSlerp;}
 
     bool createBlend(const ProjectPath& path, BlendType type);
     BlendType getBlendType() const {return m_loadedType;}
@@ -267,6 +270,7 @@ public:
         {
             return ANIMOutStream(m_parent);
         }
+        BlenderConnection& getConnection() {return *m_parent;}
     };
     PyOutStream beginPythonOut(bool deleteOnError=false)
     {
