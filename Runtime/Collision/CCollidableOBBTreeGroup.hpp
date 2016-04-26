@@ -3,12 +3,12 @@
 
 #include "IOStreams.hpp"
 #include "CFactoryMgr.hpp"
-
 namespace urde
 {
-
+class COBBTree;
 class CCollidableOBBTreeGroup
 {
+    std::vector<COBBTree> x0_trees;
 public:
     CCollidableOBBTreeGroup(CInputStream& in);
 };

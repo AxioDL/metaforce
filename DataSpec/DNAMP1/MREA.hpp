@@ -94,7 +94,7 @@ struct MREA
         Value<float> q;
         Value<float> spotCutoff;
         Value<float> unk5;
-        Value<atUint8> unk6;
+        Value<bool> castShadows;
         Value<float> unk7;
         Value<Falloff> falloff;
         Value<float> unk9;

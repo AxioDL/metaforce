@@ -1,5 +1,6 @@
 set(WORLD_SOURCES
     CWorld.hpp CWorld.cpp
+    CWorldLight.hpp CWorldLight.cpp
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
     CAi.hpp CAi.cpp
