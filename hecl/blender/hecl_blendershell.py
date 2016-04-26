@@ -67,10 +67,13 @@ if ackbytes != b'ACK':
     quitblender()
 
 # slerp branch check
-if b'quat-slerp' in bpy.app.build_branch:
+orig_rot = bpy.context.object.rotation_mode
+try:
+    bpy.context.object.rotation_mode = 'QUATERNION_SLERP'
     writepipeline(b'SLERP1')
-else:
+except:
     writepipeline(b'SLERP0')
+bpy.context.object.rotation_mode = orig_rot
 
 # Count brackets
 def count_brackets(linestr):
