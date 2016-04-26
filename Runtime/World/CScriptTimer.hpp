@@ -11,7 +11,6 @@ class CScriptTimer : public CEntity
 public:
     CScriptTimer(TUniqueId, const std::string& name, const CEntityInfo& info,
                  float, float, bool, bool, bool);
-    virtual void Accept(IVisitor&);
 };
 
 }

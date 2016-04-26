@@ -7,10 +7,32 @@ namespace urde
 {
 class CMaterialFilter
 {
-    CMaterialList x0_;
-    CMaterialList x8_;
-    u32 x10_ = 0;
 public:
+    enum class EFilterType
+    {
+        Zero,
+        One,
+        Two,
+        Three
+    };
+private:
+    CMaterialList x0_include;
+    CMaterialList x8_exclude;
+    EFilterType x10_type = EFilterType::Three;
+public:
+    static const CMaterialFilter skPassEverything;
+
+    CMaterialFilter(const CMaterialList& include, const CMaterialList& exclude, EFilterType type);
+
+    static CMaterialFilter MakeInclude(const CMaterialList& include);
+
+    static CMaterialFilter MakeExclude(const CMaterialList& exclude);
+
+    static CMaterialFilter MakeIncludeExclude(const CMaterialList& include, const CMaterialList& exclude);
+
+    const CMaterialList& GetIncludeList() const { return x0_include; }
+    const CMaterialList& GetExcludeList() const { return x8_exclude; }
+    bool Passes(const CMaterialList&) const;
 };
 }
 #endif // __CMATERIALFILTER_HPP__

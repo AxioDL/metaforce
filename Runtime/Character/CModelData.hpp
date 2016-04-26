@@ -33,7 +33,7 @@ struct CAnimRes
     s32 x4_charIdx = 0;
     zeus::CVector3f x8_scale;
     bool x14_ = false;
-    s32 x1c_defaultAnim = 0;
+    s32 x18_defaultAnim = 0;
 };
 
 class CModelData

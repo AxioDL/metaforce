@@ -8,7 +8,4 @@ CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const
 : CEntity(uid, info, active, name)
 {
 }
-
-void CScriptGenerator::Accept(IVisitor&) {}
-
 }

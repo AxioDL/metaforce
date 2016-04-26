@@ -9,6 +9,4 @@ CScriptCounter::CScriptCounter(TUniqueId uid, const std::string& name, const CEn
 {
 }
 
-void CScriptCounter::Accept(IVisitor&) {}
-
 }

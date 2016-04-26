@@ -59,7 +59,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
     void Think(float, CStateManager& mgr);
     void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr);
-    zeus::CAABox GetTouchBounds() const {}
+    const zeus::CAABox* GetTouchBounds() const { return nullptr; }
     void Render(const CStateManager&) {}
     void ForceClosed(CStateManager&);
     bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);

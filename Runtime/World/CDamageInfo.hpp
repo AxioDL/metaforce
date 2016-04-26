@@ -26,6 +26,7 @@ class CDamageInfo
     float x14_knockback;
     bool x18_ = false;
 public:
+    CDamageInfo() = default;
     CDamageInfo(CInputStream& in)
     {
         in.readUint32Big();

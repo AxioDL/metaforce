@@ -7,7 +7,6 @@
 namespace urde
 {
 class CStateManager;
-class IVisitor;
 
 struct SConnection
 {
@@ -54,7 +53,6 @@ public:
     static const std::vector<SConnection> NullConnectionList;
     virtual ~CEntity() {}
     CEntity(TUniqueId uid, const CEntityInfo& info, bool active, const std::string& name);
-    virtual void Accept(IVisitor&)=0;
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);

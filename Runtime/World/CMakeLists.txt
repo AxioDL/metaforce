@@ -3,6 +3,8 @@ set(WORLD_SOURCES
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
     CAi.hpp CAi.cpp
+    CAiFuncMap.hpp CAiFuncMap.cpp
+    CPatterned.hpp CPatterned.cpp
     CPathFindArea.hpp CPathFindArea.cpp
     CAreaOctTree.hpp CAreaOctTree.cpp
     CActor.hpp CActor.cpp
@@ -30,6 +32,7 @@ set(WORLD_SOURCES
     CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
+    CScriptCoverPoint.hpp CScriptCoverPoint.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp
