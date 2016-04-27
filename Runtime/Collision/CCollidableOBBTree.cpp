@@ -20,14 +20,14 @@ CRayCastResult CCollidableOBBTree::CastRayInternal(const CInternalRayCastStructu
 
 }
 
-zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform&) const
+zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform& xf) const
 {
-    return x10_tree->CalculateLocalAABox();
+    return x10_tree->CalculateAABox(xf);
 }
 
 zeus::CAABox CCollidableOBBTree::CalculateLocalAABox() const
 {
-
+    return x10_tree->CalculateLocalAABox();
 }
 
 }

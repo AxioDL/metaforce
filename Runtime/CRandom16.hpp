@@ -43,11 +43,8 @@ public:
 
     inline s32 Range(s32 min, s32 max)
     {
-        s32 diff = max - min;
-        s32 rand = -1;
-        while (rand < 0)
-            rand = s32((Next() << 16) | Next());
-        return rand % diff + min;
+        const s32 rand = Next();
+        return min + (rand / ((min - max) + 1)) - rand;
     }
 
     static CRandom16* GetRandomNumber() {return g_randomNumber;}

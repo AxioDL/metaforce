@@ -18,7 +18,7 @@ CPASAnimState::CPASAnimState(CInputStream& in)
 
     for (u32 i=0 ; i<animCount ; ++i)
     {
-        u32 id = in.readUint32Big();
+        s32 id = in.readUint32Big();
         rstl::reserved_vector<CPASAnimParm::UParmValue, 8> parms;
         for (const CPASParmInfo& parm : x4_parms)
         {
@@ -46,9 +46,12 @@ CPASAnimState::CPASAnimState(CInputStream& in)
         }
 
         auto search = std::lower_bound(x14_anims.begin(), x14_anims.end(), id,
-        [](const CPASAnimInfo& item, const u32& testId) -> bool {return item.GetId() < testId;});
+        [](const CPASAnimInfo& item, const u32& testId) -> bool {return item.GetAnimId() < testId;});
         x14_anims.emplace(search, id, std::move(parms));
     }
 }
 
+std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>&, CRandom16&, s32) const
+{
+}
 }

@@ -21,19 +21,44 @@ class CModel;
 class CSkinnedModel;
 struct SAdvancementDeltas;
 
-struct CStaticRes
+class CStaticRes
 {
     ResId x0_cmdlId = 0;
     zeus::CVector3f x4_scale;
+public:
+    CStaticRes(ResId id, const zeus::CVector3f& scale)
+        : x0_cmdlId(id),
+          x4_scale(scale)
+    {}
+
+    ResId GetId() const { return x0_cmdlId; }
+    const zeus::CVector3f& GetScale() const { return x4_scale; }
 };
 
-struct CAnimRes
+class CAnimRes
 {
-    ResId x0_ancsId = 0;
-    s32 x4_charIdx = 0;
+    ResId x0_ancsId = -1;
+    s32 x4_charIdx = -1;
     zeus::CVector3f x8_scale;
-    bool x14_ = false;
-    s32 x18_defaultAnim = 0;
+    bool x14_canLoop = false;
+    /* NOTE: x18_bodyType - Removed in retail */
+    s32 x18_defaultAnim = -1; /* NOTE: used to be x1c in demo */
+public:
+    CAnimRes() = default;
+    CAnimRes(ResId ancs, s32 charIdx, const zeus::CVector3f& scale, const s32 defaultAnim, bool loop)
+        : x0_ancsId(ancs),
+          x4_charIdx(charIdx),
+          x8_scale(scale),
+          x14_canLoop(loop),
+          x18_defaultAnim(defaultAnim)
+    {
+    }
+
+    ResId GetId() const { return x0_ancsId; }
+    s32 GetCharacterNodeId() const { return x4_charIdx; }
+    const zeus::CVector3f& GetScale() const { return x8_scale; }
+    bool CanLoop() const { return x14_canLoop; }
+    s32 GetDefaultAnim() const { return x18_defaultAnim; }
 };
 
 class CModelData

@@ -8,17 +8,21 @@ namespace urde
 
 class CAnimationParameters
 {
-public:
     ResId x0_ancs = -1;
-    s32 x4_charIdx = -1;
+    u32 x4_charIdx = -1;
     u32 x8_defaultAnim = -1;
+public:
     CAnimationParameters() = default;
-    CAnimationParameters(ResId ancs, s32 charIdx, u32 defaultAnim)
+    CAnimationParameters(ResId ancs, u32 charIdx, u32 defaultAnim)
     : x0_ancs(ancs), x4_charIdx(charIdx), x8_defaultAnim(defaultAnim) {}
     CAnimationParameters(CInputStream& in)
     : x0_ancs(in.readUint32Big()),
       x4_charIdx(in.readUint32Big()),
       x8_defaultAnim(in.readUint32Big()) {}
+
+    u32 GetACSFile() const { return x0_ancs; }
+    u32 GetCharacter() const { return x4_charIdx; }
+    u32 GetInitialAnimation() const { return x8_defaultAnim; }
 };
 
 }

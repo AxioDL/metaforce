@@ -24,19 +24,24 @@ CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CInputStream& in)
         x10_aabbs.push_back(CCollidableOBBTree(tree.get(), CMaterialList()).CalculateLocalAABox());
 }
 
-u32 CCollidableOBBTreeGroup::GetTableIndex() const
+void CCollidableOBBTreeGroup::ResetTestStats() const
 {
 
 }
 
-zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform&) const
+u32 CCollidableOBBTreeGroup::GetTableIndex() const
 {
+    return sTableIndex;
+}
 
+zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform& xf) const
+{
+    return x10_aabbs.front().getTransformedAABox(xf);
 }
 
 zeus::CAABox CCollidableOBBTreeGroup::CalculateLocalAABox() const
 {
-
+    return x10_aabbs.front();
 }
 
 FourCC CCollidableOBBTreeGroup::GetPrimType() const
