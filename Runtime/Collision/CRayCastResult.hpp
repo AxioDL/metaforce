@@ -21,9 +21,18 @@ private:
     CMaterialList x28_material;
 public:
     CRayCastResult();
-    CRayCastResult(float, const zeus::CVector3f&, const zeus::CPlane, const CMaterialList& matList)
+    CRayCastResult(const CRayCastResult& other, EInvalid) {}
+    CRayCastResult(float, const zeus::CVector3f&, const zeus::CPlane& plane, const CMaterialList& matList)
         : x28_material(matList)
     {}
+
+    void MakeInvalid();
+    bool IsInvalid() const;
+    float GetTime() const;
+    const zeus::CVector3f& GetPoint() const;
+    const zeus::CPlane& GetPlane() const;
+    const CMaterialList& GetMaterial() const;
+    void Transform(const zeus::CTransform&);
 };
 }
 

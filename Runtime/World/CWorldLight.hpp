@@ -1,5 +1,5 @@
-#ifndef CWORLDLIGHT_HPP
-#define CWORLDLIGHT_HPP
+#ifndef __URDE_CWORLDLIGHT_HPP__
+#define __URDE_CWORLDLIGHT_HPP__
 
 #include "Graphics/CLight.hpp"
 
@@ -31,4 +31,4 @@ public:
 
 }
 
-#endif // CWORLDLIGHT_HPP
+#endif // __URDE_CWORLDLIGHT_HPP__

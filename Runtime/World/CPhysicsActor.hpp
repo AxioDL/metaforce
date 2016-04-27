@@ -28,7 +28,7 @@ protected:
     float xf0_inertialTensor;
     float xf4_inertialTensorRecip;
     zeus::CAABox x1a4_baseBoundingBox;
-    CCollisionPrimitive x1c0_collisionPrimitive;
+    std::unique_ptr<CCollisionPrimitive> x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;
     float x23c_stepUpHeight;
     float x240_stepDownHeight;
@@ -114,8 +114,8 @@ public:
         return zeus::CTransform();
     }
 
-    const CCollisionPrimitive& GetCollisionPrimitive() const
-    { return x1c0_collisionPrimitive; }
+    const CCollisionPrimitive* GetCollisionPrimitive() const
+    { return x1c0_collisionPrimitive.get(); }
 
     void SetInertiaTensorScalar(float tensor)
     {

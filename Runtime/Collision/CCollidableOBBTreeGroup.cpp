@@ -1,9 +1,11 @@
 #include "CCollidableOBBTreeGroup.hpp"
-#include "COBBTree.hpp"
+#include "CCollidableOBBTree.hpp"
 #include "CToken.hpp"
 
 namespace urde
 {
+const CCollisionPrimitive::Type CCollidableOBBTreeGroup::sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");
+u32 CCollidableOBBTreeGroup::sTableIndex = -1;
 
 CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CInputStream& in)
 {
@@ -11,7 +13,49 @@ CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CInputStream& in)
     x0_trees.reserve(treeCount);
 
     for (u32 i = 0 ; i < treeCount ; i++)
-        x0_trees.push_back(in);
+    {
+        std::unique_ptr<COBBTree> tree(new COBBTree(in));
+        x0_trees.push_back(std::move(tree));
+    }
+
+    x10_aabbs.reserve(x0_trees.size());
+
+    for (const std::unique_ptr<COBBTree>& tree : x0_trees)
+        x10_aabbs.push_back(CCollidableOBBTree(tree.get(), CMaterialList()).CalculateLocalAABox());
+}
+
+u32 CCollidableOBBTreeGroup::GetTableIndex() const
+{
+
+}
+
+zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform&) const
+{
+
+}
+
+zeus::CAABox CCollidableOBBTreeGroup::CalculateLocalAABox() const
+{
+
+}
+
+FourCC CCollidableOBBTreeGroup::GetPrimType() const
+{
+    return SBIG('OBTG');
+}
+
+CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastStructure&) const
+{
+}
+
+const CCollisionPrimitive::Type& CCollidableOBBTreeGroup::GetType()
+{
+    return sType;
+}
+
+void CCollidableOBBTreeGroup::SetStaticTableIndex(u32 index)
+{
+    sTableIndex = index;
 }
 
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream &in,

@@ -2,11 +2,17 @@
 #define __URDE_CCOLLISIONPRIMITIVE_HPP__
 
 #include "Collision/CMaterialList.hpp"
+#include "CRayCastResult.hpp"
+#include "zeus/CAABox.hpp"
+
 #include <functional>
 
 namespace urde
 {
 
+class COBBTree;
+class CInternalRayCastStructure;
+class CMaterialFilter;
 class CCollisionPrimitive
 {
     CMaterialList x8_material;
@@ -33,6 +39,20 @@ public:
             return x0_setter;
         }
     };
+
+    CCollisionPrimitive()=default;
+    CCollisionPrimitive(const CMaterialList& list);
+    virtual u32 GetTableIndex() const=0;
+    virtual void SetMaterial(const CMaterialList&);
+    virtual const CMaterialList& GetMaterial() const;
+    virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const=0;
+    virtual zeus::CAABox CalculateLocalAABox() const=0;
+    virtual FourCC GetPrimType() const=0;
+    virtual ~CCollisionPrimitive() {}
+    virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const=0;
+    CRayCastResult CastRay(const zeus::CVector3f&, const zeus::CVector3f&, float, const CMaterialFilter&,
+                           const zeus::CTransform&) const;
+
 
     static void InitBeginTypes();
     static void InitAddType(const Type& tp);

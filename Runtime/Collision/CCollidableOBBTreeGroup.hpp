@@ -3,14 +3,31 @@
 
 #include "IOStreams.hpp"
 #include "CFactoryMgr.hpp"
+#include "COBBTree.hpp"
+#include "zeus/CAABox.hpp"
+#include "CCollisionPrimitive.hpp"
+
 namespace urde
 {
-class COBBTree;
-class CCollidableOBBTreeGroup
+class CCollidableOBBTreeGroup : public CCollisionPrimitive
 {
-    std::vector<COBBTree> x0_trees;
+    static const CCollisionPrimitive::Type sType;
+    static u32 sTableIndex;
+    std::vector<std::unique_ptr<COBBTree>> x0_trees;
+    std::vector<zeus::CAABox> x10_aabbs;
 public:
     CCollidableOBBTreeGroup(CInputStream& in);
+    virtual ~CCollidableOBBTreeGroup() {}
+
+    void ResetTestStats() const;
+    virtual u32 GetTableIndex() const;
+    virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
+    virtual zeus::CAABox CalculateLocalAABox() const;
+    virtual FourCC GetPrimType() const;
+    virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+
+    static const CCollisionPrimitive::Type& GetType();
+    static void SetStaticTableIndex(u32 index);
 };
 
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream &in,
