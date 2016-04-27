@@ -34,6 +34,7 @@ set(WORLD_SOURCES
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp
+    CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp
