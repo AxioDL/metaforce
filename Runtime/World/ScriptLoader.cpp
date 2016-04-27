@@ -28,6 +28,7 @@
 #include "CScriptAreaAttributes.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptCoverPoint.hpp"
+#include "CScriptSpawnPoint.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CWarWasp.hpp"
@@ -827,6 +828,31 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,
                                       int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 35, "SpawnPoint"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+
+    zeus::CVector3f position;
+    position.readBig(in);
+
+    zeus::CVector3f rotation;
+    rotation.readBig(in);
+
+    std::vector<u32> itemCounts;
+    itemCounts.reserve(propCount-6);
+    for (int i=0 ; i<propCount-6 ; ++i)
+        itemCounts.push_back(in.readUint32Big());
+
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = false;
+    if (propCount > 34)
+        b3 = in.readBool();
+
+    return new CScriptSpawnPoint(mgr.AllocateUniqueId(), *name, info,
+                                 ConvertEditorEulerToTransform4f(rotation, position),
+                                 itemCounts, b1, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in,
