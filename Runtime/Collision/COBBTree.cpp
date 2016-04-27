@@ -28,6 +28,18 @@ COBBTree::COBBTree(CInputStream& in)
 {
 }
 
+zeus::CAABox COBBTree::CalculateLocalAABox() const
+{
+    return CalculateAABox(zeus::CTransform::Identity());
+}
+
+zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const
+{
+    if (x88_root)
+        return x88_root->GetOBB().calculateAABox(xf);
+    return zeus::CAABox::skInvertedBox;
+}
+
 COBBTree::SIndexData::SIndexData(CInputStream& in)
 {
     u32 count = in.readUint32Big();

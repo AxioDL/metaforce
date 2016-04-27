@@ -62,11 +62,14 @@ private:
     u32 x8_memsize = 0;
     /* CSimpleAllocator xc_ We're not using this but lets keep track*/
     SIndexData x18_indexData;
-    std::unique_ptr<const CNode> x88_root;
+    std::unique_ptr<CNode> x88_root;
 public:
     COBBTree()=default;
     COBBTree(const COBBTree::SIndexData&, const CNode*);
     COBBTree(CInputStream&);
+
+    zeus::CAABox CalculateLocalAABox() const;
+    zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
 };
 }
 

@@ -9,25 +9,37 @@ namespace urde
 class CRayCastResult
 {
 public:
-    enum class EInvalid
+    enum class EInvalid : u8
     {
-        Zero,
-        One
+        Invalid,
+        Valid
     };
 private:
-    EInvalid invalid = EInvalid::Zero;
-    zeus::CVector3f x4_;
-    zeus::CVector3f x10_;
+    float x0_time;
+    zeus::CVector3f x4_point;
+    zeus::CPlane x10_plane;
+    EInvalid x20_invalid = EInvalid::Invalid;
+    /*u32 x24_; */
     CMaterialList x28_material;
 public:
     CRayCastResult();
-    CRayCastResult(const CRayCastResult& other, EInvalid) {}
+    CRayCastResult(const CRayCastResult& other, EInvalid invalid)
+        : x0_time(other.x0_time),
+          x4_point(other.x4_point),
+          x10_plane(other.x10_plane),
+          x20_invalid(invalid),
+          x28_material(other.x28_material)
+    {
+    }
+
     CRayCastResult(float, const zeus::CVector3f&, const zeus::CPlane& plane, const CMaterialList& matList)
         : x28_material(matList)
     {}
 
     void MakeInvalid();
+
     bool IsInvalid() const;
+
     float GetTime() const;
     const zeus::CVector3f& GetPoint() const;
     const zeus::CPlane& GetPlane() const;
