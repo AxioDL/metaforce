@@ -40,7 +40,7 @@ struct EVNT : BigYAML
         CharAnimTime animTime;
         Value<atUint32> idx;
         Value<bool> unk2;
-        Value<float> unk3;
+        Value<float> weight;
         Value<atUint32> unk4;
         Value<atUint32> unk5;
     };

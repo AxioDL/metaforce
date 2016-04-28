@@ -2,6 +2,7 @@
 
 namespace urde
 {
+std::vector<s16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
 void CSfxManager::AddListener(ESfxChannels,
                               const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
@@ -16,8 +17,19 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
 {
 }
 
-u16 CSfxManager::TranslateSFXID(u16)
+u16 CSfxManager::TranslateSFXID(u16 id)
 {
+    if (mpSfxTranslationTable)
+        return 0;
+
+    u16 index = id & 0xFFFF;
+    if (index >= mpSfxTranslationTable->size())
+        return 0;
+
+    s16 ret = mpSfxTranslationTable->at(index);
+    if (ret == -1)
+        return 0;
+    return ret & 0xFFFF;
 }
 
 }

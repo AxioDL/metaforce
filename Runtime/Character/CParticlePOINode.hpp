@@ -14,7 +14,7 @@ class CParticlePOINode : public CPOINode
 public:
     CParticlePOINode();
     CParticlePOINode(CInputStream& in);
-    const CParticleData& GetData() const {return x38_data;}
+    const CParticleData& GetParticleData() const {return x38_data;}
 
     static u32 _getPOIList(const CCharAnimTime& time,
                            CParticlePOINode* listOut,

@@ -10,12 +10,12 @@ class IAnimSourceInfo;
 class CInt32POINode : public CPOINode
 {
     s32 x38_val;
-    std::string x3c_boneName;
+    std::string x3c_locatorName;
 public:
     CInt32POINode();
     CInt32POINode(CInputStream& in);
     s32 GetValue() const {return x38_val;}
-    const std::string& GetBoneName() const {return x3c_boneName;}
+    const std::string& GetLocatorName() const {return x3c_locatorName;}
 
     static u32 _getPOIList(const CCharAnimTime& time,
                            CInt32POINode* listOut,

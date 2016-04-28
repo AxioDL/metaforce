@@ -12,6 +12,7 @@ namespace urde
 
 class CSfxManager
 {
+    static std::vector<s16>* mpSfxTranslationTable;
 public:
     enum class ESfxChannels
     {
@@ -118,7 +119,6 @@ public:
     static rstl::reserved_vector<CSfxWrapper, 128> m_wrapperPool;
     static ESfxChannels m_currentChannel;
     static bool m_doUpdate;
-    static void* m_sfxTranslationTable;
     static void* m_usedSounds;
     static bool m_muted;
     static bool m_auxProcessingEnabled;

@@ -16,17 +16,18 @@ protected:
     CCharAnimTime x1c_time;
     u32 x24_index;
     bool x28_;
-    float x2c_;
+    float x2c_weight;
     u32 x30_;
     u32 x34_;
 public:
-    CPOINode(const std::string& name, u16, const CCharAnimTime& time, u32 index, bool, float, u32, u32);
+    CPOINode(const std::string& name, u16, const CCharAnimTime& time, u32 index, bool, float weight, u32, u32);
     CPOINode(CInputStream& in);
     virtual ~CPOINode() = default;
 
     const std::string& GetName() const {return x8_name;}
     const CCharAnimTime& GetTime() const {return x1c_time;}
     u32 GetIndex() const {return x24_index;}
+    float GetWeight() const { return x2c_weight; }
 };
 
 }

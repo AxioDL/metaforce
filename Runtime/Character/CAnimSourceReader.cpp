@@ -46,7 +46,7 @@ CAnimSourceReaderBase::GetUniqueParticlePOIs() const
     const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
     std::map<std::string, CParticleData::EParentedMode> ret;
     for (const CParticlePOINode& node : particleNodes)
-        ret[node.GetName()] = node.GetData().GetParentedMode();
+        ret[node.GetName()] = node.GetParticleData().GetParentedMode();
     return ret;
 }
 
@@ -148,7 +148,7 @@ void CAnimSourceReaderBase::UpdatePOIStates()
         if (node.GetTime() > xc_curTime)
             break;
         if (node.GetIndex() != -1)
-            x44_particleStates[node.GetIndex()].second = node.GetData().GetParentedMode();
+            x44_particleStates[node.GetIndex()].second = node.GetParticleData().GetParentedMode();
         ++x1c_passedParticleCount;
     }
 
