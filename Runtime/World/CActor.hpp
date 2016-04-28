@@ -5,14 +5,10 @@
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
+#include "Particle/CCollisionResponseData.hpp"
 
 namespace urde
 {
-
-enum class ECollisionResponseType
-{
-    Unknown12 = 0xC,
-};
 
 class CActorParameters;
 class CWeaponMode;
@@ -86,7 +82,7 @@ public:
 
     virtual const zeus::CAABox* GetTouchBounds() const { return nullptr; }
 
-    virtual ECollisionResponseType GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return ECollisionResponseType::Unknown12; }
+    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return EWeaponCollisionResponseTypes::Unknown13; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);

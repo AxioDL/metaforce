@@ -30,6 +30,8 @@
 #include "CScriptCoverPoint.hpp"
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptCameraHint.hpp"
+#include "CScriptActorRotate.hpp"
+#include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CWarWasp.hpp"
@@ -44,7 +46,7 @@ namespace urde
 static logvisor::Module Log("urde::ScriptLoader");
 
 static SObjectTag MorphballDoorANCS = {};
-static const SObjectTag& GetMorphballDoorANCS()
+static const SObjectTag& GetMorphballDoorACS()
 {
     if (!MorphballDoorANCS)
         MorphballDoorANCS = static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
@@ -361,7 +363,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
     bool b8 = in.readBool();
     bool b9 = in.readBool();
 
-    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.x0_ancs);
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
     if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
         return nullptr;
 
@@ -383,22 +385,9 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
 
     CModelData data;
     if (animType == SBIG('ANCS'))
-    {
-        CAnimRes aRes;
-        aRes.x0_ancsId = aParms.x0_ancs;
-        aRes.x4_charIdx = aParms.x4_charIdx;
-        aRes.x8_scale = head.x40_scale;
-        aRes.x14_ = true;
-        aRes.x18_defaultAnim = aParms.x8_defaultAnim;
-        data = aRes;
-    }
+        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
     else
-    {
-        CStaticRes sRes;
-        sRes.x0_cmdlId = staticId;
-        sRes.x4_scale = head.x40_scale;
-        data = sRes;
-    }
+        data = CStaticRes(staticId, head.x40_scale);
 
     if (generateExtent || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
@@ -455,23 +444,17 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
 
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, offset);
 
-    if (!g_ResFactory->GetResourceTypeById(aParms.x0_ancs))
+    if (!g_ResFactory->GetResourceTypeById(aParms.GetACSFile()))
         return nullptr;
 
-    CAnimRes aRes;
-    aRes.x0_ancsId = aParms.x0_ancs;
-    aRes.x4_charIdx = aParms.x4_charIdx;
-    aRes.x18_defaultAnim = aParms.x8_defaultAnim;
-    aRes.x8_scale = head.x40_scale;
-
-    CModelData mData = aRes;
+    CModelData mData = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
     if (collisionExtent.isZero())
         aabb = mData.GetBounds(head.x10_transform.getRotation());
 
     bool isMorphballDoor = false;
     if (propCount == 13)
     {
-        if (aParms.x0_ancs == GetMorphballDoorANCS().id)
+        if (aParms.GetACSFile() == GetMorphballDoorACS().id)
             isMorphballDoor = true;
     }
     else if (propCount == 14)
@@ -623,7 +606,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
     u32 w2 = in.readUint32Big();
     u32 w3 = in.readUint32Big();
 
-    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.x0_ancs);
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
     if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
         return nullptr;
 
@@ -639,22 +622,9 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
 
     CModelData data;
     if (animType == SBIG('ANCS'))
-    {
-        CAnimRes aRes;
-        aRes.x0_ancsId = aParms.x0_ancs;
-        aRes.x4_charIdx = aParms.x4_charIdx;
-        aRes.x8_scale = head.x40_scale;
-        aRes.x14_ = true;
-        aRes.x18_defaultAnim = aParms.x8_defaultAnim;
-        data = aRes;
-    }
+        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
     else
-    {
-        CStaticRes sRes;
-        sRes.x0_cmdlId = staticId;
-        sRes.x4_scale = head.x40_scale;
-        data = sRes;
-    }
+        data = CStaticRes(staticId, head.x40_scale);
 
     if (extent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
@@ -724,7 +694,7 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 7, "Dock"))
         return nullptr;
 
-    std::string name = *mgr.HashInstanceName(in);
+    const std::string* name = mgr.HashInstanceName(in);
     bool active = in.readBool();
     zeus::CVector3f position;
     position.readBig(in);
@@ -733,7 +703,7 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
     u32 dock = in.readUint32Big();
     TAreaId area = in.readUint32Big();
     bool b1 = in.readBool();
-    return new CScriptDock(mgr.AllocateUniqueId(), name, info, position, scale, dock, area, active, 0, b1);
+    return new CScriptDock(mgr.AllocateUniqueId(), *name, info, position, scale, dock, area, active, 0, b1);
 }
 
 CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
@@ -810,16 +780,13 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
     u32 w4 = in.readUint32Big();
     u32 w5 = in.readUint32Big();
 
-    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-    if (animParms.x0_ancs < 0)
+    const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
+    if (animType != SBIG('ANCS'))
         return nullptr;
 
-    CAnimRes res;
-    res.x0_ancsId = animParms.x0_ancs;
-    res.x4_charIdx = animParms.x4_charIdx;
-    res.x8_scale = head.x40_scale;
-    res.x14_ = true;
-    res.x18_defaultAnim = animParms.x8_defaultAnim;
+    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+
 
     return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info,
                                   head.x10_transform, res, pInfo, actParms, f1, w1,
@@ -968,7 +935,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 63, "Water"))
         return nullptr;
 
-    std::string name = *mgr.HashInstanceName(in);
+    const std::string* name = mgr.HashInstanceName(in);
     zeus::CVector3f position;
     position.readBig(in);
     zeus::CVector3f extent;
@@ -1066,7 +1033,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     if (textureId4 == -1)
         realTextureId5 = textureId5;
 
-    return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
+    return new CScriptWater(mgr, mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
                             textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2,
                             f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle,
                             partId2, partId3, partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5,
@@ -1080,7 +1047,7 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 13, "WarWasp"))
         return nullptr;
 
-    std::string name = *mgr.HashInstanceName(in);
+    const std::string* name = mgr.HashInstanceName(in);
     CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
     zeus::CTransform xf = LoadEditorTransformPivotOnly(in);
     zeus::CVector3f scale;
@@ -1099,18 +1066,14 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
     ResId particle = in.readUint32Big();
     u32 w1 = in.readUint32Big();
 
-    FourCC animType = g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().x0_ancs);
+    const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
+    FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
     if (animType != SBIG('ANCS'))
         return nullptr;
 
-    CAnimRes res;
-    res.x0_ancsId = pInfo.GetAnimationParameters().x0_ancs;
-    res.x4_charIdx = pInfo.GetAnimationParameters().x4_charIdx;
-    res.x8_scale = scale;
-    res.x14_ = true;
-    res.x18_defaultAnim = pInfo.GetAnimationParameters().x8_defaultAnim;
+    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, true, aParms.GetInitialAnimation());
     CModelData mData(res);
-    return new MP1::CWarWasp(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, flavor, collider, damageInfo1, actorParms, weaponDesc,
+    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider, damageInfo1, actorParms, weaponDesc,
                              damageInfo2, particle, w1);
 }
 
@@ -1182,11 +1145,11 @@ CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 5, "GrapplePoint"))
         return nullptr;
 
-    std::string name = *mgr.HashInstanceName(in);
+    const std::string* name = mgr.HashInstanceName(in);
     zeus::CTransform grappleXf = LoadEditorTransform(in);
     bool active = in.readBool();
     CGrappleParameters parameters = LoadGrappleParameters(in);
-    return new CScriptGrapplePoint(mgr.AllocateUniqueId(), name, info, grappleXf, active, parameters);
+    return new CScriptGrapplePoint(mgr.AllocateUniqueId(), *name, info, grappleXf, active, parameters);
 }
 
 CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in,
@@ -1232,11 +1195,46 @@ CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in,
                                        int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 6, "ActorRotate"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f rotation = zeus::CVector3f::ReadBig(in);
+    float scale = in.readFloatBig();
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool active = in.readBool();
+
+    return new CScriptActorRotate(mgr.AllocateUniqueId(), *name, info, rotation, scale, b1, b2, active);
 }
 
 CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
                                            int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 15, "SpecialFunction"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+    CScriptSpecialFunction::ESpecialFunction specialFunction = CScriptSpecialFunction::ESpecialFunction(in.readUint32Big());
+    std::string  str = in.readString();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    bool active1 = in.readBool();
+    float f4 = in.readFloatBig();
+    s16 w5 = in.readUint32Big() & 0xFFFF;
+    s16 w6 = in.readUint32Big() & 0xFFFF;
+    s16 w7 = in.readUint32Big() & 0xFFFF;
+    if (specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven ||
+        specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven)
+        return nullptr;
+
+    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction, str, f1, f2,
+                                  f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1, CDamageInfo(), w2, w3, w4,
+                                  w5, w6, w7);
 }
 
 CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in,

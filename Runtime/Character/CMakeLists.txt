@@ -28,6 +28,7 @@ set(CHARACTER_SOURCES
     CPASParmInfo.hpp CPASParmInfo.cpp
     CPASAnimInfo.hpp CPASAnimInfo.cpp
     CPASAnimParm.hpp CPASAnimParm.cpp
+    CPASAnimParmData.hpp CPASAnimParmData.cpp
     CEffectComponent.hpp CEffectComponent.cpp
     CAnimation.hpp CAnimation.cpp
     CAnimationManager.hpp CAnimationManager.cpp

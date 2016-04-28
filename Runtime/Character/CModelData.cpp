@@ -23,16 +23,16 @@ CModelData::CModelData() {}
 CModelData CModelData::CModelDataNull() {return CModelData();}
 
 CModelData::CModelData(const CStaticRes& res)
-: x0_particleScale(res.x4_scale)
+: x0_particleScale(res.GetScale())
 {
-    x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.x0_cmdlId});
+    x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
 }
 
 CModelData::CModelData(const CAnimRes& res)
-: x0_particleScale(res.x8_scale)
+: x0_particleScale(res.GetScale())
 {
     TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
-    xc_animData = factory->CreateCharacter(res.x4_charIdx, res.x14_, factory, res.x18_defaultAnim);
+    xc_animData = factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim());
 }
 
 SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a,

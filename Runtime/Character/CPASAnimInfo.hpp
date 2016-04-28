@@ -14,7 +14,9 @@ class CPASAnimInfo
     rstl::reserved_vector<CPASAnimParm::UParmValue, 8> x4_parms;
 public:
     CPASAnimInfo(u32 id, rstl::reserved_vector<CPASAnimParm::UParmValue, 8>&& parms);
-    u32 GetId() const {return x0_id;}
+    u32 GetAnimId() const {return x0_id;}
+    CPASAnimParm::UParmValue GetAnimParmValue(u32 idx) const;
+    CPASAnimParm GetAnimParmData(u32, CPASAnimParm::EParmType) const;
 };
 
 }

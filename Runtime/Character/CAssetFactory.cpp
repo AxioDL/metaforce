@@ -46,7 +46,7 @@ CCharacterFactoryBuilder::CCharacterFactoryBuilder() : x4_dummyStore(x0_dummyFac
 
 TToken<CCharacterFactory> CCharacterFactoryBuilder::GetFactory(const CAnimRes& res)
 {
-    return x4_dummyStore.GetObj({SBIG('ANCS'), res.x0_ancsId});
+    return x4_dummyStore.GetObj({SBIG('ANCS'), res.GetId()});
 }
 
 }

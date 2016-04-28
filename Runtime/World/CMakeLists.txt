@@ -36,6 +36,8 @@ set(WORLD_SOURCES
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp
     CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
     CScriptCameraHint.hpp CScriptCameraHint.cpp
+    CScriptActorRotate.hpp CScriptActorRotate.cpp
+    CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

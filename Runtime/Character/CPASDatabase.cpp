@@ -6,7 +6,7 @@ namespace urde
 void CPASDatabase::AddAnimState(CPASAnimState&& state)
 {
     auto it = std::lower_bound(x0_states.begin(), x0_states.end(), state,
-    [](const CPASAnimState& item, const CPASAnimState& test) -> bool {return item.GetId() < test.GetId();});
+    [](const CPASAnimState& item, const CPASAnimState& test) -> bool {return item.GetStateId() < test.GetStateId();});
     x0_states.insert(it, std::move(state));
 }
 
