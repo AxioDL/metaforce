@@ -29,6 +29,7 @@
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptCoverPoint.hpp"
 #include "CScriptSpawnPoint.hpp"
+#include "CScriptCameraHint.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -825,6 +826,47 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in,
                                       int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 25, "CamerHint"))
+        return nullptr;
+
+    SActorHead head = LoadActorHead(in, mgr);
+
+    bool active = in.readBool();
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 pf = LoadParameterFlags(in);
+    pf |= in.readBool() << 6;
+    float f1 = in.readFloatBig();
+    pf |= in.readBool() << 7;
+    float f2 = in.readFloatBig();
+    pf |= in.readBool() << 8;
+    float f3 = in.readFloatBig();
+    zeus::CVector3f vec1;
+    vec1.readBig(in);
+    pf |= in.readBool() << 9;
+    zeus::CVector3f vec2;
+    vec2.readBig(in);
+    zeus::CVector3f vec3;
+    vec3.readBig(in);
+    pf |= in.readBool() << 10;
+    float f4 = in.readFloatBig();
+    pf |= in.readBool() << 11;
+    float f5 = in.readFloatBig();
+    pf |= in.readBool() << 12;
+    float f6 = in.readFloatBig();
+    pf |= in.readBool() << 13;
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    pf |= in.readBool() << 14;
+    float f10 = in.readFloatBig();
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    float f13 = in.readFloatBig();
+
+    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info,
+                                 head.x10_transform, active, w1, w2, pf, f1, f2, f3,
+                                 vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13);
 }
 
 CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in,
