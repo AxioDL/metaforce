@@ -32,14 +32,14 @@ CModelData::CModelData(const CAnimRes& res)
 : x0_particleScale(res.GetScale())
 {
     TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
-    xc_animData = factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim());
+    x10_animData = factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim());
 }
 
 SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a,
                                                     const CCharAnimTime& b) const
 {
-    if (xc_animData)
-        return xc_animData->GetAdvancementDeltas(a, b);
+    if (x10_animData)
+        return x10_animData->GetAdvancementDeltas(a, b);
     else
         return {};
 }
@@ -69,14 +69,14 @@ const CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
     switch (which)
     {
     case EWhichModel::XRay:
-        ret = xc_animData->xf4_xrayModel.get();
+        ret = x10_animData->xf4_xrayModel.get();
     case EWhichModel::Thermal:
-        ret = xc_animData->xf8_infraModel.get();
+        ret = x10_animData->xf8_infraModel.get();
     default: break;
     }
     if (ret)
         return *ret;
-    return *xc_animData->xd8_modelData.GetObj();
+    return *x10_animData->xd8_modelData.GetObj();
 }
 
 const TLockedToken<CModel>& CModelData::PickStaticModel(EWhichModel which) const
@@ -101,10 +101,10 @@ void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
     {
         if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
-            if (xc_animData && modelSkin.second &&
+            if (x10_animData && modelSkin.second &&
                 g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
-                xc_animData->SetXRayModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
+                x10_animData->SetXRayModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
                                           g_SimplePool->GetObj({SBIG('CSKR'), modelSkin.second}));
             }
             else
@@ -121,10 +121,10 @@ void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
     {
         if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
-            if (xc_animData && modelSkin.second &&
+            if (x10_animData && modelSkin.second &&
                 g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
-                xc_animData->SetInfraModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
+                x10_animData->SetInfraModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
                                            g_SimplePool->GetObj({SBIG('CSKR'), modelSkin.second}));
             }
             else
@@ -137,7 +137,7 @@ void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
 
 bool CModelData::IsDefinitelyOpaque(EWhichModel which) const
 {
-    if (xc_animData)
+    if (x10_animData)
     {
         const CSkinnedModel& model = PickAnimatedModel(which);
         return model.GetModel()->GetInstance().IsOpaque();
@@ -151,51 +151,51 @@ bool CModelData::IsDefinitelyOpaque(EWhichModel which) const
 
 bool CModelData::GetIsLoop() const
 {
-    if (!xc_animData)
+    if (!x10_animData)
         return false;
-    return xc_animData->GetIsLoop();
+    return x10_animData->GetIsLoop();
 }
 
 float CModelData::GetAnimationDuration(int idx) const
 {
-    if (!xc_animData)
+    if (!x10_animData)
         return 0.f;
-    return xc_animData->GetAnimationDuration(idx);
+    return x10_animData->GetAnimationDuration(idx);
 }
 
 void CModelData::EnableLooping(bool enable)
 {
-    if (!xc_animData)
+    if (!x10_animData)
         return;
-    xc_animData->EnableLooping(enable);
+    x10_animData->EnableLooping(enable);
 }
 
 void CModelData::AdvanceParticles(const zeus::CTransform& xf, float dt,
                                   CStateManager& stateMgr)
 {
-    if (!xc_animData)
+    if (!x10_animData)
         return;
-    xc_animData->AdvanceParticles(xf, dt, x0_particleScale, stateMgr);
+    x10_animData->AdvanceParticles(xf, dt, x0_particleScale, stateMgr);
 }
 
 zeus::CAABox CModelData::GetBounds() const
 {
-    if (xc_animData)
+    if (x10_animData)
     {
-        return xc_animData->GetBoundingBox(zeus::CTransform::Scale(x0_particleScale));
+        return x10_animData->GetBoundingBox(zeus::CTransform::Scale(x0_particleScale));
     }
     else
     {
         const zeus::CAABox& aabb = x1c_normalModel->GetAABB();
-        return zeus::CAABox(aabb.m_min * x0_particleScale, aabb.m_max * x0_particleScale);
+        return zeus::CAABox(aabb.min * x0_particleScale, aabb.max * x0_particleScale);
     }
 }
 
 zeus::CAABox CModelData::GetBounds(const zeus::CTransform& xf) const
 {
     zeus::CTransform xf2 = xf * zeus::CTransform::Scale(x0_particleScale);
-    if (xc_animData)
-        return xc_animData->GetBoundingBox(xf2);
+    if (x10_animData)
+        return x10_animData->GetBoundingBox(xf2);
     else
         return x1c_normalModel->GetAABB().getTransformedAABox(xf2);
 }
@@ -204,75 +204,75 @@ zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(const std::string&
                                                               const CCharAnimTime* time) const
 {
     zeus::CTransform xf = GetLocatorTransformDynamic(name, time);
-    xf.m_origin *= x0_particleScale;
+    xf.origin *= x0_particleScale;
     return xf;
 }
 
 zeus::CTransform CModelData::GetScaledLocatorTransform(const std::string& name) const
 {
     zeus::CTransform xf = GetLocatorTransform(name);
-    xf.m_origin *= x0_particleScale;
+    xf.origin *= x0_particleScale;
     return xf;
 }
 
 zeus::CTransform CModelData::GetLocatorTransformDynamic(const std::string& name,
                                                         const CCharAnimTime* time) const
 {
-    if (xc_animData)
-        return xc_animData->GetLocatorTransform(name, time);
+    if (x10_animData)
+        return x10_animData->GetLocatorTransform(name, time);
     else
         return {};
 }
 
 zeus::CTransform CModelData::GetLocatorTransform(const std::string& name) const
 {
-    if (xc_animData)
-        return xc_animData->GetLocatorTransform(name, nullptr);
+    if (x10_animData)
+        return x10_animData->GetLocatorTransform(name, nullptr);
     else
         return {};
 }
 
 SAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool flag)
 {
-    if (xc_animData)
-        return xc_animData->AdvanceIgnoreParticles(dt, rand, flag);
+    if (x10_animData)
+        return x10_animData->AdvanceIgnoreParticles(dt, rand, flag);
     else
         return {};
 }
 
 SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, bool flag)
 {
-    if (xc_animData)
-        return xc_animData->Advance(dt, x0_particleScale, stateMgr, flag);
+    if (x10_animData)
+        return x10_animData->Advance(dt, x0_particleScale, stateMgr, flag);
     else
         return {};
 }
 
 bool CModelData::IsAnimating() const
 {
-    if (!xc_animData)
+    if (!x10_animData)
         return false;
-    return xc_animData->IsAnimating();
+    return x10_animData->IsAnimating();
 }
 
 bool CModelData::IsInFrustum(const zeus::CTransform& xf,
                              const CFrustumPlanes& frustum) const
 {
-    if (!xc_animData && !x1c_normalModel)
+    if (!x10_animData && !x1c_normalModel)
         return true;
     return frustum.BoxInFrustumPlanes(GetBounds(xf));
 }
 
 void CModelData::RenderParticles(const CFrustumPlanes& frustum) const
 {
-    if (xc_animData)
-        xc_animData->RenderAuxiliary(frustum);
+    if (x10_animData)
+        x10_animData->RenderAuxiliary(frustum);
 }
 
 void CModelData::Touch(EWhichModel which, int shaderIdx) const
 {
-    if (xc_animData)
-        xc_animData->Touch(PickAnimatedModel(which), shaderIdx);
+    if (x10_animData)
+        x10_animData->Touch(PickAnimatedModel(which), shaderIdx);
     else
         PickStaticModel(which)->Touch(shaderIdx);
 }
@@ -290,10 +290,10 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
     CModelFlags drawFlags;
     drawFlags.m_extendedShaderIdx = 3;
 
-    if (xc_animData)
+    if (x10_animData)
     {
         const CSkinnedModel& model = PickAnimatedModel(EWhichModel::Thermal);
-        xc_animData->SetupRender(model, {}, nullptr);
+        x10_animData->SetupRender(model, {}, nullptr);
         model.Draw(drawFlags);
     }
     else
@@ -307,7 +307,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
                                      const CActorLights* lights, const CModelFlags& drawFlags) const
 {
     if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
-        xc_animData || !x1c_normalModel || drawFlags.m_blendMode > 2)
+        x10_animData || !x1c_normalModel || drawFlags.m_blendMode > 2)
     {
         ((CModelData*)this)->x14_24_renderSorted = false;
         return;
@@ -347,9 +347,9 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
             // Also set ambient to x18_ambientColor
         }
 
-        if (xc_animData)
+        if (x10_animData)
         {
-            xc_animData->Render(PickAnimatedModel(which), drawFlags, {}, nullptr);
+            x10_animData->Render(PickAnimatedModel(which), drawFlags, {}, nullptr);
         }
         else
         {

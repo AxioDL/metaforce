@@ -491,7 +491,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in,
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
     const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
-    zeus::CVector3f orientedForce = areaXf.m_basis * forceVec;
+    zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
     return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo,
                               orientedForce, w1, b1, b2, b3);

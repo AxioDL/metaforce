@@ -12,7 +12,7 @@ namespace urde
 static logvisor::Module Log("urde::CModelBoo");
 bool CBooModel::g_DrawingOccluders = false;
 
-static std::experimental::optional<CModelShaders> g_ModelShaders;
+static rstl::optional_object<CModelShaders> g_ModelShaders;
 
 CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
@@ -204,7 +204,7 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
                 continue;
             CModelShaders::Light& lightOut = m_lightingData.lights[curLight++];
             lightOut.pos = CGraphics::g_CameraMatrix * light.x0_pos;
-            lightOut.dir = CGraphics::g_CameraMatrix.m_basis * light.xc_dir;
+            lightOut.dir = CGraphics::g_CameraMatrix.basis * light.xc_dir;
             lightOut.dir.normalize();
             lightOut.color = light.x18_color;
             lightOut.linAtt[0] = light.x24_distC;
@@ -372,14 +372,14 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         matrixOut.vec[0].x = 0.5f;
         matrixOut.vec[1].y = 0.0f;
         matrixOut.vec[2].y = 0.5f;
-        matrixOut.vec[3].x = CGraphics::g_GXModelMatrix.m_origin.x * 0.5f;
-        matrixOut.vec[3].y = CGraphics::g_GXModelMatrix.m_origin.y * 0.5f;
+        matrixOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
+        matrixOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
         break;
     }
     case UVAnimation::Mode::WhoMustNotBeNamed:
     {
         zeus::CTransform texmtx = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
-        texmtx.m_origin.zeroOut();
+        texmtx.origin.zeroOut();
         /* TODO: Finish */
         matrixOut = texmtx.toMatrix4f();
         break;

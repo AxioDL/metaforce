@@ -18,7 +18,7 @@ CSkinnedModel::CSkinnedModel(IObjectStore& store, ResId model,
 }
 
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
-                              const std::experimental::optional<CVertexMorphEffect>&)
+                              const rstl::optional_object<CVertexMorphEffect>&)
 {
 }
 

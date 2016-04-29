@@ -103,8 +103,8 @@ void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ER
 void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf)
 {
     g_ViewMatrix = xf;
-    g_ViewPoint = xf.m_origin;
-    zeus::CMatrix3f tmp(xf.m_basis[0], xf.m_basis[2], -xf.m_basis[1]);
+    g_ViewPoint = xf.origin;
+    zeus::CMatrix3f tmp(xf.basis[0], xf.basis[2], -xf.basis[1]);
     g_GXViewPointMatrix = zeus::CTransform(tmp.transposed());
     SetViewMatrix();
 }
@@ -119,8 +119,8 @@ void CGraphics::SetViewMatrix()
     /* Load position matrix */
     /* Inverse-transpose */
     g_GXModelViewInvXpose = g_GXModelView.inverse();
-    g_GXModelViewInvXpose.m_origin.zeroOut();
-    g_GXModelViewInvXpose.m_basis.transpose();
+    g_GXModelViewInvXpose.origin.zeroOut();
+    g_GXModelViewInvXpose.basis.transpose();
     /* Load normal matrix */
 }
 

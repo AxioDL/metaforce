@@ -39,13 +39,13 @@ const zeus::CTransform& CPoseAsTransforms::GetTransform(const CSegId& id) const
 const zeus::CVector3f& CPoseAsTransforms::GetOffset(const CSegId& id) const
 {
     const std::pair<CSegId, CSegId>& link = x8_links[id];
-    return xd0_transformArr[link.second].m_origin;
+    return xd0_transformArr[link.second].origin;
 }
 
 const zeus::CMatrix3f& CPoseAsTransforms::GetRotation(const CSegId& id) const
 {
     const std::pair<CSegId, CSegId>& link = x8_links[id];
-    return xd0_transformArr[link.second].m_basis;
+    return xd0_transformArr[link.second].basis;
 }
 
 void CPoseAsTransforms::Insert(const CSegId& id,

@@ -28,9 +28,9 @@ public:
     virtual bool Message(const CGuiMessage& msg)=0;
 
     void MoveInWorld(const zeus::CVector3f& vec);
-    const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.m_origin;}
+    const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.origin;}
     void SetLocalPosition(const zeus::CVector3f& pos);
-    const zeus::CVector3f& GetWorldPosition() const {return x34_worldXF.m_origin;}
+    const zeus::CVector3f& GetWorldPosition() const {return x34_worldXF.origin;}
     void SetRotationCenter(const zeus::CVector3f& center) {x64_rotationCenter = center;}
     void RotateReset();
     zeus::CVector3f RotateW2O(const zeus::CVector3f& vec) const;

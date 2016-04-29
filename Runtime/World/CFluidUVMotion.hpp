@@ -35,6 +35,9 @@ private:
     float x50_;
 public:
     CFluidUVMotion(float a, float b, const SFluidLayerMotion& c, const SFluidLayerMotion& d, const SFluidLayerMotion& e);
+
+    void GetOrientation() const;
+    void GetOOTimeToWrapTexPage() const;
 };
 }
 #endif // __URDE_CFLUIDUVMOTION_HPP__

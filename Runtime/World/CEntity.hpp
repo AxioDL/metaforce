@@ -58,8 +58,12 @@ public:
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     bool GetActive() const {return x30_24_active;}
     virtual void SetActive(bool active) {x30_24_active = active;}
+    void ToggleActive()
+    {
+        x30_24_active ^= 1;
+    }
 
-    TAreaId GetAreaId() const
+    TAreaId GetCurrentAreaId() const
     {
         if (x30_27_)
             return x4_areaId;

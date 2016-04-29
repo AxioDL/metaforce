@@ -83,7 +83,7 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
     TToken<CSkinnedModel> skinnedModel =
         ((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(), charInfo.GetModelId()}, charParm);
 
-    std::experimental::optional<TToken<CMorphableSkinnedModel>> iceModel;
+    rstl::optional_object<TToken<CMorphableSkinnedModel>> iceModel;
     if (charInfo.GetIceModelId() && charInfo.GetIceSkinRulesId())
         iceModel.emplace(((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(1), charInfo.GetIceModelId()}, charParm));
 

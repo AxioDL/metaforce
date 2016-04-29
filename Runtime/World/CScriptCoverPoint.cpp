@@ -26,12 +26,12 @@ void CScriptCoverPoint::Think(float delta, CStateManager&)
     x11c_timeLeft -= delta;
 }
 
-const zeus::CAABox* CScriptCoverPoint::GetTouchBounds() const
+rstl::optional_object<zeus::CAABox> CScriptCoverPoint::GetTouchBounds() const
 {
     if (x100_touchBounds)
-        return &x100_touchBounds.value();
+        return x100_touchBounds;
 
-    return nullptr;
+    return {};
 }
 
 void CScriptCoverPoint::SetInUse(bool inUse)
@@ -119,7 +119,7 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 {
     CActor::AcceptScriptMsg(msg, uid, mgr);
 
-    if (msg == EScriptObjectMessage::UNKM4)
+    if (msg == EScriptObjectMessage::UNKM15)
     {
         for (const SConnection& con : x20_conns)
             if (con.x0_state == EScriptObjectState::Retreat)

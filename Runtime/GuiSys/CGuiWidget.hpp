@@ -155,7 +155,7 @@ public:
     void AddTrigger(std::unique_ptr<CGuiLogicalEventTrigger>&& trigger);
     std::vector<std::unique_ptr<CGuiFunctionDef>>* FindFunctionDefList(int id);
     void AddFunctionDef(s32 id, std::unique_ptr<CGuiFunctionDef>&& def);
-    const zeus::CVector3f& GetIdlePosition() const {return x80_transform.m_origin;}
+    const zeus::CVector3f& GetIdlePosition() const {return x80_transform.origin;}
     void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
     void ReapplyXform();
     void SetIsVisible(bool);

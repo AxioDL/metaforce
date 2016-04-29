@@ -51,6 +51,11 @@ CPASAnimState::CPASAnimState(CInputStream& in)
     }
 }
 
+const CPASAnimParmData&CPASAnimState::GetAnimParmData(s32, u32) const
+{
+
+}
+
 std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>&, CRandom16&, s32) const
 {
 }

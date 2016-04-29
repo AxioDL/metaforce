@@ -46,7 +46,7 @@ CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityIn
 /* ORIGINAL 0-00 OFFSET: 8007F054 */
 zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) const
 {
-    return x34_transform.m_origin + x29c_;
+    return x34_transform.origin + x29c_;
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007E550 */

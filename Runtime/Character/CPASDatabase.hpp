@@ -40,10 +40,10 @@ public:
 
     bool HasState(s32 id) const
     {
-        for (const CPASAnimState& state : x0_states)
-            return true;
-
-        return false;
+        const auto& st = std::find_if(x0_states.begin(), x0_states.end(),
+                                      [&id](const CPASAnimState& other)->bool
+                                      { return other.GetStateId() == id; });
+        return st != x0_states.end();
     }
 };
 

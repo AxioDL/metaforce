@@ -3,7 +3,7 @@
 
 #include "zeus/CTransform.hpp"
 #include "zeus/CAABox.hpp"
-#include "optional.hpp"
+#include "rstl.hpp"
 
 namespace urde
 {
@@ -16,7 +16,7 @@ public:
     bool PointInFrustumPlanes(const zeus::CVector3f& point) const;
     bool SphereInFrustumPlanes(const zeus::CSphere& sphere) const;
     bool BoxInFrustumPlanes(const zeus::CAABox& box) const;
-    bool BoxInFrustumPlanes(const std::experimental::optional<zeus::CAABox>& box) const;
+    bool BoxInFrustumPlanes(const rstl::optional_object<zeus::CAABox>& box) const;
 };
 
 }

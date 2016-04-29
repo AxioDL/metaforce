@@ -31,19 +31,19 @@ void CGuiObject::MoveInWorld(const zeus::CVector3f& vec)
 {
     if (x70_parent)
         x70_parent->RotateW2O(vec);
-    x4_localXF.m_origin += vec;
+    x4_localXF.origin += vec;
     Reorthogonalize();
     RecalculateTransforms();
 }
 
 void CGuiObject::SetLocalPosition(const zeus::CVector3f& pos)
 {
-    MoveInWorld(pos - x4_localXF.m_origin);
+    MoveInWorld(pos - x4_localXF.origin);
 }
 
 void CGuiObject::RotateReset()
 {
-    x4_localXF.m_basis = zeus::CMatrix3f::skIdentityMatrix3f;
+    x4_localXF.basis = zeus::CMatrix3f::skIdentityMatrix3f;
     Reorthogonalize();
     RecalculateTransforms();
 }
@@ -60,14 +60,14 @@ zeus::CVector3f CGuiObject::RotateO2P(const zeus::CVector3f& vec) const
 
 zeus::CVector3f CGuiObject::RotateTranslateW2O(const zeus::CVector3f& vec) const
 {
-    return x34_worldXF.transposeRotate(vec - x34_worldXF.m_origin);
+    return x34_worldXF.transposeRotate(vec - x34_worldXF.origin);
 }
 
 void CGuiObject::MultiplyO2P(const zeus::CTransform& xf)
 {
-    x4_localXF.m_origin += x64_rotationCenter;
+    x4_localXF.origin += x64_rotationCenter;
     x4_localXF = xf * x4_localXF;
-    x4_localXF.m_origin -= x64_rotationCenter;
+    x4_localXF.origin -= x64_rotationCenter;
     Reorthogonalize();
     RecalculateTransforms();
 }
@@ -96,11 +96,11 @@ void CGuiObject::AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd
 
     if (makeWorldLocal)
     {
-        zeus::CVector3f negParentWorld = -x34_worldXF.m_origin;
+        zeus::CVector3f negParentWorld = -x34_worldXF.origin;
         zeus::CMatrix3f basisMat(
-            x34_worldXF.m_basis[0] / x34_worldXF.m_basis[0].magnitude(),
-            x34_worldXF.m_basis[1] / x34_worldXF.m_basis[1].magnitude(),
-            x34_worldXF.m_basis[2] / x34_worldXF.m_basis[2].magnitude());
+            x34_worldXF.basis[0] / x34_worldXF.basis[0].magnitude(),
+            x34_worldXF.basis[1] / x34_worldXF.basis[1].magnitude(),
+            x34_worldXF.basis[2] / x34_worldXF.basis[2].magnitude());
         zeus::CVector3f xfWorld = basisMat * negParentWorld;
         obj->x4_localXF = zeus::CTransform(basisMat, xfWorld) * obj->x34_worldXF;
     }
@@ -131,10 +131,10 @@ void CGuiObject::RecalculateTransforms()
 {
     if (x70_parent)
     {
-        x4_localXF.m_origin += x64_rotationCenter;
+        x4_localXF.origin += x64_rotationCenter;
         x34_worldXF = x70_parent->x34_worldXF * x4_localXF;
-        x4_localXF.m_origin -= x64_rotationCenter;
-        x34_worldXF.m_origin -= x64_rotationCenter;
+        x4_localXF.origin -= x64_rotationCenter;
+        x34_worldXF.origin -= x64_rotationCenter;
     }
     else
     {

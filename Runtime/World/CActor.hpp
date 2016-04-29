@@ -2,6 +2,7 @@
 #define __URDE_CACTOR_HPP__
 
 #include "CEntity.hpp"
+#include "Audio/CSfxHandle.hpp"
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
@@ -15,7 +16,7 @@ class CWeaponMode;
 class CHealthInfo;
 class CDamageVulnerability;
 class CLightParameters;
-
+class CSfxHandle;
 class CActor : public CEntity
 {
 protected:
@@ -28,8 +29,12 @@ protected:
 
     zeus::CTransform x34_transform;
     std::unique_ptr<CModelData> x64_modelData;
-    CMaterialList x68_;
+    CMaterialList x68_material;
     CMaterialFilter x70_;
+    s16 x88_sfxId;
+    std::unique_ptr<CSfxHandle> x8c_sfxHandle;
+    TUniqueId xc6_ = kInvalidUniqueId;
+    float xbc_time;
     union
     {
         struct
@@ -61,7 +66,7 @@ public:
 
     virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
     virtual void Render(CStateManager&) {}
-    virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+    virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual void SetActive(bool active)
     {
         xe4_27_ = true;
@@ -72,15 +77,17 @@ public:
     }
 
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float)
-    { return x34_transform.m_origin; }
+    { return x34_transform.origin; }
 
     virtual bool ValidAimTarget() { return true; }
     virtual bool ValidOrbitTarget() { return true; }
     virtual bool GetOrbitDistanceCheck() { return true; }
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&)
-    { return x34_transform.m_origin; }
+    { return x34_transform.origin; }
 
-    virtual const zeus::CAABox* GetTouchBounds() const { return nullptr; }
+    void RemoveEmitter();
+
+    virtual std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return {} ; }
 
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return EWeaponCollisionResponseTypes::Unknown13; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -114,6 +121,8 @@ public:
     }
 
     const CMaterialFilter& GetMaterialFilter() const { return x70_; }
+
+    bool HasModelData() const;
 };
 
 }

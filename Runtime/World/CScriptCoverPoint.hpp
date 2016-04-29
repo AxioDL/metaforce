@@ -42,7 +42,7 @@ public:
     void AddToRenderer(const zeus::CFrustum &, CStateManager &) {}
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void Render(CStateManager &) {}
-    const zeus::CAABox* GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void SetInUse(bool inUse);
     bool GetInUse(TUniqueId uid) const;
     bool ShouldLandHere() const;

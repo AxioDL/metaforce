@@ -19,7 +19,7 @@ bool CFrustumPlanes::BoxInFrustumPlanes(const zeus::CAABox& box) const
 {
 }
 
-bool CFrustumPlanes::BoxInFrustumPlanes(const std::experimental::optional<zeus::CAABox>& box) const
+bool CFrustumPlanes::BoxInFrustumPlanes(const rstl::optional_object<zeus::CAABox>& box) const
 {
 }
 

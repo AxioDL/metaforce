@@ -182,6 +182,7 @@ public:
 
     static void FreeCache();
     static void InitializeCache();
+    const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
 };
 
 }

@@ -199,9 +199,24 @@ enum class EScriptObjectMessage
     Action,
     Play,
     Alert,
-    ObjectAdded = 0x1f,
-    DeleteRequested = 0x20,
-    UNKM4 = 0x23
+    UNKM4,
+    UNKM5,
+    UNKM6,
+    UNKM7,
+    UNKM8,
+    UNKM9,
+    UNKM10,
+    UNKM11,
+    UNKM12,
+    ObjectAdded,
+    DeleteRequested,
+    UNKM13,
+    UNKM14,
+    UNKM15,
+    UNKM16,
+    UNKM17,
+    UNKM18,
+    UNKM19
 };
 
 }

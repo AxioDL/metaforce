@@ -65,8 +65,8 @@ void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId)
 void CCameraManager::Update(float dt, CStateManager& stateMgr)
 {
     const CGameCamera* camera = GetCurrentCamera(stateMgr);
-    zeus::CVector3f heading = camera->GetTransform().m_basis * zeus::CVector3f{0.f, 1.f, 0.f};
-    CSfxManager::UpdateListener(camera->GetTransform().m_origin, zeus::CVector3f::skZero,
+    zeus::CVector3f heading = camera->GetTransform().basis * zeus::CVector3f{0.f, 1.f, 0.f};
+    CSfxManager::UpdateListener(camera->GetTransform().origin, zeus::CVector3f::skZero,
                                 heading, {0.f, 0.f, 1.f}, 0x7f);
     x30_shakeOffset = zeus::CVector3f::skZero;
 

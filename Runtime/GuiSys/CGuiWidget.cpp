@@ -228,7 +228,7 @@ void CGuiWidget::AddFunctionDef(s32 id, std::unique_ptr<CGuiFunctionDef>&& def)
 
 void CGuiWidget::SetIdlePosition(const zeus::CVector3f& pos, bool reapply)
 {
-    x80_transform.m_origin = pos;
+    x80_transform.origin = pos;
     if (reapply)
         ReapplyXform();
 }

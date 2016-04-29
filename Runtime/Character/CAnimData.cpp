@@ -34,7 +34,7 @@ CAnimData::CAnimData(ResId id,
                      int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout,
                      const TToken<CSkinnedModel>& model,
-                     const std::experimental::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const rstl::optional_object<TToken<CMorphableSkinnedModel>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
@@ -199,13 +199,13 @@ void CAnimData::RenderAuxiliary(const CFrustumPlanes& frustum) const
 }
 
 void CAnimData::Render(const CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                       const rstl::optional_object<CVertexMorphEffect>& morphEffect,
                        const float* morphMagnitudes) const
 {
 }
 
 void CAnimData::SetupRender(const CSkinnedModel& model,
-                            const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                            const rstl::optional_object<CVertexMorphEffect>& morphEffect,
                             const float* morphMagnitudes) const
 {
 }
@@ -255,7 +255,7 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 }
 
 void CAnimData::PoseSkinnedModel(const CSkinnedModel& model, const CPoseAsTransforms& pose,
-                                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                                 const rstl::optional_object<CVertexMorphEffect>& morphEffect,
                                  const float* morphMagnitudes) const
 {
 }

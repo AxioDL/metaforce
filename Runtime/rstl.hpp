@@ -3,9 +3,13 @@
 
 #include <vector>
 #include <stdlib.h>
+#include "optional.hpp"
 
 namespace rstl
 {
+
+template <typename T>
+using optional_object = std::experimental::optional<T>;
 
 /**
  * @brief Vector reserved on construction

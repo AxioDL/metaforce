@@ -1195,8 +1195,8 @@ void CElementGen::BuildParticleSystemBounds()
         zeus::CVector3f scale = xa0_globalScale * x2c0_maxSize;
         zeus::CTransform xf = (xac_globalScaleTransform * x1d8_globalOrientation) * x118_localScaleTransform;
         zeus::CAABox box = zeus::CAABox(x2a8_aabbMin, x2b4_aabbMax).getTransformedAABox(xf);
-        zeus::CVector3f min = box.m_min + x88_globalTranslation - scale;
-        zeus::CVector3f max = box.m_max + x88_globalTranslation + scale;
+        zeus::CVector3f min = box.min + x88_globalTranslation - scale;
+        zeus::CVector3f max = box.max + x88_globalTranslation + scale;
         x2c4_systemBounds = zeus::CAABox(min, max);
     }
     else
@@ -1454,7 +1454,7 @@ void CElementGen::RenderLines()
     CGlobalRandom gr(x230_randState);
 
     zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
-    systemViewPointMatrix.m_origin.zeroOut();
+    systemViewPointMatrix.origin.zeroOut();
     zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
     systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
@@ -1585,7 +1585,7 @@ void CElementGen::RenderParticles()
     }
 
     zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
-    systemViewPointMatrix.m_origin.zeroOut();
+    systemViewPointMatrix.origin.zeroOut();
     zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
     systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
@@ -1927,7 +1927,7 @@ void CElementGen::RenderParticlesIndirectTexture()
     CGenDescription* desc = x1c_genDesc.GetObj();
 
     zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
-    systemViewPointMatrix.m_origin.zeroOut();
+    systemViewPointMatrix.origin.zeroOut();
     zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x1d8_globalOrientation;
     systemViewPointMatrix = ((zeus::CTransform::Translate(x88_globalTranslation) * xac_globalScaleTransform) * systemViewPointMatrix) * x118_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);

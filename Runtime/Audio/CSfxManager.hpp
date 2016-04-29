@@ -138,6 +138,7 @@ public:
                                const zeus::CVector3f& heading, const zeus::CVector3f& up,
                                u8 vol);
 
+    static void RemoveEmitter(const CSfxHandle&) {}
     static u16 TranslateSFXID(u16);
 };
 

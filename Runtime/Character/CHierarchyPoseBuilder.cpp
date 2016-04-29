@@ -122,7 +122,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
     }
 
     xfOut.setRotation(accumXF);
-    xfOut.m_origin = accumPos;
+    xfOut.origin = accumPos;
 }
 
 void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose)
