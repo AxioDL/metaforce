@@ -23,7 +23,7 @@ Everything else is much too experimental to make portable/stable release builds 
     * [OS X Package](http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-apple-darwin.tar.xz)
 * **[Windows]** [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 * **[OS X]** [Xcode Tools](https://developer.apple.com/xcode/download/)
-* **[Linux]** recent development packages of `udev`, `xorg+xcb`, `xinput`, `glx`, `asound`
+* **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
 
 ### Prep Directions
 
