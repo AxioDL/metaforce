@@ -17,6 +17,8 @@ class CHealthInfo;
 class CDamageVulnerability;
 class CLightParameters;
 class CSfxHandle;
+class CSimpleShadow;
+
 class CActor : public CEntity
 {
 protected:
@@ -31,10 +33,16 @@ protected:
     std::unique_ptr<CModelData> x64_modelData;
     CMaterialList x68_material;
     CMaterialFilter x70_;
-    s16 x88_sfxId;
+    s16 x88_sfxId = -1;
     std::unique_ptr<CSfxHandle> x8c_sfxHandle;
+    //std::unique_ptr<CSimpleShadow> x94_simpleShadow;
+    zeus::CAABox x9c_aabox;
+    u32 xb8_ = 0;
+    float xbc_time = 0.f;
+    s32 xc0_ = 0;
+    TUniqueId xc4_fluidId = kInvalidUniqueId;
     TUniqueId xc6_ = kInvalidUniqueId;
-    float xbc_time;
+    u8 xd4_ = 0x7F;
     union
     {
         struct
@@ -43,21 +51,37 @@ protected:
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
-            bool xe5_0_opaque : 1;
-            bool xe5_26_muted : 1;
-            bool xe5_27_useInSortedLists : 1;
-            bool xe5_28_callTouch : 1;
         };
-        u32 dummy1 = 0;
+        u8 dummy1 = 0;
     };
 
     union
     {
         struct
         {
+            bool xe5_0_opaque : 1;
+            bool xe5_26_muted : 1;
+            bool xe5_27_useInSortedLists : 1;
+            bool xe5_28_callTouch : 1;
+        };
+        u8 dummy2 = 0;
+    };
+    union
+    {
+        struct
+        {
+            bool xe6_26_inFluid : 1;
+            bool xe6_30_enablePitchBend : 1;
+        };
+        u8 dummy3 = 0;
+    };
+    union
+    {
+        struct
+        {
             bool xe7_29_ : 1;
         };
-        u32 dummy2 = 0;
+        u8 dummy4 = 0;
     };
 public:
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
@@ -82,14 +106,13 @@ public:
     virtual bool ValidAimTarget() { return true; }
     virtual bool ValidOrbitTarget() { return true; }
     virtual bool GetOrbitDistanceCheck() { return true; }
-    virtual zeus::CVector3f GetOrbitPosition(const CStateManager&)
-    { return x34_transform.origin; }
+    virtual zeus::CVector3f GetOrbitPosition(const CStateManager&);
 
     void RemoveEmitter();
 
     virtual std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return {} ; }
+    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int);
 
-    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int) { return EWeaponCollisionResponseTypes::Unknown13; }
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -100,29 +123,21 @@ public:
     void AddMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
     void AddMaterial(EMaterialTypes, CStateManager&);
 
-    void SetCallTouch(bool callTouch)
-    {
-        xe5_28_callTouch = callTouch;
-    }
+    void SetCallTouch(bool callTouch);
 
-    bool GetCallTouch() const
-    {
-        return xe5_28_callTouch;
-    }
+    bool GetCallTouch() const;
 
-    void SetUseInSortedList(bool use)
-    {
-        xe5_27_useInSortedLists = use;
-    }
+    void SetUseInSortedList(bool use);
 
-    bool GetUseInSortedLists() const
-    {
-        return xe5_27_useInSortedLists;
-    }
+    bool GetUseInSortedLists() const;
 
     const CMaterialFilter& GetMaterialFilter() const { return x70_; }
 
+    void SetInFluid(bool in, TUniqueId uid);
+
     bool HasModelData() const;
+    const CSfxHandle* GetSfxHandle() const;
+    void SetSfxPitchBend(s32);
 };
 
 }

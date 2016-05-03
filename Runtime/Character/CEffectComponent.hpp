@@ -12,12 +12,15 @@ class CEffectComponent
     std::string x0_name;
     SObjectTag x10_tag;
     std::string x18_boneName;
-    float x28_;
+    float x28_scale;
     u32 x2c_;
     u32 x30_;
     static SObjectTag GetSObjectTagFromStream(CInputStream& in);
 public:
     CEffectComponent(CInputStream& in);
+
+    const std::string& GetComponentName() const;
+    const SObjectTag& GetParticleTag() const;
 };
 
 }

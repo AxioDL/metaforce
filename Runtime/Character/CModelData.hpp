@@ -130,6 +130,7 @@ public:
                 const CActorLights* lights, const CModelFlags& drawFlags) const;
 
     CAnimData* AnimationData() { return x10_animData.get(); }
+    bool IsNull() { return !x10_animData && !x1c_normalModel; }
 };
 
 }

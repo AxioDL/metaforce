@@ -20,12 +20,13 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
 
 CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info,
                const zeus::CTransform&, CModelData&& mData, const CMaterialList& list,
-               const CActorParameters& params, TUniqueId)
+               const CActorParameters& params, TUniqueId otherUid)
     : CEntity(uid, info, active, name),
       x68_material(MakeActorMaterialList(list, params)),
-      x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero}))
+      x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero})),
+      xc6_(otherUid)
 {
-    if (mData.x1c_normalModel)
+    if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
 }
 
@@ -82,14 +83,19 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     }
         break;
     case EScriptObjectMessage::UNKM17: // 37
-        //SetInFluid(true, uid);
+        SetInFluid(true, uid);
         break;
     case EScriptObjectMessage::UNKM19: // 39
-        //SetInFluid(false, kInvalidUniqueId);
+        SetInFluid(false, kInvalidUniqueId);
         break;
     default:break;
     }
     CEntity::AcceptScriptMsg(msg, uid, mgr);
+}
+
+zeus::CVector3f CActor::GetOrbitPosition(const CStateManager&)
+{
+    return x34_transform.origin;
 }
 
 void CActor::RemoveEmitter()
@@ -100,6 +106,12 @@ void CActor::RemoveEmitter()
         x88_sfxId = -1;
         x8c_sfxHandle.reset();
     }
+}
+
+EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&,
+                                                               const zeus::CVector3f&, CWeaponMode&, int)
+{
+    return EWeaponCollisionResponseTypes::Unknown13;
 }
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, CStateManager& mgr)
@@ -155,9 +167,62 @@ void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr)
     mgr.UpdateObjectInLists(*this);
 }
 
+void CActor::SetCallTouch(bool callTouch)
+{
+    xe5_28_callTouch = callTouch;
+}
+
+bool CActor::GetCallTouch() const
+{
+    return xe5_28_callTouch;
+}
+
+void CActor::SetUseInSortedList(bool use)
+{
+    xe5_27_useInSortedLists = use;
+}
+
+bool CActor::GetUseInSortedLists() const
+{
+    return xe5_27_useInSortedLists;
+}
+
+void CActor::SetInFluid(bool in, TUniqueId uid)
+{
+    if (in)
+    {
+        xe6_26_inFluid = false;
+        xc4_fluidId = uid;
+    }
+    else
+    {
+        if (!xe6_26_inFluid)
+            return;
+
+        xe6_26_inFluid = true;
+        if (xe6_26_inFluid == 0)
+            xc4_fluidId = kInvalidUniqueId;
+    }
+}
+
 bool CActor::HasModelData() const
 {
-    return x64_modelData.operator bool();
+    return bool(x64_modelData);
+}
+
+const CSfxHandle* CActor::GetSfxHandle() const
+{
+    return x8c_sfxHandle.get();
+}
+
+void CActor::SetSfxPitchBend(s32 val)
+{
+    xe6_30_enablePitchBend = true;
+    xc0_ = val;
+    if (x8c_sfxHandle == 0)
+        return;
+
+    CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
 }
 
 }

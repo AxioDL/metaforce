@@ -29,6 +29,8 @@ enum class EMaterialTypes
     FourtyThree = 43,
     FourtyEight = 48,
     FourtyNine = 49,
+    Fifty = 50,
+    FiftySix = 56,
     SixtyThree = 63
 };
 

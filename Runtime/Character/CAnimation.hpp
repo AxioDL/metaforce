@@ -15,6 +15,7 @@ class CAnimation
 public:
     CAnimation(CInputStream& in);
     const std::shared_ptr<IMetaAnim>& GetMetaAnim() const {return x10_anim;}
+    const std::string& GetMetaAnimName() const { return x0_name; }
 };
 
 }

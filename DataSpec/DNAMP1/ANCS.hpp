@@ -135,9 +135,9 @@ struct ANCS : BigYAML
                     DNAFourCC type;
                     UniqueID32 id;
                     String<-1> locator;
-                    Value<float> unk1;
-                    Value<atUint32> unk2;
-                    Value<atUint32> unk3;
+                    Value<float> scale;
+                    Value<atUint32> parentMode;
+                    Value<atUint32> flags;
                 };
                 Vector<EffectComponent, DNA_COUNT(compCount)> comps;
             };
