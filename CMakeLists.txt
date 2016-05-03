@@ -84,6 +84,7 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);")
 add_subdirectory(hecl)
 add_definitions(${BOO_SYS_DEFINES})
+add_subdirectory(amuse)
 add_subdirectory(specter)
 set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
 add_subdirectory(nod)
@@ -91,7 +92,7 @@ set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
 add_definitions(-DZE_ATHENA_TYPES=1)
 set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${NOD_INCLUDE_DIR} ${ZEUS_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
+                    ${NOD_INCLUDE_DIR} ${ZEUS_INCLUDE_DIR} ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR}
                     ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
 add_subdirectory(Editor)

@@ -7,3 +7,6 @@
 [submodule "nod"]
 	path = nod
 	url = https://github.com/AxioDL/nod.git
+[submodule "amuse"]
+	path = amuse
+	url = https://github.com/AxioDL/amuse.git
