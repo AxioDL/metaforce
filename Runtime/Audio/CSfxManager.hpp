@@ -139,6 +139,7 @@ public:
                                u8 vol);
 
     static void RemoveEmitter(const CSfxHandle&) {}
+    static void PitchBend(const CSfxHandle&, s32) {}
     static u16 TranslateSFXID(u16);
 };
 

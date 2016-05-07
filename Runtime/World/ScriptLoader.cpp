@@ -30,6 +30,7 @@
 #include "CScriptCoverPoint.hpp"
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptCameraHint.hpp"
+#include "CScriptDamageableTrigger.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -909,9 +910,67 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
 {
 }
 
+u32 ClassifyVector(const zeus::CVector3f& dir)
+{
+    zeus::CVector3f absDir(std::fabs(dir.x), std::fabs(dir.y), std::fabs(dir.z));
+    u32 max = (absDir.x > absDir.y ? 0 : 1);
+    max = (absDir[max] > absDir.z ? max : 2);
+
+
+    bool positive = (absDir[max] == dir[max]);
+    if (max == 0)
+        return (positive ? 0x08 : 0x04);
+    else if (max == 1)
+        return (positive ? 0x01 : 0x02);
+    else if (max == 2)
+        return (positive ? 0x10 : 0x20);
+
+    return 0;
+}
+
+u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags)
+{
+    CGameArea* area = mgr.GetWorld()->GetGameAreas().at(aId).get();
+    zeus::CTransform rotation = area->GetTransform().getRotation();
+
+    u32 ret = 0;
+    if (flags & 0x01)
+        ret |= ClassifyVector(rotation * zeus::kForwardVec);
+    if (flags & 0x02)
+        ret |= ClassifyVector(rotation * zeus::kBackVec);
+    if (flags & 0x04)
+        ret |= ClassifyVector(rotation * zeus::kLeftVec);
+    if (flags & 0x08)
+        ret |= ClassifyVector(rotation * zeus::kRightVec);
+    if (flags & 0x10)
+        ret |= ClassifyVector(rotation * zeus::kUpVec);
+    if (flags & 0x20)
+        ret |= ClassifyVector(rotation * zeus::kDownVec);
+    return ret;
+}
+
 CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& in,
                                              int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 12, "DamageableTrigger"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
+    zeus::CVector3f volume(zeus::CVector3f::ReadBig(in));
+
+    CHealthInfo hInfo(in);
+    CDamageVulnerability dVuln(in);
+    u32 triggerFlags = in.readUint32Big();
+    triggerFlags = TransformDamagableTriggerFlags(mgr, info.GetAreaId(), triggerFlags);
+    ResId w1 = in.readUint32Big();
+    ResId w2 = in.readUint32Big();
+    ResId w3 = in.readUint32Big();
+    CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.readBool());
+    bool active = in.readBool();
+    CVisorParameters vParms = LoadVisorParameters(in);
+    return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), *name, info, position, volume, hInfo, dVuln, triggerFlags, w1,
+                                        w2, w3, canOrbit, active, vParms);
 }
 
 CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in,
@@ -1229,12 +1288,12 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
     s16 w6 = in.readUint32Big() & 0xFFFF;
     s16 w7 = in.readUint32Big() & 0xFFFF;
     if (specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven ||
-        specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven)
+            specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven)
         return nullptr;
 
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction, str, f1, f2,
-                                  f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1, CDamageInfo(), w2, w3, w4,
-                                  w5, w6, w7);
+                                      f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1, CDamageInfo(), w2, w3, w4,
+                                      w5, w6, w7);
 }
 
 CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in,

@@ -56,7 +56,7 @@ struct EVNT : BigYAML
     {
         DECL_YAML
         Value<atUint32> value;
-        String<-1> locatorName;
+        String<-1> locator;
     };
     std::vector<Int32POINode> int32POINodes;
 
@@ -64,9 +64,9 @@ struct EVNT : BigYAML
     {
         DECL_YAML
         Value<atUint32> duration;
-        DNAFourCC effectType;
-        UniqueID32 effectId;
-        String<-1> locatorName;
+        DNAFourCC type;
+        UniqueID32 id;
+        String<-1> locator;
         Value<float> scale;
         Value<atUint32> parentMode;
     };

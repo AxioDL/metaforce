@@ -31,6 +31,7 @@ public:
       x54_visorParms(visorParms), b1(a), b2(b), b3(c), b4(d) {}
     static CActorParameters None() {return CActorParameters();}
 
+    void SetVisorParameters(const CVisorParameters& vParams) { x54_visorParms = vParams; }
     CVisorParameters GetVisorParameters() const { return x54_visorParms; }
 };
 
