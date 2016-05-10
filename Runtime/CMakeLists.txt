@@ -1,4 +1,4 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR}
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec)
 
 macro(runtime_add_list rel_path a_list)
