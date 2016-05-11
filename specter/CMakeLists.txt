@@ -34,7 +34,6 @@ list(APPEND SPECTER_HEADERS
      include/specter/specter.hpp
      include/specter/ViewResources.hpp
      include/specter/IViewManager.hpp
-     include/specter/DeferredWindowEvents.hpp
      include/specter/View.hpp
      include/specter/RootView.hpp
      include/specter/ModalWindow.hpp

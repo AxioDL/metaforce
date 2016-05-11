@@ -9,7 +9,6 @@
 #include "Tooltip.hpp"
 #include "FontCache.hpp"
 #include "IMenuNode.hpp"
-#include "DeferredWindowEvents.hpp"
 #include "IViewManager.hpp"
 #include "optional.hpp"
 #include <boo/boo.hpp>
@@ -37,7 +36,7 @@ class RootView : public View
     bool m_activeSplitDragView = false;
     SplitView* recursiveTestSplitHover(SplitView* sv, const boo::SWindowCoord& coord) const;
 
-    DeferredWindowEvents<RootView> m_events;
+    boo::DeferredWindowEvents<RootView> m_events;
 
     struct SplitMenuSystem : IMenuNode
     {
