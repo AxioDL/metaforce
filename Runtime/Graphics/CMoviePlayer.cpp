@@ -3,7 +3,7 @@
 #include "specter/View.hpp"
 #include "CGraphics.hpp"
 #include "Audio/g721.h"
-#include "Audio/dsp.h"
+#include "amuse/dsp.h"
 #include "CDvdRequest.hpp"
 #include <turbojpeg.h>
 
