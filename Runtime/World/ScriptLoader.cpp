@@ -30,6 +30,7 @@
 #include "CScriptCoverPoint.hpp"
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptCameraHint.hpp"
+#include "CScriptPickup.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
@@ -286,13 +287,20 @@ CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in)
 
 CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
 {
+    /* NOTE: DO NOT RE-ORDER THIS FUNCTION
+     * For some inexplicable reason Retro stores the layers in this order.
+     * Changing it will change the behavior of CFluidUVMotion,
+     * which is something we don't want.
+     * - Phil
+     * P.S: If you do change it, I'll hunt you down and put pink lipstick on your dog.
+     */
     CFluidUVMotion::EFluidUVMotion motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     float a = in.readFloatBig();
     float b = in.readFloatBig();
     b = zeus::degToRad(b) - M_PIF;
     float c = in.readFloatBig();
     float d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion motionLayer2(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion layerMotion2(motion, a, b, c, d);
 
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
@@ -300,7 +308,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion motionLayer3(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion layerMotion3(motion, a, b, c, d);
 
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
@@ -308,14 +316,14 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion motionLayer1(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion layerMotion1(motion, a, b, c, d);
 
     a = in.readFloatBig();
     b = in.readFloatBig();
 
     b = zeus::degToRad(b) - M_PIF;
 
-    return CFluidUVMotion(a, b, motionLayer1, motionLayer2, motionLayer3);
+    return CFluidUVMotion(a, b, layerMotion1, layerMotion2, layerMotion3);
 }
 
 zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
@@ -406,9 +414,9 @@ CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in,
 
     SActorHead head = LoadActorHead(in, mgr);
 
-    bool b1 = in.readBool();
+    bool active = in.readBool();
     float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
+    float delay = in.readFloatBig();
     u32 w1 = in.readUint32Big();
     u32 w2 = in.readUint32Big();
     u32 w3 = in.readUint32Big();
@@ -418,7 +426,7 @@ CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in,
     u32 w7 = in.readUint32Big();
 
     return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                               b1, f1, f2, w1, w2, w3, w4, w5, w6, w7);
+                               active, f1, delay, w1, w2, w3, w4, w5, w6, w7);
 }
 
 CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
@@ -873,6 +881,44 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in,
                                   int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 18, "Pickup"))
+        return nullptr;
+
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+    zeus::CVector3f extent = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f offset = zeus::CVector3f::ReadBig(in);
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    ResId staticModel = in.readUint32Big();
+    CAnimationParameters animParms = LoadAnimationParameters(in);
+    CActorParameters actorParms = LoadActorParameters(in);
+    bool active = in.readBool();
+    float f4 = in.readFloatBig();
+    u32 w5 = in.readUint32Big();
+
+    FourCC acsType = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
+    if (g_ResFactory->GetResourceTypeById(staticModel) == 0 && acsType == 0)
+        return nullptr;
+
+    zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, offset);
+
+    CModelData data;
+
+    if (acsType == SBIG('ANCS'))
+        data = CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                             animParms.GetInitialAnimation(), true);
+    else
+        data = CStaticRes(staticModel, head.x40_scale);
+
+    if (extent.isZero())
+        aabb = data.GetBounds(head.x10_transform.getRotation());
+
+    return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actorParms,
+                         aabb, w1, w3, w2, w5, f1, f2, f3, f4, active);
 }
 
 CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in,
