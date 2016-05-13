@@ -518,6 +518,8 @@ public:
     bool operator!=(const FourCC& other) const {return num != other.num;}
     bool operator==(const char* other) const {return num == *(uint32_t*)other;}
     bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
+    bool operator==(int32_t other) const { return num == other;}
+    bool operator!=(int32_t other) const { return num != other;}
     bool operator==(uint32_t other) const {return num == other;}
     bool operator!=(uint32_t other) const {return num != other;}
     std::string toString() const {return std::string(fcc, 4);}
