@@ -461,7 +461,7 @@ void ANIM::ANIM1::read(athena::io::IStreamReader& reader)
     for (atUint8 f=0 ; f<boneFlagCount ; ++f)
     {
         atUint8 flag = reader.readUByte();
-        bones.emplace_back(f, std::make_tuple(flag & 0x1, flag & 0x2, flag & 0x4));
+        bones.emplace_back(f, std::make_tuple(bool(flag & 0x1), bool(flag & 0x2), bool(flag & 0x4)));
         if (flag & 0x1)
             ++boneChannelCount;
         if (flag & 0x2)

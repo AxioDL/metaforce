@@ -11,10 +11,10 @@ class CScriptDoor : public CPhysicsActor
 public:
     enum class EDoorAnimType
     {
+        None = -1,
         Open,
         Close,
         Ready,
-        Three
     };
 
     float x25c_;

@@ -65,7 +65,8 @@ class CStateMachine
 public:
     CStateMachine(CInputStream& in);
 
-    const std::vector<CAiState>& GetStateVector() const { return x0_states; }
+    s32 GetStateIndex(const std::string& state);
+    const std::vector<CAiState>& GetStateVector() const;
 };
 
 class CStateMachineState
