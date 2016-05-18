@@ -7,6 +7,7 @@ set(MP1_SOURCES
     CPlayMovie.hpp CPlayMovie.cpp
     CFrontEndUI.hpp CFrontEndUI.cpp
     CNewIntroBoss.hpp CNewIntroBoss.cpp
+    CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
     MP1.hpp MP1.cpp)
 

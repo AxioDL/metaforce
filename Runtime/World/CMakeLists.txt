@@ -37,6 +37,9 @@ set(WORLD_SOURCES
     CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
     CScriptCameraHint.hpp CScriptCameraHint.cpp
     CScriptPickup.hpp CScriptPickup.cpp
+    CScriptMemoryRelay.hpp CScriptMemoryRelay.cpp
+    CScriptRandomRelay.hpp CScriptRandomRelay.cpp
+    CScriptRelay.hpp CScriptRelay.cpp
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp

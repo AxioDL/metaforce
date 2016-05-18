@@ -31,11 +31,15 @@
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptCameraHint.hpp"
 #include "CScriptPickup.hpp"
+#include "CScriptMemoryRelay.hpp"
+#include "CScriptRandomRelay.hpp"
+#include "CScriptRelay.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
+#include "MP1/CBeetle.hpp"
 #include "MP1/CWarWasp.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
@@ -924,21 +928,85 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in,
                                        int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 3, "MemoryRelay") || propCount > 4)
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = false;
+    if (propCount > 3)
+        b3 = in.readBool();
+
+    return new CScriptMemoryRelay(mgr.AllocateUniqueId(), *name, info, b1, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in,
                                        int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 5, "RandomRelay"))
+        return nullptr;
+    const std::string* name = mgr.HashInstanceName(in);
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+
+    return new CScriptRandomRelay(mgr.AllocateUniqueId(), *name, info, w1, w2, b1, b2);
 }
 
 CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in,
                                  int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 2, "Relay") || propCount > 3)
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    if (propCount >= 3)
+        in.readUint32Big();
+    bool b1 = in.readBool();
+
+    return new CScriptRelay(mgr.AllocateUniqueId(), *name, info, b1);
 }
 
 CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in,
                                   int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 16, "Beetle"))
+        return nullptr;
+    const std::string* name = mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xfrm = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    std::pair<bool, u32> pcount = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pcount.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pcount.second);
+    CActorParameters aParams = LoadActorParameters(in);
+    CDamageInfo dInfo(in);
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    float f1 = in.readFloatBig();
+    CDamageVulnerability dVuln1(in);
+    CDamageVulnerability dVuln2(in);
+    ResId abdomen = in.readUint32Big();
+    MP1::CBeetle::EEntranceType entrance = MP1::CBeetle::EEntranceType(in.readUint32Big());
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+
+    FourCC animType = g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile());
+    if (animType != SBIG('ANCS'))
+        return nullptr;
+
+    rstl::optional_object<CStaticRes> abdomenRes;
+    if (flavor == CPatterned::EFlavorType::One)
+        abdomenRes.emplace(CStaticRes(abdomen, scale));
+
+    const CAnimationParameters& animParams = pInfo.GetAnimationParameters();
+    CAnimRes animRes(animParams.GetACSFile(), animParams.GetCharacter(), scale, animParams.GetInitialAnimation(), true);
+
+    return new MP1::CBeetle(mgr.AllocateUniqueId(), *name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2, v1, f2,
+                            f3, f1, dVuln1, aParams, abdomenRes);
 }
 
 CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in,

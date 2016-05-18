@@ -16,8 +16,8 @@ typedef void (CAi::*CAiStateFunc)(CStateManager&, EStateMsg, float);
 typedef bool (CAi::*CAiTriggerFunc)(CStateManager&, float);
 class CAiFuncMap
 {
-    std::map<const char*, CAiStateFunc> x0_stateFuncs;
-    std::map<const char*, CAiTriggerFunc> x10_triggerFuncs;
+    std::unordered_map<std::string, CAiStateFunc> x0_stateFuncs;
+    std::unordered_map<std::string, CAiTriggerFunc> x10_triggerFuncs;
 public:
     CAiFuncMap();
     CAiStateFunc GetStateFunc(const char*);
