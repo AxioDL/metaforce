@@ -34,6 +34,8 @@
 #include "CScriptMemoryRelay.hpp"
 #include "CScriptRandomRelay.hpp"
 #include "CScriptRelay.hpp"
+#include "CScriptHUDMemo.hpp"
+#include "CScriptCameraFilterKeyframe.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
@@ -1012,11 +1014,37 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in,
                                    int propCount, const CEntityInfo& info)
 {
+    if (propCount != 5 && !EnsurePropertyCount(propCount, 6, "HUDMemo"))
+        return 0;
+    const std::string* name = mgr.HashInstanceName(in);
+    CHUDMemoParms hParms(in);
+    CScriptHUDMemo::EDisplayType displayType = CScriptHUDMemo::EDisplayType::MessageBox;
+    if (propCount == 6)
+        displayType = CScriptHUDMemo::EDisplayType(in.readUint32Big());
+    ResId message = in.readUint32Big();
+    bool active = in.readBool();
+
+    return new CScriptHUDMemo(mgr.AllocateUniqueId(), *name, info, hParms, displayType, message, active);
 }
 
 CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream& in,
                                                 int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 10, "CameraFilterKeyframe"))
+        return nullptr;
+    const std::string* name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    zeus::CColor color;
+    color.readRGBABig(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    u32 w5 = in.readUint32Big();
+
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), *name, info, w1, w2, w3, w4, color, f1, f2, w5, active);
 }
 
 CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in,

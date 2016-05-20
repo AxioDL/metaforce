@@ -40,6 +40,8 @@ set(WORLD_SOURCES
     CScriptMemoryRelay.hpp CScriptMemoryRelay.cpp
     CScriptRandomRelay.hpp CScriptRandomRelay.cpp
     CScriptRelay.hpp CScriptRelay.cpp
+    CScriptHUDMemo.hpp CScriptHUDMemo.cpp
+    CScriptCameraFilterKeyframe.hpp CScriptCameraFilterKeyframe.cpp
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
@@ -55,6 +57,7 @@ set(WORLD_SOURCES
     CPatternedInfo.hpp CPatternedInfo.cpp
     CHealthInfo.hpp CHealthInfo.cpp
     CPatterned.hpp CPatterned.cpp
+    CHUDMemoParms.hpp CHUDMemoParms.cpp
     CFluidPlane.hpp)
 
 runtime_add_list(World WORLD_SOURCES)

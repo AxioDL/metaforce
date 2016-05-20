@@ -7,6 +7,7 @@
 namespace urde
 {
 
+class CDamageVulnerability;
 class CDamageInfo
 {
     EWeaponType x0_type = EWeaponType::None;
@@ -20,8 +21,8 @@ class CDamageInfo
         };
         u8 _dummy = 0;
     };
-    float x8_damage1;
-    float xc_damage2;
+    float x8_damage;
+    float xc_radiusDamage;
     float x10_radius;
     float x14_knockback;
     bool x18_ = false;
@@ -31,11 +32,14 @@ public:
     {
         in.readUint32Big();
         x0_type = EWeaponType(in.readUint32Big());
-        x8_damage1 = in.readFloatBig();
-        xc_damage2 = x8_damage1;
+        x8_damage = in.readFloatBig();
+        xc_radiusDamage = x8_damage;
         x10_radius = in.readFloatBig();
         x14_knockback = in.readFloatBig();
     }
+
+    float GetRadiusDamage() const { return xc_radiusDamage; }
+    float GetRadiusDamage(const CDamageVulnerability& dVuln);
 };
 
 }
