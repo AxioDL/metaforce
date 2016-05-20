@@ -12,8 +12,10 @@ namespace MP1
 class CBeetle : public CPatterned
 {
 public:
-    enum EEntranceType
+    enum class EEntranceType : u32
     {
+        FacePlayer,
+        UseOrientation
     };
 private:
 public:
