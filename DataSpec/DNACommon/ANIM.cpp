@@ -126,7 +126,7 @@ atInt16 BitstreamReader::dequantize(const atUint8* data, atUint8 q)
     /* Sign extend */
     atUint32 sign = (tempBuf >> (q - 1)) & 0x1;
     if (sign)
-        tempBuf |= ~0 << q;
+        tempBuf |= ~0u << q;
 
     /* Return delta value */
     m_bitCur += q;
