@@ -22,7 +22,7 @@ private:
     /*u32 x24_; */
     CMaterialList x28_material;
 public:
-    CRayCastResult();
+    CRayCastResult() = default;
     CRayCastResult(const CRayCastResult& other, EInvalid invalid)
         : x0_time(other.x0_time),
           x4_point(other.x4_point),

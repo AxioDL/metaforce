@@ -17,7 +17,7 @@ FourCC CCollidableOBBTree::GetPrimType() const
 
 CRayCastResult CCollidableOBBTree::CastRayInternal(const CInternalRayCastStructure&) const
 {
-
+    return {};
 }
 
 zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform& xf) const

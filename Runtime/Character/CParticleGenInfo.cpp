@@ -74,14 +74,17 @@ void CParticleGenInfoGeneric::SetParticleEmission(bool, CStateManager& stateMgr)
 
 bool CParticleGenInfoGeneric::IsSystemDeletable() const
 {
+    return false;
 }
 
 zeus::CAABox CParticleGenInfoGeneric::GetBounds() const
 {
+    return {};
 }
 
 bool CParticleGenInfoGeneric::HasActiveParticles() const
 {
+    return false;
 }
 
 void CParticleGenInfoGeneric::DestroyParticles()
@@ -90,10 +93,12 @@ void CParticleGenInfoGeneric::DestroyParticles()
 
 bool CParticleGenInfoGeneric::HasLight() const
 {
+    return false;
 }
 
 TUniqueId CParticleGenInfoGeneric::GetLightId() const
 {
+    return 0;
 }
 
 void CParticleGenInfoGeneric::SetModulationColor(const zeus::CColor& color)

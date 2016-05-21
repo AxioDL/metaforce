@@ -13,7 +13,7 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, const std::string& name
 
 zeus::CAABox CPhysicsActor::GetBoundingBox()
 {
-    zeus::CAABox ret;
+    return {};
 }
 
 }

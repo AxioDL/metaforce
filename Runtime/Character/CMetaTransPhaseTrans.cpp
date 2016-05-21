@@ -17,6 +17,7 @@ CMetaTransPhaseTrans::VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                          const std::weak_ptr<CAnimTreeNode>& b,
                                          const CAnimSysContext& animSys) const
 {
+    return {};
 }
 
 }

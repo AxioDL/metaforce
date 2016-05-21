@@ -51,6 +51,7 @@ FourCC CCollidableOBBTreeGroup::GetPrimType() const
 
 CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastStructure&) const
 {
+    return {};
 }
 
 const CCollisionPrimitive::Type& CCollidableOBBTreeGroup::GetType()

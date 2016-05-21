@@ -3,12 +3,12 @@ set(WORLD_SOURCES
     CWorldLight.hpp CWorldLight.cpp
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
+    CActor.hpp CActor.cpp
     CAi.hpp CAi.cpp
     CAiFuncMap.hpp CAiFuncMap.cpp
     CPatterned.hpp CPatterned.cpp
     CPathFindArea.hpp CPathFindArea.cpp
     CAreaOctTree.hpp CAreaOctTree.cpp
-    CActor.hpp CActor.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CEntity.hpp CEntity.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp

@@ -6,7 +6,7 @@
 namespace urde
 {
 class CAnimTreeNode;
-class CAnimSysContext;
+struct CAnimSysContext;
 
 enum class EMetaTransType
 {

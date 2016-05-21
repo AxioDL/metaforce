@@ -19,12 +19,13 @@ void CConstantAnimationTimeScale::VFindUpperLimit(const float&, const float&) co
 
 std::shared_ptr<IVaryingAnimationTimeScale> CConstantAnimationTimeScale::VClone() const
 {
+    return {};
 }
 
 std::shared_ptr<IVaryingAnimationTimeScale>
 CConstantAnimationTimeScale::VGetFunctionMirrored(const float&) const
 {
-
+    return {};
 }
 
 void CLinearAnimationTimeScale::VTimeScaleIntegral(const float&, const float&) const

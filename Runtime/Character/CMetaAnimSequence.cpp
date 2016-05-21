@@ -23,6 +23,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimSequence::GetAnimationTree(const CAnimSysContext& animSys,
                                     const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 void CMetaAnimSequence::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
@@ -33,6 +34,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
                                      const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 }

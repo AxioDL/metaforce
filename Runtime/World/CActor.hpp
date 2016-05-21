@@ -2,6 +2,7 @@
 #define __URDE_CACTOR_HPP__
 
 #include "CEntity.hpp"
+#include "Graphics/CGraphics.hpp"
 #include "Audio/CSfxHandle.hpp"
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
@@ -22,13 +23,6 @@ class CSimpleShadow;
 class CActor : public CEntity
 {
 protected:
-    enum class Flags
-    {
-        Unknown5 = (1 << 5),
-        Unknown6 = (1 << 6),
-        Unknown7 = (1 << 7),
-    };
-
     zeus::CTransform x34_transform;
     std::unique_ptr<CModelData> x64_modelData;
     CMaterialList x68_material;
@@ -52,7 +46,7 @@ protected:
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
         };
-        u8 dummy1 = 0;
+        u8 _dummy1 = 0;
     };
 
     union
@@ -64,7 +58,7 @@ protected:
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
         };
-        u8 dummy2 = 0;
+        u8 _dummy2 = 0;
     };
     union
     {
@@ -73,7 +67,7 @@ protected:
             bool xe6_26_inFluid : 1;
             bool xe6_30_enablePitchBend : 1;
         };
-        u8 dummy3 = 0;
+        u8 _dummy3 = 0;
     };
     union
     {
@@ -81,7 +75,7 @@ protected:
         {
             bool xe7_29_ : 1;
         };
-        u8 dummy4 = 0;
+        u8 _dummy4 = 0;
     };
 public:
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
@@ -110,7 +104,7 @@ public:
 
     void RemoveEmitter();
 
-    virtual std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return {} ; }
+    virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const { return {} ; }
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int);
 
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);

@@ -1,5 +1,5 @@
 #include "CPASAnimState.hpp"
-
+#include "CPASAnimParmData.hpp"
 namespace urde
 {
 
@@ -51,12 +51,14 @@ CPASAnimState::CPASAnimState(CInputStream& in)
     }
 }
 
-const CPASAnimParmData&CPASAnimState::GetAnimParmData(s32, u32) const
+const CPASAnimParmData& CPASAnimState::GetAnimParmData(s32, u32) const
 {
-
+    static const CPASAnimParmData badData;
+    return badData;
 }
 
 std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>&, CRandom16&, s32) const
 {
+    return {};
 }
 }

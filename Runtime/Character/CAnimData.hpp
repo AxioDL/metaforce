@@ -19,7 +19,7 @@ namespace urde
 class CCharLayoutInfo;
 class CSkinnedModel;
 class CMorphableSkinnedModel;
-class CAnimSysContext;
+struct CAnimSysContext;
 class CAnimationManager;
 class CTransitionManager;
 class CCharacterFactory;

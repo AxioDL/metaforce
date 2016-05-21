@@ -41,6 +41,7 @@ CLight CWorldLight::GetAsCGraphicsLight() const
         if (f3 >= f0)
     }
 */
+    return CLight::BuildPoint({}, {});
 }
 
 }

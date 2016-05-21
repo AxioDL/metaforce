@@ -19,7 +19,7 @@ public:
                       const CAnimSysContext& sysCtx)
     : x0_animDB(animDB), x8_sysCtx(sysCtx) {}
 
-    const CAnimationDatabaseGame* GetAnimationDatabase() const {return x0_animDB.GetObj();}
+    const CAnimationDatabaseGame* GetAnimationDatabase() const;
 };
 
 }

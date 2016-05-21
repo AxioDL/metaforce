@@ -10,7 +10,7 @@ std::shared_ptr<CAnimTreeNode>
 IMetaAnim::GetAnimationTree(const CAnimSysContext& animSys,
                             const CMetaAnimTreeBuildOrders& orders) const
 {
-
+    return {};
 }
 
 void IMetaAnim::AdvanceAnim(IAnimReader& anim, const CCharAnimTime& dt)

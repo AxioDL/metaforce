@@ -26,6 +26,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimRandom::GetAnimationTree(const CAnimSysContext& animSys,
                                   const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 void CMetaAnimRandom::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
@@ -36,6 +37,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimRandom::VGetAnimationTree(const CAnimSysContext& animSys,
                                    const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 }

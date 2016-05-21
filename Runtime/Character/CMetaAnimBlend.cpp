@@ -16,6 +16,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimBlend::GetAnimationTree(const CAnimSysContext& animSys,
                                  const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 void CMetaAnimBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
@@ -26,6 +27,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimBlend::VGetAnimationTree(const CAnimSysContext& animSys,
                                   const CMetaAnimTreeBuildOrders& orders) const
 {
+    return {};
 }
 
 }

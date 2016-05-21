@@ -201,6 +201,7 @@ void CStateManager::UpdateEscapeSequenceTimer(float)
 
 float CStateManager::GetEscapeSequenceTimer() const
 {
+    return 0.f;
 }
 
 void CStateManager::ResetEscapeSequenceTimer(float)
@@ -217,6 +218,7 @@ void CStateManager::MurderScriptInstanceNames()
 
 const std::string* CStateManager::HashInstanceName(CInputStream& in)
 {
+    return nullptr;
 }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId)
@@ -241,10 +243,12 @@ void CStateManager::CacheReflection()
 
 bool CStateManager::CanCreateProjectile(TUniqueId, EWeaponType, int) const
 {
+    return false;
 }
 
 const CGameLightList* CStateManager::GetDynamicLightList() const
 {
+    return nullptr;
 }
 
 void CStateManager::BuildDynamicLightListForWorld(std::vector<CLight>& listOut) const
@@ -302,10 +306,12 @@ void CStateManager::GetBuildForScript(TEditorId) const
 
 TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId) const
 {
+    return 0;
 }
 
 TUniqueId CStateManager::GetIdForScript(TEditorId) const
 {
+    return 0;
 }
 
 void CStateManager::GetIdListForScript(TEditorId) const
@@ -470,6 +476,7 @@ void CStateManager::UpdateSortedLists()
 
 zeus::CAABox CStateManager::CalculateObjectBounds(const CActor&)
 {
+    return {};
 }
 
 void CStateManager::AddObject(CEntity&, EScriptPersistence)
@@ -483,12 +490,14 @@ void CStateManager::AddObject(CEntity*, EScriptPersistence)
 bool CStateManager::RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
                                           const CMaterialFilter&) const
 {
+    return false;
 }
 
 bool CStateManager::RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&,
                                          float, const CMaterialFilter&,
                                          const rstl::reserved_vector<TUniqueId, 1024>& list) const
 {
+    return false;
 }
 
 void CStateManager::UpdateObjectInLists(CEntity&)
@@ -497,6 +506,7 @@ void CStateManager::UpdateObjectInLists(CEntity&)
 
 TUniqueId CStateManager::AllocateUniqueId()
 {
+    return 0;
 }
 
 }

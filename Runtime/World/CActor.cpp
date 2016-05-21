@@ -2,12 +2,10 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "Collision/CMaterialList.hpp"
-#include "Graphics/CGraphics.hpp"
 #include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
-
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params)
 {
     CMaterialList ret = materialList;

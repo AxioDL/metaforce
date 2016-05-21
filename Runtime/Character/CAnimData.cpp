@@ -39,19 +39,19 @@ CAnimData::CAnimData(ResId id,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
                      const TLockedToken<CCharacterFactory>& charFactory)
-: x0_charFactory(charFactory),
-  xc_charInfo(character),
-  xcc_layoutData(layout),
-  xd8_modelData(model),
-  xfc_animCtx(ctx.lock()),
-  x100_animMgr(animMgr),
-  x1d8_selfId(id),
-  x1fc_transMgr(transMgr),
-  x204_charIdx(charIdx),
-  x208_defaultAnim(defaultAnim),
-  x21c_25_loop(loop),
-  x220_pose(layout->GetSegIdList().GetList().size()),
-  x2f8_poseBuilder(layout)
+    : x0_charFactory(charFactory),
+      xc_charInfo(character),
+      xcc_layoutData(layout),
+      xd8_modelData(model),
+      xfc_animCtx(ctx.lock()),
+      x100_animMgr(animMgr),
+      x1d8_selfId(id),
+      x1fc_transMgr(transMgr),
+      x204_charIdx(charIdx),
+      x208_defaultAnim(defaultAnim),
+      x21c_25_loop(loop),
+      x220_pose(layout->GetSegIdList().GetList().size()),
+      x2f8_poseBuilder(layout)
 {
     if (iceModel)
         xe4_iceModelData = *iceModel;
@@ -106,14 +106,17 @@ void CAnimData::UpdateAdditiveAnims(float)
 
 bool CAnimData::IsAdditiveAnimation(u32) const
 {
+    return false;
 }
 
 std::shared_ptr<CAnimTreeNode> CAnimData::GetAdditiveAnimationTree(u32) const
 {
+    return {};
 }
 
 bool CAnimData::IsAdditiveAnimationActive(u32) const
 {
+    return false;
 }
 
 void CAnimData::DelAdditiveAnimation(u32)
@@ -126,6 +129,7 @@ void CAnimData::AddAdditiveAnimation(u32, float, bool, bool)
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager()
 {
+    return {};
 }
 
 void CAnimData::SetPhase(float)
@@ -139,10 +143,12 @@ void CAnimData::Touch(const CSkinnedModel& model, int) const
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a,
                                                    const CCharAnimTime& b) const
 {
+    return {};
 }
 
 CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType, const CCharAnimTime& time) const
 {
+    return {};
 }
 
 void CAnimData::MultiplyPlaybackRate(float)
@@ -158,36 +164,43 @@ void CAnimData::SetRandomPlaybackRate(CRandom16&)
 }
 
 void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
-                                const std::weak_ptr<CAnimTreeNode>& node)
+                                           const std::weak_ptr<CAnimTreeNode>& node)
 {
 }
 
 zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const
 {
+    return {};
 }
 
 zeus::CTransform CAnimData::GetLocatorTransform(const std::string& name, const CCharAnimTime* time) const
 {
+    return {};
 }
 
 bool CAnimData::IsAnimTimeRemaining(float, const std::string& name) const
 {
+    return false;
 }
 
 float CAnimData::GetAnimTimeRemaining(const std::string& name) const
 {
+    return 0.f;
 }
 
 float CAnimData::GetAnimationDuration(int) const
 {
+    return 0.f;
 }
 
 std::shared_ptr<CAnimSysContext> CAnimData::GetAnimSysContext() const
 {
+    return {};
 }
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() const
 {
+    return {};
 }
 
 void CAnimData::RecalcPoseBuilder(const CCharAnimTime*) const
@@ -236,10 +249,12 @@ void CAnimData::DoAdvance(float, bool&, CRandom16&, bool)
 
 SAdvancementDeltas CAnimData::Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool)
 {
+    return {};
 }
 
 SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float, CRandom16&, bool)
 {
+    return {};
 }
 
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&)
@@ -275,14 +290,17 @@ void CAnimData::ResetPOILists()
 
 CSegId CAnimData::GetLocatorSegId(const std::string& name) const
 {
+    return {};
 }
 
 zeus::CAABox CAnimData::GetBoundingBox(const zeus::CTransform& xf) const
 {
+    return {};
 }
 
 zeus::CAABox CAnimData::GetBoundingBox() const
 {
+    return {};
 }
 
 }
