@@ -27,6 +27,7 @@ enum class EMaterialTypes
     FourtyOne = 41,
     FourtyTwo = 42,
     FourtyThree = 43,
+    FourtyFour = 44,
     FourtyEight = 48,
     FourtyNine = 49,
     Fifty = 50,

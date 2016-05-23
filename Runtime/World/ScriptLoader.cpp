@@ -36,7 +36,9 @@
 #include "CScriptRelay.hpp"
 #include "CScriptHUDMemo.hpp"
 #include "CScriptCameraFilterKeyframe.hpp"
+#include "CScriptCameraBlurKeyframe.hpp"
 #include "CScriptDamageableTrigger.hpp"
+#include "CScriptDebris.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -1050,7 +1052,18 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
 CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in,
                                               int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "CameraBlurKeyframe"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    u32 w1 = in.readUint32Big();
+    float f1 = in.readFloatBig();
+    u32 w2 = in.readUint32Big();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+
+    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), *name, info, w1, f1, w2, f2, f3, active);
 }
 
 u32 ClassifyVector(const zeus::CVector3f& dir)
@@ -1073,7 +1086,7 @@ u32 ClassifyVector(const zeus::CVector3f& dir)
 
 u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags)
 {
-    CGameArea* area = mgr.GetWorld()->GetGameAreas().at(aId).get();
+    CGameArea* area = mgr.GetWorld()->GetGameAreas().at(u32(aId)).get();
     zeus::CTransform rotation = area->GetTransform().getRotation();
 
     u32 ret = 0;
@@ -1119,7 +1132,30 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
 CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in,
                                   int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 18, "Debris"))
+        return nullptr;
+
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+    float f1 = in.readFloatBig();
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    zeus::CColor color;
+    color.readRGBABig(in);
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.readUint32Big());
+    bool b1 = in.readBool();
+    ResId model = in.readUint32Big();
+    CActorParameters aParams = LoadActorParameters(in);
+    ResId w3 = in.readUint32Big();
+    zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+
+    if (!g_ResFactory->GetResourceTypeById(model))
+        return nullptr;
+    return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, CStaticRes(model, head.x40_scale),
+                             aParams, w3, v2, f1, v1, color, f2, f3, f4, scaleType, b2, b1, b3);
 }
 
 CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in,
@@ -1243,7 +1279,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
                             f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle,
                             partId2, partId3, partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5,
                             f13, w19, f14, f15, f16, f17, f18, f19, heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24,
-                            w21, w22, b5, bitVal0, bitVal0, bitset);
+                            w21, w22, b5, bitVal0, bitVal1, bitset);
 }
 
 CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
