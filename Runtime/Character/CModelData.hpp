@@ -13,7 +13,7 @@ namespace urde
 class CCharAnimTime;
 class CStateManager;
 class CActorLights;
-class CModelFlags;
+struct CModelFlags;
 class CRandom16;
 class CFrustumPlanes;
 class CAnimData;
