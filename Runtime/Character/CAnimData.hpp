@@ -24,7 +24,7 @@ class CAnimationManager;
 class CTransitionManager;
 class CCharacterFactory;
 class IMetaAnim;
-class CModelFlags;
+struct CModelFlags;
 class CVertexMorphEffect;
 class CFrustumPlanes;
 class CPrimitive;

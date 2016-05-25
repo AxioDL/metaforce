@@ -42,7 +42,9 @@ set(WORLD_SOURCES
     CScriptRelay.hpp CScriptRelay.cpp
     CScriptHUDMemo.hpp CScriptHUDMemo.cpp
     CScriptCameraFilterKeyframe.hpp CScriptCameraFilterKeyframe.cpp
+    CScriptCameraBlurKeyframe.hpp CScriptCameraBlurKeyframe.cpp
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
+    CScriptDebris.hpp CScriptDebris.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CGrappleParameters.hpp
