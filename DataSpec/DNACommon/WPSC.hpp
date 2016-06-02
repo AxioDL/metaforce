@@ -45,6 +45,9 @@ struct WPSM : BigYAML
     uint32_t xa8_PJFX = ~0;
     RealElementFactory xac_RNGE;
     RealElementFactory xb0_FOFF;
+    BoolHelper xunk_FC60;
+    BoolHelper xunk_SPS1;
+    BoolHelper xunk_SPS2;
 
     void read(athena::io::YAMLDocReader& r);
     void write(athena::io::YAMLDocWriter& w) const;

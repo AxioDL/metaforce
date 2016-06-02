@@ -113,6 +113,15 @@ void WPSM<IDType>::read(athena::io::YAMLDocReader& r)
         case SBIG('FOFF'):
             xb0_FOFF.read(r);
         break;
+        case SBIG('FC60'):
+            xunk_FC60.read(r);
+        break;
+        case SBIG('SPS1'):
+            xunk_SPS2.read(r);
+        break;
+        case SBIG('SPS2'):
+            xunk_SPS2.read(r);
+        break;
         }
 
         r.leaveSubRecord();
@@ -304,6 +313,24 @@ void WPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
         xb0_FOFF.write(w);
         w.leaveSubRecord();
     }
+    if (xunk_FC60)
+    {
+        w.enterSubRecord("FC60");
+        xunk_FC60.write(w);
+        w.leaveSubRecord();
+    }
+    if (xunk_SPS1)
+    {
+        w.enterSubRecord("SPS1");
+        xunk_SPS1.write(w);
+        w.leaveSubRecord();
+    }
+    if (xunk_SPS1)
+    {
+        w.enterSubRecord("SPS2");
+        xunk_SPS2.write(w);
+        w.leaveSubRecord();
+    }
 }
 
 template <class IDType>
@@ -372,7 +399,12 @@ size_t WPSM<IDType>::binarySize(size_t __isz) const
         __isz = xac_RNGE.binarySize(__isz + 4);
     if (xb0_FOFF)
         __isz = xb0_FOFF.binarySize(__isz + 4);
-
+    if (xunk_FC60)
+        __isz = xunk_FC60.binarySize(__isz + 4);
+    if (xunk_SPS1)
+        __isz = xunk_SPS1.binarySize(__isz + 4);
+    if (xunk_SPS2)
+        __isz = xunk_SPS2.binarySize(__isz + 4);
     return __isz;
 }
 
@@ -492,6 +524,15 @@ void WPSM<IDType>::read(athena::io::IStreamReader& r)
         break;
         case SBIG('FOFF'):
             xb0_FOFF.read(r);
+        break;
+        case SBIG('FC60'):
+            xunk_FC60.read(r);
+        break;
+        case SBIG('SPS1'):
+            xunk_SPS1.read(r);
+        break;
+        case SBIG('SPS2'):
+            xunk_SPS2.read(r);
         break;
         default:
             LogModule.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsId, r.position());
@@ -658,6 +699,21 @@ void WPSM<IDType>::write(athena::io::IStreamWriter &w) const
     {
         w.writeBytes("FOFF", 4);
         xb0_FOFF.write(w);
+    }
+    if (xunk_FC60)
+    {
+        w.writeBytes("FC60", 4);
+        xunk_FC60.write(w);
+    }
+    if (xunk_SPS1)
+    {
+        w.writeBytes("SPS1", 4);
+        xunk_SPS1.write(w);
+    }
+    if (xunk_SPS2)
+    {
+        w.writeBytes("SPS2", 4);
+        xunk_SPS2.write(w);
     }
 
     w.writeBytes("_END", 4);
