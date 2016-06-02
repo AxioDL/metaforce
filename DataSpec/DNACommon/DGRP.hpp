@@ -17,7 +17,7 @@ struct DGRP : BigYAML
     {
         DECL_YAML
         DNAFourCC type;
-        UniqueID32 id;
+        IDType id;
     };
 
     Vector<ObjectTag, DNA_COUNT(dependCount)> depends;
