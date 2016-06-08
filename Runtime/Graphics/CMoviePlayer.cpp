@@ -359,12 +359,12 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     /* Read THP header information */
     u8 buf[64];
     SyncRead(buf, 64);
-    memcpy(&x28_thpHead, buf, 48);
+    memmove(&x28_thpHead, buf, 48);
     x28_thpHead.swapBig();
 
     u32 cur = x28_thpHead.componentDataOffset;
     SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-    memcpy(&x58_thpComponents, buf, 20);
+    memmove(&x58_thpComponents, buf, 20);
     cur += 20;
     x58_thpComponents.swapBig();
 
@@ -374,13 +374,13 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         {
         case THPComponents::Type::Video:
             SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-            memcpy(&x6c_videoInfo, buf, 8);
+            memmove(&x6c_videoInfo, buf, 8);
             cur += 8;
             x6c_videoInfo.swapBig();
             break;
         case THPComponents::Type::Audio:
             SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-            memcpy(&x74_audioInfo, buf, 12);
+            memmove(&x74_audioInfo, buf, 12);
             cur += 12;
             x74_audioInfo.swapBig();
             xf4_25_hasAudio = true;
@@ -522,7 +522,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
     if (xd4_audioSlot == -1)
     {
         if (in)
-            memcpy(out, in, samples * 4);
+            memmove(out, in, samples * 4);
         else
             memset(out, 0, samples * 4);
         return;
@@ -572,7 +572,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
         {
             /* urde addition: failsafe for buffer overrun */
             if (in)
-                memcpy(out, in, samples * 4);
+                memmove(out, in, samples * 4);
             else
                 memset(out, 0, samples * 4);
             //fprintf(stderr, "dropped %d samples\n", samples);
@@ -820,18 +820,18 @@ void CMoviePlayer::DecodeFromRead(const void* data)
                 u8* mappedData = (u8*)tex.Y[0]->map(planeSizeHalf);
                 for (unsigned y=0 ; y<x6c_videoInfo.height/2 ; ++y)
                 {
-                    memcpy(mappedData + x6c_videoInfo.width*y,
-                           m_yuvBuf.get() + x6c_videoInfo.width*(y*2),
-                           x6c_videoInfo.width);
+                    memmove(mappedData + x6c_videoInfo.width*y,
+                            m_yuvBuf.get() + x6c_videoInfo.width*(y*2),
+                            x6c_videoInfo.width);
                 }
                 tex.Y[0]->unmap();
 
                 mappedData = (u8*)tex.Y[1]->map(planeSizeHalf);
                 for (unsigned y=0 ; y<x6c_videoInfo.height/2 ; ++y)
                 {
-                    memcpy(mappedData + x6c_videoInfo.width*y,
-                           m_yuvBuf.get() + x6c_videoInfo.width*(y*2+1),
-                           x6c_videoInfo.width);
+                    memmove(mappedData + x6c_videoInfo.width*y,
+                            m_yuvBuf.get() + x6c_videoInfo.width*(y*2+1),
+                            x6c_videoInfo.width);
                 }
                 tex.Y[1]->unmap();
 
