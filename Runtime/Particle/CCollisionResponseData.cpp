@@ -62,14 +62,14 @@ static const std::vector<FourCC> GeneratorTypes =
     SBIG('3SVA'),SBIG('3RPR'),SBIG('3MTR'),SBIG('3PDS'),
     SBIG('3FLB'),SBIG('3DRN'),SBIG('3MRE'),SBIG('CHSH'),
     SBIG('JZSH'),SBIG('5ISE'),SBIG('5BSE'),SBIG('5ATB'),
-    SBIG('5ATA'),
+    SBIG('5ATA')
 };
 static const std::vector<FourCC> DecalTypes =
 {
     SBIG('NCDL'),SBIG('DDCL'),SBIG('CODL'),SBIG('MEDL'),
     SBIG('GRDL'),SBIG('ICDL'),SBIG('GODL'),SBIG('WODL'),
     SBIG('WTDL'),SBIG('3MUD'),SBIG('3LAV'),SBIG('3SAN'),
-    SBIG('CHDL'),SBIG('ENDL')
+    SBIG('CHDL')
 };
 
 using CPF = CParticleDataFactory;

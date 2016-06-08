@@ -16,7 +16,7 @@ class CDecalDescription;
 
 enum class EWeaponCollisionResponseTypes
 {
-    Unknown0, Unknown1, Metal, Grass,
+    Default, Unknown1, Metal, Grass,
     Ice, Goo, Wood, Water,
     Mud, Lava, Sand,Unknown11,
     Unknown12,Unknown13,Unknown14,Unknown15,
