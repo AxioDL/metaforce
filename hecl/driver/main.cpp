@@ -85,14 +85,14 @@ static void AthenaExc(athena::error::Level level, const char* file,
     va_end(ap);
 }
 
-#if HECL_UCS2
+#if _WIN32
 int wmain(int argc, const wchar_t** argv)
 #else
 int main(int argc, const char** argv)
 #endif
 {
 #if _WIN32
-    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
 #else
     std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
