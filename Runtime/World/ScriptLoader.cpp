@@ -45,6 +45,7 @@
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CBeetle.hpp"
 #include "MP1/CWarWasp.hpp"
+#include "MP1/CSpacePirate.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -1321,7 +1322,29 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
                                        int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 34, "SpacePirate"))
+        return nullptr;
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+    std::pair<bool, u32> verifyPair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!verifyPair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, verifyPair.second);
+    CActorParameters aParams = LoadActorParameters(in);
+    CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+
+    if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+        return nullptr;
+
+    if (animParms.GetCharacter() == 0)
+    {
+        Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected");
+        animParms.SetCharacter(2);
+    }
+
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale, animParms.GetInitialAnimation(), true));
+
+    return new MP1::CSpacePirate(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aParams, pInfo, in, propCount);
 }
 
 CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in,

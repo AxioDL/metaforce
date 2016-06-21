@@ -9,6 +9,7 @@ set(MP1_SOURCES
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
+    CSpacePirate.hpp CSpacePirate.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)
