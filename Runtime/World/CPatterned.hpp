@@ -19,8 +19,10 @@ class CPatterned : public CAi
 public:
     enum class EUnknown
     {
+        Zero = 0,
         Three = 3,
         TwentyThree = 23,
+        ThirtyFour = 34,
         ThirtyNine
     };
     enum class EFlavorType
