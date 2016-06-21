@@ -1338,7 +1338,7 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
 
     if (animParms.GetCharacter() == 0)
     {
-        Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected");
+        Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected", head.x0_name.c_str());
         animParms.SetCharacter(2);
     }
 
