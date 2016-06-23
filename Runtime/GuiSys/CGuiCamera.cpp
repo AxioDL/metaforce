@@ -38,7 +38,7 @@ zeus::CVector3f CGuiCamera::ConvertToScreenSpace(const zeus::CVector3f& vec) con
 
 void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const
 {
-    if (xf8_proj == Projection::Perspective)
+    if (xf8_proj == EProjection::Perspective)
         CGraphics::SetPerspective(xfc_fov, x100_aspect, x104_znear, x108_zfar);
     else
         CGraphics::SetOrtho(xfc_left, x100_right, x104_top, x108_bottom, x10c_znear, x110_zfar);
@@ -49,11 +49,11 @@ void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const
 CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
-    Projection proj = Projection(in.readUint32Big());
+    EProjection proj = EProjection(in.readUint32Big());
     CGuiCamera* ret = nullptr;
     switch (proj)
     {
-    case Projection::Perspective:
+    case EProjection::Perspective:
     {
         float fov = in.readFloatBig();
         float aspect = in.readFloatBig();
@@ -62,7 +62,7 @@ CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
         ret = new CGuiCamera(parms, fov, aspect, znear, zfar);
         break;
     }
-    case Projection::Orthographic:
+    case EProjection::Orthographic:
     {
         float left = in.readFloatBig();
         float right = in.readFloatBig();

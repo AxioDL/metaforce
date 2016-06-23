@@ -69,7 +69,7 @@ static const std::vector<FourCC> DecalTypes =
     SBIG('NCDL'),SBIG('DDCL'),SBIG('CODL'),SBIG('MEDL'),
     SBIG('GRDL'),SBIG('ICDL'),SBIG('GODL'),SBIG('WODL'),
     SBIG('WTDL'),SBIG('3MUD'),SBIG('3LAV'),SBIG('3SAN'),
-    SBIG('CHDL')
+    SBIG('CHDL'),SBIG('ENDL')
 };
 
 using CPF = CParticleDataFactory;
