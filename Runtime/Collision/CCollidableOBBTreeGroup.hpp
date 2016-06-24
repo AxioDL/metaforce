@@ -11,7 +11,7 @@ namespace urde
 {
 class CCollidableOBBTreeGroup : public CCollisionPrimitive
 {
-    static const CCollisionPrimitive::Type sType;
+    static const Type sType;
     static u32 sTableIndex;
     std::vector<std::unique_ptr<COBBTree>> x0_trees;
     std::vector<zeus::CAABox> x10_aabbs;
@@ -26,7 +26,7 @@ public:
     virtual FourCC GetPrimType() const;
     virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
 
-    static const CCollisionPrimitive::Type& GetType();
+    static const Type& GetType();
     static void SetStaticTableIndex(u32 index);
 };
 

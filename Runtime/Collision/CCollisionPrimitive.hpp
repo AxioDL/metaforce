@@ -23,21 +23,11 @@ public:
         const char* x4_info;
     public:
         Type() = default;
-        Type(std::function<void(unsigned int)> setter, const char * info)
-            : x0_setter(setter),
-              x4_info(info)
-        {
-        }
+        Type(std::function<void(unsigned int)> setter, const char * info);
 
-        const char* GetInfo() const
-        {
-            return x4_info;
-        }
+        const char* GetInfo() const;
 
-        std::function<void(u32)> GetSetter() const
-        {
-            return x0_setter;
-        }
+        std::function<void(u32)> GetSetter() const;
     };
 
     CCollisionPrimitive()=default;
@@ -60,6 +50,7 @@ public:
 
     static void InitBeginColliders();
     static void InitAddCollider(const Type& tp);
+    static void InitEndColliders();
 };
 
 }

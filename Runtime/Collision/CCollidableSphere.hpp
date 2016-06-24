@@ -1,20 +1,16 @@
-#ifndef __URDE_CCOLLIDABLEAABOX_HPP__
-#define __URDE_CCOLLIDABLEAABOX_HPP__
+#ifndef __URDE_CCOLLIDALBESPHERE_HPP
+#define __URDE_CCOLLIDALBESPHERE_HPP
 
 #include "CCollisionPrimitive.hpp"
 
 namespace urde
 {
-class CCollidableAABox : public CCollisionPrimitive
+class CCollidableSphere : public CCollisionPrimitive
 {
     static const Type sType;
     static u32 sTableIndex;
-
-    zeus::CAABox x10_aabox;
 public:
-    CCollidableAABox();
 
-    zeus::CAABox Transform(const zeus::CTransform&) const;
     virtual u32 GetTableIndex() const;
     virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
     virtual zeus::CAABox CalculateLocalAABox() const;
@@ -26,4 +22,4 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLIDABLEAABOX_HPP__
+#endif // __URDE_CCOLLIDALBESPHERE_HPP
