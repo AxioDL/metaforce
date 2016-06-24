@@ -17,7 +17,7 @@ public:
     virtual FourCC GetPrimType() const;
     virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
 
-    static const CCollisionPrimitive::Type& GetType();
+    static const Type& GetType();
     static void SetStaticTableIndex(u32 index);
 };
 }

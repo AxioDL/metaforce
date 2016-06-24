@@ -15,7 +15,13 @@ class CInternalRayCastStructure;
 class CMaterialFilter;
 class CCollisionPrimitive
 {
+public:
+    class Type;
+private:
+
     CMaterialList x8_material;
+    static std::unique_ptr<std::vector<Type>> sCollisionTypeList;
+    static bool sTypesAdding;
 public:
     class Type
     {

@@ -30,4 +30,14 @@ CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructur
     return {};
 }
 
+const CCollisionPrimitive::Type& CCollidableSphere::GetType()
+{
+    return sType;
+}
+
+void CCollidableSphere::SetStaticTableIndex(u32 index)
+{
+    sTableIndex = index;
+}
+
 }

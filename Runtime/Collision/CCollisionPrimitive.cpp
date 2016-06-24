@@ -5,6 +5,8 @@
 
 namespace urde
 {
+std::unique_ptr<std::vector<CCollisionPrimitive::Type>> CCollisionPrimitive::sCollisionTypeList;
+bool CCollisionPrimitive::sTypesAdding = false;
 CCollisionPrimitive::CCollisionPrimitive(const CMaterialList& list)
     : x8_material(list)
 {
@@ -29,17 +31,23 @@ CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const 
 
 void CCollisionPrimitive::InitBeginTypes()
 {
-
+    sCollisionTypeList.reset(new std::vector<CCollisionPrimitive::Type>());
+    sCollisionTypeList->reserve(3);
+    sTypesAdding = true;
+    InternalColliders::AddTypes();
 }
 
 void CCollisionPrimitive::InitAddType(const CCollisionPrimitive::Type& tp)
 {
+    tp.GetSetter()(sCollisionTypeList->size());
 
+    sCollisionTypeList->reserve(sCollisionTypeList->size() + 1);
+    sCollisionTypeList->push_back(tp);
 }
 
 void CCollisionPrimitive::InitEndTypes()
 {
-
+    sTypesAdding = false;
 }
 
 CCollisionPrimitive::Type::Type(std::function<void (unsigned int)> setter, const char *info)
