@@ -50,7 +50,7 @@ void CCollisionPrimitive::InitEndTypes()
     sTypesAdding = false;
 }
 
-CCollisionPrimitive::Type::Type(std::function<void (unsigned int)> setter, const char *info)
+CCollisionPrimitive::Type::Type(const std::function<void(u32)>& setter, const char *info)
     : x0_setter(setter),
       x4_info(info)
 {

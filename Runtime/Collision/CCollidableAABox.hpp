@@ -5,6 +5,12 @@
 
 namespace urde
 {
+namespace Collide
+{
+bool AABox_AABox(const CInternalCollisionStructure&, CCollisionInfoList&);
+bool AABox_AABox_Bool(const CInternalCollisionStructure&, CCollisionInfoList&);
+}
+
 class CCollidableAABox : public CCollisionPrimitive
 {
     static const Type sType;
