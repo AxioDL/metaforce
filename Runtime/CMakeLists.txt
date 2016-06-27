@@ -47,6 +47,7 @@ add_library(RuntimeCommon
             ${WORLD_SOURCES}
             #CMemory.hpp CMemory.cpp
             CMemoryCardSys.hpp
+            CSaveWorld.hpp CSaveWorld.cpp
             IAllocator.hpp IAllocator.cpp
             CGameAllocator.hpp CGameAllocator.cpp
             CDependencyGroup.hpp CDependencyGroup.cpp

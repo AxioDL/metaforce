@@ -32,6 +32,7 @@ public:
         CLeafData(CInputStream&);
 
         const std::vector<u16>& GetSurfaceVector() const;
+        size_t GetMemoryUsage() const;
     };
 
     class CNode
@@ -48,11 +49,12 @@ public:
         CNode(CInputStream&);
 
         bool WasHit() const;
-        void SetWasHit(bool) const;
+        void SetHit(bool) const;
         CNode* GetLeft() const;
         CNode* GetRight() const;
         CLeafData* GetLeafData() const;
         const zeus::COBBox& GetOBB() const;
+        size_t GetMemoryUsage() const;
     };
 
 private:

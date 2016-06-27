@@ -9,13 +9,13 @@ namespace urde
 class CGuiCamera : public CGuiWidget
 {
 public:
-    enum class Projection
+    enum class EProjection
     {
         Perspective,
         Orthographic
     };
 private:
-    Projection xf8_proj;
+    EProjection xf8_proj;
     union
     {
         struct

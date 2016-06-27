@@ -24,7 +24,7 @@ public:
     const zeus::CMRay& GetRay() const { return x0_ray; }
     const zeus::CVector3f& GetStart() const { return x0_ray.start; }
     const zeus::CVector3f& GetNormal() const { return x0_ray.normal; }
-    float GetMaxTime() const { return 0.f; }
+    float GetMaxTime() const { return x38_maxTime; }
     const zeus::CTransform& GetTransform() const { return x3c_xf; }
     const CMaterialFilter& GetFilter() const { return x6c_filter; }
 };

@@ -14,7 +14,7 @@ class CGameState
 {
     int m_stateFlag = -1;
     CPlayerState m_playerState;
-    CWorldTransManager m_transManager;
+    CWorldTransManager x9c_transManager;
     float m_gameTime = 0.0;
     CGameOptions m_gameOpts;
     double xa0_playTime;
@@ -22,7 +22,7 @@ public:
     CGameState() {}
     CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
-    CWorldTransManager& WorldTransitionManager() {return m_transManager;}
+    CWorldTransManager& WorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
 };
 
