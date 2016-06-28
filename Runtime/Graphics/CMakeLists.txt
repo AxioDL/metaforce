@@ -7,6 +7,8 @@ endif()
 set(GRAPHICS_SOURCES
     IRenderer.hpp
     CBooRenderer.hpp CBooRenderer.cpp
+    CDrawable.hpp CDrawable.cpp
+    CDrawablePlaneObject.hpp CDrawablePlaneObject.cpp
     CLineRenderer.hpp CLineRenderer.cpp
     CLineRendererShaders.hpp CLineRendererShadersGLSL.cpp
     CMetroidModelInstance.hpp
