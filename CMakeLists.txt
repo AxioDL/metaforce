@@ -93,9 +93,11 @@ add_definitions(-DZE_ATHENA_TYPES=1)
 set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
                     ${NOD_INCLUDE_DIR} ${ZEUS_INCLUDE_DIR} ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR}
-                    ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+                    ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${KABUFUDA_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(DataSpec)
+add_subdirectory(kabufuda)
 add_subdirectory(Editor)
+
 set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.cpp

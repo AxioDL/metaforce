@@ -10,3 +10,6 @@
 [submodule "amuse"]
 	path = amuse
 	url = https://github.com/AxioDL/amuse.git
+[submodule "kabufuda"]
+	path = kabufuda
+	url = https://github.com/AxioDL/kabufuda.git
