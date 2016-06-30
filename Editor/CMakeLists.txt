@@ -41,7 +41,7 @@ target_link_libraries(urde
                       DNACommon specter specter-fonts freetype ${DATA_SPEC_LIBS}
                       hecl-database hecl-runtime hecl-backend hecl-frontend hecl-hmdl hecl-blender hecl-common
                       athena-core nod logvisor athena-libyaml amuse boo ${PNG_LIB} libjpeg-turbo squish xxhash zeus
-                      ${ZLIB_LIBRARIES} ${LZO_LIB}
+                      kabufuda ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
 
 set_target_properties(urde PROPERTIES

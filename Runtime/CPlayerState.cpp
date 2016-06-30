@@ -59,7 +59,7 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
 {
     x4_ = stream.ReadEncoded(0x20);
     u32 tmp = stream.ReadEncoded(0x20);
-    xc_currentHealth = *reinterpret_cast<float*>(&tmp);
+    xc_health.SetHP(*reinterpret_cast<float*>(&tmp));
     x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
     x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
     x24_powerups.resize(41);
@@ -90,8 +90,8 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
 void CPlayerState::PutTo(CBitStreamWriter &stream)
 {
     stream.WriteEncoded(x4_, 32);
-    u32 tmp = *reinterpret_cast<int*>(&xc_currentHealth);
-    stream.WriteEncoded(tmp, 32);
+    float hp = xc_health.GetHP();
+    stream.WriteEncoded(*reinterpret_cast<int*>(&hp), 32);
     stream.WriteEncoded((u32)x8_currentBeam, CBitStreamWriter::GetBitCount(5));
     stream.WriteEncoded((u32)x20_currentSuit, CBitStreamWriter::GetBitCount(4));
     for (u32 i = 0; i < x24_powerups.size(); ++i)
@@ -173,6 +173,16 @@ u32 CPlayerState::CalculateItemCollectionRate() const
     total += GetItemCapacity(EItemType::ArtifactOfSpirit);
     total += GetItemCapacity(EItemType::ArtifactOfNewborn);
     return total + GetItemCapacity(EItemType::Wavebuster);
+}
+
+CHealthInfo& CPlayerState::HealthInfo()
+{
+    return xc_health;
+}
+
+CHealthInfo CPlayerState::GetHealthInfo() const
+{
+    return xc_health;
 }
 
 CPlayerState::EPlayerSuit CPlayerState::GetCurrentSuit() const
@@ -335,7 +345,7 @@ void CPlayerState::IncrPickup(EItemType type, s32 amount)
     case EItemType::HealthRefill:
     {
         float health = CalculateHealth(amount);
-        xc_currentHealth = std::min(health, xc_currentHealth + amount);
+        xc_health.SetHP(std::min(health, xc_health.GetHP() + amount));
     }
     default:
         break;

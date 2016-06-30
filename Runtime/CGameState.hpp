@@ -13,7 +13,7 @@ namespace urde
 class CGameState
 {
     int m_stateFlag = -1;
-    CPlayerState m_playerState;
+    CPlayerState x98_playerState;
     CWorldTransManager x9c_transManager;
     float m_gameTime = 0.0;
     CGameOptions m_gameOpts;
