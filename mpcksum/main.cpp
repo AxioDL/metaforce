@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
     if (in.length() != 8256)
     {
-        printf("File too small expected 8,256 bytes got %llu", in.length());
+        printf("File too small expected 8,256 bytes got %" PRIu64, in.length());
         return 1;
     }
 

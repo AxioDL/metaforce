@@ -6,6 +6,7 @@
 #include "CStaticInterference.hpp"
 #include "IOStreams.hpp"
 #include "rstl.hpp"
+#include "World/CHealthInfo.hpp"
 
 namespace urde
 {
@@ -111,8 +112,7 @@ private:
 
     u32 x4_ = 0;
     EBeamId x8_currentBeam = EBeamId::Power;
-    float xc_currentHealth = 99.f;
-    float x10_ = 50.f;
+    CHealthInfo xc_health = {99.f, 50.f};
     EPlayerVisor x14_currentVisor = EPlayerVisor::Combat;
     EPlayerVisor x18_transitioningVisor = x14_currentVisor;
     float x1c_visorTransitionFactor = 0.2f;
@@ -128,6 +128,8 @@ public:
     u32 GetMissileCostForAltAttack() const;
     u32 CalculateItemCollectionRate() const;
 
+    CHealthInfo& HealthInfo();
+    CHealthInfo GetHealthInfo() const;
     u32 GetPickupTotal() { return 99; }
     void SetFusion(bool val) { x0_26_fusion = val; }
     bool GetFusion() const { return x0_26_fusion; }
