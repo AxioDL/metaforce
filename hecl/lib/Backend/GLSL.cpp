@@ -118,7 +118,7 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             GenerateVertInStruct(col, uv, w) + "\n" +
             GenerateVertToFragStruct() + "\n" +
             GenerateVertUniformStruct(s, tm) +
-            "out VertToFrag vtf;\n\n"
+            "SBINDING(0) out VertToFrag vtf;\n\n"
             "void main()\n{\n";
 
     if (s)
@@ -173,7 +173,7 @@ std::string GLSL::makeFrag(const char* glslVer,
             GenerateVertToFragStruct() +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
-            "in VertToFrag vtf;\n\n" +
+            "SBINDING(0) in VertToFrag vtf;\n\n" +
             lightingSrc + "\n" +
             "void main()\n{\n";
 
@@ -223,7 +223,7 @@ std::string GLSL::makeFrag(const char* glslVer,
             GenerateVertToFragStruct() +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
-            "in VertToFrag vtf;\n\n" +
+            "SBINDING(0) in VertToFrag vtf;\n\n" +
             lightingSrc + "\n" +
             postSrc +
             "\nvoid main()\n{\n";
@@ -455,7 +455,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
 
         atUint32 vertSz = vertBlob.size() * sizeof(unsigned int);
         atUint32 fragSz = fragBlob.size() * sizeof(unsigned int);
-        atUint32 pipelineSz = pipelineBlob.size() * sizeof(unsigned int);
+        atUint32 pipelineSz = pipelineBlob.size();
 
         size_t cachedSz = 15 + vertSz + fragSz + pipelineSz;
 

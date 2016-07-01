@@ -86,6 +86,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
                 /* Compile HECL shader */
                 static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
+                //static std::string testShader = "HECLOpaque(vec4(1.0,1.0,1.0,1.0))";
                 hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, boo::Primitive::TriStrips, false, false, false);
                 boo::IShaderPipeline* testShaderObj =
                 shaderMgr.buildShader(testShaderTag, testShader, "testShader", ctx);
@@ -200,7 +201,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             vubo->load(&vuboData, sizeof(vuboData));
 
             gfxQ->setShaderDataBinding(binding);
-            gfxQ->draw(0, 4);
+            gfxQ->drawIndexed(0, 4);
             gfxQ->resolveDisplay(renderTex);
             gfxQ->execute();
 
