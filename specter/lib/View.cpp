@@ -16,7 +16,7 @@ SPECTER_GLSL_VIEW_VERT_BLOCK
 "{\n"
 "    vec4 color;\n"
 "};\n"
-"out VertToFrag vtf;\n"
+"SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
 "    vtf.color = colorIn * mulColor;\n"
@@ -25,11 +25,12 @@ SPECTER_GLSL_VIEW_VERT_BLOCK
 
 static const char* GLSLSolidFS =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
 "};\n"
-"in VertToFrag vtf;\n"
+"SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
 "void main()\n"
 "{\n"
@@ -45,12 +46,12 @@ SPECTER_GLSL_VIEW_VERT_BLOCK
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
-"    vec2 uv;\n"
+"    vec4 uv;\n"
 "};\n"
-"out VertToFrag vtf;\n"
+"SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
-"    vtf.uv = uvIn;\n"
+"    vtf.uv.xy = uvIn;\n"
 "    vtf.color = mulColor;\n"
 "    gl_Position = mv * vec4(posIn, 1.0);\n"
 "}\n";
@@ -61,14 +62,14 @@ BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
-"    vec2 uv;\n"
+"    vec4 uv;\n"
 "};\n"
-"in VertToFrag vtf;\n"
+"SBINDING(0) in VertToFrag vtf;\n"
 "TBINDING0 uniform sampler2D tex;\n"
 "layout(location=0) out vec4 colorOut;\n"
 "void main()\n"
 "{\n"
-"    colorOut = texture(tex, vtf.uv) * vtf.color;\n"
+"    colorOut = texture(tex, vtf.uv.xy) * vtf.color;\n"
 "}\n";
 
 static const char* BlockNames[] = {"SpecterViewBlock"};
@@ -299,8 +300,8 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
     m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
     m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, false, false, false);
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, false, false, false);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -310,8 +311,8 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
     m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
     m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, false, false);
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, false, false, false);
 }
 
 #endif
