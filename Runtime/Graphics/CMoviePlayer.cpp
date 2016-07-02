@@ -27,6 +27,7 @@ SPECTER_GLSL_VIEW_VERT_BLOCK
 "    vtf.uv = uvIn;\n"
 "    vtf.color = mulColor;\n"
 "    gl_Position = mv * vec4(posIn, 1.0);\n"
+"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* FS_GLSL_YUV =

@@ -27,7 +27,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uv = uvIn.xy;\n"
-"    gl_Position = posIn;\n"
+"    gl_Position = FLIPFROMGL(posIn);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX =
@@ -67,7 +67,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = colorIn * moduColor;\n"
-"    gl_Position = posIn;\n"
+"    gl_Position = FLIPFROMGL(posIn);\n"
 "}\n";
 
 static const char* FS_GLSL_NOTEX =

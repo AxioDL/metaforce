@@ -100,6 +100,7 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.uvTexr = uvsInTexrTind[gl_VertexID].xy;\n"
 "    vtf.uvTind = uvsInTexrTind[gl_VertexID].zw;\n"
 "    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* FS_GLSL_INDTEX =
