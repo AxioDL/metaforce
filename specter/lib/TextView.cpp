@@ -28,6 +28,7 @@ SPECTER_GLSL_VIEW_VERT_BLOCK
 "    vtf.uv = uvIn[gl_VertexID];\n"
 "    vtf.color = colorIn * mulColor;\n"
 "    gl_Position = mv * mvMtx * vec4(posIn[gl_VertexID], 1.0);\n"
+"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* GLSLFSReg =
