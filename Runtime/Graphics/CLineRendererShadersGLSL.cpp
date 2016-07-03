@@ -72,6 +72,7 @@ BOO_GLSL_BINDING_HEAD
 
 static const char* FS_GLSL_NOTEX =
 "#version 330\n"
+BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
