@@ -43,8 +43,11 @@ public:
 
     inline s32 Range(s32 min, s32 max)
     {
-        const s32 rand = Next();
-        return min + (rand / ((min - max) + 1)) - rand;
+        s32 diff = max - min;
+        s32 rand = -1;
+        while (rand < 0)
+            rand = s32((Next() << 16) | Next());
+        return rand % diff + min;
     }
 
     static CRandom16* GetRandomNumber() {return g_randomNumber;}
@@ -58,7 +61,7 @@ class CGlobalRandom
     static CGlobalRandom* g_currentGlobalRandom;
 public:
     CGlobalRandom(CRandom16& rand)
-    : m_random(rand), m_prev(g_currentGlobalRandom)
+        : m_random(rand), m_prev(g_currentGlobalRandom)
     {
         g_currentGlobalRandom = this;
         CRandom16::SetRandomNumber(&m_random);
