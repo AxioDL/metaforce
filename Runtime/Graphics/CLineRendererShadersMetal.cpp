@@ -1,5 +1,6 @@
 #include "CLineRendererShaders.hpp"
 #include "CLineRenderer.hpp"
+#if BOO_HAS_METAL
 
 namespace urde
 {
@@ -160,3 +161,4 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
 }
 
 }
+#endif

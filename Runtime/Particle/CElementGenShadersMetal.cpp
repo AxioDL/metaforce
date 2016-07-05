@@ -1,4 +1,5 @@
 #include "CElementGenShaders.hpp"
+#if BOO_HAS_METAL
 #include "CElementGen.hpp"
 #include "CGenDescription.hpp"
 
@@ -380,3 +381,4 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::Met
 }
 
 }
+#endif
