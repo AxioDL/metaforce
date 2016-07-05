@@ -64,6 +64,7 @@ class ViewManager : public specter::IViewManager
     struct AudioVoiceCallback : boo::IAudioVoiceCallback
     {
         ViewManager& m_vm;
+        void preSupplyAudio(boo::IAudioVoice&, double) {}
         size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
         {
             if (m_vm.m_moviePlayer)
