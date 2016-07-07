@@ -27,7 +27,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
-    m_partGenDesc = objStore.GetObj("BusterSparks");
+    m_partGenDesc = objStore.GetObj("PowerCharge");
     m_partGenDesc.Lock();
     m_partGen.reset(new urde::CElementGen(m_partGenDesc,
                                            urde::CElementGen::EModelOrientationType::Normal,
