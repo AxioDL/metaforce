@@ -42,6 +42,7 @@ void ClientProcess::BufferTransaction::run(BlenderToken& btok)
 
 void ClientProcess::CookTransaction::run(BlenderToken& btok)
 {
+    m_dataSpec->setThreadProject();
     m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok);
     m_complete = true;
 }

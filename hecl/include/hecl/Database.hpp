@@ -99,6 +99,8 @@ public:
         std::vector<ExtractReport> childOpts;
     };
 
+    virtual void setThreadProject() {}
+
     virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)info;(void)reps;LogModule.report(logvisor::Error, "not implemented");return false;}
     virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
