@@ -110,7 +110,7 @@ public:
         id = TranslatePakIdToPath(id);
     }
 
-    static void setGlobalProject(hecl::Database::Project& project)
+    static void setThreadProject(hecl::Database::Project& project)
     {
         s_Project.reset(&project);
     }

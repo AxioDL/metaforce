@@ -13,6 +13,7 @@ namespace DataSpec
 struct SpecBase : hecl::Database::IDataSpec
 {
     /* HECL Adaptors */
+    void setThreadProject();
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 

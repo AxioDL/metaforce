@@ -37,13 +37,18 @@ SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Databas
 : hecl::Database::IDataSpec(specEntry), m_project(project), m_pc(pc),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend")
 {
-    DataSpec::UniqueIDBridge::setGlobalProject(m_project);
+    DataSpec::UniqueIDBridge::setThreadProject(m_project);
 }
 
 static const hecl::SystemString regNONE = _S("");
 static const hecl::SystemString regE = _S("NTSC");
 static const hecl::SystemString regJ = _S("NTSC-J");
 static const hecl::SystemString regP = _S("PAL");
+
+void SpecBase::setThreadProject()
+{
+    UniqueIDBridge::setThreadProject(m_project);
+}
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {

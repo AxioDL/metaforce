@@ -281,6 +281,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
     athena::io::YAMLDocWriter nameWriter(nullptr);
     BackgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
+    tagCachePath.makeDirChain(false);
     FILE* cacheFile = hecl::Fopen(tagCachePath.getAbsolutePath().c_str(), _S("w"));
     yaml_emitter_set_output_file(cacheWriter.getEmitter(), cacheFile);
     cacheWriter.finish();
