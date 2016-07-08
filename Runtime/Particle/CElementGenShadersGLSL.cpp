@@ -46,10 +46,10 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"TBINDING0 uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
+"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
 "}\n";
 
 static const char* FS_GLSL_TEX_REDTOALPHA =
@@ -63,10 +63,10 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"TBINDING0 uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
+"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
 "    colorOut.a = colorOut.r;\n"
 "}\n";
 
@@ -116,12 +116,14 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"TBINDING0 uniform sampler2D texs[3];\n"
+"TBINDING0 uniform sampler2D texrMap;\n"
+"TBINDING1 uniform sampler2D sceneMap;\n"
+"TBINDING2 uniform sampler2D tindMap;\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).zw;\n"
-"    vec4 sceneTexel = texture(texs[1], mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
-"    vec4 texrTexel = texture(texs[0], vtf.uvTexr);\n"
+"    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;\n"
+"    vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
+"    vec4 texrTexel = texture(texrMap, vtf.uvTexr);\n"
 "    colorOut = vtf.color * sceneTexel + texrTexel;\n"
 "    colorOut.a = vtf.color.a * texrTexel.a;\n"
 "}\n";
@@ -139,12 +141,14 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"TBINDING0 uniform sampler2D texs[3];\n"
+"TBINDING0 uniform sampler2D texrMap;\n"
+"TBINDING1 uniform sampler2D sceneMap;\n"
+"TBINDING2 uniform sampler2D tindMap;\n"
 "void main()\n"
 "{\n"
-"    vec2 tindTexel = texture(texs[2], vtf.uvTind).zw;\n"
-"    vec4 sceneTexel = texture(texs[1], mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
-"    colorOut = vtf.color * sceneTexel * texture(texs[0], vtf.uvTexr);\n"
+"    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;\n"
+"    vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
+"    colorOut = vtf.color * sceneTexel * texture(texrMap, vtf.uvTexr);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
@@ -270,53 +274,55 @@ struct OGLElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 };
 
 static const char* UniNames[] = {"ParticleUniform"};
+static const char* TexNames[] = {"tex"};
+static const char* TindTexNames[] = {"texrMap", "sceneMap", "tindMap"};
 
 CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::GLDataFactory::Context& ctx)
 {
-    m_texZTestZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texZTestZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, true, true, false);
-    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, false, true, false);
-    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, true, false, false);
-    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, false, false, false);
 
-    m_texAdditiveZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAdditiveZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                    boo::Primitive::TriStrips, true, false, false);
-    m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                      boo::Primitive::TriStrips, false, false, false);
 
-    m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, "texs", 1, UniNames,
+    m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, TexNames, 1, UniNames,
                                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                      boo::Primitive::TriStrips, true, false, false);
-    m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, "texs", 1, UniNames,
+    m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, TexNames, 1, UniNames,
                                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                        boo::Primitive::TriStrips, false, false, false);
 
-    m_indTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
+    m_indTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, TindTexNames, 1, UniNames,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, false, true, false);
-    m_indTexNoZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
+    m_indTexNoZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, TindTexNames, 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, false, false, false);
-    m_indTexAdditive = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, "texs", 1, UniNames,
+    m_indTexAdditive = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, TindTexNames, 1, UniNames,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                  boo::Primitive::TriStrips, false, true, false);
 
-    m_cindTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
+    m_cindTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, TindTexNames, 1, UniNames,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                 boo::Primitive::TriStrips, false, true, false);
-    m_cindTexNoZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
+    m_cindTexNoZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, TindTexNames, 1, UniNames,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                   boo::Primitive::TriStrips, false, false, false);
-    m_cindTexAdditive = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, "texs", 1, UniNames,
+    m_cindTexAdditive = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_CINDTEX, 3, TindTexNames, 1, UniNames,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, false, true, false);
 

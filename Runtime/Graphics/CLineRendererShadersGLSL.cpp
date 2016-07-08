@@ -41,10 +41,10 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
-"TBINDING0 uniform sampler2D texs[1];\n"
+"TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(texs[0], vtf.uv);\n"
+"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
@@ -127,11 +127,12 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::GLDataFactory::Context& ctx)
 {
     static const char* UniNames[] = {"LineUniform"};
+    static const char* TexNames[] = {"tex"};
 
-    m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips, false, true, false);
-    m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, "texs", 1, UniNames,
+    m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips, false, false, false);
     m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,

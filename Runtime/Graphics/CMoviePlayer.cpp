@@ -39,14 +39,16 @@ BOO_GLSL_BINDING_HEAD
 "    vec2 uv;\n"
 "};\n"
 "SBINDING(0) in VertToFrag vtf;\n"
-"TBINDING0 uniform sampler2D texs[3];\n"
+"TBINDING0 uniform sampler2D texY;\n"
+"TBINDING1 uniform sampler2D texU;\n"
+"TBINDING2 uniform sampler2D texV;\n"
 "layout(location=0) out vec4 colorOut;\n"
 "void main()\n"
 "{\n"
 "    vec3 yuv;\n"
-"    yuv.r = texture(texs[0], vtf.uv).r;\n"
-"    yuv.g = texture(texs[1], vtf.uv).r;\n"
-"    yuv.b = texture(texs[2], vtf.uv).r;\n"
+"    yuv.r = texture(texY, vtf.uv).r;\n"
+"    yuv.g = texture(texU, vtf.uv).r;\n"
+"    yuv.b = texture(texV, vtf.uv).r;\n"
 "    yuv.r = 1.1643*(yuv.r-0.0625);\n"
 "    yuv.g = yuv.g-0.5;\n"
 "    yuv.b = yuv.b-0.5;\n"
@@ -190,6 +192,7 @@ static g72x_state StaticStateLeft = {};
 static g72x_state StaticStateRight = {};
 
 static const char* BlockNames[] = {"SpecterViewBlock"};
+static const char* TexNames[] = {"texY", "texU", "texV"};
 
 void CMoviePlayer::Initialize()
 {
@@ -209,7 +212,7 @@ void CMoviePlayer::Initialize()
         {
         case boo::IGraphicsDataFactory::Platform::OGL:
             YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_GLSL_YUV, FS_GLSL_YUV, 3, "texs", 1, BlockNames,
+                    (VS_GLSL_YUV, FS_GLSL_YUV, 3, TexNames, 1, BlockNames,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, false, false, false);
             break;

@@ -450,6 +450,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     {
         m_shaderClass = CElementGenShaders::GetShaderClass(*this);
         size_t maxInsts = x224_29_MBLR ? (m_maxMBSP * x70_MAXP) : x70_MAXP;
+        maxInsts = (maxInsts == 0 ? 256 : maxInsts);
         m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);

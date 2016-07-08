@@ -21,25 +21,24 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    TToken<CSkinRules>
-    m_modelTest = objStore.GetObj("MP1/SamusGun/CMDL_0EF58656.blend");
+    m_modelTest = objStore.GetObj("gun_cmdl");
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
     m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
     m_partGenDesc = objStore.GetObj("PowerCharge");
     m_partGenDesc.Lock();
-    m_partGen.reset(new urde::CElementGen(m_partGenDesc,
-                                           urde::CElementGen::EModelOrientationType::Normal,
-                                           urde::CElementGen::EOptionalSystemFlags::None));
-    m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
+    //m_partGen.reset(new urde::CElementGen(m_partGenDesc,
+    //                                       urde::CElementGen::EModelOrientationType::Normal,
+    //                                       urde::CElementGen::EOptionalSystemFlags::None));
+    //m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
 
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
 
+    //m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
+    //m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     /*
-    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
-    m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     CDvdFile testRSF("Audio/frontend_1.rsf");
     u64 rsfLen = testRSF.Length();
     m_rsfBuf.reset(new u8[rsfLen]);
