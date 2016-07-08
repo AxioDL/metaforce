@@ -17,10 +17,10 @@ static rstl::optional_object<CModelShaders> g_ModelShaders;
 CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
-: x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_pipelines(&shader.m_shaders),
-  m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
-  m_skinBankCount(skinBankCount), x1c_textures(&shader.x0_textures), x20_aabb(aabb),
-  x40_24_texturesLoaded(false), x40_25_(0)
+    : x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_pipelines(&shader.m_shaders),
+      m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
+      m_skinBankCount(skinBankCount), x1c_textures(&shader.x0_textures), x20_aabb(aabb),
+      x40_24_texturesLoaded(false), x40_25_(0)
 {
     for (CBooSurface& surf : *x0_surfaces)
         surf.m_parent = this;
@@ -48,7 +48,7 @@ CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
 void CBooModel::BuildGfxToken()
 {
     m_gfxToken = CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+                [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         /* Determine space required by uniform buffer */
         std::vector<size_t> skinOffs;
@@ -86,7 +86,7 @@ void CBooModel::BuildGfxToken()
         /* Animated UV transform matrices */
         for (const MaterialSet::Material& mat : x4_matSet->materials)
         {
-            size_t thisSz = ROUND_UP_256(mat.uvAnims.size() * sizeof(zeus::CMatrix4f));
+            size_t thisSz = ROUND_UP_256(mat.uvAnims.size() * (sizeof(zeus::CMatrix4f) * 2));
             uvOffs.push_back(uniBufSize);
             uvSizes.push_back(thisSz);
             uniBufSize += thisSz;
@@ -166,9 +166,9 @@ void CBooModel::BuildGfxToken()
 
             for (boo::IShaderPipeline* pipeline : pipelines)
                 extendeds.push_back(
-                    ctx.newShaderDataBinding(pipeline, m_vtxFmt,
-                                             x8_vbo, nullptr, xc_ibo, 3, bufs, stages,
-                                             thisOffs, thisSizes, mat.textureIdxs.size(), texs.data()));
+                            ctx.newShaderDataBinding(pipeline, m_vtxFmt,
+                                                     x8_vbo, nullptr, xc_ibo, 3, bufs, stages,
+                                                     thisOffs, thisSizes, mat.textureIdxs.size(), texs.data()));
         }
         return true;
     });
@@ -194,7 +194,7 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
         {
         case ELightType::LocalAmbient:
             m_lightingData.ambient += light.x18_color;
-            break;
+        break;
         case ELightType::Point:
         case ELightType::Spot:
         case ELightType::Custom:
@@ -322,18 +322,27 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim)
 {
     zeus::CMatrix4f& matrixOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
+    zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
     switch (anim.mode)
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
         matrixOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(
-                        CGraphics::g_GXModelMatrix).toMatrix4f();
+                    CGraphics::g_GXModelMatrix).toMatrix4f();
         matrixOut.vec[3].zeroOut();
+        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
+                                                   0.0, 0.5, 0.0,
+                                                   0.0, 0.0, 0.0),
+                                   zeus::CVector3f(0.5, 0.5, 1.0)).toMatrix4f();
         break;
     }
     case UVAnimation::Mode::MvInv:
     {
         matrixOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
+                                                   0.0, 0.5, 0.0,
+                                                   0.0, 0.0, 0.0),
+                                   zeus::CVector3f(0.5, 0.5, 1.0)).toMatrix4f();
         break;
     }
     case UVAnimation::Mode::Scroll:
@@ -374,14 +383,33 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         matrixOut.vec[2].y = 0.5f;
         matrixOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
         matrixOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
+
+        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
+                                                      0.0, 0.0, 0.5,
+                                                      0.0, 0.0, 0.0),
+                                      zeus::CVector3f(CGraphics::g_GXModelMatrix.origin.x * 0.50000001,
+                                                      CGraphics::g_GXModelMatrix.origin.x * 0.50000001,
+                                                      1.0)).toMatrix4f();
         break;
     }
     case UVAnimation::Mode::WhoMustNotBeNamed:
     {
         zeus::CTransform texmtx = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
         texmtx.origin.zeroOut();
-        /* TODO: Finish */
         matrixOut = texmtx.toMatrix4f();
+
+        const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
+        float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];
+        xy = (xy - (int)xy);
+        float z = (viewOrigin.z) * 0.05f * anim.vals[1];
+        z = (z - (int)z);
+
+        float halfA = anim.vals[0] * 0.5f;
+
+        postMtxOut = zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0,
+                                                   0.0, 0.0, halfA,
+                                                   0.0, 0.0, 0.0),
+                                   zeus::CVector3f(xy, z, 1.0)).toMatrix4f();
         break;
     }
     default: break;
@@ -548,25 +576,25 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
-        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
-        m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
+            m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
+            m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
+            m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
 
-        for (CBooModel::SShader& matSet : x18_matSets)
-        {
+            for (CBooModel::SShader& matSet : x18_matSets)
+    {
             matSet.m_shaders.reserve(matSet.m_matSet.materials.size());
             for (const MaterialSet::Material& mat : matSet.m_matSet.materials)
-            {
-                hecl::Runtime::ShaderTag tag(mat.heclIr,
-                                             hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
-                                             true, true, true);
-                matSet.m_shaders.push_back(g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
-            }
-        }
+    {
+            hecl::Runtime::ShaderTag tag(mat.heclIr,
+                                         hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
+                                         0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
+                                         true, true, true);
+            matSet.m_shaders.push_back(g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
+}
+}
 
-        return true;
-    });
+            return true;
+});
 
     u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
     x8_surfaces.reserve(surfCount);
@@ -583,7 +611,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
     const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
     m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
-                          hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
+            hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
     x28_modelInst = MakeNewInstance(0);
 }
 
@@ -648,24 +676,24 @@ CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
     {
     case boo::IGraphicsDataFactory::Platform::OGL:
     case boo::IGraphicsDataFactory::Platform::Vulkan:
-        return GetShaderExtensionsGLSL(plat);
+    return GetShaderExtensionsGLSL(plat);
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:
-        return GetShaderExtensionsHLSL(plat);
+    return GetShaderExtensionsHLSL(plat);
 #endif
 #if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
-        return GetShaderExtensionsMetal(plat);
+    return GetShaderExtensionsMetal(plat);
 #endif
     default:
-        return {boo::IGraphicsDataFactory::Platform::Null};
+    return {boo::IGraphicsDataFactory::Platform::Null};
     }
 }
 
 CModelShaders::CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                              boo::IGraphicsDataFactory* gfxFactory)
-: m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}
+    : m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}
 
 void CModelShaders::Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
                                boo::IGraphicsDataFactory* gfxFactory)
