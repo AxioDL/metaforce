@@ -17,9 +17,9 @@ std::string GLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "posIn.xy\n";
+        return "posIn.xy";
     case TexGenSrc::Normal:
-        return "normIn.xy\n";
+        return "normIn.xy";
     case TexGenSrc::UV:
         return hecl::Format("uvIn[%u]", uvIdx);
     default: break;
@@ -32,9 +32,9 @@ std::string GLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "vec4(posIn, 1.0)\n";
+        return "vec4(posIn, 1.0)";
     case TexGenSrc::Normal:
-        return "vec4(normIn, 1.0)\n";
+        return "vec4(normIn, 1.0)";
     case TexGenSrc::UV:
         return hecl::Format("vec4(uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
@@ -166,8 +166,8 @@ std::string GLSL::makeFrag(const char* glslVer,
         lightingSrc = lighting.m_source;
 
     std::string texMapDecl;
-    if (m_texMapEnd)
-        texMapDecl = hecl::Format("TBINDING0 uniform sampler2D texs[%u];\n", m_texMapEnd);
+    for (int i=0 ; i<m_texMapEnd ; ++i)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct() +
@@ -188,7 +188,7 @@ std::string GLSL::makeFrag(const char* glslVer,
 
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
-        retval += hecl::Format("    vec4 sampling%u = texture(texs[%u], vtf.tcgs[%u]);\n",
+        retval += hecl::Format("    vec4 sampling%u = texture(tex%u, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
@@ -216,8 +216,8 @@ std::string GLSL::makeFrag(const char* glslVer,
         postEntry = post.m_entry;
 
     std::string texMapDecl;
-    if (m_texMapEnd)
-        texMapDecl = hecl::Format("TBINDING0 uniform sampler2D texs[%u];\n", m_texMapEnd);
+    for (int i=0 ; i<m_texMapEnd ; ++i)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct() +
@@ -238,7 +238,7 @@ std::string GLSL::makeFrag(const char* glslVer,
 
     unsigned sampIdx = 0;
     for (const TexSampling& sampling : m_texSamplings)
-        retval += hecl::Format("    vec4 sampling%u = texture(texs[%u], vtf.tcgs[%u]);\n",
+        retval += hecl::Format("    vec4 sampling%u = texture(tex%u, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
@@ -255,6 +255,18 @@ namespace Runtime
 
 static const char* STD_BLOCKNAMES[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
                                        HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME};
+
+static const char* STD_TEXNAMES[] =
+{
+    "tex0",
+    "tex1",
+    "tex2",
+    "tex3",
+    "tex4",
+    "tex5",
+    "tex6",
+    "tex7"
+};
 
 struct GLSLBackendFactory : IShaderBackendFactory
 {
@@ -277,10 +289,14 @@ struct GLSLBackendFactory : IShaderBackendFactory
 
         std::string fragSource = m_backend.makeFrag("#version 330");
         cachedSz += fragSource.size() + 1;
+
+        if (m_backend.m_texMapEnd > 8)
+            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+
         objOut =
         static_cast<boo::GLDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  m_backend.m_texMapEnd, "texs",
+                                  m_backend.m_texMapEnd, STD_TEXNAMES,
                                   2, STD_BLOCKNAMES,
                                   m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
@@ -309,10 +325,14 @@ struct GLSLBackendFactory : IShaderBackendFactory
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
         std::string vertSource = r.readString();
         std::string fragSource = r.readString();
+
+        if (texMapEnd > 8)
+            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+
         boo::IShaderPipeline* ret =
         static_cast<boo::GLDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  texMapEnd, "texs",
+                                  texMapEnd, STD_TEXNAMES,
                                   2, STD_BLOCKNAMES,
                                   blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
@@ -338,6 +358,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
                            tag.getSkinSlotCount(), tag.getTexMtxCount());
         cachedSz += vertSource.size() + 1;
 
+        if (m_backend.m_texMapEnd > 8)
+            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+
         std::vector<std::string> fragSources;
         fragSources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
@@ -355,7 +378,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
-                                      m_backend.m_texMapEnd, "texs", bc, bn,
+                                      m_backend.m_texMapEnd, STD_TEXNAMES, bc, bn,
                                       m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
@@ -387,6 +410,10 @@ struct GLSLBackendFactory : IShaderBackendFactory
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
         std::string vertSource = r.readString();
+
+        if (texMapEnd > 8)
+            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
             size_t bc = 2;
@@ -401,7 +428,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      texMapEnd, "texs", bc, bn,
+                                      texMapEnd, STD_TEXNAMES, bc, bn,
                                       blendSrc, blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());

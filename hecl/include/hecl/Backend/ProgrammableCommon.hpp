@@ -56,12 +56,17 @@ private:
     unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx);
     unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);
     std::string RecursiveTraceColor(const IR& ir, Diagnostics& diag,
-                                    const IR::Instruction& inst);
+                                    const IR::Instruction& inst, bool toSwizzle);
     std::string RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
-                                    const IR::Instruction& inst);
+                                    const IR::Instruction& inst, bool toSwizzle);
     unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
                                   const IR::Instruction& inst,
                                   int mtx);
+
+    std::string EmitSamplingUseRaw(unsigned samplingIdx) const
+    {
+        return hecl::Format("sampling%u", samplingIdx);
+    }
 
     std::string EmitSamplingUseRGB(unsigned samplingIdx) const
     {
@@ -76,6 +81,11 @@ private:
     std::string EmitColorRegUse(unsigned idx) const
     {
         return hecl::Format("colorReg%u", idx);
+    }
+
+    std::string EmitLightingRaw() const
+    {
+        return std::string("lighting");
     }
 
     std::string EmitLightingRGB() const

@@ -75,7 +75,7 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
 }
 
 std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& diag,
-                                                    const IR::Instruction& inst)
+                                                    const IR::Instruction& inst, bool toSwizzle)
 {
     switch (inst.m_op)
     {
@@ -94,7 +94,8 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
 
-            return EmitSamplingUseRGB(addTexSampling(mapIdx, texGenIdx));
+            return toSwizzle ? EmitSamplingUseRaw(addTexSampling(mapIdx, texGenIdx)) :
+                               EmitSamplingUseRGB(addTexSampling(mapIdx, texGenIdx));
         }
         else if (!name.compare("ColorReg"))
         {
@@ -105,7 +106,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         else if (!name.compare("Lighting"))
         {
             m_lighting = true;
-            return EmitLightingRGB();
+            return toSwizzle ? EmitLightingRaw() : EmitLightingRGB();
         }
         else
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());
@@ -121,8 +122,8 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
-        std::string aTrace = RecursiveTraceColor(ir, diag, aInst);
-        std::string bTrace = RecursiveTraceColor(ir, diag, bInst);
+        std::string aTrace = RecursiveTraceColor(ir, diag, aInst, false);
+        std::string bTrace = RecursiveTraceColor(ir, diag, bInst, false);
 
         switch (op)
         {
@@ -149,7 +150,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
     case IR::OpType::Swizzle:
     {
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
-        std::string aTrace = RecursiveTraceColor(ir, diag, aInst);
+        std::string aTrace = RecursiveTraceColor(ir, diag, aInst, true);
         return EmitSwizzle3(diag, inst.m_loc, aTrace, inst.m_swizzle.m_idxs);
     }
     default:
@@ -160,7 +161,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
 }
 
 std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag,
-                                                    const IR::Instruction& inst)
+                                                    const IR::Instruction& inst, bool toSwizzle)
 {
     switch (inst.m_op)
     {
@@ -179,7 +180,8 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
 
-            return EmitSamplingUseAlpha(addTexSampling(mapIdx, texGenIdx));
+            return toSwizzle ? EmitSamplingUseRaw(addTexSampling(mapIdx, texGenIdx)) :
+                               EmitSamplingUseAlpha(addTexSampling(mapIdx, texGenIdx));
         }
         else if (!name.compare("ColorReg"))
         {
@@ -190,7 +192,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
         else if (!name.compare("Lighting"))
         {
             m_lighting = true;
-            return EmitLightingAlpha();
+            return toSwizzle ? EmitLightingRaw() : EmitLightingAlpha();
         }
         else
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());
@@ -206,8 +208,8 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
         ArithmeticOp op = inst.m_arithmetic.m_op;
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
         const IR::Instruction& bInst = inst.getChildInst(ir, 1);
-        std::string aTrace = RecursiveTraceAlpha(ir, diag, aInst);
-        std::string bTrace = RecursiveTraceAlpha(ir, diag, bInst);
+        std::string aTrace = RecursiveTraceAlpha(ir, diag, aInst, false);
+        std::string bTrace = RecursiveTraceAlpha(ir, diag, bInst, false);
 
         switch (op)
         {
@@ -234,7 +236,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
     case IR::OpType::Swizzle:
     {
         const IR::Instruction& aInst = inst.getChildInst(ir, 0);
-        std::string aTrace = RecursiveTraceAlpha(ir, diag, aInst);
+        std::string aTrace = RecursiveTraceAlpha(ir, diag, aInst, true);
         return EmitSwizzle1(diag, inst.m_loc, aTrace, inst.m_swizzle.m_idxs);
     }
     default:
@@ -246,6 +248,14 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
 
 void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* backendName)
 {
+    m_lighting = false;
+    m_texSamplings.clear();
+    m_texMapEnd = 0;
+    m_tcgs.clear();
+    m_texMtxRefs.clear();
+    m_colorExpr.clear();
+    m_alphaExpr.clear();
+
     diag.setBackend(backendName);
 
     /* Final instruction is the root call by hecl convention */
@@ -278,14 +288,14 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
     /* Follow Color Chain */
     const IR::Instruction& colorRoot =
     ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
-    m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot);
+    m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot, false);
 
     /* Follow Alpha Chain */
     if (doAlpha)
     {
         const IR::Instruction& alphaRoot =
         ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));
-        m_alphaExpr = RecursiveTraceAlpha(ir, diag, alphaRoot);
+        m_alphaExpr = RecursiveTraceAlpha(ir, diag, alphaRoot, false);
     }
 }
 
