@@ -67,18 +67,19 @@ BOO_GLSL_BINDING_HEAD
 "}\n";
 
 static const char* BlockNames[] = {"SpecterViewBlock"};
+static const char* TexNames[] = {"fontTex"};
 
 void TextView::Resources::init(boo::GLDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 
     m_regular =
-    ctx.newShaderPipeline(GLSLVS, GLSLFSReg, 1, "fontTex", 1, BlockNames,
+    ctx.newShaderPipeline(GLSLVS, GLSLFSReg, 1, TexNames, 1, BlockNames,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                           boo::Primitive::TriStrips, false, false, false);
 
     m_subpixel =
-    ctx.newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, "fontTex", 1, BlockNames,
+    ctx.newShaderPipeline(GLSLVS, GLSLFSSubpixel, 1, TexNames, 1, BlockNames,
                           boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                           boo::Primitive::TriStrips, false, false, false);
 }

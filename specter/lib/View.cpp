@@ -75,6 +75,7 @@ BOO_GLSL_BINDING_HEAD
 "}\n";
 
 static const char* BlockNames[] = {"SpecterViewBlock"};
+static const char* TexNames[] = {"tex"};
 
 void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& theme)
 {
@@ -82,7 +83,7 @@ void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& t
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, false, false, false);
 
-    m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, "tex", 1, BlockNames,
+    m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, TexNames, 1, BlockNames,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, false, false, false);
 }
