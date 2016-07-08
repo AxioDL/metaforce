@@ -98,8 +98,9 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
     {
         retval += hecl::Format("UBINDING1 uniform HECLTexMtxUniform\n"
                                "{\n"
-                               "    mat4 texMtxs[%u];\n"
-                               "};\n", texMtxs);
+                               "    mat4 mtx;\n"
+                               "    mat4 postMtx;\n"
+                               "} texMtxs[%u];\n", texMtxs);
     }
 
     return retval;
@@ -150,8 +151,8 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u] * %s).xy;\n", tcgIdx, tcg.m_mtx,
-                                   EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * normalize(texMtxs[%u].mtx * %s)).xy;\n", tcgIdx, tcg.m_mtx,
+                                   tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
 
