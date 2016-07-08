@@ -414,7 +414,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     default: break;
     }
-    bufOut += sizeof(zeus::CMatrix4f);
+    bufOut += sizeof(zeus::CMatrix4f) * 2;
 }
 
 void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut)
