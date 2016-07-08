@@ -321,15 +321,17 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
 
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim)
 {
-    zeus::CMatrix4f& matrixOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
+    zeus::CMatrix4f& texMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
     zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
+    texMtxOut = zeus::CMatrix4f();
+    postMtxOut = zeus::CMatrix4f();
     switch (anim.mode)
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-        matrixOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(
+        texMtxOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(
                     CGraphics::g_GXModelMatrix).toMatrix4f();
-        matrixOut.vec[3].zeroOut();
+        texMtxOut.vec[3].zeroOut();
         postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
                                                    0.0, 0.5, 0.0,
                                                    0.0, 0.0, 0.0),
@@ -338,7 +340,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::MvInv:
     {
-        matrixOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
         postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
                                                    0.0, 0.5, 0.0,
                                                    0.0, 0.0, 0.0),
@@ -347,8 +349,8 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::Scroll:
     {
-        matrixOut.vec[3].x = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
-        matrixOut.vec[3].y = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
+        texMtxOut.vec[3].x = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
+        texMtxOut.vec[3].y = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
         break;
     }
     case UVAnimation::Mode::Rotation:
@@ -356,33 +358,33 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         float angle = CGraphics::GetSecondsMod900() * anim.vals[1] + anim.vals[0];
         float acos = std::cos(angle);
         float asin = std::sin(angle);
-        matrixOut.vec[0].x = acos;
-        matrixOut.vec[0].y = asin;
-        matrixOut.vec[1].x = -asin;
-        matrixOut.vec[1].y = acos;
-        matrixOut.vec[3].x = (1.0 - (acos - asin)) * 0.5;
-        matrixOut.vec[3].y = (1.0 - (asin + acos)) * 0.5;
+        texMtxOut.vec[0].x = acos;
+        texMtxOut.vec[0].y = asin;
+        texMtxOut.vec[1].x = -asin;
+        texMtxOut.vec[1].y = acos;
+        texMtxOut.vec[3].x = (1.0 - (acos - asin)) * 0.5;
+        texMtxOut.vec[3].y = (1.0 - (asin + acos)) * 0.5;
         break;
     }
     case UVAnimation::Mode::HStrip:
     {
-        float value = anim.vals[2] * anim.vals[0] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        matrixOut.vec[3].x = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
+        float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
+        texMtxOut.vec[3].x = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::VStrip:
     {
-        float value = anim.vals[2] * anim.vals[0] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        matrixOut.vec[3].y = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
+        float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
+        texMtxOut.vec[3].y = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::Model:
     {
-        matrixOut.vec[0].x = 0.5f;
-        matrixOut.vec[1].y = 0.0f;
-        matrixOut.vec[2].y = 0.5f;
-        matrixOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
-        matrixOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
+        texMtxOut.vec[0].x = 0.5f;
+        texMtxOut.vec[1].y = 0.0f;
+        texMtxOut.vec[2].y = 0.5f;
+        texMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
+        texMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
 
         postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
                                                       0.0, 0.0, 0.5,
@@ -396,7 +398,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
         zeus::CTransform texmtx = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
         texmtx.origin.zeroOut();
-        matrixOut = texmtx.toMatrix4f();
+        texMtxOut = texmtx.toMatrix4f();
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
         float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];

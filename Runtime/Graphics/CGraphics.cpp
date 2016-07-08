@@ -20,7 +20,7 @@ ERglLightBits CGraphics::g_LightActive = ERglLightBits::None;
 ERglLightBits CGraphics::g_LightsWereOn = ERglLightBits::None;
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelViewInvXpose;
-zeus::CTransform CGraphics::g_GXModelMatrix;
+zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform::Identity();
 zeus::CTransform CGraphics::g_ViewMatrix;
 zeus::CVector3f CGraphics::g_ViewPoint;
 zeus::CTransform CGraphics::g_GXViewPointMatrix;
@@ -28,7 +28,7 @@ zeus::CTransform CGraphics::g_CameraMatrix;
 zeus::CVector2i CGraphics::g_ViewportResolution;
 zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
 int CGraphics::g_ViewportSamples = 1;
-bool CGraphics::g_IsGXModelMatrixIdentity;
+bool CGraphics::g_IsGXModelMatrixIdentity = true;
 
 void CGraphics::DisableAllLights()
 {
