@@ -329,22 +329,23 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-        texMtxOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(
-                    CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix).toMatrix4f();
         texMtxOut.vec[3].zeroOut();
-        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
-                                                   0.0, 0.5, 0.0,
-                                                   0.0, 0.0, 0.0),
-                                   zeus::CVector3f(0.5, 0.5, 1.0)).toMatrix4f();
+        postMtxOut.vec[0].x = 0.5f;
+        postMtxOut.vec[1].y = 0.0f;
+        postMtxOut.vec[2].y = 0.5f;
+        postMtxOut.vec[3].x = 0.5f;
+        postMtxOut.vec[3].y = 0.5f;
         break;
     }
     case UVAnimation::Mode::MvInv:
     {
         texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
-        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
-                                                   0.0, 0.5, 0.0,
-                                                   0.0, 0.0, 0.0),
-                                   zeus::CVector3f(0.5, 0.5, 1.0)).toMatrix4f();
+        postMtxOut.vec[0].x = 0.5f;
+        postMtxOut.vec[1].y = 0.0f;
+        postMtxOut.vec[2].y = 0.5f;
+        postMtxOut.vec[3].x = 0.5f;
+        postMtxOut.vec[3].y = 0.5f;
         break;
     }
     case UVAnimation::Mode::Scroll:
@@ -369,36 +370,31 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     case UVAnimation::Mode::HStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].x = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.vec[3].x = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::VStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].y = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.vec[3].y = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::Model:
     {
-        texMtxOut.vec[0].x = 0.5f;
-        texMtxOut.vec[1].y = 0.0f;
-        texMtxOut.vec[2].y = 0.5f;
-        texMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
-        texMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
+        texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
+        texMtxOut.vec[3].zeroOut();
 
-        postMtxOut = zeus::CTransform(zeus::CMatrix3f(0.5, 0.0, 0.0,
-                                                      0.0, 0.0, 0.5,
-                                                      0.0, 0.0, 0.0),
-                                      zeus::CVector3f(CGraphics::g_GXModelMatrix.origin.x * 0.50000001,
-                                                      CGraphics::g_GXModelMatrix.origin.x * 0.50000001,
-                                                      1.0)).toMatrix4f();
+        postMtxOut.vec[0].x = 0.5f;
+        postMtxOut.vec[1].y = 0.0f;
+        postMtxOut.vec[2].y = 0.5f;
+        postMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
+        postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
         break;
     }
     case UVAnimation::Mode::WhoMustNotBeNamed:
     {
-        zeus::CTransform texmtx = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
-        texmtx.origin.zeroOut();
-        texMtxOut = texmtx.toMatrix4f();
+        texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut.vec[3].zeroOut();
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
         float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];

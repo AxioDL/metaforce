@@ -21,13 +21,13 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    m_modelTest = objStore.GetObj("gun_cmdl");
+    m_modelTest = objStore.GetObj("CMDL_InvPowerSuit3");
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
     m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
-    m_partGenDesc = objStore.GetObj("PowerCharge");
-    m_partGenDesc.Lock();
+    //m_partGenDesc = objStore.GetObj("PowerCharge");
+    //m_partGenDesc.Lock();
     //m_partGen.reset(new urde::CElementGen(m_partGenDesc,
     //                                       urde::CElementGen::EModelOrientationType::Normal,
     //                                       urde::CElementGen::EOptionalSystemFlags::None));
@@ -76,7 +76,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_theta += 0.01f;
         CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta) * zeus::CTransform::Scale(10.f));
         //CGraphics::SetModelMatrix(zeus::CTransform::Identity());
-        CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 4.f}, {0.f, 0.f, 0.f}));
+        CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -30.f, 4.f}, {0.f, 0.f, 0.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
         CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
