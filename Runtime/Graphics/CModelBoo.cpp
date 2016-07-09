@@ -329,7 +329,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-        texMtxOut = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut = (CGraphics::g_ViewMatrix * CGraphics::g_GXModelMatrix).inverse().toMatrix4f();
         texMtxOut.vec[3].zeroOut();
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.0f;
@@ -340,7 +340,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::MvInv:
     {
-        texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut = (CGraphics::g_ViewMatrix * CGraphics::g_GXModelMatrix).inverse().toMatrix4f();
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.0f;
         postMtxOut.vec[2].y = 0.5f;
@@ -363,20 +363,20 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         texMtxOut.vec[0].y = asin;
         texMtxOut.vec[1].x = -asin;
         texMtxOut.vec[1].y = acos;
-        texMtxOut.vec[3].x = (1.0 - (acos - asin)) * 0.5;
-        texMtxOut.vec[3].y = (1.0 - (asin + acos)) * 0.5;
+        texMtxOut.vec[3].x = (1.0f - (acos - asin)) * 0.5f;
+        texMtxOut.vec[3].y = (1.0f - (asin + acos)) * 0.5f;
         break;
     }
     case UVAnimation::Mode::HStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].x = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
+        texMtxOut.vec[3].x = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::VStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].y = anim.vals[1] * fmod(value, 1.0f) * anim.vals[2];
+        texMtxOut.vec[3].y = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::Model:
