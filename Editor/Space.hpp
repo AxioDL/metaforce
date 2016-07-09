@@ -64,7 +64,7 @@ public:
             Space& m_space;
             const SubNodeData& m_data;
             const std::string* text() const {return &m_data.m_text;}
-            void activated(const boo::SWindowCoord& coord) {}
+            void activated(const boo::SWindowCoord& coord);
 
             SubNode(Space& space, const SubNodeData& data) : m_space(space), m_data(data) {}
         };

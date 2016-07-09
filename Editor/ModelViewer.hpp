@@ -36,7 +36,6 @@ class ModelViewer : public ViewerSpace
         : specter::View(res, mv.m_vm.rootView()), m_mv(mv) {}
 
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-        void draw(boo::IGraphicsCommandQueue *gfxQ);
     };
 
     Camera m_camera;

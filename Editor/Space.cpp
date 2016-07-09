@@ -238,4 +238,23 @@ RootSpace* Space::NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r)
     return new RootSpace(vm, r);
 }
 
+void Space::SpaceMenuNode::SubNode::activated(const boo::SWindowCoord &coord)
+{
+    std::unique_ptr<Space> newSpace;
+    switch(m_data.m_cls)
+    {
+    case Class::InformationCenter: newSpace.reset(new InformationCenter(m_space.m_parent->m_vm, m_space.m_parent)); break;
+    case Class::EffectEditor: newSpace.reset(new EffectEditor(m_space.m_parent->m_vm, m_space.m_parent)); break;
+    case Class::ResourceBrowser: newSpace.reset(new ResourceBrowser(m_space.m_parent->m_vm, m_space.m_parent)); break;
+    case Class::ModelViewer: newSpace.reset(new ModelViewer(m_space.m_parent->m_vm, m_space.m_parent)); break;
+    default: break;
+    }
+    if (newSpace)
+    {
+        Space* parent = m_space.m_parent;
+        m_space.m_parent->exchangeSpaceSplitJoin(&m_space, std::move(newSpace));
+        parent->m_vm.BuildSpaceViews();
+    }
+}
+
 }

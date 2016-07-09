@@ -38,6 +38,8 @@ public:
     {
         return new EffectEditor(m_vm, parent, *this);
     }
+
+    bool usesToolbar() const { return true; }
 };
 
 }
