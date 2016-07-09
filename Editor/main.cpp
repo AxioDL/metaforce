@@ -35,6 +35,8 @@ struct Application : boo::IApplicationCallback
         m_viewManager.reset(new ViewManager(m_fileMgr, m_cvarManager));
     }
 
+    virtual ~Application() = default;
+
     int appMain(boo::IApplication* app)
     {
         initialize(app);
@@ -53,12 +55,9 @@ struct Application : boo::IApplicationCallback
     {
         m_running = false;
     }
-    void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&)
-    {
+    void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&);
 
-    }
-
-    void initialize(boo::IApplication* app)
+    void initialize(boo::IApplication* /*app*/)
     {
         zeus::detectCPU();
         //hecl::VerbosityLevel = 1;
@@ -101,6 +100,12 @@ struct Application : boo::IApplicationCallback
         Log.report(logvisor::Info, _S("CPU Features: %s"), features.c_str());
     }
 };
+
+/* This is here to prevent a vtable being dumped into every translation unit */
+void Application::appFilesOpen(boo::IApplication *, const std::vector<boo::SystemString> &)
+{
+
+}
 
 }
 

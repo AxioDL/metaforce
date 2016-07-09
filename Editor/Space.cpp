@@ -243,10 +243,22 @@ void Space::SpaceMenuNode::SubNode::activated(const boo::SWindowCoord &coord)
     std::unique_ptr<Space> newSpace;
     switch(m_data.m_cls)
     {
-    case Class::InformationCenter: newSpace.reset(new InformationCenter(m_space.m_parent->m_vm, m_space.m_parent)); break;
-    case Class::EffectEditor: newSpace.reset(new EffectEditor(m_space.m_parent->m_vm, m_space.m_parent)); break;
-    case Class::ResourceBrowser: newSpace.reset(new ResourceBrowser(m_space.m_parent->m_vm, m_space.m_parent)); break;
-    case Class::ModelViewer: newSpace.reset(new ModelViewer(m_space.m_parent->m_vm, m_space.m_parent)); break;
+    case Class::InformationCenter:
+        if (typeid(InformationCenter) != typeid(m_space))
+            newSpace.reset(new InformationCenter(m_space.m_parent->m_vm, m_space.m_parent));
+        break;
+    case Class::EffectEditor:
+        if (typeid(EffectEditor) != typeid(m_space))
+            newSpace.reset(new EffectEditor(m_space.m_parent->m_vm, m_space.m_parent));
+        break;
+    case Class::ResourceBrowser:
+        if (typeid(ResourceBrowser) != typeid(m_space))
+            newSpace.reset(new ResourceBrowser(m_space.m_parent->m_vm, m_space.m_parent));
+        break;
+    case Class::ModelViewer:
+        if (typeid(ModelViewer) != typeid(m_space))
+            newSpace.reset(new ModelViewer(m_space.m_parent->m_vm, m_space.m_parent));
+        break;
     default: break;
     }
     if (newSpace)
