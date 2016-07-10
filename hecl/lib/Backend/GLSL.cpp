@@ -96,13 +96,14 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       skinSlots, skinSlots);
     if (texMtxs)
     {
-        retval += hecl::Format("UBINDING1 uniform HECLTexMtxUniform\n"
+        retval += hecl::Format("struct HECLTCGMatrix\n"
                                "{\n"
-                               "    struct\n"
-                               "    {"
-                               "        mat4 mtx;\n"
-                               "        mat4 postMtx;\n"
-                               "    } texMtxs[%u];\n"
+                               "    mat4 mtx;\n"
+                               "    mat4 postMtx;\n"
+                               "};\n"
+                               "UBINDING1 uniform HECLTexMtxUniform\n"
+                               "{\n"
+                               "    HECLTCGMatrix texMtxs[%u];\n"
                                "};\n", texMtxs);
     }
 
