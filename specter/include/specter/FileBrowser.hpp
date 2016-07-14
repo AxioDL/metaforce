@@ -293,6 +293,11 @@ private:
             if (rIdx != -1)
                 m_fb.navigateToPath(m_entries.at(rIdx).m_path);
         }
+
+        void rowActivated(size_t rIdx)
+        {
+            m_fb.okActivated(true);
+        }
     };
 
     BookmarkDataBind m_systemBookmarkBind;
