@@ -87,7 +87,8 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "    float4x4 proj;\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-        retval += hecl::Format("    float4x4 texMtxs[%u];\n", texMtxs);
+        retval += hecl::Format("    float4x4 texMtxs[%u];\n"
+                               "    float4x4 postMtxs[%u];\n", texMtxs, texMtxs);
     return retval + "};\n";
 }
 
@@ -137,8 +138,8 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = mul(texMtxs[%u], %s).xy;\n", tcgIdx, tcg.m_mtx,
-                                   EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    vtf.tcgs[%u] = mul(postMtxs[%u], mul(texMtxs[%u], %s)).xy;\n", tcgIdx, tcg.m_mtx, 
+                                   tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
 
@@ -211,6 +212,7 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
             lightingSrc + "\n" +
             postSrc +
             "\nfloat4 main(in VertToFrag vtf) : SV_Target0\n{\n";
+
 
     if (m_lighting)
     {
