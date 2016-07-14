@@ -171,7 +171,7 @@ std::string GLSL::makeFrag(const char* glslVer,
         lightingSrc = lighting.m_source;
 
     std::string texMapDecl;
-    for (int i=0 ; i<m_texMapEnd ; ++i)
+    for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
@@ -221,7 +221,7 @@ std::string GLSL::makeFrag(const char* glslVer,
         postEntry = post.m_entry;
 
     std::string texMapDecl;
-    for (int i=0 ; i<m_texMapEnd ; ++i)
+    for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
