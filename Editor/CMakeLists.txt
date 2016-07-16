@@ -1,6 +1,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec ${CMAKE_SOURCE_DIR}/Runtime)
 add_subdirectory(locale)
 add_subdirectory(icons)
+add_subdirectory(badging)
 
 atdna(atdna_Space.cpp Space.hpp)
 atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
@@ -36,6 +37,7 @@ add_executable(urde WIN32 MACOSX_BUNDLE
 target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
+                      UrdeBadging
                       RuntimeCommon
                       DNAMP3 DNAMP2 DNAMP1
                       DNACommon specter specter-fonts freetype ${DATA_SPEC_LIBS}

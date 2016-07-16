@@ -6,6 +6,8 @@
 #include <specter/MultiLineTextView.hpp>
 #include <specter/FileBrowser.hpp>
 #include <specter/Menu.hpp>
+#include <specter/Icon.hpp>
+
 #include "ViewManager.hpp"
 
 namespace urde
@@ -22,6 +24,8 @@ class SplashScreen : public specter::ModalWindow
     std::unique_ptr<specter::TextView> m_title;
     std::string m_buildInfoStr;
     std::unique_ptr<specter::MultiLineTextView> m_buildInfo;
+    std::unique_ptr<specter::IconView> m_badgeIcon;
+    std::unique_ptr<specter::TextView> m_badgeText;
 
     std::string m_newString;
     specter::ViewChild<std::unique_ptr<specter::Button>> m_newButt;
