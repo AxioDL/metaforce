@@ -84,6 +84,7 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);")
 add_subdirectory(hecl)
 add_definitions(${BOO_SYS_DEFINES})
+include_directories(${BOO_SYS_INCLUDES})
 add_subdirectory(amuse)
 add_subdirectory(specter)
 set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
