@@ -6,6 +6,7 @@
 #include "locale/locale.hpp"
 #include "ResourceBrowser.hpp"
 #include "icons/icons.hpp"
+#include "badging/Badging.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
@@ -280,6 +281,7 @@ void ViewManager::init(boo::IApplication* app)
     m_mainCommandQueue = m_mainWindow->getCommandQueue();
     m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
     m_iconsToken = InitializeIcons(m_viewResources);
+    m_badgeToken = InitializeBadging(m_viewResources);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     specter::RootView* root = SetupRootView();
     m_showSplash = true;

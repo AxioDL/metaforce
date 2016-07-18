@@ -1,5 +1,6 @@
 #include "SplashScreen.hpp"
 #include "version.h"
+#include "badging/Badging.hpp"
 
 namespace urde
 {
@@ -16,6 +17,10 @@ namespace urde
 
 #define LINE_WIDTH 2
 #define TEXT_MARGIN 10
+
+#define BADGE_WIDTH 551
+#define BADGE_HEIGHT 217
+#define BADGE_MARGIN 35
 
 SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 : ModalWindow(res, vm.rootView(),
@@ -95,6 +100,10 @@ void SplashScreen::updateContentOpacity(float opacity)
         m_buildInfo.reset(new specter::MultiLineTextView(res, *this, res.m_mainFont, specter::TextView::Alignment::Right));
         m_buildInfo->typesetGlyphs(m_buildInfoStr, clearColor);
 
+        m_badgeIcon.reset(new specter::IconView(res, *this, GetBadge()));
+        m_badgeText.reset(new specter::TextView(res, *this, res.m_heading18, specter::TextView::Alignment::Right));
+        m_badgeText->typesetGlyphs(BADGE_PHRASE, clearColor);
+
         m_newButt.m_view.reset(new specter::Button(res, *this, &m_newProjBind, m_newString,
                                                    nullptr, specter::Button::Style::Text));
         m_openButt.m_view.reset(new specter::Button(res, *this, &m_openProjBind, m_openString,
@@ -110,6 +119,8 @@ void SplashScreen::updateContentOpacity(float opacity)
     zeus::CColor color = zeus::CColor::lerp(clearColor, res.themeData().uiText(), opacity);
     m_title->colorGlyphs(color);
     m_buildInfo->colorGlyphs(color);
+    m_badgeIcon->setMultiplyColor({1.f, 1.f, 1.f, color.a});
+    m_badgeText->colorGlyphs(color);
     m_newButt.m_view->colorGlyphs(color);
     m_openButt.m_view->colorGlyphs(color);
     m_extractButt.m_view->colorGlyphs(color);
@@ -226,6 +237,12 @@ void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect&
     centerRect.location[0] = root.size[0] / 2 - (SPLASH_WIDTH * pf / 2.0);
     centerRect.location[1] = root.size[1] / 2 - (SPLASH_HEIGHT * pf / 2.0);
 
+    boo::SWindowRect badgeRect = centerRect;
+    badgeRect.location[0] += LINE_WIDTH * pf;
+    badgeRect.location[1] += BADGE_MARGIN * pf;
+    badgeRect.size[0] = BADGE_WIDTH;
+    badgeRect.size[1] = BADGE_HEIGHT;
+
     boo::SWindowRect textRect = centerRect;
     textRect.location[0] += TEXT_MARGIN * pf;
     textRect.location[1] += (SPLASH_HEIGHT - 36) * pf;
@@ -235,6 +252,11 @@ void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect&
         textRect.location[0] = centerRect.location[0] + (SPLASH_WIDTH - TEXT_MARGIN) * pf;
         textRect.location[1] -= 5 * pf;
         m_buildInfo->resized(root, textRect);
+
+        textRect.location[0] = centerRect.location[0] + (SPLASH_WIDTH - TEXT_MARGIN) * pf;
+        textRect.location[1] = centerRect.location[1] + (BADGE_MARGIN + TEXT_MARGIN) * pf;
+        m_badgeIcon->resized(root, badgeRect);
+        m_badgeText->resized(root, textRect);
 
         textRect.size[0] = m_newButt.m_view->nominalWidth();
         textRect.size[1] = m_newButt.m_view->nominalHeight();
@@ -269,6 +291,8 @@ void SplashScreen::draw(boo::IGraphicsCommandQueue* gfxQ)
     {
         m_title->draw(gfxQ);
         m_buildInfo->draw(gfxQ);
+        m_badgeIcon->draw(gfxQ);
+        m_badgeText->draw(gfxQ);
         m_newButt.m_view->draw(gfxQ);
         m_openButt.m_view->draw(gfxQ);
         m_extractButt.m_view->draw(gfxQ);
