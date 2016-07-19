@@ -24,6 +24,7 @@ class ViewManager : public specter::IViewManager
     friend class RootSpace;
     friend class SplitSpace;
 
+    std::unique_ptr<boo::IWindow> m_mainWindow;
     hecl::Runtime::FileStoreManager& m_fileStoreManager;
     hecl::CVarManager& m_cvarManager;
     ProjectManager m_projManager;
@@ -33,7 +34,6 @@ class ViewManager : public specter::IViewManager
     boo::GraphicsDataToken m_iconsToken;
     boo::GraphicsDataToken m_badgeToken;
     specter::Translator m_translator;
-    std::unique_ptr<boo::IWindow> m_mainWindow;
     boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
     boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
     boo::ITextureR* m_renderTex = nullptr;
