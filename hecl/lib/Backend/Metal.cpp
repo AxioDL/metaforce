@@ -154,7 +154,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs%u = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * %s(texMtxs[%u].mtx * %s)).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
                                    tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }

@@ -84,12 +84,22 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "{\n"
                                       "    float4x4 mv[%u];\n"
                                       "    float4x4 mvInv[%u];\n"
-                                      "    float4x4 proj;\n",
+                                      "    float4x4 proj;\n"
+                                      "};\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-        retval += hecl::Format("    float4x4 texMtxs[%u];\n"
-                               "    float4x4 postMtxs[%u];\n", texMtxs, texMtxs);
-    return retval + "};\n";
+    {
+        retval += hecl::Format("struct TCGMtx\n"
+                               "{\n"
+                               "    float4x4 mtx;\n"
+                               "    float4x4 postMtx;\n"
+                               "};\n"
+                               "cbuffer HECLTCGMatrix : register(b1)\n"
+                               "{\n"
+                               "    TCGMtx texMtxs[%u];\n"
+                               "};\n", texMtxs);
+    }
+    return retval;
 }
 
 void HLSL::reset(const IR& ir, Diagnostics& diag)
@@ -138,7 +148,7 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = mul(texMtxs[%u].postMtx, %s(mul(texMtxs[%u].mtx, %s))).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += hecl::Format("    vtf.tcgs[%u] = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
                                    tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
