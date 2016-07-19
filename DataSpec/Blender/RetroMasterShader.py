@@ -7,7 +7,7 @@ import bpy
 
 # 0 - Modelview Inverse (zero translation)
 def make_uva0():
-    new_grp = bpy.data.node_groups.new('RetroUVMode0Node', 'ShaderNodeTree')
+    new_grp = bpy.data.node_groups.new('RetroUVMode0NodeN', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -32,7 +32,7 @@ def make_uva0():
 
 # 1 - Modelview Inverse
 def make_uva1():
-    new_grp = bpy.data.node_groups.new('RetroUVMode1Node', 'ShaderNodeTree')
+    new_grp = bpy.data.node_groups.new('RetroUVMode1NodeN', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -276,7 +276,7 @@ def make_uva5():
 
 # 6 - Model Matrix
 def make_uva6():
-    new_grp = bpy.data.node_groups.new('RetroUVMode6Node', 'ShaderNodeTree')
+    new_grp = bpy.data.node_groups.new('RetroUVMode6NodeN', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
@@ -305,7 +305,7 @@ def make_uva6():
 
 # 7 - Mode Who Must Not Be Named
 def make_uva7():
-    new_grp = bpy.data.node_groups.new('RetroUVMode7Node', 'ShaderNodeTree')
+    new_grp = bpy.data.node_groups.new('RetroUVMode7NodeN', 'ShaderNodeTree')
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.inputs.new('NodeSocketFloat', 'ParamA')
     new_grp.inputs.new('NodeSocketFloat', 'ParamB')

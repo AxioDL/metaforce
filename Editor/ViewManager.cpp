@@ -86,6 +86,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
                                       CLight::BuildCustom({0.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
                                       {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f),
                                       CLight::BuildDirectional({0.f, 0.f, -1.f}, {0.3f, 0.3f, 0.3f})};
+        //lights = {CLight::BuildLocalAmbient({}, {0.0f, 0.0f, 0.0f, 1.f})};
         m_vm.m_modelTest->GetInstance().ActivateLights(lights);
         m_vm.m_modelTest->Draw(flags);
     }
