@@ -99,7 +99,8 @@ std::string Metal::GenerateVertUniformStruct(unsigned skinSlots) const
                                       "    float4x4 mv[%u];\n"
                                       "    float4x4 mvInv[%u];\n"
                                       "    float4x4 proj;\n"
-                                      "};\n",
+                                      "};\n"
+                                      "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n",
                                       skinSlots, skinSlots);
     return retval;
 }
@@ -115,7 +116,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
 {
     std::string tmStr;
     if (tm)
-        tmStr = hecl::Format(",\nconstant float4x4 texMtxs[%u] [[ buffer(3) ]]", tm);
+        tmStr = hecl::Format(",\nconstant TexMtxs* texMtxs [[ buffer(3) ]]");
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertInStruct(col, uv, w) + "\n" +
     GenerateVertToFragStruct() + "\n" +
@@ -154,7 +155,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs%u = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
+            retval += hecl::Format("    vtf.tcgs%u = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
                                    tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
     }
