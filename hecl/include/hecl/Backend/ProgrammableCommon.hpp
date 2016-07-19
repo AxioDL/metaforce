@@ -44,6 +44,7 @@ struct ProgrammableCommon : IBackend
         TexGenSrc m_src;
         int m_uvIdx = 0;
         int m_mtx = -1;
+        bool m_norm = false;
         std::string m_gameFunction;
         std::vector<atVec4f> m_gameArgs;
     };
@@ -53,7 +54,7 @@ struct ProgrammableCommon : IBackend
     void reset(const IR& ir, Diagnostics& diag, const char* backendName);
 
 private:
-    unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx);
+    unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize);
     unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);
     std::string RecursiveTraceColor(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst, bool toSwizzle);
@@ -61,7 +62,7 @@ private:
                                     const IR::Instruction& inst, bool toSwizzle);
     unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
                                   const IR::Instruction& inst,
-                                  int mtx);
+                                  int mtx, bool normalize);
 
     std::string EmitSamplingUseRaw(unsigned samplingIdx) const
     {

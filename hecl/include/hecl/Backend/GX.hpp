@@ -281,6 +281,8 @@ struct GX : IBackend
     {
         TexGenSrc m_src = TG_TEX0;
         TexMtx m_mtx = IDENTITY;
+        bool m_norm = false;
+        PTTexMtx m_pmtx = PTIDENTITY;
 
         /* Not actually part of GX, but a way to relate out-of-band
          * texmtx animation parameters */
@@ -477,6 +479,10 @@ struct GX : IBackend
                 return false;
             if (a.m_mtx != b.m_mtx)
                 return false;
+            if (a.m_norm != b.m_norm)
+                return false;
+            if (a.m_pmtx != b.m_pmtx)
+                return false;
         }
         for (unsigned i=0 ; i<m_tevCount ; ++i)
         {
@@ -552,7 +558,7 @@ private:
     unsigned addKColor(Diagnostics& diag, const SourceLocation& loc, const Color& color);
     unsigned addKAlpha(Diagnostics& diag, const SourceLocation& loc, float alpha);
     unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
-                            TexGenSrc src, TexMtx mtx);
+                            TexGenSrc src, TexMtx mtx, bool norm, PTTexMtx pmtx);
     TEVStage& addTEVStage(Diagnostics& diag, const SourceLocation& loc);
     TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst,
@@ -561,7 +567,7 @@ private:
                                     const IR::Instruction& inst);
     unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
                                   const IR::Instruction& inst,
-                                  TexMtx mtx);
+                                  TexMtx mtx, bool normalize, PTTexMtx pmtx);
 };
 
 }

@@ -38,12 +38,12 @@ unsigned GX::addKAlpha(Diagnostics& diag, const SourceLocation& loc, float alpha
 }
 
 unsigned GX::addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
-                            TexGenSrc src, TexMtx mtx)
+                            TexGenSrc src, TexMtx mtx, bool norm, PTTexMtx pmtx)
 {
     for (unsigned i=0 ; i<m_tcgCount ; ++i)
     {
         TexCoordGen& tcg = m_tcgs[i];
-        if (tcg.m_src == src && tcg.m_mtx == mtx)
+        if (tcg.m_src == src && tcg.m_mtx == mtx && tcg.m_norm && tcg.m_pmtx)
             return i;
     }
     if (m_tcgCount >= 8)
@@ -51,6 +51,8 @@ unsigned GX::addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
     GX::TexCoordGen& newTcg = m_tcgs[m_tcgCount];
     newTcg.m_src = src;
     newTcg.m_mtx = mtx;
+    newTcg.m_norm = norm;
+    newTcg.m_pmtx = pmtx;
     return m_tcgCount++;
 }
 
@@ -69,7 +71,8 @@ GX::TEVStage& GX::addTEVStage(Diagnostics& diag, const SourceLocation& loc)
     return newTEV;
 }
 
-unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx)
+unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx,
+                                  bool normalize, PTTexMtx pmtx)
 {
     if (inst.m_op != IR::OpType::Call)
         diag.reportBackendErr(inst.m_loc, "TexCoordGen resolution requires function");
@@ -81,16 +84,17 @@ unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Ins
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
         const atVec4f& idxImm = idxInst.getImmVec();
-        return addTexCoordGen(diag, inst.m_loc, TexGenSrc(TG_TEX0 + unsigned(idxImm.vec[0])), mtx);
+        return addTexCoordGen(diag, inst.m_loc, TexGenSrc(TG_TEX0 + unsigned(idxImm.vec[0])), mtx, normalize, pmtx);
     }
     else if (!tcgName.compare("Normal"))
-        return addTexCoordGen(diag, inst.m_loc, TG_NRM, mtx);
+        return addTexCoordGen(diag, inst.m_loc, TG_NRM, mtx, normalize, pmtx);
     else if (!tcgName.compare("View"))
-        return addTexCoordGen(diag, inst.m_loc, TG_POS, mtx);
+        return addTexCoordGen(diag, inst.m_loc, TG_POS, mtx, normalize, pmtx);
 
     /* Otherwise treat as game-specific function */
     const IR::Instruction& tcgSrcInst = inst.getChildInst(ir, 0);
-    unsigned idx = RecursiveTraceTexGen(ir, diag, tcgSrcInst, TexMtx(TEXMTX0 + m_texMtxCount * 3));
+    unsigned idx = RecursiveTraceTexGen(ir, diag, tcgSrcInst, TexMtx(TEXMTX0 + m_texMtxCount * 3),
+                                        normalize || tcgName.back() == 'N', PTTexMtx(PTTEXMTX0 + m_texMtxCount * 3));
     GX::TexCoordGen& tcg = m_tcgs[idx];
     m_texMtxRefs[m_texMtxCount] = &tcg;
     ++m_texMtxCount;
@@ -112,7 +116,8 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
     case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
-        if (!name.compare("Texture"))
+        bool normalize = false;
+        if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN")))
         {
             TEVStage& newStage = addTEVStage(diag, inst.m_loc);
 
@@ -125,7 +130,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
             newStage.m_color[0] = swizzleAlpha ? CC_TEXA : CC_TEXC;
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
-            newStage.m_texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, IDENTITY);
+            newStage.m_texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, IDENTITY, normalize, PTIDENTITY);
 
             return TraceResult(&newStage);
         }
@@ -389,7 +394,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
     case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
-        if (!name.compare("Texture"))
+        bool normalize = false;
+        if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN")))
         {
             if (inst.getChildCount() < 2)
                 diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
@@ -424,7 +430,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             newStage.m_alpha[0] = CA_TEXA;
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
-            newStage.m_texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, IDENTITY);
+            newStage.m_texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, IDENTITY, normalize, PTIDENTITY);
 
             return TraceResult(&newStage);
         }

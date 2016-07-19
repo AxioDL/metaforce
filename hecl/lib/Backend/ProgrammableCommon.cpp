@@ -6,12 +6,12 @@ namespace hecl
 namespace Backend
 {
 
-unsigned ProgrammableCommon::addTexCoordGen(TexGenSrc src, int uvIdx, int mtx)
+unsigned ProgrammableCommon::addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize)
 {
     for (unsigned i=0 ; i<m_tcgs.size() ; ++i)
     {
         TexCoordGen& tcg = m_tcgs[i];
-        if (tcg.m_src == src && tcg.m_uvIdx == uvIdx && tcg.m_mtx == mtx)
+        if (tcg.m_src == src && tcg.m_uvIdx == uvIdx && tcg.m_mtx == mtx && tcg.m_norm == normalize)
             return i;
     }
     m_tcgs.emplace_back();
@@ -19,6 +19,7 @@ unsigned ProgrammableCommon::addTexCoordGen(TexGenSrc src, int uvIdx, int mtx)
     newTcg.m_src = src;
     newTcg.m_uvIdx = uvIdx;
     newTcg.m_mtx = mtx;
+    newTcg.m_norm = normalize;
     return m_tcgs.size() - 1;
 }
 
@@ -40,7 +41,7 @@ unsigned ProgrammableCommon::addTexSampling(unsigned mapIdx, unsigned tcgIdx)
 }
 
 unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag,
-                                                  const IR::Instruction& inst, int mtx)
+                                                  const IR::Instruction& inst, int mtx, bool normalize)
 {
     if (inst.m_op != IR::OpType::Call)
         diag.reportBackendErr(inst.m_loc, "TexCoordGen resolution requires function");
@@ -52,16 +53,17 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
         const atVec4f& idxImm = idxInst.getImmVec();
-        return addTexCoordGen(TexGenSrc::UV, idxImm.vec[0], mtx);
+        return addTexCoordGen(TexGenSrc::UV, idxImm.vec[0], mtx, normalize);
     }
     else if (!tcgName.compare("Normal"))
-        return addTexCoordGen(TexGenSrc::Normal, -1, mtx);
+        return addTexCoordGen(TexGenSrc::Normal, -1, mtx, normalize);
     else if (!tcgName.compare("View"))
-        return addTexCoordGen(TexGenSrc::Position, -1, mtx);
+        return addTexCoordGen(TexGenSrc::Position, -1, mtx, normalize);
 
     /* Otherwise treat as game-specific function */
     const IR::Instruction& tcgSrcInst = inst.getChildInst(ir, 0);
-    unsigned idx = RecursiveTraceTexGen(ir, diag, tcgSrcInst, m_texMtxRefs.size());
+    unsigned idx = RecursiveTraceTexGen(ir, diag, tcgSrcInst, m_texMtxRefs.size(),
+                                        normalize || tcgName.back() == 'N');
     TexCoordGen& tcg = m_tcgs[idx];
     m_texMtxRefs.push_back(idx);
     tcg.m_gameFunction = tcgName;
@@ -82,7 +84,8 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
     case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
-        if (!name.compare("Texture"))
+        bool normalize = false;
+        if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN")))
         {
             if (inst.getChildCount() < 2)
                 diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
@@ -92,7 +95,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
             unsigned mapIdx = unsigned(mapImm.vec[0]);
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
-            unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
+            unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1, normalize);
 
             return toSwizzle ? EmitSamplingUseRaw(addTexSampling(mapIdx, texGenIdx)) :
                                EmitSamplingUseRGB(addTexSampling(mapIdx, texGenIdx));
@@ -168,7 +171,8 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
     case IR::OpType::Call:
     {
         const std::string& name = inst.m_call.m_name;
-        if (!name.compare("Texture"))
+        bool normalize = false;
+        if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN")))
         {
             if (inst.getChildCount() < 2)
                 diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
@@ -178,7 +182,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
             unsigned mapIdx = unsigned(mapImm.vec[0]);
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
-            unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1);
+            unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1, normalize);
 
             return toSwizzle ? EmitSamplingUseRaw(addTexSampling(mapIdx, texGenIdx)) :
                                EmitSamplingUseAlpha(addTexSampling(mapIdx, texGenIdx));
