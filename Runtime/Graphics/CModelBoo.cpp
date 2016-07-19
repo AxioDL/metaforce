@@ -329,21 +329,20 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-        texMtxOut = (CGraphics::g_ViewMatrix * CGraphics::g_GXModelMatrix).inverse().toMatrix4f();
+        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
+        texMtxOut.vec[3].w = 1.f;
         postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.0f;
-        postMtxOut.vec[2].y = 0.5f;
+        postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
         postMtxOut.vec[3].y = 0.5f;
         break;
     }
     case UVAnimation::Mode::MvInv:
     {
-        texMtxOut = (CGraphics::g_ViewMatrix * CGraphics::g_GXModelMatrix).inverse().toMatrix4f();
+        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.0f;
-        postMtxOut.vec[2].y = 0.5f;
+        postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
         postMtxOut.vec[3].y = 0.5f;
         break;
@@ -385,7 +384,6 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         texMtxOut.vec[3].zeroOut();
 
         postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.0f;
         postMtxOut.vec[2].y = 0.5f;
         postMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
         postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
