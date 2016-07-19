@@ -73,7 +73,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode0Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode0NodeN']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -88,7 +88,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode1Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode1NodeN']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -175,7 +175,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode6Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode6NodeN']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        new_nodetree.links.remove(link)\n"
@@ -190,7 +190,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        soc_from = link.from_socket\n"
                    "        soc_to = link.to_socket\n"
                    "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode7Node']\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode7NodeN']\n"
                    "        node.location[0] = link.from_node.location[0] + 50\n"
                    "        node.location[1] = link.from_node.location[1] - 50\n"
                    "        node.inputs[1].default_value = %f\n"
@@ -1110,19 +1110,8 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
         target.setType(GX::TG_MTX3x4);
         target.setSource(tcg.m_src);
         target.setMtx(tcg.m_mtx);
-        target.setPostMtx(GX::PTIDENTITY);
-
-        if (tcg.m_gameFunction.size() && tcg.m_mtx != GX::IDENTITY)
-        {
-            if (!tcg.m_gameFunction.compare("RetroUVMode0Node") ||
-                !tcg.m_gameFunction.compare("RetroUVMode1Node") ||
-                !tcg.m_gameFunction.compare("RetroUVMode6Node") ||
-                !tcg.m_gameFunction.compare("RetroUVMode7Node"))
-            {
-                target.setNormalize(true);
-                target.setPostMtx(GX::PTTexMtx(GX::PTTEXMTX0 - GX::TEXMTX0 + tcg.m_mtx));
-            }
-        }
+        target.setNormalize(tcg.m_norm);
+        target.setPostMtx(tcg.m_pmtx);
     }
 
     uvAnimsSize = 4;
@@ -1240,9 +1229,9 @@ HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,
 MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
                                                 const std::vector<atVec4f>& gameArgs)
 {
-    if (!gameFunction.compare("RetroUVMode0Node"))
+    if (!gameFunction.compare("RetroUVMode0NodeN"))
         mode = Mode::MvInvNoTranslation;
-    else if (!gameFunction.compare("RetroUVMode1Node"))
+    else if (!gameFunction.compare("RetroUVMode1NodeN"))
         mode = Mode::MvInv;
     else if (!gameFunction.compare("RetroUVMode2Node"))
     {
@@ -1282,9 +1271,9 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
         vals[2] = gameArgs[2].vec[0];
         vals[3] = gameArgs[3].vec[0];
     }
-    else if (!gameFunction.compare("RetroUVMode6Node"))
+    else if (!gameFunction.compare("RetroUVMode6NodeN"))
         mode = Mode::Model;
-    else if (!gameFunction.compare("RetroUVMode7Node"))
+    else if (!gameFunction.compare("RetroUVMode7NodeN"))
     {
         mode = Mode::WhoMustNotBeNamed;
         if (gameArgs.size() < 2)
