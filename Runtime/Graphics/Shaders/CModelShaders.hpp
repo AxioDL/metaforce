@@ -32,6 +32,7 @@ public:
     {
         Light lights[URDE_MAX_LIGHTS];
         zeus::CColor ambient;
+        zeus::CColor colorRegs[3];
     };
 
     static void Initialize(const hecl::Runtime::FileStoreManager& storeMgr,

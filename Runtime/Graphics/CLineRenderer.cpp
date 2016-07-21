@@ -1,5 +1,5 @@
 #include "CLineRenderer.hpp"
-#include "CLineRendererShaders.hpp"
+#include "Shaders/CLineRendererShaders.hpp"
 
 namespace urde
 {

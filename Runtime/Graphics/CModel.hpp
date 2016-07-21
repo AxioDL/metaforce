@@ -8,7 +8,7 @@
 #include "zeus/CAABox.hpp"
 #include "DNACommon/CMDL.hpp"
 #include "DNAMP1/CMDLMaterials.hpp"
-#include "CModelShaders.hpp"
+#include "Shaders/CModelShaders.hpp"
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 

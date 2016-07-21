@@ -5,7 +5,7 @@
 #include "hecl/HMDLMeta.hpp"
 #include "hecl/Runtime.hpp"
 #include "boo/graphicsdev/Metal.hpp"
-#include "CModelShaders.hpp"
+#include "Shaders/CModelShaders.hpp"
 
 namespace urde
 {

@@ -1,5 +1,5 @@
 #include "MP1.hpp"
-#include "Graphics/CModelShaders.hpp"
+#include "Graphics/Shaders/CModelShaders.hpp"
 
 namespace urde
 {
