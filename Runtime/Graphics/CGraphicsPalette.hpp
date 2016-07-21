@@ -18,12 +18,24 @@ class CGraphicsPalette
 {
     friend class CTextRenderBuffer;
     EPaletteFormat x0_fmt;
-    int x4_entryCount;
-    std::unique_ptr<u16[]> x8_entries;
-    /* xc_ GXTlutObj here */
+    u32 x4_;
+    int x8_entryCount;
+    std::unique_ptr<u16[]> xc_entries;
+    /* x10_ GXTlutObj here */
+    bool x1c_ = false;
 public:
     CGraphicsPalette(EPaletteFormat fmt, int count)
-    : x0_fmt(fmt), x4_entryCount(count), x8_entries(new u16[count]) {}
+    : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
+    CGraphicsPalette(CInputStream& in)
+        : x0_fmt(EPaletteFormat(in.readUint32Big()))
+    {
+        u16 w = in.readUint16Big();
+        u16 h = in.readUint16Big();
+        x8_entryCount = w * h;
+        xc_entries[x8_entryCount];
+
+        /* GX Tlut init here */
+    }
 };
 
 }

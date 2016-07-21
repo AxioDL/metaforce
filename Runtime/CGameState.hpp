@@ -19,7 +19,7 @@ class CGameState
     CGameOptions m_gameOpts;
     double xa0_playTime;
 public:
-    CGameState() {}
+    CGameState() = default;
     CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
     CWorldTransManager& WorldTransitionManager() {return x9c_transManager;}
