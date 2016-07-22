@@ -1,7 +1,7 @@
 #ifndef __URDE_CTHERMALCOLDFILTER_HPP__
 #define __URDE_CTHERMALCOLDFILTER_HPP__
 
-#include "TFilterShader.hpp"
+#include "TShader.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 
@@ -17,6 +17,7 @@ class CThermalColdFilter
     {
         zeus::CMatrix4f m_shiftTexMtx;
         zeus::CMatrix4f m_indMtx;
+        zeus::CVector2f m_shiftTexScale;
         zeus::CColor m_colorRegs[3];
     };
     u8 m_shiftTexture[4][8][4] = {};
@@ -42,7 +43,7 @@ public:
     void draw();
 
     using _CLS = CThermalColdFilter;
-#include "TFilterDecl.hpp"
+#include "TShaderDecl.hpp"
 };
 
 }

@@ -82,6 +82,8 @@ public:
            const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
+    const zeus::CTransform& GetTransform() const {return x34_transform;}
+
     virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
     virtual void Render(CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

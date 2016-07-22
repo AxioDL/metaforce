@@ -21,7 +21,7 @@ set(GRAPHICS_SOURCES
     CFrustumPlanes.hpp CFrustumPlanes.cpp
     CGraphicsPalette.hpp CGraphicsPalette.cpp
     CGraphics.hpp CGraphics.cpp
-    Shaders/TFilterShader.hpp Shaders/TFilterDecl.hpp
+    Shaders/TShader.hpp Shaders/TShaderDecl.hpp
     Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp Shaders/CLineRendererShadersGLSL.cpp
     Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp Shaders/CModelShadersGLSL.cpp
     Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilter.cpp Shaders/CXrayOutlineFilterGLSL.cpp

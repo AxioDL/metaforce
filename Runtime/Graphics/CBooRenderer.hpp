@@ -3,6 +3,7 @@
 
 #include "IRenderer.hpp"
 #include "CDrawable.hpp"
+#include "Shaders/CThermalColdFilter.hpp"
 
 namespace urde
 {
@@ -31,6 +32,11 @@ class CBooRenderer : public IRenderer
     u32 x18_ = 0;
     std::list<u32> x1c_;
     zeus::CFrustum x44_frustumPlanes;
+
+    float x2f8_thermColdScale = 0.f;
+
+    CThermalColdFilter m_thermColdFilter;
+
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
 
@@ -86,6 +92,7 @@ public:
     void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&);
     void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*);
     void SetThermal(bool, float, const zeus::CColor&);
+    void SetThermalColdScale(float scale);
     void DoThermalBlendCold();
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();

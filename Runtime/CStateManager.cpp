@@ -11,6 +11,9 @@
 #include "Graphics/CLight.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "CPlayerState.hpp"
+#include "World/CPlayer.hpp"
+#include "World/CMorphBall.hpp"
 
 namespace urde
 {
@@ -164,6 +167,20 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
     x904_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 
     x8ec_shadowTex = g_SimplePool->GetObj("DefaultShadow");
+}
+
+void CStateManager::UpdateVisors()
+{
+    xf28_thermColdScale2 = 0.f;
+    xf24_thermColdScale1 = 0.f;
+    CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
+    if (visor == CPlayerState::EPlayerVisor::Thermal && x8cc_nextAreaId != kInvalidAreaId)
+    {
+        std::unique_ptr<CGameArea>& area = x850_world->GetGameAreas()[x8cc_nextAreaId];
+        const zeus::CTransform& playerXf = x84c_player->GetTransform();
+        float f30 = playerXf.origin.x;
+        float f29 = playerXf.origin.y;
+    }
 }
 
 void CStateManager::RenderLast(TUniqueId)

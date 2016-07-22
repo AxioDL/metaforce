@@ -46,10 +46,12 @@ class ViewManager : public specter::IViewManager
     class ParticleView : public specter::View
     {
         ViewManager& m_vm;
+        CThermalColdFilter m_thermColdFilter;
+        CRandom16 m_random;
         float m_theta = 0.f;
     public:
         ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
-        : View(res, parent), m_vm(vm) {}
+        : View(res, parent), m_vm(vm), m_random(20) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };

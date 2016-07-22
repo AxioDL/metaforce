@@ -216,6 +216,12 @@ void CBooRenderer::SetThermal(bool, float, const zeus::CColor&)
 {
 }
 
+void CBooRenderer::SetThermalColdScale(float scale)
+{
+    x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f);
+    m_thermColdFilter.setScale(x2f8_thermColdScale);
+}
+
 void CBooRenderer::DoThermalBlendCold()
 {
 }

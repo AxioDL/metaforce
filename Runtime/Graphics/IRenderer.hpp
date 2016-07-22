@@ -90,6 +90,7 @@ public:
     virtual void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&)=0;
     virtual void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*)=0;
     virtual void SetThermal(bool, float, const zeus::CColor&)=0;
+    virtual void SetThermalColdScale(float scale)=0;
     virtual void DoThermalBlendCold()=0;
     virtual void DoThermalBlendHot()=0;
     virtual u32 GetStaticWorldDataSize()=0;

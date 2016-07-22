@@ -3,7 +3,7 @@
 namespace urde
 {
 
-static const char* VS_GLSL_TEX =
+static const char* VS =
 "#version 330\n"
 BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
@@ -13,6 +13,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    mat4 shiftMtx;\n"
 "    mat4 indMtx;\n"
+"    vec4 shiftScale;\n"
 "    vec4 colorReg0;\n"
 "    vec4 colorReg1;\n"
 "    vec4 colorReg2;\n"
@@ -26,6 +27,7 @@ BOO_GLSL_BINDING_HEAD
 "    vec4 colorReg2;\n"
 "    vec2 sceneUv;\n"
 "    vec2 shiftUv;\n"
+"    vec2 shiftScale;\n"
 "};\n"
 "\n"
 "SBINDING(0) out VertToFrag vtf;\n"
@@ -36,11 +38,12 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.colorReg1 = colorReg1;\n"
 "    vtf.colorReg2 = colorReg2;\n"
 "    vtf.sceneUv = uvIn.xy;\n"
-"    vtf.shiftUv = shiftMtx * uvIn;\n"
-"    gl_Position = FLIPFROMGL(posIn);\n"
+"    vtf.shiftUv = (mat3(shiftMtx) * uvIn.xyz).xy;\n"
+"    vtf.shiftScale = shiftScale.xy;\n"
+"    gl_Position = FLIPFROMGL(vec4(posIn.xyz, 1.0));\n"
 "}\n";
 
-static const char* FS_GLSL_TEX =
+static const char* FS =
 "#version 330\n"
 BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
@@ -51,7 +54,7 @@ BOO_GLSL_BINDING_HEAD
 "    vec4 colorReg2;\n"
 "    vec2 sceneUv;\n"
 "    vec2 shiftUv;\n"
-"    vec2 shiftDelta;\n"
+"    vec2 shiftScale;\n"
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
@@ -61,17 +64,23 @@ BOO_GLSL_BINDING_HEAD
 "const vec4 kRGBToYPrime = vec4(0.299, 0.587, 0.114, 0.0);\n"
 "void main()\n"
 "{\n"
-"    vec2 shiftCoord = vtf.sceneUv + texture(shiftTex, vtf.shiftUv).xy;\n"
-"    float shiftScene0 = dot(texture(sceneTex, shiftCoord - vec2(0.5)), kRGBToYPrime);\n"
-"    float shiftScene1 = dot(texture(sceneTex, shiftCoord - vec2(0.5, 0.4984375)), kRGBToYPrime);\n"
-"    vec2 indCoord = (indMtx * vec3(shiftScene0, shiftScene1, 1.0)).xy;\n"
+"    vec2 shiftCoordTexel = texture(shiftTex, vtf.shiftUv).xy;\n"
+"    vec2 shiftCoord = vtf.sceneUv + shiftCoordTexel * vtf.shiftScale;\n"
+"    float shiftScene0 = dot(texture(sceneTex, shiftCoord), kRGBToYPrime);\n"
+"    float shiftScene1 = dot(texture(sceneTex, shiftCoord + vec2(vtf.shiftScale.x / 8.0, 0.0)), kRGBToYPrime);\n"
+"    vec2 indCoord = (vtf.indMtx * vec3(shiftScene0 - 0.5, shiftScene1 - 0.5, 1.0)).xy;\n"
 "    float indScene = dot(texture(sceneTex, vtf.sceneUv + indCoord), kRGBToYPrime);\n"
-"    colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * shiftScene0 + vtf.colorReg2;\n"
+"    colorOut = vtf.colorReg0 * indScene * vec4(0.00001) + vtf.colorReg1 * shiftScene0 * vec4(0.00001) + vtf.colorReg2 * vec4(0.00001);\n"
+"    float blue = 0.0;\n"
+"    float green = 0.0;\n"
+"    if (indCoord.y < 0.0) blue = -indCoord.y * 10.0;\n"
+"    else green = indCoord.y * 10.0;\n"
+"    colorOut += vec4(0.0, green, blue, 1.0);\n"
 "}\n";
 
-URDE_DECL_SPECIALIZE_FILTER(CThermalColdFilter)
+URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
-struct CThermalColdFilterGLDataBindingFactory : TFilterShader<CThermalColdFilter>::IDataBindingFactory
+struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
     {
@@ -85,14 +94,14 @@ struct CThermalColdFilterGLDataBindingFactory : TFilterShader<CThermalColdFilter
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(TFilterShader<CThermalColdFilter>::m_pipeline,
+        return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
                                          ctx.newVertexFormat(3, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
 };
 
 #if BOO_HAS_VULKAN
-struct CThermalColdFilterVulkanDataBindingFactory : TFilterShader<CThermalColdFilter>::IDataBindingFactory
+struct CThermalColdFilterVulkanDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
     {
@@ -100,28 +109,28 @@ struct CThermalColdFilterVulkanDataBindingFactory : TFilterShader<CThermalColdFi
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(TFilterShader<CThermalColdFilter>::m_pipeline,
-                                         TFilterShader<CThermalColdFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
+                                         TShader<CThermalColdFilter>::m_vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
 };
 #endif
 
-TFilterShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::GLDataFactory::Context& ctx,
-                                                                                       boo::IShaderPipeline*& pipeOut)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::GLDataFactory::Context& ctx,
+                                                                                 boo::IShaderPipeline*& pipeOut)
 {
     const char* texNames[] = {"sceneTex", "shiftTex"};
     const char* uniNames[] = {"ThermalColdUniform"};
-    pipeOut = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 2, texNames, 1, uniNames, boo::BlendFactor::One,
+    pipeOut = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
                                     boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TFilterShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
-                                                                                       boo::IShaderPipeline*& pipeOut,
-                                                                                       boo::IVertexFormat*& vtxFmtOut)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
+                                                                                 boo::IShaderPipeline*& pipeOut,
+                                                                                 boo::IVertexFormat*& vtxFmtOut)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -129,7 +138,7 @@ TFilterShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Init
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, vtxFmtOut, boo::BlendFactor::One,
+    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
                                     boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterVulkanDataBindingFactory;
 }

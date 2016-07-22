@@ -1,5 +1,5 @@
-#ifndef __URDE_TFILTERSHADER_HPP__
-#define __URDE_TFILTERSHADER_HPP__
+#ifndef __URDE_TSHADER_HPP__
+#define __URDE_TSHADER_HPP__
 
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/GL.hpp"
@@ -11,7 +11,7 @@ namespace urde
 {
 
 template <class FilterImp>
-class TFilterShader
+class TShader
 {
 public:
     struct IDataBindingFactory
@@ -75,25 +75,30 @@ public:
     }
 };
 
-#define URDE_DECL_SPECIALIZE_FILTER(cls) \
+#define URDE_DECL_SPECIALIZE_SHADER(cls) \
 template <> boo::IShaderPipeline* \
-TFilterShader<cls>::m_pipeline; \
+TShader<cls>::m_pipeline; \
 template <> boo::IVertexFormat* \
-TFilterShader<cls>::m_vtxFmt;
-
-#define URDE_SPECIALIZE_FILTER(cls) \
-template <> boo::IShaderPipeline* \
-TFilterShader<cls>::m_pipeline = nullptr; \
-template <> boo::IVertexFormat* \
-TFilterShader<cls>::m_vtxFmt = nullptr; \
+TShader<cls>::m_vtxFmt; \
 \
-template <> std::unique_ptr<TFilterShader<cls>::IDataBindingFactory> \
-TFilterShader<cls>::m_bindFactory; \
+template <> std::unique_ptr<TShader<cls>::IDataBindingFactory> \
+TShader<cls>::m_bindFactory; \
 template <> boo::GraphicsDataToken \
-TFilterShader<cls>::m_gfxToken; \
+TShader<cls>::m_gfxToken; \
+
+#define URDE_SPECIALIZE_SHADER(cls) \
+template <> boo::IShaderPipeline* \
+TShader<cls>::m_pipeline = nullptr; \
+template <> boo::IVertexFormat* \
+TShader<cls>::m_vtxFmt = nullptr; \
 \
-template class TFilterShader<cls>;
+template <> std::unique_ptr<TShader<cls>::IDataBindingFactory> \
+TShader<cls>::m_bindFactory = {}; \
+template <> boo::GraphicsDataToken \
+TShader<cls>::m_gfxToken = {}; \
+\
+template class TShader<cls>;
 
 }
 
-#endif // __URDE_TFILTERSHADER_HPP__
+#endif // __URDE_TSHADER_HPP__

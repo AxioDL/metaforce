@@ -33,6 +33,7 @@ class CLight;
 class CDamageInfo;
 class CMaterialFilter;
 class CFinalInput;
+class CPlayer;
 class CWorld;
 class CTexture;
 
@@ -57,6 +58,7 @@ class CStateManager
     std::unique_ptr<CAiWaypointList> x83c_aiWaypointObjs;
     std::unique_ptr<CPlatformAndDoorList> x844_platformAndDoorObjs;
 
+    std::unique_ptr<CPlayer> x84c_player;
     std::unique_ptr<CWorld> x850_world;
 
     /* Used to be a list of 32-element reserved_vectors */
@@ -124,6 +126,13 @@ class CStateManager
         };
         u16 _dummy = 0;
     };
+
+    float xf24_thermColdScale1 = 0.f;
+    float xf28_thermColdScale2 = 0.f;
+    float xf2c_ = 1.f;
+    float xf30_ = 1.f;
+
+    void UpdateVisors();
 
 public:
     enum class EScriptPersistence

@@ -3,6 +3,8 @@ set(WORLD_SOURCES
     CWorldLight.hpp CWorldLight.cpp
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
+    CPlayer.hpp CPlayer.cpp
+    CMorphBall.hpp CMorphBall.cpp
     CActor.hpp CActor.cpp
     CAi.hpp CAi.cpp
     CAiFuncMap.hpp CAiFuncMap.cpp
