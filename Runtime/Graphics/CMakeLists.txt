@@ -6,6 +6,7 @@ endif()
 
 set(GRAPHICS_SOURCES
     IRenderer.hpp
+    IWeaponRenderer.hpp IWeaponRenderer.cpp
     CBooRenderer.hpp CBooRenderer.cpp
     CDrawable.hpp CDrawable.cpp
     CDrawablePlaneObject.hpp CDrawablePlaneObject.cpp
@@ -20,11 +21,12 @@ set(GRAPHICS_SOURCES
     CFrustumPlanes.hpp CFrustumPlanes.cpp
     CGraphicsPalette.hpp CGraphicsPalette.cpp
     CGraphics.hpp CGraphics.cpp
-    Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShadersGLSL.cpp
-    Shaders/CModelShaders.hpp Shaders/CModelShadersGLSL.cpp
-    Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilterGLSL.cpp
-    Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilterGLSL.cpp
-    Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilterGLSL.cpp
+    Shaders/TFilterShader.hpp Shaders/TFilterDecl.hpp
+    Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp Shaders/CLineRendererShadersGLSL.cpp
+    Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp Shaders/CModelShadersGLSL.cpp
+    Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilter.cpp Shaders/CXrayOutlineFilterGLSL.cpp
+    Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp Shaders/CThermalColdFilterGLSL.cpp
+    Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilter.cpp Shaders/CThermalHotFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

@@ -3,6 +3,11 @@
 namespace urde
 {
 
+CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
+: x8_factory(resFac), xc_store(store)
+{
+}
+
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int)
 {
 }

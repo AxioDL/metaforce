@@ -2,6 +2,7 @@
 #define __URDE_CBOORENDERER_HPP__
 
 #include "IRenderer.hpp"
+#include "CDrawable.hpp"
 
 namespace urde
 {
@@ -9,12 +10,29 @@ class IObjectStore;
 class CMemorySys;
 class IFactory;
 
-class CBooRenderer : public IRenderer
+class Buckets
 {
 public:
-    CBooRenderer(IObjectStore&, IFactory&)
-    {
-    }
+    static void Clear();
+    static void Sort();
+    static void InsertPlaneObject(float, float, const zeus::CAABox&, bool, const zeus::CPlane&,
+                                  bool, EDrawableType, const void*);
+    static void Insert(const zeus::CVector3f&, const zeus::CAABox&, EDrawableType, const void*,
+                       const zeus::CPlane&, unsigned short);
+    static void Shutdown();
+    static void Init();
+};
+
+class CBooRenderer : public IRenderer
+{
+    IFactory& x8_factory;
+    IObjectStore& xc_store;
+    // CFont x10_fnt;
+    u32 x18_ = 0;
+    std::list<u32> x1c_;
+    zeus::CFrustum x44_frustumPlanes;
+public:
+    CBooRenderer(IObjectStore& store, IFactory& resFac);
 
     void AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int);
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>&);

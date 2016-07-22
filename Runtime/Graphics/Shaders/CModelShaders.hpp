@@ -13,7 +13,9 @@ namespace urde
 
 class CModelShaders
 {
+    friend class CModel;
     hecl::Runtime::ShaderCacheManager m_shaderCache;
+    static std::experimental::optional<CModelShaders> g_ModelShaders;
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat);

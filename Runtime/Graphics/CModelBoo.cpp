@@ -12,8 +12,6 @@ namespace urde
 static logvisor::Module Log("urde::CModelBoo");
 bool CBooModel::g_DrawingOccluders = false;
 
-static rstl::optional_object<CModelShaders> g_ModelShaders;
-
 CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
@@ -572,25 +570,25 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-            m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
-            m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
-            m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
+        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
+        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
+        m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
 
-            for (CBooModel::SShader& matSet : x18_matSets)
-    {
+        for (CBooModel::SShader& matSet : x18_matSets)
+        {
             matSet.m_shaders.reserve(matSet.m_matSet.materials.size());
             for (const MaterialSet::Material& mat : matSet.m_matSet.materials)
-    {
-            hecl::Runtime::ShaderTag tag(mat.heclIr,
-                                         hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                         0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
-                                         true, true, true);
-            matSet.m_shaders.push_back(g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
-}
-}
+            {
+                hecl::Runtime::ShaderTag tag(mat.heclIr,
+                                             hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
+                                             0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
+                                             true, true, true);
+                matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
+            }
+        }
 
-            return true;
-});
+        return true;
+    });
 
     u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
     x8_surfaces.reserve(surfCount);
@@ -663,38 +661,6 @@ bool CModel::IsLoaded(int shaderIdx) const
         }
     }
     return loaded;
-}
-
-hecl::Runtime::ShaderCacheExtensions
-CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
-{
-    switch (plat)
-    {
-    case boo::IGraphicsDataFactory::Platform::OGL:
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-    return GetShaderExtensionsGLSL(plat);
-#if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-    return GetShaderExtensionsHLSL(plat);
-#endif
-#if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-    return GetShaderExtensionsMetal(plat);
-#endif
-    default:
-    return {boo::IGraphicsDataFactory::Platform::Null};
-    }
-}
-
-CModelShaders::CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
-                             boo::IGraphicsDataFactory* gfxFactory)
-    : m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}
-
-void CModelShaders::Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
-                               boo::IGraphicsDataFactory* gfxFactory)
-{
-    g_ModelShaders.emplace(storeMgr, gfxFactory);
 }
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

@@ -63,7 +63,7 @@ static size_t ComputeMippedTexelCount(unsigned inWidth, unsigned inHeight)
     return ret;
 }
 
-/* GX uses this upsampling technique with downsampled texture formats */
+/* GX uses this upsampling technique to extract full 8-bit range */
 static inline uint8_t Convert3To8(uint8_t v)
 {
     /* Swizzle bits: 00000123 -> 12312312 */

@@ -37,6 +37,7 @@ public:
     {
     };
 
+    virtual ~IRenderer() = default;
     virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int)=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>&)=0;
     virtual void DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
