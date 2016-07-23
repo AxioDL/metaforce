@@ -78,6 +78,10 @@ protected:
         u8 _dummy4 = 0;
     };
 public:
+    enum class EFluidState
+    {
+    };
+
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
            const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
