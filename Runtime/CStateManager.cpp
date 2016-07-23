@@ -169,7 +169,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
     x8ec_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
 
-void CStateManager::UpdateVisors()
+void CStateManager::UpdateThermalVisor()
 {
     xf28_thermColdScale2 = 0.f;
     xf24_thermColdScale1 = 0.f;

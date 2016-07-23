@@ -35,5 +35,3 @@ add_library(DNAMP1
             SCLY.hpp SCLY.cpp
             FRME.cpp
             DeafBabe.cpp)
-
-target_link_libraries(DNAMP1 ScriptObjectsMP1)

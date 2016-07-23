@@ -62,6 +62,7 @@ set(DATA_SPEC_LIBS
     DNAMP3
     DNAMP2
     DNAMP1
+    ScriptObjectsMP1
     DNACommon)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */

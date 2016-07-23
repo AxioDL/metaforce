@@ -132,7 +132,7 @@ class CStateManager
     float xf2c_ = 1.f;
     float xf30_ = 1.f;
 
-    void UpdateVisors();
+    void UpdateThermalVisor();
 
 public:
     enum class EScriptPersistence
