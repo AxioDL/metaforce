@@ -72,6 +72,35 @@ FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(ResId id) const
     return {};
 }
 
+u32 CCharacterFactory::CDummyFactory::ResourceSize(const urde::SObjectTag& tag)
+{
+    return 0;
+}
+
+bool CCharacterFactory::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+                                                         std::unique_ptr<u8[]>& target)
+{
+    return false;
+}
+
+bool CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                             u32 size, u32 off,
+                                                             std::unique_ptr<u8[]>& target)
+{
+    return false;
+}
+
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag)
+{
+    return {};
+}
+
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourcePartSync(const urde::SObjectTag& tag,
+                                                                             u32 size, u32 off)
+{
+    return {};
+}
+
 std::unique_ptr<CAnimData>
 CCharacterFactory::CreateCharacter(int charIdx, bool loop,
                                    const TLockedToken<CCharacterFactory>& factory,

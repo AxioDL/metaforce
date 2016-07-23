@@ -41,9 +41,11 @@ protected:
 
         SObjectTag x0_tag;
         //IDvdRequest* x8_dvdReq = nullptr;
-        IObj** xc_targetPtr = nullptr;
+        std::unique_ptr<u8[]>* xc_targetDataPtr = nullptr;
+        IObj** xc_targetObjPtr = nullptr;
         std::unique_ptr<u8[]> x10_loadBuffer;
-        u32 x14_resSize = 0;
+        u32 x14_resSize = UINT32_MAX;
+        u32 x14_resOffset = 0;
         CVParamTransfer x18_cvXfer;
 
         hecl::ProjectPath m_workingPath;
@@ -54,8 +56,17 @@ protected:
         bool m_complete = false;
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
+                  std::unique_ptr<u8[]>& ptr)
+        : m_parent(parent), x0_tag(tag), xc_targetDataPtr(&ptr) {}
+
+        AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
+                  std::unique_ptr<u8[]>& ptr, u32 size, u32 off)
+        : m_parent(parent), x0_tag(tag), xc_targetDataPtr(&ptr), x14_resSize(size),
+          x14_resOffset(off) {}
+
+        AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
                   IObj** ptr, const CVParamTransfer& xfer)
-        : m_parent(parent), x0_tag(tag), xc_targetPtr(ptr), x18_cvXfer(xfer) {}
+        : m_parent(parent), x0_tag(tag), xc_targetObjPtr(ptr), x18_cvXfer(xfer) {}
 
         void EnsurePath(const urde::SObjectTag& tag,
                         const hecl::ProjectPath& path);
@@ -63,6 +74,12 @@ protected:
         bool AsyncPump();
     };
     std::unordered_map<SObjectTag, AsyncTask> m_asyncLoadList;
+
+    bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
+    bool
+    PrepForReadSync(const SObjectTag& tag,
+                    const hecl::ProjectPath& path,
+                    std::experimental::optional<athena::io::FileReader>& fr);
 
     virtual SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const=0;
 
@@ -94,6 +111,12 @@ public:
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;
     FourCC GetResourceTypeById(ResId id) const;
+
+    u32 ResourceSize(const SObjectTag& tag);
+    bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
+    bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
+    std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
+    std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}

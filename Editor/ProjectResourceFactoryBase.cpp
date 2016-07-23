@@ -344,58 +344,20 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
                                                        const hecl::ProjectPath& path,
                                                        const CVParamTransfer& paramXfer)
 {
-    /* Ensure requested resource is on the filesystem */
-    if (path.getPathType() != hecl::ProjectPath::Type::File)
-    {
-        Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
-                   path.getAbsolutePath().c_str());
-        return {};
-    }
-
-    /* Last chance type validation */
-    urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
-    if (verifyTag.type != tag.type)
-    {
-        Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
-                   path.getRelativePath().c_str(),
-                   tag.type.toString().c_str(), verifyTag.type.toString().c_str());
-        return {};
-    }
-
-    /* Get cooked representation path */
-    hecl::ProjectPath cooked = GetCookedPath(path, true);
-
-    /* Perform mod-time comparison */
-    if (cooked.getPathType() != hecl::ProjectPath::Type::File ||
-        cooked.getModtime() < path.getModtime())
-    {
-        /* Do a blocking cook here */
-        if (!SyncCook(path))
-        {
-            Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
-                       path.getAbsolutePath().c_str());
-            return {};
-        }
-    }
-
     /* Ensure cooked rep is on the filesystem */
-    athena::io::FileReader fr(cooked.getAbsolutePath(), 32 * 1024, false);
-    if (fr.hasError())
-    {
-        Log.report(logvisor::Error, _S("unable to open cooked resource path '%s'"),
-                   cooked.getAbsolutePath().c_str());
+    std::experimental::optional<athena::io::FileReader> fr;
+    if (!PrepForReadSync(tag, path, fr))
         return {};
-    }
 
     /* All good, build resource */
     if (m_factoryMgr.CanMakeMemory(tag))
     {
-        u32 length = fr.length();
-        std::unique_ptr<u8[]> memBuf = fr.readUBytes(length);
+        u32 length = fr->length();
+        std::unique_ptr<u8[]> memBuf = fr->readUBytes(length);
         return m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer);
     }
 
-    return m_factoryMgr.MakeObject(tag, fr, paramXfer);
+    return m_factoryMgr.MakeObject(tag, *fr, paramXfer);
 }
 
 void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& tag,
@@ -454,11 +416,11 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete()
     }
 
     /* Ready for buffer transaction at this point */
-    x14_resSize = fr.length();
+    x14_resSize = std::min(s32(x14_resSize), std::max(0, s32(fr.length()) - s32(x14_resOffset)));
     x10_loadBuffer.reset(new u8[x14_resSize]);
     m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
                                                                   x10_loadBuffer.get(),
-                                                                  x14_resSize, 0);
+                                                                  x14_resSize, x14_resOffset);
 }
 
 bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
@@ -483,89 +445,7 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
     return m_failed;
 }
 
-std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjectTag& tag,
-                                                              const urde::CVParamTransfer& paramXfer)
-{
-    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-    auto search = m_tagToPath.find(tag);
-    if (search == m_tagToPath.end())
-    {
-        if (m_backgroundRunning)
-        {
-            while (m_backgroundRunning)
-            {
-                lk.unlock();
-                lk.lock();
-                search = m_tagToPath.find(tag);
-                if (search != m_tagToPath.end())
-                    break;
-            }
-            if (search == m_tagToPath.end())
-                return {};
-        }
-        else
-            return {};
-    }
-    lk.unlock();
-
-    auto asyncSearch = m_asyncLoadList.find(tag);
-    if (asyncSearch != m_asyncLoadList.end())
-    {
-        /* Async spinloop */
-        AsyncTask& task = asyncSearch->second;
-        task.EnsurePath(task.x0_tag, search->second);
-
-        /* Pump load pipeline (cooking if needed) */
-        while (!task.AsyncPump()) {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
-
-        if (task.m_complete)
-        {
-            /* Load complete, build resource */
-            std::unique_ptr<IObj> newObj;
-            if (m_factoryMgr.CanMakeMemory(task.x0_tag))
-            {
-                newObj = m_factoryMgr.MakeObjectFromMemory(tag, std::move(task.x10_loadBuffer),
-                                                           task.x14_resSize, false, task.x18_cvXfer);
-            }
-            else
-            {
-                athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
-            }
-
-            *task.xc_targetPtr = newObj.get();
-            Log.report(logvisor::Warning, "spin-built %.4s %08X",
-                       task.x0_tag.type.toString().c_str(),
-                       u32(task.x0_tag.id));
-            m_asyncLoadList.erase(asyncSearch);
-            return newObj;
-        }
-        Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
-                   task.x0_tag.type.toString().c_str(),
-                   u32(task.x0_tag.id));
-        m_asyncLoadList.erase(asyncSearch);
-        return {};
-    }
-
-    /* Fall-back to sync build */
-    return BuildSync(tag, search->second, paramXfer);
-}
-
-void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
-                                            const urde::CVParamTransfer& paramXfer,
-                                            urde::IObj** objOut)
-{
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
-        return;
-    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, objOut, paramXfer)));
-}
-
-void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
-{
-    m_asyncLoadList.erase(tag);
-}
-
-bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
+bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut)
 {
     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
     auto search = m_tagToPath.find(tag);
@@ -587,8 +467,200 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
         else
             return false;
     }
+    lk.unlock();
+    pathOut = &search->second;
+    return true;
+}
 
-    if (search->second.getPathType() == hecl::ProjectPath::Type::File)
+bool
+ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
+                                            const hecl::ProjectPath& path,
+                                            std::experimental::optional<athena::io::FileReader>& fr)
+{
+    /* Ensure requested resource is on the filesystem */
+    if (path.getPathType() != hecl::ProjectPath::Type::File)
+    {
+        Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
+                   path.getAbsolutePath().c_str());
+        return false;
+    }
+
+    /* Last chance type validation */
+    urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
+    if (verifyTag.type != tag.type)
+    {
+        Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                   path.getRelativePath().c_str(),
+                   tag.type.toString().c_str(), verifyTag.type.toString().c_str());
+        return false;
+    }
+
+    /* Get cooked representation path */
+    hecl::ProjectPath cooked = GetCookedPath(path, true);
+
+    /* Perform mod-time comparison */
+    if (cooked.getPathType() != hecl::ProjectPath::Type::File ||
+        cooked.getModtime() < path.getModtime())
+    {
+        /* Do a blocking cook here */
+        if (!SyncCook(path))
+        {
+            Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
+                       path.getAbsolutePath().c_str());
+            return false;
+        }
+    }
+
+    /* Ensure cooked rep is on the filesystem */
+    fr.emplace(cooked.getAbsolutePath(), 32 * 1024, false);
+    if (fr->hasError())
+    {
+        Log.report(logvisor::Error, _S("unable to open cooked resource path '%s'"),
+                   cooked.getAbsolutePath().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjectTag& tag,
+                                                              const urde::CVParamTransfer& paramXfer)
+{
+    const hecl::ProjectPath* resPath = nullptr;
+    if (!WaitForTagReady(tag, resPath))
+        return {};
+    auto asyncSearch = m_asyncLoadList.find(tag);
+    if (asyncSearch != m_asyncLoadList.end())
+    {
+        /* Async spinloop */
+        AsyncTask& task = asyncSearch->second;
+        task.EnsurePath(task.x0_tag, *resPath);
+
+        /* Pump load pipeline (cooking if needed) */
+        while (!task.AsyncPump()) {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
+
+        if (task.m_complete)
+        {
+            /* Load complete, build resource */
+            std::unique_ptr<IObj> newObj;
+            if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+            {
+                newObj = m_factoryMgr.MakeObjectFromMemory(tag, std::move(task.x10_loadBuffer),
+                                                           task.x14_resSize, false, task.x18_cvXfer);
+            }
+            else
+            {
+                athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+            }
+
+            *task.xc_targetObjPtr = newObj.get();
+            Log.report(logvisor::Warning, "spin-built %.4s %08X",
+                       task.x0_tag.type.toString().c_str(),
+                       u32(task.x0_tag.id));
+
+            m_asyncLoadList.erase(asyncSearch);
+            return newObj;
+        }
+        Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
+                   task.x0_tag.type.toString().c_str(),
+                   u32(task.x0_tag.id));
+        m_asyncLoadList.erase(asyncSearch);
+        return {};
+    }
+
+    /* Fall-back to sync build */
+    return BuildSync(tag, *resPath, paramXfer);
+}
+
+void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
+                                            const urde::CVParamTransfer& paramXfer,
+                                            urde::IObj** objOut)
+{
+    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+        return;
+    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, objOut, paramXfer)));
+}
+
+u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
+{
+    /* Ensure resource at requested path is indexed and not cooking */
+    const hecl::ProjectPath* resPath = nullptr;
+    if (!WaitForTagReady(tag, resPath))
+        return {};
+
+    /* Ensure cooked rep is on the filesystem */
+    std::experimental::optional<athena::io::FileReader> fr;
+    if (!PrepForReadSync(tag, *resPath, fr))
+        return {};
+
+    return fr->length();
+}
+
+bool ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
+                                                   std::unique_ptr<u8[]>& target)
+{
+    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+        return false;
+    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, target)));
+    return true;
+}
+
+bool ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                       u32 size, u32 off,
+                                                       std::unique_ptr<u8[]>& target)
+{
+    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+        return false;
+    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, target, size, off)));
+    return true;
+}
+
+std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
+{
+    /* Ensure resource at requested path is indexed and not cooking */
+    const hecl::ProjectPath* resPath = nullptr;
+    if (!WaitForTagReady(tag, resPath))
+        return {};
+
+    /* Ensure cooked rep is on the filesystem */
+    std::experimental::optional<athena::io::FileReader> fr;
+    if (!PrepForReadSync(tag, *resPath, fr))
+        return {};
+
+    return fr->readUBytes(fr->length());
+}
+
+std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourcePartSync(const urde::SObjectTag& tag,
+                                                                       u32 size, u32 off)
+{
+    /* Ensure resource at requested path is indexed and not cooking */
+    const hecl::ProjectPath* resPath = nullptr;
+    if (!WaitForTagReady(tag, resPath))
+        return {};
+
+    /* Ensure cooked rep is on the filesystem */
+    std::experimental::optional<athena::io::FileReader> fr;
+    if (!PrepForReadSync(tag, *resPath, fr))
+        return {};
+
+    s32 sz = std::min(s32(size), std::max(0, s32(fr->length()) - s32(off)));
+    fr->seek(off, athena::SeekOrigin::Begin);
+    return fr->readUBytes(sz);
+}
+
+void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
+{
+    m_asyncLoadList.erase(tag);
+}
+
+bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
+{
+    const hecl::ProjectPath* resPath = nullptr;
+    if (!WaitForTagReady(tag, resPath))
+        return false;
+
+    if (resPath->getPathType() == hecl::ProjectPath::Type::File)
         return true;
 
     return false;
@@ -684,22 +756,34 @@ void ProjectResourceFactoryBase::AsyncIdle()
             if (task.m_complete)
             {
                 /* Load complete, build resource */
-                std::unique_ptr<IObj> newObj;
-                if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+                if (task.xc_targetObjPtr)
                 {
-                    newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
-                                                               task.x14_resSize, false, task.x18_cvXfer);
-                }
-                else
-                {
-                    athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                    newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
-                }
+                    /* Factory build */
+                    std::unique_ptr<IObj> newObj;
+                    if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+                    {
+                        newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
+                                                                   task.x14_resSize, false, task.x18_cvXfer);
+                    }
+                    else
+                    {
+                        athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                        newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+                    }
 
-                *task.xc_targetPtr = newObj.release();
-                Log.report(logvisor::Info, "async-built %.4s %08X",
-                           task.x0_tag.type.toString().c_str(),
-                           u32(task.x0_tag.id));
+                    *task.xc_targetObjPtr = newObj.release();
+                    Log.report(logvisor::Info, "async-built %.4s %08X",
+                               task.x0_tag.type.toString().c_str(),
+                               u32(task.x0_tag.id));
+                }
+                else if (task.xc_targetDataPtr)
+                {
+                    /* Buffer only */
+                    *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
+                    Log.report(logvisor::Info, "async-loaded %.4s %08X",
+                               task.x0_tag.type.toString().c_str(),
+                               u32(task.x0_tag.id));
+                }
             }
             it = m_asyncLoadList.erase(it);
             continue;

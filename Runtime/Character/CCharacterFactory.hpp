@@ -32,6 +32,12 @@ public:
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;
         FourCC GetResourceTypeById(ResId id) const;
+
+        u32 ResourceSize(const urde::SObjectTag& tag);
+        bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
+        bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
+        std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
+        std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
     };
 
 private:

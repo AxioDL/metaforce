@@ -33,8 +33,29 @@ void CGameArea::CAreaFog::DisableFog()
 {
 }
 
-CDummyGameArea::CDummyGameArea(CInputStream& in, int mlvlVersion)
+CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion)
 {
+    x8_nameSTRG = in.readUint32Big();
+    x14_transform.read34RowMajor(in);
+    zeus::CAABox aabb;
+    aabb.readBoundingBoxBig(in);
+    xc_mrea = in.readUint32Big();
+    if (mlvlVersion > 15)
+        x10_areaId = in.readUint32Big();
+
+    u32 attachAreaCount = in.readUint32Big();
+    x44_attachedAreaIndices.reserve(attachAreaCount);
+    for (int i=0 ; i<attachAreaCount ; ++i)
+        x44_attachedAreaIndices.push_back(in.readUint16Big());
+
+    u32 depCount = in.readUint32Big();
+    for (int i=0 ; i<depCount ; ++i)
+        in.readUint32Big();
+
+    u32 dockCount = in.readUint32Big();
+    x54_docks.reserve(dockCount);
+    for (int i=0 ; i<dockCount ; ++i)
+        x54_docks.emplace_back(in, x14_transform);
 }
 
 bool CDummyGameArea::IGetScriptingMemoryAlways() const

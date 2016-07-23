@@ -21,8 +21,16 @@ enum class ERglFogMode
 
 class CDummyGameArea : public IGameArea
 {
+    int x4_mlvlVersion;
+    ResId x8_nameSTRG;
+    ResId xc_mrea;
+    ResId x10_areaId;
+    zeus::CTransform x14_transform;
+    std::vector<u16> x44_attachedAreaIndices;
+    std::vector<Dock> x54_docks;
+
 public:
-    CDummyGameArea(CInputStream& in, int mlvlVersion);
+    CDummyGameArea(CInputStream& in, int idx, int mlvlVersion);
 
     bool IGetScriptingMemoryAlways() const;
     TAreaId IGetAreaId() const;

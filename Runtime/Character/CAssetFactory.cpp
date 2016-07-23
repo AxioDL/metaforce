@@ -42,6 +42,35 @@ FourCC CCharacterFactoryBuilder::CDummyFactory::GetResourceTypeById(ResId id) co
     return {};
 }
 
+u32 CCharacterFactoryBuilder::CDummyFactory::ResourceSize(const urde::SObjectTag& tag)
+{
+    return 0;
+}
+
+bool CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+                                                                std::unique_ptr<u8[]>& target)
+{
+    return false;
+}
+
+bool CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                                    u32 size, u32 off,
+                                                                    std::unique_ptr<u8[]>& target)
+{
+    return false;
+}
+
+std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag)
+{
+    return {};
+}
+
+std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartSync(const urde::SObjectTag& tag,
+                                                                                    u32 size, u32 off)
+{
+    return {};
+}
+
 CCharacterFactoryBuilder::CCharacterFactoryBuilder() : x4_dummyStore(x0_dummyFactory) {}
 
 TToken<CCharacterFactory> CCharacterFactoryBuilder::GetFactory(const CAnimRes& res)
