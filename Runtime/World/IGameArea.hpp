@@ -35,6 +35,7 @@ public:
         bool x48_;
     public:
 
+        const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const {return x14_planeVertices;}
         u32 GetReferenceCount() const { return x0_; }
         Dock(CInputStream& in, const zeus::CTransform& xf);
         TAreaId GetConnectedAreaId(s32 other) const;

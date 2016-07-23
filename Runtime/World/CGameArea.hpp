@@ -57,7 +57,7 @@ class CGameArea : public IGameArea
     {
         struct
         {
-            bool xf0_24_ : 1;
+            bool xf0_24_postConstructed : 1;
             bool xf0_25_active : 1;
             bool xf0_26_ : 1;
             bool xf0_27_ : 1;
@@ -120,9 +120,9 @@ public:
             u8 _dummy = 0;
         };
         // std::vector<Something 8 bytes> x110c_;
-        float x111c_ = 0.f;
-        float x1120_ = 0.f;
-        float x1124_ = 0.f;
+        float x111c_thermalCurrent = 0.f;
+        float x1120_thermalSpeed = 0.f;
+        float x1124_thermalTarget = 0.f;
         float x1128_ = 1.f;
         float x112c_ = 0.f;
         float x1130_ = 1.f;
@@ -130,6 +130,13 @@ public:
         float x1138_ = 1.f;
         u32 x113c_ = 0;
     };
+private:
+    std::unique_ptr<CPostConstructed> x12c_postConstructed;
+
+    void UpdateFog(float dt);
+    void UpdateThermalVisor(float dt);
+
+public:
 
     struct CAreaObjectList : public IAreaObjectList
     {
@@ -175,7 +182,6 @@ public:
 
     bool DoesAreaNeedEnvFx() const;
     bool DoesAreaNeedSkyNow() const;
-    void UpdateFog(float dt);
     bool OtherAreaOcclusionChanged();
     void PingOcclusionState();
     void PreRender();
@@ -205,6 +211,11 @@ public:
     const zeus::CTransform& GetTransform() const {return xc_transform;}
     const zeus::CTransform& GetInverseTransform() const {return x3c_invTransform;}
     const zeus::CAABox& GetAABB() const {return x6c_aabb;}
+
+    const std::vector<Dock> GetDocks() const {return xcc_docks;}
+
+    bool IsPostConstructed() const {return xf0_24_postConstructed;}
+    const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}
 
 };
 

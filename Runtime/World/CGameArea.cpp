@@ -162,8 +162,37 @@ void CGameArea::PreRender()
 {
 }
 
+void CGameArea::UpdateThermalVisor(float dt)
+{
+    if (x12c_postConstructed->x1120_thermalSpeed == 0.f)
+        return;
+
+    float influence = x12c_postConstructed->x111c_thermalCurrent;
+
+    float delta = x12c_postConstructed->x1120_thermalSpeed * dt;
+    if (std::fabs(x12c_postConstructed->x1124_thermalTarget -
+                  x12c_postConstructed->x111c_thermalCurrent) < delta)
+    {
+        influence = x12c_postConstructed->x1124_thermalTarget;
+        x12c_postConstructed->x1120_thermalSpeed = 0.f;
+    }
+    else if (x12c_postConstructed->x1124_thermalTarget < influence)
+        influence -= delta;
+    else
+        influence += delta;
+
+    x12c_postConstructed->x111c_thermalCurrent = influence;
+}
+
 void CGameArea::AliveUpdate(float dt)
 {
+    if (!x12c_postConstructed->x10dc_)
+        x12c_postConstructed->x10e4_ += dt;
+    else
+        x12c_postConstructed->x10e4_ = 0.f;
+    UpdateFog(dt);
+    UpdateThermalVisor(dt);
+
 }
 
 void CGameArea::SetOcclusionState(EOcclusionState state)

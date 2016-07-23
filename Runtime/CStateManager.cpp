@@ -15,6 +15,8 @@
 #include "World/CPlayer.hpp"
 #include "World/CMorphBall.hpp"
 
+#include <cmath>
+
 namespace urde
 {
 
@@ -178,8 +180,54 @@ void CStateManager::UpdateThermalVisor()
     {
         std::unique_ptr<CGameArea>& area = x850_world->GetGameAreas()[x8cc_nextAreaId];
         const zeus::CTransform& playerXf = x84c_player->GetTransform();
-        float f30 = playerXf.origin.x;
-        float f29 = playerXf.origin.y;
+        zeus::CVector3f playerXYPos(playerXf.origin.x, playerXf.origin.y, 0.f);
+        CGameArea* lastArea = nullptr;
+        float closestDist = FLT_MAX;
+        for (const CGameArea::Dock& dock : area->GetDocks())
+        {
+            zeus::CVector3f dockCenter = (dock.GetPlaneVertices()[0] + dock.GetPlaneVertices()[1] +
+                                          dock.GetPlaneVertices()[2] + dock.GetPlaneVertices()[3]) * 0.25f;
+            dockCenter.z = 0.f;
+            float dist = (playerXYPos - dockCenter).magSquared();
+            if (dist < closestDist)
+            {
+                TAreaId connAreaId = dock.GetConnectedAreaId(0);
+                if (connAreaId != kInvalidAreaId)
+                {
+                    std::unique_ptr<CGameArea>& connArea = x850_world->GetGameAreas()[x8cc_nextAreaId];
+                    if (connArea->IsPostConstructed())
+                    {
+                        u32 something = connArea->GetPostConstructed()->x10dc_;
+                        if (something == 1)
+                        {
+                            closestDist = dist;
+                            lastArea = connArea.get();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (lastArea != nullptr)
+        {
+            if (closestDist != 0.f)
+                closestDist /= std::sqrt(closestDist);
+            closestDist -= 2.f;
+            if (closestDist < 8.f)
+            {
+                if (closestDist > 0.f)
+                    closestDist = (closestDist / 8.f) * 0.5f + 0.5f;
+                else
+                    closestDist = 0.5f;
+
+                xf24_thermColdScale1 =
+                    (1.f - closestDist) * lastArea->GetPostConstructed()->x111c_thermalCurrent +
+                                closestDist * area->GetPostConstructed()->x111c_thermalCurrent;
+                return;
+            }
+        }
+
+        xf24_thermColdScale1 = area->GetPostConstructed()->x111c_thermalCurrent;
     }
 }
 
