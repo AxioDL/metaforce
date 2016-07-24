@@ -13,6 +13,7 @@ class IObjectStore;
 class CResFactory;
 class CMapWorld;
 class IGameArea;
+class CAudioGroupSet;
 
 class IWorld
 {
@@ -87,8 +88,12 @@ public:
         static std::vector<CWorld::CRelay> ReadMemoryRelays(athena::io::MemoryReader& r);
     };
 
-    class CSoundGroupData
+    struct CSoundGroupData
     {
+        int x0_groupId;
+        ResId x4_agscId;
+        std::string xc_name;
+        TCachedToken<CAudioGroupSet> x1c_groupData;
     public:
         CSoundGroupData(int grpId, ResId agsc);
     };
@@ -100,8 +105,8 @@ private:
         Loading,
         LoadingMap,
         LoadingMapAreas,
-
-
+        LoadingSkyBox,
+        LoadingSoundGroups,
         Done,
     } x4_phase = Phase::Loading;
     ResId x8_mlvlId = -1;
@@ -131,10 +136,15 @@ private:
             bool x70_26_ : 1;
             bool x70_27_ : 1;
         };
+        u16 dummy = 0;
     };
     std::vector<CSoundGroupData> x74_soundGroupData;
     std::string x84_defAudioTrack;
-    TLockedToken<CModel> x84_skybox;
+    TLockedToken<CModel> x94_skybox;
+    TLockedToken<CModel> xa4_skyboxB;
+
+    void LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data);
+    void LoadSoundGroups();
 
 public:
 

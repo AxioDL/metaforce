@@ -9,6 +9,12 @@
 namespace urde
 {
 
+CWorld::CSoundGroupData::CSoundGroupData(int grpId, ResId agsc)
+: x0_groupId(grpId), x4_agscId(agsc)
+{
+    x1c_groupData = g_SimplePool->GetObj(SObjectTag{FOURCC('AGSC'), agsc});
+}
+
 CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap)
 : x4_loadMap(loadMap)
 {
@@ -248,6 +254,14 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain)
 {
 }
 
+void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data)
+{
+}
+
+void CWorld::LoadSoundGroups()
+{
+}
+
 bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
 {
     if (mreaId != -1)
@@ -284,7 +298,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         {
             ResId skyboxId = r.readUint32Big();
             if (skyboxId != -1 && mgr)
-                x84_skybox = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
+                x94_skybox = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
         }
         if (version >= 17)
             x2c_relays = CWorld::CRelay::ReadMemoryRelays(r);
@@ -342,10 +356,64 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
     }
     case Phase::LoadingMap:
     {
+        if (!x28_mapWorld.IsLoaded() || !x28_mapWorld.GetObj())
+            return false;
+
+        if (x68_curAreaId == kInvalidAreaId)
+            x28_mapWorld->SetWhichMapAreasLoaded(*this, 0, 9999);
+        else
+            x28_mapWorld->SetWhichMapAreasLoaded(*this, x68_curAreaId, 3);
+
         x4_phase = Phase::LoadingMapAreas;
     }
     case Phase::LoadingMapAreas:
     {
+        if (x28_mapWorld->IsMapAreasStreaming())
+            return false;
+
+        x4_phase = Phase::LoadingSkyBox;
+    }
+    case Phase::LoadingSkyBox:
+    {
+        x70_26_ = true;
+        x70_27_ = false;
+
+        if (!x94_skybox.IsLoaded())
+            return false;
+
+        CModel* skybox = x94_skybox.GetObj();
+        if (!skybox)
+            return false;
+
+        skybox->Touch(0);
+        if (!skybox->IsLoaded(0))
+            return false;
+
+        xa4_skyboxB = x94_skybox;
+
+        for (CSoundGroupData& group : x74_soundGroupData)
+            group.x1c_groupData.Lock();
+
+        x4_phase = Phase::LoadingSoundGroups;
+    }
+    case Phase::LoadingSoundGroups:
+    {
+        bool allLoaded = true;
+        for (CSoundGroupData& group : x74_soundGroupData)
+        {
+            bool loaded = group.x1c_groupData.IsLoaded();
+            allLoaded &= loaded;
+            if (loaded)
+            {
+                CAudioGroupSet* groupData = group.x1c_groupData.GetObj();
+                if (groupData)
+                    LoadSoundGroup(group.x0_groupId, group.x4_agscId, group);
+            }
+        }
+        if (!allLoaded)
+            return false;
+
+        LoadSoundGroups();
         x4_phase = Phase::Done;
     }
     case Phase::Done:
@@ -354,6 +422,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         return false;
     }
 
+    return false;
 }
 
 bool CWorld::ICheckWorldComplete()
