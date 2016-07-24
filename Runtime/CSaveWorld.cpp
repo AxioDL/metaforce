@@ -61,11 +61,10 @@ u32 CSaveWorld::GetCinematicCount() const
 
 s32 CSaveWorld::GetCinematicIndex(const TEditorId &id) const
 {
-    for (u32 i=0 ; i<x4_cinematics.size() ; ++i)
-        if (x4_cinematics.at(i) == id)
-            return i;
-
-    return -1;
+    auto it = std::find(x4_cinematics.begin(), x4_cinematics.end(), id);
+    if (it == x4_cinematics.end())
+        return -1;
+    return x4_cinematics.begin() - it;
 }
 
 u32 CSaveWorld::GetRelayCount() const
@@ -75,11 +74,15 @@ u32 CSaveWorld::GetRelayCount() const
 
 s32 CSaveWorld::GetRelayIndex(const TEditorId &id) const
 {
-    for (u32 i=0 ; i<x14_relays.size() ; ++i)
-        if (x14_relays.at(i) == id)
-            return i;
+    auto it = std::find(x14_relays.begin(), x14_relays.end(), id);
+    if (it == x14_relays.end())
+        return -1;
+    return x14_relays.begin() - it;
+}
 
-    return -1;
+TEditorId CSaveWorld::GetRelayEditorId(u32 idx) const
+{
+    return x14_relays[idx];
 }
 
 u32 CSaveWorld::GetDoorCount() const
@@ -89,11 +92,10 @@ u32 CSaveWorld::GetDoorCount() const
 
 s32 CSaveWorld::GetDoorIndex(const TEditorId &id) const
 {
-    for (u32 i=0 ; i<x34_doors.size() ; ++i)
-        if (x34_doors.at(i) == id)
-            return i;
-
-    return -1;
+    auto it = std::find(x34_doors.begin(), x34_doors.end(), id);
+    if (it == x34_doors.end())
+        return -1;
+    return x34_doors.begin() - it;
 }
 
 }

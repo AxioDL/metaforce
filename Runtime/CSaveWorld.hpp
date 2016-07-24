@@ -37,6 +37,7 @@ public:
     s32 GetCinematicIndex(const TEditorId& id) const;
     u32 GetRelayCount() const;
     s32 GetRelayIndex(const TEditorId& id) const;
+    TEditorId GetRelayEditorId(u32 idx) const;
     u32 GetDoorCount() const;
     s32 GetDoorIndex(const TEditorId &id) const;
 };

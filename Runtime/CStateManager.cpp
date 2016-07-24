@@ -20,7 +20,7 @@
 namespace urde
 {
 
-CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>&,
+CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
                              const std::weak_ptr<CMapWorldInfo>&,
                              const std::weak_ptr<CPlayerState>&,
                              const std::weak_ptr<CWorldTransManager>&)

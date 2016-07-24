@@ -1,5 +1,5 @@
-#ifndef __URDE_CSCRIPTMAILBOX_HPP__
-#define __URDE_CSCRIPTMAILBOX_HPP__
+#ifndef __URDE_CRELAYTRACKER_HPP__
+#define __URDE_CRELAYTRACKER_HPP__
 
 #include "IOStreams.hpp"
 #include "World/ScriptObjectSupport.hpp"
@@ -8,6 +8,8 @@
 namespace urde
 {
 class CStateManager;
+class CSaveWorld;
+#if 0
 struct CMailMessage
 {
     TEditorId x0_id;
@@ -19,20 +21,23 @@ struct CMailMessage
     bool operator==(const CMailMessage& other) const
     { return (x0_id == other.x0_id && x4_msg == other.x4_msg); }
 };
+#endif
 
-class CScriptMailbox
+
+class CRelayTracker
 {
-    rstl::reserved_vector<CMailMessage, 1024> x0_messages;
+    std::vector<TEditorId> x0_relayStates;
 public:
-    CScriptMailbox() = default;
-    CScriptMailbox(CBitStreamReader&);
+    CRelayTracker() = default;
+    CRelayTracker(CBitStreamReader&, const CSaveWorld&);
 
-    void AddMsg(TEditorId, EScriptObjectMessage, bool);
-    void RemoveMsg(TEditorId, EScriptObjectMessage, bool);
+    bool HasRelay(TEditorId);
+    void AddRelay(TEditorId);
+    void RemoveRelay(TEditorId);
     void SendMsgs(const TAreaId&, CStateManager&);
-    void PutTo(CBitStreamWriter&);
+    void PutTo(CBitStreamWriter&, const CSaveWorld&);
 };
 
 }
 
-#endif // __URDE_CSCRIPTMAILBOX_HPP__
+#endif // __URDE_CRELAYTRACKER_HPP__

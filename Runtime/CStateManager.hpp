@@ -17,7 +17,7 @@
 
 namespace urde
 {
-class CScriptMailbox;
+class CRelayTracker;
 class CMapWorldInfo;
 class CPlayerState;
 class CWorldTransManager;
@@ -78,7 +78,7 @@ class CStateManager
     std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
 
     std::shared_ptr<CPlayerState> x8b8_playerState;
-    std::shared_ptr<CScriptMailbox> x8bc_scriptMailbox;
+    std::shared_ptr<CRelayTracker> x8bc_scriptMailbox;
     std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
     std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
 
@@ -139,7 +139,7 @@ public:
     {
     };
 
-    CStateManager(const std::weak_ptr<CScriptMailbox>&,
+    CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&);

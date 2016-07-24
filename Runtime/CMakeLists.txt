@@ -58,7 +58,7 @@ add_library(RuntimeCommon
             CWeaponMgr.hpp CWeaponMgr.cpp
             CFluidPlaneManager.hpp CFluidPlaneManager.cpp
             CGameState.hpp CGameState.cpp
-            CScriptMailbox.hpp CScriptMailbox.cpp
+            CRelayTracker.hpp CRelayTracker.cpp
             CPlayerState.hpp CPlayerState.cpp
             CRandom16.hpp CRandom16.cpp
             CResFactory.hpp CResFactory.cpp

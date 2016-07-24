@@ -120,8 +120,6 @@ static const float unk[]
 
 float CPlayerState::sub_80091204() const
 {
-
-
     return unk[u32(x8_currentBeam)];
 }
 
