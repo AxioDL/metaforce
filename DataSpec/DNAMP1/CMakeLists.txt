@@ -14,6 +14,7 @@ make_dnalist(liblist
              DeafBabe
              SCAN
              FRME
+             SAVW
              Tweaks/CTweakGame
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer

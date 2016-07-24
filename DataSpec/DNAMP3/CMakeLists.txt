@@ -6,7 +6,8 @@ make_dnalist(liblist
              CMDLMaterials
              CINF
              CSKR
-             MREA)
+             MREA
+             SAVW)
 add_library(DNAMP3
             DNAMP3.hpp DNAMP3.cpp
             ${liblist}

@@ -8,6 +8,7 @@
 #include "CHAR.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "SAVW.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/FSM2.hpp"
@@ -230,6 +231,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
+    case SBIG('SAVW'):
+        return {DNAMP3::ExtractSAVW, nullptr, {_S(".yaml")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('CHAR'):
