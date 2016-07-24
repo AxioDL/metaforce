@@ -48,16 +48,6 @@ struct SAVW : BigYAML
     Value<atUint32> gameObjectCount;
     Vector<SavedState, DNA_COUNT(gameObjectCount)> gameObjects;
 };
-
-static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
-{
-    SAVW savw;
-    savw.read(rs);
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-    savw.toYAMLFile(fp);
-    fclose(fp);
-    return true;
-}
 }
 }
 

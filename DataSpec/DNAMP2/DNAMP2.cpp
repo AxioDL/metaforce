@@ -224,7 +224,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK::Entry& ent
     case SBIG('AFSM'):
         return {AFSM::Extract, nullptr, {_S(".yaml")}};
     case SBIG('SAVW'):
-        return {DNAMP2::ExtractSAVW, nullptr, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('ANCS'):

@@ -1,6 +1,7 @@
 #ifndef __COMMON_SAVWCOMMON_HPP__
 #define __COMMON_SAVWCOMMON_HPP__
 #include "DNACommon.hpp"
+#include "PAK.hpp"
 
 namespace DataSpec
 {
@@ -38,6 +39,18 @@ struct Layer : BigYAML
     Value<atUint32> areaId;
     Value<atUint32> layer;
 };
+
+template <class SAVW>
+static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
+{
+    SAVW savw;
+    savw.read(rs);
+    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+    savw.toYAMLFile(fp);
+    fclose(fp);
+    return true;
+}
+
 }
 }
 

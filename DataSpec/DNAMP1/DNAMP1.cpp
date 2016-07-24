@@ -279,7 +279,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('SCAN'):
         return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
     case SBIG('SAVW'):
-        return {DNAMP1::ExtractSAVW, nullptr, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('AFSM'):

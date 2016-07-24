@@ -30,16 +30,6 @@ struct SAVW : BigYAML
     Value<atUint32> scanCount;
     Vector<Scan, DNA_COUNT(scanCount)> scans;
 };
-
-static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
-{
-    SAVW savw;
-    savw.read(rs);
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-    savw.toYAMLFile(fp);
-    fclose(fp);
-    return true;
-}
 }
 }
 

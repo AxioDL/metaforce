@@ -232,7 +232,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('SAVW'):
-        return {DNAMP3::ExtractSAVW, nullptr, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
     case SBIG('CMDL'):
         return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('CHAR'):
