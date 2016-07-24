@@ -72,7 +72,7 @@ void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
         if (((relay.GetRelayId() >> 16) & 0x3FF) != areaId)
             continue;
 
-        if (!HasRelay(relay.GetRelayId()))
+        if (!HasRelay(relay.GetRelayId()) || relay.GetActive())
             continue;
 
         RemoveRelay(relay.GetRelayId());
