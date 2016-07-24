@@ -204,7 +204,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Calculate offset to EGMC section */
     atUint64 egmcOffset = 0;
-    for (int i = 0; i < head.egmcSecIdx; i++)
+    for (unsigned i = 0; i < head.egmcSecIdx; i++)
         egmcOffset += head.secSizes[i];
 
     /* Load EGMC if possible so we can assign meshes to scanIds */

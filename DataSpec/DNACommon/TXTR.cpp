@@ -29,7 +29,7 @@ static void BoxFilter(const uint8_t* input, unsigned chanCount,
     if (inHeight > 1)
         mipHeight = inHeight / 2;
 
-    int y,x,c;
+    unsigned y,x,c;
     for (y=0 ; y<mipHeight ; ++y)
     {
         unsigned miplineBase = mipWidth * y;
@@ -753,7 +753,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
             }
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            for (int i=0 ; i<width ; ++i)
+            for (unsigned i=0 ; i<width ; ++i)
             {
                 size_t inbase = i*2;
                 size_t outbase = (r*width+i)*4;
@@ -764,7 +764,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
             }
             break;
         case PNG_COLOR_TYPE_RGB:
-            for (int i=0 ; i<width ; ++i)
+            for (unsigned i=0 ; i<width ; ++i)
             {
                 size_t inbase = i*3;
                 size_t outbase = (r*width+i)*4;
@@ -775,7 +775,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
             }
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
-            for (int i=0 ; i<width ; ++i)
+            for (unsigned i=0 ; i<width ; ++i)
             {
                 size_t inbase = i*4;
                 size_t outbase = (r*width+i)*4;
