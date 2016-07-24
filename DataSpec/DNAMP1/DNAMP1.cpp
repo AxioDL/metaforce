@@ -16,6 +16,7 @@
 #include "../DNACommon/DGRP.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
+#include "SAVW.hpp"
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
@@ -277,6 +278,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('SCAN'):
         return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
+    case SBIG('SAVW'):
+        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
         return {TXTR::Extract, nullptr, {_S(".png")}};
     case SBIG('AFSM'):

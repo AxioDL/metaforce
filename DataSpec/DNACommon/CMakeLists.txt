@@ -2,6 +2,7 @@ make_dnalist(liblist
              CMDL
              MAPA
              EGMC
+             SAVWCommon
              ParticleCommon)
 
 add_library(DNACommon

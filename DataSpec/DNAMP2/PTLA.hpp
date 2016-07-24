@@ -1,5 +1,5 @@
-#ifndef PTLA_HPP
-#define PTLA_HPP
+#ifndef __DNAMP2_PTLA_HPP__
+#define __DNAMP2_PTLA_HPP__
 
 #include "../DNACommon/DNACommon.hpp"
 
@@ -69,4 +69,4 @@ struct PTLA : BigDNA
 };
 }
 }
-#endif // PTLA_HPP
+#endif // __DNAMP2_PTLA_HPP__
