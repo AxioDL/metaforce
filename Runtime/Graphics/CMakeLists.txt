@@ -1,7 +1,7 @@
 if(WIN32)
-  set(PLAT_SRCS Shaders/CLineRendererShadersHLSL.cpp Shaders/CModelShadersHLSL.cpp)
+  set(PLAT_SRCS Shaders/CLineRendererShadersHLSL.cpp Shaders/CModelShadersHLSL.cpp Shaders/CThermalColdFilterHLSL.cpp)
 elseif(APPLE)
-  set(PLAT_SRCS Shaders/CLineRendererShadersMetal.cpp Shaders/CModelShadersMetal.cpp)
+  set(PLAT_SRCS Shaders/CLineRendererShadersMetal.cpp Shaders/CModelShadersMetal.cpp Shaders/CThermalColdFilterMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES

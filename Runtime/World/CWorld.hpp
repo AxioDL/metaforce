@@ -5,13 +5,14 @@
 #include "ScriptObjectSupport.hpp"
 #include "CGameArea.hpp"
 #include "Graphics/CModel.hpp"
+#include "AutoMapper/CMapWorld.hpp"
+
 
 namespace urde
 {
 class CGameArea;
 class IObjectStore;
 class CResFactory;
-class CMapWorld;
 class IGameArea;
 class CAudioGroupSet;
 

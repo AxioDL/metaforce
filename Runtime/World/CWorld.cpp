@@ -4,7 +4,6 @@
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "CInGameTweakManagerBase.hpp"
-#include "AutoMapper/CMapWorld.hpp"
 
 namespace urde
 {

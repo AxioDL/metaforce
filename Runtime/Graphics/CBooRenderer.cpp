@@ -1,3 +1,6 @@
+#if _WIN32
+#include <D3Dcommon.h>
+#endif
 #include "CBooRenderer.hpp"
 
 namespace urde
@@ -182,6 +185,7 @@ void CBooRenderer::DrawString(const char*, int, int)
 
 u32 CBooRenderer::GetFPS()
 {
+    return 0;
 }
 
 void CBooRenderer::CacheReflection(TReflectionCallback, void*, bool)
@@ -232,6 +236,7 @@ void CBooRenderer::DoThermalBlendHot()
 
 u32 CBooRenderer::GetStaticWorldDataSize()
 {
+    return 0;
 }
 
 }
