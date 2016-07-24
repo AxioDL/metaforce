@@ -103,8 +103,8 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
     return ret;
 }
 
-CGameArea::CGameArea(CInputStream& in, int mlvlVersion)
-: x4_mlvlVersion(mlvlVersion), xf0_25_active(true)
+CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
+: x4_selfIdx(idx), xf0_25_active(true)
 {
     x8_nameSTRG = in.readUint32Big();
     xc_transform.read34RowMajor(in);

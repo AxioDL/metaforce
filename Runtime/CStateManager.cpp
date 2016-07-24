@@ -356,6 +356,15 @@ void CStateManager::RecursiveDrawTree(TUniqueId) const
 {
 }
 
+void CStateManager::SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg)
+{
+    CEntity* ent = ObjectById(dest);
+    if (ent)
+    {
+        ent->AcceptScriptMsg(msg, src, *this);
+    }
+}
+
 void CStateManager::SendScriptMsg(TUniqueId uid, TEditorId eid,
                                   EScriptObjectMessage msg, EScriptObjectState state)
 {
@@ -383,13 +392,25 @@ void CStateManager::GetIdListForScript(TEditorId) const
 {
 }
 
-void CStateManager::LoadScriptObjects(TAreaId, CInputStream& in, EScriptPersistence)
+void CStateManager::LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut)
 {
 }
 
 void CStateManager::LoadScriptObject(TAreaId, EScriptObjectType, u32,
                                      CInputStream& in, EScriptPersistence)
 {
+}
+
+void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
+{
+    for (TEditorId id : ids)
+    {
+        if (id == kInvalidEditorId)
+            continue;
+        TUniqueId uid = GetIdForScript(id);
+        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::UNKM15);
+    }
+    MurderScriptInstanceNames();
 }
 
 void CStateManager::InformListeners(const zeus::CVector3f&, EListenNoiseType)

@@ -21,6 +21,8 @@ enum class ERglFogMode
 
 class CDummyGameArea : public IGameArea
 {
+    friend class CDummyWorld;
+
     int x4_mlvlVersion;
     ResId x8_nameSTRG;
     ResId xc_mrea;
@@ -44,7 +46,9 @@ public:
 
 class CGameArea : public IGameArea
 {
-    int x4_mlvlVersion;
+    friend class CWorld;
+
+    int x4_selfIdx;
     ResId x8_nameSTRG;
     zeus::CTransform xc_transform;
     zeus::CTransform x3c_invTransform;
@@ -174,7 +178,7 @@ public:
         void DisableFog();
     };
 
-    CGameArea(CInputStream& in, int mlvlVersion);
+    CGameArea(CInputStream& in, int idx, int mlvlVersion);
 
     bool IsFinishedOccluding() const;
     void ReadDependencyList();

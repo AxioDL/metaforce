@@ -36,7 +36,7 @@ public:
     void setColorC(const zeus::CColor& color) {m_uniform.m_colorRegs[2] = color;}
     void setScale(float scale)
     {
-        scale = 0.1f * (1.f - scale);
+        scale = 0.025f * (1.f - scale);
         m_uniform.m_indMtx[0][0] = scale;
         m_uniform.m_indMtx[1][1] = scale;
     }

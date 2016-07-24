@@ -174,14 +174,16 @@ public:
     void PreRender();
     void GetVisSetForArea(TAreaId, TAreaId) const;
     void RecursiveDrawTree(TUniqueId) const;
+    void SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg);
     void SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state);
     void FreeScriptObjects(TAreaId);
     void GetBuildForScript(TEditorId) const;
     TEditorId GetEditorIdForUniqueId(TUniqueId) const;
     TUniqueId GetIdForScript(TEditorId) const;
     void GetIdListForScript(TEditorId) const;
-    void LoadScriptObjects(TAreaId, CInputStream& in, EScriptPersistence);
+    void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
     void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in, EScriptPersistence);
+    void InitScriptObjects(std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
     void ApplyKnockBack(CActor& actor, const CDamageInfo& info,
                         const CDamageVulnerability&, const zeus::CVector3f&, float);
