@@ -47,11 +47,11 @@ void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
     const CWorld* world = stateMgr.GetWorld();
     u32 relayCount = world->GetRelayCount();
 
-    bool hasInactiveRelays = false;
+    bool hasActiveRelays = false;
     for (u32 i=0 ; i<relayCount ; ++i)
     {
         const CWorld::CRelay& relay = world->GetRelay(i);
-        if (((relay.GetRelayId() >> 16) & 0x3FF) != areaId)
+        if (((relay.GetTargetId() >> 16) & 0x3FF) != areaId)
             continue;
 
         if (!HasRelay(relay.GetRelayId()))
@@ -59,20 +59,20 @@ void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
 
         stateMgr.SendScriptMsg(kInvalidUniqueId, relay.GetTargetId(), EScriptObjectMessage(relay.GetMessage()),
                                EScriptObjectState::Any);
-        if (!relay.GetActive())
-            hasInactiveRelays = true;
+        if (relay.GetActive())
+            hasActiveRelays = true;
     }
 
-    if (!hasInactiveRelays)
+    if (!hasActiveRelays)
         return;
 
     for (u32 i=0 ; i<relayCount ; ++i)
     {
         const CWorld::CRelay& relay = world->GetRelay(i);
-        if (((relay.GetRelayId() >> 16) & 0x3FF) != areaId)
+        if (((relay.GetTargetId() >> 16) & 0x3FF) != areaId)
             continue;
 
-        if (!HasRelay(relay.GetRelayId()) || relay.GetActive())
+        if (!HasRelay(relay.GetRelayId()) || !relay.GetActive())
             continue;
 
         RemoveRelay(relay.GetRelayId());
