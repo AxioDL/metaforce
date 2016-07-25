@@ -78,7 +78,7 @@ class CStateManager
     std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
 
     std::shared_ptr<CPlayerState> x8b8_playerState;
-    std::shared_ptr<CRelayTracker> x8bc_scriptMailbox;
+    std::shared_ptr<CRelayTracker> x8bc_relayTracker;
     std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
     std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
 
@@ -206,6 +206,7 @@ public:
     void FrameBegin();
     void InitializeState(u32, TAreaId, u32);
     void CreateStandardGameObjects();
+    const std::unique_ptr<CObjectList>& GetObjectList() const { return x80c_allObjs; }
     CObjectList* ObjectListById(EGameObjectList type);
     const CObjectList* GetObjectListById(EGameObjectList type) const;
     void RemoveObject(TUniqueId);
@@ -244,6 +245,7 @@ public:
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xaf8_camFilterPasses[idx];}
 
     CWorld* GetWorld() {return x850_world.get();}
+    CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
 
     std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
 };

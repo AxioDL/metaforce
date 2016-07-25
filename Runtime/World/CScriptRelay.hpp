@@ -11,6 +11,8 @@ class CScriptRelay : public CEntity
     u32 x38_ = 0;
 public:
     CScriptRelay(TUniqueId, const std::string&, const CEntityInfo&, bool);
+
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }
 

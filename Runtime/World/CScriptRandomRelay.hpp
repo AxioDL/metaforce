@@ -12,6 +12,9 @@ class CScriptRandomRelay : public CEntity
     bool x3c_clamp;
 public:
     CScriptRandomRelay(TUniqueId, const std::string&, const CEntityInfo&, s32, s32, bool, bool);
+
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
+    void SendLocalScriptMsgs(EScriptObjectState state, CStateManager& stateMgr);
 };
 }
 

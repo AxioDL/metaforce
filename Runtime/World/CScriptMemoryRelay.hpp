@@ -13,12 +13,13 @@ class CScriptMemoryRelay : public CEntity
         {
             bool x34_24_;
             bool x34_25_;
-            bool x34_26_;
+            bool x34_26_ignoreMessages;
         };
         u8 dummy = 0;
     };
 public:
     CScriptMemoryRelay(TUniqueId, const std::string& name, const CEntityInfo&, bool, bool, bool);
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }
 

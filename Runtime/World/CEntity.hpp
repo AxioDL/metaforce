@@ -63,7 +63,7 @@ public:
         x30_24_active ^= 1;
     }
 
-    TAreaId GetCurrentAreaId() const
+    TAreaId GetAreaId() const
     {
         if (x30_27_)
             return x4_areaId;

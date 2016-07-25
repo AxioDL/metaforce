@@ -8,4 +8,9 @@ CScriptRelay::CScriptRelay(TUniqueId uid, const std::string& name, const CEntity
 {
 }
 
+void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)
+{
+    CEntity::AcceptScriptMsg(msg, objId, stateMgr);
+}
+
 }

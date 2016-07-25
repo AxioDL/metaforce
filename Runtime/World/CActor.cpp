@@ -41,24 +41,24 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     case EScriptObjectMessage::Decrement:
         RemoveEmitter();
         break;
-    case EScriptObjectMessage::UNKM13: // 33
+    case EScriptObjectMessage::InternalMessage11: // 33
     {
-        /* TODO: What's x98_?
-        if (x98_)
+        /*
+        if (x94_simpleShadow)
             AddMaterial(EMaterialTypes::ThirtyNine, mgr);
         else
             RemoveMaterial(EMaterialTypes::ThirtyNine, mgr);
         */
-        /*
+
+
         if (HasModelData() && x64_modelData->AnimationData())
         {
-            TAreaId aid = GetCurrentAreaId();
-            x64_modelData->AnimationData()->sub_8002AE6C(mgr, aid, x64_modelData->x0_particleScale);
+            TAreaId aid = GetAreaId();
+            //x64_modelData->AnimationData()->sub_8002AE6C(mgr, aid, x64_modelData->x0_particleScale);
         }
-        */
     }
         break;
-    case EScriptObjectMessage::UNKM14: // 34
+    case EScriptObjectMessage::InternalMessage13: // 34
     {
         RemoveEmitter();
         /* TODO: Not sure about this
@@ -67,7 +67,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         */
     }
         break;
-    case EScriptObjectMessage::UNKM15: // 35
+    case EScriptObjectMessage::InternalMessage14: // 35
     {
         for (const SConnection& conn : x20_conns)
         {
@@ -80,10 +80,10 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         }
     }
         break;
-    case EScriptObjectMessage::UNKM17: // 37
+    case EScriptObjectMessage::InternalMessage16: // 37
         SetInFluid(true, uid);
         break;
-    case EScriptObjectMessage::UNKM19: // 39
+    case EScriptObjectMessage::InternalMessage18: // 39
         SetInFluid(false, kInvalidUniqueId);
         break;
     default:break;

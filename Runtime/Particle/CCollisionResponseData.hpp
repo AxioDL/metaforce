@@ -2,11 +2,11 @@
 #define __URDE_CCOLLISIONRESPONSEDATA_HPP__
 
 #include "RetroTypes.hpp"
+#include "Collision/CMaterialList.hpp"
 #include "CFactoryMgr.hpp"
 #include "IObj.hpp"
 #include "CToken.hpp"
 #include "IOStreams.hpp"
-#include "optional.hpp"
 
 namespace urde
 {
@@ -16,11 +16,11 @@ class CDecalDescription;
 
 enum class EWeaponCollisionResponseTypes
 {
-    Default, Unknown1, Metal, Grass,
-    Ice, Goo, Wood, Water,
-    Mud, Lava, Sand,Unknown11,
+    None,     Default,  Unknown2, Metal,
+    Grass,    Ice,      Goo,      Wood,
+    Water,    Mud,      Lava,     Sand,
     Unknown12,Unknown13,Unknown14,Unknown15,
-    Unknown16,Unknown17,Unknown18,Unknown19,
+    EnemyNormal,EnemySpecial,EnemyShielded,Unknown19,
     Unknown20,Unknown21,Unknown22,Unknown23,
     Unknown24,Unknown25,Unknown26,Unknown27,
     Unknown28,Unknown29,Unknown30,Unknown31,
@@ -39,15 +39,16 @@ enum class EWeaponCollisionResponseTypes
     Unknown80,Unknown81,Unknown82,Unknown83,
     Unknown84,Unknown85,Unknown86,Unknown87,
     Unknown88,Unknown89,Unknown90,Unknown91,
-    Unknown92
+    Unknown92,Unknown93
 };
 
 class CCollisionResponseData
 {
-
-    std::vector<std::experimental::optional<TLockedToken<CGenDescription>>> x0_generators;
-    std::vector<ResId> x10_sfx;
-    std::vector<std::experimental::optional<TLockedToken<CDecalDescription>>> x20_decals;
+    static const EWeaponCollisionResponseTypes skWorldMaterialTable[32];
+    static const s32 kInvalidSFX;
+    std::vector<rstl::optional_object<TLockedToken<CGenDescription>>> x0_generators;
+    std::vector<s32> x10_sfx;
+    std::vector<rstl::optional_object<TLockedToken<CDecalDescription>>> x20_decals;
     float x30_RNGE;
     float x34_FOFF;
 
@@ -58,6 +59,16 @@ class CCollisionResponseData
     bool CheckAndAddResourceToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool);
 public:
     CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
+    const rstl::optional_object<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes) const;
+    const rstl::optional_object<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
+    s32 GetSoundEffectId(EWeaponCollisionResponseTypes) const;
+    EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);
+    static bool ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes);
+    static bool ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes);
+    static bool ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes);
+    float GetAudibleRange() const { return x30_RNGE; }
+    float GetAudibleFallOff() const { return x34_FOFF; }
+    static FourCC UncookedResType();
 };
 
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);

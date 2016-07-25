@@ -113,7 +113,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
     x904_loaderFuncs[int(EScriptObjectType::FishCloud)] = ScriptLoader::LoadFishCloud;
     x904_loaderFuncs[int(EScriptObjectType::FishCloudModifier)] = ScriptLoader::LoadFishCloudModifier;
     x904_loaderFuncs[int(EScriptObjectType::VisorFlare)] = ScriptLoader::LoadVisorFlare;
-    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporterx52)] = ScriptLoader::LoadWorldTeleporter;
+    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporter)] = ScriptLoader::LoadWorldTeleporter;
     x904_loaderFuncs[int(EScriptObjectType::VisorGoo)] = ScriptLoader::LoadVisorGoo;
     x904_loaderFuncs[int(EScriptObjectType::JellyZap)] = ScriptLoader::LoadJellyZap;
     x904_loaderFuncs[int(EScriptObjectType::ControllerAction)] = ScriptLoader::LoadControllerAction;
@@ -128,7 +128,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
     x904_loaderFuncs[int(EScriptObjectType::ThardusRockProjectile)] = ScriptLoader::LoadThardusRockProjectile;
     x904_loaderFuncs[int(EScriptObjectType::Midi)] = ScriptLoader::LoadMidi;
     x904_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedAudio;
-    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporterx62)] = ScriptLoader::LoadWorldTeleporter;
+    x904_loaderFuncs[int(EScriptObjectType::WorldTeleporterToo)] = ScriptLoader::LoadWorldTeleporter;
     x904_loaderFuncs[int(EScriptObjectType::Repulsor)] = ScriptLoader::LoadRepulsor;
     x904_loaderFuncs[int(EScriptObjectType::GunTurret)] = ScriptLoader::LoadGunTurret;
     x904_loaderFuncs[int(EScriptObjectType::FogVolume)] = ScriptLoader::LoadFogVolume;
@@ -408,7 +408,7 @@ void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
         if (id == kInvalidEditorId)
             continue;
         TUniqueId uid = GetIdForScript(id);
-        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::UNKM15);
+        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::InternalMessage13);
     }
     MurderScriptInstanceNames();
 }
