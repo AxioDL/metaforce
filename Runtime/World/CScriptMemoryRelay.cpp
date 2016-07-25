@@ -8,7 +8,7 @@ namespace urde
 CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool b1, bool b2, bool b3)
     : CEntity(uid, info, true, name),
       x34_24_(b1),
-      x34_25_(b2),
+      x34_25_skipSendNone(b2),
       x34_26_ignoreMessages(b3)
 {
 }
@@ -26,9 +26,9 @@ void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
     else if (msg == EScriptObjectMessage::Activate)
     {
         stateMgr.GetRelayTracker()->AddRelay(xc_editorId);
-        if (x34_25_)
-            return;
-        SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
+        if (!x34_25_skipSendNone)
+            SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
+
         return;
     }
 

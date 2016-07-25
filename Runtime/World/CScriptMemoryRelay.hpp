@@ -12,7 +12,7 @@ class CScriptMemoryRelay : public CEntity
         struct
         {
             bool x34_24_;
-            bool x34_25_;
+            bool x34_25_skipSendNone;
             bool x34_26_ignoreMessages;
         };
         u8 dummy = 0;

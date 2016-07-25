@@ -46,68 +46,70 @@ enum class EMaterialTypes
 class CMaterialList
 {
     friend class CMaterialFilter;
-    u64 x0_ = 0;
+    u64 x0_list = 0;
 public:
     CMaterialList() = default;
-    CMaterialList(u64 flags) : x0_(flags) {}
+    CMaterialList(u64 flags) : x0_list(flags) {}
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5, EMaterialTypes t6)
         : CMaterialList(t1, t2, t3, t4, t5)
-    { x0_ = 1ull << u64(t6); }
+    { x0_list = 1ull << u64(t6); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5)
         : CMaterialList(t1, t2, t3, t4)
-    { x0_ = 1ull << u64(t5); }
+    { x0_list = 1ull << u64(t5); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4)
         : CMaterialList(t1, t2, t3)
-    { x0_ = 1ull << u64(t4); }
+    { x0_list = 1ull << u64(t4); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3)
         : CMaterialList(t1, t2)
-    { x0_ = 1ull << u64(t3); }
+    { x0_list = 1ull << u64(t3); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2)
         : CMaterialList(t1)
-    { x0_ = 1ull << u64(t2); }
+    { x0_list = 1ull << u64(t2); }
 
     CMaterialList(EMaterialTypes t1)
-        : x0_(1ull << u64(t1))
+        : x0_list(1ull << u64(t1))
     {
     }
 
     static u32 BitPosition(u64 flag)
     {
-        for (u32 i = 0; i < 63; ++i)
-            if ((flag & (1ull << i)) != 0)
-                return i;
+        u32 high = *((u32*)(&flag)[0]);
+        u32 low = *((u32*)(&flag)[1]);
+        for (u32 i = 0; i < 8; ++i)
+        {
+        }
         return -1;
     }
 
     void Add(EMaterialTypes type)
     {
-        x0_ |= (1ull << u64(type));
+        x0_list |= (1ull << u64(type));
     }
 
     void Remove(EMaterialTypes type)
     {
-        x0_ &= ~(1ull << u64(type));
+        x0_list &= ~(1ull << u64(type));
     }
 
     void Remove(const CMaterialList& other)
     {
-        x0_ &= ~(other.x0_);
+        x0_list &= ~(other.x0_list);
     }
 
     bool HasMaterial(EMaterialTypes type)
     {
-        return (x0_ & (1ull << u64(type))) != 0;
+        return (x0_list & (1ull << u64(type))) != 0;
     }
 
     bool SharesMaterials(const CMaterialList& other)
     {
         for (u32 i = 0; i < 64; i++)
         {
-            if ((x0_ & (1ull << i)) != 0 && (other.x0_ & (1ull << i)) != 0)
+            if ((x0_list & (1ull << i)) != 0 && (other.x0_list & (1ull << i)) != 0)
                 return true;
         }
 
