@@ -1,25 +1,39 @@
 #ifndef __URDE_CBOORENDERER_HPP__
 #define __URDE_CBOORENDERER_HPP__
 
+#include <functional>
 #include "IRenderer.hpp"
 #include "CDrawable.hpp"
+#include "CDrawablePlaneObject.hpp"
 #include "Shaders/CThermalColdFilter.hpp"
+#include "CRandom16.hpp"
 
 namespace urde
 {
 class IObjectStore;
 class CMemorySys;
 class IFactory;
+class CTexture;
 
 class Buckets
 {
+    friend class CBooRenderer;
+
+    static rstl::reserved_vector<u16, 50> sBucketIndex;
+    static rstl::reserved_vector<CDrawable, 50>* sData;
+    static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets;
+    static rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData;
+    static rstl::reserved_vector<u16, 8>* sPlaneObjectBucket;
+    static const float skWorstMinMaxDistance[2];
+    static float sMinMaxDistance[2];
+
 public:
     static void Clear();
     static void Sort();
-    static void InsertPlaneObject(float, float, const zeus::CAABox&, bool, const zeus::CPlane&,
-                                  bool, EDrawableType, const void*);
-    static void Insert(const zeus::CVector3f&, const zeus::CAABox&, EDrawableType, const void*,
-                       const zeus::CPlane&, unsigned short);
+    static void InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool b1,
+                                  const zeus::CPlane& plane, bool b2, EDrawableType dtype, const void* data);
+    static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
+                       const void* data, const zeus::CPlane& plane, u16 extraSort);
     static void Shutdown();
     static void Init();
 };
@@ -28,14 +42,60 @@ class CBooRenderer : public IRenderer
 {
     IFactory& x8_factory;
     IObjectStore& xc_store;
+    boo::GraphicsDataToken m_gfxToken;
     // CFont x10_fnt;
     u32 x18_ = 0;
     std::list<u32> x1c_;
     zeus::CFrustum x44_frustumPlanes;
 
-    float x2f8_thermColdScale = 0.f;
+    TDrawableCallback xa8_renderCallback;
+    const void* xac_callbackContext;
 
+    zeus::CVector3f xb0_ = {0.f, 1.f, 0.f};
+    float xbc_ = 0;
+
+    //boo::ITextureS* xe4_blackTex = nullptr;
+    bool xee_24_ : 1;
+
+    boo::ITextureR* x14c_reflectionTex = nullptr;
+    boo::ITextureS* x150_mirrorRamp = nullptr;
+    boo::ITextureS* x1b8_fogVolumeRamp = nullptr;
+    boo::ITextureS* x220_sphereRamp = nullptr;
+    TLockedToken<CTexture> m_thermoPaletteTex;
+    boo::ITexture* x288_thermoPalette = nullptr;
+
+    CRandom16 x2a8_thermalRand;
+    std::list<u32> x2b8_;
+    std::list<u32> x2d0_;
+    zeus::CColor x2e0_ = zeus::CColor::skWhite;
+    zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
+
+    zeus::CColor x2f4_thermColor;
+    float x2f8_thermColdScale = 0.f;
     CThermalColdFilter m_thermColdFilter;
+
+    union
+    {
+        struct
+        {
+            bool x318_24_refectionDirty : 1;
+            bool x318_25_ : 1;
+            bool x318_26_ : 1;
+            bool x318_27_ : 1;
+            bool x318_28_ : 1;
+            bool x318_29_ : 1;
+            bool x318_30_ : 1;
+            bool x318_31_ : 1;
+        };
+        u16 dummy = 0;
+    };
+
+    void GenerateMirrorRampTex(boo::IGraphicsDataFactory::Context& ctx);
+    void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
+    void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
+    void LoadThermoPalette(boo::IGraphicsDataFactory::Context& ctx);
+
+    void RenderBucketItems(const std::vector<CLight>& lights);
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
@@ -96,6 +156,9 @@ public:
     void DoThermalBlendCold();
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
+
+    void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
+    void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}
 };
 
 }

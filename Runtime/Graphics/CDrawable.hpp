@@ -6,7 +6,7 @@
 
 namespace urde
 {
-enum class EDrawableType
+enum class EDrawableType : u16
 {
     World,
     Particle,
@@ -16,14 +16,20 @@ enum class EDrawableType
 
 class CDrawable
 {
+    EDrawableType x0_type;
+    u16 x2_extraSort;
+    const void* x4_data;
+    zeus::CAABox x8_aabb;
+    float x20_viewDist;
 public:
-    CDrawable(EDrawableType, u16, float, const zeus::CAABox&, const void*);
+    CDrawable(EDrawableType dtype, u16 extraSort, float planeDot, const zeus::CAABox& aabb, const void* data)
+    : x0_type(dtype), x2_extraSort(extraSort), x4_data(data), x8_aabb(aabb), x20_viewDist(planeDot) {}
 
-    EDrawableType GetType() const;
-    const zeus::CAABox& GetBounds() const;
-    float GetDistance() const;
-    void* GetData() const;
-    void GetExtraSort() const;
+    EDrawableType GetType() const {return x0_type;}
+    const zeus::CAABox& GetBounds() const {return x8_aabb;}
+    float GetDistance() const {return x20_viewDist;}
+    const void* GetData() const {return x4_data;}
+    u16 GetExtraSort() const {return x2_extraSort;}
 };
 }
 
