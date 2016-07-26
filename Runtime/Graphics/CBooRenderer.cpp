@@ -30,6 +30,7 @@ float Buckets::sMinMaxDistance[2];
 void Buckets::Clear()
 {
     sData->clear();
+    sBucketIndex.clear();
     sPlaneObjectData->clear();
     sPlaneObjectBucket->clear();
     for (rstl::reserved_vector<CDrawable*, 128>& bucket : *sBuckets)
@@ -40,6 +41,65 @@ void Buckets::Clear()
 
 void Buckets::Sort()
 {
+    float delta = std::max(1.f, sMinMaxDistance[1] - sMinMaxDistance[0]);
+    sPlaneObjectBucket->resize(8);
+
+    std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
+    [](u16 a, u16 b) -> bool
+    {
+        return (*sPlaneObjectData)[a].GetDistance() >= (*sPlaneObjectData)[b].GetDistance();
+    });
+
+    u32 precision = 50 / (8 + 1);
+    float pitch = 1.f / (delta / float(precision - 2));
+
+    int accum = 0;
+    for (u16 idx : *sPlaneObjectBucket)
+    {
+        ++accum;
+        CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
+        planeObj.x24_targetBucket = precision * accum;
+    }
+
+    for (CDrawable& drawable : *sData)
+    {
+        int slot;
+        if (sPlaneObjectBucket->empty())
+        {
+            slot = zeus::clamp(1, int((drawable.GetDistance() - sMinMaxDistance[0]) * pitch), 49);
+        }
+        else
+        {
+            /* TODO: Planar sort distribution */
+        }
+
+        if (slot == -1)
+            slot = 49;
+        (*sBuckets)[slot].push_back(&drawable);
+    }
+
+    int bucketIdx = sBuckets->size();
+    for (auto it = sBuckets->rbegin() ; it != sBuckets->rend() ; ++it)
+    {
+        --bucketIdx;
+        sBucketIndex.push_back(bucketIdx);
+        rstl::reserved_vector<CDrawable*, 128>& bucket = *it;
+        if (bucket.size())
+        {
+            std::sort(bucket.begin(), bucket.end(),
+            [](CDrawable* a, CDrawable* b) -> bool
+            {
+                return a->GetDistance() >= b->GetDistance();
+            });
+        }
+    }
+
+    for (auto it = sPlaneObjectBucket->rbegin() ; it != sPlaneObjectBucket->rend() ; ++it)
+    {
+        CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[*it];
+        rstl::reserved_vector<CDrawable*, 128>& bucket = (*sBuckets)[planeObj.x24_targetBucket];
+        bucket.push_back(&planeObj);
+    }
 }
 
 void Buckets::InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool b1,
@@ -92,15 +152,14 @@ void CBooRenderer::RenderBucketItems(const std::vector<CLight>& lights)
                 static_cast<CParticleGen*>((void*)drawable->GetData())->Render();
                 break;
             }
-            case EDrawableType::World:
+            case EDrawableType::Surface:
             {
                 CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
                 CBooModel* model = surf->m_parent;
                 if (model)
                 {
                     model->ActivateLights(lights);
-                    CModelFlags flags;
-                    model->DrawSurface(*surf, flags);
+                    model->DrawSurface(*surf, CModelFlags{});
                 }
                 break;
             }

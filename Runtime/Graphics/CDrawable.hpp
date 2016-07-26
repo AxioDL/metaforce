@@ -8,10 +8,10 @@ namespace urde
 {
 enum class EDrawableType : u16
 {
-    World,
+    Surface,
     Particle,
-    UnsortedDrawable,
-    SortedDrawable
+    UnsortedCallback,
+    SortedCallback
 };
 
 class CDrawable

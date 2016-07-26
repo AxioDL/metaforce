@@ -70,12 +70,7 @@ BOO_GLSL_BINDING_HEAD
 "    float shiftScene1 = dot(texture(sceneTex, shiftCoord + vec2(vtf.shiftScale.x / 8.0, 0.0)), kRGBToYPrime);\n"
 "    vec2 indCoord = (vtf.indMtx * vec3(shiftScene0 - 0.5, shiftScene1 - 0.5, 1.0)).xy;\n"
 "    float indScene = dot(texture(sceneTex, vtf.sceneUv + indCoord), kRGBToYPrime);\n"
-"    colorOut = vtf.colorReg0 * indScene * vec4(0.00001) + vtf.colorReg1 * shiftScene0 * vec4(0.00001) + vtf.colorReg2 * vec4(0.00001);\n"
-"    float blue = 0.0;\n"
-"    float green = 0.0;\n"
-"    if (indCoord.y < 0.0) blue = -indCoord.y * 10.0;\n"
-"    else green = indCoord.y * 10.0;\n"
-"    colorOut += vec4(0.0, green, blue, 1.0);\n"
+"    colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * shiftScene0 + vtf.colorReg2;\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
