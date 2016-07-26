@@ -77,11 +77,9 @@ public:
 
     static u32 BitPosition(u64 flag)
     {
-        u32 high = *((u32*)(&flag)[0]);
-        u32 low = *((u32*)(&flag)[1]);
-        for (u32 i = 0; i < 8; ++i)
-        {
-        }
+        for (u32 i = 0; i < 63; ++i)
+             if ((flag & (1ull << i)) != 0)
+                 return i;
         return -1;
     }
 
