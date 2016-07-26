@@ -1,14 +1,200 @@
 #if _WIN32
 #include <D3Dcommon.h>
 #endif
+#include "GameGlobalObjects.hpp"
 #include "CBooRenderer.hpp"
+#include "CTexture.hpp"
+#include "CModel.hpp"
+#include "Particle/CParticleGen.hpp"
+
+#define MIRROR_RAMP_RES 32
+#define FOGVOL_RAMP_RES 256
+#define SPHERE_RAMP_RES 32
 
 namespace urde
 {
 
-CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
-: x8_factory(resFac), xc_store(store)
+static rstl::reserved_vector<CDrawable, 50> sDataHolder;
+static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
+static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
+static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
+
+rstl::reserved_vector<u16, 50> Buckets::sBucketIndex;
+rstl::reserved_vector<CDrawable, 50>* Buckets::sData = nullptr;
+rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* Buckets::sBuckets = nullptr;
+rstl::reserved_vector<CDrawablePlaneObject, 8>* Buckets::sPlaneObjectData = nullptr;
+rstl::reserved_vector<u16, 8>* Buckets::sPlaneObjectBucket = nullptr;
+const float Buckets::skWorstMinMaxDistance[2] = {99999.f, -99999.f};
+float Buckets::sMinMaxDistance[2];
+
+void Buckets::Clear()
 {
+    sData->clear();
+    sPlaneObjectData->clear();
+    sPlaneObjectBucket->clear();
+    for (rstl::reserved_vector<CDrawable*, 128>& bucket : *sBuckets)
+        bucket.clear();
+    sMinMaxDistance[0] = skWorstMinMaxDistance[0];
+    sMinMaxDistance[1] = skWorstMinMaxDistance[1];
+}
+
+void Buckets::Sort()
+{
+}
+
+void Buckets::InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool b1,
+                                const zeus::CPlane& plane, bool b2, EDrawableType dtype, const void* data)
+{
+    sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, dist, something, aabb, b1, plane, b2, data));
+}
+
+void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
+                     const void* data, const zeus::CPlane& plane, u16 extraSort)
+{
+    float dist = plane.pointToPlaneDist(pos);
+    sData->push_back(CDrawable(dtype, extraSort, dist, aabb, data));
+    if (sMinMaxDistance[0] > dist)
+        sMinMaxDistance[0] = dist;
+    if (sMinMaxDistance[1] < dist)
+        sMinMaxDistance[1] = dist;
+}
+
+void Buckets::Shutdown()
+{
+    sData = nullptr;
+    sBuckets = nullptr;
+    sPlaneObjectData = nullptr;
+    sPlaneObjectBucket = nullptr;
+}
+
+void Buckets::Init()
+{
+    sData = &sDataHolder;
+    sBuckets = &sBucketsHolder;
+    sBuckets->resize(50);
+    sPlaneObjectData = &sPlaneObjectDataHolder;
+    sPlaneObjectBucket = &sPlaneObjectBucketHolder;
+    sMinMaxDistance[0] = skWorstMinMaxDistance[0];
+    sMinMaxDistance[1] = skWorstMinMaxDistance[1];
+}
+
+void CBooRenderer::RenderBucketItems(const std::vector<CLight>& lights)
+{
+    for (u16 idx : Buckets::sBucketIndex)
+    {
+        rstl::reserved_vector<CDrawable*, 128>& bucket = (*Buckets::sBuckets)[idx];
+        for (CDrawable* drawable : bucket)
+        {
+            switch (drawable->GetType())
+            {
+            case EDrawableType::Particle:
+            {
+                static_cast<CParticleGen*>((void*)drawable->GetData())->Render();
+                break;
+            }
+            case EDrawableType::World:
+            {
+                CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
+                CBooModel* model = surf->m_parent;
+                if (model)
+                {
+                    model->ActivateLights(lights);
+                    CModelFlags flags;
+                    model->DrawSurface(*surf, flags);
+                }
+                break;
+            }
+            default:
+            {
+                if (xa8_renderCallback)
+                {
+                    xa8_renderCallback(drawable->GetData(), xac_callbackContext,
+                                       int(drawable->GetType()) - 2);
+                }
+                break;
+            }
+            }
+        }
+    }
+}
+
+void CBooRenderer::GenerateMirrorRampTex(boo::IGraphicsDataFactory::Context& ctx)
+{
+    u8 data[MIRROR_RAMP_RES][MIRROR_RAMP_RES][4] = {};
+    float halfRes = MIRROR_RAMP_RES / 2.f;
+    for (int y=0 ; y<MIRROR_RAMP_RES ; ++y)
+    {
+        for (int x=0 ; x<MIRROR_RAMP_RES ; ++x)
+        {
+            zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
+            if (vec.magnitude() <= halfRes && vec.canBeNormalized())
+                vec.normalize();
+            data[y][x][0] = zeus::clamp(0.f, vec.x, 1.f) * 255;
+            data[y][x][1] = zeus::clamp(0.f, vec.y, 1.f) * 255;
+        }
+    }
+    x150_mirrorRamp = ctx.newStaticTexture(MIRROR_RAMP_RES, MIRROR_RAMP_RES, 1,
+                                           boo::TextureFormat::RGBA8, data[0],
+                                           MIRROR_RAMP_RES * MIRROR_RAMP_RES * 4);
+}
+
+void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx)
+{
+    u8 data[FOGVOL_RAMP_RES][FOGVOL_RAMP_RES] = {};
+    for (int y=0 ; y<FOGVOL_RAMP_RES ; ++y)
+    {
+        for (int x=0 ; x<FOGVOL_RAMP_RES ; ++x)
+        {
+            int tmp = y << 16 | x << 8 | 0x7f;
+            double a = zeus::clamp(0.0, (-150.0 / (tmp * 749.7998 - 750.0) - 0.2) * 3.0 / 749.7998, 1.0);
+            data[y][x] = (a * a + a) / 2.f * 255;
+        }
+    }
+    x1b8_fogVolumeRamp = ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1,
+                                              boo::TextureFormat::I8, data[0],
+                                              FOGVOL_RAMP_RES * FOGVOL_RAMP_RES);
+}
+
+void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx)
+{
+    u8 data[SPHERE_RAMP_RES][SPHERE_RAMP_RES] = {};
+    float halfRes = SPHERE_RAMP_RES / 2.f;
+    for (int y=0 ; y<SPHERE_RAMP_RES ; ++y)
+    {
+        for (int x=0 ; x<SPHERE_RAMP_RES ; ++x)
+        {
+            zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
+            data[y][x] = zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+        }
+    }
+    x220_sphereRamp = ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1,
+                                           boo::TextureFormat::I8, data[0],
+                                           SPHERE_RAMP_RES * SPHERE_RAMP_RES);
+}
+
+void CBooRenderer::LoadThermoPalette(boo::IGraphicsDataFactory::Context& ctx)
+{
+    m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
+    CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
+    if (thermoTexObj)
+        x288_thermoPalette = thermoTexObj->GetBooTexture();
+}
+
+CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
+: x8_factory(resFac), xc_store(store), x2a8_thermalRand(20)
+{
+    xee_24_ = true;
+
+    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        GenerateMirrorRampTex(ctx);
+        GenerateFogVolumeRampTex(ctx);
+        GenerateSphereRampTex(ctx);
+        LoadThermoPalette(ctx);
+        return true;
+    });
+
+    Buckets::Init();
 }
 
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int)
@@ -227,7 +413,26 @@ void CBooRenderer::SetThermalColdScale(float scale)
 }
 
 void CBooRenderer::DoThermalBlendCold()
-{
+{    
+    zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::CColor::skWhite, x2f8_thermColdScale);
+    m_thermColdFilter.setColorA(a);
+    float bFac = 0.f;
+    float bAlpha = 1.f;
+    if (x2f8_thermColdScale < 0.5f)
+    {
+        bAlpha = x2f8_thermColdScale * 2.f;
+        bFac = (1.f - bAlpha) / 8.f;
+    }
+    zeus::CColor b{bFac, bFac, bFac, bAlpha};
+    m_thermColdFilter.setColorB(b);
+    zeus::CColor c = zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite,
+                                        (x2f8_thermColdScale - 0.25f) * 4.f / 3.f);
+    m_thermColdFilter.setColorC(c);
+
+    m_thermColdFilter.setScale(x2f8_thermColdScale);
+
+    m_thermColdFilter.setShift(x2a8_thermalRand.Next() % 32);
+    m_thermColdFilter.draw();
 }
 
 void CBooRenderer::DoThermalBlendHot()

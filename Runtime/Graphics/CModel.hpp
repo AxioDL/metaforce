@@ -50,6 +50,7 @@ struct CBooSurface
 class CBooModel
 {
     friend class CModel;
+    friend class CBooRenderer;
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
     using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
