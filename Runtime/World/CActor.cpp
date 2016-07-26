@@ -58,7 +58,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         }
     }
         break;
-    case EScriptObjectMessage::InternalMessage13: // 34
+    case EScriptObjectMessage::InternalMessage12: // 34
     {
         RemoveEmitter();
         /* TODO: Not sure about this
@@ -67,7 +67,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         */
     }
         break;
-    case EScriptObjectMessage::InternalMessage14: // 35
+    case EScriptObjectMessage::InternalMessage13: // 35
     {
         for (const SConnection& conn : x20_conns)
         {
@@ -80,10 +80,10 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         }
     }
         break;
-    case EScriptObjectMessage::InternalMessage16: // 37
+    case EScriptObjectMessage::InternalMessage15: // 37
         SetInFluid(true, uid);
         break;
-    case EScriptObjectMessage::InternalMessage18: // 39
+    case EScriptObjectMessage::InternalMessage17: // 39
         SetInFluid(false, kInvalidUniqueId);
         break;
     default:break;

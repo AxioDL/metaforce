@@ -338,17 +338,45 @@ bool FRME::Extract(const SpecBase &dataSpec,
     os << "import bpy, math\n"
           "from mathutils import Matrix, Quaternion\n"
           "bpy.types.Object.retro_widget_type = bpy.props.StringProperty(name='Retro: FRME Widget Type')\n"
+          "model_draw_flags = [\n"
+          "    ('RETRO_SHADELESS', 'Shadeless', '', 0),\n"
+          "    ('RETRO_OPAQUE', 'Opaque', '', 1),\n"
+          "    ('RETRO_ALPHA', 'Alpha', '', 2),\n"
+          "    ('RETRO_ADDITIVE', 'Additive', '', 3),\n"
+          "    ('RETRO_ALPHA_ADDITIVE_OVERDRAW', 'Alpha Additive Overdraw', '', 4)]\n"
           "bpy.types.Object.retro_widget_parent = bpy.props.StringProperty(name='Retro: FRME Widget Parent', description='Refers to internal frame widgets')\n"
+          "bpy.types.Object.retro_widget_use_anim_controller = bpy.props.BoolProperty(name='Retro: Use Animiation Conroller')\n"
+          "bpy.types.Object.retro_widget_default_visible = bpy.props.BoolProperty(name='Retro: Default Visible', description='Sets widget is visible by default')\n"
+          "bpy.types.Object.retro_widget_default_active = bpy.props.BoolProperty(name='Retro: Default Visible', description='Sets widget is cases by default')\n"
+          "bpy.types.Object.retro_widget_cull_faces = bpy.props.BoolProperty(name='Retro: Default Visible', description='Enables face culling')\n"
+          "bpy.types.Object.retro_widget_color = bpy.props.FloatVectorProperty(name='Retro: Color', description='Sets widget color', subtype='COLOR', size=4, min=0.0, max=1.0)\n"
+          "bpy.types.Object.retro_widget_model_draw_flags = bpy.props.EnumProperty(items=model_draw_flags, name='Retro: Model Draw Flags', default='RETRO_ALPHA')\n"
           "# Clear Scene\n"
           "for ob in bpy.data.objects:\n"
           "    bpy.context.scene.objects.unlink(ob)\n"
-          "    bpy.data.objects.remove(ob)\n";
+          "    bpy.data.objects.remove(ob)\n"
+          "\n"
+          "def duplicateObject(copy_obj):\n"
+          "    # Create new mesh\n"
+          "    mesh = bpy.data.meshes.new(copy_obj.name)\n"
+          "    # Create new object associated with the mesh\n"
+          "    ob_new = bpy.data.objects.new(copy_obj.name, mesh)\n"
+          "    # Copy data block from the old object into the new object\n"
+          "    ob_new.data = copy_obj.data\n"
+          "    ob_new.scale = copy_obj.scale\n"
+          "    ob_new.location = copy_obj.location\n"
+          "    # Link new object to the given scene and select it\n"
+          "    bpy.context.scene.objects.link(ob_new)\n"
+          "    return ob_new\n";
 
-    os.format("bpy.context.scene.name = 'FRME_%s'\n"
+    os.format("bpy.context.scene.name = '%s'\n"
               "bpy.context.scene.render.resolution_x = 640\n"
               "bpy.context.scene.render.resolution_y = 480\n"
-              "bpy.context.scene.render.engine = 'BLENDER_GAME'\n",
-              entry.id.toString().c_str());
+              "bpy.context.scene.render.engine = 'CYCLES'\n"
+              "bpy.context.scene.world.use_nodes = True\n"
+              "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
+              "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n",
+              pakRouter.getBestEntryName(entry).c_str());
 
     for (const FRME::Widget& w : frme.widgets)
     {
@@ -359,17 +387,17 @@ bool FRME::Extract(const SpecBase &dataSpec,
             using CAMRInfo = Widget::CAMRInfo;
             os.format("cam = bpy.data.cameras.new(name='%s')\n"
                       "binding = cam\n", w.header.name.c_str());
-            CAMRInfo* info = dynamic_cast<CAMRInfo*>(w.widgetInfo.get());
+            CAMRInfo* info = static_cast<CAMRInfo*>(w.widgetInfo.get());
             if (info)
             {
                 if (info->projectionType == CAMRInfo::ProjectionType::Orthographic)
                 {
-                    CAMRInfo::OrthographicProjection* proj = dynamic_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
+                    CAMRInfo::OrthographicProjection* proj = static_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
                     os.format("cam.type = 'ORTHO'\n");
                 }
                 else if (info->projectionType == CAMRInfo::ProjectionType::Perspective)
                 {
-                    CAMRInfo::PerspectiveProjection* proj = dynamic_cast<CAMRInfo::PerspectiveProjection*>(info->projection.get());
+                    CAMRInfo::PerspectiveProjection* proj = static_cast<CAMRInfo::PerspectiveProjection*>(info->projection.get());
                     os.format("cam.type = 'PERSP'\n"
                               "cam.lens_unit = 'FOV'\n"
                               "cam.angle = math.radians(%f)\n"
@@ -383,20 +411,49 @@ bool FRME::Extract(const SpecBase &dataSpec,
             os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
         }
         else if (w.type == SBIG('LITE'))
-            os.format("lite = bpy.data.lamps.new(name='%s', type='POINT')\n"
-                      "lite.color = (%f, %f, %f)\n"
-                      "binding = lite\n",
-                      w.header.name.c_str(),
-                      w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2]);
+        {
+            using LITEInfo = Widget::LITEInfo;
+            LITEInfo* info = static_cast<LITEInfo*>(w.widgetInfo.get());
+            if (info)
+            {
+                switch(info->type)
+                {
+                case LITEInfo::ELightType::LocalAmbient:
+                    os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0\n"
+                              "bg_node.inputs[1].default_value = %f\n",
+                              w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2],
+                              info->distQ / 8.0);
+                default:
+                    os.format("lamp = bpy.data.lamps.new(name='%s', type='POINT')\n"
+                              "lamp.color = (%f, %f, %f)\n"
+                              "binding = lamp\n",
+                              w.header.name.c_str(),
+                              w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2]);
+                }
+            }
+        }
 
         os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
-                  "frme_obj.retro_widget_type = '%s'\n"
                   "parentName = '%s'\n"
+                  "frme_obj.retro_widget_type = '%s'\n"
+                  "frme_obj.retro_widget_use_anim_controller = %s\n"
+                  "frme_obj.retro_widget_default_visible = %s\n"
+                  "frme_obj.retro_widget_default_active = %s\n"
+                  "frme_obj.retro_widget_cull_faces = %s\n"
+                  "frme_obj.retro_widget_color = (%f,%f,%f,%f)\n"
+                  "frme_obj.retro_widget_model_draw_flags = model_draw_flags[%i][0]\n"
                   "if parentName not in bpy.data.objects:\n"
                   "    frme_obj.retro_widget_parent = parentName\n"
                   "else:\n"
                   "    frme_obj.parent = bpy.data.objects[parentName]\n",
-                  w.header.name.c_str(), w.type.toString().c_str(), w.header.parent.c_str());
+                  w.header.name.c_str(), w.header.parent.c_str(),
+                  w.type.toString().c_str(),
+                  w.header.useAnimController ? "True" : "False",
+                  w.header.defaultVisible ? "True" : "False",
+                  w.header.defaultActive ? "True" : "False",
+                  w.header.cullFaces ? "True" : "False",
+                  w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2], w.header.color.vec[3],
+                  w.header.modelDrawFlags);
 
         if (w.type == SBIG('MODL'))
         {
@@ -406,13 +463,12 @@ bool FRME::Extract(const SpecBase &dataSpec,
             const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
             os.linkBlend(modelPath.getAbsolutePathUTF8().c_str(),
-                         pakRouter.getBestEntryName(*cmdlE).c_str(), false);
+                         pakRouter.getBestEntryName(*cmdlE).c_str(), true);
 
             os << "print(obj.name)\n"
-                  "if obj.name not in bpy.context.scene.objects:\n"
-                  "    bpy.context.scene.objects.link(obj)\n"
-                  "obj.parent = frme_obj\n"
-                  "obj.hide = False\n";
+                  "copy_obj = duplicateObject(obj)\n"
+                  "copy_obj.parent = frme_obj\n"
+                  "copy_obj.hide = False\n";
         }
         else if (w.type == SBIG('IMGP'))
         {
