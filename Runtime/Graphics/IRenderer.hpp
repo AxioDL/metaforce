@@ -14,7 +14,7 @@ namespace urde
 class CMetroidModelInstance;
 class CLight;
 class CAreaOctTree;
-class CElementGen;
+class CParticleGen;
 class CModel;
 class CSkinnedModel;
 
@@ -26,6 +26,8 @@ public:
 
     enum class EDrawableSorting
     {
+        SortedBuckets,
+        UnsortedCallback
     };
     enum class EDebugOption
     {
@@ -38,16 +40,16 @@ public:
     };
 
     virtual ~IRenderer() = default;
-    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int)=0;
-    virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>&)=0;
+    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int)=0;
+    virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;
     virtual void DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
     virtual void DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
     virtual void DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
     virtual void PostRenderFogs()=0;
-    virtual void AddParticleGen(const CElementGen&)=0;
+    virtual void AddParticleGen(const CParticleGen&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;
     virtual void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting)=0;
-    virtual void SetDrawableCallback(TDrawableCallback, const void*)=0;
+    virtual void SetDrawableCallback(TDrawableCallback&&, const void*)=0;
     virtual void SetWorldViewpoint(const zeus::CTransform&)=0;
     virtual void SetPerspectiveFovScalar(float)=0;
     virtual void SetPerspective(float, float, float, float, float)=0;

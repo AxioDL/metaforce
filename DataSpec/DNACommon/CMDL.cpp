@@ -1623,5 +1623,226 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
+void SurfaceHeader_1::read(athena::io::IStreamReader& reader)
+{
+    /* centroid */
+    centroid = reader.readVec3fBig();
+    /* matIdx */
+    matIdx = reader.readUint32Big();
+    /* qDiv */
+    qDiv = reader.readUint16Big();
+    /* dlSize */
+    dlSize = reader.readUint16Big();
+    /* idxStart */
+    idxStart = reader.readUint32Big();
+    /* idxCount */
+    idxCount = reader.readUint32Big();
+    /* aabbSz */
+    aabbSz = reader.readUint32Big();
+    /* reflectionNormal */
+    reflectionNormal = reader.readVec3fBig();
+    /* aabb */
+    size_t remAABB = aabbSz;
+    if (remAABB >= 24)
+    {
+        aabb[0] = reader.readVec3fBig();
+        aabb[1] = reader.readVec3fBig();
+        remAABB -= 24;
+    }
+    reader.seek(remAABB, athena::Current);
+    /* align */
+    reader.seekAlign32();
+}
+
+void SurfaceHeader_1::write(athena::io::IStreamWriter& writer) const
+{
+    /* centroid */
+    writer.writeVec3fBig(centroid);
+    /* matIdx */
+    writer.writeUint32Big(matIdx);
+    /* qDiv */
+    writer.writeUint16Big(qDiv);
+    /* dlSize */
+    writer.writeUint16Big(dlSize);
+    /* idxStart */
+    writer.writeUint32Big(idxStart);
+    /* idxCount */
+    writer.writeUint32Big(idxCount);
+    /* aabbSz */
+    writer.writeUint32Big(aabbSz ? 24 : 0);
+    /* reflectionNormal */
+    writer.writeVec3fBig(reflectionNormal);
+    /* aabb */
+    if (aabbSz)
+    {
+        writer.writeVec3fBig(aabb[0]);
+        writer.writeVec3fBig(aabb[1]);
+    }
+    /* align */
+    writer.seekAlign32();
+}
+
+size_t SurfaceHeader_1::binarySize(size_t __isz) const
+{
+    __isz += (aabbSz ? 24 : 0);
+    __isz += 44;
+    __isz = (__isz + 31) & ~31;
+    return __isz;
+}
+
+void SurfaceHeader_2::read(athena::io::IStreamReader& reader)
+{
+    /* centroid */
+    centroid = reader.readVec3fBig();
+    /* matIdx */
+    matIdx = reader.readUint32Big();
+    /* qDiv */
+    qDiv = reader.readUint16Big();
+    /* dlSize */
+    dlSize = reader.readUint16Big();
+    /* idxStart */
+    idxStart = reader.readUint32Big();
+    /* idxCount */
+    idxCount = reader.readUint32Big();
+    /* aabbSz */
+    aabbSz = reader.readUint32Big();
+    /* reflectionNormal */
+    reflectionNormal = reader.readVec3fBig();
+    /* skinMtxBankIdx */
+    skinMtxBankIdx = reader.readInt16Big();
+    /* surfaceGroup */
+    surfaceGroup = reader.readUint16Big();
+    /* aabb */
+    size_t remAABB = aabbSz;
+    if (remAABB >= 24)
+    {
+        aabb[0] = reader.readVec3fBig();
+        aabb[1] = reader.readVec3fBig();
+        remAABB -= 24;
+    }
+    reader.seek(remAABB, athena::Current);
+    /* align */
+    reader.seekAlign32();
+}
+
+void SurfaceHeader_2::write(athena::io::IStreamWriter& writer) const
+{
+    /* centroid */
+    writer.writeVec3fBig(centroid);
+    /* matIdx */
+    writer.writeUint32Big(matIdx);
+    /* qDiv */
+    writer.writeUint16Big(qDiv);
+    /* dlSize */
+    writer.writeUint16Big(dlSize);
+    /* idxStart */
+    writer.writeUint32Big(idxStart);
+    /* idxCount */
+    writer.writeUint32Big(idxCount);
+    /* aabbSz */
+    writer.writeUint32Big(aabbSz ? 24 : 0);
+    /* reflectionNormal */
+    writer.writeVec3fBig(reflectionNormal);
+    /* skinMtxBankIdx */
+    writer.writeInt16Big(skinMtxBankIdx);
+    /* surfaceGroup */
+    writer.writeUint16Big(surfaceGroup);
+    /* aabb */
+    if (aabbSz)
+    {
+        writer.writeVec3fBig(aabb[0]);
+        writer.writeVec3fBig(aabb[1]);
+    }
+    /* align */
+    writer.seekAlign32();
+}
+
+size_t SurfaceHeader_2::binarySize(size_t __isz) const
+{
+    __isz += (aabbSz ? 24 : 0);
+    __isz += 48;
+    __isz = (__isz + 31) & ~31;
+    return __isz;
+}
+
+void SurfaceHeader_3::read(athena::io::IStreamReader& reader)
+{
+    /* centroid */
+    centroid = reader.readVec3fBig();
+    /* matIdx */
+    matIdx = reader.readUint32Big();
+    /* qDiv */
+    qDiv = reader.readUint16Big();
+    /* dlSize */
+    dlSize = reader.readUint16Big();
+    /* idxStart */
+    idxStart = reader.readUint32Big();
+    /* idxCount */
+    idxCount = reader.readUint32Big();
+    /* aabbSz */
+    aabbSz = reader.readUint32Big();
+    /* reflectionNormal */
+    reflectionNormal = reader.readVec3fBig();
+    /* skinMtxBankIdx */
+    skinMtxBankIdx = reader.readInt16Big();
+    /* surfaceGroup */
+    surfaceGroup = reader.readUint16Big();
+    /* aabb */
+    size_t remAABB = aabbSz;
+    if (remAABB >= 24)
+    {
+        aabb[0] = reader.readVec3fBig();
+        aabb[1] = reader.readVec3fBig();
+        remAABB -= 24;
+    }
+    reader.seek(remAABB, athena::Current);
+    /* unk3 */
+    unk3 = reader.readUByte();
+    /* align */
+    reader.seekAlign32();
+}
+
+void SurfaceHeader_3::write(athena::io::IStreamWriter& writer) const
+{
+    /* centroid */
+    writer.writeVec3fBig(centroid);
+    /* matIdx */
+    writer.writeUint32Big(matIdx);
+    /* qDiv */
+    writer.writeUint16Big(qDiv);
+    /* dlSize */
+    writer.writeUint16Big(dlSize);
+    /* idxStart */
+    writer.writeUint32Big(idxStart);
+    /* idxCount */
+    writer.writeUint32Big(idxCount);
+    /* aabbSz */
+    writer.writeUint32Big(aabbSz ? 24 : 0);
+    /* reflectionNormal */
+    writer.writeVec3fBig(reflectionNormal);
+    /* skinMtxBankIdx */
+    writer.writeInt16Big(skinMtxBankIdx);
+    /* surfaceGroup */
+    writer.writeUint16Big(surfaceGroup);
+    /* aabb */
+    if (aabbSz)
+    {
+        writer.writeVec3fBig(aabb[0]);
+        writer.writeVec3fBig(aabb[1]);
+    }
+    /* unk3 */
+    writer.writeUByte(unk3);
+    /* align */
+    writer.seekAlign32();
+}
+
+size_t SurfaceHeader_3::binarySize(size_t __isz) const
+{
+    __isz += (aabbSz ? 24 : 0);
+    __isz += 49;
+    __isz = (__isz + 31) & ~31;
+    return __isz;
+}
+
 }
 }

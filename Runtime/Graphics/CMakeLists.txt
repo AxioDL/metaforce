@@ -11,7 +11,7 @@ set(GRAPHICS_SOURCES
     CDrawable.hpp CDrawable.cpp
     CDrawablePlaneObject.hpp CDrawablePlaneObject.cpp
     CLineRenderer.hpp CLineRenderer.cpp
-    CMetroidModelInstance.hpp
+    CMetroidModelInstance.hpp CMetroidModelInstance.cpp
     CLight.hpp CLight.cpp
     CTexture.hpp CTextureBoo.cpp
     CModel.hpp CModelBoo.cpp

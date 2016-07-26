@@ -14,6 +14,8 @@ class IObjectStore;
 class CMemorySys;
 class IFactory;
 class CTexture;
+class CParticleGen;
+class CBooModel;
 
 class Buckets
 {
@@ -40,19 +42,34 @@ public:
 
 class CBooRenderer : public IRenderer
 {
+    struct CAreaListItem
+    {
+        const std::vector<CMetroidModelInstance>* x0_geometry;
+        const CAreaOctTree* x4_octTree;
+        //std::vector<TCachedToken<CTexture>> x8_textures;
+        std::vector<CBooModel*> x10_models;
+        int x18_unk;
+        int x20_unk1 = 0;
+        int x24_unk2 = 0;
+        int x28_unk3 = 0;
+
+        CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
+                      std::vector<CBooModel*>&& models, int unk);
+        ~CAreaListItem();
+    };
+
     IFactory& x8_factory;
     IObjectStore& xc_store;
     boo::GraphicsDataToken m_gfxToken;
     // CFont x10_fnt;
     u32 x18_ = 0;
-    std::list<u32> x1c_;
+    std::list<CAreaListItem> x1c_areaListItems;
     zeus::CFrustum x44_frustumPlanes;
 
     TDrawableCallback xa8_renderCallback;
     const void* xac_callbackContext;
 
-    zeus::CVector3f xb0_ = {0.f, 1.f, 0.f};
-    float xbc_ = 0;
+    zeus::CPlane xb0_ = {0.f, 1.f, 0.f, 0.f};
 
     //boo::ITextureS* xe4_blackTex = nullptr;
     bool xee_24_ : 1;
@@ -100,22 +117,25 @@ class CBooRenderer : public IRenderer
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
 
-    void AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int);
-    void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>&);
+    void AddWorldSurfaces(CBooModel& model);
+
+    std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
+    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int);
+    void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
     void DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
     void DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
     void PostRenderFogs();
-    void AddParticleGen(const CElementGen&);
+    void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
     void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
-    void SetDrawableCallback(TDrawableCallback, const void*);
+    void SetDrawableCallback(TDrawableCallback&&, const void*);
     void SetWorldViewpoint(const zeus::CTransform&);
     void SetPerspectiveFovScalar(float);
     void SetPerspective(float, float, float, float, float);
     void SetPerspective(float, float, float, float);
     void SetViewportOrtho(bool, float, float);
-    void SetClippingPlanes(const zeus::CFrustum&);
+    void SetClippingPlanes(const zeus::CFrustum& frustum);
     void SetViewport(int, int, int, int);
     void SetDepthReadWrite(bool, bool);
     void SetBlendMode_AdditiveAlpha();

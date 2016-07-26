@@ -45,6 +45,14 @@ struct CBooSurface
     size_t selfIdx;
     class CBooModel* m_parent = nullptr;
     CBooSurface* m_next = nullptr;
+
+    zeus::CAABox GetBounds() const
+    {
+        if (!m_data.aabbSz)
+            return zeus::CAABox(m_data.centroid, m_data.centroid);
+        else
+            return zeus::CAABox(m_data.aabb[0], m_data.aabb[1]);
+    }
 };
 
 class CBooModel

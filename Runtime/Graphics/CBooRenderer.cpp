@@ -6,6 +6,7 @@
 #include "CTexture.hpp"
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
+#include "CMetroidModelInstance.hpp"
 
 #define MIRROR_RAMP_RES 32
 #define FOGVOL_RAMP_RES 256
@@ -138,6 +139,13 @@ void Buckets::Init()
     sMinMaxDistance[1] = skWorstMinMaxDistance[1];
 }
 
+CBooRenderer::CAreaListItem::CAreaListItem
+(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
+ std::vector<CBooModel*>&& models, int unk)
+: x0_geometry(geom), x4_octTree(octTree), x10_models(std::move(models)), x18_unk(unk) {}
+
+CBooRenderer::CAreaListItem::~CAreaListItem() {}
+
 void CBooRenderer::RenderBucketItems(const std::vector<CLight>& lights)
 {
     for (u16 idx : Buckets::sBucketIndex)
@@ -256,12 +264,49 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     Buckets::Init();
 }
 
-void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>&, const CAreaOctTree*, int)
+void CBooRenderer::AddWorldSurfaces(CBooModel& model)
 {
+    CBooSurface* surf = model.x3c_firstSortedSurface;
+    while (surf)
+    {
+        const CBooModel::MaterialSet::Material& mat = model.GetMaterialByIndex(surf->selfIdx);
+        zeus::CAABox aabb = surf->GetBounds();
+        zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_.vec);
+        Buckets::Insert(pt, aabb, EDrawableType::Surface, surf, xb0_,
+                        mat.heclIr.m_blendDst != boo::BlendFactor::Zero);
+        surf = surf->m_next;
+    }
 }
 
-void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>&)
+std::list<CBooRenderer::CAreaListItem>::iterator
+CBooRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry)
 {
+    return std::find_if(x1c_areaListItems.begin(), x1c_areaListItems.end(),
+                        [&](CAreaListItem& item) -> bool {return item.x0_geometry == geometry;});
+}
+
+void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
+                                     const CAreaOctTree* octTree, int unk)
+{
+    auto search = FindStaticGeometry(geometry);
+    if (search == x1c_areaListItems.end())
+    {
+        std::vector<CBooModel*> models;
+        if (geometry->size())
+        {
+            models.reserve(geometry->size());
+            for (const CMetroidModelInstance& inst : *geometry)
+                models.push_back(inst.m_instance.get());
+        }
+        x1c_areaListItems.emplace_back(geometry, octTree, std::move(models), unk);
+    }
+}
+
+void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry)
+{
+    auto search = FindStaticGeometry(geometry);
+    if (search != x1c_areaListItems.end())
+        x1c_areaListItems.erase(search);
 }
 
 void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
@@ -270,6 +315,7 @@ void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigne
 
 void CBooRenderer::DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
 {
+    //SetupRendererStates();
 }
 
 void CBooRenderer::DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
@@ -280,20 +326,33 @@ void CBooRenderer::PostRenderFogs()
 {
 }
 
-void CBooRenderer::AddParticleGen(const CElementGen&)
+void CBooRenderer::AddParticleGen(const CParticleGen& gen)
 {
+    std::pair<zeus::CAABox, bool> bounds = gen.GetBounds();
+    if (bounds.second)
+    {
+        zeus::CVector3f pt = bounds.first.closestPointAlongVector(xb0_.vec);
+        Buckets::Insert(pt, bounds.first, EDrawableType::Particle, &gen, xb0_, 0);
+    }
 }
 
 void CBooRenderer::AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)
 {
+
 }
 
-void CBooRenderer::AddDrawable(const void*, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting)
+void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode, EDrawableSorting sorting)
 {
+    if (sorting == EDrawableSorting::UnsortedCallback)
+        xa8_renderCallback(obj, xac_callbackContext, mode);
+    else
+        Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_, 0);
 }
 
-void CBooRenderer::SetDrawableCallback(TDrawableCallback, const void*)
+void CBooRenderer::SetDrawableCallback(TDrawableCallback&& cb, const void* ctx)
 {
+    xa8_renderCallback = std::move(cb);
+    xac_callbackContext = ctx;
 }
 
 void CBooRenderer::SetWorldViewpoint(const zeus::CTransform&)
@@ -316,8 +375,9 @@ void CBooRenderer::SetViewportOrtho(bool, float, float)
 {
 }
 
-void CBooRenderer::SetClippingPlanes(const zeus::CFrustum&)
+void CBooRenderer::SetClippingPlanes(const zeus::CFrustum& frustum)
 {
+    x44_frustumPlanes = frustum;
 }
 
 void CBooRenderer::SetViewport(int, int, int, int)

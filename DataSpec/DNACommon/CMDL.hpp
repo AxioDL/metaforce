@@ -40,7 +40,7 @@ struct Header : BigDNA
 
 struct SurfaceHeader_1 : BigDNA
 {
-    DECL_DNA
+    DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
@@ -49,7 +49,7 @@ struct SurfaceHeader_1 : BigDNA
     Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
     Value<atVec3f> reflectionNormal;
-    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
+    Value<atVec3f> aabb[2];
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return false;}
@@ -58,7 +58,7 @@ struct SurfaceHeader_1 : BigDNA
 
 struct SurfaceHeader_2 : BigDNA
 {
-    DECL_DNA
+    DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
@@ -69,7 +69,7 @@ struct SurfaceHeader_2 : BigDNA
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
     Value<atUint16> surfaceGroup;
-    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
+    Value<atVec3f> aabb[2];
     Align<32> align;
 
     static constexpr bool UseMatrixSkinning() {return false;}
@@ -78,7 +78,7 @@ struct SurfaceHeader_2 : BigDNA
 
 struct SurfaceHeader_3 : BigDNA
 {
-    DECL_DNA
+    DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
@@ -89,7 +89,7 @@ struct SurfaceHeader_3 : BigDNA
     Value<atVec3f> reflectionNormal;
     Value<atInt16> skinMtxBankIdx;
     Value<atUint16> surfaceGroup;
-    Seek<DNA_COUNT(aabbSz), athena::Current> seek2;
+    Value<atVec3f> aabb[2];
     Value<atUint8> unk3;
     Align<32> align;
 
