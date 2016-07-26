@@ -211,12 +211,12 @@ enum class EScriptObjectMessage
     InternalMessage09,
     InternalMessage10,
     InternalMessage11,
+    InternalMessage12,
     InternalMessage13,
     InternalMessage14,
     InternalMessage15,
     InternalMessage16,
-    InternalMessage17,
-    InternalMessage18
+    InternalMessage17
 };
 
 }

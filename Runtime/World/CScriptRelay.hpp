@@ -13,6 +13,8 @@ public:
     CScriptRelay(TUniqueId, const std::string&, const CEntityInfo&, bool);
 
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
+    void Think(float, CStateManager& stateMgr);
+    void UpdateObjectRef(CStateManager& stateMgr);
 };
 }
 

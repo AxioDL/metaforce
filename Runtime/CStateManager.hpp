@@ -135,6 +135,10 @@ class CStateManager
     void UpdateThermalVisor();
 
 public:
+    /* TODO: Figure out what this is
+     * Public for CScriptRelay
+     */
+    TUniqueId xf76_ = kInvalidUniqueId;
     enum class EScriptPersistence
     {
     };
