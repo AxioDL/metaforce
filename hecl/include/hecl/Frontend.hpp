@@ -7,6 +7,7 @@
 #include <athena/Types.hpp>
 #include <athena/DNA.hpp>
 #include <hecl/hecl.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace hecl
 {
@@ -293,6 +294,10 @@ struct IR : BigDNA
     atUint16 m_regCount = 0;
     std::vector<Instruction> m_instructions;
 
+    boo::BlendFactor m_blendSrc = boo::BlendFactor::One;
+    boo::BlendFactor m_blendDst = boo::BlendFactor::Zero;
+    bool m_doAlpha = false;
+
     void read(athena::io::IStreamReader& reader)
     {
         m_hash = reader.readUint64Big();
@@ -302,6 +307,27 @@ struct IR : BigDNA
         m_instructions.reserve(instCount);
         for (atUint16 i=0 ; i<instCount ; ++i)
             m_instructions.emplace_back(reader);
+
+        /* Pre-resolve blending mode */
+        const IR::Instruction& rootCall = m_instructions.back();
+        m_doAlpha = false;
+        if (!rootCall.m_call.m_name.compare("HECLOpaque"))
+        {
+            m_blendSrc = boo::BlendFactor::One;
+            m_blendDst = boo::BlendFactor::Zero;
+        }
+        else if (!rootCall.m_call.m_name.compare("HECLAlpha"))
+        {
+            m_blendSrc = boo::BlendFactor::SrcAlpha;
+            m_blendDst = boo::BlendFactor::InvSrcAlpha;
+            m_doAlpha = true;
+        }
+        else if (!rootCall.m_call.m_name.compare("HECLAdditive"))
+        {
+            m_blendSrc = boo::BlendFactor::SrcAlpha;
+            m_blendDst = boo::BlendFactor::One;
+            m_doAlpha = true;
+        }
     }
 
     void write(athena::io::IStreamWriter& writer) const
