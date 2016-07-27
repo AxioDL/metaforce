@@ -90,7 +90,7 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
         return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
-                                         ctx.newVertexFormat(3, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
 };

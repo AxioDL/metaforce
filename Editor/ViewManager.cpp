@@ -377,6 +377,7 @@ void ViewManager::stop()
 {
     m_videoVoice.reset();
     m_projManager.shutdown();
+    TShader<CThermalColdFilter>::Shutdown();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();
