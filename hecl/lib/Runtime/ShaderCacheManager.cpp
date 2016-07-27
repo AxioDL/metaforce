@@ -218,13 +218,13 @@ ShaderCachedData ShaderCacheManager::lookupData(const Hash& hash)
 {
     auto search = m_entryLookup.find(hash);
     if (search == m_entryLookup.cend())
-        return ShaderCachedData();
+        return {};
 
     const IndexEntry& ent = m_entries[search->second];
     if (ent.m_compOffset + ent.m_compSize > m_datFr.length())
     {
         Log.report(logvisor::Warning, "shader cache not long enough to read entry, might be corrupt");
-        return ShaderCachedData();
+        return {};
     }
 
     /* File-streamed decompression */
@@ -240,7 +240,12 @@ ShaderCachedData ShaderCacheManager::lookupData(const Hash& hash)
         z.avail_in = std::min(size_t(2048), size_t(ent.m_compSize - z.total_in));
         m_datFr.readUBytesToBuf(compDat, z.avail_in);
         z.next_in = compDat;
-        inflate(&z, Z_NO_FLUSH);
+        int ret = inflate(&z, Z_NO_FLUSH);
+        if (ret != Z_OK)
+        {
+            inflateEnd(&z);
+            return {};
+        }
     }
     inflateEnd(&z);
     return ret;
