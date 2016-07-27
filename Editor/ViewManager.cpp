@@ -20,6 +20,8 @@ using YAMLNode = athena::io::YAMLNode;
 namespace urde
 {
 
+URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
+
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
     m_modelTest = objStore.GetObj("gun_cmdl");

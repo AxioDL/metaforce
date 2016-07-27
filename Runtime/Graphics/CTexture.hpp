@@ -20,6 +20,7 @@ class CTexture
     u32 x8_mips;
     boo::GraphicsDataToken m_booToken;
     boo::ITexture* m_booTex;
+    boo::ITexture* m_paletteTex;
 
     size_t ComputeMippedTexelCount();
     size_t ComputeMippedBlockCountDXT1();
@@ -35,6 +36,7 @@ class CTexture
     void BuildRGBA8FromGCN(CInputStream& in);
     void BuildDXT1FromGCN(CInputStream& in);
     void BuildRGBA8(const void* data);
+    void BuildC8(const void* data);
 
 public:
     CTexture(std::unique_ptr<u8[]>&& in, u32 length);

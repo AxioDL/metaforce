@@ -239,7 +239,7 @@ void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx
                                            SPHERE_RAMP_RES * SPHERE_RAMP_RES);
 }
 
-void CBooRenderer::LoadThermoPalette(boo::IGraphicsDataFactory::Context& ctx)
+void CBooRenderer::LoadThermoPalette()
 {
     m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
     CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
@@ -257,9 +257,9 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
         GenerateMirrorRampTex(ctx);
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
-        LoadThermoPalette(ctx);
         return true;
     });
+    LoadThermoPalette();
 
     Buckets::Init();
 }

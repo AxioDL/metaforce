@@ -110,7 +110,7 @@ class CBooRenderer : public IRenderer
     void GenerateMirrorRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
-    void LoadThermoPalette(boo::IGraphicsDataFactory::Context& ctx);
+    void LoadThermoPalette();
 
     void RenderBucketItems(const std::vector<CLight>& lights);
 

@@ -660,6 +660,23 @@ void CTexture::BuildRGBA8(const void* data)
     });
 }
 
+void CTexture::BuildC8(const void* data)
+{
+    size_t texelCount = ComputeMippedTexelCount();
+
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+        const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
+        const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
+        m_paletteTex = ctx.newStaticTexture(nentries, 1, 1, boo::TextureFormat::RGBA8,
+                                            paletteTexels, nentries * 4);
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::I8,
+                                        texels, texelCount);
+        return true;
+    });
+}
+
 CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
 {
     std::unique_ptr<u8[]> owned = std::move(in);
@@ -706,6 +723,9 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
         break;
     case ETexelFormat::RGBA8PC:
         BuildRGBA8(owned.get() + 12);
+        break;
+    case ETexelFormat::C8PC:
+        BuildC8(owned.get() + 12);
         break;
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));

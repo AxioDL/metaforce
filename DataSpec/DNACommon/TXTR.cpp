@@ -88,6 +88,12 @@ static inline uint8_t Convert6To8(uint8_t v)
     return (v << 2) | (v >> 4);
 }
 
+static inline uint16_t Convert8To16(uint16_t v)
+{
+    /* Swizzle bits: 01234567 -> 0123456701234567 */
+    return (v << 8) | v;
+}
+
 static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
 {
     int bwidth = (width + 7) / 8;
@@ -299,10 +305,10 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         GXEntry.name = (char*)"GX_IA8";
         for (int e=0 ; e<numEntries ; ++e)
         {
-            entries[e].red = data[e*2];
-            entries[e].green = data[e*2];
-            entries[e].blue = data[e*2];
-            entries[e].alpha = data[e*2+1];
+            entries[e].red = Convert8To16(data[e*2]);
+            entries[e].green = Convert8To16(data[e*2]);
+            entries[e].blue = Convert8To16(data[e*2]);
+            entries[e].alpha = Convert8To16(data[e*2+1]);
         }
         break;
     }
@@ -314,10 +320,10 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         for (int e=0 ; e<numEntries ; ++e)
         {
             uint16_t texel = hecl::SBig(data16[e]);
-            entries[e].red = Convert5To8(texel >> 11 & 0x1f);
-            entries[e].green = Convert6To8(texel >> 5 & 0x3f);
-            entries[e].blue = Convert5To8(texel & 0x1f);
-            entries[e].alpha = 0xff;
+            entries[e].red = Convert8To16(Convert5To8(texel >> 11 & 0x1f));
+            entries[e].green = Convert8To16(Convert6To8(texel >> 5 & 0x3f));
+            entries[e].blue = Convert8To16(Convert5To8(texel & 0x1f));
+            entries[e].alpha = Convert8To16(0xff);
         }
         break;
     }
@@ -331,17 +337,17 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
             uint16_t texel = hecl::SBig(data16[e]);
             if (texel & 0x8000)
             {
-                entries[e].red = Convert5To8(texel >> 10 & 0x1f);
-                entries[e].green = Convert5To8(texel >> 5 & 0x1f);
-                entries[e].blue = Convert5To8(texel & 0x1f);
-                entries[e].alpha = 0xff;
+                entries[e].red = Convert8To16(Convert5To8(texel >> 10 & 0x1f));
+                entries[e].green = Convert8To16(Convert5To8(texel >> 5 & 0x1f));
+                entries[e].blue = Convert8To16(Convert5To8(texel & 0x1f));
+                entries[e].alpha = Convert8To16(0xff);
             }
             else
             {
-                entries[e].red = Convert4To8(texel >> 8 & 0xf);
-                entries[e].green = Convert4To8(texel >> 4 & 0xf);
-                entries[e].blue = Convert4To8(texel & 0xf);
-                entries[e].alpha = Convert3To8(texel >> 12 & 0x7);
+                entries[e].red = Convert8To16(Convert4To8(texel >> 8 & 0xf));
+                entries[e].green = Convert8To16(Convert4To8(texel >> 4 & 0xf));
+                entries[e].blue = Convert8To16(Convert4To8(texel & 0xf));
+                entries[e].alpha = Convert8To16(Convert3To8(texel >> 12 & 0x7));
             }
         }
         break;
@@ -603,6 +609,137 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     return true;
 }
 
+static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, size_t& szOut)
+{
+    std::unique_ptr<uint8_t[]> ret;
+    png_sPLT_tp palettes;
+    int paletteCount = png_get_sPLT(png, info, &palettes);
+    if (paletteCount)
+    {
+        for (int i=0 ; i<paletteCount ; ++i)
+        {
+            png_sPLT_tp palette = &palettes[i];
+            if (!strcmp(palette->name, "GXPalette"))
+            {
+                if (palette->nentries > 16)
+                {
+                    /* This is a C8 palette */
+                    ret.reset(new uint8_t[4 * 257]);
+                    szOut = 4 * 257;
+                    *reinterpret_cast<uint32_t*>(ret.get()) = hecl::SBig(256);
+                    uint8_t* cur = ret.get() + 4;
+                    for (int j=0 ; j<256 ; ++j)
+                    {
+                        if (j < palette->nentries)
+                        {
+                            png_sPLT_entryp entry = &palette->entries[j];
+                            *cur++ = entry->red >> 8;
+                            *cur++ = entry->green >> 8;
+                            *cur++ = entry->blue >> 8;
+                            *cur++ = entry->alpha >> 8;
+                        }
+                        else
+                        {
+                            *cur++ = 0;
+                            *cur++ = 0;
+                            *cur++ = 0;
+                            *cur++ = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    /* This is a C4 palette */
+                    ret.reset(new uint8_t[4 * 17]);
+                    szOut = 4 * 17;
+                    *reinterpret_cast<uint32_t*>(ret.get()) = hecl::SBig(16);
+                    uint8_t* cur = ret.get() + 4;
+                    for (int j=0 ; j<16 ; ++j)
+                    {
+                        if (j < palette->nentries)
+                        {
+                            png_sPLT_entryp entry = &palette->entries[j];
+                            *cur++ = entry->red >> 8;
+                            *cur++ = entry->green >> 8;
+                            *cur++ = entry->blue >> 8;
+                            *cur++ = entry->alpha >> 8;
+                        }
+                        else
+                        {
+                            *cur++ = 0;
+                            *cur++ = 0;
+                            *cur++ = 0;
+                            *cur++ = 0;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        png_colorp palettes;
+        int colorCount;
+        if (png_get_PLTE(png, info, &palettes, &colorCount) == PNG_INFO_PLTE)
+        {
+            if (colorCount > 16)
+            {
+                /* This is a C8 palette */
+                ret.reset(new uint8_t[4 * 257]);
+                szOut = 4 * 257;
+                *reinterpret_cast<uint32_t*>(ret.get()) = hecl::SBig(256);
+                uint8_t* cur = ret.get() + 4;
+                for (int j=0 ; j<256 ; ++j)
+                {
+                    if (j < colorCount)
+                    {
+                        png_colorp entry = &palettes[j];
+                        *cur++ = entry->red;
+                        *cur++ = entry->green;
+                        *cur++ = entry->blue;
+                        *cur++ = 0xff;
+                    }
+                    else
+                    {
+                        *cur++ = 0;
+                        *cur++ = 0;
+                        *cur++ = 0;
+                        *cur++ = 0;
+                    }
+                }
+            }
+            else
+            {
+                /* This is a C4 palette */
+                ret.reset(new uint8_t[4 * 17]);
+                szOut = 4 * 17;
+                *reinterpret_cast<uint32_t*>(ret.get()) = hecl::SBig(16);
+                uint8_t* cur = ret.get() + 4;
+                for (int j=0 ; j<16 ; ++j)
+                {
+                    if (j < colorCount)
+                    {
+                        png_colorp entry = &palettes[j];
+                        *cur++ = entry->red;
+                        *cur++ = entry->green;
+                        *cur++ = entry->blue;
+                        *cur++ = 0xff;
+                    }
+                    else
+                    {
+                        *cur++ = 0;
+                        *cur++ = 0;
+                        *cur++ = 0;
+                        *cur++ = 0;
+                    }
+                }
+            }
+        }
+    }
+    return ret;
+}
+
 bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
 {
     return false;
@@ -692,7 +829,11 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         return false;
     }
 
+    std::unique_ptr<uint8_t[]> paletteBuf;
+    size_t paletteSize = 0;
+
     size_t rowSize = 0;
+    size_t nComps = 4;
     switch (colorType)
     {
     case PNG_COLOR_TYPE_GRAY:
@@ -706,6 +847,11 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
         rowSize = width * 4;
+        break;
+    case PNG_COLOR_TYPE_PALETTE:
+        rowSize = width;
+        nComps = 1;
+        paletteBuf = ReadPalette(pngRead, info, paletteSize);
         break;
     default:
         Log.report(logvisor::Error, _S("unsupported color type in '%s'"),
@@ -722,9 +868,9 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     std::unique_ptr<uint8_t[]> bufOut;
     size_t bufLen = 0;
     if (numMips > 1)
-        bufLen = ComputeMippedTexelCount(width, height) * 4;
+        bufLen = ComputeMippedTexelCount(width, height) * nComps;
     else
-        bufLen = width * height * 4;
+        bufLen = width * height * nComps;
     bufOut.reset(new uint8_t[bufLen]);
 
     if (setjmp(png_jmpbuf(pngRead)))
@@ -785,6 +931,10 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
                 bufOut[outbase+3] = rowBuf[inbase+3];
             }
             break;
+        case PNG_COLOR_TYPE_PALETTE:
+            for (unsigned i=0 ; i<width ; ++i)
+                bufOut[r*width+i] = rowBuf[i];
+            break;
         default: break;
         }
     }
@@ -796,16 +946,16 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     if (numMips > 1)
     {
         const uint8_t* filterIn = bufOut.get();
-        uint8_t* filterOut = bufOut.get() + width * height * 4;
+        uint8_t* filterOut = bufOut.get() + width * height * nComps;
         unsigned filterWidth = width;
         unsigned filterHeight = height;
         for (size_t i=1 ; i<numMips ; ++i)
         {
-            BoxFilter(filterIn, 4, filterWidth, filterHeight, filterOut);
-            filterIn += filterWidth * filterHeight * 4;
+            BoxFilter(filterIn, nComps, filterWidth, filterHeight, filterOut);
+            filterIn += filterWidth * filterHeight * nComps;
             filterWidth /= 2;
             filterHeight /= 2;
-            filterOut += filterWidth * filterHeight * 4;
+            filterOut += filterWidth * filterHeight * nComps;
         }
     }
 
@@ -819,10 +969,12 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         return false;
     }
 
-    outf.writeInt32Big(16);
+    outf.writeInt32Big((paletteBuf && paletteSize) ? 17 : 16);
     outf.writeInt16Big(width);
     outf.writeInt16Big(height);
     outf.writeInt32Big(numMips);
+    if (paletteBuf && paletteSize)
+        outf.writeUBytes(paletteBuf.get(), paletteSize);
     outf.writeUBytes(bufOut.get(), bufLen);
 
     return true;
