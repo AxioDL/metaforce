@@ -109,7 +109,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_thermColdFilter.setScale(std::sin(m_theta) * 0.5f + 0.5f);
 
         m_thermColdFilter.setShift(m_random.Next() % 32);
-        m_thermColdFilter.draw();
+        //m_thermColdFilter.draw();
     }
     if (m_vm.m_partGen)
     {

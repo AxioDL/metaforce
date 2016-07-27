@@ -138,7 +138,7 @@ static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f,
 
 static const zeus::CMatrix4f PlusOneZFlip(1.f, 0.f, 0.f, 0.f,
                                           0.f, -1.f, 0.f, 0.f,
-                                          0.f, 0.f, 1.f, 1.f,
+                                          0.f, 0.f, 0.5f, 0.5f,
                                           0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
@@ -193,7 +193,7 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
     {
         zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
                              0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                             0.f, 0.f, st.x18_far / fmn, st.x14_near * st.x18_far / fmn,
+                             0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
                              0.f, 0.f, -1.f, 0.f);
         return PlusOneZFlip * mat2;
     }
@@ -241,7 +241,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
     {
         zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
                              0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                             0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn,
+                             0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
                              0.f, 0.f, -1.f, 0.f);
         return PlusOneZFlip * mat2;
     }
