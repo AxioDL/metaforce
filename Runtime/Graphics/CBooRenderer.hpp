@@ -7,6 +7,7 @@
 #include "CDrawablePlaneObject.hpp"
 #include "Shaders/CThermalColdFilter.hpp"
 #include "CRandom16.hpp"
+#include "CPVSVisSet.hpp"
 
 namespace urde
 {
@@ -71,6 +72,15 @@ class CBooRenderer : public IRenderer
 
     zeus::CPlane xb0_ = {0.f, 1.f, 0.f, 0.f};
 
+    enum class EPVSMode
+    {
+        Mask,
+        PVS,
+        PVSAndMask
+    } xc4_pvsMode = EPVSMode::Mask;
+    std::experimental::optional<CPVSVisSet> xc8_pvs;
+    u32 xe0_pvsModelCount = 0;
+
     //boo::ITextureS* xe4_blackTex = nullptr;
     bool xee_24_ : 1;
 
@@ -96,7 +106,7 @@ class CBooRenderer : public IRenderer
         struct
         {
             bool x318_24_refectionDirty : 1;
-            bool x318_25_ : 1;
+            bool x318_25_drawWireframe : 1;
             bool x318_26_ : 1;
             bool x318_27_ : 1;
             bool x318_28_ : 1;
@@ -121,10 +131,12 @@ public:
 
     std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int);
+    void EnablePVS(const CPVSVisSet*, u32);
+    void DisablePVS();
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
-    void DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
-    void DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
-    void DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int);
+    void DrawUnsortedGeometry(const std::vector<CLight>&, int mask, int targetMask);
+    void DrawSortedGeometry(const std::vector<CLight>&, int mask, int targetMask);
+    void DrawStaticGeometry(const std::vector<CLight>&, int mask, int targetMask);
     void PostRenderFogs();
     void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);

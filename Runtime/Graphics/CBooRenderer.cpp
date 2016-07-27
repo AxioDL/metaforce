@@ -302,6 +302,17 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
     }
 }
 
+void CBooRenderer::EnablePVS(const CPVSVisSet* set, u32 modelCount)
+{
+    xc8_pvs.emplace(*set);
+    xe0_pvsModelCount = modelCount;
+}
+
+void CBooRenderer::DisablePVS()
+{
+    xc8_pvs = std::experimental::nullopt;
+}
+
 void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry)
 {
     auto search = FindStaticGeometry(geometry);
@@ -309,17 +320,91 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
         x1c_areaListItems.erase(search);
 }
 
-void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
+void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, int targetMask)
 {
+    //SetupRendererStates(true);
+
+    CAreaListItem* lastOctreeItem = nullptr;
+
+    for (CAreaListItem& item : x1c_areaListItems)
+    {
+        if (item.x18_unk != 0xff)
+            continue;
+
+        if (item.x4_octTree)
+            lastOctreeItem = &item;
+
+        CPVSVisSet* pvs = nullptr;
+        if (xc8_pvs)
+            pvs = &*xc8_pvs;
+        if (xe0_pvsModelCount != item.x10_models.size())
+            pvs = nullptr;
+
+        int idx = 0;
+        for (auto it = item.x10_models.begin() ; it != item.x10_models.end() ; ++it, ++idx)
+        {
+            CBooModel* model = *it;
+            if (pvs)
+            {
+                bool vis = pvs->GetVisible(idx);
+                switch (xc4_pvsMode)
+                {
+                case EPVSMode::PVS:
+                {
+                    if (!vis)
+                    {
+                        model->x40_25_modelVisible = false;
+                        continue;
+                    }
+                }
+                case EPVSMode::PVSAndMask:
+                {
+                    if (!vis && (model->x41_mask & mask) != targetMask)
+                    {
+                        model->x40_25_modelVisible = false;
+                        continue;
+                    }
+                }
+                default: break;
+                }
+            }
+
+            if ((model->x41_mask & mask) != targetMask)
+            {
+                model->x40_25_modelVisible = false;
+                continue;
+            }
+
+            if (!x44_frustumPlanes.aabbFrustumTest(model->x20_aabb))
+            {
+                model->x40_25_modelVisible = false;
+                continue;
+            }
+
+            if (x318_25_drawWireframe)
+            {
+                model->x40_25_modelVisible = false;
+                //HandleUnsortedModelWireframe();
+                continue;
+            }
+
+            model->x40_25_modelVisible = true;
+            //HandleUnsortedModel();
+        }
+
+    }
+
+    //SetupCGraphicsStates();
 }
 
-void CBooRenderer::DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
+void CBooRenderer::DrawSortedGeometry(const std::vector<CLight>&, int mask, int targetMask)
 {
-    //SetupRendererStates();
+    //SetupRendererStates(true);
 }
 
-void CBooRenderer::DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)
+void CBooRenderer::DrawStaticGeometry(const std::vector<CLight>& lights, int mask, int targetMask)
 {
+    DrawUnsortedGeometry(lights, mask, targetMask);
 }
 
 void CBooRenderer::PostRenderFogs()

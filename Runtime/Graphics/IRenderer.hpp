@@ -17,6 +17,7 @@ class CAreaOctTree;
 class CParticleGen;
 class CModel;
 class CSkinnedModel;
+class CPVSVisSet;
 
 class IRenderer
 {
@@ -41,10 +42,12 @@ public:
 
     virtual ~IRenderer() = default;
     virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int)=0;
+    virtual void EnablePVS(const CPVSVisSet*, u32)=0;
+    virtual void DisablePVS()=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;
-    virtual void DrawUnsortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
-    virtual void DrawSortedGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
-    virtual void DrawStaticGeometry(const std::vector<CLight>&, int, unsigned int, unsigned int)=0;
+    virtual void DrawUnsortedGeometry(const std::vector<CLight>&, int, int)=0;
+    virtual void DrawSortedGeometry(const std::vector<CLight>&, int, int)=0;
+    virtual void DrawStaticGeometry(const std::vector<CLight>&, int, int)=0;
     virtual void PostRenderFogs()=0;
     virtual void AddParticleGen(const CParticleGen&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;

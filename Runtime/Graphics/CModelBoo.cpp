@@ -18,7 +18,7 @@ CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
     : x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_pipelines(&shader.m_shaders),
       m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
       m_skinBankCount(skinBankCount), x1c_textures(&shader.x0_textures), x20_aabb(aabb),
-      x40_24_texturesLoaded(false), x40_25_(0)
+      x40_24_texturesLoaded(false), x40_25_modelVisible(0)
 {
     for (CBooSurface& surf : *x0_surfaces)
         surf.m_parent = this;

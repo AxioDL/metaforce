@@ -84,7 +84,8 @@ private:
     CBooSurface* x38_firstUnsortedSurface = nullptr;
     CBooSurface* x3c_firstSortedSurface = nullptr;
     bool x40_24_texturesLoaded : 1;
-    bool x40_25_ : 1;
+    bool x40_25_modelVisible : 1;
+    u8 x41_mask = 0;
 
     struct UVAnimationBuffer
     {

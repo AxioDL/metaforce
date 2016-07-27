@@ -20,6 +20,10 @@ set(GRAPHICS_SOURCES
     CMoviePlayer.hpp CMoviePlayer.cpp
     CFrustumPlanes.hpp CFrustumPlanes.cpp
     CGraphicsPalette.hpp CGraphicsPalette.cpp
+    CPVSVisSet.hpp CPVSVisSet.cpp
+    CPVSVisOctree.hpp CPVSVisOctree.cpp
+    CPVSBounds.hpp CPVSBounds.cpp
+    CPVSAreaSet.hpp CPVSAreaSet.cpp
     CGraphics.hpp CGraphics.cpp
     Shaders/TShader.hpp Shaders/TShaderDecl.hpp
     Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp Shaders/CLineRendererShadersGLSL.cpp
