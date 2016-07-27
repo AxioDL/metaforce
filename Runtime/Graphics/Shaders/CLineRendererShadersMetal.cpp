@@ -1,5 +1,5 @@
 #include "CLineRendererShaders.hpp"
-#include "CLineRenderer.hpp"
+#include "Graphics/CLineRenderer.hpp"
 #if BOO_HAS_METAL
 
 namespace urde
