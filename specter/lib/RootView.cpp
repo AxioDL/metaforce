@@ -26,7 +26,7 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFacto
 : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
   m_splitActionNode(*this), m_joinActionNode(*this)
 {
-    m_viewVertBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(View::ViewBlock), 1);
+    m_viewVertBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(View::ViewBlock), 1);
     m_vertsBinding.initSolid(ctx, *rv.m_viewRes, 32, m_viewVertBlockBuf);
 
     zeus::CColor col = {0.0,0.0,0.0,0.5};
