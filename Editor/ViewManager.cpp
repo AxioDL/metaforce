@@ -90,8 +90,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_modelTest->GetInstance().ActivateLights(lights);
         m_vm.m_modelTest->Draw(flags);
 
-        zeus::CColor ctrlCol{1.f, 0.f, 0.f, 1.f};
-        float fac = 0.5f;
+        zeus::CColor ctrlCol{0.7f, 0.f, 0.3f, 1.f};
+        float fac = 0.0f;
         zeus::CColor a = zeus::CColor::lerp(ctrlCol, zeus::CColor::skWhite, fac);
         m_thermColdFilter.setColorA(a);
         float bFac = 0.f;
@@ -104,7 +104,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         zeus::CColor b{bFac, bFac, bFac, bAlpha};
         m_thermColdFilter.setColorB(b);
         zeus::CColor c = zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite, fac * 0.75f + 0.25f);
-        m_thermColdFilter.setColorC(c);
+        m_thermColdFilter.setColorC(zeus::CColor::skBlack);
 
         m_thermColdFilter.setScale(std::sin(m_theta) * 0.5f + 0.5f);
 

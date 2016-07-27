@@ -40,7 +40,7 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.sceneUv = uvIn.xy;\n"
 "    vtf.shiftUv = (mat3(shiftMtx) * uvIn.xyz).xy;\n"
 "    vtf.shiftScale = shiftScale.xy;\n"
-"    gl_Position = FLIPFROMGL(vec4(posIn.xyz, 1.0));\n"
+"    gl_Position = vec4(posIn.xyz, 1.0);\n"
 "}\n";
 
 static const char* FS =
