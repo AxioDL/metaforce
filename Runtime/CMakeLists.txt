@@ -46,6 +46,7 @@ add_library(RuntimeCommon
             ${PARTICLE_SOURCES}
             ${WORLD_SOURCES}
             #CMemory.hpp CMemory.cpp
+            ITweak.hpp
             CMemoryCardSys.hpp
             CSaveWorld.hpp CSaveWorld.cpp
             IAllocator.hpp IAllocator.cpp

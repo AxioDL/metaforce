@@ -1,0 +1,182 @@
+#include "CTweakPlayer.hpp"
+#include "zeus/Math.hpp"
+
+namespace urde
+{
+namespace MP1
+{
+CTweakPlayer::CTweakPlayer(urde::CInputStream& in)
+{
+    for (u32 i = 0 ; i<8 ; ++i)
+        x4_[i] = in.readFloatBig();
+    for (u32 i = 0 ; i<8 ; ++i)
+        x24_[i] = in.readFloatBig();
+    for (u32 i = 0 ; i<8 ; ++i)
+        x44_[i] = in.readFloatBig();
+    for (u32 i = 0 ; i<8 ; ++i)
+        x64_[i] = in.readFloatBig();
+    for (u32 i = 0 ; i<8 ; ++i)
+        x84_[i] = in.readFloatBig();
+    for (u32 i = 0 ; i<8 ; ++i)
+        xa4_[i] = in.readFloatBig();
+    xc4_ = in.readFloatBig();
+    xc8_ = in.readFloatBig();
+    xcc_ = in.readFloatBig();
+    xd0_ = in.readFloatBig();
+    xd4_ = in.readFloatBig();
+    xd8_ = in.readFloatBig();
+    xdc_ = in.readFloatBig();
+    xe0_ = in.readFloatBig();
+    xe4_ = in.readFloatBig();
+    xe8_ = in.readFloatBig();
+    xec_ = in.readFloatBig();
+    xf0_ = in.readFloatBig();
+    xf4_ = in.readFloatBig();
+    xf8_ = in.readFloatBig();
+    xfc_ = in.readFloatBig();
+    x100_ = in.readFloatBig();
+    x104_ = in.readFloatBig();
+    x108_ = in.readFloatBig();
+    x10c_ = in.readFloatBig();
+    x11c_ = in.readFloatBig();
+    x120_ = in.readFloatBig();
+    x124_ = in.readFloatBig();
+    x128_ = in.readFloatBig();
+    x12c_ = in.readFloatBig();
+    x130_ = zeus::degToRad(in.readFloatBig());
+    x134_ = zeus::degToRad(in.readFloatBig());
+    x138_ = zeus::degToRad(in.readFloatBig());
+    x13c_ = zeus::degToRad(in.readFloatBig());
+    x140_ = zeus::degToRad(in.readFloatBig());
+    x144_ = zeus::degToRad(in.readFloatBig());
+    x148_ = in.readFloatBig();
+    x14c_ = in.readFloatBig();
+    x150_ = in.readFloatBig();
+    x228_24_ = in.readBool();
+    x228_25_ = in.readBool();
+    x228_26_ = in.readBool();
+    x228_27_ = in.readBool();
+    x228_28_ = in.readBool();
+    x228_29_ = in.readBool();
+    x228_30_ = in.readBool();
+    x228_31_ = in.readBool();
+    x229_24_ = in.readBool();
+    x229_25_ = in.readBool();
+    x229_26_ = in.readBool();
+    x229_27_ = in.readBool();
+    x229_28_ = in.readBool();
+    x229_29_ = in.readBool();
+    x229_30_ = in.readBool();
+    x229_31_ = in.readBool();
+    x22a_24_ = in.readBool();
+    x22a_25_ = in.readBool();
+    x22a_26_ = in.readBool();
+    x22a_27_ = in.readBool();
+    x22a_28_ = in.readBool();
+    x22c_ = in.readFloatBig();
+    x230_ = in.readFloatBig();
+    x234_ = in.readFloatBig();
+    x238_ = zeus::degToRad(in.readFloatBig());
+    x23c_ = zeus::degToRad(in.readFloatBig());
+    x240_ = zeus::degToRad(in.readFloatBig());
+    x244_ = zeus::degToRad(in.readFloatBig());
+    x248_ = zeus::degToRad(in.readFloatBig());
+    x24c_ = in.readFloatBig();
+    x250_ = zeus::degToRad(in.readFloatBig());
+    x254_ = in.readFloatBig();
+    x258_ = in.readFloatBig();
+    x25c_ = in.readFloatBig();
+    x260_ = in.readFloatBig();
+    x264_ = zeus::degToRad(in.readFloatBig());
+    for (u32 i = 0 ; i<3 ; ++i)
+    {
+        x158_[i] = in.readFloatBig();
+        x164_[i] = in.readFloatBig();
+        x170_[i] = in.readFloatBig();
+    }
+    x17c_ = zeus::degToRad(in.readFloatBig());
+    x180_ = in.readFloatBig();
+    x184_ = zeus::degToRad(in.readFloatBig());
+    x188_ = zeus::degToRad(in.readFloatBig());
+    x18c_ = zeus::degToRad(in.readFloatBig());
+    x190_ = zeus::degToRad(in.readFloatBig());
+    x194_ = zeus::degToRad(in.readFloatBig());
+    x198_ = zeus::degToRad(in.readFloatBig());
+    x19c_ = in.readFloatBig();
+    x1a0_ = in.readFloatBig();
+    x1a4_ = in.readFloatBig();
+    for (u32 i = 0 ; i<2 ; ++i)
+    {
+        x1a8_[i] = in.readUint32Big();
+        x1b0_[i] = in.readUint32Big();
+        x1b8_[i] = in.readUint32Big();
+        x1c0_[i] = in.readUint32Big();
+        x1c8_[i] = in.readUint32Big();
+    }
+
+    x1d8_ = in.readFloatBig();
+    x1dc_ = in.readFloatBig();
+    x1e0_ = in.readFloatBig();
+    x1e4_ = in.readFloatBig();
+    x1e8_ = in.readFloatBig();
+    x1ec_ = in.readFloatBig();
+    x1f0_ = zeus::degToRad(in.readFloatBig());
+    x1f4_ = zeus::degToRad(in.readFloatBig());
+    x1f8_ = in.readFloatBig();
+    x1fc_ = in.readFloatBig();
+    x200_24_ = in.readBool();
+    x200_25_ = in.readBool();
+    x204_ = in.readFloatBig();
+    x208_ = in.readFloatBig();
+    x20c_ = in.readFloatBig();
+    x210_ = in.readFloatBig();
+    x214_ = in.readFloatBig();
+    x218_ = in.readFloatBig();
+    x21c_24_ = in.readBool();
+    x21c_25_ = in.readBool();
+    x220_  = in.readFloatBig();
+    x224_ = in.readFloatBig();
+    x2a0_ = in.readFloatBig();
+    x2a4_ = in.readFloatBig();
+    x2a8_ = in.readFloatBig();
+    x2ac_ = in.readFloatBig();
+    x2b0_ = zeus::degToRad(in.readFloatBig());
+    x2b4_ = in.readFloatBig();
+    x2b8_ = in.readFloatBig();
+    x2bc_ = in.readFloatBig();
+    x2c0_ = zeus::degToRad(in.readFloatBig());
+    x2c4_ = in.readFloatBig();
+    x2c8_ = in.readFloatBig();
+    x2cc_ = in.readFloatBig();
+    x2d0_ = in.readUint32Big();
+    x2d4_ = in.readBool();
+    x2d5_ = in.readBool();
+    x2d8_ = in.readFloatBig();
+    x2dc_ = in.readFloatBig();
+    x2e0_ = in.readFloatBig();
+    x2e4_ = in.readFloatBig();
+    x26c_ = in.readFloatBig();
+    x270_ = in.readFloatBig();
+    x274_ = in.readFloatBig();
+    x278_ = in.readFloatBig();
+    x27c_ = in.readFloatBig();
+    x280_ = zeus::degToRad(in.readFloatBig());
+    x284_ = zeus::degToRad(in.readFloatBig());
+    x288_ = in.readFloatBig();
+    x28c_ = in.readFloatBig();
+    x290_ = zeus::degToRad(in.readFloatBig());
+    x294_ = in.readFloatBig();
+    x298_ = in.readFloatBig();
+    x29c_ = zeus::degToRad(in.readFloatBig());
+    x2e8_ = in.readFloatBig();
+    x2ec_ = in.readFloatBig();
+    x2f0_ = in.readFloatBig();
+    x2f4_ = in.readBool();
+    x2f8_ = in.readFloatBig();
+    x2fc_ = in.readFloatBig();
+    x300_ = in.readFloatBig();
+    x304_ = in.readFloatBig();
+    x308_ = in.readFloatBig();
+}
+}
+}
