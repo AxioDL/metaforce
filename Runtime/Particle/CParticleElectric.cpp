@@ -17,7 +17,7 @@ void CParticleElectric::RenderSwooshes()
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     : x1c_elecDesc(token)
 {
-    x438_24_x450_24 = true;
+    x450_24 = true;
     /* x438_28_x450_28 = true; demo */
     x450_29 = true; // are 28 and 29 the same between retail and demo?
     CElectricDescription* desc = x1c_elecDesc.GetObj();
@@ -40,14 +40,14 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
 
     if (desc->x40_SSWH.m_found)
     {
-        x438_27_x450_27_HaveSSWH = true;
+        x450_27_HaveSSWH = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
             x1e0_lineManagers[i].SSWH.reset(new CParticleSwoosh(desc->x40_SSWH.m_token, x150_SSEG));
     }
 
     if (desc->x50_GPSM.m_found)
     {
-        x438_25_x450_25_HaveGPSM = true;
+        x450_25_HaveGPSM = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
             x1e0_lineManagers[i].GPSM.reset(new CElementGen(desc->x50_GPSM.m_token,
                                                             CElementGen::EModelOrientationType::Normal,
@@ -56,7 +56,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
 
     if (desc->x60_EPSM.m_found)
     {
-        x438_26_x450_26_HaveEPSM = true;
+        x450_26_HaveEPSM = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
             x1e0_lineManagers[i].EPSM.reset(new CElementGen(desc->x60_EPSM.m_token,
                                                              CElementGen::EModelOrientationType::Normal,
@@ -105,38 +105,38 @@ void CParticleElectric::Render()
 void CParticleElectric::SetOrientation(const zeus::CTransform& orientation)
 {
     x44_orientation = orientation;
-    x438_28_x450_28 = true;
+    x450_28 = true;
 }
 
 void CParticleElectric::SetTranslation(const zeus::CVector3f& translation)
 {
     x38_translation = translation;
-    x438_28_x450_28 = true;
+    x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalOrientation(const zeus::CTransform& orientation)
 {
     xb0_globalOrientation = orientation;
-    x438_28_x450_28 = true;
+    x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalTranslation(const zeus::CVector3f& translation)
 {
     xa4_globalTranslation = translation;
-    x438_28_x450_28 = true;
+    x450_28 = true;
 }
 
 void CParticleElectric::SetGlobalScale(const zeus::CVector3f& scale)
 {
     xe0_globalScale = scale;
-    x438_28_x450_28 = true;
+    x450_28 = true;
 }
 
 void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
 {
     xec_localScale = scale;
-    x438_28_x450_28 = true;
-    if (x438_26_x450_26_HaveEPSM)
+    x450_28 = true;
+    if (x450_26_HaveEPSM)
     {
     }
 }
@@ -147,11 +147,7 @@ void CParticleElectric::SetParticleEmission(bool)
 
 void CParticleElectric::SetModulationColor(const zeus::CColor& color)
 {
-    if (!x1bc_hasModuColor)
-        x1bc_hasModuColor = true;
-
     x1b8_moduColor = color;
-    /* TODO: Add child particle systems */
 }
 
 const zeus::CTransform& CParticleElectric::GetOrientation() const

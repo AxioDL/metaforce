@@ -1,6 +1,5 @@
 #include "COBBTree.hpp"
 
-
 namespace urde
 {
 /* This is exactly what retro did >.< */
@@ -30,6 +29,29 @@ COBBTree::COBBTree(CInputStream& in)
 {
 }
 
+CCollisionSurface COBBTree::GetSurface(u16 idx) const
+{
+    u32 surfIdx = idx * 3;
+    CCollisionEdge edge1 = x18_indexData.x50_surfaceIndices[x18_indexData.x50_surfaceIndices[surfIdx]];
+    CCollisionEdge edge2 = x18_indexData.x50_surfaceIndices[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+    u16 vert1 = edge2.GetVertIndex1();
+    u16 vert2 = edge2.GetVertIndex2();
+    u16 vert3 = edge1.GetVertIndex1();
+
+    if (vert3 == vert1 || vert3 == edge2.GetVertIndex2())
+        vert3 = edge1.GetVertIndex2();
+
+    u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+
+    if ((mat & 0x2000000) != 0)
+    {
+        return CCollisionSurface(x18_indexData.x60_vertices[vert2], x18_indexData.x60_vertices[vert1],
+                                 x18_indexData.x60_vertices[vert3], mat);
+    }
+    return CCollisionSurface(x18_indexData.x60_vertices[vert1], x18_indexData.x60_vertices[vert2],
+                             x18_indexData.x60_vertices[vert3], mat);
+}
+
 zeus::CAABox COBBTree::CalculateLocalAABox() const
 {
     return CalculateAABox(zeus::CTransform::Identity());
@@ -45,31 +67,31 @@ zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const
 COBBTree::SIndexData::SIndexData(CInputStream& in)
 {
     u32 count = in.readUint32Big();
-    x0_.reserve(count);
+    x0_materials.reserve(count);
     for (u32 i = 0 ; i < count ; i++)
-        x0_.push_back(in.readUint32Big());
+        x0_materials.push_back(in.readUint32Big());
 
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x10_.push_back(in.readUByte());
+        x10_vertMaterials.push_back(in.readUByte());
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x20_.push_back(in.readUByte());
+        x20_edgeMaterials.push_back(in.readUByte());
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x30_.push_back(in.readUByte());
+        x30_surfaceMaterials.push_back(in.readUByte());
 
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x40_.push_back(in);
+        x40_edges.push_back(in);
 
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x50_.push_back(in.readUint16Big());
+        x50_surfaceIndices.push_back(in.readUint16Big());
 
     count = in.readUint32Big();
     for (u32 i = 0 ; i < count ; i++)
-        x60_.push_back(zeus::CVector3f::ReadBig(in));
+        x60_vertices.push_back(zeus::CVector3f::ReadBig(in));
 }
 
 COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,

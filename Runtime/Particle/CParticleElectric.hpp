@@ -20,6 +20,7 @@ public:
         std::unique_ptr<CElementGen> GPSM;
         std::unique_ptr<CElementGen> EPSM;
     };
+
 private:
     TLockedToken<CElectricDescription> x1c_elecDesc;
     int              x28_currentFrame = 0;
@@ -44,9 +45,7 @@ private:
     bool             x194 = false;
     bool             x1b4 = false;
     zeus::CColor     x1b8_moduColor;
-    bool             x1bc_hasModuColor = false;
-    int              x1c0 = 32;
-    char             x1c4[4][8];
+    rstl::reserved_vector<bool,32> x1c0_;
     rstl::reserved_vector<CLineManager, 32> x1e0_lineManagers;
     int              x414 = 0;
     int              x418 = 0;
@@ -65,8 +64,8 @@ private:
     {
         struct
         {
-            bool x438_24_x450_24 : 1; bool x438_25_x450_25_HaveGPSM : 1; bool x438_26_x450_26_HaveEPSM : 1; bool x438_27_x450_27_HaveSSWH : 1;
-            bool x438_28_x450_28: 1; bool x450_29 : 1;
+            bool x450_24 : 1; bool x450_25_HaveGPSM : 1; bool x450_26_HaveEPSM : 1;
+            bool x450_27_HaveSSWH : 1; bool x450_28: 1; bool x450_29 : 1;
         };
         u8 dummy = 0;
     };

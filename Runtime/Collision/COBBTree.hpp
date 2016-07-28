@@ -2,6 +2,7 @@
 #define __URDE_COBBTREE_HPP__
 #include "RetroTypes.hpp"
 #include "CCollisionEdge.hpp"
+#include "CCollisionSurface.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/COBBox.hpp"
 
@@ -12,13 +13,13 @@ class COBBTree
 public:
     struct SIndexData
     {
-        std::vector<u32> x0_;
-        std::vector<u8> x10_;
-        std::vector<u8> x20_;
-        std::vector<u8> x30_;
-        std::vector<CCollisionEdge> x40_;
-        std::vector<u16> x50_;
-        std::vector<zeus::CVector3f> x60_;
+        std::vector<u32> x0_materials;
+        std::vector<u8> x10_vertMaterials;
+        std::vector<u8> x20_edgeMaterials;
+        std::vector<u8> x30_surfaceMaterials;
+        std::vector<CCollisionEdge> x40_edges;
+        std::vector<u16> x50_surfaceIndices;
+        std::vector<zeus::CVector3f> x60_vertices;
         SIndexData()=default;
         SIndexData(CInputStream&);
     };
@@ -70,6 +71,7 @@ public:
     COBBTree(const COBBTree::SIndexData&, const CNode*);
     COBBTree(CInputStream&);
 
+    void GetSurface(u16) const;
     zeus::CAABox CalculateLocalAABox() const;
     zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
 };

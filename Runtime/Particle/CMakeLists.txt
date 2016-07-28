@@ -27,7 +27,6 @@ set(PARTICLE_SOURCES
     CParticleElectric.hpp CParticleElectric.cpp
     CParticleGen.hpp CParticleGen.cpp
     CProjectileWeaponDataFactory.hpp CProjectileWeaponDataFactory.cpp
-    CCollisionResponseData.hpp CCollisionResponseData.cpp
     CDecalManager.hpp CDecalManager.cpp
     CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
     CWarp.hpp CWarp.cpp

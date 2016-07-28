@@ -1,6 +1,7 @@
 set(COLLISION_SOURCES
     CollisionUtil.hpp CollisionUtil.cpp
     CGameCollision.hpp CGameCollision.cpp
+    CCollisionResponseData.hpp CCollisionResponseData.cpp
     CCollisionInfo.hpp CCollisionInfo.cpp
     CCollisionInfoList.hpp CCollisionInfoList.cpp
     CCollisionEdge.hpp CCollisionEdge.cpp
