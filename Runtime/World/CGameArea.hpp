@@ -7,6 +7,7 @@
 #include "CToken.hpp"
 #include "RetroTypes.hpp"
 #include "IGameArea.hpp"
+#include "CAreaOctTree.hpp"
 #include "hecl/ClientProcess.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
 
@@ -85,9 +86,8 @@ public:
     {
         std::unique_ptr<uint8_t[]> x0_;
         u32 x8_ = 0;
-        std::unique_ptr<uint8_t[]> xc_;
-        bool x48_owns = false;
-        std::vector<CMetroidModelInstance> x4c_;
+        std::experimental::optional<CAreaOctTree> xc_octTree;
+        std::vector<CMetroidModelInstance> x4c_insts;
         std::unique_ptr<uint8_t> x5c_;
         //std::vector<Something 68 bytes> x60_;
         //std::vector<Something 80 bytes> x70_;
