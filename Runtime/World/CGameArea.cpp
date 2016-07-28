@@ -1,4 +1,6 @@
 #include "CGameArea.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -243,10 +245,26 @@ void CGameArea::SetOcclusionState(EOcclusionState state)
 
 void CGameArea::RemoveStaticGeometry()
 {
+    if (!xf0_24_postConstructed || !x12c_postConstructed || !x12c_postConstructed->x10dc_)
+        return;
+    x12c_postConstructed->x10e0_ = 0;
+    x12c_postConstructed->x10dc_ = 0;
+    g_Renderer->RemoveStaticGeometry(&x12c_postConstructed->x4c_insts);
 }
 
 void CGameArea::AddStaticGeometry()
 {
+    if (x12c_postConstructed->x10dc_ != 1)
+    {
+        x12c_postConstructed->x10e0_ = 0;
+        x12c_postConstructed->x10dc_ = 1;
+        if (!x12c_postConstructed->x1108_25_)
+            FillInStaticGeometry();
+        g_Renderer->AddStaticGeometry(&x12c_postConstructed->x4c_insts,
+                                      x12c_postConstructed->xc_octTree ?
+                                          &*x12c_postConstructed->xc_octTree : nullptr,
+                                      x4_selfIdx);
+    }
 }
 
 void CGameArea::SetChain(CGameArea* other, int)

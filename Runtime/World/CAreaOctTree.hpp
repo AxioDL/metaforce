@@ -10,6 +10,7 @@ class CCollisionEdge;
 class CMaterialFilter;
 class CAreaOctTree
 {
+    friend class CBooRenderer;
 public:
     struct SRayResult
     {
@@ -35,6 +36,7 @@ public:
         };
 
     private:
+
     public:
         Node(const void*, const zeus::CAABox&, const CAreaOctTree& owner, ETreeType);
 #if 0
@@ -51,6 +53,8 @@ public:
         ETreeType GetChildType(s32) const;
         ETreeType GetTreeType(s32) const;
     };
+
+    int x14_;
 
 public:
     CAreaOctTree(const zeus::CAABox& box, Node::ETreeType treeType, u8*, void*, u32, u32*, u8*, u8*, u8*, u32,

@@ -7,6 +7,7 @@
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
 #include "CMetroidModelInstance.hpp"
+#include "World/CAreaOctTree.hpp"
 
 #define MIRROR_RAMP_RES 32
 #define FOGVOL_RAMP_RES 256
@@ -141,12 +142,60 @@ void Buckets::Init()
 
 CBooRenderer::CAreaListItem::CAreaListItem
 (const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
- std::vector<CBooModel*>&& models, int unk)
-: x0_geometry(geom), x4_octTree(octTree), x10_models(std::move(models)), x18_unk(unk) {}
+ std::vector<CBooModel*>&& models, int areaIdx)
+: x0_geometry(geom), x4_octTree(octTree), x10_models(std::move(models)), x18_areaIdx(areaIdx) {}
 
 CBooRenderer::CAreaListItem::~CAreaListItem() {}
 
-void CBooRenderer::RenderBucketItems(const std::vector<CLight>& lights)
+void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
+{
+    std::vector<CLight> thisLights;
+    thisLights.reserve(4);
+
+    if (x304_lights.size())
+    {
+        /*
+        void* unk3 = nullptr;
+        int x14 = 0;
+        if (item && item->x18_areaIdx != -1)
+        {
+            unk3 = item->x28_unk3;
+            x14 = item->x4_octTree->x14_;
+        }
+        void* unk3Cur = unk3;
+        */
+
+        float lightRads[] = {-1.f, -1.f, -1.f, -1.f};
+        for (int i=0 ; i<4 ; ++i)
+        {
+            for (CLight& light : x304_lights)
+            {
+                /*
+                if (unk3)
+                {
+                }
+                */
+                if (light.x40_loadedIdx == i)
+                    continue;
+                float rad = light.GetRadius();
+                if (model.x20_aabb.intersects(zeus::CSphere{light.x0_pos, rad}))
+                {
+                    if (rad > lightRads[i])
+                    {
+                        lightRads[i] = rad;
+                        light.x40_loadedIdx = i;
+                        thisLights.push_back(light);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    model.ActivateLights(thisLights);
+}
+
+void CBooRenderer::RenderBucketItems(CAreaListItem* item)
 {
     for (u16 idx : Buckets::sBucketIndex)
     {
@@ -166,22 +215,33 @@ void CBooRenderer::RenderBucketItems(const std::vector<CLight>& lights)
                 CBooModel* model = surf->m_parent;
                 if (model)
                 {
-                    model->ActivateLights(lights);
+                    ActivateLightsForModel(item, *model);
                     model->DrawSurface(*surf, CModelFlags{});
                 }
                 break;
             }
             default:
             {
-                if (xa8_renderCallback)
+                if (xa8_drawableCallback)
                 {
-                    xa8_renderCallback(drawable->GetData(), xac_callbackContext,
+                    xa8_drawableCallback(drawable->GetData(), xac_callbackContext,
                                        int(drawable->GetType()) - 2);
                 }
                 break;
             }
             }
         }
+    }
+}
+
+void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
+{
+    ActivateLightsForModel(item, model);
+    CBooSurface* surf = model.x38_firstUnsortedSurface;
+    while (surf)
+    {
+        model.DrawSurface(*surf, CModelFlags{});
+        surf = surf->m_next;
     }
 }
 
@@ -271,8 +331,8 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model)
     {
         const CBooModel::MaterialSet::Material& mat = model.GetMaterialByIndex(surf->selfIdx);
         zeus::CAABox aabb = surf->GetBounds();
-        zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_.vec);
-        Buckets::Insert(pt, aabb, EDrawableType::Surface, surf, xb0_,
+        zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.vec);
+        Buckets::Insert(pt, aabb, EDrawableType::Surface, surf, xb0_viewPlane,
                         mat.heclIr.m_blendDst != boo::BlendFactor::Zero);
         surf = surf->m_next;
     }
@@ -286,7 +346,7 @@ CBooRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geome
 }
 
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
-                                     const CAreaOctTree* octTree, int unk)
+                                     const CAreaOctTree* octTree, int areaIdx)
 {
     auto search = FindStaticGeometry(geometry);
     if (search == x1c_areaListItems.end())
@@ -298,7 +358,7 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
             for (const CMetroidModelInstance& inst : *geometry)
                 models.push_back(inst.m_instance.get());
         }
-        x1c_areaListItems.emplace_back(geometry, octTree, std::move(models), unk);
+        x1c_areaListItems.emplace_back(geometry, octTree, std::move(models), areaIdx);
     }
 }
 
@@ -320,7 +380,7 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
         x1c_areaListItems.erase(search);
 }
 
-void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, int targetMask)
+void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 {
     //SetupRendererStates(true);
 
@@ -328,7 +388,7 @@ void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, in
 
     for (CAreaListItem& item : x1c_areaListItems)
     {
-        if (item.x18_unk != 0xff)
+        if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
             continue;
 
         if (item.x4_octTree)
@@ -356,6 +416,7 @@ void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, in
                         model->x40_25_modelVisible = false;
                         continue;
                     }
+                    break;
                 }
                 case EPVSMode::PVSAndMask:
                 {
@@ -389,7 +450,7 @@ void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, in
             }
 
             model->x40_25_modelVisible = true;
-            //HandleUnsortedModel();
+            HandleUnsortedModel(lastOctreeItem, *model);
         }
 
     }
@@ -397,14 +458,40 @@ void CBooRenderer::DrawUnsortedGeometry(const std::vector<CLight>&, int mask, in
     //SetupCGraphicsStates();
 }
 
-void CBooRenderer::DrawSortedGeometry(const std::vector<CLight>&, int mask, int targetMask)
+void CBooRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask)
 {
     //SetupRendererStates(true);
+
+    CAreaListItem* lastOctreeItem = nullptr;
+
+    for (CAreaListItem& item : x1c_areaListItems)
+    {
+        if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
+            continue;
+
+        if (item.x4_octTree)
+            lastOctreeItem = &item;
+
+        for (auto it = item.x10_models.begin() ; it != item.x10_models.end() ; ++it)
+        {
+            CBooModel* model = *it;
+            if (model->x40_25_modelVisible)
+                AddWorldSurfaces(*model);
+        }
+    }
+
+    Buckets::Sort();
+    RenderBucketItems(lastOctreeItem);
+
+    //SetupCGraphicsStates();
+    //DrawRenderBucketsDebug();
+    Buckets::Clear();
 }
 
-void CBooRenderer::DrawStaticGeometry(const std::vector<CLight>& lights, int mask, int targetMask)
+void CBooRenderer::DrawStaticGeometry(int modelCount, int mask, int targetMask)
 {
-    DrawUnsortedGeometry(lights, mask, targetMask);
+    DrawUnsortedGeometry(modelCount, mask, targetMask);
+    DrawSortedGeometry(modelCount, mask, targetMask);
 }
 
 void CBooRenderer::PostRenderFogs()
@@ -416,8 +503,8 @@ void CBooRenderer::AddParticleGen(const CParticleGen& gen)
     std::pair<zeus::CAABox, bool> bounds = gen.GetBounds();
     if (bounds.second)
     {
-        zeus::CVector3f pt = bounds.first.closestPointAlongVector(xb0_.vec);
-        Buckets::Insert(pt, bounds.first, EDrawableType::Particle, &gen, xb0_, 0);
+        zeus::CVector3f pt = bounds.first.closestPointAlongVector(xb0_viewPlane.vec);
+        Buckets::Insert(pt, bounds.first, EDrawableType::Particle, &gen, xb0_viewPlane, 0);
     }
 }
 
@@ -429,31 +516,36 @@ void CBooRenderer::AddPlaneObject(const void*, const zeus::CAABox&, const zeus::
 void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode, EDrawableSorting sorting)
 {
     if (sorting == EDrawableSorting::UnsortedCallback)
-        xa8_renderCallback(obj, xac_callbackContext, mode);
+        xa8_drawableCallback(obj, xac_callbackContext, mode);
     else
-        Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_, 0);
+        Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_viewPlane, 0);
 }
 
 void CBooRenderer::SetDrawableCallback(TDrawableCallback&& cb, const void* ctx)
 {
-    xa8_renderCallback = std::move(cb);
+    xa8_drawableCallback = std::move(cb);
     xac_callbackContext = ctx;
 }
 
-void CBooRenderer::SetWorldViewpoint(const zeus::CTransform&)
+void CBooRenderer::SetWorldViewpoint(const zeus::CTransform& xf)
 {
+    CGraphics::SetViewPointMatrix(xf);
+    xb0_viewPlane.vec = xf.basis[1];
+    xb0_viewPlane.d = xf.basis[1].dot(xf.origin);
 }
 
 void CBooRenderer::SetPerspectiveFovScalar(float)
 {
 }
 
-void CBooRenderer::SetPerspective(float, float, float, float, float)
+void CBooRenderer::SetPerspective(float fovy, float width, float height, float znear, float zfar)
 {
+    CGraphics::SetPerspective(fovy, width / height, znear, zfar);
 }
 
-void CBooRenderer::SetPerspective(float, float, float, float)
+void CBooRenderer::SetPerspective(float fovy, float aspect, float znear, float zfar)
 {
+    CGraphics::SetPerspective(fovy, aspect, znear, zfar);
 }
 
 void CBooRenderer::SetViewportOrtho(bool, float, float)
@@ -630,7 +722,7 @@ void CBooRenderer::DoThermalBlendCold()
     zeus::CColor b{bFac, bFac, bFac, bAlpha};
     m_thermColdFilter.setColorB(b);
     zeus::CColor c = zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite,
-                                        (x2f8_thermColdScale - 0.25f) * 4.f / 3.f);
+                                        zeus::clamp(0.f, (x2f8_thermColdScale - 0.25f) * 4.f / 3.f, 1.f));
     m_thermColdFilter.setColorC(c);
 
     m_thermColdFilter.setScale(x2f8_thermColdScale);

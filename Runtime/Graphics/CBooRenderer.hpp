@@ -49,13 +49,13 @@ class CBooRenderer : public IRenderer
         const CAreaOctTree* x4_octTree;
         //std::vector<TCachedToken<CTexture>> x8_textures;
         std::vector<CBooModel*> x10_models;
-        int x18_unk;
+        int x18_areaIdx;
         int x20_unk1 = 0;
         int x24_unk2 = 0;
-        int x28_unk3 = 0;
+        void* x28_unk3 = nullptr;
 
         CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
-                      std::vector<CBooModel*>&& models, int unk);
+                      std::vector<CBooModel*>&& models, int areaIdx);
         ~CAreaListItem();
     };
 
@@ -67,10 +67,10 @@ class CBooRenderer : public IRenderer
     std::list<CAreaListItem> x1c_areaListItems;
     zeus::CFrustum x44_frustumPlanes;
 
-    TDrawableCallback xa8_renderCallback;
+    TDrawableCallback xa8_drawableCallback;
     const void* xac_callbackContext;
 
-    zeus::CPlane xb0_ = {0.f, 1.f, 0.f, 0.f};
+    zeus::CPlane xb0_viewPlane = {0.f, 1.f, 0.f, 0.f};
 
     enum class EPVSMode
     {
@@ -101,6 +101,8 @@ class CBooRenderer : public IRenderer
     float x2f8_thermColdScale = 0.f;
     CThermalColdFilter m_thermColdFilter;
 
+    std::vector<CLight> x304_lights;
+
     union
     {
         struct
@@ -122,7 +124,9 @@ class CBooRenderer : public IRenderer
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void LoadThermoPalette();
 
-    void RenderBucketItems(const std::vector<CLight>& lights);
+    void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
+    void RenderBucketItems(CAreaListItem* item);
+    void HandleUnsortedModel(CAreaListItem* item, CBooModel& model);
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
@@ -130,13 +134,13 @@ public:
     void AddWorldSurfaces(CBooModel& model);
 
     std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
-    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int);
+    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int areaIdx);
     void EnablePVS(const CPVSVisSet*, u32);
     void DisablePVS();
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
-    void DrawUnsortedGeometry(const std::vector<CLight>&, int mask, int targetMask);
-    void DrawSortedGeometry(const std::vector<CLight>&, int mask, int targetMask);
-    void DrawStaticGeometry(const std::vector<CLight>&, int mask, int targetMask);
+    void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask);
+    void DrawSortedGeometry(int areaIdx, int mask, int targetMask);
+    void DrawStaticGeometry(int areaIdx, int mask, int targetMask);
     void PostRenderFogs();
     void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);

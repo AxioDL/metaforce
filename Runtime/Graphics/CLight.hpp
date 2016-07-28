@@ -27,6 +27,7 @@ class CLight
 {
     friend class CGuiLight;
     friend class CBooModel;
+    friend class CBooRenderer;
 
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_dir;

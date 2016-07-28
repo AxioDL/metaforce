@@ -45,9 +45,9 @@ public:
     virtual void EnablePVS(const CPVSVisSet*, u32)=0;
     virtual void DisablePVS()=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;
-    virtual void DrawUnsortedGeometry(const std::vector<CLight>&, int, int)=0;
-    virtual void DrawSortedGeometry(const std::vector<CLight>&, int, int)=0;
-    virtual void DrawStaticGeometry(const std::vector<CLight>&, int, int)=0;
+    virtual void DrawUnsortedGeometry(int, int, int)=0;
+    virtual void DrawSortedGeometry(int, int, int)=0;
+    virtual void DrawStaticGeometry(int, int, int)=0;
     virtual void PostRenderFogs()=0;
     virtual void AddParticleGen(const CParticleGen&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;
