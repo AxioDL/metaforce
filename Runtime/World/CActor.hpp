@@ -7,7 +7,7 @@
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
-#include "Particle/CCollisionResponseData.hpp"
+#include "Collision/CCollisionResponseData.hpp"
 
 namespace urde
 {

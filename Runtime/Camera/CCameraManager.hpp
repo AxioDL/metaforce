@@ -69,6 +69,8 @@ public:
             return x4_cineCameras.back();
         return x0_curCameraId;
     }
+
+    CBallCamera* GetBallCamera() { return x80_ballCamera; }
 };
 
 }

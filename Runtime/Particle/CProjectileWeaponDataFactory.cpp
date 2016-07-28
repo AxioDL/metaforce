@@ -1,6 +1,6 @@
 #include "CProjectileWeaponDataFactory.hpp"
 #include "CWeaponDescription.hpp"
-#include "CCollisionResponseData.hpp"
+#include "Collision/CCollisionResponseData.hpp"
 #include "CElectricDescription.hpp"
 #include "CSwooshDescription.hpp"
 #include "CGenDescription.hpp"

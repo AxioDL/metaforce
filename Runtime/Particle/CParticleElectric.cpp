@@ -177,8 +177,6 @@ const zeus::CVector3f& CParticleElectric::GetGlobalScale() const
 
 const zeus::CColor& CParticleElectric::GetModulationColor() const
 {
-    if (!x1bc_hasModuColor)
-        return zeus::CColor::skWhite;
     return x1b8_moduColor;
 }
 

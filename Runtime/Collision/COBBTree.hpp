@@ -71,7 +71,7 @@ public:
     COBBTree(const COBBTree::SIndexData&, const CNode*);
     COBBTree(CInputStream&);
 
-    void GetSurface(u16) const;
+    CCollisionSurface GetSurface(u16) const;
     zeus::CAABox CalculateLocalAABox() const;
     zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
 };

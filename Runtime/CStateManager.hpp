@@ -250,6 +250,7 @@ public:
 
     CWorld* GetWorld() {return x850_world.get();}
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
+    CCameraManager* GetCameraManager() { return x870_cameraManager.get(); }
 
     std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
 };

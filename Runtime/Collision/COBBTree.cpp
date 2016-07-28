@@ -32,8 +32,8 @@ COBBTree::COBBTree(CInputStream& in)
 CCollisionSurface COBBTree::GetSurface(u16 idx) const
 {
     u32 surfIdx = idx * 3;
-    CCollisionEdge edge1 = x18_indexData.x50_surfaceIndices[x18_indexData.x50_surfaceIndices[surfIdx]];
-    CCollisionEdge edge2 = x18_indexData.x50_surfaceIndices[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+    CCollisionEdge edge1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+    CCollisionEdge edge2 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
     u16 vert1 = edge2.GetVertIndex1();
     u16 vert2 = edge2.GetVertIndex2();
     u16 vert3 = edge1.GetVertIndex1();

@@ -6,6 +6,8 @@
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
+#include "Camera/CCameraManager.hpp"
+#include "Camera/CBallCamera.hpp"
 
 namespace urde
 {
@@ -83,10 +85,9 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
         x2a8_26_ = false;
         x2a8_25_ = false;
 
-        /* TODO: Figure out what goes here this */
-        /*
-         * mgr->x870->x80_->sub_80083118(x8_uid)
-         * mgr->x870->x80_->sub_800830F4(x8_uid)
+        /* TODO: Figure out what goes here this
+         * mgr.GetCameraManager()->GetBallCamera()->sub_80083118(x8_uid);
+         * mgr.GetCameraManager()->GetBallCamera()->sub_800830F4(x8_uid);
          */
 
         SetDoorAnimation(EDoorAnimType::Close);
