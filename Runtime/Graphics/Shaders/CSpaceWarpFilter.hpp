@@ -26,16 +26,13 @@ class CSpaceWarpFilter
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;
+    float m_strength = 1.f;
 
     void GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx);
 
 public:
     CSpaceWarpFilter();
-    void setStrength(float scale)
-    {
-        m_uniform.m_strength[0] = scale;
-        m_uniform.m_strength[1] = scale;
-    }
+    void setStrength(float strength) { m_strength = strength; }
     void draw(const zeus::CVector2f& pt);
 
     using _CLS = CSpaceWarpFilter;

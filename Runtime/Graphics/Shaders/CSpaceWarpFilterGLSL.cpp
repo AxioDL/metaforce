@@ -18,18 +18,18 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    vec4 strength;\n"
 "    vec2 sceneUv;\n"
 "    vec2 indUv;\n"
+"    vec2 strength;\n"
 "};\n"
 "\n"
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
-"    vtf.strength = strength;\n"
-"    vtf.sceneUv = (mainMtx * uvIn).xy;\n"
-"    vtf.indUv = (indMtx * uvIn).xy;\n"
-"    gl_Position = mainMtx * vec4(posIn.xyz, 1.0);\n"
+"    gl_Position = vec4(mat3(mainMtx) * vec3(posIn.xy, 1.0), 1.0);\n"
+"    vtf.sceneUv = gl_Position.xy * vec2(0.5) + vec2(0.5);\n"
+"    vtf.indUv = (mat3(indMtx) * vec3(uvIn.xy, 1.0)).xy;\n"
+"    vtf.strength = strength.xy;\n"
 "}\n";
 
 static const char* FS =
@@ -37,9 +37,9 @@ static const char* FS =
 BOO_GLSL_BINDING_HEAD
 "struct VertToFrag\n"
 "{\n"
-"    vec4 strength;\n"
 "    vec2 sceneUv;\n"
 "    vec2 indUv;\n"
+"    vec2 strength;\n"
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
@@ -48,7 +48,10 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING1 uniform sampler2D indTex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = texture(sceneTex, vtf.sceneUv + mix(vtf.indUv, texture(indTex, vtf.indUv).xy, vtf.strength.xy) * vec2(2.0) - vec2(1.0));\n"
+"    colorOut = texture(sceneTex, vtf.sceneUv + (texture(indTex, vtf.indUv).xy * vec2(2.0) - vec2(1.0)) * vtf.strength.xy);\n"
+"    //colorOut *= vec4(0.00001);\n"
+"    //colorOut.rg = texture(indTex, vtf.indUv).xy;\n"
+"    //colorOut.a = 1.0;\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
