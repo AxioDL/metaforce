@@ -9,26 +9,26 @@ namespace urde
 
 void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx)
 {
-    u8 data[WARP_RAMP_RES][WARP_RAMP_RES][4] = {};
+    u8 data[WARP_RAMP_RES+1][WARP_RAMP_RES+1][4] = {};
     float halfRes = WARP_RAMP_RES / 2.f;
-    for (int y=0 ; y<WARP_RAMP_RES ; ++y)
+    for (int y=0 ; y<WARP_RAMP_RES+1 ; ++y)
     {
-        for (int x=0 ; x<WARP_RAMP_RES ; ++x)
+        for (int x=0 ; x<WARP_RAMP_RES+1 ; ++x)
         {
             zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
             float mag = vec.magnitude();
-            if (mag <= 1.f && vec.canBeNormalized())
+            if (mag < 1.f && vec.canBeNormalized())
             {
                 vec.normalize();
                 vec *= std::sqrt(mag);
             }
-            data[y][x][0] = zeus::clamp(0.f, ((vec.x / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f, 1.f) * 255;
-            data[y][x][1] = zeus::clamp(0.f, ((vec.y / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f, 1.f) * 255;
+            data[y][x][0] = zeus::clamp(0, int((((vec.x / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+            data[y][x][1] = zeus::clamp(0, int((((vec.y / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
         }
     }
-    m_warpTex = ctx.newStaticTexture(WARP_RAMP_RES, WARP_RAMP_RES, 1,
+    m_warpTex = ctx.newStaticTexture(WARP_RAMP_RES+1, WARP_RAMP_RES+1, 1,
                                      boo::TextureFormat::RGBA8, data[0],
-                                     WARP_RAMP_RES * WARP_RAMP_RES * 4);
+                                     (WARP_RAMP_RES+1) * (WARP_RAMP_RES+1) * 4);
 }
 
 CSpaceWarpFilter::CSpaceWarpFilter()
@@ -111,18 +111,11 @@ void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
         clipRect.x10_height = CGraphics::g_ViewportResolution.y - clipRect.x8_top;
         m_uniform.m_indXf[1][1] = clipRect.x10_height / oldH;
     }
-    
-    SClipScreenRect clipRectDummy = {};
-    clipRectDummy.xc_width = CGraphics::g_ViewportResolution.x;
-    clipRectDummy.x10_height = CGraphics::g_ViewportResolution.y;
-    CGraphics::ResolveSpareTexture(clipRectDummy);
+
+    CGraphics::ResolveSpareTexture(clipRect);
 
     /* Transform UV coordinates of rectangle within viewport and sampled scene texels (clamped to viewport bounds) */
     zeus::CVector2f vp{CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y};
-    //zeus::CVector2f center(clipRect.x4_left + clipRect.xc_width / 2.f, clipRect.x8_top + clipRect.x10_height / 2.f);
-    //center /= vp;
-    //center *= zeus::CVector2f{2.f, 2.f};
-    //center -= zeus::CVector2f{1.f, 1.f};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
     m_uniform.m_matrix[2][0] = pt.x;

@@ -48,10 +48,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING1 uniform sampler2D indTex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = texture(sceneTex, vtf.sceneUv + (texture(indTex, vtf.indUv).xy * vec2(2.0) - vec2(1.0)) * vtf.strength.xy);\n"
-"    //colorOut *= vec4(0.00001);\n"
-"    //colorOut.rg = texture(indTex, vtf.indUv).xy;\n"
-"    //colorOut.a = 1.0;\n"
+"    colorOut = texture(sceneTex, vtf.sceneUv + (texture(indTex, vtf.indUv).xy * vec2(2.0) - vec2(1.0 - 1.0 / 256.0)) * vtf.strength.xy);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)

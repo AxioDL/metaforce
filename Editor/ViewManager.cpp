@@ -21,6 +21,7 @@ namespace urde
 {
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
+URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
