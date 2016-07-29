@@ -46,7 +46,7 @@ class ViewManager : public specter::IViewManager
     class ParticleView : public specter::View
     {
         ViewManager& m_vm;
-        CThermalColdFilter m_thermColdFilter;
+        CSpaceWarpFilter m_spaceWarpFilter;
         CRandom16 m_random;
         float m_theta = 0.f;
     public:

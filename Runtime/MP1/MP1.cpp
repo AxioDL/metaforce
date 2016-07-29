@@ -1,10 +1,12 @@
 #include "MP1.hpp"
 #include "Graphics/Shaders/CModelShaders.hpp"
 #include "Graphics/Shaders/CThermalColdFilter.hpp"
+#include "Graphics/Shaders/CSpaceWarpFilter.hpp"
 
 namespace urde
 {
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
+URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 namespace MP1
 {
@@ -33,6 +35,7 @@ void CMain::InitializeSubsystems(boo::IGraphicsDataFactory* factory,
     CGraphics::InitializeBoo(factory, cc, renderTex);
     CModelShaders::Initialize(storeMgr, factory);
     TShader<CThermalColdFilter>::Initialize();
+    TShader<CSpaceWarpFilter>::Initialize();
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();
     CElementGen::Initialize();

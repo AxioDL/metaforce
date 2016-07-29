@@ -6,8 +6,10 @@
 #include "CDrawable.hpp"
 #include "CDrawablePlaneObject.hpp"
 #include "Shaders/CThermalColdFilter.hpp"
+#include "Shaders/CSpaceWarpFilter.hpp"
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
+#include "zeus/CRectangle.hpp"
 
 namespace urde
 {
@@ -85,7 +87,7 @@ class CBooRenderer : public IRenderer
     bool xee_24_ : 1;
 
     boo::ITextureR* x14c_reflectionTex = nullptr;
-    boo::ITextureS* x150_mirrorRamp = nullptr;
+    //boo::ITextureS* x150_mirrorRamp = nullptr;
     boo::ITextureS* x1b8_fogVolumeRamp = nullptr;
     boo::ITextureS* x220_sphereRamp = nullptr;
     TLockedToken<CTexture> m_thermoPaletteTex;
@@ -119,7 +121,6 @@ class CBooRenderer : public IRenderer
         u16 dummy = 0;
     };
 
-    void GenerateMirrorRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void LoadThermoPalette();
@@ -147,7 +148,6 @@ public:
     void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
     void SetDrawableCallback(TDrawableCallback&&, const void*);
     void SetWorldViewpoint(const zeus::CTransform&);
-    void SetPerspectiveFovScalar(float);
     void SetPerspective(float, float, float, float, float);
     void SetPerspective(float, float, float, float);
     void SetViewportOrtho(bool, float, float);
@@ -177,10 +177,9 @@ public:
     void PrimColor(const zeus::CColor&);
     void EndPrimitive();
     void SetAmbientColor(const zeus::CColor&);
-    void SetStaticWorldAmbientColor(const zeus::CColor&);
     void DrawString(const char*, int, int);
     u32 GetFPS();
-    void CacheReflection(TReflectionCallback, void*, bool);
+    //void CacheReflection(TReflectionCallback, void*, bool);
     void DrawSpaceWarp(const zeus::CVector3f&, float);
     void DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&, const float*, const float*);
     void DrawXRayOutline(const CModel&, const float*, const float*);

@@ -54,7 +54,6 @@ public:
     virtual void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting)=0;
     virtual void SetDrawableCallback(TDrawableCallback&&, const void*)=0;
     virtual void SetWorldViewpoint(const zeus::CTransform&)=0;
-    virtual void SetPerspectiveFovScalar(float)=0;
     virtual void SetPerspective(float, float, float, float, float)=0;
     virtual void SetPerspective(float, float, float, float)=0;
     virtual void SetViewportOrtho(bool, float, float)=0;
@@ -84,10 +83,9 @@ public:
     virtual void PrimColor(const zeus::CColor&)=0;
     virtual void EndPrimitive()=0;
     virtual void SetAmbientColor(const zeus::CColor&)=0;
-    virtual void SetStaticWorldAmbientColor(const zeus::CColor&)=0;
     virtual void DrawString(const char*, int, int)=0;
     virtual u32 GetFPS()=0;
-    virtual void CacheReflection(TReflectionCallback, void*, bool)=0;
+    //virtual void CacheReflection(TReflectionCallback, void*, bool)=0;
     virtual void DrawSpaceWarp(const zeus::CVector3f&, float)=0;
     virtual void DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&, const float*, const float*)=0;
     virtual void DrawXRayOutline(const CModel&, const float*, const float*)=0;

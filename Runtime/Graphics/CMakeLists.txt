@@ -1,7 +1,14 @@
 if(WIN32)
-  set(PLAT_SRCS Shaders/CLineRendererShadersHLSL.cpp Shaders/CModelShadersHLSL.cpp Shaders/CThermalColdFilterHLSL.cpp)
+  set(PLAT_SRCS 
+      Shaders/CLineRendererShadersHLSL.cpp
+      Shaders/CModelShadersHLSL.cpp
+      Shaders/CThermalColdFilterHLSL.cpp
+      Shaders/CSpaceWarpFilterHLSL.cpp)
 elseif(APPLE)
-  set(PLAT_SRCS Shaders/CLineRendererShadersMetal.cpp Shaders/CModelShadersMetal.cpp Shaders/CThermalColdFilterMetal.cpp)
+  set(PLAT_SRCS Shaders/CLineRendererShadersMetal.cpp
+      Shaders/CModelShadersMetal.cpp
+      Shaders/CThermalColdFilterMetal.cpp
+      Shaders/CSpaceWarpFilterMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -31,6 +38,7 @@ set(GRAPHICS_SOURCES
     Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilter.cpp Shaders/CXrayOutlineFilterGLSL.cpp
     Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp Shaders/CThermalColdFilterGLSL.cpp
     Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilter.cpp Shaders/CThermalHotFilterGLSL.cpp
+    Shaders/CSpaceWarpFilter.hpp Shaders/CSpaceWarpFilter.cpp Shaders/CSpaceWarpFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)
