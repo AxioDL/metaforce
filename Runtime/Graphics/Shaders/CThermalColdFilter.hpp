@@ -23,7 +23,7 @@ class CThermalColdFilter
     u8 m_shiftTexture[4][8][4] = {};
     boo::GraphicsDataToken m_token;
     boo::ITextureD* m_shiftTex = nullptr;
-    boo::IGraphicsBufferD* m_vbo;
+    boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;

@@ -31,6 +31,7 @@ set(GRAPHICS_SOURCES
     Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilter.cpp Shaders/CXrayOutlineFilterGLSL.cpp
     Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp Shaders/CThermalColdFilterGLSL.cpp
     Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilter.cpp Shaders/CThermalHotFilterGLSL.cpp
+    Shaders/CSpaceWarpFilter.hpp Shaders/CSpaceWarpFilter.cpp Shaders/CSpaceWarpFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

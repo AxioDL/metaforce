@@ -9,24 +9,23 @@ CThermalColdFilter::CThermalColdFilter()
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8);
-        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
+
+        struct Vert
+        {
+            zeus::CVector2f m_pos;
+            zeus::CVector2f m_uv;
+        } verts[4] =
+        {
+        {{-1.0, -1.0}, {0.0, 0.0}},
+        {{-1.0,  1.0}, {0.0, 1.0}},
+        {{ 1.0, -1.0}, {1.0, 0.0}},
+        {{ 1.0,  1.0}, {1.0, 1.0}},
+        };
+        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CThermalColdFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
     });
-
-    struct Vert
-    {
-        zeus::CVector2f m_pos;
-        zeus::CVector2f m_uv;
-    } verts[4] =
-    {
-    {{-1.0, -1.0}, {0.0, 0.0}},
-    {{-1.0,  1.0}, {0.0, 1.0}},
-    {{ 1.0, -1.0}, {1.0, 0.0}},
-    {{ 1.0,  1.0}, {1.0, 1.0}},
-    };
-    m_vbo->load(verts, sizeof(verts));
 
     setShift(0);
     setScale(0.f);

@@ -79,6 +79,10 @@ void CGraphics::SetCullMode(ERglCullMode)
 {
 }
 
+void CGraphics::BeginScene()
+{
+}
+
 void CGraphics::EndScene()
 {
     /* Spinwait until g_NumBreakpointsWaiting is 0 */

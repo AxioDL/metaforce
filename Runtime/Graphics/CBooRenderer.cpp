@@ -9,7 +9,6 @@
 #include "CMetroidModelInstance.hpp"
 #include "World/CAreaOctTree.hpp"
 
-#define MIRROR_RAMP_RES 32
 #define FOGVOL_RAMP_RES 256
 #define SPHERE_RAMP_RES 32
 
@@ -245,26 +244,6 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
     }
 }
 
-void CBooRenderer::GenerateMirrorRampTex(boo::IGraphicsDataFactory::Context& ctx)
-{
-    u8 data[MIRROR_RAMP_RES][MIRROR_RAMP_RES][4] = {};
-    float halfRes = MIRROR_RAMP_RES / 2.f;
-    for (int y=0 ; y<MIRROR_RAMP_RES ; ++y)
-    {
-        for (int x=0 ; x<MIRROR_RAMP_RES ; ++x)
-        {
-            zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
-            if (vec.magnitude() <= halfRes && vec.canBeNormalized())
-                vec.normalize();
-            data[y][x][0] = zeus::clamp(0.f, vec.x, 1.f) * 255;
-            data[y][x][1] = zeus::clamp(0.f, vec.y, 1.f) * 255;
-        }
-    }
-    x150_mirrorRamp = ctx.newStaticTexture(MIRROR_RAMP_RES, MIRROR_RAMP_RES, 1,
-                                           boo::TextureFormat::RGBA8, data[0],
-                                           MIRROR_RAMP_RES * MIRROR_RAMP_RES * 4);
-}
-
 void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx)
 {
     u8 data[FOGVOL_RAMP_RES][FOGVOL_RAMP_RES] = {};
@@ -314,7 +293,6 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        GenerateMirrorRampTex(ctx);
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
         return true;
@@ -534,10 +512,6 @@ void CBooRenderer::SetWorldViewpoint(const zeus::CTransform& xf)
     xb0_viewPlane.d = xf.basis[1].dot(xf.origin);
 }
 
-void CBooRenderer::SetPerspectiveFovScalar(float)
-{
-}
-
 void CBooRenderer::SetPerspective(float fovy, float width, float height, float znear, float zfar)
 {
     CGraphics::SetPerspective(fovy, width / height, znear, zfar);
@@ -548,8 +522,16 @@ void CBooRenderer::SetPerspective(float fovy, float aspect, float znear, float z
     CGraphics::SetPerspective(fovy, aspect, znear, zfar);
 }
 
-void CBooRenderer::SetViewportOrtho(bool, float, float)
+void CBooRenderer::SetViewportOrtho(bool centered, float znear, float zfar)
 {
+    float left = centered ? CGraphics::g_ViewportResolutionHalf.x : 0;
+    float bottom = centered ? CGraphics::g_ViewportResolutionHalf.y : 0;
+    float top = centered ? CGraphics::g_ViewportResolutionHalf.y : CGraphics::g_ViewportResolution.y;
+    float right = centered ? CGraphics::g_ViewportResolutionHalf.x : CGraphics::g_ViewportResolution.x;
+
+    CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
 }
 
 void CBooRenderer::SetClippingPlanes(const zeus::CFrustum& frustum)
@@ -557,8 +539,10 @@ void CBooRenderer::SetClippingPlanes(const zeus::CFrustum& frustum)
     x44_frustumPlanes = frustum;
 }
 
-void CBooRenderer::SetViewport(int, int, int, int)
+void CBooRenderer::SetViewport(int l, int b, int w, int h)
 {
+    CGraphics::SetViewport(l, b, w, h);
+    CGraphics::SetScissor(l, b, w, h);
 }
 
 void CBooRenderer::SetDepthReadWrite(bool, bool)
@@ -603,10 +587,15 @@ void CBooRenderer::SetDebugOption(EDebugOption, int)
 
 void CBooRenderer::BeginScene()
 {
+    CGraphics::SetViewport(0, 0, CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y);
+    CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    CGraphics::BeginScene();
 }
 
 void CBooRenderer::EndScene()
 {
+    CGraphics::EndScene();
 }
 
 void CBooRenderer::BeginPrimitive(EPrimitiveType, int)
@@ -653,12 +642,9 @@ void CBooRenderer::EndPrimitive()
 {
 }
 
-void CBooRenderer::SetAmbientColor(const zeus::CColor&)
+void CBooRenderer::SetAmbientColor(const zeus::CColor& color)
 {
-}
-
-void CBooRenderer::SetStaticWorldAmbientColor(const zeus::CColor&)
-{
+    CGraphics::SetAmbientColor(color);
 }
 
 void CBooRenderer::DrawString(const char*, int, int)
@@ -670,12 +656,9 @@ u32 CBooRenderer::GetFPS()
     return 0;
 }
 
-void CBooRenderer::CacheReflection(TReflectionCallback, void*, bool)
+void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float)
 {
-}
 
-void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f&, float)
-{
 }
 
 void CBooRenderer::DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&, const float*, const float*)
