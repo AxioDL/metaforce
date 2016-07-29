@@ -2,6 +2,7 @@
 #define __URDE_CMAPWORLD_HPP__
 
 #include "RetroTypes.hpp"
+#include "CToken.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CTransform.hpp"
@@ -9,6 +10,7 @@
 namespace urde
 {
 class IWorld;
+class CMapArea;
 class CMapWorldInfo;
 class CStateManager;
 class CMapWorld
@@ -48,6 +50,7 @@ public:
 
     class CMapAreaData
     {
+        TCachedToken<CMapArea> x0_area;
     public:
         CMapAreaData(u32, EMapAreaList, CMapAreaData*);
         void Lock();
@@ -81,6 +84,7 @@ public:
     };
 
 private:
+    std::vector<CMapAreaData> x0_areas;
 public:
     CMapWorld(CInputStream&);
     u32 GetNumAreas() const;

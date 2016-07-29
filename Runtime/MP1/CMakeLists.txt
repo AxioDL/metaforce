@@ -2,6 +2,7 @@ include_directories(. ..)
 set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
     CInGameTweakManager.hpp CInGameTweakManager.cpp
+    Tweaks/CTweakAutoMapper.hpp Tweaks/CTweakAutoMapper.cpp
     Tweaks/CTweakPlayer.hpp Tweaks/CTweakPlayer.cpp
     CMainFlow.hpp CMainFlow.cpp
     CMFGame.hpp CMFGame.cpp

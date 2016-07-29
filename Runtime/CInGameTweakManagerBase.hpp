@@ -4,16 +4,36 @@
 #include <string>
 #include <vector>
 
+#include "RetroTypes.hpp"
+
 namespace urde
 {
 
-struct CTweakValue
+class CTweakValue
 {
+public:
+    struct Audio
+    {
+        Audio(float, float, float, const std::string&, u32);
+        void None();
+    };
     enum class EType
     {
-    } x0_type;
+    };
+
+
+    EType x0_type;
     std::string x4_key;
     std::string x30_str;
+public:
+    CTweakValue()=default;
+    //CTweakValue(CTextInputStream&);
+    //void PutTo(CTextOutStream&);
+    const std::string& GetName() const { return x4_key; }
+    const std::string& GetValueAsString() const;
+    void SetValueFromString(const std::string&);
+    const Audio& GetAudio() const;
+    EType GetType() const { return x0_type; }
 };
 
 class CInGameTweakManagerBase
@@ -24,7 +44,7 @@ public:
     bool HasTweakValue(const std::string& name) const
     {
         for (const CTweakValue& val : x0_values)
-            if (val.x4_key == name)
+            if (val.GetName() == name)
                 return true;
         return false;
     }
@@ -32,7 +52,7 @@ public:
     const CTweakValue* GetTweakValue(const std::string& name) const
     {
         for (const CTweakValue& val : x0_values)
-            if (val.x4_key == name)
+            if (val.GetName() == name)
                 return &val;
         return nullptr;
     }
