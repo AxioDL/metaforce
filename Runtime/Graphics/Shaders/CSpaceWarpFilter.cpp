@@ -125,8 +125,8 @@ void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
         clipRect.x10_height += 1;
     CGraphics::ResolveSpareTexture(clipRect);
 
-    
-    m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f;
+    m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f *
+                             (clipRect.x10_height / float(clipRect.xc_width));
     m_uniform.m_strength.y = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
