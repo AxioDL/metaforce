@@ -118,8 +118,8 @@ void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
     zeus::CVector2f vp{CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
-    m_uniform.m_matrix[2][0] = pt.x;
-    m_uniform.m_matrix[2][1] = pt.y;
+    m_uniform.m_matrix[2][0] = pt.x + (1.f / vp.x);
+    m_uniform.m_matrix[2][1] = pt.y + (1.f / vp.y);
     
     m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f;
     m_uniform.m_strength.y = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
