@@ -112,16 +112,21 @@ void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
         m_uniform.m_indXf[1][1] = clipRect.x10_height / oldH;
     }
 
-    CGraphics::ResolveSpareTexture(clipRect);
-
     /* Transform UV coordinates of rectangle within viewport and sampled scene texels (clamped to viewport bounds) */
     zeus::CVector2f vp{CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
     m_uniform.m_matrix[2][0] = pt.x + (1.f / vp.x);
     m_uniform.m_matrix[2][1] = pt.y + (1.f / vp.y);
+
+    if (clipRect.x4_left + clipRect.xc_width < CGraphics::g_ViewportResolution.x)
+        clipRect.xc_width += 1;
+    if (clipRect.x8_top + clipRect.x10_height < CGraphics::g_ViewportResolution.y)
+        clipRect.x10_height += 1;
+    CGraphics::ResolveSpareTexture(clipRect);
+
     
-    m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f;
+    m_uniform.m_strength.x = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
     m_uniform.m_strength.y = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
