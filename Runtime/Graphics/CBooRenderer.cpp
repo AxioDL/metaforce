@@ -270,7 +270,7 @@ void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx
         for (int x=0 ; x<SPHERE_RAMP_RES ; ++x)
         {
             zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
-            data[y][x] = zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+            data[y][x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
         }
     }
     x220_sphereRamp = ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1,

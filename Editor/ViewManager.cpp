@@ -75,7 +75,6 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;
-        flags.addColor.r = 0.0f;
 
         flags.m_extendedShaderIdx = 2;
         if (std::fmod(m_theta, M_PIF) < M_PIF / 2.f)
