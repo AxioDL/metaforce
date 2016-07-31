@@ -27,6 +27,11 @@ CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
     }
 }
 
+const hecl::Backend::TextureInfo CModelShaders::ThermalTextures[] =
+{
+    {hecl::Backend::TexGenSrc::Normal, 7, 0, 7, true}
+};
+
 CModelShaders::CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                              boo::IGraphicsDataFactory* gfxFactory)
     : m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}

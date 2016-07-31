@@ -20,6 +20,7 @@ class CModelShaders
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat);
+    static const hecl::Backend::TextureInfo ThermalTextures[];
 public:
     struct Light
     {

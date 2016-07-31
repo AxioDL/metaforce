@@ -88,7 +88,7 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
         m_uniform.m_indXf[2][0] = -clipRect.x4_left / oldW;
         clipRect.x4_left = 0;
     }
-    
+
     float oldH = clipRect.x10_height;
     if (clipRect.x8_top < 0)
     {
@@ -104,7 +104,7 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
         clipRect.xc_width = CGraphics::g_ViewportResolution.x - clipRect.x4_left;
         m_uniform.m_indXf[0][0] = clipRect.xc_width / oldW;
     }
-    
+
     tmp = clipRect.x8_top + clipRect.x10_height;
     if (tmp >= CGraphics::g_ViewportResolution.y)
     {
@@ -123,6 +123,16 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     else
         m_uniform.m_matrix[3][2] = pt.z;
 
+    if (clipRect.x4_left)
+    {
+        clipRect.x4_left -= 1;
+        clipRect.xc_width += 1;
+    }
+    if (clipRect.x8_top)
+    {
+        clipRect.x8_top -= 1;
+        clipRect.x10_height += 1;
+    }
     if (clipRect.x4_left + clipRect.xc_width < CGraphics::g_ViewportResolution.x)
         clipRect.xc_width += 1;
     if (clipRect.x8_top + clipRect.x10_height < CGraphics::g_ViewportResolution.y)

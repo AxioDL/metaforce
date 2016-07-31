@@ -43,13 +43,34 @@ static const char* LightingMetal =
 "    return saturate(ret);\n"
 "}\n";
 
+static const char* ThermalPostMetal =
+"struct ThermalUniform\n"
+"{\n"
+"    float4 mulColor;\n"
+"    float4 addColor;\n"
+"};\n"
+"static float4 ThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu, texture2d<float> tex7, float4 colorIn)\n"
+"{\n"
+"    return tex7.sample(samp, vtf.extTcgs0).rrrr * lu.mulColor + lu.addColor;\n"
+"}\n"
+"\n";
+
 static const char* BlockNames[] = {"LightingUniform"};
+static const char* ThermalBlockNames[] = {"ThermalUniform"};
 
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat)
 {
     hecl::Runtime::ShaderCacheExtensions ext(plat);
-    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {}, 1, BlockNames);
+
+    /* Normal lit shading */
+    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {}, 1, BlockNames, 0, nullptr,
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
+
+    /* Thermal Visor shading */
+    ext.registerExtensionSlot({}, {ThermalPostMetal, "ThermalPostFunc"}, 1, ThermalBlockNames, 1, ThermalTextures,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One);
+
     return ext;
 }
 

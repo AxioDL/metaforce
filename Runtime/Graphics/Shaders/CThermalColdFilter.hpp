@@ -12,6 +12,7 @@ class CThermalColdFilter
 {
     friend struct CThermalColdFilterGLDataBindingFactory;
     friend struct CThermalColdFilterVulkanDataBindingFactory;
+    friend struct CThemalColdFilterMetalDataBindingFactory;
 
     struct Uniform
     {

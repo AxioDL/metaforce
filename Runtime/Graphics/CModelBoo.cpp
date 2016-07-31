@@ -8,6 +8,7 @@
 #include "Shaders/CModelShaders.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "GameGlobalObjects.hpp"
+#include <array>
 
 namespace urde
 {

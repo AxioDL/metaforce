@@ -64,11 +64,6 @@ static const char* ThermalBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
                                           HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
                                          "ThermalUniform"};
 
-static const hecl::Backend::TextureInfo ThermalTextures[] =
-{
-    {hecl::Backend::TexGenSrc::Normal, 7, 0, 7, true}
-};
-
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
 {
