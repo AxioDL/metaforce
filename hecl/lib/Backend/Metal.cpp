@@ -72,7 +72,7 @@ std::string Metal::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) c
     return retval + "};\n";
 }
 
-std::string Metal::GenerateVertToFragStruct() const
+std::string Metal::GenerateVertToFragStruct(size_t extTexCount) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -85,6 +85,11 @@ std::string Metal::GenerateVertToFragStruct() const
     {
         for (size_t i=0 ; i<m_tcgs.size() ; ++i)
             retval += hecl::Format("    float2 tcgs%" PRISize ";\n", i);
+    }
+    if (extTexCount)
+    {
+        for (size_t i=0 ; i<extTexCount ; ++i)
+            retval += hecl::Format("    float2 extTcgs%" PRISize ";\n", i);
     }
 
     return retval + "};\n";
@@ -112,14 +117,15 @@ void Metal::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
-                            unsigned s, unsigned tm) const
+                            unsigned s, unsigned tm, size_t extTexCount,
+                            const TextureInfo* extTexs) const
 {
     std::string tmStr;
     if (tm)
         tmStr = hecl::Format(",\nconstant TexMtxs* texMtxs [[ buffer(3) ]]");
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertInStruct(col, uv, w) + "\n" +
-    GenerateVertToFragStruct() + "\n" +
+    GenerateVertToFragStruct(extTexCount) + "\n" +
     GenerateVertUniformStruct(s) +
     "\nvertex VertToFrag vmain(VertData v [[ stage_in ]],\n"
     "                          constant HECLVertUniform& vu [[ buffer(2) ]]" + tmStr + ")\n"
@@ -160,6 +166,17 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
         ++tcgIdx;
     }
 
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        if (extTex.mtxIdx < 0)
+            retval += hecl::Format("    vtf.extTcgs%u = %s;\n", i,
+                                   EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
+        else
+            retval += hecl::Format("    vtf.extTcgs%u = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", i, extTex.mtxIdx,
+                                   extTex.normalize ? "normalize" : "", extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+    }
+
     return retval + "    return vtf;\n}\n";
 }
 
@@ -188,7 +205,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
-    GenerateVertToFragStruct() + "\n" +
+    GenerateVertToFragStruct(0) + "\n" +
     lightingSrc + "\n" +
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
 
@@ -216,7 +233,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
                             const ShaderFunction& lighting,
-                            const ShaderFunction& post) const
+                            const ShaderFunction& post, size_t extTexCount,
+                            const TextureInfo* extTexs) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -237,6 +255,16 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
             texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
     }
 
+    std::string extTexCall;
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        if (extTexCall.size())
+            extTexCall += ", ";
+        extTexCall += hecl::Format("tex%u", extTex.mapIdx);
+        texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
+    }
+
     std::string blockCall;
     for (size_t i=0 ; i<blockCount ; ++i)
     {
@@ -248,8 +276,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
-    GenerateVertToFragStruct() + "\n" +
+    GenerateVertToFragStruct(extTexCount) + "\n" +
     lightingSrc + "\n" +
+    postSrc + "\n" +
     "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
 
     if (m_lighting)
@@ -266,9 +295,11 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
+        retval += "    return " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+                  "float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
     else
-        retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", 1.0));\n";
+        retval += "    return " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+                  "float4(" + m_colorExpr + ", 1.0));\n";
 
     return retval + "}\n";
 }
@@ -296,7 +327,7 @@ struct MetalBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
         cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag(0, nullptr);
@@ -305,7 +336,8 @@ struct MetalBackendFactory : IShaderBackendFactory
         static_cast<boo::MetalDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                               tag.newVertexFormat(ctx), m_rtHint,
-                              m_backend.m_blendSrc, m_backend.m_blendDst,
+                              boo::BlendFactor(m_backend.m_blendSrc),
+                              boo::BlendFactor(m_backend.m_blendDst),
                               tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
                               tag.getBackfaceCulling());
@@ -361,22 +393,21 @@ struct MetalBackendFactory : IShaderBackendFactory
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
 
-        std::string vertSource =
-        m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
-        cachedSz += vertSource.size() + 1;
-
-        std::vector<std::string> fragSources;
-        fragSources.reserve(extensionSlots.size());
+        std::vector<std::pair<std::string, std::string>> sources;
+        sources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            fragSources.push_back(m_backend.makeFrag(slot.blockCount, slot.blockNames, slot.lighting, slot.post));
-            cachedSz += fragSources.back().size() + 1;
+            sources.emplace_back(m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs),
+                                 m_backend.makeFrag(slot.blockCount, slot.blockNames, slot.lighting, slot.post, slot.texCount, slot.texs));
+            cachedSz += sources.back().first.size() + 1;
+            cachedSz += sources.back().second.size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
+                newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
                                   tag.newVertexFormat(ctx), m_rtHint,
-                                  m_backend.m_blendSrc, m_backend.m_blendDst,
+                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
+                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                   tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
@@ -389,9 +420,11 @@ struct MetalBackendFactory : IShaderBackendFactory
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
-        w.writeString(vertSource);
-        for (const std::string src : fragSources)
-            w.writeString(src);
+        for (auto& src : sources)
+        {
+            w.writeString(src.first);
+            w.writeString(src.second);
+        }
 
         return dataOut;
     }
@@ -407,17 +440,19 @@ struct MetalBackendFactory : IShaderBackendFactory
 
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-        std::string vertSource = r.readString();
+        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
+            std::string vertSource = r.readString();
             std::string fragSource = r.readString();
             boo::IShaderPipeline* ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   tag.newVertexFormat(ctx), m_rtHint,
-                                  blendSrc, blendDst, tag.getPrimType(),
+                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
+                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
+                                  tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
             if (!ret)

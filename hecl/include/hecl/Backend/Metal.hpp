@@ -1,15 +1,6 @@
 #ifndef HECLBACKEND_METAL_HPP
 #define HECLBACKEND_METAL_HPP
 
-#if __APPLE__
-#include <Availability.h>
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101100
-#define BOO_HAS_METAL 1
-#else
-#define BOO_HAS_METAL 0
-#endif
-#endif
-
 #if BOO_HAS_METAL
 
 #include "ProgrammableCommon.hpp"
@@ -23,16 +14,18 @@ struct Metal : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
-                         unsigned skinSlots, unsigned texMtxs) const;
+                         unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
+                         const TextureInfo* extTexs) const;
     std::string makeFrag(size_t blockCount, const char** blockNames,
                          const ShaderFunction& lighting=ShaderFunction()) const;
     std::string makeFrag(size_t blockCount, const char** blockNames,
                          const ShaderFunction& lighting,
-                         const ShaderFunction& post) const;
+                         const ShaderFunction& post, size_t extTexCount,
+                         const TextureInfo* extTexs) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
-    std::string GenerateVertToFragStruct() const;
+    std::string GenerateVertToFragStruct(size_t extTexCount) const;
     std::string GenerateVertUniformStruct(unsigned skinSlots) const;
 
     std::string EmitVec3(const atVec4f& vec) const
