@@ -86,7 +86,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 4.f}, {0.f, 0.f, 0.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
-        CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
 
         std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.5f, 0.5f, 0.5f, 1.f}),
                                       CLight::BuildCustom({0.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
@@ -110,7 +110,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
-        CGraphics::SetPerspective(55.0, aspect, 0.001f, 1000.f);
+        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
         //gfxQ->clearTarget(false, true);
         m_vm.m_partGen->Render();
 
