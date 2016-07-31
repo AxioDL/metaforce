@@ -584,6 +584,11 @@ void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength)
 
 void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol)
 {
+    CModelFlags flags;
+    flags.m_extendedShaderIdx = 2;
+    flags.color = mulCol;
+    flags.addColor = addCol;
+    model.Draw(flags);
 }
 
 void CBooRenderer::DrawXRayOutline(const CModel&, const float*, const float*)

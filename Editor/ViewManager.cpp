@@ -75,7 +75,11 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;
-        flags.m_extendedShaderIdx = 1;
+        flags.addColor.r = 0.0f;
+
+        flags.m_extendedShaderIdx = 2;
+        if (std::fmod(m_theta, M_PIF) < M_PIF / 2.f)
+            flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
         CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta) * zeus::CTransform::Scale(10.f));

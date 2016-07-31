@@ -450,7 +450,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
         u8* bufOrig = bufOut;
         for (const UVAnimation& anim : mat.uvAnims)
             ProcessAnimation(bufOut, anim);
-        bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2;
+        bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2 * 8;
         PadOutBuffer(start, bufOut);
     }
 }

@@ -25,7 +25,7 @@ struct CModelFlags
     u8 m_extendedShaderIdx = 0; /* 0 for shadeless, 1 for lighting, others defined in CModelShaders */
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
-    zeus::CColor addColor;
+    zeus::CColor addColor = zeus::CColor::skClear;
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
