@@ -510,7 +510,8 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                            tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
 
-        std::string fragSource = m_backend.makeFrag("#version 330");
+        std::string fragSource = m_backend.makeFrag("#version 330",
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
 
         std::vector<unsigned int> vertBlob;
         std::vector<unsigned int> fragBlob;
@@ -629,7 +630,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
 
-            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount, slot.texs);
+            std::string fragSource = m_backend.makeFrag("#version 330",
+                                                        tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                                        slot.lighting, slot.post, slot.texCount, slot.texs);
             pipeBlobs.emplace_back();
             Blobs& pipeBlob = pipeBlobs.back();
             boo::IShaderPipeline* ret =
