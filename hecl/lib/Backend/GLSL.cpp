@@ -112,6 +112,14 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
     return retval;
 }
 
+std::string GLSL::GenerateAlphaTest() const
+{
+    return "    if (colorOut.a < 0.01)\n"
+           "    {\n"
+           "        discard;\n"
+           "    }\n";
+}
+
 void GLSL::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -182,7 +190,7 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     return retval + "}\n";
 }
 
-std::string GLSL::makeFrag(const char* glslVer,
+std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                            const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
@@ -220,10 +228,10 @@ std::string GLSL::makeFrag(const char* glslVer,
     else
         retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0);\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
 
-std::string GLSL::makeFrag(const char* glslVer,
+std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                            const ShaderFunction& lighting,
                            const ShaderFunction& post,
                            size_t extTexCount, const TextureInfo* extTexs) const
@@ -278,7 +286,7 @@ std::string GLSL::makeFrag(const char* glslVer,
     else
         retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0));\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
 
 }
@@ -319,7 +327,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
                            tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
         cachedSz += vertSource.size() + 1;
 
-        std::string fragSource = m_backend.makeFrag("#version 330");
+        std::string fragSource = m_backend.makeFrag("#version 330",
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
         cachedSz += fragSource.size() + 1;
 
         if (m_backend.m_texMapEnd > 8)
@@ -404,7 +413,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                                     tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                                     tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount,
                                                     slot.texs),
-                                 m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount, slot.texs));
+                                 m_backend.makeFrag("#version 330",
+                                                    tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
             boo::IShaderPipeline* ret =

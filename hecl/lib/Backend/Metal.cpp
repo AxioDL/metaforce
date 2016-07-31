@@ -110,6 +110,23 @@ std::string Metal::GenerateVertUniformStruct(unsigned skinSlots) const
     return retval;
 }
 
+std::string Metal::GenerateFragOutStruct() const
+{
+    return "struct FragOut\n"
+           "{\n"
+           "    float4 color [[ color(0) ]];\n"
+           "    //float depth [[ depth(less) ]];\n"
+           "};\n";
+}
+
+std::string Metal::GenerateAlphaTest() const
+{
+    return "    if (out.color.a < 0.01)\n"
+           "    {\n"
+           "        discard_fragment();\n"
+           "    }\n";
+}
+
 void Metal::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -180,7 +197,7 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
     return retval + "    return vtf;\n}\n";
 }
 
-std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
+std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
                             const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
@@ -206,8 +223,11 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct(0) + "\n" +
+    GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
-    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
+    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
+    "{\n"
+    "    FragOut out;\n";
 
 
     if (m_lighting)
@@ -224,14 +244,17 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    return float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
+        retval += "    out.color = float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
     else
-        retval += "    return float4(" + m_colorExpr + ", 1.0);\n";
+        retval += "    out.color = float4(" + m_colorExpr + ", 1.0);\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") +
+           "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
+           "    return out;\n"
+           "}\n";
 }
 
-std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
+std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
                             const ShaderFunction& lighting,
                             const ShaderFunction& post, size_t extTexCount,
                             const TextureInfo* extTexs) const
@@ -277,9 +300,12 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct(extTexCount) + "\n" +
+    GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
     postSrc + "\n" +
-    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n{\n";
+    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
+    "{\n"
+    "    FragOut out;\n";
 
     if (m_lighting)
     {
@@ -295,13 +321,16 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames,
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    return " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+        retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
                   "float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
     else
-        retval += "    return " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+        retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
                   "float4(" + m_colorExpr + ", 1.0));\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") +
+           "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
+           "    return out;\n"
+           "}\n";
 }
 
 }
@@ -330,7 +359,8 @@ struct MetalBackendFactory : IShaderBackendFactory
                            tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
         cachedSz += vertSource.size() + 1;
 
-        std::string fragSource = m_backend.makeFrag(0, nullptr);
+        std::string fragSource = m_backend.makeFrag(0, nullptr,
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
         cachedSz += fragSource.size() + 1;
         objOut =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
@@ -399,7 +429,9 @@ struct MetalBackendFactory : IShaderBackendFactory
         {
             sources.emplace_back(m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                                     tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs),
-                                 m_backend.makeFrag(slot.blockCount, slot.blockNames, slot.lighting, slot.post, slot.texCount, slot.texs));
+                                 m_backend.makeFrag(slot.blockCount, slot.blockNames,
+                                                    tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
             boo::IShaderPipeline* ret =
