@@ -33,7 +33,7 @@ void CMapArea::PostConstruct()
     u8* tmp = x3c_vertexStart;
     for (u32 i = 0 ; i<(x2c_vertexCount*3) ; ++i)
     {
-        u32* fl = reinterpret_cast<u32*>(x3c_vertexStart + i);
+        u32* fl = reinterpret_cast<u32*>(tmp);
         *fl = SBIG(*fl);
         tmp += 4;
     }
