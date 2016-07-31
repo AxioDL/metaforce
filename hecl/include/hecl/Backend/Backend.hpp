@@ -20,11 +20,29 @@ enum class TexGenSrc
     UV
 };
 
+enum class BlendFactor
+{
+    Zero,
+    One,
+    SrcColor,
+    InvSrcColor,
+    DstColor,
+    InvDstColor,
+    SrcAlpha,
+    InvSrcAlpha,
+    DstAlpha,
+    InvDstAlpha,
+    SrcColor1,
+    InvSrcColor1,
+    Original = 0xff
+};
+
 struct TextureInfo
 {
     TexGenSrc src;
+    int mapIdx;
     int uvIdx;
-    int mtx;
+    int mtxIdx;
     bool normalize;
 };
 

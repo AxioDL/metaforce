@@ -169,14 +169,13 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
-        if (extTex.mtx < 0)
+        if (extTex.mtxIdx < 0)
             retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", extIdx,
                                    EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
         else
             retval += hecl::Format("    vtf.extTcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
-                                   extIdx, extTex.mtx,
-                                   extTex.normalize ? "normalize" : "", extTex.mtx,
-                                   EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+                                   extIdx, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
+                                   extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
         ++extIdx;
     }
 
@@ -227,7 +226,7 @@ std::string GLSL::makeFrag(const char* glslVer,
 std::string GLSL::makeFrag(const char* glslVer,
                            const ShaderFunction& lighting,
                            const ShaderFunction& post,
-                           size_t extTexCount) const
+                           size_t extTexCount, const TextureInfo* extTexs) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -244,6 +243,13 @@ std::string GLSL::makeFrag(const char* glslVer,
     std::string texMapDecl;
     for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
+
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n",
+                                   extTex.mapIdx, extTex.mapIdx);
+    }
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct(extTexCount) +
@@ -324,9 +330,10 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   m_backend.m_texMapEnd, STD_TEXNAMES,
                                   2, STD_BLOCKNAMES,
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
-                                  tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  boo::BlendFactor(m_backend.m_blendSrc),
+                                  boo::BlendFactor(m_backend.m_blendDst),
+                                  tag.getPrimType(), tag.getDepthTest(),
+                                  tag.getDepthWrite(), tag.getBackfaceCulling());
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -397,16 +404,17 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                                     tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                                     tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount,
                                                     slot.texs),
-                                 m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount));
+                                 m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
-                                      m_backend.m_texMapEnd, STD_TEXNAMES, bc, bn,
-                                      m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
-                                      tag.getDepthTest(), tag.getDepthWrite(),
-                                      tag.getBackfaceCulling());
+                                      8, STD_TEXNAMES, bc, bn,
+                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
+                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
+                                      tag.getPrimType(), tag.getDepthTest(),
+                                      tag.getDepthWrite(), tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -434,8 +442,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         atUint8 texMapEnd = r.readUByte();
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
 
         if (texMapEnd > 8)
             Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
@@ -455,9 +463,10 @@ struct GLSLBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      texMapEnd, STD_TEXNAMES, bc, bn,
-                                      blendSrc, blendDst, tag.getPrimType(),
-                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      8, STD_TEXNAMES, bc, bn,
+                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
+                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
+                                      tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
@@ -500,8 +509,8 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         static_cast<boo::VulkanDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(ctx),
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
-                                  tag.getDepthTest(), tag.getDepthWrite(),
+                                  boo::BlendFactor(m_backend.m_blendSrc), boo::BlendFactor(m_backend.m_blendDst),
+                                  tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
@@ -609,7 +618,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
 
-            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount);
+            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount, slot.texs);
             pipeBlobs.emplace_back();
             Blobs& pipeBlob = pipeBlobs.back();
             boo::IShaderPipeline* ret =
@@ -617,8 +626,11 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                       pipeBlob.vert, pipeBlob.frag, pipeBlob.pipeline,
                                       tag.newVertexFormat(ctx),
-                                      m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
-                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ?
+                                                           m_backend.m_blendSrc : slot.srcFactor),
+                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ?
+                                                           m_backend.m_blendDst : slot.dstFactor),
+                                      tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
@@ -676,8 +688,8 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
         size_t texCount = size_t(r.readByte());
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
 
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
@@ -701,8 +713,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                     newShaderPipeline(nullptr, nullptr,
                                       vertBlob, fragBlob, pipelineBlob,
                                       tag.newVertexFormat(ctx),
-                                      blendSrc, blendDst, tag.getPrimType(),
-                                      tag.getDepthTest(), tag.getDepthWrite(),
+                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
+                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
+                                      tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");

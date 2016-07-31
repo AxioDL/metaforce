@@ -22,7 +22,7 @@ struct GLSL : ProgrammableCommon
     std::string makeFrag(const char* glslVer,
                          const ShaderFunction& lighting,
                          const ShaderFunction& post,
-                         size_t extTexCount) const;
+                         size_t extTexCount, const TextureInfo* extTexs) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;

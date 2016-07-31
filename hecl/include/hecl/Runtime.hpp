@@ -133,6 +133,8 @@ public:
         const char** blockNames = nullptr;
         size_t texCount = 0;
         const Backend::TextureInfo* texs = nullptr;
+        Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
+        Backend::BlendFactor dstFactor = Backend::BlendFactor::Original;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
 
@@ -146,7 +148,8 @@ public:
     /* Strings must remain resident!! (intended to be stored static const) */
     unsigned registerExtensionSlot(Function lighting, Function post,
                                    size_t blockCount, const char** blockNames,
-                                   size_t texCount, const Backend::TextureInfo* texs)
+                                   size_t texCount, const Backend::TextureInfo* texs,
+                                   Backend::BlendFactor srcFactor, Backend::BlendFactor dstFactor)
     {
         m_extensionSlots.emplace_back();
         ExtensionSlot& slot = m_extensionSlots.back();
@@ -156,6 +159,8 @@ public:
         slot.blockNames = blockNames;
         slot.texCount = texCount;
         slot.texs = texs;
+        slot.srcFactor = srcFactor;
+        slot.dstFactor = dstFactor;
         return m_extensionSlots.size() - 1;
     }
 };

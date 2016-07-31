@@ -267,19 +267,19 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
     bool doAlpha = false;
     if (!rootCall.m_call.m_name.compare("HECLOpaque"))
     {
-        m_blendSrc = boo::BlendFactor::One;
-        m_blendDst = boo::BlendFactor::Zero;
+        m_blendSrc = BlendFactor::One;
+        m_blendDst = BlendFactor::Zero;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAlpha"))
     {
-        m_blendSrc = boo::BlendFactor::SrcAlpha;
-        m_blendDst = boo::BlendFactor::InvSrcAlpha;
+        m_blendSrc = BlendFactor::SrcAlpha;
+        m_blendDst = BlendFactor::InvSrcAlpha;
         doAlpha = true;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAdditive"))
     {
-        m_blendSrc = boo::BlendFactor::SrcAlpha;
-        m_blendDst = boo::BlendFactor::One;
+        m_blendSrc = BlendFactor::SrcAlpha;
+        m_blendDst = BlendFactor::One;
         doAlpha = true;
     }
     else

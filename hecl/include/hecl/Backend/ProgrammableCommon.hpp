@@ -4,7 +4,6 @@
 #include "Backend.hpp"
 #include "hecl/Runtime.hpp"
 #include <athena/DNA.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -20,8 +19,8 @@ struct ProgrammableCommon : IBackend
 
     std::string m_colorExpr;
     std::string m_alphaExpr;
-    boo::BlendFactor m_blendSrc;
-    boo::BlendFactor m_blendDst;
+    BlendFactor m_blendSrc;
+    BlendFactor m_blendDst;
     bool m_lighting = false;
 
     struct TexSampling
