@@ -69,7 +69,7 @@ std::string GLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     return retval;
 }
 
-std::string GLSL::GenerateVertToFragStruct() const
+std::string GLSL::GenerateVertToFragStruct(size_t extTexCount) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -79,6 +79,8 @@ std::string GLSL::GenerateVertToFragStruct() const
 
     if (m_tcgs.size())
         retval += hecl::Format("    vec2 tcgs[%u];\n", unsigned(m_tcgs.size()));
+    if (extTexCount)
+        retval += hecl::Format("    vec2 extTcgs[%u];\n", unsigned(extTexCount));
 
     return retval + "};\n";
 }
@@ -117,11 +119,13 @@ void GLSL::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
-                           unsigned s, unsigned tm) const
+                           unsigned s, unsigned tm, size_t extTexCount,
+                           const TextureInfo* extTexs) const
 {
+    extTexCount = std::min(int(extTexCount), BOO_GLSL_MAX_TEXTURE_COUNT - int(m_tcgs.size()));
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertInStruct(col, uv, w) + "\n" +
-            GenerateVertToFragStruct() + "\n" +
+            GenerateVertToFragStruct(extTexCount) + "\n" +
             GenerateVertUniformStruct(s, tm) +
             "SBINDING(0) out VertToFrag vtf;\n\n"
             "void main()\n{\n";
@@ -155,9 +159,25 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
-                                   tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
+                                   tcgIdx, tcg.m_mtx, tcg.m_norm ? "normalize" : "",
+                                   tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
         ++tcgIdx;
+    }
+
+    int extIdx = 0;
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        if (extTex.mtx < 0)
+            retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", extIdx,
+                                   EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
+        else
+            retval += hecl::Format("    vtf.extTcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
+                                   extIdx, extTex.mtx,
+                                   extTex.normalize ? "normalize" : "", extTex.mtx,
+                                   EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+        ++extIdx;
     }
 
     return retval + "}\n";
@@ -175,7 +195,7 @@ std::string GLSL::makeFrag(const char* glslVer,
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
-            GenerateVertToFragStruct() +
+            GenerateVertToFragStruct(0) +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
             "SBINDING(0) in VertToFrag vtf;\n\n" +
@@ -206,7 +226,8 @@ std::string GLSL::makeFrag(const char* glslVer,
 
 std::string GLSL::makeFrag(const char* glslVer,
                            const ShaderFunction& lighting,
-                           const ShaderFunction& post) const
+                           const ShaderFunction& post,
+                           size_t extTexCount) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -225,7 +246,7 @@ std::string GLSL::makeFrag(const char* glslVer,
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
-            GenerateVertToFragStruct() +
+            GenerateVertToFragStruct(extTexCount) +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
             "SBINDING(0) in VertToFrag vtf;\n\n" +
@@ -289,7 +310,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
         cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag("#version 330");
@@ -357,17 +378,11 @@ struct GLSLBackendFactory : IShaderBackendFactory
         m_backend.reset(ir, diag);
         size_t cachedSz = 3;
 
-        std::string vertSource =
-        m_backend.makeVert("#version 330",
-                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
-        cachedSz += vertSource.size() + 1;
-
         if (m_backend.m_texMapEnd > 8)
             Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
-        std::vector<std::string> fragSources;
-        fragSources.reserve(extensionSlots.size());
+        std::vector<std::pair<std::string, std::string>> sources;
+        sources.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
             size_t bc = 2;
@@ -378,11 +393,16 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 bn = slot.blockNames;
             }
 
-            fragSources.push_back(m_backend.makeFrag("#version 330", slot.lighting, slot.post));
-            cachedSz += fragSources.back().size() + 1;
+            sources.emplace_back(m_backend.makeVert("#version 330",
+                                                    tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount,
+                                                    slot.texs),
+                                 m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount));
+            cachedSz += sources.back().first.size() + 1;
+            cachedSz += sources.back().second.size() + 1;
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
-                    newShaderPipeline(vertSource.c_str(), fragSources.back().c_str(),
+                    newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
                                       m_backend.m_texMapEnd, STD_TEXNAMES, bc, bn,
                                       m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
@@ -397,9 +417,11 @@ struct GLSLBackendFactory : IShaderBackendFactory
         w.writeUByte(m_backend.m_texMapEnd);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
-        w.writeString(vertSource);
-        for (const std::string src : fragSources)
-            w.writeString(src);
+        for (const std::pair<std::string, std::string>& pair : sources)
+        {
+            w.writeString(pair.first);
+            w.writeString(pair.second);
+        }
 
         return dataOut;
     }
@@ -414,7 +436,6 @@ struct GLSLBackendFactory : IShaderBackendFactory
         atUint8 texMapEnd = r.readUByte();
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-        std::string vertSource = r.readString();
 
         if (texMapEnd > 8)
             Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
@@ -429,6 +450,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 bn = slot.blockNames;
             }
 
+            std::string vertSource = r.readString();
             std::string fragSource = r.readString();
             boo::IShaderPipeline* ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
@@ -466,7 +488,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
 
         std::string fragSource = m_backend.makeFrag("#version 330");
 
@@ -570,37 +592,41 @@ struct SPIRVBackendFactory : IShaderBackendFactory
     {
         m_backend.reset(ir, diag);
 
-        std::string vertSource =
-        m_backend.makeVert("#version 330",
-                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+        struct Blobs
+        {
+            std::vector<unsigned int> vert;
+            std::vector<unsigned int> frag;
+            std::vector<unsigned char> pipeline;
+        };
+        std::vector<Blobs> pipeBlobs;
+        pipeBlobs.reserve(extensionSlots.size());
 
-        std::vector<unsigned int> vertBlob;
-        std::vector<std::pair<std::vector<unsigned int>, std::vector<unsigned char>>> fragPipeBlobs;
-        fragPipeBlobs.reserve(extensionSlots.size());
-
-        size_t cachedSz = 7 + 8 * extensionSlots.size();
+        size_t cachedSz = 3 + 12 * extensionSlots.size();
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post);
-            fragPipeBlobs.emplace_back();
-            std::pair<std::vector<unsigned int>, std::vector<unsigned char>>& fragPipeBlob = fragPipeBlobs.back();
+            std::string vertSource =
+            m_backend.makeVert("#version 330",
+                               tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
+
+            std::string fragSource = m_backend.makeFrag("#version 330", slot.lighting, slot.post, slot.texCount);
+            pipeBlobs.emplace_back();
+            Blobs& pipeBlob = pipeBlobs.back();
             boo::IShaderPipeline* ret =
             static_cast<boo::VulkanDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      vertBlob, fragPipeBlob.first, fragPipeBlob.second,
+                                      pipeBlob.vert, pipeBlob.frag, pipeBlob.pipeline,
                                       tag.newVertexFormat(ctx),
                                       m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
                                       tag.getDepthTest(), tag.getDepthWrite(),
                                       tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
-            cachedSz += fragPipeBlob.first.size() * sizeof(unsigned int);
-            cachedSz += fragPipeBlob.second.size();
+            cachedSz += pipeBlob.vert.size() * sizeof(unsigned int);
+            cachedSz += pipeBlob.frag.size() * sizeof(unsigned int);
+            cachedSz += pipeBlob.pipeline.size();
             returnFunc(ret);
         }
-        size_t vertBlobSz = vertBlob.size() * sizeof(unsigned int);
-        cachedSz += vertBlobSz;
 
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
@@ -608,23 +634,24 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
 
-        if (vertBlobSz)
+        for (const Blobs& pipeBlob : pipeBlobs)
         {
+            size_t vertBlobSz = pipeBlob.vert.size() * sizeof(unsigned int);
+            size_t fragBlobSz = pipeBlob.frag.size() * sizeof(unsigned int);
+            size_t pipeBlobSz = pipeBlob.pipeline.size();
 
-            w.writeUint32Big(vertBlobSz);
-            w.writeUBytes((atUint8*)vertBlob.data(), vertBlobSz);
-        }
-        else
-            w.writeUint32Big(0);
+            if (vertBlobSz)
+            {
+                w.writeUint32Big(vertBlobSz);
+                w.writeUBytes((atUint8*)pipeBlob.vert.data(), vertBlobSz);
+            }
+            else
+                w.writeUint32Big(0);
 
-        for (const std::pair<std::vector<unsigned int>, std::vector<unsigned char>>& fragPipeBlob : fragPipeBlobs)
-        {
-            size_t fragBlobSz = fragPipeBlob.first.size() * sizeof(unsigned int);
-            size_t pipeBlobSz = fragPipeBlob.second.size();
             if (fragBlobSz)
             {
                 w.writeUint32Big(fragBlobSz);
-                w.writeUBytes((atUint8*)fragPipeBlob.first.data(), fragBlobSz);
+                w.writeUBytes((atUint8*)pipeBlob.frag.data(), fragBlobSz);
             }
             else
                 w.writeUint32Big(0);
@@ -632,7 +659,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             if (pipeBlobSz)
             {
                 w.writeUint32Big(pipeBlobSz);
-                w.writeUBytes((atUint8*)fragPipeBlob.second.data(), pipeBlobSz);
+                w.writeUBytes((atUint8*)pipeBlob.pipeline.data(), pipeBlobSz);
             }
             else
                 w.writeUint32Big(0);
@@ -652,13 +679,13 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
 
-        atUint32 vertSz = r.readUint32Big();
-        std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
-        if (vertSz)
-            r.readUBytesToBuf(vertBlob.data(), vertSz);
-
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
+            atUint32 vertSz = r.readUint32Big();
+            std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
+            if (vertSz)
+                r.readUBytesToBuf(vertBlob.data(), vertSz);
+
             atUint32 fragSz = r.readUint32Big();
             std::vector<unsigned int> fragBlob(fragSz / sizeof(unsigned int));
             if (fragSz)

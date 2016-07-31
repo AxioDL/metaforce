@@ -15,16 +15,18 @@ struct GLSL : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
-                         unsigned skinSlots, unsigned texMtxs) const;
+                         unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
+                         const TextureInfo* extTexs) const;
     std::string makeFrag(const char* glslVer,
                          const ShaderFunction& lighting=ShaderFunction()) const;
     std::string makeFrag(const char* glslVer,
                          const ShaderFunction& lighting,
-                         const ShaderFunction& post) const;
+                         const ShaderFunction& post,
+                         size_t extTexCount) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
-    std::string GenerateVertToFragStruct() const;
+    std::string GenerateVertToFragStruct(size_t extTexCount) const;
     std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const;
 
     std::string EmitVec3(const atVec4f& vec) const

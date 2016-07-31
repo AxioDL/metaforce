@@ -13,6 +13,21 @@ using Diagnostics = Frontend::Diagnostics;
 using SourceLocation = Frontend::SourceLocation;
 using ArithmeticOp = IR::Instruction::ArithmeticOpType;
 
+enum class TexGenSrc
+{
+    Position,
+    Normal,
+    UV
+};
+
+struct TextureInfo
+{
+    TexGenSrc src;
+    int uvIdx;
+    int mtx;
+    bool normalize;
+};
+
 class IBackend
 {
 public:

@@ -31,13 +31,7 @@ struct ProgrammableCommon : IBackend
     };
     std::vector<TexSampling> m_texSamplings;
     unsigned m_texMapEnd = 0;
-
-    enum class TexGenSrc
-    {
-        Position,
-        Normal,
-        UV
-    };
+    unsigned m_extMapStart = 8;
 
     struct TexCoordGen
     {

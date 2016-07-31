@@ -3,6 +3,7 @@
 
 #include "hecl.hpp"
 #include "Frontend.hpp"
+#include "Backend/Backend.hpp"
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <athena/DNA.hpp>
 #include <athena/FileReader.hpp>
@@ -130,6 +131,8 @@ public:
         Function post;
         size_t blockCount = 0;
         const char** blockNames = nullptr;
+        size_t texCount = 0;
+        const Backend::TextureInfo* texs = nullptr;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
 
@@ -141,7 +144,9 @@ public:
     operator bool() const {return m_plat != boo::IGraphicsDataFactory::Platform::Null;}
 
     /* Strings must remain resident!! (intended to be stored static const) */
-    unsigned registerExtensionSlot(Function lighting, Function post, size_t blockCount, const char** blockNames)
+    unsigned registerExtensionSlot(Function lighting, Function post,
+                                   size_t blockCount, const char** blockNames,
+                                   size_t texCount, const Backend::TextureInfo* texs)
     {
         m_extensionSlots.emplace_back();
         ExtensionSlot& slot = m_extensionSlots.back();
@@ -149,6 +154,8 @@ public:
         slot.post = post;
         slot.blockCount = blockCount;
         slot.blockNames = blockNames;
+        slot.texCount = texCount;
+        slot.texs = texs;
         return m_extensionSlots.size() - 1;
     }
 };
