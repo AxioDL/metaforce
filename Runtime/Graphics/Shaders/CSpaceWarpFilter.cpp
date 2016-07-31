@@ -54,7 +54,7 @@ CSpaceWarpFilter::CSpaceWarpFilter()
     });
 }
 
-void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
+void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
 {
     /* Indirect coords are full-texture sampling when warp is completely in viewport */
     m_uniform.m_indXf[1][1] = 1.f;
@@ -116,8 +116,12 @@ void CSpaceWarpFilter::draw(const zeus::CVector2f& pt)
     zeus::CVector2f vp{CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
-    m_uniform.m_matrix[2][0] = pt.x + (1.f / vp.x);
-    m_uniform.m_matrix[2][1] = pt.y + (1.f / vp.y);
+    m_uniform.m_matrix[3][0] = pt.x + (1.f / vp.x);
+    m_uniform.m_matrix[3][1] = pt.y + (1.f / vp.y);
+    if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OGL)
+        m_uniform.m_matrix[3][2] = pt.z * 2.f - 1.f;
+    else
+        m_uniform.m_matrix[3][2] = pt.z;
 
     if (clipRect.x4_left + clipRect.xc_width < CGraphics::g_ViewportResolution.x)
         clipRect.xc_width += 1;

@@ -33,7 +33,7 @@ class CSpaceWarpFilter
 public:
     CSpaceWarpFilter();
     void setStrength(float strength) { m_strength = strength; }
-    void draw(const zeus::CVector2f& pt);
+    void draw(const zeus::CVector3f& pt);
 
     using _CLS = CSpaceWarpFilter;
 #include "TShaderDecl.hpp"

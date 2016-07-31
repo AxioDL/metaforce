@@ -44,15 +44,43 @@ static const char* LightingGLSL =
 "    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
 "}\n";
 
+static const char* ThermalPostGLSL =
+"UBINDING2 uniform ThermalUniform\n"
+"{\n"
+"    vec4 mulColor;\n"
+"    vec4 addColor;\n"
+"};\n"
+"TBINDING7 uniform sampler2D thermalLookup;\n"
+"vec4 ThermalPostFunc(vec4 colorIn)\n"
+"{\n"
+"    return texture(thermalLookup, vtf.extTcgs[0]).rrrr * mulColor + addColor;\n"
+"}\n"
+"\n";
+
 static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
                                    HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
                                    "LightingUniform"};
+
+static const char* ThermalBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
+                                          HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
+                                         "ThermalUniform"};
+
+static const hecl::Backend::TextureInfo ThermalTextures[] =
+{
+    {hecl::Backend::TexGenSrc::Normal, 0, 7, true}
+};
 
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
 {
     hecl::Runtime::ShaderCacheExtensions ext(plat);
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {}, 3, BlockNames);
+
+    /* Normal lit shading */
+    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {}, 3, BlockNames, 0, nullptr);
+
+    /* Thermal Visor shading */
+    ext.registerExtensionSlot({}, {ThermalPostGLSL, "ThermalPostFunc"}, 3, ThermalBlockNames, 1, ThermalTextures);
+
     return ext;
 }
 

@@ -45,6 +45,8 @@ public:
 
 class CBooRenderer : public IRenderer
 {
+    friend class CBooModel;
+
     struct CAreaListItem
     {
         const std::vector<CMetroidModelInstance>* x0_geometry;
@@ -99,6 +101,9 @@ class CBooRenderer : public IRenderer
     zeus::CColor x2e0_ = zeus::CColor::skWhite;
     zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
 
+    CSpaceWarpFilter m_spaceWarpFilter;
+
+    float x2f0_thermalVisorLevel;
     zeus::CColor x2f4_thermColor;
     float x2f8_thermColdScale = 0.f;
     CThermalColdFilter m_thermColdFilter;
@@ -114,7 +119,7 @@ class CBooRenderer : public IRenderer
             bool x318_26_ : 1;
             bool x318_27_ : 1;
             bool x318_28_ : 1;
-            bool x318_29_ : 1;
+            bool x318_29_thermalVisor : 1;
             bool x318_30_ : 1;
             bool x318_31_ : 1;
         };
@@ -153,35 +158,35 @@ public:
     void SetViewportOrtho(bool, float, float);
     void SetClippingPlanes(const zeus::CFrustum& frustum);
     void SetViewport(int, int, int, int);
-    void SetDepthReadWrite(bool, bool);
-    void SetBlendMode_AdditiveAlpha();
-    void SetBlendMode_AlphaBlended();
-    void SetBlendMode_NoColorWrite();
-    void SetBlendMode_ColorMultiply();
-    void SetBlendMode_InvertDst();
-    void SetBlendMode_InvertSrc();
-    void SetBlendMode_Replace();
-    void SetBlendMode_AdditiveDestColor();
+    //void SetDepthReadWrite(bool, bool);
+    //void SetBlendMode_AdditiveAlpha();
+    //void SetBlendMode_AlphaBlended();
+    //void SetBlendMode_NoColorWrite();
+    //void SetBlendMode_ColorMultiply();
+    //void SetBlendMode_InvertDst();
+    //void SetBlendMode_InvertSrc();
+    //void SetBlendMode_Replace();
+    //void SetBlendMode_AdditiveDestColor();
     void SetDebugOption(EDebugOption, int);
     void BeginScene();
     void EndScene();
-    void BeginPrimitive(EPrimitiveType, int);
-    void BeginLines(int);
-    void BeginLineStrip(int);
-    void BeginTriangles(int);
-    void BeginTriangleStrip(int);
-    void BeginTriangleFan(int);
-    void PrimVertex(const zeus::CVector3f&);
-    void PrimNormal(const zeus::CVector3f&);
-    void PrimColor(float, float, float, float);
-    void PrimColor(const zeus::CColor&);
-    void EndPrimitive();
+    //void BeginPrimitive(EPrimitiveType, int);
+    //void BeginLines(int);
+    //void BeginLineStrip(int);
+    //void BeginTriangles(int);
+    //void BeginTriangleStrip(int);
+    //void BeginTriangleFan(int);
+    //void PrimVertex(const zeus::CVector3f&);
+    //void PrimNormal(const zeus::CVector3f&);
+    //void PrimColor(float, float, float, float);
+    //void PrimColor(const zeus::CColor&);
+    //void EndPrimitive();
     void SetAmbientColor(const zeus::CColor&);
     void DrawString(const char*, int, int);
     u32 GetFPS();
     //void CacheReflection(TReflectionCallback, void*, bool);
     void DrawSpaceWarp(const zeus::CVector3f&, float);
-    void DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&, const float*, const float*);
+    void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol);
     void DrawXRayOutline(const CModel&, const float*, const float*);
     void SetWireframeFlags(int);
     void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&);

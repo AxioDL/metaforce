@@ -37,6 +37,12 @@ public:
         zeus::CColor colorRegs[3];
     };
 
+    struct ThermalUniform
+    {
+        zeus::CColor mulColor;
+        zeus::CColor addColor;
+    };
+
     static void Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
                            boo::IGraphicsDataFactory* gfxFactory);
 

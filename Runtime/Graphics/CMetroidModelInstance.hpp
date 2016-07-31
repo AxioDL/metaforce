@@ -17,9 +17,9 @@ class CMetroidModelInstance
     int x0_visorFlags;
     zeus::CTransform x4_xf;
     zeus::CAABox x34_aabb;
-    std::unique_ptr<CBooModel> m_instance;
+    CBooModel* m_instance;
 public:
-    CMetroidModelInstance(const void* modelHeader, std::unique_ptr<CBooModel>&& inst);
+    CMetroidModelInstance(const void* modelHeader, CBooModel* inst);
     ~CMetroidModelInstance();
 };
 

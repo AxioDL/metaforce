@@ -334,7 +334,7 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
         {
             models.reserve(geometry->size());
             for (const CMetroidModelInstance& inst : *geometry)
-                models.push_back(inst.m_instance.get());
+                models.push_back(inst.m_instance);
         }
         x1c_areaListItems.emplace_back(geometry, octTree, std::move(models), areaIdx);
     }
@@ -545,42 +545,6 @@ void CBooRenderer::SetViewport(int l, int b, int w, int h)
     CGraphics::SetScissor(l, b, w, h);
 }
 
-void CBooRenderer::SetDepthReadWrite(bool, bool)
-{
-}
-
-void CBooRenderer::SetBlendMode_AdditiveAlpha()
-{
-}
-
-void CBooRenderer::SetBlendMode_AlphaBlended()
-{
-}
-
-void CBooRenderer::SetBlendMode_NoColorWrite()
-{
-}
-
-void CBooRenderer::SetBlendMode_ColorMultiply()
-{
-}
-
-void CBooRenderer::SetBlendMode_InvertDst()
-{
-}
-
-void CBooRenderer::SetBlendMode_InvertSrc()
-{
-}
-
-void CBooRenderer::SetBlendMode_Replace()
-{
-}
-
-void CBooRenderer::SetBlendMode_AdditiveDestColor()
-{
-}
-
 void CBooRenderer::SetDebugOption(EDebugOption, int)
 {
 }
@@ -598,50 +562,6 @@ void CBooRenderer::EndScene()
     CGraphics::EndScene();
 }
 
-void CBooRenderer::BeginPrimitive(EPrimitiveType, int)
-{
-}
-
-void CBooRenderer::BeginLines(int)
-{
-}
-
-void CBooRenderer::BeginLineStrip(int)
-{
-}
-
-void CBooRenderer::BeginTriangles(int)
-{
-}
-
-void CBooRenderer::BeginTriangleStrip(int)
-{
-}
-
-void CBooRenderer::BeginTriangleFan(int)
-{
-}
-
-void CBooRenderer::PrimVertex(const zeus::CVector3f&)
-{
-}
-
-void CBooRenderer::PrimNormal(const zeus::CVector3f&)
-{
-}
-
-void CBooRenderer::PrimColor(float, float, float, float)
-{
-}
-
-void CBooRenderer::PrimColor(const zeus::CColor&)
-{
-}
-
-void CBooRenderer::EndPrimitive()
-{
-}
-
 void CBooRenderer::SetAmbientColor(const zeus::CColor& color)
 {
     CGraphics::SetAmbientColor(color);
@@ -656,12 +576,13 @@ u32 CBooRenderer::GetFPS()
     return 0;
 }
 
-void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float)
+void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength)
 {
-
+    m_spaceWarpFilter.setStrength(strength);
+    m_spaceWarpFilter.draw(pt);
 }
 
-void CBooRenderer::DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&, const float*, const float*)
+void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol)
 {
 }
 
@@ -681,8 +602,11 @@ void CBooRenderer::RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, con
 {
 }
 
-void CBooRenderer::SetThermal(bool, float, const zeus::CColor&)
+void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color)
 {
+    x318_29_thermalVisor = thermal;
+    x2f0_thermalVisorLevel = level;
+    x2f4_thermColor = color;
 }
 
 void CBooRenderer::SetThermalColdScale(float scale)

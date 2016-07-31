@@ -25,6 +25,7 @@ struct CModelFlags
     u8 m_extendedShaderIdx = 0; /* 0 for shadeless, 1 for lighting, others defined in CModelShaders */
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
+    zeus::CColor addColor;
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
@@ -91,7 +92,7 @@ private:
     {
         static void ProcessAnimation(u8*& bufOut, const UVAnimation& anim);
         static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
-        static void Update(u8*& bufOut, const MaterialSet* matSet);
+        static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags);
     };
 
     CModelShaders::LightingUniform m_lightingData;
@@ -103,7 +104,7 @@ private:
     std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
 
     void BuildGfxToken();
-    void UpdateUniformData() const;
+    void UpdateUniformData(const CModelFlags& flags) const;
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;

@@ -6,6 +6,8 @@
 #include "hecl/Runtime.hpp"
 #include "boo/graphicsdev/Metal.hpp"
 #include "Shaders/CModelShaders.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -84,7 +86,7 @@ void CBooModel::BuildGfxToken()
         /* Animated UV transform matrices */
         for (const MaterialSet::Material& mat : x4_matSet->materials)
         {
-            size_t thisSz = ROUND_UP_256(mat.uvAnims.size() * (sizeof(zeus::CMatrix4f) * 2));
+            size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
             uvOffs.push_back(uniBufSize);
             uvSizes.push_back(thisSz);
             uniBufSize += thisSz;
@@ -124,12 +126,14 @@ void CBooModel::BuildGfxToken()
             const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
             texs.clear();
-            texs.reserve(mat.textureIdxs.size());
+            texs.reserve(8);
             for (atUint32 idx : mat.textureIdxs)
             {
                 TCachedToken<CTexture>& tex = (*x1c_textures)[idx];
                 texs.push_back(tex.GetObj()->GetBooTexture());
             }
+            texs.resize(8);
+            texs[7] = g_Renderer->x220_sphereRamp;
 
             if (m_skinBankCount)
             {
@@ -142,16 +146,8 @@ void CBooModel::BuildGfxToken()
                 thisSizes[0] = 256;
             }
 
-            if (mat.uvAnims.size())
-            {
-                thisOffs[1] = uvOffs[surf.m_data.matIdx];
-                thisSizes[1] = uvSizes[surf.m_data.matIdx];
-            }
-            else
-            {
-                thisOffs[1] = 0;
-                thisSizes[1] = 0;
-            }
+            thisOffs[1] = uvOffs[surf.m_data.matIdx];
+            thisSizes[1] = uvSizes[surf.m_data.matIdx];
 
             thisOffs[2] = lightOff;
             thisSizes[2] = lightSz;
@@ -162,11 +158,16 @@ void CBooModel::BuildGfxToken()
             std::vector<boo::IShaderDataBinding*>& extendeds = m_shaderDataBindings.back();
             extendeds.reserve(pipelines.size());
 
+            int idx = 0;
             for (boo::IShaderPipeline* pipeline : pipelines)
+            {
                 extendeds.push_back(
                             ctx.newShaderDataBinding(pipeline, m_vtxFmt,
                                                      x8_vbo, nullptr, xc_ibo, 3, bufs, stages,
-                                                     thisOffs, thisSizes, mat.textureIdxs.size(), texs.data()));
+                                                     thisOffs, thisSizes, (idx == 2) ? 8 : mat.textureIdxs.size(),
+                                                     texs.data()));
+                ++idx;
+            }
         }
         return true;
     });
@@ -416,19 +417,45 @@ void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut)
     bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
 }
 
-void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet)
+void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags)
 {
     u8* start = bufOut;
 
+    /* Special Mode0 matrix for exclusive Thermal Visor use */
+    std::experimental::optional<std::array<zeus::CMatrix4f, 2>> thermalMtxOut;
+    if (flags.m_extendedShaderIdx == 2)
+    {
+        thermalMtxOut.emplace();
+
+        zeus::CMatrix4f& texMtxOut = (*thermalMtxOut)[0];
+        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+        texMtxOut.vec[3].zeroOut();
+        texMtxOut.vec[3].w = 1.f;
+
+        zeus::CMatrix4f& postMtxOut = (*thermalMtxOut)[1];
+        postMtxOut.vec[0].x = 0.5f;
+        postMtxOut.vec[1].y = 0.5f;
+        postMtxOut.vec[3].x = 0.5f;
+        postMtxOut.vec[3].y = 0.5f;
+    }
+
     for (const MaterialSet::Material& mat : matSet->materials)
     {
+        if (thermalMtxOut)
+        {
+            std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+            mtxs[7][0] = (*thermalMtxOut)[0];
+            mtxs[7][1] = (*thermalMtxOut)[1];
+        }
+        u8* bufOrig = bufOut;
         for (const UVAnimation& anim : mat.uvAnims)
             ProcessAnimation(bufOut, anim);
+        bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2;
         PadOutBuffer(start, bufOut);
     }
 }
 
-void CBooModel::UpdateUniformData() const
+void CBooModel::UpdateUniformData(const CModelFlags& flags) const
 {
     u8* dataOut = reinterpret_cast<u8*>(m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
@@ -475,19 +502,28 @@ void CBooModel::UpdateUniformData() const
         dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
     }
 
-    UVAnimationBuffer::Update(dataCur, x4_matSet);
+    UVAnimationBuffer::Update(dataCur, x4_matSet, flags);
 
-    CModelShaders::LightingUniform& lightingOut = reinterpret_cast<CModelShaders::LightingUniform&>(*dataCur);
-    lightingOut = m_lightingData;
+    if (flags.m_extendedShaderIdx == 2) /* Thermal Model (same as UV Mode 0) */
+    {
+        CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
+        thermalOut.mulColor = flags.color;
+        thermalOut.addColor = flags.addColor;
+    }
+    else
+    {
+        CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
+        lightingOut = m_lightingData;
+    }
 
     m_uniformBuffer->unmap();
-}
+ }
 
 void CBooModel::DrawAlpha(const CModelFlags& flags) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData();
+        UpdateUniformData(flags);
         DrawAlphaSurfaces(flags);
     }
 }
@@ -496,7 +532,7 @@ void CBooModel::DrawNormal(const CModelFlags& flags) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData();
+        UpdateUniformData(flags);
         DrawNormalSurfaces(flags);
     }
 }
@@ -505,7 +541,7 @@ void CBooModel::Draw(const CModelFlags& flags) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData();
+        UpdateUniformData(flags);
         DrawSurfaces(flags);
     }
 }
@@ -581,7 +617,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
             {
                 hecl::Runtime::ShaderTag tag(mat.heclIr,
                                              hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, mat.uvAnims.size(), boo::Primitive(hmdlMeta.topology),
+                                             0, 8, boo::Primitive(hmdlMeta.topology),
                                              true, true, true);
                 matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
             }

@@ -26,7 +26,7 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(mat3(mainMtx) * vec3(posIn.xy, 1.0), 1.0);\n"
+"    gl_Position = mainMtx * vec4(posIn.xy, 0.0, 1.0);\n"
 "    vtf.sceneUv = gl_Position.xy * vec2(0.5) + vec2(0.5);\n"
 "    vtf.indUv = (mat3(indMtx) * vec3(uvIn.xy, 1.0)).xy;\n"
 "    vtf.strength = strength.xy;\n"
