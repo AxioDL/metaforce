@@ -90,7 +90,7 @@ public:
     u32 GetNumAreas() const;
     void GetLoadedMapArea(s32) const;
     void GetMapArea(s32) const;
-    void IsMapAreaInBFSInfoVector(const CMapWorld::CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
+    void IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
     void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
     bool IsMapAreasStreaming() const;
     void MoveMapAreaToList(CMapAreaData*, EMapAreaList);

@@ -1266,17 +1266,27 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
                 targetMSet.head.addMaterialEndOff(endOff);
             }
 
-            for (const hecl::ProjectPath& path : texPaths)
+            texPaths.reserve(mset.size()*4);
+            for (const Mesh::Material& mat : mset)
             {
-                const hecl::SystemString& relPath = path.getRelativePath();
-
-                /* TODO: incorporate hecl hashes */
-                size_t search = relPath.find(_S("TXTR_"));
-                if (search != hecl::SystemString::npos)
-                    targetMSet.head.addTexture(relPath.c_str() + search + 5);
-                else
-                    LogDNACommon.report(logvisor::Fatal, "unable to get hash from path");
+                for (const hecl::ProjectPath& path : mat.texs)
+                {
+                    bool found = false;
+                    for (const hecl::ProjectPath& ePath : texPaths)
+                    {
+                        if (path == ePath)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        texPaths.push_back(path);
+                }
             }
+
+            for (const hecl::ProjectPath& path : texPaths)
+                targetMSet.head.addTexture(path);
 
             size_t secSz = targetMSet.binarySize(0);
             size_t secSz32 = ROUND_UP_32(secSz);

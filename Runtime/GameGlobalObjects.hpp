@@ -3,6 +3,7 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
+#include "AutoMapper/ITweakAutoMapper.hpp"
 
 namespace urde
 {
@@ -19,6 +20,7 @@ extern class CBooRenderer* g_Renderer;
 extern DataSpec::ITweakGame*   g_tweakGame;
 extern DataSpec::ITweakPlayer* g_tweakPlayer;
 extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
+extern ITweakAutoMapper* g_tweakAutoMapper;
 
 }
 

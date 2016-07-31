@@ -9,6 +9,7 @@ namespace urde
 {
 class CStateManager;
 class ITweakAutoMapper;
+
 class CMappableObject
 {
 public:
@@ -25,8 +26,11 @@ public:
         IceDoorFloor     = 8,
         WaveDoorCeiling  = 9,
         WaveDoorFloor    = 10,
+        Eleven           = 11,
+        Twelve           = 12,
         IceDoorFloor2    = 13,
         WaveDoorFloor2   = 14,
+        Fifteen          = 15,
         DownArrowYellow  = 27, /* Maintenance Tunnel */
         UpArrowYellow    = 28, /* Phazon Processing Center */
         DownArrowGreen   = 29, /* Elevator A */
@@ -41,6 +45,12 @@ public:
 private:
     static const zeus::CVector3f skDoorVerts[8];
 
+    EMappableObjectType x0_;
+    u32 x4_;
+    TEditorId x8_;
+    u32 xc_;
+    zeus::CTransform x10_;
+    zeus::CTransform AdjustTransformForType();
 public:
     void PostConstruct(const void*);
     const zeus::CTransform& GetTransform() const;
