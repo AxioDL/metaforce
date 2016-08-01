@@ -185,6 +185,13 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
+    else
+        lightingSrc = "cbuffer LightingUniform : register(b2)\n"
+                      "{\n"
+                      "    float4 colorReg0;\n"
+                      "    float4 colorReg1;\n"
+                      "    float4 colorReg2;\n"
+                      "};\n";
 
     std::string texMapDecl;
     if (m_texMapEnd)
@@ -228,6 +235,13 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
+    else
+        lightingSrc = "cbuffer LightingUniform : register(b2)\n"
+                      "{\n"
+                      "    float4 colorReg0;\n"
+                      "    float4 colorReg1;\n"
+                      "    float4 colorReg2;\n"
+                      "};\n";
 
     std::string postSrc;
     if (post.m_source)

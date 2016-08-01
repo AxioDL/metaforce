@@ -194,6 +194,13 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
+    else
+        lightingSrc = "UBINDING2 uniform LightingUniform\n"
+                      "{\n"
+                      "    vec4 colorReg0;\n"
+                      "    vec4 colorReg1;\n"
+                      "    vec4 colorReg2;\n"
+                      "};\n";
 
     std::string texMapDecl;
     for (unsigned i=0 ; i<m_texMapEnd ; ++i)
@@ -242,6 +249,13 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     std::string lightingSrc;
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
+    else
+        lightingSrc = "UBINDING2 uniform LightingUniform\n"
+                      "{\n"
+                      "    vec4 colorReg0;\n"
+                      "    vec4 colorReg1;\n"
+                      "    vec4 colorReg2;\n"
+                      "};\n";
 
     std::string postSrc;
     if (post.m_source)
