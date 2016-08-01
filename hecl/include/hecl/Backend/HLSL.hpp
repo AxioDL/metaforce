@@ -12,15 +12,18 @@ struct HLSL : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
-                         unsigned skinSlots, unsigned texMtxs) const;
-    std::string makeFrag(const ShaderFunction& lighting=ShaderFunction()) const;
-    std::string makeFrag(const ShaderFunction& lighting,
-                         const ShaderFunction& post) const;
+                         unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
+                         const TextureInfo* extTexs) const;
+    std::string makeFrag(bool alphaTest, const ShaderFunction& lighting=ShaderFunction()) const;
+    std::string makeFrag(bool alphaTest, const ShaderFunction& lighting,
+                         const ShaderFunction& post, size_t extTexCount,
+                         const TextureInfo* extTexs) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
-    std::string GenerateVertToFragStruct() const;
+    std::string GenerateVertToFragStruct(size_t extTexCount) const;
     std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const;
+    std::string GenerateAlphaTest() const;
 
     std::string EmitVec3(const atVec4f& vec) const
     {

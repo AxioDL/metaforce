@@ -61,7 +61,7 @@ std::string HLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertToFragStruct() const
+std::string HLSL::GenerateVertToFragStruct(size_t extTexCount) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -72,6 +72,8 @@ std::string HLSL::GenerateVertToFragStruct() const
 
     if (m_tcgs.size())
         retval += hecl::Format("    float2 tcgs[%u] : UV;\n", unsigned(m_tcgs.size()));
+    if (extTexCount)
+        retval += hecl::Format("    float2 extTcgs[%u] : EXTUV;\n", unsigned(extTexCount));
 
     return retval + "};\n";
 }
@@ -102,6 +104,14 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
     return retval;
 }
 
+std::string HLSL::GenerateAlphaTest() const
+{
+    return "    if (colorOut.a < 0.01)\n"
+           "    {\n"
+           "        discard;\n"
+           "    }\n";
+}
+
 void HLSL::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -109,11 +119,12 @@ void HLSL::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
-                           unsigned s, unsigned tm) const
+                           unsigned s, unsigned tm, size_t extTexCount,
+                           const TextureInfo* extTexs) const
 {
     std::string retval =
             GenerateVertInStruct(col, uv, w) + "\n" +
-            GenerateVertToFragStruct() + "\n" +
+            GenerateVertToFragStruct(extTexCount) + "\n" +
             GenerateVertUniformStruct(s, tm) + "\n" +
             "VertToFrag main(in VertData v)\n"
             "{\n"
@@ -153,11 +164,23 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
         ++tcgIdx;
     }
 
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        if (extTex.mtxIdx < 0)
+            retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", i,
+                                   EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
+        else
+            retval += hecl::Format("    vtf.extTcgs[%u] = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0)).xy;\n",
+                                   i, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
+                                   extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+    }
+
     return retval + "    return vtf;\n"
                     "}\n";
 }
 
-std::string HLSL::makeFrag(const ShaderFunction& lighting) const
+std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -169,9 +192,10 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
 
     std::string retval =
             "SamplerState samp : register(s0);\n" +
-            GenerateVertToFragStruct() +
+            GenerateVertToFragStruct(0) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
+            (!alphaTest ? "\n[earlydepthstencil]\n" : "\n") +
             "float4 main(in VertToFrag vtf) : SV_Target0\n{\n";
 
 
@@ -188,16 +212,18 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting) const
         retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    return float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
+        retval += "    colorOut = float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
     else
-        retval += "    return float4(" + m_colorExpr + ", 1.0);\n";
+        retval += "    colorOut = float4(" + m_colorExpr + ", 1.0);\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
 
-std::string HLSL::makeFrag(const ShaderFunction& lighting,
-                           const ShaderFunction& post) const
+std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
+                           const ShaderFunction& post, size_t extTexCount,
+                           const TextureInfo* extTexs) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -215,13 +241,21 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
     if (m_texMapEnd)
         texMapDecl = hecl::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
 
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        texMapDecl += hecl::Format("Texture2D extTex%u : register(t%u);\n",
+                                   extTex.mapIdx, extTex.mapIdx);
+    }
+
     std::string retval =
             "SamplerState samp : register(s0);\n" +
-            GenerateVertToFragStruct() +
+            GenerateVertToFragStruct(extTexCount) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
             postSrc +
-            "\nfloat4 main(in VertToFrag vtf) : SV_Target0\n{\n";
+            (!alphaTest ? "\n[earlydepthstencil]\n" : "\n") +
+            "float4 main(in VertToFrag vtf) : SV_Target0\n{\n";
 
 
     if (m_lighting)
@@ -237,12 +271,13 @@ std::string HLSL::makeFrag(const ShaderFunction& lighting,
         retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
     else
-        retval += "    return " + postEntry + "(float4(" + m_colorExpr + ", 1.0));\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", 1.0));\n";
 
-    return retval + "}\n";
+    return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
 
 }
@@ -263,9 +298,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
 
-        std::string fragSource = m_backend.makeFrag();
+        std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
         ComPtr<ID3DBlob> vertBlob;
         ComPtr<ID3DBlob> fragBlob;
         ComPtr<ID3DBlob> pipelineBlob;
@@ -274,7 +309,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                               vertBlob, fragBlob, pipelineBlob,
                               tag.newVertexFormat(ctx),
-                              m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
+                              boo::BlendFactor(m_backend.m_blendSrc),
+                              boo::BlendFactor(m_backend.m_blendDst),
+                              tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
                               tag.getBackfaceCulling());
         if (!objOut)
@@ -378,66 +415,74 @@ struct HLSLBackendFactory : IShaderBackendFactory
     {
         m_backend.reset(ir, diag);
 
-        std::string vertSource =
-        m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount());
+        struct Blobs
+        {
+            ComPtr<ID3DBlob> vert;
+            ComPtr<ID3DBlob> frag;
+            ComPtr<ID3DBlob> pipeline;
+        };
+        std::vector<Blobs> pipeBlobs;
+        pipeBlobs.reserve(extensionSlots.size());
 
-        ComPtr<ID3DBlob> vertBlob;
-        std::vector<std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>> fragPipeBlobs;
-        fragPipeBlobs.reserve(extensionSlots.size());
-
-        size_t cachedSz = 6 + 8 * extensionSlots.size();
+        size_t cachedSz = 2 + 12 * extensionSlots.size();
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            std::string fragSource = m_backend.makeFrag(slot.lighting, slot.post);
-            fragPipeBlobs.emplace_back();
-            std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>& fragPipeBlob = fragPipeBlobs.back();
+            std::string vertSource =
+            m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
+
+            std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                                        slot.lighting, slot.post, slot.texCount, slot.texs);
+            pipeBlobs.emplace_back();
+            Blobs& thisPipeBlobs = pipeBlobs.back();
             boo::IShaderPipeline* ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  vertBlob, fragPipeBlob.first, fragPipeBlob.second,
+                                  thisPipeBlobs.vert, thisPipeBlobs.frag, thisPipeBlobs.pipeline,
                                   tag.newVertexFormat(ctx),
-                                  m_backend.m_blendSrc, m_backend.m_blendDst, tag.getPrimType(),
+                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
+                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
+                                  tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
-            if (fragPipeBlob.first)
-                cachedSz += fragPipeBlob.first->GetBufferSize();
-            if (fragPipeBlob.second)
-                cachedSz += fragPipeBlob.second->GetBufferSize();
+            if (thisPipeBlobs.vert)
+                cachedSz += thisPipeBlobs.vert->GetBufferSize();
+            if (thisPipeBlobs.frag)
+                cachedSz += thisPipeBlobs.frag->GetBufferSize();
+            if (thisPipeBlobs.pipeline)
+                cachedSz += thisPipeBlobs.pipeline->GetBufferSize();
             returnFunc(ret);
         }
-        if (vertBlob)
-            cachedSz += vertBlob->GetBufferSize();
 
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
 
-        if (vertBlob)
+        for (const Blobs& blobs : pipeBlobs)
         {
-            w.writeUint32Big(vertBlob->GetBufferSize());
-            w.writeUBytes((atUint8*)vertBlob->GetBufferPointer(), vertBlob->GetBufferSize());
-        }
-        else
-            w.writeUint32Big(0);
-
-        for (const std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>& fragPipeBlob : fragPipeBlobs)
-        {
-            if (fragPipeBlob.first)
+            if (blobs.vert)
             {
-                w.writeUint32Big(fragPipeBlob.first->GetBufferSize());
-                w.writeUBytes((atUint8*)fragPipeBlob.first->GetBufferPointer(), fragPipeBlob.first->GetBufferSize());
+                w.writeUint32Big(blobs.vert->GetBufferSize());
+                w.writeUBytes((atUint8*)blobs.vert->GetBufferPointer(), blobs.vert->GetBufferSize());
             }
             else
                 w.writeUint32Big(0);
 
-            if (fragPipeBlob.second)
+            if (blobs.frag)
             {
-                w.writeUint32Big(fragPipeBlob.second->GetBufferSize());
-                w.writeUBytes((atUint8*)fragPipeBlob.second->GetBufferPointer(), fragPipeBlob.second->GetBufferSize());
+                w.writeUint32Big(blobs.frag->GetBufferSize());
+                w.writeUBytes((atUint8*)blobs.frag->GetBufferPointer(), blobs.frag->GetBufferSize());
+            }
+            else
+                w.writeUint32Big(0);
+
+            if (blobs.pipeline)
+            {
+                w.writeUint32Big(blobs.pipeline->GetBufferSize());
+                w.writeUBytes((atUint8*)blobs.pipeline->GetBufferPointer(), blobs.pipeline->GetBufferSize());
             }
             else
                 w.writeUint32Big(0);
@@ -453,19 +498,19 @@ struct HLSLBackendFactory : IShaderBackendFactory
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-
-        atUint32 vertSz = r.readUint32Big();
-        ComPtr<ID3DBlob> vertBlob;
-        if (vertSz)
-        {
-            D3DCreateBlobPROC(vertSz, &vertBlob);
-            r.readUBytesToBuf(vertBlob->GetBufferPointer(), vertSz);
-        }
+        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
+        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
 
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
+            atUint32 vertSz = r.readUint32Big();
+            ComPtr<ID3DBlob> vertBlob;
+            if (vertSz)
+            {
+                D3DCreateBlobPROC(vertSz, &vertBlob);
+                r.readUBytesToBuf(vertBlob->GetBufferPointer(), vertSz);
+            }
+
             atUint32 fragSz = r.readUint32Big();
             ComPtr<ID3DBlob> fragBlob;
             if (fragSz)
@@ -487,7 +532,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 newShaderPipeline(nullptr, nullptr,
                                   vertBlob, fragBlob, pipelineBlob,
                                   tag.newVertexFormat(ctx),
-                                  blendSrc, blendDst, tag.getPrimType(),
+                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
+                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
+                                  tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
             if (!ret)

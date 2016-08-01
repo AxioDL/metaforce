@@ -173,18 +173,16 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
         ++tcgIdx;
     }
 
-    int extIdx = 0;
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
         if (extTex.mtxIdx < 0)
-            retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", extIdx,
+            retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", i,
                                    EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
         else
             retval += hecl::Format("    vtf.extTcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
-                                   extIdx, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
+                                   i, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
                                    extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
-        ++extIdx;
     }
 
     return retval + "}\n";
