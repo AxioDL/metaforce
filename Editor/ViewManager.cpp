@@ -100,7 +100,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_modelTest->Draw(flags);
 
         m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
-        //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
+        m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
     }
     if (m_vm.m_partGen)
     {
