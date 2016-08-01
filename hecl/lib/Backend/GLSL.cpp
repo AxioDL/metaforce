@@ -205,7 +205,6 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
             "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct(0) +
             (!alphaTest ?
-            "\n#extension GL_ARB_shader_image_load_store: enable\n"
             "#ifdef GL_ARB_shader_image_load_store\n"
             "layout(early_fragment_tests) in;\n"
             "#endif\n" : "") +
