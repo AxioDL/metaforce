@@ -201,9 +201,15 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
 
-    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
+    std::string retval = std::string(glslVer) +
+            "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct(0) +
-            "\nlayout(location=0) out vec4 colorOut;\n" +
+            (!alphaTest ?
+            "\n#extension GL_ARB_shader_image_load_store: enable\n"
+            "#ifdef GL_ARB_shader_image_load_store\n"
+            "layout(early_fragment_tests) in;\n"
+            "#endif\n" : "") +
+            "layout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
             "SBINDING(0) in VertToFrag vtf;\n\n" +
             lightingSrc + "\n" +
@@ -259,8 +265,13 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                                    extTex.mapIdx, extTex.mapIdx);
     }
 
-    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
+    std::string retval = std::string(glslVer) +
+            "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertToFragStruct(extTexCount) +
+            (!alphaTest ?
+            "\n#ifdef GL_ARB_shader_image_load_store\n"
+            "layout(early_fragment_tests) in;\n"
+            "#endif\n" : "") +
             "\nlayout(location=0) out vec4 colorOut;\n" +
             texMapDecl +
             "SBINDING(0) in VertToFrag vtf;\n\n" +
