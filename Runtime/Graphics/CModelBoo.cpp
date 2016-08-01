@@ -518,6 +518,9 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags) const
     {
         CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
         lightingOut = m_lightingData;
+        lightingOut.colorRegs[0] = flags.regColors[0];
+        lightingOut.colorRegs[1] = flags.regColors[1];
+        lightingOut.colorRegs[2] = flags.regColors[2];
     }
 
     m_uniformBuffer->unmap();

@@ -25,7 +25,8 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    m_modelTest = objStore.GetObj("gun_cmdl");
+    //m_modelTest = objStore.GetObj("gun_cmdl");
+    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
     m_modelTest.Lock();
 
@@ -81,7 +82,9 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
             flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
-        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta) * zeus::CTransform::Scale(10.f));
+        CGraphics::SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, -3.f) *
+                                  zeus::CTransform::RotateZ(m_theta) *
+                                  zeus::CTransform::Scale(1.f));
         //CGraphics::SetModelMatrix(zeus::CTransform::Identity());
         CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 4.f}, {0.f, 0.f, 0.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
@@ -97,7 +100,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_modelTest->Draw(flags);
 
         m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
-        m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
+        //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
     }
     if (m_vm.m_partGen)
     {

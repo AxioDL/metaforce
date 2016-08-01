@@ -26,6 +26,7 @@ struct CModelFlags
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
     zeus::CColor addColor = zeus::CColor::skClear;
+    zeus::CColor regColors[3];
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
