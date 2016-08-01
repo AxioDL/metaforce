@@ -13,6 +13,7 @@ class CSpaceWarpFilter
     friend struct CSpaceWarpFilterGLDataBindingFactory;
     friend struct CSpaceWarpFilterVulkanDataBindingFactory;
     friend struct CSpaceWarpFilterMetalDataBindingFactory;
+    friend struct CSpaceWarpFilterD3DDataBindingFactory;
 
     struct Uniform
     {

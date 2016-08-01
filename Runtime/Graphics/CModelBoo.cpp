@@ -1,3 +1,6 @@
+#if _WIN32
+#include <D3Dcommon.h>
+#endif
 #include "Graphics/CModel.hpp"
 #include "Graphics/CTexture.hpp"
 #include "Graphics/CGraphics.hpp"

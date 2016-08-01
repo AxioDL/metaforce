@@ -43,11 +43,31 @@ static const char* LightingHLSL =
 "    return saturate(ret);\n"
 "}\n";
 
+static const char* ThermalPostHLSL =
+"cbuffer ThermalUniform : register(b2)\n"
+"{\n"
+"    float4 mulColor;\n"
+"    float4 addColor;\n"
+"};\n"
+"float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+"{\n"
+"    return extTex7.Sample(samp, vtf.extTcgs[0]).rrrr * mulColor + addColor;\n"
+"}\n"
+"\n";
+
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
 {
     hecl::Runtime::ShaderCacheExtensions ext(plat);
-    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {}, 0, nullptr);
+
+    /* Normal lit shading */
+    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {}, 0, nullptr, 0, nullptr,
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
+
+    /* Thermal Visor shading */
+    ext.registerExtensionSlot({}, {ThermalPostHLSL, "ThermalPostFunc"}, 0, nullptr, 1, ThermalTextures,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One);
+
     return ext;
 }
 

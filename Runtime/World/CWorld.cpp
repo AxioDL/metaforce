@@ -4,6 +4,7 @@
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "CInGameTweakManagerBase.hpp"
+#include "Audio/CAudioGroupSet.hpp"
 
 namespace urde
 {

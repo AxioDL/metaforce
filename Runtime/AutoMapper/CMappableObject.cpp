@@ -16,7 +16,7 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
         zeus::CTransform scale;
         scale.scaleBy(1.5);
         zeus::CTransform orientation;
-        orientation.origin = {-1.4*doorCenterX, 0.0f, 0.0f};
+        orientation.origin = {-1.4f*doorCenterX, 0.0f, 0.0f};
         zeus::CTransform tmp3 = x10_ * orientation;
         orientation.rotateLocalZ(zeus::degToRad(90.0f));
         return  tmp3 * scale;

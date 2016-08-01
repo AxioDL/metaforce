@@ -113,7 +113,7 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     }
 
     /* Transform UV coordinates of rectangle within viewport and sampled scene texels (clamped to viewport bounds) */
-    zeus::CVector2f vp{CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y};
+    zeus::CVector2f vp{float(CGraphics::g_ViewportResolution.x), float(CGraphics::g_ViewportResolution.y)};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
     m_uniform.m_matrix[3][0] = pt.x + (1.f / vp.x);

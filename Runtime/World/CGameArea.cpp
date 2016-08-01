@@ -1,3 +1,6 @@
+#if _WIN32
+#include <D3Dcommon.h>
+#endif
 #include "CGameArea.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
