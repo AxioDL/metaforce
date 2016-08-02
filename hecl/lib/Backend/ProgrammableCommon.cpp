@@ -104,7 +104,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
-            return EmitColorRegUse(idx);
+            return toSwizzle ? EmitColorRegUseRaw(idx) : EmitColorRegUseRGB(idx);
         }
         else if (!name.compare("Lighting"))
         {
@@ -191,7 +191,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
             unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
-            return EmitColorRegUse(idx);
+            return EmitColorRegUseAlpha(idx);
         }
         else if (!name.compare("Lighting"))
         {
