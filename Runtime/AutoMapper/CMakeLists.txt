@@ -1,4 +1,5 @@
 set(AUTOMAPPER_SOURCES
+    CMapUniverse.hpp CMapUniverse.cpp
     CMapWorldInfo.hpp CMapWorldInfo.cpp
     CMapWorld.hpp CMapWorld.cpp
     CMapArea.hpp CMapArea.cpp
