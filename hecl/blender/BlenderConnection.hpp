@@ -61,11 +61,13 @@ private:
     bool m_loadedRigged = false;
     ProjectPath m_loadedBlend;
     std::string m_startupBlend;
+    hecl::SystemString m_errPath;
     size_t _readLine(char* buf, size_t bufSz);
     size_t _writeLine(const char* buf);
     size_t _readBuf(void* buf, size_t len);
     size_t _writeBuf(const void* buf, size_t len);
     void _closePipe();
+    void _blenderDied();
 public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();

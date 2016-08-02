@@ -10,10 +10,19 @@ args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
 verbosity_level = int(args[2])
+err_path = ""
 if sys.platform == "win32":
     import msvcrt
     readfd = msvcrt.open_osfhandle(readfd, os.O_RDONLY | os.O_BINARY)
     writefd = msvcrt.open_osfhandle(writefd, os.O_WRONLY | os.O_BINARY)
+    err_path = "/Temp"
+else:
+    err_path = "/tmp"
+
+if 'TMPDIR' in os.environ:
+    err_path = os.environ['TMPDIR']
+
+err_path += "/hecl_%016X.derp" % os.getpid()
 
 def readpipeline():
     retval = bytearray()
@@ -230,125 +239,133 @@ def dataout_loop():
                         writepipebuf(struct.pack('f', c))
 
 
-# Command loop
-while True:
-    cmdargs = read_cmdargs()
-    print(cmdargs)
+# Main exception handling
+try:
+    # Command loop
+    while True:
+        cmdargs = read_cmdargs()
+        print(cmdargs)
 
-    if cmdargs[0] == 'QUIT':
-        quitblender()
+        if cmdargs[0] == 'QUIT':
+            quitblender()
 
-    elif cmdargs[0] == 'OPEN':
-        if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdargs[1]):
-            if bpy.ops.object.mode_set.poll():
-                bpy.ops.object.mode_set(mode = 'OBJECT')
-            writepipeline(b'FINISHED')
-        else:
-            writepipeline(b'CANCELLED')
-
-    elif cmdargs[0] == 'CREATE':
-        if len(cmdargs) >= 4:
-            bpy.ops.wm.open_mainfile(filepath=cmdargs[3])
-        else:
-            bpy.ops.wm.read_homefile()
-        bpy.context.user_preferences.filepaths.save_version = 0
-        if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
-            bpy.ops.file.hecl_patching_load()
-            bpy.context.scene.hecl_type = cmdargs[2]
-            writepipeline(b'FINISHED')
-        else:
-            writepipeline(b'CANCELLED')
-
-    elif cmdargs[0] == 'GETTYPE':
-        writepipeline(bpy.context.scene.hecl_type.encode())
-
-    elif cmdargs[0] == 'GETMESHRIGGED':
-        meshName = bpy.context.scene.hecl_mesh_obj
-        if meshName not in bpy.data.objects:
-            writepipeline(b'FALSE')
-        else:
-            if len(bpy.data.objects[meshName].vertex_groups):
-                writepipeline(b'TRUE')
+        elif cmdargs[0] == 'OPEN':
+            if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdargs[1]):
+                if bpy.ops.object.mode_set.poll():
+                    bpy.ops.object.mode_set(mode = 'OBJECT')
+                writepipeline(b'FINISHED')
             else:
+                writepipeline(b'CANCELLED')
+
+        elif cmdargs[0] == 'CREATE':
+            if len(cmdargs) >= 4:
+                bpy.ops.wm.open_mainfile(filepath=cmdargs[3])
+            else:
+                bpy.ops.wm.read_homefile()
+            bpy.context.user_preferences.filepaths.save_version = 0
+            if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
+                bpy.ops.file.hecl_patching_load()
+                bpy.context.scene.hecl_type = cmdargs[2]
+                writepipeline(b'FINISHED')
+            else:
+                writepipeline(b'CANCELLED')
+
+        elif cmdargs[0] == 'GETTYPE':
+            writepipeline(bpy.context.scene.hecl_type.encode())
+
+        elif cmdargs[0] == 'GETMESHRIGGED':
+            meshName = bpy.context.scene.hecl_mesh_obj
+            if meshName not in bpy.data.objects:
                 writepipeline(b'FALSE')
+            else:
+                if len(bpy.data.objects[meshName].vertex_groups):
+                    writepipeline(b'TRUE')
+                else:
+                    writepipeline(b'FALSE')
 
-    elif cmdargs[0] == 'SAVE':
-        bpy.context.user_preferences.filepaths.save_version = 0
-        if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False, compress=True):
-            writepipeline(b'FINISHED')
-        else:
-            writepipeline(b'CANCELLED')
+        elif cmdargs[0] == 'SAVE':
+            bpy.context.user_preferences.filepaths.save_version = 0
+            if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False, compress=True):
+                writepipeline(b'FINISHED')
+            else:
+                writepipeline(b'CANCELLED')
 
-    elif cmdargs[0] == 'PYBEGIN':
-        writepipeline(b'READY')
-        globals = {'hecl':hecl}
-        compbuf = str()
-        bracket_count = 0
-        while True:
-            try:
-                line = readpipeline()
+        elif cmdargs[0] == 'PYBEGIN':
+            writepipeline(b'READY')
+            globals = {'hecl':hecl}
+            compbuf = str()
+            bracket_count = 0
+            while True:
+                try:
+                    line = readpipeline()
 
-                # ANIM check
-                if line == b'PYANIM':
-                    # Ensure remaining block gets executed
+                    # ANIM check
+                    if line == b'PYANIM':
+                        # Ensure remaining block gets executed
+                        if len(compbuf):
+                            exec_compbuf(compbuf, globals)
+                            compbuf = str()
+                        animin_loop(globals)
+                        continue
+
+                    # End check
+                    elif line == b'PYEND':
+                        # Ensure remaining block gets executed
+                        if len(compbuf):
+                            exec_compbuf(compbuf, globals)
+                            compbuf = str()
+                        writepipeline(b'DONE')
+                        break
+
+                    # Syntax filter
+                    linestr = line.decode().rstrip()
+                    if not len(linestr) or linestr.lstrip()[0] == '#':
+                        writepipeline(b'OK')
+                        continue
+                    leading_spaces = len(linestr) - len(linestr.lstrip())
+
+                    # Block lines always get appended right away
+                    if linestr.endswith(':') or leading_spaces or bracket_count:
+                        if len(compbuf):
+                            compbuf += '\n'
+                        compbuf += linestr
+                        bracket_count += count_brackets(linestr)
+                        writepipeline(b'OK')
+                        continue
+
+                    # Complete non-block statement in compbuf
                     if len(compbuf):
                         exec_compbuf(compbuf, globals)
-                        compbuf = str()
-                    animin_loop(globals)
-                    continue
 
-                # End check
-                elif line == b'PYEND':
-                    # Ensure remaining block gets executed
-                    if len(compbuf):
-                        exec_compbuf(compbuf, globals)
-                        compbuf = str()
-                    writepipeline(b'DONE')
-                    break
-
-                # Syntax filter
-                linestr = line.decode().rstrip()
-                if not len(linestr) or linestr.lstrip()[0] == '#':
-                    writepipeline(b'OK')
-                    continue
-                leading_spaces = len(linestr) - len(linestr.lstrip())
-
-                # Block lines always get appended right away
-                if linestr.endswith(':') or leading_spaces or bracket_count:
-                    if len(compbuf):
-                        compbuf += '\n'
-                    compbuf += linestr
+                    # Establish new compbuf
+                    compbuf = linestr
                     bracket_count += count_brackets(linestr)
-                    writepipeline(b'OK')
-                    continue
 
-                # Complete non-block statement in compbuf
-                if len(compbuf):
-                    exec_compbuf(compbuf, globals)
+                except Exception as e:
+                    writepipeline(b'EXCEPTION')
+                    raise
+                    break
+                writepipeline(b'OK')
 
-                # Establish new compbuf
-                compbuf = linestr
-                bracket_count += count_brackets(linestr)
+        elif cmdargs[0] == 'PYEND':
+            writepipeline(b'ERROR')
 
+        elif cmdargs[0] == 'DATABEGIN':
+            try:
+                dataout_loop()
             except Exception as e:
                 writepipeline(b'EXCEPTION')
                 raise
-                break
-            writepipeline(b'OK')
 
-    elif cmdargs[0] == 'PYEND':
-        writepipeline(b'ERROR')
+        elif cmdargs[0] == 'DATAEND':
+            writepipeline(b'ERROR')
 
-    elif cmdargs[0] == 'DATABEGIN':
-        try:
-            dataout_loop()
-        except Exception as e:
-            writepipeline(b'EXCEPTION')
-            raise
+        else:
+            hecl.command(cmdargs, writepipeline, writepipebuf)
 
-    elif cmdargs[0] == 'DATAEND':
-        writepipeline(b'ERROR')
-
-    else:
-        hecl.command(cmdargs, writepipeline, writepipebuf)
-
+except Exception:
+    import traceback
+    fout = open(err_path, 'w')
+    traceback.print_exc(file=fout)
+    fout.close()
+    raise

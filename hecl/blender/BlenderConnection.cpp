@@ -3,9 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <signal.h>
 #include <system_error>
 #include <string>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
@@ -103,7 +106,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
                 *buf = '\0';
                 if (readBytes >= 4)
                     if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
-                        BlenderLog.report(logvisor::Fatal, "Blender exception");
+                        _blenderDied();
                 return readBytes;
             }
             ++readBytes;
@@ -114,7 +117,7 @@ size_t BlenderConnection::_readLine(char* buf, size_t bufSz)
             *buf = '\0';
             if (readBytes >= 4)
                 if (!memcmp(buf, "EXCEPTION", std::min(readBytes, size_t(9))))
-                    BlenderLog.report(logvisor::Fatal, "Blender exception");
+                    _blenderDied();
             return readBytes;
         }
     }
@@ -131,7 +134,7 @@ size_t BlenderConnection::_writeLine(const char* buf)
         goto err;
     return (size_t)ret;
 err:
-    BlenderLog.report(logvisor::Fatal, strerror(errno));
+    _blenderDied();
     return 0;
 }
 
@@ -142,10 +145,10 @@ size_t BlenderConnection::_readBuf(void* buf, size_t len)
         goto err;
     if (len >= 4)
         if (!memcmp((char*)buf, "EXCEPTION", std::min(len, size_t(9))))
-            BlenderLog.report(logvisor::Fatal, "Blender exception");
+            _blenderDied();
     return ret;
 err:
-    BlenderLog.report(logvisor::Fatal, strerror(errno));
+    _blenderDied();
     return 0;
 }
 
@@ -156,7 +159,7 @@ size_t BlenderConnection::_writeBuf(const void* buf, size_t len)
         goto err;
     return ret;
 err:
-    BlenderLog.report(logvisor::Fatal, strerror(errno));
+    _blenderDied();
     return 0;
 }
 
@@ -166,9 +169,30 @@ void BlenderConnection::_closePipe()
     close(m_writepipe[1]);
 }
 
+void BlenderConnection::_blenderDied()
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    FILE* errFp = hecl::Fopen(m_errPath.c_str(), _S("r"));
+    if (errFp)
+    {
+        fseek(errFp, 0, SEEK_END);
+        int64_t len = hecl::FTell(errFp);
+        if (len)
+        {
+            fseek(errFp, 0, SEEK_SET);
+            std::unique_ptr<char[]> buf(new char[len+1]);
+            memset(buf.get(), 0, len+1);
+            fread(buf.get(), 1, len, errFp);
+            BlenderLog.report(logvisor::Fatal, "\n%s", buf.get());
+        }
+    }
+    BlenderLog.report(logvisor::Fatal, "Blender Exception");
+}
+
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
+    signal(SIGPIPE, SIG_IGN);
 
     /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
@@ -320,6 +344,10 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         m_blenderProc = pid;
 #endif
 
+        /* Stash error path an unlink existing file */
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::Format(_S("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
+        hecl::Unlink(m_errPath.c_str());
+
         /* Handle first response */
         char lineBuf[256];
         _readLine(lineBuf, sizeof(lineBuf));
@@ -398,7 +426,7 @@ BlenderConnection::PyOutStream::StreamBuf::overflow(int_type ch)
     {
         if (m_deleteOnError)
             m_parent.m_parent->deleteBlend();
-        BlenderLog.report(logvisor::Fatal, "error sending '%s' to blender", m_lineBuf.c_str());
+        m_parent.m_parent->_blenderDied();
     }
     m_lineBuf.clear();
     return ch;
