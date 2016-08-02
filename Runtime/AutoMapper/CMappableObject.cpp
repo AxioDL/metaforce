@@ -8,42 +8,58 @@ const zeus::CVector3f CMappableObject::skDoorVerts[8] = {};
 
 zeus::CTransform CMappableObject::AdjustTransformForType()
 {
-    /* TODO - Phil: Finish this */
-    float doorCenterX = g_tweakAutoMapper->GetDoorCenter().x;
-    float doorCenterY = g_tweakAutoMapper->GetDoorCenter().y;
-    if (x0_ == EMappableObjectType::BigDoor1)
+    const float doorCenterX = g_tweakAutoMapper->GetDoorCenter().x;
+    const float doorCenterZ = g_tweakAutoMapper->GetDoorCenter().z;
+    if (x0_type == EMappableObjectType::BigDoor1)
     {
-        zeus::CTransform scale;
-        scale.scaleBy(1.5);
         zeus::CTransform orientation;
         orientation.origin = {-1.4f*doorCenterX, 0.0f, 0.0f};
-        zeus::CTransform tmp3 = x10_ * orientation;
         orientation.rotateLocalZ(zeus::degToRad(90.0f));
-        return  tmp3 * scale;
+        return  (x10_transform * orientation) * zeus::CTransform::Scale(zeus::CVector3f{1.5f});
     }
-    else if (x0_ == EMappableObjectType::BigDoor2)
+    else if (x0_type == EMappableObjectType::BigDoor2)
     {
-
+        zeus::CTransform orientation;
+        orientation.origin = {0.f, -2.0f * doorCenterZ, -1.4f * doorCenterX};
+        orientation.rotateLocalZ(zeus::degToRad(-90.f));
+        return (x10_transform * orientation) * zeus::CTransform::Scale(zeus::CVector3f{1.5f});
     }
-    else if (x0_ == EMappableObjectType::IceDoorCeiling || x0_ == EMappableObjectType::WaveDoorCeiling
-             || x0_ == EMappableObjectType::Eleven)
+    else if (x0_type == EMappableObjectType::IceDoorCeiling || x0_type == EMappableObjectType::WaveDoorCeiling
+             || x0_type == EMappableObjectType::PlasmaDoorCeiling)
     {
+        zeus::CTransform orientation;
+        orientation.origin = {-1.65 * doorCenterX, 0.f, -1.5 * doorCenterZ};
+        orientation.rotateLocalY(zeus::degToRad(90.f));
+        return x10_transform * orientation;
     }
-    else if (x0_ == EMappableObjectType::IceDoorCeiling || x0_ == EMappableObjectType::WaveDoorFloor
-             || x0_ == EMappableObjectType::Twelve)
+    else if (x0_type == EMappableObjectType::IceDoorFloor || x0_type == EMappableObjectType::WaveDoorFloor
+             || x0_type == EMappableObjectType::PlasmaDoorFloor)
     {
+        zeus::CTransform orientation;
+        orientation.origin = {-1.65 * doorCenterX, 0.f, -1.0 * doorCenterZ};
+        orientation.rotateLocalY(zeus::degToRad(90.f));
+        return x10_transform * orientation;
     }
-    else if (EMappableObjectType(u32(x0_) - u32(EMappableObjectType::IceDoorFloor2)) <= EMappableObjectType::ShieldDoor
-             || x0_ == EMappableObjectType::Fifteen)
+    else if ((u32(x0_type) - u32(EMappableObjectType::IceDoorFloor2)) <= u32(EMappableObjectType::ShieldDoor)
+             || x0_type == EMappableObjectType::Fifteen)
     {
+        zeus::CTransform orientation;
+        orientation.origin = {-0.49 * doorCenterX, 0.f, -1.0 * doorCenterZ};
+        orientation.rotateLocalY(zeus::degToRad(90.f));
+        return x10_transform * orientation;
     }
-    return x10_;
+    else if (x0_type >= EMappableObjectType::BlueDoor || x0_type <= EMappableObjectType::Fifteen)
+    {
+        zeus::CMatrix4f tmp = x10_transform.toMatrix4f().transposed();
+        return zeus::CTransform::Translate(tmp.m[1][0], tmp.m[2][1], tmp[3][2]);
+    }
+    return x10_transform;
 }
 
 void CMappableObject::PostConstruct(const void *)
 {
 #if __BYTE_ORDER__!= __ORDER_BIG_ENDIAN__
-    x0_ = EMappableObjectType(SBIG(u32(x0_)));
+    x0_type = EMappableObjectType(SBIG(u32(x0_type)));
     x4_ = SBIG(x4_);
     x8_ = SBIG(x8_);
     xc_ = SBIG(xc_);
@@ -51,17 +67,22 @@ void CMappableObject::PostConstruct(const void *)
     {
         for (u32 j = 0 ; j<4 ; j++)
         {
-            u32* tmp = reinterpret_cast<u32*>(&x10_.basis.m[i][j]);
+            u32* tmp = reinterpret_cast<u32*>(&x10_transform.basis.m[i][j]);
             *tmp = SBIG(*tmp);
         }
     }
 
 #endif
-    x10_.origin.x = x10_.basis.m[0][3];
-    x10_.origin.y = x10_.basis.m[1][3];
-    x10_.origin.z = x10_.basis.m[2][3];
-    x10_.basis.transpose();
-    x10_ = AdjustTransformForType();
+    x10_transform.origin.x = x10_transform.basis.m[0][3];
+    x10_transform.origin.y = x10_transform.basis.m[1][3];
+    x10_transform.origin.z = x10_transform.basis.m[2][3];
+    x10_transform.basis.transpose();
+    x10_transform = AdjustTransformForType();
+}
+
+zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(s32) const
+{
+    return {};
 }
 
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
