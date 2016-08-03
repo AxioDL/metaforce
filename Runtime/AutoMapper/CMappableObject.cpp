@@ -28,7 +28,7 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
              || x0_type == EMappableObjectType::PlasmaDoorCeiling)
     {
         zeus::CTransform orientation;
-        orientation.origin = {-1.65 * doorCenterX, 0.f, -1.5 * doorCenterZ};
+        orientation.origin = {-1.65f * doorCenterX, 0.f, -1.5f * doorCenterZ};
         orientation.rotateLocalY(zeus::degToRad(90.f));
         return x10_transform * orientation;
     }
@@ -36,7 +36,7 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
              || x0_type == EMappableObjectType::PlasmaDoorFloor)
     {
         zeus::CTransform orientation;
-        orientation.origin = {-1.65 * doorCenterX, 0.f, -1.0 * doorCenterZ};
+        orientation.origin = {-1.65f * doorCenterX, 0.f, -1.f * doorCenterZ};
         orientation.rotateLocalY(zeus::degToRad(90.f));
         return x10_transform * orientation;
     }
@@ -44,7 +44,7 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
              || x0_type == EMappableObjectType::Fifteen)
     {
         zeus::CTransform orientation;
-        orientation.origin = {-0.49 * doorCenterX, 0.f, -1.0 * doorCenterZ};
+        orientation.origin = {-0.49f * doorCenterX, 0.f, -1.f * doorCenterZ};
         orientation.rotateLocalY(zeus::degToRad(90.f));
         return x10_transform * orientation;
     }

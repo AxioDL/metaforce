@@ -1,13 +1,15 @@
 if(WIN32)
-  set(PLAT_SRCS 
+  set(PLAT_SRCS
       Shaders/CLineRendererShadersHLSL.cpp
       Shaders/CModelShadersHLSL.cpp
       Shaders/CThermalColdFilterHLSL.cpp
+      Shaders/CThermalHotFilterHLSL.cpp
       Shaders/CSpaceWarpFilterHLSL.cpp)
 elseif(APPLE)
   set(PLAT_SRCS Shaders/CLineRendererShadersMetal.cpp
       Shaders/CModelShadersMetal.cpp
       Shaders/CThermalColdFilterMetal.cpp
+      Shaders/CThermalHotFilterMetal.cpp
       Shaders/CSpaceWarpFilterMetal.cpp)
 endif()
 

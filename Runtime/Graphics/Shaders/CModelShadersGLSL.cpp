@@ -52,7 +52,7 @@ static const char* ThermalPostGLSL =
 "};\n"
 "vec4 ThermalPostFunc(vec4 colorIn)\n"
 "{\n"
-"    return texture(tex7, vtf.extTcgs[0]).rrrr * mulColor + addColor;\n"
+"    return vec4(texture(tex7, vtf.extTcgs[0]).rrr * mulColor.rgb + addColor.rgb, 1.0);\n"
 "}\n"
 "\n";
 

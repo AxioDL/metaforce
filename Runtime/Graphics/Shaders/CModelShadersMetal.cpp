@@ -51,7 +51,7 @@ static const char* ThermalPostMetal =
 "};\n"
 "static float4 ThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu, texture2d<float> tex7, float4 colorIn)\n"
 "{\n"
-"    return tex7.sample(samp, vtf.extTcgs0).rrrr * lu.mulColor + lu.addColor;\n"
+"    return float4(tex7.sample(samp, vtf.extTcgs0).rrr * lu.mulColor.rgb + lu.addColor.rgb, 1.0);\n"
 "}\n"
 "\n";
 
