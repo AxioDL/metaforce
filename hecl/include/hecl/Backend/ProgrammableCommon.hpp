@@ -72,17 +72,17 @@ private:
         return hecl::Format("sampling%u.a", samplingIdx);
     }
 
-    virtual std::string EmitColorRegUseRaw(unsigned idx) const
+    std::string EmitColorRegUseRaw(unsigned idx) const
     {
         return hecl::Format("colorReg%u", idx);
     }
 
-    virtual std::string EmitColorRegUseRGB(unsigned idx) const
+    std::string EmitColorRegUseRGB(unsigned idx) const
     {
         return hecl::Format("colorReg%u.rgb", idx);
     }
 
-    virtual std::string EmitColorRegUseAlpha(unsigned idx) const
+    std::string EmitColorRegUseAlpha(unsigned idx) const
     {
         return hecl::Format("colorReg%u.a", idx);
     }

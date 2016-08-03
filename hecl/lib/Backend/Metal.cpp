@@ -229,6 +229,18 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     "{\n"
     "    FragOut out;\n";
 
+    if (lighting.m_source)
+    {
+        retval += "    float4 colorReg0 = block0.colorReg0;\n"
+                  "    float4 colorReg1 = block0.colorReg1;\n"
+                  "    float4 colorReg2 = block0.colorReg2;\n";
+    }
+    else
+    {
+        retval += "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+    }
 
     if (m_lighting)
     {
@@ -306,6 +318,19 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
     "{\n"
     "    FragOut out;\n";
+
+    if (lighting.m_source)
+    {
+        retval += "    float4 colorReg0 = block0.colorReg0;\n"
+                  "    float4 colorReg1 = block0.colorReg1;\n"
+                  "    float4 colorReg2 = block0.colorReg2;\n";
+    }
+    else
+    {
+        retval += "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+    }
 
     if (m_lighting)
     {

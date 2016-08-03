@@ -35,11 +35,6 @@ private:
         return hecl::Format("float3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
     }
 
-    std::string EmitColorRegUse(unsigned idx) const
-    {
-        return hecl::Format("lu.colorReg%u", idx);
-    }
-
     std::string EmitTexGenSource2(TexGenSrc src, int uvIdx) const;
     std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };
