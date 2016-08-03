@@ -4,6 +4,7 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
 #include "AutoMapper/ITweakAutoMapper.hpp"
+#include "GuiSys/ITweakGui.hpp"
 
 namespace urde
 {
@@ -21,6 +22,7 @@ extern DataSpec::ITweakGame*   g_tweakGame;
 extern DataSpec::ITweakPlayer* g_tweakPlayer;
 extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
 extern ITweakAutoMapper* g_tweakAutoMapper;
+extern ITweakGui* g_tweakGui;
 
 }
 
