@@ -44,11 +44,15 @@ void CMapArea::PostConstruct()
         (reinterpret_cast<CMapAreaSurface*>(x40_surfaceStart + j))->PostConstruct(x44_buf.get());
 }
 
+
+void CMapArea::CMapAreaSurface::PostConstruct(const void *)
+{
+}
+
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&)
 {
     u32 size = g_ResFactory->ResourceSize(objTag);
-    return TToken<CMapArea>::GetIObjObjectFor(std::unique_ptr<CMapArea>
-                                              (new CMapArea(in, size)));
+    return TToken<CMapArea>::GetIObjObjectFor(std::make_unique<CMapArea>(in, size));
 }
 
 }

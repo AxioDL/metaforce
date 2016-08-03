@@ -53,7 +53,7 @@ CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const 
     in.readUint32Big();
     u32 version = in.readUint32Big();
 
-    return TToken<CMapUniverse>::GetIObjObjectFor(std::unique_ptr<CMapUniverse>(new CMapUniverse(in, version)));
+    return TToken<CMapUniverse>::GetIObjObjectFor(std::make_unique<CMapUniverse>(in, version));
 }
 
 }

@@ -4,6 +4,7 @@ set(MP1_SOURCES
     CInGameTweakManager.hpp CInGameTweakManager.cpp
     Tweaks/CTweakAutoMapper.hpp Tweaks/CTweakAutoMapper.cpp
     Tweaks/CTweakPlayer.hpp Tweaks/CTweakPlayer.cpp
+    Tweaks/CTweakGui.hpp Tweaks/CTweakGui.cpp
     CMainFlow.hpp CMainFlow.cpp
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp
