@@ -46,6 +46,7 @@ static const char* VS =
 "    vtf.colorReg1 = tcu.colorReg1;\n"
 "    vtf.colorReg2 = tcu.colorReg2;\n"
 "    vtf.sceneUv = v.uvIn.xy;\n"
+"    vtf.sceneUv.y = -vtf.sceneUv.y;\n"
 "    vtf.shiftUv = (float3x3(tcu.shiftMtx[0].xyz, tcu.shiftMtx[1].xyz, tcu.shiftMtx[2].xyz) * v.uvIn.xyz).xy;\n"
 "    vtf.shiftScale = tcu.shiftScale.xy;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
