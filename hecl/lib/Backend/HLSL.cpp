@@ -186,12 +186,9 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
     else
-        lightingSrc = "cbuffer LightingUniform : register(b2)\n"
-                      "{\n"
-                      "    float4 colorReg0;\n"
-                      "    float4 colorReg1;\n"
-                      "    float4 colorReg2;\n"
-                      "};\n";
+        lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
 
     std::string texMapDecl;
     if (m_texMapEnd)
@@ -236,12 +233,9 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
     if (lighting.m_source)
         lightingSrc = lighting.m_source;
     else
-        lightingSrc = "cbuffer LightingUniform : register(b2)\n"
-                      "{\n"
-                      "    float4 colorReg0;\n"
-                      "    float4 colorReg1;\n"
-                      "    float4 colorReg2;\n"
-                      "};\n";
+        lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
 
     std::string postSrc;
     if (post.m_source)

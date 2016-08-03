@@ -192,7 +192,6 @@ void BlenderConnection::_blenderDied()
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
-    signal(SIGPIPE, SIG_IGN);
 
     /* Put hecl_blendershell.py in temp dir */
 #ifdef _WIN32
@@ -201,6 +200,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         TMPDIR = (wchar_t*)L"\\Temp";
     m_startupBlend = hecl::WideToUTF8(TMPDIR);
 #else
+    signal(SIGPIPE, SIG_IGN);
     char* TMPDIR = getenv("TMPDIR");
     if (!TMPDIR)
         TMPDIR = (char*)"/tmp";
@@ -345,7 +345,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
 #endif
 
         /* Stash error path an unlink existing file */
-        m_errPath = hecl::SystemString(TMPDIR) + hecl::Format(_S("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
         hecl::Unlink(m_errPath.c_str());
 
         /* Handle first response */
