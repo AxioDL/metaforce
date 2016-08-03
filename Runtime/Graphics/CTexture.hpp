@@ -50,6 +50,7 @@ public:
     u16 GetHeight() const {return x6_h;}
     void Load(int slot, EClampMode clamp) const;
     boo::ITexture* GetBooTexture() {return m_booTex;}
+    boo::ITexture* GetPaletteTexture() {return m_paletteTex;}
 };
 
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,

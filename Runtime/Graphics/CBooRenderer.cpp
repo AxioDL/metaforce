@@ -83,10 +83,10 @@ void Buckets::Sort()
     for (auto it = sBuckets->rbegin() ; it != sBuckets->rend() ; ++it)
     {
         --bucketIdx;
-        sBucketIndex.push_back(bucketIdx);
         rstl::reserved_vector<CDrawable*, 128>& bucket = *it;
         if (bucket.size())
         {
+            sBucketIndex.push_back(bucketIdx);
             std::sort(bucket.begin(), bucket.end(),
             [](CDrawable* a, CDrawable* b) -> bool
             {
@@ -191,11 +191,14 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
         }
     }
 
-    model.ActivateLights(thisLights);
+    //model.ActivateLights(thisLights);
 }
 
 void CBooRenderer::RenderBucketItems(CAreaListItem* item)
 {
+    CModelFlags flags;
+    flags.m_extendedShaderIdx = 1;
+
     for (u16 idx : Buckets::sBucketIndex)
     {
         rstl::reserved_vector<CDrawable*, 128>& bucket = (*Buckets::sBuckets)[idx];
@@ -208,14 +211,14 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
                 static_cast<CParticleGen*>((void*)drawable->GetData())->Render();
                 break;
             }
-            case EDrawableType::Surface:
+            case EDrawableType::WorldSurface:
             {
                 CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
                 CBooModel* model = surf->m_parent;
                 if (model)
                 {
                     ActivateLightsForModel(item, *model);
-                    model->DrawSurface(*surf, CModelFlags{});
+                    model->DrawSurface(*surf, flags);
                 }
                 break;
             }
@@ -237,9 +240,11 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
 {
     ActivateLightsForModel(item, model);
     CBooSurface* surf = model.x38_firstUnsortedSurface;
+    CModelFlags flags;
+    flags.m_extendedShaderIdx = 1;
     while (surf)
     {
-        model.DrawSurface(*surf, CModelFlags{});
+        model.DrawSurface(*surf, flags);
         surf = surf->m_next;
     }
 }
@@ -283,12 +288,13 @@ void CBooRenderer::LoadThermoPalette()
     m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
     CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
     if (thermoTexObj)
-        x288_thermoPalette = thermoTexObj->GetBooTexture();
+        x288_thermoPalette = thermoTexObj->GetPaletteTexture();
 }
 
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 : x8_factory(resFac), xc_store(store), x2a8_thermalRand(20)
 {
+    g_Renderer = this;
     xee_24_ = true;
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
@@ -298,6 +304,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
         return true;
     });
     LoadThermoPalette();
+    m_thermHotFilter.emplace();
 
     Buckets::Init();
 }
@@ -307,10 +314,10 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model)
     CBooSurface* surf = model.x3c_firstSortedSurface;
     while (surf)
     {
-        const CBooModel::MaterialSet::Material& mat = model.GetMaterialByIndex(surf->selfIdx);
+        const CBooModel::MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
         zeus::CAABox aabb = surf->GetBounds();
         zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.vec);
-        Buckets::Insert(pt, aabb, EDrawableType::Surface, surf, xb0_viewPlane,
+        Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
                         mat.heclIr.m_blendDst != boo::BlendFactor::Zero);
         surf = surf->m_next;
     }
@@ -617,7 +624,6 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
 void CBooRenderer::SetThermalColdScale(float scale)
 {
     x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f);
-    m_thermColdFilter.setScale(x2f8_thermColdScale);
 }
 
 void CBooRenderer::DoThermalBlendCold()
@@ -645,6 +651,7 @@ void CBooRenderer::DoThermalBlendCold()
 
 void CBooRenderer::DoThermalBlendHot()
 {
+    m_thermHotFilter->draw();
 }
 
 u32 CBooRenderer::GetStaticWorldDataSize()

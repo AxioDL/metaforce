@@ -76,7 +76,7 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
-struct CThemalColdFilterD3DDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
+struct CThermalColdFilterD3DDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
     {
@@ -104,7 +104,7 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     pipeOut = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                     vtxFmtOut, boo::BlendFactor::One,
                                     boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
-    return new CThemalColdFilterD3DDataBindingFactory;
+    return new CThermalColdFilterD3DDataBindingFactory;
 }
 
 }

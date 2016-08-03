@@ -6,6 +6,7 @@
 #include "CDrawable.hpp"
 #include "CDrawablePlaneObject.hpp"
 #include "Shaders/CThermalColdFilter.hpp"
+#include "Shaders/CThermalHotFilter.hpp"
 #include "Shaders/CSpaceWarpFilter.hpp"
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
@@ -107,6 +108,7 @@ class CBooRenderer : public IRenderer
     zeus::CColor x2f4_thermColor;
     float x2f8_thermColdScale = 0.f;
     CThermalColdFilter m_thermColdFilter;
+    std::experimental::optional<CThermalHotFilter> m_thermHotFilter;
 
     std::vector<CLight> x304_lights;
 
@@ -196,6 +198,8 @@ public:
     void DoThermalBlendCold();
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
+
+    boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
 
     void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}

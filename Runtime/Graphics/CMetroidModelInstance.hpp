@@ -19,6 +19,7 @@ class CMetroidModelInstance
     zeus::CAABox x34_aabb;
     CBooModel* m_instance;
 public:
+    CMetroidModelInstance(CBooModel* inst);
     CMetroidModelInstance(const void* modelHeader, CBooModel* inst);
     ~CMetroidModelInstance();
 };

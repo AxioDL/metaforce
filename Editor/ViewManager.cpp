@@ -13,6 +13,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
+#include "Graphics/CMetroidModelInstance.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -21,6 +22,7 @@ namespace urde
 {
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
+URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
@@ -77,29 +79,35 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     {
         CModelFlags flags;
 
-        flags.m_extendedShaderIdx = 1;
+        flags.m_extendedShaderIdx = 0;
         //flags.m_extendedShaderIdx = 2;
         //if (std::fmod(m_theta, M_PIF) < M_PIF / 2.f)
         //    flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
-        CGraphics::SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, -3.f) *
-                                  zeus::CTransform::RotateZ(m_theta) *
-                                  zeus::CTransform::Scale(1.f));
-        //CGraphics::SetModelMatrix(zeus::CTransform::Identity());
-        CGraphics::SetViewPointMatrix(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 4.f}, {0.f, 0.f, 0.f}));
+        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
+        g_Renderer->SetWorldViewpoint(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 7.f},
+                                      {0.f, 0.f, 3.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
+
         CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
+        zeus::CFrustum frustum;
+        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.1f, 1000.f));
+        g_Renderer->SetClippingPlanes(frustum);
 
         std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.05f, 0.05f, 0.05f, 1.f}),
                                       CLight::BuildCustom({5.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
                                       {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
         //lights = {CLight::BuildLocalAmbient({}, {1.0f, 0.0f, 0.0f, 1.f})};
-        m_vm.m_modelTest->GetInstance().ActivateLights(lights);
+        //m_vm.m_modelTest->GetInstance().ActivateLights(lights);
+        g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
+        g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
+        g_Renderer->DoThermalBlendCold();
+        flags.m_extendedShaderIdx = 2;
         m_vm.m_modelTest->Draw(flags);
-
-        m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
+        g_Renderer->DoThermalBlendHot();
+        //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
     }
     if (m_vm.m_partGen)
@@ -369,6 +377,7 @@ void ViewManager::stop()
     m_videoVoice.reset();
     m_projManager.shutdown();
     TShader<CThermalColdFilter>::Shutdown();
+    TShader<CThermalHotFilter>::Shutdown();
     TShader<CSpaceWarpFilter>::Shutdown();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();

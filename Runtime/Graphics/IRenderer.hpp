@@ -27,7 +27,7 @@ public:
 
     enum class EDrawableSorting
     {
-        SortedBuckets,
+        SortedCallback,
         UnsortedCallback
     };
     enum class EDebugOption

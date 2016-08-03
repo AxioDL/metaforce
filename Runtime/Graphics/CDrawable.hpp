@@ -8,7 +8,7 @@ namespace urde
 {
 enum class EDrawableType : u16
 {
-    Surface,
+    WorldSurface,
     Particle,
     UnsortedCallback,
     SortedCallback

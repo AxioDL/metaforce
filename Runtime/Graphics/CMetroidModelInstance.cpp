@@ -4,6 +4,12 @@
 namespace urde
 {
 
+CMetroidModelInstance::CMetroidModelInstance(CBooModel* inst)
+: x0_visorFlags(0), m_instance(inst)
+{
+    x34_aabb = inst->x20_aabb;
+}
+
 CMetroidModelInstance::CMetroidModelInstance
 (const void* modelHeader, CBooModel* inst)
 : x0_visorFlags(hecl::SBig(*static_cast<const u32*>(modelHeader))), m_instance(inst)

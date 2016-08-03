@@ -84,7 +84,7 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
-struct CThemalColdFilterMetalDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
+struct CThermalColdFilterMetalDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
     {
@@ -111,7 +111,7 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
     pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::One,
                                     boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
-    return new CThemalColdFilterMetalDataBindingFactory;
+    return new CThermalColdFilterMetalDataBindingFactory;
 }
 
 }

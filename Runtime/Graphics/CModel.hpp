@@ -61,6 +61,7 @@ class CBooModel
 {
     friend class CModel;
     friend class CBooRenderer;
+    friend class CMetroidModelInstance;
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
     using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
@@ -105,7 +106,6 @@ private:
     std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
 
     void BuildGfxToken();
-    void UpdateUniformData(const CModelFlags& flags) const;
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
@@ -125,6 +125,7 @@ public:
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;
+    void UpdateUniformData(const CModelFlags& flags) const;
     void DrawAlpha(const CModelFlags& flags) const;
     void DrawNormal(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
