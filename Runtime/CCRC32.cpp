@@ -45,7 +45,7 @@ uint32_t CCRC32::Calculate(const void* data, uint32_t length)
         return 0;
 
     uint32_t checksum = 0xFFFFFFFF;
-    uint8_t* buf = (uint8_t*)data;
+    const uint8_t* buf = reinterpret_cast<const uint8_t*>(data);
     uint32_t words = length / 4;
     while ((words--) > 0)
     {
