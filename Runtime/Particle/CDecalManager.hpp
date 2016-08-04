@@ -5,18 +5,10 @@
 #include "rstl.hpp"
 #include "optional.hpp"
 #include "CToken.hpp"
+#include "CDecal.hpp"
 
 namespace urde
 {
-
-class CDecal
-{
-public:
-    class CQuadDecal
-    {
-    };
-};
-
 class CDecalManager
 {
     struct SDecal

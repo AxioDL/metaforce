@@ -1,5 +1,4 @@
 #include "CDecalDataFactory.hpp"
-#include "CDecalDescription.hpp"
 #include "CGenDescription.hpp"
 #include "CSwooshDescription.hpp"
 #include "CElectricDescription.hpp"
@@ -102,7 +101,8 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
     return true;
 }
 
-void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId, SQuadDescr& quad)
+void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId,
+                                         CDecalDescription::SQuadDescr& quad)
 {
     switch (clsId)
     {

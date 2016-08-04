@@ -1,5 +1,6 @@
 #include "CDecalManager.hpp"
 #include "CDecalDescription.hpp"
+#include "CDecal.hpp"
 
 namespace urde
 {
