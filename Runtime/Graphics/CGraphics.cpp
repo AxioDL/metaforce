@@ -431,5 +431,6 @@ boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDat
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
 boo::ITextureR* CGraphics::g_SpareTexture = nullptr;
+const boo::SystemChar* CGraphics::g_BooPlatformName = nullptr;
 
 }

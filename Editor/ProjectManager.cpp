@@ -71,7 +71,7 @@ bool ProjectManager::newProject(const hecl::SystemString& path)
     saveProject();
 
     hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-    windowTitle += _S(" - URDE");
+    windowTitle += _S(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _S("]");
     m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
@@ -143,7 +143,7 @@ makeProj:
 
     {
         hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-        windowTitle += _S(" - URDE");
+        windowTitle += _S(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _S("]");
         m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     }
     m_vm.DismissSplash();

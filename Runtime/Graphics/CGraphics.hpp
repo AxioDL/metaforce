@@ -231,6 +231,7 @@ public:
     static void TickRenderTimings();
 
     static boo::IGraphicsDataFactory::Platform g_BooPlatform;
+    static const boo::SystemChar* g_BooPlatformName;
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
     static boo::ITextureR* g_SpareTexture;
@@ -240,9 +241,15 @@ public:
                               boo::ITextureR* spareTex)
     {
         g_BooPlatform = factory->platform();
+        g_BooPlatformName = factory->platformName();
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
         g_SpareTexture = spareTex;
+    }
+
+    const boo::SystemChar* PlatformName()
+    {
+        return g_BooPlatformName;
     }
 
     static boo::GraphicsDataToken CommitResources(const boo::FactoryCommitFunc& commitFunc)

@@ -299,6 +299,8 @@ void ViewManager::init(boo::IApplication* app)
     float pixelFactor = 1.0;
 
     m_mainBooFactory = m_mainWindow->getMainContextDataFactory();
+    m_mainPlatformName = m_mainBooFactory->platformName();
+    m_mainWindow->setTitle(_S("URDE [") + hecl::SystemString(m_mainPlatformName) + _S("]"));
     m_mainCommandQueue = m_mainWindow->getCommandQueue();
     m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
     m_iconsToken = InitializeIcons(m_viewResources);

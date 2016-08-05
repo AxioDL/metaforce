@@ -37,6 +37,7 @@ class ViewManager : public specter::IViewManager
     boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
     boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
     boo::ITextureR* m_renderTex = nullptr;
+    const boo::SystemChar* m_mainPlatformName;
 
     std::unique_ptr<specter::RootView> m_rootView;
     std::unique_ptr<SplashScreen> m_splash;
@@ -140,6 +141,7 @@ public:
     void pushRecentFile(const hecl::SystemString& path);
 
     void init(boo::IApplication* app);
+    const boo::SystemChar* platformName() { return m_mainPlatformName; }
     bool proc();
     void stop();
 };
