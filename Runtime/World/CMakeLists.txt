@@ -10,7 +10,6 @@ set(WORLD_SOURCES
     CAiFuncMap.hpp CAiFuncMap.cpp
     CPatterned.hpp CPatterned.cpp
     CPathFindArea.hpp CPathFindArea.cpp
-    CAreaOctTree.hpp CAreaOctTree.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CEntity.hpp CEntity.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp

@@ -88,7 +88,7 @@ public:
     //virtual void CacheReflection(TReflectionCallback, void*, bool)=0;
     virtual void DrawSpaceWarp(const zeus::CVector3f&, float)=0;
     virtual void DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&)=0;
-    virtual void DrawXRayOutline(const CModel&, const float*, const float*)=0;
+    virtual void DrawXRayOutline(const zeus::CAABox&, const float*, const float*)=0;
     virtual void SetWireframeFlags(int)=0;
     virtual void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&)=0;
     virtual void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*)=0;

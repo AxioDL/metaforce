@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
+#include "Collision/CCollisionEdge.hpp"
 
 namespace urde
 {
@@ -54,11 +55,27 @@ public:
         ETreeType GetTreeType(s32) const;
     };
 
-    int x14_;
+    zeus::CAABox x0_aabb;
+    Node::ETreeType x18_treeType;
+    u8* x1c_buf;
+    void* x20_treeBuf;
+    u32 x24_matCount;
+    u32* x28_materials;
+    u8* x2c_vertMats;
+    u8* x30_edgeMats;
+    u8* x34_polyMats;
+    u32 x38_edgeCount;
+    std::vector<CCollisionEdge> x3c_edges;
+    u32 x40_polyCount;
+    u16* x44_polyEdges;
+    u32 x48_vertCount;
+    std::vector<zeus::CVector3f> x4c_verts;
 
 public:
-    CAreaOctTree(const zeus::CAABox& box, Node::ETreeType treeType, u8*, void*, u32, u32*, u8*, u8*, u8*, u32,
-                 CCollisionEdge*, u32, u16*, u32, zeus::CVector3f*);
+    CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, u8* buf, void* treeBuf,
+                 u32 matCount, u32* materials, u8* vertMats, u8* edgeMats, u8* polyMats,
+                 u32 edgeCount, CCollisionEdge* edges, u32 polyCount, u16* polyEdges,
+                 u32 vertCount, zeus::CVector3f* verts);
 
     const Node* GetRootNode() const;
     void GetTreeMemory() const;
@@ -73,7 +90,21 @@ public:
     void GetTriangleVertexIndices(u16);
     void GetTriangleEdgeIndices(u16);
 
-    static void MakeFromMemory(void*, unsigned int, CAreaOctTree*, bool*);
+    static std::unique_ptr<CAreaOctTree> MakeFromMemory(void* buf, unsigned int size);
+
+    void RecursiveMatchXray(std::vector<u32>& out, const zeus::CAABox& inner, const zeus::CAABox& outer)
+    {
+        if (outer.intersects(inner))
+        {
+            if (inner.inside(outer))
+            {
+            }
+        }
+    }
+
+    void MatchXray(std::vector<u32>& out, const zeus::CAABox&)
+    {
+    }
 };
 
 }

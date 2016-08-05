@@ -7,7 +7,7 @@
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
 #include "CMetroidModelInstance.hpp"
-#include "World/CAreaOctTree.hpp"
+#include "Collision/CAreaOctTree.hpp"
 
 #define FOGVOL_RAMP_RES 256
 #define SPHERE_RAMP_RES 32
@@ -598,8 +598,14 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
     model.Draw(flags);
 }
 
-void CBooRenderer::DrawXRayOutline(const CModel&, const float*, const float*)
+void CBooRenderer::DrawXRayOutline(const zeus::CAABox&, const float*, const float*)
 {
+    for (CAreaListItem& item : x1c_areaListItems)
+    {
+        if (item.x4_octTree)
+        {
+        }
+    }
 }
 
 void CBooRenderer::SetWireframeFlags(int)

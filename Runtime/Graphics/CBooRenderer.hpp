@@ -55,9 +55,7 @@ class CBooRenderer : public IRenderer
         //std::vector<TCachedToken<CTexture>> x8_textures;
         std::vector<CBooModel*> x10_models;
         int x18_areaIdx;
-        int x20_unk1 = 0;
-        int x24_unk2 = 0;
-        void* x28_unk3 = nullptr;
+        std::vector<u32> x20_;
 
         CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
                       std::vector<CBooModel*>&& models, int areaIdx);
@@ -189,7 +187,7 @@ public:
     //void CacheReflection(TReflectionCallback, void*, bool);
     void DrawSpaceWarp(const zeus::CVector3f&, float);
     void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol);
-    void DrawXRayOutline(const CModel&, const float*, const float*);
+    void DrawXRayOutline(const zeus::CAABox&, const float*, const float*);
     void SetWireframeFlags(int);
     void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&);
     void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*);

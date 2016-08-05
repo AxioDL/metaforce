@@ -1,4 +1,5 @@
 set(COLLISION_SOURCES
+    CAreaOctTree.hpp CAreaOctTree.cpp
     CollisionUtil.hpp CollisionUtil.cpp
     CGameCollision.hpp CGameCollision.cpp
     CCollisionResponseData.hpp CCollisionResponseData.cpp

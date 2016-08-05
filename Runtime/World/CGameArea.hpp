@@ -7,7 +7,7 @@
 #include "CToken.hpp"
 #include "RetroTypes.hpp"
 #include "IGameArea.hpp"
-#include "CAreaOctTree.hpp"
+#include "Collision/CAreaOctTree.hpp"
 #include "hecl/ClientProcess.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
 
