@@ -5,9 +5,11 @@ namespace urde
 namespace MP1
 {
 
-CFrontEndUI::CFrontEndUI(CArchitectureQueue& queue)
-: CIOWin("CFrontEnd")
-{}
+CFrontEndUI::CFrontEndUI()
+: CIOWin("FrontEndUI")
+{
+}
+
 void CFrontEndUI::OnSliderSelectionChange(CGuiSliderGroup* grp, float)
 {}
 void CFrontEndUI::OnCheckBoxSelectionChange(CGuiTableGroup* grp)
