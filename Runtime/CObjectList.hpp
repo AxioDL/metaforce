@@ -9,6 +9,7 @@ namespace urde
 
 enum class EGameObjectList
 {
+    Invalid = -1,
     All,
     Actor,
     PhysicsActor,
@@ -21,6 +22,8 @@ enum class EGameObjectList
 
 class CObjectList
 {
+    friend class CGameArea;
+
     struct SObjectListEntry
     {
         CEntity* entity = nullptr;
@@ -31,6 +34,7 @@ class CObjectList
     EGameObjectList m_listEnum;
     TUniqueId m_lastId = -1;
     u16 m_count = 0;
+    int m_areaIdx = 0;
 public:
     CObjectList(EGameObjectList listEnum);
 

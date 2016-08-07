@@ -130,20 +130,6 @@ public:
     const u16* GetTriangleEdgeIndices(u16 idx) const;
 
     static std::unique_ptr<CAreaOctTree> MakeFromMemory(void* buf, unsigned int size);
-
-    void RecursiveMatchXray(std::vector<u32>& out, const zeus::CAABox& inner, const zeus::CAABox& outer)
-    {
-        if (outer.intersects(inner))
-        {
-            if (inner.inside(outer))
-            {
-            }
-        }
-    }
-
-    void MatchXray(std::vector<u32>& out, const zeus::CAABox&)
-    {
-    }
 };
 
 }

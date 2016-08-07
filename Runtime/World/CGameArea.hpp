@@ -10,10 +10,14 @@
 #include "Collision/CAreaOctTree.hpp"
 #include "hecl/ClientProcess.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
+#include "CObjectList.hpp"
+#include "CWorldLight.hpp"
+#include "Graphics/CPVSAreaSet.hpp"
 
 namespace urde
 {
 class CStateManager;
+class CPFArea;
 
 enum class ERglFogMode
 {
@@ -45,6 +49,36 @@ public:
     const zeus::CTransform& IGetTM() const;
 };
 
+struct CAreaRenderOctTree
+{
+    struct Node
+    {
+        u16 x0_bitmapIdx;
+        u16 x2_flags;
+        u16 x4_children[];
+
+        u32 GetChildCount() const;
+        zeus::CAABox GetNodeBounds(const zeus::CAABox& curAABB, int idx) const;
+
+        void RecursiveBuildOverlaps(u32* out, const CAreaRenderOctTree& parent, const zeus::CAABox& curAABB,
+                                    const zeus::CAABox& testAABB) const;
+    };
+
+    std::unique_ptr<u8[]> x0_buf;
+    u32 x8_bitmapCount;
+    u32 xc_meshCount;
+    u32 x10_nodeCount;
+    u32 x14_bitmapWordCount;
+    zeus::CAABox x18_aabb;
+    u32* x30_bitmaps;
+    u32* x34_indirectionTable;
+    u8* x38_entries;
+
+    CAreaRenderOctTree(std::unique_ptr<u8[]>&& buf);
+
+    void FindOverlappingModels(std::vector<u32>& out, const zeus::CAABox& testAABB) const;
+};
+
 class CGameArea : public IGameArea
 {
     friend class CWorld;
@@ -60,7 +94,7 @@ class CGameArea : public IGameArea
     std::vector<SObjectTag> x9c_deps1;
     std::vector<SObjectTag> xac_deps2;
 
-    std::vector<u32> xbc_;
+    std::vector<u32> xbc_layerDepOffsets;
     std::vector<Dock> xcc_docks;
     std::vector<CToken> xdc_tokens;
 
@@ -72,7 +106,7 @@ class CGameArea : public IGameArea
         {
             bool xf0_24_postConstructed : 1;
             bool xf0_25_active : 1;
-            bool xf0_26_ : 1;
+            bool xf0_26_tokensReady : 1;
             bool xf0_27_ : 1;
             bool xf0_28_ : 1;
         };
@@ -82,32 +116,51 @@ class CGameArea : public IGameArea
     std::list<std::shared_ptr<const hecl::ClientProcess::BufferTransaction>> xf8_loadTransactions;
 
 public:
+    class CAreaFog
+    {
+        zeus::CVector2f x4_ = {0.f, 1024.f};
+        zeus::CVector2f xc_ = {0.f, 1024.f};
+        zeus::CVector2f x14_;
+        zeus::CVector3f x1c_ = {0.5f};
+        zeus::CVector3f x28_ = {0.5f};
+        float x34_ = 0.f;
+    public:
+        void SetCurrent() const;
+        void Update(float dt);
+        void RollFogOut(float, float, const zeus::CColor& color);
+        void FadeFog(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec1,
+                     float, const zeus::CVector2f& vec2);
+        void SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec);
+        bool IsFogDisabled() const;
+        void DisableFog();
+    };
+
     struct CPostConstructed
     {
-        std::unique_ptr<uint8_t[]> x0_;
-        u32 x8_ = 0;
-        std::experimental::optional<CAreaOctTree> xc_octTree;
+        std::unique_ptr<CAreaOctTree> x0_collision;
+        u32 x8_collisionSize = 0;
+        std::experimental::optional<CAreaRenderOctTree> xc_octTree;
         std::vector<CMetroidModelInstance> x4c_insts;
-        std::unique_ptr<uint8_t> x5c_;
-        //std::vector<Something 68 bytes> x60_;
-        //std::vector<Something 80 bytes> x70_;
-        //std::vector<Something 68 bytes> x80_;
-        //std::vector<Something 80 bytes> x90_;
-        std::unique_ptr<uint8_t> xa0_;
+        //std::unique_ptr<from unknown, pointless MREA section> x5c_;
+        std::vector<CWorldLight> x60_lightsA;
+        std::vector<CLight> x70_gfxLightsA;
+        std::vector<CWorldLight> x80_lightsB;
+        std::vector<CLight> x90_gfxLightsB;
+        std::unique_ptr<CPVSAreaSet::CPVSAreaHolder> xa0_pvs;
         u32 xa4_elemCount = 1024;
         struct MapEntry
         {
             s16 x0_id = -1;
             TUniqueId x4_uid = kInvalidUniqueId;
         } xa8_map[1024];
-        u32 x10a8_ = 0;
-        CToken x10ac_;
+        u32 x10a8_pvsVersion = 0;
+        TLockedToken<CPFArea> x10ac_path;
         // bool x10b8_ = 0; optional flag for CToken
         u32 x10bc_ = 0;
-        std::unique_ptr<uint8_t[]> x10c0_;
-        std::unique_ptr<uint8_t[]> x10c4_;
-        std::unique_ptr<uint8_t> x10c8_;
-        u32 x10d0_ = 0;
+        std::unique_ptr<CObjectList> x10c0_areaObjs;
+        std::unique_ptr<CAreaFog> x10c4_areaFog;
+        std::unique_ptr<u8[]> x10c8_sclyBuf;
+        u32 x10d0_sclySize = 0;
         u32 x10d4_ = 0;
         u32 x10d8_ = 0;
         u32 x10dc_ = 0;
@@ -131,7 +184,7 @@ public:
             };
             u8 _dummy = 0;
         };
-        // std::vector<Something 8 bytes> x110c_;
+        std::vector<std::pair<u8*, u32>> x110c_layerPtrs;
         float x111c_thermalCurrent = 0.f;
         float x1120_thermalSpeed = 0.f;
         float x1124_thermalTarget = 0.f;
@@ -143,10 +196,28 @@ public:
         u32 x113c_ = 0;
     };
 private:
+    std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
     std::unique_ptr<CPostConstructed> x12c_postConstructed;
 
     void UpdateFog(float dt);
     void UpdateThermalVisor(float dt);
+
+    struct MREAHeader
+    {
+        u32 version = 0;
+        zeus::CTransform xf;
+        u32 modelCount;
+        u32 secCount;
+        u32 geomSecIdx;
+        u32 sclySecIdx;
+        u32 collisionSecIdx;
+        u32 unkSecIdx;
+        u32 lightSecIdx;
+        u32 visiSecIdx;
+        u32 pathSecIdx;
+        u32 arotSecIdx;
+        std::vector<u32> secSizes;
+    };
 
 public:
 
@@ -157,25 +228,6 @@ public:
 
     enum class EOcclusionState
     {
-    };
-
-    class CAreaFog
-    {
-        zeus::CVector2f x4_ = {0.f, 1024.f};
-        zeus::CVector2f xc_ = {0.f, 1024.f};
-        zeus::CVector2f x14_;
-        zeus::CVector3f x1c_ = {0.5f};
-        zeus::CVector3f x28_ = {0.5f};
-        float x34_ = 0.f;
-    public:
-        void SetCurrent() const;
-        void Update(float dt);
-        void RollFogOut(float, float, const zeus::CColor& color);
-        void FadeFog(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec1,
-                     float, const zeus::CVector2f& vec2);
-        void SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec);
-        bool IsFogDisabled() const;
-        void DisableFog();
     };
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
@@ -215,10 +267,10 @@ public:
     bool Validate(CStateManager& mgr);
     void PostConstructArea();
     void FillInStaticGeometry();
-    void VerifyTokenList();
+    void VerifyTokenList(CStateManager& stateMgr);
     void ClearTokenList();
     u32 GetPreConstructedSize() const;
-    bool VerifyHeader() const;
+    MREAHeader VerifyHeader() const;
 
     const zeus::CTransform& GetTransform() const {return xc_transform;}
     const zeus::CTransform& GetInverseTransform() const {return x3c_invTransform;}

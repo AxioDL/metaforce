@@ -8,10 +8,12 @@ namespace urde
 
 class CPVSAreaSet
 {
+public:
     struct CPVSAreaHolder
     {
         CPVSAreaHolder(CInputStream& in);
     };
+private:
     std::vector<CPVSAreaHolder> xunk;
 public:
     CPVSAreaSet(CInputStream& in);

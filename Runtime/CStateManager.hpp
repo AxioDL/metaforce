@@ -253,6 +253,8 @@ public:
     CCameraManager* GetCameraManager() { return x870_cameraManager.get(); }
 
     std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
+
+    bool IsLayerActive(TAreaId area, int layerIdx) { return false; }
 };
 
 }

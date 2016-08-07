@@ -18,6 +18,7 @@ class CParticleGen;
 class CModel;
 class CSkinnedModel;
 class CPVSVisSet;
+class CAreaRenderOctTree;
 
 class IRenderer
 {
@@ -41,7 +42,7 @@ public:
     };
 
     virtual ~IRenderer() = default;
-    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int)=0;
+    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int)=0;
     virtual void EnablePVS(const CPVSVisSet*, u32)=0;
     virtual void DisablePVS()=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;
@@ -88,7 +89,7 @@ public:
     //virtual void CacheReflection(TReflectionCallback, void*, bool)=0;
     virtual void DrawSpaceWarp(const zeus::CVector3f&, float)=0;
     virtual void DrawThermalModel(const CModel&, const zeus::CColor&, const zeus::CColor&)=0;
-    virtual void DrawXRayOutline(const zeus::CAABox&, const float*, const float*)=0;
+    virtual void DrawXRayOutline(const zeus::CAABox&)=0;
     virtual void SetWireframeFlags(int)=0;
     virtual void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&)=0;
     virtual void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*)=0;

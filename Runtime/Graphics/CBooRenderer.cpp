@@ -140,7 +140,7 @@ void Buckets::Init()
 }
 
 CBooRenderer::CAreaListItem::CAreaListItem
-(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
+(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
  std::vector<CBooModel*>&& models, int areaIdx)
 : x0_geometry(geom), x4_octTree(octTree), x10_models(std::move(models)), x18_areaIdx(areaIdx) {}
 
@@ -331,7 +331,7 @@ CBooRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geome
 }
 
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
-                                     const CAreaOctTree* octTree, int areaIdx)
+                                     const CAreaRenderOctTree* octTree, int areaIdx)
 {
     auto search = FindStaticGeometry(geometry);
     if (search == x1c_areaListItems.end())
@@ -598,12 +598,36 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
     model.Draw(flags);
 }
 
-void CBooRenderer::DrawXRayOutline(const zeus::CAABox&, const float*, const float*)
+void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb)
 {
+    CModelFlags flags;
+    flags.m_extendedShaderIdx = 3;
+
     for (CAreaListItem& item : x1c_areaListItems)
     {
         if (item.x4_octTree)
         {
+            std::vector<u32> bitmap;
+            item.x4_octTree->FindOverlappingModels(bitmap, aabb);
+
+            for (u32 c=0 ; c<item.x4_octTree->x14_bitmapWordCount ; ++c)
+            {
+                for (u32 b=0 ; b<32 ; ++b)
+                {
+                    if (bitmap[c] & (1 << b))
+                    {
+                        CBooModel* model = item.x10_models[c * 32 + b];
+                        model->UpdateUniformData(flags);
+                        const CBooSurface* surf = model->x38_firstUnsortedSurface;
+                        while (surf)
+                        {
+                            if (surf->GetBounds().intersects(aabb))
+                                model->DrawSurface(*surf, flags);
+                            surf = surf->m_next;
+                        }
+                    }
+                }
+            }
         }
     }
 }

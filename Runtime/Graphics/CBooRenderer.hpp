@@ -11,6 +11,7 @@
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
 #include "zeus/CRectangle.hpp"
+#include "World/CGameArea.hpp"
 
 namespace urde
 {
@@ -51,13 +52,13 @@ class CBooRenderer : public IRenderer
     struct CAreaListItem
     {
         const std::vector<CMetroidModelInstance>* x0_geometry;
-        const CAreaOctTree* x4_octTree;
+        const CAreaRenderOctTree* x4_octTree;
         //std::vector<TCachedToken<CTexture>> x8_textures;
         std::vector<CBooModel*> x10_models;
         int x18_areaIdx;
         std::vector<u32> x20_;
 
-        CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaOctTree* octTree,
+        CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
                       std::vector<CBooModel*>&& models, int areaIdx);
         ~CAreaListItem();
     };
@@ -140,7 +141,7 @@ public:
     void AddWorldSurfaces(CBooModel& model);
 
     std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
-    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaOctTree*, int areaIdx);
+    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx);
     void EnablePVS(const CPVSVisSet*, u32);
     void DisablePVS();
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
@@ -187,7 +188,7 @@ public:
     //void CacheReflection(TReflectionCallback, void*, bool);
     void DrawSpaceWarp(const zeus::CVector3f&, float);
     void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol);
-    void DrawXRayOutline(const zeus::CAABox&, const float*, const float*);
+    void DrawXRayOutline(const zeus::CAABox&);
     void SetWireframeFlags(int);
     void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&);
     void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*);
