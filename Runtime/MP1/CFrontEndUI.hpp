@@ -8,6 +8,7 @@ namespace urde
 {
 class CGuiSliderGroup;
 class CGuiTableGroup;
+class CMoviePlayer;
 struct SObjectTag;
 
 namespace MP1
@@ -15,6 +16,8 @@ namespace MP1
 
 class CFrontEndUI : public CIOWin
 {
+    u32 x14_ = 0;
+    u32 x18_;
 public:
     enum class EMenuMovie
     {
@@ -23,7 +26,7 @@ public:
     {
     };
 
-    CFrontEndUI(CArchitectureQueue& queue);
+    CFrontEndUI();
     void OnSliderSelectionChange(CGuiSliderGroup* grp, float);
     void OnCheckBoxSelectionChange(CGuiTableGroup* grp);
     void OnOptionSubMenuCancel(CGuiTableGroup* grp);

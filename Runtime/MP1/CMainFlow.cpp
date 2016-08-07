@@ -47,7 +47,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         */
         g_main->LoadAudio();
         g_main->RegisterResourceTweaks();
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI(queue))));
+        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI())));
         break;
     }
     case EClientFlowStates::GameLoad:

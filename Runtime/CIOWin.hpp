@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include "RetroTypes.hpp"
+
 namespace urde
 {
 class CArchitectureMessage;
