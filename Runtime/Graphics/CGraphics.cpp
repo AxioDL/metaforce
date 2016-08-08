@@ -10,6 +10,7 @@ namespace urde
 {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
+CGraphics::CFogState CGraphics::g_Fog;
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
 u32 CGraphics::g_NumBreakpointsWaiting = 0;
@@ -64,6 +65,23 @@ void CGraphics::SetLightState(ERglLightBits lightState)
 void CGraphics::SetAmbientColor(const zeus::CColor& col)
 {
     // TODO: set for real
+}
+
+void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color)
+{
+    if (mode == ERglFogMode::None)
+    {
+        g_Fog.m_start = 1.f;
+    }
+    else
+    {
+        float projRange = g_Proj.x18_far - g_Proj.x14_near;
+        float userRange = endz - startz;
+
+        g_Fog.m_color = color;
+        g_Fog.m_start = (startz - g_Proj.x14_near) / projRange;
+        g_Fog.m_rangeScale =  projRange / userRange;
+    }
 }
 
 void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write)

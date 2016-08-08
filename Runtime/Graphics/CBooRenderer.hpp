@@ -119,7 +119,7 @@ class CBooRenderer : public IRenderer
             bool x318_25_drawWireframe : 1;
             bool x318_26_ : 1;
             bool x318_27_ : 1;
-            bool x318_28_ : 1;
+            bool x318_28_disableFog : 1;
             bool x318_29_thermalVisor : 1;
             bool x318_30_ : 1;
             bool x318_31_ : 1;

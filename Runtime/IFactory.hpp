@@ -30,8 +30,8 @@ public:
 
     /* Non-factory versions, replaces CResLoader */
     virtual u32 ResourceSize(const urde::SObjectTag& tag)=0;
-    virtual bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target)=0;
-    virtual bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target)=0;
+    //virtual bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target)=0;
+    //virtual bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target)=0;
     virtual std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag)=0;
     virtual std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)=0;
 };

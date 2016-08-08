@@ -636,8 +636,11 @@ void CBooRenderer::SetWireframeFlags(int)
 {
 }
 
-void CBooRenderer::SetWorldFog(ERglFogMode, float, float, const zeus::CColor&)
+void CBooRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color)
 {
+    if (x318_28_disableFog)
+        mode = ERglFogMode::None;
+    CGraphics::SetFog(mode, startz, endz, color);
 }
 
 void CBooRenderer::RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*)

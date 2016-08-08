@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CVector2i.hpp"
+#include "zeus/CColor.hpp"
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
@@ -121,6 +122,23 @@ enum class ERglAlphaOp
     XNor = 3
 };
 
+enum class ERglFogMode
+{
+    None         = 0x00,
+
+    PerspLin     = 0x02,
+    PerspExp     = 0x04,
+    PerspExp2    = 0x05,
+    PerspRevExp  = 0x06,
+    PerspRevExp2 = 0x07,
+
+    OrthoLin     = 0x0A,
+    OrthoExp     = 0x0C,
+    OrthoExp2    = 0x0D,
+    OrthoRevExp  = 0x0E,
+    OrthoRevExp2 = 0x0F
+};
+
 struct SClipScreenRect
 {
     bool x0_valid;
@@ -166,7 +184,16 @@ public:
         float x14_near;
         float x18_far;
     };
+
+    struct CFogState
+    {
+        zeus::CColor m_color;
+        float m_rangeScale = 4096.f;
+        float m_start = 1.f;
+    };
+
     static CProjectionState g_Proj;
+    static CFogState g_Fog;
     static float g_ProjAspect;
     static u32 g_NumLightsActive;
     static u32 g_NumBreakpointsWaiting;
@@ -192,6 +219,7 @@ public:
     static void EnableLight(ERglLight light);
     static void SetLightState(ERglLightBits lightState);
     static void SetAmbientColor(const zeus::CColor& col);
+    static void SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color);
     static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
     static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
     static void SetCullMode(ERglCullMode);

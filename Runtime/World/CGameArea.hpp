@@ -13,16 +13,13 @@
 #include "CObjectList.hpp"
 #include "CWorldLight.hpp"
 #include "Graphics/CPVSAreaSet.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "CPathFindArea.hpp"
+#include "Editor/ProjectResourceFactoryBase.hpp"
 
 namespace urde
 {
 class CStateManager;
-class CPFArea;
-
-enum class ERglFogMode
-{
-    Four = 4
-};
 
 class CDummyGameArea : public IGameArea
 {
@@ -113,24 +110,34 @@ class CGameArea : public IGameArea
         u8 _dummy = 0;
     };
 
-    std::list<std::shared_ptr<const hecl::ClientProcess::BufferTransaction>> xf8_loadTransactions;
+    enum class Phase
+    {
+        LoadHeader,
+        LoadSecSizes,
+        ReserveSections,
+        LoadDataSections,
+        WaitForFinish
+    } xf4_phase = Phase::LoadHeader;
+
+    std::list<std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>> xf8_loadTransactions;
 
 public:
     class CAreaFog
     {
-        zeus::CVector2f x4_ = {0.f, 1024.f};
-        zeus::CVector2f xc_ = {0.f, 1024.f};
-        zeus::CVector2f x14_;
-        zeus::CVector3f x1c_ = {0.5f};
-        zeus::CVector3f x28_ = {0.5f};
-        float x34_ = 0.f;
+        ERglFogMode x0_fogMode = ERglFogMode::None;
+        zeus::CVector2f x4_rangeCur = {0.f, 1024.f};
+        zeus::CVector2f xc_rangeTarget = {0.f, 1024.f};
+        zeus::CVector2f x14_rangeDelta;
+        zeus::CColor x1c_colorCur = {0.5f, 0.5f, 0.5f, 1.f};
+        zeus::CColor x28_colorTarget = {0.5f, 0.5f, 0.5f, 1.f};
+        float x34_colorDelta = 0.f;
     public:
         void SetCurrent() const;
         void Update(float dt);
-        void RollFogOut(float, float, const zeus::CColor& color);
+        void RollFogOut(float rangeDelta, float colorDelta, const zeus::CColor& color);
         void FadeFog(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec1,
                      float, const zeus::CVector2f& vec2);
-        void SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec);
+        void SetFogExplicit(ERglFogMode mode, const zeus::CColor& color, const zeus::CVector2f& range);
         bool IsFogDisabled() const;
         void DisableFog();
     };
@@ -154,7 +161,7 @@ public:
             TUniqueId x4_uid = kInvalidUniqueId;
         } xa8_map[1024];
         u32 x10a8_pvsVersion = 0;
-        TLockedToken<CPFArea> x10ac_path;
+        TLockedToken<CPathFindArea> x10ac_path;
         // bool x10b8_ = 0; optional flag for CToken
         u32 x10bc_ = 0;
         std::unique_ptr<CObjectList> x10c0_areaObjs;
@@ -197,6 +204,9 @@ public:
     };
 private:
     std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
+    std::vector<std::pair<u8*, int>> m_resolvedBufs;
+    u32 x124_secCount = 0;
+    u32 x128_mreaDataOffset = 0;
     std::unique_ptr<CPostConstructed> x12c_postConstructed;
 
     void UpdateFog(float dt);
@@ -256,7 +266,7 @@ public:
     //void TransferTokensToARAM();
     //void TransferARAMTokensOver();
     void SetChain(CGameArea* other, int);
-    void StartStreamingMainArea();
+    bool StartStreamingMainArea();
     //void UnloadAllLoadedTextures();
     //void ReloadAllLoadedTextures();
     u32 GetNumPartSizes() const;

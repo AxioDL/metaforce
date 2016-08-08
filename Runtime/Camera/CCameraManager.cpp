@@ -107,7 +107,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
             // TODO: Finish
             zeus::CColor tmpColor; // Get from water
             zeus::CVector2f tmpVector; // Get from camera
-            x3c_fog.SetFogExplicit(ERglFogMode::Four, tmpColor, tmpVector);
+            x3c_fog.SetFogExplicit(ERglFogMode::PerspExp, tmpColor, tmpVector);
             stateMgr.GetCameraFilterPass(4).SetFilter(CCameraFilterPass::EFilterType::One,
                                                       CCameraFilterPass::EFilterShape::Zero,
                                                       0.f, tmpColor, -1);

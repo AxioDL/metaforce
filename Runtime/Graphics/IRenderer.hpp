@@ -8,6 +8,7 @@
 #include "zeus/CPlane.hpp"
 #include "zeus/CFrustum.hpp"
 #include "zeus/CColor.hpp"
+#include "CGraphics.hpp"
 
 namespace urde
 {
@@ -35,9 +36,6 @@ public:
     {
     };
     enum class EPrimitiveType
-    {
-    };
-    enum class ERglFogMode
     {
     };
 

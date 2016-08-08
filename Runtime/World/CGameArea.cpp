@@ -177,33 +177,98 @@ void CAreaRenderOctTree::FindOverlappingModels(std::vector<u32>& out, const zeus
 
 void CGameArea::CAreaFog::SetCurrent() const
 {
+    g_Renderer->SetWorldFog(x0_fogMode, x4_rangeCur[0], x4_rangeCur[1], x1c_colorCur);
 }
 
 void CGameArea::CAreaFog::Update(float dt)
 {
+    if (x0_fogMode == ERglFogMode::None)
+        return;
+    if (x1c_colorCur == x28_colorTarget && x4_rangeCur == xc_rangeTarget)
+        return;
+
+    float colorDelta = x34_colorDelta * dt;
+    zeus::CVector2f rangeDelta = x14_rangeDelta * dt;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        float delta = x28_colorTarget[i] - x1c_colorCur[i];
+        if (std::fabs(delta) <= colorDelta)
+        {
+            x1c_colorCur[i] = x28_colorTarget[i];
+        }
+        else
+        {
+            if (delta < 0.f)
+                x1c_colorCur[i] -= colorDelta;
+            else
+                x1c_colorCur[i] += colorDelta;
+        }
+    }
+
+    for (int i=0 ; i<2 ; ++i)
+    {
+        float delta = xc_rangeTarget[i] - x4_rangeCur[i];
+        if (std::fabs(delta) <= rangeDelta[i])
+        {
+            x4_rangeCur[i] = xc_rangeTarget[i];
+        }
+        else
+        {
+            if (delta < 0.f)
+                x4_rangeCur[i] -= rangeDelta[i];
+            else
+                x4_rangeCur[i] += rangeDelta[i];
+        }
+    }
 }
 
-void CGameArea::CAreaFog::RollFogOut(float, float, const zeus::CColor& color)
+void CGameArea::CAreaFog::RollFogOut(float rangeDelta, float colorDelta, const zeus::CColor& color)
 {
+    x14_rangeDelta = {rangeDelta, rangeDelta * 2.f};
+    xc_rangeTarget = {4096.f, 4096.f};
+    x34_colorDelta = colorDelta;
+    x28_colorTarget = color;
 }
 
-void CGameArea::CAreaFog::FadeFog(ERglFogMode,
+void CGameArea::CAreaFog::FadeFog(ERglFogMode mode,
                                   const zeus::CColor& color, const zeus::CVector2f& vec1,
-                                  float, const zeus::CVector2f& vec2)
+                                  float speed, const zeus::CVector2f& vec2)
 {
+    if (x0_fogMode == ERglFogMode::None)
+    {
+        x1c_colorCur = color;
+        x28_colorTarget = color;
+        x4_rangeCur = {vec1[1], vec1[1]};
+        xc_rangeTarget = vec1;
+    }
+    else
+    {
+        x28_colorTarget = color;
+        xc_rangeTarget = vec1;
+    }
+    x0_fogMode = mode;
+    x34_colorDelta = speed;
+    x14_rangeDelta = vec2;
 }
 
-void CGameArea::CAreaFog::SetFogExplicit(ERglFogMode, const zeus::CColor& color, const zeus::CVector2f& vec)
+void CGameArea::CAreaFog::SetFogExplicit(ERglFogMode mode, const zeus::CColor& color, const zeus::CVector2f& range)
 {
+    x0_fogMode = mode;
+    x1c_colorCur = color;
+    x28_colorTarget = color;
+    x4_rangeCur = range;
+    xc_rangeTarget = range;
 }
 
 bool CGameArea::CAreaFog::IsFogDisabled() const
 {
-    return true;
+    return x0_fogMode == ERglFogMode::None;
 }
 
 void CGameArea::CAreaFog::DisableFog()
 {
+    x0_fogMode = ERglFogMode::None;
 }
 
 static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
@@ -257,38 +322,37 @@ bool CDummyGameArea::IGetScriptingMemoryAlways() const
 
 TAreaId CDummyGameArea::IGetAreaId() const
 {
-    return 0;
+    return x10_areaId;
 }
 
 ResId CDummyGameArea::IGetAreaAssetId() const
 {
-    return 0;
+    return xc_mrea;
 }
 
 bool CDummyGameArea::IIsActive() const
 {
-    return false;
+    return true;
 }
 
-TAreaId CDummyGameArea::IGetAttachedAreaId(int) const
+TAreaId CDummyGameArea::IGetAttachedAreaId(int idx) const
 {
-    return 0;
+    return x44_attachedAreaIndices[idx];
 }
 
 u32 CDummyGameArea::IGetNumAttachedAreas() const
 {
-    return 0;
+    return x44_attachedAreaIndices.size();
 }
 
 ResId CDummyGameArea::IGetStringTableAssetId() const
 {
-    return 0;
+    return x8_nameSTRG;
 }
 
-static zeus::CTransform identityXf(zeus::CMatrix3f::skIdentityMatrix3f);
 const zeus::CTransform& CDummyGameArea::IGetTM() const
 {
-    return identityXf;
+    return x14_transform;
 }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
@@ -357,24 +421,24 @@ bool CGameArea::IIsActive() const
     return false;
 }
 
-TAreaId CGameArea::IGetAttachedAreaId(int) const
+TAreaId CGameArea::IGetAttachedAreaId(int idx) const
 {
-    return 0;
+    return x8c_attachedAreaIndices[idx];
 }
 
 u32 CGameArea::IGetNumAttachedAreas() const
 {
-    return 0;
+    return x8c_attachedAreaIndices.size();
 }
 
 ResId CGameArea::IGetStringTableAssetId() const
 {
-    return 0;
+    return x8_nameSTRG;
 }
 
 const zeus::CTransform& CGameArea::IGetTM() const
 {
-    return identityXf;
+    return xc_transform;
 }
 
 bool CGameArea::DoesAreaNeedEnvFx() const
@@ -469,17 +533,93 @@ void CGameArea::SetChain(CGameArea* other, int)
 {
 }
 
-void CGameArea::StartStreamingMainArea()
+bool CGameArea::StartStreamingMainArea()
 {
+    if (xf0_24_postConstructed)
+        return false;
+
+    switch (xf4_phase)
+    {
+    case Phase::LoadHeader:
+    {
+        x110_mreaSecBufs.reserve(3);
+        AllocNewAreaData(0, 96);
+        x12c_postConstructed.reset(new CPostConstructed());
+        xf4_phase = Phase::LoadSecSizes;
+        break;
+    }
+    case Phase::LoadSecSizes:
+    {
+        CullDeadAreaRequests();
+        if (xf8_loadTransactions.size())
+            break;
+        MREAHeader header = VerifyHeader();
+        AllocNewAreaData(x110_mreaSecBufs[0].second, ROUND_UP_32(header.secCount * 4));
+        xf4_phase = Phase::ReserveSections;
+        break;
+    }
+    case Phase::ReserveSections:
+    {
+        CullDeadAreaRequests();
+        if (xf8_loadTransactions.size())
+            break;
+        x110_mreaSecBufs.reserve(GetNumPartSizes() + 2);
+        x124_secCount = 0;
+        x128_mreaDataOffset = x110_mreaSecBufs[0].second + x110_mreaSecBufs[1].second;
+        xf4_phase = Phase::LoadDataSections;
+        break;
+    }
+    case Phase::LoadDataSections:
+    {
+        CullDeadAreaRequests();
+
+        u32 totalSz = 0;
+        u32 secCount = GetNumPartSizes();
+        for (int i=2 ; i<secCount ; ++i)
+            totalSz += hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+
+        AllocNewAreaData(x128_mreaDataOffset, totalSz);
+
+        m_resolvedBufs.reserve(secCount);
+        m_resolvedBufs.emplace_back(x110_mreaSecBufs[0].first.get(), x110_mreaSecBufs[0].second);
+        m_resolvedBufs.emplace_back(x110_mreaSecBufs[1].first.get(), x110_mreaSecBufs[1].second);
+
+        u32 curOff = 0;
+        for (int i=2 ; i<secCount ; ++i)
+        {
+            u32 size = hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+            m_resolvedBufs.emplace_back(x110_mreaSecBufs[2].first.get() + curOff, size);
+            curOff += size;
+        }
+
+        xf4_phase = Phase::WaitForFinish;
+        break;
+    }
+    case Phase::WaitForFinish:
+    {
+        CullDeadAreaRequests();
+        if (xf8_loadTransactions.size())
+            break;
+        return false;
+    }
+    default: break;
+    }
+
+    return true;
 }
 
 u32 CGameArea::GetNumPartSizes() const
 {
-    return 0;
+    return hecl::SBig(*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get() + 60));
 }
 
-void CGameArea::AllocNewAreaData(int, int)
+void CGameArea::AllocNewAreaData(int offset, int size)
 {
+    x110_mreaSecBufs.emplace_back(new u8[size], size);
+    xf8_loadTransactions.push_back(
+        static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
+        LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, size, offset,
+                              x110_mreaSecBufs.back().first));
 }
 
 void CGameArea::Invalidate(CStateManager& mgr)
@@ -488,6 +628,15 @@ void CGameArea::Invalidate(CStateManager& mgr)
 
 void CGameArea::CullDeadAreaRequests()
 {
+    for (auto it = xf8_loadTransactions.begin() ; it != xf8_loadTransactions.end() ;)
+    {
+        if ((*it)->m_complete)
+        {
+            it = xf8_loadTransactions.erase(it);
+            continue;
+        }
+        ++it;
+    }
 }
 
 void CGameArea::StartStreamIn(CStateManager& mgr)
@@ -629,6 +778,8 @@ void CGameArea::PostConstructArea()
 
 void CGameArea::FillInStaticGeometry()
 {
+    x12c_postConstructed->x4c_insts.clear();
+
 }
 
 void CGameArea::VerifyTokenList(CStateManager& stateMgr)

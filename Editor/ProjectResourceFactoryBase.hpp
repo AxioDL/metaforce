@@ -18,23 +18,8 @@ class ProjectResourceFactoryBase : public urde::IFactory
 {
     friend class ProjectResourcePool;
     hecl::ClientProcess& m_clientProc;
-protected:
-    std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
-    std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
-    void Clear();
 
-    const hecl::Database::Project* m_proj = nullptr;
-    const hecl::Database::DataSpecEntry* m_origSpec = nullptr;
-    const hecl::Database::DataSpecEntry* m_pcSpec = nullptr;
-    /* Used to resolve cooked paths */
-    std::unique_ptr<hecl::Database::IDataSpec> m_cookSpec;
-    urde::CFactoryMgr m_factoryMgr;
-
-    hecl::BlenderToken m_backgroundBlender;
-    std::thread m_backgroundIndexTh;
-    std::mutex m_backgroundIndexMutex;
-    bool m_backgroundRunning = false;
-
+public:
     struct AsyncTask
     {
         ProjectResourceFactoryBase& m_parent;
@@ -73,7 +58,25 @@ protected:
         void CookComplete();
         bool AsyncPump();
     };
-    std::unordered_map<SObjectTag, AsyncTask> m_asyncLoadList;
+
+protected:
+    std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
+    std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
+    void Clear();
+
+    const hecl::Database::Project* m_proj = nullptr;
+    const hecl::Database::DataSpecEntry* m_origSpec = nullptr;
+    const hecl::Database::DataSpecEntry* m_pcSpec = nullptr;
+    /* Used to resolve cooked paths */
+    std::unique_ptr<hecl::Database::IDataSpec> m_cookSpec;
+    urde::CFactoryMgr m_factoryMgr;
+
+    hecl::BlenderToken m_backgroundBlender;
+    std::thread m_backgroundIndexTh;
+    std::mutex m_backgroundIndexMutex;
+    bool m_backgroundRunning = false;
+
+    std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>> m_asyncLoadList;
 
     bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
     bool
@@ -107,14 +110,15 @@ public:
     ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
     std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&);
     void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
+    std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
     void CancelBuild(const urde::SObjectTag&);
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;
     FourCC GetResourceTypeById(ResId id) const;
 
     u32 ResourceSize(const SObjectTag& tag);
-    bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
-    bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
+    std::shared_ptr<AsyncTask> LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
+    std::shared_ptr<AsyncTask> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 

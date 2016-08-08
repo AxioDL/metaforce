@@ -91,7 +91,9 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
 
-        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
+        CGraphics::SetPerspective(55.0, aspect, 1.f, 15.f);
+        CGraphics::SetFog(ERglFogMode::PerspExp, 10.f, 15.f, zeus::CColor::skRed);
+        //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
         zeus::CFrustum frustum;
         frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.1f, 1000.f));
         g_Renderer->SetClippingPlanes(frustum);
@@ -100,13 +102,14 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
                                       CLight::BuildCustom({5.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
                                       {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
         //lights = {CLight::BuildLocalAmbient({}, {1.0f, 0.0f, 0.0f, 1.f})};
-        //m_vm.m_modelTest->GetInstance().ActivateLights(lights);
-        g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
-        g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
-        g_Renderer->DoThermalBlendCold();
-        flags.m_extendedShaderIdx = 2;
+        m_vm.m_modelTest->GetInstance().ActivateLights(lights);
+        //g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
+        //g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
+        //g_Renderer->DoThermalBlendCold();
+        //flags.m_extendedShaderIdx = 2;
+        flags.m_extendedShaderIdx = 1;
         m_vm.m_modelTest->Draw(flags);
-        g_Renderer->DoThermalBlendHot();
+        //g_Renderer->DoThermalBlendHot();
         //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
     }

@@ -534,7 +534,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     if (asyncSearch != m_asyncLoadList.end())
     {
         /* Async spinloop */
-        AsyncTask& task = asyncSearch->second;
+        AsyncTask& task = *asyncSearch->second;
         task.EnsurePath(task.x0_tag, *resPath);
 
         /* Pump load pipeline (cooking if needed) */
@@ -574,13 +574,21 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     return BuildSync(tag, *resPath, paramXfer);
 }
 
+std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
+                                               const urde::CVParamTransfer& paramXfer,
+                                               urde::IObj** objOut)
+{
+    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+        return {};
+    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer))).first->second;
+}
+
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             const urde::CVParamTransfer& paramXfer,
                                             urde::IObj** objOut)
 {
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
-        return;
-    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, objOut, paramXfer)));
+    BuildAsyncInternal(tag, paramXfer, objOut);
 }
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
@@ -598,23 +606,23 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
     return fr->length();
 }
 
-bool ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
-                                                   std::unique_ptr<u8[]>& target)
+std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
+                                              std::unique_ptr<u8[]>& target)
 {
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
-        return false;
-    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, target)));
-    return true;
+        return {};
+    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target))).first->second;
 }
 
-bool ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                       u32 size, u32 off,
-                                                       std::unique_ptr<u8[]>& target)
+std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                  u32 size, u32 off,
+                                                  std::unique_ptr<u8[]>& target)
 {
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
-        return false;
-    m_asyncLoadList.emplace(std::make_pair(tag, AsyncTask(*this, tag, target, size, off)));
-    return true;
+        return {};
+    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
 }
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
@@ -736,7 +744,7 @@ void ProjectResourceFactoryBase::AsyncIdle()
 
         /* Ensure requested resource is in the index */
         std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        AsyncTask& task = it->second;
+        AsyncTask& task = *it->second;
         auto search = m_tagToPath.find(task.x0_tag);
         if (search == m_tagToPath.end())
         {

@@ -13,6 +13,12 @@ static const char* LightingGLSL =
 "    vec4 linAtt;\n"
 "    vec4 angAtt;\n"
 "};\n"
+"struct Fog\n"
+"{\n"
+"    vec4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
 "\n"
 "UBINDING2 uniform LightingUniform\n"
 "{\n"
@@ -21,6 +27,7 @@ static const char* LightingGLSL =
 "    vec4 colorReg0;\n"
 "    vec4 colorReg1;\n"
 "    vec4 colorReg2;\n"
+"    Fog fog;\n"
 "};\n"
 "\n"
 "vec4 LightingFunc(vec4 mvPosIn, vec4 mvNormIn)\n"
@@ -43,6 +50,15 @@ static const char* LightingGLSL =
 "    \n"
 "    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
 "}\n";
+
+static const char* MainPostGLSL =
+"vec4 MainPostFunc(vec4 colorIn)\n"
+"{\n"
+"    float fogZ = (vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+"    return vec4(fogZ, fogZ, fogZ, 1.0);\n"
+"    return mix(fog.color, colorIn, clamp(exp2(-8.0 * fogZ), 0.0, 1.0));\n"
+"}\n"
+"\n";
 
 static const char* ThermalPostGLSL =
 "UBINDING2 uniform ThermalUniform\n"
@@ -70,7 +86,7 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
     hecl::Runtime::ShaderCacheExtensions ext(plat);
 
     /* Normal lit shading */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {}, 3, BlockNames, 0, nullptr,
+    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"}, 3, BlockNames, 0, nullptr,
                               hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
 
     /* Thermal Visor shading */

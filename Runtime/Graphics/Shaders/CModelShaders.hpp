@@ -5,6 +5,7 @@
 #include "optional.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
+#include "Graphics/CGraphics.hpp"
 
 #define URDE_MAX_LIGHTS 16
 
@@ -36,6 +37,7 @@ public:
         Light lights[URDE_MAX_LIGHTS];
         zeus::CColor ambient;
         zeus::CColor colorRegs[3];
+        CGraphics::CFogState fog;
     };
 
     struct ThermalUniform

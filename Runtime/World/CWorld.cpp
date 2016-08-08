@@ -5,6 +5,7 @@
 #include "CStateManager.hpp"
 #include "CInGameTweakManagerBase.hpp"
 #include "Audio/CAudioGroupSet.hpp"
+#include "Editor/ProjectResourceFactoryBase.hpp"
 
 namespace urde
 {
@@ -19,7 +20,7 @@ CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap)
 : x4_loadMap(loadMap)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
-    g_ResFactory->LoadResourceAsync(tag, x34_loadBuf);
+    static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->LoadResourceAsync(tag, x34_loadBuf);
 }
 
 ResId CDummyWorld::IGetWorldAssetId() const
@@ -198,7 +199,7 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
 : x60_objectStore(objStore), x64_resFactory(resFactory)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
-    resFactory.LoadResourceAsync(tag, x40_loadBuf);
+    static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
 }
 
 ResId CWorld::IGetWorldAssetId() const
