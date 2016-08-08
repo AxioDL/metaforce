@@ -417,11 +417,15 @@ struct MetalBackendFactory : IShaderBackendFactory
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
 
         const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
         std::string vertSource = r.readString();
         std::string fragSource = r.readString();
+
+        if (r.hasError())
+            return nullptr;
+
         boo::IShaderPipeline* ret =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
@@ -486,7 +490,7 @@ struct MetalBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    void buildExtendedShaderFromCache(const ShaderCachedData& data,
+    bool buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                       boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
@@ -496,13 +500,21 @@ struct MetalBackendFactory : IShaderBackendFactory
                        "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
 
         const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
         hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
+
+        if (r.hasError())
+            return false;
+
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
             std::string vertSource = r.readString();
             std::string fragSource = r.readString();
+
+            if (r.hasError())
+                return false;
+
             boo::IShaderPipeline* ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
@@ -516,6 +528,8 @@ struct MetalBackendFactory : IShaderBackendFactory
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
+
+        return true;
     }
 };
 
