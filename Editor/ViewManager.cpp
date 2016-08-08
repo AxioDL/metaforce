@@ -91,8 +91,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
 
-        CGraphics::SetPerspective(55.0, aspect, 1.f, 15.f);
-        CGraphics::SetFog(ERglFogMode::PerspExp, 10.f, 15.f, zeus::CColor::skRed);
+        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
+        CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
         zeus::CFrustum frustum;
         frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.1f, 1000.f));

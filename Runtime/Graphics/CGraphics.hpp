@@ -188,8 +188,8 @@ public:
     struct CFogState
     {
         zeus::CColor m_color;
-        float m_rangeScale = 4096.f;
-        float m_start = 1.f;
+        float m_rangeScale = 1.f;
+        float m_start = 4096.f;
     };
 
     static CProjectionState g_Proj;

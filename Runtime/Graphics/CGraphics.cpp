@@ -71,16 +71,14 @@ void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::C
 {
     if (mode == ERglFogMode::None)
     {
-        g_Fog.m_start = 1.f;
+        g_Fog.m_start = 4096.f;
     }
     else
     {
-        float projRange = g_Proj.x18_far - g_Proj.x14_near;
         float userRange = endz - startz;
-
         g_Fog.m_color = color;
-        g_Fog.m_start = (startz - g_Proj.x14_near) / projRange;
-        g_Fog.m_rangeScale =  projRange / userRange;
+        g_Fog.m_start = startz;
+        g_Fog.m_rangeScale = 1.f / userRange;
     }
 }
 

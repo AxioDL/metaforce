@@ -54,8 +54,7 @@ static const char* LightingGLSL =
 static const char* MainPostGLSL =
 "vec4 MainPostFunc(vec4 colorIn)\n"
 "{\n"
-"    float fogZ = (vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-"    return vec4(fogZ, fogZ, fogZ, 1.0);\n"
+"    float fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
 "    return mix(fog.color, colorIn, clamp(exp2(-8.0 * fogZ), 0.0, 1.0));\n"
 "}\n"
 "\n";
