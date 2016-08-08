@@ -1482,7 +1482,7 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
     else if (mode == 5)
         realMode = ERglFogMode::PerspRevExp2;
 
-    return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, realMode, col, vec1, f1, vec2, b1, active,
+    return new CScriptDistanceFog(mgr.AllocateUniqueId(), *name, info, realMode, col, vec1, f1, vec2, b1, active,
                                   0.f, 0.f, 0.f, 0.f);
 }
 
