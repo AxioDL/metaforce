@@ -12,6 +12,12 @@ static const char* LightingMetal =
 "    float4 linAtt;\n"
 "    float4 angAtt;\n"
 "};\n"
+"struct Fog\n"
+"{\n"
+"    float4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
 "\n"
 "struct LightingUniform\n"
 "{\n"
@@ -20,6 +26,7 @@ static const char* LightingMetal =
 "    float4 colorReg0;\n"
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
+"    Fog fog;\n"
 "};\n"
 "\n"
 "static float4 LightingFunc(constant LightingUniform& lu, float4 mvPosIn, float4 mvNormIn)\n"
@@ -43,6 +50,14 @@ static const char* LightingMetal =
 "    return saturate(ret);\n"
 "}\n";
 
+static const char* MainPostMetal =
+"float4 MainPostFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn)\n"
+"{\n"
+"    float fogZ = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"
+"    return mix(lu.fog.color, colorIn, saturate(exp2(-8.0 * fogZ)));\n"
+"}\n"
+"\n";
+
 static const char* ThermalPostMetal =
 "struct ThermalUniform\n"
 "{\n"
@@ -64,7 +79,7 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
     hecl::Runtime::ShaderCacheExtensions ext(plat);
 
     /* Normal lit shading */
-    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {}, 1, BlockNames, 0, nullptr,
+    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"}, 1, BlockNames, 0, nullptr,
                               hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
 
     /* Thermal Visor shading */

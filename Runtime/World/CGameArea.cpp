@@ -615,7 +615,7 @@ u32 CGameArea::GetNumPartSizes() const
 
 void CGameArea::AllocNewAreaData(int offset, int size)
 {
-    x110_mreaSecBufs.emplace_back(new u8[size], size);
+    x110_mreaSecBufs.emplace_back(std::unique_ptr<u8[]>(new u8[size]), size);
     xf8_loadTransactions.push_back(
         static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
         LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, size, offset,
