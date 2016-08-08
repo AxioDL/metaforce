@@ -368,9 +368,15 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
                                 const std::string& diagName,
                                 boo::IGraphicsDataFactory::Context& ctx)
 {
+    boo::IShaderPipeline* ret;
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildFromCache(foundData, ctx);
+    {
+        ret = buildFromCache(foundData, ctx);
+        if (ret)
+            return ret;
+        Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
+    }
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
     return buildShader(tag, ir, diagName, ctx);
 }
@@ -380,11 +386,16 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
                                 const std::string& diagName,
                                 boo::IGraphicsDataFactory::Context& ctx)
 {
+    boo::IShaderPipeline* ret;
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildFromCache(foundData, ctx);
+    {
+        ret = buildFromCache(foundData, ctx);
+        if (ret)
+            return ret;
+        Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
+    }
     FE.getDiagnostics().reset(diagName);
-    boo::IShaderPipeline* ret;
     addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, ret));
     return ret;
 }
@@ -395,8 +406,9 @@ ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData,
 {
     std::vector<boo::IShaderPipeline*> shaders;
     shaders.reserve(m_extensions.m_extensionSlots.size());
-    m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots, ctx,
-    [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
+    if (!m_factory->buildExtendedShaderFromCache(foundData, m_extensions.m_extensionSlots, ctx,
+    [&](boo::IShaderPipeline* shader){shaders.push_back(shader);}))
+        return {};
     if (shaders.size() != m_extensions.m_extensionSlots.size())
         Log.report(logvisor::Fatal, "buildShaderFromCache returned %" PRISize " times, expected %" PRISize,
                    shaders.size(), m_extensions.m_extensionSlots.size());
@@ -408,9 +420,15 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string&
                                         const std::string& diagName,
                                         boo::IGraphicsDataFactory::Context& ctx)
 {
+    std::vector<boo::IShaderPipeline*> shaders;
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildExtendedFromCache(foundData, ctx);
+    {
+        shaders = buildExtendedFromCache(foundData, ctx);
+        if (shaders.size())
+            return shaders;
+        Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
+    }
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
     return buildExtendedShader(tag, ir, diagName, ctx);
 }
@@ -420,10 +438,15 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
                                         const std::string& diagName,
                                         boo::IGraphicsDataFactory::Context& ctx)
 {
+    std::vector<boo::IShaderPipeline*> shaders;
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
-        return buildExtendedFromCache(foundData, ctx);
-    std::vector<boo::IShaderPipeline*> shaders;
+    {
+        shaders = buildExtendedFromCache(foundData, ctx);
+        if (shaders.size())
+            return shaders;
+        Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
+    }
     shaders.reserve(m_extensions.m_extensionSlots.size());
     FE.getDiagnostics().reset(diagName);
     ShaderCachedData data =

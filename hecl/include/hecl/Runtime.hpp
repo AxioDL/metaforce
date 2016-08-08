@@ -187,7 +187,7 @@ protected:
                                                        const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                                        boo::IGraphicsDataFactory::Context& ctx,
                                                        FReturnExtensionShader returnFunc)=0;
-    virtual void buildExtendedShaderFromCache(const ShaderCachedData& data,
+    virtual bool buildExtendedShaderFromCache(const ShaderCachedData& data,
                                               const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                               boo::IGraphicsDataFactory::Context& ctx,
                                               FReturnExtensionShader returnFunc)=0;
