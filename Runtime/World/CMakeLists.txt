@@ -46,6 +46,7 @@ set(WORLD_SOURCES
     CScriptCameraBlurKeyframe.hpp CScriptCameraBlurKeyframe.cpp
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
     CScriptDebris.hpp CScriptDebris.cpp
+    CScriptDistanceFog.hpp CScriptDistanceFog.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CGrappleParameters.hpp

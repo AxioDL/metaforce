@@ -39,6 +39,7 @@
 #include "CScriptCameraBlurKeyframe.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptDebris.hpp"
+#include "CScriptDistanceFog.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -1452,7 +1453,37 @@ CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
                                        int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 8, "DistanceFog"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    u32 mode = in.readUint32Big();
+    zeus::CColor col;
+    col.readRGBABig(in);
+    zeus::CVector2f vec1;
+    vec1.readBig(in);
+    float f1 = in.readFloatBig();
+    zeus::CVector2f vec2;
+    vec2.readBig(in);
+    bool b1 = in.readBool();
+    bool active = in.readBool();
+    ERglFogMode realMode;
+
+    if (mode == 0)
+        realMode = ERglFogMode::None;
+    else if (mode == 1)
+        realMode = ERglFogMode::PerspLin;
+    else if (mode == 2)
+        realMode = ERglFogMode::PerspExp;
+    else if (mode == 3)
+        realMode = ERglFogMode::PerspExp2;
+    else if (mode == 4)
+        realMode = ERglFogMode::PerspRevExp;
+    else if (mode == 5)
+        realMode = ERglFogMode::PerspRevExp2;
+
+    return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, realMode, col, vec1, f1, vec2, b1, active,
+                                  0.f, 0.f, 0.f, 0.f);
 }
 
 CEntity* ScriptLoader::LoadFireFlea(CStateManager& mgr, CInputStream& in,
