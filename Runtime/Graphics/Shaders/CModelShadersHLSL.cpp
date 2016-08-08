@@ -12,6 +12,12 @@ static const char* LightingHLSL =
 "    float4 linAtt;\n"
 "    float4 angAtt;\n"
 "};\n"
+"struct Fog\n"
+"{\n"
+"    float4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
 "\n"
 "cbuffer LightingUniform : register(b2)\n"
 "{\n"
@@ -20,6 +26,7 @@ static const char* LightingHLSL =
 "    float4 colorReg0;\n"
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
+"    Fog fog;\n"
 "};\n"
 "\n"
 "static float4 LightingFunc(float4 mvPosIn, float4 mvNormIn)\n"
@@ -43,6 +50,14 @@ static const char* LightingHLSL =
 "    return saturate(ret);\n"
 "}\n";
 
+static const char* MainPostHLSL =
+"float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+"{\n"
+"    float fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+"    return lerp(fog.color, colorIn, saturate(exp2(-8.0 * fogZ)));\n"
+"}\n"
+"\n";
+
 static const char* ThermalPostHLSL =
 "cbuffer ThermalUniform : register(b2)\n"
 "{\n"
@@ -61,7 +76,7 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
     hecl::Runtime::ShaderCacheExtensions ext(plat);
 
     /* Normal lit shading */
-    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {}, 0, nullptr, 0, nullptr,
+    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"}, 0, nullptr, 0, nullptr,
                               hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
 
     /* Thermal Visor shading */
