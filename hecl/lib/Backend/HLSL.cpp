@@ -373,9 +373,12 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                                boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
+
+        if (r.hasError())
+            return nullptr;
 
         atUint32 vertSz = r.readUint32Big();
         ComPtr<ID3DBlob> vertBlob;
@@ -400,6 +403,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
             D3DCreateBlobPROC(pipelineSz, &pipelineBlob);
             r.readUBytesToBuf(pipelineBlob->GetBufferPointer(), pipelineSz);
         }
+
+        if (r.hasError())
+            return nullptr;
 
         boo::IShaderPipeline* ret =
         static_cast<boo::ID3DDataFactory::Context&>(ctx).
@@ -499,15 +505,18 @@ struct HLSLBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    void buildExtendedShaderFromCache(const ShaderCachedData& data,
+    bool buildExtendedShaderFromCache(const ShaderCachedData& data,
                                       const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
                                       boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
         const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
+        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
         hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
+
+        if (r.hasError())
+            return false;
 
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
@@ -535,6 +544,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 r.readUBytesToBuf(pipelineBlob->GetBufferPointer(), pipelineSz);
             }
 
+            if (r.hasError())
+                return false;
+
             boo::IShaderPipeline* ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
@@ -549,6 +561,8 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
+
+        return true;
     }
 };
 
