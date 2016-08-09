@@ -174,6 +174,8 @@ public:
     ResId IGetSaveWorldAssetId() const;
     const CMapWorld* IGetMapWorld() const;
     CMapWorld* IMapWorld();
+    const CGameArea* GetAreaAlways(TAreaId) const;
+    CGameArea* GetArea(TAreaId);
     const IGameArea* IGetAreaAlways(TAreaId id) const;
     TAreaId IGetCurrentAreaId() const;
     TAreaId IGetAreaId(ResId id) const;

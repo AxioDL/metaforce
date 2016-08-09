@@ -13,13 +13,13 @@ struct DistanceFog : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<atUint32> unknown1;
-    Value<atVec4f> unknown2; // CColor
-    Value<atVec2f> unknown3;
-    Value<atVec2f> unknown4;
-    Value<float> unknown5;
-    Value<bool> unknown6;
-    Value<bool> unknown7;
+    Value<atUint32> fogMode;
+    Value<atVec4f> fogColor; // CColor
+    Value<atVec2f> range;
+    Value<float> colorDelta;
+    Value<atVec2f> rangeDelta;
+    Value<bool> expl;
+    Value<bool> active;
 };
 }
 }

@@ -1458,14 +1458,14 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
 
     const std::string* name = mgr.HashInstanceName(in);
     u32 mode = in.readUint32Big();
-    zeus::CColor col;
-    col.readRGBABig(in);
-    zeus::CVector2f vec1;
-    vec1.readBig(in);
-    float f1 = in.readFloatBig();
-    zeus::CVector2f vec2;
-    vec2.readBig(in);
-    bool b1 = in.readBool();
+    zeus::CColor color;
+    color.readRGBABig(in);
+    zeus::CVector2f range;
+    range.readBig(in);
+    float colorDelta = in.readFloatBig();
+    zeus::CVector2f rangeDelta;
+    rangeDelta.readBig(in);
+    bool expl = in.readBool();
     bool active = in.readBool();
     ERglFogMode realMode;
 
@@ -1482,8 +1482,8 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
     else if (mode == 5)
         realMode = ERglFogMode::PerspRevExp2;
 
-    return new CScriptDistanceFog(mgr.AllocateUniqueId(), *name, info, realMode, col, vec1, f1, vec2, b1, active,
-                                  0.f, 0.f, 0.f, 0.f);
+    return new CScriptDistanceFog(mgr.AllocateUniqueId(), *name, info, realMode, color, range, colorDelta, rangeDelta,
+                                  expl, active, 0.f, 0.f, 0.f, 0.f);
 }
 
 CEntity* ScriptLoader::LoadFireFlea(CStateManager& mgr, CInputStream& in,

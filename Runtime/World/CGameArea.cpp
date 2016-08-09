@@ -441,6 +441,18 @@ const zeus::CTransform& CGameArea::IGetTM() const
     return xc_transform;
 }
 
+void CGameArea::SetXRaySpeedAndTarget(float f1, float f2)
+{
+    x12c_postConstructed->x112c_xraySpeed = f1;
+    x12c_postConstructed->x1130_xrayTarget = f2;
+}
+
+void CGameArea::SetThermalSpeedAndTarget(float speed, float target)
+{
+    x12c_postConstructed->x1120_thermalSpeed = speed;
+    x12c_postConstructed->x1124_thermalTarget = target;
+}
+
 bool CGameArea::DoesAreaNeedEnvFx() const
 {
     return false;

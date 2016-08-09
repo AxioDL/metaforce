@@ -72,6 +72,14 @@ TAreaId CDummyWorld::IGetAreaId(ResId id) const
     return kInvalidAreaId;
 }
 
+CWorld::CRelay::CRelay(CInputStream& in)
+{
+    x0_relay = in.readUint32Big();
+    x4_target = in.readUint32Big();
+    x8_msg = in.readUint16Big();
+    xa_active = in.readBool();
+}
+
 std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryReader& r)
 {
     std::vector<CWorld::CRelay> ret;
@@ -224,12 +232,22 @@ const CMapWorld* CWorld::IGetMapWorld() const
 
 CMapWorld* CWorld::IMapWorld()
 {
-    return (CMapWorld*)GetMapWorld();
+    return const_cast<CMapWorld*>(GetMapWorld());
+}
+
+const CGameArea* CWorld::GetAreaAlways(TAreaId id) const
+{
+    return x18_areas.at(id).get();
+}
+
+CGameArea* CWorld::GetArea(TAreaId id)
+{
+    return const_cast<CGameArea*>(GetAreaAlways(id));
 }
 
 const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const
 {
-    return x18_areas.at(id).get();
+    return GetAreaAlways(id);
 }
 
 TAreaId CWorld::IGetCurrentAreaId() const

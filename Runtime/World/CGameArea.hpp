@@ -196,8 +196,8 @@ public:
         float x1120_thermalSpeed = 0.f;
         float x1124_thermalTarget = 0.f;
         float x1128_ = 1.f;
-        float x112c_ = 0.f;
-        float x1130_ = 1.f;
+        float x112c_xraySpeed = 0.f;
+        float x1130_xrayTarget = 1.f;
         float x1134_ = 0.f;
         float x1138_ = 1.f;
         u32 x113c_ = 0;
@@ -254,6 +254,11 @@ public:
     ResId IGetStringTableAssetId() const;
     const zeus::CTransform& IGetTM() const;
 
+    void SetXRaySpeedAndTarget(float f1, float f2);
+    void SetThermalSpeedAndTarget(float f1, float f2);
+
+    const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
+    CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
     bool DoesAreaNeedEnvFx() const;
     bool DoesAreaNeedSkyNow() const;
     bool OtherAreaOcclusionChanged();
