@@ -428,7 +428,7 @@ void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
           "\n"
           "# Clear Scene\n"
           "for ob in bpy.data.objects:\n"
-          "    if ob.type != 'LAMP':\n"
+          "    if ob.type != 'LAMP' and ob.type != 'CAMERA':\n"
           "        bpy.context.scene.objects.unlink(ob)\n"
           "        bpy.data.objects.remove(ob)\n"
           "\n"
