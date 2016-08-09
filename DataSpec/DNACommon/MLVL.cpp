@@ -39,8 +39,9 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
               "\n"
               "# Clear Scene\n"
               "for ob in bpy.data.objects:\n"
-              "    bpy.context.scene.objects.unlink(ob)\n"
-              "    bpy.data.objects.remove(ob)\n");
+              "    if ob.type != 'CAMERA':\n"
+              "        bpy.context.scene.objects.unlink(ob)\n"
+              "        bpy.data.objects.remove(ob)\n");
 
     /* Insert area empties */
     int areaIdx = 0;
