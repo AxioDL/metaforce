@@ -197,8 +197,8 @@ void CStateManager::UpdateThermalVisor()
                     std::unique_ptr<CGameArea>& connArea = x850_world->GetGameAreas()[x8cc_nextAreaId];
                     if (connArea->IsPostConstructed())
                     {
-                        u32 something = connArea->GetPostConstructed()->x10dc_;
-                        if (something == 1)
+                        CGameArea::EOcclusionState occState = connArea->GetPostConstructed()->x10dc_occlusionState;
+                        if (occState == CGameArea::EOcclusionState::Occluded)
                         {
                             closestDist = dist;
                             lastArea = connArea.get();

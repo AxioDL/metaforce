@@ -45,41 +45,26 @@ protected:
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
-        };
-        u8 _dummy1 = 0;
-    };
-
-    union
-    {
-        struct
-        {
             bool xe5_0_opaque : 1;
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
-        };
-        u8 _dummy2 = 0;
-    };
-    union
-    {
-        struct
-        {
             bool xe6_26_inFluid : 1;
             bool xe6_30_enablePitchBend : 1;
-        };
-        u8 _dummy3 = 0;
-    };
-    union
-    {
-        struct
-        {
             bool xe7_29_ : 1;
         };
-        u8 _dummy4 = 0;
+        u32 dummy = 0;
     };
 public:
     enum class EFluidState
     {
+    };
+
+    enum class EScanState
+    {
+        Zero,
+        One,
+        Two,
     };
 
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
@@ -111,7 +96,8 @@ public:
     void RemoveEmitter();
 
     virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const { return {} ; }
-    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int);
+    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                   CWeaponMode&, int);
 
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -138,6 +124,8 @@ public:
     bool HasModelData() const;
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
+
+    virtual void OnScanStateChanged(EScanState, CStateManager&);
 };
 
 }
