@@ -9,6 +9,7 @@ make_dnalist(liblist
              CINF
              CSKR
              EVNT
+             PATH
              CMDLMaterials
              MREA
              DeafBabe
