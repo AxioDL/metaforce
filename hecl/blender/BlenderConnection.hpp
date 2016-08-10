@@ -371,6 +371,8 @@ public:
             operator const uint32_t&() const {return val;}
         };
 
+        static atVec3f MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec);
+
         /** Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
         {
@@ -517,7 +519,48 @@ public:
             /** Prepares mesh representation for indexed access on modern APIs.
              *  Mesh must remain resident for accessing reference members
              */
-            HMDLBuffers getHMDLBuffers() const;
+            HMDLBuffers getHMDLBuffers(bool absoluteCoords) const;
+        };
+
+        /** Intermediate collision mesh representation prepared by blender from a single mesh object */
+        struct ColMesh
+        {
+            /* Object transform in scene */
+            Matrix4f sceneXf;
+
+            /* Cumulative AABB */
+            Vector3f aabbMin;
+            Vector3f aabbMax;
+
+            /** HECL source and metadata of each material */
+            struct Material
+            {
+                std::string name;
+                uint32_t type;
+                bool fireThrough;
+                Material(BlenderConnection& conn);
+            };
+            std::vector<Material> materials;
+
+            std::vector<Vector3f> verts;
+
+            struct Edge
+            {
+                uint32_t verts[2];
+                bool seam;
+                Edge(BlenderConnection& conn);
+            };
+            std::vector<Edge> edges;
+
+            struct Triangle
+            {
+                uint32_t edges[3];
+                uint32_t matIdx;
+                Triangle(BlenderConnection& conn);
+            };
+            std::vector<Triangle> trianges;
+
+            ColMesh(BlenderConnection& conn);
         };
 
 
@@ -535,6 +578,9 @@ public:
         /** Compile mesh by name (AREA blends only) */
         Mesh compileMesh(const std::string& name, HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){});
+
+        /** Compile collision mesh by name (AREA blends only) */
+        ColMesh compileColMesh(const std::string& name);
 
         /** Compile all meshes into one (AREA blends only) */
         Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,

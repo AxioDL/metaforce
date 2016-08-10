@@ -182,6 +182,16 @@ def dataout_loop():
             writepipeline(b'OK')
             hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks)
 
+        elif cmdargs[0] == 'MESHCOMPILENAMECOLLISION':
+            meshName = cmdargs[1]
+
+            if meshName not in bpy.data.objects:
+                writepipeline(('mesh %s not found' % meshName).encode())
+                continue
+
+            writepipeline(b'OK')
+            hecl.hmdl.cookcol(writepipebuf, bpy.data.objects[meshName])
+
         elif cmdargs[0] == 'MESHCOMPILEALL':
             maxSkinBanks = int(cmdargs[2])
             maxOctantLength = float(cmdargs[3])
@@ -237,7 +247,6 @@ def dataout_loop():
                 for r in bone.matrix_local.to_3x3():
                     for c in r:
                         writepipebuf(struct.pack('f', c))
-
 
 # Main exception handling
 try:

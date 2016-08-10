@@ -871,6 +871,54 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
     return uint32_t(-1);
 }
 
+BlenderConnection::DataStream::ColMesh::ColMesh(BlenderConnection& conn)
+: sceneXf(conn), aabbMin(conn), aabbMax(conn)
+{
+    uint32_t matCount;
+    conn._readBuf(&matCount, 4);
+    materials.reserve(matCount);
+    for (uint32_t i=0 ; i<matCount ; ++i)
+        materials.emplace_back(conn);
+
+    uint32_t count;
+    conn._readBuf(&count, 4);
+    verts.reserve(count);
+    for (uint32_t i=0 ; i<count ; ++i)
+        verts.emplace_back(conn);
+
+    conn._readBuf(&count, 4);
+    edges.reserve(count);
+    for (uint32_t i=0 ; i<count ; ++i)
+        edges.emplace_back(conn);
+
+    conn._readBuf(&count, 4);
+    trianges.reserve(count);
+    for (uint32_t i=0 ; i<count ; ++i)
+        trianges.emplace_back(conn);
+}
+
+BlenderConnection::DataStream::ColMesh::Material::Material(BlenderConnection& conn)
+{
+    uint32_t nameLen;
+    conn._readBuf(&nameLen, 4);
+    if (nameLen)
+    {
+        name.assign(nameLen, '\0');
+        conn._readBuf(&name[0], nameLen);
+    }
+    conn._readBuf(&type, 5);
+}
+
+BlenderConnection::DataStream::ColMesh::Edge::Edge(BlenderConnection& conn)
+{
+    conn._readBuf(this, 9);
+}
+
+BlenderConnection::DataStream::ColMesh::Triangle::Triangle(BlenderConnection& conn)
+{
+    conn._readBuf(this, 16);
+}
+
 BlenderConnection::DataStream::Actor::Actor(BlenderConnection& conn)
 {
     uint32_t armCount;
@@ -1082,6 +1130,25 @@ BlenderConnection::DataStream::compileMesh(const std::string& name,
         BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
 
     return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+}
+
+BlenderConnection::DataStream::ColMesh
+BlenderConnection::DataStream::compileColMesh(const std::string& name)
+{
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "MESHCOMPILENAMECOLLISION %s", name.c_str());
+    m_parent->_writeLine(req);
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to cook collision mesh '%s': %s", name.c_str(), readBuf);
+
+    return ColMesh(*m_parent);
 }
 
 BlenderConnection::DataStream::Mesh

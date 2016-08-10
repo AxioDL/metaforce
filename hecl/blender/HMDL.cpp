@@ -3,7 +3,16 @@
 namespace hecl
 {
 
-HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
+atVec3f BlenderConnection::DataStream::MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec)
+{
+    atVec3f res;
+    res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2] + mtx[0].vec[3];
+    res.vec[1] = mtx[1].vec[0] * vec.val.vec[0] + mtx[1].vec[1] * vec.val.vec[1] + mtx[1].vec[2] * vec.val.vec[2] + mtx[1].vec[3];
+    res.vec[2] = mtx[2].vec[0] * vec.val.vec[0] + mtx[2].vec[1] * vec.val.vec[1] + mtx[2].vec[2] * vec.val.vec[2] + mtx[2].vec[3];
+    return res;
+}
+
+HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoords) const
 {
     /* If skinned, compute max weight vec count */
     size_t weightCount = 0;
@@ -75,7 +84,13 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers() const
         const Surface& s = *sv.first;
         const Surface::Vert& v = *sv.second;
 
-        vboW.writeVec3fLittle(pos[v.iPos]);
+        if (absoluteCoords)
+        {
+            atVec3f preXfPos = MtxVecMul4RM(sceneXf, pos[v.iPos]);
+            vboW.writeVec3fLittle(preXfPos);
+        }
+        else
+            vboW.writeVec3fLittle(pos[v.iPos]);
         vboW.writeVec3fLittle(norm[v.iNorm]);
 
         for (size_t i=0 ; i<colorLayerCount ; ++i)

@@ -26,8 +26,7 @@ def write_out_material(writebuf, mat, mesh_obj):
             writebuf(struct.pack('i', prop[1]))
 
 # Takes a Blender 'Mesh' object (not the datablock)
-# and performs a one-shot conversion process to HMDL; packaging
-# into the HECL data-pipeline and returning a hash once complete
+# and performs a one-shot conversion process to HMDL
 def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
@@ -201,6 +200,76 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
 
     # Delete copied mesh from scene
     bm_master.free()
+    bpy.context.scene.objects.unlink(copy_obj)
+    bpy.data.objects.remove(copy_obj)
+    bpy.data.meshes.remove(copy_mesh)
+
+# Takes a Blender 'Mesh' object (not the datablock)
+# and performs a one-shot conversion process to collision geometry
+def cookcol(writebuf, mesh_obj):
+    if mesh_obj.type != 'MESH':
+        raise RuntimeError("%s is not a mesh" % mesh_obj.name)
+
+    # Copy mesh (and apply mesh modifiers with triangulation)
+    copy_name = mesh_obj.name + "_hmdltri"
+    copy_mesh = bpy.data.meshes.new(copy_name)
+    copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
+    copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
+    copy_mesh = copy_obj.data
+    copy_obj.scale = mesh_obj.scale
+    bpy.context.scene.objects.link(copy_obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.scene.objects.active = copy_obj
+    copy_obj.select = True
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.quads_convert_to_tris()
+    bpy.ops.mesh.select_all(action='DESELECT')
+    bpy.context.scene.update()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    copy_mesh.calc_normals_split()
+    rna_loops = copy_mesh.loops
+
+    # Send scene matrix
+    wmtx = mesh_obj.matrix_world
+    writebuf(struct.pack('ffffffffffffffff',
+    wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+    wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+    wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+    wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
+
+    # Filter out useless AABB points and send data
+    pt = copy_obj.bound_box[0]
+    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+    pt = copy_obj.bound_box[6]
+    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+
+    # Send materials
+    writebuf(struct.pack('I', len(copy_mesh.materials)))
+    for m in copy_mesh.materials:
+        writebuf(struct.pack('I', len(m.name)))
+        writebuf(m.name.encode())
+        writebuf(struct.pack('Ib', m.retro_collision_type, m.retro_projectile_passthrough))
+
+    # Send verts
+    writebuf(struct.pack('I', len(copy_mesh.vertices)))
+    for v in copy_mesh.vertices:
+        writebuf(struct.pack('fff', v.co[0], v.co[1], v.co[2]))
+
+    # Send edges
+    writebuf(struct.pack('I', len(copy_mesh.edges)))
+    for e in copy_mesh.edges:
+        writebuf(struct.pack('IIb', e.vertices[0], e.vertices[1], e.use_seam))
+
+    # Send trianges
+    writebuf(struct.pack('I', len(copy_mesh.polygons)))
+    for p in copy_mesh.polygons:
+        edge_idxs = []
+        for ek in p.edge_keys:
+            edge_idxs.append(copy_mesh.edge_keys.index(ek))
+        writebuf(struct.pack('IIII', edge_idxs[0], edge_idxs[1], edge_idxs[2], p.material_index))
+
+    # Delete copied mesh from scene
     bpy.context.scene.objects.unlink(copy_obj)
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)
