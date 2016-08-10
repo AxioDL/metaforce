@@ -10,6 +10,11 @@ set(WORLD_SOURCES
     CAiFuncMap.hpp CAiFuncMap.cpp
     CPatterned.hpp CPatterned.cpp
     CPathFindArea.hpp CPathFindArea.cpp
+    CPathFindRegion.hpp CPathFindRegion.cpp
+    CPathFindDraw.hpp CPathFindDraw.cpp
+    CPathFindAreaOctree.hpp CPathFindAreaOctree.cpp
+    CPathFindOpenList.hpp CPathFindOpenList.cpp
+    CPathFindLink.hpp CPathFindLink.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CEntity.hpp CEntity.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp

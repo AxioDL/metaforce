@@ -167,7 +167,7 @@ public:
             TUniqueId x4_uid = kInvalidUniqueId;
         } xa8_map[1024];
         u32 x10a8_pvsVersion = 0;
-        TLockedToken<CPathFindArea> x10ac_path;
+        TLockedToken<CPFArea> x10ac_path;
         // bool x10b8_ = 0; optional flag for CToken
         u32 x10bc_ = 0;
         std::unique_ptr<CObjectList> x10c0_areaObjs;
