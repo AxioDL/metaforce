@@ -169,6 +169,14 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
+template <class MaterialSet, class SurfaceHeader, class MeshHeader>
+bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+                   const std::vector<Mesh>& meshes);
+
+template <class MaterialSet, class SurfaceHeader, class MeshHeader>
+bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+                       const std::vector<Mesh>& meshes);
+
 }
 }
 

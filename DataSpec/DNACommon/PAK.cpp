@@ -588,6 +588,34 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerWorking(const IDType& areaI
 }
 
 template <class BRIDGETYPE>
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerWorking(const IDType& areaId, int layerIdx, bool& activeOut) const
+{
+    activeOut = false;
+    if (!m_bridges)
+        LogDNACommon.report(logvisor::Fatal,
+        "PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()");
+    auto bridgePathIt = m_bridgePaths.cbegin();
+    for (const BRIDGETYPE& bridge : *m_bridges)
+    {
+        for (const auto& level : bridge.m_levelDeps)
+            for (const auto& area : level.second.areas)
+                if (area.first == areaId)
+                {
+                    hecl::ProjectPath levelPath(bridgePathIt->first, level.second.name);
+                    hecl::ProjectPath areaPath(levelPath, area.second.name);
+                    if (layerIdx < 0)
+                        return areaPath;
+                    const typename Level<IDType>::Area::Layer& layer = area.second.layers.at(layerIdx);
+                    activeOut = layer.active;
+                    return hecl::ProjectPath(areaPath, layer.name);
+                }
+        ++bridgePathIt;
+    }
+    return hecl::ProjectPath();
+}
+
+
+template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId, int layerIdx) const
 {
     if (!m_bridges)
@@ -605,6 +633,33 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId
                     if (layerIdx < 0)
                         return areaPath;
                     return hecl::ProjectPath(areaPath, area.second.layers.at(layerIdx).name);
+                }
+        ++bridgePathIt;
+    }
+    return hecl::ProjectPath();
+}
+
+template <class BRIDGETYPE>
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId, int layerIdx, bool& activeOut) const
+{
+    activeOut = false;
+    if (!m_bridges)
+        LogDNACommon.report(logvisor::Fatal,
+        "PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()");
+    auto bridgePathIt = m_bridgePaths.cbegin();
+    for (const BRIDGETYPE& bridge : *m_bridges)
+    {
+        for (const auto& level : bridge.m_levelDeps)
+            for (const auto& area : level.second.areas)
+                if (area.first == areaId)
+                {
+                    hecl::ProjectPath levelPath(bridgePathIt->second, level.second.name);
+                    hecl::ProjectPath areaPath(levelPath, area.second.name);
+                    if (layerIdx < 0)
+                        return areaPath;
+                    const typename Level<IDType>::Area::Layer& layer = area.second.layers.at(layerIdx);
+                    activeOut = layer.active;
+                    return hecl::ProjectPath(areaPath, layer.name);
                 }
         ++bridgePathIt;
     }

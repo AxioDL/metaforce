@@ -182,7 +182,9 @@ public:
     const RigPair* lookupCMDLRigPair(const IDType& id) const;
 
     hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const;
+    hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx, bool& activeOut) const;
     hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx) const;
+    hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx, bool& activeOut) const;
 };
 
 }

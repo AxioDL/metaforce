@@ -220,5 +220,163 @@ void MREA::Name(const SpecBase& dataSpec,
     pathEnt->name = entry.name + "_path";
 }
 
+void MREA::MeshHeader::VisorFlags::setFromBlenderProps(const std::unordered_map<std::string, std::string>& props)
+{
+    auto search = props.find("retro_disable_enviro_visor");
+    if (search != props.cend() && !search->second.compare("True"))
+        setDisableEnviro(true);
+    search = props.find("retro_disable_thermal_visor");
+    if (search != props.cend() && !search->second.compare("True"))
+        setDisableThermal(true);
+    search = props.find("retro_disable_xray_visor");
+    if (search != props.cend() && !search->second.compare("True"))
+        setDisableXray(true);
+    search = props.find("retro_thermal_level");
+    if (search != props.cend())
+    {
+        if (!search->second.compare("COOL"))
+            setThermalLevel(ThermalLevel::Cool);
+        else if (!search->second.compare("HOT"))
+            setThermalLevel(ThermalLevel::Hot);
+        else if (!search->second.compare("WARM"))
+            setThermalLevel(ThermalLevel::Warm);
+    }
+}
+
+bool MREA::Cook(const hecl::ProjectPath& outPath,
+                const hecl::ProjectPath& inPath,
+                const std::vector<DNACMDL::Mesh>& meshes)
+{
+    return false;
+}
+
+bool MREA::PCCook(const hecl::ProjectPath& outPath,
+                  const hecl::ProjectPath& inPath,
+                  const std::vector<DNACMDL::Mesh>& meshes)
+{
+    /* Discover area layers */
+    hecl::ProjectPath areaDirPath = inPath.getParentPath();
+    std::vector<hecl::ProjectPath> layerScriptPaths;
+    {
+        hecl::DirectoryEnumerator dEnum(inPath.getParentPath().getAbsolutePath(),
+                                        hecl::DirectoryEnumerator::Mode::DirsSorted,
+                                        false, false, true);
+        for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
+        {
+            hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _S("/objects.yaml"));
+            if (layerScriptPath.getPathType() == hecl::ProjectPath::Type::File)
+                layerScriptPaths.push_back(std::move(layerScriptPath));
+        }
+    }
+
+    size_t secCount = 1 + meshes.size() * 4; /* (materials, 4 fixed model secs) */
+
+    /* tally up surfaces */
+    for (const DNACMDL::Mesh& mesh : meshes)
+        secCount += mesh.surfaces.size();
+
+    /* Header */
+    Header head = {};
+    head.magic = 0xDEADBEEF;
+    head.version = 0x1000F;
+    head.localToWorldMtx[0].vec[0] = 1.f;
+    head.localToWorldMtx[1].vec[1] = 1.f;
+    head.localToWorldMtx[2].vec[2] = 1.f;
+    head.meshCount = meshes.size();
+    head.geomSecIdx = 0;
+    head.arotSecIdx = secCount++;
+    head.sclySecIdx = secCount++;
+    head.collisionSecIdx = secCount++;
+    head.unkSecIdx = secCount++;
+    head.lightSecIdx = secCount++;
+    head.visiSecIdx = secCount++;
+    head.pathSecIdx = secCount++;
+    head.secCount = secCount;
+
+    std::vector<std::vector<uint8_t>> secs;
+    secs.reserve(secCount + 2);
+
+    /* Header section */
+    secs.emplace_back(head.binarySize(0), 0);
+    {
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        head.write(w);
+        int i = w.position();
+        int end = ROUND_UP_32(i);
+        for (; i<end ; ++i)
+            w.writeByte(0);
+    }
+
+    /* Sizes section */
+    secs.emplace_back();
+    std::vector<uint8_t>& sizesSec = secs.back();
+
+    /* Models */
+    if (!DNACMDL::WriteHMDLMREASecs<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, MeshHeader>(secs, inPath, meshes))
+        return false;
+
+    /* AROT */
+
+    /* SCLY */
+    for (const hecl::ProjectPath& layer : layerScriptPaths)
+    {
+        FILE* yamlFile = hecl::Fopen(layer.getAbsolutePath().c_str(), _S("r"));
+        if (!yamlFile)
+        {
+            Log.report(logvisor::Fatal, _S("unable to open %s for reading"), layer.getAbsolutePath().c_str());
+            return false;
+        }
+
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input_file(reader.getParser(), yamlFile);
+        if (!reader.parse())
+        {
+            Log.report(logvisor::Fatal, _S("unable to parse %s"), layer.getAbsolutePath().c_str());
+            fclose(yamlFile);
+            return false;
+        }
+        fclose(yamlFile);
+
+        std::string classStr = reader.readString("DNAType");
+        if (classStr.empty())
+            return false;
+    }
+
+    /* Collision */
+
+
+    /* Unk */
+
+    /* Lights */
+
+    /* VISI */
+
+    /* PATH */
+
+    /* Assemble sizes and add padding */
+    {
+        sizesSec.assign(head.secCount, 0);
+        int totalEnd = sizesSec.size() * 4;
+        int totalPadEnd = ROUND_UP_32(totalEnd);
+        athena::io::MemoryWriter w(sizesSec.data(), totalPadEnd);
+        for (auto it = secs.begin() + 2 ; it != secs.end() ; ++it)
+        {
+            std::vector<uint8_t>& sec = *it;
+            int i = sec.size();
+            int end = ROUND_UP_32(i);
+            for (; i<end ; ++i)
+                sec.push_back(0);
+            w.writeUint32Big(end);
+        }
+    }
+
+    /* Output all padded sections to file */
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    for (const std::vector<uint8_t>& sec : secs)
+        writer.writeUBytes(sec.data(), sec.size());
+
+    return true;
+}
+
 }
 }

@@ -8,6 +8,7 @@
 #include "DNAMP1/MLVL.hpp"
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/CMDL.hpp"
+#include "DNAMP1/MREA.hpp"
 #include "DNAMP1/ANCS.hpp"
 #include "DNACommon/PART.hpp"
 #include "DNACommon/SWHC.hpp"
@@ -384,6 +385,24 @@ struct SpecMP1 : SpecBase
                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                   FCookProgress progress)
     {
+        std::vector<std::string> meshes = ds.getMeshList();
+        std::vector<Mesh> meshCompiles;
+        meshCompiles.reserve(meshes.size());
+
+        for (const std::string& mesh : meshes)
+        {
+            hecl::SystemStringView meshSys(mesh);
+            meshCompiles.push_back(ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+            [&](int surfCount)
+            {
+                progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str());
+            }));
+        }
+
+        if (m_pc)
+            DNAMP1::MREA::PCCook(out, in, meshCompiles);
+        else
+            DNAMP1::MREA::Cook(out, in, meshCompiles);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

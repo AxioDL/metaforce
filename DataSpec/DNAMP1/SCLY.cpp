@@ -36,15 +36,22 @@ size_t SCLY::binarySize(size_t __isz) const
     return __EnumerateSize(__isz, layers);
 }
 
-void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge> &pakRouter, bool force) const
+void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge>& pakRouter, bool force) const
 {
     for (atUint32 i = 0; i < layerCount; i++)
     {
-        hecl::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i);
+        bool active;
+        hecl::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i, active);
         if (layerPath.getPathType() == hecl::ProjectPath::Type::None)
             layerPath.makeDir();
 
-        hecl::ProjectPath yamlFile = hecl::ProjectPath(layerPath, _S("objects.yaml"));
+        if (active)
+        {
+            hecl::ProjectPath activePath(layerPath, "!defaultactive");
+            fclose(hecl::Fopen(activePath.getAbsolutePath().c_str(), _S("wb")));
+        }
+
+        hecl::ProjectPath yamlFile(layerPath, _S("objects.yaml"));
         if (force || yamlFile.getPathType() == hecl::ProjectPath::Type::None)
         {
             FILE* yaml = hecl::Fopen(yamlFile.getAbsolutePath().c_str(), _S("wb"));

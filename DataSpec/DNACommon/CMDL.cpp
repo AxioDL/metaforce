@@ -1,6 +1,7 @@
 #include "CMDL.hpp"
 #include "../DNAMP1/CMDLMaterials.hpp"
 #include "../DNAMP1/CSKR.hpp"
+#include "../DNAMP1/MREA.hpp"
 #include "../DNAMP2/CMDLMaterials.hpp"
 #include "../DNAMP2/CSKR.hpp"
 #include "../DNAMP3/CMDLMaterials.hpp"
@@ -1632,6 +1633,76 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 
 template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
+
+template <class MaterialSet, class SurfaceHeader, class MeshHeader>
+bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+                   const std::vector<Mesh>& meshes)
+{
+    return false;
+}
+
+template <class MaterialSet, class SurfaceHeader, class MeshHeader>
+bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+                       const std::vector<Mesh>& meshes)
+{
+    /* Build material set */
+    {
+        MaterialSet matSet;
+        hecl::Frontend::Frontend FE;
+        size_t endOff = 0;
+        std::vector<hecl::ProjectPath> texPaths;
+        for (const Mesh& mesh : meshes)
+        {
+            if (mesh.materialSets.size())
+            {
+                for (const Mesh::Material& mat : mesh.materialSets[0])
+                {
+                    for (const hecl::ProjectPath& path : mat.texs)
+                    {
+                        bool found = false;
+                        for (const hecl::ProjectPath& ePath : texPaths)
+                        {
+                            if (path == ePath)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                            texPaths.push_back(path);
+                    }
+
+                    std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                    matSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
+                    endOff = matSet.materials.back().binarySize(endOff);
+                    matSet.head.addMaterialEndOff(endOff);
+                }
+            }
+        }
+        for (const hecl::ProjectPath& path : texPaths)
+            matSet.head.addTexture(path);
+
+        secsOut.emplace_back(matSet.binarySize(0), 0);
+        athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+        matSet.write(w);
+    }
+
+    /* Iterate meshes */
+    for (const Mesh& mesh : meshes)
+    {
+        MeshHeader meshHeader = {};
+        meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
+        memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+        memmove(&meshHeader.aabb[0], &mesh.aabbMin, 12);
+        memmove(&meshHeader.aabb[1], &mesh.aabbMax, 12);
+    }
+
+    return true;
+}
+
+template bool WriteHMDLMREASecs<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, DNAMP1::MREA::MeshHeader>
+(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+ const std::vector<Mesh>& meshes);
 
 void SurfaceHeader_1::read(athena::io::IStreamReader& reader)
 {

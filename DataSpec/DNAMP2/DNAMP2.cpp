@@ -168,7 +168,7 @@ void PAKBridge::build()
                     while (layer.name.size() && isspace(layer.name.back()))
                         layer.name.pop_back();
 #endif
-                    hecl::SNPrintf(num, 16, layer.active ? _S("%02ua ") : _S("%02u "), l-1);
+                    hecl::SNPrintf(num, 16, _S("%02u "), l-1);
                     layer.name = num + layer.name;
 
                     layer.resources.reserve(area.depLayers[l] - r);

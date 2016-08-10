@@ -64,6 +64,7 @@ struct MREA
             ThermalLevel thermalLevel() const {return ThermalLevel(flags >> 4 & 0x3);}
             void setThermalLevel(ThermalLevel v) {flags &= ~0x30; flags |= atUint32(v) << 4;}
             const char* thermalLevelStr() const {return GetThermalLevelStr(thermalLevel());}
+            void setFromBlenderProps(const std::unordered_map<std::string, std::string>& props);
         } visorFlags;
         Value<atVec4f> xfMtx[3];
         Value<atVec3f> aabb[2];
@@ -120,6 +121,14 @@ struct MREA
                      PAKEntryReadStream& rs,
                      PAKRouter<PAKBridge>& pakRouter,
                      PAK::Entry& entry);
+
+    static bool Cook(const hecl::ProjectPath& outPath,
+                     const hecl::ProjectPath& inPath,
+                     const std::vector<DNACMDL::Mesh>& meshes);
+
+    static bool PCCook(const hecl::ProjectPath& outPath,
+                       const hecl::ProjectPath& inPath,
+                       const std::vector<DNACMDL::Mesh>& meshes);
 };
 
 }
