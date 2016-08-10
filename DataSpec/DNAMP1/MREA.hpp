@@ -122,13 +122,17 @@ struct MREA
                      PAKRouter<PAKBridge>& pakRouter,
                      PAK::Entry& entry);
 
+    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+
     static bool Cook(const hecl::ProjectPath& outPath,
                      const hecl::ProjectPath& inPath,
-                     const std::vector<DNACMDL::Mesh>& meshes);
+                     const std::vector<DNACMDL::Mesh>& meshes,
+                     const ColMesh& cMesh);
 
     static bool PCCook(const hecl::ProjectPath& outPath,
                        const hecl::ProjectPath& inPath,
-                       const std::vector<DNACMDL::Mesh>& meshes);
+                       const std::vector<DNACMDL::Mesh>& meshes,
+                       const ColMesh& cMesh);
 };
 
 }

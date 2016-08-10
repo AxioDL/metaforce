@@ -389,20 +389,31 @@ struct SpecMP1 : SpecBase
         std::vector<Mesh> meshCompiles;
         meshCompiles.reserve(meshes.size());
 
+        std::experimental::optional<ColMesh> colMesh;
+
         for (const std::string& mesh : meshes)
         {
             hecl::SystemStringView meshSys(mesh);
-            meshCompiles.push_back(ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+            if (!mesh.compare("CMESH"))
+            {
+                colMesh = ds.compileColMesh(mesh);
+                progress(_S("Collision Mesh"));
+                continue;
+            }
+            meshCompiles.push_back(ds.compileMesh(mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
             [&](int surfCount)
             {
                 progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str());
             }));
         }
 
+        if (!colMesh)
+            Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().c_str());
+
         if (m_pc)
-            DNAMP1::MREA::PCCook(out, in, meshCompiles);
+            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh);
         else
-            DNAMP1::MREA::Cook(out, in, meshCompiles);
+            DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

@@ -28,8 +28,9 @@ add_library(DNACommon
             FONT.hpp FONT.cpp
             DGRP.hpp DGRP.cpp
             DeafBabe.hpp
-            BabeDead.hpp            
+            BabeDead.hpp
             RigInverter.hpp RigInverter.cpp
+            AROTBuilder.hpp AROTBuilder.cpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
             Tweaks/ITweakPlayer.hpp

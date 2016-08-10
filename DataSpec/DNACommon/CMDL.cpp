@@ -6,6 +6,7 @@
 #include "../DNAMP2/CSKR.hpp"
 #include "../DNAMP3/CMDLMaterials.hpp"
 #include "../DNAMP3/CSKR.hpp"
+#include "zeus/CAABox.hpp"
 
 namespace DataSpec
 {
@@ -1525,7 +1526,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
         }
     }
 
-    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers();
+    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(false);
 
     /* Metadata */
     size_t secSz = bufs.m_meta.binarySize(0);
@@ -1636,14 +1637,14 @@ template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2
 
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
-                   const std::vector<Mesh>& meshes)
+                   const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs)
 {
     return false;
 }
 
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
-                       const std::vector<Mesh>& meshes)
+                       const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs)
 {
     /* Build material set */
     {
@@ -1690,11 +1691,91 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
     /* Iterate meshes */
     for (const Mesh& mesh : meshes)
     {
-        MeshHeader meshHeader = {};
-        meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
-        memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
-        memmove(&meshHeader.aabb[0], &mesh.aabbMin, 12);
-        memmove(&meshHeader.aabb[1], &mesh.aabbMax, 12);
+        zeus::CTransform meshXf(mesh.sceneXf.val);
+        meshXf.basis.transpose();
+
+        /* Header */
+        {
+            MeshHeader meshHeader = {};
+            meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
+            memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+
+            zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
+            aabb = aabb.getTransformedAABox(meshXf);
+            meshAABBs.push_back(aabb);
+            fullAABB.accumulateBounds(aabb);
+            meshHeader.aabb[0] = aabb.min;
+            meshHeader.aabb[1] = aabb.max;
+
+            secsOut.emplace_back(meshHeader.binarySize(0), 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            meshHeader.write(w);
+        }
+
+        hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(true);
+
+        std::vector<size_t> surfEndOffs;
+        surfEndOffs.reserve(bufs.m_surfaces.size());
+        size_t endOff = 0;
+        for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+        {
+            endOff += 96;
+            surfEndOffs.push_back(endOff);
+        }
+
+        /* Metadata */
+        {
+            secsOut.emplace_back(bufs.m_meta.binarySize(0), 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            bufs.m_meta.write(w);
+        }
+
+        /* VBO */
+        {
+            secsOut.emplace_back(bufs.m_vboSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            w.writeUBytes(bufs.m_vboData.get(), bufs.m_vboSz);
+        }
+
+        /* IBO */
+        {
+            secsOut.emplace_back(bufs.m_iboSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            w.writeUBytes(bufs.m_iboData.get(), bufs.m_iboSz);
+        }
+
+        /* Surface index */
+        {
+            secsOut.emplace_back((surfEndOffs.size() + 1) * 4, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            w.writeUint32Big(surfEndOffs.size());
+            for (size_t off : surfEndOffs)
+                w.writeUint32Big(off);
+        }
+
+        /* Surfaces */
+        for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+        {
+            const Mesh::Surface& osurf = surf.m_origSurf;
+
+            SurfaceHeader header;
+            header.centroid = meshXf * zeus::CVector3f(osurf.centroid);
+            header.matIdx = osurf.materialIdx;
+            header.reflectionNormal = (meshXf.basis * zeus::CVector3f(osurf.reflectionNormal)).normalized();
+            header.idxStart = surf.m_start;
+            header.idxCount = surf.m_count;
+            header.skinMtxBankIdx = osurf.skinBankIdx;
+
+            header.aabbSz = 24;
+            zeus::CAABox aabb(zeus::CVector3f(surf.m_origSurf.aabbMin), zeus::CVector3f(surf.m_origSurf.aabbMax));
+            aabb = aabb.getTransformedAABox(meshXf);
+            header.aabb[0] = aabb.min;
+            header.aabb[1] = aabb.max;
+
+            secsOut.emplace_back(header.binarySize(0), 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            header.write(w);
+        }
     }
 
     return true;
@@ -1702,7 +1783,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
 template bool WriteHMDLMREASecs<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, DNAMP1::MREA::MeshHeader>
 (std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
- const std::vector<Mesh>& meshes);
+ const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs);
 
 void SurfaceHeader_1::read(athena::io::IStreamReader& reader)
 {

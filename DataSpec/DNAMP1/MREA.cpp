@@ -3,6 +3,8 @@
 #include "DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
 #include "zeus/Math.hpp"
+#include "zeus/CAABox.hpp"
+#include "DataSpec/DNACommon/AROTBuilder.hpp"
 
 namespace DataSpec
 {
@@ -246,14 +248,16 @@ void MREA::MeshHeader::VisorFlags::setFromBlenderProps(const std::unordered_map<
 
 bool MREA::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
-                const std::vector<DNACMDL::Mesh>& meshes)
+                const std::vector<DNACMDL::Mesh>& meshes,
+                const ColMesh& cMesh)
 {
     return false;
 }
 
 bool MREA::PCCook(const hecl::ProjectPath& outPath,
                   const hecl::ProjectPath& inPath,
-                  const std::vector<DNACMDL::Mesh>& meshes)
+                  const std::vector<DNACMDL::Mesh>& meshes,
+                  const ColMesh& cMesh)
 {
     /* Discover area layers */
     hecl::ProjectPath areaDirPath = inPath.getParentPath();
@@ -270,7 +274,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         }
     }
 
-    size_t secCount = 1 + meshes.size() * 4; /* (materials, 4 fixed model secs) */
+    size_t secCount = 1 + meshes.size() * 5; /* (materials, 5 fixed model secs) */
 
     /* tally up surfaces */
     for (const DNACMDL::Mesh& mesh : meshes)
@@ -298,8 +302,8 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     secs.reserve(secCount + 2);
 
     /* Header section */
-    secs.emplace_back(head.binarySize(0), 0);
     {
+        secs.emplace_back(head.binarySize(0), 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         head.write(w);
         int i = w.position();
@@ -312,36 +316,58 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     secs.emplace_back();
     std::vector<uint8_t>& sizesSec = secs.back();
 
+    /* Pre-emptively build full AABB and mesh AABBs in world coords */
+    zeus::CAABox fullAabb;
+    std::vector<zeus::CAABox> meshAabbs;
+    meshAabbs.reserve(meshes.size());
+
     /* Models */
-    if (!DNACMDL::WriteHMDLMREASecs<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, MeshHeader>(secs, inPath, meshes))
+    if (!DNACMDL::WriteHMDLMREASecs<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, MeshHeader>
+            (secs, inPath, meshes, fullAabb, meshAabbs))
         return false;
 
     /* AROT */
+    {
+        AROTBuilder builder;
+        builder.build(secs, fullAabb, meshAabbs, meshes);
+    }
 
     /* SCLY */
-    for (const hecl::ProjectPath& layer : layerScriptPaths)
     {
-        FILE* yamlFile = hecl::Fopen(layer.getAbsolutePath().c_str(), _S("r"));
-        if (!yamlFile)
+        DNAMP1::SCLY sclyData;
+        sclyData.fourCC = FOURCC('SCLY');
+        sclyData.version = 1;
+        for (const hecl::ProjectPath& layer : layerScriptPaths)
         {
-            Log.report(logvisor::Fatal, _S("unable to open %s for reading"), layer.getAbsolutePath().c_str());
-            return false;
-        }
+            FILE* yamlFile = hecl::Fopen(layer.getAbsolutePath().c_str(), _S("r"));
+            if (!yamlFile)
+                continue;
+            if (!BigYAML::ValidateFromYAMLFile<DNAMP1::SCLY>(yamlFile))
+            {
+                fclose(yamlFile);
+                continue;
+            }
 
-        athena::io::YAMLDocReader reader;
-        yaml_parser_set_input_file(reader.getParser(), yamlFile);
-        if (!reader.parse())
-        {
-            Log.report(logvisor::Fatal, _S("unable to parse %s"), layer.getAbsolutePath().c_str());
+            athena::io::YAMLDocReader reader;
+            yaml_parser_set_input_file(reader.getParser(), yamlFile);
+            if (!reader.parse())
+            {
+                fclose(yamlFile);
+                continue;
+            }
             fclose(yamlFile);
-            return false;
-        }
-        fclose(yamlFile);
 
-        std::string classStr = reader.readString("DNAType");
-        if (classStr.empty())
-            return false;
+            sclyData.layers.emplace_back();
+            sclyData.layers.back().read(reader);
+            sclyData.layerSizes.push_back(sclyData.layers.back().binarySize(0));
+        }
+        sclyData.layerCount = sclyData.layers.size();
+
+        secs.emplace_back(sclyData.binarySize(0), 0);
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        sclyData.write(w);
     }
+
 
     /* Collision */
 
