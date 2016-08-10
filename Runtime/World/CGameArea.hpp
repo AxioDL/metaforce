@@ -122,6 +122,12 @@ class CGameArea : public IGameArea
     std::list<std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>> xf8_loadTransactions;
 
 public:
+    enum class EOcclusionState
+    {
+        NotOccluded,
+        Occluded
+    };
+
     class CAreaFog
     {
         ERglFogMode x0_fogMode = ERglFogMode::None;
@@ -170,7 +176,7 @@ public:
         u32 x10d0_sclySize = 0;
         u32 x10d4_ = 0;
         u32 x10d8_ = 0;
-        u32 x10dc_ = 0;
+        EOcclusionState x10dc_occlusionState = EOcclusionState::NotOccluded;
         u32 x10e0_ = 0;
         float x10e4_ = 5.f;
         u32 x10e8_ = -1;
@@ -185,6 +191,7 @@ public:
                 bool x1108_24_ : 1;
                 bool x1108_25_ : 1;
                 bool x1108_26_ : 1;
+                bool x1108_27_ : 1;
                 bool x1108_28_ : 1;
                 bool x1108_29_ : 1;
                 bool x1108_30_ : 1;
@@ -236,9 +243,6 @@ public:
         bool IsQualified(const CEntity& ent);
     };
 
-    enum class EOcclusionState
-    {
-    };
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
 
@@ -274,6 +278,7 @@ public:
     bool StartStreamingMainArea();
     //void UnloadAllLoadedTextures();
     //void ReloadAllLoadedTextures();
+    void ReloadAllUnloadedTextures();
     u32 GetNumPartSizes() const;
     void AllocNewAreaData(int, int);
     void Invalidate(CStateManager& mgr);

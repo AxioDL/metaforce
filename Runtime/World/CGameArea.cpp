@@ -504,7 +504,7 @@ void CGameArea::UpdateThermalVisor(float dt)
 
 void CGameArea::AliveUpdate(float dt)
 {
-    if (!x12c_postConstructed->x10dc_)
+    if (x12c_postConstructed->x10dc_occlusionState == EOcclusionState::NotOccluded)
         x12c_postConstructed->x10e4_ += dt;
     else
         x12c_postConstructed->x10e4_ = 0.f;
@@ -515,23 +515,38 @@ void CGameArea::AliveUpdate(float dt)
 
 void CGameArea::SetOcclusionState(EOcclusionState state)
 {
+    if (!xf0_24_postConstructed || x12c_postConstructed->x10dc_occlusionState == state)
+        return;
+
+    if (state == EOcclusionState::NotOccluded)
+    {
+        ReloadAllUnloadedTextures();
+        AddStaticGeometry();
+    }
+    else
+    {
+        x12c_postConstructed->x1108_26_ = true;
+        x12c_postConstructed->x1108_27_ = false;
+        RemoveStaticGeometry();
+    }
 }
 
 void CGameArea::RemoveStaticGeometry()
 {
-    if (!xf0_24_postConstructed || !x12c_postConstructed || !x12c_postConstructed->x10dc_)
+    if (!xf0_24_postConstructed || !x12c_postConstructed ||
+        x12c_postConstructed->x10dc_occlusionState == EOcclusionState::NotOccluded)
         return;
     x12c_postConstructed->x10e0_ = 0;
-    x12c_postConstructed->x10dc_ = 0;
+    x12c_postConstructed->x10dc_occlusionState = EOcclusionState::NotOccluded;
     g_Renderer->RemoveStaticGeometry(&x12c_postConstructed->x4c_insts);
 }
 
 void CGameArea::AddStaticGeometry()
 {
-    if (x12c_postConstructed->x10dc_ != 1)
+    if (x12c_postConstructed->x10dc_occlusionState != EOcclusionState::Occluded)
     {
         x12c_postConstructed->x10e0_ = 0;
-        x12c_postConstructed->x10dc_ = 1;
+        x12c_postConstructed->x10dc_occlusionState = EOcclusionState::Occluded;
         if (!x12c_postConstructed->x1108_25_)
             FillInStaticGeometry();
         g_Renderer->AddStaticGeometry(&x12c_postConstructed->x4c_insts,
@@ -618,6 +633,10 @@ bool CGameArea::StartStreamingMainArea()
     }
 
     return true;
+}
+
+void CGameArea::ReloadAllUnloadedTextures()
+{
 }
 
 u32 CGameArea::GetNumPartSizes() const

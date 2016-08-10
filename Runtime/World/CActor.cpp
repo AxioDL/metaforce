@@ -223,4 +223,15 @@ void CActor::SetSfxPitchBend(s32 val)
     CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
 }
 
+void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
+{
+    if (state == EScanState::Zero)
+        SendScriptMsgs(EScriptObjectState::UNKS7, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::One)
+        SendScriptMsgs(EScriptObjectState::UNKS8, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::Two)
+        SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
+
+}
+
 }
