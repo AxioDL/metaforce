@@ -579,7 +579,7 @@ void BlenderConnection::PyOutStream::linkBackground(const char* target,
 
 BlenderConnection::DataStream::Mesh::Mesh
 (BlenderConnection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfProgFunc& surfProg)
-: topology(topologyIn), aabbMin(conn), aabbMax(conn)
+: topology(topologyIn), sceneXf(conn), aabbMin(conn), aabbMax(conn)
 {
     uint32_t matSetCount;
     conn._readBuf(&matSetCount, 4);
@@ -655,6 +655,26 @@ BlenderConnection::DataStream::Mesh::Mesh
         surfaces.emplace_back(conn, *this, skinSlotCount);
         surfProg(++prog);
         conn._readBuf(&isSurf, 1);
+    }
+
+    /* Custom properties */
+    uint32_t propCount;
+    conn._readBuf(&propCount, 4);
+    std::string keyBuf;
+    std::string valBuf;
+    for (uint32_t i=0 ; i<propCount ; ++i)
+    {
+        uint32_t kLen;
+        conn._readBuf(&kLen, 4);
+        keyBuf.assign(kLen, '\0');
+        conn._readBuf(&keyBuf[0], kLen);
+
+        uint32_t vLen;
+        conn._readBuf(&vLen, 4);
+        valBuf.assign(vLen, '\0');
+        conn._readBuf(&valBuf[0], vLen);
+
+        customProps[keyBuf] = valBuf;
     }
 
     /* Connect skinned verts to bank slots */

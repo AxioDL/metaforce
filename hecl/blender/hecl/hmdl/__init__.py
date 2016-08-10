@@ -31,7 +31,7 @@ def write_out_material(writebuf, mat, mesh_obj):
 def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
-    
+
     # Copy mesh (and apply mesh modifiers with triangulation)
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
@@ -51,6 +51,14 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
     bpy.ops.object.mode_set(mode='OBJECT')
     copy_mesh.calc_normals_split()
     rna_loops = copy_mesh.loops
+
+    # Send scene matrix
+    wmtx = mesh_obj.matrix_world
+    writebuf(struct.pack('ffffffffffffffff',
+    wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+    wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+    wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+    wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
 
     # Filter out useless AABB points and send data
     pt = copy_obj.bound_box[0]
@@ -181,6 +189,15 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
 
     # No more surfaces
     writebuf(struct.pack('B', 0))
+
+    # Enumerate custom props
+    writebuf(struct.pack('I', len(mesh_obj.keys())))
+    for k in mesh_obj.keys():
+        writebuf(struct.pack('I', len(k)))
+        writebuf(k.encode())
+        val_str = str(mesh_obj[k])
+        writebuf(struct.pack('I', len(val_str)))
+        writebuf(val_str.encode())
 
     # Delete copied mesh from scene
     bm_master.free()

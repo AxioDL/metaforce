@@ -354,6 +354,14 @@ public:
             Vector4f(BlenderConnection& conn) {read(conn);}
             operator const atVec4f&() const {return val;}
         };
+        struct Matrix4f
+        {
+            atVec4f val[4];
+            Matrix4f() = default;
+            void read(BlenderConnection& conn) {conn._readBuf(&val, 64);}
+            Matrix4f(BlenderConnection& conn) {read(conn);}
+            const atVec4f& operator[] (size_t idx) const {return val[idx];}
+        };
         struct Index
         {
             uint32_t val;
@@ -367,6 +375,9 @@ public:
         struct Mesh
         {
             HMDLTopology topology;
+
+            /* Object transform in scene */
+            Matrix4f sceneXf;
 
             /* Cumulative AABB */
             Vector3f aabbMin;
@@ -447,6 +458,8 @@ public:
                 Surface(BlenderConnection& conn, Mesh& parent, int skinSlotCount);
             };
             std::vector<Surface> surfaces;
+
+            std::unordered_map<std::string, std::string> customProps;
 
             struct SkinBanks
             {
