@@ -235,9 +235,9 @@ def dataout_loop():
                 1.0, 0.0, 0.0, 0.0,
                 0.0, 1.0, 0.0, 0.0,
                 0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0,
+                0.0, 0.0, 0.0, 1.0))
                 writepipebuf(struct.pack('fff', ambient_color[0], ambient_color[1], ambient_color[2]))
-                writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False)
+                writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False))
 
             for obj in bpy.context.scene:
                 if obj.type == 'LAMP':
@@ -280,7 +280,7 @@ def dataout_loop():
                         layer = obj.data['retro_layer']
 
                     writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
-                                                         castShadow)
+                                                         castShadow))
 
         elif cmdargs[0] == 'ACTORCOMPILE':
             writepipeline(b'OK')
