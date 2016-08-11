@@ -458,6 +458,8 @@ bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
     _readLine(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
     {
+        /* Delete immediately in case save doesn't occur */
+        hecl::Unlink(path.getAbsolutePath().c_str());
         m_loadedBlend = path;
         m_loadedType = type;
         return true;
