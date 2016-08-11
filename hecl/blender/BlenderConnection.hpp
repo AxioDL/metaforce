@@ -563,6 +563,32 @@ public:
             ColMesh(BlenderConnection& conn);
         };
 
+        /** Intermediate lamp representation */
+        struct Light
+        {
+            /* Object transform in scene */
+            Matrix4f sceneXf;
+            Vector3f color;
+
+            uint32_t layer;
+
+            enum class Type : uint32_t
+            {
+                Ambient,
+                Directional,
+                Custom,
+                Spot
+            } type;
+
+            float energy;
+            float spotCutoff;
+            float constant;
+            float linear;
+            float quadratic;
+            bool shadow;
+
+            Light(BlenderConnection& conn);
+        };
 
         static const char* MeshOutputModeString(HMDLTopology topology)
         {
@@ -585,6 +611,9 @@ public:
         /** Compile all meshes into one (AREA blends only) */
         Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,
                               Mesh::SurfProgFunc surfProg=[](int){});
+
+        /** Gather all lights in scene (AREA blends only) */
+        std::vector<Light> compileLights();
 
         /** Intermediate actor representation prepared by blender from a single HECL actor blend */
         struct Actor

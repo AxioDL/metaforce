@@ -211,6 +211,77 @@ def dataout_loop():
             bpy.data.objects.remove(join_obj)
             bpy.data.meshes.remove(join_mesh)
 
+        elif cmdargs[0] == 'LIGHTCOMPILEALL':
+            writepipeline(b'OK')
+            lampCount = 0;
+            for obj in bpy.context.scene:
+                if obj.type == 'LAMP':
+                    lampCount += 1
+
+            world = bpy.context.scene.world
+            ambient_energy = 0.0
+            ambient_color = None
+            if world.use_nodes and 'Background' in world.node_tree.nodes:
+                bg_node = world.node_tree.nodes['Background']
+                ambient_energy = bg_node.inputs[1].default_value
+                ambient_color = bg_node.inputs[0].default_value
+                if ambient_energy:
+                    lampCount += 1
+
+            writepipebuf(struct.pack('I', lampCount))
+
+            if ambient_energy:
+                writepipebuf(struct.pack('ffffffffffffffff',
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0,
+                writepipebuf(struct.pack('fff', ambient_color[0], ambient_color[1], ambient_color[2]))
+                writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False)
+
+            for obj in bpy.context.scene:
+                if obj.type == 'LAMP':
+                    wmtx = obj.matrix_world
+                    writepipebuf(struct.pack('ffffffffffffffff',
+                    wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+                    wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+                    wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+                    wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
+                    writepipebuf(struct.pack('fff', obj.data.color[0], obj.data.color[1], obj.data.color[2]))
+
+                    type = 2
+                    spotCutoff = 0.0
+                    hasFalloff = False
+                    castShadow = False
+                    if obj.data.type == 'POINT':
+                        type = 2
+                        hasFalloff = True
+                        castShadow = obj.data.shadow_method != 'NOSHADOW'
+                    elif obj.data.type == 'SPOT':
+                        type = 3
+                        hasFalloff = True
+                        spotCutoff = obj.data.spot_size
+                        castShadow = obj.data.shadow_method != 'NOSHADOW'
+                    elif obj.data.type == 'SUN':
+                        type = 1
+                        castShadow = obj.data.shadow_method != 'NOSHADOW'
+
+                    constant = 1.0
+                    linear = 0.0
+                    quadratic = 0.0
+                    if hasFalloff:
+                        if obj.data.falloff_type == 'INVERSE_COEFFICIENTS':
+                            constant = obj.data.constant_coefficient
+                            linear = obj.data.linear_coefficient
+                            quadratic = obj.data.quadratic_coefficient
+
+                    layer = 0
+                    if 'retro_layer' in obj.data.keys():
+                        layer = obj.data['retro_layer']
+
+                    writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
+                                                         castShadow)
+
         elif cmdargs[0] == 'ACTORCOMPILE':
             writepipeline(b'OK')
             hecl.sact.cook(writepipebuf)

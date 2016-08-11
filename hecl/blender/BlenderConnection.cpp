@@ -919,6 +919,12 @@ BlenderConnection::DataStream::ColMesh::Triangle::Triangle(BlenderConnection& co
     conn._readBuf(this, 16);
 }
 
+BlenderConnection::DataStream::Light::Light(BlenderConnection& conn)
+: sceneXf(conn), color(conn)
+{
+    conn._readBuf(&layer, 29);
+}
+
 BlenderConnection::DataStream::Actor::Actor(BlenderConnection& conn)
 {
     uint32_t armCount;
@@ -1173,6 +1179,31 @@ BlenderConnection::DataStream::compileAllMeshes(HMDLTopology topology,
         BlenderLog.report(logvisor::Fatal, "unable to cook all meshes: %s", readBuf);
 
     return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+}
+
+std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream::compileLights()
+{
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("LIGHTCOMPILEALL");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to gather all lights: %s", readBuf);
+
+    uint32_t lightCount;
+    m_parent->_readBuf(&lightCount, 4);
+
+    std::vector<BlenderConnection::DataStream::Light> ret;
+    ret.reserve(lightCount);
+
+    for (int i=0 ; i<lightCount ; ++i)
+        ret.emplace_back(*m_parent);
+
+    return ret;
 }
 
 BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor()
