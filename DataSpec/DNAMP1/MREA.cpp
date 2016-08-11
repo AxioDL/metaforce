@@ -446,8 +446,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             std::vector<uint8_t>& sec = *it;
             int i = sec.size();
             int end = ROUND_UP_32(i);
-            for (; i<end ; ++i)
-                sec.push_back(0);
+            sec.resize(end);
             w.writeUint32Big(end);
         }
     }
