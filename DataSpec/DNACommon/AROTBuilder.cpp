@@ -3,6 +3,8 @@
 namespace DataSpec
 {
 
+#define AROT_MAX_LEVEL 11 /* These go to 11 */
+
 static const uint32_t AROTChildCounts[] = { 0, 2, 2, 4, 2, 4, 4, 8 };
 
 size_t AROTBuilder::BitmapPool::addIndices(const std::set<int>& indices)
@@ -14,12 +16,12 @@ size_t AROTBuilder::BitmapPool::addIndices(const std::set<int>& indices)
     return m_pool.size() - 1;
 }
 
-bool AROTBuilder::Node::addChild(const zeus::CAABox& curAabb, const zeus::CAABox& childAabb, int idx)
+bool AROTBuilder::Node::addChild(int level, const zeus::CAABox& curAabb, const zeus::CAABox& childAabb, int idx)
 {
     if (childAabb.intersects(curAabb))
     {
         childIndices.insert(idx);
-        if (!curAabb.inside(childAabb))
+        if (!curAabb.inside(childAabb) && level < AROT_MAX_LEVEL)
         {
             childNodes.resize(8);
             zeus::CAABox X[2];
@@ -35,8 +37,8 @@ bool AROTBuilder::Node::addChild(const zeus::CAABox& curAabb, const zeus::CAABox
                     zeus::CAABox Z[2];
                     Y[j].splitZ(Z[0], Z[1]);
                     bool inZ[2] = {};
-                    inZ[0] = childNodes[i*4 + j*2].addChild(Z[0], childAabb, idx);
-                    inZ[1] = childNodes[i*4 + j*2 + 1].addChild(Z[1], childAabb, idx);
+                    inZ[0] = childNodes[i*4 + j*2].addChild(level + 1, Z[0], childAabb, idx);
+                    inZ[1] = childNodes[i*4 + j*2 + 1].addChild(level + 1, Z[1], childAabb, idx);
                     if (inZ[0] ^ inZ[1])
                         flags |= 0x4;
                     if (inZ[0] | inZ[1])
@@ -164,13 +166,131 @@ void AROTBuilder::Node::advanceIndex(int& nodeIdx)
     }
 }
 
+void AROTBuilder::Node::colSize(size_t& totalSz)
+{
+    if (childIndices.size())
+    {
+        nodeOff = totalSz;
+        if (childNodes.empty())
+        {
+            totalSz += 26 + childIndices.size() * 2;
+        }
+        else
+        {
+            for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
+            {
+                for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
+                {
+                    for (int k=0 ; k < 1 + ((flags & 0x4) != 0) ; ++k)
+                    {
+                        childNodes[i*4 + j*2 + k].colSize(totalSz);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB)
+{
+    if (childIndices.size())
+    {
+        if (childNodes.empty())
+        {
+            *reinterpret_cast<zeus::CVector3f*>(ptr) = curAABB.min;
+            *reinterpret_cast<zeus::CVector3f*>(ptr + 12) = curAABB.max;
+            athena::io::MemoryWriter w(ptr + 24, INT32_MAX);
+            w.writeUint16Big(childIndices.size());
+            for (int idx : childIndices)
+                w.writeUint16Big(idx);
+            ptr += 26 + childIndices.size() * 2;
+        }
+        else
+        {
+            uint16_t* pflags = reinterpret_cast<uint16_t*>(ptr);
+            uint32_t* offsets = reinterpret_cast<uint32_t*>(ptr + 4);
+            *pflags = 0;
+            for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
+            {
+                for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
+                {
+                    for (int k=0 ; k < 1 + ((flags & 0x4) != 0) ; ++k)
+                    {
+                        int idx = i*4 + j*2 + k;
+                        uint32_t thisOffset;
+                        uint16_t thisFlags = childNodes[idx].getColRef(thisOffset);
+                        if (thisFlags)
+                        {
+                            *pflags |= thisFlags << (idx * 2);
+                            offsets[idx] = thisOffset - nodeOff;
+                        }
+                    }
+                }
+            }
+            ptr += 36;
+
+            zeus::CAABox X[2];
+            if (flags & 0x1)
+                curAABB.splitX(X[0], X[1]);
+            else
+            {
+                X[0] = curAABB;
+                X[1] = curAABB;
+            }
+
+            for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
+            {
+                zeus::CAABox Y[2];
+                if (flags & 0x2)
+                    X[i].splitY(Y[0], Y[1]);
+                else
+                {
+                    Y[0] = X[i];
+                    Y[1] = X[i];
+                }
+
+                for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
+                {
+                    zeus::CAABox Z[2];
+                    if (flags & 0x4)
+                        Y[j].splitZ(Z[0], Z[1]);
+                    else
+                    {
+                        Z[0] = Y[j];
+                        Z[1] = Y[j];
+                    }
+
+                    for (int k=0 ; k < 1 + ((flags & 0x4) != 0) ; ++k)
+                    {
+                        int idx = i*4 + j*2 + k;
+                        childNodes[idx].writeColNodes(ptr, Z[k]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+uint16_t AROTBuilder::Node::getColRef(uint32_t& offset)
+{
+    if (childIndices.size())
+    {
+        offset = nodeOff;
+        if (childNodes.empty())
+            return 2;
+        else
+            return 1;
+    }
+    return 0;
+}
+
 void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                         const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes)
 {
     for (int i=0 ; i<meshAabbs.size() ; ++i)
     {
         const zeus::CAABox& aabb = meshAabbs[i];
-        rootNode.addChild(fullAabb, aabb, i);
+        rootNode.addChild(0, fullAabb, aabb, i);
     }
 
     size_t totalNodeCount = 0;
@@ -226,6 +346,38 @@ void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAA
 
     rootNode.writeIndirectionTable(w);
     rootNode.writeNodes(w, 0);
+}
+
+std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColMesh& mesh, BspNodeType& rootOut)
+{
+    zeus::CAABox fullAabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
+
+    int t = 0;
+    for (const ColMesh::Triangle& tri : mesh.trianges)
+    {
+        zeus::CAABox aabb;
+        for (int e=0 ; e<3 ; ++e)
+        {
+            const ColMesh::Edge& edge = mesh.edges[tri.edges[e]];
+            for (int v=0 ; v<2 ; ++v)
+            {
+                const auto& vert = mesh.verts[edge.verts[v]];
+                aabb.accumulateBounds(zeus::CVector3f(vert));
+            }
+        }
+        rootNode.addChild(0, fullAabb, aabb, t);
+        ++t;
+    }
+
+    size_t totalSize = 0;
+    rootNode.colSize(totalSize);
+    std::unique_ptr<uint8_t[]> ret(new uint8_t[totalSize]);
+    uint32_t dummy;
+    rootOut = BspNodeType(rootNode.getColRef(dummy));
+    uint8_t* ptr = ret.get();
+    rootNode.writeColNodes(ptr, fullAabb);
+
+    return {std::move(ret), totalSize};
 }
 
 }

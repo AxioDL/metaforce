@@ -7,7 +7,7 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
 {
     u16 flags = *reinterpret_cast<const u16*>(m_ptr);
     const u32* offsets = reinterpret_cast<const u32*>(m_ptr + 4);
-    ETreeType type = ETreeType((flags << (2 * idx)) & 0x3);
+    ETreeType type = ETreeType((flags >> (2 * idx)) & 0x3);
 
     if (type == ETreeType::Branch)
     {
@@ -76,7 +76,7 @@ void CAreaOctTree::SwapTreeNode(u8* ptr, Node::ETreeType type)
 
         for (int i=0 ; i<8 ; ++i)
         {
-            Node::ETreeType ctype = Node::ETreeType((*typeBits << (2 * i)) & 0x3);
+            Node::ETreeType ctype = Node::ETreeType((*typeBits >> (2 * i)) & 0x3);
             u32* offsets = reinterpret_cast<u32*>(ptr + 4);
             offsets[i] = hecl::SBig(offsets[i]);
             SwapTreeNode(ptr + offsets[i] + 36, ctype);

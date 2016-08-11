@@ -11,7 +11,7 @@ namespace DNAMP2
 struct DeafBabe : BigDNA
 {
     DECL_DNA
-    using BspNodeType = DNAMP1::DeafBabe::BspNodeType;
+    using BspNodeType = DataSpec::BspNodeType;
 
     struct Material : BigDNA
     {

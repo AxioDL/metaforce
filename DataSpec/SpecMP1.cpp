@@ -410,10 +410,12 @@ struct SpecMP1 : SpecBase
         if (!colMesh)
             Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().c_str());
 
+        std::vector<Light> lights = ds.compileLights();
+
         if (m_pc)
-            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh);
+            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights);
         else
-            DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh);
+            DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

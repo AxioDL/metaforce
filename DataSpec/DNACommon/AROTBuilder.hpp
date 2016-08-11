@@ -2,6 +2,7 @@
 #define _DNACOMMON_AROTBUILDER_HPP_
 
 #include "DNACommon.hpp"
+#include "DeafBabe.hpp"
 #include "zeus/CAABox.hpp"
 #include "CMDL.hpp"
 #include <set>
@@ -27,15 +28,21 @@ struct AROTBuilder
         size_t nodeOff = 0;
         size_t nodeSz = 4;
 
-        bool addChild(const zeus::CAABox& curAabb, const zeus::CAABox& childAabb, int idx);
+        bool addChild(int level, const zeus::CAABox& curAabb, const zeus::CAABox& childAabb, int idx);
         void nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPool, size_t& curOff);
         void writeIndirectionTable(athena::io::MemoryWriter& w);
         void writeNodes(athena::io::MemoryWriter& w, int nodeIdx);
         void advanceIndex(int& nodeIdx);
+
+        void colSize(size_t& totalSz);
+        void writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB);
+        uint16_t getColRef(uint32_t& offset);
     } rootNode;
 
     void build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes);
+    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+    std::pair<std::unique_ptr<uint8_t[]>, uint32_t> buildCol(const ColMesh& mesh, BspNodeType& rootOut);
 };
 
 }

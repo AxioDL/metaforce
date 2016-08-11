@@ -123,16 +123,19 @@ struct MREA
                      PAK::Entry& entry);
 
     using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+    using Light = hecl::BlenderConnection::DataStream::Light;
 
     static bool Cook(const hecl::ProjectPath& outPath,
                      const hecl::ProjectPath& inPath,
                      const std::vector<DNACMDL::Mesh>& meshes,
-                     const ColMesh& cMesh);
+                     const ColMesh& cMesh,
+                     const std::vector<Light>& lights);
 
     static bool PCCook(const hecl::ProjectPath& outPath,
                        const hecl::ProjectPath& inPath,
                        const std::vector<DNACMDL::Mesh>& meshes,
-                       const ColMesh& cMesh);
+                       const ColMesh& cMesh,
+                       const std::vector<Light>& lights);
 };
 
 }

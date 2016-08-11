@@ -96,14 +96,15 @@ struct MREA
             Quadratic
         };
         Value<LightType> lightType;
-        Value<atVec4f> color;
+        Value<atVec3f> color;
+        Value<float> alpha = 1.f;
         Value<atVec3f> position;
         Value<atVec3f> direction;
         Value<atVec3f> codirection;
         Value<float> q;
         Value<float> spotCutoff;
         Value<float> unk7;
-        Value<atUint8> unk8;
+        Value<bool> castShadows;
         Value<float> unk9;
         Value<Falloff> falloff;
         Value<float> unk11;

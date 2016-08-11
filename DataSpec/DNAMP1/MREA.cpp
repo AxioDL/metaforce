@@ -249,7 +249,8 @@ void MREA::MeshHeader::VisorFlags::setFromBlenderProps(const std::unordered_map<
 bool MREA::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
                 const std::vector<DNACMDL::Mesh>& meshes,
-                const ColMesh& cMesh)
+                const ColMesh& cMesh,
+                const std::vector<Light>& lights)
 {
     return false;
 }
@@ -257,7 +258,8 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 bool MREA::PCCook(const hecl::ProjectPath& outPath,
                   const hecl::ProjectPath& inPath,
                   const std::vector<DNACMDL::Mesh>& meshes,
-                  const ColMesh& cMesh)
+                  const ColMesh& cMesh,
+                  const std::vector<Light>& lights)
 {
     /* Discover area layers */
     hecl::ProjectPath areaDirPath = inPath.getParentPath();
@@ -370,15 +372,68 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
 
     /* Collision */
+    {
+        DeafBabe collision;
+        DeafBabeBuildFromBlender(collision, cMesh);
 
+        secs.emplace_back(collision.binarySize(0), 0);
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        collision.write(w);
+    }
 
     /* Unk */
+    {
+        secs.emplace_back(8, 0);
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        w.writeUint32Big(1);
+    }
 
     /* Lights */
+    {
+        int actualCount = 0;
+        for (const Light& l : lights)
+        {
+            if (l.layer == 0 || l.layer == 1)
+                ++actualCount;
+        }
+
+        secs.emplace_back(12 + 65 * actualCount, 0);
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        w.writeUint32Big(0xBABEDEAD);
+
+        for (int lay=0 ; lay<2 ; ++lay)
+        {
+            int lightCount = 0;
+            for (const Light& l : lights)
+            {
+                if (l.layer == lay)
+                    ++lightCount;
+            }
+            w.writeUint32Big(lightCount);
+            for (const Light& l : lights)
+            {
+                if (l.layer == lay)
+                {
+                    BabeDeadLight light;
+                    WriteBabeDeadLightFromBlender(light, l);
+                    light.write(w);
+                }
+            }
+        }
+    }
 
     /* VISI */
+    {
+        /* Empty (for now) */
+        secs.emplace_back(0, 0);
+    }
 
     /* PATH */
+    {
+        secs.emplace_back(4, 0);
+        athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
+        w.writeUint32Big(0xffffffff); /* Empty (for now) */
+    }
 
     /* Assemble sizes and add padding */
     {

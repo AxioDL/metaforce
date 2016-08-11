@@ -11,12 +11,7 @@ namespace DNAMP1
 struct DeafBabe : BigDNA
 {
     DECL_DNA
-    enum class BspNodeType : atUint32
-    {
-        Invalid,
-        Branch,
-        Leaf
-    };
+    using BspNodeType = DataSpec::BspNodeType;
 
     struct Material : BigDNA
     {
