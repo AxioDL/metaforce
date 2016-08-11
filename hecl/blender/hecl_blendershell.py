@@ -319,6 +319,8 @@ def dataout_loop():
                     for c in r:
                         writepipebuf(struct.pack('f', c))
 
+loaded_blend = None
+
 # Main exception handling
 try:
     # Command loop
@@ -333,6 +335,7 @@ try:
             if 'FINISHED' in bpy.ops.wm.open_mainfile(filepath=cmdargs[1]):
                 if bpy.ops.object.mode_set.poll():
                     bpy.ops.object.mode_set(mode = 'OBJECT')
+                loaded_blend = cmdargs[1]
                 writepipeline(b'FINISHED')
             else:
                 writepipeline(b'CANCELLED')
@@ -340,8 +343,10 @@ try:
         elif cmdargs[0] == 'CREATE':
             if len(cmdargs) >= 4:
                 bpy.ops.wm.open_mainfile(filepath=cmdargs[3])
+                loaded_blend = cmdargs[1]
             else:
                 bpy.ops.wm.read_homefile()
+                loaded_blend = None
             bpy.context.user_preferences.filepaths.save_version = 0
             if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
                 bpy.ops.file.hecl_patching_load()
@@ -365,10 +370,11 @@ try:
 
         elif cmdargs[0] == 'SAVE':
             bpy.context.user_preferences.filepaths.save_version = 0
-            if 'FINISHED' in bpy.ops.wm.save_mainfile(check_existing=False, compress=True):
-                writepipeline(b'FINISHED')
-            else:
-                writepipeline(b'CANCELLED')
+            if loaded_blend:
+                if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True):
+                    writepipeline(b'FINISHED')
+                else:
+                    writepipeline(b'CANCELLED')
 
         elif cmdargs[0] == 'PYBEGIN':
             writepipeline(b'READY')
