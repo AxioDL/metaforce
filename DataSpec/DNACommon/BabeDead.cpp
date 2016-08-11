@@ -24,7 +24,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
-                  "lamp.shadow_method = %s\n"
+                  "lamp.shadow_method = '%s'\n"
                   "\n", s, l,
                   light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
@@ -32,7 +32,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
     case BabeDeadLight::LightType::Custom:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'POINT')\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-                  "lamp.shadow_method = %s\n"
+                  "lamp.shadow_method = '%s'\n"
                   "\n", s, l, light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         break;
     case BabeDeadLight::LightType::Spot:
@@ -42,7 +42,7 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
-                  "lamp.shadow_method = %s\n"
+                  "lamp.shadow_method = '%s'\n"
                   "\n", s, l,
                   zeus::degToRad(light.spotCutoff),
                   light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
