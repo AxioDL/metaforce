@@ -1656,7 +1656,30 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
                        const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs)
 {
     /* Build material set */
+    std::vector<size_t> surfToGlobalMats;
     {
+        struct MaterialPool
+        {
+            std::vector<const Mesh::Material*> materials;
+            size_t addMaterial(const Mesh::Material& mat)
+            {
+                size_t ret = 0;
+                for (const Mesh::Material* testMat : materials)
+                {
+                    if (mat == *testMat)
+                        return ret;
+                    ++ret;
+                }
+                materials.push_back(&mat);
+                return ret;
+            }
+        } matPool;
+
+        size_t surfCount = 0;
+        for (const Mesh& mesh : meshes)
+            surfCount += mesh.surfaces.size();
+        surfToGlobalMats.reserve(surfCount);
+
         MaterialSet matSet;
         hecl::Frontend::Frontend FE;
         size_t endOff = 0;
@@ -1665,8 +1688,16 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
         {
             if (mesh.materialSets.size())
             {
+                std::vector<size_t> meshToGlobalMats;
+                meshToGlobalMats.reserve(mesh.materialSets[0].size());
+
                 for (const Mesh::Material& mat : mesh.materialSets[0])
                 {
+                    size_t idx = matPool.addMaterial(mat);
+                    meshToGlobalMats.push_back(idx);
+                    if (idx < matPool.materials.size() - 1)
+                        continue;
+
                     for (const hecl::ProjectPath& path : mat.texs)
                     {
                         bool found = false;
@@ -1687,6 +1718,9 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
                     endOff = matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);
                 }
+
+                for (const Mesh::Surface& surf : mesh.surfaces)
+                    surfToGlobalMats.push_back(meshToGlobalMats[surf.materialIdx]);
             }
         }
         for (const hecl::ProjectPath& path : texPaths)
@@ -1698,6 +1732,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
     }
 
     /* Iterate meshes */
+    auto matIt = surfToGlobalMats.cbegin();
     for (const Mesh& mesh : meshes)
     {
         zeus::CTransform meshXf(mesh.sceneXf.val);
@@ -1769,7 +1804,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
             SurfaceHeader header;
             header.centroid = meshXf * zeus::CVector3f(osurf.centroid);
-            header.matIdx = osurf.materialIdx;
+            header.matIdx = *matIt++;
             header.reflectionNormal = (meshXf.basis * zeus::CVector3f(osurf.reflectionNormal)).normalized();
             header.idxStart = surf.m_start;
             header.idxCount = surf.m_count;

@@ -344,7 +344,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             FILE* yamlFile = hecl::Fopen(layer.getAbsolutePath().c_str(), _S("r"));
             if (!yamlFile)
                 continue;
-            if (!BigYAML::ValidateFromYAMLFile<DNAMP1::SCLY>(yamlFile))
+            if (!BigYAML::ValidateFromYAMLFile<DNAMP1::SCLY::ScriptLayer>(yamlFile))
             {
                 fclose(yamlFile);
                 continue;

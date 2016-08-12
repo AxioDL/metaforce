@@ -60,7 +60,7 @@ struct Application : boo::IApplicationCallback
     void initialize(boo::IApplication* /*app*/)
     {
         zeus::detectCPU();
-        //hecl::VerbosityLevel = 1;
+        hecl::VerbosityLevel = 1;
 
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
