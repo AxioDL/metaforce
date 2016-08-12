@@ -395,6 +395,10 @@ public:
                 std::unordered_map<std::string, int32_t> iprops;
 
                 Material(BlenderConnection& conn);
+                bool operator==(const Material& other) const
+                {
+                    return source == other.source && texs == other.texs && iprops == other.iprops;
+                }
             };
             std::vector<std::vector<Material>> materialSets;
 

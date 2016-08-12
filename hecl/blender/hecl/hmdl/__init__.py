@@ -249,7 +249,14 @@ def cookcol(writebuf, mesh_obj):
     for m in copy_mesh.materials:
         writebuf(struct.pack('I', len(m.name)))
         writebuf(m.name.encode())
-        writebuf(struct.pack('Ib', m.retro_collision_type, m.retro_projectile_passthrough))
+        cType = 0
+        if 'retro_collision_type' in m:
+            cType = m['retro_collision_type']
+        projPassthrough = False
+        if 'retro_projectile_passthrough' in m:
+            projPassthrough = m['retro_projectile_passthrough']
+
+        writebuf(struct.pack('Ib', cType, projPassthrough))
 
     # Send verts
     writebuf(struct.pack('I', len(copy_mesh.vertices)))

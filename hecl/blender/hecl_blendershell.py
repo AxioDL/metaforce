@@ -156,8 +156,13 @@ def dataout_loop():
             return
 
         elif cmdargs[0] == 'MESHLIST':
+            meshCount = 0
             for meshobj in bpy.data.objects:
-                if meshobj.type == 'MESH':
+                if meshobj.type == 'MESH' and not meshobj.library:
+                    meshCount += 1
+            writepipebuf(struct.pack('I', meshCount))
+            for meshobj in bpy.data.objects:
+                if meshobj.type == 'MESH' and not meshobj.library:
                     writepipeline(meshobj.name.encode())
 
         elif cmdargs[0] == 'MESHCOMPILE':
@@ -214,7 +219,7 @@ def dataout_loop():
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipeline(b'OK')
             lampCount = 0;
-            for obj in bpy.context.scene:
+            for obj in bpy.context.scene.objects:
                 if obj.type == 'LAMP':
                     lampCount += 1
 
@@ -239,7 +244,7 @@ def dataout_loop():
                 writepipebuf(struct.pack('fff', ambient_color[0], ambient_color[1], ambient_color[2]))
                 writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False))
 
-            for obj in bpy.context.scene:
+            for obj in bpy.context.scene.objects:
                 if obj.type == 'LAMP':
                     wmtx = obj.matrix_world
                     writepipebuf(struct.pack('ffffffffffffffff',
