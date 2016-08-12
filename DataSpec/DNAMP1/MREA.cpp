@@ -437,10 +437,8 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* Assemble sizes and add padding */
     {
-        sizesSec.assign(head.secCount, 0);
-        int totalEnd = sizesSec.size() * 4;
-        int totalPadEnd = ROUND_UP_32(totalEnd);
-        athena::io::MemoryWriter w(sizesSec.data(), totalPadEnd);
+        sizesSec.assign((((head.secCount) + 7) & ~7) * 4, 0);
+        athena::io::MemoryWriter w(sizesSec.data(), sizesSec.size());
         for (auto it = secs.begin() + 2 ; it != secs.end() ; ++it)
         {
             std::vector<uint8_t>& sec = *it;
