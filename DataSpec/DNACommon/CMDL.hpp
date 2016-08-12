@@ -131,7 +131,8 @@ void ReadMaterialSetToBlender_3(hecl::BlenderConnection::PyOutStream& os,
                                 unsigned setIdx);
 
 void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
-                            const hecl::ProjectPath& masterShaderPath);
+                            const hecl::ProjectPath& masterShaderPath,
+                            bool solidShading);
 void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
                        unsigned matSetCount, int meshIdx);
 

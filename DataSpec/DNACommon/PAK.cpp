@@ -459,6 +459,11 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
 
             const nod::Node* node = m_node.get();
 
+            hecl::ProjectPath working = getWorking(item, extractor);
+            hecl::ResourceLock resLk(working);
+            if (!resLk)
+                continue;
+
             /* Extract first, so they start out invalid */
             hecl::ProjectPath cooked = getCooked(item);
             if (force || cooked.getPathType() == hecl::ProjectPath::Type::None)
@@ -469,7 +474,6 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
                 fclose(fout);
             }
 
-            hecl::ProjectPath working = getWorking(item, extractor);
             if (extractor.func_a) /* Doesn't need PAKRouter access */
             {
                 if (force || working.getPathType() == hecl::ProjectPath::Type::None)

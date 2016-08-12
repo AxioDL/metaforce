@@ -420,7 +420,8 @@ public:
 };
 
 void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
-                            const hecl::ProjectPath& masterShaderPath)
+                            const hecl::ProjectPath& masterShaderPath,
+                            bool solidShading)
 {
     os << "import math\n"
           "from mathutils import Vector\n"
@@ -504,6 +505,14 @@ void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
           "        result[2][1] -= 0.005\n"
           "    return result\n"
           "\n";
+
+    if (solidShading)
+    {
+        os << "for ar in bpy.context.screen.areas:\n"
+              "    for sp in ar.spaces:\n"
+              "        if sp.type == 'VIEW_3D':\n"
+              "            sp.viewport_shade = 'SOLID'\n";
+    }
 
     /* Link master shader library */
     os.format("# Master shader library\n"
@@ -1102,7 +1111,7 @@ bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
               "bpy.context.scene.name = '%s'\n"
               "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n",
               pakRouter.getBestEntryName(entry).c_str());
-    InitGeomBlenderContext(os, dataspec.getMasterShaderPath());
+    InitGeomBlenderContext(os, dataspec.getMasterShaderPath(), false);
     MaterialSet::RegisterMaterialProps(os);
 
     os << "# Materials\n"
