@@ -1,4 +1,7 @@
 #include "hecl/hecl.hpp"
+#include <thread>
+#include <mutex>
+#include <unordered_map>
 
 #ifdef WIN32
 #include <windows.h>
@@ -82,6 +85,38 @@ void SanitizePath(std::wstring& path)
         }
         return a;
     });
+}
+
+static std::mutex PathsMutex;
+static std::unordered_map<std::thread::id, ProjectPath> PathsInProgress;
+
+bool ResourceLock::InProgress(const ProjectPath& path)
+{
+    std::unique_lock<std::mutex> lk(PathsMutex);
+    for (const auto& p : PathsInProgress)
+        if (p.second == path)
+            return true;
+    return false;
+}
+
+bool ResourceLock::SetThreadRes(const ProjectPath& path)
+{
+    std::unique_lock<std::mutex> lk(PathsMutex);
+    if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend())
+        LogModule.report(logvisor::Fatal, "multiple resource locks on thread");
+
+    for (const auto& p : PathsInProgress)
+        if (p.second == path)
+            return false;
+
+    PathsInProgress[std::this_thread::get_id()] = path;
+    return true;
+}
+
+void ResourceLock::ClearThreadRes()
+{
+    std::unique_lock<std::mutex> lk(PathsMutex);
+    PathsInProgress.erase(std::this_thread::get_id());
 }
 
 bool IsPathPNG(const hecl::ProjectPath& path)

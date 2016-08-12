@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>

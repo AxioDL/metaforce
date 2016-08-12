@@ -68,6 +68,7 @@ private:
     size_t _writeBuf(const void* buf, size_t len);
     void _closePipe();
     void _blenderDied();
+
 public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();

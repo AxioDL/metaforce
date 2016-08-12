@@ -370,6 +370,7 @@ try:
 
         elif cmdargs[0] == 'SAVE':
             bpy.context.user_preferences.filepaths.save_version = 0
+            print('SAVING %s' % loaded_blend)
             if loaded_blend:
                 if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True):
                     writepipeline(b'FINISHED')

@@ -44,7 +44,6 @@ class Project;
 struct DataSpecEntry;
 }
 
-
 extern unsigned VerbosityLevel;
 extern logvisor::Module LogModule;
 
@@ -1178,6 +1177,28 @@ public:
     bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
+};
+
+/**
+ * @brief Mutex-style centralized resource-path tracking
+ *
+ * Provides a means to safely parallelize resource processing; detecting when another
+ * thread is working on the same resource.
+ */
+class ResourceLock
+{
+    static bool SetThreadRes(const ProjectPath& path);
+    static void ClearThreadRes();
+    bool good;
+public:
+    operator bool() const { return good; }
+    static bool InProgress(const ProjectPath& path);
+    ResourceLock(const ProjectPath& path) { good = SetThreadRes(path); }
+    ~ResourceLock() { if (good) ClearThreadRes(); }
+    ResourceLock(const ResourceLock&) = delete;
+    ResourceLock& operator=(const ResourceLock&) = delete;
+    ResourceLock(ResourceLock&&) = delete;
+    ResourceLock& operator=(ResourceLock&&) = delete;
 };
 
 /**
