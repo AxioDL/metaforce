@@ -272,8 +272,8 @@ def cookcol(writebuf, mesh_obj):
     writebuf(struct.pack('I', len(copy_mesh.polygons)))
     for p in copy_mesh.polygons:
         edge_idxs = []
-        for ek in p.edge_keys:
-            edge_idxs.append(copy_mesh.edge_keys.index(ek))
+        for loopi in p.loop_indices:
+            edge_idxs.append(copy_mesh.loops[loopi].edge_index)
         writebuf(struct.pack('IIII', edge_idxs[0], edge_idxs[1], edge_idxs[2], p.material_index))
 
     # Delete copied mesh from scene
