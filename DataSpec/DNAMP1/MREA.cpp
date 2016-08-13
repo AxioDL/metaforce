@@ -336,7 +336,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* SCLY */
     {
-        DNAMP1::SCLY sclyData;
+        DNAMP1::SCLY sclyData = {};
         sclyData.fourCC = 'SCLY';
         sclyData.version = 1;
         for (const hecl::ProjectPath& layer : layerScriptPaths)
@@ -372,8 +372,8 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
 
     /* Collision */
-    {
-        DeafBabe collision;
+    {        
+        DeafBabe collision = {};
         DeafBabeBuildFromBlender(collision, cMesh);
 
         secs.emplace_back(collision.binarySize(0), 0);
@@ -414,7 +414,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             {
                 if (l.layer == lay)
                 {
-                    BabeDeadLight light;
+                    BabeDeadLight light = {};
                     WriteBabeDeadLightFromBlender(light, l);
                     light.write(w);
                 }

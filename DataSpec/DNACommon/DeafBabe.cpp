@@ -126,10 +126,10 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     db.triMatsCount = colMesh.trianges.size();
     db.triangleEdgesCount = colMesh.trianges.size() * 3;
 
-    db.unk1 = 0;
+    db.unk1 = 0x1000000;
     db.length = db.binarySize(0) - 8;
     db.magic = 0xDEAFBABE;
-    db.version = 0;
+    db.version = 3;
     db.aabb[0] = colMesh.aabbMin;
     db.aabb[1] = colMesh.aabbMax;
 }

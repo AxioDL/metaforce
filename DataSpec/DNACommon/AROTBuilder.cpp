@@ -2,8 +2,9 @@
 
 namespace DataSpec
 {
+logvisor::Module Log("AROTBuilder");
 
-#define AROT_MAX_LEVEL 11 /* These go to 11 */
+#define AROT_MAX_LEVEL 7
 
 static const uint32_t AROTChildCounts[] = { 0, 2, 2, 4, 2, 4, 4, 8 };
 
@@ -51,6 +52,9 @@ bool AROTBuilder::Node::addChild(int level, const zeus::CAABox& curAabb, const z
             }
             if (inX[0] ^ inX[1])
                 flags |= 0x1;
+
+            if (!flags)
+                childNodes.clear();
         }
         return true;
     }
@@ -63,6 +67,9 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
     {
         sz += 1;
         poolIdx = bmpPool.addIndices(childIndices);
+        if (poolIdx > 65535)
+            Log.report(logvisor::Fatal, "AROT bitmap exceeds 16-bit node addressing; area too complex");
+
         if (childNodes.size())
         {
             for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
@@ -77,7 +84,7 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
             }
             uint32_t childCount = AROTChildCounts[flags];
             nodeOff = curOff;
-            nodeSz += childCount * 2;
+            nodeSz = childCount * 2 + 4;
             curOff += nodeSz;
             idxRefs += childCount;
         }
@@ -114,6 +121,9 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx)
         if (childNodes.size())
         {
             int curIdx = nodeIdx + 1;
+            if (curIdx > 65535)
+                Log.report(logvisor::Fatal, "AROT node exceeds 16-bit node addressing; area too complex");
+
             int childIndices[8];
 
             for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
@@ -177,6 +187,7 @@ void AROTBuilder::Node::colSize(size_t& totalSz)
         }
         else
         {
+            totalSz += 36;
             for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
             {
                 for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
@@ -197,8 +208,15 @@ void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB
     {
         if (childNodes.empty())
         {
-            *reinterpret_cast<zeus::CVector3f*>(ptr) = curAABB.min;
-            *reinterpret_cast<zeus::CVector3f*>(ptr + 12) = curAABB.max;
+            zeus::CAABox swapAABB = curAABB;
+            swapAABB.min[0] = hecl::SBig(swapAABB.min[0]);
+            swapAABB.min[1] = hecl::SBig(swapAABB.min[1]);
+            swapAABB.min[2] = hecl::SBig(swapAABB.min[2]);
+            swapAABB.max[0] = hecl::SBig(swapAABB.max[0]);
+            swapAABB.max[1] = hecl::SBig(swapAABB.max[1]);
+            swapAABB.max[2] = hecl::SBig(swapAABB.max[2]);
+            *reinterpret_cast<zeus::CVector3f*>(ptr) = swapAABB.min;
+            *reinterpret_cast<zeus::CVector3f*>(ptr + 12) = swapAABB.max;
             athena::io::MemoryWriter w(ptr + 24, INT32_MAX);
             w.writeUint16Big(childIndices.size());
             for (int idx : childIndices)
@@ -222,11 +240,12 @@ void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB
                         if (thisFlags)
                         {
                             *pflags |= thisFlags << (idx * 2);
-                            offsets[idx] = thisOffset - nodeOff;
+                            offsets[idx] = hecl::SBig(uint32_t(thisOffset - nodeOff - 36));
                         }
                     }
                 }
             }
+            *pflags = hecl::SBig(*pflags);
             ptr += 36;
 
             zeus::CAABox X[2];
