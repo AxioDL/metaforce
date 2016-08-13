@@ -136,7 +136,7 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::BlenderC
     }
 
     lightOut.color = lightIn.color;
-    lightOut.spotCutoff = lightIn.spotCutoff;
+    lightOut.spotCutoff = zeus::radToDeg(lightIn.spotCutoff);
     lightOut.castShadows = lightIn.shadow;
     lightOut.position.vec[0] = lightIn.sceneXf[0].vec[3];
     lightOut.position.vec[1] = lightIn.sceneXf[1].vec[3];
