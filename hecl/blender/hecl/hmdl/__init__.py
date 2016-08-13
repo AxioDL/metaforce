@@ -232,16 +232,16 @@ def cookcol(writebuf, mesh_obj):
 
     # Send scene matrix
     wmtx = mesh_obj.matrix_world
-    writebuf(struct.pack('ffffffffffffffff',
-    wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
-    wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
-    wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
-    wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
+    #writebuf(struct.pack('ffffffffffffffff',
+    #wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+    #wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+    #wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+    #wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
 
     # Filter out useless AABB points and send data
-    pt = copy_obj.bound_box[0]
+    pt = wmtx * Vector(copy_obj.bound_box[0])
     writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
-    pt = copy_obj.bound_box[6]
+    pt = wmtx * Vector(copy_obj.bound_box[6])
     writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
 
     # Send materials
@@ -261,7 +261,8 @@ def cookcol(writebuf, mesh_obj):
     # Send verts
     writebuf(struct.pack('I', len(copy_mesh.vertices)))
     for v in copy_mesh.vertices:
-        writebuf(struct.pack('fff', v.co[0], v.co[1], v.co[2]))
+        xfVert = wmtx * v.co
+        writebuf(struct.pack('fff', xfVert[0], xfVert[1], xfVert[2]))
 
     # Send edges
     writebuf(struct.pack('I', len(copy_mesh.edges)))

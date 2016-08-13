@@ -373,6 +373,7 @@ public:
         };
 
         static atVec3f MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec);
+        static atVec3f MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec);
 
         /** Intermediate mesh representation prepared by blender from a single mesh object */
         struct Mesh
@@ -531,7 +532,7 @@ public:
         struct ColMesh
         {
             /* Object transform in scene */
-            Matrix4f sceneXf;
+            //Matrix4f sceneXf;
 
             /* Cumulative AABB */
             Vector3f aabbMin;

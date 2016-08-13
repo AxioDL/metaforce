@@ -1,4 +1,6 @@
 #include "BlenderConnection.hpp"
+#include <cmath>
+#include <float.h>
 
 namespace hecl
 {
@@ -9,6 +11,15 @@ atVec3f BlenderConnection::DataStream::MtxVecMul4RM(const Matrix4f& mtx, const V
     res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2] + mtx[0].vec[3];
     res.vec[1] = mtx[1].vec[0] * vec.val.vec[0] + mtx[1].vec[1] * vec.val.vec[1] + mtx[1].vec[2] * vec.val.vec[2] + mtx[1].vec[3];
     res.vec[2] = mtx[2].vec[0] * vec.val.vec[0] + mtx[2].vec[1] * vec.val.vec[1] + mtx[2].vec[2] * vec.val.vec[2] + mtx[2].vec[3];
+    return res;
+}
+
+atVec3f BlenderConnection::DataStream::MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec)
+{
+    atVec3f res;
+    res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2];
+    res.vec[1] = mtx[1].vec[0] * vec.val.vec[0] + mtx[1].vec[1] * vec.val.vec[1] + mtx[1].vec[2] * vec.val.vec[2];
+    res.vec[2] = mtx[2].vec[0] * vec.val.vec[0] + mtx[2].vec[1] * vec.val.vec[1] + mtx[2].vec[2] * vec.val.vec[2];
     return res;
 }
 
@@ -88,10 +99,24 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
         {
             atVec3f preXfPos = MtxVecMul4RM(sceneXf, pos[v.iPos]);
             vboW.writeVec3fLittle(preXfPos);
+
+            atVec3f preXfNorm = MtxVecMul3RM(sceneXf, norm[v.iNorm]);
+            float mag =
+                preXfNorm.vec[0] * preXfNorm.vec[0] +
+                preXfNorm.vec[1] * preXfNorm.vec[1] +
+                preXfNorm.vec[2] * preXfNorm.vec[2];
+            if (mag > FLT_EPSILON)
+                mag = 1.f / std::sqrt(mag);
+            preXfNorm.vec[0] *= mag;
+            preXfNorm.vec[1] *= mag;
+            preXfNorm.vec[2] *= mag;
+            vboW.writeVec3fLittle(preXfNorm);
         }
         else
+        {
             vboW.writeVec3fLittle(pos[v.iPos]);
-        vboW.writeVec3fLittle(norm[v.iNorm]);
+            vboW.writeVec3fLittle(norm[v.iNorm]);
+        }
 
         for (size_t i=0 ; i<colorLayerCount ; ++i)
         {
