@@ -337,7 +337,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     /* SCLY */
     {
         DNAMP1::SCLY sclyData;
-        sclyData.fourCC = FOURCC('SCLY');
+        sclyData.fourCC = 'SCLY';
         sclyData.version = 1;
         for (const hecl::ProjectPath& layer : layerScriptPaths)
         {

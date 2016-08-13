@@ -344,6 +344,51 @@ struct Ridley : IScriptObject
             damageInfo9.write(__dna_writer);
     }
 
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = IScriptObject::binarySize(__isz);
+        __isz += name.size() + 1;
+        __isz = patternedInfo.binarySize(__isz);
+        __isz = actorParameters.binarySize(__isz);
+        __isz = model1.binarySize(__isz);
+        __isz = model2.binarySize(__isz);
+        if (propertyCount == 48)
+        {
+            __isz = model3.binarySize(__isz);
+            __isz = model4.binarySize(__isz);
+            __isz = model5.binarySize(__isz);
+            __isz = model6.binarySize(__isz);
+            __isz = model7.binarySize(__isz);
+            __isz = model8.binarySize(__isz);
+            __isz = model9.binarySize(__isz);
+            __isz = model10.binarySize(__isz);
+            __isz = model11.binarySize(__isz);
+            __isz = model12.binarySize(__isz);
+        }
+        __isz = particle.binarySize(__isz);
+        __isz = wpsc1.binarySize(__isz);
+        __isz = damageInfo1.binarySize(__isz);
+        __isz = ridleyStruct1.binarySize(__isz);
+        __isz = wpsc2.binarySize(__isz);
+        if (propertyCount == 40)
+            __isz = wpsc3.binarySize(__isz);
+        __isz = damageInfo2.binarySize(__isz);
+        __isz = ridleyStruct2_1.binarySize(__isz);
+        __isz = wpsc4.binarySize(__isz);
+        __isz = damageInfo3.binarySize(__isz);
+        __isz = ridleyStruct2_2.binarySize(__isz);
+        __isz = damageInfo4.binarySize(__isz);
+        __isz = ridleyStruct2_3.binarySize(__isz);
+        __isz = damageInfo5.binarySize(__isz);
+        __isz = damageInfo6.binarySize(__isz);
+        __isz = damageInfo7.binarySize(__isz);
+        __isz = elsc.binarySize(__isz);
+        __isz = damageInfo8.binarySize(__isz);
+        if (propertyCount == 40)
+            __isz = damageInfo9.binarySize(__isz);
+        return __isz + 88;
+    }
+
     void read(athena::io::YAMLDocReader& __dna_docin)
     {
         IScriptObject::read(__dna_docin);

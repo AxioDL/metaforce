@@ -159,6 +159,25 @@ struct WorldTeleporter : IScriptObject
             __dna_writer.writeFloatBig(unknown16);
         }
     }
+
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = IScriptObject::binarySize(__isz);
+        __isz += name.size() + 1;
+        __isz = mlvl.binarySize(__isz);
+        __isz = mrea.binarySize(__isz);
+        __isz = animationParameters.binarySize(__isz);
+        __isz = model1.binarySize(__isz);
+        __isz = model2.binarySize(__isz);
+        __isz = font.binarySize(__isz);
+        __isz = strg.binarySize(__isz);
+        if (propertyCount == 26)
+        {
+            __isz += audioStream.size() + 1;
+            __isz += 13;
+        }
+        return __isz + 64;
+    }
     
     void read(athena::io::YAMLDocReader& __dna_docin)
     {

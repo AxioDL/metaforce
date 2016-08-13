@@ -143,7 +143,7 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::BlenderC
     lightOut.position.vec[2] = lightIn.sceneXf[2].vec[3];
 
     zeus::CTransform lightXf(&lightIn.sceneXf[0]);
-    lightOut.direction = lightXf * zeus::CVector3f(0.f, 0.f, -1.f);
+    lightOut.direction = (lightXf.basis * zeus::CVector3f(0.f, 0.f, -1.f)).normalized();
 }
 
 template void WriteBabeDeadLightFromBlender<DNAMP1::MREA::BabeDeadLight>

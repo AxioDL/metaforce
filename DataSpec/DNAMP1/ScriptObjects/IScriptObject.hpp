@@ -11,7 +11,6 @@ namespace DNAMP1
 struct IScriptObject : BigYAML
 {
     DECL_YAML
-    IScriptObject() {}
     atUint32 type;
     Value<atUint32> id;
     struct Connection : BigYAML
@@ -26,9 +25,7 @@ struct IScriptObject : BigYAML
     Value<atUint32> connectionCount;
     Vector<Connection, DNA_COUNT(connectionCount)> connections;
     Value<atUint32> propertyCount;
-    virtual ~IScriptObject()
-    {
-    }
+    virtual ~IScriptObject() = default;
 
     virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const {}

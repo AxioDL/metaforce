@@ -180,7 +180,13 @@ void SCLY::ScriptLayer::write(athena::io::IStreamWriter& ws) const
     for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         ws.writeByte(obj->type);
+        atUint32 expLen = obj->binarySize(0);
+        ws.writeUint32Big(expLen);
+        auto start = ws.position();
         obj->write(ws);
+        auto wrote = ws.position() - start;
+        if (wrote != expLen)
+            Log.report(logvisor::Error, "expected writing %lu byte SCLY obj; wrote %llu", expLen, wrote);
     }
 }
 
@@ -189,7 +195,7 @@ size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
     __isz += 5;
     for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
-        __isz += 1;
+        __isz += 5;
         __isz = obj->binarySize(__isz);
     }
     return __isz;

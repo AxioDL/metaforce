@@ -109,6 +109,19 @@ struct Oculus : IScriptObject
             __dna_writer.writeFloatBig(unknown8);
     }
 
+    size_t binarySize(size_t __isz) const
+    {
+        __isz = IScriptObject::binarySize(__isz);
+        __isz += name.size() + 1;
+        __isz = patternedInfo.binarySize(__isz);
+        __isz = actorParameters.binarySize(__isz);
+        __isz = damageVulnerabilty.binarySize(__isz);
+        __isz = damageInfo.binarySize(__isz);
+        if (propertyCount == 16)
+            __isz += 4;
+        return __isz + 64;
+    }
+
     void read(athena::io::YAMLDocReader& __dna_docin)
     {
         IScriptObject::read(__dna_docin);

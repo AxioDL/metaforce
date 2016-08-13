@@ -28,7 +28,7 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
     SObjectTag areaTag = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
-        _S("MP1/Metroid1/!1IntroLevel1027/01 Air Lock/!area.blend"));
+        _S("MP1/Metroid1/!1IntroLevel1027/00 Exterior Docking Hangar/!area.blend"));
     auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
 
     //m_modelTest = objStore.GetObj("gun_cmdl");
