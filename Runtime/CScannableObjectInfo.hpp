@@ -11,6 +11,10 @@ namespace urde
 class CScannableObjectInfo
 {
 public:
+    enum class EPanelType
+    {
+    };
+
     struct SBucket
     {
         ResId x0_texture = -1;
