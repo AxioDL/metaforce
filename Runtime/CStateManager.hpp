@@ -14,6 +14,12 @@
 #include "World/CAi.hpp"
 #include "CToken.hpp"
 #include "World/ScriptLoader.hpp"
+#include "Input/CFinalInput.hpp"
+#include "CSortedLists.hpp"
+#include "CFluidPlaneManager.hpp"
+#include "World/CEnvFxManager.hpp"
+#include "World/CActorModelParticles.hpp"
+#include "Input/CRumbleManager.hpp"
 
 namespace urde
 {
@@ -64,17 +70,29 @@ class CStateManager
     /* Used to be a list of 32-element reserved_vectors */
     std::vector<TUniqueId> x858_objectGraveyard;
 
-    // x86c_stateManagerContainer;
-    std::unique_ptr<CCameraManager> x870_cameraManager;
-    std::unique_ptr<CSortedListManager> x874_sortedListManager;
-    std::unique_ptr<CWeaponMgr> x878_weaponManager;
-    std::unique_ptr<CFluidPlaneManager> x87c_fluidPlaneManager;
-    std::unique_ptr<CEnvFxManager> x880_envFxManager;
-    std::unique_ptr<CActorModelParticles> x884_actorModelParticles;
-    std::unique_ptr<CTeamAiTypes> x888_teamAiTypes;
-    std::unique_ptr<CRumbleManager> x88c_rumbleManager;
+    struct CStateManagerContainer
+    {
+        CCameraManager x0_cameraManager;
+        CSortedListManager x3c0_sortedListManager;
+        CWeaponMgr xe3d8_weaponManager;
+        CFluidPlaneManager xe3ec_fluidPlaneManager;
+        CEnvFxManager xe510_envFxManager;
+        CActorModelParticles xf168_actorModelParticles;
+        CRumbleManager xf250_rumbleManager;
+        u32 xf344_ = 0;
+        u32 xf370_ = 0;
+        u32 xf39c_ = 0;
+    };
+    std::experimental::optional<CStateManagerContainer> x86c_stateManagerContainer;
+    CCameraManager* x870_cameraManager = nullptr;
+    CSortedListManager* x874_sortedListManager = nullptr;
+    CWeaponMgr* x878_weaponManager = nullptr;
+    CFluidPlaneManager* x87c_fluidPlaneManager = nullptr;
+    CEnvFxManager* x880_envFxManager = nullptr;
+    CActorModelParticles* x884_actorModelParticles = nullptr;
+    CRumbleManager* x88c_rumbleManager = nullptr;
 
-    std::map<TGameScriptId, TUniqueId> x890_scriptIdMap;
+    std::multimap<TEditorId, TUniqueId> x890_scriptIdMap;
     std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
 
     std::shared_ptr<CPlayerState> x8b8_playerState;
@@ -84,16 +102,15 @@ class CStateManager
 
     TAreaId x8c8_currentAreaId;
     TAreaId x8cc_nextAreaId;
-    u32 x8d0_extFrameIdx = 0;
-    u32 x8d4_updateFrameIdx = 0;
-    u32 x8d8_drawFrameIdx = 0;
+    TAreaId x8d0_prevAreaId;
+    //u32 x8d0_extFrameIdx = 0;
+    //u32 x8d4_updateFrameIdx = 0;
+    //u32 x8d8_drawFrameIdx = 0;
 
     std::vector<CLight> x8dc_dynamicLights;
 
-    TLockedToken<CTexture> x8ec_shadowTex; /* DefaultShadow in MiscData */
-
-    CRandom16 x8f8_random;
-    CRandom16* x8fc_activeRandom = nullptr;
+    TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
+    CRandom16 x8fc_random;
 
     FScriptLoader x904_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
@@ -101,8 +118,16 @@ class CStateManager
 
     std::set<std::string> xab4_uniqueInstanceNames;
 
-    CCameraFilterPass xaf8_camFilterPasses[9];
-    CCameraBlurPass xc88_camBlurPasses[9];
+    enum class InitPhase
+    {
+        LoadWorld,
+        LoadFirstArea,
+        Done
+    } xb3c_initPhase;
+
+    CFinalInput xb54_finalInput;
+    CCameraFilterPass xb84_camFilterPasses[9];
+    CCameraBlurPass xd14_camBlurPasses[9];
 
     s32 xe60_ = -1;
     zeus::CVector3f xe64_;
@@ -178,13 +203,17 @@ public:
     void PreRender();
     void GetVisSetForArea(TAreaId, TAreaId) const;
     void RecursiveDrawTree(TUniqueId) const;
+    void SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg);
     void SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg);
-    void SendScriptMsg(TUniqueId uid, TEditorId eid, EScriptObjectMessage msg, EScriptObjectState state);
+    void SendScriptMsg(TUniqueId src, TEditorId dest,
+                       EScriptObjectMessage msg, EScriptObjectState state);
     void FreeScriptObjects(TAreaId);
     void GetBuildForScript(TEditorId) const;
     TEditorId GetEditorIdForUniqueId(TUniqueId) const;
     TUniqueId GetIdForScript(TEditorId) const;
-    void GetIdListForScript(TEditorId) const;
+    std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator,
+              std::multimap<TEditorId, TUniqueId>::const_iterator>
+    GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
     void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in, EScriptPersistence);
     void InitScriptObjects(std::vector<TEditorId>& ids);
@@ -208,7 +237,7 @@ public:
     void Update(float dt);
     void UpdateGameState();
     void FrameBegin();
-    void InitializeState(u32, TAreaId, u32);
+    void InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId);
     void CreateStandardGameObjects();
     const std::unique_ptr<CObjectList>& GetObjectList() const { return x80c_allObjs; }
     CObjectList* ObjectListById(EGameObjectList type);
@@ -233,8 +262,8 @@ public:
     void UpdateActorInSortedLists(CActor&);
     void UpdateSortedLists();
     zeus::CAABox CalculateObjectBounds(const CActor&);
-    void AddObject(CEntity&, EScriptPersistence);
-    void AddObject(CEntity*, EScriptPersistence);
+    void AddObject(CEntity&);
+    void AddObject(CEntity*);
     bool RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
                                const CMaterialFilter&) const;
     bool RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&,
@@ -244,13 +273,13 @@ public:
     TUniqueId AllocateUniqueId();
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
-    CRandom16* GetActiveRandom() {return x8fc_activeRandom;}
+    CRandom16& GetActiveRandom() {return x8fc_random;}
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
-    CCameraFilterPass& GetCameraFilterPass(int idx) {return xaf8_camFilterPasses[idx];}
+    CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
     CWorld* GetWorld() {return x850_world.get();}
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
-    CCameraManager* GetCameraManager() { return x870_cameraManager.get(); }
+    CCameraManager* GetCameraManager() { return x870_cameraManager; }
 
     std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
 

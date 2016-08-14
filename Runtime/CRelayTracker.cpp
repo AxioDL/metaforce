@@ -51,7 +51,7 @@ void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
     for (u32 i=0 ; i<relayCount ; ++i)
     {
         const CWorld::CRelay& relay = world->GetRelay(i);
-        if (((relay.GetTargetId() >> 16) & 0x3FF) != areaId)
+        if (relay.GetTargetId().AreaNum() != areaId)
             continue;
 
         if (!HasRelay(relay.GetRelayId()))
@@ -69,7 +69,7 @@ void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
     for (u32 i=0 ; i<relayCount ; ++i)
     {
         const CWorld::CRelay& relay = world->GetRelay(i);
-        if (((relay.GetTargetId() >> 16) & 0x3FF) != areaId)
+        if (relay.GetTargetId().AreaNum() != areaId)
             continue;
 
         if (!HasRelay(relay.GetRelayId()) || !relay.GetActive())

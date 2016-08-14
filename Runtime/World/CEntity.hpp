@@ -25,11 +25,12 @@ public:
     : x0_areaId(aid), x4_conns(conns) {}
     TAreaId GetAreaId() const {return x0_areaId;}
     std::vector<SConnection> GetConnectionList() const { return x4_conns; }
-    ResId GetEditorId() const { return x14_editorId; }
+    TEditorId GetEditorId() const { return x14_editorId; }
 };
 
 class CEntity
 {
+    friend class CStateManager;
 protected:
     TAreaId x4_areaId;
     TUniqueId x8_uid;
@@ -43,7 +44,7 @@ protected:
         {
             bool x30_24_active : 1;
             bool x30_25_ : 1;
-            bool x30_26_ : 1;
+            bool x30_26_messagesBlocked : 1;
             bool x30_27_ : 1;
         };
         u8 _dummy = 0;

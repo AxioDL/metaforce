@@ -556,8 +556,24 @@ void CGameArea::AddStaticGeometry()
     }
 }
 
-void CGameArea::SetChain(CGameArea* other, int)
+EChain CGameArea::SetChain(CGameArea* next, EChain setChain)
 {
+    if (x138_curChain == setChain)
+        return x138_curChain;
+
+    if (x134_prev)
+        x134_prev->x130_next = x130_next;
+    if (x130_next)
+        x130_next->x134_prev = x134_prev;
+
+    x134_prev = nullptr;
+    x130_next = next;
+    if (next)
+        next->x134_prev = this;
+
+    EChain ret = x138_curChain;
+    x138_curChain = setChain;
+    return ret;
 }
 
 bool CGameArea::StartStreamingMainArea()
@@ -653,7 +669,7 @@ void CGameArea::AllocNewAreaData(int offset, int size)
                               x110_mreaSecBufs.back().first));
 }
 
-void CGameArea::Invalidate(CStateManager& mgr)
+bool CGameArea::Invalidate(CStateManager& mgr)
 {
 }
 

@@ -37,11 +37,23 @@ struct SObjectTag
 };
 
 using TUniqueId = s16;
-using TEditorId = s32;
 using TAreaId = s32;
-using TGameScriptId = s32;
 
-#define kInvalidEditorId TEditorId(-1)
+struct TEditorId
+{
+    TEditorId() = default;
+    TEditorId(u32 idin) : id(idin) {}
+    u32 id = -1;
+    u8 LayerNum() const { return (id >> 26) & 0x3f; }
+    u16 AreaNum() const { return (id >> 16) & 0x3ff; }
+    TUniqueId Id() const { return id & 0xffff; }
+
+    bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
+    bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
+    bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
+};
+
+#define kInvalidEditorId TEditorId()
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
 

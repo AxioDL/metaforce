@@ -37,6 +37,7 @@ public:
 
         const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const {return x14_planeVertices;}
         u32 GetReferenceCount() const { return x0_; }
+        const std::vector<SDockReference>& GetDockRefs() const { return x4_dockReferences; }
         Dock(CInputStream& in, const zeus::CTransform& xf);
         TAreaId GetConnectedAreaId(s32 other) const;
         s16 GetOtherDockNumber(s32 other) const;
@@ -60,6 +61,17 @@ public:
     virtual ResId IGetStringTableAssetId() const=0;
     virtual const zeus::CTransform& IGetTM() const=0;
 };
+
+enum class EChain
+{
+    Invalid = -1,
+    Zero,
+    One,
+    Two,
+    Three,
+    Four
+};
+
 }
 
 #endif // __URDE_IGAMEAREA_HPP__

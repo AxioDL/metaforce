@@ -12,8 +12,10 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CPlayerState.hpp"
+#include "CGameState.hpp"
 #include "World/CPlayer.hpp"
 #include "World/CMorphBall.hpp"
+#include "AutoMapper/CMapWorldInfo.hpp"
 
 #include <cmath>
 
@@ -31,16 +33,9 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
   x82c_lightObjs(new CGameLightList()),
   x834_listenAiObjs(new CListeningAiList()),
   x83c_aiWaypointObjs(new CAiWaypointList()),
-  x844_platformAndDoorObjs(new CPlatformAndDoorList()),
-  x870_cameraManager(new CCameraManager(kInvalidUniqueId)),
-  x874_sortedListManager(new CSortedListManager()),
-  x878_weaponManager(new CWeaponMgr()),
-  x87c_fluidPlaneManager(new CFluidPlaneManager()),
-  x880_envFxManager(new CEnvFxManager()),
-  x884_actorModelParticles(new CActorModelParticles()),
-  x888_teamAiTypes(new CTeamAiTypes()),
-  x88c_rumbleManager(new CRumbleManager())
+  x844_platformAndDoorObjs(new CPlatformAndDoorList())
 {
+    x86c_stateManagerContainer.emplace();
     x904_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
     x904_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
     x904_loaderFuncs[int(EScriptObjectType::Door)] = ScriptLoader::LoadDoor;
@@ -168,7 +163,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
     x904_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
     x904_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 
-    x8ec_shadowTex = g_SimplePool->GetObj("DefaultShadow");
+    x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
 
 void CStateManager::UpdateThermalVisor()
@@ -356,18 +351,36 @@ void CStateManager::RecursiveDrawTree(TUniqueId) const
 {
 }
 
-void CStateManager::SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg)
+void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg)
 {
-    CEntity* ent = ObjectById(dest);
-    if (ent)
+    if (dest && !dest->x30_26_messagesBlocked)
     {
-        ent->AcceptScriptMsg(msg, src, *this);
+        dest->AcceptScriptMsg(msg, src, *this);
     }
 }
 
-void CStateManager::SendScriptMsg(TUniqueId uid, TEditorId eid,
+void CStateManager::SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg)
+{
+    CEntity* ent = ObjectById(dest);
+    SendScriptMsg(ent, src, msg);
+}
+
+void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest,
                                   EScriptObjectMessage msg, EScriptObjectState state)
 {
+    CEntity* ent = ObjectById(src);
+    auto search = GetIdListForScript(dest);
+    if (ent &&
+        search.first != x890_scriptIdMap.cend() &&
+        search.second != x890_scriptIdMap.cend())
+    {
+        for (auto it = search.first ; it != search.second ; ++it)
+        {
+            TUniqueId id = it->second;
+            CEntity* dobj = x80c_allObjs->GetObjectById(id);
+            SendScriptMsg(dobj, src, msg);
+        }
+    }
 }
 
 void CStateManager::FreeScriptObjects(TAreaId)
@@ -388,8 +401,11 @@ TUniqueId CStateManager::GetIdForScript(TEditorId) const
     return 0;
 }
 
-void CStateManager::GetIdListForScript(TEditorId) const
+std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator,
+          std::multimap<TEditorId, TUniqueId>::const_iterator>
+CStateManager::GetIdListForScript(TEditorId id) const
 {
+    return x890_scriptIdMap.equal_range(id);
 }
 
 void CStateManager::LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut)
@@ -475,12 +491,55 @@ void CStateManager::FrameBegin()
 {
 }
 
-void CStateManager::InitializeState(u32, TAreaId, u32)
+void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 {
+    if (xb3c_initPhase == InitPhase::LoadWorld)
+    {
+        CreateStandardGameObjects();
+        x850_world.reset(new CWorld(*g_SimplePool, *g_ResFactory, mlvlId));
+        xb3c_initPhase = InitPhase::LoadFirstArea;
+    }
+
+    if (xb3c_initPhase == InitPhase::LoadFirstArea)
+    {
+        if (!x8f0_shadowTex.IsLoaded())
+            return;
+        x8f0_shadowTex.GetObj();
+
+        if (!x850_world->CheckWorldComplete(this, aid, mreaId))
+            return;
+        x8cc_nextAreaId = x850_world->x68_curAreaId;
+        CGameArea* area = x850_world->x18_areas[x8cc_nextAreaId].get();
+        if (x850_world->ScheduleAreaToLoad(area, *this))
+        {
+            area->StartStreamIn(*this);
+            return;
+        }
+        xb3c_initPhase = InitPhase::Done;
+    }
+
+    SetCurrentAreaId(x8cc_nextAreaId);
+    g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
+    x850_world->TravelToArea(x8cc_nextAreaId, *this, true);
+    UpdateRoomAcoustics(x8cc_nextAreaId);
+
+    /* TODO: Finish */
 }
 
 void CStateManager::CreateStandardGameObjects()
 {
+    float height = g_tweakPlayer->GetPlayerHeight();
+    float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
+    float unk1 = g_tweakPlayer->GetPlayerSomething1();
+    float unk2 = g_tweakPlayer->GetPlayerSomething2();
+    float unk3 = g_tweakPlayer->GetPlayerSomething3();
+    zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
+    auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
+    x84c_player.reset(new CPlayer(AllocateUniqueId(), zeus::CTransform(q), pBounds, 0,
+                                  zeus::CVector3f{1.65f, 1.65f, 1.65f},
+                                  200.f, unk1, unk2, unk3, CMaterialList(EMaterialTypes::ThirtyTwo,
+                                  EMaterialTypes::Nineteen, EMaterialTypes::ThirtySeven)));
+    AddObject(*x84c_player);
 }
 
 CObjectList* CStateManager::ObjectListById(EGameObjectList type)
@@ -503,8 +562,21 @@ void CStateManager::UpdateRoomAcoustics(TAreaId)
 {
 }
 
-void CStateManager::SetCurrentAreaId(TAreaId)
+void CStateManager::SetCurrentAreaId(TAreaId aid)
 {
+    if (aid != x8cc_nextAreaId)
+    {
+        x8d0_prevAreaId = x8cc_nextAreaId;
+        UpdateRoomAcoustics(aid);
+        x8cc_nextAreaId = aid;
+    }
+
+    if (aid == kInvalidAreaId)
+        return;
+    if (x8c0_mapWorldInfo->IsAreaVisted(aid))
+        return;
+    x8c0_mapWorldInfo->SetAreaVisited(aid, true);
+    x850_world->GetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
 }
 
 void CStateManager::ClearGraveyard()
@@ -565,11 +637,11 @@ zeus::CAABox CStateManager::CalculateObjectBounds(const CActor&)
     return {};
 }
 
-void CStateManager::AddObject(CEntity&, EScriptPersistence)
+void CStateManager::AddObject(CEntity&)
 {
 }
 
-void CStateManager::AddObject(CEntity*, EScriptPersistence)
+void CStateManager::AddObject(CEntity*)
 {
 }
 

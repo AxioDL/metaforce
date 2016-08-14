@@ -77,7 +77,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
             it = x18_shakers.erase(it);
             continue;
         }
-        x30_shakeOffset += it->GeneratePoint(dt, *stateMgr.GetActiveRandom());
+        x30_shakeOffset += it->GeneratePoint(dt, stateMgr.GetActiveRandom());
         ++it;
     }
 

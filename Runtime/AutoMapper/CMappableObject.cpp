@@ -59,16 +59,16 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
 void CMappableObject::PostConstruct(const void *)
 {
 #if __BYTE_ORDER__!= __ORDER_BIG_ENDIAN__
-    x0_type = EMappableObjectType(SBIG(u32(x0_type)));
-    x4_ = SBIG(x4_);
-    x8_ = SBIG(x8_);
-    xc_ = SBIG(xc_);
+    x0_type = EMappableObjectType(hecl::SBig(u32(x0_type)));
+    x4_ = hecl::SBig(x4_);
+    x8_.id = hecl::SBig(x8_.id);
+    xc_ = hecl::SBig(xc_);
     for (u32 i = 0 ; i<3 ; i++)
     {
         for (u32 j = 0 ; j<4 ; j++)
         {
             u32* tmp = reinterpret_cast<u32*>(&x10_transform.basis.m[i][j]);
-            *tmp = SBIG(*tmp);
+            *tmp = hecl::SBig(*tmp);
         }
     }
 

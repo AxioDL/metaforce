@@ -27,7 +27,7 @@ public:
     virtual CMapWorld* IMapWorld()=0;
     virtual const  IGameArea* IGetAreaAlways(TAreaId id) const=0;
     virtual TAreaId IGetCurrentAreaId() const=0;
-    virtual TAreaId IGetAreaId(TAreaId id) const=0;
+    virtual TAreaId IGetAreaId(ResId id) const=0;
     virtual bool ICheckWorldComplete()=0;
     virtual std::string IGetDefaultAudioTrack() const=0;
     virtual int IGetAreaCount() const=0;
@@ -70,6 +70,7 @@ public:
 
 class CWorld : public IWorld
 {
+    friend class CStateManager;
 public:
     class CRelay
     {
@@ -149,23 +150,16 @@ private:
 
 public:
 
-    enum class EChain
-    {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four
-    };
-
     void MoveToChain(CGameArea* area, EChain chain);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
+    bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
+    void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId);
     bool DoesAreaExist(TAreaId area) const;
     std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() {return x18_areas;}
 
-    const CMapWorld* GetMapWorld() const {return x28_mapWorld.GetObj();}
+    CMapWorld* GetMapWorld() {return x28_mapWorld.GetObj();}
     u32 GetRelayCount() const { return x2c_relays.size(); }
     CRelay GetRelay(u32 idx) const { return x2c_relays[idx]; }
 

@@ -227,7 +227,7 @@ ResId CWorld::IGetSaveWorldAssetId() const
 
 const CMapWorld* CWorld::IGetMapWorld() const
 {
-    return GetMapWorld();
+    return ((CWorld*)this)->GetMapWorld();
 }
 
 CMapWorld* CWorld::IMapWorld()
@@ -271,6 +271,15 @@ TAreaId CWorld::IGetAreaId(ResId id) const
 
 void CWorld::MoveToChain(CGameArea* area, EChain chain)
 {
+    if (area->x138_curChain == chain)
+        return;
+
+    if (area->x138_curChain != EChain::Invalid)
+        if (x4c_chainHeads[int(chain)] == area)
+            x4c_chainHeads[int(chain)] = area->x130_next;
+
+    area->SetChain(x4c_chainHeads[int(chain)], chain);
+    x4c_chainHeads[int(chain)] = area;
 }
 
 void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data)
@@ -442,6 +451,117 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
     }
 
     return false;
+}
+
+bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr)
+{
+    if (!area->xf0_24_postConstructed)
+    {
+        MoveToChain(area, EChain::Two);
+        return true;
+    }
+    else
+    {
+        if (area->x138_curChain != EChain::Three)
+        {
+            if (area->x138_curChain != EChain::Four)
+            {
+                x70_24_ = true;
+            }
+            MoveToChain(area, EChain::Three);
+        }
+        return false;
+    }
+}
+
+void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
+{
+    if (aid < 0 || aid >= x18_areas.size())
+        return;
+    x70_24_ = false;
+    x68_curAreaId = aid;
+
+    CGameArea* chain0 = x4c_chainHeads[0];
+    while (chain0)
+    {
+        if (chain0->Invalidate(mgr))
+        {
+            MoveToChain(chain0, EChain::One);
+            break;
+        }
+        chain0 = chain0->x130_next;
+    }
+
+    CGameArea* chain3 = x4c_chainHeads[3];
+    while (chain3)
+    {
+        MoveToChain(chain3, EChain::Four);
+        chain3 = chain3->x130_next;
+    }
+
+    CGameArea* chain2 = x4c_chainHeads[2];
+    while (chain2)
+    {
+        MoveToChain(chain2, EChain::Zero);
+        chain2 = chain2->x130_next;
+    }
+
+    CGameArea* area = x18_areas[aid].get();
+    if (area->x138_curChain != EChain::Four)
+        x70_24_ = true;
+    area->Validate(mgr);
+    MoveToChain(area, EChain::Three);
+    area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
+
+    CGameArea* otherLoadArea = nullptr;
+    if (!skipLoadOther)
+    {
+        bool otherLoading = false;
+        for (CGameArea::Dock& dock : area->xcc_docks)
+        {
+            u32 dockRefCount = dock.GetDockRefs().size();
+            for (u32 i=0 ; i<dockRefCount ; ++i)
+            {
+                if (!dock.ShouldLoadOtherArea(i))
+                    continue;
+                TAreaId connArea = dock.GetConnectedAreaId(i);
+                CGameArea* cArea = x18_areas[connArea].get();
+                if (!cArea->xf0_25_active)
+                    continue;
+                if (!otherLoading)
+                {
+                    otherLoading = ScheduleAreaToLoad(cArea, mgr);
+                    if (!otherLoading)
+                        continue;
+                    otherLoadArea = cArea;
+                }
+                else
+                    ScheduleAreaToLoad(cArea, mgr);
+            }
+
+        }
+    }
+
+    CGameArea* chain4 = x4c_chainHeads[4];
+    while (chain4)
+    {
+        MoveToChain(chain4, EChain::Zero);
+        chain4 = chain4->x130_next;
+    }
+
+    size_t toStreamCount = 0;
+    chain0 = x4c_chainHeads[0];
+    while (chain0)
+    {
+        chain0->RemoveStaticGeometry();
+        chain0 = chain0->x130_next;
+        ++toStreamCount;
+    }
+
+    if (!toStreamCount && otherLoadArea && !x70_25_)
+        otherLoadArea->StartStreamIn(mgr);
+
+    GetMapWorld()->SetWhichMapAreasLoaded(*this, aid, 3);
 }
 
 bool CWorld::ICheckWorldComplete()

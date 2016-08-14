@@ -10,9 +10,21 @@
 namespace urde
 {
 
+class CWorldState
+{
+    ResId x0_mlvlId;
+    TAreaId x4_areaId;
+public:
+    CWorldState(ResId id) : x0_mlvlId(id) {}
+    ResId GetWorldAssetId() const {return x0_mlvlId;}
+    void SetAreaId(TAreaId aid) { x4_areaId = aid; }
+};
+
 class CGameState
 {
     int m_stateFlag = -1;
+    ResId x84_mlvlId = -1;
+    std::vector<CWorldState> x88_worldStates;
     CPlayerState x98_playerState;
     CWorldTransManager x9c_transManager;
     float m_gameTime = 0.0;
@@ -24,6 +36,8 @@ public:
     void SetCurrentWorldId(unsigned int id, const std::string& name);
     CWorldTransManager& WorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
+    CWorldState& StateForWorld(ResId mlvlId);
+    CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
 };
 
 }

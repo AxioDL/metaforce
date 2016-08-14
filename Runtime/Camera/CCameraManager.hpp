@@ -39,7 +39,7 @@ class CCameraManager
     };
 
 public:
-    CCameraManager(TUniqueId curCameraId);
+    CCameraManager(TUniqueId curCameraId=kInvalidUniqueId);
 
     static float DefaultAspect() {return 1.42f;}
     static float DefaultFarPlane() {return 750.0f;}

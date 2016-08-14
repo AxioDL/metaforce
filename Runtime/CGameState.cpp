@@ -33,4 +33,21 @@ void CGameState::SetTotalPlayTime(float time)
     xa0_playTime = zeus::clamp<double>(0.0, time, 359999.0);
 }
 
+CWorldState& CGameState::StateForWorld(ResId mlvlId)
+{
+    auto it = x88_worldStates.begin();
+    for (; it != x88_worldStates.end() ; ++it)
+    {
+        if (it->GetWorldAssetId() == mlvlId)
+            break;
+    }
+
+    if (it == x88_worldStates.end())
+    {
+        x88_worldStates.emplace_back(mlvlId);
+        return x88_worldStates.back();
+    }
+    return *it;
+}
+
 }

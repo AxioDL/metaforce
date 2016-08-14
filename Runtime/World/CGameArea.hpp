@@ -216,6 +216,10 @@ private:
     u32 x128_mreaDataOffset = 0;
     std::unique_ptr<CPostConstructed> x12c_postConstructed;
 
+    CGameArea* x130_next = nullptr;
+    CGameArea* x134_prev = nullptr;
+    EChain x138_curChain = EChain::Zero;
+
     void UpdateFog(float dt);
     void UpdateThermalVisor(float dt);
 
@@ -274,14 +278,14 @@ public:
     void AddStaticGeometry();
     //void TransferTokensToARAM();
     //void TransferARAMTokensOver();
-    void SetChain(CGameArea* other, int);
+    EChain SetChain(CGameArea* prev, EChain chain);
     bool StartStreamingMainArea();
     //void UnloadAllLoadedTextures();
     //void ReloadAllLoadedTextures();
     void ReloadAllUnloadedTextures();
     u32 GetNumPartSizes() const;
     void AllocNewAreaData(int, int);
-    void Invalidate(CStateManager& mgr);
+    bool Invalidate(CStateManager& mgr);
     void CullDeadAreaRequests();
     void StartStreamIn(CStateManager& mgr);
     bool Validate(CStateManager& mgr);

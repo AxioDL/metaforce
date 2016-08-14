@@ -7,6 +7,7 @@ namespace urde
 {
 class CMapWorldInfo
 {
+    std::vector<u32> x4_visitedAreas;
     std::map<TEditorId, bool> x14_;
 public:
     CMapWorldInfo()=default;
@@ -16,8 +17,8 @@ public:
     void SetIsMapped(bool) const;
     void SetDoorVisited(TEditorId eid, bool val);
     bool IsDoorVisited() const;
-    bool IsAreaVisted(TAreaId) const;
-    void SetAreaVisited(TAreaId, bool) const;
+    bool IsAreaVisted(TAreaId);
+    void SetAreaVisited(TAreaId, bool);
 };
 }
 
