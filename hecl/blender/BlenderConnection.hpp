@@ -531,13 +531,6 @@ public:
         /** Intermediate collision mesh representation prepared by blender from a single mesh object */
         struct ColMesh
         {
-            /* Object transform in scene */
-            //Matrix4f sceneXf;
-
-            /* Cumulative AABB */
-            Vector3f aabbMin;
-            Vector3f aabbMax;
-
             /** HECL source and metadata of each material */
             struct Material
             {

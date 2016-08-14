@@ -239,10 +239,10 @@ def cookcol(writebuf, mesh_obj):
     #wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
 
     # Filter out useless AABB points and send data
-    pt = wmtx * Vector(copy_obj.bound_box[0])
-    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
-    pt = wmtx * Vector(copy_obj.bound_box[6])
-    writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+    #pt = wmtx * Vector(copy_obj.bound_box[0])
+    #writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+    #pt = wmtx * Vector(copy_obj.bound_box[6])
+    #writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
 
     # Send materials
     writebuf(struct.pack('I', len(copy_mesh.materials)))

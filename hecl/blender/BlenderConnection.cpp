@@ -875,7 +875,6 @@ uint32_t BlenderConnection::DataStream::Mesh::SkinBanks::addSurface
 }
 
 BlenderConnection::DataStream::ColMesh::ColMesh(BlenderConnection& conn)
-: aabbMin(conn), aabbMax(conn)
 {
     uint32_t matCount;
     conn._readBuf(&matCount, 4);
