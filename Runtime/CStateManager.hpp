@@ -83,7 +83,7 @@ class CStateManager
         u32 xf370_ = 0;
         u32 xf39c_ = 0;
     };
-    std::experimental::optional<CStateManagerContainer> x86c_stateManagerContainer;
+    std::unique_ptr<CStateManagerContainer> x86c_stateManagerContainer;
     CCameraManager* x870_cameraManager = nullptr;
     CSortedListManager* x874_sortedListManager = nullptr;
     CWeaponMgr* x878_weaponManager = nullptr;

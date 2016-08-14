@@ -35,7 +35,15 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
   x83c_aiWaypointObjs(new CAiWaypointList()),
   x844_platformAndDoorObjs(new CPlatformAndDoorList())
 {
-    x86c_stateManagerContainer.emplace();
+    x86c_stateManagerContainer.reset(new CStateManagerContainer);
+    x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
+    x874_sortedListManager = &x86c_stateManagerContainer->x3c0_sortedListManager;
+    x878_weaponManager = &x86c_stateManagerContainer->xe3d8_weaponManager;
+    x87c_fluidPlaneManager = &x86c_stateManagerContainer->xe3ec_fluidPlaneManager;
+    x880_envFxManager = &x86c_stateManagerContainer->xe510_envFxManager;
+    x884_actorModelParticles = &x86c_stateManagerContainer->xf168_actorModelParticles;
+    x88c_rumbleManager = &x86c_stateManagerContainer->xf250_rumbleManager;
+
     x904_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
     x904_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
     x904_loaderFuncs[int(EScriptObjectType::Door)] = ScriptLoader::LoadDoor;
