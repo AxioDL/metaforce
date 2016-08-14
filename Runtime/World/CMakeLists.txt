@@ -4,6 +4,22 @@ set(WORLD_SOURCES
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
     CPlayer.hpp CPlayer.cpp
+    CPlayerCameraBob.hpp CPlayerCameraBob.cpp
+    CPlayerGun.hpp CPlayerGun.cpp
+    CGunWeapon.hpp CGunWeapon.cpp
+    CAuxWeapon.hpp CAuxWeapon.cpp
+    CPowerBeam.hpp CPowerBeam.cpp
+    CIceBeam.hpp CIceBeam.cpp
+    CWaveBeam.hpp CWaveBeam.cpp
+    CPlasmaBeam.hpp CPlasmaBeam.cpp
+    CPhazonBeam.hpp CPhazonBeam.cpp
+    CGunMotion.hpp CGunMotion.cpp
+    CGrappleArm.hpp CGrappleArm.cpp
+    CGunController.hpp CGunController.cpp
+    CGSFreeLook.hpp CGSFreeLook.cpp
+    CGSComboFire.hpp CGSComboFire.cpp
+    CGSFidget.hpp CGSFidget.cpp
+    CFidget.hpp CFidget.cpp
     CMorphBall.hpp CMorphBall.cpp
     CActor.hpp CActor.cpp
     CAi.hpp CAi.cpp
@@ -67,6 +83,7 @@ set(WORLD_SOURCES
     CHealthInfo.hpp CHealthInfo.cpp
     CPatterned.hpp CPatterned.cpp
     CHUDMemoParms.hpp CHUDMemoParms.cpp
+    CWorldShadow.hpp CWorldShadow.cpp
     CFluidPlane.hpp)
 
 runtime_add_list(World WORLD_SOURCES)

@@ -5,8 +5,15 @@
 namespace urde
 {
 
+CGameState::CGameState()
+{
+    x228_25_deferPowerupInit = true;
+}
+
 CGameState::CGameState(CBitStreamReader& stream)
 {
+    x228_25_deferPowerupInit = true;
+
     for (u32 i = 0; i < 128; i++)
         stream.ReadEncoded(8);
     u32 tmp = stream.ReadEncoded(32);

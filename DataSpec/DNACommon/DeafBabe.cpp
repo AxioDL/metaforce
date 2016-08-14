@@ -87,10 +87,15 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     }
     db.materialCount = colMesh.materials.size();
 
+    zeus::CAABox fullAABB;
+
     db.verts.reserve(colMesh.verts.size());
     db.vertMats.resize(colMesh.verts.size());
     for (const auto& vert : colMesh.verts)
+    {
+        fullAABB.accumulateBounds(zeus::CVector3f(vert));
         db.verts.push_back(vert);
+    }
     db.vertMatsCount = colMesh.verts.size();
     db.vertCount = colMesh.verts.size();
 
@@ -130,8 +135,8 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     db.length = db.binarySize(0) - 8;
     db.magic = 0xDEAFBABE;
     db.version = 3;
-    db.aabb[0] = colMesh.aabbMin;
-    db.aabb[1] = colMesh.aabbMax;
+    db.aabb[0] = fullAABB.min;
+    db.aabb[1] = fullAABB.max;
 }
 
 template void DeafBabeBuildFromBlender<DNAMP1::DeafBabe>(DNAMP1::DeafBabe& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);

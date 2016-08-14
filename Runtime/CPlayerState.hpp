@@ -162,6 +162,7 @@ public:
     CPlayerState() : x188_staticIntf(5) { x0_24_ = true; }
     CPlayerState(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& stream);
+
 };
 }
 

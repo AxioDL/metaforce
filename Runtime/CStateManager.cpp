@@ -14,7 +14,9 @@
 #include "CPlayerState.hpp"
 #include "CGameState.hpp"
 #include "World/CPlayer.hpp"
+#include "World/CPlayerGun.hpp"
 #include "World/CMorphBall.hpp"
+#include "World/CScriptSpawnPoint.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
 
 #include <cmath>
@@ -361,7 +363,7 @@ void CStateManager::RecursiveDrawTree(TUniqueId) const
 
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg)
 {
-    if (dest && !dest->x30_26_messagesBlocked)
+    if (dest && !dest->x30_26_scriptingBlocked)
     {
         dest->AcceptScriptMsg(msg, src, *this);
     }
@@ -530,6 +532,50 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
     g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
     x850_world->TravelToArea(x8cc_nextAreaId, *this, true);
     UpdateRoomAcoustics(x8cc_nextAreaId);
+
+    TUniqueId entId = x80c_allObjs->GetFirstObjectIndex();
+    while (entId != kInvalidUniqueId)
+    {
+        CEntity* ent = x80c_allObjs->GetObjectById(entId);
+        SendScriptMsg(ent, kInvalidUniqueId, EScriptObjectMessage::InternalMessage14);
+        entId = x80c_allObjs->GetNextObjectIndex(entId);
+    }
+
+    entId = x80c_allObjs->GetFirstObjectIndex();
+    while (entId != kInvalidUniqueId)
+    {
+        CScriptSpawnPoint* sp = dynamic_cast<CScriptSpawnPoint*>(x80c_allObjs->GetObjectById(entId));
+        if (sp && sp->x30_24_active && sp->FirstSpawn())
+        {
+            const zeus::CTransform& xf = sp->GetTransform();
+            zeus::CVector3f lookVec{xf.basis[0][1], xf.basis[1][1], xf.basis[2][1]};
+            if (lookVec.canBeNormalized())
+            {
+                auto lookXf = zeus::lookAt(xf.origin, lookVec);
+                x84c_player->Teleport(lookXf, *this, true);
+            }
+
+            if (!g_GameState->x228_25_deferPowerupInit)
+                break;
+
+            g_GameState->x228_25_deferPowerupInit = false;
+            for (int i=0 ; i<41 ; ++i)
+            {
+                CPlayerState::EItemType iType = CPlayerState::EItemType(i);
+
+                u32 spawnPu = sp->GetPowerup(iType);
+                u32 statePu = x8b8_playerState->GetItemCapacity(iType);
+                if (statePu < spawnPu)
+                    x8b8_playerState->InitializePowerUp(iType, spawnPu - statePu);
+
+                spawnPu = sp->GetPowerup(iType);
+                statePu = x8b8_playerState->GetItemAmount(iType);
+                if (statePu < spawnPu)
+                    x8b8_playerState->IncrPickup(iType, spawnPu - statePu);
+            }
+        }
+        entId = x80c_allObjs->GetNextObjectIndex(entId);
+    }
 
     /* TODO: Finish */
 }

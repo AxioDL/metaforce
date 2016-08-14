@@ -369,7 +369,9 @@ void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAA
 
 std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColMesh& mesh, BspNodeType& rootOut)
 {
-    zeus::CAABox fullAabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
+    zeus::CAABox fullAabb;
+    for (const auto& vert : mesh.verts)
+        fullAabb.accumulateBounds(zeus::CVector3f(vert));
 
     int t = 0;
     for (const ColMesh::Triangle& tri : mesh.trianges)

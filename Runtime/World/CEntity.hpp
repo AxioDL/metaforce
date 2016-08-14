@@ -31,6 +31,7 @@ public:
 class CEntity
 {
     friend class CStateManager;
+    friend class CObjectList;
 protected:
     TAreaId x4_areaId;
     TUniqueId x8_uid;
@@ -44,7 +45,7 @@ protected:
         {
             bool x30_24_active : 1;
             bool x30_25_ : 1;
-            bool x30_26_messagesBlocked : 1;
+            bool x30_26_scriptingBlocked : 1;
             bool x30_27_ : 1;
         };
         u8 _dummy = 0;

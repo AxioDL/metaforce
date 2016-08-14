@@ -22,6 +22,8 @@ public:
 
 class CGameState
 {
+    friend class CStateManager;
+
     int m_stateFlag = -1;
     ResId x84_mlvlId = -1;
     std::vector<CWorldState> x88_worldStates;
@@ -30,8 +32,18 @@ class CGameState
     float m_gameTime = 0.0;
     CGameOptions m_gameOpts;
     double xa0_playTime;
+
+    union
+    {
+        struct
+        {
+            bool x228_24_;
+            bool x228_25_deferPowerupInit;
+        };
+        u8 _dummy = 0;
+    };
 public:
-    CGameState() = default;
+    CGameState();
     CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
     CWorldTransManager& WorldTransitionManager() {return x9c_transManager;}

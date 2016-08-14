@@ -3,6 +3,8 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakGunRes.hpp"
 #include "AutoMapper/ITweakAutoMapper.hpp"
 #include "GuiSys/ITweakGui.hpp"
 
@@ -21,6 +23,8 @@ extern class CBooRenderer* g_Renderer;
 extern DataSpec::ITweakGame*   g_tweakGame;
 extern DataSpec::ITweakPlayer* g_tweakPlayer;
 extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
+extern DataSpec::ITweakPlayerGun* g_tweakPlayerGun;
+extern DataSpec::ITweakGunRes* g_tweakGunRes;
 extern ITweakAutoMapper* g_tweakAutoMapper;
 extern ITweakGui* g_tweakGui;
 

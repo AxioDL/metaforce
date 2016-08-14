@@ -27,12 +27,12 @@ class CObjectList
     struct SObjectListEntry
     {
         CEntity* entity = nullptr;
-        TUniqueId prev = -1;
         TUniqueId next = -1;
+        TUniqueId prev = -1;
     };
     SObjectListEntry m_list[1024];
     EGameObjectList m_listEnum;
-    TUniqueId m_lastId = -1;
+    TUniqueId m_firstId = -1;
     u16 m_count = 0;
     int m_areaIdx = 0;
 public:
@@ -42,6 +42,8 @@ public:
     void RemoveObject(TUniqueId uid);
     const CEntity* GetObjectById(TUniqueId uid) const;
     CEntity* GetObjectById(TUniqueId uid);
+    TUniqueId GetFirstObjectIndex() const { return m_firstId; }
+    TUniqueId GetNextObjectIndex(TUniqueId prev) const { return m_list[prev].next; }
     virtual bool IsQualified();
 };
 

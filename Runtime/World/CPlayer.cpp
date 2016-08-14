@@ -1,6 +1,7 @@
 #include "CPlayer.hpp"
 #include "CActorParameters.hpp"
 #include "CMorphBall.hpp"
+#include "CPlayerGun.hpp"
 
 namespace urde
 {
@@ -16,6 +17,10 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                 xf, MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(f1), CActorParameters::None(), f2, f3)
 {
     x768_morphball.reset(new CMorphBall(*this, f4));
+}
+
+void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool)
+{
 }
 
 }
