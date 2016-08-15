@@ -111,6 +111,7 @@ class CStateManager
 
     TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
     CRandom16 x8fc_random;
+    CRandom16* x900_activeRandom = nullptr;
 
     FScriptLoader x904_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
@@ -284,6 +285,17 @@ public:
     std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
 
     bool IsLayerActive(TAreaId area, int layerIdx) { return false; }
+
+    CPlayer& GetPlayer() const { return *x84c_player; }
+
+    CObjectList& GetAllObjectList() const { return *x80c_allObjs; }
+    CActorList& GetActorObjectList() const { return *x814_actorObjs; }
+    CPhysicsActorList& GetPhysicsActorObjectList() const { return *x81c_physActorObjs; }
+    CGameCameraList& GetCameraObjectList() const { return *x824_cameraObjs; }
+    CGameLightList& GetLightObjectList() const { return *x82c_lightObjs; }
+    CListeningAiList& GetListeningAiObjectList() const { return *x834_listenAiObjs; }
+    CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
+    CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
 };
 
 }

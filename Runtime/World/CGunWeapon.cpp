@@ -7,4 +7,8 @@ CGunWeapon::CGunWeapon(u32, EWeaponType type, TUniqueId, EMaterialTypes, const z
 {
 }
 
+void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr)
+{
+}
+
 }

@@ -9,4 +9,12 @@ CCinematicCamera::CCinematicCamera(TUniqueId uid, const std::string& name, const
 {
 }
 
+void CCinematicCamera::ProcessInput(const CFinalInput&, CStateManager& mgr)
+{
+}
+
+void CCinematicCamera::Reset(const zeus::CTransform&, CStateManager& mgr)
+{
+}
+
 }

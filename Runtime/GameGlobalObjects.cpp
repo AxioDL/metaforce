@@ -15,5 +15,7 @@ class CBooRenderer* g_Renderer = nullptr;
 DataSpec::ITweakGame*   g_tweakGame = nullptr;
 DataSpec::ITweakPlayer* g_tweakPlayer = nullptr;
 DataSpec::ITweakPlayerControl* g_tweakPlayerControl = nullptr;
+DataSpec::ITweakPlayerGun* g_tweakPlayerGun = nullptr;
+DataSpec::ITweakGunRes* g_tweakGunRes = nullptr;
 
 }

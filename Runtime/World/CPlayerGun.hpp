@@ -26,7 +26,28 @@ class CPlayerGun
 {
     struct CGunMorph
     {
-        CGunMorph(float, float);
+        float x0_ = 0.f;
+        float x4_;
+        float x8_ = 0.f;
+        float xc_ = 0.1f;
+        float x10_;
+        float x14_ = 2.f;
+        float x18_ = 1.f;
+        u32 x1c_ = 2;
+        u32 x20_ = 1;
+
+        union
+        {
+            struct
+            {
+                bool x24_24_ : 1;
+                bool x24_25_ : 1;
+            };
+            u8 _dummy = 0;
+        };
+
+        CGunMorph(float a, float b)
+        : x4_(a), x10_(std::fabs(b)) {}
     };
 
     CActorLights x0_lights;
@@ -116,24 +137,69 @@ class CPlayerGun
     u32 x6c4_ = 0;
     zeus::CAABox x6c8_;
     CModelData x6e0_;
-    u32 x72c_ = 0;
+    CGunWeapon* x72c_currentBeam = nullptr;
     u32 x730_ = 0;
     u32 x734_ = 0;
     u32 x738_ = 0;
-    std::unique_ptr<CGunMotion> x73c_;
-    std::unique_ptr<CGrappleArm> x740_;
-    std::unique_ptr<CAuxWeapon> x744_;
-    std::unique_ptr<CPowerBeam> x74c_;
-    std::unique_ptr<CIceBeam> x750_;
-    std::unique_ptr<CWaveBeam> x754_;
-    std::unique_ptr<CPlasmaBeam> x758_;
-    std::unique_ptr<CPhazonBeam> x75c_;
-    u32 x760_[4] = {};
+    std::unique_ptr<CGunMotion> x73c_gunMotion;
+    std::unique_ptr<CGrappleArm> x740_grappleArm;
+    std::unique_ptr<CAuxWeapon> x744_auxWeapon;
+    std::unique_ptr<CPowerBeam> x74c_powerBeam;
+    std::unique_ptr<CIceBeam> x750_iceBeam;
+    std::unique_ptr<CWaveBeam> x754_waveBeam;
+    std::unique_ptr<CPlasmaBeam> x758_plasmaBeam;
+    std::unique_ptr<CPhazonBeam> x75c_phazonBeam;
+    CGunWeapon* x760_selectableBeams[4] = {};
     std::unique_ptr<CElementGen> x774_;
-    std::unique_ptr<CWorldShadow> x82c_;
+    std::unique_ptr<CWorldShadow> x82c_shadow;
+
+    union
+    {
+        struct
+        {
+            bool x832_24_ : 1;
+            bool x832_25_ : 1;
+            bool x832_26_ : 1;
+            bool x832_27_ : 1;
+            bool x832_28_ : 1;
+            bool x832_29_ : 1;
+            bool x832_30_ : 1;
+            bool x832_31_ : 1;
+
+            bool x833_24_ : 1;
+            bool x833_25_ : 1;
+            bool x833_26_ : 1;
+            bool x833_27_ : 1;
+            bool x833_28_ : 1;
+            bool x833_29_ : 1;
+            bool x833_30_ : 1;
+            bool x833_31_ : 1;
+
+            bool x834_24_ : 1;
+            bool x834_25_ : 1;
+            bool x834_26_ : 1;
+            bool x834_27_ : 1;
+            bool x834_28_ : 1;
+            bool x834_29_ : 1;
+            bool x834_30_ : 1;
+            bool x834_31_ : 1;
+
+            bool x835_24_ : 1;
+            bool x835_25_ : 1;
+            bool x835_26_ : 1;
+            bool x835_27_ : 1;
+            bool x835_28_ : 1;
+            bool x835_29_ : 1;
+            bool x835_30_ : 1;
+            bool x835_31_ : 1;
+        };
+        u32 _dummy = 0;
+    };
 
 public:
     CPlayerGun(TUniqueId id);
+
+    void AsyncLoadSuit(CStateManager& mgr);
 };
 
 }

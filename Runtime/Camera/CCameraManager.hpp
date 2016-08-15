@@ -47,6 +47,7 @@ public:
     static float DefaultFirstPersonFOV() {return 55.0f;}
     static float DefaultThirdPersonFOV() {return 60.0f;}
 
+    void ResetCameras(CStateManager& mgr);
     void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball)
     {
         x7c_fpCamera = &fp;

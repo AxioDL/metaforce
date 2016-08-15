@@ -503,6 +503,9 @@ void CStateManager::FrameBegin()
 
 void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 {
+    bool hadRandom = x900_activeRandom != nullptr;
+    x900_activeRandom = &x8fc_random;
+
     if (xb3c_initPhase == InitPhase::LoadWorld)
     {
         CreateStandardGameObjects();
@@ -559,7 +562,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
                 break;
 
             g_GameState->x228_25_deferPowerupInit = false;
-            for (int i=0 ; i<41 ; ++i)
+            for (int i=0 ; i<int(CPlayerState::EItemType::Max) ; ++i)
             {
                 CPlayerState::EItemType iType = CPlayerState::EItemType(i);
 
@@ -577,7 +580,15 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
         entId = x80c_allObjs->GetNextObjectIndex(entId);
     }
 
-    /* TODO: Finish */
+    x84c_player->AsyncLoadSuit(*this);
+    x870_cameraManager->ResetCameras(*this);
+
+    if (!hadRandom)
+        x900_activeRandom = nullptr;
+    else
+        x900_activeRandom = &x8fc_random;
+
+    x880_envFxManager->AsyncLoadResources(*this);
 }
 
 void CStateManager::CreateStandardGameObjects()

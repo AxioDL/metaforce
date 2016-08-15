@@ -16,6 +16,9 @@ public:
                 const zeus::CTransform& xf, bool, bool, bool, bool, bool,
                 float, float, float, float, float, float, float, u32,
                 EInitialSplinePosition);
+
+    void ProcessInput(const CFinalInput&, CStateManager& mgr);
+    void Reset(const zeus::CTransform&, CStateManager& mgr);
 };
 
 }

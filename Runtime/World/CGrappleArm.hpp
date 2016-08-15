@@ -14,6 +14,7 @@ class CGrappleArm
 
 public:
     CGrappleArm(const zeus::CVector3f& vec);
+    void AsyncLoadSuit(CStateManager& mgr);
 };
 
 }

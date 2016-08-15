@@ -89,6 +89,8 @@ public:
         Thermal
     };
 
+    void SetSortThermal(bool v) { x14_25_sortThermal = v; }
+
     ~CModelData();
     CModelData(const CStaticRes& res);
     CModelData(const CAnimRes& res);

@@ -3,6 +3,7 @@
 
 namespace urde
 {
+class CStateManager;
 
 enum class EEnvFxType
 {
@@ -20,6 +21,8 @@ enum class EPhazonType
 
 class CEnvFxManager
 {
+public:
+    void AsyncLoadResources(CStateManager& mgr);
 };
 
 }
