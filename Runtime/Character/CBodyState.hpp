@@ -1,21 +1,10 @@
 #ifndef CBODYSTATE_HPP
 #define CBODYSTATE_HPP
 #include "RetroTypes.hpp"
+#include "CharacterCommon.hpp"
 
 namespace urde
 {
-namespace pas
-{
-enum class ELocomotionType
-{
-};
-
-enum class ELocomotionAnim
-{
-};
-
-}
-
 class CBodyController;
 class CStateManager;
 class CBodyState

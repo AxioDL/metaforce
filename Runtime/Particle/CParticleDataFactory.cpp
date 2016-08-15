@@ -578,7 +578,7 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
     {
         CRealElement* a = GetRealElement(in);
         CRealElement* b = GetRealElement(in);
-        return new CREISWT(a, b);
+        return new CREInitialSwitch(a, b);
     }
     case SBIG('CLTN'):
     {

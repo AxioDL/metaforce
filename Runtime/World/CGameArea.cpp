@@ -671,6 +671,7 @@ void CGameArea::AllocNewAreaData(int offset, int size)
 
 bool CGameArea::Invalidate(CStateManager& mgr)
 {
+    return false;
 }
 
 void CGameArea::CullDeadAreaRequests()

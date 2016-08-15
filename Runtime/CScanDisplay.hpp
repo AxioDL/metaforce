@@ -6,6 +6,7 @@
 #include "zeus/CVector2f.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "CScannableObjectInfo.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
@@ -48,6 +49,7 @@ public:
     struct SBucketBackground
     {
     };
+
 public:
     CScanDisplay() = default;
     void StartScan(TUniqueId, const CScannableObjectInfo&, CGuiTextPane*, CGuiWidget*, float);
