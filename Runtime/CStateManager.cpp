@@ -562,7 +562,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
                 break;
 
             g_GameState->x228_25_deferPowerupInit = false;
-            for (int i=0 ; i<41 ; ++i)
+            for (int i=0 ; i<int(CPlayerState::EItemType::Max) ; ++i)
             {
                 CPlayerState::EItemType iType = CPlayerState::EItemType(i);
 
