@@ -24,6 +24,7 @@ set(WORLD_SOURCES
     CActor.hpp CActor.cpp
     CAi.hpp CAi.cpp
     CAiFuncMap.hpp CAiFuncMap.cpp
+    CStateMachine.hpp CStateMachine.cpp
     CPatterned.hpp CPatterned.cpp
     CPathFindArea.hpp CPathFindArea.cpp
     CPathFindRegion.hpp CPathFindRegion.cpp

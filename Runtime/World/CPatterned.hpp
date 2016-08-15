@@ -2,17 +2,11 @@
 #define __URDE_CPATTERNED_HPP__
 
 #include "CAi.hpp"
+#include "Character/CBodyController.hpp"
 
 namespace urde
 {
 class CPatternedInfo;
-
-enum class EBodyType
-{
-    One,
-    Two = 2,
-    Three
-};
 
 class CPatterned : public CAi
 {

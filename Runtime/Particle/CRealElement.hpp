@@ -155,12 +155,12 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
-class CREISWT : public CRealElement
+class CREInitialSwitch : public CRealElement
 {
     std::unique_ptr<CRealElement> x4_a;
     std::unique_ptr<CRealElement> x8_b;
 public:
-    CREISWT(CRealElement* a, CRealElement* b)
+    CREInitialSwitch(CRealElement* a, CRealElement* b)
     : x4_a(a), x8_b(b) {}
     bool GetValue(int frame, float& valOut) const;
 };

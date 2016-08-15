@@ -200,7 +200,7 @@ bool CRESineWave::GetValue(int frame, float& valOut) const
     return false;
 }
 
-bool CREISWT::GetValue(int frame, float& valOut) const
+bool CREInitialSwitch::GetValue(int frame, float& valOut) const
 {
     if (frame == 0)
         x4_a->GetValue(frame, valOut);

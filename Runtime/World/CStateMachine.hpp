@@ -10,10 +10,13 @@ class CAiState;
 class CStateManager;
 class CAiTrigger
 {
-
+    u32 x0_ = 0;
+    u32 x4_ = 0;
+    u32 x8_ = 0;
     float xc_ = 0.f;
-    u32  x10_;
-    bool x18_;
+    u32 x10_ = 0;
+    u32 x14_ = 0;
+    bool x18_ = false;
 public:
     CAiTrigger() = default;
     bool GetAnd();
@@ -40,17 +43,17 @@ class CAiState
     u32 x20_;
     u32 x24_;
     u32 x28_;
-    u32 x2c_;
+    u32 x2c_numTriggers;
     u32 x30_;
 public:
     CAiState(CAiStateFunc func, const char* name)
     {}
 
-    u32 GetNumTriggers() const;
+    s32 GetNumTriggers() const;
     CAiTrigger& GetTrig(s32) const;
     const char* GetName() const;
     void SetTriggers(CAiTrigger* triggers);
-    void SetNumTriggers(s32 numTriggers);
+    void SetNumTriggers(s32 numTriggers) { x2c_numTriggers = numTriggers; }
     void CallFunc(CStateManager& mgr, CAi& ai, EStateMsg msg, float delta) const
     {
         if (x0_func)
@@ -71,24 +74,24 @@ public:
 
 class CStateMachineState
 {
-    const CStateMachine* x0_ = nullptr;
+    const CStateMachine* x0_machine = nullptr;
     CAiState* x4_state = nullptr;
     float x8_ = 0;
     float xc_ = 0;
     float x10_ = 0;
+    union
+    {
+        struct
+        {
+            bool x18_24_ : 1;
+        };
+        u32 dummy = 0;
+    };
 public:
     CStateMachineState()=default;
-    void Setup(const CStateMachine* machine)
-    {
-        x0_ = machine;
-        x4_state = nullptr;
-        x8_ = 0.f;
-        xc_ = 0.f;
-        x10_= 0.f;
-    }
 
-    void SetDelay(float);
-    float GetDelay() const;
+    void GetActorState() const;
+    float GetTime() const;
 
     void Update(CStateManager& mgr, CAi& ai, float delta)
     {
@@ -96,7 +99,14 @@ public:
         if (x4_state)
             x4_state->CallFunc(mgr, ai, EStateMsg::One, delta);
     }
-
+    void SetState(CStateManager&, CAi&, s32);
+    void SetState(CStateManager &, CAi &, const std::string&);
+    const std::vector<CAiState>* GetStateVector() const;
+    void Setup(const CStateMachine* machine);
+    std::string GetName() const;
+    void SetDelay(float);
+    void GetRandom() const;
+    float GetDelay() const;
 };
 
 }

@@ -1,4 +1,5 @@
 set(CHARACTER_SOURCES
+    CharacterCommon.hpp
     CAssetFactory.hpp CAssetFactory.cpp
     CCharacterFactory.hpp CCharacterFactory.cpp
     CModelData.hpp CModelData.cpp
@@ -78,6 +79,8 @@ set(CHARACTER_SOURCES
     CAdditiveAnimPlayback.hpp CAdditiveAnimPlayback.cpp
     CActorLights.hpp CActorLights.cpp
     CAnimSysContext.hpp
-    CBodyState.hpp)
+    CBodyState.hpp CBodyState.cpp
+    CBodyStateCmdMgr.hpp CBodyStateCmdMgr.cpp
+    CBodyController.hpp CBodyController.cpp)
 
 runtime_add_list(Character CHARACTER_SOURCES)
