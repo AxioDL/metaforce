@@ -139,16 +139,13 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
 
 void CCameraManager::ResetCameras(CStateManager& mgr)
 {
-    CGameCameraList& camList = mgr.GetCameraObjectList();
     zeus::CTransform xf = mgr.GetPlayer().CreateTransformFromMovementDirection();
     xf.origin = mgr.GetPlayer().GetEyePosition();
 
-    TUniqueId camId = camList.GetFirstObjectIndex();
-    while (camId != kInvalidUniqueId)
+    for (CEntity* ent : mgr.GetCameraObjectList())
     {
-        CGameCamera* camObj = static_cast<CGameCamera*>(camList.GetObjectById(camId));
+        CGameCamera* camObj = static_cast<CGameCamera*>(ent);
         camObj->Reset(xf, mgr);
-        camId = camList.GetNextObjectIndex(camId);
     }
 }
 

@@ -12,13 +12,12 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 namespace MP1
 {
-class CMain* g_main = nullptr;
 
 CMain::CMain(IFactory& resFactory, CSimplePool& resStore)
-: m_globalObjects(resFactory, resStore)
+: x128_globalObjects(resFactory, resStore)
 {
-    g_main = this;
     xe4_gameplayResult = EGameplayResult::Playing;
+    g_Main = this;
 }
 
 void CMain::RegisterResourceTweaks()
@@ -60,7 +59,7 @@ void CMain::Init(boo::IGraphicsDataFactory* factory,
                  boo::IAudioVoiceEngine* voiceEngine)
 {
     InitializeSubsystems(factory, cc, renderTex, storeMgr, voiceEngine);
-    m_globalObjects.PostInitialize();
+    x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();

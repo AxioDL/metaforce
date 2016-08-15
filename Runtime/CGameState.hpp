@@ -24,11 +24,12 @@ class CGameState
 {
     friend class CStateManager;
 
+    bool x0_[128] = {};
     int m_stateFlag = -1;
     ResId x84_mlvlId = -1;
     std::vector<CWorldState> x88_worldStates;
-    CPlayerState x98_playerState;
-    CWorldTransManager x9c_transManager;
+    std::shared_ptr<CPlayerState> x98_playerState;
+    std::shared_ptr<CWorldTransManager> x9c_transManager;
     float m_gameTime = 0.0;
     CGameOptions m_gameOpts;
     double xa0_playTime;
@@ -46,10 +47,12 @@ public:
     CGameState();
     CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
-    CWorldTransManager& WorldTransitionManager() {return x9c_transManager;}
+    std::shared_ptr<CPlayerState> PlayerState() {return x98_playerState;}
+    std::shared_ptr<CWorldTransManager> WorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
     CWorldState& StateForWorld(ResId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
+    ResId CurrentWorldAssetId() const { return x84_mlvlId; }
 };
 
 }

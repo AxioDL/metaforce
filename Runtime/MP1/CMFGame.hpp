@@ -5,6 +5,10 @@
 
 namespace urde
 {
+class CStateManager;
+class CInGameGuiManager;
+class CToken;
+
 namespace MP1
 {
 
@@ -18,8 +22,22 @@ public:
 
 class CMFGameLoader : public CMFGameLoaderBase
 {
+    std::shared_ptr<CStateManager> x14_stateMgr;
+    std::shared_ptr<CInGameGuiManager> x18_guiMgr;
+    std::vector<CToken> x1c_;
+
+    union
+    {
+        struct
+        {
+            bool x2c_24_ : 1;
+            bool x2c_25_ : 1;
+        };
+        u8 _dummy = 0;
+    };
+
 public:
-    CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {}
+    CMFGameLoader();
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Draw() const;
 };

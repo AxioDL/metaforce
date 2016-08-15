@@ -62,36 +62,46 @@ class CGuiTextProperties
     friend class CGuiTextSupport;
     bool x0_wordWrap;
     bool x1_vertical;
-    bool x2_c;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
+    ETextDirection xc_direction;
 public:
-    CGuiTextProperties(bool wordWrap, bool vertical, bool c, EJustification justification,
-                       EVerticalJustification vertJustification)
-        : x0_wordWrap(wordWrap), x1_vertical(vertical), x2_c(c), x4_justification(justification),
-          x8_vertJustification(vertJustification) {}
+    CGuiTextProperties(bool wordWrap, bool vertical, EJustification justification,
+                       EVerticalJustification vertJustification, ETextDirection dir)
+        : x0_wordWrap(wordWrap), x1_vertical(vertical), x4_justification(justification),
+          x8_vertJustification(vertJustification), xc_direction(dir) {}
 };
 
 class CGuiTextSupport
 {
     friend class CGuiTextPane;
     std::wstring x0_string;
-    CGuiTextProperties x10_props;
-    zeus::CColor x1c_fontColor;
-    zeus::CColor x20_outlineColor;
-    zeus::CColor x24_geometryColor;
-    s32 x28_extentX;
-    s32 x2c_extentY;
-    float x30_curTime = 0.f;
-    std::vector<std::pair<float, int>> x34_primStartTimes;
-    bool x44_typeEnable = false;
-    float x48_chFadeTime = 0.1f;
-    float x4c_chRate = 10.0f;
-    ResId x50_fontId;
-    std::experimental::optional<CTextRenderBuffer> x54_renderBuf;
+    float x10_ = 0.f;
+    CGuiTextProperties x14_props;
+    zeus::CColor x24_fontColor;
+    zeus::CColor x28_outlineColor;
+    zeus::CColor x2c_geometryColor;
+    s32 x34_extentX;
+    s32 x38_extentY;
+    float x3c_curTime = 0.f;
+    std::vector<std::pair<float, int>> x44_primStartTimes;
+    bool x50_typeEnable = false;
+    float x54_chFadeTime = 0.1f;
+    float x58_chRate = 10.0f;
+    ResId x5c_fontId;
+    std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
     bool x2ac_active = false;
     std::vector<CToken> x2b0_assets;
-    TLockedToken<CRasterFont> x2c0_font;
+    TLockedToken<CRasterFont> x2cc_font;
+
+    zeus::CVector2f x2dc_;
+    zeus::CVector2f x2e4_;
+
+    std::list<u8> x2f0_;
+    u32 x300_ = 0;
+    u32 x304_ = 0;
+    u32 x308_ = 0;
+
 public:
     CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& fontCol, const zeus::CColor& outlineCol,

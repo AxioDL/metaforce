@@ -207,6 +207,18 @@ class CMain
         fprintf(stderr, "\n");
     }
 #endif
+public:
+    enum class FlowState
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+    };
+private:
 
     //CMemorySys x6c_memSys;
     CTweaks x70_tweaks;
@@ -214,8 +226,31 @@ class CMain
     bool xe8_b24_finished = false;
 
     /* urde addition: these are simply initialized along with everything else */
-    CGameGlobalObjects m_globalObjects;
+    CGameGlobalObjects x128_globalObjects;
     CGameArchitectureSupport m_archSupport;
+
+    FlowState x12c_ = FlowState::Five;
+
+    u32 x130_[10] = { 1000000 };
+
+    union
+    {
+        struct
+        {
+            bool x160_24_ : 1;
+            bool x160_25_ : 1;
+            bool x160_26_ : 1;
+            bool x160_27_ : 1;
+            bool x160_28_ : 1;
+            bool x160_29_ : 1;
+            bool x160_30_ : 1;
+            bool x160_31_ : 1;
+            bool x161_24_ : 1;
+        };
+        u16 _dummy = 0;
+    };
+
+    u32 x164_ = 0;
 
     void InitializeSubsystems(boo::IGraphicsDataFactory* factory,
                               boo::IGraphicsCommandQueue* cc,
@@ -248,9 +283,10 @@ public:
     void ShutdownSubsystems();
     EGameplayResult GetGameplayResult() const {return xe4_gameplayResult;}
     void SetGameplayResult(EGameplayResult wl) {xe4_gameplayResult = wl;}
+
+    FlowState GetFlowState() const { return x12c_; }
 };
 
-extern CMain* g_main;
 }
 }
 

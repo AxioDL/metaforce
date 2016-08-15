@@ -35,9 +35,9 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     {
     case EClientFlowStates::FrontEnd:
     {
-        if (g_main->GetGameplayResult() == EGameplayResult::None)
+        if (g_Main->GetGameplayResult() == EGameplayResult::None)
         {
-            g_main->SetGameplayResult(EGameplayResult::Playing);
+            g_Main->SetGameplayResult(EGameplayResult::Playing);
             break;
         }
         /* TODO: URDE handling
@@ -45,8 +45,8 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         while (!loader.AreAllPaksLoaded())
             loader.AsyncIdlePakLoading();
         */
-        g_main->LoadAudio();
-        g_main->RegisterResourceTweaks();
+        g_Main->LoadAudio();
+        g_Main->RegisterResourceTweaks();
         queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI())));
         break;
     }
@@ -57,7 +57,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     }
     case EClientFlowStates::MoviePlay:
     {
-        switch (g_main->GetGameplayResult())
+        switch (g_Main->GetGameplayResult())
         {
         case EGameplayResult::Win:
             queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::WinGame))));

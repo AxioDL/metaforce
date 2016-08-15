@@ -32,10 +32,24 @@ class CObjectList
     };
     SObjectListEntry m_list[1024];
     EGameObjectList m_listEnum;
-    TUniqueId m_firstId = -1;
+    TUniqueId m_firstId = kInvalidUniqueId;
     u16 m_count = 0;
     int m_areaIdx = 0;
 public:
+    class iterator
+    {
+        friend class CObjectList;
+        CObjectList& m_list;
+        TUniqueId m_id;
+        iterator(CObjectList& list, TUniqueId id) : m_list(list), m_id(id) {}
+    public:
+        iterator& operator++() { m_id = m_list.GetNextObjectIndex(m_id); return *this; }
+        bool operator!=(const iterator& other) const { return m_id != other.m_id; }
+        CEntity* operator*() const { return m_list.GetObjectById(m_id); }
+    };
+    iterator begin() { return iterator(*this, m_firstId); }
+    iterator end() { return iterator(*this, kInvalidUniqueId); }
+
     CObjectList(EGameObjectList listEnum);
 
     void AddObject(CEntity& entity);

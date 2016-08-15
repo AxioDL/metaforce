@@ -48,13 +48,13 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
 
     zeus::CVector2f dims = GetDimensions();
 
-    if (x114_textSupport.x28_extentX)
-        dims.x /= float(x114_textSupport.x28_extentX);
+    if (x114_textSupport.x34_extentX)
+        dims.x /= float(x114_textSupport.x34_extentX);
     else
         dims.x = 0.f;
 
-    if (x114_textSupport.x2c_extentY)
-        dims.y /= float(x114_textSupport.x2c_extentY);
+    if (x114_textSupport.x38_extentY)
+        dims.y /= float(x114_textSupport.x38_extentY);
     else
         dims.y = 0.f;
 
@@ -112,7 +112,7 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     bool vertical = in.readBool();
     EJustification justification = EJustification(in.readUint32Big());
     EVerticalJustification vJustification = EVerticalJustification(in.readUint32Big());
-    CGuiTextProperties props(wordWrap, vertical, false, justification, vJustification);
+    CGuiTextProperties props(wordWrap, vertical, justification, vJustification, ETextDirection::Horizontal);
     zeus::CColor fontCol;
     fontCol.readRGBABig(in);
     zeus::CColor outlineCol;

@@ -10,6 +10,10 @@
 
 namespace urde
 {
+namespace MP1
+{
+extern class CMain* g_Main;
+}
 
 extern class CMemoryCardSys* g_MemoryCardSys;
 extern class IFactory* g_ResFactory;

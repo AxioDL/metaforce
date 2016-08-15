@@ -2,6 +2,10 @@
 
 namespace urde
 {
+namespace MP1
+{
+class CMain* g_Main = nullptr;
+}
 
 class CMemoryCardSys* g_MemoryCardSys = nullptr;
 class IFactory* g_ResFactory = nullptr;

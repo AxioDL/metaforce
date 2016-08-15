@@ -536,18 +536,12 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
     x850_world->TravelToArea(x8cc_nextAreaId, *this, true);
     UpdateRoomAcoustics(x8cc_nextAreaId);
 
-    TUniqueId entId = x80c_allObjs->GetFirstObjectIndex();
-    while (entId != kInvalidUniqueId)
-    {
-        CEntity* ent = x80c_allObjs->GetObjectById(entId);
+    for (CEntity* ent : *x80c_allObjs)
         SendScriptMsg(ent, kInvalidUniqueId, EScriptObjectMessage::InternalMessage14);
-        entId = x80c_allObjs->GetNextObjectIndex(entId);
-    }
 
-    entId = x80c_allObjs->GetFirstObjectIndex();
-    while (entId != kInvalidUniqueId)
+    for (CEntity* ent : *x80c_allObjs)
     {
-        CScriptSpawnPoint* sp = dynamic_cast<CScriptSpawnPoint*>(x80c_allObjs->GetObjectById(entId));
+        CScriptSpawnPoint* sp = dynamic_cast<CScriptSpawnPoint*>(ent);
         if (sp && sp->x30_24_active && sp->FirstSpawn())
         {
             const zeus::CTransform& xf = sp->GetTransform();
@@ -577,7 +571,6 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
                     x8b8_playerState->IncrPickup(iType, spawnPu - statePu);
             }
         }
-        entId = x80c_allObjs->GetNextObjectIndex(entId);
     }
 
     x84c_player->AsyncLoadSuit(*this);

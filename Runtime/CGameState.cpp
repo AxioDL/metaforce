@@ -7,6 +7,8 @@ namespace urde
 
 CGameState::CGameState()
 {
+    x98_playerState.reset(new CPlayerState());
+    x9c_transManager.reset(new CWorldTransManager());
     x228_25_deferPowerupInit = true;
 }
 

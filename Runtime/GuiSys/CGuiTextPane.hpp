@@ -20,7 +20,7 @@ public:
     const CGuiTextSupport* GetTextSupport() const {return &x114_textSupport;}
     void Update(float dt);
     bool GetIsFinishedLoadingWidgetSpecific() const;
-    std::vector<ResId> GetFontAssets() const {return {x114_textSupport.x50_fontId};}
+    std::vector<ResId> GetFontAssets() const {return {x114_textSupport.x5c_fontId};}
     void SetDimensions(const zeus::CVector2f& dim, bool initVBO);
     void ScaleDimensions(const zeus::CVector3f& scale);
     void Draw(const CGuiWidgetDrawParms& parms) const;
