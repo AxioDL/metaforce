@@ -8,11 +8,13 @@
 
 namespace urde
 {
+class CStateManager;
 
 class CGunWeapon
 {
 public:
     CGunWeapon(u32, EWeaponType type, TUniqueId, EMaterialTypes, const zeus::CVector3f& vec);
+    void AsyncLoadSuitArm(CStateManager& mgr);
 };
 
 }

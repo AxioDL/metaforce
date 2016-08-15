@@ -5,6 +5,7 @@
 #include "CStateManager.hpp"
 #include "Input/CRumbleManager.hpp"
 #include "World/CScriptWater.hpp"
+#include "World/CPlayer.hpp"
 
 namespace urde
 {
@@ -134,6 +135,21 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
 {
     const CObjectList* camList = stateMgr.GetObjectListById(EGameObjectList::GameCamera);
     return static_cast<const CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
+}
+
+void CCameraManager::ResetCameras(CStateManager& mgr)
+{
+    CGameCameraList& camList = mgr.GetCameraObjectList();
+    zeus::CTransform xf = mgr.GetPlayer().CreateTransformFromMovementDirection();
+    xf.origin = mgr.GetPlayer().GetEyePosition();
+
+    TUniqueId camId = camList.GetFirstObjectIndex();
+    while (camId != kInvalidUniqueId)
+    {
+        CGameCamera* camObj = static_cast<CGameCamera*>(camList.GetObjectById(camId));
+        camObj->Reset(xf, mgr);
+        camId = camList.GetNextObjectIndex(camId);
+    }
 }
 
 }

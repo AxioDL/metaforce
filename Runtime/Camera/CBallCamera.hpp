@@ -10,6 +10,9 @@ class CBallCamera : public CGameCamera
 {
 public:
     CBallCamera(TUniqueId, TUniqueId, const zeus::CTransform& xf, float, float, float, float);
+
+    void ProcessInput(const CFinalInput&, CStateManager& mgr);
+    void Reset(const zeus::CTransform&, CStateManager& mgr);
 };
 
 }

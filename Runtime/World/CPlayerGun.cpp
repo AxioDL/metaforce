@@ -15,7 +15,18 @@ CPlayerGun::CPlayerGun(TUniqueId id)
     x668_ = g_tweakPlayerGun->GetSomething1();
     x66c_ = g_tweakPlayerGun->GetSomething2();
 
+    x832_31_ = true;
+    x833_24_ = true;
+    x833_30_ = true;
+    x6e0_.SetSortThermal(true);
+
     /* TODO: Finish */
+}
+
+void CPlayerGun::AsyncLoadSuit(CStateManager& mgr)
+{
+    x72c_currentBeam->AsyncLoadSuitArm(mgr);
+    x740_grappleArm->AsyncLoadSuit(mgr);
 }
 
 }
