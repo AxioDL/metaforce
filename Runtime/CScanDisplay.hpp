@@ -19,7 +19,8 @@ public:
     public:
         enum class EDotState
         {
-            Zero
+            Zero,
+            One
         };
     private:
         EDotState x0_ = EDotState::Zero;
@@ -35,7 +36,7 @@ public:
         void Update(float);
         void Draw(const zeus::CColor&, float) const;
         float GetTransitionFactor() const;
-        void StartTransitionTo(const zeus::CVector2f&, float, float);
+        void StartTransitionTo(const zeus::CVector2f&, float);
         void SetDestPosition(const zeus::CVector2f&);
         void SetDesiredAlpha(float);
         void SetDotState(EDotState);
