@@ -93,6 +93,8 @@ set(GUISYS_SOURCES
     CWordBreakTables.hpp
     CFontImageDef.cpp
     CFontImageDef.hpp
-    ITweakGui.hpp)
+    ITweakGui.hpp
+    CStringTable.cpp
+    CStringTable.hpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)
