@@ -29,7 +29,7 @@ CMFGameLoader::CMFGameLoader()
 
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
-    std::shared_ptr<CWorldTransManager> wtMgr = g_GameState->WorldTransitionManager();
+    std::shared_ptr<CWorldTransManager> wtMgr = g_GameState->GetWorldTransitionManager();
 
     switch (msg.GetType())
     {
@@ -44,7 +44,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
 void CMFGameLoader::Draw() const
 {
-    g_GameState->WorldTransitionManager()->Draw();
+    g_GameState->GetWorldTransitionManager()->Draw();
 }
 
 }

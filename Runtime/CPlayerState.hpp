@@ -13,6 +13,7 @@ namespace urde
 
 class CPlayerState
 {
+    friend class CWorldTransManager;
 public:
     enum class EItemType : u32
     {
@@ -134,6 +135,7 @@ public:
     void SetFusion(bool val) { x0_26_fusion = val; }
     bool GetFusion() const { return x0_26_fusion; }
     EPlayerSuit GetCurrentSuit() const;
+    EBeamId GetCurrentBeam() const { return x8_currentBeam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);

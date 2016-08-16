@@ -5,6 +5,7 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakGunRes.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
 #include "AutoMapper/ITweakAutoMapper.hpp"
 #include "GuiSys/ITweakGui.hpp"
 
@@ -29,6 +30,7 @@ extern DataSpec::ITweakPlayer* g_tweakPlayer;
 extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
 extern DataSpec::ITweakPlayerGun* g_tweakPlayerGun;
 extern DataSpec::ITweakGunRes* g_tweakGunRes;
+extern DataSpec::ITweakPlayerRes* g_tweakPlayerRes;
 extern ITweakAutoMapper* g_tweakAutoMapper;
 extern ITweakGui* g_tweakGui;
 

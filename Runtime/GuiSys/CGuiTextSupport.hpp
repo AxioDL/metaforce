@@ -61,14 +61,15 @@ class CGuiTextProperties
 {
     friend class CGuiTextSupport;
     bool x0_wordWrap;
-    bool x1_vertical;
+    bool x1_multiline;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
     ETextDirection xc_direction;
 public:
-    CGuiTextProperties(bool wordWrap, bool vertical, EJustification justification,
-                       EVerticalJustification vertJustification, ETextDirection dir)
-        : x0_wordWrap(wordWrap), x1_vertical(vertical), x4_justification(justification),
+    CGuiTextProperties(bool wordWrap, bool multiline, EJustification justification,
+                       EVerticalJustification vertJustification,
+                       ETextDirection dir=ETextDirection::Horizontal)
+        : x0_wordWrap(wordWrap), x1_multiline(multiline), x4_justification(justification),
           x8_vertJustification(vertJustification), xc_direction(dir) {}
 };
 

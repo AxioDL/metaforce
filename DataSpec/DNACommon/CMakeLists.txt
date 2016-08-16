@@ -36,4 +36,5 @@ add_library(DNACommon
             Tweaks/ITweakPlayer.hpp
             Tweaks/ITweakPlayerControl.hpp
             Tweaks/ITweakPlayerGun.hpp
-            Tweaks/ITweakGunRes.hpp)
+            Tweaks/ITweakGunRes.hpp
+            Tweaks/ITweakPlayerRes.hpp)

@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakPlayerGun : ITweakGunRes
+struct CTweakGunRes : ITweakGunRes
 {
     DECL_YAML
 

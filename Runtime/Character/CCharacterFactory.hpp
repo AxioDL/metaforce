@@ -66,6 +66,8 @@ public:
                                                const TLockedToken<CCharacterFactory>& factory,
                                                int defaultAnim) const;
     ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
+
+    const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }
 };
 
 }

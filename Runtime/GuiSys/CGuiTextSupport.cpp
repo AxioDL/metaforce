@@ -106,7 +106,7 @@ void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
 
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x48_enableWordWrap = x14_props.x0_wordWrap;
-    g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, ETextDirection(x14_props.x1_vertical),
+    g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x14_props.xc_direction,
                                  x14_props.x4_justification, x14_props.x8_vertJustification);
     g_TextExecuteBuf->AddColor(EColorType::Main, x24_fontColor);
     g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);

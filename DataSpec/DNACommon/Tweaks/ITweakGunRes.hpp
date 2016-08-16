@@ -8,6 +8,15 @@ namespace DataSpec
 
 struct ITweakGunRes : BigYAML
 {
+    enum class EBeamId
+    {
+        Power,
+        Ice,
+        Plasma,
+        Wave,
+        Phazon
+    };
+
     virtual const std::string& GetGunMotion() const=0;
     virtual const std::string& GetGrappleArm() const=0;
     virtual const std::string& GetRightHand() const=0;
@@ -58,6 +67,27 @@ struct ITweakGunRes : BigYAML
     virtual const std::string& GetGrappleHitParticle() const=0;
     virtual const std::string& GetGrappleMuzzleParticle() const=0;
     virtual const std::string& GetGrappleSwooshParticle() const=0;
+
+    const std::string& GetBeamModel(EBeamId beam) const
+    {
+        int b = int(beam);
+        if (b < 0 || b > 4)
+            b = 0;
+        switch (EBeamId(b))
+        {
+        case EBeamId::Power:
+        default:
+            return GetPowerBeam();
+        case EBeamId::Ice:
+            return GetIceBeam();
+        case EBeamId::Plasma:
+            return GetPlasmaBeam();
+        case EBeamId::Wave:
+            return GetWaveBeam();
+        case EBeamId::Phazon:
+            return GetPhazonBeam();
+        }
+    }
 };
 
 }

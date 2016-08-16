@@ -47,8 +47,8 @@ public:
     CGameState();
     CGameState(CBitStreamReader& stream);
     void SetCurrentWorldId(unsigned int id, const std::string& name);
-    std::shared_ptr<CPlayerState> PlayerState() {return x98_playerState;}
-    std::shared_ptr<CWorldTransManager> WorldTransitionManager() {return x9c_transManager;}
+    std::shared_ptr<CPlayerState> GetPlayerState() {return x98_playerState;}
+    std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
     CWorldState& StateForWorld(ResId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
