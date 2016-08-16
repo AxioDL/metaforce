@@ -2,6 +2,7 @@
 #define __URDE_CSTRINGTABLE_HPP__
 
 #include "RetroTypes.hpp"
+#include "IFactory.hpp"
 
 namespace urde
 {
@@ -19,5 +20,7 @@ public:
     std::wstring GetString(s32) const;
     static void SetLanguage(s32);
 };
+
+CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&);
 }
 #endif // __URDE_CSTRINGTABLE_HPP__

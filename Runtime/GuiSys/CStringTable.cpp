@@ -1,4 +1,5 @@
 #include "CStringTable.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
@@ -76,4 +77,10 @@ void CStringTable::SetLanguage(s32 lang)
 {
     mCurrentLanguage = skLanguages[lang];
 }
+
+CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&)
+{
+    return TToken<CStringTable>::GetIObjObjectFor(std::make_unique<CStringTable>(in));
+}
+
 }
