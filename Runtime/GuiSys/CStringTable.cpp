@@ -27,7 +27,7 @@ void CStringTable::LoadStringTable(CInputStream &in)
     std::vector<std::pair<FourCC, u32>> langOffsets;
     for (u32 i = 0 ; i<langCount ; ++i)
     {
-        FourCC fcc(in.readUint32Big());
+        FourCC fcc(in.readUint32());
         u32 off = in.readUint32Big();
         langOffsets.emplace_back(fcc,off);
     }
@@ -45,6 +45,13 @@ void CStringTable::LoadStringTable(CInputStream &in)
         lang++;
     }
 
+    /*
+     * If we fail to get a language, default to the first in the list
+     * This way we always display _something_
+     */
+    if (offset == -1)
+        offset = langOffsets[0].second;
+
     in.seek(offset);
 
     u32 dataLen = in.readUint32Big();
@@ -58,7 +65,7 @@ void CStringTable::LoadStringTable(CInputStream &in)
     }
     for (u32 i = x0_stringCount * 4 ; i<dataLen ; i += 2)
     {
-        char16_t* chr = reinterpret_cast<char16_t*>(x4_data.get() + i);
+        u16* chr = reinterpret_cast<u16*>(x4_data.get() + i);
         *chr = hecl::SBig(*chr);
     }
 }

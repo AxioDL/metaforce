@@ -6,30 +6,51 @@ namespace DataSpec
 namespace DNAMP1
 {
 
+const std::vector<FourCC> skLanguages =
+{
+    FOURCC('ENGL'),
+    FOURCC('FREN'),
+    FOURCC('GERM'),
+    FOURCC('SPAN'),
+    FOURCC('ITAL'),
+    FOURCC('DUTC'),
+    FOURCC('JAPN')
+};
+
 void STRG::_read(athena::io::IStreamReader& reader)
 {
     atUint32 langCount = reader.readUint32Big();
     atUint32 strCount = reader.readUint32Big();
 
-    std::vector<FourCC> readLangs;
+    std::vector<std::pair<FourCC, atUint32>> readLangs;
+
     readLangs.reserve(langCount);
     for (atUint32 l=0 ; l<langCount ; ++l)
     {
         DNAFourCC lang;
         lang.read(reader);
-        readLangs.emplace_back(lang);
-        reader.seek(4);
+        atUint32 off = reader.readUint32Big();
+        readLangs.emplace_back(lang, off);
     }
 
+    atUint32 tablesStart = reader.position();
     langs.clear();
-    langs.reserve(langCount);
-    for (FourCC& lang : readLangs)
+    langs.reserve(skLanguages.size());
+    for (const std::pair<FourCC, atUint32>& lang : readLangs)
     {
         std::vector<std::wstring> strs;
-        reader.seek(strCount * 4 + 4);
+        reader.seek(tablesStart + lang.second, athena::SeekOrigin::Begin);
+        reader.readUint32Big(); // table size
+        atUint32 langStart = reader.position();
         for (atUint32 s=0 ; s<strCount ; ++s)
+        {
+            atUint32 strOffset = reader.readUint32Big();
+            atUint32 tmpOffset = reader.position();
+            reader.seek(langStart + strOffset, athena::SeekOrigin::Begin);
             strs.emplace_back(reader.readWStringBig());
-        langs.emplace_back(lang, strs);
+            reader.seek(tmpOffset, athena::SeekOrigin::Begin);
+        }
+        langs.emplace_back(lang.first, strs);
     }
 
     langMap.clear();
@@ -70,7 +91,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         {
             atUint32 chCount = lang.second[s].size();
             if (s < langStrCount)
-                offset += chCount * 2 + 1;
+                offset += (chCount + 1) * 2;
             else
                 offset += 1;
         }
@@ -83,7 +104,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                tableSz += lang.second[s].size() * 2 + 1;
+                tableSz += (lang.second[s].size() + 1) * 2;
             else
                 tableSz += 1;
         }
@@ -94,7 +115,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         {
             writer.writeUint32Big(offset);
             if (s < langStrCount)
-                offset += lang.second[s].size() * 2 + 1;
+                offset += (lang.second[s].size() + 1) * 2;
             else
                 offset += 1;
         }
@@ -140,6 +161,9 @@ void STRG::read(athena::io::YAMLDocReader& reader)
     {
         for (const auto& lang : root->m_mapChildren)
         {
+            if (lang.first == "DNAType")
+                continue;
+
             if (lang.first.size() != 4)
             {
                 Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
@@ -170,6 +194,9 @@ void STRG::read(athena::io::YAMLDocReader& reader)
     langs.clear();
     for (const auto& lang : root->m_mapChildren)
     {
+        if (lang.first == "DNAType")
+            continue;
+
         std::vector<std::wstring> strs;
         for (const auto& str : lang.second->m_seqChildren)
             strs.emplace_back(hecl::UTF8ToWide(str->m_scalarString));

@@ -32,7 +32,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     std::string name= in.readString();
     u32 txtrId = in.readUint32Big();
     x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
-    x80_texture = store.GetObj({'TXTR', txtrId});
+    x80_texture = store.GetObj({FOURCC('TXTR'), txtrId});
     x2c_mode = EColorType(in.readUint32Big());
 
     u32 glyphCount = in.readUint32Big();
@@ -84,7 +84,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
 
     const wchar_t* chr = str;
     const CGlyph* prevGlyph = nullptr;
-    while (*chr == '\0')
+    while (*chr != '\0')
     {
         const CGlyph* glyph = GetGlyph(*chr);
         if (glyph)

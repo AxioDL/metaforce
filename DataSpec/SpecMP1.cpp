@@ -10,6 +10,7 @@
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/MREA.hpp"
 #include "DNAMP1/ANCS.hpp"
+#include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
 #include "DNACommon/SWHC.hpp"
 #include "DNACommon/ELSC.hpp"
@@ -343,6 +344,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNADGRP::DGRP<UniqueID32>::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAFont::FONT<UniqueID32>::DNAType()))
+                return true;
             return false;
         });
     }
@@ -476,6 +479,12 @@ struct SpecMP1 : SpecBase
                 DNADGRP::DGRP<UniqueID32> dgrp;
                 dgrp.read(reader);
                 DNADGRP::WriteDGRP(dgrp, out);
+            }
+            else if (!classStr.compare(DNAFont::FONT<UniqueID32>::DNAType()))
+            {
+                DNAFont::FONT<UniqueID32> font;
+                font.read(reader);
+                DNAFont::WriteFONT(font, out);
             }
         }
         progress(_S("Done"));
