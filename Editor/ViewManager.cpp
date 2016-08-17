@@ -15,6 +15,8 @@
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
 #include "World/CWorldTransManager.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -25,6 +27,8 @@ namespace urde
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
@@ -78,7 +82,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 
 void ViewManager::InitMP1(MP1::CMain& main)
 {
-    main.Init(m_mainBooFactory, m_mainCommandQueue, m_renderTex, m_fileStoreManager, m_voiceEngine.get());
+    main.Init(m_fileStoreManager, m_voiceEngine.get());
 }
 
 void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -403,6 +407,8 @@ void ViewManager::stop()
     TShader<CThermalColdFilter>::Shutdown();
     TShader<CThermalHotFilter>::Shutdown();
     TShader<CSpaceWarpFilter>::Shutdown();
+    TMultiBlendShader<CColoredQuadFilter>::Shutdown();
+    TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();

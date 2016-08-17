@@ -3,21 +3,40 @@
 #include "Graphics/Shaders/CThermalColdFilter.hpp"
 #include "Graphics/Shaders/CThermalHotFilter.hpp"
 #include "Graphics/Shaders/CSpaceWarpFilter.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde
 {
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
 namespace MP1
 {
 
-CMain::CMain(IFactory& resFactory, CSimplePool& resStore)
-: x128_globalObjects(resFactory, resStore)
+CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
+             boo::IGraphicsDataFactory* gfxFactory,
+             boo::IGraphicsCommandQueue* cmdQ,
+             boo::ITextureR* spareTex)
+: m_booSetter(gfxFactory, cmdQ, spareTex), x128_globalObjects(resFactory, resStore)
 {
     xe4_gameplayResult = EGameplayResult::Playing;
     g_Main = this;
+}
+
+CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
+                            boo::IGraphicsCommandQueue* cmdQ,
+                            boo::ITextureR* spareTex)
+{
+    CGraphics::InitializeBoo(factory, cmdQ, spareTex);
+    TShader<CThermalColdFilter>::Initialize();
+    TShader<CThermalHotFilter>::Initialize();
+    TShader<CSpaceWarpFilter>::Initialize();
+    TMultiBlendShader<CColoredQuadFilter>::Initialize();
+    TMultiBlendShader<CTexturedQuadFilter>::Initialize();
 }
 
 void CMain::RegisterResourceTweaks()
@@ -27,17 +46,10 @@ void CMain::ResetGameState()
 {
 }
 
-void CMain::InitializeSubsystems(boo::IGraphicsDataFactory* factory,
-                                 boo::IGraphicsCommandQueue* cc,
-                                 boo::ITextureR* renderTex,
-                                 const hecl::Runtime::FileStoreManager& storeMgr,
+void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr,
                                  boo::IAudioVoiceEngine* voiceEngine)
 {
-    CGraphics::InitializeBoo(factory, cc, renderTex);
-    CModelShaders::Initialize(storeMgr, factory);
-    TShader<CThermalColdFilter>::Initialize();
-    TShader<CThermalHotFilter>::Initialize();
-    TShader<CSpaceWarpFilter>::Initialize();
+    CModelShaders::Initialize(storeMgr, CGraphics::g_BooFactory);
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();
     CElementGen::Initialize();
@@ -52,13 +64,10 @@ void CMain::LoadAudio()
 {
 }
 
-void CMain::Init(boo::IGraphicsDataFactory* factory,
-                 boo::IGraphicsCommandQueue* cc,
-                 boo::ITextureR* renderTex,
-                 const hecl::Runtime::FileStoreManager& storeMgr,
+void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
                  boo::IAudioVoiceEngine* voiceEngine)
 {
-    InitializeSubsystems(factory, cc, renderTex, storeMgr, voiceEngine);
+    InitializeSubsystems(storeMgr, voiceEngine);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");

@@ -80,7 +80,8 @@ class CGameGlobalObjects
     }
 
 public:
-    CGameGlobalObjects(IFactory& resFactory, CSimplePool& objStore)
+    CGameGlobalObjects(IFactory& resFactory,
+                       CSimplePool& objStore)
     : x20_resFactory(resFactory), x114_simplePool(objStore)
     {
         g_MemoryCardSys = &x0_memoryCardSys;
@@ -220,6 +221,13 @@ public:
     };
 private:
 
+    struct BooSetter
+    {
+        BooSetter(boo::IGraphicsDataFactory* factory,
+                  boo::IGraphicsCommandQueue* cmdQ,
+                  boo::ITextureR* spareTex);
+    } m_booSetter;
+
     //CMemorySys x6c_memSys;
     CTweaks x70_tweaks;
     EGameplayResult xe4_gameplayResult;
@@ -252,24 +260,21 @@ private:
 
     u32 x164_ = 0;
 
-    void InitializeSubsystems(boo::IGraphicsDataFactory* factory,
-                              boo::IGraphicsCommandQueue* cc,
-                              boo::ITextureR* renderTex,
-                              const hecl::Runtime::FileStoreManager& storeMgr,
+    void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr,
                               boo::IAudioVoiceEngine* voiceEngine);
 
 public:
-    CMain(IFactory& resFactory, CSimplePool& resStore);
+    CMain(IFactory& resFactory, CSimplePool& resStore,
+          boo::IGraphicsDataFactory* gfxFactory,
+          boo::IGraphicsCommandQueue* cmdQ,
+          boo::ITextureR* spareTex);
     void RegisterResourceTweaks();
     void ResetGameState();
     void StreamNewGameState(CInputStream&);
     void CheckTweakManagerDebugOptions() {}
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
-    void Init(boo::IGraphicsDataFactory* factory,
-              boo::IGraphicsCommandQueue* cc,
-              boo::ITextureR* renderTex,
-              const hecl::Runtime::FileStoreManager& storeMgr,
+    void Init(const hecl::Runtime::FileStoreManager& storeMgr,
               boo::IAudioVoiceEngine* voiceEngine);
     bool Proc();
     void Shutdown();
