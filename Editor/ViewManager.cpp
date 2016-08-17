@@ -29,19 +29,16 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
 #if 0
-    SObjectTag samusCharSet = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
-        _S("MP1/Shared/ANCS_77289A4A.blend"));
-    SObjectTag platModel = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
-        _S("MP1/Shared/CMDL_6FA561D0.blend"));
-    SObjectTag bgModel = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
-        _S("MP1/Shared/CMDL_BC34D54C.blend"));
+    SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.blend"));
+    SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
+    SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
     CAnimRes samusAnimRes(samusCharSet.id, -1, zeus::CVector3f::skOne, -1, true);
     g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
                                                                platModel.id, zeus::CVector3f::skOne,
                                                                bgModel.id, zeus::CVector3f::skOne, false);
 #endif
 
-    SObjectTag areaTag = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
+    SObjectTag areaTag = m_projManager.TagFromPath(
         _S("MP1/Metroid1/!1IntroLevel1027/00 Exterior Docking Hangar/!area.blend"));
     auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
 
