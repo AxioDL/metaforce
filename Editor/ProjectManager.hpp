@@ -43,6 +43,8 @@ public:
     hecl::Database::Project* project() {return m_proj.get();}
     ProjectResourcePool& objectStore() {return m_objStore;}
     ProjectResourceFactoryMP1& resourceFactoryMP1() {return m_factoryMP1;}
+    SObjectTag TagFromPath(const hecl::SystemChar* path) const
+    { return m_factoryMP1.ProjectResourceFactoryBase::TagFromPath(path); }
 
     bool newProject(const hecl::SystemString& path);
     bool openProject(const hecl::SystemString& path);
