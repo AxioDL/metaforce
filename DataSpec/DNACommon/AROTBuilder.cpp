@@ -208,15 +208,13 @@ void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB
     {
         if (childNodes.empty())
         {
-            zeus::CAABox swapAABB = curAABB;
-            swapAABB.min[0] = hecl::SBig(swapAABB.min[0]);
-            swapAABB.min[1] = hecl::SBig(swapAABB.min[1]);
-            swapAABB.min[2] = hecl::SBig(swapAABB.min[2]);
-            swapAABB.max[0] = hecl::SBig(swapAABB.max[0]);
-            swapAABB.max[1] = hecl::SBig(swapAABB.max[1]);
-            swapAABB.max[2] = hecl::SBig(swapAABB.max[2]);
-            *reinterpret_cast<zeus::CVector3f*>(ptr) = swapAABB.min;
-            *reinterpret_cast<zeus::CVector3f*>(ptr + 12) = swapAABB.max;
+            float* aabbOut = reinterpret_cast<float*>(ptr);
+            aabbOut[0] = hecl::SBig(curAABB.min[0]);
+            aabbOut[1] = hecl::SBig(curAABB.min[1]);
+            aabbOut[2] = hecl::SBig(curAABB.min[2]);
+            aabbOut[3] = hecl::SBig(curAABB.max[0]);
+            aabbOut[4] = hecl::SBig(curAABB.max[1]);
+            aabbOut[5] = hecl::SBig(curAABB.max[2]);
             athena::io::MemoryWriter w(ptr + 24, INT32_MAX);
             w.writeUint16Big(childIndices.size());
             for (int idx : childIndices)
@@ -227,7 +225,7 @@ void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB
         {
             uint16_t* pflags = reinterpret_cast<uint16_t*>(ptr);
             uint32_t* offsets = reinterpret_cast<uint32_t*>(ptr + 4);
-            *pflags = 0;
+            memset(pflags, 0, sizeof(uint32_t) * 9);
             for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
             {
                 for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)

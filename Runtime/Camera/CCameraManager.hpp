@@ -71,6 +71,7 @@ public:
         return x0_curCameraId;
     }
 
+    CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
 };
 

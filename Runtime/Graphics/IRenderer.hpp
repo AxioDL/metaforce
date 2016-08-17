@@ -19,7 +19,7 @@ class CParticleGen;
 class CModel;
 class CSkinnedModel;
 class CPVSVisSet;
-class CAreaRenderOctTree;
+struct CAreaRenderOctTree;
 
 class IRenderer
 {

@@ -1,6 +1,4 @@
-#if _WIN32
-#include <D3Dcommon.h>
-#endif
+#include "boo/System.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CBooRenderer.hpp"
 #include "CTexture.hpp"
@@ -660,7 +658,7 @@ void CBooRenderer::SetThermalColdScale(float scale)
 }
 
 void CBooRenderer::DoThermalBlendCold()
-{    
+{
     zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::CColor::skWhite, x2f8_thermColdScale);
     m_thermColdFilter.setColorA(a);
     float bFac = 0.f;

@@ -18,6 +18,7 @@
 #include "World/CMorphBall.hpp"
 #include "World/CScriptSpawnPoint.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
+#include "Particle/CGenDescription.hpp"
 
 #include <cmath>
 

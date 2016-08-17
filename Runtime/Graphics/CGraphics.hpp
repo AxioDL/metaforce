@@ -1,13 +1,13 @@
 #ifndef __URDE_CGRAPHICS_HPP__
 #define __URDE_CGRAPHICS_HPP__
 
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
+
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CVector2i.hpp"
 #include "zeus/CColor.hpp"
-
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
 
 #include "hecl/Runtime.hpp"
 

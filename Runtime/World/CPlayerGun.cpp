@@ -1,4 +1,5 @@
 #include "CPlayerGun.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "GameGlobalObjects.hpp"
 
 namespace urde

@@ -2,6 +2,8 @@
 #include "CActorParameters.hpp"
 #include "CMorphBall.hpp"
 #include "CPlayerGun.hpp"
+#include "CStateManager.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -21,6 +23,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
 
 bool CPlayer::IsTransparent() const
 {
+    return false;
 }
 
 void CPlayer::Update(float, CStateManager& mgr)
@@ -29,6 +32,7 @@ void CPlayer::Update(float, CStateManager& mgr)
 
 bool CPlayer::IsPlayerDeadEnough() const
 {
+    return false;
 }
 
 void CPlayer::AsyncLoadSuit(CStateManager& mgr)
@@ -42,24 +46,29 @@ void CPlayer::LoadAnimationTokens()
 
 bool CPlayer::CanRenderUnsorted(CStateManager& mgr) const
 {
+    return false;
 }
 
-const CDamageVulnerability& CPlayer::GetDamageVulnerability(const zeus::CVector3f& v1,
+const CDamageVulnerability* CPlayer::GetDamageVulnerability(const zeus::CVector3f& v1,
                                                             const zeus::CVector3f& v2,
                                                             const CDamageInfo& info) const
 {
+    return nullptr;
 }
 
-const CDamageVulnerability& CPlayer::GetDamageVulnerability() const
+const CDamageVulnerability* CPlayer::GetDamageVulnerability() const
 {
+    return nullptr;
 }
 
 zeus::CVector3f CPlayer::GetHomingPosition(CStateManager& mgr, float) const
 {
+    return {};
 }
 
 zeus::CVector3f CPlayer::GetAimPosition(CStateManager& mgr, float) const
 {
+    return {};
 }
 
 void CPlayer::FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr)
@@ -68,18 +77,22 @@ void CPlayer::FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManag
 
 zeus::CVector3f CPlayer::GetDamageLocationWR() const
 {
+    return {};
 }
 
 float CPlayer::GetPrevDamageAmount() const
 {
+    return 0.f;
 }
 
 float CPlayer::GetDamageAmount() const
 {
+    return 0.f;
 }
 
 bool CPlayer::WasDamaged() const
 {
+    return false;
 }
 
 void CPlayer::TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr)
@@ -90,16 +103,19 @@ void CPlayer::Accept(IVisitor& visitor)
 {
 }
 
-CHealthInfo& CPlayer::HealthInfo(CStateManager& mgr)
+CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr)
 {
+    return nullptr;
 }
 
 bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const
 {
+    return false;
 }
 
 rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const
 {
+    return {};
 }
 
 void CPlayer::Touch(CActor&, CStateManager& mgr)
@@ -120,10 +136,12 @@ void CPlayer::SetScanningState(EPlayerScanState, CStateManager& mgr)
 
 bool CPlayer::GetExplorationMode() const
 {
+    return false;
 }
 
 bool CPlayer::GetCombatMode() const
 {
+    return false;
 }
 
 void CPlayer::RenderGun(CStateManager& mgr, const zeus::CVector3f&) const
@@ -160,6 +178,7 @@ void CPlayer::UpdateFreeLook(float dt)
 
 float CPlayer::GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const
 {
+    return 0.f;
 }
 
 void CPlayer::ProcessInput(const CFinalInput&, CStateManager&)
@@ -168,6 +187,7 @@ void CPlayer::ProcessInput(const CFinalInput&, CStateManager&)
 
 bool CPlayer::GetFrozenState() const
 {
+    return false;
 }
 
 void CPlayer::Think(float, CStateManager&)
@@ -192,10 +212,12 @@ void CPlayer::UpdateFootstepBounds(const CFinalInput& input, CStateManager&, flo
 
 u16 CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, int, u16)
 {
+    return 0;
 }
 
 u16 CPlayer::SfxIdFromMaterial(const CMaterialList&, const u16*, u16)
 {
+    return 0;
 }
 
 void CPlayer::UpdateCrosshairsState(const CFinalInput&)
@@ -220,6 +242,7 @@ void CPlayer::UpdateDebugCamera(CStateManager& mgr)
 
 CFirstPersonCamera& CPlayer::GetFirstPersonCamera(CStateManager& mgr)
 {
+    return *mgr.GetCameraManager()->GetFirstPersonCamera();
 }
 
 void CPlayer::UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool)
@@ -236,6 +259,7 @@ void CPlayer::HolsterGun(CStateManager& mgr)
 
 bool CPlayer::GetMorphballTransitionState() const
 {
+    return false;
 }
 
 void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float)
@@ -248,6 +272,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
 
 bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr)
 {
+    return false;
 }
 
 void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
@@ -280,6 +305,7 @@ void CPlayer::OrbitPoint(EPlayerOrbitType, CStateManager& mgr)
 
 zeus::CVector3f CPlayer::GetHUDOrbitTargetPosition() const
 {
+    return {};
 }
 
 void CPlayer::SetOrbitState(EPlayerOrbitState, CStateManager& mgr)
@@ -316,23 +342,28 @@ void CPlayer::UpdateAimTargetTimer(float)
 
 bool CPlayer::ValidateAimTargetId(TUniqueId, CStateManager& mgr)
 {
+    return false;
 }
 
 bool CPlayer::ValidateObjectForMode(TUniqueId, CStateManager& mgr) const
 {
+    return false;
 }
 
 TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr)
 {
+    return {};
 }
 
 TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo,
                                                 EPlayerZoneType, CStateManager& mgr) const
 {
+    return {};
 }
 
 TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr)
 {
+    return {};
 }
 
 void CPlayer::UpdateOrbitableObjects(CStateManager& mgr)
@@ -341,6 +372,7 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr)
 
 TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const
 {
+    return {};
 }
 
 void CPlayer::FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TUniqueId>&, EPlayerZoneInfo,
@@ -350,10 +382,12 @@ void CPlayer::FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TU
 
 bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const
 {
+    return false;
 }
 
 bool CPlayer::WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const
 {
+    return false;
 }
 
 void CPlayer::CheckOrbitDisableSourceList(CStateManager& mgr)
@@ -402,42 +436,52 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
 
 float CPlayer::GetOrbitMaxLockDistance(CStateManager& mgr) const
 {
+    return 0.f;
 }
 
 float CPlayer::GetOrbitMaxTargetDistance(CStateManager& mgr) const
 {
+    return 0.f;
 }
 
 bool CPlayer::ValidateOrbitTargetId(TUniqueId, CStateManager& mgr) const
 {
+    return false;
 }
 
 bool CPlayer::ValidateCurrentOrbitTargetId(CStateManager& mgr)
 {
+    return false;
 }
 
 bool CPlayer::ValidateOrbitTargetIdAndPointer(TUniqueId, CStateManager& mgr) const
 {
+    return false;
 }
 
 zeus::CVector3f CPlayer::GetBallPosition() const
 {
+    return {};
 }
 
 zeus::CVector3f CPlayer::GetEyePosition() const
 {
+    return {};
 }
 
 float CPlayer::GetEyeHeight() const
 {
+    return 0.f;
 }
 
 float CPlayer::GetStepUpHeight() const
 {
+    return 0.f;
 }
 
 float CPlayer::GetStepDownHeight() const
 {
+    return 0.f;
 }
 
 void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool)
@@ -446,22 +490,27 @@ void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool)
 
 zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const
 {
+    return {};
 }
 
 const CCollisionPrimitive& CPlayer::GetCollisionPrimitive() const
 {
+    return *CPhysicsActor::GetCollisionPrimitive();
 }
 
 zeus::CTransform CPlayer::GetPrimitiveTransform() const
 {
+    return {};
 }
 
 bool CPlayer::CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr)
 {
+    return false;
 }
 
 float CPlayer::GetActualFirstPersonMaxVelocity() const
 {
+    return 0.f;
 }
 
 void CPlayer::SetMoveState(EPlayerMovementState, CStateManager& mgr)
@@ -470,18 +519,22 @@ void CPlayer::SetMoveState(EPlayerMovementState, CStateManager& mgr)
 
 float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
 {
+    return 0.f;
 }
 
 float CPlayer::TurnInput(const CFinalInput& input) const
 {
+    return 0.f;
 }
 
 float CPlayer::StrafeInput(const CFinalInput& input) const
 {
+    return 0.f;
 }
 
 float CPlayer::ForwardInput(const CFinalInput& input, float) const
 {
+    return 0.f;
 }
 
 void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, float)
@@ -490,10 +543,12 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
 
 float CPlayer::GetWeight() const
 {
+    return 0.f;
 }
 
 float CPlayer::GetDampedClampedVelocityWR() const
 {
+    return 0.f;
 }
 
 }

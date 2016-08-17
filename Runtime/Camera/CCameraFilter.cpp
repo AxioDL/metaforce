@@ -1,3 +1,4 @@
+#include "Graphics/CGraphics.hpp"
 #include "CCameraFilter.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"

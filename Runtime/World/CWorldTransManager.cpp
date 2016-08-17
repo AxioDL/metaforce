@@ -7,6 +7,8 @@
 #include "Character/CAssetFactory.hpp"
 #include "Character/CCharacterFactory.hpp"
 #include "Character/IAnimReader.hpp"
+#include "Character/CSkinRules.hpp"
+#include "Graphics/CModel.hpp"
 
 namespace urde
 {
@@ -150,7 +152,7 @@ void CWorldTransManager::DrawEnabled()
 
 void CWorldTransManager::DrawDisabled()
 {
-    m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01});
+    m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01f});
 }
 
 void CWorldTransManager::DrawText()

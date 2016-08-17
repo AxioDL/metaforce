@@ -57,14 +57,16 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 struct CSpaceWarpFilterD3DDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CSpaceWarpFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat* vtxFmt,
+                                                    CSpaceWarpFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
-        return cctx.newShaderDataBinding(TShader<CSpaceWarpFilter>::m_pipeline,
-                                         TShader<CSpaceWarpFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }

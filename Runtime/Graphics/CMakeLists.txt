@@ -1,6 +1,6 @@
 if(WIN32)
   set(PLAT_SRCS
-      Shaders/CLineRendererShaderHLSL.cpp
+      Shaders/CLineRendererShadersHLSL.cpp
       Shaders/CTexturedQuadFilterHLSL.cpp
       Shaders/CColoredQuadFilterHLSL.cpp
       Shaders/CModelShadersHLSL.cpp

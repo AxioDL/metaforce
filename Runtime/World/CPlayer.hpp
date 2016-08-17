@@ -85,10 +85,10 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void LoadAnimationTokens();
     bool CanRenderUnsorted(CStateManager& mgr) const;
-    const CDamageVulnerability& GetDamageVulnerability(const zeus::CVector3f& v1,
+    const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1,
                                                        const zeus::CVector3f& v2,
                                                        const CDamageInfo& info) const;
-    const CDamageVulnerability& GetDamageVulnerability() const;
+    const CDamageVulnerability* GetDamageVulnerability() const;
     zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
     zeus::CVector3f GetAimPosition(CStateManager& mgr, float) const;
     void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
@@ -98,7 +98,7 @@ public:
     bool WasDamaged() const;
     void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
     void Accept(IVisitor& visitor);
-    CHealthInfo& HealthInfo(CStateManager& mgr);
+    CHealthInfo* HealthInfo(CStateManager& mgr);
     bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager& mgr);
