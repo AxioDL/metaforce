@@ -87,14 +87,16 @@ URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
 struct CThermalColdFilterMetalDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat* vtxFmt,
+                                                    CThermalColdFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
-                                         TShader<CThermalColdFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }

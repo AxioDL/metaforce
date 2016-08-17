@@ -14,6 +14,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
+#include "World/CWorldTransManager.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -27,6 +28,17 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
+    SObjectTag samusCharSet = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
+        _S("MP1/Shared/ANCS_77289A4A.blend"));
+    SObjectTag platModel = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
+        _S("MP1/Shared/CMDL_6FA561D0.blend"));
+    SObjectTag bgModel = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
+        _S("MP1/Shared/CMDL_BC34D54C.blend"));
+    CAnimRes samusAnimRes(samusCharSet.id, -1, zeus::CVector3f::skOne, -1, true);
+    g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
+                                                               platModel.id, zeus::CVector3f::skOne,
+                                                               bgModel.id, zeus::CVector3f::skOne, false);
+
     SObjectTag areaTag = m_projManager.resourceFactoryMP1().ProjectResourceFactoryBase::TagFromPath(
         _S("MP1/Metroid1/!1IntroLevel1027/00 Exterior Docking Hangar/!area.blend"));
     auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
@@ -79,6 +91,10 @@ void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo:
 void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
     gfxQ->clearTarget(false, true);
+
+    g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
+    g_GameState->GetWorldTransitionManager()->Draw();
+
     if (m_vm.m_modelTest.IsLoaded())
     {
         CModelFlags flags;

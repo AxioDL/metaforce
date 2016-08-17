@@ -60,14 +60,16 @@ URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 
 struct CThermalHotFilterMetalDataBindingFactory : TShader<CThermalHotFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalHotFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat* vtxFmt,
+                                                    CThermalHotFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, g_Renderer->GetThermoPalette()};
-        return cctx.newShaderDataBinding(TShader<CThermalHotFilter>::m_pipeline,
-                                         TShader<CThermalHotFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
