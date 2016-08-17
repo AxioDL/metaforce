@@ -6,24 +6,43 @@
 
 namespace urde
 {
+class CTexture;
 
 class CCameraFilterPass
 {
 public:
     enum class EFilterType
     {
-        Zero,
-        One
+        None,
+        ColorMultiply,
+        InvertDst,
+        AdditiveAlpha,
+        Subtractive,
+        AlphaBlended,
+        None2,
+        AdditiveDestColor,
+        NoColorWrite
     };
     enum class EFilterShape
     {
-        Zero,
-        One
+        QuadA,
+        QuadB,
+        QuadC,
+        QuadQuarters,
+        WideScreen,
+        ScanLinesA,
+        ScanLinesB,
+        RandomStaticA,
+        RandomStaticB
     };
 private:
 public:
     void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32) {}
     void DisableFilter(float) {}
+    static void DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color,
+                           const CTexture* tex, float uvScale);
+    static void DrawFilterShape(EFilterShape shape, const zeus::CColor& color,
+                                const CTexture* tex, float uvScale);
 };
 
 class CCameraBlurPass

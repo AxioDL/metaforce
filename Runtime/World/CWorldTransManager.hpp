@@ -6,6 +6,7 @@
 #include "Character/CModelData.hpp"
 #include "GuiSys/CGuiTextSupport.hpp"
 #include "Graphics/CLight.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde
 {
@@ -77,6 +78,8 @@ private:
         u8 dummy = 0;
     };
 
+    CColoredQuadFilter m_fadeToBlack = { CCameraFilterPass::EFilterType::AlphaBlended };
+
     static int GetSuitCharSet();
 
 public:
@@ -90,10 +93,10 @@ public:
     void UpdateDisabled(float);
     void UpdateText(float);
     void Update(float);
-    void DrawEnabled() const;
-    void DrawDisabled() const;
-    void DrawText() const;
-    void Draw() const;
+    void DrawEnabled();
+    void DrawDisabled();
+    void DrawText();
+    void Draw();
 
     void EnableTransition(const CAnimRes& samusRes,
                           ResId platRes, const zeus::CVector3f& platScale,

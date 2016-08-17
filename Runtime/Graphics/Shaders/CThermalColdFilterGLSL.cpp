@@ -77,7 +77,10 @@ URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
 struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat*,
+                                                    CThermalColdFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
@@ -89,7 +92,7 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
+        return cctx.newShaderDataBinding(pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
@@ -98,14 +101,16 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
 #if BOO_HAS_VULKAN
 struct CThermalColdFilterVulkanDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CThermalColdFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat* vtxFmt,
+                                                    CThermalColdFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(TShader<CThermalColdFilter>::m_pipeline,
-                                         TShader<CThermalColdFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }

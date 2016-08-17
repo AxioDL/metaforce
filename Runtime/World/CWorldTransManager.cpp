@@ -144,15 +144,21 @@ void CWorldTransManager::Update(float dt)
     }
 }
 
-void CWorldTransManager::DrawEnabled() const
+void CWorldTransManager::DrawEnabled()
 {
 }
 
-void CWorldTransManager::DrawDisabled() const
+void CWorldTransManager::DrawDisabled()
 {
+    m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01});
 }
 
-void CWorldTransManager::Draw() const
+void CWorldTransManager::DrawText()
+{
+
+}
+
+void CWorldTransManager::Draw()
 {
     if (x30_type == ETransType::Disabled)
         DrawDisabled();
@@ -289,11 +295,6 @@ void CWorldTransManager::StartTransition()
 void CWorldTransManager::EndTransition()
 {
     DisableTransition();
-}
-
-void CWorldTransManager::DrawText() const
-{
-
 }
 
 }

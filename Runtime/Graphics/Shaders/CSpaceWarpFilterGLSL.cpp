@@ -55,7 +55,10 @@ URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CSpaceWarpFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat*,
+                                                    CSpaceWarpFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
@@ -67,7 +70,7 @@ struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBi
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
-        return cctx.newShaderDataBinding(TShader<CSpaceWarpFilter>::m_pipeline,
+        return cctx.newShaderDataBinding(pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
@@ -76,14 +79,16 @@ struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBi
 #if BOO_HAS_VULKAN
 struct CSpaceWarpFilterVulkanDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CSpaceWarpFilter& filter)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    boo::IShaderPipeline* pipeline,
+                                                    boo::IVertexFormat* vtxFmt,
+                                                    CSpaceWarpFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
-        return cctx.newShaderDataBinding(TShader<CSpaceWarpFilter>::m_pipeline,
-                                         TShader<CSpaceWarpFilter>::m_vtxFmt,
+        return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }

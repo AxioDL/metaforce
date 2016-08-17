@@ -16,7 +16,10 @@ class TShader
 public:
     struct IDataBindingFactory
     {
-        virtual boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, FilterImp& filter)=0;
+        virtual boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                boo::IShaderPipeline* pipeline,
+                                                                boo::IVertexFormat* vtxFmt,
+                                                                FilterImp& filter)=0;
     };
 
     static boo::IShaderPipeline* m_pipeline;
@@ -71,7 +74,7 @@ public:
 
     static boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, FilterImp& filter)
     {
-        return m_bindFactory->BuildShaderDataBinding(ctx, filter);
+        return m_bindFactory->BuildShaderDataBinding(ctx, m_pipeline, m_vtxFmt, filter);
     }
 };
 
