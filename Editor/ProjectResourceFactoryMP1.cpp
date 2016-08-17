@@ -7,6 +7,7 @@
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
@@ -44,6 +45,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('DCLN'), FFactoryFunc(FCollidableOBBTreeGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('AGSC'), FMemFactoryFunc(FAudioGroupSetDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
@@ -128,8 +130,18 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
             }
             else if (!strcmp(className, "urde::DGRP"))
             {
-               resTag.type = SBIG('DGRP');
-               return true;
+                resTag.type = SBIG('DGRP');
+                return true;
+            }
+            else if (!strcmp(className, "urde::DNAMP1::STRG"))
+            {
+                resTag.type = SBIG('STRG');
+                return true;
+            }
+            else if (!strcmp(className, "FONT"))
+            {
+                resTag.type = SBIG('FONT');
+                return true;
             }
             return false;
         }))
