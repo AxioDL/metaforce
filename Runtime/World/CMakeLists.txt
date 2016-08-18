@@ -71,6 +71,7 @@ set(WORLD_SOURCES
     CScriptDistanceFog.hpp CScriptDistanceFog.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
+    CScriptColorModulate.hpp CScriptColorModulate.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

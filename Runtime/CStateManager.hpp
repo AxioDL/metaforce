@@ -174,7 +174,7 @@ public:
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&);
 
-    void RenderLast(TUniqueId);
+    bool RenderLast(TUniqueId);
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
     void SpecialSkipCinematic();
     void GetVisAreaId() const;
@@ -208,6 +208,7 @@ public:
     void SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg);
     void SendScriptMsg(TUniqueId src, TEditorId dest,
                        EScriptObjectMessage msg, EScriptObjectState state);
+    void SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptObjectMessage);
     void FreeScriptObjects(TAreaId);
     void GetBuildForScript(TEditorId) const;
     TEditorId GetEditorIdForUniqueId(TUniqueId) const;
@@ -297,7 +298,6 @@ public:
     CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
     CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
 };
-
 }
 
 #endif
