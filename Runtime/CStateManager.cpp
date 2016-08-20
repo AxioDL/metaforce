@@ -237,7 +237,7 @@ void CStateManager::UpdateThermalVisor()
     }
 }
 
-void CStateManager::RenderLast(TUniqueId)
+bool CStateManager::RenderLast(TUniqueId)
 {
 }
 
@@ -374,6 +374,13 @@ void CStateManager::SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMe
 {
     CEntity* ent = ObjectById(dest);
     SendScriptMsg(ent, src, msg);
+}
+
+void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg)
+{
+    CEntity* dst = ObjectById(dest);
+    if (dst)
+        dst->AcceptScriptMsg(msg, src, *this);
 }
 
 void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest,
@@ -562,7 +569,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
                 CPlayerState::EItemType iType = CPlayerState::EItemType(i);
 
                 u32 spawnPu = sp->GetPowerup(iType);
-                u32 statePu = x8b8_playerState->GetItemCapacity(iType);
+                u32 statePu = x8b8_playerState->GetItemAmount(iType);
                 if (statePu < spawnPu)
                     x8b8_playerState->InitializePowerUp(iType, spawnPu - statePu);
 

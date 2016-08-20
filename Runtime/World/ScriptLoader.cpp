@@ -42,6 +42,7 @@
 #include "CScriptDistanceFog.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
+#include "CScriptColorModulate.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CBeetle.hpp"
@@ -1767,7 +1768,24 @@ CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in,
                                          int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 12, "ColorModulate"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CColor c1;
+    c1.readRGBABig(in);
+    zeus::CColor c2;
+    c2.readRGBABig(in);
+    CScriptColorModulate::EBlendMode bm = CScriptColorModulate::EBlendMode(in.readUint32Big());
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+    bool b5 = in.readBool();
+    bool active = in.readBool();
+    return new CScriptColorModulate(mgr.AllocateUniqueId(), *name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5, active);
 }
 
 CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in,

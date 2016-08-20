@@ -292,8 +292,16 @@ u32 CPlayerState::GetItemCapacity(CPlayerState::EItemType type) const
 
 u32 CPlayerState::GetItemAmount(CPlayerState::EItemType type) const
 {
-    if (type != EItemType::ThermalVisor && type < EItemType::Max)
+    if (type == EItemType::SpaceJumpBoots ||
+        type == EItemType::PowerBombs     ||
+        type == EItemType::Flamethrower   ||
+        type == EItemType::EnergyTanks    ||
+        type == EItemType::Missiles       ||
+        (type >= EItemType::ArtifactOfTruth && type <= EItemType::ArtifactOfNewborn))
+    {
         return x24_powerups[u32(type)].x0_amount;
+    }
+
     return 0;
 }
 
