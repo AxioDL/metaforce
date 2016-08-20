@@ -17,6 +17,8 @@ class CCameraBlurFilter
 
     struct Uniform
     {
+        zeus::CVector4f m_uv[6];
+        float m_opacity = 1.f;
     };
     boo::GraphicsDataToken m_token;
     boo::IGraphicsBufferS* m_vbo;
@@ -26,7 +28,7 @@ class CCameraBlurFilter
 
 public:
     CCameraBlurFilter();
-    void draw();
+    void draw(float amount);
 
     using _CLS = CCameraBlurFilter;
 #include "TShaderDecl.hpp"

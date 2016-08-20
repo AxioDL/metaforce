@@ -53,6 +53,26 @@ void CCameraBlurPass::Draw()
             float uvOffset = uvScale * -0.5f + 0.5f;
         }
     }
+    else
+    {
+        for (int i=0 ; i<7 ; ++i)
+        {
+            float amtX = 0.f;
+            float amtY = 0.f;
+            if (i)
+            {
+                float tmp = i - 1;
+                tmp *= 2.f * M_PIF;
+                tmp /= 6.f;
+
+                amtX = std::cos(tmp);
+                amtX *= x1c_curValue / 640.f;
+
+                amtY = std::sin(tmp);
+                amtY *= x1c_curValue / 448.f;
+            }
+        }
+    }
 }
 
 void CCameraBlurPass::Update(float dt)

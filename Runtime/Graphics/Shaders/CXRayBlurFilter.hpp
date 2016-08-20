@@ -1,5 +1,5 @@
-#ifndef __URDE_CCAMERABLURFILTER_HPP__
-#define __URDE_CCAMERABLURFILTER_HPP__
+#ifndef __URDE_CXRAYBLURFILTER_HPP__
+#define __URDE_CXRAYBLURFILTER_HPP__
 
 #include "TShader.hpp"
 #include "zeus/CMatrix4f.hpp"
@@ -39,4 +39,4 @@ public:
 
 }
 
-#endif // __URDE_CCAMERABLURFILTER_HPP__
+#endif // __URDE_CXRAYBLURFILTER_HPP__

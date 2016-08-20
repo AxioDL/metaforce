@@ -126,7 +126,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         flags.m_extendedShaderIdx = 1;
         m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
         m_vm.m_modelTest->Draw(flags);
-        m_xrayBlur.draw(25.f);
+        //m_xrayBlur.draw(25.f);
+        m_camBlur.draw((std::sin(m_theta * 3.f) / 2.f + 0.5f) * 3.f);
         //g_Renderer->DoThermalBlendHot();
         //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});

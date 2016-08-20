@@ -14,6 +14,7 @@
 #include "Runtime/Character/CAssetFactory.hpp"
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
+#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
 
 namespace urde
 {
@@ -52,6 +53,7 @@ class ViewManager : public specter::IViewManager
         CSpaceWarpFilter m_spaceWarpFilter;
         CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
         CXRayBlurFilter m_xrayBlur;
+        CCameraBlurFilter m_camBlur;
         CRandom16 m_random;
         float m_theta = 0.f;
     public:
