@@ -15,6 +15,7 @@ static const char* VS =
 "\n"
 "struct ColoredQuadUniform\n"
 "{\n"
+"    float4x4 xf;\n"
 "    float4 color;\n"
 "};\n"
 "\n"
@@ -28,7 +29,7 @@ static const char* VS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.color = cqu.color;\n"
-"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
+"    vtf.position = cqu.xf * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 

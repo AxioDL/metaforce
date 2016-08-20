@@ -239,6 +239,7 @@ void CStateManager::UpdateThermalVisor()
 
 bool CStateManager::RenderLast(TUniqueId)
 {
+    return false;
 }
 
 void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec,
