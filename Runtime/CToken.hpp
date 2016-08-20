@@ -308,8 +308,11 @@ class TLockedToken : public TCachedToken<T>
 {
 public:
     TLockedToken() = default;
-    TLockedToken(const CToken& other) : TCachedToken<T>(other) {CToken::Lock();}
-    TLockedToken(CToken&& other) : TCachedToken<T>(std::move(other)) {CToken::Lock();}
+    TLockedToken(const TLockedToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
+    TLockedToken& operator=(const TLockedToken& other) { CToken::operator=(other); CToken::Lock(); return *this; }
+    TLockedToken(const CToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
+    TLockedToken& operator=(const CToken& other) { CToken::operator=(other); CToken::Lock(); return *this; }
+    TLockedToken(CToken&& other) : TCachedToken<T>(std::move(other)) { CToken::Lock(); }
 };
 
 }

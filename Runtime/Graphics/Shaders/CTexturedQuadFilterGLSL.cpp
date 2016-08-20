@@ -14,6 +14,7 @@ BOO_GLSL_BINDING_HEAD
 "UBINDING0 uniform TexuredQuadUniform\n"
 "{\n"
 "    vec4 color;\n"
+"    float uvScale;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -26,7 +27,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    vtf.uv = uvIn.xy;\n"
+"    vtf.uv = uvIn.xy * uvScale;\n"
 "    gl_Position = vec4(posIn.xyz, 1.0);\n"
 "}\n";
 
@@ -65,7 +66,7 @@ struct CTexturedQuadFilterGLDataBindingFactory : TMultiBlendShader<CTexturedQuad
         };
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ITexture* texs[] = {filter.m_booTex};
         return cctx.newShaderDataBinding(pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 1, texs);
@@ -83,7 +84,7 @@ struct CTexturedQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CTextured
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ITexture* texs[] = {filter.m_booTex};
         return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);

@@ -6,7 +6,9 @@ if(WIN32)
       Shaders/CModelShadersHLSL.cpp
       Shaders/CThermalColdFilterHLSL.cpp
       Shaders/CThermalHotFilterHLSL.cpp
-      Shaders/CSpaceWarpFilterHLSL.cpp)
+      Shaders/CSpaceWarpFilterHLSL.cpp
+      Shaders/CCameraBlurFilterHLSL.cpp
+      Shaders/CXRayBlurFilterHLSL.cpp)
 elseif(APPLE)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -15,7 +17,9 @@ elseif(APPLE)
       Shaders/CModelShadersMetal.cpp
       Shaders/CThermalColdFilterMetal.cpp
       Shaders/CThermalHotFilterMetal.cpp
-      Shaders/CSpaceWarpFilterMetal.cpp)
+      Shaders/CSpaceWarpFilterMetal.cpp
+      Shaders/CCameraBlurFilterMetal.cpp
+      Shaders/CXRayBlurFilterMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -48,6 +52,8 @@ set(GRAPHICS_SOURCES
     Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp Shaders/CThermalColdFilterGLSL.cpp
     Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilter.cpp Shaders/CThermalHotFilterGLSL.cpp
     Shaders/CSpaceWarpFilter.hpp Shaders/CSpaceWarpFilter.cpp Shaders/CSpaceWarpFilterGLSL.cpp
+    Shaders/CCameraBlurFilter.hpp Shaders/CCameraBlurFilter.cpp Shaders/CCameraBlurFilterGLSL.cpp
+    Shaders/CXRayBlurFilter.hpp Shaders/CXRayBlurFilter.cpp Shaders/CXRayBlurFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

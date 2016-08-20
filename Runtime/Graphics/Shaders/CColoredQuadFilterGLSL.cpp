@@ -12,6 +12,7 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "UBINDING0 uniform ColoredQuadUniform\n"
 "{\n"
+"    mat4 xf;\n"
 "    vec4 color;\n"
 "};\n"
 "\n"
@@ -24,7 +25,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    gl_Position = vec4(posIn.xyz, 1.0);\n"
+"    gl_Position = xf * vec4(posIn.xyz, 1.0);\n"
 "}\n";
 
 static const char* FS =

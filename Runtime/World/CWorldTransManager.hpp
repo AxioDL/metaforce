@@ -7,6 +7,7 @@
 #include "GuiSys/CGuiTextSupport.hpp"
 #include "Graphics/CLight.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde
 {
@@ -42,8 +43,8 @@ public:
         float x1c8_blurResult = 0.f;
         float x1cc_blurDelta = 0.f;
         float x1d0_dissolveStartTime = 99999.f;
-        float x1d4_relativeDissolveStartTime = 99999.f;
-        float x1d8_relativeDissolveEndTime = 99999.f;
+        float x1d4_dissolveEndTime = 99999.f;
+        float x1d8_transCompleteTime = 99999.f;
         bool x1dc_dissolveStarted = false;
 
         SModelDatas(const CAnimRes& samusRes);
@@ -69,7 +70,7 @@ private:
     {
         struct
         {
-            bool x44_24_dissolveComplete : 1;
+            bool x44_24_transFinished : 1;
             bool x44_25_stopSoon : 1;
             bool x44_26_goingUp : 1;
             bool x44_27_ : 1;
@@ -78,24 +79,28 @@ private:
         u8 dummy = 0;
     };
 
-    CColoredQuadFilter m_fadeToBlack = { CCameraFilterPass::EFilterType::AlphaBlended };
+    CColoredQuadFilter m_fadeToBlack = { CCameraFilterPass::EFilterType::Blend };
+    CTexturedQuadFilter m_dissolve = { CCameraFilterPass::EFilterType::Blend,
+                                       CGraphics::g_SpareTexture };
+    CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
 
-    static int GetSuitCharSet();
-
-public:
-    CWorldTransManager() : x44_24_dissolveComplete(true) {}
-
-    void DrawFirstPass() const {}
-    void DrawSecondPass() const {}
-    void DrawAllModels() const {}
+    static int GetSuitCharIdx();
+    void DrawFirstPass();
+    void DrawSecondPass();
+    void DrawAllModels();
     void UpdateLights(float dt);
     void UpdateEnabled(float);
     void UpdateDisabled(float);
     void UpdateText(float);
-    void Update(float);
     void DrawEnabled();
     void DrawDisabled();
     void DrawText();
+
+public:
+    CWorldTransManager() : x44_24_transFinished(true) {}
+
+
+    void Update(float);
     void Draw();
 
     void EnableTransition(const CAnimRes& samusRes,
@@ -106,6 +111,7 @@ public:
 
     void StartTransition();
     void EndTransition();
+    bool IsTransitionFinished() const { return x44_24_transFinished; }
     void PleaseStopSoon() { x44_25_stopSoon = true; }
     bool IsTransitionEnabled() const { return x30_type != ETransType::Disabled; }
     void DisableTransition();

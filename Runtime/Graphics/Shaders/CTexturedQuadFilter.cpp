@@ -1,10 +1,11 @@
 #include "CTexturedQuadFilter.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
 
-CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, const TToken<CTexture>& tex)
-: m_tex(tex)
+CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex)
+: m_booTex(tex)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -24,6 +25,13 @@ CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, co
         m_dataBind = TMultiBlendShader<CTexturedQuadFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
     });
+}
+
+CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type,
+                                         TLockedToken<CTexture>& tex)
+: CTexturedQuadFilter(type, tex->GetBooTexture())
+{
+    m_tex = tex;
 }
 
 void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale)

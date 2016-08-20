@@ -51,7 +51,7 @@ static const char* LightingHLSL =
 "}\n";
 
 static const char* MainPostHLSL =
-"float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+"static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
 "{\n"
 "    float fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
 "    return lerp(fog.color, colorIn, saturate(exp2(-8.0 * fogZ)));\n"
@@ -64,7 +64,7 @@ static const char* ThermalPostHLSL =
 "    float4 mulColor;\n"
 "    float4 addColor;\n"
 "};\n"
-"float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+"static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
 "{\n"
 "    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * mulColor.rgb + addColor.rgb, 1.0);\n"
 "}\n"

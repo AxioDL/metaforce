@@ -12,6 +12,8 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Character/CAssetFactory.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
 
 namespace urde
 {
@@ -48,17 +50,20 @@ class ViewManager : public specter::IViewManager
     {
         ViewManager& m_vm;
         CSpaceWarpFilter m_spaceWarpFilter;
+        CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
+        CXRayBlurFilter m_xrayBlur;
         CRandom16 m_random;
         float m_theta = 0.f;
     public:
-        ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
-        : View(res, parent), m_vm(vm), m_random(20) {}
+        ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent,
+                     TLockedToken<CTexture>& xrayPalette)
+        : View(res, parent), m_vm(vm), m_xrayBlur(xrayPalette), m_random(20) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
     std::unique_ptr<ParticleView> m_particleView;
-    urde::TCachedToken<CModel> m_modelTest;
-    urde::TCachedToken<CGenDescription> m_partGenDesc;
+    urde::TLockedToken<CModel> m_modelTest;
+    urde::TLockedToken<CGenDescription> m_partGenDesc;
     std::unique_ptr<CElementGen> m_partGen;
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     std::unique_ptr<CMoviePlayer> m_moviePlayer;

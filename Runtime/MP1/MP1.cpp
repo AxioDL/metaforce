@@ -5,12 +5,14 @@
 #include "Graphics/Shaders/CSpaceWarpFilter.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CXRayBlurFilter.hpp"
 
 namespace urde
 {
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
+URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
@@ -35,6 +37,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CThermalColdFilter>::Initialize();
     TShader<CThermalHotFilter>::Initialize();
     TShader<CSpaceWarpFilter>::Initialize();
+    TShader<CXRayBlurFilter>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
 }
@@ -82,6 +85,12 @@ bool CMain::Proc()
 
 void CMain::Shutdown()
 {
+    TShader<CThermalColdFilter>::Shutdown();
+    TShader<CThermalHotFilter>::Shutdown();
+    TShader<CSpaceWarpFilter>::Shutdown();
+    TShader<CXRayBlurFilter>::Shutdown();
+    TMultiBlendShader<CColoredQuadFilter>::Shutdown();
+    TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
 }
 
 #if MP1_USE_BOO

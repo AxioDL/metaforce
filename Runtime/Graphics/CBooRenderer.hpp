@@ -48,6 +48,7 @@ public:
 class CBooRenderer : public IRenderer
 {
     friend class CBooModel;
+    friend class CWorldTransManager;
 
     struct CAreaListItem
     {

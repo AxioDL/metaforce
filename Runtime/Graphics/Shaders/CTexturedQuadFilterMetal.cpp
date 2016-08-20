@@ -63,7 +63,7 @@ struct CTexturedQuadFilterMetalDataBindingFactory : TMultiBlendShader<CTexturedQ
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ITexture* texs[] = {filter.m_booTex};
         return cctx.newShaderDataBinding(pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);

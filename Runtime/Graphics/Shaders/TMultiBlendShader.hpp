@@ -82,9 +82,9 @@ public:
                                                            CCameraFilterPass::EFilterType type,
                                                            FilterImp& filter)
     {
-        if (type == CCameraFilterPass::EFilterType::AdditiveAlpha)
+        if (type == CCameraFilterPass::EFilterType::Add)
             return m_bindFactory->BuildShaderDataBinding(ctx, m_additiveAlphaPipeline, m_vtxFmt, filter);
-        else if (type == CCameraFilterPass::EFilterType::ColorMultiply)
+        else if (type == CCameraFilterPass::EFilterType::Multiply)
             return m_bindFactory->BuildShaderDataBinding(ctx, m_colorMultiplyPipeline, m_vtxFmt, filter);
         else
             return m_bindFactory->BuildShaderDataBinding(ctx, m_alphaBlendPipeline, m_vtxFmt, filter);

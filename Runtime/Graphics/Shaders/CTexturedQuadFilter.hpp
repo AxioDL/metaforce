@@ -23,6 +23,7 @@ class CTexturedQuadFilter
         float m_uvScale;
     };
     TLockedToken<CTexture> m_tex;
+    boo::ITexture* m_booTex;
     boo::GraphicsDataToken m_token;
     boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferD* m_uniBuf;
@@ -30,7 +31,8 @@ class CTexturedQuadFilter
     Uniform m_uniform;
 
 public:
-    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, const TToken<CTexture>& tex);
+    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, TLockedToken<CTexture>& tex);
+    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex);
     void draw(const zeus::CColor& color, float uvScale);
 
     using _CLS = CTexturedQuadFilter;

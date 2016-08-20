@@ -22,7 +22,8 @@ make_dnalist(liblist
              Tweaks/CTweakPlayerControl
              Tweaks/CTweakPlayerGun
              Tweaks/CTweakGunRes
-             Tweaks/CTweakPlayerRes)
+             Tweaks/CTweakPlayerRes
+             Tweaks/CTweakGui)
 
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp

@@ -9,11 +9,13 @@
 #include "Character/IAnimReader.hpp"
 #include "Character/CSkinRules.hpp"
 #include "Graphics/CModel.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "Camera/CCameraManager.hpp"
 
 namespace urde
 {
 
-int CWorldTransManager::GetSuitCharSet()
+int CWorldTransManager::GetSuitCharIdx()
 {
     CPlayerState& state = *g_GameState->GetPlayerState();
     if (state.GetFusion())
@@ -77,7 +79,7 @@ void CWorldTransManager::UpdateDisabled(float)
 {
     if (x0_curTime <= 2.f)
         return;
-    x44_24_dissolveComplete = true;
+    x44_24_transFinished = true;
 }
 
 void CWorldTransManager::UpdateEnabled(float dt)
@@ -88,12 +90,12 @@ void CWorldTransManager::UpdateEnabled(float dt)
         {
             x4_modelData->x1dc_dissolveStarted = true;
             x4_modelData->x1d0_dissolveStartTime = x0_curTime;
-            x4_modelData->x1d4_relativeDissolveStartTime = 4.f + x0_curTime - 2.f;
-            x4_modelData->x1d8_relativeDissolveEndTime = 5.f + x0_curTime - 2.f;
+            x4_modelData->x1d4_dissolveEndTime = 4.f + x0_curTime - 2.f;
+            x4_modelData->x1d8_transCompleteTime = 5.f + x0_curTime - 2.f;
         }
 
-        if (x0_curTime > x4_modelData->x1d8_relativeDissolveEndTime && x4_modelData->x1dc_dissolveStarted)
-            x44_24_dissolveComplete = true;
+        if (x0_curTime > x4_modelData->x1d8_transCompleteTime && x4_modelData->x1dc_dissolveStarted)
+            x44_24_transFinished = true;
 
         x4_modelData->x1c_samusModelData.AdvanceAnimationIgnoreParticles(dt, x20_random, true);
         x4_modelData->x170_gunXf = x4_modelData->x1c_samusModelData.GetScaledLocatorTransform("GUN_LCTR");
@@ -146,8 +148,63 @@ void CWorldTransManager::Update(float dt)
     }
 }
 
+void CWorldTransManager::DrawAllModels()
+{
+}
+
+void CWorldTransManager::DrawFirstPass()
+{
+    zeus::CTransform translateXf =
+        zeus::CTransform::Translate(x4_modelData->x1b4_shakeResult.x,
+                                    -3.5f * (1.f - zeus::clamp(0.f, x0_curTime / 10.f, 1.f)) - 3.5f,
+                                    x4_modelData->x1b4_shakeResult.y + 2.f);
+    zeus::CTransform rotateXf =
+        zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) *
+                                                 360.f + 180.f - 90.f));
+    CGraphics::SetViewPointMatrix(rotateXf * translateXf);
+    DrawAllModels();
+}
+
+void CWorldTransManager::DrawSecondPass()
+{
+}
+
 void CWorldTransManager::DrawEnabled()
 {
+    g_Renderer->SetPerspective(CCameraManager::DefaultFirstPersonFOV(),
+                               CGraphics::g_ViewportResolution.x /
+                               float(CGraphics::g_ViewportResolution.y),
+                               CCameraManager::DefaultNearPlane(),
+                               CCameraManager::DefaultFarPlane());
+    g_Renderer->x318_26_ = true;
+
+    if (x0_curTime <= x4_modelData->x1d0_dissolveStartTime)
+        DrawFirstPass();
+    else if (x0_curTime >= x4_modelData->x1d4_dissolveEndTime)
+        DrawSecondPass();
+    else
+    {
+        float t = zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
+        DrawFirstPass();
+        SClipScreenRect rect = {};
+        rect.xc_width = CGraphics::g_ViewportResolution.x;
+        rect.x10_height = CGraphics::g_ViewportResolution.y;
+        CGraphics::ResolveSpareTexture(rect);
+        DrawSecondPass();
+        m_dissolve.draw(zeus::CColor{1.f, 1.f, 1.f, t}, 1.f);
+    }
+
+    m_widescreen.draw(zeus::CColor::skBlack, 1.f);
+
+    float ftbT = 0.f;
+    if (x0_curTime < 0.25f)
+        ftbT = 1.f - x0_curTime / 0.25f;
+    else if (x0_curTime > x4_modelData->x1d8_transCompleteTime)
+        ftbT = 1.f;
+    else if (x0_curTime > x4_modelData->x1d8_transCompleteTime - 0.25f)
+        ftbT = 1.f - (x4_modelData->x1d8_transCompleteTime - x0_curTime) / 0.25f;
+    if (ftbT > 0.f)
+        m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, ftbT});
 }
 
 void CWorldTransManager::DrawDisabled()
@@ -187,7 +244,7 @@ void CWorldTransManager::TouchModels()
         x4_modelData->x164_suitSkin.IsLoaded() &&
         x4_modelData->x164_suitSkin.GetObj())
     {
-        CAnimRes animRes(x4_modelData->x0_samusRes.GetId(), GetSuitCharSet(),
+        CAnimRes animRes(x4_modelData->x0_samusRes.GetId(), GetSuitCharIdx(),
                          x4_modelData->x0_samusRes.GetScale(), x4_modelData->x0_samusRes.GetDefaultAnim(),
                          true);
         x4_modelData->x1c_samusModelData = animRes;
@@ -232,7 +289,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     x4_modelData->x14c_beamModel = g_SimplePool->GetObj(modelName.c_str());
 
     TToken<CCharacterFactory> fac = g_CharFactoryBuilder->GetFactory(samusRes);
-    const CCharacterInfo& info = fac.GetObj()->GetCharInfo(GetSuitCharSet());
+    const CCharacterInfo& info = fac.GetObj()->GetCharInfo(GetSuitCharIdx());
     x4_modelData->x158_suitModel = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), info.GetModelId()});
     x4_modelData->x164_suitSkin = g_SimplePool->GetObj(SObjectTag{FOURCC('CSKR'), info.GetSkinRulesId()});
 
@@ -290,7 +347,7 @@ void CWorldTransManager::StartTransition()
 {
     x0_curTime = 0.f;
     x18_bgOffset = 0.f;
-    x44_24_dissolveComplete = false;
+    x44_24_transFinished = false;
     x44_28_ = true;
 }
 

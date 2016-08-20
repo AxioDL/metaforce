@@ -24,12 +24,6 @@ using YAMLNode = athena::io::YAMLNode;
 namespace urde
 {
 
-URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
-URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
-URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
-
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
 #if 0
@@ -49,18 +43,17 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     //m_modelTest = objStore.GetObj("gun_cmdl");
     m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
-    m_modelTest.Lock();
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
     //m_partGenDesc = objStore.GetObj("PowerCharge");
-    //m_partGenDesc.Lock();
     //m_partGen.reset(new urde::CElementGen(m_partGenDesc,
     //                                       urde::CElementGen::EModelOrientationType::Normal,
     //                                       urde::CElementGen::EOptionalSystemFlags::None));
     //m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
 
-    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView));
+    TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
+    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView, xrayPalette));
 
     //m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
     //m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
@@ -115,7 +108,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
 
         CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
-        CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
+        //CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
         zeus::CFrustum frustum;
         frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.1f, 1000.f));
@@ -131,7 +124,9 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         //g_Renderer->DoThermalBlendCold();
         //flags.m_extendedShaderIdx = 2;
         flags.m_extendedShaderIdx = 1;
+        m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
         m_vm.m_modelTest->Draw(flags);
+        m_xrayBlur.draw(25.f);
         //g_Renderer->DoThermalBlendHot();
         //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
@@ -404,11 +399,6 @@ void ViewManager::stop()
 {
     m_videoVoice.reset();
     m_projManager.shutdown();
-    TShader<CThermalColdFilter>::Shutdown();
-    TShader<CThermalHotFilter>::Shutdown();
-    TShader<CSpaceWarpFilter>::Shutdown();
-    TMultiBlendShader<CColoredQuadFilter>::Shutdown();
-    TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     CElementGen::Shutdown();
     CMoviePlayer::Shutdown();
     CLineRenderer::Shutdown();
