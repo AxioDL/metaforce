@@ -240,10 +240,10 @@ SAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom
         return {};
 }
 
-SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, bool flag)
+SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool flag)
 {
     if (x10_animData)
-        return x10_animData->Advance(dt, x0_particleScale, stateMgr, flag);
+        return x10_animData->Advance(dt, x0_particleScale, stateMgr, aid, flag);
     else
         return {};
 }
@@ -292,13 +292,13 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
 
     if (x10_animData)
     {
-        const CSkinnedModel& model = PickAnimatedModel(EWhichModel::Thermal);
-        x10_animData->SetupRender(model, {}, nullptr);
+        CSkinnedModel& model = PickAnimatedModel(EWhichModel::Thermal);
+        x10_animData->SetupRender(model, drawFlags, {}, nullptr);
         model.Draw(drawFlags);
     }
     else
     {
-        const TLockedToken<CModel>& model = PickStaticModel(EWhichModel::Thermal);
+        TLockedToken<CModel>& model = PickStaticModel(EWhichModel::Thermal);
         model->Draw(drawFlags);
     }
 }

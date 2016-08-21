@@ -30,6 +30,7 @@ public:
     operator float() const {return m_time;}
 
     bool EqualsZero() const;
+    bool EpsilonZero() const;
     bool GreaterThanZero() const;
     bool operator ==(const CCharAnimTime& other) const;
     bool operator !=(const CCharAnimTime& other) const;

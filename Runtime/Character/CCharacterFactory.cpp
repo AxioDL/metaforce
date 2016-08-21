@@ -31,14 +31,14 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
                                             charInfo.GetModelId(),
                                             charInfo.GetSkinRulesId(),
                                             charInfo.GetCharLayoutInfoId(),
-                                            CSkinnedModel::EDataOwnership::One));
+                                            0));
     case 1:
         return TToken<CSkinnedModel>::GetIObjObjectFor(
             std::make_unique<CMorphableSkinnedModel>(*g_SimplePool,
                                                      charInfo.GetIceModelId(),
                                                      charInfo.GetIceSkinRulesId(),
                                                      charInfo.GetCharLayoutInfoId(),
-                                                     CSkinnedModel::EDataOwnership::One));
+                                                     0));
     default:
         break;
     }

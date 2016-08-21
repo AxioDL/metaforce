@@ -26,7 +26,7 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-#if 0
+#if 1
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.blend"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
     SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
@@ -93,6 +93,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 
     if (m_vm.m_modelTest.IsLoaded())
     {
+#if 0
         CModelFlags flags;
 
         flags.m_extendedShaderIdx = 0;
@@ -131,6 +132,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         //g_Renderer->DoThermalBlendHot();
         //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
+#endif
+
     }
     if (m_vm.m_partGen)
     {
@@ -167,6 +170,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_moviePlayer->Update(1.f / 60.f);
         m_vm.m_moviePlayer->DrawFrame();
     }
+    g_GameState->GetWorldTransitionManager()->Draw();
 }
 
 specter::View* ViewManager::BuildSpaceViews()

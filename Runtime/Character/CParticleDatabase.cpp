@@ -7,4 +7,17 @@ void CParticleDatabase::CacheParticleDesc(const CCharacterInfo::CParticleResData
 {
 }
 
+void CParticleDatabase::SetModulationColorAllActiveEffects(const zeus::CColor& color)
+{
+}
+
+void CParticleDatabase::SuspendAllActiveEffects(CStateManager& stateMgr)
+{
+}
+
+void CParticleDatabase::StartEffect(const std::string& name, u32 flags, const CParticleData& data,
+                                    const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid, u32 unk1)
+{
+}
+
 }

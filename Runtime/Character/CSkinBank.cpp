@@ -1,4 +1,5 @@
 #include "CSkinBank.hpp"
+#include "CPoseAsTransforms.hpp"
 
 namespace urde
 {
@@ -9,6 +10,13 @@ CSkinBank::CSkinBank(CInputStream& in)
     x0_segments.reserve(boneCount);
     for (u32 i=0 ; i<boneCount ; ++i)
         x0_segments.emplace_back(in);
+}
+
+void CSkinBank::GetBankTransforms(std::vector<const zeus::CTransform*>& out,
+                                  const CPoseAsTransforms& pose) const
+{
+    for (CSegId id : x0_segments)
+        out.push_back(&pose.GetTransform(id));
 }
 
 }

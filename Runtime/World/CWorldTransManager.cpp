@@ -197,6 +197,7 @@ void CWorldTransManager::DrawFirstPass()
                                                  360.f + 180.f - 90.f));
     CGraphics::SetViewPointMatrix(rotateXf * translateXf);
     DrawAllModels();
+    m_camblur.draw(x4_modelData->x1c8_blurResult);
 }
 
 void CWorldTransManager::DrawSecondPass()

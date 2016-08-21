@@ -7,6 +7,7 @@
 #include "boo/graphicsdev/Metal.hpp"
 #include "Shaders/CModelShaders.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "Character/CSkinRules.hpp"
 #include "GameGlobalObjects.hpp"
 #include <array>
 
@@ -456,7 +457,9 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     }
 }
 
-void CBooModel::UpdateUniformData(const CModelFlags& flags) const
+void CBooModel::UpdateUniformData(const CModelFlags& flags,
+                                  const CSkinRules* cskr,
+                                  const CPoseAsTransforms* pose) const
 {
     u8* dataOut = reinterpret_cast<u8*>(m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
@@ -464,19 +467,54 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags) const
     if (m_skinBankCount)
     {
         /* Skinned */
+        std::vector<const zeus::CTransform*> bankTransforms;
+        bankTransforms.reserve(m_weightVecCount*4);
         for (size_t i=0 ; i<m_skinBankCount ; ++i)
         {
-            for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+            if (cskr && pose)
             {
-                zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-                mv = CGraphics::g_GXModelView.toMatrix4f();
-                dataCur += sizeof(zeus::CMatrix4f);
+                cskr->GetBankTransforms(bankTransforms, *pose, i);
+
+                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                {
+                    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    if (w >= bankTransforms.size())
+                        mv = CGraphics::g_GXModelView.toMatrix4f();
+                    else
+                        mv = (CGraphics::g_GXModelView * *bankTransforms[w]).toMatrix4f();
+                    dataCur += sizeof(zeus::CMatrix4f);
+                }
+                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                {
+                    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    if (w >= bankTransforms.size())
+                        mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+                    else
+                    {
+                        zeus::CTransform xf = (CGraphics::g_GXModelView * *bankTransforms[w]).inverse();
+                        xf.origin.zeroOut();
+                        xf.basis.transpose();
+                        mvinv = xf.toMatrix4f();
+                    }
+                    dataCur += sizeof(zeus::CMatrix4f);
+                }
+
+                bankTransforms.clear();
             }
-            for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+            else
             {
-                zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-                mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-                dataCur += sizeof(zeus::CMatrix4f);
+                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                {
+                    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    mv = CGraphics::g_GXModelView.toMatrix4f();
+                    dataCur += sizeof(zeus::CMatrix4f);
+                }
+                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                {
+                    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+                    dataCur += sizeof(zeus::CMatrix4f);
+                }
             }
             zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
             proj = CGraphics::GetPerspectiveProjectionMatrix(true);
@@ -524,29 +562,35 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags) const
     m_uniformBuffer->unmap();
  }
 
-void CBooModel::DrawAlpha(const CModelFlags& flags) const
+void CBooModel::DrawAlpha(const CModelFlags& flags,
+                          const CSkinRules* cskr,
+                          const CPoseAsTransforms* pose) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData(flags);
+        UpdateUniformData(flags, cskr, pose);
         DrawAlphaSurfaces(flags);
     }
 }
 
-void CBooModel::DrawNormal(const CModelFlags& flags) const
+void CBooModel::DrawNormal(const CModelFlags& flags,
+                           const CSkinRules* cskr,
+                           const CPoseAsTransforms* pose) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData(flags);
+        UpdateUniformData(flags, cskr, pose);
         DrawNormalSurfaces(flags);
     }
 }
 
-void CBooModel::Draw(const CModelFlags& flags) const
+void CBooModel::Draw(const CModelFlags& flags,
+                     const CSkinRules* cskr,
+                     const CPoseAsTransforms* pose) const
 {
     if (TryLockTextures())
     {
-        UpdateUniformData(flags);
+        UpdateUniformData(flags, cskr, pose);
         DrawSurfaces(flags);
     }
 }
@@ -667,19 +711,19 @@ void CModel::VerifyCurrentShader(int shaderIdx) const
 void CModel::DrawSortedParts(const CModelFlags& flags) const
 {
     VerifyCurrentShader(flags.m_matSetIdx);
-    x28_modelInst->DrawAlpha(flags);
+    x28_modelInst->DrawAlpha(flags, nullptr, nullptr);
 }
 
 void CModel::DrawUnsortedParts(const CModelFlags& flags) const
 {
     VerifyCurrentShader(flags.m_matSetIdx);
-    x28_modelInst->DrawNormal(flags);
+    x28_modelInst->DrawNormal(flags, nullptr, nullptr);
 }
 
 void CModel::Draw(const CModelFlags& flags) const
 {
     VerifyCurrentShader(flags.m_matSetIdx);
-    x28_modelInst->Draw(flags);
+    x28_modelInst->Draw(flags, nullptr, nullptr);
 }
 
 void CModel::Touch(int shaderIdx) const

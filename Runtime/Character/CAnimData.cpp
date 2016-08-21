@@ -15,6 +15,7 @@
 #include "CAnimTreeNode.hpp"
 #include "CAnimPerSegmentData.hpp"
 #include "CSegStatementSet.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -83,7 +84,7 @@ static void AdvanceAnimationTree(std::weak_ptr<CAnimTreeNode>& anim, const CChar
 {
 }
 
-void CAnimData::AdvanceAdditiveAnims(float dt)
+SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
 {
     CCharAnimTime time(dt);
 
@@ -102,8 +103,11 @@ void CAnimData::AdvanceAdditiveAnims(float dt)
     }
 }
 
-void CAnimData::UpdateAdditiveAnims(float)
+SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)
 {
+
+
+    return AdvanceAdditiveAnims(dt);
 }
 
 bool CAnimData::IsAdditiveAnimation(u32) const
@@ -228,16 +232,30 @@ void CAnimData::RenderAuxiliary(const CFrustumPlanes& frustum) const
 {
 }
 
-void CAnimData::Render(const CSkinnedModel& model, const CModelFlags& drawFlags,
+void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
                        const rstl::optional_object<CVertexMorphEffect>& morphEffect,
-                       const float* morphMagnitudes) const
+                       const float* morphMagnitudes)
 {
+    SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
+    DrawSkinnedModel(model, drawFlags);
 }
 
-void CAnimData::SetupRender(const CSkinnedModel& model,
+void CAnimData::SetupRender(CSkinnedModel& model,
+                            const CModelFlags& drawFlags,
                             const rstl::optional_object<CVertexMorphEffect>& morphEffect,
-                            const float* morphMagnitudes) const
+                            const float* morphMagnitudes)
 {
+    if (!x220_30_poseBuilt)
+    {
+        x2fc_poseBuilder.BuildNoScale(x224_pose);
+        x220_30_poseBuilt = true;
+    }
+    PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
+}
+
+void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags)
+{
+    model.Draw(flags);
 }
 
 void CAnimData::PreRender()
@@ -246,7 +264,7 @@ void CAnimData::PreRender()
     {
         RecalcPoseBuilder(nullptr);
         x220_31_poseCached = true;
-        x220_30_ = false;
+        x220_30_poseBuilt = false;
     }
 }
 
@@ -266,22 +284,164 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool)
 {
 }
 
-void CAnimData::DoAdvance(float, bool&, CRandom16&, bool)
+SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool b2)
 {
+    b1 = false;
+
+    zeus::CVector3f offsetPre, offsetPost;
+    zeus::CQuaternion quatPre, quatPost;
+
+    ResetPOILists();
+    float scaleDt = dt * x200_speedScale;
+    if (x2fc_poseBuilder.HasRoot())
+    {
+        SAdvancementDeltas deltas = UpdateAdditiveAnims(scaleDt);
+        offsetPre = deltas.x0_posDelta;
+        quatPre = deltas.xc_rotDelta;
+    }
+
+    if (!x220_24_animating)
+    {
+        b1 = true;
+        return {};
+    }
+
+    if (x220_29_)
+    {
+        x220_29_ = false;
+        b1 = true;
+    }
+
+    if (b2)
+    {
+        SetRandomPlaybackRate(random);
+        CCharAnimTime time(scaleDt);
+        if (x220_25_loop)
+        {
+            while (time.GreaterThanZero() && !time.EpsilonZero())
+            {
+                x210_passedIntCount += x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
+                x20c_passedBoolCount += x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), 16, x20c_passedBoolCount, 0);
+                x214_passedParticleCount += x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0);
+                x218_passedSoundCount += x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0);
+                AdvanceAnim(time, offsetPost, quatPost);
+            }
+        }
+        else
+        {
+            CCharAnimTime remTime = x1f8_animRoot->VGetTimeRemaining();
+            while (remTime.GreaterThanZero() && !remTime.EpsilonZero())
+            {
+                x210_passedIntCount += x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
+                x20c_passedBoolCount += x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), 16, x20c_passedBoolCount, 0);
+                x214_passedParticleCount += x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0);
+                x218_passedSoundCount += x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0);
+                AdvanceAnim(time, offsetPost, quatPost);
+                remTime = x1f8_animRoot->VGetTimeRemaining();
+                time = std::max(0.f, std::min(float(remTime), float(time)));
+                if (remTime.EpsilonZero())
+                {
+                    x220_24_animating = false;
+                    x1dc_ = zeus::CVector3f::skZero;
+                    x220_28_ = false;
+                    x220_26_ = false;
+                }
+            }
+        }
+
+        x220_31_poseCached = false;
+        x220_30_poseBuilt = false;
+    }
+
+    return {offsetPost + offsetPre, quatPost * quatPre};
 }
 
-SAdvancementDeltas CAnimData::Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool)
+SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
+                                      CStateManager& stateMgr, TAreaId aid, bool b1)
 {
-    return {};
+    bool b2;
+    return DoAdvance(dt, b2, *stateMgr.GetActiveRandom(), b1);
+    if (b2)
+        x120_particleDB.SuspendAllActiveEffects(stateMgr);
+
+    for (CParticlePOINode& node : g_ParticlePOINodes)
+    {
+        if (node.GetCharIdx() == -1 || node.GetCharIdx() == x204_charIdx)
+        {
+            x120_particleDB.StartEffect(node.GetName(), node.GetFlags(), node.GetParticleData(),
+                                        scale, stateMgr, aid, x21c_);
+        }
+    }
 }
 
-SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float, CRandom16&, bool)
+SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random, bool b1)
 {
-    return {};
+    bool b2;
+    return DoAdvance(dt, b2, random, b1);
 }
 
-void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&)
+void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat)
 {
+    SAdvancementResults results;
+    std::shared_ptr<IAnimReader> simplified;
+
+    if (x104_)
+    {
+        results = x1f8_animRoot->VAdvanceView(time);
+        simplified = x1f8_animRoot->VSimplified();
+    }
+
+    if (simplified)
+    {
+        if (simplified->IsCAnimTreeNode())
+        {
+            if (x1f8_animRoot != simplified)
+                x1f8_animRoot = std::move(simplified);
+        }
+        else
+            x1f8_animRoot.reset();
+    }
+
+    if ((x220_28_ || x220_27_) && x210_passedIntCount > 0)
+    {
+        for (CInt32POINode& node : g_Int32POINodes)
+        {
+            if (node.GetPoiType() == EPOIType::UserEvent)
+            {
+                switch (EUserEventType(node.GetValue()))
+                {
+                case EUserEventType::AlignTargetPosStart:
+                {
+                    x220_26_ = true;
+                    break;
+                }
+                case EUserEventType::AlignTargetPos:
+                {
+                    x1dc_ = zeus::CVector3f::skZero;
+                    x220_28_ = false;
+                    x220_26_ = false;
+                    break;
+                }
+                case EUserEventType::AlignTargetRot:
+                {
+                    x1e8_ = zeus::CQuaternion::skNoRotation;
+                    x220_27_ = false;
+                    break;
+                }
+                default: break;
+                }
+            }
+        }
+    }
+
+    offset += results.x8_deltas.x0_posDelta;
+    if (x220_26_)
+        offset += x1dc_ * time;
+
+    zeus::CQuaternion rot = results.x8_deltas.xc_rotDelta * x1e8_;
+    quat = quat * rot;
+    x1dc_ = rot.transform(x1dc_);
+    time = results.x0_remTime;
 }
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules)
@@ -292,10 +452,12 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 {
 }
 
-void CAnimData::PoseSkinnedModel(const CSkinnedModel& model, const CPoseAsTransforms& pose,
+void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
+                                 const CModelFlags& drawFlags,
                                  const rstl::optional_object<CVertexMorphEffect>& morphEffect,
-                                 const float* morphMagnitudes) const
+                                 const float* morphMagnitudes)
 {
+    model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
 }
 
 void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float,

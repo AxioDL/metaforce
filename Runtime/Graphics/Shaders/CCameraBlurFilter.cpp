@@ -28,7 +28,7 @@ CCameraBlurFilter::CCameraBlurFilter()
 
 void CCameraBlurFilter::draw(float amount)
 {
-    if (amount == 0.f)
+    if (amount <= 0.f)
         return;
 
     SClipScreenRect clipRect = {};

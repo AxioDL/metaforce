@@ -5,7 +5,7 @@ namespace urde
 {
 
 CSoundPOINode::CSoundPOINode()
-: CPOINode("root", 8, CCharAnimTime(), -1, false, 1.f, -1, 0),
+: CPOINode("root", EPOIType::Sound, CCharAnimTime(), -1, false, 1.f, -1, 0),
   x38_sfxId(0),
   x3c_falloff(0.f),
   x40_maxDist(0.f)
@@ -18,7 +18,7 @@ CSoundPOINode::CSoundPOINode(CInputStream& in)
   x40_maxDist(in.readFloatBig())
 {}
 
-CSoundPOINode::CSoundPOINode(const std::string& name, u16 a,
+CSoundPOINode::CSoundPOINode(const std::string& name, EPOIType a,
                              const CCharAnimTime& time, u32 b, bool c,
                              float d, u32 e, u32 f, u32 sfxId, float falloff, float maxDist)
 : CPOINode(name, a, time, b, c, d, e, f),

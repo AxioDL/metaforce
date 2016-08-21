@@ -16,7 +16,7 @@ class CSoundPOINode : public CPOINode
 public:
     CSoundPOINode();
     CSoundPOINode(CInputStream& in);
-    CSoundPOINode(const std::string& name, u16 a,
+    CSoundPOINode(const std::string& name, EPOIType type,
                   const CCharAnimTime& time, u32 b, bool c,
                   float d, u32 e, u32 f, u32 sfxId, float falloff, float maxDist);
 

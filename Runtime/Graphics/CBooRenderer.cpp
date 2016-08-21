@@ -615,7 +615,7 @@ void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb)
                     if (bitmap[c] & (1 << b))
                     {
                         CBooModel* model = item.x10_models[c * 32 + b];
-                        model->UpdateUniformData(flags);
+                        model->UpdateUniformData(flags, nullptr, nullptr);
                         const CBooSurface* surf = model->x38_firstUnsortedSurface;
                         while (surf)
                         {

@@ -14,6 +14,9 @@ class CParticleDatabase
 public:
     void CacheParticleDesc(const CCharacterInfo::CParticleResData& desc);
     void SetModulationColorAllActiveEffects(const zeus::CColor& color);
+    void SuspendAllActiveEffects(CStateManager& stateMgr);
+    void StartEffect(const std::string& name, u32 flags, const CParticleData& data,
+                     const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid, u32 unk1);
 };
 
 }

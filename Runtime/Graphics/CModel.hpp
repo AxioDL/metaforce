@@ -17,6 +17,8 @@ namespace urde
 class IObjectStore;
 class CTexture;
 class CLight;
+class CSkinRules;
+class CPoseAsTransforms;
 
 struct CModelFlags
 {
@@ -62,6 +64,7 @@ class CBooModel
     friend class CModel;
     friend class CBooRenderer;
     friend class CMetroidModelInstance;
+    friend class CSkinnedModel;
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
     using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
@@ -125,10 +128,18 @@ public:
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;
-    void UpdateUniformData(const CModelFlags& flags) const;
-    void DrawAlpha(const CModelFlags& flags) const;
-    void DrawNormal(const CModelFlags& flags) const;
-    void Draw(const CModelFlags& flags) const;
+    void UpdateUniformData(const CModelFlags& flags,
+                           const CSkinRules* cskr,
+                           const CPoseAsTransforms* pose) const;
+    void DrawAlpha(const CModelFlags& flags,
+                   const CSkinRules* cskr,
+                   const CPoseAsTransforms* pose) const;
+    void DrawNormal(const CModelFlags& flags,
+                    const CSkinRules* cskr,
+                    const CPoseAsTransforms* pose) const;
+    void Draw(const CModelFlags& flags,
+              const CSkinRules* cskr,
+              const CPoseAsTransforms* pose) const;
 
     const MaterialSet::Material& GetMaterialByIndex(int idx) const
     {

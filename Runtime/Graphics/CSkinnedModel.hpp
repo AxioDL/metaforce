@@ -16,6 +16,7 @@ class IObjectStore;
 
 class CSkinnedModel
 {
+    friend class CBooModel;
     std::unique_ptr<CBooModel> m_modelInst;
     TLockedToken<CModel> x4_model;
     TLockedToken<CSkinRules> x10_skinRules;
@@ -26,25 +27,29 @@ public:
         Zero,
         One
     };
-    CSkinnedModel(const TLockedToken<CModel>& model,
-                  const TLockedToken<CSkinRules>& skinRules,
-                  const TLockedToken<CCharLayoutInfo>& layoutInfo);
+    CSkinnedModel(TLockedToken<CModel> model,
+                  TLockedToken<CSkinRules> skinRules,
+                  TLockedToken<CCharLayoutInfo> layoutInfo,
+                  int shaderIdx);
     CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
-                  ResId layoutInfo, EDataOwnership ownership);
+                  ResId layoutInfo, int shaderIdx);
 
     TLockedToken<CModel>& GetModel() {return x4_model;}
     TLockedToken<CSkinRules>& GetSkinRules() {return x10_skinRules;}
     TLockedToken<CCharLayoutInfo>& GetLayoutInfo() {return x1c_layoutInfo;}
 
-    void Calculate(const CPoseAsTransforms& pose, const std::experimental::optional<CVertexMorphEffect>&);
-    void Draw(const CModelFlags& drawFlags) const {}
+    void Calculate(const CPoseAsTransforms& pose,
+                   const CModelFlags& drawFlags,
+                   const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                   const float* morphMagnitudes);
+    void Draw(const CModelFlags& drawFlags) const;
 };
 
 class CMorphableSkinnedModel : public CSkinnedModel
 {
 public:
     CMorphableSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
-                           ResId layoutInfo, EDataOwnership ownership);
+                           ResId layoutInfo, int shaderIdx);
 };
 
 }

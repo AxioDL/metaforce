@@ -1083,10 +1083,25 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         Log.report(logvisor::Fatal, _S("'%s' not found as file"),
                    yamlPath.getRelativePath().c_str());
 
-    athena::io::FileReader yamlReader(yamlPath.getAbsolutePath());
-    if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlReader))
+    FILE* yamlFp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("r"));
+    if (!yamlFp)
+        Log.report(logvisor::Fatal, _S("can't open '%s' for reading"),
+                   yamlPath.getRelativePath().c_str());
+
+    if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlFp))
+    {
         Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
                    yamlPath.getRelativePath().c_str());
+    }
+
+    athena::io::YAMLDocReader yamlReader;
+    yaml_parser_set_input_file(yamlReader.getParser(), yamlFp);
+    if (!yamlReader.parse())
+    {
+        Log.report(logvisor::Fatal, _S("unable to parse '%s'"),
+                   yamlPath.getRelativePath().c_str());
+    }
+    fclose(yamlFp);
     ANCS ancs;
     ancs.read(yamlReader);
 

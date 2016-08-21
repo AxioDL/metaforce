@@ -1,5 +1,7 @@
 #include "CCharAnimTime.hpp"
 #include <algorithm>
+#include <cmath>
+#include <float.h>
 
 namespace urde
 {
@@ -17,6 +19,11 @@ bool CCharAnimTime::EqualsZero() const
         return false;
 
     return (m_time == 0.f);
+}
+
+bool CCharAnimTime::EpsilonZero() const
+{
+    return (std::fabs(m_time) < FLT_EPSILON);
 }
 
 bool CCharAnimTime::GreaterThanZero() const

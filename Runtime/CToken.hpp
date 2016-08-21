@@ -301,6 +301,9 @@ public:
     T* operator->() {return GetObj();}
     const T* operator->() const {return GetObj();}
     void Unlock() {TToken<T>::Unlock(); m_obj = nullptr;}
+
+    TCachedToken& operator=(const TCachedToken& other) { CToken::operator=(other); m_obj = nullptr; return *this; }
+    TCachedToken& operator=(const CToken& other) { CToken::operator=(other); m_obj = nullptr; return *this; }
 };
 
 template <class T>
@@ -309,9 +312,9 @@ class TLockedToken : public TCachedToken<T>
 public:
     TLockedToken() = default;
     TLockedToken(const TLockedToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
-    TLockedToken& operator=(const TLockedToken& other) { CToken::operator=(other); CToken::Lock(); return *this; }
+    TLockedToken& operator=(const TLockedToken& other) { TCachedToken<T>::operator=(other); CToken::Lock(); return *this; }
     TLockedToken(const CToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
-    TLockedToken& operator=(const CToken& other) { CToken::operator=(other); CToken::Lock(); return *this; }
+    TLockedToken& operator=(const CToken& other) { TCachedToken<T>::operator=(other); CToken::Lock(); return *this; }
     TLockedToken(CToken&& other) : TCachedToken<T>(std::move(other)) { CToken::Lock(); }
 };
 

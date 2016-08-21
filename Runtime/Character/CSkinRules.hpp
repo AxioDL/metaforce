@@ -7,6 +7,7 @@
 
 namespace urde
 {
+class CPoseAsTransforms;
 
 class CSkinRules
 {
@@ -14,6 +15,11 @@ class CSkinRules
 public:
     CSkinRules(CInputStream& in);
     void BuildAccumulatedTransforms();
+    void GetBankTransforms(std::vector<const zeus::CTransform*>& out,
+                           const CPoseAsTransforms& pose, int skinBankIdx) const
+    {
+        x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
+    }
 };
 
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);

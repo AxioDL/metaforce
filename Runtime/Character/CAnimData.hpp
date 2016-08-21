@@ -12,6 +12,41 @@
 
 enum class EUserEventType
 {
+    Projectile,
+    EggLay,
+    LoopedSoundStop,
+    AlignTargetPos,
+    AlignTargetRot,
+    ChangeMaterial,
+    Delete,
+    GenerateEnd,
+    DamageOn,
+    DamageOff,
+    AlignTargetPosStart,
+    DeGenerate,
+    Landing,
+    TakeOff,
+    FadeIn,
+    FadeOut,
+    ScreenShake,
+    BeginAction,
+    EndAction,
+    BecomeRagDoll,
+    IkLock,
+    IkRelease,
+    BreakLockOn,
+    BecomeShootThrough,
+    RemoveCollision,
+    ObjectPickUp,
+    ObjectDrop,
+    EventStart,
+    EventStop,
+    Activate,
+    Deactivate,
+    SoundPlay,
+    SoundStop,
+    EffectOn,
+    EffectOff
 };
 
 namespace urde
@@ -41,6 +76,7 @@ class CBoolPOINode;
 class CInt32POINode;
 class CParticlePOINode;
 class CSoundPOINode;
+class IAnimReader;
 struct SAdvancementDeltas;
 
 class CAnimData
@@ -61,16 +97,17 @@ class CAnimData
     ResId x1d8_selfId;
     zeus::CVector3f x1dc_;
     zeus::CQuaternion x1e8_;
-    std::shared_ptr<CAnimTreeNode> x1f8_animRoot;
+    std::shared_ptr<IAnimReader> x1f8_animRoot;
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
-    float x200_ = 1.f;
+    float x200_speedScale = 1.f;
     u32 x204_charIdx;
     u16 x208_defaultAnim;
     u32 x20c_passedBoolCount = 0;
     u32 x210_passedIntCount = 0;
     u32 x214_passedParticleCount = 0;
     u32 x218_passedSoundCount = 0;
+    u32 x21c_ = 0;
 
     union
     {
@@ -83,7 +120,7 @@ class CAnimData
             bool x220_27_ : 1;
             bool x220_28_ : 1;
             bool x220_29_ : 1;
-            bool x220_30_ : 1;
+            bool x220_30_poseBuilt : 1;
             bool x220_31_poseCached : 1;
         };
     };
@@ -122,8 +159,8 @@ public:
 
     ResId GetEventResourceIdForAnimResourceId(ResId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
-    void AdvanceAdditiveAnims(float);
-    void UpdateAdditiveAnims(float);
+    SAdvancementDeltas AdvanceAdditiveAnims(float);
+    SAdvancementDeltas UpdateAdditiveAnims(float);
     bool IsAdditiveAnimation(u32) const;
     std::shared_ptr<CAnimTreeNode> GetAdditiveAnimationTree(u32) const;
     bool IsAdditiveAnimationActive(u32) const;
@@ -152,27 +189,30 @@ public:
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;
     void RecalcPoseBuilder(const CCharAnimTime*);
     void RenderAuxiliary(const CFrustumPlanes& frustum) const;
-    void Render(const CSkinnedModel& model, const CModelFlags& drawFlags,
+    void Render(CSkinnedModel& model, const CModelFlags& drawFlags,
                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
-                const float* morphMagnitudes) const;
-    void SetupRender(const CSkinnedModel& model,
+                const float* morphMagnitudes);
+    void SetupRender(CSkinnedModel& model,
+                     const CModelFlags& drawFlags,
                      const std::experimental::optional<CVertexMorphEffect>& morphEffect,
-                     const float* morphMagnitudes) const;
+                     const float* morphMagnitudes);
+    static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
     void PreRender();
     void BuildPose();
     void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, std::vector<CToken>& tokensOut);
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
     void SetAnimation(const CAnimPlaybackParms& parms, bool);
-    void DoAdvance(float, bool&, CRandom16&, bool);
-    SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, bool);
+    SAdvancementDeltas DoAdvance(float, bool&, CRandom16&, bool);
+    SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, TAreaId aid, bool);
     SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool);
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
     void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
     void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
 
-    void PoseSkinnedModel(const CSkinnedModel& model, const CPoseAsTransforms& pose,
-                          const std::experimental::optional<CVertexMorphEffect>& morphEffect,
-                          const float* morphMagnitudes) const;
+    static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
+                                 const CModelFlags& drawFlags,
+                                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                                 const float* morphMagnitudes);
     void AdvanceParticles(const zeus::CTransform& xf, float dt,
                           const zeus::CVector3f&, CStateManager& stateMgr);
     void GetAverageVelocity(int) const;

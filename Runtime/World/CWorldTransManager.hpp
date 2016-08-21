@@ -8,6 +8,7 @@
 #include "Graphics/CLight.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CCameraBlurFilter.hpp"
 
 namespace urde
 {
@@ -83,6 +84,7 @@ private:
     CTexturedQuadFilter m_dissolve = { CCameraFilterPass::EFilterType::Blend,
                                        CGraphics::g_SpareTexture };
     CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
+    CCameraBlurFilter m_camblur;
 
     static int GetSuitCharIdx();
     void DrawFirstPass();

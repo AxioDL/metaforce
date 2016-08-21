@@ -43,6 +43,7 @@ class CHierarchyPoseBuilder
 public:
     CHierarchyPoseBuilder(const CLayoutDescription& layout);
 
+    bool HasRoot() const { return xcf0_hasRoot; }
     void BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const;
     void BuildNoScale(CPoseAsTransforms& pose);
     void Insert(const CSegId& boneId, const zeus::CQuaternion& quat);

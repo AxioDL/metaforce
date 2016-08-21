@@ -275,7 +275,7 @@ public:
     TUniqueId AllocateUniqueId();
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
-    CRandom16& GetActiveRandom() {return x8fc_random;}
+    CRandom16* GetActiveRandom() {return x900_activeRandom;}
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
