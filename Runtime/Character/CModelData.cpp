@@ -45,7 +45,7 @@ SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a,
 }
 
 void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& xf,
-                        const CActorLights* lights, const CModelFlags& drawFlags) const
+                        const CActorLights* lights, const CModelFlags& drawFlags)
 {
     Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
@@ -63,9 +63,9 @@ CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& state
     }
 }
 
-const CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
+CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
 {
-    const CSkinnedModel* ret = nullptr;
+    CSkinnedModel* ret = nullptr;
     switch (which)
     {
     case EWhichModel::XRay:
@@ -79,9 +79,9 @@ const CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
     return *x10_animData->xd8_modelData.GetObj();
 }
 
-const TLockedToken<CModel>& CModelData::PickStaticModel(EWhichModel which) const
+TLockedToken<CModel>& CModelData::PickStaticModel(EWhichModel which)
 {
-    const TLockedToken<CModel>* ret = nullptr;
+    TLockedToken<CModel>* ret = nullptr;
     switch (which)
     {
     case EWhichModel::XRay:
@@ -135,16 +135,16 @@ void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
     }
 }
 
-bool CModelData::IsDefinitelyOpaque(EWhichModel which) const
+bool CModelData::IsDefinitelyOpaque(EWhichModel which)
 {
     if (x10_animData)
     {
-        const CSkinnedModel& model = PickAnimatedModel(which);
+        CSkinnedModel& model = PickAnimatedModel(which);
         return model.GetModel()->GetInstance().IsOpaque();
     }
     else
     {
-        const TLockedToken<CModel>& model = PickStaticModel(which);
+        TLockedToken<CModel>& model = PickStaticModel(which);
         return model->GetInstance().IsOpaque();
     }
 }
@@ -269,7 +269,7 @@ void CModelData::RenderParticles(const CFrustumPlanes& frustum) const
         x10_animData->RenderAuxiliary(frustum);
 }
 
-void CModelData::Touch(EWhichModel which, int shaderIdx) const
+void CModelData::Touch(EWhichModel which, int shaderIdx)
 {
     if (x10_animData)
         x10_animData->Touch(PickAnimatedModel(which), shaderIdx);
@@ -277,13 +277,13 @@ void CModelData::Touch(EWhichModel which, int shaderIdx) const
         PickStaticModel(which)->Touch(shaderIdx);
 }
 
-void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const
+void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx)
 {
     Touch(GetRenderingModel(stateMgr), shaderIdx);
 }
 
 void CModelData::RenderThermal(const zeus::CTransform& xf,
-                               const zeus::CColor& a, const zeus::CColor& b) const
+                               const zeus::CColor& a, const zeus::CColor& b)
 {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
     CGraphics::DisableAllLights();
@@ -304,7 +304,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
 }
 
 void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf,
-                                     const CActorLights* lights, const CModelFlags& drawFlags) const
+                                     const CActorLights* lights, const CModelFlags& drawFlags)
 {
     if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
         x10_animData || !x1c_normalModel || drawFlags.m_blendMode > 2)
@@ -314,23 +314,22 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
     }
 
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
-    if (lights)
-        lights->ActivateLights();
-    else
-    {
-        CGraphics::DisableAllLights();
-        // Also set ambient to x18_ambientColor
-    }
 
-    PickStaticModel(which)->DrawUnsortedParts(drawFlags);
+    TLockedToken<CModel>& model = PickStaticModel(which);
+    if (lights)
+        lights->ActivateLights(model->GetInstance());
+    else
+        model->GetInstance().ActivateLights({});
+
+    model->DrawUnsortedParts(drawFlags);
     // Set ambient to white
     CGraphics::DisableAllLights();
     ((CModelData*)this)->x14_24_renderSorted = true;
 }
 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
-                        const CActorLights* lights, const CModelFlags& drawFlags) const
-{
+                        const CActorLights* lights, const CModelFlags& drawFlags)
+{    
     if (x14_25_sortThermal && which == EWhichModel::Thermal)
     {
         zeus::CColor mul(drawFlags.color.a, drawFlags.color.a, drawFlags.color.a, drawFlags.color.a);
@@ -339,21 +338,25 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
     else
     {
         CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
-        if (lights)
-            lights->ActivateLights();
-        else
-        {
-            CGraphics::DisableAllLights();
-            // Also set ambient to x18_ambientColor
-        }
 
         if (x10_animData)
         {
-            x10_animData->Render(PickAnimatedModel(which), drawFlags, {}, nullptr);
+            CSkinnedModel& model = PickAnimatedModel(which);
+            if (lights)
+                lights->ActivateLights(model.GetModel()->GetInstance());
+            else
+                model.GetModel()->GetInstance().ActivateLights({});
+
+            x10_animData->Render(model, drawFlags, {}, nullptr);
         }
         else
         {
-            const TLockedToken<CModel>& model = PickStaticModel(which);
+            TLockedToken<CModel>& model = PickStaticModel(which);
+            if (lights)
+                lights->ActivateLights(model->GetInstance());
+            else
+                model->GetInstance().ActivateLights({});
+
             if (x14_24_renderSorted)
                 model->DrawSortedParts(drawFlags);
             else

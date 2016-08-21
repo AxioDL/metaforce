@@ -32,9 +32,9 @@ public:
     CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
                   ResId layoutInfo, EDataOwnership ownership);
 
-    const TLockedToken<CModel>& GetModel() const {return x4_model;}
-    const TLockedToken<CSkinRules>& GetSkinRules() const {return x10_skinRules;}
-    const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const {return x1c_layoutInfo;}
+    TLockedToken<CModel>& GetModel() {return x4_model;}
+    TLockedToken<CSkinRules>& GetSkinRules() {return x10_skinRules;}
+    TLockedToken<CCharLayoutInfo>& GetLayoutInfo() {return x1c_layoutInfo;}
 
     void Calculate(const CPoseAsTransforms& pose, const std::experimental::optional<CVertexMorphEffect>&);
     void Draw(const CModelFlags& drawFlags) const {}

@@ -135,6 +135,16 @@ void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose)
     RecursivelyBuildNoScale(xcec_rootId, node, pose, quat, mtx, vec);
 }
 
+void CHierarchyPoseBuilder::Insert(const CSegId& boneId, const zeus::CQuaternion& quat)
+{
+    x0_treeMap[boneId] = CTreeNode(quat);
+}
+
+void CHierarchyPoseBuilder::Insert(const CSegId& boneId, const zeus::CQuaternion& quat, const zeus::CVector3f& offset)
+{
+    x0_treeMap[boneId] = CTreeNode(quat, offset);
+}
+
 CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
 : xcf4_layoutDesc(layout)
 {

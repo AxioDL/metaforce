@@ -16,6 +16,8 @@ public:
     CAnimPerSegmentData x4_segData[100];
     void Add(const CSegIdList& list, const CCharLayoutInfo& layout,
              const CSegStatementSet& other, float weight);
+
+    CAnimPerSegmentData& operator[](size_t idx) { return x4_segData[idx]; }
 };
 
 }

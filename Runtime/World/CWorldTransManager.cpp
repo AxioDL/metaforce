@@ -11,6 +11,7 @@
 #include "Graphics/CModel.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "Camera/CCameraManager.hpp"
+#include "Character/CActorLights.hpp"
 
 namespace urde
 {
@@ -150,6 +151,39 @@ void CWorldTransManager::Update(float dt)
 
 void CWorldTransManager::DrawAllModels()
 {
+    CActorLights lights(0, zeus::CVector3f::skZero, 4, 4, 0, 0, 0, 0.1f);
+    lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
+
+    CModelFlags flags = {};
+    flags.m_extendedShaderIdx = 1;
+
+    if (!x4_modelData->x100_bgModelData.IsNull())
+    {
+        zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
+        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf0, &lights, flags);
+
+        zeus::CTransform xf1 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight);
+        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf1, &lights, flags);
+
+        zeus::CTransform xf2 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset);
+        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf2, &lights, flags);
+    }
+
+    if (!x4_modelData->xb4_platformModelData.IsNull())
+    {
+        x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(), &lights, flags);
+    }
+
+    if (!x4_modelData->x1c_samusModelData.IsNull())
+    {
+        x4_modelData->x1c_samusModelData.AnimationData()->PreRender();
+        x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(), &lights, flags);
+
+        if (!x4_modelData->x68_beamModelData.IsNull())
+        {
+            x4_modelData->x68_beamModelData.Render(CModelData::EWhichModel::Normal, x4_modelData->x170_gunXf, &lights, flags);
+        }
+    }
 }
 
 void CWorldTransManager::DrawFirstPass()
@@ -167,6 +201,16 @@ void CWorldTransManager::DrawFirstPass()
 
 void CWorldTransManager::DrawSecondPass()
 {
+    const zeus::CVector3f& samusScale = x4_modelData->x0_samusRes.GetScale();
+    zeus::CTransform translateXf =
+        zeus::CTransform::Translate(-0.1f * samusScale.x,
+                                    -0.5f * samusScale.y,
+                                    1.5f * samusScale.z);
+    zeus::CTransform rotateXf =
+        zeus::CTransform::RotateZ(zeus::degToRad(48.f *
+            zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
+    CGraphics::SetViewPointMatrix(rotateXf * translateXf);
+    DrawAllModels();
 }
 
 void CWorldTransManager::DrawEnabled()

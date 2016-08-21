@@ -61,7 +61,7 @@ class CAnimData
     ResId x1d8_selfId;
     zeus::CVector3f x1dc_;
     zeus::CQuaternion x1e8_;
-    std::shared_ptr<IMetaAnim> x1f8_animRoot;
+    std::shared_ptr<CAnimTreeNode> x1f8_animRoot;
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
     float x200_ = 1.f;
@@ -74,34 +74,34 @@ class CAnimData
 
     union
     {
-        u32 x21c_flags = 0;
+        u32 x220_flags = 0;
         struct
         {
-            bool x21c_24_animating : 1;
-            bool x21c_25_loop : 1;
-            bool x21c_26_ : 1;
-            bool x21c_27_ : 1;
-            bool x21c_28_ : 1;
-            bool x21c_29_ : 1;
-            bool x21c_30_ : 1;
-            bool x21c_31_ : 1;
+            bool x220_24_animating : 1;
+            bool x220_25_loop : 1;
+            bool x220_26_ : 1;
+            bool x220_27_ : 1;
+            bool x220_28_ : 1;
+            bool x220_29_ : 1;
+            bool x220_30_ : 1;
+            bool x220_31_poseCached : 1;
         };
     };
 
-    CPoseAsTransforms x220_pose;
-    CHierarchyPoseBuilder x2f8_poseBuilder;
+    CPoseAsTransforms x224_pose;
+    CHierarchyPoseBuilder x2fc_poseBuilder;
 
-    u32 x101c_ = -1;
     u32 x1020_ = -1;
-    float x1024_ = 1.f;
-    bool x1028_ = true;
-    u32 x102c_ = 0;
+    u32 x10204_ = -1;
+    float x1028_ = 1.f;
+    bool x102c_ = true;
     u32 x1030_ = 0;
-    bool x1034_ = false;
-    u32 x1038_ = 0;
+    u32 x1034_ = 0;
+    bool x1038_ = false;
     u32 x103c_ = 0;
     u32 x1040_ = 0;
-    rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x1044_additiveAnims;
+    u32 x1044_ = 0;
+    rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x1048_additiveAnims;
 
     static rstl::reserved_vector<CBoolPOINode, 8> g_BoolPOINodes;
     static rstl::reserved_vector<CInt32POINode, 16> g_Int32POINodes;
@@ -130,6 +130,7 @@ public:
     void DelAdditiveAnimation(u32);
     void AddAdditiveAnimation(u32, float, bool, bool);
     std::shared_ptr<CAnimationManager> GetAnimationManager();
+    const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }
     void SetPhase(float);
     void Touch(const CSkinnedModel& model, int shaderIdx) const;
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
@@ -144,12 +145,12 @@ public:
     bool IsAnimTimeRemaining(float, const std::string& name) const;
     float GetAnimTimeRemaining(const std::string& name) const;
     float GetAnimationDuration(int) const;
-    bool GetIsLoop() const {return x21c_25_loop;}
-    void EnableLooping(bool val) {x21c_25_loop = val; x21c_24_animating = true;}
-    bool IsAnimating() const {return x21c_24_animating;}
+    bool GetIsLoop() const {return x220_25_loop;}
+    void EnableLooping(bool val) {x220_25_loop = val; x220_24_animating = true;}
+    bool IsAnimating() const {return x220_24_animating;}
     std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;
-    void RecalcPoseBuilder(const CCharAnimTime*) const;
+    void RecalcPoseBuilder(const CCharAnimTime*);
     void RenderAuxiliary(const CFrustumPlanes& frustum) const;
     void Render(const CSkinnedModel& model, const CModelFlags& drawFlags,
                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,

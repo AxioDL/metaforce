@@ -13,6 +13,8 @@
 #include "CParticleGenInfo.hpp"
 #include "IAnimReader.hpp"
 #include "CAnimTreeNode.hpp"
+#include "CAnimPerSegmentData.hpp"
+#include "CSegStatementSet.hpp"
 
 namespace urde
 {
@@ -49,9 +51,9 @@ CAnimData::CAnimData(ResId id,
       x1fc_transMgr(transMgr),
       x204_charIdx(charIdx),
       x208_defaultAnim(defaultAnim),
-      x21c_25_loop(loop),
-      x220_pose(layout->GetSegIdList().GetList().size()),
-      x2f8_poseBuilder(layout)
+      x220_25_loop(loop),
+      x224_pose(layout->GetSegIdList().GetList().size()),
+      x2fc_poseBuilder(layout)
 {
     if (iceModel)
         xe4_iceModelData = *iceModel;
@@ -72,7 +74,7 @@ ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
 
 void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet)
 {
-    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1044_additiveAnims)
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1048_additiveAnims)
         if (additive.second.GetTargetWeight() > 0.00001f)
             additive.second.AddToSegStatementSet(list, *xcc_layoutData.GetObj(), stSet);
 }
@@ -85,7 +87,7 @@ void CAnimData::AdvanceAdditiveAnims(float dt)
 {
     CCharAnimTime time(dt);
 
-    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1044_additiveAnims)
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1048_additiveAnims)
     {
         if (additive.second.GetA())
         {
@@ -203,8 +205,23 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() const
     return {};
 }
 
-void CAnimData::RecalcPoseBuilder(const CCharAnimTime*) const
+void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
 {
+    const CSegIdList& segIdList = GetCharLayoutInfo().GetSegIdList();
+    CSegStatementSet segSet;
+    if (time)
+        x1f8_animRoot->VGetSegStatementSet(segIdList, segSet, *time);
+    else
+        x1f8_animRoot->VGetSegStatementSet(segIdList, segSet);
+
+    AddAdditiveSegData(segIdList, segSet);
+    for (const CSegId& id : segIdList.GetList())
+    {
+        if (id == 3)
+            continue;
+        CAnimPerSegmentData& segData = segSet[id];
+        x2fc_poseBuilder.Insert(id, segData.x0_rotation, segData.x10_offset);
+    }
 }
 
 void CAnimData::RenderAuxiliary(const CFrustumPlanes& frustum) const
@@ -225,6 +242,12 @@ void CAnimData::SetupRender(const CSkinnedModel& model,
 
 void CAnimData::PreRender()
 {
+    if (!x220_31_poseCached)
+    {
+        RecalcPoseBuilder(nullptr);
+        x220_31_poseCached = true;
+        x220_30_ = false;
+    }
 }
 
 void CAnimData::BuildPose()

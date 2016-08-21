@@ -44,7 +44,7 @@ void CCameraBlurFilter::draw(float amount)
         tmp /= 6.f;
 
         float amtX = std::cos(tmp);
-        amtX *= amount / 448.f * aspect;
+        amtX *= amount / 448.f / aspect;
 
         float amtY = std::sin(tmp);
         amtY *= amount / 448.f;
