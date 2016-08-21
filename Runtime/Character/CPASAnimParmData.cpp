@@ -23,7 +23,7 @@ s32 CPASAnimParmData::GetStateId()
     return x0_stateId;
 }
 
-const std::vector<CPASAnimParm>& CPASAnimParmData::GetAnimParmData() const
+const rstl::reserved_vector<CPASAnimParm, 8>& CPASAnimParmData::GetAnimParmData() const
 {
     return x4_parms;
 }

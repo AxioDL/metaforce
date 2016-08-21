@@ -32,6 +32,7 @@ private:
 public:
     CPASAnimParm(UParmValue val, EParmType tp) : x4_type(tp), x0_value(val) {}
 
+    EParmType GetParameterType() const { return x4_type; }
     s32 GetEnumValue() const {return x0_value.m_int;}
     bool GetBoolValue() const {return x0_value.m_bool;}
     float GetReal32Value() const {return x0_value.m_float;}
