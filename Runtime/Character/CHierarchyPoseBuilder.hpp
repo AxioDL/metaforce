@@ -22,6 +22,9 @@ class CHierarchyPoseBuilder
         zeus::CVector3f x14_offset;
         CTreeNode() = default;
         CTreeNode(const zeus::CVector3f& offset) : x14_offset(offset) {}
+        CTreeNode(const zeus::CQuaternion& quat) : x4_rotation(quat) {}
+        CTreeNode(const zeus::CQuaternion& quat, const zeus::CVector3f& offset)
+        : x4_rotation(quat), x14_offset(offset) {}
     };
     TSegIdMap<CTreeNode> x0_treeMap;
 
@@ -42,6 +45,8 @@ public:
 
     void BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const;
     void BuildNoScale(CPoseAsTransforms& pose);
+    void Insert(const CSegId& boneId, const zeus::CQuaternion& quat);
+    void Insert(const CSegId& boneId, const zeus::CQuaternion& quat, const zeus::CVector3f& offset);
 };
 
 }

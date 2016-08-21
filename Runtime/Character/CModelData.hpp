@@ -101,13 +101,13 @@ public:
 
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Render(const CStateManager& stateMgr, const zeus::CTransform& xf,
-                const CActorLights* lights, const CModelFlags& drawFlags) const;
+                const CActorLights* lights, const CModelFlags& drawFlags);
     EWhichModel GetRenderingModel(const CStateManager& stateMgr) const;
-    const CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
-    const TLockedToken<CModel>& PickStaticModel(EWhichModel which) const;
+    CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
+    TLockedToken<CModel>& PickStaticModel(EWhichModel which);
     void SetXRayModel(const std::pair<ResId, ResId>& modelSkin);
     void SetInfraModel(const std::pair<ResId, ResId>& modelSkin);
-    bool IsDefinitelyOpaque(EWhichModel) const;
+    bool IsDefinitelyOpaque(EWhichModel);
     bool GetIsLoop() const;
     float GetAnimationDuration(int) const;
     void EnableLooping(bool);
@@ -123,13 +123,13 @@ public:
     bool IsAnimating() const;
     bool IsInFrustum(const zeus::CTransform& xf, const CFrustumPlanes& frustum) const;
     void RenderParticles(const CFrustumPlanes& frustum) const;
-    void Touch(EWhichModel, int shaderIdx) const;
-    void Touch(const CStateManager& stateMgr, int shaderIdx) const;
-    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b) const;
+    void Touch(EWhichModel, int shaderIdx);
+    void Touch(const CStateManager& stateMgr, int shaderIdx);
+    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b);
     void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf,
-                             const CActorLights* lights, const CModelFlags& drawFlags) const;
+                             const CActorLights* lights, const CModelFlags& drawFlags);
     void Render(EWhichModel, const zeus::CTransform& xf,
-                const CActorLights* lights, const CModelFlags& drawFlags) const;
+                const CActorLights* lights, const CModelFlags& drawFlags);
 
     CAnimData* AnimationData() { return x10_animData.get(); }
     bool IsNull() { return !x10_animData && !x1c_normalModel; }
