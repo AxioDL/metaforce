@@ -18,8 +18,8 @@ class CPASDatabase
 public:
     CPASDatabase(CInputStream& in);
 
-    void FindBestAnimation(const CPASAnimParmData&, int) const;
-    void FindBestAnimation(const CPASAnimParmData&, CRandom16&, int) const;
+    std::pair<float,s32> FindBestAnimation(const CPASAnimParmData&, s32) const;
+    std::pair<float,s32> FindBestAnimation(const CPASAnimParmData&, CRandom16&, s32) const;
     s32 GetDefaultState() const { return x10_defaultState; }
     s32 GetNumAnimStates() const { return x0_states.size(); }
     const CPASAnimState* GetAnimState(s32 id) const

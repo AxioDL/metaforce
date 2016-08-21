@@ -9,14 +9,27 @@ namespace urde
 
 class CPASParmInfo
 {
+public:
+    enum class EWeightFunction
+    {
+        ExactMatch,
+        PercentError,
+        AngularPercent,
+        Three
+    };
+
     CPASAnimParm::EParmType x0_type;
-    u32 x4_unk1;
-    float x8_unk2;
-    CPASAnimParm::UParmValue xc_val1;
-    CPASAnimParm::UParmValue x10_val2;
+    EWeightFunction x4_weightFunction;
+    float x8_weight;
+    CPASAnimParm::UParmValue xc_min;
+    CPASAnimParm::UParmValue x10_max;
 public:
     CPASParmInfo(CInputStream& in);
-    CPASAnimParm::EParmType GetType() const {return x0_type;}
+    CPASAnimParm::EParmType GetParameterType() const {return x0_type;}
+    EWeightFunction GetWeightFunction() const { return x4_weightFunction; }
+    float GetParameterWeight() const { return x8_weight; }
+    CPASAnimParm::UParmValue GetWeightMinValue() const { return xc_min; }
+    CPASAnimParm::UParmValue GetWeightMaxValue() const { return x10_max; }
 };
 
 }

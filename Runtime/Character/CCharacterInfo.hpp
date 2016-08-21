@@ -41,6 +41,7 @@ private:
 public:
     CCharacterInfo(CInputStream& in);
 
+    const std::string& GetCharacterName() const { return x4_name; }
     ResId GetModelId() const {return x14_cmdl;}
     ResId GetSkinRulesId() const {return x18_cskr;}
     ResId GetCharLayoutInfoId() const {return x1c_cinf;}
