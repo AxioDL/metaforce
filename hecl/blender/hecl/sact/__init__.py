@@ -206,6 +206,7 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
 
 # Cook
 def cook(writebuf):
+    bpy.context.scene.hecl_auto_remap = False
     sact_data = bpy.context.scene.hecl_sact_data
 
     # Output armatures

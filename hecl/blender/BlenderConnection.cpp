@@ -1064,6 +1064,7 @@ BlenderConnection::DataStream::Actor::Action::Action(BlenderConnection& conn)
         subtypeAABBs.emplace_back();
         subtypeAABBs.back().first.read(conn);
         subtypeAABBs.back().second.read(conn);
+        printf("AABB %d\n", i);
     }
 }
 
