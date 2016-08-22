@@ -105,10 +105,9 @@ void CVarManager::deserialize(CVar* cvar)
         filename += _S(".yaml");
         if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
             return;
-        FILE* f = hecl::Fopen(filename.c_str(), _S("rb"));
-        if (f)
-            container.fromYAMLFile(f);
-        fclose(f);
+        athena::io::FileReader reader(filename);
+        if (reader.isOpen())
+            container.fromYAMLStream(reader);
     }
 
 
@@ -163,10 +162,9 @@ void CVarManager::serialize()
     else
     {
         filename += _S(".yaml");
-        FILE* f = hecl::Fopen(filename.c_str(), _S("wb"));
-        if (f)
-            container.toYAMLFile(f);
-        fclose(f);
+        athena::io::FileWriter writer(filename);
+        if (writer.isOpen())
+            container.toYAMLStream(writer);
     }
 }
 
