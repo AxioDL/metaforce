@@ -11,7 +11,7 @@ Locale::Locale(const std::string& name, const std::string& fullName,
 {
     athena::io::YAMLDocReader reader;
     yaml_parser_set_input_string(reader.getParser(), yamlSource, yamlLength);
-    reader.parse();
+    reader.parse(nullptr);
     m_rootNode = std::move(reader.releaseRootNode());
     if (m_rootNode)
     {
