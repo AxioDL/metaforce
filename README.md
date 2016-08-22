@@ -28,11 +28,9 @@ Everything else is much too experimental to make portable/stable release builds 
 ### Prep Directions
 
 ```sh
-git clone https://github.com/AxioDL/urde.git
+git clone --recurse-submodules https://github.com/AxioDL/urde.git
 mkdir urde-build
-cd urde
-git submodule update --init --recursive
-cd ../urde-build
+cd urde-build
 ```
 
 ### Build Directions (Debug)
