@@ -32,7 +32,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.blend"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
     SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
-    CAnimRes samusAnimRes(samusCharSet.id, -1, zeus::CVector3f::skOne, -1, true);
+    CAnimRes samusAnimRes(samusCharSet.id, 2, zeus::CVector3f::skOne, 0, true);
     g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
                                                                platModel.id, zeus::CVector3f::skOne,
                                                                bgModel.id, zeus::CVector3f::skOne, false);

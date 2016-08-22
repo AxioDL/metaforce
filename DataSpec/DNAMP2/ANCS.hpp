@@ -240,9 +240,8 @@ struct ANCS : BigYAML
 
             if (force || yamlType == hecl::ProjectPath::Type::None)
             {
-                FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
-                ancs.toYAMLFile(fp);
-                fclose(fp);
+                athena::io::FileWriter writer(yamlPath.getAbsolutePath());
+                ancs.toYAMLStream(writer);
             }
 
             if (force || blendType == hecl::ProjectPath::Type::None)

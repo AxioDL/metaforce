@@ -544,13 +544,12 @@ template struct SWSH<UniqueID64>;
 template <class IDType>
 bool ExtractSWSH(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         SWSH<IDType> swsh;
         swsh.read(rs);
-        swsh.toYAMLFile(fp);
-        fclose(fp);
+        swsh.toYAMLStream(writer);
         return true;
     }
     return false;

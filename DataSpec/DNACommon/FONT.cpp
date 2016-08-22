@@ -547,13 +547,12 @@ template struct FONT<UniqueID64>;
 template <class IDType>
 bool ExtractFONT(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         FONT<IDType> font;
         font.read(rs);
-        font.toYAMLFile(fp);
-        fclose(fp);
+        font.toYAMLStream(writer);
         return true;
     }
     return false;

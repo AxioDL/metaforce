@@ -110,13 +110,12 @@ template struct DGRP<UniqueID64>;
 template <class IDType>
 bool ExtractDGRP(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         DGRP<IDType> dgrp;
         dgrp.read(rs);
-        dgrp.toYAMLFile(fp);
-        fclose(fp);
+        dgrp.toYAMLStream(writer);
         return true;
     }
     return false;

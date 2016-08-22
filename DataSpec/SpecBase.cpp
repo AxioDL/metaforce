@@ -141,9 +141,8 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
     }
     else if (hecl::IsPathYAML(path))
     {
-        FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
-        bool retval = validateYAMLDNAType(fp);
-        fclose(fp);
+        athena::io::FileReader reader(path.getAbsolutePath());
+        bool retval = validateYAMLDNAType(reader);
         return retval;
     }
     return false;
@@ -217,9 +216,8 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     }
     else if (hecl::IsPathYAML(path))
     {
-        FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
-        cookYAML(cookedPath, path, fp, progress);
-        fclose(fp);
+        athena::io::FileReader reader(path.getAbsolutePath());
+        cookYAML(cookedPath, path, reader, progress);
     }
 }
 

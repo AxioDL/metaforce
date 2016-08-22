@@ -1538,13 +1538,12 @@ template struct GPSM<UniqueID64>;
 template <class IDType>
 bool ExtractGPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         GPSM<IDType> gpsm;
         gpsm.read(rs);
-        gpsm.toYAMLFile(fp);
-        fclose(fp);
+        gpsm.toYAMLStream(writer);
         return true;
     }
     return false;

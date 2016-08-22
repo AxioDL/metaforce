@@ -984,13 +984,12 @@ template struct FSM2<UniqueID64>;
 template <class IDType>
 bool ExtractFSM2(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         FSM2<IDType> fsm2;
         fsm2.read(rs);
-        fsm2.toYAMLFile(fp);
-        fclose(fp);
+        fsm2.toYAMLStream(writer);
         return true;
     }
     return false;

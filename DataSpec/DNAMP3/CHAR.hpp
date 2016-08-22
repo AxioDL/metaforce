@@ -329,9 +329,8 @@ struct CHAR : BigYAML
 
             if (force || yamlType == hecl::ProjectPath::Type::None)
             {
-                FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("wb"));
-                aChar.toYAMLFile(fp);
-                fclose(fp);
+                athena::io::FileWriter writer(yamlPath.getAbsolutePath());
+                aChar.toYAMLStream(writer);
             }
 
             if (force || blendType == hecl::ProjectPath::Type::None)

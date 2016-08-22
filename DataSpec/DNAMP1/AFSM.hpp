@@ -159,9 +159,8 @@ struct AFSM : public BigYAML
     {
         AFSM afsm;
         afsm.read(rs);
-        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-        afsm.toYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        afsm.toYAMLStream(writer);
         return true;
     }
 };

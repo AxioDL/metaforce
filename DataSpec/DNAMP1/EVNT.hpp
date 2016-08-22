@@ -85,9 +85,8 @@ struct EVNT : BigYAML
     {
         EVNT evnt;
         evnt.read(rs);
-        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-        evnt.toYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        evnt.toYAMLStream(writer);
         return true;
     }
 };

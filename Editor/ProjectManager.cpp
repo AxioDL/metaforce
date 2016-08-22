@@ -96,34 +96,30 @@ bool ProjectManager::openProject(const hecl::SystemString& path)
     }
 
     hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
-    FILE* fp = hecl::Fopen(urdeSpacesPath.getAbsolutePath().c_str(), _S("r"));
+    athena::io::FileReader reader(urdeSpacesPath.getAbsolutePath());
 
     bool needsSave = false;
     athena::io::YAMLDocReader r;
-    if (!fp)
+    if (!reader.isOpen())
     {
         needsSave = true;
         goto makeProj;
     }
 
-    yaml_parser_set_input_file(r.getParser(), fp);
+    yaml_parser_set_input(r.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &reader);
     if (!r.ValidateClassType("UrdeSpacesState"))
     {
         needsSave = true;
-        fclose(fp);
         goto makeProj;
     }
 
     r.reset();
-    fseek(fp, 0, SEEK_SET);
-    yaml_parser_set_input_file(r.getParser(), fp);
-    if (!r.parse())
+    reader.seek(0, athena::Begin);
+    if (!r.parse(&reader))
     {
         needsSave = true;
-        fclose(fp);
         goto makeProj;
     }
-    fclose(fp);
 
 makeProj:
     m_vm.ProjectChanged(*m_proj);
@@ -163,19 +159,14 @@ bool ProjectManager::saveProject()
         return false;
 
     hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
-    FILE* fp = hecl::Fopen(oldSpacesPath.getAbsolutePath().c_str(), _S("w"));
-    if (!fp)
+    athena::io::FileWriter writer(oldSpacesPath.getAbsolutePath());
+    if (!writer.isOpen())
         return false;
 
     athena::io::YAMLDocWriter w("UrdeSpacesState");
-    yaml_emitter_set_output_file(w.getEmitter(), fp);
     m_vm.SaveEditorView(w);
-    if (!w.finish())
-    {
-        fclose(fp);
+    if (!w.finish(&writer))
         return false;
-    }
-    fclose(fp);
 
     hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
 
