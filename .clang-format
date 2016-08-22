@@ -22,7 +22,6 @@ AlwaysBreakAfterDefinitionReturnType: None
 AllowShortFunctionsOnASingleLine: All
 Cpp11BracedListStyle: true
 NamespaceIndentation: None
-ReflowComments: true
 BinPackArguments: true
 BinPackParameters: true
 SortIncludes: false

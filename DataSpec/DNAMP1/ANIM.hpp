@@ -182,7 +182,9 @@ struct ANIM : BigDNA
     using BlenderAction = hecl::BlenderConnection::DataStream::Actor::Action;
 
     ANIM() = default;
-    ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt32>& idMap);
+    ANIM(const BlenderAction& act,
+         const std::unordered_map<std::string, atInt32>& idMap,
+         const DNAANIM::RigInverter<CINF>& rig);
 };
 
 }

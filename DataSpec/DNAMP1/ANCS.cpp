@@ -2,6 +2,7 @@
 
 namespace DataSpec
 {
+extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 
 namespace DNAMP1
@@ -1075,6 +1076,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
 bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
                 const DNAANCS::Actor& actor,
+                hecl::BlenderConnection::DataStream& ds,
                 const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
 {
     /* Search for yaml */
@@ -1138,30 +1140,52 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     });
 
     std::unordered_map<std::string, atInt32> boneIdMap;
+    std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
 
     /* Write out CINF resources */
     for (const DNAANCS::Actor::Armature& arm : actor.armatures)
-    {
+    {        
         hecl::SystemStringView sysStr(arm.name);
-        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
+        hecl::ProjectPath pathOut = inPath.getCookedPath(SpecEntMP1).getWithExtension((_S('.') +
+                                    sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
         athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
                        pathOut.getRelativePath().c_str());
         CINF cinf(arm, boneIdMap);
         cinf.write(w);
+
+        if (!rigInv)
+        {
+            auto matrices = ds.getBoneMatrices(arm.name);
+            rigInv.emplace(cinf, matrices);
+        }
     }
+    ds.close();
 
     /* Write out CSKR resources */
     for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
     {
-        hecl::ProjectPath modelPath = UniqueIDBridge::TranslatePakIdToPath(ch.cmdl);
+        const DNAANCS::Actor::Subtype* subtype = nullptr;
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+        {
+            if (!sub.name.compare(ch.name))
+            {
+                subtype = &sub;
+                break;
+            }
+        }
+        if (!subtype)
+            Log.report(logvisor::Fatal, "unable to find subtype '%s'", ch.name.c_str());
+
+        const hecl::ProjectPath& modelPath = subtype->mesh;
 
         if (modelPath.getPathType() != hecl::ProjectPath::Type::File)
             Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath.getRelativePath().c_str());
 
         hecl::ProjectPath skinIntPath = modelPath.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
-        if (skinIntPath.getModtime() < modelPath.getModtime())
+        if (skinIntPath.getPathType() != hecl::ProjectPath::Type::File ||
+            skinIntPath.getModtime() < modelPath.getModtime())
             if (!modelCookFunc(modelPath))
                 Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath.getRelativePath().c_str());
 
@@ -1194,7 +1218,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         skinIO.close();
 
         hecl::SystemStringView sysStr(ch.name);
-        hecl::ProjectPath skinPath = inPath.getCookedPath(SpecEntMP1PC).getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
+        hecl::ProjectPath skinPath = inPath.getCookedPath(SpecEntMP1PC).getWithExtension((_S('.') +
+                                     sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
         athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
         if (skinOut.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1222,11 +1247,12 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     {
         hecl::SystemStringView sysStr(act.name);
         hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
-        athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
+        hecl::ProjectPath cookedOut = inPath.getCookedPath(SpecEntMP1).getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        athena::io::FileWriter w(cookedOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                       pathOut.getRelativePath().c_str());
-        ANIM anim(act, boneIdMap);
+                       cookedOut.getRelativePath().c_str());
+        ANIM anim(act, boneIdMap, *rigInv);
 
         ancs.animationSet.animResources.emplace_back();
         ancs.animationSet.animResources.back().animId = pathOut;
@@ -1245,7 +1271,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 fclose(fp);
                 anim.m_anim->evnt = evntYamlPath;
 
-                hecl::ProjectPath evntYamlOut = pathOut.getWithExtension(_S(".evnt"));
+                hecl::ProjectPath evntYamlOut = cookedOut.getWithExtension(_S(".evnt"));
                 athena::io::FileWriter w(evntYamlOut.getAbsolutePath(), true, false);
                 if (w.hasError())
                     Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),

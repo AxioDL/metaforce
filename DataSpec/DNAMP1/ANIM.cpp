@@ -422,7 +422,9 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
     return __isz + DNAANIM::ComputeBitstreamSize(frames.size(), channels);
 }
 
-ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt32>& idMap)
+ANIM::ANIM(const BlenderAction& act,
+           const std::unordered_map<std::string, atInt32>& idMap,
+           const DNAANIM::RigInverter<CINF>& rig)
 {
     m_anim.reset(new struct ANIM0);
     IANIM& newAnim = *m_anim;
@@ -465,10 +467,9 @@ ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt
         rotVals.reserve(chan.keys.size());
         for (const BlenderAction::Channel::Key& key : chan.keys)
         {
-            rotVals.emplace_back(key.rotation.val.vec[0],
-                                 key.rotation.val.vec[1],
-                                 key.rotation.val.vec[2],
-                                 key.rotation.val.vec[3]);
+            zeus::CQuaternion q(key.rotation.val);
+            q = rig.restoreRotation(newChan.id, q);
+            rotVals.emplace_back(q.w, q.x, q.y, q.z);
         }
 
         if (chan.attrMask & 0x2)
@@ -483,9 +484,9 @@ ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt
             transVals.reserve(chan.keys.size());
             for (const BlenderAction::Channel::Key& key : chan.keys)
             {
-                transVals.emplace_back(key.position.val.vec[0],
-                                       key.position.val.vec[1],
-                                       key.position.val.vec[2]);
+                zeus::CVector3f pos(key.position.val);
+                pos = rig.restorePosition(newChan.id, pos, true);
+                transVals.emplace_back(pos.x, pos.y, pos.z);
             }
         }
     }

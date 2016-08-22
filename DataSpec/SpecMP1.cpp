@@ -354,7 +354,7 @@ struct SpecMP1 : SpecBase
                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                   FCookProgress progress)
     {
-        Mesh mesh = ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+        Mesh mesh = ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1,
         [&progress](int surfCount)
         {
             progress(hecl::SysFormat(_S("%d"), surfCount).c_str());
@@ -371,7 +371,7 @@ struct SpecMP1 : SpecBase
                    FCookProgress progress)
     {
         Actor actor = ds.compileActor();
-        DNAMP1::ANCS::Cook(out, in, actor,
+        DNAMP1::ANCS::Cook(out, in, actor, ds,
         [&](const hecl::ProjectPath& modelPath) -> bool
         {
             hecl::ProjectPath cooked;

@@ -26,6 +26,8 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
+    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
+    CModel* ridley = m_modelTest.GetObj();
 #if 1
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.blend"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
@@ -41,7 +43,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
 
     //m_modelTest = objStore.GetObj("gun_cmdl");
-    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
+
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
 
     //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
