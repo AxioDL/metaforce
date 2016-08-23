@@ -62,18 +62,16 @@ struct STRG : ISTRG
     {
         STRG strg;
         strg.read(rs);
-        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-        strg.toYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        strg.toYAMLStream(writer);
         return true;
     }
 
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
     {
         STRG strg;
-        FILE* fp = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
-        strg.fromYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        strg.fromYAMLStream(reader);
         athena::io::FileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;

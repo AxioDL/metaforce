@@ -49,7 +49,7 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual bool checkPathPrefix(const hecl::ProjectPath& path)=0;
 
     /* Pre-cook handlers */
-    virtual bool validateYAMLDNAType(FILE* fp) const=0;
+    virtual bool validateYAMLDNAType(athena::io::IStreamReader& fp) const=0;
 
     /* Cook handlers */
     using BlendStream = hecl::BlenderConnection::DataStream;
@@ -68,7 +68,7 @@ struct SpecBase : hecl::Database::IDataSpec
                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                           FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          FILE* fin, FCookProgress progress)=0;
+                          athena::io::IStreamReader& fin, FCookProgress progress)=0;
 
     const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

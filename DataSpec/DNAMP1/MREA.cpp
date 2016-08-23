@@ -341,23 +341,15 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         sclyData.version = 1;
         for (const hecl::ProjectPath& layer : layerScriptPaths)
         {
-            FILE* yamlFile = hecl::Fopen(layer.getAbsolutePath().c_str(), _S("r"));
-            if (!yamlFile)
+            athena::io::FileReader freader(layer.getAbsolutePath());
+            if (!freader.isOpen())
                 continue;
-            if (!BigYAML::ValidateFromYAMLFile<DNAMP1::SCLY::ScriptLayer>(yamlFile))
-            {
-                fclose(yamlFile);
+            if (!BigYAML::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
                 continue;
-            }
 
             athena::io::YAMLDocReader reader;
-            yaml_parser_set_input_file(reader.getParser(), yamlFile);
-            if (!reader.parse())
-            {
-                fclose(yamlFile);
+            if (!reader.parse(&freader))
                 continue;
-            }
-            fclose(yamlFile);
 
             sclyData.layers.emplace_back();
             sclyData.layers.back().read(reader);

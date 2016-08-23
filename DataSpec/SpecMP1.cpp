@@ -320,10 +320,10 @@ struct SpecMP1 : SpecBase
         return path.getRelativePath().compare(0, 4, _S("MP1/")) == 0;
     }
 
-    bool validateYAMLDNAType(FILE* fp) const
+    bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
     {
         athena::io::YAMLDocReader reader;
-        yaml_parser_set_input_file(reader.getParser(), fp);
+        yaml_parser_set_input(reader.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &fp);
         return reader.ClassTypeOperation([](const char* classType)
         {
             if (!strcmp(classType, DNAMP1::MLVL::DNAType()))
@@ -422,11 +422,10 @@ struct SpecMP1 : SpecBase
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FILE* fin, FCookProgress progress)
+                  athena::io::IStreamReader& fin, FCookProgress progress)
     {
         athena::io::YAMLDocReader reader;
-        yaml_parser_set_input_file(reader.getParser(), fin);
-        if (reader.parse())
+        if (reader.parse(&fin))
         {
             std::string classStr = reader.readString("DNAType");
             if (classStr.empty())

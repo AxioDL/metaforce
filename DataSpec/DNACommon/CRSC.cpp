@@ -305,13 +305,12 @@ template struct CRSM<UniqueID64>;
 template <class IDType>
 bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         CRSM<IDType> crsm;
         crsm.read(rs);
-        crsm.toYAMLFile(fp);
-        fclose(fp);
+        crsm.toYAMLStream(writer);
         return true;
     }
     return false;

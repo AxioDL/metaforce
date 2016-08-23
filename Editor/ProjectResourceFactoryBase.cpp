@@ -16,14 +16,12 @@ void ProjectResourceFactoryBase::Clear()
 void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPath,
                                              athena::io::YAMLDocWriter& nameWriter)
 {
-    FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().c_str(), _S("r"));
-    if (!fp)
+    athena::io::FileReader freader(catalogPath.getAbsolutePath());
+    if (!freader.isOpen())
         return;
 
     athena::io::YAMLDocReader reader;
-    yaml_parser_set_input_file(reader.getParser(), fp);
-    bool res = reader.parse();
-    fclose(fp);
+    bool res = reader.parse(&freader);
     if (!res)
         return;
 
@@ -208,13 +206,12 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
     /* Read in tag cache */
     if (tagCachePath.getPathType() == hecl::ProjectPath::Type::File)
     {
-        FILE* cacheFile = hecl::Fopen(tagCachePath.getAbsolutePath().c_str(), _S("r"));
-        if (cacheFile)
+        athena::io::FileReader reader(tagCachePath.getAbsolutePath());
+        if (reader.isOpen())
         {
             Log.report(logvisor::Info, _S("Cache index of '%s' loading"), m_origSpec->m_name);
             athena::io::YAMLDocReader cacheReader;
-            yaml_parser_set_input_file(cacheReader.getParser(), cacheFile);
-            if (cacheReader.parse())
+            if (cacheReader.parse(&reader))
             {
                 std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                 m_tagToPath.reserve(cacheReader.getRootNode()->m_mapChildren.size());
@@ -231,7 +228,6 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                 }
                 fprintf(stderr, "\n");
             }
-            fclose(cacheFile);
             Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
                        m_origSpec->m_name, m_tagToPath.size());
 
@@ -239,10 +235,9 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
             {
                 /* Read in name cache */
                 Log.report(logvisor::Info, _S("Name index of '%s' loading"), m_origSpec->m_name);
-                FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("r"));
+                athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
                 athena::io::YAMLDocReader nameReader;
-                yaml_parser_set_input_file(nameReader.getParser(), nameFile);
-                if (nameReader.parse())
+                if (nameReader.parse(&nreader))
                 {
                     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                     m_catalogNameToTag.reserve(nameReader.getRootNode()->m_mapChildren.size());
@@ -254,7 +249,6 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                             m_catalogNameToTag[child.first] = search->first;
                     }
                 }
-                fclose(nameFile);
                 Log.report(logvisor::Info, _S("Name index of '%s' loaded; %d names"),
                            m_origSpec->m_name, m_catalogNameToTag.size());
             }
@@ -264,10 +258,8 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                 Log.report(logvisor::Info, _S("Name index of '%s' started"), m_origSpec->m_name);
                 athena::io::YAMLDocWriter nameWriter(nullptr);
                 BackgroundIndexRecursiveCatalogs(specRoot, nameWriter, 0);
-                FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("w"));
-                yaml_emitter_set_output_file(nameWriter.getEmitter(), nameFile);
-                nameWriter.finish();
-                fclose(nameFile);
+                athena::io::FileWriter nwriter(nameCachePath.getAbsolutePath());
+                nameWriter.finish(&nwriter);
                 Log.report(logvisor::Info, _S("Name index of '%s' complete; %d names"),
                            m_origSpec->m_name, m_catalogNameToTag.size());
             }
@@ -282,15 +274,11 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
     BackgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
     tagCachePath.makeDirChain(false);
-    FILE* cacheFile = hecl::Fopen(tagCachePath.getAbsolutePath().c_str(), _S("w"));
-    yaml_emitter_set_output_file(cacheWriter.getEmitter(), cacheFile);
-    cacheWriter.finish();
-    fclose(cacheFile);
+    athena::io::FileWriter twriter(tagCachePath.getAbsolutePath());
+    cacheWriter.finish(&twriter);
 
-    FILE* nameFile = hecl::Fopen(nameCachePath.getAbsolutePath().c_str(), _S("w"));
-    yaml_emitter_set_output_file(nameWriter.getEmitter(), nameFile);
-    nameWriter.finish();
-    fclose(nameFile);
+    athena::io::FileWriter nwriter(nameCachePath.getAbsolutePath());
+    nameWriter.finish(&nwriter);
 
     m_backgroundBlender.shutdown();
     Log.report(logvisor::Info, _S("Background index of '%s' complete; %d tags, %d names"),

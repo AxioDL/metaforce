@@ -45,9 +45,8 @@ static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath
 {
     SAVW savw;
     savw.read(rs);
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-    savw.toYAMLFile(fp);
-    fclose(fp);
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    savw.toYAMLStream(writer);
     return true;
 }
 

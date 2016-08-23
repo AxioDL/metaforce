@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <athena/DNAYaml.hpp>
+#include <athena/FileReader.hpp>
+#include <athena/FileWriter.hpp>
 #include <nod/DiscBase.hpp>
 #include "hecl/hecl.hpp"
 #include "hecl/Database.hpp"

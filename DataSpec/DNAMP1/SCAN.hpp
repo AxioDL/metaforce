@@ -156,18 +156,16 @@ struct SCAN : BigYAML
     {
         SCAN scan;
         scan.read(rs);
-        FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
-        scan.toYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        scan.toYAMLStream(writer);
         return true;
     }
 
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
     {
         SCAN scan;
-        FILE* fp = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
-        scan.fromYAMLFile(fp);
-        fclose(fp);
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        scan.fromYAMLStream(reader);
         athena::io::FileWriter ws(outPath.getAbsolutePath());
         scan.write(ws);
         return true;

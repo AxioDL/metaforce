@@ -410,13 +410,12 @@ template struct DPSM<UniqueID64>;
 template <class IDType>
 bool ExtractDPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         DPSM<IDType> dpsm;
         dpsm.read(rs);
-        dpsm.toYAMLFile(fp);
-        fclose(fp);
+        dpsm.toYAMLStream(writer);
         return true;
     }
     return false;

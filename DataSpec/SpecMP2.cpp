@@ -285,11 +285,11 @@ struct SpecMP2 : SpecBase
         return path.getRelativePath().compare(0, 4, _S("MP2/")) == 0;
     }
 
-    bool validateYAMLDNAType(FILE* fp) const
+    bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
     {
-        if (BigYAML::ValidateFromYAMLFile<DNAMP2::MLVL>(fp))
+        if (BigYAML::ValidateFromYAMLStream<DNAMP2::MLVL>(fp))
             return true;
-        if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
+        if (BigYAML::ValidateFromYAMLStream<DNAMP2::STRG>(fp))
             return true;
         return false;
     }
@@ -313,7 +313,7 @@ struct SpecMP2 : SpecBase
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FILE* fin, FCookProgress progress)
+                  athena::io::IStreamReader& fin, FCookProgress progress)
     {
     }
 };

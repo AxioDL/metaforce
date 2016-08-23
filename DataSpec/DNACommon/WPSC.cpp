@@ -725,13 +725,12 @@ template struct WPSM<UniqueID64>;
 template <class IDType>
 bool ExtractWPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         WPSM<IDType> wpsm;
         wpsm.read(rs);
-        wpsm.toYAMLFile(fp);
-        fclose(fp);
+        wpsm.toYAMLStream(writer);
         return true;
     }
     return false;

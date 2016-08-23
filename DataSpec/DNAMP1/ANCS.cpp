@@ -1031,9 +1031,8 @@ bool ANCS::Extract(const SpecBase& dataSpec,
     {
         if (force || yamlType == hecl::ProjectPath::Type::None)
         {
-            FILE* fp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("w"));
-            ancs.toYAMLFile(fp);
-            fclose(fp);
+            athena::io::FileWriter writer(yamlPath.getAbsolutePath());
+            ancs.toYAMLStream(writer);
         }
 
         if (force || blendType == hecl::ProjectPath::Type::None)
@@ -1062,9 +1061,8 @@ bool ANCS::Extract(const SpecBase& dataSpec,
                 EVNT evnt;
                 if (pakRouter.lookupAndReadDNA(res.second.evntId, evnt, true))
                 {
-                    FILE* fp = hecl::Fopen(evntYamlPath.getAbsolutePath().c_str(), _S("w"));
-                    evnt.toYAMLFile(fp);
-                    fclose(fp);
+                    athena::io::FileWriter writer(evntYamlPath.getAbsolutePath());
+                    evnt.toYAMLStream(writer);
                 }
             }
         }
@@ -1085,25 +1083,23 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         Log.report(logvisor::Fatal, _S("'%s' not found as file"),
                    yamlPath.getRelativePath().c_str());
 
-    FILE* yamlFp = hecl::Fopen(yamlPath.getAbsolutePath().c_str(), _S("r"));
-    if (!yamlFp)
+    athena::io::FileReader reader(yamlPath.getAbsolutePath());
+    if (!reader.isOpen())
         Log.report(logvisor::Fatal, _S("can't open '%s' for reading"),
                    yamlPath.getRelativePath().c_str());
 
-    if (!BigYAML::ValidateFromYAMLFile<ANCS>(yamlFp))
+    if (!BigYAML::ValidateFromYAMLStream<ANCS>(reader))
     {
         Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
                    yamlPath.getRelativePath().c_str());
     }
 
     athena::io::YAMLDocReader yamlReader;
-    yaml_parser_set_input_file(yamlReader.getParser(), yamlFp);
-    if (!yamlReader.parse())
+    if (!yamlReader.parse(&reader))
     {
         Log.report(logvisor::Fatal, _S("unable to parse '%s'"),
                    yamlPath.getRelativePath().c_str());
     }
-    fclose(yamlFp);
     ANCS ancs;
     ancs.read(yamlReader);
 
@@ -1263,12 +1259,11 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                                                                   _S(".evnt.yaml")).c_str(), true);
         if (evntYamlPath.getPathType() == hecl::ProjectPath::Type::File)
         {
-            FILE* fp = hecl::Fopen(evntYamlPath.getAbsolutePath().c_str(), _S("r"));
-            if (fp)
+            athena::io::FileReader reader(evntYamlPath.getAbsolutePath());
+            if (reader.isOpen())
             {
                 EVNT evnt;
-                evnt.fromYAMLFile(fp);
-                fclose(fp);
+                evnt.fromYAMLStream(reader);
                 anim.m_anim->evnt = evntYamlPath;
 
                 hecl::ProjectPath evntYamlOut = cookedOut.getWithExtension(_S(".evnt"));

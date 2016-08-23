@@ -478,13 +478,13 @@ struct SpecMP3 : SpecBase
         return path.getRelativePath().compare(0, 4, _S("MP3/")) == 0;
     }
 
-    bool validateYAMLDNAType(FILE* fp) const
+    bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
     {
-        if (BigYAML::ValidateFromYAMLFile<DNAMP3::MLVL>(fp))
+        if (BigYAML::ValidateFromYAMLStream<DNAMP3::MLVL>(fp))
             return true;
-        if (BigYAML::ValidateFromYAMLFile<DNAMP3::STRG>(fp))
+        if (BigYAML::ValidateFromYAMLStream<DNAMP3::STRG>(fp))
             return true;
-        if (BigYAML::ValidateFromYAMLFile<DNAMP2::STRG>(fp))
+        if (BigYAML::ValidateFromYAMLStream<DNAMP2::STRG>(fp))
             return true;
         return false;
     }
@@ -508,7 +508,7 @@ struct SpecMP3 : SpecBase
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FILE* fin, FCookProgress progress)
+                  athena::io::IStreamReader& fin, FCookProgress progress)
     {
     }
 };

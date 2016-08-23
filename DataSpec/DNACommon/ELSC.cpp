@@ -450,13 +450,12 @@ template struct ELSM<UniqueID64>;
 template <class IDType>
 bool ExtractELSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("w"));
-    if (fp)
+    athena::io::FileWriter writer(outPath.getAbsolutePath());
+    if (writer.isOpen())
     {
         ELSM<IDType> elsm;
         elsm.read(rs);
-        elsm.toYAMLFile(fp);
-        fclose(fp);
+        elsm.toYAMLStream(writer);
         return true;
     }
     return false;

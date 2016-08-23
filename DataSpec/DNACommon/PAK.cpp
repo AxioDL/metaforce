@@ -214,10 +214,8 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
         const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
         hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "catalog.yaml").getAbsolutePath();
-        FILE* catalog = hecl::Fopen(catalogPath.c_str(), _S("w"));
-        yaml_emitter_set_output_file(catalogWriter.getEmitter(), catalog);
-        catalogWriter.finish();
-        fclose(catalog);
+        athena::io::FileWriter writer(catalogPath);
+        catalogWriter.finish(&writer);
     }
 }
 
