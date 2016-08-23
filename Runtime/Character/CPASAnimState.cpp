@@ -99,7 +99,7 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
             if (x4_parms.size() > 0)
                 calcWeight = 0.f;
 
-            u32 r23 = 0 ;
+            u32 unweightedCount = 0 ;
             u32 i = 0;
 
             for (; i<x4_parms.size() ; ++i)
@@ -115,13 +115,13 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
                     computedWeight = ComputeExactMatchWeight(i, parms[i], val);
                 else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::PercentError)
                     computedWeight = ComputePercentErrorWeight(i, parms[i], val);
-                else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::Three)
-                    r23++;
+                else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::NoWeight)
+                    unweightedCount++;
 
                 calcWeight = parmWeight * calcWeight + computedWeight;
             }
 
-            if (r23 == x4_parms.size())
+            if (unweightedCount == x4_parms.size())
                 calcWeight = 1.0f;
 
             if (calcWeight < weight)
@@ -132,6 +132,7 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
 
             if (search == x24_selectionCache.cend())
                 const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
+            weight = calcWeight;
         }
     }
     return {weight, PickRandomAnimation(rand)};
