@@ -8,6 +8,7 @@
 #include "CPoseAsTransforms.hpp"
 #include "CHierarchyPoseBuilder.hpp"
 #include "CAdditiveAnimPlayback.hpp"
+#include "CCharLayoutInfo.hpp"
 #include <set>
 
 enum class EUserEventType

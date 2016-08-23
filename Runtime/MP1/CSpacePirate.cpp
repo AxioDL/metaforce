@@ -1,4 +1,5 @@
 #include "CSpacePirate.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

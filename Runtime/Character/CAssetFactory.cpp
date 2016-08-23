@@ -3,6 +3,7 @@
 #include "CCharacterFactory.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CModelData.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

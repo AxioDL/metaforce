@@ -7,6 +7,7 @@
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

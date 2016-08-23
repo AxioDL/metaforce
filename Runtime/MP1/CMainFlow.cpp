@@ -6,6 +6,7 @@
 #include "CResFactory.hpp"
 #include "CFrontEndUI.hpp"
 #include "GameGlobalObjects.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

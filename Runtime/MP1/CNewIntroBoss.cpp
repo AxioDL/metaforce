@@ -1,4 +1,5 @@
 #include "CNewIntroBoss.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

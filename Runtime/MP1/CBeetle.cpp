@@ -1,5 +1,6 @@
 #include "CBeetle.hpp"
 #include "World/CDamageInfo.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

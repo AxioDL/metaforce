@@ -3,6 +3,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
 #include "MP1.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

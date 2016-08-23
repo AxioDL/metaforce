@@ -329,7 +329,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
                         const CActorLights* lights, const CModelFlags& drawFlags)
-{    
+{
     if (x14_25_sortThermal && which == EWhichModel::Thermal)
     {
         zeus::CColor mul(drawFlags.color.a, drawFlags.color.a, drawFlags.color.a, drawFlags.color.a);

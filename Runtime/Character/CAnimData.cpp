@@ -101,6 +101,8 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
         {
         }
     }
+
+    return {};
 }
 
 SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)

@@ -1,4 +1,5 @@
 #include "CGunController.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

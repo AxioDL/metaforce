@@ -7,7 +7,8 @@ if(MSVC)
   endif()
 
   # Shaddup MSVC
-  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1 /IGNORE:4221 /wd4800 /wd4005 /wd4311 /wd4267 /wd4244 /wd4305 ${VS_DEFINES})
+  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1
+      /IGNORE:4221 /wd4800 /wd4005 /wd4311 /wd4267 /wd4244 /wd4200 /wd4305 ${VS_DEFINES})
 
   # Link-time Code Generation for Release builds
   set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
@@ -48,8 +49,8 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
        message(STATUS "GNU gold linker enabled.")
     else()
-        message(WARNING "GNU gold linker isn't available, using the default system linker.")
-        set(USE_LD_GOLD OFF)
+       message(WARNING "GNU gold linker isn't available, using the default system linker.")
+       set(USE_LD_GOLD OFF)
     endif()
 endif()
 

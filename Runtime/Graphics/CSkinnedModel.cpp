@@ -1,4 +1,5 @@
 #include "CSkinnedModel.hpp"
+#include "Character/CSkinRules.hpp"
 
 namespace urde
 {

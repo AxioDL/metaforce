@@ -1,4 +1,5 @@
 #include "CWarWasp.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {

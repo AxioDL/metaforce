@@ -12,6 +12,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CParticleGenInfo.hpp"
 #include "Graphics/CSkinnedModel.hpp"
+#include "Character/CCharLayoutInfo.hpp"
 
 namespace urde
 {
