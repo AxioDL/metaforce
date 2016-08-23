@@ -15,7 +15,7 @@ public:
         ExactMatch,
         PercentError,
         AngularPercent,
-        Three
+        NoWeight
     };
 
     CPASAnimParm::EParmType x0_type;

@@ -33,7 +33,7 @@ CGameState::CGameState(CBitStreamReader& stream)
     float currentHealth = tmpPlayer.GetHealthInfo().GetHP();
 }
 
-void CGameState::SetCurrentWorldId(unsigned int id, const std::string& name)
+void CGameState::SetCurrentWorldId(unsigned int id)
 {
 }
 

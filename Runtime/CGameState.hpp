@@ -5,8 +5,9 @@
 #include "CBasics.hpp"
 #include "CPlayerState.hpp"
 #include "CGameOptions.hpp"
+#include "CRelayTracker.hpp"
 #include "World/CWorldTransManager.hpp"
-
+#include "AutoMapper/CMapWorldInfo.hpp"
 namespace urde
 {
 
@@ -14,10 +15,16 @@ class CWorldState
 {
     ResId x0_mlvlId;
     TAreaId x4_areaId;
+    std::shared_ptr<CRelayTracker> x8_relayTracker;
+    std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
+    /* std::shared_ptr<> x14_ */
 public:
     CWorldState(ResId id) : x0_mlvlId(id) {}
     ResId GetWorldAssetId() const {return x0_mlvlId;}
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
+    const TAreaId& GetCurrentAreaId() const { return x4_areaId; }
+    std::shared_ptr<CRelayTracker> RelayTracker() { return x8_relayTracker; }
+    std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return xc_mapWorldInfo; }
 };
 
 class CGameState
@@ -25,14 +32,16 @@ class CGameState
     friend class CStateManager;
 
     bool x0_[128] = {};
-    int m_stateFlag = -1;
     ResId x84_mlvlId = -1;
     std::vector<CWorldState> x88_worldStates;
     std::shared_ptr<CPlayerState> x98_playerState;
     std::shared_ptr<CWorldTransManager> x9c_transManager;
-    float m_gameTime = 0.0;
     CGameOptions m_gameOpts;
     double xa0_playTime;
+    u32 xa4_;
+
+    /* x17c_ */
+    /* x1f8_ */
 
     union
     {
@@ -46,7 +55,7 @@ class CGameState
 public:
     CGameState();
     CGameState(CBitStreamReader& stream);
-    void SetCurrentWorldId(unsigned int id, const std::string& name);
+    void SetCurrentWorldId(unsigned int id);
     std::shared_ptr<CPlayerState> GetPlayerState() {return x98_playerState;}
     std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
