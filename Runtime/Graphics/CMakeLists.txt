@@ -9,7 +9,7 @@ if(WIN32)
       Shaders/CSpaceWarpFilterHLSL.cpp
       Shaders/CCameraBlurFilterHLSL.cpp
       Shaders/CXRayBlurFilterHLSL.cpp)
-elseif(APPLE)
+elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
       Shaders/CTexturedQuadFilterMetal.cpp

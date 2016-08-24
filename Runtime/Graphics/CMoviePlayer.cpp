@@ -210,7 +210,7 @@ void CMoviePlayer::Initialize()
 
         switch (ctx.platform())
         {
-        case boo::IGraphicsDataFactory::Platform::OGL:
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
             YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_GLSL_YUV, FS_GLSL_YUV, 3, TexNames, 1, BlockNames,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,

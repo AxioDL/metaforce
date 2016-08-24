@@ -1,6 +1,6 @@
 if(WIN32)
   set(PLAT_SRCS CElementGenShadersHLSL.cpp)
-elseif(APPLE)
+elseif(BOO_HAS_METAL)
   set(PLAT_SRCS CElementGenShadersMetal.cpp)
 endif()
 

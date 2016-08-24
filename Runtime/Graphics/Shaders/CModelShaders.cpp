@@ -10,7 +10,7 @@ CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
 {
     switch (plat)
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
+    case boo::IGraphicsDataFactory::Platform::OpenGL:
     case boo::IGraphicsDataFactory::Platform::Vulkan:
         return GetShaderExtensionsGLSL(plat);
 #if _WIN32

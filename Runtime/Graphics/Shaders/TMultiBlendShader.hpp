@@ -41,7 +41,7 @@ public:
         {
             switch (ctx.platform())
             {
-            case boo::IGraphicsDataFactory::Platform::OGL:
+            case boo::IGraphicsDataFactory::Platform::OpenGL:
                 m_bindFactory.reset(FilterImp::Initialize(static_cast<boo::GLDataFactory::Context&>(ctx),
                                                           m_alphaBlendPipeline, m_additiveAlphaPipeline, m_colorMultiplyPipeline));
                 break;

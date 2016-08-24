@@ -191,7 +191,7 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
 
     switch (g_BooPlatform)
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
+    case boo::IGraphicsDataFactory::Platform::OpenGL:
     default:
     {
         return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
@@ -239,7 +239,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
 
     switch (g_BooPlatform)
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
+    case boo::IGraphicsDataFactory::Platform::OpenGL:
     default:
     {
         return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,

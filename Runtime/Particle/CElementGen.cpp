@@ -180,7 +180,7 @@ void CElementGenShaders::Initialize()
     {
         switch (ctx.platform())
         {
-        case boo::IGraphicsDataFactory::Platform::OGL:
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
             m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
             break;
 #if _WIN32
