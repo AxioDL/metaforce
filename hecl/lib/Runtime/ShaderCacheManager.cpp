@@ -115,7 +115,7 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
 
     switch (plat)
     {
-    case boo::IGraphicsDataFactory::Platform::OGL:
+    case boo::IGraphicsDataFactory::Platform::OpenGL:
         m_factory.reset(_NewGLSLBackendFactory());
         break;
 #if _WIN32
