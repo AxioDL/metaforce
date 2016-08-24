@@ -22,7 +22,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     {
         switch (ctx.platform())
         {
-        case boo::IGraphicsDataFactory::Platform::OGL:
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
             init<boo::GLDataFactory::Context>(static_cast<boo::GLDataFactory::Context&>(ctx), *theme, fcache);
             break;
 #if _WIN32
