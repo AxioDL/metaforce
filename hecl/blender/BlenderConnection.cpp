@@ -190,6 +190,8 @@ void BlenderConnection::_blenderDied()
     BlenderLog.report(logvisor::Fatal, "Blender Exception");
 }
 
+static std::atomic_bool BlenderFirstInit(false);
+
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
@@ -207,16 +209,21 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         TMPDIR = (char*)"/tmp";
     m_startupBlend = TMPDIR;
 #endif
+
     hecl::SystemString blenderShellPath(TMPDIR);
     blenderShellPath += _S("/hecl_blendershell.py");
-    InstallBlendershell(blenderShellPath.c_str());
 
     hecl::SystemString blenderAddonPath(TMPDIR);
     blenderAddonPath += _S("/hecl_blenderaddon.zip");
-    InstallAddon(blenderAddonPath.c_str());
-
     m_startupBlend += "/hecl_startup.blend";
-    InstallStartup(m_startupBlend.c_str());
+
+    bool FalseCmp = false;
+    if (BlenderFirstInit.compare_exchange_strong(FalseCmp, true))
+    {
+        InstallBlendershell(blenderShellPath.c_str());
+        InstallAddon(blenderAddonPath.c_str());
+        InstallStartup(m_startupBlend.c_str());
+    }
 
     int installAttempt = 0;
     while (true)

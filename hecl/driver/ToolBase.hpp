@@ -231,6 +231,8 @@ static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
 void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* submessage,
                        int lidx, float factor, int& lineIdx)
 {
+    auto lk = logvisor::LockLog();
+
     bool blocks = factor >= 0.0;
     factor = std::max(0.0f, std::min(1.0f, factor));
     int iFactor = factor * 100.0;
