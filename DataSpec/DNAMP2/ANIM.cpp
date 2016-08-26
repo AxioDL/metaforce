@@ -468,7 +468,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
     size_t bsSize = DNAANIM::ComputeBitstreamSize(keyframeCount, channels);
     std::unique_ptr<atUint8[]> bsData = reader.readUBytes(bsSize);
     DNAANIM::BitstreamReader bsReader;
-    chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult);
+    chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult, head.scaleMult);
 }
 
 void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
@@ -477,10 +477,8 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     head.unk1 = 1;
     head.unk2 = 1;
     head.interval = mainInterval;
-    head.unk3 = 0;
-    head.unk4 = 0;
-    head.unk5 = 0;
-    head.unk6 = 1;
+    head.rootBoneId = 0;
+    head.scaleMult = 0.f;
 
     WordBitmap keyBmp;
     size_t frameCount = 0;
@@ -500,7 +498,8 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     DNAANIM::BitstreamWriter bsWriter;
     size_t bsSize;
     std::unique_ptr<atUint8[]> bsData = bsWriter.write(chanKeys, keyframeCount, qChannels,
-                                                       head.rotDiv, head.translationMult, bsSize);
+                                                       m_version == 3 ? 0x7fffff : 0x7fff,
+                                                       head.rotDiv, head.translationMult, head.scaleMult, bsSize);
 
     /* TODO: Figure out proper scratch size computation */
     head.scratchSize = keyframeCount * channels.size() * 16;

@@ -53,18 +53,18 @@ struct ANIM : BigDNA
     struct ANIM2 : IANIM
     {
         DECL_EXPLICIT_DNA
-        ANIM2() : IANIM(2) {}
+        ANIM2(bool pc) : IANIM(pc ? 3 : 2) {}
 
         struct Header : BigDNA
         {
             DECL_DNA
             Value<atUint32> scratchSize;
             UniqueID32 evnt;
-            Value<atUint32> unk0;
+            Value<atUint32> unk0 = 1;
             Value<float> duration;
             Value<float> interval;
-            Value<atUint32> unk1;
-            Value<atUint32> unk2;
+            Value<atUint32> rootBoneId = 3;
+            Value<atUint32> unk2 = 0;
             Value<atUint32> rotDiv;
             Value<float> translationMult;
             Value<atUint32> boneChannelCount;
@@ -154,7 +154,11 @@ struct ANIM : BigDNA
             m_anim->read(reader);
             break;
         case 2:
-            m_anim.reset(new struct ANIM2);
+            m_anim.reset(new struct ANIM2(false));
+            m_anim->read(reader);
+            break;
+        case 3:
+            m_anim.reset(new struct ANIM2(true));
             m_anim->read(reader);
             break;
         default:
@@ -184,7 +188,8 @@ struct ANIM : BigDNA
     ANIM() = default;
     ANIM(const BlenderAction& act,
          const std::unordered_map<std::string, atInt32>& idMap,
-         const DNAANIM::RigInverter<CINF>& rig);
+         const DNAANIM::RigInverter<CINF>& rig,
+         bool pc);
 };
 
 }

@@ -58,17 +58,16 @@ struct ANIM : BigDNA
         {
             DECL_DNA
             Value<atUint32> scratchSize;
-            Value<atUint8> unk1;
-            Value<atUint8> unk2;
+            Value<atUint16> unk1;
             Value<float> duration;
             Value<float> interval;
-            Value<atUint32> unk3;
-            Value<atUint32> unk4;
+            Value<atUint32> rootBoneId = 3;
+            Value<atUint32> unk2 = 0;
             Value<atUint32> rotDiv;
             Value<float> translationMult;
-            Value<atUint32> unk5;
+            Value<float> scaleMult;
             Value<atUint32> boneChannelCount;
-            Value<atUint32> unk6;
+            Value<atUint32> unk3 = 1;
             Value<atUint32> keyBitmapBitCount;
         };
 

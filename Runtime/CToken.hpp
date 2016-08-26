@@ -277,6 +277,8 @@ public:
     }
     T* operator->() {return GetObj();}
     const T* operator->() const {return GetObj();}
+    T& operator*() {return *GetObj();}
+    const T& operator*() const {return *GetObj();}
 };
 
 template <class T>

@@ -15,7 +15,8 @@ enum class EAnimFormat
 {
     Uncompressed,
     Unknown,
-    BitstreamCompressed
+    BitstreamCompressed,
+    BitstreamCompressed24
 };
 
 class CAnimFormatUnion

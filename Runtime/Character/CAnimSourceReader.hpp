@@ -9,9 +9,6 @@
 namespace urde
 {
 
-template <class T>
-using TSubAnimTypeToken = TCachedToken<T>;
-
 class IAnimSourceInfo
 {
 public:

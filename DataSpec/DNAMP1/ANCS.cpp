@@ -1075,6 +1075,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
                 const DNAANCS::Actor& actor,
                 hecl::BlenderConnection::DataStream& ds,
+                bool pc,
                 const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
 {
     /* Search for yaml */
@@ -1248,7 +1249,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
                        cookedOut.getRelativePath().c_str());
-        ANIM anim(act, boneIdMap, *rigInv);
+        ANIM anim(act, boneIdMap, *rigInv, pc);
 
         ancs.animationSet.animResources.emplace_back();
         ancs.animationSet.animResources.back().animId = pathOut;

@@ -327,7 +327,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
     size_t bsSize = DNAANIM::ComputeBitstreamSize(keyframeCount, channels);
     std::unique_ptr<atUint8[]> bsData = reader.readUBytes(bsSize);
     DNAANIM::BitstreamReader bsReader;
-    chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult);
+    chanKeys = bsReader.read(bsData.get(), keyframeCount, channels, head.rotDiv, head.translationMult, 0.f);
 }
 
 void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
@@ -336,7 +336,7 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     head.evnt = evnt;
     head.unk0 = 1;
     head.interval = mainInterval;
-    head.unk1 = 3;
+    head.rootBoneId = 3;
     head.unk2 = 0;
     head.unk3 = 1;
 
@@ -357,8 +357,10 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     std::vector<DNAANIM::Channel> qChannels = channels;
     DNAANIM::BitstreamWriter bsWriter;
     size_t bsSize;
+    float scaleMult;
     std::unique_ptr<atUint8[]> bsData = bsWriter.write(chanKeys, keyframeCount, qChannels,
-                                                       head.rotDiv, head.translationMult, bsSize);
+                                                       m_version == 3 ? 0x7fffff : 0x7fff,
+                                                       head.rotDiv, head.translationMult, scaleMult, bsSize);
 
     /* TODO: Figure out proper scratch size computation */
     head.scratchSize = keyframeCount * channels.size() * 16;
@@ -424,9 +426,10 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
 
 ANIM::ANIM(const BlenderAction& act,
            const std::unordered_map<std::string, atInt32>& idMap,
-           const DNAANIM::RigInverter<CINF>& rig)
+           const DNAANIM::RigInverter<CINF>& rig,
+           bool pc)
 {
-    m_anim.reset(new struct ANIM0);
+    m_anim.reset(new struct ANIM2(pc));
     IANIM& newAnim = *m_anim;
 
     newAnim.bones.reserve(act.channels.size());

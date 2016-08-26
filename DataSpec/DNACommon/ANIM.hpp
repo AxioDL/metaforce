@@ -31,10 +31,10 @@ union Value
 };
 struct QuantizedValue
 {
-    atInt16 v[4];
-    atInt16& operator[] (size_t idx)
+    atInt32 v[4];
+    atInt32& operator[] (size_t idx)
     {return v[idx];}
-    const atInt16& operator[] (size_t idx) const
+    const atInt32& operator[] (size_t idx) const
     {return v[idx];}
 };
 struct QuantizedRot
@@ -62,7 +62,7 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 class BitstreamReader
 {
     size_t m_bitCur;
-    atInt16 dequantize(const atUint8* data, atUint8 q);
+    atInt32 dequantize(const atUint8* data, atUint8 q);
     bool dequantizeBit(const atUint8* data);
 public:
     std::vector<std::vector<Value>>
@@ -70,20 +70,23 @@ public:
          size_t keyFrameCount,
          const std::vector<Channel>& channels,
          atUint32 rotDiv,
-         float transMult);
+         float transMult,
+         float scaleMult);
 };
 
 class BitstreamWriter
 {
     size_t m_bitCur;
-    void quantize(atUint8* data, atUint8 q, atInt16 val);
+    void quantize(atUint8* data, atUint8 q, atInt32 val);
     void quantizeBit(atUint8* data, bool val);
 public:
     std::unique_ptr<atUint8[]>
     write(const std::vector<std::vector<Value>>& chanKeys,
           size_t keyFrameCount, std::vector<Channel>& channels,
+          atUint32 quantRange,
           atUint32& rotDivOut,
           float& transMultOut,
+          float& scaleMultOut,
           size_t& sizeOut);
 };
 

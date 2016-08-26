@@ -6,6 +6,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "CParticleData.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
@@ -35,6 +36,9 @@ struct CSteadyStateAnimInfo
     zeus::CVector3f x6c_curRootOffset;
     bool x78_ = false;
 };
+
+template <class T>
+using TSubAnimTypeToken = TCachedToken<T>;
 
 class IAnimReader
 {

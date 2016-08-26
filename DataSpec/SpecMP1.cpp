@@ -371,7 +371,7 @@ struct SpecMP1 : SpecBase
                    FCookProgress progress)
     {
         Actor actor = ds.compileActor();
-        DNAMP1::ANCS::Cook(out, in, actor, ds,
+        DNAMP1::ANCS::Cook(out, in, actor, ds, m_pc,
         [&](const hecl::ProjectPath& modelPath) -> bool
         {
             hecl::ProjectPath cooked;

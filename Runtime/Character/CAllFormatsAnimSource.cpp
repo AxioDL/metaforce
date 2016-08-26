@@ -15,6 +15,9 @@ void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt,
     case EAnimFormat::Uncompressed:
         new (storage) CAnimSource(in, store);
         break;
+    case EAnimFormat::BitstreamCompressed24:
+        new (storage) CAnimSource(in, store);
+        break;
     default:
         Log.report(logvisor::Fatal, "unable to read ANIM format %d", int(fmt));
     }

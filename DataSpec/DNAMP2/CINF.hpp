@@ -20,7 +20,8 @@ struct CINF : BigDNA
         Value<atUint32> id;
         Value<atUint32> parentId;
         Value<atVec3f> origin;
-        Value<float> skinMetrics[8];
+        Value<atVec4f> q1;
+        Value<atVec4f> q2;
         Value<atUint32> linkedCount;
         Vector<atUint32, DNA_COUNT(linkedCount)> linked;
     };

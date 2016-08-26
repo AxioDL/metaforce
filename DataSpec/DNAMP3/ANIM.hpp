@@ -63,7 +63,7 @@ struct ANIM : BigDNA
             Value<atUint32> unk3;
             Value<atUint8> unk4[3];
             Value<float> translationMult;
-            Value<atUint32> unk6;
+            Value<float> scaleMult;
             Value<atUint32> unk7;
             Value<float> unk8;
             Value<float> unk9;

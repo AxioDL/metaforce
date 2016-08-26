@@ -73,6 +73,8 @@ set(CHARACTER_SOURCES
     CParticlePOINode.hpp CParticlePOINode.cpp
     CAnimSourceReader.hpp CAnimSourceReader.cpp
     CAnimSource.hpp CAnimSource.cpp
+    CFBStreamedAnimReader.hpp CFBStreamedAnimReader.cpp
+    CFBStreamedCompression.hpp CFBStreamedCompression.cpp
     CAllFormatsAnimSource.hpp CAllFormatsAnimSource.cpp
     CSegStatementSet.hpp CSegStatementSet.cpp
     CAnimPerSegmentData.hpp

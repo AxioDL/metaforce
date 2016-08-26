@@ -537,7 +537,7 @@ void ANIM::ANIM1::read(athena::io::IStreamReader& reader)
     size_t bsSize = DNAANIM::ComputeBitstreamSize(head.keyCount-1, channels);
     std::unique_ptr<atUint8[]> bsData = reader.readUBytes(bsSize);
     DNAANIM::BitstreamReader bsReader;
-    chanKeys = bsReader.read(bsData.get(), head.keyCount-1, channels, 32767, head.translationMult);
+    chanKeys = bsReader.read(bsData.get(), head.keyCount-1, channels, 32767, head.translationMult, head.scaleMult);
 }
 
 void ANIM::ANIM1::write(athena::io::IStreamWriter& writer) const

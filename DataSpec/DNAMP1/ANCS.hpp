@@ -540,6 +540,7 @@ struct ANCS : BigYAML
                      const hecl::ProjectPath& inPath,
                      const DNAANCS::Actor& actor,
                      hecl::BlenderConnection::DataStream& ds,
+                     bool pc,
                      const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc);
 };
 
