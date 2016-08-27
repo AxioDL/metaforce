@@ -20,12 +20,6 @@ public:
                   const CCharAnimTime& time, u32 b, bool c,
                   float d, u32 e, u32 f, u32 sfxId, float falloff, float maxDist);
 
-    static u32 _getPOIList(const CCharAnimTime& time,
-                           CSoundPOINode* listOut,
-                           u32 capacity, u32 iterator, u32 unk1,
-                           const std::vector<CSoundPOINode>& stream,
-                           const CCharAnimTime& curTime,
-                           const IAnimSourceInfo& animInfo, u32 passedCount);
     static CSoundPOINode CopyNodeMinusStartTime(const CSoundPOINode& node,
                                                 const CCharAnimTime& startTime);
 };

@@ -167,8 +167,8 @@ u32 CAnimSourceReaderBase::VGetBoolPOIList(const CCharAnimTime& time,
     if (x4_sourceInfo->HasPOIData())
     {
         const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
-        return CBoolPOINode::_getPOIList(time, listOut, capacity, iterator, unk, boolNodes,
-                                         xc_curTime, *x4_sourceInfo, x14_passedBoolCount);
+        return _getPOIList(time, listOut, capacity, iterator, unk, boolNodes,
+                           xc_curTime, *x4_sourceInfo, x14_passedBoolCount);
     }
     return 0;
 }
@@ -180,8 +180,8 @@ u32 CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time,
     if (x4_sourceInfo->HasPOIData())
     {
         const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
-        return CInt32POINode::_getPOIList(time, listOut, capacity, iterator, unk, int32Nodes,
-                                          xc_curTime, *x4_sourceInfo, x18_passedIntCount);
+        return _getPOIList(time, listOut, capacity, iterator, unk, int32Nodes,
+                           xc_curTime, *x4_sourceInfo, x18_passedIntCount);
     }
     return 0;
 }
@@ -193,8 +193,8 @@ u32 CAnimSourceReaderBase::VGetParticlePOIList(const CCharAnimTime& time,
     if (x4_sourceInfo->HasPOIData())
     {
         const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
-        return CParticlePOINode::_getPOIList(time, listOut, capacity, iterator, unk, particleNodes,
-                                             xc_curTime, *x4_sourceInfo, x1c_passedParticleCount);
+        return _getPOIList(time, listOut, capacity, iterator, unk, particleNodes,
+                           xc_curTime, *x4_sourceInfo, x1c_passedParticleCount);
     }
     return 0;
 }
@@ -206,8 +206,8 @@ u32 CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time,
     if (x4_sourceInfo->HasPOIData())
     {
         const std::vector<CSoundPOINode>& soundNodes = x4_sourceInfo->GetSoundPOIStream();
-        return CSoundPOINode::_getPOIList(time, listOut, capacity, iterator, unk, soundNodes,
-                                          xc_curTime, *x4_sourceInfo, x20_passedSoundCount);
+        return _getPOIList(time, listOut, capacity, iterator, unk, soundNodes,
+                           xc_curTime, *x4_sourceInfo, x20_passedSoundCount);
     }
     return 0;
 }
