@@ -3,6 +3,19 @@
 namespace urde
 {
 
+void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount)
+{
+    u32 chan16 = chanCount * 16;
+    u32 chan2 = chanCount * 2;
+    u32 chan32 = chanCount * 32;
+
+    x0_buffer.reset(new u8[chan16 + chanCount + chan2 + chan32]);
+    x4_first16 = x0_buffer.get();
+    x8_second1 = x4_first16 + chan16;
+    xc_third2 = x8_second1 + chanCount;
+    x10_fourth32 = xc_third2 + chan2;
+}
+
 CFBStreamedAnimReaderTotals::CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source)
 {
     const CFBStreamedCompression::Header* header =
@@ -16,13 +29,12 @@ CFBStreamedAnimReaderTotals::CFBStreamedAnimReaderTotals(const CFBStreamedCompre
     const u8* chans = reinterpret_cast<const u8*>(bitmap + bitmapWordCount + 1);
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
     x24_boneChanCount = boneChanCount;
+    Allocate(x24_boneChanCount);
 }
 
 CFBStreamedPairOfTotals::CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source)
 : x0_source(source), xc_rotsAndOffs(source->xc_rotsAndOffs.get()), x14_(*source), x3c_(*source)
 {
-    x0_source.Lock();
-
     const u32* bitmap = reinterpret_cast<const u32*>(source->xc_rotsAndOffs.get() + 9);
     u32 bitmapWordCount = (bitmap[0] + 31) / 32;
 
@@ -30,15 +42,29 @@ CFBStreamedPairOfTotals::CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStre
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
     chans += 4;
 
-    for (int b=0 ; b<boneChanCount ; ++b)
+    if (source->m_pc)
     {
-        chans += 15;
+        for (int b=0 ; b<boneChanCount ; ++b)
+        {
+            chans += 20;
 
-        u16 tCount = *reinterpret_cast<const u16*>(chans);
-        chans += 2;
+            u32 tCount = *reinterpret_cast<const u32*>(chans);
+            chans += 4;
+            if (tCount)
+                chans += 12;
+        }
+    }
+    else
+    {
+        for (int b=0 ; b<boneChanCount ; ++b)
+        {
+            chans += 15;
 
-        if (tCount)
-            chans += 9;
+            u16 tCount = *reinterpret_cast<const u16*>(chans);
+            chans += 2;
+            if (tCount)
+                chans += 9;
+        }
     }
 
     x88_ = chans;
@@ -54,7 +80,6 @@ CFBStreamedAnimReader::CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamed
 : CAnimSourceReaderBase(std::make_unique<TAnimSourceInfo<CFBStreamedCompression>>(source), time),
   x54_source(source), x7c_(source), x114_(x7c_.x10_ ? x7c_.x14_ : x7c_.x3c_)
 {
-    x54_source.Lock();
     x64_steadyStateInfo.x64_duration = x54_source->GetAnimationDuration();
     x64_steadyStateInfo.x6c_curRootOffset = x54_source->x14_rootOffset;
 

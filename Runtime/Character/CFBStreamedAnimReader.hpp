@@ -24,15 +24,16 @@ public:
 class CFBStreamedAnimReaderTotals
 {
     std::unique_ptr<u8[]> x0_buffer;
-    u32 x4_ = 0;
-    u32 x8_ = 0;
-    u32 xc_ = 0;
-    u32 x10_ = 0;
+    u8* x4_first16;
+    u8* x8_second1;
+    u8* xc_third2;
+    u8* x10_fourth32;
     u32 x14_rotDiv;
     float x18_transMult;
     u32 x1c_ = 0;
     bool x20_ = false;
     u32 x24_boneChanCount;
+    void Allocate(u32 chanCount);
 public:
     CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source);
 };

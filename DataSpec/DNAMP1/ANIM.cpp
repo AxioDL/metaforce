@@ -287,40 +287,82 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
     bones.reserve(head.boneChannelCount);
     channels.clear();
     channels.reserve(head.boneChannelCount);
-    atUint16 keyframeCount = 0;
-    for (size_t b=0 ; b<head.boneChannelCount ; ++b)
+    atUint32 keyframeCount = 0;
+
+    if (m_version == 3)
     {
-        ChannelDesc desc;
-        desc.read(reader);
-        bones.emplace_back(desc.id, desc.keyCount2 != 0);
-
-        if (desc.keyCount1)
+        for (size_t b=0 ; b<head.boneChannelCount ; ++b)
         {
-            channels.emplace_back();
-            DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::Type::Rotation;
-            chan.id = desc.id;
-            chan.i[0] = desc.initRX;
-            chan.q[0] = desc.qRX;
-            chan.i[1] = desc.initRY;
-            chan.q[1] = desc.qRY;
-            chan.i[2] = desc.initRZ;
-            chan.q[2] = desc.qRZ;
+            ChannelDescPC desc;
+            desc.read(reader);
+            bones.emplace_back(desc.id, desc.keyCount2 != 0);
+
+            if (desc.keyCount1)
+            {
+                channels.emplace_back();
+                DNAANIM::Channel& chan = channels.back();
+                chan.type = DNAANIM::Channel::Type::Rotation;
+                chan.id = desc.id;
+                chan.i[0] = atInt32(desc.QinitRX) >> 8;
+                chan.q[0] = desc.QinitRX & 0xff;
+                chan.i[1] = atInt32(desc.QinitRY) >> 8;
+                chan.q[1] = desc.QinitRY & 0xff;
+                chan.i[2] = atInt32(desc.QinitRZ) >> 8;
+                chan.q[2] = desc.QinitRZ & 0xff;
+            }
+            keyframeCount = std::max(keyframeCount, desc.keyCount1);
+
+            if (desc.keyCount2)
+            {
+                channels.emplace_back();
+                DNAANIM::Channel& chan = channels.back();
+                chan.type = DNAANIM::Channel::Type::Translation;
+                chan.id = desc.id;
+                chan.i[0] = atInt32(desc.QinitTX) >> 8;
+                chan.q[0] = desc.QinitTX & 0xff;
+                chan.i[1] = atInt32(desc.QinitTY) >> 8;
+                chan.q[1] = desc.QinitTY & 0xff;
+                chan.i[2] = atInt32(desc.QinitTZ) >> 8;
+                chan.q[2] = desc.QinitTZ & 0xff;
+            }
         }
-        keyframeCount = std::max(keyframeCount, desc.keyCount1);
-
-        if (desc.keyCount2)
+    }
+    else
+    {
+        for (size_t b=0 ; b<head.boneChannelCount ; ++b)
         {
-            channels.emplace_back();
-            DNAANIM::Channel& chan = channels.back();
-            chan.type = DNAANIM::Channel::Type::Translation;
-            chan.id = desc.id;
-            chan.i[0] = desc.initTX;
-            chan.q[0] = desc.qTX;
-            chan.i[1] = desc.initTY;
-            chan.q[1] = desc.qTY;
-            chan.i[2] = desc.initTZ;
-            chan.q[2] = desc.qTZ;
+            ChannelDesc desc;
+            desc.read(reader);
+            bones.emplace_back(desc.id, desc.keyCount2 != 0);
+
+            if (desc.keyCount1)
+            {
+                channels.emplace_back();
+                DNAANIM::Channel& chan = channels.back();
+                chan.type = DNAANIM::Channel::Type::Rotation;
+                chan.id = desc.id;
+                chan.i[0] = desc.initRX;
+                chan.q[0] = desc.qRX;
+                chan.i[1] = desc.initRY;
+                chan.q[1] = desc.qRY;
+                chan.i[2] = desc.initRZ;
+                chan.q[2] = desc.qRZ;
+            }
+            keyframeCount = std::max(keyframeCount, atUint32(desc.keyCount1));
+
+            if (desc.keyCount2)
+            {
+                channels.emplace_back();
+                DNAANIM::Channel& chan = channels.back();
+                chan.type = DNAANIM::Channel::Type::Translation;
+                chan.id = desc.id;
+                chan.i[0] = desc.initTX;
+                chan.q[0] = desc.qTX;
+                chan.i[1] = desc.initTY;
+                chan.q[1] = desc.qTY;
+                chan.i[2] = desc.initTZ;
+                chan.q[2] = desc.qTZ;
+            }
         }
     }
 
@@ -370,30 +412,56 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     writer.writeUint32Big(head.boneChannelCount);
     writer.writeUint32Big(head.boneChannelCount);
     auto cit = qChannels.begin();
-    for (const std::pair<atUint32, bool>& bone : bones)
+
+    if (m_version == 3)
     {
-        ChannelDesc desc;
-        desc.id = bone.first;
-        DNAANIM::Channel& chan = *cit++;
-        desc.keyCount1 = keyframeCount;
-        desc.initRX = chan.i[0];
-        desc.qRX = chan.q[0];
-        desc.initRY = chan.i[1];
-        desc.qRY = chan.q[1];
-        desc.initRZ = chan.i[2];
-        desc.qRZ = chan.q[2];
-        if (bone.second)
+        for (const std::pair<atUint32, bool>& bone : bones)
         {
+            ChannelDescPC desc;
+            desc.id = bone.first;
             DNAANIM::Channel& chan = *cit++;
-            desc.keyCount2 = keyframeCount;
-            desc.initTX = chan.i[0];
-            desc.qTX = chan.q[0];
-            desc.initTY = chan.i[1];
-            desc.qTY = chan.q[1];
-            desc.initTZ = chan.i[2];
-            desc.qTZ = chan.q[2];
+            desc.keyCount1 = keyframeCount;
+            desc.QinitRX = (chan.i[0] << 8) | chan.q[0];
+            desc.QinitRY = (chan.i[1] << 8) | chan.q[1];
+            desc.QinitRZ = (chan.i[2] << 8) | chan.q[2];
+            if (bone.second)
+            {
+                DNAANIM::Channel& chan = *cit++;
+                desc.keyCount2 = keyframeCount;
+                desc.QinitTX = (chan.i[0] << 8) | chan.q[0];
+                desc.QinitTY = (chan.i[1] << 8) | chan.q[1];
+                desc.QinitTZ = (chan.i[2] << 8) | chan.q[2];
+            }
+            desc.write(writer);
         }
-        desc.write(writer);
+    }
+    else
+    {
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            ChannelDesc desc;
+            desc.id = bone.first;
+            DNAANIM::Channel& chan = *cit++;
+            desc.keyCount1 = keyframeCount;
+            desc.initRX = chan.i[0];
+            desc.qRX = chan.q[0];
+            desc.initRY = chan.i[1];
+            desc.qRY = chan.q[1];
+            desc.initRZ = chan.i[2];
+            desc.qRZ = chan.q[2];
+            if (bone.second)
+            {
+                DNAANIM::Channel& chan = *cit++;
+                desc.keyCount2 = keyframeCount;
+                desc.initTX = chan.i[0];
+                desc.qTX = chan.q[0];
+                desc.initTY = chan.i[1];
+                desc.qTY = chan.q[1];
+                desc.initTZ = chan.i[2];
+                desc.qTZ = chan.q[2];
+            }
+            desc.write(writer);
+        }
     }
 
     writer.writeUBytes(bsData.get(), bsSize);
@@ -414,11 +482,23 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
     __isz = head.binarySize(__isz);
     __isz = keyBmp.binarySize(__isz);
     __isz += 8;
-    for (const std::pair<atUint32, bool>& bone : bones)
+    if (m_version == 3)
     {
-        __isz += 17;
-        if (bone.second)
-            __isz += 9;
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            __isz += 24;
+            if (bone.second)
+                __isz += 12;
+        }
+    }
+    else
+    {
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            __isz += 17;
+            if (bone.second)
+                __isz += 9;
+        }
     }
 
     return __isz + DNAANIM::ComputeBitstreamSize(frames.size(), channels);

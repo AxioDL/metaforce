@@ -51,17 +51,18 @@ class CFBStreamedCompression
         }
     };
 
+    bool m_pc;
     u32 x0_scratchSize;
     ResId x4_evnt;
     TLockedToken<CAnimPOIData> x8_evntToken;
     std::unique_ptr<u32[]> xc_rotsAndOffs;
     zeus::CVector3f x14_rootOffset;
 
-    static u8* ReadBoneChannelDescriptors(u8* out, CInputStream& in);
-    static std::unique_ptr<u32[]> GetRotationsAndOffsets(u32 words, CInputStream& in);
-    static u32 ComputeBitstreamWords(const u8* chans);
+    u8* ReadBoneChannelDescriptors(u8* out, CInputStream& in);
+    u32 ComputeBitstreamWords(const u8* chans);
+    std::unique_ptr<u32[]> GetRotationsAndOffsets(u32 words, CInputStream& in);
 public:
-    CFBStreamedCompression(CInputStream& in, IObjectStore& objStore);
+    CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);
     CCharAnimTime GetAnimationDuration() const { return reinterpret_cast<const Header*>(xc_rotsAndOffs.get())->duration; }
     const TLockedToken<CAnimPOIData>& GetPOIToken() const { return x8_evntToken; }
 };

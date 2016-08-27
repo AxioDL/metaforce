@@ -3,7 +3,8 @@
 namespace urde
 {
 
-CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& objStore)
+CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc)
+: m_pc(pc)
 {
     x0_scratchSize = in.readUint32Big();
     x4_evnt = in.readUint32Big();
@@ -47,34 +48,67 @@ u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in
     *reinterpret_cast<u32*>(out) = boneChanCount;
     out += 4;
 
-    for (int b=0 ; b<boneChanCount ; ++b)
+    if (m_pc)
     {
-        *reinterpret_cast<u32*>(out) = in.readUint32Big();
-        out += 4;
-
-        *reinterpret_cast<u16*>(out) = in.readUint16Big();
-        out += 2;
-
-        for (int i=0 ; i<3 ; ++i)
+        for (int b=0 ; b<boneChanCount ; ++b)
         {
-            *reinterpret_cast<s16*>(out) = in.readInt16Big();
-            out += 2;
-            *reinterpret_cast<u8*>(out) = in.readUByte();
-            out += 1;
+            *reinterpret_cast<u32*>(out) = in.readUint32Big();
+            out += 4;
+
+            *reinterpret_cast<u32*>(out) = in.readUint32Big();
+            out += 4;
+
+            for (int i=0 ; i<3 ; ++i)
+            {
+                *reinterpret_cast<u32*>(out) = in.readUint32Big();
+                out += 4;
+            }
+
+            u32 tCount = in.readUint32Big();
+            *reinterpret_cast<u32*>(out) = tCount;
+            out += 4;
+
+            if (tCount)
+            {
+                for (int i=0 ; i<3 ; ++i)
+                {
+                    *reinterpret_cast<u32*>(out) = in.readUint32Big();
+                    out += 4;
+                }
+            }
         }
-
-        u16 tCount = in.readUint16Big();
-        *reinterpret_cast<u16*>(out) = tCount;
-        out += 2;
-
-        if (tCount)
+    }
+    else
+    {
+        for (int b=0 ; b<boneChanCount ; ++b)
         {
+            *reinterpret_cast<u32*>(out) = in.readUint32Big();
+            out += 4;
+
+            *reinterpret_cast<u16*>(out) = in.readUint16Big();
+            out += 2;
+
             for (int i=0 ; i<3 ; ++i)
             {
                 *reinterpret_cast<s16*>(out) = in.readInt16Big();
                 out += 2;
                 *reinterpret_cast<u8*>(out) = in.readUByte();
                 out += 1;
+            }
+
+            u16 tCount = in.readUint16Big();
+            *reinterpret_cast<u16*>(out) = tCount;
+            out += 2;
+
+            if (tCount)
+            {
+                for (int i=0 ; i<3 ; ++i)
+                {
+                    *reinterpret_cast<s16*>(out) = in.readInt16Big();
+                    out += 2;
+                    *reinterpret_cast<u8*>(out) = in.readUByte();
+                    out += 1;
+                }
             }
         }
     }
@@ -87,22 +121,47 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans)
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
     chans += 4;
 
-    u16 keyCount = *reinterpret_cast<const u16*>(chans);
+    u32 keyCount;
 
     u32 totalBits = 0;
-    for (u32 c=0 ; c<boneChanCount ; ++c)
+    if (m_pc)
     {
-        totalBits += *reinterpret_cast<const u8*>(chans + 0x8);
-        totalBits += *reinterpret_cast<const u8*>(chans + 0xb);
-        totalBits += *reinterpret_cast<const u8*>(chans + 0xe);
-        u16 tKeyCount = *reinterpret_cast<const u16*>(chans + 0xf);
-        chans += 0x11;
-        if (tKeyCount)
+        keyCount = *reinterpret_cast<const u32*>(chans + 0x4);
+        for (u32 c=0 ; c<boneChanCount ; ++c)
         {
+            chans += 0x8;
+            totalBits += *reinterpret_cast<const u32*>(chans) & 0xff;
+            totalBits += *reinterpret_cast<const u32*>(chans + 0x4) & 0xff;
+            totalBits += *reinterpret_cast<const u32*>(chans + 0x8) & 0xff;
+            u32 tKeyCount = *reinterpret_cast<const u32*>(chans + 0xc);
+            chans += 0x10;
+            if (tKeyCount)
+            {
+                totalBits += *reinterpret_cast<const u32*>(chans) & 0xff;
+                totalBits += *reinterpret_cast<const u32*>(chans + 0x4) & 0xff;
+                totalBits += *reinterpret_cast<const u32*>(chans + 0x8) & 0xff;
+                chans += 0xc;
+            }
+        }
+    }
+    else
+    {
+        keyCount = *reinterpret_cast<const u16*>(chans + 0x4);
+        for (u32 c=0 ; c<boneChanCount ; ++c)
+        {
+            chans += 0x6;
             totalBits += *reinterpret_cast<const u8*>(chans + 0x2);
             totalBits += *reinterpret_cast<const u8*>(chans + 0x5);
             totalBits += *reinterpret_cast<const u8*>(chans + 0x8);
-            chans += 0x9;
+            u16 tKeyCount = *reinterpret_cast<const u16*>(chans + 0x9);
+            chans += 0xb;
+            if (tKeyCount)
+            {
+                totalBits += *reinterpret_cast<const u8*>(chans + 0x2);
+                totalBits += *reinterpret_cast<const u8*>(chans + 0x5);
+                totalBits += *reinterpret_cast<const u8*>(chans + 0x8);
+                chans += 0x9;
+            }
         }
     }
 

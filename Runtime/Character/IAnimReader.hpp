@@ -38,7 +38,7 @@ struct CSteadyStateAnimInfo
 };
 
 template <class T>
-using TSubAnimTypeToken = TCachedToken<T>;
+using TSubAnimTypeToken = TLockedToken<T>;
 
 class IAnimReader
 {

@@ -141,6 +141,58 @@ struct ANIM : BigDNA
                 return __isz;
             }
         };
+
+        struct ChannelDescPC : BigDNA
+        {
+            Delete expl;
+            Value<atUint32> id = 0;
+            Value<atUint32> keyCount1 = 0;
+            Value<atUint32> QinitRX = 0;
+            Value<atUint32> QinitRY = 0;
+            Value<atUint32> QinitRZ = 0;
+            Value<atUint32> keyCount2 = 0;
+            Value<atUint32> QinitTX = 0;
+            Value<atUint32> QinitTY = 0;
+            Value<atUint32> QinitTZ = 0;
+
+            void read(athena::io::IStreamReader& reader)
+            {
+                id = reader.readUint32Big();
+                keyCount1 = reader.readUint32Big();
+                QinitRX = reader.readUint32Big();
+                QinitRY = reader.readUint32Big();
+                QinitRZ = reader.readUint32Big();
+                keyCount2 = reader.readUint32Big();
+                if (keyCount2)
+                {
+                    QinitTX = reader.readUint32Big();
+                    QinitTY = reader.readUint32Big();
+                    QinitTZ = reader.readUint32Big();
+                }
+            }
+            void write(athena::io::IStreamWriter& writer) const
+            {
+                writer.writeUint32Big(id);
+                writer.writeUint32Big(keyCount1);
+                writer.writeUint32Big(QinitRX);
+                writer.writeUint32Big(QinitRY);
+                writer.writeUint32Big(QinitRZ);
+                writer.writeUint32Big(keyCount2);
+                if (keyCount2)
+                {
+                    writer.writeUint32Big(QinitTX);
+                    writer.writeUint32Big(QinitTY);
+                    writer.writeUint32Big(QinitTZ);
+                }
+            }
+            size_t binarySize(size_t __isz) const
+            {
+                __isz += 24;
+                if (keyCount2)
+                    __isz += 12;
+                return __isz;
+            }
+        };
     };
 
     std::unique_ptr<IANIM> m_anim;
