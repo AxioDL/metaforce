@@ -14,7 +14,9 @@ class CPrimitive
     std::string x8_animName;
 public:
     CPrimitive(CInputStream& in);
-    ResId GetAnimResId() const {return x0_animId;}
+    ResId GetAnimResId() const { return x0_animId; }
+    u32 GetAnimDbIdx() const { return x4_animIdx; }
+    const std::string& GetName() const { return x8_animName; }
 };
 
 }

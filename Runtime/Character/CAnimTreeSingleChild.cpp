@@ -99,8 +99,9 @@ CAnimTreeSingleChild::VGetAdvancementResults(const CCharAnimTime& a,
     return {};
 }
 
-void CAnimTreeSingleChild::Depth() const
+u32 CAnimTreeSingleChild::Depth() const
 {
+    return 1;
 }
 
 u32 CAnimTreeSingleChild::VGetNumChildren() const

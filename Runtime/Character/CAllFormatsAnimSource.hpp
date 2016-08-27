@@ -4,12 +4,13 @@
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
 #include "CAnimSource.hpp"
+#include "CFBStreamedCompression.hpp"
 #include "CFactoryMgr.hpp"
 
 namespace urde
 {
 class IObjectStore;
-class CAnimSourceReaderBase;
+class IAnimReader;
 
 enum class EAnimFormat
 {
@@ -26,7 +27,7 @@ class CAnimFormatUnion
         EAnimFormat x0_format;
         intptr_t _align = 0;
     };
-    u8 x4_storage[sizeof(CAnimSource)];
+    u8 x4_storage[std::max(sizeof(CAnimSource), sizeof(CFBStreamedCompression))];
     static void SubConstruct(u8* storage, EAnimFormat fmt,
                              CInputStream& in, IObjectStore& store);
 public:
@@ -41,8 +42,8 @@ class CAllFormatsAnimSource : public CAnimFormatUnion
     SObjectTag x74_tag;
 public:
     CAllFormatsAnimSource(CInputStream& in, IObjectStore& store, const SObjectTag& tag);
-    static std::shared_ptr<CAnimSourceReaderBase> GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
-                                                               const CCharAnimTime& startTime);
+    static std::shared_ptr<IAnimReader> GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
+                                                     const CCharAnimTime& startTime);
 };
 
 CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);

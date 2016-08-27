@@ -27,6 +27,18 @@ class CPreAdvanceIndicator
     bool x0_isTime;
     CCharAnimTime x4_time;
     const char* xc_string;
+    u32 x10_;
+    u32 x14_;
+    u32 x18_;
+    u32 x1c_;
+    u32 x20_;
+    u32 x24_;
+    u32 x28_;
+    u32 x2c_;
+    u32 x30_;
+    u32 x34_;
+    u32 x38_;
+    u16 x3c_;
 public:
     CPreAdvanceIndicator(const CCharAnimTime& time)
     : x0_isTime(true), x4_time(time) {}
@@ -36,6 +48,14 @@ public:
     bool IsString() const {return !x0_isTime;}
     const CCharAnimTime& GetTime() const {return x4_time;}
     bool IsTime() const {return x0_isTime;}
+};
+
+struct CMetaAnimTreeBuildOrders
+{
+    std::experimental::optional<CPreAdvanceIndicator> x0_;
+    std::experimental::optional<CPreAdvanceIndicator> x44_;
+    static CMetaAnimTreeBuildOrders NoSpecialOrders() { return {}; }
+    void PreAdvanceForAll(const CPreAdvanceIndicator& ind) { x44_.emplace(ind); }
 };
 
 class IMetaAnim

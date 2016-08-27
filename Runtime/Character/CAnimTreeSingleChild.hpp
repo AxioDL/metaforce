@@ -28,7 +28,7 @@ public:
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
-    void Depth() const;
+    u32 Depth() const;
     u32 VGetNumChildren() const;
 };
 

@@ -19,8 +19,8 @@ public:
     CParticleData::EParentedMode VGetParticlePOIState(const char* name) const;
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
-    void Depth() const;
-    void VGetContributionOfHighestInfluence() const;
+    u32 Depth() const;
+    CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
     u32 VGetNumChildren() const;
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
 };

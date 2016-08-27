@@ -2,6 +2,7 @@
 #include "logvisor/logvisor.hpp"
 #include "CSimplePool.hpp"
 #include "CAnimSourceReader.hpp"
+#include "CFBStreamedAnimReader.hpp"
 
 namespace urde
 {
@@ -15,8 +16,11 @@ void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt,
     case EAnimFormat::Uncompressed:
         new (storage) CAnimSource(in, store);
         break;
+    case EAnimFormat::BitstreamCompressed:
+        new (storage) CFBStreamedCompression(in, store, false);
+        break;
     case EAnimFormat::BitstreamCompressed24:
-        new (storage) CAnimSource(in, store);
+        new (storage) CFBStreamedCompression(in, store, true);
         break;
     default:
         Log.report(logvisor::Fatal, "unable to read ANIM format %d", int(fmt));
@@ -35,11 +39,15 @@ CAnimFormatUnion::~CAnimFormatUnion()
     {
     case EAnimFormat::Uncompressed:
         reinterpret_cast<CAnimSource*>(x4_storage)->~CAnimSource();
+        break;
+    case EAnimFormat::BitstreamCompressed:
+    case EAnimFormat::BitstreamCompressed24:
+        reinterpret_cast<CFBStreamedCompression*>(x4_storage)->~CFBStreamedCompression();
     default: break;
     }
 }
 
-std::shared_ptr<CAnimSourceReaderBase>
+std::shared_ptr<IAnimReader>
 CAllFormatsAnimSource::GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
                                     const CCharAnimTime& startTime)
 {

@@ -11,8 +11,7 @@ namespace urde
 class CMetaAnimPlay : public IMetaAnim
 {
     CPrimitive x4_primitive;
-    float x1c_;
-    u32 x20_;
+    CCharAnimTime x1c_startTime;
 public:
     CMetaAnimPlay(CInputStream& in);
     EMetaAnimType GetType() const {return EMetaAnimType::Primitive;}
