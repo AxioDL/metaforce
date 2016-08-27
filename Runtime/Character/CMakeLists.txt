@@ -48,6 +48,7 @@ set(CHARACTER_SOURCES
     CMetaTransSnap.hpp CMetaTransSnap.cpp
     CAnimTreeLoopIn.hpp CAnimTreeLoopIn.cpp
     CAnimTreeSequence.hpp CAnimTreeSequence.cpp
+    CSequenceHelper.hpp CSequenceHelper.cpp
     CAnimTreeAnimReaderContainer.hpp CAnimTreeAnimReaderContainer.cpp
     CAnimTreeBlend.hpp CAnimTreeBlend.cpp
     CAnimTreeNode.hpp CAnimTreeNode.cpp

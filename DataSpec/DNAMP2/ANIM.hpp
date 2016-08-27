@@ -62,7 +62,7 @@ struct ANIM : BigDNA
             Value<float> duration;
             Value<float> interval;
             Value<atUint32> rootBoneId = 3;
-            Value<atUint32> unk2 = 0;
+            Value<atUint32> looping = 0;
             Value<atUint32> rotDiv;
             Value<float> translationMult;
             Value<float> scaleMult;

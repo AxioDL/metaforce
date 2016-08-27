@@ -18,8 +18,9 @@ public:
     virtual CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const=0;
     virtual u32 VGetNumChildren() const=0;
     virtual std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const=0;
+    virtual void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const=0;
 
-    void GetContributionOfHighestInfluence() const;
+    CAnimTreeEffectiveContribution GetContributionOfHighestInfluence() const;
     u32 GetNumChildren() const;
     std::shared_ptr<IAnimReader> GetBestUnblendedChild() const;
 };

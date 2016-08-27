@@ -13,11 +13,11 @@ class TAnimSourceInfo : public IAnimSourceInfo
     TSubAnimTypeToken<T> x4_token;
 public:
     TAnimSourceInfo(const TSubAnimTypeToken<T>& token);
-    bool HasPOIData() const { return x4_token->GetPOIToken(); }
-    const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x4_token->GetPOIToken()->GetBoolPOIStream(); }
-    const std::vector<CInt32POINode>& GetInt32POIStream() const { return x4_token->GetPOIToken()->GetInt32POIStream(); }
-    const std::vector<CParticlePOINode>& GetParticlePOIStream() const { return x4_token->GetPOIToken()->GetParticlePOIStream(); }
-    const std::vector<CSoundPOINode>& GetSoundPOIStream() const { return x4_token->GetPOIToken()->GetSoundPOIStream(); }
+    bool HasPOIData() const { return x4_token->HasPOIData(); }
+    const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x4_token->GetBoolPOIStream(); }
+    const std::vector<CInt32POINode>& GetInt32POIStream() const { return x4_token->GetInt32POIStream(); }
+    const std::vector<CParticlePOINode>& GetParticlePOIStream() const { return x4_token->GetParticlePOIStream(); }
+    const std::vector<CSoundPOINode>& GetSoundPOIStream() const { return x4_token->GetSoundPOIStream(); }
     CCharAnimTime GetAnimationDuration() const { return x4_token->GetAnimationDuration(); }
 };
 

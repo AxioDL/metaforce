@@ -475,7 +475,7 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
 {
     Header head;
     head.unk1 = 1;
-    head.unk2 = 1;
+    head.looping = 1;
     head.interval = mainInterval;
     head.rootBoneId = 0;
     head.scaleMult = 0.f;

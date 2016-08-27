@@ -6,6 +6,7 @@
 
 namespace urde
 {
+class IAnimSourceInfo;
 
 enum class EPOIType : u16
 {
@@ -44,6 +45,21 @@ public:
     u32 GetCharIdx() const { return x30_charIdx; }
     u32 GetFlags() const { return x34_flags; }
 };
+
+template <class T>
+u32 _getPOIList(const CCharAnimTime& time,
+                T* listOut,
+                u32 capacity, u32 iterator, u32 unk1,
+                const std::vector<T>& stream,
+                const CCharAnimTime& curTime,
+                const IAnimSourceInfo& animInfo, u32 passedCount);
+
+template <class T>
+u32 _getPOIList(const CCharAnimTime& time,
+                T* listOut,
+                u32 capacity, u32 iterator, u32 unk1,
+                const std::vector<T>& stream,
+                const CCharAnimTime& curTime);
 
 }
 

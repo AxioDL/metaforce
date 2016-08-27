@@ -10,9 +10,30 @@ CAnimTreeAnimReaderContainer::CAnimTreeAnimReaderContainer(const std::string& na
 {
 }
 
+u32 CAnimTreeAnimReaderContainer::Depth() const
+{
+    return 1;
+}
+
 CAnimTreeEffectiveContribution CAnimTreeAnimReaderContainer::VGetContributionOfHighestInfluence() const
 {
     return {1.f, x4_name, VGetSteadyStateAnimInfo(), VGetTimeRemaining(), x1c_animDbIdx};
+}
+
+u32 CAnimTreeAnimReaderContainer::VGetNumChildren() const
+{
+    return 0;
+}
+
+std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VGetBestUnblendedChild() const
+{
+    return {};
+}
+
+void CAnimTreeAnimReaderContainer::VGetWeightedReaders
+(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const
+{
+    out.push_back(std::make_pair(w, x14_reader));
 }
 
 SAdvancementResults CAnimTreeAnimReaderContainer::VAdvanceView(const CCharAnimTime& dt)
@@ -99,6 +120,11 @@ std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VClone() const
     std::shared_ptr<IAnimReader> ret =
         std::make_shared<CAnimTreeAnimReaderContainer>(x4_name, x14_reader->Clone(), x1c_animDbIdx);
     return ret;
+}
+
+std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VSimplified()
+{
+    return {};
 }
 
 void CAnimTreeAnimReaderContainer::VSetPhase(float ph)

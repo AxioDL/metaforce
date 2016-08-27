@@ -8,6 +8,7 @@ namespace urde
 
 class CAnimTreeSingleChild : public CAnimTreeNode
 {
+protected:
     std::shared_ptr<CAnimTreeNode> x14_child;
 public:
     CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, const std::string& name);

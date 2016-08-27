@@ -1,5 +1,6 @@
 #include "CMetaAnimSequence.hpp"
 #include "CMetaAnimFactory.hpp"
+#include "CAnimTreeSequence.hpp"
 
 namespace urde
 {
@@ -19,22 +20,32 @@ std::vector<std::shared_ptr<IMetaAnim>> CMetaAnimSequence::CreateSequence(CInput
 CMetaAnimSequence::CMetaAnimSequence(CInputStream& in)
 : x4_sequence(CreateSequence(in)) {}
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimSequence::GetAnimationTree(const CAnimSysContext& animSys,
-                                    const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
-}
-
 void CMetaAnimSequence::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
+    for (const std::shared_ptr<IMetaAnim>& anim : x4_sequence)
+        anim->GetUniquePrimitives(primsOut);
 }
 
 std::shared_ptr<CAnimTreeNode>
 CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
                                      const CMetaAnimTreeBuildOrders& orders) const
 {
-    return {};
+    if (orders.x0_)
+    {
+        CMetaAnimTreeBuildOrders modOrders;
+        modOrders.PreAdvanceForAll(*orders.x0_);
+        return GetAnimationTree(animSys, modOrders);
+    }
+
+    for (const std::shared_ptr<IMetaAnim>& anim : x4_sequence)
+    {
+
+    }
+
+    std::shared_ptr<CAnimTreeNode> ret =
+        std::make_shared<CAnimTreeSequence>(x4_sequence, animSys, "");
+
+    return ret;
 }
 
 }

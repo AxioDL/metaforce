@@ -2,6 +2,7 @@
 #include "CCharAnimTime.hpp"
 #include "IAnimReader.hpp"
 #include "CBoolPOINode.hpp"
+#include "CAnimTreeNode.hpp"
 
 namespace urde
 {
@@ -10,7 +11,18 @@ std::shared_ptr<CAnimTreeNode>
 IMetaAnim::GetAnimationTree(const CAnimSysContext& animSys,
                             const CMetaAnimTreeBuildOrders& orders) const
 {
-    return {};
+    if (orders.x44_)
+    {
+        std::shared_ptr<CAnimTreeNode> tree =
+            VGetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+        if (orders.x44_->IsTime() || orders.x44_->IsString())
+        {
+            CCharAnimTime time = GetTime(*orders.x44_, *tree);
+            AdvanceAnim(*tree, time);
+        }
+        return tree;
+    }
+    return VGetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
 }
 
 void IMetaAnim::AdvanceAnim(IAnimReader& anim, const CCharAnimTime& dt)

@@ -10,15 +10,9 @@ namespace urde
 CMetaAnimPlay::CMetaAnimPlay(CInputStream& in)
 : x4_primitive(in), x1c_startTime(in) {}
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimPlay::GetAnimationTree(const CAnimSysContext& animSys,
-                                const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
-}
-
 void CMetaAnimPlay::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
+    primsOut.insert(x4_primitive);
 }
 
 std::shared_ptr<CAnimTreeNode>

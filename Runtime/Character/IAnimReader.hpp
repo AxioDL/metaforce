@@ -30,11 +30,19 @@ struct SAdvancementResults
     SAdvancementDeltas x8_deltas;
 };
 
-struct CSteadyStateAnimInfo
+class CSteadyStateAnimInfo
 {
-    CCharAnimTime x64_duration;
-    zeus::CVector3f x6c_curRootOffset;
-    bool x78_ = false;
+    CCharAnimTime x0_duration;
+    zeus::CVector3f x8_offset;
+    bool x14_looping = false;
+
+public:
+    CSteadyStateAnimInfo(bool looping, const CCharAnimTime& duration, const zeus::CVector3f& offset)
+    : x0_duration(duration), x8_offset(offset), x14_looping(looping) {}
+
+    const CCharAnimTime& GetDuration() const { return x0_duration; }
+    const zeus::CVector3f& GetOffset() const { return x8_offset; }
+    bool IsLooping() const { return x14_looping; }
 };
 
 struct CAnimTreeEffectiveContribution

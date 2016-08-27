@@ -22,13 +22,6 @@ CMetaAnimRandom::RandomData CMetaAnimRandom::CreateRandomData(CInputStream& in)
 CMetaAnimRandom::CMetaAnimRandom(CInputStream& in)
 : x4_randomData(CreateRandomData(in)) {}
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimRandom::GetAnimationTree(const CAnimSysContext& animSys,
-                                  const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
-}
-
 void CMetaAnimRandom::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
 }

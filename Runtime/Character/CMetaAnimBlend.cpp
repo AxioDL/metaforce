@@ -12,13 +12,6 @@ CMetaAnimBlend::CMetaAnimBlend(CInputStream& in)
     x10_ = in.readBool();
 }
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimBlend::GetAnimationTree(const CAnimSysContext& animSys,
-                                 const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
-}
-
 void CMetaAnimBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
 }

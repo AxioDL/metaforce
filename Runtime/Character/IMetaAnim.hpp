@@ -70,7 +70,7 @@ public:
                                                              const CMetaAnimTreeBuildOrders& orders) const=0;
 
     static void AdvanceAnim(IAnimReader& anim, const CCharAnimTime& dt);
-    CCharAnimTime GetTime(const CPreAdvanceIndicator& ind, const IAnimReader& anim);
+    static CCharAnimTime GetTime(const CPreAdvanceIndicator& ind, const IAnimReader& anim);
 };
 
 }

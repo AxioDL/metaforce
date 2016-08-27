@@ -12,13 +12,6 @@ CMetaAnimPhaseBlend::CMetaAnimPhaseBlend(CInputStream& in)
     x10_ = in.readBool();
 }
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimPhaseBlend::GetAnimationTree(const CAnimSysContext& animSys,
-                                      const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
-}
-
 void CMetaAnimPhaseBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
 }

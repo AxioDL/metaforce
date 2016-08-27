@@ -379,7 +379,7 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     head.unk0 = 1;
     head.interval = mainInterval;
     head.rootBoneId = 3;
-    head.unk2 = 0;
+    head.looping = 0;
     head.unk3 = 1;
 
     WordBitmap keyBmp;

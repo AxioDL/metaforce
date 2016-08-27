@@ -1,4 +1,9 @@
 #include "CPOINode.hpp"
+#include "CBoolPOINode.hpp"
+#include "CInt32POINode.hpp"
+#include "CParticlePOINode.hpp"
+#include "CSoundPOINode.hpp"
+#include "CAnimSourceReader.hpp"
 
 namespace urde
 {
@@ -27,5 +32,111 @@ CPOINode::CPOINode(CInputStream& in)
   x30_charIdx(in.readUint32Big()),
   x34_flags(in.readUint32Big())
 {}
+
+template <class T>
+u32 _getPOIList(const CCharAnimTime& time,
+                T* listOut,
+                u32 capacity, u32 iterator, u32 unk1,
+                const std::vector<T>& stream,
+                const CCharAnimTime& curTime,
+                const IAnimSourceInfo& animInfo, u32 passedCount)
+{
+    u32 ret = 0;
+    if (animInfo.HasPOIData() && stream.size())
+    {
+        CCharAnimTime dur = animInfo.GetAnimationDuration();
+        CCharAnimTime targetTime = curTime + time;
+        if (targetTime >= dur)
+            targetTime = dur;
+
+        if (passedCount >= stream.size())
+            return ret;
+
+        CCharAnimTime nodeTime = stream[passedCount].GetTime();
+        while (nodeTime <= targetTime)
+        {
+            u32 idx = iterator + ret;
+            if (idx < capacity)
+                listOut[idx] = T::CopyNodeMinusStartTime(stream[passedCount], curTime);
+            ++passedCount;
+            ++ret;
+            nodeTime = stream[passedCount].GetTime();
+        }
+    }
+    return ret;
+}
+
+template <class T>
+u32 _getPOIList(const CCharAnimTime& time,
+                T* listOut,
+                u32 capacity, u32 iterator, u32 unk1,
+                const std::vector<T>& stream,
+                const CCharAnimTime& curTime)
+{
+    u32 ret = 0;
+
+    CCharAnimTime targetTime = curTime + time;
+
+    for (u32 it = iterator ; it < stream.size() ; ++it)
+    {
+        CCharAnimTime nodeTime = stream[ret].GetTime();
+        if (nodeTime > targetTime)
+            return ret;
+        u32 idx = iterator + ret;
+        if (idx < capacity)
+            listOut[idx] = T::CopyNodeMinusStartTime(stream[ret], curTime);
+        ++ret;
+    }
+
+    return ret;
+}
+
+template u32 _getPOIList<CBoolPOINode>(const CCharAnimTime& time,
+                                       CBoolPOINode* listOut,
+                                       u32 capacity, u32 iterator, u32 unk1,
+                                       const std::vector<CBoolPOINode>& stream,
+                                       const CCharAnimTime& curTime,
+                                       const IAnimSourceInfo& animInfo, u32 passedCount);
+template u32 _getPOIList<CBoolPOINode>(const CCharAnimTime& time,
+                                       CBoolPOINode* listOut,
+                                       u32 capacity, u32 iterator, u32 unk1,
+                                       const std::vector<CBoolPOINode>& stream,
+                                       const CCharAnimTime& curTime);
+
+template u32 _getPOIList<CInt32POINode>(const CCharAnimTime& time,
+                                        CInt32POINode* listOut,
+                                        u32 capacity, u32 iterator, u32 unk1,
+                                        const std::vector<CInt32POINode>& stream,
+                                        const CCharAnimTime& curTime,
+                                        const IAnimSourceInfo& animInfo, u32 passedCount);
+template u32 _getPOIList<CInt32POINode>(const CCharAnimTime& time,
+                                        CInt32POINode* listOut,
+                                        u32 capacity, u32 iterator, u32 unk1,
+                                        const std::vector<CInt32POINode>& stream,
+                                        const CCharAnimTime& curTime);
+
+template u32 _getPOIList<CParticlePOINode>(const CCharAnimTime& time,
+                                           CParticlePOINode* listOut,
+                                           u32 capacity, u32 iterator, u32 unk1,
+                                           const std::vector<CParticlePOINode>& stream,
+                                           const CCharAnimTime& curTime,
+                                           const IAnimSourceInfo& animInfo, u32 passedCount);
+template u32 _getPOIList<CParticlePOINode>(const CCharAnimTime& time,
+                                           CParticlePOINode* listOut,
+                                           u32 capacity, u32 iterator, u32 unk1,
+                                           const std::vector<CParticlePOINode>& stream,
+                                           const CCharAnimTime& curTime);
+
+template u32 _getPOIList<CSoundPOINode>(const CCharAnimTime& time,
+                                        CSoundPOINode* listOut,
+                                        u32 capacity, u32 iterator, u32 unk1,
+                                        const std::vector<CSoundPOINode>& stream,
+                                        const CCharAnimTime& curTime,
+                                        const IAnimSourceInfo& animInfo, u32 passedCount);
+template u32 _getPOIList<CSoundPOINode>(const CCharAnimTime& time,
+                                        CSoundPOINode* listOut,
+                                        u32 capacity, u32 iterator, u32 unk1,
+                                        const std::vector<CSoundPOINode>& stream,
+                                        const CCharAnimTime& curTime);
 
 }

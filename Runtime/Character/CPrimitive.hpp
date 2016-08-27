@@ -17,6 +17,7 @@ public:
     ResId GetAnimResId() const { return x0_animId; }
     u32 GetAnimDbIdx() const { return x4_animIdx; }
     const std::string& GetName() const { return x8_animName; }
+    bool operator<(const CPrimitive& other) const { return x8_animName < other.x8_animName; }
 };
 
 }

@@ -15,10 +15,11 @@ public:
                                  std::shared_ptr<IAnimReader> reader,
                                  u32 animDbIdx);
 
-    u32 Depth() const { return 1; }
+    u32 Depth() const;
     CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
-    u32 VGetNumChildren() const { return 0; }
-    std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const { return {}; }
+    u32 VGetNumChildren() const;
+    std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
+    void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const;
 
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;
@@ -36,7 +37,7 @@ public:
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
     std::shared_ptr<IAnimReader> VClone() const;
-    std::shared_ptr<IAnimReader> VSimplified() { return {}; }
+    std::shared_ptr<IAnimReader> VSimplified();
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 };

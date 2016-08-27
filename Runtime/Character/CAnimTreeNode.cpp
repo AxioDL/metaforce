@@ -3,6 +3,11 @@
 namespace urde
 {
 
+CAnimTreeEffectiveContribution CAnimTreeNode::GetContributionOfHighestInfluence() const
+{
+    return VGetContributionOfHighestInfluence();
+}
+
 u32 CAnimTreeNode::GetNumChildren() const
 {
     return VGetNumChildren();
