@@ -2,6 +2,7 @@
 #define __URDE_CSEGSTATEMENTSET_HPP__
 
 #include "CAnimPerSegmentData.hpp"
+#include "CSegId.hpp"
 
 namespace urde
 {
@@ -17,7 +18,7 @@ public:
     void Add(const CSegIdList& list, const CCharLayoutInfo& layout,
              const CSegStatementSet& other, float weight);
 
-    CAnimPerSegmentData& operator[](size_t idx) { return x4_segData[idx]; }
+    CAnimPerSegmentData& operator[](const CSegId& idx) { return x4_segData[idx]; }
 };
 
 }

@@ -13,7 +13,7 @@ class TAnimSourceInfo : public IAnimSourceInfo
 {
     TSubAnimTypeToken<T> x4_token;
 public:
-    TAnimSourceInfo(const TSubAnimTypeToken<T>& token);
+    TAnimSourceInfo(const TSubAnimTypeToken<T>& token) : x4_token(token) {}
     bool HasPOIData() const { return x4_token->HasPOIData(); }
     const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x4_token->GetBoolPOIStream(); }
     const std::vector<CInt32POINode>& GetInt32POIStream() const { return x4_token->GetInt32POIStream(); }
@@ -25,6 +25,8 @@ public:
 class CFBStreamedAnimReaderTotals
 {
     friend class CSegIdToIndexConverter;
+    friend class CFBStreamedPairOfTotals;
+    friend class CFBStreamedAnimReader;
     std::unique_ptr<u8[]> x0_buffer;
     s32* x4_cumulativeInts32; /* Used to be 16 per channel */
     u8* x8_hasTrans1;
@@ -33,15 +35,17 @@ class CFBStreamedAnimReaderTotals
     u32 x14_rotDiv;
     float x18_transMult;
     u32 x1c_curKey = 0;
-    bool x20_ = false;
+    bool x20_calculated = false;
     u32 x24_boneChanCount;
     void Allocate(u32 chanCount);
-    void Initialize(const CFBStreamedCompression& source);
 public:
     CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source);
+    void Initialize(const CFBStreamedCompression& source);
     void IncrementInto(CBitLevelLoader& loader, const CFBStreamedCompression& source,
                        CFBStreamedAnimReaderTotals& dest);
     void CalculateDown();
+    bool IsCalculated() const { return x20_calculated; }
+    const float* GetFloats(int chanIdx) const { return &x10_computedFloats32[chanIdx*8]; }
 };
 
 class CFBStreamedPairOfTotals
@@ -50,11 +54,19 @@ class CFBStreamedPairOfTotals
 
     TSubAnimTypeToken<CFBStreamedCompression> x0_source;
     u32* xc_rotsAndOffs;
-    bool x10_ = true;
-    CFBStreamedAnimReaderTotals x14_;
-    CFBStreamedAnimReaderTotals x3c_;
+    bool x10_nextSel = true;
+    CFBStreamedAnimReaderTotals x14_a;
+    CFBStreamedAnimReaderTotals x3c_b;
+    float x78_t = 0.f;
 public:
     CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source);
+    void SetTime(CBitLevelLoader& loader, const CCharAnimTime& time);
+    void DoIncrement(CBitLevelLoader& loader);
+    float GetT() const { return x78_t; }
+    CFBStreamedAnimReaderTotals& Next() { return x10_nextSel ? x3c_b : x14_a; }
+    CFBStreamedAnimReaderTotals& Prior() { return x10_nextSel ? x14_a : x3c_b; }
+    const CFBStreamedAnimReaderTotals& Next() const { return x10_nextSel ? x3c_b : x14_a; }
+    const CFBStreamedAnimReaderTotals& Prior() const { return x10_nextSel ? x14_a : x3c_b; }
 };
 
 class CBitLevelLoader
@@ -64,6 +76,7 @@ class CBitLevelLoader
 public:
     CBitLevelLoader(const void* data)
     : m_data(reinterpret_cast<const u8*>(data)) {}
+    void Reset() { m_bitIdx = 0; }
     u32 LoadUnsigned(u8 q);
     s32 LoadSigned(u8 q);
     bool LoadBool();
@@ -82,9 +95,12 @@ class CFBStreamedAnimReader : public CAnimSourceReaderBase
     TSubAnimTypeToken<CFBStreamedCompression> x54_source;
     CSteadyStateAnimInfo x64_steadyStateInfo;
     CFBStreamedPairOfTotals x7c_totals;
-    const u8* x88_bitstreamData;
-    CBitLevelLoader x8c_bitLoader;
+    const u8* x104_bitstreamData;
+    CBitLevelLoader x108_bitLoader;
     CSegIdToIndexConverter x114_segIdToIndex;
+    bool HasOffset(const CSegId& seg) const;
+    zeus::CVector3f GetOffset(const CSegId& seg) const;
+    zeus::CQuaternion GetRotation(const CSegId& seg) const;
 public:
     CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time);
 

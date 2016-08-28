@@ -1,4 +1,6 @@
 #include "CFBStreamedAnimReader.hpp"
+#include "CSegIdList.hpp"
+#include "CSegStatementSet.hpp"
 
 namespace urde
 {
@@ -95,6 +97,8 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader,
                                                 const CFBStreamedCompression& source,
                                                 CFBStreamedAnimReaderTotals& dest)
 {
+    dest.x20_calculated = false;
+
     const u8* chans = source.GetPerChannelHeaders();
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
     chans += 4;
@@ -151,6 +155,8 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader,
             }
         }
     }
+
+    dest.x1c_curKey = x1c_curKey + 1;
 }
 
 void CFBStreamedAnimReaderTotals::CalculateDown()
@@ -178,11 +184,75 @@ void CFBStreamedAnimReaderTotals::CalculateDown()
             compOut[6] = cumulativesIn[6] * x18_transMult;
         }
     }
+    x20_calculated = true;
 }
 
 CFBStreamedPairOfTotals::CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source)
-: x0_source(source), xc_rotsAndOffs(source->xc_rotsAndOffs.get()), x14_(*source), x3c_(*source)
+: x0_source(source), xc_rotsAndOffs(source->xc_rotsAndOffs.get()), x14_a(*source), x3c_b(*source)
 {
+}
+
+void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTime& time)
+{
+    const CFBStreamedCompression::Header& header = x0_source->MainHeader();
+    CCharAnimTime interval(header.interval);
+    const u32* timeBitmap = x0_source->GetTimes();
+    CCharAnimTime priorTime(0);
+    CCharAnimTime curTime(0);
+
+    int prior = -1;
+    int next = -1;
+    int cur = 0;
+    for (int b=0 ; b<timeBitmap[0] ; ++b)
+    {
+        int word = b / 32;
+        int bit = b % 32;
+        if ((timeBitmap[word+1] >> bit) & 1)
+        {
+            if (curTime <= time)
+            {
+                prior = cur;
+                priorTime = curTime;
+            }
+            else if (curTime > time)
+            {
+                next = cur;
+                if (prior == -1)
+                {
+                    prior = cur;
+                    priorTime = curTime;
+                    x78_t = 0.f;
+                }
+                else
+                    x78_t = (time - priorTime) / (curTime - priorTime);
+
+                break;
+            }
+            ++cur;
+        }
+        curTime += interval;
+    }
+
+    if (prior != -1 && prior < Prior().x1c_curKey)
+    {
+        Prior().Initialize(*x0_source);
+        loader.Reset();
+    }
+
+    if (next != -1)
+        while (next > Next().x1c_curKey)
+            DoIncrement(loader);
+
+    if (!Prior().IsCalculated())
+        Prior().CalculateDown();
+    if (!Next().IsCalculated())
+        Next().CalculateDown();
+}
+
+void CFBStreamedPairOfTotals::DoIncrement(CBitLevelLoader& loader)
+{
+    Prior().IncrementInto(loader, *x0_source, Next());
+    x10_nextSel ^= 1;
 }
 
 u32 CBitLevelLoader::LoadUnsigned(u8 q)
@@ -270,65 +340,196 @@ CSegIdToIndexConverter::CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals
 CFBStreamedAnimReader::CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time)
 : CAnimSourceReaderBase(std::make_unique<TAnimSourceInfo<CFBStreamedCompression>>(source), time), x54_source(source),
   x64_steadyStateInfo(source->IsLooping(), source->GetAnimationDuration(), source->GetRootOffset()),
-  x7c_totals(source), x88_bitstreamData(source->GetBitstreamPointer()), x8c_bitLoader(x88_bitstreamData),
-  x114_segIdToIndex(x7c_totals.x10_ ? x7c_totals.x14_ : x7c_totals.x3c_)
+  x7c_totals(source), x104_bitstreamData(source->GetBitstreamPointer()), x108_bitLoader(x104_bitstreamData),
+  x114_segIdToIndex(x7c_totals.x10_nextSel ? x7c_totals.x14_a : x7c_totals.x3c_b)
 {
     PostConstruct(time);
+}
+
+bool CFBStreamedAnimReader::HasOffset(const CSegId& seg) const
+{
+    return x7c_totals.Prior().x8_hasTrans1[x114_segIdToIndex.SegIdToIndex(seg)];
+}
+
+zeus::CVector3f CFBStreamedAnimReader::GetOffset(const CSegId& seg) const
+{
+    const float* af = x7c_totals.Prior().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    const float* bf = x7c_totals.Next().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    zeus::CVector3f a(af[4], af[5], af[6]);
+    zeus::CVector3f b(bf[4], bf[5], bf[6]);
+    return zeus::CVector3f::lerp(a, b, x7c_totals.GetT());
+}
+
+zeus::CQuaternion CFBStreamedAnimReader::GetRotation(const CSegId& seg) const
+{
+    const float* af = x7c_totals.Prior().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    const float* bf = x7c_totals.Next().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    zeus::CQuaternion a(af[0], af[1], af[2], af[3]);
+    zeus::CQuaternion b(bf[0], bf[1], bf[2], bf[3]);
+    return zeus::CQuaternion::slerp(a, b, x7c_totals.GetT());
 }
 
 SAdvancementResults CFBStreamedAnimReader::VGetAdvancementResults(const CCharAnimTime& dt,
                                                                   const CCharAnimTime& startOff) const
 {
+    SAdvancementResults res = {};
+
+    CCharAnimTime resolveTime = xc_curTime + startOff;
+    CCharAnimTime animDur = x54_source->GetAnimationDuration();
+    if (resolveTime >= animDur || dt.EqualsZero())
+        return res;
+
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, resolveTime);
+    zeus::CQuaternion priorQ = GetRotation(3);
+    zeus::CVector3f priorV = GetOffset(3);
+
+    CCharAnimTime nextTime = resolveTime + dt;
+    if (nextTime > animDur)
+    {
+        nextTime = animDur;
+        res.x0_remTime = nextTime - animDur;
+    }
+
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, nextTime);
+    zeus::CQuaternion nextQ = GetRotation(3);
+    zeus::CVector3f nextV = GetOffset(3);
+
+    res.x8_deltas.xc_rotDelta = priorQ.inverse() * nextQ;
+    if (HasOffset(3))
+        res.x8_deltas.x0_posDelta = res.x8_deltas.xc_rotDelta.transform(nextV - priorV);
+
+    return res;
 }
 
-void CFBStreamedAnimReader::VSetPhase(float)
+void CFBStreamedAnimReader::VSetPhase(float ph)
 {
+    xc_curTime = x64_steadyStateInfo.GetDuration() * ph;
+    x7c_totals.SetTime(x108_bitLoader, xc_curTime);
+    if (x54_source->HasPOIData())
+    {
+        UpdatePOIStates();
+        if (!xc_curTime.GreaterThanZero())
+        {
+            x14_passedBoolCount = 0;
+            x18_passedIntCount = 0;
+            x1c_passedParticleCount = 0;
+            x20_passedSoundCount = 0;
+        }
+    }
 }
 
 SAdvancementResults CFBStreamedAnimReader::VReverseView(const CCharAnimTime& time)
 {
+    return {};
 }
 
 std::shared_ptr<IAnimReader> CFBStreamedAnimReader::VClone() const
 {
+    return std::make_shared<CFBStreamedAnimReader>(x54_source, xc_curTime);
 }
 
 void CFBStreamedAnimReader::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const
 {
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, xc_curTime);
+
+    for (const CSegId& id : list.GetList())
+    {
+        CAnimPerSegmentData& out = setOut[id];
+        out.x0_rotation = GetRotation(id);
+        out.x1c_hasOffset = HasOffset(id);
+        if (out.x1c_hasOffset)
+            out.x10_offset = GetOffset(id);
+    }
 }
 
 void CFBStreamedAnimReader::VGetSegStatementSet(const CSegIdList& list,
                                                 CSegStatementSet& setOut,
                                                 const CCharAnimTime& time) const
 {
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, time);
+
+    for (const CSegId& id : list.GetList())
+    {
+        CAnimPerSegmentData& out = setOut[id];
+        out.x0_rotation = GetRotation(id);
+        out.x1c_hasOffset = HasOffset(id);
+        if (out.x1c_hasOffset)
+            out.x10_offset = GetOffset(id);
+    }
 }
 
-SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& a)
+SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& dt)
 {
+    SAdvancementResults res = {};
+
+    CCharAnimTime animDur = x54_source->GetAnimationDuration();
+    if (xc_curTime >= animDur || dt.EqualsZero())
+    {
+        xc_curTime = CCharAnimTime(0);
+        x7c_totals.SetTime(x108_bitLoader, xc_curTime);
+        return res;
+    }
+
+    zeus::CQuaternion priorQ = GetRotation(3);
+    zeus::CVector3f priorV = GetOffset(3);
+
+    CCharAnimTime nextTime = xc_curTime + dt;
+    if (nextTime > animDur)
+    {
+        nextTime = animDur;
+        res.x0_remTime = nextTime - animDur;
+    }
+
+    x7c_totals.SetTime(x108_bitLoader, nextTime);
+    UpdatePOIStates();
+    zeus::CQuaternion nextQ = GetRotation(3);
+    zeus::CVector3f nextV = GetOffset(3);
+
+    res.x8_deltas.xc_rotDelta = priorQ.inverse() * nextQ;
+    if (HasOffset(3))
+        res.x8_deltas.x0_posDelta = res.x8_deltas.xc_rotDelta.transform(nextV - priorV);
+
+    return res;
 }
 
 CCharAnimTime CFBStreamedAnimReader::VGetTimeRemaining() const
 {
+    return x54_source->GetAnimationDuration() - xc_curTime;
 }
 
 CSteadyStateAnimInfo CFBStreamedAnimReader::VGetSteadyStateAnimInfo() const
 {
+    return x64_steadyStateInfo;
 }
 
 bool CFBStreamedAnimReader::VHasOffset(const CSegId& seg) const
 {
+    return HasOffset(seg);
 }
 
 zeus::CVector3f CFBStreamedAnimReader::VGetOffset(const CSegId& seg) const
 {
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, xc_curTime);
+    return GetOffset(seg);
 }
 
 zeus::CVector3f CFBStreamedAnimReader::VGetOffset(const CSegId& seg, const CCharAnimTime& time) const
 {
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, time);
+    return GetOffset(seg);
 }
 
 zeus::CQuaternion CFBStreamedAnimReader::VGetRotation(const CSegId& seg) const
 {
+    const_cast<CFBStreamedAnimReader*>(this)->x7c_totals.SetTime
+        (const_cast<CFBStreamedAnimReader*>(this)->x108_bitLoader, xc_curTime);
+    return GetRotation(seg);
 }
 
 template class TAnimSourceInfo<CFBStreamedCompression>;

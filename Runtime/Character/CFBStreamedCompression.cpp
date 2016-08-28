@@ -15,6 +15,11 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& o
         x8_evntToken = objStore.GetObj(SObjectTag{FOURCC('EVNT'), x4_evnt});
 }
 
+const u32* CFBStreamedCompression::GetTimes() const
+{
+    return reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);
+}
+
 const u8* CFBStreamedCompression::GetPerChannelHeaders() const
 {
     const u32* bitmap = reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);

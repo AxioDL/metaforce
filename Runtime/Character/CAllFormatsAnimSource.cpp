@@ -51,7 +51,16 @@ std::shared_ptr<IAnimReader>
 CAllFormatsAnimSource::GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
                                     const CCharAnimTime& startTime)
 {
-    return std::make_shared<CAnimSourceReader>(tok, startTime);
+    switch (tok->x0_format)
+    {
+    case EAnimFormat::Uncompressed:
+        return std::make_shared<CAnimSourceReader>(tok, startTime);
+    case EAnimFormat::BitstreamCompressed:
+    case EAnimFormat::BitstreamCompressed24:
+        return std::make_shared<CFBStreamedAnimReader>(tok, startTime);
+    default: break;
+    }
+    return {};
 }
 
 CAllFormatsAnimSource::CAllFormatsAnimSource(CInputStream& in,

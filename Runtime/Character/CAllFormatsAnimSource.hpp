@@ -22,6 +22,7 @@ enum class EAnimFormat
 
 class CAnimFormatUnion
 {
+    friend class CAllFormatsAnimSource;
     union
     {
         EAnimFormat x0_format;
