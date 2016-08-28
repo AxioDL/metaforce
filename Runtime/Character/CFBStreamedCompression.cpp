@@ -15,6 +15,50 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& o
         x8_evntToken = objStore.GetObj(SObjectTag{FOURCC('EVNT'), x4_evnt});
 }
 
+const u8* CFBStreamedCompression::GetPerChannelHeaders() const
+{
+    const u32* bitmap = reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);
+    u32 bitmapWordCount = (bitmap[0] + 31) / 32;
+    return reinterpret_cast<const u8*>(bitmap + bitmapWordCount + 1);
+}
+
+const u8* CFBStreamedCompression::GetBitstreamPointer() const
+{
+    const u32* bitmap = reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);
+    u32 bitmapWordCount = (bitmap[0] + 31) / 32;
+
+    const u8* chans = reinterpret_cast<const u8*>(bitmap + bitmapWordCount + 1);
+    u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
+    chans += 4;
+
+    if (m_pc)
+    {
+        for (int b=0 ; b<boneChanCount ; ++b)
+        {
+            chans += 20;
+
+            u32 tCount = *reinterpret_cast<const u32*>(chans);
+            chans += 4;
+            if (tCount)
+                chans += 12;
+        }
+    }
+    else
+    {
+        for (int b=0 ; b<boneChanCount ; ++b)
+        {
+            chans += 15;
+
+            u16 tCount = *reinterpret_cast<const u16*>(chans);
+            chans += 2;
+            if (tCount)
+                chans += 9;
+        }
+    }
+
+    return chans;
+}
+
 std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words, CInputStream& in)
 {
     std::unique_ptr<u32[]> ret(new u32[words]);

@@ -6,6 +6,7 @@
 
 namespace urde
 {
+class CBitLevelLoader;
 
 template <class T>
 class TAnimSourceInfo : public IAnimSourceInfo
@@ -23,19 +24,24 @@ public:
 
 class CFBStreamedAnimReaderTotals
 {
+    friend class CSegIdToIndexConverter;
     std::unique_ptr<u8[]> x0_buffer;
-    u8* x4_first16;
-    u8* x8_second1;
-    u8* xc_third2;
-    u8* x10_fourth32;
+    s32* x4_cumulativeInts32; /* Used to be 16 per channel */
+    u8* x8_hasTrans1;
+    u16* xc_segIds2;
+    float* x10_computedFloats32;
     u32 x14_rotDiv;
     float x18_transMult;
-    u32 x1c_ = 0;
+    u32 x1c_curKey = 0;
     bool x20_ = false;
     u32 x24_boneChanCount;
     void Allocate(u32 chanCount);
+    void Initialize(const CFBStreamedCompression& source);
 public:
     CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source);
+    void IncrementInto(CBitLevelLoader& loader, const CFBStreamedCompression& source,
+                       CFBStreamedAnimReaderTotals& dest);
+    void CalculateDown();
 };
 
 class CFBStreamedPairOfTotals
@@ -47,12 +53,20 @@ class CFBStreamedPairOfTotals
     bool x10_ = true;
     CFBStreamedAnimReaderTotals x14_;
     CFBStreamedAnimReaderTotals x3c_;
-    const u8* x88_;
-    const u8** x8c_;
-    u32 x90_;
-    u32 x94_ = 0;
 public:
     CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source);
+};
+
+class CBitLevelLoader
+{
+    const u8* m_data;
+    size_t m_bitIdx = 0;
+public:
+    CBitLevelLoader(const void* data)
+    : m_data(reinterpret_cast<const u8*>(data)) {}
+    u32 LoadUnsigned(u8 q);
+    s32 LoadSigned(u8 q);
+    bool LoadBool();
 };
 
 class CSegIdToIndexConverter
@@ -60,14 +74,17 @@ class CSegIdToIndexConverter
     u32 x0_indices[96] = {-1};
 public:
     CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals);
+    u32 SegIdToIndex(const CSegId& id) const { return x0_indices[id]; }
 };
 
 class CFBStreamedAnimReader : public CAnimSourceReaderBase
 {
     TSubAnimTypeToken<CFBStreamedCompression> x54_source;
     CSteadyStateAnimInfo x64_steadyStateInfo;
-    CFBStreamedPairOfTotals x7c_;
-    CSegIdToIndexConverter x114_;
+    CFBStreamedPairOfTotals x7c_totals;
+    const u8* x88_bitstreamData;
+    CBitLevelLoader x8c_bitLoader;
+    CSegIdToIndexConverter x114_segIdToIndex;
 public:
     CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time);
 

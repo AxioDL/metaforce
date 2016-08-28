@@ -67,6 +67,8 @@ private:
 public:
     CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);
     const Header& MainHeader() const { return *reinterpret_cast<const Header*>(xc_rotsAndOffs.get()); }
+    const u8* GetPerChannelHeaders() const;
+    const u8* GetBitstreamPointer() const;
     bool IsLooping() const { return MainHeader().looping; }
     CCharAnimTime GetAnimationDuration() const { return MainHeader().duration; }
     const zeus::CVector3f& GetRootOffset() const { return x14_rootOffset; }
