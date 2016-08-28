@@ -10,7 +10,9 @@ void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount)
     u32 chan2 = chanCount * 2;
     u32 chan32 = chanCount * 32;
 
-    x0_buffer.reset(new u8[chan32 + chanCount + chan2 + chan32]);
+    size_t sz = chan32 + chanCount + chan2 + chan32;
+    x0_buffer.reset(new u8[sz]);
+    memset(x0_buffer.get(), 0, sz);
     x4_cumulativeInts32 = reinterpret_cast<s32*>(x0_buffer.get());
     x8_hasTrans1 = reinterpret_cast<u8*>(x4_cumulativeInts32 + chanCount * 8);
     xc_segIds2 = reinterpret_cast<u16*>(x8_hasTrans1 + chanCount);
@@ -19,6 +21,7 @@ void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount)
 
 void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& source)
 {
+    x20_calculated = false;
     const u8* chans = source.GetPerChannelHeaders();
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
     chans += 4;
@@ -194,6 +197,10 @@ CFBStreamedPairOfTotals::CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStre
 
 void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTime& time)
 {
+    /* Implementation is a bit different than original;
+     * T evaluated pre-emptively with key indices.
+     * CalculateDown is also called here as needed. */
+
     const CFBStreamedCompression::Header& header = x0_source->MainHeader();
     CCharAnimTime interval(header.interval);
     const u32* timeBitmap = x0_source->GetTimes();
@@ -262,13 +269,13 @@ u32 CBitLevelLoader::LoadUnsigned(u8 q)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    u32 tempBuf = hecl::SBig(*reinterpret_cast<const u32*>(m_data + byteCur)) >> bitRem;
+    u32 tempBuf = *reinterpret_cast<const u32*>(m_data + byteCur) >> bitRem;
 
     /* If this shift underflows the value, buffer the next 32 bits */
     /* And tack onto shifted buffer */
     if ((bitRem + q) > 32)
     {
-        u32 tempBuf2 = hecl::SBig(*reinterpret_cast<const u32*>(m_data + byteCur + 4));
+        u32 tempBuf2 = *reinterpret_cast<const u32*>(m_data + byteCur + 4);
         tempBuf |= (tempBuf2 << (32 - bitRem));
     }
 
@@ -288,13 +295,13 @@ s32 CBitLevelLoader::LoadSigned(u8 q)
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    u32 tempBuf = hecl::SBig(*reinterpret_cast<const u32*>(m_data + byteCur)) >> bitRem;
+    u32 tempBuf = *reinterpret_cast<const u32*>(m_data + byteCur) >> bitRem;
 
     /* If this shift underflows the value, buffer the next 32 bits */
     /* And tack onto shifted buffer */
     if ((bitRem + q) > 32)
     {
-        u32 tempBuf2 = hecl::SBig(*reinterpret_cast<const u32*>(m_data + byteCur + 4));
+        u32 tempBuf2 = *reinterpret_cast<const u32*>(m_data + byteCur + 4);
         tempBuf |= (tempBuf2 << (32 - bitRem));
     }
 
@@ -319,7 +326,7 @@ bool CBitLevelLoader::LoadBool()
 
     /* Fill 32 bit buffer with region containing bits */
     /* Make them least significant */
-    u32 tempBuf = hecl::SBig(*reinterpret_cast<const u32*>(m_data + byteCur)) >> bitRem;
+    u32 tempBuf = *reinterpret_cast<const u32*>(m_data + byteCur) >> bitRem;
 
     /* That's it */
     m_bitIdx += 1;

@@ -1244,7 +1244,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     {
         hecl::SystemStringView sysStr(act.name);
         hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
-        hecl::ProjectPath cookedOut = inPath.getCookedPath(SpecEntMP1).getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        hecl::ProjectPath cookedOut = inPath.getCookedPath(SpecEntMP1PC).getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
         athena::io::FileWriter w(cookedOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
