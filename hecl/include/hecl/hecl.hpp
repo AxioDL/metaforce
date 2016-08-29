@@ -773,6 +773,23 @@ class ProjectPath
     std::string m_utf8RelPath;
     std::string m_utf8AuxInfo;
 #endif
+    void ComputeHash()
+    {
+#if HECL_UCS2
+        m_utf8AbsPath = WideToUTF8(m_absPath);
+        m_utf8RelPath = WideToUTF8(m_relPath);
+        m_utf8AuxInfo = WideToUTF8(m_auxInfo);
+        if (m_utf8AuxInfo.size())
+            m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
+        else
+            m_hash = Hash(m_utf8RelPath);
+#else
+        if (m_auxInfo.size())
+            m_hash = Hash(m_relPath + '|' + m_auxInfo);
+        else
+            m_hash = Hash(m_relPath);
+#endif
+    }
 public:
     /**
      * @brief Empty constructor
@@ -866,10 +883,8 @@ public:
             pp.m_relPath += ext;
             pp.m_absPath += ext;
         }
-#if HECL_UCS2
-        pp.m_utf8AbsPath = WideToUTF8(pp.m_absPath);
-        pp.m_utf8RelPath = WideToUTF8(pp.m_relPath);
-#endif
+
+        pp.ComputeHash();
         return pp;
     }
 

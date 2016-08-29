@@ -78,21 +78,8 @@ void ProjectPath::assign(Database::Project& project, const SystemString& path)
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-
-#if HECL_UCS2
-    m_utf8AbsPath = WideToUTF8(m_absPath);
-    m_utf8RelPath = WideToUTF8(m_relPath);
-    m_utf8AuxInfo = WideToUTF8(m_auxInfo);
-    if (m_utf8AuxInfo.size())
-        m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
-    else
-        m_hash = Hash(m_utf8RelPath);
-#else
-    if (m_auxInfo.size())
-        m_hash = Hash(m_relPath + '|' + m_auxInfo);
-    else
-        m_hash = Hash(m_relPath);
-#endif
+    
+    ComputeHash();
 }
 
 #if HECL_UCS2
@@ -122,20 +109,7 @@ void ProjectPath::assign(const ProjectPath& parentPath, const SystemString& path
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
 
-#if HECL_UCS2
-    m_utf8AbsPath = WideToUTF8(m_absPath);
-    m_utf8RelPath = WideToUTF8(m_relPath);
-    m_utf8AuxInfo = WideToUTF8(m_auxInfo);
-    if (m_utf8AuxInfo.size())
-        m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
-    else
-        m_hash = Hash(m_utf8RelPath);
-#else
-    if (m_auxInfo.size())
-        m_hash = Hash(m_relPath + '|' + m_auxInfo);
-    else
-        m_hash = Hash(m_relPath);
-#endif
+    ComputeHash();
 }
 
 #if HECL_UCS2
