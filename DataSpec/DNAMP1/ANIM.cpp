@@ -514,6 +514,8 @@ ANIM::ANIM(const BlenderAction& act,
 
     newAnim.bones.reserve(act.channels.size());
     size_t extChanCount = 0;
+    std::unordered_set<atInt32> addedBones;
+    addedBones.reserve(act.channels.size());
     for (const BlenderAction::Channel& chan : act.channels)
     {
         auto search = idMap.find(chan.boneName);
@@ -522,6 +524,9 @@ ANIM::ANIM(const BlenderAction& act,
             Log.report(logvisor::Warning, "unable to find id for bone '%s'", chan.boneName.c_str());
             continue;
         }
+        if (addedBones.find(search->second) != addedBones.cend())
+            continue;
+        addedBones.insert(search->second);
 
         extChanCount += std::max(zeus::PopCount(chan.attrMask), 2);
         newAnim.bones.emplace_back(search->second, (chan.attrMask & 0x2) != 0);

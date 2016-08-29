@@ -370,6 +370,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     scaleMultOut = maxScaleDiff / quantRangeF;
 
     /* Output channel inits */
+    std::vector<QuantizedValue> initVals;
+    initVals.reserve(channels.size());
     kit = chanKeys.begin();
     for (Channel& chan : channels)
     {
@@ -382,6 +384,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         {
             QuantizedRot qr = QuantizeRotation((*kit)[0], rotDivOut);
             chan.i = qr.v;
+            initVals.push_back(chan.i);
             break;
         }
         case Channel::Type::Translation:
@@ -389,6 +392,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             chan.i = {atInt32((*kit)[0].v3.vec[0] / transMultOut),
                       atInt32((*kit)[0].v3.vec[1] / transMultOut),
                       atInt32((*kit)[0].v3.vec[2] / transMultOut)};
+            initVals.push_back(chan.i);
             break;
         }
         case Channel::Type::Scale:
@@ -396,6 +400,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             chan.i = {atInt32((*kit)[0].v3.vec[0] / scaleMultOut),
                       atInt32((*kit)[0].v3.vec[1] / scaleMultOut),
                       atInt32((*kit)[0].v3.vec[2] / scaleMultOut)};
+            initVals.push_back(chan.i);
             break;
         }
         default: break;
@@ -404,31 +409,30 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     }
 
     /* Pre-pass to analyze quantization factors for channels */
+    std::vector<QuantizedValue> lastVals = initVals;
     kit = chanKeys.begin();
+    auto vit = lastVals.begin();
     for (Channel& chan : channels)
     {
+        QuantizedValue& last = *vit++;
         switch (chan.type)
         {
         case Channel::Type::Rotation:
         {
-            QuantizedRot qrLast = QuantizeRotation((*kit)[0], rotDivOut);
             for (auto it=kit->begin() + 1;
                  it != kit->end();
                  ++it)
             {
                 QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
-                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(qrCur.v[0] - qrLast.v[0]))));
-                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(qrCur.v[1] - qrLast.v[1]))));
-                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(qrCur.v[2] - qrLast.v[2]))));
-                qrLast = qrCur;
+                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(qrCur.v[0] - last.v[0]))));
+                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(qrCur.v[1] - last.v[1]))));
+                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(qrCur.v[2] - last.v[2]))));
+                last = qrCur.v;
             }
             break;
         }
         case Channel::Type::Translation:
         {
-            QuantizedValue last = {atInt32((*kit)[0].v3.vec[0] / transMultOut),
-                                   atInt32((*kit)[0].v3.vec[1] / transMultOut),
-                                   atInt32((*kit)[0].v3.vec[2] / transMultOut)};
             for (auto it=kit->begin() + 1;
                  it != kit->end();
                  ++it)
@@ -445,9 +449,6 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         }
         case Channel::Type::Scale:
         {
-            QuantizedValue last = {atInt32((*kit)[0].v3.vec[0] / scaleMultOut),
-                                   atInt32((*kit)[0].v3.vec[1] / scaleMultOut),
-                                   atInt32((*kit)[0].v3.vec[2] / scaleMultOut)};
             for (auto it=kit->begin() + 1;
                  it != kit->end();
                  ++it)
@@ -470,71 +471,56 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     /* Generate Bitstream */
     sizeOut = ComputeBitstreamSize(keyFrameCount, channels);
     std::unique_ptr<atUint8[]> newData(new atUint8[sizeOut]);
+    printf("TOTAL: %zu\n", sizeOut * 8);
+    
+    lastVals = initVals;
     for (size_t f=0 ; f<keyFrameCount ; ++f)
     {
         kit = chanKeys.begin();
+        vit = lastVals.begin();
         for (const Channel& chan : channels)
         {
+            const Value& val = (*kit)[f];
+            QuantizedValue& last = *vit++;
             switch (chan.type)
             {
             case Channel::Type::Rotation:
             {
-                QuantizedRot qrLast = QuantizeRotation((*kit)[0], rotDivOut);
-                for (auto it=kit->begin() + 1;
-                     it != kit->end();
-                     ++it)
-                {
-                    QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
-                    quantizeBit(newData.get(), qrCur.w);
-                    quantize(newData.get(), chan.q[0], qrCur.v[0] - qrLast.v[0]);
-                    quantize(newData.get(), chan.q[1], qrCur.v[1] - qrLast.v[1]);
-                    quantize(newData.get(), chan.q[2], qrCur.v[2] - qrLast.v[2]);
-                    qrLast = qrCur;
-                }
+                QuantizedRot qrCur = QuantizeRotation(val, rotDivOut);
+                quantizeBit(newData.get(), qrCur.w);
+                quantize(newData.get(), chan.q[0], qrCur.v[0] - last.v[0]);
+                quantize(newData.get(), chan.q[1], qrCur.v[1] - last.v[1]);
+                quantize(newData.get(), chan.q[2], qrCur.v[2] - last.v[2]);
+                last = qrCur.v;
                 break;
             }
             case Channel::Type::Translation:
             {
-                QuantizedValue last = {atInt32((*kit)[0].v3.vec[0] / transMultOut),
-                                       atInt32((*kit)[0].v3.vec[1] / transMultOut),
-                                       atInt32((*kit)[0].v3.vec[2] / transMultOut)};
-                for (auto it=kit->begin() + 1;
-                     it != kit->end();
-                     ++it)
-                {
-                    QuantizedValue cur = {atInt32(it->v3.vec[0] / transMultOut),
-                                          atInt32(it->v3.vec[1] / transMultOut),
-                                          atInt32(it->v3.vec[2] / transMultOut)};
-                    quantize(newData.get(), chan.q[0], cur[0] - last[0]);
-                    quantize(newData.get(), chan.q[1], cur[1] - last[1]);
-                    quantize(newData.get(), chan.q[2], cur[2] - last[2]);
-                    last = cur;
-                }
+                QuantizedValue cur = {atInt32(val.v3.vec[0] / transMultOut),
+                                      atInt32(val.v3.vec[1] / transMultOut),
+                                      atInt32(val.v3.vec[2] / transMultOut)};
+                quantize(newData.get(), chan.q[0], cur[0] - last[0]);
+                quantize(newData.get(), chan.q[1], cur[1] - last[1]);
+                quantize(newData.get(), chan.q[2], cur[2] - last[2]);
+                last = cur;
                 break;
             }
             case Channel::Type::Scale:
             {
-                QuantizedValue last = {atInt32((*kit)[0].v3.vec[0] / scaleMultOut),
-                                       atInt32((*kit)[0].v3.vec[1] / scaleMultOut),
-                                       atInt32((*kit)[0].v3.vec[2] / scaleMultOut)};
-                for (auto it=kit->begin() + 1;
-                     it != kit->end();
-                     ++it)
-                {
-                    QuantizedValue cur = {atInt32(it->v3.vec[0] / scaleMultOut),
-                                          atInt32(it->v3.vec[1] / scaleMultOut),
-                                          atInt32(it->v3.vec[2] / scaleMultOut)};
-                    quantize(newData.get(), chan.q[0], cur[0] - last[0]);
-                    quantize(newData.get(), chan.q[1], cur[1] - last[1]);
-                    quantize(newData.get(), chan.q[2], cur[2] - last[2]);
-                    last = cur;
-                }
+                QuantizedValue cur = {atInt32(val.v3.vec[0] / scaleMultOut),
+                                      atInt32(val.v3.vec[1] / scaleMultOut),
+                                      atInt32(val.v3.vec[2] / scaleMultOut)};
+                quantize(newData.get(), chan.q[0], cur[0] - last[0]);
+                quantize(newData.get(), chan.q[1], cur[1] - last[1]);
+                quantize(newData.get(), chan.q[2], cur[2] - last[2]);
+                last = cur;
                 break;
             }
             default: break;
             }
             ++kit;
         }
+        printf("LASTCUR: %zu\n", m_bitCur);
     }
     return newData;
 }
