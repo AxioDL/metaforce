@@ -471,7 +471,6 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     /* Generate Bitstream */
     sizeOut = ComputeBitstreamSize(keyFrameCount, channels);
     std::unique_ptr<atUint8[]> newData(new atUint8[sizeOut]);
-    printf("TOTAL: %zu\n", sizeOut * 8);
     
     lastVals = initVals;
     for (size_t f=0 ; f<keyFrameCount ; ++f)
@@ -520,7 +519,6 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             ++kit;
         }
-        printf("LASTCUR: %zu\n", m_bitCur);
     }
     return newData;
 }
