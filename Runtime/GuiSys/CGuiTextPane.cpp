@@ -65,7 +65,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
 
     zeus::CColor geomCol = xb4_;
     geomCol.a *= parms.x0_alphaMod;
-    ((CGuiTextPane*)this)->x114_textSupport.SetGeometryColor(geomCol);
+    const_cast<CGuiTextPane*>(this)->x114_textSupport.SetGeometryColor(geomCol);
 
     CGraphics::SetDepthWriteMode(xf6_31_depthTest, ERglEnum::LEqual, xf7_24_depthWrite);
 
@@ -91,7 +91,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
         x114_textSupport.Render();
-        ((CGuiTextPane*)this)->x114_textSupport.SetGeometryColor
+        const_cast<CGuiTextPane*>(this)->x114_textSupport.SetGeometryColor
             (geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);

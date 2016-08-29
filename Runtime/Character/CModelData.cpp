@@ -309,7 +309,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
     if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
         x10_animData || !x1c_normalModel || drawFlags.m_blendMode > 2)
     {
-        ((CModelData*)this)->x14_24_renderSorted = false;
+        const_cast<CModelData*>(this)->x14_24_renderSorted = false;
         return;
     }
 
@@ -324,7 +324,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
     model->DrawUnsortedParts(drawFlags);
     // Set ambient to white
     CGraphics::DisableAllLights();
-    ((CModelData*)this)->x14_24_renderSorted = true;
+    const_cast<CModelData*>(this)->x14_24_renderSorted = true;
 }
 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
@@ -365,7 +365,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
 
         // Set ambient to white
         CGraphics::DisableAllLights();
-        ((CModelData*)this)->x14_24_renderSorted = false;
+        const_cast<CModelData*>(this)->x14_24_renderSorted = false;
     }
 }
 

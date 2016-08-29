@@ -665,7 +665,7 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
 
 const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const char* name) const
 {
-    std::unique_lock<std::mutex> lk(((ProjectResourceFactoryBase*)this)->m_backgroundIndexMutex);
+    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
     auto search = m_catalogNameToTag.find(name);
     if (search == m_catalogNameToTag.end())
     {
@@ -690,7 +690,7 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
 
 FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
 {
-    std::unique_lock<std::mutex> lk(((ProjectResourceFactoryBase*)this)->m_backgroundIndexMutex);
+    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
     SObjectTag searchTag = {FourCC(), id};
     auto search = m_tagToPath.find(searchTag);
     if (search == m_tagToPath.end())

@@ -254,9 +254,9 @@ bool CBooModel::TryLockTextures() const
         }
 
         if (allLoad)
-            ((CBooModel*)this)->BuildGfxToken();
+            const_cast<CBooModel*>(this)->BuildGfxToken();
 
-        ((CBooModel*)this)->x40_24_texturesLoaded = allLoad;
+        const_cast<CBooModel*>(this)->x40_24_texturesLoaded = allLoad;
     }
     return x40_24_texturesLoaded;
 }
@@ -265,7 +265,7 @@ void CBooModel::UnlockTextures() const
 {
     for (TCachedToken<CTexture>& tex : *x1c_textures)
         tex.Unlock();
-    ((CBooModel*)this)->x40_24_texturesLoaded = false;
+    const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
 }
 
 void CBooModel::DrawAlphaSurfaces(const CModelFlags& flags) const

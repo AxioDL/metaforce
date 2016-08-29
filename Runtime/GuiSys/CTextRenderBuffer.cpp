@@ -151,7 +151,7 @@ void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity)
 
 void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
 {
-    ((CTextRenderBuffer*)this)->CommitResources();
+    const_cast<CTextRenderBuffer*>(this)->CommitResources();
 
     BooUniform uniforms = {CGraphics::GetPerspectiveProjectionMatrix(true) *
                            CGraphics::g_GXModelView.toMatrix4f(), col};

@@ -111,11 +111,11 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
     CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
 
     TToken<CSkinnedModel> skinnedModel =
-        ((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(), charInfo.GetModelId()}, charParm);
+        const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj({FourCC(), charInfo.GetModelId()}, charParm);
 
     rstl::optional_object<TToken<CMorphableSkinnedModel>> iceModel;
     if (charInfo.GetIceModelId() && charInfo.GetIceSkinRulesId())
-        iceModel.emplace(((CCharacterFactory*)this)->x70_cacheResPool.GetObj({FourCC(1), charInfo.GetIceModelId()}, charParm));
+        iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj({FourCC(1), charInfo.GetIceModelId()}, charParm));
 
     return std::make_unique<CAnimData>(x68_selfId, charInfo, defaultAnim, charIdx, loop,
                                        x14_charLayoutInfoDB[charIdx], skinnedModel,

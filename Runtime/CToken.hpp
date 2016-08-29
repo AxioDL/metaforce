@@ -180,7 +180,7 @@ public:
     }
     const IObj* GetObj() const
     {
-        return ((CToken*)this)->GetObj();
+        return const_cast<CToken*>(this)->GetObj();
     }
     CToken& operator=(const CToken& other)
     {
@@ -273,7 +273,7 @@ public:
     }
     const T* GetObj() const
     {
-        return ((TToken<T>*)this)->GetObj();
+        return const_cast<TToken<T>*>(this)->GetObj();
     }
     T* operator->() {return GetObj();}
     const T* operator->() const {return GetObj();}
@@ -298,7 +298,7 @@ public:
     }
     const T* GetObj() const
     {
-        return ((TCachedToken<T>*)this)->GetObj();
+        return const_cast<TCachedToken<T>*>(this)->GetObj();
     }
     T* operator->() {return GetObj();}
     const T* operator->() const {return GetObj();}

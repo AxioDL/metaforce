@@ -154,7 +154,7 @@ void CResLoader::AsyncIdlePakLoading()
 bool CResLoader::FindResource(u32 id) const
 {
     for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
-        if (((CResLoader*)this)->CacheFromPak(*file, id))
+        if (const_cast<CResLoader*>(this)->CacheFromPak(*file, id))
             return true;
     return false;
 }

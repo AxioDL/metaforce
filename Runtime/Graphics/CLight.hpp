@@ -101,8 +101,8 @@ public:
     {
         if (x4c_25_radiusDirty)
         {
-            ((CLight*)this)->x44_cachedRadius = CalculateLightRadius();
-            ((CLight*)this)->x4c_25_radiusDirty = false;
+            const_cast<CLight*>(this)->x44_cachedRadius = CalculateLightRadius();
+            const_cast<CLight*>(this)->x4c_25_radiusDirty = false;
         }
         return x44_cachedRadius;
     }

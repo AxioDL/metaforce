@@ -496,11 +496,7 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
 
     WordBitmap keyBmp;
     for (atUint32 frame : frames)
-    {
-        while (keyBmp.getBit(frame))
-            ++frame;
         keyBmp.setBit(frame);
-    }
 
     __isz = head.binarySize(__isz);
     __isz = keyBmp.binarySize(__isz);

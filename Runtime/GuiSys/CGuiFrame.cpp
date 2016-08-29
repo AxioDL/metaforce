@@ -402,7 +402,7 @@ bool CGuiFrame::GetIsFinishedLoading() const
             continue;
         return false;
     }
-    ((CGuiFrame*)this)->xbc_24_loaded = true;
+    const_cast<CGuiFrame*>(this)->xbc_24_loaded = true;
     return true;
 }
 

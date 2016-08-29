@@ -227,7 +227,7 @@ ResId CWorld::IGetSaveWorldAssetId() const
 
 const CMapWorld* CWorld::IGetMapWorld() const
 {
-    return ((CWorld*)this)->GetMapWorld();
+    return const_cast<CWorld*>(this)->GetMapWorld();
 }
 
 CMapWorld* CWorld::IMapWorld()
