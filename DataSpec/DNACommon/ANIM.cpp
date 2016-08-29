@@ -471,6 +471,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     /* Generate Bitstream */
     sizeOut = ComputeBitstreamSize(keyFrameCount, channels);
     std::unique_ptr<atUint8[]> newData(new atUint8[sizeOut]);
+    memset(newData.get(), 0, sizeOut);
     
     lastVals = initVals;
     for (size_t f=0 ; f<keyFrameCount ; ++f)
@@ -479,7 +480,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         vit = lastVals.begin();
         for (const Channel& chan : channels)
         {
-            const Value& val = (*kit++)[f];
+            const Value& val = (*kit++)[f+1];
             QuantizedValue& last = *vit++;
             switch (chan.type)
             {

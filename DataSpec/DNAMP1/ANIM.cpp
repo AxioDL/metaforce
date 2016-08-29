@@ -386,16 +386,17 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     size_t frameCount = 0;
     for (atUint32 frame : frames)
     {
-        while (keyBmp.getBit(frame))
-            ++frame;
-        keyBmp.setBit(frame);
-        frameCount = frame + 1;
+        if (!keyBmp.getBit(frame))
+        {
+            keyBmp.setBit(frame);
+            frameCount += 1;
+        }
     }
     head.keyBitmapBitCount = frameCount;
     head.duration = frameCount * mainInterval;
     head.boneChannelCount = bones.size();
 
-    size_t keyframeCount = frames.size();
+    size_t keyframeCount = frameCount - 1;
     std::vector<DNAANIM::Channel> qChannels = channels;
     DNAANIM::BitstreamWriter bsWriter;
     size_t bsSize;
