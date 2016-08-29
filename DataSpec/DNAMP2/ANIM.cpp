@@ -473,6 +473,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
 
 void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
 {
+    /* TODO: conform to MP1 ANIM3 */
     Header head;
     head.unk1 = 1;
     head.looping = 1;

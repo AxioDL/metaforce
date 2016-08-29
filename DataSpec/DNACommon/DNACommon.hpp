@@ -416,7 +416,7 @@ public:
     void write(athena::io::IStreamWriter& writer) const
     {
         for (atUint32 word : m_words)
-            writer.writeUint32(word);
+            writer.writeUint32Big(word);
     }
     size_t binarySize(size_t __isz) const
     {

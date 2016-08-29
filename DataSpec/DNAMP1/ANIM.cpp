@@ -404,8 +404,30 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
                                                        m_version == 3 ? 0x7fffff : 0x7fff,
                                                        head.rotDiv, head.translationMult, scaleMult, bsSize);
 
-    /* TODO: Figure out proper scratch size computation */
-    head.scratchSize = keyframeCount * channels.size() * 16;
+    /* Tally up buffer size */
+    head.scratchSize = head.binarySize(0) + keyBmp.binarySize(0) + bsSize;
+    if (m_version == 3)
+    {
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            ChannelDescPC desc;
+            desc.keyCount1 = keyframeCount;
+            if (bone.second)
+                desc.keyCount2 = keyframeCount;
+            head.scratchSize = desc.binarySize(head.scratchSize);
+        }
+    }
+    else
+    {
+        for (const std::pair<atUint32, bool>& bone : bones)
+        {
+            ChannelDesc desc;
+            desc.keyCount1 = keyframeCount;
+            if (bone.second)
+                desc.keyCount2 = keyframeCount;
+            head.scratchSize = desc.binarySize(head.scratchSize);
+        }
+    }
 
     head.write(writer);
     keyBmp.write(writer);

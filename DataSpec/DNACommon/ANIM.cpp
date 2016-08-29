@@ -479,7 +479,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         vit = lastVals.begin();
         for (const Channel& chan : channels)
         {
-            const Value& val = (*kit)[f];
+            const Value& val = (*kit++)[f];
             QuantizedValue& last = *vit++;
             switch (chan.type)
             {
@@ -517,7 +517,6 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             default: break;
             }
-            ++kit;
         }
     }
     return newData;
