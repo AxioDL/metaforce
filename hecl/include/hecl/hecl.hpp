@@ -1089,6 +1089,11 @@ public:
         return hecl::ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
     }
 
+    hecl::ProjectPath ensureAuxInfo(const SystemString& auxStr) const
+    {
+        return ensureAuxInfo(auxStr.c_str());
+    }
+
     /**
      * @brief Type of path
      */
@@ -1192,6 +1197,29 @@ public:
     bool operator==(const ProjectPath& other) const {return m_hash == other.m_hash;}
     bool operator!=(const ProjectPath& other) const {return m_hash != other.m_hash;}
 
+};
+
+/**
+ * @brief handy functions not directly provided via STL strings
+ */
+class StringUtils
+{
+public:
+    static bool BeginsWith(const SystemString& str, const SystemChar* test)
+    {
+        size_t len = StrLen(test);
+        if (len > str.size())
+            return false;
+        return !StrCmp(str.data(), test);
+    }
+
+    static bool EndsWith(const SystemString& str, const SystemChar* test)
+    {
+        size_t len = StrLen(test);
+        if (len > str.size())
+            return false;
+        return !StrCmp(&*(str.end() - len), test);
+    }
 };
 
 /**

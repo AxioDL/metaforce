@@ -123,7 +123,12 @@ void ProjectPath::assign(const ProjectPath& parentPath, const std::string& path)
 ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) const
 {
     ProjectPath woExt = getWithExtension(nullptr, true);
-    return ProjectPath(m_proj->getProjectCookedPath(spec), woExt.getRelativePath());
+    ProjectPath ret(m_proj->getProjectCookedPath(spec), woExt.getRelativePath());
+
+    if (getAuxInfo().size())
+        return ret.getWithExtension((_S('.') + getAuxInfo()).c_str());
+    else
+        return ret;
 }
 
 ProjectPath::Type ProjectPath::getPathType() const
