@@ -213,6 +213,9 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() const
 
 void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
 {
+    if (!x1f8_animRoot)
+        return;
+
     const CSegIdList& segIdList = GetCharLayoutInfo().GetSegIdList();
     CSegStatementSet segSet;
     if (time)

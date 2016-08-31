@@ -410,11 +410,11 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete()
 
     /* Ready for buffer transaction at this point */
     u32 availSz = std::max(0, s32(fr.length()) - s32(x14_resOffset));
-    u32 sz = std::min(x14_resSize, availSz);
-    x10_loadBuffer.reset(new u8[sz]);
+    x14_resSize = std::min(x14_resSize, availSz);
+    x10_loadBuffer.reset(new u8[x14_resSize]);
     m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
                                                                   x10_loadBuffer.get(),
-                                                                  sz, x14_resOffset);
+                                                                  x14_resSize, x14_resOffset);
 }
 
 bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()

@@ -461,6 +461,9 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
                                   const CSkinRules* cskr,
                                   const CPoseAsTransforms* pose) const
 {
+    if (!m_uniformBuffer)
+        return;
+
     u8* dataOut = reinterpret_cast<u8*>(m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
 
