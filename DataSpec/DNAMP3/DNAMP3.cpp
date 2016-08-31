@@ -4,6 +4,7 @@
 #include "DNAMP3.hpp"
 #include "STRG.hpp"
 #include "MLVL.hpp"
+#include "CAUD.hpp"
 #include "CMDL.hpp"
 #include "CHAR.hpp"
 #include "MREA.hpp"
@@ -227,6 +228,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
 {
     switch (entry.type)
     {
+    case SBIG('CAUD'):
+        return {CAUD::Extract, nullptr, {_S(".yaml")}};
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
