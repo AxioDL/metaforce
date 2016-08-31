@@ -1200,7 +1200,7 @@ public:
 };
 
 /**
- * @brief handy functions not directly provided via STL strings
+ * @brief Handy functions not directly provided via STL strings
  */
 class StringUtils
 {
