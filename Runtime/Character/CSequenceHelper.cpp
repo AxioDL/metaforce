@@ -40,6 +40,7 @@ CSequenceHelper::CSequenceHelper(const std::vector<std::shared_ptr<IMetaAnim>>& 
 
 CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals()
 {
+    return {};
 }
 
 }

@@ -45,6 +45,7 @@ void CAnimTreeSequence::VGetWeightedReaders
 
 SAdvancementResults CAnimTreeSequence::VAdvanceView(const CCharAnimTime& a)
 {
+    return {};
 }
 
 CCharAnimTime CAnimTreeSequence::VGetTimeRemaining() const

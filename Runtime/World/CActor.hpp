@@ -3,10 +3,12 @@
 
 #include "CEntity.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "Graphics/CSimpleShadow.hpp"
 #include "Audio/CSfxHandle.hpp"
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
+#include "Character/CActorLights.hpp"
 #include "Collision/CCollisionResponseData.hpp"
 
 namespace urde
@@ -15,8 +17,11 @@ namespace urde
 class CActorParameters;
 class CWeaponMode;
 class CHealthInfo;
+class CDamageInfo;
 class CDamageVulnerability;
 class CLightParameters;
+class CScannableObjectInfo;
+class CScriptWater;
 class CSfxHandle;
 class CSimpleShadow;
 
@@ -29,14 +34,23 @@ protected:
     CMaterialFilter x70_;
     s16 x88_sfxId = -1;
     std::unique_ptr<CSfxHandle> x8c_sfxHandle;
-    //std::unique_ptr<CSimpleShadow> x94_simpleShadow;
+    std::unique_ptr<CActorLights> x90_actorLights;
+    std::unique_ptr<CSimpleShadow> x94_simpleShadow;
+    std::unique_ptr<TToken<CScannableObjectInfo>> x98_scanObjectInfo;
     zeus::CAABox x9c_aabox;
-    u32 xb8_ = 0;
+    u8 xb4_ = 0;
+    u8 xb5_ = 0;
+    u16 xb6_ = 3;
+    zeus::CColor xb8_ = zeus::CColor::skWhite;
     float xbc_time = 0.f;
     s32 xc0_ = 0;
     TUniqueId xc4_fluidId = kInvalidUniqueId;
     TUniqueId xc6_ = kInvalidUniqueId;
+    s32 xc8_ = -1;
+    s32 xcc_ = -1;
+    float xd0_;
     u8 xd4_ = 0x7F;
+    u32 xd8_ = 2;
     union
     {
         struct
@@ -71,10 +85,6 @@ public:
            const zeus::CTransform&, CModelData&&, const CMaterialList&,
            const CActorParameters&, TUniqueId);
 
-    const zeus::CTransform& GetTransform() const {return x34_transform;}
-
-    virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
-    virtual void Render(CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual void SetActive(bool active)
     {
@@ -84,20 +94,30 @@ public:
         xe7_29_ = true;
         CEntity::SetActive(active);
     }
-
-    virtual zeus::CVector3f GetAimPosition(const CStateManager&, float)
-    { return x34_transform.origin; }
-
-    virtual bool ValidAimTarget() { return true; }
-    virtual bool ValidOrbitTarget() { return true; }
-    virtual bool GetOrbitDistanceCheck() { return true; }
-    virtual zeus::CVector3f GetOrbitPosition(const CStateManager&);
-
-    void RemoveEmitter();
-
-    virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const { return {} ; }
+    virtual void PreRender(const zeus::CFrustum&, const CStateManager&) {}
+    virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
+    virtual void Render(const CStateManager&) const {}
+    virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
+    virtual zeus::CAABox CalculateRenderBounds();
+    virtual const CHealthInfo* GetHealthInfo() const;
+    virtual const CDamageVulnerability* GetDamageVulnerability() const;
+    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&, const CDamageInfo&) const;
+    virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    virtual void Touch(CActor&, CStateManager&);
+    virtual zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
+    virtual zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+    virtual zeus::CVector3f GetHomingPosition(const CStateManager&, float) const;
+    virtual zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&);
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                    CWeaponMode&, int);
+    virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
+    virtual void OnScanStateChanged(EScanState, CStateManager&);
+    virtual zeus::CAABox GetSortingBounds(const zeus::CTransform&) const;
+    virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType);
+
+
+    void RemoveEmitter();
+    const zeus::CTransform& GetTransform() const {return x34_transform;}
 
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -110,24 +130,15 @@ public:
     void AddMaterial(EMaterialTypes, CStateManager&);
 
     void SetCallTouch(bool callTouch);
-
     bool GetCallTouch() const;
-
     void SetUseInSortedList(bool use);
-
     bool GetUseInSortedLists() const;
-
     const CMaterialFilter& GetMaterialFilter() const { return x70_; }
-
     void SetInFluid(bool in, TUniqueId uid);
-
     bool HasModelData() const;
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
-
-    virtual void OnScanStateChanged(EScanState, CStateManager&);
 };
-
 }
 
 #endif // __URDE_CACTOR_HPP__

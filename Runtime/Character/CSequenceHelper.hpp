@@ -21,6 +21,9 @@ class CSequenceFundamentals
     std::vector<CParticlePOINode> x38_particleNodes;
     std::vector<CSoundPOINode> x48_soundNodes;
 public:
+    /* HACK: Remove this default constructor */
+    CSequenceFundamentals() = default;
+
     CSequenceFundamentals(const CSteadyStateAnimInfo& ssInfo,
                           const std::vector<CBoolPOINode>& boolNodes,
                           const std::vector<CInt32POINode>& int32Nodes,
@@ -40,6 +43,8 @@ class CSequenceHelper
     std::vector<std::shared_ptr<CAnimTreeNode>> x10_treeNodes;
     std::vector<bool> x20_;
 public:
+    /* HACK: Remove this default constructor */
+    CSequenceHelper() = default;
     CSequenceHelper(const std::shared_ptr<CAnimTreeNode>& a,
                     const std::shared_ptr<CAnimTreeNode>& b,
                     const CAnimSysContext& animCtx);

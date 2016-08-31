@@ -35,8 +35,6 @@ struct SAVW : BigYAML
     Vector<SavedState, DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;
     Value<atUint32> relayCount;
     Vector<SavedState, DNA_COUNT(relayCount)> relays;
-    Value<atUint32> layerCount;
-    Vector<SAVWCommon::Layer, DNA_COUNT(layerCount)> layers;
     Value<atUint32> doorCount;
     Vector<SavedState, DNA_COUNT(doorCount)> doors;
     Value<atUint32> scanCount;

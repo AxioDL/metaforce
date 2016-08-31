@@ -2,7 +2,7 @@
 #define __URDE_CPHYSICSACTOR_HPP__
 
 #include "CActor.hpp"
-#include "Collision/CCollisionPrimitive.hpp"
+#include "Collision/CCollidableAABox.hpp"
 
 namespace urde
 {
@@ -11,13 +11,18 @@ struct SMoverData;
 
 struct SMoverData
 {
-    zeus::CVector3f x0_;
-    zeus::CAxisAngle xc_;
+    zeus::CVector3f x0_velocity;
+    zeus::CAxisAngle xc_angularVelocity;
     zeus::CVector3f x18_;
     zeus::CAxisAngle x24_;
-    float x30_;
+    float x30_mass;
 
-    SMoverData(float a) : x30_(a) {}
+    SMoverData(float mass) : x30_mass(mass) {}
+};
+
+struct CMotionState
+{
+    CMotionState(const zeus::CVector3f&, const zeus::CNUQuaternion&, const zeus::CVector3f&, const zeus::CAxisAngle&);
 };
 
 class CPhysicsActor : public CActor
@@ -27,114 +32,59 @@ protected:
     float xec_massRecip;
     float xf0_inertialTensor;
     float xf4_inertialTensorRecip;
+    bool xf8_;
+    bool xf9_;
+    zeus::CVector3f xfc_;
+    zeus::CAxisAngle x108_;
+    zeus::CMatrix3f x114_;
+    zeus::CVector3f x138_;
+    zeus::CAxisAngle x144_;
+    zeus::CVector3f x150_;
+    zeus::CVector3f x15c_;
+    zeus::CVector3f x168_;
+    zeus::CAxisAngle x174_;
+    zeus::CAxisAngle x180_;
+    zeus::CVector3f x18c_;
+    zeus::CAxisAngle x198_;
     zeus::CAABox x1a4_baseBoundingBox;
-    std::unique_ptr<CCollisionPrimitive> x1c0_collisionPrimitive;
+    CCollidableAABox x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;
+    zeus::CQuaternion x200_;
+    zeus::CVector3f x210_;
+    zeus::CVector3f x21c_;
+    bool x234_;
+    float x238_ = 1000000.0f;
     float x23c_stepUpHeight;
     float x240_stepDownHeight;
     float x244_restitutionCoefModifier;
     float x248_collisionAccuracyModifier;
+    u32 x24c_;
+    u32 x250_;
 public:
     CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
                   const zeus::CTransform&, CModelData&&, const CMaterialList&,
                   const zeus::CAABox&, const SMoverData&, const CActorParameters&,
                   float, float);
 
-    void AddToRenderer(const zeus::CFrustum &, CStateManager &){}
-    void Render(CStateManager& mgr) { CActor::Render(mgr); }
+    void Render(const CStateManager& mgr);
+    zeus::CVector3f GetOrbitPosition(const CStateManager&);
+    zeus::CVector3f GetAimPosition(const CStateManager&, float val);
+    virtual const CCollisionPrimitive& GetCollisionPrimitive() const;
+    virtual zeus::CTransform GetPrimitiveTransform();
+    virtual void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&);
+    virtual float GetStepUpHeight();
+    virtual float GetStepDownHeight();
+    virtual float GetWeight();
 
-    float GetCollisionAccuracyModifier()
-    { return x248_collisionAccuracyModifier; }
-
-    void SetCollisionAccuracyModifier(float modifier)
-    { x248_collisionAccuracyModifier = modifier; }
-
-    float GetCoefficientOfRestitutionModifier()
-    { return x244_restitutionCoefModifier; }
-
-    void SetCoefficientOfRestitutionModifier(float modifier)
-    { x244_restitutionCoefModifier = modifier;}
-
-    void DrawCollisionPrimitive()
-    { }
-
-    void Render(const CStateManager&)
-    {}
-
-    zeus::CVector3f GetAimPosition(const CStateManager&, float val)
-    {
-        if (val <= 0.0)
-            return GetBoundingBox().center();
-        //zeus::CVector3f delta = PredictMotion(val);
-        return zeus::CVector3f();
-    }
-
-    zeus::CVector3f GetOrbitPosition(const CStateManager&)
-    { return GetBoundingBox().center(); }
-
-    float GetStepUpHeight()
-    { return x23c_stepUpHeight; }
-
-    float GetStepDownHeight()
-    { return x240_stepDownHeight; }
-
-    void SetPrimitiveOffset(const zeus::CVector2f& offset)
-    { x1e8_primitiveOffset = offset; }
-
-    zeus::CVector3f GetPrimitiveOffset()
-    { return x1e8_primitiveOffset; }
-
-    float GetWeight()
-    { return 24.525002f * xe8_mass; }
-
-    void MoveCollisionPrimitive(const zeus::CVector3f& offset)
-    {
-        x1e8_primitiveOffset = offset;
-    }
-
-    void SetBoundingBox(const zeus::CAABox& box)
-    {
-        x1a4_baseBoundingBox = box;
-        MoveCollisionPrimitive(zeus::CVector3f::skZero);
-    }
-
-    zeus::CAABox GetMotionVolume()
-    { return zeus::CAABox::skInvertedBox; }
-
+    void SetPrimitiveOffset(const zeus::CVector2f& offset);
+    zeus::CVector3f GetPrimitiveOffset();
+    void MoveCollisionPrimitive(const zeus::CVector3f& offset);
+    void SetBoundingBox(const zeus::CAABox& box);
+    zeus::CAABox GetMotionVolume();
     zeus::CAABox GetBoundingBox();
-
-    const zeus::CAABox& GetBaseBoundingBox() const
-    { return x1a4_baseBoundingBox; }
-
-    void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&)
-    {}
-
-    zeus::CTransform GetPrimitiveTransform()
-    {
-        return zeus::CTransform();
-    }
-
-    const CCollisionPrimitive* GetCollisionPrimitive() const
-    { return x1c0_collisionPrimitive.get(); }
-
-    void SetInertiaTensorScalar(float tensor)
-    {
-        if (tensor <= 0.0f)
-            tensor = 1.0f;
-        xf0_inertialTensor = tensor;
-        xf4_inertialTensorRecip = 1.0f / tensor;
-    }
-
-    void SetMass(float mass)
-    {
-        xe8_mass = mass;
-        float tensor = 1.0f;
-        if (mass > 0.0f)
-            tensor = 1.0f / mass;
-
-        xec_massRecip = tensor;
-        SetInertiaTensorScalar(mass * tensor);
-    }
+    const zeus::CAABox& GetBaseBoundingBox() const;
+    void SetInertiaTensorScalar(float tensor);
+    void SetMass(float mass);
 };
 
 }
