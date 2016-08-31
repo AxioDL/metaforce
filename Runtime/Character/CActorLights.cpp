@@ -4,7 +4,8 @@
 namespace urde
 {
 
-CActorLights::CActorLights(u32 unk, const zeus::CVector3f& vec, int a, int b, int c, int d, int e, float f1)
+s32 CActorLights::sFrameSchedulerCount = 0;
+CActorLights::CActorLights(u32 unk, const zeus::CVector3f& vec, int a, int b, bool c, int d, int e, float f1)
 : x2a8_(unk), x2ac_(vec), x2b8_b(b), x2bc_a(a), x2cc_(f1 * f1)
 {
     x298_24_ = true;
@@ -15,6 +16,9 @@ CActorLights::CActorLights(u32 unk, const zeus::CVector3f& vec, int a, int b, in
     x298_30_ = d;
     x298_31_ = e;
     x299_24_ = true;
+
+    sFrameSchedulerCount++;
+    sFrameSchedulerCount &= 7;
 }
 
 void CActorLights::BuildConstantAmbientLighting()

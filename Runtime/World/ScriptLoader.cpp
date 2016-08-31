@@ -253,7 +253,7 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
     {
         bool a = in.readBool();
         float b = in.readFloatBig();
-        u32 c = in.readUint32Big();
+        CLightParameters::EShadowTesselation shadowTess = CLightParameters::EShadowTesselation(in.readUint32Big());
         float d = in.readFloatBig();
         float e = in.readFloatBig();
 
@@ -261,8 +261,10 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         col.readRGBABig(in);
 
         bool f = in.readBool();
-        u32 g = in.readUint32Big();
-        u32 h = in.readUint32Big();
+        CLightParameters::EWorldLightingOptions lightOpts =
+                CLightParameters::EWorldLightingOptions(in.readUint32Big());
+        CLightParameters::ELightRecalculationOptions recalcOpts =
+                CLightParameters::ELightRecalculationOptions(in.readUint32Big());;
 
         zeus::CVector3f vec;
         vec.readBig(in);
@@ -283,7 +285,7 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         if (propCount >= 14)
             w3 = in.readUint32Big();
 
-        return CLightParameters(a, b, c, d, e, col, f, g, h, vec, w1, w2, b1, w3);
+        return CLightParameters(a, b, shadowTess, d, e, col, f, lightOpts, recalcOpts, vec, w1, w2, b1, w3);
     }
     return CLightParameters::None();
 }
@@ -1965,7 +1967,10 @@ CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in,
                                             int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "ThermalHeatFader"))
+        return nullptr;
+
+    return LoadWorldLightFader(mgr, in, propCount, info);
 }
 
 CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in,
@@ -1983,6 +1988,9 @@ CEntity* ScriptLoader::LoadScriptBeam(CStateManager& mgr, CInputStream& in,
 CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
                                            int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 4, "WorldLightFader"))
+        return nullptr;
+
     return nullptr;
 }
 

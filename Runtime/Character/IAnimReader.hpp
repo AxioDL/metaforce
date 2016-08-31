@@ -37,6 +37,8 @@ class CSteadyStateAnimInfo
     bool x14_looping = false;
 
 public:
+    /* HACK: Remove this default constructor */
+    CSteadyStateAnimInfo() = default;
     CSteadyStateAnimInfo(bool looping, const CCharAnimTime& duration, const zeus::CVector3f& offset)
     : x0_duration(duration), x8_offset(offset), x14_looping(looping) {}
 

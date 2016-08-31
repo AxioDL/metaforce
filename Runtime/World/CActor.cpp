@@ -91,9 +91,54 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-zeus::CVector3f CActor::GetOrbitPosition(const CStateManager&)
+zeus::CAABox CActor::CalculateRenderBounds()
+{
+    return {};
+}
+
+const CHealthInfo* CActor::GetHealthInfo() const
+{
+    return nullptr;
+}
+
+const CDamageVulnerability* CActor::GetDamageVulnerability() const
+{
+    return nullptr;
+}
+
+const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f &, const zeus::CVector3f &, const CDamageInfo &) const
+{
+    return nullptr;
+}
+
+rstl::optional_object<zeus::CAABox> CActor::GetTouchBounds() const
+{
+    return {} ;
+}
+
+void CActor::Touch(CActor &, CStateManager &)
+{
+
+}
+
+zeus::CVector3f CActor::GetOrbitPosition(const CStateManager&) const
 {
     return x34_transform.origin;
+}
+
+zeus::CVector3f CActor::GetAimPosition(const CStateManager &, float) const
+{
+    return x34_transform.origin;
+}
+
+zeus::CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const
+{
+    return GetAimPosition(mgr, f);
+}
+
+zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager &)
+{
+    return {};
 }
 
 void CActor::RemoveEmitter()
@@ -110,6 +155,31 @@ EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVect
                                                                const zeus::CVector3f&, CWeaponMode&, int)
 {
     return EWeaponCollisionResponseTypes::Unknown13;
+}
+
+void CActor::FluidFXThink(CActor::EFluidState, CScriptWater &, CStateManager &)
+{
+
+}
+
+void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
+{
+    if (state == EScanState::Zero)
+        SendScriptMsgs(EScriptObjectState::UNKS7, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::One)
+        SendScriptMsgs(EScriptObjectState::UNKS8, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::Two)
+        SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
+
+}
+
+zeus::CAABox CActor::GetSortingBounds(const zeus::CTransform &) const
+{
+    return {};
+}
+
+void CActor::DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType)
+{
 }
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, CStateManager& mgr)
@@ -221,17 +291,6 @@ void CActor::SetSfxPitchBend(s32 val)
         return;
 
     CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
-}
-
-void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
-{
-    if (state == EScanState::Zero)
-        SendScriptMsgs(EScriptObjectState::UNKS7, mgr, EScriptObjectMessage::None);
-    else if (state == EScanState::One)
-        SendScriptMsgs(EScriptObjectState::UNKS8, mgr, EScriptObjectMessage::None);
-    else if (state == EScanState::Two)
-        SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
-
 }
 
 }

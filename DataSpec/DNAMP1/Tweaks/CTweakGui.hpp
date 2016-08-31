@@ -21,7 +21,7 @@ struct CTweakGui : ITweakGui
     Value<float> x20_;
     Value<float> x24_;
     Value<float> x28_;
-    Value<atUint32> x2c_ = 0;
+    atUint32 x2c_ = 0;
     Value<float> x30_;
     Value<float> x34_;
     Value<float> x38_;

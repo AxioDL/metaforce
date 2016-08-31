@@ -13,7 +13,7 @@ struct WorldLightFader : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<bool> activated;
+    Value<bool> active;
     Value<float> fadedLevel;
     Value<float> intialLevel;
 };

@@ -15,6 +15,7 @@ class CGameArea;
 
 class CActorLights
 {
+    static s32 sFrameSchedulerCount;
     std::vector<CLight> x0_areaLights;
     std::vector<CLight> x144_dynamicLights;
     zeus::CColor x288_ambientColor;
@@ -54,7 +55,7 @@ class CActorLights
     u32 x2dc_overrideDist = 0;
 
 public:
-    CActorLights(u32, const zeus::CVector3f& vec, int, int, int, int, int, float);
+    CActorLights(u32, const zeus::CVector3f& vec, int, int, bool, int, int, float);
 
     void BuildConstantAmbientLighting();
     void BuildConstantAmbientLighting(const zeus::CColor& color);

@@ -14,8 +14,8 @@ struct ThermalHeatFader : IScriptObject
     DECL_YAML
     String<-1> name;
     Value<bool> active;
-    Value<float> fadedHeatLevel;
-    Value<float> initialHeatLevel;
+    Value<float> fadedLevel;
+    Value<float> initialLevel;
 };
 }
 }

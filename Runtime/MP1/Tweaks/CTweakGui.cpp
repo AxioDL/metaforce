@@ -164,7 +164,7 @@ CTweakGui::CTweakGui(CInputStream& in)
       x278_(in.readFloatBig()),
       x27c_(ReadUnknownValx27c(in)),
       x280_(in.readFloatBig()),
-      x284_(in.readUint32Big()),
+      x284_(in.readFloatBig()),
       x288_(in.readVec4fBig()),
       x28c_(in.readFloatBig()),
       x290_(in.readVec4fBig()),

@@ -58,8 +58,9 @@ public:
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}
     virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-    bool GetActive() const {return x30_24_active;}
     virtual void SetActive(bool active) {x30_24_active = active;}
+
+    bool GetActive() const {return x30_24_active;}
     void ToggleActive()
     {
         x30_24_active ^= 1;

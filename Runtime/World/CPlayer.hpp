@@ -84,14 +84,14 @@ public:
     bool IsPlayerDeadEnough() const;
     void AsyncLoadSuit(CStateManager& mgr);
     void LoadAnimationTokens();
-    bool CanRenderUnsorted(CStateManager& mgr) const;
-    const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1,
+    virtual bool CanRenderUnsorted(CStateManager& mgr) const;
+    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1,
                                                        const zeus::CVector3f& v2,
                                                        const CDamageInfo& info) const;
-    const CDamageVulnerability* GetDamageVulnerability() const;
-    zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
+    virtual const CDamageVulnerability* GetDamageVulnerability() const;
+    virtual zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
     zeus::CVector3f GetAimPosition(CStateManager& mgr, float) const;
-    void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
+    virtual void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
     zeus::CVector3f GetDamageLocationWR() const;
     float GetPrevDamageAmount() const;
     float GetDamageAmount() const;
@@ -111,7 +111,7 @@ public:
     void Render(CStateManager& mgr) const;
     void RenderReflectedPlayer(CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum&);
-    void CalculateRenderBounds();
+    zeus::CAABox CalculateRenderBounds();
     void AddToRenderer(const zeus::CFrustum&, CStateManager&);
     void ComputeFreeLook(const CFinalInput& input);
     void UpdateFreeLook(float dt);

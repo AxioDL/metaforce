@@ -160,8 +160,9 @@ void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum&)
 {
 }
 
-void CPlayer::CalculateRenderBounds()
+zeus::CAABox CPlayer::CalculateRenderBounds()
 {
+    return {};
 }
 
 void CPlayer::AddToRenderer(const zeus::CFrustum&, CStateManager&)
@@ -495,7 +496,7 @@ zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const
 
 const CCollisionPrimitive& CPlayer::GetCollisionPrimitive() const
 {
-    return *CPhysicsActor::GetCollisionPrimitive();
+    return CPhysicsActor::GetCollisionPrimitive();
 }
 
 zeus::CTransform CPlayer::GetPrimitiveTransform() const
