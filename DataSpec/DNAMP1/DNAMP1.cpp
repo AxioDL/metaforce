@@ -24,6 +24,7 @@
 
 #include "../DNACommon/Tweaks/TweakWriter.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
+#include "Tweaks/CTweakGunRes.hpp"
 
 namespace DataSpec
 {
@@ -323,6 +324,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         {
             if (!name.compare("PlayerRes"))
                 return {ExtractTweak<CTweakPlayerRes>, nullptr, {_S(".yaml")}};
+            if (!name.compare("GunRes"))
+                return {ExtractTweak<CTweakGunRes>, nullptr, {_S(".yaml")}};
         }
         break;
     }

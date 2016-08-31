@@ -77,6 +77,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     InitializeSubsystems(storeMgr, voiceEngine);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
+    x70_tweaks.RegisterResourceTweaks();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
 }
