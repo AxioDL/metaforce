@@ -7,7 +7,8 @@ make_dnalist(liblist
              CINF
              CSKR
              MREA
-             SAVW)
+             SAVW
+             CAUD)
 add_library(DNAMP3
             DNAMP3.hpp DNAMP3.cpp
             ${liblist}
