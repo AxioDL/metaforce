@@ -1108,7 +1108,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
     {
         hecl::SystemStringView chSysName(ch.name);
-        ch.cskr = inPath.getWithExtension((_S('.') + chSysName.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
+        ch.cskr = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR"));
 
         for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
@@ -1118,20 +1118,20 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 {
                     const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
                     hecl::SystemStringView armSysName(arm.name);
-                    ch.cinf = inPath.getWithExtension((_S('.') + armSysName.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
+                    ch.cinf = inPath.ensureAuxInfo(armSysName.sys_str() + _S(".CINF"));
                     break;
                 }
             }
         }
 
-        ch.cskrOverlay = inPath.getWithExtension((_S('.') + chSysName.sys_str() + _S(".over")).c_str(), true).ensureAuxInfo(_S("CSKR"));
+        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".over.CSKR"));
     }
 
     /* Set Animation Resource IDs */
     ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool
     {
         hecl::SystemStringView sysStr(prim.animName);
-        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
         prim.animId = pathOut;
         return true;
     });
@@ -1143,8 +1143,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     for (const DNAANCS::Actor::Armature& arm : actor.armatures)
     {        
         hecl::SystemStringView sysStr(arm.name);
-        hecl::ProjectPath pathOut = inPath.getCookedPath(SpecEntMP1).getWithExtension((_S('.') +
-                                    sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
+        hecl::ProjectPath pathOut = inPath.getCookedPath(SpecEntMP1).ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
         athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1215,8 +1214,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         skinIO.close();
 
         hecl::SystemStringView sysStr(ch.name);
-        hecl::ProjectPath skinPath = inPath.getCookedPath(SpecEntMP1PC).getWithExtension((_S('.') +
-                                     sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
+        hecl::ProjectPath skinPath = inPath.getCookedPath(SpecEntMP1PC).ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
         athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
         if (skinOut.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1243,8 +1241,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     for (const DNAANCS::Actor::Action& act : actor.actions)
     {
         hecl::SystemStringView sysStr(act.name);
-        hecl::ProjectPath pathOut = inPath.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
-        hecl::ProjectPath cookedOut = inPath.getCookedPath(SpecEntMP1PC).getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true);
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
+        hecl::ProjectPath cookedOut = pathOut.getCookedPath(SpecEntMP1PC);
         athena::io::FileWriter w(cookedOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),

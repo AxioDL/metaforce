@@ -4,6 +4,7 @@
 #include "CInt32POINode.hpp"
 #include "CParticlePOINode.hpp"
 #include "CSoundPOINode.hpp"
+#include "IMetaAnim.hpp"
 
 namespace urde
 {
@@ -30,7 +31,11 @@ CSequenceHelper::CSequenceHelper(const std::shared_ptr<CAnimTreeNode>& a,
 
 CSequenceHelper::CSequenceHelper(const std::vector<std::shared_ptr<IMetaAnim>>& nodes,
                                  const CAnimSysContext& animCtx)
+: x0_transDB(animCtx.x0_transDB)
 {
+    x10_treeNodes.reserve(nodes.size());
+    for (const std::shared_ptr<IMetaAnim>& meta : nodes)
+        x10_treeNodes.push_back(meta->GetAnimationTree(animCtx, CMetaAnimTreeBuildOrders::NoSpecialOrders()));
 }
 
 CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals()

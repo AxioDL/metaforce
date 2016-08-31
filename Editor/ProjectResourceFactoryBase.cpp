@@ -90,6 +90,8 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
     cacheWriter.enterSubVector(idStr);
     cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
     cacheWriter.writeString(nullptr, path.getRelativePathUTF8().c_str());
+    if (path.getAuxInfo().size())
+        cacheWriter.writeString(nullptr, path.getAuxInfoUTF8().c_str());
     cacheWriter.leaveSubVector();
 }
 
@@ -155,7 +157,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& arm : armatureNames)
                     {
                         hecl::SystemStringView sysStr(arm);
-                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CINF"));
+                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         m_tagToPath[pathTag] = subPath;
                         WriteTag(cacheWriter, pathTag, subPath);
@@ -167,7 +169,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& sub : subtypeNames)
                     {
                         hecl::SystemStringView sysStr(sub);
-                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("CSKR"));
+                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         m_tagToPath[pathTag] = subPath;
                         WriteTag(cacheWriter, pathTag, subPath);
@@ -179,7 +181,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                     for (const std::string& act : actionNames)
                     {
                         hecl::SystemStringView sysStr(act);
-                        hecl::ProjectPath subPath = path.getWithExtension((_S('.') + sysStr.sys_str()).c_str(), true).ensureAuxInfo(_S("ANIM"));
+                        hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
                         SObjectTag pathTag = TagFromPath(subPath, m_backgroundBlender);
                         m_tagToPath[pathTag] = subPath;
                         WriteTag(cacheWriter, pathTag, subPath);
@@ -218,12 +220,18 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                 size_t loadIdx = 0;
                 for (const auto& child : cacheReader.getRootNode()->m_mapChildren)
                 {
+                    const athena::io::YAMLNode& node = *child.second;
                     unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
-                    hecl::FourCC type(child.second->m_seqChildren.at(0)->m_scalarString.c_str());
+                    hecl::FourCC type(node.m_seqChildren.at(0)->m_scalarString.c_str());
                     hecl::ProjectPath path(m_proj->getProjectWorkingPath(),
-                        child.second->m_seqChildren.at(1)->m_scalarString);
+                        node.m_seqChildren.at(1)->m_scalarString);
+                    if (node.m_seqChildren.size() >= 3)
+                    {
+                        hecl::SystemStringView sys(node.m_seqChildren[2]->m_scalarString);
+                        path = path.ensureAuxInfo(sys.sys_str());
+                    }
                     m_tagToPath[SObjectTag(type, id)] = path;
-                    fprintf(stderr, "\r %" PRISize " / %" PRISize, loadIdx++,
+                    fprintf(stderr, "\r %" PRISize " / %" PRISize, ++loadIdx,
                             cacheReader.getRootNode()->m_mapChildren.size());
                 }
                 fprintf(stderr, "\n");
@@ -317,10 +325,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
         spec = m_cookSpec->overrideDataSpec(working, m_pcSpec, hecl::SharedBlenderToken);
     if (!spec)
         return {};
-    if (working.getAuxInfo().size())
-        return working.getCookedPath(*spec).getWithExtension((_S('.') + working.getAuxInfo()).c_str());
-    else
-        return working.getCookedPath(*spec);
+    return working.getCookedPath(*spec);
 }
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)

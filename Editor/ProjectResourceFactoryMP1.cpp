@@ -55,11 +55,11 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
 
 SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
 {
-    if (!path.getAuxInfo().compare(_S("CINF")))
+    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
         return SObjectTag(SBIG('CINF'), path.hash().val32());
-    else if (!path.getAuxInfo().compare(_S("CSKR")))
+    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
         return SObjectTag(SBIG('CSKR'), path.hash().val32());
-    else if (!path.getAuxInfo().compare(_S("ANIM")))
+    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
         return SObjectTag(SBIG('ANIM'), path.hash().val32());
 
     if (hecl::IsPathBlend(path))
@@ -75,11 +75,11 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
         case hecl::BlenderConnection::BlendType::Actor:
             if (path.getAuxInfo().size())
             {
-                if (!path.getAuxInfo().compare(_S("CINF")))
+                if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
                     return {SBIG('CINF'), path.hash().val32()};
-                else if (!path.getAuxInfo().compare(_S("CSKR")))
+                else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
                     return {SBIG('CSKR'), path.hash().val32()};
-                else if (!path.getAuxInfo().compare(_S("ANIM")))
+                else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
                     return {SBIG('ANIM'), path.hash().val32()};
             }
             return {SBIG('ANCS'), path.hash().val32()};
