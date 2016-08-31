@@ -16,6 +16,7 @@
 
 namespace urde
 {
+static logvisor::Module Log("urde::CModelData");
 
 CModelData::~CModelData() {}
 
@@ -26,6 +27,8 @@ CModelData::CModelData(const CStaticRes& res)
 : x0_particleScale(res.GetScale())
 {
     x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
+    if (!x1c_normalModel)
+        Log.report(logvisor::Fatal, "unable to find CMDL %08X", res.GetId());
 }
 
 CModelData::CModelData(const CAnimRes& res)

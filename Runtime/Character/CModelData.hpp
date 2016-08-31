@@ -33,6 +33,7 @@ public:
 
     ResId GetId() const { return x0_cmdlId; }
     const zeus::CVector3f& GetScale() const { return x4_scale; }
+    operator bool() const { return x0_cmdlId != 0; }
 };
 
 class CAnimRes

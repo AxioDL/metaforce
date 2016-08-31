@@ -3,6 +3,7 @@
 
 namespace urde
 {
+static logvisor::Module Log("urde::CSkinnedModel");
 
 CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model,
                              TLockedToken<CSkinRules> skinRules,
@@ -10,6 +11,12 @@ CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model,
                              int shaderIdx)
 : x4_model(model), x10_skinRules(skinRules), x1c_layoutInfo(layoutInfo)
 {
+    if (!model)
+        Log.report(logvisor::Fatal, "bad model token provided to CSkinnedModel");
+    if (!skinRules)
+        Log.report(logvisor::Fatal, "bad skin token provided to CSkinnedModel");
+    if (!layoutInfo)
+        Log.report(logvisor::Fatal, "bad character layout token provided to CSkinnedModel");
     m_modelInst = model->MakeNewInstance(shaderIdx);
 }
 

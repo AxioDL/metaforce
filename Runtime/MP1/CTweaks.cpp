@@ -60,10 +60,10 @@ void CTweaks::RegisterResourceTweaks()
 #else
     ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::unique_ptr<CInputStream> strm;
-    SObjectTag tag = *factory.GetResourceIdByName("GunRes");
+    SObjectTag tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/GunRes.yaml"));
     strm.reset(new CMemoryInStream(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag)));
     g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
-    tag = *factory.GetResourceIdByName("GunRes");
+    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/PlayerRes.yaml"));
     strm.reset(new CMemoryInStream(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag)));
     g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
 #endif

@@ -298,16 +298,16 @@ void CWorldTransManager::TouchModels()
         x4_modelData->x1c_samusModelData.AnimationData()->SetAnimation(aData, false);
     }
 
-    if (x4_modelData->x1c_samusModelData.IsNull())
+    if (!x4_modelData->x1c_samusModelData.IsNull())
         x4_modelData->x1c_samusModelData.Touch(CModelData::EWhichModel::Normal, 0);
 
-    if (x4_modelData->xb4_platformModelData.IsNull())
+    if (!x4_modelData->xb4_platformModelData.IsNull())
         x4_modelData->xb4_platformModelData.Touch(CModelData::EWhichModel::Normal, 0);
 
-    if (x4_modelData->x100_bgModelData.IsNull())
+    if (!x4_modelData->x100_bgModelData.IsNull())
         x4_modelData->x100_bgModelData.Touch(CModelData::EWhichModel::Normal, 0);
 
-    if (x4_modelData->x68_beamModelData.IsNull())
+    if (!x4_modelData->x68_beamModelData.IsNull())
         x4_modelData->x68_beamModelData.Touch(CModelData::EWhichModel::Normal, 0);
 }
 
