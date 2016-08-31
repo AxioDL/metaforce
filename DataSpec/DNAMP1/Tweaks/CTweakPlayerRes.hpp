@@ -127,6 +127,9 @@ struct CTweakPlayerRes : ITweakPlayerRes
     const std::string& GetWaveBeamCineModel() const { return m_cineWave; }
     const std::string& GetPlasmaBeamCineModel() const { return m_cinePlasma; }
     const std::string& GetPhazonBeamCineModel() const { return m_cinePhazon; }
+
+    CTweakPlayerRes() = default;
+    CTweakPlayerRes(athena::io::IStreamReader& in) { read(in); }
 };
 
 }

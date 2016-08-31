@@ -113,6 +113,9 @@ struct CTweakGunRes : ITweakGunRes
     const std::string& GetGrappleHitParticle() const { return m_grappleHit; }
     const std::string& GetGrappleMuzzleParticle() const { return m_grappleMuzzle; }
     const std::string& GetGrappleSwooshParticle() const { return m_grappleSwoosh; }
+
+    CTweakGunRes() = default;
+    CTweakGunRes(athena::io::IStreamReader& in) { read(in); }
 };
 
 }
