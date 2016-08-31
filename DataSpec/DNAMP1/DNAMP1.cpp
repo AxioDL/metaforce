@@ -22,6 +22,9 @@
 #include "MAPA.hpp"
 #include "FRME.hpp"
 
+#include "../DNACommon/Tweaks/TweakWriter.hpp"
+#include "Tweaks/CTweakPlayerRes.hpp"
+
 namespace DataSpec
 {
 namespace DNAMP1
@@ -270,7 +273,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
-ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::Entry& entry)
 {
     switch (entry.type)
     {
@@ -312,6 +315,17 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
         return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
     case SBIG('DGRP'):
         return {DNADGRP::ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
+    case SBIG('CTWK'):
+    {
+        bool named;
+        std::string name = pak.bestEntryName(entry, named);
+        if (named)
+        {
+            if (!name.compare("PlayerRes"))
+                return {ExtractTweak<CTweakPlayerRes>, nullptr, {_S(".yaml")}};
+        }
+        break;
+    }
     }
     return {};
 }

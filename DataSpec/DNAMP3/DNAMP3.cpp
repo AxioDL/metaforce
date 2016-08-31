@@ -223,7 +223,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
-ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK::Entry& entry)
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::Entry& entry)
 {
     switch (entry.type)
     {

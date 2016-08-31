@@ -117,7 +117,7 @@ int CINF::RecursiveAddArmatureBone(const Armature& armature, const Armature::Bon
     const Armature::Bone* child;
     boneOut.linked.push_back(parent);
     for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
-        boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, selId, idMap, nameMap));
+        boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, curId, idMap, nameMap));
 
     return boneOut.id;
 }

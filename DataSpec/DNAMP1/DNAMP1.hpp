@@ -27,7 +27,7 @@ public:
               const nod::Node& node,
               bool doExtract=true);
     void build();
-    static ResExtractor<PAKBridge> LookupExtractor(const PAK::Entry& entry);
+    static ResExtractor<PAKBridge> LookupExtractor(const PAK& pak, const PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
     const hecl::SystemString& getLevelString() const {return m_levelString;}
     using PAKType = PAK;

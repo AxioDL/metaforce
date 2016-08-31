@@ -18,6 +18,8 @@
 #include "DNACommon/CRSC.hpp"
 #include "DNACommon/DPSC.hpp"
 #include "DNACommon/DGRP.hpp"
+#include "DNACommon/Tweaks/TweakWriter.hpp"
+#include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -346,6 +348,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAFont::FONT<UniqueID32>::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakPlayerRes::DNAType()))
+                return true;
             return false;
         });
     }
@@ -484,6 +488,12 @@ struct SpecMP1 : SpecBase
                 DNAFont::FONT<UniqueID32> font;
                 font.read(reader);
                 DNAFont::WriteFONT(font, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakPlayerRes::DNAType()))
+            {
+                DNAMP1::CTweakPlayerRes playerRes;
+                playerRes.read(reader);
+                WriteTweak(playerRes, out);
             }
         }
         progress(_S("Done"));

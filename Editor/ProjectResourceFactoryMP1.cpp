@@ -138,9 +138,9 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
                 resTag.type = SBIG('STRG');
                 return true;
             }
-            else if (!strcmp(className, "FONT"))
+            else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes"))
             {
-                resTag.type = SBIG('FONT');
+                resTag.type = SBIG('CTWK');
                 return true;
             }
             return false;

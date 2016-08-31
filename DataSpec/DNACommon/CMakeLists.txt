@@ -31,6 +31,7 @@ add_library(DNACommon
             BabeDead.hpp BabeDead.cpp
             RigInverter.hpp RigInverter.cpp
             AROTBuilder.hpp AROTBuilder.cpp
+            Tweaks/TweakWriter.hpp
             Tweaks/ITweakGame.hpp
             Tweaks/ITweakParticle.hpp
             Tweaks/ITweakPlayer.hpp

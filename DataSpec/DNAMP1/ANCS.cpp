@@ -409,7 +409,7 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer)
     writer.writeUint16Big(sectionCount);
 
     writer.writeString(name);
-    cmdl.write(writer);
+    cmdl.UniqueID32::write(writer);
     cskr.UniqueID32::write(writer);
     cinf.UniqueID32::write(writer);
 
@@ -449,7 +449,7 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer)
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.write(writer);
+        cmdlOverlay.UniqueID32::write(writer);
         cskrOverlay.UniqueID32::write(writer);
     }
 
@@ -1107,6 +1107,12 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     /* Set Character Resource IDs */
     for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
     {
+        ch.cmdl = UniqueID32{};
+        ch.cskr = UniqueID32{};
+        ch.cinf = UniqueID32{};
+        ch.cmdlOverlay = UniqueID32{};
+        ch.cskrOverlay = UniqueID32{};
+
         hecl::SystemStringView chSysName(ch.name);
         ch.cskr = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR"));
 
@@ -1119,12 +1125,17 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                     const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
                     hecl::SystemStringView armSysName(arm.name);
                     ch.cinf = inPath.ensureAuxInfo(armSysName.sys_str() + _S(".CINF"));
+                    ch.cmdl = sub.mesh;
+                    if (sub.overlayMeshes.size())
+                    {
+                        ch.cmdlOverlay = sub.overlayMeshes[0].second;
+                        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".over.CSKR"));
+                    }
+
                     break;
                 }
             }
         }
-
-        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".over.CSKR"));
     }
 
     /* Set Animation Resource IDs */
@@ -1143,7 +1154,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     for (const DNAANCS::Actor::Armature& arm : actor.armatures)
     {        
         hecl::SystemStringView sysStr(arm.name);
-        hecl::ProjectPath pathOut = inPath.getCookedPath(SpecEntMP1).ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CINF")).getCookedPath(SpecEntMP1);
         athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1214,7 +1225,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         skinIO.close();
 
         hecl::SystemStringView sysStr(ch.name);
-        hecl::ProjectPath skinPath = inPath.getCookedPath(SpecEntMP1PC).ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
+        hecl::ProjectPath skinPath = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR")).getCookedPath(SpecEntMP1PC);
         athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
         if (skinOut.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),

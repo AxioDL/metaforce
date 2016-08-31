@@ -321,7 +321,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry) cons
 {
     if (!entry)
         return hecl::ProjectPath();
-    return getWorking(entry, BRIDGETYPE::LookupExtractor(*entry));
+    return getWorking(entry, BRIDGETYPE::LookupExtractor(*m_pak.get(), *entry));
 }
 
 template <class BRIDGETYPE>
@@ -392,11 +392,11 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
     const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
     if (!be)
         return hecl::SystemString();
-    hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(a));
+    hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*pak, a));
     hecl::SystemString ret;
     for (int i=0 ; i<aPath.levelCount() ; ++i)
         ret += _S("../");
-    hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*be));
+    hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*pak, *be));
     ret += bPath.getRelativePath();
     return ret;
 }
@@ -446,7 +446,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
     {
         for (const auto& item : m_pak->m_firstEntries)
         {
-            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*item);
+            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_pak.get(), *item);
             if (extractor.weight != w)
                 continue;
 

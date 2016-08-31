@@ -27,7 +27,7 @@ public:
               const nod::Node& node,
               bool doExtract=true);
     void build();
-    static ResExtractor<PAKBridge> LookupExtractor(const DNAMP1::PAK::Entry& entry);
+    static ResExtractor<PAKBridge> LookupExtractor(const DNAMP1::PAK& pak, const DNAMP1::PAK::Entry& entry);
     const std::string& getName() const {return m_node.getName();}
     const hecl::SystemString& getLevelString() const {return m_levelString;}
 
