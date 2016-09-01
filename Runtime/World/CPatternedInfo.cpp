@@ -25,7 +25,7 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
   xc4_halfExtent(in.readFloatBig()),
   xc8_height(in.readFloatBig()),
   xcc_bodyOrigin(zeus::CVector3f::ReadBig(in)),
-  xd8_(in.readFloatBig()),
+  xd8_stepUpHeight(in.readFloatBig()),
   xdc_(in.readFloatBig()),
   xe0_(in.readFloatBig()),
   xe4_(in.readFloatBig()),

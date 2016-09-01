@@ -13,7 +13,8 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, const std::string& name
     , xf8_24_(true)
     , x150_momentum(moverData.x18_)
     , x1c0_collisionPrimitive(box, matList)
-    , x200_(xf.buildMatrix3f())
+    , x1f4_translation(xf.origin)
+    , x200_orientation(xf.buildMatrix3f())
     , x23c_stepUpHeight(stepUp)
     , x240_stepDownHeight(stepDown)
 {
@@ -412,6 +413,11 @@ CPhysicsState::CPhysicsState(const zeus::CVector3f& translation, const zeus::CQu
 {
 }
 
+void CPhysicsState::SetTranslation(const zeus::CVector3f& tr)
+{
+    x0_translation = tr;
+}
+
 void CPhysicsState::SetOrientation(const zeus::CQuaternion& orient)
 {
     xc_orientation = orient;
@@ -420,11 +426,6 @@ void CPhysicsState::SetOrientation(const zeus::CQuaternion& orient)
 const zeus::CQuaternion& CPhysicsState::GetOrientation() const
 {
     return xc_orientation;
-}
-
-void CPhysicsState::SetTranslation(const zeus::CVector3f& tr)
-{
-    x0_translation = tr;
 }
 
 const zeus::CVector3f& CPhysicsState::GetTranslation() const

@@ -1319,8 +1319,8 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
 
     CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, true, aParms.GetInitialAnimation());
     CModelData mData(res);
-    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider, damageInfo1, actorParms, weaponDesc,
-                             damageInfo2, particle, w1);
+    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider,
+                             damageInfo1, actorParms, weaponDesc, damageInfo2, particle, w1);
 }
 
 CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
@@ -1342,13 +1342,17 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
 
     if (animParms.GetCharacter() == 0)
     {
-        Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected", head.x0_name.c_str());
+        Log.report(logvisor::Warning,
+                   "SpacePirate <%s> has AnimationInformation property with invalid character selected",
+                   head.x0_name.c_str());
         animParms.SetCharacter(2);
     }
 
-    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale, animParms.GetInitialAnimation(), true));
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                              animParms.GetInitialAnimation(), true));
 
-    return new MP1::CSpacePirate(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aParams, pInfo, in, propCount);
+    return new MP1::CSpacePirate(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData),
+                                 aParams, pInfo, in, propCount);
 }
 
 CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in,

@@ -34,7 +34,7 @@ class CPatternedInfo
     float xc4_halfExtent;
     float xc8_height;
     zeus::CVector3f xcc_bodyOrigin;
-    float xd8_;
+    float xd8_stepUpHeight;
     float xdc_;
     float xe0_;
     float xe4_;

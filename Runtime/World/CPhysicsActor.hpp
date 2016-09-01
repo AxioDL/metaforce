@@ -96,15 +96,16 @@ protected:
     zeus::CAABox x1a4_baseBoundingBox;
     CCollidableAABox x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;
-    zeus::CNUQuaternion x200_;
+    zeus::CVector3f x1f4_translation;
+    zeus::CNUQuaternion x200_orientation;
     zeus::CAxisAngle x210_;
     zeus::CAxisAngle x21c_;
     bool x234_ = false;
     float x238_ = 1000000.0f;
     float x23c_stepUpHeight;
     float x240_stepDownHeight;
-    float x244_restitutionCoefModifier;
-    float x248_collisionAccuracyModifier;
+    float x244_restitutionCoefModifier = 0.f;
+    float x248_collisionAccuracyModifier = 1.f;
     u32 x24c_;
     u32 x250_;
 public:
