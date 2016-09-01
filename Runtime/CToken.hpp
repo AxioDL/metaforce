@@ -36,7 +36,8 @@ class CObjectReference
                 Unload();
             if (IsLoading())
                 CancelLoad();
-            xC_objectStore->ObjectUnreferenced(x4_objTag);
+            if (xC_objectStore)
+                xC_objectStore->ObjectUnreferenced(x4_objTag);
         }
         return x0_refCount;
     }

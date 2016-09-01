@@ -14,10 +14,11 @@ static CMaterialList MakeAiMaterialList(const CMaterialList& in)
 }
 
 CAi::CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-         CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability& dmgVuln,
-         const CMaterialList& list, ResId, const CActorParameters& actorParams, float f1, float f2)
-    : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeAiMaterialList(list), box, SMoverData(mass), actorParams,
-                    f1, f2),
+         CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo,
+         const CDamageVulnerability& dmgVuln, const CMaterialList& list, ResId, const CActorParameters& actorParams,
+         float stepUp, float stepDown)
+    : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeAiMaterialList(list), box, SMoverData(mass),
+                    actorParams, stepUp, stepDown),
       x258_healthInfo(hInfo),
       x260_damageVulnerability(dmgVuln)
 {
