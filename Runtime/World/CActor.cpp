@@ -293,4 +293,12 @@ void CActor::SetSfxPitchBend(s32 val)
     CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
 }
 
+void CActor::SetTranslation(const zeus::CVector3f &tr)
+{
+    x34_transform.origin = tr;
+    xe4_27_ = true;
+    xe4_28_ = true;
+    xe4_29_ = true;
+}
+
 }

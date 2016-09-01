@@ -4,18 +4,6 @@
 
 namespace urde
 {
-bool close_enough(const zeus::CVector2f& a, const zeus::CVector2f& b, float epsilon = 0.000099999997f)
-{
-    if (std::fabs(a.x - b.x) < epsilon && std::fabs(a.y - b.y) < epsilon)
-        return true;
-    return false;
-}
-
-bool close_enough(float a, float b, double epsilon = 0.000009999999747378752)
-{
-    return std::fabs(a - b) < epsilon;
-}
-
 CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                        const ERglFogMode& mode, const zeus::CColor& color,
                                        const zeus::CVector2f& range, float colorDelta,
@@ -34,7 +22,7 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, const std::string& name, c
       x60_explicit(expl)
 
 {
-    if (close_enough(rangeDelta, zeus::CVector2f::skZero) && close_enough(colorDelta, 0.f))
+    if (zeus::close_enough(rangeDelta, zeus::CVector2f::skZero) && zeus::close_enough(colorDelta, 0.f))
         x61_nonZero = false;
     else
         x61_nonZero = true;
@@ -68,7 +56,7 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
         else
             fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
 
-        if (close_enough(x54_thermalSpeed, 0.f) && !close_enough(x5c_xraySpeed, 0.f))
+        if (zeus::close_enough(x54_thermalSpeed, 0.f) && !zeus::close_enough(x5c_xraySpeed, 0.f))
         {
             CWorld* world = stateMgr.GetWorld();
             CGameArea* area = world->GetArea(GetAreaId());

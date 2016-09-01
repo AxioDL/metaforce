@@ -138,6 +138,7 @@ public:
     bool HasModelData() const;
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
+    void SetTranslation(const zeus::CVector3f& tr);
 };
 }
 
