@@ -289,7 +289,7 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool)
 {
 }
 
-SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool b2)
+SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool advTree)
 {
     b1 = false;
 
@@ -317,7 +317,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
         b1 = true;
     }
 
-    if (b2)
+    if (advTree && x1f8_animRoot)
     {
         SetRandomPlaybackRate(random);
         CCharAnimTime time(scaleDt);
@@ -362,10 +362,10 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
 }
 
 SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
-                                      CStateManager& stateMgr, TAreaId aid, bool b1)
+                                      CStateManager& stateMgr, TAreaId aid, bool advTree)
 {
     bool b2;
-    return DoAdvance(dt, b2, *stateMgr.GetActiveRandom(), b1);
+    return DoAdvance(dt, b2, *stateMgr.GetActiveRandom(), advTree);
     if (b2)
         x120_particleDB.SuspendAllActiveEffects(stateMgr);
 
@@ -379,10 +379,10 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
     }
 }
 
-SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random, bool b1)
+SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random, bool advTree)
 {
     bool b2;
-    return DoAdvance(dt, b2, random, b1);
+    return DoAdvance(dt, b2, random, advTree);
 }
 
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat)

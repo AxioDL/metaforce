@@ -203,9 +203,9 @@ public:
     void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, std::vector<CToken>& tokensOut);
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
     void SetAnimation(const CAnimPlaybackParms& parms, bool);
-    SAdvancementDeltas DoAdvance(float, bool&, CRandom16&, bool);
-    SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, TAreaId aid, bool);
-    SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool);
+    SAdvancementDeltas DoAdvance(float, bool&, CRandom16&, bool advTree);
+    SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, TAreaId aid, bool advTree);
+    SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool advTree);
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
     void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
     void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);

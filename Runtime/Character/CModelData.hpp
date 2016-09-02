@@ -119,8 +119,8 @@ public:
     zeus::CTransform GetScaledLocatorTransform(const std::string& name) const;
     zeus::CTransform GetLocatorTransformDynamic(const std::string& name, const CCharAnimTime* time) const;
     zeus::CTransform GetLocatorTransform(const std::string& name) const;
-    SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16&, bool);
-    SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool);
+    SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16&, bool advTree);
+    SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree);
     bool IsAnimating() const;
     bool IsInFrustum(const zeus::CTransform& xf, const CFrustumPlanes& frustum) const;
     void RenderParticles(const CFrustumPlanes& frustum) const;

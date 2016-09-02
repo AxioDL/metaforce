@@ -162,6 +162,13 @@ public:
         bool finished = false;
         m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
 
+        g_GameState->GetWorldTransitionManager()->TouchModels();
+        int unk = 0;
+        m_archQueue.Push(std::move(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk)));
+
+        m_ioWinManager.PumpMessages(m_archQueue);
+
+        /*
         while (m_archQueue)
         {
             CArchitectureMessage msg = m_archQueue.Pop();
@@ -178,6 +185,7 @@ public:
                     m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)));
             }
         }
+        */
         return finished;
     }
 

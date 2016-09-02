@@ -172,6 +172,8 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_moviePlayer->Update(1.f / 60.f);
         m_vm.m_moviePlayer->DrawFrame();
     }
+
+    g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
     g_GameState->GetWorldTransitionManager()->Draw();
 }
 

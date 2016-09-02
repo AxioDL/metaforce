@@ -155,6 +155,10 @@ public:
     {
         return *msg.GetParm<CArchMsgParmVoidPtr>();
     }
+    static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, int a)
+    {
+        return CArchitectureMessage(target, EArchMsgType::FrameBegin, new CArchMsgParmInt32(a));
+    }
     /* URDE Messages */
     static CArchitectureMessage CreateApplicationExit(EArchMsgTarget target)
     {

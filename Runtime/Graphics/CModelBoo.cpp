@@ -13,7 +13,7 @@
 
 namespace urde
 {
-static logvisor::Module Log("urde::CModelBoo");
+static logvisor::Module Log("urde::CBooModel");
 bool CBooModel::g_DrawingOccluders = false;
 
 CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,

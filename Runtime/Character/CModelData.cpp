@@ -235,18 +235,18 @@ zeus::CTransform CModelData::GetLocatorTransform(const std::string& name) const
         return {};
 }
 
-SAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool flag)
+SAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool advTree)
 {
     if (x10_animData)
-        return x10_animData->AdvanceIgnoreParticles(dt, rand, flag);
+        return x10_animData->AdvanceIgnoreParticles(dt, rand, advTree);
     else
         return {};
 }
 
-SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool flag)
+SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree)
 {
     if (x10_animData)
-        return x10_animData->Advance(dt, x0_particleScale, stateMgr, aid, flag);
+        return x10_animData->Advance(dt, x0_particleScale, stateMgr, aid, advTree);
     else
         return {};
 }
