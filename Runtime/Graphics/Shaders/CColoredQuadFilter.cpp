@@ -51,6 +51,37 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t)
         m_top.draw(color, rect);
     }
 }
+    
+float CWideScreenFilter::SetViewportToMatch(float t)
+{
+    float aspect = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    if (aspect < 1.7777f)
+    {
+        float targetHeight = CGraphics::g_ViewportResolution.x / 1.7777f;
+        float delta = (CGraphics::g_ViewportResolution.y - targetHeight) * t / 2.f;
+        boo::SWindowRect rect = {};
+        rect.size[0] = CGraphics::g_ViewportResolution.x;
+        rect.size[1] = CGraphics::g_ViewportResolution.y - delta * 2.f;
+        rect.location[1] = delta;
+        CGraphics::g_CroppedViewport = rect;
+        CGraphics::g_BooMainCommandQueue->setViewport(rect);
+        return 1.7777f;
+    }
+    else
+    {
+        SetViewportToFull();
+        return aspect;
+    }
+}
+    
+void CWideScreenFilter::SetViewportToFull()
+{
+    boo::SWindowRect rect = {};
+    rect.size[0] = CGraphics::g_ViewportResolution.x;
+    rect.size[1] = CGraphics::g_ViewportResolution.y;
+    CGraphics::g_CroppedViewport = rect;
+    CGraphics::g_BooMainCommandQueue->setViewport(rect);
+}
 
 const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 

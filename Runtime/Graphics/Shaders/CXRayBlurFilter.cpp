@@ -31,10 +31,7 @@ CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex)
 
 void CXRayBlurFilter::draw(float amount)
 {
-    SClipScreenRect clipRect = {};
-    clipRect.xc_width = CGraphics::g_ViewportResolution.x;
-    clipRect.x10_height = CGraphics::g_ViewportResolution.y;
-    CGraphics::ResolveSpareTexture(clipRect);
+    CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
     float blurL = amount * 0.0014f * 0.25f;
     float blurQ = amount * 0.0000525f * 0.25f;

@@ -15,13 +15,19 @@ class CCameraBlurFilter
     friend struct CCameraBlurFilterMetalDataBindingFactory;
     friend struct CCameraBlurFilterD3DDataBindingFactory;
 
+    struct Vert
+    {
+        zeus::CVector2f m_pos;
+        zeus::CVector2f m_uv;
+    };
+    
     struct Uniform
     {
         zeus::CVector4f m_uv[6];
         float m_opacity = 1.f;
     };
     boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
+    boo::IGraphicsBufferD* m_vbo;
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;

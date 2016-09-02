@@ -28,10 +28,7 @@ CThermalHotFilter::CThermalHotFilter()
 
 void CThermalHotFilter::draw()
 {
-    SClipScreenRect clipRect = {};
-    clipRect.xc_width = CGraphics::g_ViewportResolution.x;
-    clipRect.x10_height = CGraphics::g_ViewportResolution.y;
-    CGraphics::ResolveSpareTexture(clipRect);
+    CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
     //m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 

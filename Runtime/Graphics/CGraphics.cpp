@@ -28,6 +28,7 @@ zeus::CTransform CGraphics::g_GXViewPointMatrix;
 zeus::CTransform CGraphics::g_CameraMatrix;
 zeus::CVector2i CGraphics::g_ViewportResolution;
 zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
+SClipScreenRect CGraphics::g_CroppedViewport;
 int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
 
@@ -398,6 +399,9 @@ zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 {
     g_ViewportResolution = res;
+    g_CroppedViewport = SClipScreenRect();
+    g_CroppedViewport.xc_width = res.x;
+    g_CroppedViewport.x10_height = res.y;
     g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
 }
 

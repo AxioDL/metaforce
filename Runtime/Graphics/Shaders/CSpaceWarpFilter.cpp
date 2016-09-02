@@ -63,20 +63,21 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     m_uniform.m_indXf[2][1] = 0.f;
 
     /* Warp effect is fixed at 192x192 rectangle in original (1/2.5 viewport height) */
+    float aspect = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_CroppedViewport.x10_height);
     m_uniform.m_matrix[1][1] = 1.f / 2.5f;
-    m_uniform.m_matrix[0][0] = m_uniform.m_matrix[1][1] / CGraphics::g_ProjAspect;
+    m_uniform.m_matrix[0][0] = m_uniform.m_matrix[1][1] / aspect;
 
     SClipScreenRect clipRect = {};
-    clipRect.x4_left = ((pt[0] - m_uniform.m_matrix[0][0]) / 2.f + 0.5f) * CGraphics::g_ViewportResolution.x;
-    if (clipRect.x4_left >= CGraphics::g_ViewportResolution.x)
+    clipRect.x4_left = ((pt[0] - m_uniform.m_matrix[0][0]) / 2.f + 0.5f) * CGraphics::g_CroppedViewport.xc_width;
+    if (clipRect.x4_left >= CGraphics::g_CroppedViewport.xc_width)
         return;
-    clipRect.x8_top = ((pt[1] - m_uniform.m_matrix[1][1]) / 2.f + 0.5f) * CGraphics::g_ViewportResolution.y;
-    if (clipRect.x8_top >= CGraphics::g_ViewportResolution.y)
+    clipRect.x8_top = ((pt[1] - m_uniform.m_matrix[1][1]) / 2.f + 0.5f) * CGraphics::g_CroppedViewport.x10_height;
+    if (clipRect.x8_top >= CGraphics::g_CroppedViewport.x10_height)
         return;
-    clipRect.xc_width = CGraphics::g_ViewportResolution.x * m_uniform.m_matrix[0][0];
+    clipRect.xc_width = CGraphics::g_CroppedViewport.xc_width * m_uniform.m_matrix[0][0];
     if (clipRect.x4_left + clipRect.xc_width <= 0)
         return;
-    clipRect.x10_height = CGraphics::g_ViewportResolution.y * m_uniform.m_matrix[1][1];
+    clipRect.x10_height = CGraphics::g_CroppedViewport.x10_height * m_uniform.m_matrix[1][1];
     if (clipRect.x8_top + clipRect.x10_height <= 0)
         return;
 
@@ -99,21 +100,21 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     }
 
     float tmp = clipRect.x4_left + clipRect.xc_width;
-    if (tmp >= CGraphics::g_ViewportResolution.x)
+    if (tmp >= CGraphics::g_CroppedViewport.xc_width)
     {
-        clipRect.xc_width = CGraphics::g_ViewportResolution.x - clipRect.x4_left;
+        clipRect.xc_width = CGraphics::g_CroppedViewport.xc_width - clipRect.x4_left;
         m_uniform.m_indXf[0][0] = clipRect.xc_width / oldW;
     }
 
     tmp = clipRect.x8_top + clipRect.x10_height;
-    if (tmp >= CGraphics::g_ViewportResolution.y)
+    if (tmp >= CGraphics::g_CroppedViewport.x10_height)
     {
-        clipRect.x10_height = CGraphics::g_ViewportResolution.y - clipRect.x8_top;
+        clipRect.x10_height = CGraphics::g_CroppedViewport.x10_height - clipRect.x8_top;
         m_uniform.m_indXf[1][1] = clipRect.x10_height / oldH;
     }
 
     /* Transform UV coordinates of rectangle within viewport and sampled scene texels (clamped to viewport bounds) */
-    zeus::CVector2f vp{float(CGraphics::g_ViewportResolution.x), float(CGraphics::g_ViewportResolution.y)};
+    zeus::CVector2f vp{float(CGraphics::g_CroppedViewport.xc_width), float(CGraphics::g_CroppedViewport.x10_height)};
     m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
     m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
     m_uniform.m_matrix[3][0] = pt.x + (1.f / vp.x);
@@ -133,10 +134,13 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
         clipRect.x8_top -= 1;
         clipRect.x10_height += 1;
     }
-    if (clipRect.x4_left + clipRect.xc_width < CGraphics::g_ViewportResolution.x)
+    if (clipRect.x4_left + clipRect.xc_width < CGraphics::g_CroppedViewport.xc_width)
         clipRect.xc_width += 1;
-    if (clipRect.x8_top + clipRect.x10_height < CGraphics::g_ViewportResolution.y)
+    if (clipRect.x8_top + clipRect.x10_height < CGraphics::g_CroppedViewport.x10_height)
         clipRect.x10_height += 1;
+    
+    clipRect.x4_left += CGraphics::g_CroppedViewport.x4_left;
+    clipRect.x8_top += CGraphics::g_CroppedViewport.x8_top;
     CGraphics::ResolveSpareTexture(clipRect);
 
     m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f *

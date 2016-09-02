@@ -45,6 +45,8 @@ public:
     CWideScreenFilter(CCameraFilterPass::EFilterType type)
     : m_top(type), m_bottom(type) {}
     void draw(const zeus::CColor& color, float t);
+    static float SetViewportToMatch(float t);
+    static void SetViewportToFull();
 };
 
 }

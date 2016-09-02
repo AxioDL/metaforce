@@ -54,10 +54,7 @@ void CThermalColdFilter::setShift(unsigned shift)
 
 void CThermalColdFilter::draw()
 {
-    SClipScreenRect clipRect = {};
-    clipRect.xc_width = CGraphics::g_ViewportResolution.x;
-    clipRect.x10_height = CGraphics::g_ViewportResolution.y;
-    CGraphics::ResolveSpareTexture(clipRect);
+    CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
     m_uniform.m_shiftTexMtx[0][0] = 80.f * (CGraphics::g_ProjAspect / 1.33f);
     m_uniform.m_shiftTexMtx[1][1] = 120.f;

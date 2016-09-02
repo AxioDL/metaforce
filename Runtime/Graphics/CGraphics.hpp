@@ -141,16 +141,31 @@ enum class ERglFogMode
 
 struct SClipScreenRect
 {
-    bool x0_valid;
-    int x4_left;
-    int x8_top;
-    int xc_width;
-    int x10_height;
-    int x14_dstWidth;
-    float x18_uvXMin;
-    float x1c_uvXMax;
-    float x20_uvYMin;
-    float x24_uvYMax;
+    bool x0_valid = false;
+    int x4_left = 0;
+    int x8_top = 0;
+    int xc_width = 0;
+    int x10_height = 0;
+    int x14_dstWidth = 0;
+    float x18_uvXMin = 0.f;
+    float x1c_uvXMax = 0.f;
+    float x20_uvYMin = 0.f;
+    float x24_uvYMax = 0.f;
+    
+    SClipScreenRect() = default;
+    SClipScreenRect(bool valid, int left, int top, int width, int height, int dstWidth,
+                    float uvXMin, float uvXMax, float uvYMin, float uvYMax)
+    : x0_valid(valid), x4_left(left), x8_top(top), xc_width(width), x10_height(height), x14_dstWidth(dstWidth),
+      x18_uvXMin(uvXMin), x1c_uvXMax(uvXMax), x20_uvYMin(uvYMin), x24_uvYMax(uvYMax) {}
+    
+    SClipScreenRect(const boo::SWindowRect& rect)
+    {
+        x4_left = rect.location[0];
+        x8_top = rect.location[1];
+        xc_width = rect.size[0];
+        x10_height = rect.size[1];
+        x14_dstWidth = rect.size[0];
+    }
 };
 
 enum class ETexelFormat
@@ -211,6 +226,7 @@ public:
     static zeus::CTransform g_CameraMatrix;
     static zeus::CVector2i g_ViewportResolution;
     static zeus::CVector2i g_ViewportResolutionHalf;
+    static SClipScreenRect g_CroppedViewport;
     static int g_ViewportSamples;
     static bool g_IsGXModelMatrixIdentity;
 

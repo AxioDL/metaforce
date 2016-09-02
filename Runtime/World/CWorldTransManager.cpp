@@ -220,9 +220,10 @@ void CWorldTransManager::DrawSecondPass()
 
 void CWorldTransManager::DrawEnabled()
 {
+    float wsAspect = CWideScreenFilter::SetViewportToMatch(1.f);
+    
     g_Renderer->SetPerspective(CCameraManager::DefaultFirstPersonFOV(),
-                               CGraphics::g_ViewportResolution.x /
-                               float(CGraphics::g_ViewportResolution.y),
+                               wsAspect,
                                CCameraManager::DefaultNearPlane(),
                                CCameraManager::DefaultFarPlane());
     g_Renderer->x318_26_ = true;
@@ -243,6 +244,7 @@ void CWorldTransManager::DrawEnabled()
         m_dissolve.draw(zeus::CColor{1.f, 1.f, 1.f, t}, 1.f);
     }
 
+    CWideScreenFilter::SetViewportToFull();
     m_widescreen.draw(zeus::CColor::skBlack, 1.f);
 
     float ftbT = 0.f;
