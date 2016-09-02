@@ -34,10 +34,24 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
 #if 0
     std::vector<std::pair<CEntity*, EScriptObjectMessage>> objs;
     objs.reserve(10);
-    for (SConnection& conn : x20_conns)
+    for (const SConnection& conn : x20_conns)
     {
-        const std::unique_ptr<CObjectList>& objList = stateMgr.GetObjectList();
+        auto list = stateMgr.GetIdListForScript(conn.x8_objId);
+        auto it = list.first;
+        for (; it != list.second; ++it)
+        {
+            CEntity* ent = stateMgr.ObjectById(it->second);
+            if (ent && ent->GetActive())
+                objs.emplace_back(ent, conn.x4_msg);
+        }
     }
+
+    u32 r0 = x34_connectionCount;
+    if (x3c_clamp)
+        r0 = u32(0.5 + (float(x34_connectionCount) / 100.f));
+
+    float fVariance = float(x38_variance) * (2.f * stateMgr.GetActiveRandom()->Float());
+
 #endif
 }
 }
