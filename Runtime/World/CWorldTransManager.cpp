@@ -157,16 +157,20 @@ void CWorldTransManager::DrawAllModels()
     CModelFlags flags = {};
     flags.m_extendedShaderIdx = 1;
 
-    if (!x4_modelData->x100_bgModelData.IsNull())
+    if (!x4_modelData->x100_bgModelData[0].IsNull())
     {
         zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
-        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf0, &lights, flags);
-
+        x4_modelData->x100_bgModelData[0].Render(CModelData::EWhichModel::Normal, xf0, &lights, flags);
+    }
+    if (!x4_modelData->x100_bgModelData[1].IsNull())
+    {
         zeus::CTransform xf1 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight);
-        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf1, &lights, flags);
-
+        x4_modelData->x100_bgModelData[1].Render(CModelData::EWhichModel::Normal, xf1, &lights, flags);
+    }
+    if (!x4_modelData->x100_bgModelData[2].IsNull())
+    {
         zeus::CTransform xf2 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset);
-        x4_modelData->x100_bgModelData.Render(CModelData::EWhichModel::Normal, xf2, &lights, flags);
+        x4_modelData->x100_bgModelData[2].Render(CModelData::EWhichModel::Normal, xf2, &lights, flags);
     }
 
     if (!x4_modelData->xb4_platformModelData.IsNull())
@@ -277,14 +281,16 @@ void CWorldTransManager::TouchModels()
     if (!x4_modelData)
         return;
 
-    if (x4_modelData->x14c_beamModel.IsLoaded() &&
+    if (x4_modelData->x68_beamModelData.IsNull() &&
+        x4_modelData->x14c_beamModel.IsLoaded() &&
         x4_modelData->x14c_beamModel.GetObj())
     {
         x4_modelData->x68_beamModelData = CStaticRes(x4_modelData->x14c_beamModel.GetObjectTag()->id,
                                                      x4_modelData->x0_samusRes.GetScale());
     }
 
-    if (x4_modelData->x158_suitModel.IsLoaded() &&
+    if (x4_modelData->x1c_samusModelData.IsNull() &&
+        x4_modelData->x158_suitModel.IsLoaded() &&
         x4_modelData->x158_suitModel.GetObj() &&
         x4_modelData->x164_suitSkin.IsLoaded() &&
         x4_modelData->x164_suitSkin.GetObj())
@@ -304,9 +310,13 @@ void CWorldTransManager::TouchModels()
     if (!x4_modelData->xb4_platformModelData.IsNull())
         x4_modelData->xb4_platformModelData.Touch(CModelData::EWhichModel::Normal, 0);
 
-    if (!x4_modelData->x100_bgModelData.IsNull())
-        x4_modelData->x100_bgModelData.Touch(CModelData::EWhichModel::Normal, 0);
-
+    if (!x4_modelData->x100_bgModelData[0].IsNull())
+        x4_modelData->x100_bgModelData[0].Touch(CModelData::EWhichModel::Normal, 0);
+    if (!x4_modelData->x100_bgModelData[1].IsNull())
+        x4_modelData->x100_bgModelData[1].Touch(CModelData::EWhichModel::Normal, 0);
+    if (!x4_modelData->x100_bgModelData[2].IsNull())
+        x4_modelData->x100_bgModelData[2].Touch(CModelData::EWhichModel::Normal, 0);
+    
     if (!x4_modelData->x68_beamModelData.IsNull())
         x4_modelData->x68_beamModelData.Touch(CModelData::EWhichModel::Normal, 0);
 }
@@ -322,11 +332,6 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
 
     x8_textData.reset();
     x20_random.SetSeed(99);
-
-    //x4_modelData->x1c_samusModelData = CModelData(samusRes);
-
-    //CAnimPlaybackParms aData(samusRes.GetDefaultAnim(), -1, 1.f, true);
-    //x4_modelData->x1c_samusModelData.AnimationData()->SetAnimation(aData, false);
 
     const std::string& modelName = g_tweakPlayerRes->GetBeamCineModel(
         DataSpec::ITweakPlayerRes::EBeamId(g_GameState->GetPlayerState()->GetCurrentBeam()));
@@ -346,9 +351,9 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
 
     if (bgRes != -1)
     {
-        x4_modelData->x100_bgModelData = CStaticRes(bgRes, bgScale);
-        x4_modelData->x100_bgModelData.Touch(CModelData::EWhichModel::Normal, 0);
-        zeus::CAABox bounds = x4_modelData->x100_bgModelData.GetBounds();
+        x4_modelData->x100_bgModelData[0] = CStaticRes(bgRes, bgScale);
+        x4_modelData->x100_bgModelData[0].Touch(CModelData::EWhichModel::Normal, 0);
+        zeus::CAABox bounds = x4_modelData->x100_bgModelData[0].GetBounds();
         x1c_bgHeight = (bounds.max.z - bounds.min.z) * bgScale.z;
     }
     else

@@ -254,16 +254,18 @@ bool CBooModel::TryLockTextures() const
                 allLoad = false;
         }
 
-        if (allLoad)
-            const_cast<CBooModel*>(this)->BuildGfxToken();
-
         const_cast<CBooModel*>(this)->x40_24_texturesLoaded = allLoad;
     }
+    
+    if (!m_gfxToken && x40_24_texturesLoaded)
+        const_cast<CBooModel*>(this)->BuildGfxToken();
+    
     return x40_24_texturesLoaded;
 }
 
 void CBooModel::UnlockTextures() const
 {
+    const_cast<boo::GraphicsDataToken&>(m_gfxToken).doDestroy();
     for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
         tex.Unlock();
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;

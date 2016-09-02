@@ -49,24 +49,16 @@ void CTweaks::RegisterTweaks()
 
 void CTweaks::RegisterResourceTweaks()
 {
-#if 0
-    CResFactory& factory = *dynamic_cast<CResFactory*>(g_ResFactory);
-    CResLoader& loader = factory.GetLoader();
-    std::unique_ptr<CInputStream> strm;
-    strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "GunRes")));
-    g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
-    strm.reset(loader.LoadNewResourceSync(IDFromFactory(factory, "PlayerRes"), nullptr));
-    g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
-#else
     ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
-    std::unique_ptr<CInputStream> strm;
+    std::experimental::optional<CMemoryInStream> strm;
+    
     SObjectTag tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/GunRes.yaml"));
-    strm.reset(new CMemoryInStream(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag)));
+    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
     g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
+    
     tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/PlayerRes.yaml"));
-    strm.reset(new CMemoryInStream(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag)));
+    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
     g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
-#endif
 }
 
 }

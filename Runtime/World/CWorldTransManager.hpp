@@ -31,7 +31,7 @@ public:
         CModelData x1c_samusModelData;
         CModelData x68_beamModelData;
         CModelData xb4_platformModelData;
-        CModelData x100_bgModelData;
+        CModelData x100_bgModelData[3];
         TLockedToken<CModel> x14c_beamModel;
         TLockedToken<CModel> x158_suitModel;
         TLockedToken<CSkinRules> x164_suitSkin;
