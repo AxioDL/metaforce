@@ -24,7 +24,7 @@ CModelData::CModelData() {}
 CModelData CModelData::CModelDataNull() {return CModelData();}
 
 CModelData::CModelData(const CStaticRes& res)
-: x0_particleScale(res.GetScale())
+: x0_scale(res.GetScale())
 {
     x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
     if (!x1c_normalModel)
@@ -33,7 +33,7 @@ CModelData::CModelData(const CStaticRes& res)
 }
 
 CModelData::CModelData(const CAnimRes& res)
-: x0_particleScale(res.GetScale())
+: x0_scale(res.GetScale())
 {
     TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
     x10_animData = factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim());
@@ -185,25 +185,25 @@ void CModelData::AdvanceParticles(const zeus::CTransform& xf, float dt,
 {
     if (!x10_animData)
         return;
-    x10_animData->AdvanceParticles(xf, dt, x0_particleScale, stateMgr);
+    x10_animData->AdvanceParticles(xf, dt, x0_scale, stateMgr);
 }
 
 zeus::CAABox CModelData::GetBounds() const
 {
     if (x10_animData)
     {
-        return x10_animData->GetBoundingBox(zeus::CTransform::Scale(x0_particleScale));
+        return x10_animData->GetBoundingBox(zeus::CTransform::Scale(x0_scale));
     }
     else
     {
         const zeus::CAABox& aabb = x1c_normalModel->GetAABB();
-        return zeus::CAABox(aabb.min * x0_particleScale, aabb.max * x0_particleScale);
+        return zeus::CAABox(aabb.min * x0_scale, aabb.max * x0_scale);
     }
 }
 
 zeus::CAABox CModelData::GetBounds(const zeus::CTransform& xf) const
 {
-    zeus::CTransform xf2 = xf * zeus::CTransform::Scale(x0_particleScale);
+    zeus::CTransform xf2 = xf * zeus::CTransform::Scale(x0_scale);
     if (x10_animData)
         return x10_animData->GetBoundingBox(xf2);
     else
@@ -214,14 +214,14 @@ zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(const std::string&
                                                               const CCharAnimTime* time) const
 {
     zeus::CTransform xf = GetLocatorTransformDynamic(name, time);
-    xf.origin *= x0_particleScale;
+    xf.origin *= x0_scale;
     return xf;
 }
 
 zeus::CTransform CModelData::GetScaledLocatorTransform(const std::string& name) const
 {
     zeus::CTransform xf = GetLocatorTransform(name);
-    xf.origin *= x0_particleScale;
+    xf.origin *= x0_scale;
     return xf;
 }
 
@@ -253,7 +253,7 @@ SAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom
 SAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree)
 {
     if (x10_animData)
-        return x10_animData->Advance(dt, x0_particleScale, stateMgr, aid, advTree);
+        return x10_animData->Advance(dt, x0_scale, stateMgr, aid, advTree);
     else
         return {};
 }
@@ -295,7 +295,7 @@ void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx)
 void CModelData::RenderThermal(const zeus::CTransform& xf,
                                const zeus::CColor& a, const zeus::CColor& b)
 {
-    CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
+    CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
     CGraphics::DisableAllLights();
     CModelFlags drawFlags;
     drawFlags.m_extendedShaderIdx = 3;
@@ -323,7 +323,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
         return;
     }
 
-    CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
+    CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
 
     std::unique_ptr<CBooModel>& model = PickStaticModel(which);
     if (lights)
@@ -347,7 +347,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
     }
     else
     {
-        CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
+        CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
 
         if (x10_animData)
         {

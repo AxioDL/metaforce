@@ -66,7 +66,7 @@ void CActorLights::ActivateLights(CBooModel& model) const
         if (!x298_26_ || !x299_26_)
         {
             model.ActivateLights(lights);
-            return;
+            //return;
         }
     }
 

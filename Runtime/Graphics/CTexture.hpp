@@ -39,10 +39,6 @@ class CTexture
     void BuildC8(const void* data);
 
 public:
-    ~CTexture()
-    {
-        printf("");
-    }
     CTexture(std::unique_ptr<u8[]>&& in, u32 length);
     enum class EClampMode
     {

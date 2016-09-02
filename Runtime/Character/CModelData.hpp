@@ -66,7 +66,7 @@ public:
 class CModelData
 {
     friend class CActor;
-    zeus::CVector3f x0_particleScale;
+    zeus::CVector3f x0_scale;
     bool xc_ = false;
     std::unique_ptr<CAnimData> x10_animData;
     union
