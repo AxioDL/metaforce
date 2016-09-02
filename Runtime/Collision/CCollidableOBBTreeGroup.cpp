@@ -64,8 +64,9 @@ void CCollidableOBBTreeGroup::SetStaticTableIndex(u32 index)
     sTableIndex = index;
 }
 
-CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream &in,
-                                                const CVParamTransfer &vparms)
+CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream& in,
+                                                const CVParamTransfer& vparms,
+                                                CObjectReference* selfRef)
 {
     return TToken<CCollidableOBBTreeGroup>::GetIObjObjectFor(std::make_unique<CCollidableOBBTreeGroup>(in));
 }

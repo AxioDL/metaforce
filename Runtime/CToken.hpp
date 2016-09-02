@@ -74,7 +74,7 @@ class CObjectReference
         if (!x10_object && !x3_loading)
         {
             IFactory& fac = xC_objectStore->GetFactory();
-            fac.BuildAsync(x4_objTag, x14_params, &x10_object);
+            fac.BuildAsync(x4_objTag, x14_params, &x10_object, this);
             x3_loading = true;
         }
     }
@@ -102,7 +102,7 @@ class CObjectReference
         if (!x10_object)
         {
             IFactory& factory = xC_objectStore->GetFactory();
-            x10_object = factory.Build(x4_objTag, x14_params).release();
+            x10_object = factory.Build(x4_objTag, x14_params, this).release();
         }
         x3_loading = false;
         return x10_object;
@@ -128,6 +128,7 @@ public:
 class CToken
 {
     friend class CSimplePool;
+    friend class CModel;
     CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
 

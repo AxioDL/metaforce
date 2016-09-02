@@ -31,7 +31,7 @@ bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const
     const CModel* model = xf8_model.GetObj();
     if (!model)
         return false;
-    model->Touch(0);
+    model->GetInstance().Touch(0);
     return model->IsLoaded(0);
 }
 
@@ -39,7 +39,7 @@ void CGuiModel::Touch() const
 {
     const CModel* model = xf8_model.GetObj();
     if (model)
-        model->Touch(0);
+        model->GetInstance().Touch(0);
 }
 
 void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const

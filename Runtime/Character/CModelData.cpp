@@ -29,6 +29,7 @@ CModelData::CModelData(const CStaticRes& res)
     x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
     if (!x1c_normalModel)
         Log.report(logvisor::Fatal, "unable to find CMDL %08X", res.GetId());
+    m_normalModelInst = x1c_normalModel->MakeNewInstance(0);
 }
 
 CModelData::CModelData(const CAnimRes& res)
@@ -82,20 +83,20 @@ CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
     return *x10_animData->xd8_modelData.GetObj();
 }
 
-TLockedToken<CModel>& CModelData::PickStaticModel(EWhichModel which)
+std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which)
 {
-    TLockedToken<CModel>* ret = nullptr;
+    std::unique_ptr<CBooModel>* ret = nullptr;
     switch (which)
     {
     case EWhichModel::XRay:
-        ret = &x2c_xrayModel;
+        ret = &m_xrayModelInst;
     case EWhichModel::Thermal:
-        ret = &x3c_infraModel;
+        ret = &m_infraModelInst;
     default: break;
     }
     if (ret)
         return *ret;
-    return x1c_normalModel;
+    return m_normalModelInst;
 }
 
 void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
@@ -113,6 +114,9 @@ void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
             else
             {
                 x2c_xrayModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
+                if (!x2c_xrayModel)
+                    Log.report(logvisor::Fatal, "unable to find CMDL %08X", modelSkin.first);
+                m_xrayModelInst = x2c_xrayModel->MakeNewInstance(0);
             }
         }
     }
@@ -133,6 +137,9 @@ void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
             else
             {
                 x3c_infraModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
+                if (!x3c_infraModel)
+                    Log.report(logvisor::Fatal, "unable to find CMDL %08X", modelSkin.first);
+                m_infraModelInst = x3c_infraModel->MakeNewInstance(0);
             }
         }
     }
@@ -143,12 +150,12 @@ bool CModelData::IsDefinitelyOpaque(EWhichModel which)
     if (x10_animData)
     {
         CSkinnedModel& model = PickAnimatedModel(which);
-        return model.GetModel()->GetInstance().IsOpaque();
+        return model.GetModelInst()->IsOpaque();
     }
     else
     {
-        TLockedToken<CModel>& model = PickStaticModel(which);
-        return model->GetInstance().IsOpaque();
+        std::unique_ptr<CBooModel>& model = PickStaticModel(which);
+        return model->IsOpaque();
     }
 }
 
@@ -301,8 +308,8 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
     }
     else
     {
-        TLockedToken<CModel>& model = PickStaticModel(EWhichModel::Thermal);
-        model->Draw(drawFlags);
+        std::unique_ptr<CBooModel>& model = PickStaticModel(EWhichModel::Thermal);
+        model->Draw(drawFlags, nullptr, nullptr);
     }
 }
 
@@ -318,13 +325,13 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_particleScale));
 
-    TLockedToken<CModel>& model = PickStaticModel(which);
+    std::unique_ptr<CBooModel>& model = PickStaticModel(which);
     if (lights)
-        lights->ActivateLights(model->GetInstance());
+        lights->ActivateLights(*model);
     else
-        model->GetInstance().ActivateLights({});
+        model->ActivateLights({});
 
-    model->DrawUnsortedParts(drawFlags);
+    model->DrawNormal(drawFlags, nullptr, nullptr);
     // Set ambient to white
     CGraphics::DisableAllLights();
     const_cast<CModelData*>(this)->x14_24_renderSorted = true;
@@ -346,24 +353,24 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
         {
             CSkinnedModel& model = PickAnimatedModel(which);
             if (lights)
-                lights->ActivateLights(model.GetModel()->GetInstance());
+                lights->ActivateLights(*model.GetModelInst());
             else
-                model.GetModel()->GetInstance().ActivateLights({});
+                model.GetModelInst()->ActivateLights({});
 
             x10_animData->Render(model, drawFlags, {}, nullptr);
         }
         else
         {
-            TLockedToken<CModel>& model = PickStaticModel(which);
+            std::unique_ptr<CBooModel>& model = PickStaticModel(which);
             if (lights)
-                lights->ActivateLights(model->GetInstance());
+                lights->ActivateLights(*model);
             else
-                model->GetInstance().ActivateLights({});
+                model->ActivateLights({});
 
             if (x14_24_renderSorted)
-                model->DrawSortedParts(drawFlags);
+                model->DrawAlpha(drawFlags, nullptr, nullptr);
             else
-                model->Draw(drawFlags);
+                model->Draw(drawFlags, nullptr, nullptr);
         }
 
         // Set ambient to white

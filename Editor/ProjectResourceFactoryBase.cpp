@@ -335,7 +335,8 @@ bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 
 CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
                                                        const hecl::ProjectPath& path,
-                                                       const CVParamTransfer& paramXfer)
+                                                       const CVParamTransfer& paramXfer,
+                                                       CObjectReference* selfRef)
 {
     /* Ensure cooked rep is on the filesystem */
     std::experimental::optional<athena::io::FileReader> fr;
@@ -347,10 +348,10 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
     {
         u32 length = fr->length();
         std::unique_ptr<u8[]> memBuf = fr->readUBytes(length);
-        return m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer);
+        return m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer, selfRef);
     }
 
-    return m_factoryMgr.MakeObject(tag, *fr, paramXfer);
+    return m_factoryMgr.MakeObject(tag, *fr, paramXfer, selfRef);
 }
 
 void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& tag,
@@ -518,7 +519,8 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
 }
 
 std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjectTag& tag,
-                                                              const urde::CVParamTransfer& paramXfer)
+                                                              const urde::CVParamTransfer& paramXfer,
+                                                              CObjectReference* selfRef)
 {
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
@@ -540,12 +542,12 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
             if (m_factoryMgr.CanMakeMemory(task.x0_tag))
             {
                 newObj = m_factoryMgr.MakeObjectFromMemory(tag, std::move(task.x10_loadBuffer),
-                                                           task.x14_resSize, false, task.x18_cvXfer);
+                                                           task.x14_resSize, false, task.x18_cvXfer, selfRef);
             }
             else
             {
                 athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+                newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, selfRef);
             }
 
             *task.xc_targetObjPtr = newObj.get();
@@ -564,24 +566,26 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     }
 
     /* Fall-back to sync build */
-    return BuildSync(tag, *resPath, paramXfer);
+    return BuildSync(tag, *resPath, paramXfer, selfRef);
 }
 
 std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
 ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
                                                const urde::CVParamTransfer& paramXfer,
-                                               urde::IObj** objOut)
+                                               urde::IObj** objOut,
+                                               CObjectReference* selfRef)
 {
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer))).first->second;
+    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef))).first->second;
 }
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             const urde::CVParamTransfer& paramXfer,
-                                            urde::IObj** objOut)
+                                            urde::IObj** objOut,
+                                            CObjectReference* selfRef)
 {
-    BuildAsyncInternal(tag, paramXfer, objOut);
+    BuildAsyncInternal(tag, paramXfer, objOut, selfRef);
 }
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
@@ -765,12 +769,13 @@ void ProjectResourceFactoryBase::AsyncIdle()
                     if (m_factoryMgr.CanMakeMemory(task.x0_tag))
                     {
                         newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
-                                                                   task.x14_resSize, false, task.x18_cvXfer);
+                                                                   task.x14_resSize, false, task.x18_cvXfer,
+                                                                   task.m_selfRef);
                     }
                     else
                     {
                         athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                        newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer);
+                        newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, task.m_selfRef);
                     }
 
                     *task.xc_targetObjPtr = newObj.release();

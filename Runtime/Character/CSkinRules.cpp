@@ -12,7 +12,8 @@ CSkinRules::CSkinRules(CInputStream& in)
         x0_skinBanks.emplace_back(in);
 }
 
-CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params)
+CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
+                                   CObjectReference* selfRef)
 {
     return TToken<CSkinRules>::GetIObjObjectFor(std::make_unique<CSkinRules>(in));
 }

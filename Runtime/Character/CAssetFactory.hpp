@@ -17,8 +17,8 @@ public:
     class CDummyFactory : public IFactory
     {
     public:
-        CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&);
-        void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**);
+        CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef);
+        void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**, CObjectReference* selfRef);
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;

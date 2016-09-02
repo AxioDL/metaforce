@@ -634,7 +634,8 @@ CGuiFrame* CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in)
 }
 
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,
-                                             const CVParamTransfer&)
+                                             const CVParamTransfer&,
+                                             CObjectReference* selfRef)
 {
     std::unique_ptr<CGuiFrame> frame(CGuiFrame::CreateFrame(tag.id, *g_GuiSys, in));
     return TToken<CGuiFrame>::GetIObjObjectFor(std::move(frame));

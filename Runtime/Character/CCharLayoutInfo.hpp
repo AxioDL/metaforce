@@ -39,7 +39,8 @@ public:
     zeus::CVector3f GetFromParentUnrotated(const CSegId& id) const;
 };
 
-CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&);
+CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&,
+                                 CObjectReference* selfRef);
 
 }
 

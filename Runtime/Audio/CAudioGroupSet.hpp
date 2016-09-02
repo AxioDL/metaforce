@@ -25,7 +25,8 @@ public:
 
 CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag,
                                            std::unique_ptr<u8[]>&& in, u32 len,
-                                           const urde::CVParamTransfer& vparms);
+                                           const urde::CVParamTransfer& vparms,
+                                           CObjectReference* selfRef);
 
 }
 

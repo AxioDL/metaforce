@@ -47,7 +47,8 @@ public:
                                                      const CCharAnimTime& startTime);
 };
 
-CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);
+CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
+                                   CObjectReference* selfRef);
 
 }
 

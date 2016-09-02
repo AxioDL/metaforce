@@ -19,6 +19,7 @@ class CTexture;
 class CLight;
 class CSkinRules;
 class CPoseAsTransforms;
+class CModel;
 
 struct CModelFlags
 {
@@ -73,19 +74,23 @@ public:
         std::vector<TCachedToken<CTexture>> x0_textures;
         std::vector<std::vector<boo::IShaderPipeline*>> m_shaders;
         MaterialSet m_matSet;
+        int m_matSetIdx;
+        SShader(int idx) : m_matSetIdx(idx) {}
         void UnlockTextures();
     };
 
 private:
+    TLockedToken<CModel> m_model;
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
+    int m_matSetIdx = -1;
     const std::vector<std::vector<boo::IShaderPipeline*>>* m_pipelines;
     boo::IVertexFormat* m_vtxFmt;
     boo::IGraphicsBufferS* x8_vbo;
     boo::IGraphicsBufferS* xc_ibo;
     size_t m_weightVecCount;
     size_t m_skinBankCount;
-    std::vector<TCachedToken<CTexture>>* x1c_textures;
+    std::vector<TCachedToken<CTexture>> x1c_textures;
     zeus::CAABox x20_aabb;
     CBooSurface* x38_firstUnsortedSurface = nullptr;
     CBooSurface* x3c_firstSortedSurface = nullptr;
@@ -114,8 +119,10 @@ private:
     void DrawSurfaces(const CModelFlags& flags) const;
     void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
 
+    void VerifyCurrentShader(int shaderIdx);
+
 public:
-    CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
+    CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
               size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb);
 
@@ -128,6 +135,7 @@ public:
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;
+    void Touch(int shaderIdx) const;
     void UpdateUniformData(const CModelFlags& flags,
                            const CSkinRules* cskr,
                            const CPoseAsTransforms* pose) const;
@@ -152,8 +160,10 @@ public:
 
 class CModel
 {
+    friend class CBooModel;
     //std::unique_ptr<u8[]> x0_data;
     //u32 x4_dataLen;
+    TToken<CModel> m_selfToken; /* DO NOT LOCK! */
     zeus::CAABox m_aabb;
     std::vector<CBooSurface> x8_surfaces;
     std::vector<CBooModel::SShader> x18_matSets;
@@ -167,16 +177,13 @@ class CModel
     boo::IGraphicsBufferS* m_ibo;
     boo::IVertexFormat* m_vtxFmt;
 
-    void VerifyCurrentShader(int shaderIdx) const;
-
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
-    CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store);
+    CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store, CObjectReference* selfRef);
     void DrawSortedParts(const CModelFlags& flags) const;
     void DrawUnsortedParts(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
-    void Touch(int shaderIdx) const;
     bool IsLoaded(int shaderIdx) const;
 
     const zeus::CAABox& GetAABB() const {return m_aabb;}
@@ -187,7 +194,8 @@ public:
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
                                std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms);
+                               const urde::CVParamTransfer& vparms,
+                               CObjectReference* selfRef);
 
 }
 

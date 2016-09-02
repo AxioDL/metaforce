@@ -9,7 +9,8 @@ namespace urde
 {
 
 CFactoryFnReturn CCharacterFactoryBuilder::CDummyFactory::Build(const SObjectTag& tag,
-                                                                const CVParamTransfer&)
+                                                                const CVParamTransfer&,
+                                                                CObjectReference* selfRef)
 {
     TLockedToken<CAnimCharacterSet> ancs =
         g_SimplePool->GetObj({SBIG('ANCS'), tag.id});
@@ -19,9 +20,10 @@ CFactoryFnReturn CCharacterFactoryBuilder::CDummyFactory::Build(const SObjectTag
 
 void CCharacterFactoryBuilder::CDummyFactory::BuildAsync(const SObjectTag& tag,
                                                          const CVParamTransfer& parms,
-                                                         IObj** objOut)
+                                                         IObj** objOut,
+                                                         CObjectReference* selfRef)
 {
-    *objOut = Build(tag, parms).release();
+    *objOut = Build(tag, parms, selfRef).release();
 }
 
 void CCharacterFactoryBuilder::CDummyFactory::CancelBuild(const SObjectTag&)

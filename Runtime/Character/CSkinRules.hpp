@@ -22,7 +22,8 @@ public:
     }
 };
 
-CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params);
+CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
+                                   CObjectReference* selfRef);
 
 }
 

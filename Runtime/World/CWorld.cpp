@@ -413,7 +413,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         if (!skybox)
             return false;
 
-        skybox->Touch(0);
+        skybox->GetInstance().Touch(0);
         if (!skybox->IsLoaded(0))
             return false;
 

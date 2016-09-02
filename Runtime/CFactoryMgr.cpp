@@ -5,13 +5,13 @@ namespace urde
 {
 
 CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, urde::CInputStream& in,
-                                         const CVParamTransfer& paramXfer)
+                                         const CVParamTransfer& paramXfer, CObjectReference* selfRef)
 {
     auto search = m_factories.find(tag.type);
     if (search == m_factories.end())
         return {};
 
-    return search->second(tag, in, paramXfer);
+    return search->second(tag, in, paramXfer, selfRef);
 }
 
 bool CFactoryMgr::CanMakeMemory(const urde::SObjectTag& tag) const
@@ -21,7 +21,8 @@ bool CFactoryMgr::CanMakeMemory(const urde::SObjectTag& tag) const
 }
 
 CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size,
-                                                   bool compressed, const CVParamTransfer& paramXfer)
+                                                   bool compressed, const CVParamTransfer& paramXfer,
+                                                   CObjectReference* selfRef)
 {
     std::unique_ptr<u8[]> localBuf = std::move(buf);
 
@@ -35,11 +36,11 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
             u32 decompLen = compRead->readUint32Big();
             CZipInputStream r(std::move(compRead));
             std::unique_ptr<u8[]> decompBuf = r.readUBytes(decompLen);
-            return search->second(tag, std::move(decompBuf), decompLen, paramXfer);
+            return search->second(tag, std::move(decompBuf), decompLen, paramXfer, selfRef);
         }
         else
         {
-            return search->second(tag, std::move(localBuf), size, paramXfer);
+            return search->second(tag, std::move(localBuf), size, paramXfer, selfRef);
         }
     }
     else
@@ -54,12 +55,12 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
                 std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
             u32 decompLen = compRead->readUint32Big();
             CZipInputStream r(std::move(compRead));
-            return search->second(tag, r, paramXfer);
+            return search->second(tag, r, paramXfer, selfRef);
         }
         else
         {
             CMemoryInStream r(localBuf.get(), size);
-            return search->second(tag, r, paramXfer);
+            return search->second(tag, r, paramXfer, selfRef);
         }
     }
 }

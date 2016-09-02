@@ -18,6 +18,7 @@ class CGuiHeadWidget;
 class CFinalInput;
 class CGuiLight;
 class CVParamTransfer;
+class CObjectReference;
 
 enum class EFrameTransitionOptions
 {
@@ -134,7 +135,8 @@ public:
 };
 
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,
-                                             const CVParamTransfer& vparms);
+                                             const CVParamTransfer& vparms,
+                                             CObjectReference* selfRef);
 
 }
 

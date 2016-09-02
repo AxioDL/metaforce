@@ -16,13 +16,13 @@ namespace urde
 static logvisor::Module Log("urde::CBooModel");
 bool CBooModel::g_DrawingOccluders = false;
 
-CBooModel::CBooModel(std::vector<CBooSurface>* surfaces, SShader& shader,
+CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
-    : x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_pipelines(&shader.m_shaders),
-      m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
-      m_skinBankCount(skinBankCount), x1c_textures(&shader.x0_textures), x20_aabb(aabb),
-      x40_24_texturesLoaded(false), x40_25_modelVisible(0)
+: m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
+  m_pipelines(&shader.m_shaders), m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
+  m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
+  x40_24_texturesLoaded(false), x40_25_modelVisible(0)
 {
     for (CBooSurface& surf : *x0_surfaces)
         surf.m_parent = this;
@@ -131,7 +131,7 @@ void CBooModel::BuildGfxToken()
             texs.reserve(8);
             for (atUint32 idx : mat.textureIdxs)
             {
-                TCachedToken<CTexture>& tex = (*x1c_textures)[idx];
+                TCachedToken<CTexture>& tex = x1c_textures[idx];
                 texs.push_back(tex.GetObj()->GetBooTexture());
             }
             texs.resize(8);
@@ -235,7 +235,8 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
 void CBooModel::RemapMaterialData(SShader& shader)
 {
     x4_matSet = &shader.m_matSet;
-    x1c_textures = &shader.x0_textures;
+    m_matSetIdx = shader.m_matSetIdx;
+    x1c_textures = shader.x0_textures;
     m_pipelines = &shader.m_shaders;
     x40_24_texturesLoaded = false;
     m_gfxToken.doDestroy();
@@ -246,7 +247,7 @@ bool CBooModel::TryLockTextures() const
     if (!x40_24_texturesLoaded)
     {
         bool allLoad = true;
-        for (TCachedToken<CTexture>& tex : *x1c_textures)
+        for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
         {
             tex.Lock();
             if (!tex.IsLoaded())
@@ -263,7 +264,7 @@ bool CBooModel::TryLockTextures() const
 
 void CBooModel::UnlockTextures() const
 {
-    for (TCachedToken<CTexture>& tex : *x1c_textures)
+    for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
         tex.Unlock();
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
 }
@@ -615,11 +616,12 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx)
 {
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
-    return std::make_unique<CBooModel>(&x8_surfaces, x18_matSets[shaderIdx],
+    return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
                                        m_vtxFmt, m_vbo, m_ibo, 0, 0, m_aabb);
 }
 
-CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store)
+CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
+: m_selfToken(selfRef)
 {
     std::unique_ptr<u8[]> data = std::move(in);
 
@@ -637,7 +639,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     {
         u32 matSetSz = hecl::SBig(*secSizeCur);
         const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
-        x18_matSets.emplace_back();
+        x18_matSets.emplace_back(i);
         CBooModel::SShader& shader = x18_matSets.back();
         athena::io::MemoryReader r(sec, matSetSz);
         shader.m_matSet.read(r);
@@ -703,44 +705,42 @@ void CBooModel::SShader::UnlockTextures()
         tex.Unlock();
 }
 
-void CModel::VerifyCurrentShader(int shaderIdx) const
+void CBooModel::VerifyCurrentShader(int shaderIdx)
 {
-    int idx = 0;
-    for (const CBooModel::SShader& shader : x18_matSets)
-        if (idx++ != shaderIdx)
-            ((CBooModel::SShader&)shader).UnlockTextures();
+    if (shaderIdx != m_matSetIdx)
+        RemapMaterialData(m_model->x18_matSets[shaderIdx]);
+}
+
+void CBooModel::Touch(int shaderIdx) const
+{
+    const_cast<CBooModel*>(this)->VerifyCurrentShader(shaderIdx);
+    TryLockTextures();
 }
 
 void CModel::DrawSortedParts(const CModelFlags& flags) const
 {
-    VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
     x28_modelInst->DrawAlpha(flags, nullptr, nullptr);
 }
 
 void CModel::DrawUnsortedParts(const CModelFlags& flags) const
 {
-    VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
     x28_modelInst->DrawNormal(flags, nullptr, nullptr);
 }
 
 void CModel::Draw(const CModelFlags& flags) const
 {
-    VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
     x28_modelInst->Draw(flags, nullptr, nullptr);
-}
-
-void CModel::Touch(int shaderIdx) const
-{
-    VerifyCurrentShader(shaderIdx);
-    x28_modelInst->TryLockTextures();
 }
 
 bool CModel::IsLoaded(int shaderIdx) const
 {
-    VerifyCurrentShader(shaderIdx);
-    std::vector<TCachedToken<CTexture>>* texs = x28_modelInst->x1c_textures;
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(shaderIdx);
+    std::vector<TCachedToken<CTexture>>& texs = x28_modelInst->x1c_textures;
     bool loaded = true;
-    for (TCachedToken<CTexture>& tex : *texs)
+    for (TCachedToken<CTexture>& tex : texs)
     {
         if (!tex.IsLoaded())
         {
@@ -753,10 +753,11 @@ bool CModel::IsLoaded(int shaderIdx) const
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
                                std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms)
+                               const urde::CVParamTransfer& vparms,
+                               CObjectReference* selfRef)
 {
     IObjectStore* store = static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam();
-    CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, store));
+    CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, store, selfRef));
     return ret;
 }
 

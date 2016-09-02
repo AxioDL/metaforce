@@ -149,7 +149,8 @@ public:
     TToken<CTexture>& GetTexture() { return x80_texture; }
 };
 
-std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                         CObjectReference* selfRef);
 }
 
 #endif // __URDE_CRASTERFONT_HPP__

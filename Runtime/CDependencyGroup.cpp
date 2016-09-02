@@ -16,7 +16,8 @@ void CDependencyGroup::ReadFromStream(CInputStream& in)
         x0_objectTags.emplace_back(in);
 }
 
-CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& /*tag*/, CInputStream& in, const CVParamTransfer& /*param*/)
+CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& /*tag*/, CInputStream& in, const CVParamTransfer& /*param*/,
+                                         CObjectReference* selfRef)
 {
     return TToken<CDependencyGroup>::GetIObjObjectFor(std::unique_ptr<CDependencyGroup>(new CDependencyGroup(in)));
 }

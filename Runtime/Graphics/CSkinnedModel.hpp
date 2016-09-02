@@ -35,6 +35,7 @@ public:
                   ResId layoutInfo, int shaderIdx);
 
     TLockedToken<CModel>& GetModel() {return x4_model;}
+    std::unique_ptr<CBooModel>& GetModelInst() {return m_modelInst;}
     TLockedToken<CSkinRules>& GetSkinRules() {return x10_skinRules;}
     TLockedToken<CCharLayoutInfo>& GetLayoutInfo() {return x1c_layoutInfo;}
 

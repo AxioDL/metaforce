@@ -97,7 +97,8 @@ public:
     static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                  CObjectReference* selfRef);
 
 }
 

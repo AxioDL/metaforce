@@ -50,7 +50,8 @@ CCharLayoutInfo::CCharLayoutInfo(CInputStream& in)
     }
 }
 
-CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream& in, const CVParamTransfer&)
+CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
+                                 CObjectReference* selfRef)
 {
     return TToken<CCharLayoutInfo>::GetIObjObjectFor(std::make_unique<CCharLayoutInfo>(in));
 }

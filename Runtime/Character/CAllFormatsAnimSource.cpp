@@ -69,7 +69,8 @@ CAllFormatsAnimSource::CAllFormatsAnimSource(CInputStream& in,
 : CAnimFormatUnion(in, store), x74_tag(tag) {}
 
 CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in,
-                                   const CVParamTransfer& params)
+                                   const CVParamTransfer& params,
+                                   CObjectReference* selfRef)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(
         static_cast<TObjOwnerParam<IObjectStore*>*>(

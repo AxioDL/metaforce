@@ -18,12 +18,13 @@ class CFactoryMgr
     std::unordered_map<FourCC, FMemFactoryFunc> m_memFactories;
 public:
     CFactoryFnReturn MakeObject(const SObjectTag& tag, urde::CInputStream& in,
-                                const CVParamTransfer& paramXfer);
+                                const CVParamTransfer& paramXfer, CObjectReference* selfRef);
     bool CanMakeMemory(const urde::SObjectTag& tag) const;
     CFactoryFnReturn MakeObjectFromMemory(const SObjectTag& tag,
                                           std::unique_ptr<u8[]>&& buf,
                                           int size, bool compressed,
-                                          const CVParamTransfer& paramXfer);
+                                          const CVParamTransfer& paramXfer,
+                                          CObjectReference* selfRef);
     void AddFactory(FourCC key, FFactoryFunc func) {m_factories[key] = func;}
     void AddFactory(FourCC key, FMemFactoryFunc func) {m_memFactories[key] = func;}
 };

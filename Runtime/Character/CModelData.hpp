@@ -7,6 +7,7 @@
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
 #include "CAnimData.hpp"
+#include "Graphics/CModel.hpp"
 
 namespace urde
 {
@@ -78,9 +79,14 @@ class CModelData
         u32 _flags = 0;
     };
     zeus::CColor x18_ambientColor;
+
     TLockedToken<CModel> x1c_normalModel;
     TLockedToken<CModel> x2c_xrayModel;
     TLockedToken<CModel> x3c_infraModel;
+
+    std::unique_ptr<CBooModel> m_normalModelInst;
+    std::unique_ptr<CBooModel> m_xrayModelInst;
+    std::unique_ptr<CBooModel> m_infraModelInst;
 
 public:
     enum class EWhichModel
@@ -105,7 +111,7 @@ public:
                 const CActorLights* lights, const CModelFlags& drawFlags);
     EWhichModel GetRenderingModel(const CStateManager& stateMgr) const;
     CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
-    TLockedToken<CModel>& PickStaticModel(EWhichModel which);
+    std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which);
     void SetXRayModel(const std::pair<ResId, ResId>& modelSkin);
     void SetInfraModel(const std::pair<ResId, ResId>& modelSkin);
     bool IsDefinitelyOpaque(EWhichModel);

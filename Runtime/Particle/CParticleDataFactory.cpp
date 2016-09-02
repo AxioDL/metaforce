@@ -1157,7 +1157,8 @@ void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc)
 }
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in,
-                                  const CVParamTransfer& vparms)
+                                  const CVParamTransfer& vparms,
+                                  CObjectReference* selfRef)
 {
     CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
     return TToken<CGenDescription>::GetIObjObjectFor(std::unique_ptr<CGenDescription>(CParticleDataFactory::GetGeneratorDesc(in, sp)));

@@ -27,7 +27,8 @@ public:
 };
 
 CFactoryFnReturn AnimPOIDataFactory(const SObjectTag& tag, CInputStream& in,
-                                    const CVParamTransfer& parms);
+                                    const CVParamTransfer& parms,
+                                    CObjectReference* selfRef);
 
 }
 

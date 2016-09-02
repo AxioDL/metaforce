@@ -21,6 +21,7 @@ public:
     static void SetLanguage(s32);
 };
 
-CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&);
+CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
+                                     CObjectReference* selfRef);
 }
 #endif // __URDE_CSTRINGTABLE_HPP__

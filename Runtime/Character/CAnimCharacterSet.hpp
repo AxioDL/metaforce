@@ -19,7 +19,8 @@ public:
     const CAnimationSet& GetAnimationSet() const {return x1c_animationSet;}
 };
 
-CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream&, const CVParamTransfer&);
+CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream&, const CVParamTransfer&,
+                                   CObjectReference* selfRef);
 
 }
 

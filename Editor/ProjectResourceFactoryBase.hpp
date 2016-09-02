@@ -32,6 +32,7 @@ public:
         u32 x14_resSize = UINT32_MAX;
         u32 x14_resOffset = 0;
         CVParamTransfer x18_cvXfer;
+        CObjectReference* m_selfRef = nullptr;
 
         hecl::ProjectPath m_workingPath;
         hecl::ProjectPath m_cookedPath;
@@ -50,8 +51,8 @@ public:
           x14_resOffset(off) {}
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
-                  IObj** ptr, const CVParamTransfer& xfer)
-        : m_parent(parent), x0_tag(tag), xc_targetObjPtr(ptr), x18_cvXfer(xfer) {}
+                  IObj** ptr, const CVParamTransfer& xfer, CObjectReference* selfRef)
+        : m_parent(parent), x0_tag(tag), xc_targetObjPtr(ptr), x18_cvXfer(xfer), m_selfRef(selfRef) {}
 
         void EnsurePath(const urde::SObjectTag& tag,
                         const hecl::ProjectPath& path);
@@ -104,13 +105,13 @@ protected:
     hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const;
     bool SyncCook(const hecl::ProjectPath& working);
     CFactoryFnReturn BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path,
-                               const CVParamTransfer& paramXfer);
+                               const CVParamTransfer& paramXfer, CObjectReference* selfRef);
 
 public:
     ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
-    std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&);
-    void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
-    std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**);
+    std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&, CObjectReference* selfRef);
+    void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**, CObjectReference* selfRef);
+    std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**, CObjectReference* selfRef);
     void CancelBuild(const urde::SObjectTag&);
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;

@@ -31,7 +31,8 @@ CAudioGroupSet::CAudioGroupSet(std::unique_ptr<u8[]>&& in)
 
 CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag,
                                            std::unique_ptr<u8[]>&& in, u32 len,
-                                           const urde::CVParamTransfer& vparms)
+                                           const urde::CVParamTransfer& vparms,
+                                           CObjectReference* selfRef)
 {
     return TToken<CAudioGroupSet>::GetIObjObjectFor(std::make_unique<CAudioGroupSet>(std::move(in)));
 }

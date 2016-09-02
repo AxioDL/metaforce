@@ -85,7 +85,8 @@ void CStringTable::SetLanguage(s32 lang)
     mCurrentLanguage = skLanguages[lang];
 }
 
-CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&)
+CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
+                                     CObjectReference* selfRef)
 {
     return TToken<CStringTable>::GetIObjObjectFor(std::make_unique<CStringTable>(in));
 }

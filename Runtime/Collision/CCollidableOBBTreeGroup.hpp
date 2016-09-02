@@ -30,8 +30,9 @@ public:
     static void SetStaticTableIndex(u32 index);
 };
 
-CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream &in,
-                                                const CVParamTransfer &vparms);
+CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream& in,
+                                                const CVParamTransfer& vparms,
+                                                CObjectReference* selfRef);
 
 }
 

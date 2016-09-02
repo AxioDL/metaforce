@@ -14,7 +14,8 @@ public:
     std::vector<SObjectTag> GetObjectTagVector() const { return x0_objectTags; }
 };
 
-CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param);
+CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+                                         CObjectReference* selfRef);
 }
 
 #endif // CDEPENDENCYGROUP_HPP
