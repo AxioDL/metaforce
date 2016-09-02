@@ -34,11 +34,11 @@ class CPatternedInfo
     float xc4_halfExtent;
     float xc8_height;
     zeus::CVector3f xcc_bodyOrigin;
-    float xd8_;
+    float xd8_stepUpHeight;
     float xdc_;
     float xe0_;
     float xe4_;
-    u16 xe8_sfxId;
+    u16 xe8_deathSfx;
     CAnimationParameters xec_animParams;
     bool xf8_active;
     ResId xfc_stateMachineId;
@@ -54,7 +54,7 @@ class CPatternedInfo
     zeus::CVector3f x124_particle2Scale;
     ResId x130_particle2 = -1;
 
-    u16 x134_sfxId2 = -1;
+    u16 x134_iceShatterSfx = -1;
 
 public:
     CPatternedInfo(CInputStream& in, u32 pcount);

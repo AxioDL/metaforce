@@ -42,7 +42,7 @@ public:
     EPOIType GetPoiType() const { return x18_type; }
     u32 GetIndex() const {return x24_index;}
     float GetWeight() const { return x2c_weight; }
-    u32 GetCharIdx() const { return x30_charIdx; }
+    u32 GetCharacterIndex() const { return x30_charIdx; }
     u32 GetFlags() const { return x34_flags; }
 };
 

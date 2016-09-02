@@ -20,10 +20,11 @@ CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatter
                        EBodyType, const CActorParameters& actorParms, bool)
     : CAi(uid, pInfo.xf8_active, name, info, xf, std::move(mData),
           zeus::CAABox(pInfo.xcc_bodyOrigin - zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, 0.f},
-                       pInfo.xcc_bodyOrigin + zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, pInfo.xc8_height}),
+                       pInfo.xcc_bodyOrigin + zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent,
+                                                              pInfo.xc8_height}),
           pInfo.x0_mass, pInfo.x54_healthInfo, pInfo.x5c_damageVulnerability,
           moveType == EMovementType::Flyer ? gkPatternedFlyerMaterialList : gkPatternedGroundMaterialList,
-          pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_, 0.8f)
+          pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f)
 {
 }
 

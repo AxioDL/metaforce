@@ -9,6 +9,12 @@ CCollidableAABox::CCollidableAABox()
 {
 }
 
+CCollidableAABox::CCollidableAABox(const zeus::CAABox& aabox, const CMaterialList& list)
+    : CCollisionPrimitive(list)
+    , x10_aabox(aabox)
+{
+}
+
 zeus::CAABox CCollidableAABox::Transform(const zeus::CTransform& xf) const
 {
     return {xf.origin + x10_aabox.min, xf.origin + x10_aabox.max};

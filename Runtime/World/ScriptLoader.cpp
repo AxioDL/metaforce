@@ -62,8 +62,8 @@ static SObjectTag MorphballDoorANCS = {};
 static const SObjectTag& GetMorphballDoorACS()
 {
     if (!MorphballDoorANCS)
-        MorphballDoorANCS = static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
-                TagFromPath(_S("MP1/Shared/ANCS_1F9DA858.blend"));
+        MorphballDoorANCS =
+            static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->TagFromPath(_S("MP1/Shared/ANCS_1F9DA858.blend"));
     return MorphballDoorANCS;
 }
 
@@ -71,8 +71,8 @@ static bool EnsurePropertyCount(int count, int expected, const char* structName)
 {
     if (count < expected)
     {
-        Log.report(logvisor::Warning, "Insufficient number of props (%d/%d) for %s entity",
-                   count, expected, structName);
+        Log.report(logvisor::Warning, "Insufficient number of props (%d/%d) for %s entity", count, expected,
+                   structName);
         return false;
     }
     return true;
@@ -125,8 +125,8 @@ static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& sta
     return ret;
 }
 
-static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id,
-                                    const zeus::CVector3f& extent, const zeus::CVector3f& offset)
+static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id, const zeus::CVector3f& extent,
+                                    const zeus::CVector3f& offset)
 {
     zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
     const zeus::CTransform& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
@@ -137,7 +137,7 @@ u32 ScriptLoader::LoadParameterFlags(CInputStream& in)
 {
     u32 count = in.readUint32Big();
     u32 ret = 0;
-    for (u32 i=0 ; i<count ; ++i)
+    for (u32 i = 0; i < count; ++i)
         if (in.readBool())
             ret |= 1 << i;
     return ret;
@@ -261,10 +261,10 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         col.readRGBABig(in);
 
         bool f = in.readBool();
-        CLightParameters::EWorldLightingOptions lightOpts =
-                CLightParameters::EWorldLightingOptions(in.readUint32Big());
+        CLightParameters::EWorldLightingOptions lightOpts = CLightParameters::EWorldLightingOptions(in.readUint32Big());
         CLightParameters::ELightRecalculationOptions recalcOpts =
-                CLightParameters::ELightRecalculationOptions(in.readUint32Big());;
+            CLightParameters::ELightRecalculationOptions(in.readUint32Big());
+        ;
 
         zeus::CVector3f vec;
         vec.readBig(in);
@@ -343,12 +343,12 @@ zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVect
                                                                const zeus::CVector3f& position)
 {
     return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
-            zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
-            zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) + position;
+               zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
+               zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) +
+           position;
 }
 
-CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 24, "Actor"))
         return nullptr;
@@ -414,13 +414,11 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in,
     if (generateExtent || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
-    return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info,
-                            head.x10_transform, std::move(data), aabb, f1, f2, list, hInfo, dInfo,
-                            actParms, b1, b5, w2, f3, b6, b7, b8, b9);
+    return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, f1,
+                            f2, list, hInfo, dInfo, actParms, b1, b5, w2, f3, b6, b7, b8, b9);
 }
 
-CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 13, "Waypoint"))
         return nullptr;
@@ -438,12 +436,11 @@ CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in,
     u32 w6 = in.readUint32Big();
     u32 w7 = in.readUint32Big();
 
-    return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                               active, f1, delay, w1, w2, w3, w4, w5, w6, w7);
+    return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, f1, delay, w1,
+                               w2, w3, w4, w5, w6, w7);
 }
 
-CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
-                                int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 13, "Door") || propCount > 14)
         return nullptr;
@@ -469,7 +466,8 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
     if (!g_ResFactory->GetResourceTypeById(aParms.GetACSFile()))
         return nullptr;
 
-    CModelData mData = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+    CModelData mData =
+        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
     if (collisionExtent.isZero())
         aabb = mData.GetBounds(head.x10_transform.getRotation());
 
@@ -482,12 +480,11 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in,
     else if (propCount == 14)
         isMorphballDoor = in.readBool();
 
-    return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                           std::move(mData), actParms, v1, aabb, b1, b2, b3, f1, isMorphballDoor);
+    return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), actParms,
+                           v1, aabb, b1, b2, b3, f1, isMorphballDoor);
 }
 
-CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 9, "Trigger"))
         return nullptr;
@@ -515,12 +512,10 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in,
     const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
-    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo,
-                              orientedForce, w1, b1, b2, b3);
+    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, w1, b1, b2, b3);
 }
 
-CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 6, "Timer"))
         return nullptr;
@@ -536,8 +531,7 @@ CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in,
     return new CScriptTimer(mgr.AllocateUniqueId(), *name, info, f1, f2, b1, b2, b3);
 }
 
-CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 5, "Counter"))
         return nullptr;
@@ -552,8 +546,7 @@ CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in,
     return new CScriptCounter(mgr.AllocateUniqueId(), *name, info, w1, w2, b1, b2);
 }
 
-CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 24, "Effect"))
         return nullptr;
@@ -570,8 +563,7 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in,
     if (partId == 0xffffffff && elscId == 0xffffffff)
         return nullptr;
 
-    if (!g_ResFactory->GetResourceTypeById(partId) &&
-            !g_ResFactory->GetResourceTypeById(elscId))
+    if (!g_ResFactory->GetResourceTypeById(partId) && !g_ResFactory->GetResourceTypeById(elscId))
         return nullptr;
 
     bool b5 = in.readBool();
@@ -590,13 +582,11 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in,
 
     CLightParameters lParms = LoadLightParameters(in);
 
-    return new CScriptEffect(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                             head.x40_scale, partId, elscId, b1, b2, b3, b4, b5, f1, f2, f3, f4,
-                             b6, f5, f6, f7, b7, b8, b9, lParms, b10);
+    return new CScriptEffect(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, head.x40_scale, partId,
+                             elscId, b1, b2, b3, b4, b5, f1, f2, f3, f4, b6, f5, f6, f7, b7, b8, b9, lParms, b10);
 }
 
-CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 19, "Platform"))
         return nullptr;
@@ -635,11 +625,11 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
     FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
-    TLockedToken<CCollidableOBBTreeGroup> dclnToken;
+    rstl::optional_object<TLockedToken<CCollidableOBBTreeGroup>> dclnToken;
     if (dclnType)
     {
-        dclnToken = g_SimplePool->GetObj({SBIG('DCLN'), dclnId});
-        dclnToken.GetObj();
+        dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));
+        dclnToken->GetObj();
     }
 
     CModelData data;
@@ -651,12 +641,11 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in,
     if (extent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
-    return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                               std::move(data), actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
+    return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
+                               actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
 }
 
-CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 20, "Sound"))
         return nullptr;
@@ -684,12 +673,11 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in,
     if (soundId < 0)
         return nullptr;
 
-    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                            soundId, b1, f1, f2, f3, w2, w3, w4, w5, w6, 0, b2, b3, b4, b5, b6, b7, b8, w6);
+    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, soundId, b1, f1, f2, f3, w2,
+                            w3, w4, w5, w6, 0, b2, b3, b4, b5, b6, b7, b8, w6);
 }
 
-CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 8, "Generator"))
         return nullptr;
@@ -710,9 +698,8 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in,
     return new CScriptGenerator(mgr.AllocateUniqueId(), *name, info, w1, b1, v1, b2, b3, f1, f2);
 }
 
-CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
-                                int propCount, const CEntityInfo& info)
-{    
+CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+{
     if (!EnsurePropertyCount(propCount, 7, "Dock"))
         return nullptr;
 
@@ -728,8 +715,7 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in,
     return new CScriptDock(mgr.AllocateUniqueId(), *name, info, position, scale, dock, area, active, 0, b1);
 }
 
-CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 14, "Camera"))
         return nullptr;
@@ -754,14 +740,12 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in,
 
     u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
 
-    return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info,
-                                head.x10_transform, b1, f1, f2 / CCameraManager::DefaultAspect(),
-                                CCameraManager::DefaultNearPlane(), CCameraManager::DefaultFarPlane(),
-                                CCameraManager::DefaultAspect(), flags);
+    return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
+                                f2 / CCameraManager::DefaultAspect(), CCameraManager::DefaultNearPlane(),
+                                CCameraManager::DefaultFarPlane(), CCameraManager::DefaultAspect(), flags);
 }
 
-CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 6, "CameraWaypoint"))
         return nullptr;
@@ -772,12 +756,10 @@ CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in,
     float f1 = in.readFloatBig();
     u32 w1 = in.readUint32Big();
 
-    return new CScriptCameraWaypoint(mgr.AllocateUniqueId(), head.x0_name, info,
-                                     head.x10_transform, b1, f1, w1);
+    return new CScriptCameraWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1, w1);
 }
 
-CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 13, "NewIntroBoss"))
         return nullptr;
@@ -809,14 +791,11 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in,
 
     CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
 
-
-    return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info,
-                                  head.x10_transform, res, pInfo, actParms, f1, w1,
-                                  dInfo, w2, w3, w4, w5);
+    return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
+                                  f1, w1, dInfo, w2, w3, w4, w5);
 }
 
-CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 35, "SpawnPoint"))
         return nullptr;
@@ -830,8 +809,8 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,
     rotation.readBig(in);
 
     std::vector<u32> itemCounts;
-    itemCounts.reserve(propCount-6);
-    for (int i=0 ; i<propCount-6 ; ++i)
+    itemCounts.reserve(propCount - 6);
+    for (int i = 0; i < propCount - 6; ++i)
         itemCounts.push_back(in.readUint32Big());
 
     bool b1 = in.readBool();
@@ -841,12 +820,10 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in,
         b3 = in.readBool();
 
     return new CScriptSpawnPoint(mgr.AllocateUniqueId(), *name, info,
-                                 ConvertEditorEulerToTransform4f(rotation, position),
-                                 itemCounts, b1, b2, b3);
+                                 ConvertEditorEulerToTransform4f(rotation, position), itemCounts, b1, b2, b3);
 }
 
-CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 25, "CamerHint"))
         return nullptr;
@@ -886,13 +863,11 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in,
     float f12 = in.readFloatBig();
     float f13 = in.readFloatBig();
 
-    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info,
-                                 head.x10_transform, active, w1, w2, pf, f1, f2, f3,
-                                 vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13);
+    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, w1, w2, pf, f1,
+                                 f2, f3, vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13);
 }
 
-CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 18, "Pickup"))
         return nullptr;
@@ -923,19 +898,18 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in,
 
     if (acsType == SBIG('ANCS'))
         data = CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
-                             animParms.GetInitialAnimation(), true);
+                        animParms.GetInitialAnimation(), true);
     else
         data = CStaticRes(staticModel, head.x40_scale);
 
     if (extent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
-    return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actorParms,
-                         aabb, w1, w3, w2, w5, f1, f2, f3, f4, active);
+    return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
+                             actorParms, aabb, w1, w3, w2, w5, f1, f2, f3, f4, active);
 }
 
-CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 3, "MemoryRelay") || propCount > 4)
         return nullptr;
@@ -950,8 +924,7 @@ CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in,
     return new CScriptMemoryRelay(mgr.AllocateUniqueId(), *name, info, b1, b2, b3);
 }
 
-CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 5, "RandomRelay"))
         return nullptr;
@@ -964,8 +937,7 @@ CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in,
     return new CScriptRandomRelay(mgr.AllocateUniqueId(), *name, info, w1, w2, b1, b2);
 }
 
-CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 2, "Relay") || propCount > 3)
         return nullptr;
@@ -978,8 +950,7 @@ CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in,
     return new CScriptRelay(mgr.AllocateUniqueId(), *name, info, b1);
 }
 
-CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 16, "Beetle"))
         return nullptr;
@@ -1014,12 +985,11 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in,
     const CAnimationParameters& animParams = pInfo.GetAnimationParameters();
     CAnimRes animRes(animParams.GetACSFile(), animParams.GetCharacter(), scale, animParams.GetInitialAnimation(), true);
 
-    return new MP1::CBeetle(mgr.AllocateUniqueId(), *name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2, v1, f2,
-                            f3, f1, dVuln1, aParams, abdomenRes);
+    return new MP1::CBeetle(mgr.AllocateUniqueId(), *name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2,
+                            v1, f2, f3, f1, dVuln1, aParams, abdomenRes);
 }
 
-CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (propCount != 5 && !EnsurePropertyCount(propCount, 6, "HUDMemo"))
         return 0;
@@ -1034,8 +1004,8 @@ CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in,
     return new CScriptHUDMemo(mgr.AllocateUniqueId(), *name, info, hParms, displayType, message, active);
 }
 
-CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream& in,
-                                                int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream& in, int propCount,
+                                                const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 10, "CameraFilterKeyframe"))
         return nullptr;
@@ -1051,11 +1021,12 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
     float f2 = in.readFloatBig();
     u32 w5 = in.readUint32Big();
 
-    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), *name, info, w1, w2, w3, w4, color, f1, f2, w5, active);
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), *name, info, w1, w2, w3, w4, color, f1, f2, w5,
+                                           active);
 }
 
-CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in,
-                                              int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in, int propCount,
+                                              const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 7, "CameraBlurKeyframe"))
         return nullptr;
@@ -1076,7 +1047,6 @@ u32 ClassifyVector(const zeus::CVector3f& dir)
     zeus::CVector3f absDir(std::fabs(dir.x), std::fabs(dir.y), std::fabs(dir.z));
     u32 max = (absDir.x > absDir.y ? 0 : 1);
     max = (absDir[max] > absDir.z ? max : 2);
-
 
     bool positive = (absDir[max] == dir[max]);
     if (max == 0)
@@ -1110,8 +1080,8 @@ u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags)
     return ret;
 }
 
-CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& in, int propCount,
+                                             const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 12, "DamageableTrigger"))
         return nullptr;
@@ -1130,12 +1100,11 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
     CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.readBool());
     bool active = in.readBool();
     CVisorParameters vParms = LoadVisorParameters(in);
-    return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), *name, info, position, volume, hInfo, dVuln, triggerFlags, w1,
-                                        w2, w3, canOrbit, active, vParms);
+    return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), *name, info, position, volume, hInfo, dVuln,
+                                        triggerFlags, w1, w2, w3, canOrbit, active, vParms);
 }
 
-CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 18, "Debris"))
         return nullptr;
@@ -1159,24 +1128,22 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in,
 
     if (!g_ResFactory->GetResourceTypeById(model))
         return nullptr;
-    return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, CStaticRes(model, head.x40_scale),
-                             aParams, w3, v2, f1, v1, color, f2, f3, f4, scaleType, b2, b1, b3);
+    return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                             CStaticRes(model, head.x40_scale), aParams, w3, v2, f1, v1, color, f2, f3, f4, scaleType,
+                             b2, b1, b3);
 }
 
-CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in,
-                                         int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 63, "Water"))
         return nullptr;
@@ -1257,8 +1224,8 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     bool b5 = in.readBool();
 
     u32* bitset = nullptr;
-    u32  bitVal0 = 0;
-    u32  bitVal1 = 0;
+    u32 bitVal0 = 0;
+    u32 bitVal1 = 0;
 
     if (b5)
     {
@@ -1279,16 +1246,15 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in,
     if (textureId4 == -1)
         realTextureId5 = textureId5;
 
-    return new CScriptWater(mgr, mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
-                            textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2,
-                            f3, active, fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle,
-                            partId2, partId3, partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5,
-                            f13, w19, f14, f15, f16, f17, f18, f19, heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24,
-                            w21, w22, b5, bitVal0, bitVal1, bitset);
+    return new CScriptWater(
+        mgr, mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
+        textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2, f3, active,
+        fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle, partId2, partId3,
+        partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5, f13, w19, f14, f15, f16, f17, f18, f19,
+        heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24, w21, w22, b5, bitVal0, bitVal1, bitset);
 }
 
-CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 13, "WarWasp"))
         return nullptr;
@@ -1319,12 +1285,11 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in,
 
     CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, true, aParms.GetInitialAnimation());
     CModelData mData(res);
-    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider, damageInfo1, actorParms, weaponDesc,
-                             damageInfo2, particle, w1);
+    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider,
+                             damageInfo1, actorParms, weaponDesc, damageInfo2, particle, w1);
 }
 
-CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 34, "SpacePirate"))
         return nullptr;
@@ -1342,41 +1307,40 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in,
 
     if (animParms.GetCharacter() == 0)
     {
-        Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected", head.x0_name.c_str());
+        Log.report(logvisor::Warning,
+                   "SpacePirate <%s> has AnimationInformation property with invalid character selected",
+                   head.x0_name.c_str());
         animParms.SetCharacter(2);
     }
 
-    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale, animParms.GetInitialAnimation(), true));
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                              animParms.GetInitialAnimation(), true));
 
-    return new MP1::CSpacePirate(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aParams, pInfo, in, propCount);
+    return new MP1::CSpacePirate(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData),
+                                 aParams, pInfo, in, propCount);
 }
 
-CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadElitePirate(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadElitePirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 9, "CoverPoint"))
         return nullptr;
@@ -1389,35 +1353,32 @@ CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in,
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
 
-    return new CScriptCoverPoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, w1, b2, f1, f2, f3);
+    return new CScriptCoverPoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, w1, b2, f1, f2,
+                                 f3);
 }
 
-CEntity* ScriptLoader::LoadSpiderBallWaypoint(CStateManager& mgr, CInputStream& in,
-                                              int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpiderBallWaypoint(CStateManager& mgr, CInputStream& in, int propCount,
+                                              const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadBloodFlower(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBloodFlower(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 5, "GrapplePoint"))
         return nullptr;
@@ -1429,32 +1390,29 @@ CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in,
     return new CScriptGrapplePoint(mgr.AllocateUniqueId(), *name, info, grappleXf, active, parameters);
 }
 
-CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream& in,
-                                               int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount,
+                                               const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInputStream& in,
-                                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInputStream& in, int propCount,
+                                                       const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 8, "DistanceFog"))
         return nullptr;
@@ -1489,26 +1447,22 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in,
                                   expl, active, 0.f, 0.f, 0.f, 0.f);
 }
 
-CEntity* ScriptLoader::LoadFireFlea(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFireFlea(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMetareeAlpha(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMetareeAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 6, "ActorRotate"))
         return nullptr;
@@ -1523,15 +1477,15 @@ CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in,
     return new CScriptActorRotate(mgr.AllocateUniqueId(), *name, info, rotation, scale, b1, b2, active);
 }
 
-CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 15, "SpecialFunction"))
         return nullptr;
 
     SActorHead head = LoadActorHead(in, mgr);
-    CScriptSpecialFunction::ESpecialFunction specialFunction = CScriptSpecialFunction::ESpecialFunction(in.readUint32Big());
-    std::string  str = in.readString();
+    CScriptSpecialFunction::ESpecialFunction specialFunction =
+        CScriptSpecialFunction::ESpecialFunction(in.readUint32Big());
+    std::string str = in.readString();
     float f1 = in.readFloatBig();
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
@@ -1543,125 +1497,106 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
     s16 w5 = in.readUint32Big() & 0xFFFF;
     s16 w6 = in.readUint32Big() & 0xFFFF;
     s16 w7 = in.readUint32Big() & 0xFFFF;
-    if (specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven ||
-            specialFunction == CScriptSpecialFunction::ESpecialFunction::FourtySeven)
+    if (specialFunction == CScriptSpecialFunction::ESpecialFunction::FogVolume ||
+        specialFunction == CScriptSpecialFunction::ESpecialFunction::RadialDamage)
         return nullptr;
 
-    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction, str, f1, f2,
-                                      f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1, CDamageInfo(), w2, w3, w4,
-                                      w5, w6, w7);
+    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction,
+                                      str, f1, f2, f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1,
+                                      CDamageInfo(), w2, w3, w4, w5, w6, w7);
 }
 
-CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMetroidAlpha(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMetroidAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in,
-                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadBallTrigger(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBallTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadTargetingPoint(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadTargetingPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 9, "AreaAttributes"))
         return nullptr;
@@ -1683,92 +1618,82 @@ CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in,
                                      xrayFogDistance, worldLightingLevel, skybox, phazonType);
 }
 
-CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& in, int propCount,
+                                             const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in,
-                                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in, int propCount,
+                                            const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& in, int propCount,
+                                             const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in,
-                                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in, int propCount,
+                                            const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAIJumpPoint(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAIJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in,
-                                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount,
+                                            const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in,
-                                         int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in,
-                                         int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 12, "ColorModulate"))
         return nullptr;
@@ -1787,185 +1712,162 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in,
     bool b4 = in.readBool();
     bool b5 = in.readBool();
     bool active = in.readBool();
-    return new CScriptColorModulate(mgr.AllocateUniqueId(), *name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5, active);
+    return new CScriptColorModulate(mgr.AllocateUniqueId(), *name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5,
+                                    active);
 }
 
-CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in,
-                                                 int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount,
+                                                 const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in,
-                                int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in,
-                                         int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadBabygoth(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBabygoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in,
-                                   int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
+                                             const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in,
-                                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in, int propCount,
+                                                  const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in,
-                                          int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::Load(CStateManager& mgr, CInputStream& in,
-                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::Load(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in,
-                                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
+                                            const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in,
-                                         int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& in, int propCount,
+                                             const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in,
-                                        int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in,
-                                     int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPuffer(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPuffer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadTryclops(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadTryclops(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadRidley(CStateManager& mgr, CInputStream& in,
-                                  int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadRidley(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in,
-                                            int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in, int propCount,
+                                            const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 4, "ThermalHeatFader"))
         return nullptr;
@@ -1973,20 +1875,17 @@ CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in
     return LoadWorldLightFader(mgr, in, propCount, info);
 }
 
-CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadScriptBeam(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadScriptBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 4, "WorldLightFader"))
         return nullptr;
@@ -1994,58 +1893,51 @@ CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in,
-                                              int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount,
+                                              const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in,
-                                              int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in, int propCount,
+                                              const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in,
-                                    int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in,
-                                       int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in,
-                                               int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
+                                               const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
-                                           int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in,
-                                      int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     return nullptr;
 }
-
 }

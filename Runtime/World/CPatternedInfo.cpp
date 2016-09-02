@@ -25,11 +25,11 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
   xc4_halfExtent(in.readFloatBig()),
   xc8_height(in.readFloatBig()),
   xcc_bodyOrigin(zeus::CVector3f::ReadBig(in)),
-  xd8_(in.readFloatBig()),
+  xd8_stepUpHeight(in.readFloatBig()),
   xdc_(in.readFloatBig()),
   xe0_(in.readFloatBig()),
   xe4_(in.readFloatBig()),
-  xe8_sfxId(CSfxManager::TranslateSFXID(in.readUint32Big())),
+  xe8_deathSfx(CSfxManager::TranslateSFXID(in.readUint32Big())),
   xec_animParams(in),
   xf8_active(in.readBool()),
   xfc_stateMachineId(in.readUint32Big()),
@@ -46,7 +46,7 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
     if (pcount >= 37)
         x130_particle2 = in.readUint32Big();
     if (pcount >= 38)
-        x134_sfxId2 = CSfxManager::TranslateSFXID(in.readUint32Big());
+        x134_iceShatterSfx = CSfxManager::TranslateSFXID(in.readUint32Big());
 }
 
 std::pair<bool, u32> CPatternedInfo::HasCorrectParameterCount(CInputStream& in)

@@ -37,7 +37,7 @@ struct Flaahgra : IScriptObject
     UniqueID32 dependencyGroup;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+                         std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
     {
         actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
         actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));

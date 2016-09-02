@@ -19,17 +19,17 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
 
 u16 CSfxManager::TranslateSFXID(u16 id)
 {
-    if (mpSfxTranslationTable)
+    if (mpSfxTranslationTable == nullptr)
         return 0;
 
-    u16 index = id & 0xFFFF;
+    u16 index = id;
     if (index >= mpSfxTranslationTable->size())
         return 0;
 
     s16 ret = mpSfxTranslationTable->at(index);
     if (ret == -1)
         return 0;
-    return ret & 0xFFFF;
+    return ret;
 }
 
 }

@@ -371,7 +371,7 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
 
     for (CParticlePOINode& node : g_ParticlePOINodes)
     {
-        if (node.GetCharIdx() == -1 || node.GetCharIdx() == x204_charIdx)
+        if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx)
         {
             x120_particleDB.StartEffect(node.GetName(), node.GetFlags(), node.GetParticleData(),
                                         scale, stateMgr, aid, x21c_);

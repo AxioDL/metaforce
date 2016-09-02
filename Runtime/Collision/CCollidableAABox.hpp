@@ -19,6 +19,7 @@ class CCollidableAABox : public CCollisionPrimitive
     zeus::CAABox x10_aabox;
 public:
     CCollidableAABox();
+    CCollidableAABox(const zeus::CAABox&, const CMaterialList&);
 
     zeus::CAABox Transform(const zeus::CTransform&) const;
     virtual u32 GetTableIndex() const;
