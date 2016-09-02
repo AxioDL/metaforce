@@ -19,7 +19,6 @@ struct IScriptObject : BigYAML
         Value<atUint32> state;
         Value<atUint32> msg;
         Value<atUint32> target;
-
     };
 
     Value<atUint32> connectionCount;
@@ -28,7 +27,9 @@ struct IScriptObject : BigYAML
     virtual ~IScriptObject() = default;
 
     virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const {}
+                                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const
+    {
+    }
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
 };
 }

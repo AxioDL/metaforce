@@ -72,6 +72,16 @@ float CPhysicsActor::GetWeight() const
     return 24.525002f * xe8_mass;
 }
 
+void CPhysicsActor::sub_8011A4C(float f)
+{
+    x238_ = f;
+}
+
+float CPhysicsActor::sub_8011A4B8() const
+{
+    return x238_;
+}
+
 void CPhysicsActor::SetPrimitiveOffset(const zeus::CVector2f &offset)
 {
     x1e8_primitiveOffset = offset;
@@ -140,7 +150,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
 
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
-    x108_angularMomentum += mst.x1c_velocity;
+    xfc_constantForce += mst.x1c_velocity;
 
     ComputeDerivedQuantities();
 }
@@ -158,6 +168,9 @@ void CPhysicsActor::SetMotionState(const CMotionState &mst)
     xe4_28_ = true;
     xe4_29_ = true;
     SetTranslation(mst.x0_translation);
+
+    xfc_constantForce = mst.x1c_velocity;
+    x108_angularMomentum = mst.x28_angularMomentum;
     ComputeDerivedQuantities();
 }
 
@@ -290,9 +303,11 @@ bool CPhysicsActor::WillMove(const CStateManager&)
 {
     if (!zeus::close_enough(zeus::CVector3f::skZero, x138_velocity) ||
             !zeus::close_enough(zeus::CVector3f::skZero, x168_impulse) ||
+            !zeus::close_enough(zeus::CVector3f::skZero, x174_torque) ||
             !zeus::close_enough(zeus::CVector3f::skZero, x18c_) ||
             !zeus::close_enough(zeus::CVector3f::skZero, x144_angularVelocity) ||
             !zeus::close_enough(zeus::CVector3f::skZero, x180_angularImpulse) ||
+            !zeus::close_enough(zeus::CVector3f::skZero, x198_) ||
             !zeus::close_enough(zeus::CVector3f::skZero, GetTotalForcesWR()))
         return true;
 
@@ -330,14 +345,14 @@ CMotionState CPhysicsActor::PredictMotion_Internal(float dt) const
 
     CMotionState msl = PredictLinearMotion(dt);
     CMotionState msa = PredictAngularMotion(dt);
-    return {msl.x0_translation, msa.xc_orientation, msl.x1c_velocity, msa.x28_angularVelocity};
+    return {msl.x0_translation, msa.xc_orientation, msl.x1c_velocity, msa.x28_angularMomentum};
 }
 
 CMotionState CPhysicsActor::PredictMotion(float dt) const
 {
     CMotionState msl = PredictLinearMotion(dt);
     CMotionState msa = PredictAngularMotion(dt);
-    return {msl.x0_translation, msa.xc_orientation, msl.x1c_velocity, msa.x28_angularVelocity};
+    return {msl.x0_translation, msa.xc_orientation, msl.x1c_velocity, msa.x28_angularMomentum};
 }
 
 CMotionState CPhysicsActor::PredictLinearMotion(float dt) const

@@ -46,17 +46,17 @@ public:
         Ending,
         FusionRelay,
         WeaponSwitch,
-        FourtySeven = 47,
-        FourtyEight = 48
+        FogVolume = 47,
+        RadialDamage = 48,
+        EnvFxDensityController = 49,
+        RumbleEffect = 50
     };
 
 private:
-
 public:
     CScriptSpecialFunction(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
-                           const std::string&, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&, bool,
-                           const CDamageInfo&, u32, u32, u32, u16, u16, u16);
-
+                           const std::string&, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
+                           bool, const CDamageInfo&, u32, u32, u32, u16, u16, u16);
 };
 }
 

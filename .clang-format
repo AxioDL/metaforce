@@ -16,7 +16,6 @@ AlignTrailingComments: true
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: true
 BreakConstructorInitializersBeforeComma: true
-BreakStringLiterals: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 AllowShortFunctionsOnASingleLine: All

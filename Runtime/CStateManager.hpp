@@ -152,7 +152,9 @@ class CStateManager
         };
         u16 _dummy = 0;
     };
-
+    s32 xef4_;
+    zeus::CVector2i xef8_;
+    zeus::CVector2i xf00_;
     float xf24_thermColdScale1 = 0.f;
     float xf28_thermColdScale2 = 0.f;
     float xf2c_ = 1.f;

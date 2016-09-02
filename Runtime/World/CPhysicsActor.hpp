@@ -25,13 +25,13 @@ struct CMotionState
     zeus::CVector3f x0_translation;
     zeus::CNUQuaternion xc_orientation;
     zeus::CVector3f x1c_velocity;
-    zeus::CAxisAngle x28_angularVelocity;
+    zeus::CAxisAngle x28_angularMomentum;
     CMotionState(const zeus::CVector3f& origin, const zeus::CNUQuaternion& orientation,
                  const zeus::CVector3f& velocity, const zeus::CAxisAngle& angle)
         : x0_translation(origin)
         , xc_orientation(orientation)
         , x1c_velocity(velocity)
-        , x28_angularVelocity(angle)
+        , x28_angularMomentum(angle)
     {}
 };
 
@@ -124,6 +124,8 @@ public:
     virtual float GetStepDownHeight() const;
     virtual float GetWeight() const;
 
+    void sub_8011A4C(float f);
+    float sub_8011A4B8() const;
     void SetPrimitiveOffset(const zeus::CVector2f& offset);
     zeus::CVector3f GetPrimitiveOffset();
     void MoveCollisionPrimitive(const zeus::CVector3f& offset);
