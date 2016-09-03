@@ -183,12 +183,17 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
 
     zeus::CTransform ret;
     if (!x220_31_poseCached)
-    {
         const_cast<CAnimData*>(this)->RecalcPoseBuilder(time);
-        const_cast<CAnimData*>(this)->x220_31_poseCached = true;
-    }
 
-    x2fc_poseBuilder.BuildTransform(id, ret);
+    if (!x220_31_poseCached)
+        x2fc_poseBuilder.BuildTransform(id, ret);
+    else
+    {
+        zeus::CMatrix3f rot = x224_pose.GetRotation(id);
+        zeus::CVector3f offset = x224_pose.GetOffset(id);
+        ret.setRotation(rot);
+        ret.origin = offset;
+    }
     return ret;
 }
 
