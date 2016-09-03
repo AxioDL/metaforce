@@ -353,11 +353,12 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
 
     if (bgRes != -1)
     {
-        x4_modelData->x100_bgModelData[0] = CStaticRes(bgRes, bgScale);
+        CStaticRes bg(bgRes, bgScale);
+        x4_modelData->x100_bgModelData[0] = bg;
         x4_modelData->x100_bgModelData[0].Touch(CModelData::EWhichModel::Normal, 0);
-        x4_modelData->x100_bgModelData[1] = CStaticRes(bgRes, bgScale);
+        x4_modelData->x100_bgModelData[1] = bg;
         x4_modelData->x100_bgModelData[1].Touch(CModelData::EWhichModel::Normal, 0);
-        x4_modelData->x100_bgModelData[2] = CStaticRes(bgRes, bgScale);
+        x4_modelData->x100_bgModelData[2] = bg;
         x4_modelData->x100_bgModelData[2].Touch(CModelData::EWhichModel::Normal, 0);
         zeus::CAABox bounds = x4_modelData->x100_bgModelData[0].GetBounds();
         x1c_bgHeight = (bounds.max.z - bounds.min.z) * bgScale.z;
