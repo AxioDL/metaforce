@@ -183,7 +183,7 @@ void Material::AddTextureAnim(Stream& out,
                    "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n",
                    idx);
         break;
-    case UVAnimation::Mode::WhoMustNotBeNamed:
+    case UVAnimation::Mode::CylinderEnvironment:
         out.format("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_%u':\n"
                    "        tex_links.remove(link)\n"
@@ -1275,7 +1275,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
         mode = Mode::Model;
     else if (!gameFunction.compare("RetroUVMode7NodeN"))
     {
-        mode = Mode::WhoMustNotBeNamed;
+        mode = Mode::CylinderEnvironment;
         if (gameArgs.size() < 2)
             Log.report(logvisor::Fatal, "Mode7 UV anim requires 2 arguments");
         vals[0] = gameArgs[0].vec[0];
