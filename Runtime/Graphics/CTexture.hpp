@@ -35,8 +35,8 @@ class CTexture
     void BuildRGB5A3FromGCN(CInputStream& in);
     void BuildRGBA8FromGCN(CInputStream& in);
     void BuildDXT1FromGCN(CInputStream& in);
-    void BuildRGBA8(const void* data);
-    void BuildC8(const void* data);
+    void BuildRGBA8(const void* data, size_t length);
+    void BuildC8(const void* data, size_t length);
 
 public:
     CTexture(std::unique_ptr<u8[]>&& in, u32 length);

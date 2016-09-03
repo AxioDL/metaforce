@@ -648,21 +648,28 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
     });
 }
 
-void CTexture::BuildRGBA8(const void* data)
+void CTexture::BuildRGBA8(const void* data, size_t length)
 {
     size_t texelCount = ComputeMippedTexelCount();
+    size_t expectedSize = texelCount * 4;
+    if (expectedSize > length)
+        Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")",
+                   length, expectedSize);
 
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        data, texelCount * 4);
+                                        data, expectedSize);
         return true;
     });
 }
 
-void CTexture::BuildC8(const void* data)
+void CTexture::BuildC8(const void* data, size_t length)
 {
     size_t texelCount = ComputeMippedTexelCount();
+    if (texelCount > length)
+        Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")",
+                   length, texelCount);
 
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -722,10 +729,10 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
         BuildDXT1FromGCN(r);
         break;
     case ETexelFormat::RGBA8PC:
-        BuildRGBA8(owned.get() + 12);
+        BuildRGBA8(owned.get() + 12, length - 12);
         break;
     case ETexelFormat::C8PC:
-        BuildC8(owned.get() + 12);
+        BuildC8(owned.get() + 12, length - 12);
         break;
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
