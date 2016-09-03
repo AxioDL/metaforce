@@ -16,6 +16,15 @@ zeus::CVector3f CCharLayoutInfo::GetFromParentUnrotated(const CSegId& id) const
     }
 }
 
+CSegId CCharLayoutInfo::GetSegIdFromString(const std::string& name) const
+{
+    auto it = x18_segIdMap.find(name);
+    if (it == x18_segIdMap.end())
+        return {};
+
+    return (*it).second;
+}
+
 void CCharLayoutNode::Bone::read(CInputStream& in)
 {
     x0_parentId = CSegId(in);
