@@ -178,12 +178,28 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
 
 zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const
 {
-    return {};
+    if (id == 0xFF)
+        return {};
+
+    zeus::CTransform ret;
+    if (!x220_31_poseCached)
+        const_cast<CAnimData*>(this)->RecalcPoseBuilder(time);
+
+    if (!x220_31_poseCached)
+        x2fc_poseBuilder.BuildTransform(id, ret);
+    else
+    {
+        zeus::CMatrix3f rot = x224_pose.GetRotation(id);
+        zeus::CVector3f offset = x224_pose.GetOffset(id);
+        ret.setRotation(rot);
+        ret.origin = offset;
+    }
+    return ret;
 }
 
 zeus::CTransform CAnimData::GetLocatorTransform(const std::string& name, const CCharAnimTime* time) const
 {
-    return {};
+    return GetLocatorTransform(xcc_layoutData->GetSegIdFromString(name), time);
 }
 
 bool CAnimData::IsAnimTimeRemaining(float, const std::string& name) const

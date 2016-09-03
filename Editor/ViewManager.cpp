@@ -35,7 +35,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     CAnimRes samusAnimRes(samusCharSet.id, 2, zeus::CVector3f{2.f, 2.f, 2.f}, 0, true);
     g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
                                                                platModel.id, zeus::CVector3f::skOne,
-                                                               bgModel.id, zeus::CVector3f::skOne, false);
+                                                               bgModel.id, zeus::CVector3f::skOne, true);
 #endif
 
     SObjectTag areaTag = m_projManager.TagFromPath(
@@ -70,7 +70,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_videoVoice = m_voiceEngine->allocateNewStereoVoice(32000, &m_voiceCallback);
     m_videoVoice->start();
 
-    //m_rootView->accessContentViews().clear();
+    m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
     m_rootView->updateSize();
 }
