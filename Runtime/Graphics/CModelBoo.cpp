@@ -393,7 +393,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
         break;
     }
-    case UVAnimation::Mode::WhoMustNotBeNamed:
+    case UVAnimation::Mode::CylinderEnvironment:
     {
         texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
         texMtxOut.vec[3].zeroOut();
