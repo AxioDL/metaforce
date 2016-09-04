@@ -13,7 +13,6 @@ class CActorLights;
 class CPlayer;
 class CDamageInfo;
 class CFinalInput;
-class CFrustumPlanes;
 class CScriptWater;
 class CStateManager;
 
@@ -91,7 +90,7 @@ public:
     zeus::CTransform GetPrimitiveTransform() const { return {}; }
     void DrawCollisionPrimitive() const {}
     void GetMinimumAlignmentSpeed() const {}
-    void PreRender(CStateManager&, const CFrustumPlanes&);
+    void PreRender(CStateManager&, const zeus::CFrustum&);
     void Render(const CStateManager&, const CActorLights*) const {}
     void ResetMorphBallTransitionFlash() {}
     void UpdateMorphBallTransitionFlash(float) {}
@@ -108,7 +107,7 @@ public:
     void DisableHalfPipeStatus() {}
     void BallCloseToCollision(const CStateManager&, float) const {}
     void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&) {}
-    void IsInFrustum(const CFrustumPlanes&) const {}
+    void IsInFrustum(const zeus::CFrustum&) const {}
     void ComputeLiftForces(const zeus::CVector3f&, const zeus::CVector3f&, const CStateManager&) {}
     void CalculateSurfaceFriction() const {}
     void ApplyGravity(CStateManager&) {}

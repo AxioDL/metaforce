@@ -34,7 +34,9 @@ class CAnimFormatUnion
 public:
     CAnimFormatUnion(CInputStream& in, IObjectStore& store);
     ~CAnimFormatUnion();
-    operator CAnimSource&() {return *reinterpret_cast<CAnimSource*>(x4_storage);}
+    EAnimFormat GetFormat() const { return x0_format; }
+    const CAnimSource& GetAsCAnimSource() const { return *reinterpret_cast<const CAnimSource*>(x4_storage); }
+    const CFBStreamedCompression& GetAsCFBStreamedCompression() const { return *reinterpret_cast<const CFBStreamedCompression*>(x4_storage); }
 };
 
 class CAllFormatsAnimSource : public CAnimFormatUnion

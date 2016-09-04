@@ -7,10 +7,10 @@ namespace urde
 {
 
 CAdditiveAnimPlayback::CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim,
-                                             float weight, bool a, const CAdditiveAnimationInfo& info, bool b)
-: x0_info(info), x8_anim(anim.lock()), xc_targetWeight(weight), x14_a(a)
+                                             float weight, bool active, const CAdditiveAnimationInfo& info, bool b)
+: x0_info(info), x8_anim(anim.lock()), xc_targetWeight(weight), x14_active(active)
 {
-    if (!a && b)
+    if (!active && b)
         x20_ = true;
 }
 

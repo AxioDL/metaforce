@@ -1,4 +1,5 @@
 #include "CFBStreamedCompression.hpp"
+#include "CFBStreamedAnimReader.hpp"
 
 namespace urde
 {
@@ -13,6 +14,8 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& o
 
     if (x4_evnt)
         x8_evntToken = objStore.GetObj(SObjectTag{FOURCC('EVNT'), x4_evnt});
+
+    x10_averageVelocity = CalculateAverageVelocity(GetPerChannelHeaders());
 }
 
 const u32* CFBStreamedCompression::GetTimes() const
@@ -215,6 +218,67 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans)
     }
 
     return (totalBits * keyCount + 31) / 32;
+}
+
+float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans)
+{
+    u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
+    chans += 4;
+
+    u32 keyCount;
+    u32 rootIdx = 0;
+    if (m_pc)
+    {
+        keyCount = *reinterpret_cast<const u32*>(chans + 0x4);
+        for (u32 c=0 ; c<boneChanCount ; ++c)
+        {
+            u32 boneId = *reinterpret_cast<const u32*>(chans);
+            if (boneId == 3)
+                break;
+            ++rootIdx;
+
+            chans += 0x8;
+            u32 tKeyCount = *reinterpret_cast<const u32*>(chans + 0xc);
+            chans += 0x10;
+            if (tKeyCount)
+                chans += 0xc;
+        }
+    }
+    else
+    {
+        keyCount = *reinterpret_cast<const u16*>(chans + 0x4);
+        for (u32 c=0 ; c<boneChanCount ; ++c)
+        {
+            u32 boneId = *reinterpret_cast<const u32*>(chans);
+            if (boneId == 3)
+                break;
+            ++rootIdx;
+
+            chans += 0x6;
+            u16 tKeyCount = *reinterpret_cast<const u16*>(chans + 0x9);
+            chans += 0xb;
+            if (tKeyCount)
+                chans += 0x9;
+        }
+    }
+
+    CBitLevelLoader loader(GetBitstreamPointer());
+    CFBStreamedAnimReaderTotals tempTotals(*this);
+    tempTotals.CalculateDown();
+    const float* floats = tempTotals.GetFloats(rootIdx);
+    zeus::CVector3f transCompA(floats[4], floats[5], floats[6]);
+
+    float accumMag = 0.f;
+    for (u32 i=0 ; i<keyCount ; ++i)
+    {
+        tempTotals.IncrementInto(loader, *this, tempTotals);
+        tempTotals.CalculateDown();
+        zeus::CVector3f transCompB(floats[4], floats[5], floats[6]);
+        accumMag += (transCompB - transCompA).magnitude();
+        transCompA = transCompB;
+    }
+
+    return accumMag / GetAnimationDuration();
 }
 
 }

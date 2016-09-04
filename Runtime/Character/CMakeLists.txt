@@ -50,6 +50,7 @@ set(CHARACTER_SOURCES
     CAnimTreeSequence.hpp CAnimTreeSequence.cpp
     CSequenceHelper.hpp CSequenceHelper.cpp
     CAnimTreeAnimReaderContainer.hpp CAnimTreeAnimReaderContainer.cpp
+    CTreeUtils.hpp CTreeUtils.cpp
     CAnimTreeBlend.hpp CAnimTreeBlend.cpp
     CAnimTreeNode.hpp CAnimTreeNode.cpp
     CAnimTreeScale.hpp CAnimTreeScale.cpp

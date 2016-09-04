@@ -34,10 +34,10 @@ public:
     CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
                   ResId layoutInfo, int shaderIdx);
 
-    TLockedToken<CModel>& GetModel() {return x4_model;}
-    std::unique_ptr<CBooModel>& GetModelInst() {return m_modelInst;}
-    TLockedToken<CSkinRules>& GetSkinRules() {return x10_skinRules;}
-    TLockedToken<CCharLayoutInfo>& GetLayoutInfo() {return x1c_layoutInfo;}
+    const TLockedToken<CModel>& GetModel() const {return x4_model;}
+    const std::unique_ptr<CBooModel>& GetModelInst() const {return m_modelInst;}
+    const TLockedToken<CSkinRules>& GetSkinRules() const {return x10_skinRules;}
+    const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const {return x1c_layoutInfo;}
 
     void Calculate(const CPoseAsTransforms& pose,
                    const CModelFlags& drawFlags,

@@ -16,6 +16,11 @@
 #include "CAnimPerSegmentData.hpp"
 #include "CSegStatementSet.hpp"
 #include "CStateManager.hpp"
+#include "CAnimPlaybackParms.hpp"
+#include "CAnimTreeBlend.hpp"
+#include "CPrimitive.hpp"
+#include "CAllFormatsAnimSource.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -75,7 +80,7 @@ ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
 
 void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet)
 {
-    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1048_additiveAnims)
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x434_additiveAnims)
         if (additive.second.GetTargetWeight() > 0.00001f)
             additive.second.AddToSegStatementSet(list, *xcc_layoutData.GetObj(), stSet);
 }
@@ -88,9 +93,9 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
 {
     CCharAnimTime time(dt);
 
-    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x1048_additiveAnims)
+    for (std::pair<u32, CAdditiveAnimPlayback>& additive : x434_additiveAnims)
     {
-        if (additive.second.GetA())
+        if (additive.second.IsActive())
         {
             while (time.GreaterThanZero() && std::fabs(time) >= 0.00001f)
             {
@@ -112,19 +117,37 @@ SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)
     return AdvanceAdditiveAnims(dt);
 }
 
-bool CAnimData::IsAdditiveAnimation(u32) const
+bool CAnimData::IsAdditiveAnimation(u32 idx) const
 {
-    return false;
+    auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                               [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool {
+        return pair.first == idx;
+    });
+    if (search == x434_additiveAnims.cend())
+        return false;
+    return true;
 }
 
-std::shared_ptr<CAnimTreeNode> CAnimData::GetAdditiveAnimationTree(u32) const
+std::shared_ptr<CAnimTreeNode> CAnimData::GetAdditiveAnimationTree(u32 idx) const
 {
-    return {};
+    auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                               [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool {
+        return pair.first == idx;
+    });
+    if (search == x434_additiveAnims.cend())
+        return {};
+    return search->second.GetAnim();
 }
 
-bool CAnimData::IsAdditiveAnimationActive(u32) const
+bool CAnimData::IsAdditiveAnimationActive(u32 idx) const
 {
-    return false;
+    auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                               [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool {
+        return pair.first == idx;
+    });
+    if (search == x434_additiveAnims.cend())
+        return {};
+    return search->second.IsActive();
 }
 
 void CAnimData::DelAdditiveAnimation(u32)
@@ -137,21 +160,23 @@ void CAnimData::AddAdditiveAnimation(u32, float, bool, bool)
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager()
 {
-    return {};
+    return x100_animMgr;
 }
 
-void CAnimData::SetPhase(float)
+void CAnimData::SetPhase(float ph)
 {
+    x1f8_animRoot->VSetPhase(ph);
 }
 
-void CAnimData::Touch(const CSkinnedModel& model, int) const
+void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const
 {
+    const_cast<CBooModel&>(*model.GetModelInst()).Touch(shadIdx);
 }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a,
                                                    const CCharAnimTime& b) const
 {
-    return {};
+    return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
 }
 
 CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType, const CCharAnimTime& time) const
@@ -159,12 +184,14 @@ CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType, const CCharAnimTime&
     return {};
 }
 
-void CAnimData::MultiplyPlaybackRate(float)
+void CAnimData::MultiplyPlaybackRate(float mul)
 {
+    x200_speedScale += mul;
 }
 
-void CAnimData::SetPlaybackRate(float)
+void CAnimData::SetPlaybackRate(float set)
 {
+    x200_speedScale = set;
 }
 
 void CAnimData::SetRandomPlaybackRate(CRandom16&)
@@ -172,7 +199,7 @@ void CAnimData::SetRandomPlaybackRate(CRandom16&)
 }
 
 void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
-                                           const std::weak_ptr<CAnimTreeNode>& node)
+                                           const std::shared_ptr<CAnimTreeNode>& node)
 {
 }
 
@@ -202,29 +229,69 @@ zeus::CTransform CAnimData::GetLocatorTransform(const std::string& name, const C
     return GetLocatorTransform(xcc_layoutData->GetSegIdFromString(name), time);
 }
 
-bool CAnimData::IsAnimTimeRemaining(float, const std::string& name) const
+bool CAnimData::IsAnimTimeRemaining(float rem, const std::string& name) const
 {
-    return false;
+    if (!x1f8_animRoot)
+        return false;
+    return float(x1f8_animRoot->VGetTimeRemaining()) <= rem;
 }
 
 float CAnimData::GetAnimTimeRemaining(const std::string& name) const
 {
-    return 0.f;
+    float rem = x1f8_animRoot->VGetTimeRemaining();
+    if (x200_speedScale)
+        return rem / x200_speedScale;
+    return rem;
 }
 
-float CAnimData::GetAnimationDuration(int) const
+float CAnimData::GetAnimationDuration(int animIn) const
 {
-    return 0.f;
+    std::shared_ptr<IMetaAnim> anim = x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(animIn));
+    std::set<CPrimitive> prims;
+    anim->GetUniquePrimitives(prims);
+
+    SObjectTag tag{FOURCC('ANIM'), 0};
+    float durAccum = 0.f;
+    for (const CPrimitive& prim : prims)
+    {
+        tag.id = prim.GetAnimResId();
+        TLockedToken<CAllFormatsAnimSource> animRes = xfc_animCtx->xc_store.GetObj(tag);
+
+        CCharAnimTime dur;
+        switch (animRes->GetFormat())
+        {
+        case EAnimFormat::Uncompressed:
+        default:
+        {
+            const CAnimSource& src = animRes->GetAsCAnimSource();
+            dur = src.GetDuration();
+            break;
+        }
+        case EAnimFormat::BitstreamCompressed:
+        case EAnimFormat::BitstreamCompressed24:
+        {
+            const CFBStreamedCompression& src = animRes->GetAsCFBStreamedCompression();
+            dur = src.GetAnimationDuration();
+            break;
+        }
+        }
+
+        durAccum += dur;
+    }
+
+    if (anim->GetType() == EMetaAnimType::Random)
+        return durAccum / float(prims.size());
+    return durAccum;
 }
 
 std::shared_ptr<CAnimSysContext> CAnimData::GetAnimSysContext() const
 {
-    return {};
+    return xfc_animCtx;
 }
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() const
 {
-    return {};
+    return x100_animMgr;
 }
 
 void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
@@ -249,8 +316,9 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
     }
 }
 
-void CAnimData::RenderAuxiliary(const CFrustumPlanes& frustum) const
+void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const
 {
+    const_cast<CParticleDatabase&>(x120_particleDB).AddToRendererClipped(frustum);
 }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
@@ -291,18 +359,99 @@ void CAnimData::PreRender()
 
 void CAnimData::BuildPose()
 {
+    if (!x220_31_poseCached)
+    {
+        RecalcPoseBuilder(nullptr);
+        x220_31_poseCached = true;
+        x220_30_poseBuilt = false;
+    }
+
+    if (!x220_30_poseBuilt)
+    {
+        x2fc_poseBuilder.BuildNoScale(x224_pose);
+        x220_30_poseBuilt = true;
+    }
 }
 
-void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, std::vector<CToken>& tokensOut)
+void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet,
+                                          std::vector<CToken>& tokensOut, bool preLock)
 {
+    tokensOut.reserve(primSet.size());
+
+    SObjectTag tag{FOURCC('ANIM'), 0};
+    for (const CPrimitive& prim : primSet)
+    {
+        tag.id = prim.GetAnimResId();
+        tokensOut.push_back(g_SimplePool->GetObj(tag));
+        if (preLock)
+            tokensOut.back().Lock();
+    }
 }
 
 void CAnimData::GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const
 {
+    std::shared_ptr<IMetaAnim> animA =
+        GetAnimationManager()->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x0_animA));
+    animA->GetUniquePrimitives(primsOut);
+
+    if (parms.x4_animB != -1)
+    {
+        std::shared_ptr<IMetaAnim> animB =
+            GetAnimationManager()->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x4_animB));
+        animB->GetUniquePrimitives(primsOut);
+    }
 }
 
-void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool)
+void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
 {
+    if (parms.x0_animA == x40c_playbackParms.x0_animA ||
+        (parms.x4_animB != x40c_playbackParms.x4_animB &&
+         parms.x8_blendWeight == x40c_playbackParms.x8_blendWeight &&
+         parms.x8_blendWeight != 1.f) ||
+        parms.x4_animB == -1)
+    {
+        if (x220_29_)
+            return;
+    }
+
+    x40c_playbackParms.x0_animA = parms.x0_animA;
+    x40c_playbackParms.x4_animB = parms.x4_animB;
+    x40c_playbackParms.x8_blendWeight = parms.x8_blendWeight;
+    x200_speedScale = 1.f;
+    x208_defaultAnim = parms.x0_animA;
+
+    u32 animIdxA = xc_charInfo.GetAnimationIndex(parms.x0_animA);
+
+    ResetPOILists();
+
+    std::shared_ptr<CAnimTreeNode> blendNode;
+    if (parms.x4_animB != -1)
+    {
+        u32 animIdxB = xc_charInfo.GetAnimationIndex(parms.x4_animB);
+
+        std::shared_ptr<CAnimTreeNode> treeA =
+            GetAnimationManager()->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+        std::shared_ptr<CAnimTreeNode> treeB =
+            GetAnimationManager()->GetAnimationTree(animIdxB, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+
+        blendNode = std::make_shared<CAnimTreeBlend>(false, treeA, treeB, parms.x8_blendWeight,
+                                                     CAnimTreeBlend::CreatePrimitiveName(treeA, treeB,
+                                                                                         parms.x8_blendWeight));
+    }
+    else
+    {
+        blendNode = GetAnimationManager()->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+    }
+
+    if (!noTrans)
+        x1f8_animRoot = x1fc_transMgr->GetTransitionTree(x1f8_animRoot, blendNode);
+    else
+        x1f8_animRoot = blendNode;
+
+    x220_24_animating = parms.xc_animating;
+    CalcPlaybackAlignmentParms(parms, blendNode);
+    ResetPOILists();
+    x220_29_ = true;
 }
 
 SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool advTree)
@@ -417,7 +566,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
         if (simplified->IsCAnimTreeNode())
         {
             if (x1f8_animRoot != simplified)
-                x1f8_animRoot = std::move(simplified);
+                x1f8_animRoot = std::static_pointer_cast<CAnimTreeNode>(std::move(simplified));
         }
         else
             x1f8_animRoot.reset();
@@ -467,10 +616,12 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules)
 {
+    xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
 }
 
 void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules)
 {
+    xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
@@ -481,32 +632,90 @@ void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& 
     model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
 }
 
-void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float,
-                                 const zeus::CVector3f&, CStateManager& stateMgr)
+void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt,
+                                 const zeus::CVector3f& vec, CStateManager& stateMgr)
 {
+    x120_particleDB.Update(dt, x224_pose, *xcc_layoutData, xf, vec, stateMgr);
 }
 
-void CAnimData::GetAverageVelocity(int) const
+float CAnimData::GetAverageVelocity(int animIn) const
 {
+    std::shared_ptr<IMetaAnim> anim = x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(animIn));
+    std::set<CPrimitive> prims;
+    anim->GetUniquePrimitives(prims);
+
+    SObjectTag tag{FOURCC('ANIM'), 0};
+    float velAccum = 0.f;
+    float durAccum = 0.f;
+    for (const CPrimitive& prim : prims)
+    {
+        tag.id = prim.GetAnimResId();
+        TLockedToken<CAllFormatsAnimSource> animRes = xfc_animCtx->xc_store.GetObj(tag);
+
+        CCharAnimTime dur;
+        float avgVel;
+        switch (animRes->GetFormat())
+        {
+        case EAnimFormat::Uncompressed:
+        default:
+        {
+            const CAnimSource& src = animRes->GetAsCAnimSource();
+            dur = src.GetDuration();
+            avgVel = src.GetAverageVelocity();
+            break;
+        }
+        case EAnimFormat::BitstreamCompressed:
+        case EAnimFormat::BitstreamCompressed24:
+        {
+            const CFBStreamedCompression& src = animRes->GetAsCFBStreamedCompression();
+            dur = src.GetAnimationDuration();
+            avgVel = src.GetAverageVelocity();
+            break;
+        }
+        }
+
+        velAccum += dur * avgVel;
+        durAccum += dur;
+    }
+
+    if (durAccum > 0.f)
+        return velAccum / durAccum;
+    return 0.f;
 }
 
 void CAnimData::ResetPOILists()
 {
+    x20c_passedBoolCount = 0;
+    x210_passedIntCount = 0;
+    x214_passedParticleCount = 0;
+    x218_passedSoundCount = 0;
 }
 
 CSegId CAnimData::GetLocatorSegId(const std::string& name) const
 {
-    return {};
+    return xcc_layoutData->GetSegIdFromString(name);
 }
 
 zeus::CAABox CAnimData::GetBoundingBox(const zeus::CTransform& xf) const
 {
-    return {};
+    return GetBoundingBox().getTransformedAABox(xf);
 }
 
 zeus::CAABox CAnimData::GetBoundingBox() const
 {
-    return {};
+    auto aabbList = xc_charInfo.GetAnimBBoxList();
+    if (aabbList.empty())
+        return x108_aabb;
+
+    CAnimTreeEffectiveContribution contrib = x1f8_animRoot->GetContributionOfHighestInfluence();
+    auto search = std::find_if(aabbList.cbegin(), aabbList.cend(),
+                               [&](const std::pair<std::string, zeus::CAABox>& other) -> bool {
+        return contrib.x4_name == other.first;
+    });
+    if (search == aabbList.cend())
+        return x108_aabb;
+
+    return search->second;
 }
 
 }

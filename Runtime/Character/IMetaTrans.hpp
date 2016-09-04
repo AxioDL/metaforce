@@ -24,6 +24,13 @@ public:
                                                               const std::weak_ptr<CAnimTreeNode>& b,
                                                               const CAnimSysContext& animSys) const=0;
     virtual EMetaTransType GetType() const=0;
+
+    std::shared_ptr<CAnimTreeNode> GetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
+                                                     const std::weak_ptr<CAnimTreeNode>& b,
+                                                     const CAnimSysContext& animSys)
+    {
+        return VGetTransitionTree(a, b, animSys);
+    }
 };
 
 }

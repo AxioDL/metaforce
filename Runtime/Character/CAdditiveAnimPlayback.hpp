@@ -43,12 +43,12 @@ private:
     std::shared_ptr<CAnimTreeNode> x8_anim;
     float xc_targetWeight;
     float x10_curWeight = 0.f;
-    bool x14_a;
+    bool x14_active;
     float x18_weightTimer = 0.f;
     EAdditivePlaybackPhase x1c_phase = EAdditivePlaybackPhase::FadingIn;
     bool x20_ = false;
 public:
-    CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim, float weight, bool a,
+    CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim, float weight, bool active,
                           const CAdditiveAnimationInfo& info, bool b);
 
     void AddToSegStatementSet(const CSegIdList& list, const CCharLayoutInfo&, CSegStatementSet&) const;
@@ -56,7 +56,7 @@ public:
     void FadeOut();
     void SetWeight(float w);
     float GetTargetWeight() const {return xc_targetWeight;}
-    bool GetA() const {return x14_a;}
+    bool IsActive() const {return x14_active;}
     const std::shared_ptr<CAnimTreeNode>& GetAnim() const {return x8_anim;}
 };
 

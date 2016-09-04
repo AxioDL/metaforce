@@ -3,7 +3,6 @@
 #include "IAnimReader.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CSkinnedModel.hpp"
-#include "Graphics/CFrustumPlanes.hpp"
 #include "Graphics/CVertexMorphEffect.hpp"
 #include "Editor/ProjectManager.hpp"
 #include "CActorLights.hpp"
@@ -266,14 +265,14 @@ bool CModelData::IsAnimating() const
 }
 
 bool CModelData::IsInFrustum(const zeus::CTransform& xf,
-                             const CFrustumPlanes& frustum) const
+                             const zeus::CFrustum& frustum) const
 {
     if (!x10_animData && !x1c_normalModel)
         return true;
-    return frustum.BoxInFrustumPlanes(GetBounds(xf));
+    return frustum.aabbFrustumTest(GetBounds(xf));
 }
 
-void CModelData::RenderParticles(const CFrustumPlanes& frustum) const
+void CModelData::RenderParticles(const zeus::CFrustum& frustum) const
 {
     if (x10_animData)
         x10_animData->RenderAuxiliary(frustum);

@@ -75,6 +75,7 @@ public:
     const std::vector<CInt32POINode>& GetInt32POIStream() const;
     const std::vector<CBoolPOINode>& GetBoolPOIStream() const;
     const TCachedToken<CAnimPOIData>& GetPOIData() const {return x58_evntData;}
+    float GetAverageVelocity() const { return x60_averageVelocity; }
     zeus::CQuaternion GetRotation(const CSegId& seg, const CCharAnimTime& time) const;
     zeus::CVector3f GetOffset(const CSegId& seg, const CCharAnimTime& time) const;
     bool HasOffset(const CSegId& seg) const;

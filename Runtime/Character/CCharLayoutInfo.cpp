@@ -37,9 +37,10 @@ void CCharLayoutNode::Bone::read(CInputStream& in)
 }
 
 CCharLayoutNode::CCharLayoutNode(CInputStream& in)
+: x0_boneMap(in.readUint32Big())
 {
-    u32 count = in.readUint32Big();
-    for (u32 i=0 ; i<count ; ++i)
+    u32 cap = x0_boneMap.GetCapacity();
+    for (u32 i=0 ; i<cap ; ++i)
     {
         u32 thisId = in.readUint32Big();
         Bone& bone = x0_boneMap[thisId];

@@ -46,10 +46,13 @@ public:
     ResId GetSkinRulesId() const {return x18_cskr;}
     ResId GetCharLayoutInfoId() const {return x1c_cinf;}
 
+    const std::vector<std::pair<std::string, zeus::CAABox>>& GetAnimBBoxList() const { return x88_aabbs; }
+
     ResId GetIceModelId() const {return xa8_cmdlOverlay;}
     ResId GetIceSkinRulesId() const {return xac_cskrOverlay;}
 
     const CParticleResData& GetParticleResData() const {return x44_partRes;}
+    u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs[idx]; }
 };
 
 }

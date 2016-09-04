@@ -16,7 +16,6 @@ class CStateManager;
 class CActorLights;
 struct CModelFlags;
 class CRandom16;
-class CFrustumPlanes;
 class CAnimData;
 class CModel;
 class CSkinnedModel;
@@ -128,8 +127,8 @@ public:
     SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16&, bool advTree);
     SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree);
     bool IsAnimating() const;
-    bool IsInFrustum(const zeus::CTransform& xf, const CFrustumPlanes& frustum) const;
-    void RenderParticles(const CFrustumPlanes& frustum) const;
+    bool IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const;
+    void RenderParticles(const zeus::CFrustum& frustum) const;
     void Touch(EWhichModel, int shaderIdx);
     void Touch(const CStateManager& stateMgr, int shaderIdx);
     void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b);

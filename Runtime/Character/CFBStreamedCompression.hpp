@@ -58,11 +58,13 @@ private:
     ResId x4_evnt;
     TLockedToken<CAnimPOIData> x8_evntToken;
     std::unique_ptr<u32[]> xc_rotsAndOffs;
+    float x10_averageVelocity;
     zeus::CVector3f x14_rootOffset;
 
     u8* ReadBoneChannelDescriptors(u8* out, CInputStream& in);
     u32 ComputeBitstreamWords(const u8* chans);
     std::unique_ptr<u32[]> GetRotationsAndOffsets(u32 words, CInputStream& in);
+    float CalculateAverageVelocity(const u8* chans);
 
 public:
     CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);
@@ -72,6 +74,7 @@ public:
     const u8* GetBitstreamPointer() const;
     bool IsLooping() const { return MainHeader().looping; }
     CCharAnimTime GetAnimationDuration() const { return MainHeader().duration; }
+    float GetAverageVelocity() const { return x10_averageVelocity; }
     const zeus::CVector3f& GetRootOffset() const { return x14_rootOffset; }
     bool HasPOIData() const { return x8_evntToken; }
     const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x8_evntToken->GetBoolPOIStream(); }

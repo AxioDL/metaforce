@@ -8,7 +8,7 @@ namespace urde
 void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout,
                                                const CSegId& boneId, const CSegId& nullId)
 {
-    if (!x0_treeMap.HasElement(boneId))
+    if (!x38_treeMap.HasElement(boneId))
     {
         const CCharLayoutNode::Bone& bone = layout.GetRootNode()->GetBoneMap()[boneId];
         if (bone.x0_parentId == nullId)
@@ -16,17 +16,17 @@ void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout,
             xcec_rootId = boneId;
             xcf0_hasRoot = true;
             zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
-            x0_treeMap[boneId] = CTreeNode(origin);
+            x38_treeMap[boneId] = CTreeNode(origin);
         }
         else
         {
             BuildIntoHierarchy(layout, bone.x0_parentId, nullId);
             zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
-            CTreeNode& pNode = x0_treeMap[bone.x0_parentId];
+            CTreeNode& pNode = x38_treeMap[bone.x0_parentId];
             CTreeNode node(origin);
             node.x1_sibling = pNode.x0_child;
             pNode.x0_child = boneId;
-            x0_treeMap[boneId] = node;
+            x38_treeMap[boneId] = node;
         }
     }
 }
@@ -43,7 +43,7 @@ void CHierarchyPoseBuilder::RecursivelyBuildNoScale(const CSegId& boneId, const 
     CSegId curBone = node.x0_child;
     while (curBone != 0)
     {
-        const CTreeNode& node = x0_treeMap[curBone];
+        const CTreeNode& node = x38_treeMap[curBone];
         RecursivelyBuild(curBone, node, pose, quat, xf, xfOffset);
         curBone = node.x1_sibling;
     }
@@ -56,8 +56,8 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
     zeus::CQuaternion quat = parentRot * node.x4_rotation;
 
     float scale;
-    if (xcf4_layoutDesc.GetScaledLayoutDescription())
-        scale = xcf4_layoutDesc.GetScaledLayoutDescription()->GetScale();
+    if (x0_layoutDesc.GetScaledLayoutDescription())
+        scale = x0_layoutDesc.GetScaledLayoutDescription()->GetScale();
     else
         scale = 1.f;
 
@@ -73,7 +73,7 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
     CSegId curBone = node.x0_child;
     while (curBone != 0)
     {
-        const CTreeNode& node = x0_treeMap[curBone];
+        const CTreeNode& node = x38_treeMap[curBone];
         RecursivelyBuild(curBone, node, pose, quat, quat, xfOffset);
         curBone = node.x1_sibling;
     }
@@ -83,14 +83,14 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
 {
     TLockedToken<CCharLayoutInfo> layoutInfoTok;
     float scale;
-    if (xcf4_layoutDesc.GetScaledLayoutDescription())
+    if (x0_layoutDesc.GetScaledLayoutDescription())
     {
-        layoutInfoTok = xcf4_layoutDesc.GetScaledLayoutDescription()->GetCharLayoutInfo();
-        scale = xcf4_layoutDesc.GetScaledLayoutDescription()->GetScale();
+        layoutInfoTok = x0_layoutDesc.GetScaledLayoutDescription()->GetCharLayoutInfo();
+        scale = x0_layoutDesc.GetScaledLayoutDescription()->GetScale();
     }
     else
     {
-        layoutInfoTok = xcf4_layoutDesc.GetCharLayoutInfo();
+        layoutInfoTok = x0_layoutDesc.GetCharLayoutInfo();
         scale = 1.f;
     }
     const CCharLayoutInfo& layoutInfo = *layoutInfoTok.GetObj();
@@ -112,7 +112,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
     for (CSegId* id=&buildIDs[idCount] ; id != buildIDs ; --id)
     {
         CSegId& thisId = id[-1];
-        const CTreeNode& node = x0_treeMap[thisId];
+        const CTreeNode& node = x38_treeMap[thisId];
         accumRot *= node.x4_rotation;
         accumPos += accumXF * node.x14_offset;
         if (scale == 1.f)
@@ -128,7 +128,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
 void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose)
 {
     pose.Clear();
-    const CTreeNode& node = x0_treeMap[xcec_rootId];
+    const CTreeNode& node = x38_treeMap[xcec_rootId];
     zeus::CQuaternion quat;
     zeus::CMatrix3f mtx;
     zeus::CVector3f vec;
@@ -137,16 +137,16 @@ void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose)
 
 void CHierarchyPoseBuilder::Insert(const CSegId& boneId, const zeus::CQuaternion& quat)
 {
-    x0_treeMap[boneId] = CTreeNode(quat);
+    x38_treeMap[boneId] = CTreeNode(quat);
 }
 
 void CHierarchyPoseBuilder::Insert(const CSegId& boneId, const zeus::CQuaternion& quat, const zeus::CVector3f& offset)
 {
-    x0_treeMap[boneId] = CTreeNode(quat, offset);
+    x38_treeMap[boneId] = CTreeNode(quat, offset);
 }
 
 CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
-: xcf4_layoutDesc(layout)
+: x0_layoutDesc(layout), x38_treeMap(layout.GetCharLayoutInfo()->GetSegIdList().GetList().size())
 {
     TLockedToken<CCharLayoutInfo> layoutInfoTok;
     if (layout.GetScaledLayoutDescription())

@@ -36,7 +36,6 @@ set(GRAPHICS_SOURCES
     CSkinnedModel.hpp CSkinnedModel.cpp
     CVertexMorphEffect.hpp CVertexMorphEffect.cpp
     CMoviePlayer.hpp CMoviePlayer.cpp
-    CFrustumPlanes.hpp CFrustumPlanes.cpp
     CGraphicsPalette.hpp CGraphicsPalette.cpp
     CPVSVisSet.hpp CPVSVisSet.cpp
     CPVSVisOctree.hpp CPVSVisOctree.cpp

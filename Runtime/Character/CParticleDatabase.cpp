@@ -20,4 +20,13 @@ void CParticleDatabase::StartEffect(const std::string& name, u32 flags, const CP
 {
 }
 
+void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
+                               const zeus::CTransform& xf, const zeus::CVector3f& vec, CStateManager& stateMgr)
+{
+}
+
+void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum)
+{
+}
+
 }

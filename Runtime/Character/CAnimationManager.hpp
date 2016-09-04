@@ -9,6 +9,9 @@ namespace urde
 class CAnimationDatabaseGame;
 class CTransitionDatabaseGame;
 class CSimplePool;
+class CAnimTreeNode;
+class CMetaAnimTreeBuildOrders;
+class IMetaAnim;
 
 class CAnimationManager
 {
@@ -20,6 +23,8 @@ public:
     : x0_animDB(animDB), x8_sysCtx(sysCtx) {}
 
     const CAnimationDatabaseGame* GetAnimationDatabase() const;
+    std::shared_ptr<CAnimTreeNode> GetAnimationTree(u32, const CMetaAnimTreeBuildOrders& orders) const;
+    const std::shared_ptr<IMetaAnim>& GetMetaAnimation(u32) const;
 };
 
 }

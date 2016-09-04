@@ -3,10 +3,13 @@
 
 #include "CCharacterInfo.hpp"
 #include "CParticleGenInfo.hpp"
+#include "zeus/CFrustum.hpp"
 #include <map>
 
 namespace urde
 {
+class CPoseAsTransforms;
+class CCharLayoutInfo;
 
 class CParticleDatabase
 {
@@ -17,6 +20,9 @@ public:
     void SuspendAllActiveEffects(CStateManager& stateMgr);
     void StartEffect(const std::string& name, u32 flags, const CParticleData& data,
                      const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid, u32 unk1);
+    void Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
+                const zeus::CTransform& xf, const zeus::CVector3f& vec, CStateManager& stateMgr);
+    void AddToRendererClipped(const zeus::CFrustum& frustum);
 };
 
 }

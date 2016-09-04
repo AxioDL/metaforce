@@ -11,45 +11,52 @@ template <class T>
 class TSegIdMap
 {
     CSegId x0_boneCount = 0;
-    CSegId x1_curPrevBone = 0;
-    u32 x4_capacity = 100;
-    CSegId x8_prevBones[100];
-    T x6c_bones[100];
+    CSegId x1_capacity = 0;
+    u32 x4_maxCapacity = 100;
+    std::pair<CSegId, CSegId> x8_indirectionMap[100];
+    std::unique_ptr<T[]> xd0_bones;
+    CSegId xd4_curPrevBone = 0;
 public:
+    TSegIdMap(const CSegId& capacity) : x1_capacity(capacity), xd0_bones(new T[capacity]) {}
     T& operator[](const CSegId& id) {return SetElement(id);}
-    const T& operator[](const CSegId& id) const {return x6c_bones[id];}
+    const T& operator[](const CSegId& id) const {return xd0_bones[id];}
     T& SetElement(const CSegId& id, T&& obj)
     {
-        x6c_bones[id] = std::move(obj);
-        if (x8_prevBones[id] == 0xff)
+        xd0_bones[id] = std::move(obj);
+        if (x8_indirectionMap[id].first == 0xff)
         {
-            x8_prevBones[id] = x1_curPrevBone;
-            x1_curPrevBone = id;
+            x8_indirectionMap[id].first = xd4_curPrevBone;
+            x8_indirectionMap[id].second = x0_boneCount;
+            xd4_curPrevBone = id;
             ++x0_boneCount;
         }
-        return x6c_bones[id];
+        return xd0_bones[id];
     }
     T& SetElement(const CSegId& id)
     {
-        if (x8_prevBones[id] == 0xff)
+        if (x8_indirectionMap[id].first == 0xff)
         {
-            x8_prevBones[id] = x1_curPrevBone;
-            x1_curPrevBone = id;
+            x8_indirectionMap[id].first = xd4_curPrevBone;
+            x8_indirectionMap[id].second = x0_boneCount;
+            xd4_curPrevBone = id;
             ++x0_boneCount;
         }
-        return x6c_bones[id];
+        return xd0_bones[id];
     }
     void DelElement(const CSegId& id)
     {
-        if (x8_prevBones[id] != 0xff)
+        if (x8_indirectionMap[id].first != 0xff)
         {
-            if (id == x1_curPrevBone)
-                x1_curPrevBone = x8_prevBones[id];
-            x8_prevBones[id] = 0xff;
+            if (id == xd4_curPrevBone)
+                xd4_curPrevBone = x8_indirectionMap[id].first;
+            x8_indirectionMap[id].first = 0xff;
+            x8_indirectionMap[id].second = 0xff;
             --x0_boneCount;
         }
     }
-    bool HasElement(const CSegId& id) const {return x8_prevBones[id] != 0xff;}
+    bool HasElement(const CSegId& id) const {return x8_indirectionMap[id].first != 0xff;}
+
+    u32 GetCapacity() const { return x1_capacity; }
 };
 
 }

@@ -9,6 +9,7 @@
 #include "CHierarchyPoseBuilder.hpp"
 #include "CAdditiveAnimPlayback.hpp"
 #include "CCharLayoutInfo.hpp"
+#include "CAnimPlaybackParms.hpp"
 #include <set>
 
 enum class EUserEventType
@@ -62,9 +63,7 @@ class CCharacterFactory;
 class IMetaAnim;
 struct CModelFlags;
 class CVertexMorphEffect;
-class CFrustumPlanes;
 class CPrimitive;
-class CAnimPlaybackParms;
 class CRandom16;
 class CStateManager;
 class CCharAnimTime;
@@ -98,7 +97,7 @@ class CAnimData
     ResId x1d8_selfId;
     zeus::CVector3f x1dc_;
     zeus::CQuaternion x1e8_;
-    std::shared_ptr<IAnimReader> x1f8_animRoot;
+    std::shared_ptr<CAnimTreeNode> x1f8_animRoot;
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
     float x200_speedScale = 1.f;
@@ -129,17 +128,8 @@ class CAnimData
     CPoseAsTransforms x224_pose;
     CHierarchyPoseBuilder x2fc_poseBuilder;
 
-    u32 x1020_ = -1;
-    u32 x10204_ = -1;
-    float x1028_ = 1.f;
-    bool x102c_ = true;
-    u32 x1030_ = 0;
-    u32 x1034_ = 0;
-    bool x1038_ = false;
-    u32 x103c_ = 0;
-    u32 x1040_ = 0;
-    u32 x1044_ = 0;
-    rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x1048_additiveAnims;
+    CAnimPlaybackParms x40c_playbackParms;
+    rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x434_additiveAnims;
 
     static rstl::reserved_vector<CBoolPOINode, 8> g_BoolPOINodes;
     static rstl::reserved_vector<CInt32POINode, 16> g_Int32POINodes;
@@ -177,7 +167,7 @@ public:
     void SetPlaybackRate(float);
     void SetRandomPlaybackRate(CRandom16&);
     void CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
-                                    const std::weak_ptr<CAnimTreeNode>& node);
+                                    const std::shared_ptr<CAnimTreeNode>& node);
     zeus::CTransform GetLocatorTransform(CSegId id, const CCharAnimTime* time) const;
     zeus::CTransform GetLocatorTransform(const std::string& name, const CCharAnimTime* time) const;
     bool IsAnimTimeRemaining(float, const std::string& name) const;
@@ -189,7 +179,7 @@ public:
     std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;
     void RecalcPoseBuilder(const CCharAnimTime*);
-    void RenderAuxiliary(const CFrustumPlanes& frustum) const;
+    void RenderAuxiliary(const zeus::CFrustum& frustum) const;
     void Render(CSkinnedModel& model, const CModelFlags& drawFlags,
                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                 const float* morphMagnitudes);
@@ -200,7 +190,8 @@ public:
     static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
     void PreRender();
     void BuildPose();
-    void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, std::vector<CToken>& tokensOut);
+    static void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet,
+                                          std::vector<CToken>& tokensOut, bool preLock);
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
     void SetAnimation(const CAnimPlaybackParms& parms, bool);
     SAdvancementDeltas DoAdvance(float, bool&, CRandom16&, bool advTree);
@@ -216,7 +207,7 @@ public:
                                  const float* morphMagnitudes);
     void AdvanceParticles(const zeus::CTransform& xf, float dt,
                           const zeus::CVector3f&, CStateManager& stateMgr);
-    void GetAverageVelocity(int) const;
+    float GetAverageVelocity(int animIn) const;
     void ResetPOILists();
     CSegId GetLocatorSegId(const std::string& name) const;
     zeus::CAABox GetBoundingBox(const zeus::CTransform& xf) const;

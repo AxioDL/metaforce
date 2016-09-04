@@ -14,6 +14,10 @@ class CPoseAsTransforms;
 
 class CHierarchyPoseBuilder
 {
+    CLayoutDescription x0_layoutDesc;
+    bool x34_ = 0;
+
+
     struct CTreeNode
     {
         CSegId x0_child = 0;
@@ -26,11 +30,10 @@ class CHierarchyPoseBuilder
         CTreeNode(const zeus::CQuaternion& quat, const zeus::CVector3f& offset)
         : x4_rotation(quat), x14_offset(offset) {}
     };
-    TSegIdMap<CTreeNode> x0_treeMap;
+    TSegIdMap<CTreeNode> x38_treeMap;
 
     CSegId xcec_rootId;
     bool xcf0_hasRoot = false;
-    CLayoutDescription xcf4_layoutDesc;
 
     void BuildIntoHierarchy(const CCharLayoutInfo& layout,
                             const CSegId& boneId, const CSegId& nullId);
