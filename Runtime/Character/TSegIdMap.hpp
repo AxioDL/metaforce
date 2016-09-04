@@ -19,29 +19,37 @@ class TSegIdMap
 public:
     TSegIdMap(const CSegId& capacity) : x1_capacity(capacity), xd0_bones(new T[capacity]) {}
     T& operator[](const CSegId& id) {return SetElement(id);}
-    const T& operator[](const CSegId& id) const {return xd0_bones[id];}
+    const T& operator[](const CSegId& id) const {return xd0_bones[x8_indirectionMap[id].second];}
     T& SetElement(const CSegId& id, T&& obj)
     {
-        xd0_bones[id] = std::move(obj);
+        size_t idx;
         if (x8_indirectionMap[id].first == 0xff)
         {
             x8_indirectionMap[id].first = xd4_curPrevBone;
             x8_indirectionMap[id].second = x0_boneCount;
             xd4_curPrevBone = id;
+            idx = x0_boneCount;
             ++x0_boneCount;
         }
-        return xd0_bones[id];
+        else
+            idx = x8_indirectionMap[id].second;
+        xd0_bones[idx] = std::move(obj);
+        return xd0_bones[idx];
     }
     T& SetElement(const CSegId& id)
     {
+        size_t idx;
         if (x8_indirectionMap[id].first == 0xff)
         {
             x8_indirectionMap[id].first = xd4_curPrevBone;
             x8_indirectionMap[id].second = x0_boneCount;
             xd4_curPrevBone = id;
+            idx = x0_boneCount;
             ++x0_boneCount;
         }
-        return xd0_bones[id];
+        else
+            idx = x8_indirectionMap[id].second;
+        return xd0_bones[idx];
     }
     void DelElement(const CSegId& id)
     {
