@@ -146,7 +146,7 @@ bool CCharAnimTime::operator <(const CCharAnimTime& other) const
     {
         if (m_type == Type::Infinity)
             return m_time < 0.f && other.m_time > 0.f;
-        return m_time < 0.f;
+        return m_time < other.m_time;
     }
 }
 

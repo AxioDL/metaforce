@@ -156,7 +156,8 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
         return nullptr;
     if (hecl::IsPathBlend(path))
     {
-        if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
+        if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")) ||
+            hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
             return oldEntry;
 
         hecl::BlenderConnection& conn = btok.getBlenderConnection();

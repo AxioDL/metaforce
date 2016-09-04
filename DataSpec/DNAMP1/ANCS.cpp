@@ -1274,16 +1274,16 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
             {
                 EVNT evnt;
                 evnt.fromYAMLStream(reader);
-                anim.m_anim->evnt = evntYamlPath;
 
-                hecl::ProjectPath evntYamlOut = cookedOut.getWithExtension(_S(".evnt"));
-                athena::io::FileWriter w(evntYamlOut.getAbsolutePath(), true, false);
+                hecl::ProjectPath evntCookedOut = evntYamlPath.getCookedPath(SpecEntMP1);
+                athena::io::FileWriter w(evntCookedOut.getAbsolutePath(), true, false);
                 if (w.hasError())
                     Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                               evntYamlOut.getRelativePath().c_str());
+                               evntCookedOut.getRelativePath().c_str());
 
                 evnt.write(w);
                 ancs.animationSet.animResources.back().evntId = evntYamlPath;
+                anim.m_anim->evnt = evntYamlPath;
             }
         }
 

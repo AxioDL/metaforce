@@ -619,7 +619,7 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx)
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
-                                       m_vtxFmt, m_vbo, m_ibo, 0, 0, m_aabb);
+                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount, m_aabb);
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
@@ -655,6 +655,8 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         athena::io::MemoryReader r(hmdlMetadata, hmdlSz);
         hmdlMeta.read(r);
     }
+    m_weightVecCount = hmdlMeta.weightCount;
+    m_skinBankCount = hmdlMeta.bankCount;
 
     const u8* vboData = MemoryFromPartData(dataCur, secSizeCur);
     const u8* iboData = MemoryFromPartData(dataCur, secSizeCur);

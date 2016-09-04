@@ -177,6 +177,9 @@ class CModel
     boo::IGraphicsBufferS* m_ibo;
     boo::IVertexFormat* m_vtxFmt;
 
+    u32 m_weightVecCount;
+    u32 m_skinBankCount;
+
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 

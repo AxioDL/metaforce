@@ -7,6 +7,7 @@
 #include "zeus/CQuaternion.hpp"
 #include "CParticleData.hpp"
 #include "CToken.hpp"
+#include "CAllFormatsAnimSource.hpp"
 
 namespace urde
 {
@@ -66,7 +67,41 @@ public:
 };
 
 template <class T>
-using TSubAnimTypeToken = TLockedToken<T>;
+class TSubAnimTypeToken : public TLockedToken<CAllFormatsAnimSource>
+{
+};
+
+template <>
+class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAllFormatsAnimSource>
+{
+public:
+    TSubAnimTypeToken<CAnimSource>(const TLockedToken<CAllFormatsAnimSource>& token)
+    : TLockedToken<CAllFormatsAnimSource>(token) {}
+
+    const CAnimSource* GetObj() const
+    {
+        const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+        return &source->GetAsCAnimSource();
+    }
+    const CAnimSource* operator->() const {return GetObj();}
+    const CAnimSource& operator*() const {return *GetObj();}
+};
+
+template <>
+class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CAllFormatsAnimSource>
+{
+public:
+    TSubAnimTypeToken<CFBStreamedCompression>(const TLockedToken<CAllFormatsAnimSource>& token)
+    : TLockedToken<CAllFormatsAnimSource>(token) {}
+
+    const CFBStreamedCompression* GetObj() const
+    {
+        const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+        return &source->GetAsCFBStreamedCompression();
+    }
+    const CFBStreamedCompression* operator->() const {return GetObj();}
+    const CFBStreamedCompression& operator*() const {return *GetObj();}
+};
 
 class IAnimReader
 {

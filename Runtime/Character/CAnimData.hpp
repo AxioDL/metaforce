@@ -95,8 +95,8 @@ class CAnimData
     zeus::CAABox x108_aabb;
     CParticleDatabase x120_particleDB;
     ResId x1d8_selfId;
-    zeus::CVector3f x1dc_;
-    zeus::CQuaternion x1e8_;
+    zeus::CVector3f x1dc_alignPos;
+    zeus::CQuaternion x1e8_alignRot;
     std::shared_ptr<CAnimTreeNode> x1f8_animRoot;
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
@@ -119,7 +119,7 @@ class CAnimData
             bool x220_26_ : 1;
             bool x220_27_ : 1;
             bool x220_28_ : 1;
-            bool x220_29_ : 1;
+            bool x220_29_animationJustStarted : 1;
             bool x220_30_poseBuilt : 1;
             bool x220_31_poseCached : 1;
         };

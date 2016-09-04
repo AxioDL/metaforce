@@ -350,6 +350,7 @@ CFBStreamedAnimReader::CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamed
   x7c_totals(source), x104_bitstreamData(source->GetBitstreamPointer()), x108_bitLoader(x104_bitstreamData),
   x114_segIdToIndex(x7c_totals.x10_nextSel ? x7c_totals.x14_a : x7c_totals.x3c_b)
 {
+    x7c_totals.SetTime(x108_bitLoader, CCharAnimTime());
     PostConstruct(time);
 }
 

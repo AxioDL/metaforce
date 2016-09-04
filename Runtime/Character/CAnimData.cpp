@@ -57,10 +57,11 @@ CAnimData::CAnimData(ResId id,
       x1fc_transMgr(transMgr),
       x204_charIdx(charIdx),
       x208_defaultAnim(defaultAnim),
-      x220_25_loop(loop),
       x224_pose(layout->GetSegIdList().GetList().size()),
       x2fc_poseBuilder(layout)
 {
+    x220_25_loop = loop;
+
     if (iceModel)
         xe4_iceModelData = *iceModel;
 
@@ -391,13 +392,13 @@ void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet,
 void CAnimData::GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const
 {
     std::shared_ptr<IMetaAnim> animA =
-        GetAnimationManager()->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x0_animA));
+        x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x0_animA));
     animA->GetUniquePrimitives(primsOut);
 
     if (parms.x4_animB != -1)
     {
         std::shared_ptr<IMetaAnim> animB =
-            GetAnimationManager()->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x4_animB));
+            x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x4_animB));
         animB->GetUniquePrimitives(primsOut);
     }
 }
@@ -405,12 +406,12 @@ void CAnimData::GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set
 void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
 {
     if (parms.x0_animA == x40c_playbackParms.x0_animA ||
-        (parms.x4_animB != x40c_playbackParms.x4_animB &&
+        (parms.x4_animB == x40c_playbackParms.x4_animB &&
          parms.x8_blendWeight == x40c_playbackParms.x8_blendWeight &&
          parms.x8_blendWeight != 1.f) ||
         parms.x4_animB == -1)
     {
-        if (x220_29_)
+        if (x220_29_animationJustStarted)
             return;
     }
 
@@ -430,9 +431,9 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
         u32 animIdxB = xc_charInfo.GetAnimationIndex(parms.x4_animB);
 
         std::shared_ptr<CAnimTreeNode> treeA =
-            GetAnimationManager()->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+            x100_animMgr->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
         std::shared_ptr<CAnimTreeNode> treeB =
-            GetAnimationManager()->GetAnimationTree(animIdxB, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+            x100_animMgr->GetAnimationTree(animIdxB, CMetaAnimTreeBuildOrders::NoSpecialOrders());
 
         blendNode = std::make_shared<CAnimTreeBlend>(false, treeA, treeB, parms.x8_blendWeight,
                                                      CAnimTreeBlend::CreatePrimitiveName(treeA, treeB,
@@ -440,10 +441,10 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
     }
     else
     {
-        blendNode = GetAnimationManager()->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+        blendNode = x100_animMgr->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
     }
 
-    if (!noTrans)
+    if (!noTrans && x1f8_animRoot)
         x1f8_animRoot = x1fc_transMgr->GetTransitionTree(x1f8_animRoot, blendNode);
     else
         x1f8_animRoot = blendNode;
@@ -451,7 +452,7 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
     x220_24_animating = parms.xc_animating;
     CalcPlaybackAlignmentParms(parms, blendNode);
     ResetPOILists();
-    x220_29_ = true;
+    x220_29_animationJustStarted = true;
 }
 
 SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool advTree)
@@ -476,9 +477,9 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
         return {};
     }
 
-    if (x220_29_)
+    if (x220_29_animationJustStarted)
     {
-        x220_29_ = false;
+        x220_29_animationJustStarted = false;
         b1 = true;
     }
 
@@ -512,7 +513,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
                 if (remTime.EpsilonZero())
                 {
                     x220_24_animating = false;
-                    x1dc_ = zeus::CVector3f::skZero;
+                    x1dc_alignPos = zeus::CVector3f::skZero;
                     x220_28_ = false;
                     x220_26_ = false;
                 }
@@ -555,7 +556,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
     SAdvancementResults results;
     std::shared_ptr<IAnimReader> simplified;
 
-    if (x104_)
+    if (!x104_)
     {
         results = x1f8_animRoot->VAdvanceView(time);
         simplified = x1f8_animRoot->VSimplified();
@@ -587,14 +588,14 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
                 }
                 case EUserEventType::AlignTargetPos:
                 {
-                    x1dc_ = zeus::CVector3f::skZero;
+                    x1dc_alignPos = zeus::CVector3f::skZero;
                     x220_28_ = false;
                     x220_26_ = false;
                     break;
                 }
                 case EUserEventType::AlignTargetRot:
                 {
-                    x1e8_ = zeus::CQuaternion::skNoRotation;
+                    x1e8_alignRot = zeus::CQuaternion::skNoRotation;
                     x220_27_ = false;
                     break;
                 }
@@ -606,11 +607,11 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
     offset += results.x8_deltas.x0_posDelta;
     if (x220_26_)
-        offset += x1dc_ * time;
+        offset += x1dc_alignPos * time;
 
-    zeus::CQuaternion rot = results.x8_deltas.xc_rotDelta * x1e8_;
+    zeus::CQuaternion rot = results.x8_deltas.xc_rotDelta * x1e8_alignRot;
     quat = quat * rot;
-    x1dc_ = rot.transform(x1dc_);
+    x1dc_alignPos = rot.transform(x1dc_alignPos);
     time = results.x0_remTime;
 }
 

@@ -26,7 +26,7 @@ class CAnimFormatUnion
     union
     {
         EAnimFormat x0_format;
-        intptr_t _align = 0;
+        u8 _align[16];
     };
     u8 x4_storage[std::max(sizeof(CAnimSource), sizeof(CFBStreamedCompression))];
     static void SubConstruct(u8* storage, EAnimFormat fmt,
