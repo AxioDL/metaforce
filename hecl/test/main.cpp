@@ -100,6 +100,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 testMeta.colorCount = 0;
                 testMeta.uvCount = 1;
                 testMeta.weightCount = 0;
+                testMeta.bankCount = 0;
 
                 /* Binary form of meta structure */
                 atUint8 testMetaBuf[HECL_HMDL_META_SZ];

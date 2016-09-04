@@ -40,6 +40,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
     metaOut.colorCount = colorLayerCount;
     metaOut.uvCount = uvLayerCount;
     metaOut.weightCount = weightVecCount;
+    metaOut.bankCount = skinBanks.banks.size();
 
     /* Total all verts from all surfaces (for ibo length) */
     size_t boundVerts = 0;

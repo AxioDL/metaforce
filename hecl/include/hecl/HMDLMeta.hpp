@@ -25,7 +25,8 @@ struct HMDLMeta : athena::io::DNA<athena::BigEndian>
     Value<atUint32> indexCount;
     Value<atUint32> colorCount;
     Value<atUint32> uvCount;
-    Value<atUint32> weightCount;
+    Value<atUint16> weightCount;
+    Value<atUint16> bankCount;
 };
 
 }
