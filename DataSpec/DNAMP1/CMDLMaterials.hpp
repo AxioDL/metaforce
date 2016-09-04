@@ -264,7 +264,7 @@ struct MaterialSet : BigDNA
                 HStrip,
                 VStrip,
                 Model,
-                WhoMustNotBeNamed,
+                CylinderEnvironment,
                 Eight
             } mode;
             float vals[9];
@@ -286,7 +286,7 @@ struct MaterialSet : BigDNA
                     vals[3] = reader.readFloatBig();
                     break;
                 case Mode::Rotation:
-                case Mode::WhoMustNotBeNamed:
+                case Mode::CylinderEnvironment:
                     vals[0] = reader.readFloatBig();
                     vals[1] = reader.readFloatBig();
                     break;
@@ -321,7 +321,7 @@ struct MaterialSet : BigDNA
                     writer.writeFloatBig(vals[3]);
                     break;
                 case Mode::Rotation:
-                case Mode::WhoMustNotBeNamed:
+                case Mode::CylinderEnvironment:
                     writer.writeFloatBig(vals[0]);
                     writer.writeFloatBig(vals[1]);
                     break;
@@ -351,7 +351,7 @@ struct MaterialSet : BigDNA
                 case Mode::VStrip:
                     return __isz + 20;
                 case Mode::Rotation:
-                case Mode::WhoMustNotBeNamed:
+                case Mode::CylinderEnvironment:
                     return __isz + 12;
                 case Mode::Eight:
                     return __isz + 40;
