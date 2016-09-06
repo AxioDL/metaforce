@@ -10,7 +10,9 @@ using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
 void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
 {
-    os.format("act.hecl_fps = round(%f)\n", (1.0f / mainInterval));
+    os.format("act.hecl_fps = round(%f)\n"
+              "act.hecl_looping = %s\n",
+              (1.0f / mainInterval), looping ? "True" : "False");
 
     auto kit = chanKeys.begin();
 
@@ -270,6 +272,7 @@ void ANIM::ANIM2::read(athena::io::IStreamReader& reader)
     head.read(reader);
     evnt = head.evnt;
     mainInterval = head.interval;
+    looping = bool(head.looping);
 
     WordBitmap keyBmp;
     keyBmp.read(reader, head.keyBitmapBitCount);
@@ -379,7 +382,7 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
     head.unk0 = 1;
     head.interval = mainInterval;
     head.rootBoneId = 3;
-    head.looping = 0;
+    head.looping = looping;
     head.unk3 = 1;
 
     WordBitmap keyBmp;
@@ -530,6 +533,7 @@ ANIM::ANIM(const BlenderAction& act,
 {
     m_anim.reset(new struct ANIM2(pc));
     IANIM& newAnim = *m_anim;
+    newAnim.looping = act.looping;
 
     newAnim.bones.reserve(act.channels.size());
     size_t extChanCount = 0;

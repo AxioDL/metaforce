@@ -16,7 +16,12 @@ void CSkinBank::GetBankTransforms(std::vector<const zeus::CTransform*>& out,
                                   const CPoseAsTransforms& pose) const
 {
     for (CSegId id : x0_segments)
-        out.push_back(&pose.GetTransform(id));
+    {
+        const zeus::CTransform& xf = pose.GetRestToAccumTransform(id);
+        //printf("BONE %d\n", int(id));
+        //xf.printMatrix();
+        out.push_back(&xf);
+    }
 }
 
 }

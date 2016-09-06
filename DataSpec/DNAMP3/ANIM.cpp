@@ -9,11 +9,14 @@ namespace DNAMP3
 
 using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool additive) const
+void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os,
+                                    const DNAANIM::RigInverter<CINF>& rig,
+                                    bool additive) const
 {
     os.format("act.hecl_fps = round(%f)\n"
-              "act.hecl_additive = %s\n",
-              1.0f / mainInterval, additive ? "True" : "False");
+              "act.hecl_additive = %s\n"
+              "act.hecl_looping = %s\n",
+              1.0f / mainInterval, additive ? "True" : "False", looping ? "True" : "False");
 
     auto kit = chanKeys.begin() + 1;
 
@@ -47,13 +50,11 @@ void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, co
                   "\n";
 
         if (std::get<1>(bone.second))
-        {
             os << "transCurves = []\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=0, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=1, action_group=bone_string))\n"
                   "transCurves.append(act.fcurves.new('pose.bones[\"'+bone_string+'\"].location', index=2, action_group=bone_string))\n"
                   "\n";
-        }
 
         if (std::get<2>(bone.second))
             os << "scaleCurves = []\n"

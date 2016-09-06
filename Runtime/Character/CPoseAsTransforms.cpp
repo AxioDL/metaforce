@@ -1,10 +1,11 @@
 #include "CPoseAsTransforms.hpp"
+#include "CCharLayoutInfo.hpp"
 
 namespace urde
 {
 
 CPoseAsTransforms::CPoseAsTransforms(u8 boneCount)
-: x1_count(boneCount), xd0_transformArr(new zeus::CTransform[boneCount])
+: x1_count(boneCount), xd0_transformArr(new Transform[boneCount])
 {}
 
 bool CPoseAsTransforms::ContainsDataFor(const CSegId& id) const
@@ -33,26 +34,38 @@ void CPoseAsTransforms::AccumulateScaledTransform(const CSegId& id,
 const zeus::CTransform& CPoseAsTransforms::GetTransform(const CSegId& id) const
 {
     const std::pair<CSegId, CSegId>& link = x8_links[id];
-    return xd0_transformArr[link.second];
+    return xd0_transformArr[link.second].m_originToAccum;
+}
+
+const zeus::CTransform& CPoseAsTransforms::GetRestToAccumTransform(const CSegId& id) const
+{
+    const std::pair<CSegId, CSegId>& link = x8_links[id];
+    return xd0_transformArr[link.second].m_restPoseToAccum;
 }
 
 const zeus::CVector3f& CPoseAsTransforms::GetOffset(const CSegId& id) const
 {
     const std::pair<CSegId, CSegId>& link = x8_links[id];
-    return xd0_transformArr[link.second].origin;
+    return xd0_transformArr[link.second].m_originToAccum.origin;
 }
 
 const zeus::CMatrix3f& CPoseAsTransforms::GetRotation(const CSegId& id) const
 {
     const std::pair<CSegId, CSegId>& link = x8_links[id];
-    return xd0_transformArr[link.second].basis;
+    return xd0_transformArr[link.second].m_originToAccum.basis;
 }
 
 void CPoseAsTransforms::Insert(const CSegId& id,
                                const zeus::CMatrix3f& rotation,
-                               const zeus::CVector3f& offset)
+                               const zeus::CVector3f& offset,
+                               const zeus::CVector3f& restOffset)
 {
-    xd0_transformArr[x0_nextId] = zeus::CTransform(rotation, offset);
+    Transform& xfOut = xd0_transformArr[x0_nextId];
+    xfOut.m_originToAccum = zeus::CTransform(rotation, offset);
+    xfOut.m_restPoseToAccum = xfOut.m_originToAccum * zeus::CTransform::Translate(-restOffset);
+    printf("INSBONE %d\n", int(id));
+    xfOut.m_originToAccum.printMatrix();
+
     std::pair<CSegId, CSegId>& link = x8_links[id];
     link.first = xd4_lastInserted;
     link.second = x0_nextId;

@@ -28,6 +28,7 @@ struct ANIM : BigDNA
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
         UniqueID32 evnt;
+        bool looping = false;
 
         void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
     };
@@ -233,6 +234,13 @@ struct ANIM : BigDNA
     void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool) const
     {
         m_anim->sendANIMToBlender(os, rig);
+    }
+
+    bool isLooping() const
+    {
+        if (!m_anim)
+            return false;
+        return m_anim->looping;
     }
 
     using BlenderAction = hecl::BlenderConnection::DataStream::Actor::Action;

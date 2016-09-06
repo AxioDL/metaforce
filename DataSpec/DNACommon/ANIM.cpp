@@ -325,8 +325,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     float quantRangeF = float(quantRange);
 
     /* Pre-pass to calculate translation multiplier */
-    float maxTransDiff = 0.0f;
-    float maxScaleDiff = 0.0f;
+    float maxTransVal = 0.0f;
+    float maxScaleVal = 0.0f;
     auto kit = chanKeys.begin();
     for (Channel& chan : channels)
     {
@@ -334,31 +334,27 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         {
         case Channel::Type::Translation:
         {
-            const Value* last = &(*kit)[0];
-            for (auto it=kit->begin() + 1;
+            for (auto it=kit->begin();
                  it != kit->end();
                  ++it)
             {
-                const Value* current = &*it;
-                maxTransDiff = std::max(maxTransDiff, current->v3.vec[0] - last->v3.vec[0]);
-                maxTransDiff = std::max(maxTransDiff, current->v3.vec[1] - last->v3.vec[1]);
-                maxTransDiff = std::max(maxTransDiff, current->v3.vec[2] - last->v3.vec[2]);
-                last = current;
+                const Value* key = &*it;
+                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[0]));
+                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[1]));
+                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[2]));
             }
             break;
         }
         case Channel::Type::Scale:
         {
-            const Value* last = &(*kit)[0];
-            for (auto it=kit->begin() + 1;
+            for (auto it=kit->begin();
                  it != kit->end();
                  ++it)
             {
-                const Value* current = &*it;
-                maxScaleDiff = std::max(maxScaleDiff, current->v3.vec[0] - last->v3.vec[0]);
-                maxScaleDiff = std::max(maxScaleDiff, current->v3.vec[1] - last->v3.vec[1]);
-                maxScaleDiff = std::max(maxScaleDiff, current->v3.vec[2] - last->v3.vec[2]);
-                last = current;
+                const Value* key = &*it;
+                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[0]));
+                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[1]));
+                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[2]));
             }
             break;
         }
@@ -366,8 +362,8 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         }
         ++kit;
     }
-    transMultOut = maxTransDiff / quantRangeF;
-    scaleMultOut = maxScaleDiff / quantRangeF;
+    transMultOut = maxTransVal / quantRangeF;
+    scaleMultOut = maxScaleVal / quantRangeF;
 
     /* Output channel inits */
     std::vector<QuantizedValue> initVals;

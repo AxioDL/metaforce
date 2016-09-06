@@ -35,9 +35,10 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
 
             s32* cumulativesOut = &x4_cumulativeInts32[8*b];
             const s32* cumulativesIn = reinterpret_cast<const s32*>(chans);
-            cumulativesOut[0] = cumulativesIn[0] >> 8;
-            cumulativesOut[1] = cumulativesIn[1] >> 8;
-            cumulativesOut[2] = cumulativesIn[2] >> 8;
+            cumulativesOut[0] = 0;
+            cumulativesOut[1] = cumulativesIn[0] >> 8;
+            cumulativesOut[2] = cumulativesIn[1] >> 8;
+            cumulativesOut[3] = cumulativesIn[2] >> 8;
             chans += 12;
 
             u32 tCount = *reinterpret_cast<const u32*>(chans);
@@ -46,9 +47,9 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
             {
                 x8_hasTrans1[b] = true;
                 const s32* cumulativesIn = reinterpret_cast<const s32*>(chans);
-                cumulativesOut[3] = cumulativesIn[0] >> 8;
-                cumulativesOut[4] = cumulativesIn[1] >> 8;
-                cumulativesOut[5] = cumulativesIn[2] >> 8;
+                cumulativesOut[4] = cumulativesIn[0] >> 8;
+                cumulativesOut[5] = cumulativesIn[1] >> 8;
+                cumulativesOut[6] = cumulativesIn[2] >> 8;
                 chans += 12;
             }
             else
@@ -63,9 +64,10 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
             chans += 6;
 
             s32* cumulativesOut = &x4_cumulativeInts32[8*b];
-            cumulativesOut[0] = *reinterpret_cast<const s16*>(chans);
-            cumulativesOut[1] = *reinterpret_cast<const s16*>(chans + 3);
-            cumulativesOut[2] = *reinterpret_cast<const s16*>(chans + 6);
+            cumulativesOut[0] = 0;
+            cumulativesOut[1] = *reinterpret_cast<const s16*>(chans);
+            cumulativesOut[2] = *reinterpret_cast<const s16*>(chans + 3);
+            cumulativesOut[3] = *reinterpret_cast<const s16*>(chans + 6);
             chans += 9;
 
             u16 tCount = *reinterpret_cast<const u16*>(chans);
@@ -73,9 +75,9 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
             if (tCount)
             {
                 x8_hasTrans1[b] = true;
-                cumulativesOut[3] = *reinterpret_cast<const s16*>(chans);
-                cumulativesOut[4] = *reinterpret_cast<const s16*>(chans + 3);
-                cumulativesOut[5] = *reinterpret_cast<const s16*>(chans + 6);
+                cumulativesOut[4] = *reinterpret_cast<const s16*>(chans);
+                cumulativesOut[5] = *reinterpret_cast<const s16*>(chans + 3);
+                cumulativesOut[6] = *reinterpret_cast<const s16*>(chans + 6);
                 chans += 9;
             }
             else
@@ -491,8 +493,9 @@ SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& dt)
         nextTime = animDur;
         res.x0_remTime = nextTime - animDur;
     }
+    xc_curTime = nextTime;
 
-    x7c_totals.SetTime(x108_bitLoader, nextTime);
+    x7c_totals.SetTime(x108_bitLoader, xc_curTime);
     UpdatePOIStates();
     zeus::CQuaternion nextQ = GetRotation(3);
     zeus::CVector3f nextV = GetOffset(3);

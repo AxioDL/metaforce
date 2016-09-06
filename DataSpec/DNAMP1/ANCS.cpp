@@ -1148,6 +1148,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     });
 
     std::unordered_map<std::string, atInt32> boneIdMap;
+    std::experimental::optional<CINF> rigCinf;
     std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
 
     /* Write out CINF resources */
@@ -1164,8 +1165,9 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
 
         if (!rigInv)
         {
+            rigCinf.emplace(cinf);
             auto matrices = ds.getBoneMatrices(arm.name);
-            rigInv.emplace(cinf, matrices);
+            rigInv.emplace(*rigCinf, matrices);
         }
     }
     ds.close();

@@ -37,6 +37,7 @@ public:
     const std::shared_ptr<CCharLayoutNode>& GetRootNode() const {return x0_node;}
     const CSegIdList& GetSegIdList() const {return x8_segIdList;}
     zeus::CVector3f GetFromParentUnrotated(const CSegId& id) const;
+    zeus::CVector3f GetFromRootUnrotated(const CSegId& id) const;
     CSegId GetSegIdFromString(const std::string& name) const;
 };
 

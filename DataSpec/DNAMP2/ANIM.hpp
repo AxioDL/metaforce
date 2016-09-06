@@ -27,6 +27,7 @@ struct ANIM : BigDNA
         std::vector<DNAANIM::Channel> channels;
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
+        bool looping = false;
 
         void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
     };

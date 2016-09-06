@@ -474,14 +474,15 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
     {
         /* Skinned */
         std::vector<const zeus::CTransform*> bankTransforms;
-        bankTransforms.reserve(m_weightVecCount*4);
+        size_t weightCount = m_weightVecCount * 4;
+        bankTransforms.reserve(weightCount);
         for (size_t i=0 ; i<m_skinBankCount ; ++i)
         {
             if (cskr && pose)
             {
                 cskr->GetBankTransforms(bankTransforms, *pose, i);
 
-                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     if (w >= bankTransforms.size())
@@ -490,15 +491,15 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
                         mv = (CGraphics::g_GXModelView * *bankTransforms[w]).toMatrix4f();
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
-                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     if (w >= bankTransforms.size())
                         mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
                     else
                     {
-                        zeus::CTransform xf = (CGraphics::g_GXModelView * *bankTransforms[w]).inverse();
-                        xf.origin.zeroOut();
+                        zeus::CTransform xf = (CGraphics::g_GXModelView.basis * bankTransforms[w]->basis);
+                        xf.basis.invert();
                         xf.basis.transpose();
                         mvinv = xf.toMatrix4f();
                     }
@@ -509,13 +510,13 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
             }
             else
             {
-                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     mv = CGraphics::g_GXModelView.toMatrix4f();
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
-                for (size_t w=0 ; w<m_weightVecCount*4 ; ++w)
+                for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
@@ -675,7 +676,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
             {
                 hecl::Runtime::ShaderTag tag(mat.heclIr,
                                              hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             0, 8, boo::Primitive(hmdlMeta.topology),
+                                             hmdlMeta.weightCount * 4, 8, boo::Primitive(hmdlMeta.topology),
                                              true, true, true);
                 matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
             }

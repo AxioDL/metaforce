@@ -47,18 +47,18 @@ CAnimData::CAnimData(ResId id,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
                      const TLockedToken<CCharacterFactory>& charFactory)
-    : x0_charFactory(charFactory),
-      xc_charInfo(character),
-      xcc_layoutData(layout),
-      xd8_modelData(model),
-      xfc_animCtx(ctx.lock()),
-      x100_animMgr(animMgr),
-      x1d8_selfId(id),
-      x1fc_transMgr(transMgr),
-      x204_charIdx(charIdx),
-      x208_defaultAnim(defaultAnim),
-      x224_pose(layout->GetSegIdList().GetList().size()),
-      x2fc_poseBuilder(layout)
+: x0_charFactory(charFactory),
+  xc_charInfo(character),
+  xcc_layoutData(layout),
+  xd8_modelData(model),
+  xfc_animCtx(ctx.lock()),
+  x100_animMgr(animMgr),
+  x1d8_selfId(id),
+  x1fc_transMgr(transMgr),
+  x204_charIdx(charIdx),
+  x208_defaultAnim(defaultAnim),
+  x224_pose(layout->GetSegIdList().GetList().size()),
+  x2fc_poseBuilder(layout)
 {
     x220_25_loop = loop;
 
