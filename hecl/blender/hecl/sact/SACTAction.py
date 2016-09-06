@@ -56,6 +56,7 @@ def draw(layout, context):
                 row = layout.row()
                 row.prop(context.scene, 'hecl_auto_remap', text="60-fps Remap")
                 row.prop(linked_action, 'hecl_additive', text="Additive")
+                #row.prop(linked_action, 'hecl_looping', text="Looping")
 
 
 

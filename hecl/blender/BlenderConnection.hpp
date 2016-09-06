@@ -685,6 +685,7 @@ public:
                 std::string name;
                 float interval;
                 bool additive;
+                bool looping;
                 std::vector<int32_t> frames;
                 struct Channel
                 {

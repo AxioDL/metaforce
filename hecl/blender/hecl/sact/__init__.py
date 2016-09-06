@@ -290,6 +290,7 @@ def cook(writebuf):
 
         writebuf(struct.pack('f', 1.0 / bact.hecl_fps))
         writebuf(struct.pack('b', int(bact.hecl_additive)))
+        writebuf(struct.pack('b', int(bact.hecl_looping)))
 
         write_action_channels(writebuf, bact)
         writebuf(struct.pack('I', len(sact_data.subtypes)))
@@ -351,6 +352,7 @@ def register():
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
     bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Action FPS', default=30)
     bpy.types.Action.hecl_additive = bpy.props.BoolProperty(name='HECL Additive Action', default=False)
+    bpy.types.Action.hecl_looping = bpy.props.BoolProperty(name='HECL Looping Action', default=False)
     bpy.types.Scene.hecl_auto_remap = bpy.props.BoolProperty(name="Auto Remap",
         description="Enables automatic 60-fps time-remapping for playback-validation purposes",
         default=True, update=time_remap_update)

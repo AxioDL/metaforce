@@ -1047,6 +1047,7 @@ BlenderConnection::DataStream::Actor::Action::Action(BlenderConnection& conn)
 
     conn._readBuf(&interval, 4);
     conn._readBuf(&additive, 1);
+    conn._readBuf(&looping, 1);
 
     uint32_t frameCount;
     conn._readBuf(&frameCount, 4);
