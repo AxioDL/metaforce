@@ -110,6 +110,7 @@ int main(int argc, const char** argv)
 #endif
     signal(SIGINT, SIGINTHandler);
 
+    logvisor::RegisterStandardExceptions();
     logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
 

@@ -240,6 +240,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
     atSetExceptionHandler(AthenaExcHandler);
+    logvisor::RegisterStandardExceptions();
     logvisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
