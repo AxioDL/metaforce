@@ -173,19 +173,19 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_int - info.GetWeightMaxValue().m_int);
-        val = float(fabs(parmVal.m_int - parm.GetInt32Value()));
+        val = float(std::abs(parmVal.m_int - parm.GetInt32Value()));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::UInt32)
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_uint - info.GetWeightMaxValue().m_uint);
-        val = float(fabs(parmVal.m_uint - parm.GetUint32Value()));
+        val = float(std::abs(int(parmVal.m_uint) - int(parm.GetUint32Value())));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::Float)
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(fabs(parmVal.m_float - parm.GetReal32Value()));
+        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::Bool)
     {
@@ -195,7 +195,7 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(fabs(parmVal.m_float - parm.GetReal32Value()));
+        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
     }
 
     if (range > FLT_EPSILON)
@@ -213,19 +213,19 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(u32 idx, const CPASAnimPar
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_int - info.GetWeightMaxValue().m_int);
-        val = float(fabs(parmVal.m_int - parm.GetInt32Value()));
+        val = float(std::abs(parmVal.m_int - parm.GetInt32Value()));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::UInt32)
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_uint - info.GetWeightMaxValue().m_uint);
-        val = float(fabs(parmVal.m_uint - parm.GetUint32Value()));
+        val = float(std::abs(int(parmVal.m_uint) - int(parm.GetUint32Value())));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::Float)
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(fabs(parmVal.m_float - parm.GetReal32Value()));
+        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
     }
     else if (parm.GetParameterType() == CPASAnimParm::EParmType::Bool)
     {
@@ -235,7 +235,7 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(u32 idx, const CPASAnimPar
     {
         const CPASParmInfo& info = x4_parms[idx];
         range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(fabs(parmVal.m_float - parm.GetReal32Value()));
+        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
     }
 
     if (range > FLT_EPSILON)

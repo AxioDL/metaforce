@@ -115,6 +115,7 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
+    logvisor::RegisterStandardExceptions();
     logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
     urde::Application appCb;
