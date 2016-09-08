@@ -16,6 +16,7 @@ make_dnalist(liblist
              SCAN
              FRME
              SAVW
+             HINT
              Tweaks/CTweakGame
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer

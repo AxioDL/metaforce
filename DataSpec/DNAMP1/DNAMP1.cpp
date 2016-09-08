@@ -14,6 +14,7 @@
 #include "../DNACommon/DPSC.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/DGRP.hpp"
+#include "HINT.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
 #include "SAVW.hpp"
@@ -282,6 +283,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('SCAN'):
         return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
+    case SBIG('HINT'):
+        return {HINT::Extract, nullptr, {_S(".yaml")}};
     case SBIG('SAVW'):
         return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):

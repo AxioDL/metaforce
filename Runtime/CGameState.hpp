@@ -36,11 +36,8 @@ class CGameState
     std::vector<CWorldState> x88_worldStates;
     std::shared_ptr<CPlayerState> x98_playerState;
     std::shared_ptr<CWorldTransManager> x9c_transManager;
-    CGameOptions m_gameOpts;
     double xa0_playTime;
-    u32 xa4_;
-
-    /* x17c_ */
+    CGameOptions x17c_gameOptions;
     /* x1f8_ */
 
     union

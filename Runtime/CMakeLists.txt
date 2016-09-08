@@ -95,6 +95,7 @@ add_library(RuntimeCommon
             CInGameTweakManagerBase.hpp
             CPlayMovieBase.hpp
             CGameDebug.hpp CGameDebug.cpp
+            CGameHintInfo.hpp CGameHintInfo.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp GameGlobalObjects.cpp
             RetroTypes.hpp

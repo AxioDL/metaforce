@@ -8,6 +8,7 @@
 #include "MAPA.hpp"
 #include "AFSM.hpp"
 #include "SAVW.hpp"
+#include "../DNAMP1/HINT.hpp"
 #include "../DNACommon/FSM2.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
@@ -217,6 +218,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const
 {
     switch (entry.type)
     {
+    case SBIG('HINT'):
+        return {DNAMP1::HINT::Extract, nullptr, {_S(".yaml")}};
     case SBIG('STRG'):
         return {STRG::Extract, nullptr, {_S(".yaml")}};
     case SBIG('TXTR'):
