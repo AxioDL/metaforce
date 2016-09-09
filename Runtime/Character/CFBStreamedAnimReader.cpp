@@ -21,6 +21,7 @@ void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount)
 
 void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& source)
 {
+    x1c_curKey = 0;
     x20_calculated = false;
     const u8* chans = source.GetPerChannelHeaders();
     u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
@@ -245,6 +246,7 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
     if (prior != -1 && prior < Prior().x1c_curKey)
     {
         Prior().Initialize(*x0_source);
+        Next().Initialize(*x0_source);
         loader.Reset();
     }
 
@@ -260,8 +262,8 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
 
 void CFBStreamedPairOfTotals::DoIncrement(CBitLevelLoader& loader)
 {
-    Prior().IncrementInto(loader, *x0_source, Next());
     x10_nextSel ^= 1;
+    Prior().IncrementInto(loader, *x0_source, Next());
 }
 
 u32 CBitLevelLoader::LoadUnsigned(u8 q)

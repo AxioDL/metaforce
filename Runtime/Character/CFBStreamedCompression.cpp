@@ -182,6 +182,7 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans)
         for (u32 c=0 ; c<boneChanCount ; ++c)
         {
             chans += 0x8;
+            totalBits += 1;
             totalBits += *reinterpret_cast<const u32*>(chans) & 0xff;
             totalBits += *reinterpret_cast<const u32*>(chans + 0x4) & 0xff;
             totalBits += *reinterpret_cast<const u32*>(chans + 0x8) & 0xff;
@@ -202,6 +203,7 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans)
         for (u32 c=0 ; c<boneChanCount ; ++c)
         {
             chans += 0x6;
+            totalBits += 1;
             totalBits += *reinterpret_cast<const u8*>(chans + 0x2);
             totalBits += *reinterpret_cast<const u8*>(chans + 0x5);
             totalBits += *reinterpret_cast<const u8*>(chans + 0x8);

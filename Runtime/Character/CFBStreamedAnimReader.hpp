@@ -80,6 +80,7 @@ public:
     u32 LoadUnsigned(u8 q);
     s32 LoadSigned(u8 q);
     bool LoadBool();
+    size_t GetCurBit() const { return m_bitIdx; }
 };
 
 class CSegIdToIndexConverter

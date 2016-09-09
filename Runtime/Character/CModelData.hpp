@@ -87,14 +87,6 @@ class CModelData
     std::unique_ptr<CBooModel> m_xrayModelInst;
     std::unique_ptr<CBooModel> m_infraModelInst;
 
-    struct WeakModelInsts
-    {
-        std::weak_ptr<CBooModel> m_normalModelInst;
-        std::weak_ptr<CBooModel> m_xrayModelInst;
-        std::weak_ptr<CBooModel> m_infraModelInst;
-    };
-    std::vector<WeakModelInsts> m_weakInsts;
-
 public:
     enum class EWhichModel
     {
