@@ -87,6 +87,14 @@ class CModelData
     std::unique_ptr<CBooModel> m_xrayModelInst;
     std::unique_ptr<CBooModel> m_infraModelInst;
 
+    struct WeakModelInsts
+    {
+        std::weak_ptr<CBooModel> m_normalModelInst;
+        std::weak_ptr<CBooModel> m_xrayModelInst;
+        std::weak_ptr<CBooModel> m_infraModelInst;
+    };
+    std::vector<WeakModelInsts> m_weakInsts;
+
 public:
     enum class EWhichModel
     {
@@ -110,7 +118,7 @@ public:
                 const CActorLights* lights, const CModelFlags& drawFlags);
     EWhichModel GetRenderingModel(const CStateManager& stateMgr) const;
     CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
-    std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which);
+    const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
     void SetXRayModel(const std::pair<ResId, ResId>& modelSkin);
     void SetInfraModel(const std::pair<ResId, ResId>& modelSkin);
     bool IsDefinitelyOpaque(EWhichModel);

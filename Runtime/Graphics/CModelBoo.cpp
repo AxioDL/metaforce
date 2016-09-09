@@ -16,6 +16,24 @@ namespace urde
 static logvisor::Module Log("urde::CBooModel");
 bool CBooModel::g_DrawingOccluders = false;
 
+static CBooModel* g_FirstModel = nullptr;
+
+void CBooModel::ClearModelUniformCounters()
+{
+    for (CBooModel* model = g_FirstModel ; model ; model = model->m_next)
+        model->ClearUniformCounter();
+}
+
+CBooModel::~CBooModel()
+{
+    if (this == g_FirstModel)
+        g_FirstModel = nullptr;
+    if (m_prev)
+        m_prev->m_next = m_next;
+    if (m_next)
+        m_next->m_prev = m_prev;
+}
+
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
@@ -24,6 +42,15 @@ CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, 
   m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
   x40_24_texturesLoaded(false), x40_25_modelVisible(0)
 {
+    if (!g_FirstModel)
+        g_FirstModel = this;
+    else
+    {
+        g_FirstModel->m_prev = this;
+        m_next = g_FirstModel;
+        g_FirstModel = this;
+    }
+
     for (CBooSurface& surf : *x0_surfaces)
         surf.m_parent = this;
 
@@ -42,14 +69,19 @@ CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, 
             x38_firstUnsortedSurface = &*it;
         }
     }
-
-    if (x40_24_texturesLoaded)
-        BuildGfxToken();
 }
 
-void CBooModel::BuildGfxToken()
+CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
 {
-    m_gfxToken = CGraphics::CommitResources(
+    if (!x40_24_texturesLoaded)
+        return nullptr;
+
+    if (m_instances.size() >= 256)
+        Log.report(logvisor::Fatal, "Model buffer overflow");
+    m_instances.emplace_back();
+    ModelInstance& newInst = m_instances.back();
+
+    newInst.m_gfxToken = CGraphics::CommitResources(
                 [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         /* Determine space required by uniform buffer */
@@ -106,13 +138,12 @@ void CBooModel::BuildGfxToken()
 
         /* Allocate resident buffer */
         m_uniformDataSize = uniBufSize;
-        m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
+        newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
 
-        boo::IGraphicsBuffer* bufs[] = {m_uniformBuffer, m_uniformBuffer, m_uniformBuffer};
+        boo::IGraphicsBuffer* bufs[] = {newInst.m_uniformBuffer, newInst.m_uniformBuffer, newInst.m_uniformBuffer};
 
         /* Binding for each surface */
-        m_shaderDataBindings.clear();
-        m_shaderDataBindings.reserve(x0_surfaces->size());
+        newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
         std::vector<boo::ITexture*> texs;
         size_t thisOffs[3];
@@ -156,8 +187,8 @@ void CBooModel::BuildGfxToken()
 
             const std::vector<boo::IShaderPipeline*>& pipelines = m_pipelines->at(surf.m_data.matIdx);
 
-            m_shaderDataBindings.emplace_back();
-            std::vector<boo::IShaderDataBinding*>& extendeds = m_shaderDataBindings.back();
+            newInst.m_shaderDataBindings.emplace_back();
+            std::vector<boo::IShaderDataBinding*>& extendeds = newInst.m_shaderDataBindings.back();
             extendeds.reserve(pipelines.size());
 
             int idx = 0;
@@ -173,6 +204,8 @@ void CBooModel::BuildGfxToken()
         }
         return true;
     });
+
+    return &newInst;
 }
 
 void CBooModel::MakeTexuresFromMats(const MaterialSet& matSet,
@@ -239,7 +272,7 @@ void CBooModel::RemapMaterialData(SShader& shader)
     x1c_textures = shader.x0_textures;
     m_pipelines = &shader.m_shaders;
     x40_24_texturesLoaded = false;
-    m_gfxToken.doDestroy();
+    m_instances.clear();
 }
 
 bool CBooModel::TryLockTextures() const
@@ -256,16 +289,13 @@ bool CBooModel::TryLockTextures() const
 
         const_cast<CBooModel*>(this)->x40_24_texturesLoaded = allLoad;
     }
-    
-    if (!m_gfxToken && x40_24_texturesLoaded)
-        const_cast<CBooModel*>(this)->BuildGfxToken();
-    
+
     return x40_24_texturesLoaded;
 }
 
 void CBooModel::UnlockTextures() const
 {
-    const_cast<boo::GraphicsDataToken&>(m_gfxToken).doDestroy();
+    const_cast<CBooModel*>(this)->m_instances.clear();
     for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
         tex.Unlock();
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
@@ -310,11 +340,15 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const
 
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const
 {
+    if (m_uniUpdateCount > m_instances.size())
+        return;
+    const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
+
     const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
     if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
         return;
 
-    const std::vector<boo::IShaderDataBinding*>& extendeds = m_shaderDataBindings[surf.selfIdx];
+    const std::vector<boo::IShaderDataBinding*>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
     boo::IShaderDataBinding* binding = extendeds[0];
     if (flags.m_extendedShaderIdx < extendeds.size())
         binding = extendeds[flags.m_extendedShaderIdx];
@@ -464,10 +498,16 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
                                   const CSkinRules* cskr,
                                   const CPoseAsTransforms* pose) const
 {
-    if (!m_uniformBuffer)
+    const ModelInstance* inst;
+    if (m_instances.size() <= m_uniUpdateCount)
+        inst = const_cast<CBooModel*>(this)->PushNewModelInstance();
+    else
+        inst = &m_instances[m_uniUpdateCount];
+    if (!inst)
         return;
+    ++const_cast<CBooModel*>(this)->m_uniUpdateCount;
 
-    u8* dataOut = reinterpret_cast<u8*>(m_uniformBuffer->map(m_uniformDataSize));
+    u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
 
     if (m_skinBankCount)
@@ -566,7 +606,7 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
         lightingOut.fog = CGraphics::g_Fog;
     }
 
-    m_uniformBuffer->unmap();
+    inst->m_uniformBuffer->unmap();
  }
 
 void CBooModel::DrawAlpha(const CModelFlags& flags,

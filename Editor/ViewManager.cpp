@@ -399,6 +399,7 @@ bool ViewManager::proc()
     m_voiceEngine->pumpAndMixVoices();
     m_projManager.asyncIdle();
     m_mainWindow->waitForRetrace();
+    CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
 
     return true;

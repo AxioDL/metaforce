@@ -82,9 +82,9 @@ CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
     return *x10_animData->xd8_modelData.GetObj();
 }
 
-std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which)
+const std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which) const
 {
-    std::unique_ptr<CBooModel>* ret = nullptr;
+    const std::unique_ptr<CBooModel>* ret = nullptr;
     switch (which)
     {
     case EWhichModel::XRay:
@@ -153,7 +153,7 @@ bool CModelData::IsDefinitelyOpaque(EWhichModel which)
     }
     else
     {
-        std::unique_ptr<CBooModel>& model = PickStaticModel(which);
+        const auto& model = PickStaticModel(which);
         return model->IsOpaque();
     }
 }
@@ -307,7 +307,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
     }
     else
     {
-        std::unique_ptr<CBooModel>& model = PickStaticModel(EWhichModel::Thermal);
+        const auto& model = PickStaticModel(EWhichModel::Thermal);
         model->Draw(drawFlags, nullptr, nullptr);
     }
 }
@@ -324,7 +324,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
 
-    std::unique_ptr<CBooModel>& model = PickStaticModel(which);
+    const auto& model = PickStaticModel(which);
     if (lights)
         lights->ActivateLights(*model);
     else
@@ -360,7 +360,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
         }
         else
         {
-            std::unique_ptr<CBooModel>& model = PickStaticModel(which);
+            const auto& model = PickStaticModel(which);
             if (lights)
                 lights->ActivateLights(*model);
             else

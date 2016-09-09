@@ -80,6 +80,9 @@ public:
     };
 
 private:
+    CBooModel* m_next = nullptr;
+    CBooModel* m_prev = nullptr;
+    size_t m_uniUpdateCount = 0;
     TLockedToken<CModel> m_model;
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
@@ -108,12 +111,16 @@ private:
     CModelShaders::LightingUniform m_lightingData;
 
     /* urde addition: boo! */
-    boo::GraphicsDataToken m_gfxToken;
     size_t m_uniformDataSize = 0;
-    boo::IGraphicsBufferD* m_uniformBuffer = nullptr;
-    std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
+    struct ModelInstance
+    {
+        boo::GraphicsDataToken m_gfxToken;
+        boo::IGraphicsBufferD* m_uniformBuffer;
+        std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
+    };
+    std::vector<ModelInstance> m_instances;
 
-    void BuildGfxToken();
+    ModelInstance* PushNewModelInstance();
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
@@ -122,6 +129,7 @@ private:
     void VerifyCurrentShader(int shaderIdx);
 
 public:
+    ~CBooModel();
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
               size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb);
@@ -153,6 +161,9 @@ public:
     {
         return x4_matSet->materials.at(idx);
     }
+
+    void ClearUniformCounter() { m_uniUpdateCount = 0; }
+    static void ClearModelUniformCounters();
 
     static bool g_DrawingOccluders;
     static void SetDrawingOccluders(bool occ) {g_DrawingOccluders = occ;}

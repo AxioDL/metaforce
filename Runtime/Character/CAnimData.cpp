@@ -313,7 +313,10 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
         if (id == 3)
             continue;
         CAnimPerSegmentData& segData = segSet[id];
-        x2fc_poseBuilder.Insert(id, segData.x0_rotation, segData.x10_offset);
+        if (segData.x1c_hasOffset)
+            x2fc_poseBuilder.Insert(id, segData.x0_rotation, segData.x10_offset);
+        else
+            x2fc_poseBuilder.Insert(id, segData.x0_rotation);
     }
 }
 
