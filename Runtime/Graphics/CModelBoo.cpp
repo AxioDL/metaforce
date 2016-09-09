@@ -26,12 +26,12 @@ void CBooModel::ClearModelUniformCounters()
 
 CBooModel::~CBooModel()
 {
-    if (this == g_FirstModel)
-        g_FirstModel = nullptr;
     if (m_prev)
         m_prev->m_next = m_next;
     if (m_next)
         m_next->m_prev = m_prev;
+    if (this == g_FirstModel)
+        g_FirstModel = m_next;
 }
 
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
