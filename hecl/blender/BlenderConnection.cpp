@@ -653,6 +653,7 @@ BlenderConnection::DataStream::Mesh::Mesh
         for (uint32_t j=0 ; j<bindCount ; ++j)
             binds.emplace_back(conn);
     }
+    normalizeSkinBinds();
 
     /* Assume 16 islands per material for reserve */
     if (materialSets.size())

@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <float.h>
 #include <string>
 #include <functional>
 #include <iostream>
@@ -429,6 +430,19 @@ public:
             };
             std::vector<std::vector<SkinBind>> skins;
             std::vector<size_t> contiguousSkinVertCounts;
+
+            void normalizeSkinBinds()
+            {
+                for (std::vector<SkinBind>& skin : skins)
+                {
+                    float accum = 0.f;
+                    for (const SkinBind& bind : skin)
+                        accum += bind.weight;
+                    if (accum > FLT_EPSILON)
+                        for (SkinBind& bind : skin)
+                            bind.weight /= accum;
+                }
+            }
 
             /** Islands of the same material/skinBank are represented here */
             struct Surface

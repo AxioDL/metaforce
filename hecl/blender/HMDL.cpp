@@ -135,6 +135,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
         {
             const SkinBanks::Bank& bank = skinBanks.banks[s.skinBankIdx];
             const std::vector<SkinBind>& binds = skins[v.iSkin];
+
             auto it = bank.m_boneIdxs.cbegin();
             for (size_t i=0 ; i<weightVecCount ; ++i)
             {
