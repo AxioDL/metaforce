@@ -1,6 +1,7 @@
 #include "ProjectResourceFactoryMP1.hpp"
 #include "Runtime/IOStreams.hpp"
 
+#include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/Particle/CParticleDataFactory.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
@@ -46,6 +47,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('AGSC'), FMemFactoryFunc(FAudioGroupSetDataFactory));
     m_factoryMgr.AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
+    m_factoryMgr.AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
@@ -111,41 +113,46 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
         yaml_parser_set_input_file(reader.getParser(), fp);
 
         SObjectTag resTag;
-        if (reader.ClassTypeOperation([&](const char* className) -> bool
-        {
-            if (!strcmp(className, "GPSM"))
-            {
-                resTag.type = SBIG('PART');
-                return true;
-            }
-            else if (!strcmp(className, "FONT"))
-            {
-                resTag.type = SBIG('FONT');
-                return true;
-            }
-            else if (!strcmp(className, "urde::DNAMP1::EVNT"))
-            {
-                resTag.type = SBIG('EVNT');
-                return true;
-            }
-            else if (!strcmp(className, "urde::DGRP"))
-            {
-                resTag.type = SBIG('DGRP');
-                return true;
-            }
-            else if (!strcmp(className, "urde::DNAMP1::STRG"))
-            {
-                resTag.type = SBIG('STRG');
-                return true;
-            }
-            else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
-                     !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes"))
-            {
-                resTag.type = SBIG('CTWK');
-                return true;
-            }
-            return false;
-        }))
+        if (reader.ClassTypeOperation([&](const char* className) -> bool {
+                if (!strcmp(className, "GPSM"))
+                {
+                    resTag.type = SBIG('PART');
+                    return true;
+                }
+                else if (!strcmp(className, "FONT"))
+                {
+                    resTag.type = SBIG('FONT');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DNAMP1::EVNT"))
+                {
+                    resTag.type = SBIG('EVNT');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DGRP"))
+                {
+                    resTag.type = SBIG('DGRP');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DNAMP1::STRG"))
+                {
+                    resTag.type = SBIG('STRG');
+                    return true;
+                }
+                else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes"))
+                {
+                    resTag.type = SBIG('CTWK');
+                    return true;
+                }
+                else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
+                {
+                    resTag.type = SBIG('HINT');
+                    return true;
+                }
+
+                return false;
+            }))
         {
             resTag.id = path.hash().val32();
             fclose(fp);
@@ -155,5 +162,4 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
     }
     return {};
 }
-
 }

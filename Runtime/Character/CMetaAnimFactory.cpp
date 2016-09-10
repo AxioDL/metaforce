@@ -14,7 +14,7 @@ std::shared_ptr<IMetaAnim> CMetaAnimFactory::CreateMetaAnim(CInputStream& in)
 
     switch (type)
     {
-    case EMetaAnimType::Primitive:
+    case EMetaAnimType::Play:
         return std::make_shared<CMetaAnimPlay>(in);
     case EMetaAnimType::Blend:
         return std::make_shared<CMetaAnimBlend>(in);

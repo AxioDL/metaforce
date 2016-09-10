@@ -8,13 +8,14 @@ namespace urde
 
 class CAnimTreeTweenBase : public CAnimTreeDoubleChild
 {
+protected:
     int x1c_flags;
     bool x20_31_b1;
     bool x20_30_b2 = false;
 public:
     CAnimTreeTweenBase(bool,
-                       const std::shared_ptr<CAnimTreeNode>& a,
-                       const std::shared_ptr<CAnimTreeNode>& b,
+                       const std::weak_ptr<CAnimTreeNode>& a,
+                       const std::weak_ptr<CAnimTreeNode>& b,
                        int, const std::string& name);
 
     virtual void SetBlendingWeight(float w)=0;

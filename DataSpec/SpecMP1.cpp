@@ -5,6 +5,7 @@
 #include "SpecBase.hpp"
 #include "DNAMP1/DNAMP1.hpp"
 
+#include "DNAMP1/HINT.hpp"
 #include "DNAMP1/MLVL.hpp"
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/CMDL.hpp"
@@ -353,6 +354,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGunRes::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
+                return true;
             return false;
         });
     }
@@ -503,6 +506,10 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakGunRes gunRes;
                 gunRes.read(reader);
                 WriteTweak(gunRes, out);
+            }
+            else if (!classStr.compare(DNAMP1::HINT::DNAType()))
+            {
+                DNAMP1::HINT::Cook(in, out);
             }
         }
         progress(_S("Done"));

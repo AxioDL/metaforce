@@ -19,9 +19,9 @@ struct SObjectTag
 {
     FourCC type;
     ResId id = -1;
-    operator bool() const {return id != -1;}
-    bool operator!=(const SObjectTag& other) const {return id != other.id;}
-    bool operator==(const SObjectTag& other) const {return id == other.id;}
+    operator bool() const { return id != -1; }
+    bool operator!=(const SObjectTag& other) const { return id != other.id; }
+    bool operator==(const SObjectTag& other) const { return id == other.id; }
     SObjectTag() = default;
     SObjectTag(FourCC tp, ResId rid) : type(tp), id(rid) {}
     SObjectTag(CInputStream& in)
@@ -56,16 +56,35 @@ struct TEditorId
 #define kInvalidEditorId TEditorId()
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
-
 }
+
+#if 0
+template <class T, size_t N>
+class TRoundRobin
+{
+    rstl::reserved_vector<T, N> vals;
+
+public:
+    TRoundRobin(const T& val) : vals(N, val) {}
+
+    void PushBack(const T& val) { vals.push_back(val); }
+
+    size_t Size() const { return vals.size(); }
+
+    const T& GetLastValue() const { return vals.back(); }
+
+    void Clear() { vals.clear(); }
+
+    const T& GetValue(s32) const {}
+};
+#endif
 
 namespace std
 {
-template<>
+template <>
 struct hash<urde::SObjectTag>
 {
-    inline size_t operator()(const urde::SObjectTag& tag) const
-    {return tag.id;}
+    inline size_t operator()(const urde::SObjectTag& tag) const { return tag.id; }
 };
 }
 

@@ -40,6 +40,7 @@ public:
     {
         struct
         {
+            bool x2a8_24_ : 1;
             bool x2a8_25_ : 1;
             bool x2a8_26_ : 1;
             bool x2a8_27_ : 1;

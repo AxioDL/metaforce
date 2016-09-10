@@ -6,6 +6,7 @@
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
+#include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
@@ -66,6 +67,7 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<ParticleView> m_particleView;
     urde::TLockedToken<CModel> m_modelTest;
     urde::TLockedToken<CGenDescription> m_partGenDesc;
+    TLockedToken<CGameHintInfo> m_hints;
     std::unique_ptr<CElementGen> m_partGen;
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     std::unique_ptr<CMoviePlayer> m_moviePlayer;

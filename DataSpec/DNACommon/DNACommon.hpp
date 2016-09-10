@@ -95,7 +95,7 @@ public:
         PAKRouterBase* pakRouter = g_PakRouter.get();
         if (!pakRouter)
             LogDNACommon.report(logvisor::Fatal,
-            "g_Project must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
+            "g_PakRouter must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
         return pakRouter->getWorking(id, silenceWarnings);
     }
     static hecl::ProjectPath MakePathFromString(const std::string& str)

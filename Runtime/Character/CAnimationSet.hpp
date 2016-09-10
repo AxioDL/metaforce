@@ -24,18 +24,14 @@ class CAnimationSet
 public:
     CAnimationSet(CInputStream& in);
 
-    const std::vector<CAnimation>& GetAnimations() const {return x4_animations;}
-    const std::vector<CTransition>& GetTransitions() const {return x14_transitions;}
-    const std::shared_ptr<IMetaTrans>& GetDefaultTransition() const {return x24_defaultTransition;}
-    const std::vector<CHalfTransition>& GetHalfTransitions() const {return x40_halfTransitions;}
-    const std::vector<std::pair<u32, CAdditiveAnimationInfo>>&
-    GetAdditiveInfo() const {return x28_additiveInfo;}
-    const CAdditiveAnimationInfo&
-    GetDefaultAdditiveInfo() const {return x38_defaultAdditiveInfo;}
-    const std::vector<std::pair<ResId, ResId>>&
-    GetAnimResIds() const {return x50_animRes;}
+    const std::vector<CAnimation>& GetAnimations() const { return x4_animations; }
+    const std::vector<CTransition>& GetTransitions() const { return x14_transitions; }
+    const std::shared_ptr<IMetaTrans>& GetDefaultTransition() const { return x24_defaultTransition; }
+    const std::vector<CHalfTransition>& GetHalfTransitions() const { return x40_halfTransitions; }
+    const std::vector<std::pair<u32, CAdditiveAnimationInfo>>& GetAdditiveInfo() const { return x28_additiveInfo; }
+    const CAdditiveAnimationInfo& GetDefaultAdditiveInfo() const { return x38_defaultAdditiveInfo; }
+    const std::vector<std::pair<ResId, ResId>>& GetAnimResIds() const { return x50_animRes; }
 };
-
 }
 
 #endif // __URDE_CANIMATIONSET_HPP__

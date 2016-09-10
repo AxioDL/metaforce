@@ -3,10 +3,10 @@
 namespace urde
 {
 
-CAnimTreeDoubleChild::CAnimTreeDoubleChild(const std::shared_ptr<CAnimTreeNode>& a,
-                                           const std::shared_ptr<CAnimTreeNode>& b,
+CAnimTreeDoubleChild::CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a,
+                                           const std::weak_ptr<CAnimTreeNode>& b,
                                            const std::string& name)
-: CAnimTreeNode(name), x14_a(a), x18_b(b)
+: CAnimTreeNode(name), x14_a(a.lock()), x18_b(b.lock())
 {
 }
 
