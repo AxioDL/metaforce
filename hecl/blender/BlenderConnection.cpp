@@ -587,6 +587,21 @@ void BlenderConnection::PyOutStream::linkBackground(const char* target,
            sceneName, sceneName, target, sceneName);
 }
 
+void BlenderConnection::DataStream::Mesh::normalizeSkinBinds()
+{
+    for (std::vector<SkinBind>& skin : skins)
+    {
+        float accum = 0.f;
+        for (const SkinBind& bind : skin)
+            accum += bind.weight;
+        if (accum > FLT_EPSILON)
+        {
+            for (SkinBind& bind : skin)
+                bind.weight /= accum;
+        }
+    }
+}
+
 BlenderConnection::DataStream::Mesh::Mesh
 (BlenderConnection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfProgFunc& surfProg)
 : topology(topologyIn), sceneXf(conn), aabbMin(conn), aabbMax(conn)

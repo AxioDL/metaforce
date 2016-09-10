@@ -68,7 +68,7 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
             bool found = false;
             for (const std::pair<const Surface*, const Surface::Vert*>& tv : vertPool)
             {
-                if (v == *tv.second)
+                if (v == *tv.second && surf.skinBankIdx == tv.first->skinBankIdx)
                 {
                     iboData.push_back(ti);
                     found = true;
