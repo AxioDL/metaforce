@@ -63,11 +63,6 @@ void CPoseAsTransforms::Insert(const CSegId& id,
     Transform& xfOut = xd0_transformArr[x0_nextId];
     xfOut.m_originToAccum = zeus::CTransform(rotation, offset);
     xfOut.m_restPoseToAccum = xfOut.m_originToAccum * zeus::CTransform::Translate(-restOffset);
-    //if (id == 4)
-    //{
-    //    printf("INSBONE %d\n", int(id));
-    //    xfOut.m_originToAccum.printMatrix();
-    //}
 
     std::pair<CSegId, CSegId>& link = x8_links[id];
     link.first = xd4_lastInserted;

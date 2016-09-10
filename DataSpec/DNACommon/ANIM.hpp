@@ -36,6 +36,14 @@ struct QuantizedValue
     {return v[idx];}
     const atInt32& operator[] (size_t idx) const
     {return v[idx];}
+
+    int qFrom(const QuantizedValue& other, size_t idx) const
+    {
+        atInt32 delta = std::abs(v[idx] - other.v[idx]);
+        if (delta == 0)
+            return 1;
+        return int(ceilf(log2f(delta))) + 1;
+    }
 };
 struct QuantizedRot
 {

@@ -420,9 +420,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  ++it)
             {
                 QuantizedRot qrCur = QuantizeRotation(*it, rotDivOut);
-                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(qrCur.v[0] - last.v[0]))));
-                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(qrCur.v[1] - last.v[1]))));
-                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(qrCur.v[2] - last.v[2]))));
+                chan.q[0] = std::max(chan.q[0], atUint8(qrCur.v.qFrom(last, 0)));
+                chan.q[1] = std::max(chan.q[1], atUint8(qrCur.v.qFrom(last, 1)));
+                chan.q[2] = std::max(chan.q[2], atUint8(qrCur.v.qFrom(last, 2)));
                 last = qrCur.v;
             }
             break;
@@ -436,9 +436,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 QuantizedValue cur = {atInt32(it->v3.vec[0] / transMultOut),
                                       atInt32(it->v3.vec[1] / transMultOut),
                                       atInt32(it->v3.vec[2] / transMultOut)};
-                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(cur[0] - last[0]))));
-                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(cur[1] - last[1]))));
-                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(cur[2] - last[2]))));
+                chan.q[0] = std::max(chan.q[0], atUint8(cur.qFrom(last, 0)));
+                chan.q[1] = std::max(chan.q[1], atUint8(cur.qFrom(last, 1)));
+                chan.q[2] = std::max(chan.q[2], atUint8(cur.qFrom(last, 2)));
                 last = cur;
             }
             break;
@@ -452,9 +452,9 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                 QuantizedValue cur = {atInt32(it->v3.vec[0] / scaleMultOut),
                                       atInt32(it->v3.vec[1] / scaleMultOut),
                                       atInt32(it->v3.vec[2] / scaleMultOut)};
-                chan.q[0] = std::max(chan.q[0], atUint8(ceilf(log2f(cur[0] - last[0]))));
-                chan.q[1] = std::max(chan.q[1], atUint8(ceilf(log2f(cur[1] - last[1]))));
-                chan.q[2] = std::max(chan.q[2], atUint8(ceilf(log2f(cur[2] - last[2]))));
+                chan.q[0] = std::max(chan.q[0], atUint8(cur.qFrom(last, 0)));
+                chan.q[1] = std::max(chan.q[1], atUint8(cur.qFrom(last, 1)));
+                chan.q[2] = std::max(chan.q[2], atUint8(cur.qFrom(last, 2)));
                 last = cur;
             }
             break;
@@ -468,7 +468,7 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     sizeOut = ComputeBitstreamSize(keyFrameCount, channels);
     std::unique_ptr<atUint8[]> newData(new atUint8[sizeOut]);
     memset(newData.get(), 0, sizeOut);
-    
+
     lastVals = initVals;
     for (size_t f=0 ; f<keyFrameCount ; ++f)
     {

@@ -441,8 +441,8 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         float halfA = anim.vals[0] * 0.5f;
 
         postMtxOut = zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0,
-                                                   0.0, 0.0, halfA,
-                                                   0.0, 0.0, 0.0),
+                                                      0.0, 0.0, halfA,
+                                                      0.0, 0.0, 0.0),
                                    zeus::CVector3f(xy, z, 1.0)).toMatrix4f();
         break;
     }
@@ -500,11 +500,13 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
 {
     const ModelInstance* inst;
     if (m_instances.size() <= m_uniUpdateCount)
+    {
         inst = const_cast<CBooModel*>(this)->PushNewModelInstance();
+        if (!inst)
+            return;
+    }
     else
         inst = &m_instances[m_uniUpdateCount];
-    if (!inst)
-        return;
     ++const_cast<CBooModel*>(this)->m_uniUpdateCount;
 
     u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));

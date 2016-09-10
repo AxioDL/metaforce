@@ -221,7 +221,7 @@ void CWorldTransManager::DrawSecondPass()
 void CWorldTransManager::DrawEnabled()
 {
     float wsAspect = CWideScreenFilter::SetViewportToMatch(1.f);
-    
+
     g_Renderer->SetPerspective(CCameraManager::DefaultFirstPersonFOV(),
                                wsAspect,
                                CCameraManager::DefaultNearPlane(),
@@ -318,7 +318,7 @@ void CWorldTransManager::TouchModels()
         x4_modelData->x100_bgModelData[1].Touch(CModelData::EWhichModel::Normal, 0);
     if (!x4_modelData->x100_bgModelData[2].IsNull())
         x4_modelData->x100_bgModelData[2].Touch(CModelData::EWhichModel::Normal, 0);
-    
+
     if (!x4_modelData->x68_beamModelData.IsNull())
         x4_modelData->x68_beamModelData.Touch(CModelData::EWhichModel::Normal, 0);
 }
