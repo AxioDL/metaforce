@@ -19,6 +19,7 @@ class reserved_vector : public std::vector<T>
 {
 public:
     reserved_vector() {this->reserve(N);}
+    reserved_vector(size_t n, const T& val) : std::vector<T>(n, val) { }
 };
 
 }

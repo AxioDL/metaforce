@@ -14,7 +14,7 @@ class CMetaAnimPlay : public IMetaAnim
     CCharAnimTime x1c_startTime;
 public:
     CMetaAnimPlay(CInputStream& in);
-    EMetaAnimType GetType() const {return EMetaAnimType::Primitive;}
+    EMetaAnimType GetType() const {return EMetaAnimType::Play;}
 
     void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const;
     std::shared_ptr<CAnimTreeNode> VGetAnimationTree(const CAnimSysContext& animSys,

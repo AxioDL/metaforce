@@ -8,11 +8,12 @@ namespace urde
 
 class CAnimTreeDoubleChild : public CAnimTreeNode
 {
+protected:
     std::shared_ptr<CAnimTreeNode> x14_a;
     std::shared_ptr<CAnimTreeNode> x18_b;
 public:
-    CAnimTreeDoubleChild(const std::shared_ptr<CAnimTreeNode>& a,
-                         const std::shared_ptr<CAnimTreeNode>& b,
+    CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a,
+                         const std::weak_ptr<CAnimTreeNode>& b,
                          const std::string& name);
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;

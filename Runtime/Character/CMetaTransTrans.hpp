@@ -3,14 +3,14 @@
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
+#include "CCharAnimTime.hpp"
 
 namespace urde
 {
 
 class CMetaTransTrans : public IMetaTrans
 {
-    float x4_;
-    u32 x8_;
+    CCharAnimTime x4_animTime;
     bool xc_;
     bool xd_;
     u32 x10_;

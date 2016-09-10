@@ -46,6 +46,16 @@ struct HINT : BigYAML
         hint.toYAMLStream(writer);
         return true;
     }
+
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    {
+        HINT hint;
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        hint.fromYAMLStream(reader);
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        hint.write(ws);
+        return true;
+    }
 };
 }
 }

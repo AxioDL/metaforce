@@ -15,7 +15,7 @@ class IAnimReader;
 
 enum class EMetaAnimType
 {
-    Primitive,
+    Play,
     Blend,
     PhaseBlend,
     Random,
