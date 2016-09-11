@@ -213,7 +213,7 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
     if (!x220_31_poseCached)
         const_cast<CAnimData*>(this)->RecalcPoseBuilder(time);
 
-    if (!x220_31_poseCached)
+    if (!x220_30_poseBuilt)
         x2fc_poseBuilder.BuildTransform(id, ret);
     else
     {
