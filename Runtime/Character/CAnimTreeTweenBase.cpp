@@ -9,18 +9,33 @@ CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const std::weak_ptr<CAnimTreeNod
 {
 }
 
-void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const {}
+void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const
+{
+
+}
 
 void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
                                              const CCharAnimTime& time) const
 {
 }
 
-bool CAnimTreeTweenBase::VHasOffset(const CSegId& seg) const {}
+bool CAnimTreeTweenBase::VHasOffset(const CSegId& seg) const
+{
+    return false;
+}
 
-zeus::CVector3f CAnimTreeTweenBase::VGetOffset(const CSegId& seg) const {}
+zeus::CVector3f CAnimTreeTweenBase::VGetOffset(const CSegId& seg) const
+{
+    return {};
+}
 
-zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const {}
+zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const
+{
+    return {};
+}
 
-std::shared_ptr<IAnimReader> CAnimTreeTweenBase::VSimplified() {}
+std::shared_ptr<IAnimReader> CAnimTreeTweenBase::VSimplified()
+{
+    return {};
+}
 }

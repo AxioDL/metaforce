@@ -75,11 +75,7 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
 
 static hecl::SystemString LayerName(const std::string& name)
 {
-#if HECL_UCS2
-    hecl::SystemString ret = hecl::UTF8ToWide(name);
-#else
-    hecl::SystemString ret = name;
-#endif
+    hecl::SystemString ret = hecl::SystemStringView(name).sys_str();
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
             ch = _S('-');
@@ -101,11 +97,8 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
             bool named;
-#if HECL_UCS2
-            level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry, named));
-#else
-            level.name = m_pak.bestEntryName(entry, named);
-#endif
+            std::string bestName = m_pak.bestEntryName(entry, named);
+            level.name = hecl::SystemStringView(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
@@ -158,21 +151,14 @@ void PAKBridge::build()
                 }
                 if (areaDeps.name.empty())
                 {
-#if HECL_UCS2
-                    areaDeps.name = _S("MREA_") + hecl::UTF8ToWide(area.areaMREAId.toString());
-#else
-                    areaDeps.name = "MREA_" + area.areaMREAId.toString();
-#endif
+                    std::string idStr = area.areaMREAId.toString();
+                    areaDeps.name = _S("MREA_") + hecl::SystemStringView(idStr).sys_str();
                 }
                 hecl::SystemChar num[16];
                 hecl::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
-#if HECL_UCS2
-                std::string lowerName = hecl::WideToUTF8(areaDeps.name);
-#else
-                std::string lowerName(areaDeps.name);
-#endif
+                std::string lowerName = hecl::SystemUTF8View(areaDeps.name).str();
                 for (char& ch : lowerName)
                 {
                     ch = tolower(ch);

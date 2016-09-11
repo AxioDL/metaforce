@@ -9,7 +9,7 @@
 
 namespace urde
 {
-class CAnimSysContext;
+struct CAnimSysContext;
 class IMetaAnim;
 class CTransitionDatabaseGame;
 

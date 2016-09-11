@@ -10,7 +10,7 @@ class CAnimationDatabaseGame;
 class CTransitionDatabaseGame;
 class CSimplePool;
 class CAnimTreeNode;
-class CMetaAnimTreeBuildOrders;
+struct CMetaAnimTreeBuildOrders;
 class IMetaAnim;
 
 class CAnimationManager

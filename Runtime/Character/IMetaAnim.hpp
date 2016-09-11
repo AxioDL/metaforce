@@ -9,7 +9,7 @@ namespace urde
 {
 class CAnimTreeNode;
 struct CAnimSysContext;
-class CMetaAnimTreeBuildOrders;
+struct CMetaAnimTreeBuildOrders;
 class CPrimitive;
 class IAnimReader;
 

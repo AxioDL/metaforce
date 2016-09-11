@@ -3,9 +3,6 @@
 #include "zeus/Math.hpp"
 #include "CTimeProvider.hpp"
 
-#undef near
-#undef far
-
 namespace urde
 {
 
@@ -163,16 +160,16 @@ static const zeus::CMatrix4f PlusOneZFlip(1.f, 0.f, 0.f, 0.f,
                                           0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
-                                                      float near, float far,
+                                                      float znear, float zfar,
                                                       bool forRenderer)
 {
     CProjectionState st;
     float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
-    st.x14_near = near;
-    st.x18_far = far;
-    st.xc_top = near * tfov;
+    st.x14_near = znear;
+    st.x18_far = zfar;
+    st.xc_top = znear * tfov;
     st.x10_bottom = -st.xc_top;
-    st.x8_right = aspect * near * tfov;
+    st.x8_right = aspect * znear * tfov;
     st.x4_left = -st.x8_right;
 
     float rml = st.x8_right - st.x4_left;
@@ -280,17 +277,17 @@ void CGraphics::SetProjectionState(const CGraphics::CProjectionState& proj)
     FlushProjection();
 }
 
-void CGraphics::SetPerspective(float fovy, float aspect, float near, float far)
+void CGraphics::SetPerspective(float fovy, float aspect, float znear, float zfar)
 {
     g_ProjAspect = aspect;
 
     float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
     g_Proj.x0_persp = true;
-    g_Proj.x14_near = near;
-    g_Proj.x18_far = far;
-    g_Proj.xc_top = near * tfov;
+    g_Proj.x14_near = znear;
+    g_Proj.x18_far = zfar;
+    g_Proj.xc_top = znear * tfov;
     g_Proj.x10_bottom = -g_Proj.xc_top;
-    g_Proj.x8_right = aspect * near * tfov;
+    g_Proj.x8_right = aspect * znear * tfov;
     g_Proj.x4_left = -g_Proj.x8_right;
 
     FlushProjection();

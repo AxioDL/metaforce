@@ -21,18 +21,22 @@ CAnimTreeBlend::CAnimTreeBlend(bool b1,
 
 SAdvancementResults CAnimTreeBlend::VAdvanceView(const CCharAnimTime& a)
 {
+    return {};
 }
 
 CCharAnimTime CAnimTreeBlend::VGetTimeRemaining() const
 {
+    return {};
 }
 
 CSteadyStateAnimInfo CAnimTreeBlend::VGetSteadyStateAnimInfo() const
 {
+    return {};
 }
 
 std::shared_ptr<IAnimReader> CAnimTreeBlend::VClone() const
 {
+    return {};
 }
 
 void CAnimTreeBlend::SetBlendingWeight(float w)
@@ -41,6 +45,7 @@ void CAnimTreeBlend::SetBlendingWeight(float w)
 
 float CAnimTreeBlend::VGetBlendingWeight() const
 {
+    return 0.f;
 }
 
 }

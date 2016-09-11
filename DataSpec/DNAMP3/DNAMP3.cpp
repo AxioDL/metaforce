@@ -70,11 +70,7 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
 
 static hecl::SystemString LayerName(const std::string& name)
 {
-#if HECL_UCS2
-    hecl::SystemString ret = hecl::UTF8ToWide(name);
-#else
-    hecl::SystemString ret = name;
-#endif
+    hecl::SystemString ret = hecl::SystemStringView(name).sys_str();
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
             ch = _S('-');
@@ -96,11 +92,8 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
             bool named;
-#if HECL_UCS2
-            level.name = hecl::UTF8ToWide(m_pak.bestEntryName(entry, named));
-#else
-            level.name = m_pak.bestEntryName(entry, named);
-#endif
+            std::string bestName = m_pak.bestEntryName(entry, named);
+            level.name = hecl::SystemStringView(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
@@ -144,18 +137,11 @@ void PAKBridge::build()
                 }
                 if (areaDeps.name.empty())
                 {
-#if HECL_UCS2
-                    areaDeps.name = hecl::UTF8ToWide(area.internalAreaName);
-#else
-                    areaDeps.name = area.internalAreaName;
-#endif
+                    areaDeps.name = hecl::SystemStringView(area.internalAreaName).sys_str();
                     if (areaDeps.name.empty())
                     {
-#if HECL_UCS2
-                        areaDeps.name = _S("MREA_") + hecl::UTF8ToWide(area.areaMREAId.toString());
-#else
-                        areaDeps.name = "MREA_" + area.areaMREAId.toString();
-#endif
+                        std::string idStr = area.areaMREAId.toString();
+                        areaDeps.name = _S("MREA_") + hecl::SystemStringView(idStr).sys_str();
                     }
                 }
                 hecl::SystemChar num[16];
@@ -173,13 +159,13 @@ void PAKBridge::build()
                         layer.name = LayerName(mlvl.layerNames[layerIdx++]);
                         layer.active = layerFlags.flags >> (l-1) & 0x1;
                         /* Trim possible trailing whitespace */
-    #if HECL_UCS2
+#if HECL_UCS2
                         while (layer.name.size() && iswspace(layer.name.back()))
                             layer.name.pop_back();
-    #else
+#else
                         while (layer.name.size() && isspace(layer.name.back()))
                             layer.name.pop_back();
-    #endif
+#endif
                         hecl::SNPrintf(num, 16, _S("%02u "), l-1);
                         layer.name = num + layer.name;
                     }

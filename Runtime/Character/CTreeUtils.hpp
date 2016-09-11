@@ -6,7 +6,7 @@
 namespace urde
 {
 class CAnimTreeNode;
-class CAnimSysContext;
+struct CAnimSysContext;
 
 class CTreeUtils
 {
