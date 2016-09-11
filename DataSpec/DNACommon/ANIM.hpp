@@ -2,6 +2,7 @@
 #define _DNACOMMON_ANIMBITSTREAM_HPP_
 
 #include "DNACommon.hpp"
+#include <cmath>
 
 namespace DataSpec
 {
@@ -42,7 +43,7 @@ struct QuantizedValue
         atInt32 delta = std::abs(v[idx] - other.v[idx]);
         if (delta == 0)
             return 1;
-        return int(ceilf(log2f(delta))) + 1;
+        return int(std::ceil(std::log2(delta))) + 1;
     }
 };
 struct QuantizedRot
