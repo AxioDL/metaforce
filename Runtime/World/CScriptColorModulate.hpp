@@ -6,7 +6,7 @@
 
 namespace urde
 {
-class CModelFlags;
+struct CModelFlags;
 class CScriptColorModulate : public CEntity
 {
 public:
