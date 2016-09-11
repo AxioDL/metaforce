@@ -8,6 +8,7 @@ namespace urde
 
 class CAnimTreeTweenBase : public CAnimTreeDoubleChild
 {
+    static s32 sAdvancementDepth;
 protected:
     int x1c_flags;
     bool x20_31_b1;
@@ -34,6 +35,9 @@ public:
 
     std::shared_ptr<IAnimReader> VSimplified();
     bool ShouldCullTree() const { return false; }
+
+    static void IncAdvancementDepth() { sAdvancementDepth++; }
+    static void DecAdvancementDepth() { sAdvancementDepth--; }
 };
 
 }

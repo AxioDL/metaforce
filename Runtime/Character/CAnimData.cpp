@@ -542,7 +542,7 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
     {
         if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx)
         {
-            x120_particleDB.StartEffect(node.GetName(), node.GetFlags(), node.GetParticleData(),
+            x120_particleDB.StartEffect(node.GetString(), node.GetFlags(), node.GetParticleData(),
                                         scale, stateMgr, aid, x21c_);
         }
     }

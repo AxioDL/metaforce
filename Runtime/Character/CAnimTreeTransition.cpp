@@ -24,18 +24,46 @@ CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeN
 {
 }
 
-CCharAnimTime CAnimTreeTransition::VGetTimeRemaining() const { return {}; }
+std::shared_ptr<IAnimReader> CAnimTreeTransition::VGetBestUnblendedChild() const
+{
+    std::shared_ptr<IAnimReader> child = x18_b->GetBestUnblendedChild();
+    return (child ? child : x18_b);
+}
+
+CCharAnimTime CAnimTreeTransition::VGetTimeRemaining() const
+{
+    CCharAnimTime time = x24_ * x2c_;
+    CCharAnimTime bTimeRem = x18_b->VGetTimeRemaining();
+
+    if (time < bTimeRem)
+        return bTimeRem;
+    return time;
+}
 
 CSteadyStateAnimInfo CAnimTreeTransition::VGetSteadyStateAnimInfo() const
+{
+    CSteadyStateAnimInfo bInfo = x18_b->VGetSteadyStateAnimInfo();
+
+    if (x24_ < bInfo.GetDuration())
+        return CSteadyStateAnimInfo(bInfo.IsLooping(), bInfo.GetDuration(), bInfo.GetOffset());
+    return CSteadyStateAnimInfo(bInfo.IsLooping(), x24_, bInfo.GetOffset());
+}
+
+std::shared_ptr<IAnimReader> CAnimTreeTransition::VClone() const
+{
+    return std::make_shared<CAnimTreeTransition>(x20_31_b1, std::static_pointer_cast<CAnimTreeNode>(x14_a->Clone()),
+                                                 std::static_pointer_cast<CAnimTreeNode>(x18_b->Clone()), x24_, x2c_,
+                                                 x34_, x35_, x1c_flags, x4_name, x36_);
+}
+
+SAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time) const
 {
     return {};
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeTransition::VClone() const { return {}; }
-
 void CAnimTreeTransition::SetBlendingWeight(float w)
 {
-    static_cast<CAnimTreeTweenBase*>(x18_b.get())->SetBlendingWeight(w);
+    std::static_pointer_cast<CAnimTreeTweenBase>(x18_b)->SetBlendingWeight(w);
 }
 
 float CAnimTreeTransition::VGetBlendingWeight() const

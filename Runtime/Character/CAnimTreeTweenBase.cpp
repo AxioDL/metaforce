@@ -3,6 +3,8 @@
 namespace urde
 {
 
+s32 CAnimTreeTweenBase::sAdvancementDepth = 0;
+
 CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                        const std::weak_ptr<CAnimTreeNode>& b, int flags, const std::string& name)
 : CAnimTreeDoubleChild(a, b, name), x1c_flags(flags), x20_31_b1(b1)
