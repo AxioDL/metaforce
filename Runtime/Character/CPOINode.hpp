@@ -37,13 +37,18 @@ public:
     CPOINode(CInputStream& in);
     virtual ~CPOINode() = default;
 
-    const std::string& GetName() const {return x8_name;}
+    const std::string& GetString() const {return x8_name;}
     const CCharAnimTime& GetTime() const {return x1c_time;}
+    void SetTime(const CCharAnimTime& time) { x1c_time = time; }
     EPOIType GetPoiType() const { return x18_type; }
     u32 GetIndex() const {return x24_index;}
     float GetWeight() const { return x2c_weight; }
     u32 GetCharacterIndex() const { return x30_charIdx; }
     u32 GetFlags() const { return x34_flags; }
+
+    bool operator>(const CPOINode& other) const;
+    bool operator<(const CPOINode& other) const;
+    static bool compare(const CPOINode& a, const CPOINode& b);
 };
 
 template <class T>

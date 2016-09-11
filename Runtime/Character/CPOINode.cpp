@@ -33,6 +33,23 @@ CPOINode::CPOINode(CInputStream& in)
   x34_flags(in.readUint32Big())
 {}
 
+bool CPOINode::operator>(const CPOINode& other) const
+{
+    return x1c_time < other.x1c_time;
+}
+
+bool CPOINode::operator<(const CPOINode& other) const
+{
+    return x1c_time > other.x1c_time;
+}
+
+bool CPOINode::compare(const CPOINode& a, const CPOINode& b)
+{
+    if (a > b)
+        return 1;
+    return (a < b);
+}
+
 template <class T>
 u32 _getPOIList(const CCharAnimTime& time,
                 T* listOut,
