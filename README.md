@@ -19,7 +19,7 @@ Everything else is much too experimental to make portable/stable release builds 
 * [CMake 3+](https://cmake.org)
 * [Python 3+](https://python.org)
 * LLVM development package *(headers and libs)*
-    * [Specialized Windows Package](https://www.dropbox.com/s/4u0rckvh3d3tvr1/LLVM-3.7.0-win64.exe)
+    * [Specialized Windows Package](https://www.dropbox.com/s/vnxyzltd04xpikr/LLVM-3.9.0-win64-athena.exe?dl=1)
     * [OS X Package](http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-apple-darwin.tar.xz)
 * **[Windows]** [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 * **[OS X]** [Xcode Tools](https://developer.apple.com/xcode/download/)
