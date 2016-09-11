@@ -81,7 +81,7 @@ static void AthenaExc(athena::error::Level level, const char* file,
 {
     va_list ap;
     va_start(ap, fmt);
-    AthenaLog.reportSource(logvisor::Level(level), file, line, fmt, ap);
+    AthenaLog.report(logvisor::Level(level), fmt, ap);
     va_end(ap);
 }
 

@@ -171,6 +171,9 @@ void BlenderConnection::_closePipe()
 #ifdef _WIN32
     CloseHandle(m_pinfo.hProcess);
     CloseHandle(m_pinfo.hThread);
+    m_consoleThreadRunning = false;
+    if (m_consoleThread.joinable())
+        m_consoleThread.join();
 #endif
 }
 
@@ -241,6 +244,26 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         SetHandleInformation(writehandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
         HANDLE readhandle = HANDLE(_get_osfhandle(m_readpipe[1]));
         SetHandleInformation(readhandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+
+        SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+        HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
+        if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0))
+            BlenderLog.report(logvisor::Fatal, "Error with CreatePipe");
+
+        if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite,
+                             GetCurrentProcess(), &consoleErrWrite, 0,
+                             TRUE,DUPLICATE_SAME_ACCESS))
+            BlenderLog.report(logvisor::Fatal, "Error with DuplicateHandle");
+
+        if (!DuplicateHandle(GetCurrentProcess(), consoleOutReadTmp,
+                             GetCurrentProcess(),
+                             &consoleOutRead, // Address of new handle.
+                             0, FALSE, // Make it uninheritable.
+                             DUPLICATE_SAME_ACCESS))
+            BlenderLog.report(logvisor::Fatal, "Error with DupliateHandle");
+
+        if (!CloseHandle(consoleOutReadTmp))
+            BlenderLog.report(logvisor::Fatal, "Error with CloseHandle");
 #else
         pipe(m_readpipe);
         pipe(m_writepipe);
@@ -272,16 +295,19 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
                    verbosityLevel, blenderAddonPath.c_str());
 
         STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
-        HANDLE nulHandle = NULL;
+        HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
+                                       &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        sinfo.dwFlags = STARTF_USESTDHANDLES;
+        sinfo.hStdInput = nulHandle;
         if (verbosityLevel == 0)
         {
-            SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
-            nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
-                                    &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-            sinfo.hStdInput = nulHandle;
             sinfo.hStdError = nulHandle;
             sinfo.hStdOutput = nulHandle;
-            sinfo.dwFlags = STARTF_USESTDHANDLES;
+        }
+        else
+        {
+            sinfo.hStdError = consoleErrWrite;
+            sinfo.hStdOutput = consoleOutWrite;
         }
 
         if (!CreateProcessW(blenderBin, cmdLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo))
@@ -295,8 +321,36 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         close(m_writepipe[0]);
         close(m_readpipe[1]);
 
-        if (nulHandle)
-            CloseHandle(nulHandle);
+        CloseHandle(nulHandle);
+        CloseHandle(consoleErrWrite);
+        CloseHandle(consoleOutWrite);
+
+        m_consoleThread = std::thread([&]()
+        {
+            CHAR lpBuffer[256];
+            DWORD nBytesRead;
+            DWORD nCharsWritten;
+
+            while (m_consoleThreadRunning)
+            {
+               if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer),
+                             &nBytesRead, NULL) || !nBytesRead)
+               {
+                  if (GetLastError() == ERROR_BROKEN_PIPE)
+                     break; // pipe done - normal exit path.
+                  else
+                     BlenderLog.report(logvisor::Fatal, "Error with ReadFile"); // Something bad happened.
+               }
+
+               // Display the character read on the screen.
+               auto lk = logvisor::LockLog();
+               if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer,
+                                  nBytesRead, &nCharsWritten, NULL))
+                  BlenderLog.report(logvisor::Fatal, "Error with WriteConsole");
+            }
+
+            CloseHandle(consoleOutRead);
+        });
 
 #else
         pid_t pid = fork();
@@ -355,7 +409,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         m_blenderProc = pid;
 #endif
 
-        /* Stash error path an unlink existing file */
+        /* Stash error path and unlink existing file */
         m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
         hecl::Unlink(m_errPath.c_str());
 
@@ -1230,7 +1284,7 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     std::vector<BlenderConnection::DataStream::Light> ret;
     ret.reserve(lightCount);
 
-    for (int i=0 ; i<lightCount ; ++i)
+    for (uint32_t i=0 ; i<lightCount ; ++i)
         ret.emplace_back(*m_parent);
 
     return ret;

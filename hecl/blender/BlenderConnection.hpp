@@ -53,6 +53,8 @@ private:
 #if _WIN32
     HANDLE m_blenderProc = 0;
     PROCESS_INFORMATION m_pinfo = {};
+    std::thread m_consoleThread;
+    bool m_consoleThreadRunning = true;
 #else
     pid_t m_blenderProc = 0;
 #endif
@@ -74,6 +76,11 @@ private:
 public:
     BlenderConnection(int verbosityLevel=1);
     ~BlenderConnection();
+
+    BlenderConnection(const BlenderConnection&)=delete;
+    BlenderConnection& operator=(const BlenderConnection&)=delete;
+    BlenderConnection(BlenderConnection&&)=default;
+    BlenderConnection& operator=(BlenderConnection&&)=default;
 
     bool hasSLERP() const {return m_hasSlerp;}
 
