@@ -168,6 +168,10 @@ void BlenderConnection::_closePipe()
 {
     close(m_readpipe[0]);
     close(m_writepipe[1]);
+#ifdef _WIN32
+    CloseHandle(m_pinfo.hProcess);
+    CloseHandle(m_pinfo.hThread);
+#endif
 }
 
 void BlenderConnection::_blenderDied()
@@ -280,8 +284,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             sinfo.dwFlags = STARTF_USESTDHANDLES;
         }
 
-        PROCESS_INFORMATION pinfo;
-        if (!CreateProcessW(blenderBin, cmdLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &pinfo))
+        if (!CreateProcessW(blenderBin, cmdLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo))
         {
             LPWSTR messageBuffer = nullptr;
             size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,

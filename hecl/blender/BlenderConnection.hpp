@@ -51,9 +51,10 @@ public:
 private:
     bool m_lock = false;
 #if _WIN32
-    HANDLE m_blenderProc;
+    HANDLE m_blenderProc = 0;
+    PROCESS_INFORMATION m_pinfo = {};
 #else
-    pid_t m_blenderProc;
+    pid_t m_blenderProc = 0;
 #endif
     int m_readpipe[2];
     int m_writepipe[2];
