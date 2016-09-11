@@ -60,7 +60,9 @@ struct Application : boo::IApplicationCallback
     void initialize(boo::IApplication* /*app*/)
     {
         zeus::detectCPU();
+#ifndef WIN32 /* Console issue with Win32 */
         hecl::VerbosityLevel = 1;
+#endif
 
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
