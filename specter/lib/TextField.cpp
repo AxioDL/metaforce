@@ -40,7 +40,7 @@ void TextField::_setText()
             m_hasMarkSet = true;
     }
 }
-    
+
 void TextField::_setMarkedText()
 {
     if (m_hasMarkSet)
@@ -49,7 +49,7 @@ void TextField::_setMarkedText()
         m_markReplCount = m_deferredMarkReplCount;
         m_markSelStart = m_deferredMarkSelStart;
         m_markSelCount = m_deferredMarkSelCount;
-        
+
         size_t repPoint;
         size_t repEnd;
         if (m_selectionCount)
@@ -62,13 +62,13 @@ void TextField::_setMarkedText()
             repPoint = m_cursorPos;
             repEnd = m_cursorPos;
         }
-        
+
         if (m_markReplStart != SIZE_MAX)
         {
             repPoint += m_markReplStart;
             repEnd += m_markReplStart + m_markReplCount;
         }
-        
+
         size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
         repPoint = std::min(repPoint, len);
         repEnd = std::min(repEnd, len);
@@ -77,7 +77,7 @@ void TextField::_setMarkedText()
         compStr += std::string((UTF8Iterator(m_textStr.cbegin()) + repEnd).iter(), m_textStr.cend());
         m_text->typesetGlyphs(compStr, m_error ? rootView().themeData().uiText() :
                                                  rootView().themeData().fieldText());
-        
+
         size_t pos = m_cursorPos;
         if (m_deferredMarkStr.size())
             pos += m_markSelStart;
@@ -85,18 +85,18 @@ void TextField::_setMarkedText()
             _reallySetMarkRange(pos, m_markSelCount);
         else
             _reallySetCursorPos(pos);
-        
+
         std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
         size_t defLen = UTF8Iterator(m_deferredMarkStr.cbegin()).countTo(m_deferredMarkStr.cend());
         for (auto it=glyphs.begin()+repPoint ; it<glyphs.begin()+repPoint+defLen ; ++it)
             it->m_color = rootView().themeData().fieldMarkedText();
         m_text->updateGlyphs();
-        
+
         m_hasMarkSet = false;
 
     }
 }
-    
+
 void TextField::setText(const std::string& str)
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
@@ -225,7 +225,7 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     {
         size_t startPos = m_text->reverseSelectGlyph(coord.pixel[0] - m_text->subRect().location[0]);
         setCursorPos(startPos);
-        m_dragging |= size_t(1 << int(button));
+        m_dragging |= size_t(1) << size_t(button);
         m_dragStart = startPos;
         rootView().setActiveDragView(this);
     }
@@ -234,7 +234,7 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
 
 void TextField::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)
 {
-    m_dragging &= ~(1 << int(button));
+    m_dragging &= ~(size_t(1) << size_t(button));
     if (m_dragging == 0)
         rootView().setActiveDragView(nullptr);
 }
@@ -269,7 +269,7 @@ void TextField::mouseLeave(const boo::SWindowCoord& coord)
 void TextField::clipboardCopy()
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    
+
     if (!m_selectionCount)
         return;
 
@@ -281,29 +281,29 @@ void TextField::clipboardCopy()
     rootView().window()->clipboardCopy(boo::EClipboardType::UTF8String,
                                        (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
 }
-    
+
 void TextField::clipboardCut()
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    
+
     if (!m_selectionCount)
         return;
-    
+
     UTF8Iterator begin(m_textStr.cbegin());
     begin += m_selectionStart;
     UTF8Iterator end(begin.iter());
     end += m_selectionCount;
-    
+
     rootView().window()->clipboardCopy(boo::EClipboardType::UTF8String,
                                        (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
-    
+
     std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
     newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
     size_t selStart = m_selectionStart;
     setText(newStr);
     setCursorPos(selStart);
 }
-    
+
 static std::string SanitizeUTF8TextLine(const char* string, size_t len)
 {
     const char* it = string;
@@ -326,7 +326,7 @@ static std::string SanitizeUTF8TextLine(const char* string, size_t len)
 void TextField::clipboardPaste()
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    
+
     size_t retSz;
     std::unique_ptr<uint8_t[]> retData =
     rootView().window()->clipboardPaste(boo::EClipboardType::UTF8String, retSz);
@@ -360,7 +360,7 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
     if (m_deferredMarkStr.size())
         return;
-    
+
     if (key == boo::ESpecialKey::Left)
     {
         if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None)
@@ -452,7 +452,7 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
         }
     }
 }
-    
+
 bool TextField::hasMarkedText() const
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
@@ -514,7 +514,7 @@ std::string TextField::substringForRange(const std::pair<int,int>& range,
 void TextField::insertText(const std::string& str, const std::pair<int,int>& range)
 {
     std::string saniStr = SanitizeUTF8TextLine(str.data(), str.size());
-    
+
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
     size_t curLen = UTF8Iterator(m_deferredTextStr.cbegin()).countTo(m_deferredTextStr.cend());
     if (range.first < 0 || range.first >= curLen)
@@ -532,7 +532,7 @@ void TextField::insertText(const std::string& str, const std::pair<int,int>& ran
         unmarkText();
         return;
     }
-    
+
     std::string newStr(m_deferredTextStr.cbegin(), (UTF8Iterator(m_deferredTextStr.cbegin()) + range.first).iter());
     newStr += saniStr;
     size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
@@ -609,7 +609,7 @@ void TextField::think()
 
         m_errText->setMultiplyColor(errMult);
     }
-    
+
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
     _setText();
     _setSelectionRange();
@@ -633,7 +633,7 @@ void TextField::setActive(bool active)
         setSelectionRange(0, len);
     }
 }
-    
+
 void TextField::_reallySetCursorPos(size_t pos)
 {
     float pf = rootView().viewRes().pixelFactor();
@@ -649,11 +649,11 @@ void TextField::_reallySetCursorPos(size_t pos)
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
     m_vertsBinding.load(m_verts, sizeof(m_verts));
-    
+
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
 }
-    
+
 void TextField::_setCursorPos()
 {
     if (m_hasCursorSet)
@@ -702,7 +702,7 @@ void TextField::clearErrorState()
     m_errText.reset();
     m_errorFrames = 360;
 }
-    
+
 void TextField::_reallySetSelectionRange(size_t start, size_t len)
 {
     ViewResources& res = rootView().viewRes();
@@ -724,17 +724,17 @@ void TextField::_reallySetSelectionRange(size_t start, size_t len)
             glyphs[i].m_color = deselColor;
     }
     m_text->updateGlyphs();
-    
+
     m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
     m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
     m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_vertsBinding.load(m_verts, sizeof(m_verts));
-    
+
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
 }
-    
+
 void TextField::_reallySetMarkRange(size_t start, size_t len)
 {
     ViewResources& res = rootView().viewRes();
@@ -744,7 +744,7 @@ void TextField::_reallySetMarkRange(size_t start, size_t len)
     std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
     offset1 += glyphs[start].m_pos[0][0];
     offset2 += glyphs[start+len-1].m_pos[2][0];
-    
+
     const zeus::CColor& selColor = rootView().themeData().textfieldMarkSelection();
     m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
     m_verts[28].m_color = selColor;
@@ -755,7 +755,7 @@ void TextField::_reallySetMarkRange(size_t start, size_t len)
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
     m_vertsBinding.load(m_verts, sizeof(m_verts));
-    
+
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
 }
@@ -773,7 +773,7 @@ void TextField::_setSelectionRange()
         m_hasSelectionSet = false;
     }
 }
-    
+
 void TextField::setSelectionRange(size_t start, size_t count)
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
@@ -796,7 +796,7 @@ void TextField::_clearSelectionRange()
     {
         m_selectionStart = 0;
         m_selectionCount = 0;
-        
+
         const zeus::CColor& deselColor = m_error ? rootView().themeData().uiText() :
                                                    rootView().themeData().fieldText();
 
@@ -804,11 +804,11 @@ void TextField::_clearSelectionRange()
         for (size_t i=0 ; i<glyphs.size() ; ++i)
             glyphs[i].m_color = deselColor;
         m_text->updateGlyphs();
-        
+
         m_hasSelectionClear = false;
     }
 }
-    
+
 void TextField::clearSelectionRange()
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
