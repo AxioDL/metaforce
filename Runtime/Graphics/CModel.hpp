@@ -72,7 +72,7 @@ public:
     struct SShader
     {
         std::vector<TCachedToken<CTexture>> x0_textures;
-        std::vector<std::vector<boo::IShaderPipeline*>> m_shaders;
+        std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
         MaterialSet m_matSet;
         int m_matSetIdx;
         SShader(int idx) : m_matSetIdx(idx) {}
@@ -87,7 +87,7 @@ private:
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
     int m_matSetIdx = -1;
-    const std::vector<std::vector<boo::IShaderPipeline*>>* m_pipelines;
+    const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
     boo::IVertexFormat* m_vtxFmt;
     boo::IGraphicsBufferS* x8_vbo;
     boo::IGraphicsBufferS* xc_ibo;
@@ -132,7 +132,7 @@ public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb);
+              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, int numInsts);
 
     static void MakeTexuresFromMats(const MaterialSet& matSet,
                                     std::vector<TCachedToken<CTexture>>& toksOut,
@@ -203,7 +203,7 @@ public:
     const zeus::CAABox& GetAABB() const {return m_aabb;}
     CBooModel& GetInstance() {return *x28_modelInst;}
     const CBooModel& GetInstance() const {return *x28_modelInst;}
-    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx);
+    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts);
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

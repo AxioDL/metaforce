@@ -136,6 +136,8 @@ class CAnimData
     static rstl::reserved_vector<CParticlePOINode, 20> g_ParticlePOINodes;
     static rstl::reserved_vector<CSoundPOINode, 20> g_SoundPOINodes;
 
+    int m_drawInstCount;
+
 public:
     CAnimData(ResId,
               const CCharacterInfo& character,
@@ -146,7 +148,8 @@ public:
               const std::weak_ptr<CAnimSysContext>& ctx,
               const std::shared_ptr<CAnimationManager>& animMgr,
               const std::shared_ptr<CTransitionManager>& transMgr,
-              const TLockedToken<CCharacterFactory>& charFactory);
+              const TLockedToken<CCharacterFactory>& charFactory,
+              int drawInstCount);
 
     ResId GetEventResourceIdForAnimResourceId(ResId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);

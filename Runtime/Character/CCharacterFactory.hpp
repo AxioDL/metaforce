@@ -64,7 +64,7 @@ public:
 
     std::unique_ptr<CAnimData> CreateCharacter(int charIdx, bool loop,
                                                const TLockedToken<CCharacterFactory>& factory,
-                                               int defaultAnim) const;
+                                               int defaultAnim, int drawInsts) const;
     ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
 
     const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }

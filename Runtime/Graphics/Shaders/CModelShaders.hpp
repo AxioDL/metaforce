@@ -52,32 +52,36 @@ public:
     CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                   boo::IGraphicsDataFactory* gfxFactory);
 
-    boo::IShaderPipeline* buildShader(const hecl::Runtime::ShaderTag& tag, const std::string& source,
-                                      const std::string& diagName,
-                                      boo::IGraphicsDataFactory::Context& ctx)
+    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
+                                                                const std::string& source,
+                                                                const std::string& diagName,
+                                                                boo::IGraphicsDataFactory& factory)
     {
-        return m_shaderCache.buildShader(tag, source, diagName, ctx);
+        return m_shaderCache.buildShader(tag, source, diagName, factory);
     }
 
-    boo::IShaderPipeline* buildShader(const hecl::Runtime::ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                      const std::string& diagName,
-                                      boo::IGraphicsDataFactory::Context& ctx)
+    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
+                                                                const hecl::Frontend::IR& ir,
+                                                                const std::string& diagName,
+                                                                boo::IGraphicsDataFactory& factory)
     {
-        return m_shaderCache.buildShader(tag, ir, diagName, ctx);
+        return m_shaderCache.buildShader(tag, ir, diagName, factory);
     }
 
-    std::vector<boo::IShaderPipeline*> buildExtendedShader(const hecl::Runtime::ShaderTag& tag, const std::string& source,
-                                                           const std::string& diagName,
-                                                           boo::IGraphicsDataFactory::Context& ctx)
+    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
+                                                                        const std::string& source,
+                                                                        const std::string& diagName,
+                                                                        boo::IGraphicsDataFactory& factory)
     {
-        return m_shaderCache.buildExtendedShader(tag, source, diagName, ctx);
+        return m_shaderCache.buildExtendedShader(tag, source, diagName, factory);
     }
 
-    std::vector<boo::IShaderPipeline*> buildExtendedShader(const hecl::Runtime::ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                                           const std::string& diagName,
-                                                           boo::IGraphicsDataFactory::Context& ctx)
+    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
+                                                                        const hecl::Frontend::IR& ir,
+                                                                        const std::string& diagName,
+                                                                        boo::IGraphicsDataFactory& factory)
     {
-        return m_shaderCache.buildExtendedShader(tag, ir, diagName, ctx);
+        return m_shaderCache.buildExtendedShader(tag, ir, diagName, factory);
     }
 
 };

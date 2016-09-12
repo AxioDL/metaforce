@@ -45,7 +45,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
+"    colorOut = vtf.color * vec4(texture(tex, vtf.uv).rgb, 1.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

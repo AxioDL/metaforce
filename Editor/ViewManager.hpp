@@ -57,6 +57,7 @@ class ViewManager : public specter::IViewManager
         CCameraBlurFilter m_camBlur;
         CRandom16 m_random;
         float m_theta = 0.f;
+        unsigned m_frame = 0;
     public:
         ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent,
                      TLockedToken<CTexture>& xrayPalette)

@@ -36,7 +36,7 @@ CBooModel::~CBooModel()
 
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb)
+                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, int instCount)
 : m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
   m_pipelines(&shader.m_shaders), m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
   m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
@@ -69,6 +69,10 @@ CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, 
             x38_firstUnsortedSurface = &*it;
         }
     }
+
+    m_instances.reserve(instCount);
+    for (int i=0 ; i<instCount ; ++i)
+        PushNewModelInstance();
 }
 
 CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
@@ -185,14 +189,14 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             thisOffs[2] = lightOff;
             thisSizes[2] = lightSz;
 
-            const std::vector<boo::IShaderPipeline*>& pipelines = m_pipelines->at(surf.m_data.matIdx);
+            const std::shared_ptr<hecl::Runtime::ShaderPipelines>& pipelines = m_pipelines->at(surf.m_data.matIdx);
 
             newInst.m_shaderDataBindings.emplace_back();
             std::vector<boo::IShaderDataBinding*>& extendeds = newInst.m_shaderDataBindings.back();
-            extendeds.reserve(pipelines.size());
+            extendeds.reserve(pipelines->m_pipelines.size());
 
             int idx = 0;
-            for (boo::IShaderPipeline* pipeline : pipelines)
+            for (boo::IShaderPipeline* pipeline : pipelines->m_pipelines)
             {
                 extendeds.push_back(
                             ctx.newShaderDataBinding(pipeline, m_vtxFmt,
@@ -657,12 +661,12 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const s32*& secSizeCur)
     return ret;
 }
 
-std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx)
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts)
 {
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
-                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount, m_aabb);
+                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount, m_aabb, subInsts);
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
@@ -705,25 +709,25 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     const u8* iboData = MemoryFromPartData(dataCur, secSizeCur);
     const u8* surfInfo = MemoryFromPartData(dataCur, secSizeCur);
 
+    for (CBooModel::SShader& matSet : x18_matSets)
+    {
+        matSet.m_shaders.reserve(matSet.m_matSet.materials.size());
+        for (const MaterialSet::Material& mat : matSet.m_matSet.materials)
+        {
+            hecl::Runtime::ShaderTag tag(mat.heclIr,
+                                         hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
+                                         hmdlMeta.weightCount * 4, 8, boo::Primitive(hmdlMeta.topology),
+                                         true, true, true);
+            matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader
+                                       (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory));
+        }
+    }
+
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
         m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
-
-        for (CBooModel::SShader& matSet : x18_matSets)
-        {
-            matSet.m_shaders.reserve(matSet.m_matSet.materials.size());
-            for (const MaterialSet::Material& mat : matSet.m_matSet.materials)
-            {
-                hecl::Runtime::ShaderTag tag(mat.heclIr,
-                                             hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                             hmdlMeta.weightCount * 4, 8, boo::Primitive(hmdlMeta.topology),
-                                             true, true, true);
-                matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader(tag, mat.heclIr, "CMDL", ctx));
-            }
-        }
-
         return true;
     });
 
@@ -743,7 +747,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
     m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
             hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
-    x28_modelInst = MakeNewInstance(0);
+    x28_modelInst = MakeNewInstance(0, 1);
 }
 
 void CBooModel::SShader::UnlockTextures()

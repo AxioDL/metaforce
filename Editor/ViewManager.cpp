@@ -32,7 +32,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.blend"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
     SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
-    CAnimRes samusAnimRes(samusCharSet.id, 2, zeus::CVector3f{2.f, 2.f, 2.f}, 0, true);
+    CAnimRes samusAnimRes(samusCharSet.id, 2, zeus::CVector3f{2.f, 2.f, 2.f}, 1, true);
     g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
                                                                platModel.id, zeus::CVector3f::skOne,
                                                                bgModel.id, zeus::CVector3f::skOne, true);
@@ -173,8 +173,13 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_moviePlayer->DrawFrame();
     }
 
+    if (m_frame == 300)
+        g_GameState->GetWorldTransitionManager()->PleaseStopSoon();
+
     g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
     g_GameState->GetWorldTransitionManager()->Draw();
+
+    ++m_frame;
 }
 
 specter::View* ViewManager::BuildSpaceViews()

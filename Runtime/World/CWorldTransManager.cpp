@@ -240,8 +240,9 @@ void CWorldTransManager::DrawEnabled()
         rect.xc_width = CGraphics::g_ViewportResolution.x;
         rect.x10_height = CGraphics::g_ViewportResolution.y;
         CGraphics::ResolveSpareTexture(rect);
+        CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
         DrawSecondPass();
-        m_dissolve.draw(zeus::CColor{1.f, 1.f, 1.f, t}, 1.f);
+        m_dissolve.draw(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
     }
 
     CWideScreenFilter::SetViewportToFull();
@@ -287,8 +288,8 @@ void CWorldTransManager::TouchModels()
         x4_modelData->x14c_beamModel.IsLoaded() &&
         x4_modelData->x14c_beamModel.GetObj())
     {
-        x4_modelData->x68_beamModelData = CStaticRes(x4_modelData->x14c_beamModel.GetObjectTag()->id,
-                                                     x4_modelData->x0_samusRes.GetScale());
+        x4_modelData->x68_beamModelData = {CStaticRes(x4_modelData->x14c_beamModel.GetObjectTag()->id,
+                                                      x4_modelData->x0_samusRes.GetScale()), 2};
     }
 
     if (x4_modelData->x1c_samusModelData.IsNull() &&
@@ -300,7 +301,7 @@ void CWorldTransManager::TouchModels()
         CAnimRes animRes(x4_modelData->x0_samusRes.GetId(), GetSuitCharIdx(),
                          x4_modelData->x0_samusRes.GetScale(), x4_modelData->x0_samusRes.GetDefaultAnim(),
                          true);
-        x4_modelData->x1c_samusModelData = animRes;
+        x4_modelData->x1c_samusModelData = {animRes, 2};
 
         CAnimPlaybackParms aData(animRes.GetDefaultAnim(), -1, 1.f, true);
         x4_modelData->x1c_samusModelData.AnimationData()->SetAnimation(aData, false);
@@ -347,7 +348,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
 
     if (platRes != -1)
     {
-        x4_modelData->xb4_platformModelData = CStaticRes(platRes, platScale);
+        x4_modelData->xb4_platformModelData = {CStaticRes(platRes, platScale), 2};
         x4_modelData->xb4_platformModelData.Touch(CModelData::EWhichModel::Normal, 0);
     }
 

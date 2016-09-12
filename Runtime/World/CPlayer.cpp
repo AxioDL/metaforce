@@ -10,7 +10,7 @@ namespace urde
 
 static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
 {
-    return CAnimRes(resId, 0, scale, 0, true);
+    return {CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
 CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, unsigned int resId,

@@ -17,6 +17,12 @@ class CTexturedQuadFilter
     friend struct CTexturedQuadFilterMetalDataBindingFactory;
     friend struct CTexturedQuadFilterD3DDataBindingFactory;
 
+    struct Vert
+    {
+        zeus::CVector2f m_pos;
+        zeus::CVector2f m_uv;
+    };
+
     struct Uniform
     {
         zeus::CColor m_color;
@@ -25,7 +31,7 @@ class CTexturedQuadFilter
     TLockedToken<CTexture> m_tex;
     boo::ITexture* m_booTex;
     boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
+    boo::IGraphicsBufferD* m_vbo;
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;

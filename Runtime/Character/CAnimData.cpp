@@ -46,7 +46,8 @@ CAnimData::CAnimData(ResId id,
                      const std::weak_ptr<CAnimSysContext>& ctx,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
-                     const TLockedToken<CCharacterFactory>& charFactory)
+                     const TLockedToken<CCharacterFactory>& charFactory,
+                     int drawInstCount)
 : x0_charFactory(charFactory),
   xc_charInfo(character),
   xcc_layoutData(layout),
@@ -58,7 +59,8 @@ CAnimData::CAnimData(ResId id,
   x204_charIdx(charIdx),
   x208_defaultAnim(defaultAnim),
   x224_pose(layout->GetSegIdList().GetList().size()),
-  x2fc_poseBuilder(layout)
+  x2fc_poseBuilder(layout),
+  m_drawInstCount(drawInstCount)
 {
     x220_25_loop = loop;
 
@@ -620,12 +622,12 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules)
 {
-    xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
+    xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0, m_drawInstCount);
 }
 
 void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules)
 {
-    xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
+    xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0, m_drawInstCount);
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,

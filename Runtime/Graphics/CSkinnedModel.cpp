@@ -8,7 +8,7 @@ static logvisor::Module Log("urde::CSkinnedModel");
 CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model,
                              TLockedToken<CSkinRules> skinRules,
                              TLockedToken<CCharLayoutInfo> layoutInfo,
-                             int shaderIdx)
+                             int shaderIdx, int drawInsts)
 : x4_model(model), x10_skinRules(skinRules), x1c_layoutInfo(layoutInfo)
 {
     if (!model)
@@ -17,16 +17,16 @@ CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model,
         Log.report(logvisor::Fatal, "bad skin token provided to CSkinnedModel");
     if (!layoutInfo)
         Log.report(logvisor::Fatal, "bad character layout token provided to CSkinnedModel");
-    m_modelInst = model->MakeNewInstance(shaderIdx);
+    m_modelInst = model->MakeNewInstance(shaderIdx, drawInsts);
 }
 
 CSkinnedModel::CSkinnedModel(IObjectStore& store, ResId model,
                              ResId skinRules, ResId layoutInfo,
-                             int shaderIdx)
+                             int shaderIdx, int drawInsts)
 : CSkinnedModel(store.GetObj(SObjectTag{FOURCC('CMDL'), model}),
                 store.GetObj(SObjectTag{FOURCC('CSKR'), skinRules}),
                 store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo}),
-                shaderIdx)
+                shaderIdx, drawInsts)
 {
 }
 
@@ -46,8 +46,8 @@ void CSkinnedModel::Draw(const CModelFlags& drawFlags) const
 
 CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, ResId model,
                                                ResId skinRules, ResId layoutInfo,
-                                               int shaderIdx)
-: CSkinnedModel(store, model, skinRules, layoutInfo, shaderIdx)
+                                               int shaderIdx, int drawInsts)
+: CSkinnedModel(store, model, skinRules, layoutInfo, shaderIdx, drawInsts)
 {
 }
 
