@@ -48,7 +48,7 @@ static const char* FS =
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * tex.sample(samp, vtf.uv);\n"
+"    return vtf.color * float4(tex.sample(samp, vtf.uv).rgb, 1.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

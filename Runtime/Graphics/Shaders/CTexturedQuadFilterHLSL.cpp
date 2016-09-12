@@ -46,7 +46,7 @@ static const char* FS =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * tex.Sample(samp, vtf.uv);\n"
+"    return vtf.color * float4(tex.Sample(samp, vtf.uv).rgb, 1.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
