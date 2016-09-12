@@ -363,40 +363,98 @@ ShaderCacheManager::buildFromCache(const ShaderCachedData& foundData,
     return m_factory->buildShaderFromCache(foundData, ctx);
 }
 
-boo::IShaderPipeline*
+std::shared_ptr<ShaderPipelines>
 ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
                                 const std::string& diagName,
-                                boo::IGraphicsDataFactory::Context& ctx)
+                                boo::IGraphicsDataFactory& factory)
 {
-    boo::IShaderPipeline* ret;
+    auto search = m_pipelineLookup.find(tag);
+    if (search != m_pipelineLookup.cend())
+        if (auto ret = search->second.lock())
+            return ret;
+
+    std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        ret = buildFromCache(foundData, ctx);
-        if (ret)
+        ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.c_str(), tag.val64());
+            boo::IShaderPipeline* build = buildFromCache(foundData, ctx);
+            if (build)
+            {
+                ret->m_pipelines.push_back(build);
+                return true;
+            }
+            return false;
+        });
+
+        if (ret->m_token)
+        {
+            m_pipelineLookup[tag] = ret;
             return ret;
+        }
         Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
     }
-    hecl::Frontend::IR ir = FE.compileSource(source, diagName);
-    return buildShader(tag, ir, diagName, ctx);
+
+    ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        hecl::Frontend::IR ir = FE.compileSource(source, diagName);
+        Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.c_str(), tag.val64());
+        FE.getDiagnostics().reset(diagName);
+        boo::IShaderPipeline* build;
+        addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, build));
+        ret->m_pipelines.push_back(build);
+        return true;
+    });
+    m_pipelineLookup[tag] = ret;
+    return ret;
 }
 
-boo::IShaderPipeline*
+std::shared_ptr<ShaderPipelines>
 ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                 const std::string& diagName,
-                                boo::IGraphicsDataFactory::Context& ctx)
+                                boo::IGraphicsDataFactory& factory)
 {
-    boo::IShaderPipeline* ret;
+    auto search = m_pipelineLookup.find(tag);
+    if (search != m_pipelineLookup.cend())
+        if (auto ret = search->second.lock())
+            return ret;
+
+    std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        ret = buildFromCache(foundData, ctx);
-        if (ret)
+        ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.c_str(), tag.val64());
+            boo::IShaderPipeline* build = buildFromCache(foundData, ctx);
+            if (build)
+            {
+                ret->m_pipelines.push_back(build);
+                return true;
+            }
+            return false;
+        });
+
+        if (ret->m_token)
+        {
+            m_pipelineLookup[tag] = ret;
             return ret;
+        }
         Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
     }
-    FE.getDiagnostics().reset(diagName);
-    addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, ret));
+
+    ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.c_str(), tag.val64());
+        FE.getDiagnostics().reset(diagName);
+        boo::IShaderPipeline* build;
+        addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, build));
+        ret->m_pipelines.push_back(build);
+        return true;
+    });
+    m_pipelineLookup[tag] = ret;
     return ret;
 }
 
@@ -415,48 +473,104 @@ ShaderCacheManager::buildExtendedFromCache(const ShaderCachedData& foundData,
     return shaders;
 }
 
-std::vector<boo::IShaderPipeline*>
+std::shared_ptr<ShaderPipelines>
 ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string& source,
                                         const std::string& diagName,
-                                        boo::IGraphicsDataFactory::Context& ctx)
+                                        boo::IGraphicsDataFactory& factory)
 {
-    std::vector<boo::IShaderPipeline*> shaders;
+    auto search = m_pipelineLookup.find(tag);
+    if (search != m_pipelineLookup.cend())
+        if (auto ret = search->second.lock())
+            return ret;
+
+    std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        shaders = buildExtendedFromCache(foundData, ctx);
-        if (shaders.size())
-            return shaders;
+        ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.c_str(), tag.val64());
+            ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
+            if (ret->m_pipelines.size())
+                return true;
+            return false;
+        });
+
+        if (ret->m_token)
+        {
+            m_pipelineLookup[tag] = ret;
+            return ret;
+        }
         Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
     }
+
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
-    return buildExtendedShader(tag, ir, diagName, ctx);
+
+    ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
+        FE.getDiagnostics().reset(diagName);
+        Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.c_str(), tag.val64());
+        ShaderCachedData data =
+        m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots, ctx,
+        [&](boo::IShaderPipeline* shader){ret->m_pipelines.push_back(shader);});
+        if (ret->m_pipelines.size() != m_extensions.m_extensionSlots.size())
+            Log.report(logvisor::Fatal, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
+                       ret->m_pipelines.size(), m_extensions.m_extensionSlots.size());
+        addData(data);
+        return true;
+    });
+    m_pipelineLookup[tag] = ret;
+    return ret;
 }
 
-std::vector<boo::IShaderPipeline*>
+std::shared_ptr<ShaderPipelines>
 ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
                                         const std::string& diagName,
-                                        boo::IGraphicsDataFactory::Context& ctx)
+                                        boo::IGraphicsDataFactory& factory)
 {
-    std::vector<boo::IShaderPipeline*> shaders;
+    auto search = m_pipelineLookup.find(tag);
+    if (search != m_pipelineLookup.cend())
+        if (auto ret = search->second.lock())
+            return ret;
+
+    std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        shaders = buildExtendedFromCache(foundData, ctx);
-        if (shaders.size())
-            return shaders;
+        ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        {
+            Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.c_str(), tag.val64());
+            ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
+            if (ret->m_pipelines.size())
+                return true;
+            return false;
+        });
+
+        if (ret->m_token)
+        {
+            m_pipelineLookup[tag] = ret;
+            return ret;
+        }
         Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.c_str());
     }
-    shaders.reserve(m_extensions.m_extensionSlots.size());
-    FE.getDiagnostics().reset(diagName);
-    ShaderCachedData data =
-    m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots, ctx,
-    [&](boo::IShaderPipeline* shader){shaders.push_back(shader);});
-    if (shaders.size() != m_extensions.m_extensionSlots.size())
-        Log.report(logvisor::Fatal, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
-                   shaders.size(), m_extensions.m_extensionSlots.size());
-    addData(data);
-    return shaders;
+
+    ret->m_token = factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
+        FE.getDiagnostics().reset(diagName);
+        Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.c_str(), tag.val64());
+        ShaderCachedData data =
+        m_factory->buildExtendedShaderFromIR(tag, ir, FE.getDiagnostics(), m_extensions.m_extensionSlots, ctx,
+        [&](boo::IShaderPipeline* shader){ret->m_pipelines.push_back(shader);});
+        if (ret->m_pipelines.size() != m_extensions.m_extensionSlots.size())
+            Log.report(logvisor::Fatal, "buildShaderFromIR returned %" PRISize " times, expected %" PRISize,
+                       ret->m_pipelines.size(), m_extensions.m_extensionSlots.size());
+        addData(data);
+        return true;
+    });
+    m_pipelineLookup[tag] = ret;
+    return ret;
 }
 
 }

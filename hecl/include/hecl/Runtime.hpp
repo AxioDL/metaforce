@@ -196,6 +196,15 @@ public:
 };
 
 /**
+ * @brief Stores token and pipeline set for sharing with ref-counting
+ */
+struct ShaderPipelines
+{
+    boo::GraphicsDataToken m_token;
+    std::vector<boo::IShaderPipeline*> m_pipelines;
+};
+
+/**
  * @brief Maintains index/data file pair containing platform-dependent cached shader data
  */
 class ShaderCacheManager
@@ -218,6 +227,8 @@ class ShaderCacheManager
     };
     std::vector<IndexEntry> m_entries;
     std::unordered_map<Hash, size_t> m_entryLookup;
+    std::unordered_map<Hash, std::weak_ptr<ShaderPipelines>> m_pipelineLookup;
+
     uint64_t m_timeHash = 0;
     void bootstrapIndex();
     ShaderCachedData lookupData(const Hash& hash);
@@ -239,18 +250,18 @@ public:
      * for encoding the pipeline state. This must be called before building shaders */
     void setRenderTargetSamples(unsigned samps) {m_factory->m_rtHint = samps;}
 
-    boo::IShaderPipeline* buildShader(const ShaderTag& tag, const std::string& source,
-                                      const std::string& diagName,
-                                      boo::IGraphicsDataFactory::Context& ctx);
-    boo::IShaderPipeline* buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                      const std::string& diagName,
-                                      boo::IGraphicsDataFactory::Context& ctx);
-    std::vector<boo::IShaderPipeline*> buildExtendedShader(const ShaderTag& tag, const std::string& source,
-                                                           const std::string& diagName,
-                                                           boo::IGraphicsDataFactory::Context& ctx);
-    std::vector<boo::IShaderPipeline*> buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                                           const std::string& diagName,
-                                                           boo::IGraphicsDataFactory::Context& ctx);
+    std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, const std::string& source,
+                                                 const std::string& diagName,
+                                                 boo::IGraphicsDataFactory& factory);
+    std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
+                                                 const std::string& diagName,
+                                                 boo::IGraphicsDataFactory& factory);
+    std::shared_ptr<ShaderPipelines> buildExtendedShader(const ShaderTag& tag, const std::string& source,
+                                                         const std::string& diagName,
+                                                         boo::IGraphicsDataFactory& factory);
+    std::shared_ptr<ShaderPipelines> buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
+                                                         const std::string& diagName,
+                                                         boo::IGraphicsDataFactory& factory);
 };
 
 /**

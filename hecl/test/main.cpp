@@ -74,22 +74,22 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             std::unique_lock<std::mutex> innerLk(initmt);
             boo::IGraphicsDataFactory* gfxF = m_mainWindow->getLoadContextDataFactory();
 
+            /* HECL managers */
+            hecl::Runtime::FileStoreManager fileMgr(app->getUniqueName());
+            hecl::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
+
+            /* Compile HECL shader */
+            static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
+            //static std::string testShader = "HECLOpaque(vec4(1.0,1.0,1.0,1.0))";
+            hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, boo::Primitive::TriStrips, false, false, false);
+            std::shared_ptr<hecl::Runtime::ShaderPipelines> testShaderObj =
+            shaderMgr.buildShader(testShaderTag, testShader, "testShader", *gfxF);
+
             boo::GraphicsDataToken data =
             gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
             {
                 boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
                 renderTex = ctx.newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], false, false);
-
-                /* HECL managers */
-                hecl::Runtime::FileStoreManager fileMgr(app->getUniqueName());
-                hecl::Runtime::ShaderCacheManager shaderMgr(fileMgr, gfxF);
-
-                /* Compile HECL shader */
-                static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
-                //static std::string testShader = "HECLOpaque(vec4(1.0,1.0,1.0,1.0))";
-                hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, boo::Primitive::TriStrips, false, false, false);
-                boo::IShaderPipeline* testShaderObj =
-                shaderMgr.buildShader(testShaderTag, testShader, "testShader", ctx);
 
                 /* Generate meta structure (usually statically serialized) */
                 hecl::HMDLMeta testMeta;
@@ -146,7 +146,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 vubo = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1);
 
                 /* Assemble data binding */
-                binding = testData.newShaderDataBindng(ctx, testShaderObj, 1, (boo::IGraphicsBuffer**)&vubo, nullptr, 1, &texture);
+                binding = testData.newShaderDataBindng(ctx, testShaderObj->m_pipelines[0], 1, (boo::IGraphicsBuffer**)&vubo, nullptr, 1, &texture);
                 return true;
             });
 
