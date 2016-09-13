@@ -111,7 +111,7 @@ class CGameArchitectureSupport
     CInputGenerator m_inputGenerator;
     CGuiSys m_guiSys;
     CIOWinManager m_ioWinManager;
-    CSplashScreen m_splashScreen;
+    //CSplashScreen m_splashScreen;
     CMainFlow m_mainFlow;
     CConsoleOutputWindow m_consoleWindow;
     CAudioStateWin m_audioStateWin;

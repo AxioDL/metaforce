@@ -37,9 +37,10 @@ class CTexturedQuadFilter
     Uniform m_uniform;
 
 public:
-    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, TLockedToken<CTexture>& tex);
+    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, TLockedToken<CTexture> tex);
     CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex);
     void draw(const zeus::CColor& color, float uvScale);
+    const TLockedToken<CTexture>& GetTex() const { return m_tex; }
 
     using _CLS = CTexturedQuadFilter;
 #include "TMultiBlendShaderDecl.hpp"
