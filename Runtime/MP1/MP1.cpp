@@ -18,15 +18,83 @@ URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 
 namespace MP1
 {
 
+CGameArchitectureSupport::CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend)
+: m_audioSys(backend, 0,0,0,0,0),
+  m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
+                   0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/),
+  m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
+{
+    g_GuiSys = &m_guiSys;
+    m_inputGenerator.startScanning();
+    g_Main->ResetGameState();
+
+    std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
+    m_ioWinManager.AddIOWin(splash, 1000, 10000);
+
+    std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
+    m_ioWinManager.AddIOWin(mf, 0, 0);
+
+    std::shared_ptr<CIOWin> console = std::make_shared<CConsoleOutputWindow>(8, 5.f, 0.75f);
+    m_ioWinManager.AddIOWin(console, 100, 0);
+
+    std::shared_ptr<CIOWin> audState = std::make_shared<CAudioStateWin>();
+    m_ioWinManager.AddIOWin(audState, 100, -1);
+
+    std::shared_ptr<CIOWin> errWin = std::make_shared<CErrorOutputWindow>(false);
+    m_ioWinManager.AddIOWin(errWin, 10000, 100000);
+}
+
+bool CGameArchitectureSupport::Update()
+{
+    bool finished = false;
+    m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
+
+    g_GameState->GetWorldTransitionManager()->TouchModels();
+    int unk = 0;
+    m_archQueue.Push(std::move(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk)));
+    m_archQueue.Push(std::move(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f)));
+
+    m_ioWinManager.PumpMessages(m_archQueue);
+
+    /*
+    while (m_archQueue)
+    {
+        CArchitectureMessage msg = m_archQueue.Pop();
+        if (msg.GetTarget() == EArchMsgTarget::ArchitectureSupport)
+        {
+            if (msg.GetType() == EArchMsgType::ApplicationExit)
+                finished = true;
+        }
+
+        if (msg.GetTarget() == EArchMsgTarget::Game && msg.GetType() == EArchMsgType::UserInput)
+        {
+            const CArchMsgParmUserInput* input = msg.GetParm<CArchMsgParmUserInput>();
+            if (input->x4_parm.DStart())
+                m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)));
+        }
+    }
+    */
+    return finished;
+}
+
+void CGameArchitectureSupport::Draw()
+{
+    m_ioWinManager.Draw();
+}
+
 CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
              boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ,
-             boo::ITextureR* spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex), x128_globalObjects(resFactory, resStore)
+             boo::ITextureR* spareTex,
+             amuse::IBackendVoiceAllocator& backend)
+: m_booSetter(gfxFactory, cmdQ, spareTex),
+  x128_globalObjects(resFactory, resStore),
+  m_archSupport(backend)
 {
     xe4_gameplayResult = EGameplayResult::Playing;
     g_Main = this;
@@ -44,6 +112,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CXRayBlurFilter>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
+    TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
 }
 
 void CMain::RegisterResourceTweaks()
@@ -88,6 +157,11 @@ bool CMain::Proc()
     return xe8_b24_finished;
 }
 
+void CMain::Draw()
+{
+    m_archSupport.Draw();
+}
+
 void CMain::Shutdown()
 {
     TShader<CThermalColdFilter>::Shutdown();
@@ -97,6 +171,7 @@ void CMain::Shutdown()
     TShader<CXRayBlurFilter>::Shutdown();
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
+    TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
 }
 
 #if MP1_USE_BOO

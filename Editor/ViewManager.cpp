@@ -176,8 +176,10 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
     if (m_frame == 300)
         g_GameState->GetWorldTransitionManager()->PleaseStopSoon();
 
-    g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
-    g_GameState->GetWorldTransitionManager()->Draw();
+    //g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
+    //g_GameState->GetWorldTransitionManager()->Draw();
+
+    m_vm.m_projManager.mainDraw();
 
     ++m_frame;
 }
@@ -348,6 +350,7 @@ void ViewManager::init(boo::IApplication* app)
     m_renderTex = root->renderTex();
     m_mainWindow->setWaitCursor(false);
     m_voiceEngine = boo::NewAudioVoiceEngine();
+    m_amuseAllocWrapper.emplace(*m_voiceEngine);
     /*
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CModelShaders::Initialize(m_fileStoreManager, gf);

@@ -44,31 +44,26 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
 
 void CIOWinManager::Draw() const
 {
-    IOWinPQNode* node = x0_drawRoot;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         iow->PreDraw();
         if (!iow->GetIsContinueDraw())
             break;
-        node = node->x8_next;
     }
-    node = x0_drawRoot;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         iow->Draw();
         if (!iow->GetIsContinueDraw())
             break;
-        node = node->x8_next;
     }
 }
 
 bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
                                          CArchitectureQueue& queue)
 {
-    IOWinPQNode* node = x4_pumpRoot;
-    while (node)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         CIOWin::EMessageReturn mret = iow->OnMessage(msg, x8_localGatherQueue);
@@ -104,8 +99,6 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
             return false;
         default: break;
         }
-
-        node = node->x8_next;
     }
 
     return false;
@@ -125,22 +118,18 @@ CIOWin* CIOWinManager::FindIOWin(const std::string& name)
 {
     size_t findHash = std::hash<std::string>()(name);
 
-    IOWinPQNode* node = x4_pumpRoot;
-    while (node)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
-        node = node->x8_next;
     }
 
-    node = x0_drawRoot;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
-        node = node->x8_next;
     }
 
     return nullptr;
@@ -150,22 +139,18 @@ std::shared_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name
 {
     size_t findHash = std::hash<std::string>()(name);
 
-    IOWinPQNode* node = x4_pumpRoot;
-    while (node)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         std::shared_ptr<CIOWin> iow = node->ShareIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
-        node = node->x8_next;
     }
 
-    node = x0_drawRoot;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         std::shared_ptr<CIOWin> iow = node->ShareIOWin();
         if (iow->GetNameHash() == findHash)
             return iow;
-        node = node->x8_next;
     }
 
     return std::shared_ptr<CIOWin>();
@@ -173,9 +158,8 @@ std::shared_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name
 
 void CIOWinManager::ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int drawPrio)
 {
-    IOWinPQNode* node = x4_pumpRoot;
     IOWinPQNode* prevNode = nullptr;
-    while (node)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow == toChange)
@@ -198,12 +182,10 @@ void CIOWinManager::ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int draw
             break;
         }
         prevNode = node;
-        node = node->x8_next;
     }
 
-    node = x0_drawRoot;
     prevNode = nullptr;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow == toChange)
@@ -226,35 +208,23 @@ void CIOWinManager::ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int draw
             break;
         }
         prevNode = node;
-        node = node->x8_next;
     }
 }
 
 void CIOWinManager::RemoveAllIOWins()
 {
-    IOWinPQNode* node = x0_drawRoot;
-    while (node)
-    {
-        IOWinPQNode* delNode = node;
-        node = node->x8_next;
-        delete delNode;
-    }
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
+        delete node;
     x0_drawRoot = nullptr;
-    node = x4_pumpRoot;
-    while (node)
-    {
-        IOWinPQNode* delNode = node;
-        node = node->x8_next;
-        delete delNode;
-    }
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
+        delete node;
     x4_pumpRoot = nullptr;
 }
 
 void CIOWinManager::RemoveIOWin(CIOWin* chIow)
 {
-    IOWinPQNode* node = x4_pumpRoot;
     IOWinPQNode* prevNode = nullptr;
-    while (node)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow == chIow)
@@ -267,12 +237,10 @@ void CIOWinManager::RemoveIOWin(CIOWin* chIow)
             break;
         }
         prevNode = node;
-        node = node->x8_next;
     }
 
-    node = x0_drawRoot;
     prevNode = nullptr;
-    while (node)
+    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
         if (iow == chIow)
@@ -285,32 +253,24 @@ void CIOWinManager::RemoveIOWin(CIOWin* chIow)
             break;
         }
         prevNode = node;
-        node = node->x8_next;
     }
 }
 
 void CIOWinManager::AddIOWin(std::weak_ptr<CIOWin> chIow, int pumpPrio, int drawPrio)
 {
-    IOWinPQNode* node = x4_pumpRoot;
+    IOWinPQNode* node;
     IOWinPQNode* prevNode = nullptr;
-    while (node && pumpPrio > node->x4_prio)
-    {
+    for (node = x4_pumpRoot ; node && pumpPrio < node->x4_prio ; node = node->x8_next)
         prevNode = node;
-        node = node->x8_next;
-    }
     IOWinPQNode* newNode = new IOWinPQNode(chIow, pumpPrio, node);
     if (prevNode)
         prevNode->x8_next = newNode;
     else
         x4_pumpRoot = newNode;
 
-    node = x0_drawRoot;
     prevNode = nullptr;
-    while (node && drawPrio > node->x4_prio)
-    {
+    for (node = x0_drawRoot ; node && drawPrio < node->x4_prio ; node = node->x8_next)
         prevNode = node;
-        node = node->x8_next;
-    }
     newNode = new IOWinPQNode(chIow, drawPrio, node);
     if (prevNode)
         prevNode->x8_next = newNode;

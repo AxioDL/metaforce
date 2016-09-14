@@ -130,7 +130,8 @@ makeProj:
         m_vm.SetupEditorView();
 
     m_factoryMP1.IndexMP1Resources(*m_proj);
-    m_mainMP1.emplace(m_factoryMP1, m_objStore, m_vm.m_mainBooFactory, m_vm.m_mainCommandQueue, m_vm.m_renderTex);
+    m_mainMP1.emplace(m_factoryMP1, m_objStore, m_vm.m_mainBooFactory,
+                      m_vm.m_mainCommandQueue, m_vm.m_renderTex, *m_vm.m_amuseAllocWrapper);
     m_vm.InitMP1(*m_mainMP1);
     m_vm.BuildTestPART(m_objStore);
 
@@ -183,6 +184,12 @@ void ProjectManager::mainUpdate()
 {
     if (m_mainMP1)
         m_mainMP1->Proc();
+}
+
+void ProjectManager::mainDraw()
+{
+    if (m_mainMP1)
+        m_mainMP1->Draw();
 }
 
 void ProjectManager::asyncIdle()

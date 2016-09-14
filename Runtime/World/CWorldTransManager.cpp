@@ -242,7 +242,7 @@ void CWorldTransManager::DrawEnabled()
         CGraphics::ResolveSpareTexture(rect);
         CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
         DrawSecondPass();
-        m_dissolve.draw(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
+        m_dissolve.drawCropped(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
     }
 
     CWideScreenFilter::SetViewportToFull();

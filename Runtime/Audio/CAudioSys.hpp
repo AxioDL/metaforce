@@ -3,12 +3,14 @@
 
 #include "../GCNTypes.hpp"
 #include "zeus/CVector3f.hpp"
+#include "amuse/amuse.hpp"
 
 namespace urde
 {
 
 class CAudioSys
 {
+    amuse::Engine m_engine;
 public:
     struct C3DEmitterParmData
     {
@@ -22,7 +24,8 @@ public:
         u8 minVol;
         u8 extra[2];
     };
-    CAudioSys(u8,u8,u8,u8,u32)
+    CAudioSys(amuse::IBackendVoiceAllocator& backend, u8,u8,u8,u8,u32)
+    : m_engine(backend)
     {
     }
 };

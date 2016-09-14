@@ -3,6 +3,7 @@
 
 #include "hecl/CVarManager.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
+#include "amuse/BooBackend.hpp"
 #include "ProjectManager.hpp"
 #include "Space.hpp"
 
@@ -75,6 +76,7 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<u8[]> m_rsfBuf;
     std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
     std::unique_ptr<boo::IAudioVoice> m_videoVoice;
+    std::experimental::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
     struct AudioVoiceCallback : boo::IAudioVoiceCallback
     {
         ViewManager& m_vm;

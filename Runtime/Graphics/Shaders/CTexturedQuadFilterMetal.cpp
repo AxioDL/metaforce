@@ -16,6 +16,7 @@ static const char* VS =
 "\n"
 "struct TexuredQuadUniform\n"
 "{\n"
+"    float4x4 mat;\n"
 "    float4 color;\n"
 "};\n"
 "\n"
@@ -32,7 +33,7 @@ static const char* VS =
 "    vtf.color = tqu.color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
 "    vtf.uv.y = -vtf.uv.y;\n"
-"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
+"    vtf.position = tqu.mat * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 

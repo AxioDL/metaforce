@@ -65,7 +65,14 @@ void CSplashScreen::Draw() const
     else if (x18_splashTimeout < 0.5f)
         color.a = x18_splashTimeout * 2.f;
 
-    const_cast<CTexturedQuadFilter&>(m_quad).draw(color, 1.f);
+    zeus::CRectangle rect;
+    float aspect = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    rect.size.x = m_quad.GetTex()->GetWidth() / (640.f * aspect);
+    rect.size.y = m_quad.GetTex()->GetHeight() / 480.f;
+    rect.position.x = 0.5f - rect.size.x / 2.f;
+    rect.position.y = 0.5f - rect.size.y / 2.f;
+
+    const_cast<CTexturedQuadFilterAlpha&>(m_quad).draw(color, 1.f, rect);
 }
 
 }

@@ -30,6 +30,7 @@
 #include "GuiSys/CSplashScreen.hpp"
 #include "CMainFlow.hpp"
 #include "GuiSys/CConsoleOutputWindow.hpp"
+#include "GuiSys/CErrorOutputWindow.hpp"
 #include "GuiSys/CTextParser.hpp"
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
@@ -111,10 +112,6 @@ class CGameArchitectureSupport
     CInputGenerator m_inputGenerator;
     CGuiSys m_guiSys;
     CIOWinManager m_ioWinManager;
-    //CSplashScreen m_splashScreen;
-    CMainFlow m_mainFlow;
-    CConsoleOutputWindow m_consoleWindow;
-    CAudioStateWin m_audioStateWin;
     boo::SWindowRect m_windowRect;
     bool m_rectIsDirty;
 
@@ -148,46 +145,9 @@ class CGameArchitectureSupport
     }
 
 public:
-    CGameArchitectureSupport()
-        : m_audioSys(0,0,0,0,0),
-          m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
-                           0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/),
-          m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
-    {
-        g_GuiSys = &m_guiSys;
-        m_inputGenerator.startScanning();
-    }
-    bool Update()
-    {
-        bool finished = false;
-        m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
-
-        g_GameState->GetWorldTransitionManager()->TouchModels();
-        int unk = 0;
-        m_archQueue.Push(std::move(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk)));
-
-        m_ioWinManager.PumpMessages(m_archQueue);
-
-        /*
-        while (m_archQueue)
-        {
-            CArchitectureMessage msg = m_archQueue.Pop();
-            if (msg.GetTarget() == EArchMsgTarget::ArchitectureSupport)
-            {
-                if (msg.GetType() == EArchMsgType::ApplicationExit)
-                    finished = true;
-            }
-
-            if (msg.GetTarget() == EArchMsgTarget::Game && msg.GetType() == EArchMsgType::UserInput)
-            {
-                const CArchMsgParmUserInput* input = msg.GetParm<CArchMsgParmUserInput>();
-                if (input->x4_parm.DStart())
-                    m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)));
-            }
-        }
-        */
-        return finished;
-    }
+    CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend);
+    bool Update();
+    void Draw();
 
     bool isRectDirty() { return m_rectIsDirty; }
     const boo::SWindowRect& getWindowRect()
@@ -275,7 +235,8 @@ public:
     CMain(IFactory& resFactory, CSimplePool& resStore,
           boo::IGraphicsDataFactory* gfxFactory,
           boo::IGraphicsCommandQueue* cmdQ,
-          boo::ITextureR* spareTex);
+          boo::ITextureR* spareTex,
+          amuse::IBackendVoiceAllocator& backend);
     void RegisterResourceTweaks();
     void ResetGameState();
     void StreamNewGameState(CInputStream&);
@@ -285,6 +246,7 @@ public:
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,
               boo::IAudioVoiceEngine* voiceEngine);
     bool Proc();
+    void Draw();
     void Shutdown();
 
     bool CheckReset();

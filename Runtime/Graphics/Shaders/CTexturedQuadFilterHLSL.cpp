@@ -14,6 +14,7 @@ static const char* VS =
 "\n"
 "cbuffer TexuredQuadUniform : register(b0)\n"
 "{\n"
+"    float4x4 mat;\n"
 "    float4 color;\n"
 "};\n"
 "\n"
@@ -30,7 +31,7 @@ static const char* VS =
 "    vtf.color = color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
 "    vtf.uv.y = -vtf.uv.y;\n"
-"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
+"    vtf.position = mul(mat, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"
 "}\n";
 

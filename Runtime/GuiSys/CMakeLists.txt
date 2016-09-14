@@ -13,6 +13,8 @@ set(GUISYS_SOURCES
     CAuiMeter.hpp
     CConsoleOutputWindow.cpp
     CConsoleOutputWindow.hpp
+    CErrorOutputWindow.cpp
+    CErrorOutputWindow.hpp
     CGuiAnimBase.cpp
     CGuiAnimBase.hpp
     CGuiAnimController.cpp

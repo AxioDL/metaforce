@@ -52,6 +52,7 @@ public:
     bool saveProject();
 
     void mainUpdate();
+    void mainDraw();
     void asyncIdle();
     void shutdown();
 };

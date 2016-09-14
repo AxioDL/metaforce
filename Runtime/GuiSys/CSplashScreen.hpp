@@ -31,7 +31,7 @@ private:
     //EProgressivePhase x20_progressivePhase = EProgressivePhase::Before;
     //bool x24_progressiveSelection = true;
     bool x25_textureLoaded = false;
-    CTexturedQuadFilter m_quad;
+    CTexturedQuadFilterAlpha m_quad;
 public:
     CSplashScreen(ESplashScreen);
     EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
