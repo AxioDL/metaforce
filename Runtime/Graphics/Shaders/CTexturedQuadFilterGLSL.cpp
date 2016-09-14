@@ -30,6 +30,7 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.color = color;\n"
 "    vtf.uv = uvIn.xy * uvScale;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
+"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* FS =
