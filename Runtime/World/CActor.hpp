@@ -59,7 +59,6 @@ protected:
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
-            bool xe5_0_opaque : 1;
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;

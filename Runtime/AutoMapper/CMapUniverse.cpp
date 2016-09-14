@@ -38,12 +38,7 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     x60_ = zeus::CColor::lerp(zeus::CColor::skWhite, x5c_, 0.5f);
 
     for (const zeus::CTransform& xf : x44_areaData)
-    {
-        zeus::CMatrix4f mat = xf.toMatrix4f().transposed();
-        x64_.x += mat.vec[1].x;
-        x64_.y += mat.vec[2].y;
-        x64_.z += mat.vec[3].z;
-    }
+        x64_ += xf.origin;
 
     x64_ *= 1.0f / float(x44_areaData.size());
 }

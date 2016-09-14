@@ -7,6 +7,9 @@ set(CHARACTER_SOURCES
     CCharAnimTime.hpp CCharAnimTime.cpp
     IMetaAnim.hpp IMetaAnim.cpp
     IMetaTrans.hpp
+    IVaryingAnimationTimeScale.hpp
+    CLinearAnimationTimeScale.hpp CLinearAnimationTimeScale.cpp
+    CConstantAnimationTimeScale.hpp CConstantAnimationTimeScale.cpp
     CAnimationDatabase.hpp
     CAnimationDatabaseGame.hpp CAnimationDatabaseGame.cpp
     CTransitionDatabase.hpp
@@ -53,7 +56,6 @@ set(CHARACTER_SOURCES
     CTreeUtils.hpp CTreeUtils.cpp
     CAnimTreeBlend.hpp CAnimTreeBlend.cpp
     CAnimTreeNode.hpp CAnimTreeNode.cpp
-    CAnimTreeScale.hpp CAnimTreeScale.cpp
     CAnimTreeTimeScale.hpp CAnimTreeTimeScale.cpp
     CAnimTreeTransition.hpp CAnimTreeTransition.cpp
     CAnimTreeTweenBase.hpp CAnimTreeTweenBase.cpp
