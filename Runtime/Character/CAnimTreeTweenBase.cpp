@@ -11,10 +11,11 @@ CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const std::weak_ptr<CAnimTreeNod
 {
 }
 
-void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const
+/*void CAnimTreeTweenBase::VGetTotalChildWeight(float t) const
 {
+}*/
 
-}
+void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const {}
 
 void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
                                              const CCharAnimTime& time) const
@@ -23,21 +24,30 @@ void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStateme
 
 bool CAnimTreeTweenBase::VHasOffset(const CSegId& seg) const
 {
-    return false;
+    return (x14_a->VHasOffset(seg) || x18_b->VHasOffset(seg));
 }
 
 zeus::CVector3f CAnimTreeTweenBase::VGetOffset(const CSegId& seg) const
 {
-    return {};
+    const float weight = GetBlendingWeight();
+    if (weight >= 1.0f)
+        return x18_b->VGetOffset(seg);
+
+    const zeus::CVector3f oA = x14_a->VGetOffset(seg);
+    const zeus::CVector3f oB = x18_b->VGetOffset(seg);
+    return zeus::CVector3f::lerp(oA, oB, weight);
 }
 
 zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const
 {
-    return {};
+    const float weight = GetBlendingWeight();
+    if (weight >= 1.0f)
+        return x18_b->VGetRotation(seg);
+
+    const zeus::CQuaternion qA = x14_a->VGetRotation(seg);
+    const zeus::CQuaternion qB = x18_b->VGetRotation(seg);
+    return zeus::CQuaternion::slerp(qA, qB, weight);
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeTweenBase::VSimplified()
-{
-    return {};
-}
+std::shared_ptr<IAnimReader> CAnimTreeTweenBase::VSimplified() { return {}; }
 }

@@ -8,6 +8,18 @@ namespace urde
 
 class CAnimTreeDoubleChild : public CAnimTreeNode
 {
+public:
+    class CDoubleChildAdvancementResult
+    {
+        CCharAnimTime x0_;
+        SAdvancementDeltas x8_;
+        SAdvancementDeltas x24_;
+    public:
+        CDoubleChildAdvancementResult(const CCharAnimTime&, const SAdvancementDeltas&, const SAdvancementDeltas);
+        void GetLeftAdvancementDeltas() const;
+        void GetRightAdvancementDeltas() const;
+        void GetTrueAdvancement() const;
+    };
 protected:
     std::shared_ptr<CAnimTreeNode> x14_a;
     std::shared_ptr<CAnimTreeNode> x18_b;
@@ -32,8 +44,8 @@ public:
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
     void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const;
 
-    virtual float VGetLeftChildWeight() const = 0;
-    float GetLeftChildWeight() const { return VGetLeftChildWeight(); }
+    //virtual float VGetTotalChildWeight(float) const = 0;
+    //float GetTotalChildWeight(float f) const { return VGetTotalChildWeight(f); }
     virtual float VGetRightChildWeight() const = 0;
     float GetRightChildWeight() const { return VGetRightChildWeight(); }
 

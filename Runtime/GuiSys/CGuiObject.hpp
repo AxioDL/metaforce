@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
+#include "zeus/CQuaternion.hpp"
 #include "zeus/CTransform.hpp"
 
 namespace urde

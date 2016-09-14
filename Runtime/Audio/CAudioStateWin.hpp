@@ -5,15 +5,11 @@
 
 namespace urde
 {
-
 class CAudioStateWin : public CIOWin
 {
 public:
     CAudioStateWin() : CIOWin("CAudioStateWin") {}
-    CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
-    {
-        return EMessageReturn::Normal;
-    }
+    CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
 };
 
 }

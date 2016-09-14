@@ -4,11 +4,11 @@
 namespace urde
 {
 
-CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId id2,
-                                       float, float a, float  b, float c, float d)
+CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
+                                       float, float fov, float  nearz, float farz, float aspect)
 : CGameCamera(uid, true, "First Person Camera",
               CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList),
-              xf, a, b, c, d, id2, 0, 0)
+              xf, fov, nearz, farz, aspect, watchedObj, false, 0)
 {
 }
 

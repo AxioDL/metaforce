@@ -24,7 +24,7 @@ public:
 
     float GetBlendingWeight() const { return VGetBlendingWeight(); }
 
-    float VGetLeftChildWeight() const { return 1.f - GetBlendingWeight(); }
+    //void VGetTotalChildWeight(float) const;
     float VGetRightChildWeight() const { return GetBlendingWeight(); }
 
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;

@@ -5,6 +5,7 @@ namespace urde
 
 CAnimTreeSingleChild::CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, const std::string& name)
 : CAnimTreeNode(name)
+, x14_child(node.lock())
 {
 
 }

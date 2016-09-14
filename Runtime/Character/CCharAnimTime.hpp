@@ -8,26 +8,35 @@ namespace urde
 
 class CCharAnimTime
 {
-    float m_time = 0.f;
-    enum class Type
+public:
+    enum class EType
     {
         NonZero,
         ZeroIncreasing,
         ZeroSteady,
         ZeroDecreasing,
         Infinity
-    } m_type = Type::ZeroSteady;
+    };
+private:
+    float x0_time = 0.f;
+    EType x4_type = EType::ZeroSteady;
 public:
     CCharAnimTime() = default;
     CCharAnimTime(CInputStream& in)
-        : m_time(in.readFloatBig()),
-          m_type(Type(in.readUint32Big())) {}
+        : x0_time(in.readFloatBig()),
+          x4_type(EType(in.readUint32Big())) {}
     CCharAnimTime(float time)
-        : m_time(time),
-          m_type(m_time != 0.f ? Type::NonZero : Type::ZeroSteady) {}
+        : x0_time(time),
+          x4_type(x0_time != 0.f ? EType::NonZero : EType::ZeroSteady) {}
+
+    CCharAnimTime(EType type, const float& t)
+    : x0_time(t)
+    , x4_type(type)
+    {
+    }
 
     static CCharAnimTime Infinity();
-    operator float() const {return m_time;}
+    operator float() const {return x0_time;}
 
     bool EqualsZero() const;
     bool EpsilonZero() const;
