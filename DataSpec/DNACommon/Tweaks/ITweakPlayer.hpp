@@ -14,6 +14,8 @@ struct ITweakPlayer : BigYAML
     virtual float GetPlayerSomething1() const=0; // x274
     virtual float GetPlayerSomething2() const=0; // x278
     virtual float GetPlayerSomething3() const=0; // x27c
+    virtual float GetPlayerSomething4() const=0; // x134
+    virtual bool GetPlayerSomething5() const=0; // x228_24
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;
 };

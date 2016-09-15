@@ -24,7 +24,8 @@ make_dnalist(liblist
              Tweaks/CTweakPlayerGun
              Tweaks/CTweakGunRes
              Tweaks/CTweakPlayerRes
-             Tweaks/CTweakGui)
+             Tweaks/CTweakGui
+             Tweaks/CTweakCameraBob)
 
 add_library(DNAMP1
             DNAMP1.hpp DNAMP1.cpp
@@ -41,4 +42,5 @@ add_library(DNAMP1
             MREA.cpp
             SCLY.hpp SCLY.cpp
             FRME.cpp
-            DeafBabe.cpp)
+            DeafBabe.cpp
+            Tweaks/CTweakPlayer.cpp)

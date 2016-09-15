@@ -14,8 +14,23 @@ namespace MP1
 
 class CMFGame : public CMFGameBase
 {
+    std::shared_ptr<CStateManager> x14_stateManager;
+    std::shared_ptr<CInGameGuiManager> x18_guiManager;
+    u32 x1c_ = 0;
+    u32 x24_ = 0;
+    TUniqueId x28_ = kInvalidUniqueId;
+    union
+    {
+        struct
+        {
+            bool x2a_24_ : 1;
+            bool x2a_25_ : 1;
+        };
+        u8 _dummy = 0;
+    };
 public:
-    CMFGame() : CMFGameBase("CMFGame") {}
+    CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
+            const CArchitectureQueue&);
     CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Draw() const;
 };

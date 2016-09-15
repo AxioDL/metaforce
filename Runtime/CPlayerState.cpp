@@ -1,6 +1,9 @@
 #include "CPlayerState.hpp"
 #include "IOStreams.hpp"
 #include "zeus/Math.hpp"
+#include "CStateManager.hpp"
+#include "Camera/CCameraManager.hpp"
+#include "Camera/CFirstPersonCamera.hpp"
 
 namespace urde
 {
@@ -201,13 +204,8 @@ bool CPlayerState::CanVisorSeeFog(const CStateManager& stateMgr) const
 
 CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& stateMgr) const
 {
-    /* TODO: We need CGameCamera, and gang in order to enable this */
-#if 0
-    CFirstPersionCamera* cam = dynamic_cast<CFirstPersonCamera*>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
-    if (!cam)
-        return EVisorType::Combat;
-#endif
-    return x14_currentVisor;
+    const CFirstPersonCamera* cam = static_cast<const CFirstPersonCamera*>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
+    return (cam ? x14_currentVisor : EPlayerVisor::Combat);
 }
 
 void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float& dt)

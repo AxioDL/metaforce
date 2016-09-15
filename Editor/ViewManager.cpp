@@ -77,7 +77,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 
 void ViewManager::InitMP1(MP1::CMain& main)
 {
-    main.Init(m_fileStoreManager, m_voiceEngine.get());
+    main.Init(m_fileStoreManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
 }
 
 void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

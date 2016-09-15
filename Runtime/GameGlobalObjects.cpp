@@ -5,6 +5,7 @@ namespace urde
 namespace MP1
 {
 class CMain* g_Main = nullptr;
+class CGameArchitectureSupport* g_archSupport = nullptr;
 }
 
 class CMemoryCardSys* g_MemoryCardSys = nullptr;

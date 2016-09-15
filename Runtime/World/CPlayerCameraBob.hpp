@@ -18,6 +18,21 @@ public:
         One
     };
 private:
+    static float kCameraBobExtentX;
+    static float kCameraBobExtentY;
+    static float kCameraBobPeriod;
+    static float kOrbitBobScale;
+    static float kMaxOrbitBobScale;
+    static float kSlowSpeedPeriodScale;
+    static float kTargetMagnitudeTrackingRate;
+    static float kLandingBobSpringConstant;
+    static float kViewWanderRadius;
+    static float kViewWanderSpeedMin;
+    static float kViewWanderSpeedMax;
+    static float kViewWanderRollVariation;
+    static float kGunBobMagnitude;
+    static float kHelmetBobMagnitude;
+
     ECameraBobType x0_type;
     zeus::CVector2f x4_vec;
     float xc_;
@@ -48,6 +63,8 @@ private:
     float x104_ = 0.f;
 public:
     CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float);
+
+    static void ReadTweaks(CInputStream& in);
 };
 
 }

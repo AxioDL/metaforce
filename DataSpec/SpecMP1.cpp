@@ -22,6 +22,8 @@
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
+#include "DNAMP1/Tweaks/CTweakPlayer.hpp"
+#include "DNAMP1/Tweaks/CTweakCameraBob.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -354,6 +356,10 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGunRes::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakPlayer::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakCameraBob::DNAType()))
+                return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             return false;
@@ -506,6 +512,18 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakGunRes gunRes;
                 gunRes.read(reader);
                 WriteTweak(gunRes, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakPlayer::DNAType()))
+            {
+                DNAMP1::CTweakPlayer player;
+                player.read(reader);
+                WriteTweak(player, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakCameraBob::DNAType()))
+            {
+                DNAMP1::CTweakCameraBob cBob;
+                cBob.read(reader);
+                WriteTweak(cBob, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

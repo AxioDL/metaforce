@@ -140,7 +140,9 @@ SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path,
                     return true;
                 }
                 else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes"))
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob"))
                 {
                     resTag.type = SBIG('CTWK');
                     return true;

@@ -110,5 +110,59 @@ TUniqueId CGameCamera::GetWatchedObject() const { return xe8_watchedObject; }
 
 float CGameCamera::GetFov() const { return x15c_fov; }
 
-void CGameCamera::SetFov(float fov) { x15c_fov = fov; }
+void CGameCamera::sub8005AE3C(float f1)
+{
+    if (x174_ > 0.f)
+    {
+        x174_ -= f1;
+        return;
+    }
+
+    if (x178_ <= 0.f)
+        return;
+
+    x178_ -= f1;
+    if (x178_ > 0.f)
+    {
+        x15c_fov = x184_;
+        x170_24_perspDirty = true;
+    }
+    else
+    {
+        x15c_fov = zeus::clamp(0.f, (f1 / x17c_), 1.f) + ((x180_ - x184_) * x184_);
+        x170_24_perspDirty = true;
+    }
+}
+
+void CGameCamera::sub8005AF18(float f1, float f2, float f3, float f4)
+{
+    if (f3 < 0.f)
+    {
+        x15c_fov = f2;
+        x170_24_perspDirty = true;
+        x184_ = f2;
+        x184_ = x174_ = 0.f;
+    }
+    else
+    {
+        x174_ = std::max(0.f, f4);
+        x17c_ = f3;
+        x178_ = f3;
+        x180_ = f1;
+        x184_ = f2;
+        x15c_fov = f1;
+        x170_24_perspDirty = true;
+    }
+}
+
+void CGameCamera::sub8005AF88()
+{
+    if (x178_ > 0)
+    {
+        x15c_fov = x184_;
+        x170_24_perspDirty = true;
+    }
+
+    x178_ = x174_ = 0.f;
+}
 }
