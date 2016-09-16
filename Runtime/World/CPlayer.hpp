@@ -22,6 +22,7 @@ class CPlayer : public CPhysicsActor
 {
     friend class CStateManager;
     friend class CFirstPersonCamera;
+    friend class CPlayerCameraBob;
 public:
     enum class EPlayerScanState
     {
@@ -74,6 +75,7 @@ private:
         : x0_(a), x4_(b), x8_(c), xc_(d), x1c_(e) {}
     };
 
+    bool x38c_;
     bool x3dc_;
     std::unique_ptr<CPlayerGun> x490_gun;
     std::unique_ptr<CMorphBall> x768_morphball;
