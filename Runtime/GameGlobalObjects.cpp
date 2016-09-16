@@ -23,5 +23,6 @@ DataSpec::ITweakPlayerGun* g_tweakPlayerGun = nullptr;
 DataSpec::ITweakGunRes* g_tweakGunRes = nullptr;
 DataSpec::ITweakPlayerRes* g_tweakPlayerRes = nullptr;
 DataSpec::ITweakGui* g_tweakGui = nullptr;
+DataSpec::ITweakSlideShow* g_tweakSlideShow = nullptr;
 
 }

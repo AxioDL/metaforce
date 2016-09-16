@@ -10,6 +10,7 @@
 #include "hecl/Database.hpp"
 #include "../SpecBase.hpp"
 #include "boo/ThreadLocalPtr.hpp"
+#include "zeus/CColor.hpp"
 
 namespace DataSpec
 {
@@ -43,6 +44,40 @@ public:
     {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
     void write(athena::io::YAMLDocWriter& writer) const
     {writer.writeString(nullptr, std::string(fcc, 4));}
+    size_t binarySize(size_t __isz) const
+    {return __isz + 4;}
+};
+
+class DNAColor final : public BigYAML, public zeus::CColor
+{
+public:
+    DNAColor() = default;
+    DNAColor(const zeus::CColor& color) : zeus::CColor(color) {}
+
+    Delete expl;
+    void read(athena::io::IStreamReader& reader)
+    {zeus::CColor::readRGBABig(reader);}
+    void write(athena::io::IStreamWriter& writer) const
+    {zeus::CColor::writeRGBABig(writer);}
+    void read(athena::io::YAMLDocReader& reader)
+    {
+        size_t count;
+        reader.enterSubVector(nullptr, count);
+        r = (count >= 1) ? reader.readFloat(nullptr) : 0.f;
+        g = (count >= 2) ? reader.readFloat(nullptr) : 0.f;
+        b = (count >= 3) ? reader.readFloat(nullptr) : 0.f;
+        a = (count >= 4) ? reader.readFloat(nullptr) : 0.f;
+        reader.leaveSubVector();
+    }
+    void write(athena::io::YAMLDocWriter& writer) const
+    {
+        writer.enterSubVector(nullptr);
+        writer.writeFloat(nullptr, r);
+        writer.writeFloat(nullptr, g);
+        writer.writeFloat(nullptr, b);
+        writer.writeFloat(nullptr, a);
+        writer.leaveSubVector();
+    }
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}
 };

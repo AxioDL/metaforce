@@ -17,7 +17,7 @@ enum class EClientFlowStates
 class CMainFlowBase : public CIOWin
 {
 protected:
-    EClientFlowStates x14_gameState;
+    EClientFlowStates x14_gameState = EClientFlowStates::Unspecified;
 public:
     CMainFlowBase(const char* name) : CIOWin(name) {}
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);

@@ -22,6 +22,7 @@
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
+#include "DNAMP1/Tweaks/CTweakSlideShow.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -354,6 +355,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGunRes::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakSlideShow::DNAType()))
+                return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             return false;
@@ -506,6 +509,12 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakGunRes gunRes;
                 gunRes.read(reader);
                 WriteTweak(gunRes, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakSlideShow::DNAType()))
+            {
+                DNAMP1::CTweakSlideShow slideShow;
+                slideShow.read(reader);
+                WriteTweak(slideShow, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

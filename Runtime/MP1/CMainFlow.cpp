@@ -17,10 +17,12 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
 {
     switch (x14_gameState)
     {
+    case EClientFlowStates::Unspecified:
+        CMainFlow::SetGameState(EClientFlowStates::FrontEnd, queue);
+        break;
     case EClientFlowStates::FrontEnd:
         CMainFlow::SetGameState(EClientFlowStates::GameLoad, queue);
         break;
-    case EClientFlowStates::Unspecified:
     case EClientFlowStates::GameLoad:
         CMainFlow::SetGameState(EClientFlowStates::MoviePlay, queue);
         break;
@@ -48,7 +50,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         */
         g_Main->LoadAudio();
         g_Main->RegisterResourceTweaks();
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI())));
+        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI(queue))));
         break;
     }
     case EClientFlowStates::GameLoad:

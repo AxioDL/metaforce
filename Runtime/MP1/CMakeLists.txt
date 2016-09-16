@@ -9,6 +9,7 @@ set(MP1_SOURCES
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp
     CFrontEndUI.hpp CFrontEndUI.cpp
+    CSlideShow.hpp CSlideShow.cpp
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
