@@ -86,6 +86,7 @@ public:
     void SetBobMagnitude(float);
     void SetBobTimeScale(float);
     void ResetCameraBobTime();
+    void SetCameraBobTransform(const zeus::CTransform&);
     void SetState(ECameraBobState, CStateManager&);
     void InitViewWander(CStateManager&);
     void UpdateViewWander(float, CStateManager&);

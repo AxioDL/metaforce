@@ -20,7 +20,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
                const zeus::CTransform&, CModelData&& mData, const CMaterialList& list,
                const CActorParameters& params, TUniqueId otherUid)
     : CEntity(uid, info, active, name),
-      x68_material(MakeActorMaterialList(list, params)),
+      x60_material(MakeActorMaterialList(list, params)),
       x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero})),
       xc6_(otherUid)
 {
@@ -184,54 +184,54 @@ void CActor::DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType)
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, CStateManager& mgr)
 {
-    x68_material.Remove(t1);
+    x60_material.Remove(t1);
     RemoveMaterial(t2, t3, t4, mgr);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, CStateManager & mgr)
 {
-    x68_material.Remove(t1);
+    x60_material.Remove(t1);
     RemoveMaterial(t2, t3, mgr);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr)
 {
-    x68_material.Remove(t1);
+    x60_material.Remove(t1);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes t, CStateManager& mgr)
 {
-    x68_material.Remove(t);
+    x60_material.Remove(t);
     mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5, CStateManager& mgr)
 {
-    x68_material.Add(t1);
+    x60_material.Add(t1);
     AddMaterial(t2, t3, t4, t5, mgr);
 }
 
 void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, CStateManager& mgr)
 {
-    x68_material.Add(t1);
+    x60_material.Add(t1);
     AddMaterial(t2, t3, t4, mgr);
 }
 
 void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, CStateManager& mgr)
 {
-    x68_material.Add(t1);
+    x60_material.Add(t1);
     AddMaterial(t2, t3, mgr);
 }
 
 void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr)
 {
-    x68_material.Add(t1);
+    x60_material.Add(t1);
     AddMaterial(t2, mgr);
 }
 
 void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr)
 {
-    x68_material.Add(type);
+    x60_material.Add(type);
     mgr.UpdateObjectInLists(*this);
 }
 

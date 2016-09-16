@@ -112,8 +112,7 @@ class CStateManager
     TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
     CRandom16 x8fc_random;
     CRandom16* x900_activeRandom = nullptr;
-
-    FScriptLoader x904_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
+    FScriptLoader x90c_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
     bool xab0_worldLoaded = false;
 
@@ -163,13 +162,12 @@ class CStateManager
     void UpdateThermalVisor();
 
 public:
-    /* TODO: Figure out what this is
+    /* TODO: Figure out what these are
      * Public for CScriptRelay
      */
     TUniqueId xf76_ = kInvalidUniqueId;
-    enum class EScriptPersistence
-    {
-    };
+    /* TODO: Public for CFirstPersonCamera */
+    u32 x904_;
 
     CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
@@ -219,7 +217,7 @@ public:
               std::multimap<TEditorId, TUniqueId>::const_iterator>
     GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
-    void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in, EScriptPersistence);
+    void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
     void InitScriptObjects(std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
     void ApplyKnockBack(CActor& actor, const CDamageInfo& info,

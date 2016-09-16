@@ -56,6 +56,8 @@ void CPlayerCameraBob::SetBobTimeScale(float ts) { x18_bobTimeScale = zeus::clam
 
 void CPlayerCameraBob::ResetCameraBobTime() { x1c_bobTime = 0.f; }
 
+void CPlayerCameraBob::SetCameraBobTransform(const zeus::CTransform& xf) { x2c_cameraBobTransform = xf; }
+
 void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateManager& mgr)
 {
     if (x24_curState == state)
@@ -137,7 +139,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
     }
 
     x6c_ = dt * x6c_ + -(landSpring * -(landDampen * x6c_) - x28_applyLandingTrans);
-    x70_landingTranslation = x6c_ * x28_applyLandingTrans + dt;
+    x70_landingTranslation = x6c_ * x70_landingTranslation + dt;
     x74_ = dt * x74_ + -(80.f * -((6.f * zeus::sqrtF(80.f)) * x74_) - x78_);
     x78_ = x74_ * x78_ + dt;
     if (std::fabs(x6c_) < 0.0049f && std::fabs(x70_landingTranslation) < 0.0049f && std::fabs(x78_) < 0.0049f)

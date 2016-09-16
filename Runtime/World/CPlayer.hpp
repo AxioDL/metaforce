@@ -74,8 +74,20 @@ private:
         CVisorSteam(float a, float b, float c, u32 d, bool e)
         : x0_(a), x4_(b), x8_(c), xc_(d), x1c_(e) {}
     };
-
+    zeus::CVector3f x1b4_;
+    TUniqueId x1c4_ = kInvalidUniqueId;
+    float x294_;
+    float x29c_;
+    u32 x2f8_morphTransState;
+    u32 x304_;
+    TUniqueId x310_grapplePointId = kInvalidUniqueId;
+    zeus::CVector3f x318_;
+    bool x374_;
     bool x38c_;
+    float x3e4_;
+    float x3e8_;
+    float x3ec_;
+    u32 x3d8_;
     bool x3dc_;
     std::unique_ptr<CPlayerGun> x490_gun;
     std::unique_ptr<CMorphBall> x768_morphball;
@@ -206,6 +218,8 @@ public:
     void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float);
     float GetWeight() const;
     float GetDampedClampedVelocityWR() const;
+
+    const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }
 };
 
 }
