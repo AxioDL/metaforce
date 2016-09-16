@@ -10,11 +10,8 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGunRes.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerRes.hpp"
-<<<<<<< HEAD
 #include "DataSpec/DNAMP1/Tweaks/CTweakSlideShow.hpp"
-=======
 #include "World/CPlayerCameraBob.hpp"
->>>>>>> b27821c5eb1c9eb5b69acda11ab77c7cda018ca9
 
 namespace urde
 {
