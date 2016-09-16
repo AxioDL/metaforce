@@ -15,8 +15,8 @@ struct CTweakSlideShow : ITweakSlideShow
 
     String<-1> x4_pakName;
     String<-1> x14_fontAssetName;
-    DNAColor x24_;
-    DNAColor x28_;
+    DNAColor x24_fontColor;
+    DNAColor x28_outlineColor;
     Value<float> x2c_;
     Value<float> x30_;
     Value<float> x34_;
@@ -32,6 +32,10 @@ struct CTweakSlideShow : ITweakSlideShow
 
     CTweakSlideShow() = default;
     CTweakSlideShow(athena::io::IStreamReader& in) { read(in); }
+
+    const zeus::CColor& GetFontColor() const { return x24_fontColor; }
+    const zeus::CColor& GetOutlineColor() const { return x28_outlineColor; }
+    float GetX54() const { return x54_; }
 };
 
 }

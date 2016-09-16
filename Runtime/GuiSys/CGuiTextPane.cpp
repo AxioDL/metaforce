@@ -15,19 +15,19 @@ CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, float xDim, float zDim,
                            const zeus::CVector3f& vec, ResId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                            s32 extentX, s32 extentY)
-: CGuiPane(parms, xDim, zDim, vec), x114_textSupport(fontId, props, fontCol, outlineCol,
+: CGuiPane(parms, xDim, zDim, vec), xd4_textSupport(fontId, props, fontCol, outlineCol,
                                                      zeus::CColor::skWhite, extentX, extentY,
                                                      &parms.x0_frame->GetGuiSys().GetResStore()) {}
 
 void CGuiTextPane::Update(float dt)
 {
     CGuiWidget::Update(dt);
-    x114_textSupport.Update(dt);
+    xd4_textSupport.Update(dt);
 }
 
 bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() const
 {
-    return x114_textSupport.GetIsTextSupportFinishedLoading();
+    return xd4_textSupport.GetIsTextSupportFinishedLoading();
 }
 
 void CGuiTextPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO)
@@ -48,13 +48,13 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
 
     zeus::CVector2f dims = GetDimensions();
 
-    if (x114_textSupport.x34_extentX)
-        dims.x /= float(x114_textSupport.x34_extentX);
+    if (xd4_textSupport.x34_extentX)
+        dims.x /= float(xd4_textSupport.x34_extentX);
     else
         dims.x = 0.f;
 
-    if (x114_textSupport.x38_extentY)
-        dims.y /= float(x114_textSupport.x38_extentY);
+    if (xd4_textSupport.x38_extentY)
+        dims.y /= float(xd4_textSupport.x38_extentY);
     else
         dims.y = 0.f;
 
@@ -65,7 +65,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
 
     zeus::CColor geomCol = xb4_;
     geomCol.a *= parms.x0_alphaMod;
-    const_cast<CGuiTextPane*>(this)->x114_textSupport.SetGeometryColor(geomCol);
+    const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
 
     CGraphics::SetDepthWriteMode(xf6_31_depthTest, ERglEnum::LEqual, xf7_24_depthWrite);
 
@@ -75,27 +75,27 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     case EGuiModelDrawFlags::Opaque:
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::Zero, ERglLogicOp::Clear);
-        x114_textSupport.Render();
+        xd4_textSupport.Render();
         break;
     case EGuiModelDrawFlags::Alpha:
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
-        x114_textSupport.Render();
+        xd4_textSupport.Render();
         break;
     case EGuiModelDrawFlags::Additive:
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);
-        x114_textSupport.Render();
+        xd4_textSupport.Render();
         break;
     case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
-        x114_textSupport.Render();
-        const_cast<CGuiTextPane*>(this)->x114_textSupport.SetGeometryColor
+        xd4_textSupport.Render();
+        const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor
             (geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);
-        x114_textSupport.Render();
+        xd4_textSupport.Render();
         break;
     }
 }

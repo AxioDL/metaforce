@@ -34,84 +34,94 @@ public:
 
     class CBaseSfxWrapper
     {
-        s16 m_rank;
-        s16 m_prio;
-        CSfxHandle m_handle;
-        TAreaId m_area;
-        bool m_useAcoustics:1;
-        bool m_available:1;
-        bool m_inArea:1;
-        bool m_looped:1;
-        bool m_playing:1;
-        bool m_active:1;
+        float x4_ = 15.f;
+        s16 x8_rank = 0;
+        s16 xa_prio;
+        CSfxHandle xc_handle;
+        TAreaId x10_area;
+        union
+        {
+            struct
+            {
+                bool x14_24_useAcoustics:1;
+                bool x14_25_available:1;
+                bool x14_26_inArea:1;
+                bool x14_27_looped:1;
+                bool x14_28_playing:1;
+                bool x14_29_active:1;
+            };
+            u16 _dummy = 0;
+        };
     public:
         virtual ~CBaseSfxWrapper() {}
-        virtual void SetActive(bool v) {m_active = v;}
-        virtual void SetPlaying(bool v) {m_playing = v;}
-        virtual void SetRank(short v) {m_rank = v;}
-        virtual void SetInArea(bool v) {m_inArea = v;}
-        virtual bool IsLooped() const {return m_looped;}
-        virtual bool IsPlaying() const {return m_playing;}
-        virtual bool IsActive() const {return m_active;}
-        virtual bool IsInArea() const {return m_inArea;}
-        virtual bool UseAcoustics() const {return m_useAcoustics;}
-        virtual s16 GetRank() const {return m_rank;}
-        virtual s16 GetPriority() const {return m_prio;}
-        virtual TAreaId GetArea() const {return m_area;}
-        virtual CSfxHandle GetSfxHandle() const {return m_handle;}
+        virtual void SetActive(bool v) {x14_29_active = v;}
+        virtual void SetPlaying(bool v) {x14_28_playing = v;}
+        virtual void SetRank(short v) {x8_rank = v;}
+        virtual void SetInArea(bool v) {x14_26_inArea = v;}
+        virtual bool IsLooped() const {return x14_27_looped;}
+        virtual bool IsPlaying() const {return x14_28_playing;}
+        virtual bool IsActive() const {return x14_29_active;}
+        virtual bool IsInArea() const {return x14_26_inArea;}
+        virtual bool UseAcoustics() const {return x14_24_useAcoustics;}
+        virtual s16 GetRank() const {return x8_rank;}
+        virtual s16 GetPriority() const {return xa_prio;}
+        virtual TAreaId GetArea() const {return x10_area;}
+        virtual CSfxHandle GetSfxHandle() const {return xc_handle;}
         virtual void Play()=0;
         virtual void Stop()=0;
         virtual bool Ready()=0;
         virtual ESfxAudibility GetAudible(const zeus::CVector3f&)=0;
-        virtual u32 GetVoice() const=0;
+        virtual const std::shared_ptr<amuse::Voice>& GetVoice() const=0;
 
-        void Release() {m_available = true;}
-        bool Available() const {return m_available;}
+        void Release() {x14_25_available = true;}
+        bool Available() const {return x14_25_available;}
 
         CBaseSfxWrapper(bool looped, s16 prio, const CSfxHandle& handle, bool useAcoustics, TAreaId area)
-        : m_rank(0), m_prio(prio), m_handle(handle), m_area(area), m_useAcoustics(useAcoustics),
-          m_inArea(0), m_looped(looped), m_playing(0), m_active(0) {}
+        : x8_rank(0), xa_prio(prio), xc_handle(handle), x10_area(area), x14_24_useAcoustics(useAcoustics),
+          x14_26_inArea(0), x14_27_looped(looped), x14_28_playing(0), x14_29_active(0) {}
     };
 
     class CSfxEmitterWrapper : public CBaseSfxWrapper
     {
-        CAudioSys::C3DEmitterParmData m_parmData;
-        u32 m_emitterHandle = -1;
+        CAudioSys::C3DEmitterParmData x24_parmData;
+        std::shared_ptr<amuse::Emitter> x50_emitterHandle;
+        bool x54_ready = true;
     public:
         bool IsPlaying() const;
         void Play();
         void Stop();
         bool Ready();
         ESfxAudibility GetAudible(const zeus::CVector3f&);
-        u32 GetVoice() const;
+        const std::shared_ptr<amuse::Voice>& GetVoice() const { return x50_emitterHandle->getVoice(); }
 
-        u32 GetHandle() const {return m_emitterHandle;}
+        const std::shared_ptr<amuse::Emitter>& GetHandle() const { return x50_emitterHandle; }
 
         CSfxEmitterWrapper(bool looped, s16 prio, const CAudioSys::C3DEmitterParmData& data,
                            const CSfxHandle& handle, bool useAcoustics, TAreaId area)
-        : CBaseSfxWrapper(looped, prio, handle, useAcoustics, area), m_parmData(data) {}
+        : CBaseSfxWrapper(looped, prio, handle, useAcoustics, area), x24_parmData(data) {}
     };
 
     class CSfxWrapper : public CBaseSfxWrapper
     {
-        u16 m_sfxId;
-        u32 m_voiceHandle = -1;
-        s16 m_vol;
-        s16 m_pan;
+        u16 x18_sfxId;
+        std::shared_ptr<amuse::Voice> x1c_voiceHandle;
+        s16 x20_vol;
+        s16 x22_pan;
+        bool x24_ready = true;
     public:
         bool IsPlaying() const;
         void Play();
         void Stop();
         bool Ready();
         ESfxAudibility GetAudible(const zeus::CVector3f&) {return ESfxAudibility::Aud3;}
-        u32 GetVoice() const {return m_voiceHandle;}
+        const std::shared_ptr<amuse::Voice>& GetVoice() const {return x1c_voiceHandle;}
 
-        void SetVolume(s16 vol) {m_vol = vol;}
+        void SetVolume(s16 vol) {x20_vol = vol;}
 
         CSfxWrapper(bool looped, s16 prio, u16 sfxId, s16 vol, s16 pan,
                     const CSfxHandle& handle, bool useAcoustics, TAreaId area)
         : CBaseSfxWrapper(looped, prio, handle, useAcoustics, area),
-          m_sfxId(sfxId), m_vol(vol), m_pan(pan) {}
+          x18_sfxId(sfxId), x20_vol(vol), x22_pan(pan) {}
     };
 
     static CSfxChannel m_channels[4];
@@ -141,6 +151,9 @@ public:
     static void RemoveEmitter(const CSfxHandle&) {}
     static void PitchBend(const CSfxHandle&, s32) {}
     static u16 TranslateSFXID(u16);
+
+    static CSfxHandle SfxStop(const CSfxHandle& handle);
+    static CSfxHandle SfxStart(u16 id, s16 vol, s16 pan, bool active, s16 prio, bool inArea, s32 areaId);
 };
 
 }

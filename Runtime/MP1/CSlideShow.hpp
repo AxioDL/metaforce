@@ -4,14 +4,57 @@
 #include "RetroTypes.hpp"
 #include "CIOWin.hpp"
 #include "CToken.hpp"
+#include "GuiSys/CGuiTextSupport.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Audio/CSfxHandle.hpp"
 
 namespace urde
 {
 class CTexture;
+class CSfxHandle;
 
 class CSlideShow : public CIOWin
 {
-    u32 x14_ = 0;
+public:
+    enum class Phase
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five
+    };
+    struct SSlideData
+    {
+        CSlideShow& x0_parent;
+        u32 x4_ = -1;
+        u32 x8_ = -1;
+
+        std::experimental::optional<CTexturedQuadFilterAlpha> m_texQuad;
+        zeus::CVector2f x18_vpOffset;
+        zeus::CVector2f x20_vpSize;
+        zeus::CVector2f x28_canvasSize;
+        zeus::CColor x30_mulColor = zeus::CColor::skWhite;
+
+        SSlideData(CSlideShow& parent) : x0_parent(parent)
+        {
+            x30_mulColor.a = 0.f;
+        }
+
+        void SetTexture(const TLockedToken<CTexture>& tex)
+        {
+            m_texQuad.emplace(CCameraFilterPass::EFilterType::Blend, tex);
+        }
+        bool IsLoaded() const
+        {
+            return m_texQuad && m_texQuad->GetTex().IsLoaded();
+        }
+        void Draw() const;
+    };
+
+private:
+    Phase x14_phase = Phase::Zero;
     u32 x1c_ = 0;
     u32 x20_ = 0;
     u32 x24_ = 0;
@@ -27,36 +70,30 @@ class CSlideShow : public CIOWin
     float x50_ = 0.f;
     float x54_ = 0.f;
     float x58_ = 0.f;
-    u32 x5c_ = 0;
-    u32 x60_ = -1;
-    u32 x64_ = 0;
-    bool x68_ = false;
-    u32 x6c_ = 0;
-    bool x70_ = false;
 
-    u32 xc4_ = 0;
-    u32 xc8_ = 0;
+    SSlideData x5c_slideA;
+    SSlideData x90_slideB;
+
+    std::unique_ptr<CGuiTextSupport> xc4_textA;
+    std::unique_ptr<CGuiTextSupport> xc8_textB;
     u32 xcc_ = 0;
     u32 xd4_ = 0;
     u32 xd8_ = 0;
     u32 xdc_ = 0;
     u32 xe0_ = 0;
-    u32 xe4_ = 0;
+    CSfxHandle xe4_;
     u32 xe8_ = 0;
     u32 xec_ = 0;
     u32 xf0_ = 0;
     u32 xf4_ = 0;
-    u32 xfc_ = 0;
-    u32 x100_ = 0;
-    u32 x104_ = 0;
-    u32 x10c_ = 0;
-    u32 x110_ = 0;
-    u32 x114_ = 0;
+    std::vector<CToken> xf8_;
+    std::vector<CToken> x108_;
     u32 x11c_ = 0;
     u32 x120_ = 0;
     u32 x124_ = 0;
     float x128_ = 32.f;
     float x12c_ = 32.f;
+    float x130_;
 
     union
     {
@@ -66,7 +103,7 @@ class CSlideShow : public CIOWin
             bool x134_25_ : 1;
             bool x134_26_ : 1;
             bool x134_27_ : 1;
-            bool x134_28_ : 1;
+            bool x134_28_disableInput : 1;
             bool x134_29_ : 1;
             bool x134_30_ : 1;
             bool x134_31_ : 1;
