@@ -32,29 +32,29 @@ zeus::CTransform CFirstPersonCamera::GetGunFollowTransform() { return x190_gunFo
 void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform& gunXf, zeus::CQuaternion& gunQ,
                                                                    float dt, zeus::CVector3f& rVec)
 {
-    zeus::CVector3f gunUpVec = x190_gunFollowXf.upVector();
-    gunUpVec.z = 0.f;
+    zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
+    gunFrontVec.z = 0.f;
 
-    if (gunUpVec.canBeNormalized())
-        gunUpVec.normalize();
+    if (gunFrontVec.canBeNormalized())
+        gunFrontVec.normalize();
 
     zeus::CVector3f rVecNoZ = rVec;
     rVecNoZ.z = 0.f;
     if (rVecNoZ.canBeNormalized())
         rVecNoZ.normalize();
 
-    gunXf = zeus::CQuaternion::lookAt(rVecNoZ, gunUpVec, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+    gunXf = zeus::CQuaternion::lookAt(rVecNoZ, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
             gunXf.getRotation();
 
-    zeus::CVector3f newGunUp = gunXf.upVector();
+    zeus::CVector3f newgunFront = gunXf.frontVector();
 
-    if (newGunUp.canBeNormalized())
-        newGunUp.normalize();
+    if (newgunFront.canBeNormalized())
+        newgunFront.normalize();
 
-    float angle = newGunUp.dot(rVec);
+    float angle = newgunFront.dot(rVec);
     if (std::fabs(angle) > 0.f)
         angle = (angle > -0.f ? -1.f : 1.f);
-    gunQ = zeus::CQuaternion::lookAt(rVec, newGunUp, zeus::clamp(0.f, std::acos(angle) / dt, 1.f));
+    gunQ = zeus::CQuaternion::lookAt(rVec, newgunFront, zeus::clamp(0.f, std::acos(angle) / dt, 1.f));
 }
 
 void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
@@ -147,49 +147,49 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     {
         if (player->x304_ == 4 || player->x304_ == 1)
         {
-            zeus::CVector3f gunUpVec = gunXf.upVector();
+            zeus::CVector3f gunFrontVec = gunXf.frontVector();
 
-            if (gunUpVec.canBeNormalized())
-                gunUpVec.normalize();
+            if (gunFrontVec.canBeNormalized())
+                gunFrontVec.normalize();
 
             float scaledDt = (dt * g_tweakPlayer->GetPlayerSomething14());
-            float angle = gunUpVec.dot(rVec);
+            float angle = gunFrontVec.dot(rVec);
             if (std::fabs(angle) > 1.f)
                 angle = (angle > -0.f ? -1.f : 1.f);
             float clampedAngle = zeus::clamp(0.f, std::acos(angle) / scaledDt, 1.f);
             if (angle > 0.999f && x18c_ && !player->x374_)
-                qGun = zeus::CQuaternion::lookAt(rVec, gunUpVec, zeus::CRelAngle::FromDegrees(360.f));
+                qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             else
-                qGun = zeus::CQuaternion::lookAt(rVec, gunUpVec, scaledDt * clampedAngle);
+                qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, scaledDt * clampedAngle);
 
             const CScriptGrapplePoint* gPoint =
                 dynamic_cast<const CScriptGrapplePoint*>(mgr.GetObjectById(player->x310_grapplePointId));
             if (gPoint && player->x29c_ > 0.f)
             {
-                gunUpVec = x190_gunFollowXf.upVector();
-                if (gunUpVec.canBeNormalized())
-                    gunUpVec.normalize();
+                gunFrontVec = x190_gunFollowXf.frontVector();
+                if (gunFrontVec.canBeNormalized())
+                    gunFrontVec.normalize();
 
                 zeus::CVector3f rVecCpy = rVec;
                 if (rVecCpy.canBeNormalized())
                     rVecCpy.normalize();
 
-                gunXf = zeus::CQuaternion::lookAt(rVecCpy, gunUpVec, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+                gunXf = zeus::CQuaternion::lookAt(rVecCpy, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
                         x190_gunFollowXf.getRotation();
 
-                gunUpVec = gunXf.upVector();
-                if (gunUpVec.canBeNormalized())
-                    gunUpVec.normalize();
+                gunFrontVec = gunXf.frontVector();
+                if (gunFrontVec.canBeNormalized())
+                    gunFrontVec.normalize();
 
                 /* BUG: This is exactly what the runtime is doing, should we restore the intended behavior? */
-                float angle = gunUpVec.dot(rVec);
+                float angle = gunFrontVec.dot(rVec);
                 float sdt = dt * g_tweakPlayer->GetPlayerSomething13();
 
                 if (std::fabs(angle) > 1.0f)
                     angle = (angle > -0.f ? -1.f : 1.f);
 
                 angle = zeus::clamp(0.f, std::acos(angle) / sdt, 1.f);
-                qGun = zeus::CQuaternion::lookAt(rVec, gunUpVec, zeus::CRelAngle::FromDegrees(360.f));
+                qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             }
         }
         else if (player->x304_ == 2 || player->x304_ == 3)
@@ -210,26 +210,26 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
     else
     {
-        zeus::CVector3f gunUp = x190_gunFollowXf.upVector();
-        if (gunUp.canBeNormalized())
-            gunUp.normalize();
+        zeus::CVector3f gunFront = x190_gunFollowXf.frontVector();
+        if (gunFront.canBeNormalized())
+            gunFront.normalize();
 
         zeus::CVector3f rVecCpy = rVec;
         if (rVecCpy.canBeNormalized())
             rVecCpy.normalize();
 
-        gunXf = zeus::CQuaternion::lookAt(rVecCpy, gunUp, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+        gunXf = zeus::CQuaternion::lookAt(rVecCpy, gunFront, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
                 x190_gunFollowXf.getRotation();
-        gunUp = gunXf.upVector();
-        if (gunUp.canBeNormalized())
-            gunUp.normalize();
+        gunFront = gunXf.frontVector();
+        if (gunFront.canBeNormalized())
+            gunFront.normalize();
 
-        float angle = gunUp.dot(rVec);
+        float angle = gunFront.dot(rVec);
         if (std::fabs(angle) > 1.f)
             angle = (angle > -0.f ? -1.f : 1.f);
         float sdt = dt * g_tweakPlayer->GetPlayerSomething15();
         qGun = zeus::CQuaternion::lookAt(
-            rVec, gunUp, sdt * zeus::clamp(0.f, g_tweakPlayer->GetPlayerSomething16() * (std::acos(angle) / sdt), 1.f));
+            rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetPlayerSomething16() * (std::acos(angle) / sdt), 1.f));
     }
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
