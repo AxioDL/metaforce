@@ -34,8 +34,9 @@ public:
 
     void sub800E318();
     zeus::CTransform GetGunFollowTransform();
-    void UpdateTransform(CStateManager&);
+    void UpdateTransform(CStateManager&, float dt);
     void UpdateElevation(CStateManager&);
+    void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
 };
 
 }

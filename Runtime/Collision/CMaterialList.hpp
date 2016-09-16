@@ -75,7 +75,7 @@ public:
     {
     }
 
-    static u32 BitPosition(u64 flag)
+    static s32 BitPosition(u64 flag)
     {
         for (u32 i = 0; i < 63; ++i)
              if ((flag & (1ull << i)) != 0)

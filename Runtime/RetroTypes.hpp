@@ -79,6 +79,23 @@ public:
 };
 #endif
 
+#if 0
+template <class T, size_t N>
+class TReservedAverage
+{
+    rstl::reserved_vector<T, N> x0_values;
+public:
+    TReservedAverage() = default;
+    TReservedAverage(const T& v) { x0_values.resize(N, v); }
+
+    void AddValue(const T&)
+    {
+
+    }
+};
+
+#endif
+
 namespace std
 {
 template <>

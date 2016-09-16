@@ -182,6 +182,17 @@ struct CTweakPlayer : ITweakPlayer
     float GetPlayerSomething3() const { return x27c_; }
     float GetPlayerSomething4() const { return x134_; }
     bool GetPlayerSomething5() const { return x228_24_; }
+    float GetPlayerSomething6() const { return x288_; }
+    float GetPlayerSomething7() const { return x28c_; }
+    float GetPlayerSomething8() const { return x290_; }
+    float GetPlayerSomething9() const { return x294_; }
+    float GetPlayerSomething10() const { return x298_; }
+    float GetPlayerSomething11() const { return x29c_; }
+    float GetPlayerSomething12() const { return x280_; }
+    float GetPlayerSomething13() const { return x2b0_; }
+    float GetPlayerSomething14() const { return x184_; }
+    float GetPlayerSomething15() const { return x138_; }
+    float GetPlayerSomething16() const { return x14c_; }
     float GetLeftLogicalThreshold() const {return x150_leftDiv;}
     float GetRightLogicalThreshold() const {return x154_rightDiv;}
     CTweakPlayer() = default;
