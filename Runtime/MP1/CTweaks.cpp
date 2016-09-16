@@ -10,7 +10,11 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGunRes.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerRes.hpp"
+<<<<<<< HEAD
 #include "DataSpec/DNAMP1/Tweaks/CTweakSlideShow.hpp"
+=======
+#include "World/CPlayerCameraBob.hpp"
+>>>>>>> b27821c5eb1c9eb5b69acda11ab77c7cda018ca9
 
 namespace urde
 {
@@ -36,6 +40,14 @@ void CTweaks::RegisterTweaks()
     SObjectTag tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/SlideShow.yaml"));
     strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
     g_tweakSlideShow = new DataSpec::DNAMP1::CTweakSlideShow(*strm);
+
+    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/Player.yaml"));
+    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    g_tweakPlayer = new DataSpec::DNAMP1::CTweakPlayer(*strm);
+
+    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/CameraBob.yaml"));
+    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    CPlayerCameraBob::ReadTweaks(*strm);
 }
 
 void CTweaks::RegisterResourceTweaks()

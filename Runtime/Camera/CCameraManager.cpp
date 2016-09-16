@@ -1,5 +1,6 @@
 #include "CCameraManager.hpp"
 #include "CCameraShakeData.hpp"
+#include "CFirstPersonCamera.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "CGameCamera.hpp"
 #include "CStateManager.hpp"
@@ -10,11 +11,9 @@
 namespace urde
 {
 
-CCameraManager::CCameraManager(TUniqueId curCameraId)
-: x0_curCameraId(curCameraId)
+CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId)
 {
-    CSfxManager::AddListener(CSfxManager::ESfxChannels::One,
-                             zeus::CVector3f::skZero, zeus::CVector3f::skZero,
+    CSfxManager::AddListener(CSfxManager::ESfxChannels::One, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
                              {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 0x7f);
 }
 
@@ -32,7 +31,7 @@ zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& 
 
 void CCameraManager::RemoveCameraShaker(int id)
 {
-    for (auto it=x18_shakers.begin() ; it != x18_shakers.end() ; ++it)
+    for (auto it = x18_shakers.begin(); it != x18_shakers.end(); ++it)
         if (it->x20_shakerId == id)
         {
             x18_shakers.erase(it);
@@ -47,10 +46,7 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data)
     return x2c_lastShakeId;
 }
 
-void CCameraManager::AddCinemaCamera(TUniqueId id, CStateManager& stateMgr)
-{
-    x4_cineCameras.push_back(id);
-}
+void CCameraManager::AddCinemaCamera(TUniqueId id, CStateManager& stateMgr) { x4_cineCameras.push_back(id); }
 
 void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId)
 {
@@ -67,11 +63,10 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 {
     const CGameCamera* camera = GetCurrentCamera(stateMgr);
     zeus::CVector3f heading = camera->GetTransform().basis * zeus::CVector3f{0.f, 1.f, 0.f};
-    CSfxManager::UpdateListener(camera->GetTransform().origin, zeus::CVector3f::skZero,
-                                heading, {0.f, 0.f, 1.f}, 0x7f);
+    CSfxManager::UpdateListener(camera->GetTransform().origin, zeus::CVector3f::skZero, heading, {0.f, 0.f, 1.f}, 0x7f);
     x30_shakeOffset = zeus::CVector3f::skZero;
 
-    for (auto it=x18_shakers.begin() ; it != x18_shakers.end() ;)
+    for (auto it = x18_shakers.begin(); it != x18_shakers.end();)
     {
         if (it->x1c_curTime >= it->x18_duration)
         {
@@ -106,12 +101,11 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
         if (water)
         {
             // TODO: Finish
-            zeus::CColor tmpColor; // Get from water
+            zeus::CColor tmpColor;     // Get from water
             zeus::CVector2f tmpVector; // Get from camera
             x3c_fog.SetFogExplicit(ERglFogMode::PerspExp, tmpColor, tmpVector);
             stateMgr.GetCameraFilterPass(4).SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                                                      CCameraFilterPass::EFilterShape::Fullscreen,
-                                                      0.f, tmpColor, -1);
+                                                      CCameraFilterPass::EFilterShape::Fullscreen, 0.f, tmpColor, -1);
         }
         x86_26_inWater = true;
     }
@@ -137,6 +131,13 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
     return static_cast<const CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
 }
 
+float CCameraManager::sub80009148() const
+{
+    const zeus::CVector3f uVec = x7c_fpCamera->GetTransform().upVector();
+    return 1.f - std::min(std::fabs(std::min(std::fabs(uVec.y * uVec.x * uVec.z * zeus::kUpVec.y + zeus::kUpVec.x +
+                                                        zeus::kUpVec.z), 1.f) / std::cos(zeus::degToRad(30.f))), 1.f);
+}
+
 void CCameraManager::ResetCameras(CStateManager& mgr)
 {
     zeus::CTransform xf = mgr.GetPlayer().CreateTransformFromMovementDirection();
@@ -148,5 +149,4 @@ void CCameraManager::ResetCameras(CStateManager& mgr)
         camObj->Reset(xf, mgr);
     }
 }
-
 }

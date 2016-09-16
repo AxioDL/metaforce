@@ -23,7 +23,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, bo
 
 CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type,
                                          TLockedToken<CTexture> tex)
-: CTexturedQuadFilter(type, tex->GetBooTexture())
+: CTexturedQuadFilter(type, (tex ? tex->GetBooTexture() : nullptr))
 {
     m_tex = tex;
 }
@@ -93,7 +93,7 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterTyp
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type,
                                                    TLockedToken<CTexture> tex)
-: CTexturedQuadFilterAlpha(type, tex->GetBooTexture())
+: CTexturedQuadFilterAlpha(type, (tex ? tex->GetBooTexture() : nullptr))
 {
     m_tex = tex;
 }

@@ -25,8 +25,8 @@ namespace MP1
 
 CGameArchitectureSupport::CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend)
 : m_audioSys(backend, 0,0,0,0,0),
-  m_inputGenerator(0.0f /*g_tweakPlayer->GetLeftLogicalThreshold()*/,
-                   0.0f /*g_tweakPlayer->GetRightLogicalThreshold()*/),
+  m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
+                   g_tweakPlayer->GetRightLogicalThreshold()),
   m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
 {
     g_GuiSys = &m_guiSys;
@@ -90,11 +90,9 @@ void CGameArchitectureSupport::Draw()
 CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
              boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ,
-             boo::ITextureR* spareTex,
-             amuse::IBackendVoiceAllocator& backend)
+             boo::ITextureR* spareTex)
 : m_booSetter(gfxFactory, cmdQ, spareTex),
-  x128_globalObjects(resFactory, resStore),
-  m_archSupport(backend)
+  x128_globalObjects(resFactory, resStore)
 {
     xe4_gameplayResult = EGameplayResult::Playing;
     g_Main = this;
@@ -141,25 +139,28 @@ void CMain::LoadAudio()
 }
 
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
-                 boo::IAudioVoiceEngine* voiceEngine)
+                 boo::IAudioVoiceEngine* voiceEngine,
+                 amuse::IBackendVoiceAllocator& backend)
 {
     InitializeSubsystems(storeMgr, voiceEngine);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     x70_tweaks.RegisterResourceTweaks();
+    m_archSupport.reset(new CGameArchitectureSupport(backend));
+    g_archSupport = m_archSupport.get();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
 }
 
 bool CMain::Proc()
 {
-    xe8_b24_finished = m_archSupport.Update();
+    xe8_b24_finished = m_archSupport->Update();
     return xe8_b24_finished;
 }
 
 void CMain::Draw()
 {
-    m_archSupport.Draw();
+    m_archSupport->Draw();
 }
 
 void CMain::Shutdown()

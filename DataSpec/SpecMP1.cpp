@@ -22,7 +22,12 @@
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
+<<<<<<< HEAD
 #include "DNAMP1/Tweaks/CTweakSlideShow.hpp"
+=======
+#include "DNAMP1/Tweaks/CTweakPlayer.hpp"
+#include "DNAMP1/Tweaks/CTweakCameraBob.hpp"
+>>>>>>> b27821c5eb1c9eb5b69acda11ab77c7cda018ca9
 
 #include "hecl/ClientProcess.hpp"
 
@@ -355,7 +360,13 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGunRes::DNAType()))
                 return true;
+<<<<<<< HEAD
             else if (!strcmp(classType, DNAMP1::CTweakSlideShow::DNAType()))
+=======
+            else if (!strcmp(classType, DNAMP1::CTweakPlayer::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakCameraBob::DNAType()))
+>>>>>>> b27821c5eb1c9eb5b69acda11ab77c7cda018ca9
                 return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
@@ -515,6 +526,17 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakSlideShow slideShow;
                 slideShow.read(reader);
                 WriteTweak(slideShow, out);
+            else if (!classStr.compare(DNAMP1::CTweakPlayer::DNAType()))
+            {
+                DNAMP1::CTweakPlayer player;
+                player.read(reader);
+                WriteTweak(player, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakCameraBob::DNAType()))
+            {
+                DNAMP1::CTweakCameraBob cBob;
+                cBob.read(reader);
+                WriteTweak(cBob, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

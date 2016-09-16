@@ -73,6 +73,8 @@ public:
 
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
+
+    float sub80009148() const;
 };
 
 }

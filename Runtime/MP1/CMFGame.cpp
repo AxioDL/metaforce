@@ -10,8 +10,24 @@ namespace urde
 namespace MP1
 {
 
-CMFGameLoader::CMFGameLoader()
-: CMFGameLoaderBase("CMFGameLoader")
+CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
+                 const CArchitectureQueue&)
+: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock()), x2a_25_(true)
+{
+    //g_Main->x160_25_ = true;
+}
+
+CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
+{
+    return EMessageReturn::Normal;
+}
+
+void CMFGame::Draw() const
+{
+
+}
+
+CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
 {
     switch (g_Main->GetFlowState())
     {
@@ -19,8 +35,8 @@ CMFGameLoader::CMFGameLoader()
     case CMain::FlowState::Six:
     {
         ResId mlvlId = g_GameState->CurrentWorldAssetId();
-        //g_GameState->WorldTransitionManager()->
-        //g_MemoryCardSys->
+        // g_GameState->WorldTransitionManager()->
+        // g_MemoryCardSys->
     }
     default:
     {
@@ -38,15 +54,12 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
     {
         const CArchMsgParmReal32& tick = MakeMsg::GetParmTimerTick(msg);
     }
-    default: break;
+    default:
+        break;
     }
     return EMessageReturn::Exit;
 }
 
-void CMFGameLoader::Draw() const
-{
-    g_GameState->GetWorldTransitionManager()->Draw();
-}
-
+void CMFGameLoader::Draw() const { g_GameState->GetWorldTransitionManager()->Draw(); }
 }
 }

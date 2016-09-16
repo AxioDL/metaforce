@@ -16,6 +16,7 @@ namespace urde
 namespace MP1
 {
 extern class CMain* g_Main;
+extern class CGameArchitectureSupport* g_archSupport;
 }
 
 extern class CMemoryCardSys* g_MemoryCardSys;

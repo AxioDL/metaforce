@@ -146,6 +146,7 @@ class CGameArchitectureSupport
 
 public:
     CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend);
+    void PreloadAudio();
     bool Update();
     void Draw();
 
@@ -203,7 +204,7 @@ private:
 
     /* urde addition: these are simply initialized along with everything else */
     CGameGlobalObjects x128_globalObjects;
-    CGameArchitectureSupport m_archSupport;
+    std::unique_ptr<CGameArchitectureSupport> m_archSupport;
 
     FlowState x12c_ = FlowState::Five;
 
@@ -235,8 +236,7 @@ public:
     CMain(IFactory& resFactory, CSimplePool& resStore,
           boo::IGraphicsDataFactory* gfxFactory,
           boo::IGraphicsCommandQueue* cmdQ,
-          boo::ITextureR* spareTex,
-          amuse::IBackendVoiceAllocator& backend);
+          boo::ITextureR* spareTex);
     void RegisterResourceTweaks();
     void ResetGameState();
     void StreamNewGameState(CInputStream&);
@@ -244,7 +244,8 @@ public:
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,
-              boo::IAudioVoiceEngine* voiceEngine);
+              boo::IAudioVoiceEngine* voiceEngine,
+              amuse::IBackendVoiceAllocator& backend);
     bool Proc();
     void Draw();
     void Shutdown();

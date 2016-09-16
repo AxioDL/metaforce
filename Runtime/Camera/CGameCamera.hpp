@@ -49,10 +49,11 @@ public:
     float GetAspectRatio() const;
     TUniqueId GetWatchedObject() const;
     float GetFov() const;
-    void SetFov(float);
     void GetControllerNumber() const;
     bool DisablesInput() const;
-
+    void sub8005AE3C(float);
+    void sub8005AF18(float, float, float, float);
+    void sub8005AF88();
 };
 }
 

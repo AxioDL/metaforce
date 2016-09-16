@@ -1,5 +1,7 @@
 #include "CStateManager.hpp"
 #include "Camera/CCameraShakeData.hpp"
+#include "Camera/CGameCamera.hpp"
+#include "Graphics/CBooRenderer.hpp"
 #include "CSortedLists.hpp"
 #include "CWeaponMgr.hpp"
 #include "CFluidPlaneManager.hpp"
@@ -301,8 +303,14 @@ void CStateManager::TouchSky() const
 {
 }
 
-void CStateManager::DrawSpaceWarp(const zeus::CVector3f&, float) const
+void CStateManager::DrawSpaceWarp(const zeus::CVector3f& v, float strength) const
 {
+    CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
+    if (visor == CPlayerState::EPlayerVisor::Scan || visor == CPlayerState::EPlayerVisor::Combat)
+    {
+        zeus::CVector3f screenV = x870_cameraManager->GetCurrentCamera(*this)->ConvertToScreenSpace(v);
+        g_Renderer->DrawSpaceWarp(screenV, strength);
+    }
 }
 
 void CStateManager::DrawReflection(const zeus::CVector3f&)
