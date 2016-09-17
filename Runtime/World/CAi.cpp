@@ -1,6 +1,7 @@
 #include "CAi.hpp"
 #include "Character/CModelData.hpp"
 #include "CStateManager.hpp"
+#include "CStateMachine.hpp"
 
 namespace urde
 {
@@ -33,6 +34,8 @@ CAiTriggerFunc CAi::GetTrigerFunc(const char* func)
 {
     return m_FuncMap->GetTriggerFunc(func);
 }
+
+const CStateMachine*CAi::GetStateMachine() const { return x2c8_stateMachine.GetObj(); }
 void CAi::CreateFuncLookup(CAiFuncMap* funcMap)
 {
     m_FuncMap = funcMap;

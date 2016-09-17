@@ -3,9 +3,7 @@
 
 #define MP1_USE_BOO 0
 
-#include <boo/boo.hpp>
-#include <boo/graphicsdev/GL.hpp>
-#include <boo/audiodev/IAudioVoiceEngine.hpp>
+#include "IMain.hpp"
 #include "CMemory.hpp"
 #include "CTweaks.hpp"
 #include "CPlayMovie.hpp"
@@ -35,30 +33,18 @@
 #include "Audio/CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"
-#include "MP1.hpp"
 #include "CTimeProvider.hpp"
 #include "GuiSys/CTextExecuteBuffer.hpp"
-
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 
 namespace urde
 {
-class CStopwatch;
 class IFactory;
 class IObjectStore;
 
 namespace MP1
 {
-
-enum class EGameplayResult
-{
-    None,
-    Win,
-    Lose,
-    Playing
-};
-
 class CGameGlobalObjects
 {
     CMemoryCardSys x0_memoryCardSys;
@@ -159,9 +145,9 @@ public:
 };
 
 #if MP1_USE_BOO
-class CMain : public boo::IApplicationCallback
+class CMain : public boo::IApplicationCallback, public IMain
 #else
-class CMain
+class CMain : public IMain
 #endif
 {
 #if MP1_USE_BOO
@@ -177,17 +163,6 @@ class CMain
         fprintf(stderr, "\n");
     }
 #endif
-public:
-    enum class FlowState
-    {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-    };
 private:
 
     struct BooSetter
@@ -206,7 +181,7 @@ private:
     CGameGlobalObjects x128_globalObjects;
     std::unique_ptr<CGameArchitectureSupport> m_archSupport;
 
-    FlowState x12c_ = FlowState::Five;
+    EFlowState x12c_flowState = EFlowState::Five;
 
     u32 x130_[10] = { 1000000 };
 
@@ -239,7 +214,7 @@ public:
           boo::ITextureR* spareTex);
     void RegisterResourceTweaks();
     void ResetGameState();
-    void StreamNewGameState(CInputStream&);
+    void StreamNewGameState(CInputStream&) {}
     void CheckTweakManagerDebugOptions() {}
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
@@ -250,17 +225,17 @@ public:
     void Draw();
     void Shutdown();
 
-    bool CheckReset();
+    bool CheckReset() { return false; }
     bool CheckTerminate() {return false;}
-    void DrawDebugMetrics(double, CStopwatch&) {}
+    void DrawDebugMetrics(double, CStopWatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
     void LoadAudio();
-    void ShutdownSubsystems();
+    void ShutdownSubsystems() {}
     EGameplayResult GetGameplayResult() const {return xe4_gameplayResult;}
     void SetGameplayResult(EGameplayResult wl) {xe4_gameplayResult = wl;}
 
-    FlowState GetFlowState() const { return x12c_; }
+    EFlowState GetFlowState() const { return x12c_flowState; }
 };
 
 }

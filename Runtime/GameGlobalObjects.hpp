@@ -13,9 +13,9 @@
 
 namespace urde
 {
+extern class IMain* g_Main;
 namespace MP1
 {
-extern class CMain* g_Main;
 extern class CGameArchitectureSupport* g_archSupport;
 }
 

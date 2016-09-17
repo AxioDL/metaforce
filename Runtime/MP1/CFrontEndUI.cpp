@@ -73,8 +73,9 @@ std::string CFrontEndUI::GetAttractMovieFileName(int idx)
 
 std::string CFrontEndUI::GetNextAttractMovieFileName()
 {
-    GetAttractMovieFileName(xbc_nextAttract);
+    std::string ret = GetAttractMovieFileName(xbc_nextAttract);
     xbc_nextAttract = (xbc_nextAttract + 1) % xc0_attractCount;
+    return ret;
 }
 
 void CFrontEndUI::SetCurrentMovie(EMenuMovie movie)

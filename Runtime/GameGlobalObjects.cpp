@@ -4,10 +4,10 @@ namespace urde
 {
 namespace MP1
 {
-class CMain* g_Main = nullptr;
 class CGameArchitectureSupport* g_archSupport = nullptr;
 }
 
+class IMain* g_Main = nullptr;
 class CMemoryCardSys* g_MemoryCardSys = nullptr;
 class IFactory* g_ResFactory = nullptr;
 class CSimplePool* g_SimplePool = nullptr;
