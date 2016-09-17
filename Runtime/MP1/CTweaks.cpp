@@ -34,16 +34,16 @@ void CTweaks::RegisterTweaks()
     ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::experimental::optional<CMemoryInStream> strm;
 
-    SObjectTag tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/SlideShow.yaml"));
-    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    const SObjectTag* tag = factory.GetResourceIdByName("SlideShow");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakSlideShow = new DataSpec::DNAMP1::CTweakSlideShow(*strm);
 
-    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/Player.yaml"));
-    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    tag = factory.GetResourceIdByName("Player");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakPlayer = new DataSpec::DNAMP1::CTweakPlayer(*strm);
 
-    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/CameraBob.yaml"));
-    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    tag = factory.GetResourceIdByName("CameraBob");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     CPlayerCameraBob::ReadTweaks(*strm);
 }
 
@@ -52,12 +52,12 @@ void CTweaks::RegisterResourceTweaks()
     ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::experimental::optional<CMemoryInStream> strm;
     
-    SObjectTag tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/GunRes.yaml"));
-    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    const SObjectTag* tag = factory.GetResourceIdByName("GunRes");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
     
-    tag = factory.ProjectResourceFactoryBase::TagFromPath(_S("MP1/Tweaks/PlayerRes.yaml"));
-    strm.emplace(factory.LoadResourceSync(tag).release(), factory.ResourceSize(tag));
+    tag = factory.GetResourceIdByName("PlayerRes");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
 }
 

@@ -339,7 +339,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     const std::string& modelName = g_tweakPlayerRes->GetBeamCineModel(
         DataSpec::ITweakPlayerRes::EBeamId(g_GameState->GetPlayerState()->GetCurrentBeam()));
 
-    x4_modelData->x14c_beamModel = g_SimplePool->GetObj(("MP1/TestAnim/" + modelName + ".blend").c_str());
+    x4_modelData->x14c_beamModel = g_SimplePool->GetObj(modelName.c_str());
 
     TToken<CCharacterFactory> fac = g_CharFactoryBuilder->GetFactory(samusRes);
     const CCharacterInfo& info = fac.GetObj()->GetCharInfo(GetSuitCharIdx());

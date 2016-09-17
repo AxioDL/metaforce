@@ -55,7 +55,7 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)
     BeginBackgroundIndex(proj, DataSpec::SpecEntMP1, DataSpec::SpecEntMP1PC);
 }
 
-SObjectTag ProjectResourceFactoryMP1::TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+SObjectTag ProjectResourceFactoryMP1::BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
 {
     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
         return SObjectTag(SBIG('CINF'), path.hash().val32());

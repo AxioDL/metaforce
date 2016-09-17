@@ -9,9 +9,9 @@ namespace urde
 
 static const char* SplashTextures[]
 {
-    "MP1/NoARAM/TXTR_NintendoLogo.png",
-    "MP1/NoARAM/TXTR_RetroLogo.png",
-    "MP1/NoARAM/TXTR_DolbyLogo.png"
+    "TXTR_NintendoLogo",
+    "TXTR_RetroLogo",
+    "TXTR_DolbyLogo"
 };
 
 CSplashScreen::CSplashScreen(ESplashScreen which)

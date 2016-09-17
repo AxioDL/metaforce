@@ -62,6 +62,7 @@ public:
 
 protected:
     std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
+    std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
     std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
     void Clear();
 
@@ -85,10 +86,13 @@ protected:
                     const hecl::ProjectPath& path,
                     std::experimental::optional<athena::io::FileReader>& fr);
 
-    virtual SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const=0;
+    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;
+    virtual SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const=0;
 
     void ReadCatalog(const hecl::ProjectPath& catalogPath,
                      athena::io::YAMLDocWriter& nameWriter);
+    bool AddFileToIndex(const hecl::ProjectPath& path,
+                        athena::io::YAMLDocWriter& cacheWriter);
     void BackgroundIndexRecursiveProc(const hecl::ProjectPath& path,
                                       athena::io::YAMLDocWriter& cacheWriter,
                                       athena::io::YAMLDocWriter& nameWriter,
