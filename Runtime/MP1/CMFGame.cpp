@@ -31,8 +31,8 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
 {
     switch (g_Main->GetFlowState())
     {
-    case CMain::FlowState::Five:
-    case CMain::FlowState::Six:
+    case CMain::EFlowState::Five:
+    case CMain::EFlowState::Six:
     {
         ResId mlvlId = g_GameState->CurrentWorldAssetId();
         // g_GameState->WorldTransitionManager()->

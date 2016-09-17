@@ -37,7 +37,7 @@ public:
     static CAiStateFunc GetStateFunc(const char* func);
     static CAiTriggerFunc GetTrigerFunc(const char* func);
 
-    void GetStateMachine() {}
+    const CStateMachine* GetStateMachine() const;
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual CHealthInfo HealthInfo(CStateManager&) { return x258_healthInfo; }

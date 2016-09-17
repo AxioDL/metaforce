@@ -4,13 +4,13 @@
 #include "CArchitectureQueue.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
+#include "MP1/MP1.hpp"
 
 namespace urde
 {
 
 CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
-#if 0
     const EArchMsgType msgType = msg.GetType();
     if (msgType == EArchMsgType::SetGameState)
     {
@@ -19,14 +19,13 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     }
     else if (msgType == EArchMsgType::QuitGameplay)
     {
-        if (g_GameState->GetWorldTransitionManager()->GetTransitionType() == CWorldTransManager::ETransType::Disabled ||
-            g_Main->x12c_ != 0)
+        if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
+            g_Main->GetFlowState() != MP1::CMain::EFlowState::Zero)
         {
             CSfxManager::SetChannel(CSfxManager::ESfxChannels::Zero);
             CSfxManager::KillAll(CSfxManager::ESfxChannels::One);
         }
     }
-#endif
     return EMessageReturn::Normal;
 }
 

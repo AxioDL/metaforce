@@ -138,6 +138,9 @@ public:
     static u16 kInternalInvalidSfxId;
     static u32 kAllAreas;
 
+    static void SetChannel(ESfxChannels) {}
+    static void KillAll(ESfxChannels) {}
+    static void TurnOnChannel(ESfxChannels) {}
     static ESfxChannels GetCurrentChannel() {return m_currentChannel;}
     static void AddListener(ESfxChannels,
                             const zeus::CVector3f& pos, const zeus::CVector3f& dir,
@@ -151,7 +154,6 @@ public:
     static void RemoveEmitter(const CSfxHandle&) {}
     static void PitchBend(const CSfxHandle&, s32) {}
     static u16 TranslateSFXID(u16);
-
     static CSfxHandle SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, s16 vol, s16 pan, bool active, s16 prio, bool inArea, s32 areaId);
 };

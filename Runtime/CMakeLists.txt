@@ -47,6 +47,7 @@ add_library(RuntimeCommon
             ${WORLD_SOURCES}
             #CMemory.hpp CMemory.cpp
             ITweak.hpp
+            IMain.hpp
             CMemoryCardSys.hpp
             CScannableObjectInfo.hpp CScannableObjectInfo.cpp
             CSaveWorld.hpp CSaveWorld.cpp
