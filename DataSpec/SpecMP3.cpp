@@ -511,6 +511,16 @@ struct SpecMP3 : SpecBase
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {
     }
+
+    void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                        FCookProgress progress)
+    {
+    }
+
+    void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                  FCookProgress progress)
+    {
+    }
 };
 
 hecl::Database::DataSpecEntry SpecEntMP3

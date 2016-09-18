@@ -5,7 +5,7 @@
 
 #include "SpecBase.hpp"
 #include "Blender/BlenderSupport.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "DNACommon/DNACommon.hpp"
 #include "DNACommon/TXTR.hpp"
 
@@ -123,6 +123,26 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     extractFromDisc(*m_disc, info.force, progress);
 }
 
+static bool IsPathAudioGroup(const hecl::ProjectPath& path)
+{
+    if (path.getPathType() != hecl::ProjectPath::Type::Glob ||
+        !path.getWithExtension(_S(".pool"), true).isFile() ||
+        !path.getWithExtension(_S(".proj"), true).isFile() ||
+        !path.getWithExtension(_S(".sdir"), true).isFile() ||
+        !path.getWithExtension(_S(".samp"), true).isFile())
+        return false;
+    return true;
+}
+
+static bool IsPathSong(const hecl::ProjectPath& path)
+{
+    if (path.getPathType() != hecl::ProjectPath::Type::Glob ||
+        !path.getWithExtension(_S(".mid"), true).isFile() ||
+        !path.getWithExtension(_S(".yaml"), true).isFile())
+        return false;
+    return true;
+}
+
 bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 {
     if (!checkPathPrefix(path))
@@ -144,6 +164,14 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
         athena::io::FileReader reader(path.getAbsolutePath());
         bool retval = validateYAMLDNAType(reader);
         return retval;
+    }
+    else if (IsPathAudioGroup(path))
+    {
+        return true;
+    }
+    else if (IsPathSong(path))
+    {
+        return true;
     }
     return false;
 }
@@ -222,6 +250,14 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     {
         athena::io::FileReader reader(path.getAbsolutePath());
         cookYAML(cookedPath, path, reader, progress);
+    }
+    else if (IsPathAudioGroup(path))
+    {
+        cookAudioGroup(cookedPath, path, progress);
+    }
+    else if (IsPathSong(path))
+    {
+        cookSong(cookedPath, path, progress);
     }
 }
 

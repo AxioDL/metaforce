@@ -70,6 +70,8 @@ struct CTweakPlayerRes : ITweakPlayerRes
     String<-1> m_cinePlasma;
     String<-1> m_cinePhazon;
 
+    Value<float> m_unkFloat;
+
     const std::string& GetSaveStationIcon() const { return m_saveStationIcon; }
     const std::string& GetMissileStationIcon() const { return m_missileStationIcon; }
     const std::string& GetElevatorIcon() const { return m_elevatorIcon; }
@@ -79,54 +81,23 @@ struct CTweakPlayerRes : ITweakPlayerRes
     const std::string& GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
     const std::string& GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
 
-    const std::string& GetLStickN() const { return m_lStickN; }
-    const std::string& GetLStickU() const { return m_lStickU; }
-    const std::string& GetLStickUL() const { return m_lStickUL; }
-    const std::string& GetLStickL() const { return m_lStickL; }
-    const std::string& GetLStickDL() const { return m_lStickDL; }
-    const std::string& GetLStickD() const { return m_lStickD; }
-    const std::string& GetLStickDR() const { return m_lStickDR; }
-    const std::string& GetLStickR() const { return m_lStickR; }
-    const std::string& GetLStickUR() const { return m_lStickUR; }
+    const std::string& GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
+    const std::string& GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
 
-    const std::string& GetCStickN() const { return m_cStickN; }
-    const std::string& GetCStickU() const { return m_cStickU; }
-    const std::string& GetCStickUL() const { return m_cStickUL; }
-    const std::string& GetCStickL() const { return m_cStickL; }
-    const std::string& GetCStickDL() const { return m_cStickDL; }
-    const std::string& GetCStickD() const { return m_cStickD; }
-    const std::string& GetCStickDR() const { return m_cStickDR; }
-    const std::string& GetCStickR() const { return m_cStickR; }
-    const std::string& GetCStickUR() const { return m_cStickUR; }
-
-    const std::string& GetLTriggerOut() const { return m_lTriggerOut; }
-    const std::string& GetLTriggerIn() const { return m_lTriggerIn; }
-    const std::string& GetRTriggerOut() const { return m_rTriggerOut; }
-    const std::string& GetRTriggerIn() const { return m_rTriggerIn; }
-
-    const std::string& GetStartButtonOut() const { return m_startButtonOut; }
-    const std::string& GetStartButtonIn() const { return m_startButtonIn; }
-    const std::string& GetAButtonOut() const { return m_aButtonOut; }
-    const std::string& GetAButtonIn() const { return m_aButtonIn; }
-    const std::string& GetBButtonOut() const { return m_bButtonOut; }
-    const std::string& GetBButtonIn() const { return m_bButtonIn; }
-    const std::string& GetXButtonOut() const { return m_xButtonOut; }
-    const std::string& GetXButtonIn() const { return m_xButtonIn; }
-    const std::string& GetYButtonOut() const { return m_yButtonOut; }
-    const std::string& GetYButtonIn() const { return m_yButtonIn; }
+    const std::string& GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
+    const std::string& GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
+    const std::string& GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
+    const std::string& GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
+    const std::string& GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
+    const std::string& GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
+    const std::string& GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
 
     const std::string& GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
-    const std::string& GetBallTransitionsPowerBeamModel() const { return m_ballTransitionsPower; }
-    const std::string& GetBallTransitionsIceBeamModel() const { return m_ballTransitionsIce; }
-    const std::string& GetBallTransitionsWaveBeamModel() const { return m_ballTransitionsWave; }
-    const std::string& GetBallTransitionsPlasmaBeamModel() const { return m_ballTransitionsPlasma; }
-    const std::string& GetBallTransitionsPhazonBeamModel() const { return m_ballTransitionsPhazon; }
 
-    const std::string& GetPowerBeamCineModel() const { return m_cinePower; }
-    const std::string& GetIceBeamCineModel() const { return m_cineIce; }
-    const std::string& GetWaveBeamCineModel() const { return m_cineWave; }
-    const std::string& GetPlasmaBeamCineModel() const { return m_cinePlasma; }
-    const std::string& GetPhazonBeamCineModel() const { return m_cinePhazon; }
+    const std::string& GetBallTransitionModel(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
+    const std::string& GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
+
+    float GetUnkFloat() const { return m_unkFloat; }
 
     CTweakPlayerRes() = default;
     CTweakPlayerRes(athena::io::IStreamReader& in) { read(in); }

@@ -5,7 +5,7 @@
 #include <hecl/Frontend.hpp>
 #include <hecl/Backend/GX.hpp>
 #include "PAK.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "GX.hpp"
 #include "TXTR.hpp"
 #include "zeus/CAABox.hpp"

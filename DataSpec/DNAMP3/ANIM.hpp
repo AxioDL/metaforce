@@ -1,7 +1,7 @@
 #ifndef _DNAMP3_ANIM_HPP_
 #define _DNAMP3_ANIM_HPP_
 
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "DNAMP3.hpp"
 #include "../DNACommon/ANIM.hpp"
 #include "../DNACommon/RigInverter.hpp"

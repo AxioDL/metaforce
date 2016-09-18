@@ -5,7 +5,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
@@ -226,9 +226,9 @@ struct ANCS : BigYAML
                         hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
         hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
         hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||

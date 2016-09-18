@@ -268,6 +268,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #endif
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
+            else if (extractor.fileExts[0])
+                entName += _S(".*");
             return hecl::ProjectPath(pakPath, entName);
         }
     }
@@ -285,6 +287,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #endif
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
+        else if (extractor.fileExts[0])
+            entName += _S(".*");
         if (bridge.getPAK().m_noShare)
         {
             return hecl::ProjectPath(pakPath, entName);
@@ -307,6 +311,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         hecl::SystemString entName = entBase;
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
+        else if (extractor.fileExts[0])
+            entName += _S(".*");
         hecl::ProjectPath sharedPath(m_sharedWorking, entName);
         m_sharedWorking.makeDir();
         return sharedPath;
@@ -464,7 +470,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
 
             /* Extract first, so they start out invalid */
             hecl::ProjectPath cooked = getCooked(item);
-            if (force || cooked.getPathType() == hecl::ProjectPath::Type::None)
+            if (force || cooked.isNone())
             {
                 PAKEntryReadStream s = item->beginReadStream(*node);
                 FILE* fout = hecl::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
@@ -474,7 +480,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
 
             if (extractor.func_a) /* Doesn't need PAKRouter access */
             {
-                if (force || working.getPathType() == hecl::ProjectPath::Type::None)
+                if (force || working.isNone())
                 {
                     PAKEntryReadStream s = item->beginReadStream(*node);
                     extractor.func_a(s, working);
@@ -482,7 +488,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             }
             else if (extractor.func_b) /* Needs PAKRouter access */
             {
-                if (force || working.getPathType() == hecl::ProjectPath::Type::None)
+                if (force || working.isNone())
                 {
                     PAKEntryReadStream s = item->beginReadStream(*node);
                     extractor.func_b(m_dataSpec, s, working, *this, *item, force, btok,

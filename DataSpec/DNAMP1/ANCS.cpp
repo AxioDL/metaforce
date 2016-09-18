@@ -1017,9 +1017,9 @@ bool ANCS::Extract(const SpecBase& dataSpec,
                    hecl::BlenderToken& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"));
+    hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
     hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"));
+    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
     hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
     ANCS ancs;
@@ -1053,7 +1053,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
             hecl::SystemStringView sysStr(res.second.name);
             hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_S(".")) +
                                                                        sysStr.sys_str() +
-                                                                       _S(".evnt.yaml")).c_str());
+                                                                       _S(".evnt.yaml")).c_str(), true);
             hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
 
             if (force || evntYamlType == hecl::ProjectPath::Type::None)
@@ -1080,7 +1080,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
 {
     /* Search for yaml */
     hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
-    if (yamlPath.getPathType() != hecl::ProjectPath::Type::File)
+    if (!yamlPath.isFile())
         Log.report(logvisor::Fatal, _S("'%s' not found as file"),
                    yamlPath.getRelativePath().c_str());
 
@@ -1189,12 +1189,11 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
 
         const hecl::ProjectPath& modelPath = subtype->mesh;
 
-        if (modelPath.getPathType() != hecl::ProjectPath::Type::File)
+        if (!modelPath.isFile())
             Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath.getRelativePath().c_str());
 
         hecl::ProjectPath skinIntPath = modelPath.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
-        if (skinIntPath.getPathType() != hecl::ProjectPath::Type::File ||
-            skinIntPath.getModtime() < modelPath.getModtime())
+        if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath.getModtime())
             if (!modelCookFunc(modelPath))
                 Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath.getRelativePath().c_str());
 
@@ -1269,7 +1268,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) +
                                                                   sysStr.sys_str() +
                                                                   _S(".evnt.yaml")).c_str(), true);
-        if (evntYamlPath.getPathType() == hecl::ProjectPath::Type::File)
+        if (evntYamlPath.isFile())
         {
             athena::io::FileReader reader(evntYamlPath.getAbsolutePath());
             if (reader.isOpen())

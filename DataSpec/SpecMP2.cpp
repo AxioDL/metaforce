@@ -5,6 +5,8 @@
 
 #include "DNAMP2/MLVL.hpp"
 #include "DNAMP2/STRG.hpp"
+#include "DNAMP2/AGSC.hpp"
+#include "DNAMP1/CSNG.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -287,11 +289,18 @@ struct SpecMP2 : SpecBase
 
     bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
     {
-        if (BigYAML::ValidateFromYAMLStream<DNAMP2::MLVL>(fp))
-            return true;
-        if (BigYAML::ValidateFromYAMLStream<DNAMP2::STRG>(fp))
-            return true;
-        return false;
+        athena::io::YAMLDocReader reader;
+        yaml_parser_set_input(reader.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &fp);
+        return reader.ClassTypeOperation([](const char* classType)
+        {
+            if (!strcmp(classType, DNAMP2::MLVL::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP2::STRG::DNAType()))
+                return true;
+            else if (!strcmp(classType, "ATBL"))
+                return true;
+            return false;
+        });
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
@@ -315,6 +324,20 @@ struct SpecMP2 : SpecBase
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {
+    }
+
+    void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                        FCookProgress progress)
+    {
+        DNAMP2::AGSC::Cook(in, out);
+        progress(_S("Done"));
+    }
+
+    void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                  FCookProgress progress)
+    {
+        DNAMP1::CSNG::Cook(in, out);
+        progress(_S("Done"));
     }
 };
 

@@ -211,7 +211,7 @@ public:
     void reloadState()
     {
         hecl::ProjectPath pp(*m_vm.project(), m_state.path);
-        if (m_state.path.empty() || pp.getPathType() == hecl::ProjectPath::Type::None)
+        if (m_state.path.empty() || pp.isNone())
         {
             m_state.path = m_vm.project()->getProjectWorkingPath().getRelativePathUTF8();
             navigateToPath(hecl::ProjectPath(*m_vm.project(), m_state.path));

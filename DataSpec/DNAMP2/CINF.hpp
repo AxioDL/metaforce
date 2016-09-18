@@ -1,7 +1,7 @@
 #ifndef _DNAMP2_CINF_HPP_
 #define _DNAMP2_CINF_HPP_
 
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/RigInverter.hpp"
 

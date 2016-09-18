@@ -8,11 +8,14 @@
 #include "MAPA.hpp"
 #include "AFSM.hpp"
 #include "SAVW.hpp"
+#include "AGSC.hpp"
 #include "../DNAMP1/HINT.hpp"
+#include "../DNAMP1/CSNG.hpp"
 #include "../DNACommon/FSM2.hpp"
 #include "../DNACommon/TXTR.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/DGRP.hpp"
+#include "../DNACommon/ATBL.hpp"
 
 namespace DataSpec
 {
@@ -205,31 +208,37 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const
     switch (entry.type)
     {
     case SBIG('HINT'):
-        return {DNAMP1::HINT::Extract, nullptr, {_S(".yaml")}};
+        return {DNAMP1::HINT::Extract, {_S(".yaml")}};
     case SBIG('STRG'):
-        return {STRG::Extract, nullptr, {_S(".yaml")}};
+        return {STRG::Extract, {_S(".yaml")}};
     case SBIG('TXTR'):
-        return {TXTR::Extract, nullptr, {_S(".png")}};
+        return {TXTR::Extract, {_S(".png")}};
     case SBIG('AFSM'):
-        return {AFSM::Extract, nullptr, {_S(".yaml")}};
+        return {AFSM::Extract, {_S(".yaml")}};
     case SBIG('SAVW'):
-        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, {_S(".yaml")}};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, {_S(".blend")}, 1};
+        return {CMDL::Extract, {_S(".blend")}, 1};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
+        return {ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
-        return {nullptr, MLVL::Extract, {_S(".blend")}, 3};
+        return {MLVL::Extract, {_S(".blend")}, 3};
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 4};
+        return {MREA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPA'):
-        return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+        return {MAPA::Extract, {_S(".blend")}, 4};
     case SBIG('FSM2'):
-        return {DNAFSM2::ExtractFSM2<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNAFSM2::ExtractFSM2<UniqueID32>, {_S(".yaml")}};
     case SBIG('FONT'):
-        return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNAFont::ExtractFONT<UniqueID32>, {_S(".yaml")}};
     case SBIG('DGRP'):
-        return {DNADGRP::ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNADGRP::ExtractDGRP<UniqueID32>, {_S(".yaml")}};
+    case SBIG('AGSC'):
+        return {AGSC::Extract, {_S(".pool"), _S(".proj"), _S(".samp"), _S(".sdir")}};
+    case SBIG('CSNG'):
+        return {DNAMP1::CSNG::Extract, {_S(".mid"), _S(".yaml")}};
+    case SBIG('ATBL'):
+        return {DNAAudio::ATBL::Extract, {_S(".yaml")}};
     }
     return {};
 }

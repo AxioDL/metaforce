@@ -100,7 +100,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
         /* We're not in a world pak, so lets keep the original name */
         mapaPath = outPath;
 
-    if (!force && mapaPath.getPathType() == hecl::ProjectPath::Type::File)
+    if (!force && mapaPath.isFile())
         return true;
 
     if (!conn.createBlend(mapaPath, hecl::BlenderConnection::BlendType::MapArea))
@@ -296,7 +296,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
 
     /* World background */
     hecl::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
-    if (worldBlend.getPathType() == hecl::ProjectPath::Type::File)
+    if (worldBlend.isFile())
         os.linkBackground("//../!world.blend", "World");
 
     os.centerView();

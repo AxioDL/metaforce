@@ -326,7 +326,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
     hecl::BlenderConnection& conn = btok.getBlenderConnection();
 
 #if 0
-    if (!force && outPath.getPathType() == hecl::ProjectPath::Type::File)
+    if (!force && outPath.isFile())
         return true;
 #endif
 
@@ -481,7 +481,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                 const nod::Node* node;
                 const PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(info->texture, &node);
                 hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-                if (txtrPath.getPathType() == hecl::ProjectPath::Type::None)
+                if (txtrPath.isNone())
                 {
                     PAKEntryReadStream rs = texEntry->beginReadStream(*node);
                     TXTR::Extract(rs, txtrPath);

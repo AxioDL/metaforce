@@ -42,7 +42,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
     {
         bool active;
         hecl::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i, active);
-        if (layerPath.getPathType() == hecl::ProjectPath::Type::None)
+        if (layerPath.isNone())
             layerPath.makeDir();
 
         if (active)
@@ -52,7 +52,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
         }
 
         hecl::ProjectPath yamlFile(layerPath, _S("objects.yaml"));
-        if (force || yamlFile.getPathType() == hecl::ProjectPath::Type::None)
+        if (force || yamlFile.isNone())
         {
             athena::io::FileWriter writer(yamlFile.getAbsolutePath());
             layers[i].toYAMLStream(writer);

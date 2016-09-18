@@ -3,6 +3,8 @@ add_subdirectory(ScriptObjects)
 make_dnalist(liblist
              PAK
              MLVL
+             AGSC
+             CSNG
              AFSM
              ANCS
              ANIM
@@ -33,6 +35,8 @@ add_library(DNAMP1
             ${liblist}
             PAK.cpp
             STRG.hpp STRG.cpp
+            AGSC.cpp
+            CSNG.cpp
             ANCS.cpp
             ANIM.cpp
             CINF.cpp

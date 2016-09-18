@@ -55,10 +55,12 @@ void CTweaks::RegisterResourceTweaks()
     const SObjectTag* tag = factory.GetResourceIdByName("GunRes");
     strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
-    
+    g_tweakGunRes->ResolveResources(factory);
+
     tag = factory.GetResourceIdByName("PlayerRes");
     strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
+    g_tweakPlayerRes->ResolveResources(factory);
 }
 
 }

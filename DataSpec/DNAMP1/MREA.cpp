@@ -73,7 +73,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         /* We're not in a world pak, so lets keep the original name */
         mreaPath = outPath;
 
-    if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
+    if (!force && mreaPath.isFile())
         return true;
 
     /* Do extract */
@@ -271,7 +271,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
         {
             hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _S("/objects.yaml"));
-            if (layerScriptPath.getPathType() == hecl::ProjectPath::Type::File)
+            if (layerScriptPath.isFile())
                 layerScriptPaths.push_back(std::move(layerScriptPath));
         }
     }

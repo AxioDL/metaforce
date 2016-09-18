@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <BlenderConnection.hpp>
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "BlenderSupport.hpp"
 
 extern "C" uint8_t RETRO_MASTER_SHADER[];

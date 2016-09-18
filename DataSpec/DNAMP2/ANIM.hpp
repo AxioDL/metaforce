@@ -1,7 +1,7 @@
 #ifndef _DNAMP2_ANIM_HPP_
 #define _DNAMP2_ANIM_HPP_
 
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "DNAMP2.hpp"
 #include "../DNACommon/ANIM.hpp"
 #include "../DNACommon/RigInverter.hpp"

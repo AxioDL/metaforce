@@ -2,7 +2,7 @@
 #define __DNACOMMON_MLVL_HPP__
 
 #include "DNACommon.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "zeus/CVector3f.hpp"
 
 namespace DataSpec

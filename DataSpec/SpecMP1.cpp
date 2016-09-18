@@ -11,6 +11,8 @@
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/MREA.hpp"
 #include "DNAMP1/ANCS.hpp"
+#include "DNAMP1/AGSC.hpp"
+#include "DNAMP1/CSNG.hpp"
 #include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
 #include "DNACommon/SWHC.hpp"
@@ -365,6 +367,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
+            else if (!strcmp(classType, "ATBL"))
+                return true;
             return false;
         });
     }
@@ -539,6 +543,20 @@ struct SpecMP1 : SpecBase
                 DNAMP1::HINT::Cook(in, out);
             }
         }
+        progress(_S("Done"));
+    }
+
+    void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                        FCookProgress progress)
+    {
+        DNAMP1::AGSC::Cook(in, out);
+        progress(_S("Done"));
+    }
+
+    void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                  FCookProgress progress)
+    {
+        DNAMP1::CSNG::Cook(in, out);
         progress(_S("Done"));
     }
 };

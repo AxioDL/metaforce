@@ -64,8 +64,21 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
         if (m_catalogNameToTag.find(p.first) != m_catalogNameToTag.cend())
             continue;
 
-        hecl::ProjectPath path(m_proj->getProjectWorkingPath(), p.second->m_scalarString);
-        if (path.getPathType() != hecl::ProjectPath::Type::File)
+        athena::io::YAMLNode& node = *p.second;
+        hecl::ProjectPath path(m_proj->getProjectWorkingPath(), node.m_scalarString);
+        if (node.m_type == YAML_SCALAR_NODE)
+        {
+            path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_scalarString);
+        }
+        else if (node.m_type == YAML_SEQUENCE_NODE)
+        {
+            if (node.m_seqChildren.size() >= 2)
+                path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_seqChildren[0]->m_scalarString).
+                        ensureAuxInfo(node.m_seqChildren[1]->m_scalarString);
+            else if (node.m_seqChildren.size() == 1)
+                path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_seqChildren[0]->m_scalarString);
+        }
+        if (!path.isFileOrGlob())
             continue;
         SObjectTag pathTag = TagFromPath(path, m_backgroundBlender);
         if (pathTag)
@@ -98,7 +111,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::Pr
             BackgroundIndexRecursiveCatalogs(path, nameWriter, level+1);
         else
         {
-            if (path.getPathType() != hecl::ProjectPath::Type::File)
+            if (!path.isFile())
                 continue;
 
             /* Read catalog.yaml for .pak directory if exists */
@@ -216,7 +229,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
             BackgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level+1);
         else
         {
-            if (path.getPathType() != hecl::ProjectPath::Type::File)
+            if (!path.isFile())
                 continue;
 
             /* Read catalog.yaml for .pak directory if exists */
@@ -246,7 +259,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
     athena::io::YAMLDocWriter nameWriter(nullptr);
 
     /* Read in tag cache */
-    if (tagCachePath.getPathType() == hecl::ProjectPath::Type::File)
+    if (tagCachePath.isFile())
     {
         athena::io::FileReader reader(tagCachePath.getAbsolutePath());
         if (reader.isOpen())
@@ -273,7 +286,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                         path = path.ensureAuxInfo(sys.sys_str());
                     }
 
-                    if (path.getPathType() == hecl::ProjectPath::Type::File)
+                    if (path.isFile())
                     {
                         SObjectTag pathTag(type, id);
                         m_tagToPath[pathTag] = path;
@@ -288,7 +301,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
             Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
                        m_origSpec->m_name, m_tagToPath.size());
 
-            if (nameCachePath.getPathType() == hecl::ProjectPath::Type::File)
+            if (nameCachePath.isFile())
             {
                 /* Read in name cache */
                 Log.report(logvisor::Info, _S("Name index of '%s' loading"), m_origSpec->m_name);
@@ -399,7 +412,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
         m_workingPath = path;
 
         /* Ensure requested resource is on the filesystem */
-        if (path.getPathType() != hecl::ProjectPath::Type::File)
+        if (!path.isFile())
         {
             Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
                        path.getRelativePath().c_str());
@@ -422,7 +435,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
         m_cookedPath = m_parent.GetCookedPath(path, true);
 
         /* Perform mod-time comparison */
-        if (m_cookedPath.getPathType() != hecl::ProjectPath::Type::File ||
+        if (!m_cookedPath.isFile() ||
             m_cookedPath.getModtime() < path.getModtime())
         {
             /* Start a background cook here */
@@ -510,7 +523,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
                                             std::experimental::optional<athena::io::FileReader>& fr)
 {
     /* Ensure requested resource is on the filesystem */
-    if (path.getPathType() != hecl::ProjectPath::Type::File)
+    if (!path.isFile())
     {
         Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
                    path.getAbsolutePath().c_str());
@@ -531,7 +544,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
     hecl::ProjectPath cooked = GetCookedPath(path, true);
 
     /* Perform mod-time comparison */
-    if (cooked.getPathType() != hecl::ProjectPath::Type::File ||
+    if (!cooked.isFile() ||
         cooked.getModtime() < path.getModtime())
     {
         /* Do a blocking cook here */
@@ -703,7 +716,7 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
     if (!WaitForTagReady(tag, resPath))
         return false;
 
-    if (resPath->getPathType() == hecl::ProjectPath::Type::File)
+    if (resPath->isFile())
         return true;
 
     return false;

@@ -2,7 +2,7 @@
 #define _DNACOMMON_DEAFBABE_HPP_
 
 #include "DNACommon.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 namespace DataSpec
 {

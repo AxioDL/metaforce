@@ -53,7 +53,7 @@ public:
     }
     static bool FileExists(const char* path)
     {
-        return hecl::ProjectPath(m_DvdRoot, path).getPathType() != hecl::ProjectPath::Type::File;
+        return hecl::ProjectPath(m_DvdRoot, path).isFile();
     }
     void CloseFile()
     {

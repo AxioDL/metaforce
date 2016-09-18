@@ -6,7 +6,7 @@ namespace urde
 
 bool ResourceBrowser::navigateToPath(const hecl::ProjectPath& pathIn)
 {
-    if (pathIn.getPathType() == hecl::ProjectPath::Type::File)
+    if (pathIn.isFile())
         m_path = pathIn.getParentPath();
     else
         m_path = pathIn;

@@ -5,7 +5,7 @@
 
 #include <hecl/Database.hpp>
 #include <nod/nod.hpp>
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 namespace DataSpec
 {
@@ -69,6 +69,10 @@ struct SpecBase : hecl::Database::IDataSpec
                           FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           athena::io::IStreamReader& fin, FCookProgress progress)=0;
+    virtual void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                                FCookProgress progress)=0;
+    virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                          FCookProgress progress)=0;
 
     const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

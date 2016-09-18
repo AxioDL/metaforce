@@ -27,6 +27,7 @@ add_library(DNACommon
             ParticleCommon.cpp
             FONT.hpp FONT.cpp
             DGRP.hpp DGRP.cpp
+            ATBL.hpp ATBL.cpp
             DeafBabe.hpp DeafBabe.cpp
             BabeDead.hpp BabeDead.cpp
             RigInverter.hpp RigInverter.cpp

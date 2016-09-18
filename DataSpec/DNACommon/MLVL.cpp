@@ -24,7 +24,7 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
     else
         /* We're not in a world pak, so lets keep the original name */
         mlvlPath = outPath;
-    if (!force && mlvlPath.getPathType() == hecl::ProjectPath::Type::File)
+    if (!force && mlvlPath.isFile())
         return true;
 
     /* Create World Blend */

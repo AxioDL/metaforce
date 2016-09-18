@@ -4,7 +4,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix3f.hpp"
 #include "zeus/CQuaternion.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 namespace DataSpec
 {

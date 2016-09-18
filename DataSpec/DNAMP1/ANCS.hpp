@@ -5,7 +5,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"

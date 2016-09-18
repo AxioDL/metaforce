@@ -177,7 +177,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         /* We're not in a world pak, so lets keep the original name */
         mreaPath = outPath;
 
-    if (!force && mreaPath.getPathType() == hecl::ProjectPath::Type::File)
+    if (!force && mreaPath.isFile())
         return true;
 
     /* Do extract */

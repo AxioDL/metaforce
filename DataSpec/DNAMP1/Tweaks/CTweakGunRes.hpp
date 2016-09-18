@@ -79,34 +79,10 @@ struct CTweakGunRes : ITweakGunRes
     const std::string& GetBombExplode() const { return m_bombExplode; }
     const std::string& GetPowerBombExplode() const { return m_powerBombExplode; }
 
-    const std::string& GetPowerBeamWeapon() const { return m_powerBeamWp; }
-    const std::string& GetPowerBallWeapon() const { return m_powerBallWp; }
-    const std::string& GetIceBeamWeapon() const { return m_iceBeamWp; }
-    const std::string& GetIceBallWeapon() const { return m_iceBallWp; }
-    const std::string& GetWaveBeamWeapon() const { return m_waveBeamWp; }
-    const std::string& GetWaveBallWeapon() const { return m_waveBallWp; }
-    const std::string& GetPlasmaBeamWeapon() const { return m_plasmaBeamWp; }
-    const std::string& GetPlasmaBallWeapon() const { return m_plasmaBallWp; }
-    const std::string& GetPhazonBeamWeapon() const { return m_phazonBeamWp; }
-    const std::string& GetPhazonBallWeapon() const { return m_phazonBallWp; }
-
-    const std::string& GetPowerMuzzleParticle() const { return m_powerMuzzle; }
-    const std::string& GetIceMuzzleParticle() const { return m_iceMuzzle; }
-    const std::string& GetWaveMuzzleParticle() const { return m_waveMuzzle; }
-    const std::string& GetPlasmaMuzzleParticle() const { return m_plasmaMuzzle; }
-    const std::string& GetPhazonMuzzleParticle() const { return m_phazonMuzzle; }
-
-    const std::string& GetPowerChargeParticle() const { return m_powerCharge; }
-    const std::string& GetIceChargeParticle() const { return m_iceCharge; }
-    const std::string& GetWaveChargeParticle() const { return m_waveCharge; }
-    const std::string& GetPlasmaChargeParticle() const { return m_plasmaCharge; }
-    const std::string& GetPhazonChargeParticle() const { return m_phazonCharge; }
-
-    const std::string& GetPowerAuxMuzzleParticle() const { return m_powerAuxMuzzle; }
-    const std::string& GetIceAuxMuzzleParticle() const { return m_iceAuxMuzzle; }
-    const std::string& GetWaveAuxMuzzleParticle() const { return m_waveAuxMuzzle; }
-    const std::string& GetPlasmaAuxMuzzleParticle() const { return m_plasmaAuxMuzzle; }
-    const std::string& GetPhazonAuxMuzzleParticle() const { return m_phazonAuxMuzzle; }
+    const std::string& GetWeapon(size_t idx, bool ball) const { return (&m_powerBeamWp)[idx * 2 + ball]; }
+    const std::string& GetMuzzleParticle(size_t idx) const { return (&m_powerMuzzle)[idx]; }
+    const std::string& GetChargeParticle(size_t idx) const { return (&m_powerCharge)[idx]; }
+    const std::string& GetAuxMuzzleParticle(size_t idx) const { return (&m_powerAuxMuzzle)[idx]; }
 
     const std::string& GetGrappleSegmentParticle() const { return m_grappleSegment; }
     const std::string& GetGrappleClawParticle() const { return m_grappleClaw; }

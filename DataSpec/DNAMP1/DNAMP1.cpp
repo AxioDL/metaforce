@@ -14,6 +14,7 @@
 #include "../DNACommon/DPSC.hpp"
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/DGRP.hpp"
+#include "../DNACommon/ATBL.hpp"
 #include "HINT.hpp"
 #include "CMDL.hpp"
 #include "AFSM.hpp"
@@ -22,6 +23,8 @@
 #include "MREA.hpp"
 #include "MAPA.hpp"
 #include "FRME.hpp"
+#include "AGSC.hpp"
+#include "CSNG.hpp"
 
 #include "../DNACommon/Tweaks/TweakWriter.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
@@ -269,45 +272,51 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     switch (entry.type)
     {
     case SBIG('STRG'):
-        return {STRG::Extract, nullptr, {_S(".yaml")}};
+        return {STRG::Extract, {_S(".yaml")}};
     case SBIG('SCAN'):
-        return {SCAN::Extract, nullptr, {_S(".yaml")}, 0, SCAN::Name};
+        return {SCAN::Extract, {_S(".yaml")}, 0, SCAN::Name};
     case SBIG('HINT'):
-        return {HINT::Extract, nullptr, {_S(".yaml")}};
+        return {HINT::Extract, {_S(".yaml")}};
     case SBIG('SAVW'):
-        return {SAVWCommon::ExtractSAVW<SAVW>, nullptr, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, {_S(".yaml")}};
     case SBIG('TXTR'):
-        return {TXTR::Extract, nullptr, {_S(".png")}};
+        return {TXTR::Extract, {_S(".png")}};
     case SBIG('AFSM'):
-        return {AFSM::Extract, nullptr, {_S(".yaml")}};
+        return {AFSM::Extract, {_S(".yaml")}};
     case SBIG('FRME'):
-        return {nullptr, FRME::Extract, {_S(".blend")}, 2};
+        return {FRME::Extract, {_S(".blend")}, 2};
     case SBIG('CMDL'):
-        return {nullptr, CMDL::Extract, {_S(".blend")}, 1, CMDL::Name};
+        return {CMDL::Extract, {_S(".blend")}, 1, CMDL::Name};
     case SBIG('ANCS'):
-        return {nullptr, ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
+        return {ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
-        return {nullptr, MLVL::Extract, {_S(".blend")}, 3};
+        return {MLVL::Extract, {_S(".blend")}, 3};
     case SBIG('MREA'):
-        return {nullptr, MREA::Extract, {_S(".blend")}, 4, MREA::Name};
+        return {MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):
-        return {nullptr, MAPA::Extract, {_S(".blend")}, 4};
+        return {MAPA::Extract, {_S(".blend")}, 4};
     case SBIG('PART'):
-        return {DNAParticle::ExtractGPSM<UniqueID32>, nullptr, {_S(".gpsm.yaml")}};
+        return {DNAParticle::ExtractGPSM<UniqueID32>, {_S(".gpsm.yaml")}};
     case SBIG('ELSC'):
-        return {DNAParticle::ExtractELSM<UniqueID32>, nullptr, {_S(".elsm.yaml")}};
+        return {DNAParticle::ExtractELSM<UniqueID32>, {_S(".elsm.yaml")}};
     case SBIG('SWHC'):
-        return {DNAParticle::ExtractSWSH<UniqueID32>, nullptr, {_S(".swsh.yaml")}};
+        return {DNAParticle::ExtractSWSH<UniqueID32>, {_S(".swsh.yaml")}};
     case SBIG('CRSC'):
-        return {DNAParticle::ExtractCRSM<UniqueID32>, nullptr, {_S(".crsm.yaml")}};
+        return {DNAParticle::ExtractCRSM<UniqueID32>, {_S(".crsm.yaml")}};
     case SBIG('WPSC'):
-        return {DNAParticle::ExtractWPSM<UniqueID32>, nullptr, {_S(".wpsm.yaml")}};
+        return {DNAParticle::ExtractWPSM<UniqueID32>, {_S(".wpsm.yaml")}};
     case SBIG('DPSC'):
-        return {DNAParticle::ExtractDPSM<UniqueID32>, nullptr, {_S(".dpsm.yaml")}};
+        return {DNAParticle::ExtractDPSM<UniqueID32>, {_S(".dpsm.yaml")}};
     case SBIG('FONT'):
-        return {DNAFont::ExtractFONT<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNAFont::ExtractFONT<UniqueID32>, {_S(".yaml")}};
     case SBIG('DGRP'):
-        return {DNADGRP::ExtractDGRP<UniqueID32>, nullptr, {_S(".yaml")}};
+        return {DNADGRP::ExtractDGRP<UniqueID32>, {_S(".yaml")}};
+    case SBIG('AGSC'):
+        return {AGSC::Extract, {_S(".pool"), _S(".proj"), _S(".samp"), _S(".sdir")}};
+    case SBIG('CSNG'):
+        return {CSNG::Extract, {_S(".mid"), _S(".yaml")}};
+    case SBIG('ATBL'):
+        return {DNAAudio::ATBL::Extract, {_S(".yaml")}};
     case SBIG('CTWK'):
     {
         bool named;
@@ -315,15 +324,15 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         if (named)
         {
             if (!name.compare("PlayerRes"))
-                return {ExtractTweak<CTweakPlayerRes>, nullptr, {_S(".yaml")}};
+                return {ExtractTweak<CTweakPlayerRes>, {_S(".yaml")}};
             if (!name.compare("GunRes"))
-                return {ExtractTweak<CTweakGunRes>, nullptr, {_S(".yaml")}};
+                return {ExtractTweak<CTweakGunRes>, {_S(".yaml")}};
             if (!name.compare("Player"))
-                return {ExtractTweak<CTweakPlayer>, nullptr, {_S(".yaml")}};
+                return {ExtractTweak<CTweakPlayer>, {_S(".yaml")}};
             if (!name.compare("CameraBob"))
-                return {ExtractTweak<CTweakCameraBob>, nullptr, {_S(".yaml")}};
+                return {ExtractTweak<CTweakCameraBob>, {_S(".yaml")}};
             if (!name.compare("SlideShow"))
-                return {ExtractTweak<CTweakSlideShow>, nullptr, {_S(".yaml")}};
+                return {ExtractTweak<CTweakSlideShow>, {_S(".yaml")}};
         }
         break;
     }

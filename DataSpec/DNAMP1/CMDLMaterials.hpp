@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_CMDL_MATERIALS_HPP_
 #define _DNAMP1_CMDL_MATERIALS_HPP_
 
-#include <BlenderConnection.hpp>
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/GX.hpp"
 #include "../DNACommon/CMDL.hpp"

@@ -45,7 +45,7 @@ public:
         atUint64 bufEnd = m_pos + len;
         if (bufEnd > m_sz)
             len -= bufEnd - m_sz;
-        memcpy(buf, m_buf.get() + m_pos, len);
+        memmove(buf, m_buf.get() + m_pos, len);
         m_pos += len;
         return len;
     }
@@ -84,10 +84,26 @@ struct ResExtractor
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                        const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
                        std::function<void(const hecl::SystemChar*)>)> func_b;
-    const hecl::SystemChar* fileExts[4];
-    unsigned weight;
+    std::array<const hecl::SystemChar*, 6> fileExts = {};
+    unsigned weight = 0;
     std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
                        typename PAKBRIDGE::PAKType::Entry&)> func_name;
+
+    ResExtractor() = default;
+
+    ResExtractor(std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)>&& func,
+                 std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin=0,
+                 std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
+                                    typename PAKBRIDGE::PAKType::Entry&)>&& nfunc={})
+    : func_a(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
+
+    ResExtractor(std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
+                                    const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
+                                    std::function<void(const hecl::SystemChar*)>)>&& func,
+                 std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin=0,
+                 std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
+                                    typename PAKBRIDGE::PAKType::Entry&)>&& nfunc={})
+    : func_b(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
 };
 
 /** Level hierarchy representation */

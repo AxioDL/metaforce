@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 #include "DNACommon.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "CMDL.hpp"
 #include "RigInverter.hpp"
 
@@ -53,7 +53,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
         if (cmdlE)
         {
             hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-            if (force || cmdlPath.getPathType() == hecl::ProjectPath::Type::None)
+            if (force || cmdlPath.isNone())
             {
                 if (!conn.createBlend(cmdlPath, hecl::BlenderConnection::BlendType::Mesh))
                     return false;

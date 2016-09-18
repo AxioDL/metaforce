@@ -1,7 +1,7 @@
 #ifndef _DNACOMMON_BABEDEAD_HPP_
 #define _DNACOMMON_BABEDEAD_HPP_
 
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "zeus/Math.hpp"
 #include <cfloat>
 

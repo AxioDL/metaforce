@@ -64,7 +64,8 @@ set(DATA_SPEC_LIBS
     DNAMP2
     DNAMP1
     ScriptObjectsMP1
-    DNACommon)
+    DNACommon
+    amuse)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace DataSpec

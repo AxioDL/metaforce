@@ -336,10 +336,10 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     x8_textData.reset();
     x20_random.SetSeed(99);
 
-    const std::string& modelName = g_tweakPlayerRes->GetBeamCineModel(
+    ResId beamModelId = g_tweakPlayerRes->GetBeamCineModel(
         DataSpec::ITweakPlayerRes::EBeamId(g_GameState->GetPlayerState()->GetCurrentBeam()));
 
-    x4_modelData->x14c_beamModel = g_SimplePool->GetObj(modelName.c_str());
+    x4_modelData->x14c_beamModel = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), beamModelId});
 
     TToken<CCharacterFactory> fac = g_CharFactoryBuilder->GetFactory(samusRes);
     const CCharacterInfo& info = fac.GetObj()->GetCharInfo(GetSuitCharIdx());
