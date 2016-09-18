@@ -3,7 +3,7 @@
 
 #include "hecl.hpp"
 #include "Database.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include <list>
 #include <thread>
 #include <mutex>

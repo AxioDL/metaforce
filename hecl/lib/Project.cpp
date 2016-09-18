@@ -10,7 +10,7 @@
 #endif
 
 #include "hecl/Database.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 namespace hecl
 {
@@ -250,6 +250,15 @@ Project::Project(const ProjectRootPath& rootPath)
     /* Compile current dataspec */
     rescanDataSpecs();
     m_valid = true;
+}
+
+const ProjectPath& Project::getProjectCookedPath(const DataSpecEntry& spec) const
+{
+    for (const ProjectDataSpec& sp : m_compiledSpecs)
+        if (&sp.spec == &spec)
+            return sp.cookedPath;
+    LogModule.report(logvisor::Fatal, "Unable to find spec '%s'", spec.m_name);
+    return m_cookedRoot;
 }
 
 bool Project::addPaths(const std::vector<ProjectPath>& paths)

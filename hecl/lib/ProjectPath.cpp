@@ -134,7 +134,11 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 ProjectPath::Type ProjectPath::getPathType() const
 {
     if (std::regex_search(m_absPath, regGLOB))
-        return Type::Glob;
+    {
+        std::vector<ProjectPath> globResults;
+        getGlobResults(globResults);
+        return globResults.size() ? Type::Glob : Type::None;
+    }
     Sstat theStat;
     if (hecl::Stat(m_absPath.c_str(), &theStat))
         return Type::None;

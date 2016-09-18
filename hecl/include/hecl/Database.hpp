@@ -337,14 +337,7 @@ public:
      *
      * The cooked path matches the directory layout of the working directory
      */
-    const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const
-    {
-        for (const ProjectDataSpec& sp : m_compiledSpecs)
-            if (&sp.spec == &spec)
-                return sp.cookedPath;
-        LogModule.report(logvisor::Fatal, "Unable to find spec '%s'", spec.m_name);
-        return m_cookedRoot;
-    }
+    const ProjectPath& getProjectCookedPath(const DataSpecEntry& spec) const;
 
     /**
      * @brief Add given file(s) to the database

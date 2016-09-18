@@ -1112,6 +1112,43 @@ public:
     Type getPathType() const;
 
     /**
+     * @brief Test if nothing exists at path
+     * @return True if nothing exists at path
+     */
+    bool isNone() const
+    {
+        return getPathType() == Type::None;
+    }
+
+    /**
+     * @brief Test if regular file exists at path
+     * @return True if regular file exists at path
+     */
+    bool isFile() const
+    {
+        return getPathType() == Type::File;
+    }
+
+    /**
+     * @brief Test if directory exists at path
+     * @return True if directory exists at path
+     */
+    bool isDirectory() const
+    {
+        return getPathType() == Type::Directory;
+    }
+
+    /**
+     * @brief Certain singular resource targets are cooked based on this test
+     * @return True if file or glob
+     */
+    bool isFileOrGlob() const
+    {
+        Type type = getPathType();
+        return (type == Type::File || type == Type::Glob);
+    }
+
+    /**
      * @brief Get time of last modification with special behaviors for directories and glob-paths
      * @return Time object representing entity's time of last modification
      *
@@ -1220,6 +1257,24 @@ public:
             return false;
         return !StrCmp(&*(str.end() - len), test);
     }
+
+#if HECL_UCS2
+    static bool BeginsWith(const std::string& str, const char* test)
+    {
+        size_t len = strlen(test);
+        if (len > str.size())
+            return false;
+        return !strcmp(str.data(), test);
+    }
+
+    static bool EndsWith(const std::string& str, const char* test)
+    {
+        size_t len = strlen(test);
+        if (len > str.size())
+            return false;
+        return !strcmp(&*(str.end() - len), test);
+    }
+#endif
 };
 
 /**

@@ -9,6 +9,14 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace hecl
+{
+namespace Database
+{
+std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
+}
+}
+
 struct HECLWindowCallback : boo::IWindowCallback
 {
     bool m_sizeDirty = false;

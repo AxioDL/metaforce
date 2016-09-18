@@ -14,7 +14,7 @@
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
 #include "logvisor/logvisor.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 #if _WIN32
 #include <io.h>

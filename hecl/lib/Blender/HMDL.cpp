@@ -1,4 +1,4 @@
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include <cmath>
 #include <float.h>
 

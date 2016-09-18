@@ -15,7 +15,7 @@
 #include <regex>
 #include <list>
 #include "hecl/Database.hpp"
-#include "../blender/BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 #include "logvisor/logvisor.hpp"
 
 logvisor::Module LogModule("HECLDriver");

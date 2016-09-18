@@ -1,7 +1,7 @@
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Database.hpp"
 #include "athena/FileReader.hpp"
-#include "BlenderConnection.hpp"
+#include "hecl/Blender/BlenderConnection.hpp"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
