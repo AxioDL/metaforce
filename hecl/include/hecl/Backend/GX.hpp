@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <algorithm>
 
+#undef min
+#undef max
+
 namespace hecl
 {
 namespace Backend

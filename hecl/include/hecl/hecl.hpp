@@ -1084,15 +1084,27 @@ public:
      * @brief Construct a path with the aux info overwritten with specified string
      * @param auxStr string to replace existing auxInfo with
      */
-    hecl::ProjectPath ensureAuxInfo(const SystemChar* auxStr) const
+    ProjectPath ensureAuxInfo(const SystemChar* auxStr) const
     {
-        return hecl::ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
+        return ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
     }
 
-    hecl::ProjectPath ensureAuxInfo(const SystemString& auxStr) const
+    ProjectPath ensureAuxInfo(const SystemString& auxStr) const
     {
-        return ensureAuxInfo(auxStr.c_str());
+        return ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
     }
+
+#if HECL_UCS2
+    ProjectPath ensureAuxInfo(const char* auxStr) const
+    {
+        return ProjectPath(getProject(), getRelativePath() + _S('|') + UTF8ToWide(auxStr));
+    }
+
+    ProjectPath ensureAuxInfo(const std::string& auxStr) const
+    {
+        return ProjectPath(getProject(), getRelativePath() + _S('|') + UTF8ToWide(auxStr));
+    }
+#endif
 
     /**
      * @brief Type of path
