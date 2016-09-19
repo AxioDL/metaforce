@@ -255,18 +255,15 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
 }
 
 template <class BRIDGETYPE>
-hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* entry,
-                                                             const hecl::SystemString& entName) const
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* entry) const
 {
-    if (entry->type ==  FOURCC('CINF') || entry->type ==  FOURCC('CSKR'))
+    auto characterSearch = m_cskrCinfToCharacter.find(entry->id);
+    if (characterSearch != m_cskrCinfToCharacter.cend())
     {
-        auto characterSearch = m_cskrCinfToCharacter.find(entry->id);
-        if (characterSearch != m_cskrCinfToCharacter.cend())
-        {
-            hecl::ProjectPath characterPath = getWorking(characterSearch->second);
-            return characterPath.ensureAuxInfo(entName +
-                ((entry->type == FOURCC('CINF')) ? _S(".CINF") : _S(".CSKR")));
-        }
+        hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
+        if (entry->type == FOURCC('EVNT'))
+            return characterPath.getWithExtension((_S(".") + characterSearch->second.second).c_str(), true);
+        return characterPath.ensureAuxInfo(characterSearch->second.second);
     }
     return {};
 }
@@ -299,7 +296,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
                 entName += extractor.fileExts[0];
             else if (extractor.fileExts[0])
                 entName += _S(".*");
-            else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+            else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
             {
                 entName = chWork.getLastComponent();
                 auxInfo = chWork.getAuxInfo();
@@ -324,7 +321,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
             entName += _S(".*");
-        else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+        else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
         {
             entName = chWork.getLastComponent();
             auxInfo = chWork.getAuxInfo();
@@ -354,7 +351,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
             entName += _S(".*");
-        else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+        else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
         {
             entName = chWork.getLastComponent();
             auxInfo = chWork.getAuxInfo();

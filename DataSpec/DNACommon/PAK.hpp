@@ -150,10 +150,9 @@ private:
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
-    std::unordered_map<IDType, IDType> m_cskrCinfToCharacter;
+    std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;
 
-    hecl::ProjectPath getCharacterWorking(const EntryType* entry,
-                                          const hecl::SystemString& entName) const;
+    hecl::ProjectPath getCharacterWorking(const EntryType* entry) const;
 
 public:
     PAKRouter(const SpecBase& dataSpec, const hecl::ProjectPath& working, const hecl::ProjectPath& cooked)

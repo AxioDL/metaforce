@@ -37,7 +37,7 @@ public:
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
-            std::unordered_map<UniqueID32, UniqueID32>& cskrCinfToAncs) const;
+            std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const;
 };
 
 }
