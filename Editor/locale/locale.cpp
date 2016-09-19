@@ -3,6 +3,9 @@
 #include <clocale>
 #include <algorithm>
 
+#undef min
+#undef max
+
 extern "C" const uint8_t L_en_US[];
 extern "C" size_t L_en_US_SZ;
 

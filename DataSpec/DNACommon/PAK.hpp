@@ -3,6 +3,7 @@
 
 #include "DNACommon.hpp"
 #include "boo/ThreadLocalPtr.hpp"
+#include <array>
 
 namespace DataSpec
 {
@@ -91,18 +92,18 @@ struct ResExtractor
 
     ResExtractor() = default;
 
-    ResExtractor(std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)>&& func,
+    ResExtractor(std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func,
                  std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin=0,
                  std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
-                                    typename PAKBRIDGE::PAKType::Entry&)>&& nfunc={})
+                                    typename PAKBRIDGE::PAKType::Entry&)> nfunc={})
     : func_a(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
 
     ResExtractor(std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                                     const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
-                                    std::function<void(const hecl::SystemChar*)>)>&& func,
+                                    std::function<void(const hecl::SystemChar*)>)> func,
                  std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin=0,
                  std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
-                                    typename PAKBRIDGE::PAKType::Entry&)>&& nfunc={})
+                                    typename PAKBRIDGE::PAKType::Entry&)> nfunc={})
     : func_b(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
 };
 

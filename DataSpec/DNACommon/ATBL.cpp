@@ -1,5 +1,4 @@
 #include "ATBL.hpp"
-#include "Athena/Athena/DNAYaml.hpp"
 
 namespace DataSpec
 {

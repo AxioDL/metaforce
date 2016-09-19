@@ -34,10 +34,12 @@ u16 CSfxManager::TranslateSFXID(u16 id)
 
 CSfxHandle CSfxManager::SfxStop(const CSfxHandle& handle)
 {
+    return {};
 }
 
 CSfxHandle CSfxManager::SfxStart(u16 id, s16 vol, s16 pan, bool active, s16 prio, bool inArea, s32 areaId)
 {
+    return {};
 }
 
 }
