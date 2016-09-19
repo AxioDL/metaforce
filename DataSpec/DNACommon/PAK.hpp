@@ -136,6 +136,7 @@ public:
     using IDType = typename PAKType::IDType;
     using EntryType = typename PAKType::Entry;
     using RigPair = std::pair<IDType, IDType>;
+
 private:
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
     std::vector<std::pair<hecl::ProjectPath,hecl::ProjectPath>> m_bridgePaths;
@@ -149,6 +150,11 @@ private:
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
+    std::unordered_map<IDType, IDType> m_cskrCinfToCharacter;
+
+    hecl::ProjectPath getCharacterWorking(const EntryType* entry,
+                                          const hecl::SystemString& entName) const;
+
 public:
     PAKRouter(const SpecBase& dataSpec, const hecl::ProjectPath& working, const hecl::ProjectPath& cooked)
     : PAKRouterBase(dataSpec),

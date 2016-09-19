@@ -36,7 +36,8 @@ public:
     inline const nod::Node& getNode() const {return m_node;}
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo) const;
+            std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
+            std::unordered_map<UniqueID64, UniqueID64>& cskrCinfToChar) const;
 };
 
 }

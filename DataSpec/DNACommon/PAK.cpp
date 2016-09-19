@@ -190,7 +190,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         }
 
         /* Add RigPairs to global map */
-        bridge.addCMDLRigPairs(*this, m_cmdlRigs);
+        bridge.addCMDLRigPairs(*this, m_cmdlRigs, m_cskrCinfToCharacter);
 
         progress(++count / bridgesSz);
         ++bridgeIdx;
@@ -205,8 +205,19 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
         for (const auto& namedEntry : pak.m_nameEntries)
         {
+            if (namedEntry.name == "holo_cinf")
+                continue; /* Problematic corner case */
             catalogWriter.enterSubRecord(namedEntry.name.c_str());
-            catalogWriter.writeString(nullptr, getWorking(namedEntry.id).getRelativePathUTF8().c_str());
+            hecl::ProjectPath working = getWorking(namedEntry.id);
+            if (working.getAuxInfoUTF8().size())
+            {
+                catalogWriter.enterSubVector(nullptr);
+                catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
+                catalogWriter.writeString(nullptr, working.getAuxInfoUTF8().c_str());
+                catalogWriter.leaveSubVector();
+            }
+            else
+                catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
             catalogWriter.leaveSubRecord();
         }
 
@@ -244,6 +255,23 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
 }
 
 template <class BRIDGETYPE>
+hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* entry,
+                                                             const hecl::SystemString& entName) const
+{
+    if (entry->type ==  FOURCC('CINF') || entry->type ==  FOURCC('CSKR'))
+    {
+        auto characterSearch = m_cskrCinfToCharacter.find(entry->id);
+        if (characterSearch != m_cskrCinfToCharacter.cend())
+        {
+            hecl::ProjectPath characterPath = getWorking(characterSearch->second);
+            return characterPath.ensureAuxInfo(entName +
+                ((entry->type == FOURCC('CINF')) ? _S(".CINF") : _S(".CSKR")));
+        }
+    }
+    return {};
+}
+
+template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
                                                     const ResExtractor<BRIDGETYPE>& extractor) const
 {
@@ -266,11 +294,17 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #else
             hecl::SystemString entName = getBestEntryName(*entry);
 #endif
+            hecl::SystemString auxInfo;
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
             else if (extractor.fileExts[0])
                 entName += _S(".*");
-            return hecl::ProjectPath(pakPath, entName);
+            else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+            {
+                entName = chWork.getLastComponent();
+                auxInfo = chWork.getAuxInfo();
+            }
+            return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
         }
     }
 
@@ -285,18 +319,24 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #else
         hecl::SystemString entName = getBestEntryName(*entry);
 #endif
+        hecl::SystemString auxInfo;
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
             entName += _S(".*");
+        else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+        {
+            entName = chWork.getLastComponent();
+            auxInfo = chWork.getAuxInfo();
+        }
         if (bridge.getPAK().m_noShare)
         {
-            return hecl::ProjectPath(pakPath, entName);
+            return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
         }
         else
         {
             hecl::ProjectPath uniquePath = entry->unique.uniquePath(pakPath);
-            return hecl::ProjectPath(uniquePath, entName);
+            return hecl::ProjectPath(uniquePath, entName).ensureAuxInfo(auxInfo);
         }
     }
 
@@ -308,14 +348,20 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 #else
         hecl::SystemString entBase = getBestEntryName(*entry);
 #endif
+        hecl::SystemString auxInfo;
         hecl::SystemString entName = entBase;
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
             entName += _S(".*");
+        else if (hecl::ProjectPath chWork = getCharacterWorking(entry, entName))
+        {
+            entName = chWork.getLastComponent();
+            auxInfo = chWork.getAuxInfo();
+        }
         hecl::ProjectPath sharedPath(m_sharedWorking, entName);
         m_sharedWorking.makeDir();
-        return sharedPath;
+        return sharedPath.ensureAuxInfo(auxInfo);
     }
 
     LogDNACommon.report(logvisor::Fatal, "Unable to find entry %s", entry->id.toString().c_str());

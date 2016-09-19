@@ -219,7 +219,8 @@ void PAKBridge::build()
 }
 
 void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
+        std::unordered_map<UniqueID32, UniqueID32>& cskrCinfToAncs) const
 {
     for (const std::pair<UniqueID32, PAK::Entry*>& entry : m_pak.m_idMap)
     {
@@ -231,6 +232,8 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
                 addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+                cskrCinfToAncs[ci.cskr] = entry.second->id;
+                cskrCinfToAncs[ci.cinf] = entry.second->id;
                 PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
                 PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
                 PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
@@ -240,6 +243,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 if (ci.cmdlOverlay && ci.cskrOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
+                    cskrCinfToAncs[ci.cskrOverlay] = entry.second->id;
                     PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
                     PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
                     cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());

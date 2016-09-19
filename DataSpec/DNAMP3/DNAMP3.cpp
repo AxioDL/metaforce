@@ -194,7 +194,8 @@ void PAKBridge::build()
 }
 
 void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo) const
+        std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
+        std::unordered_map<UniqueID64, UniqueID64>& cskrCinfToChar) const
 {
     for (const std::pair<UniqueID64, PAK::Entry*>& entry : m_pak.m_idMap)
     {
@@ -205,8 +206,13 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             aChar.read(rs);
             const CHAR::CharacterInfo& ci = aChar.characterInfo;
             addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+            cskrCinfToChar[ci.cskr] = entry.second->id;
+            cskrCinfToChar[ci.cinf] = entry.second->id;
             for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays)
+            {
                 addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
+                cskrCinfToChar[overlay.cskr] = entry.second->id;
+            }
         }
     }
 }
