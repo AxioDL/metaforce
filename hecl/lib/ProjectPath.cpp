@@ -74,7 +74,7 @@ void ProjectPath::assign(Database::Project& project, const SystemString& path)
     else
         usePath = path;
 
-    m_relPath = CanonRelPath(usePath);
+    m_relPath = CanonRelPath(usePath, project.getProjectRootPath());
     m_absPath = project.getProjectRootPath().getAbsolutePath() + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
@@ -134,11 +134,7 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 ProjectPath::Type ProjectPath::getPathType() const
 {
     if (std::regex_search(m_absPath, regGLOB))
-    {
-        std::vector<ProjectPath> globResults;
-        getGlobResults(globResults);
-        return globResults.size() ? Type::Glob : Type::None;
-    }
+        return Type::Glob;
     Sstat theStat;
     if (hecl::Stat(m_absPath.c_str(), &theStat))
         return Type::None;
@@ -165,6 +161,7 @@ Time ProjectPath::getModtime() const
                     latestTime = theStat.st_mtime;
             }
         }
+        return Time(latestTime);
     }
     if (!hecl::Stat(m_absPath.c_str(), &theStat))
     {
@@ -192,22 +189,22 @@ Time ProjectPath::getModtime() const
 
 static void _recursiveGlob(Database::Project& proj,
                            std::vector<ProjectPath>& outPaths,
-                           size_t level,
-                           const SystemRegexMatch& pathCompMatches,
+                           const SystemString& remPath,
                            const SystemString& itStr,
                            bool needSlash)
 {
-    if (level >= pathCompMatches.size())
+    SystemRegexMatch matches;
+    if (!std::regex_search(remPath, matches, regPATHCOMP))
         return;
 
-    SystemString comp = pathCompMatches.str(level);
+    const SystemString& comp = matches[1];
     if (!std::regex_search(comp, regGLOB))
     {
         SystemString nextItStr = itStr;
         if (needSlash)
             nextItStr += _S('/');
         nextItStr += comp;
-        _recursiveGlob(proj, outPaths, level+1, pathCompMatches, nextItStr, true);
+        _recursiveGlob(proj, outPaths, matches.suffix(), nextItStr, true);
         return;
     }
 
@@ -229,7 +226,7 @@ static void _recursiveGlob(Database::Project& proj,
                 continue;
 
             if (ent.m_isDir)
-                _recursiveGlob(proj, outPaths, level+1, pathCompMatches, nextItStr, true);
+                _recursiveGlob(proj, outPaths, matches.suffix(), nextItStr, true);
             else
                 outPaths.emplace_back(proj, nextItStr);
         }
@@ -262,9 +259,7 @@ void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
     SystemString itStr = _S("/");
 #endif
 
-    SystemRegexMatch pathCompMatches;
-    if (std::regex_search(m_absPath, pathCompMatches, regPATHCOMP))
-        _recursiveGlob(*m_proj, outPaths, 1, pathCompMatches, itStr, false);
+    _recursiveGlob(*m_proj, outPaths, m_absPath, itStr, false);
 }
 
 ProjectRootPath SearchForProject(const SystemString& path)

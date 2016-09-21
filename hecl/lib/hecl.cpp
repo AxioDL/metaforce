@@ -139,16 +139,10 @@ bool IsPathPNG(const hecl::ProjectPath& path)
 
 bool IsPathBlend(const hecl::ProjectPath& path)
 {
-    hecl::ProjectPath usePath;
-    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
-        usePath = path.getWithExtension(_S(".blend"), true);
-    else
-        usePath = path;
-
-    const SystemChar* lastCompExt = usePath.getLastComponentExt();
+    const SystemChar* lastCompExt = path.getLastComponentExt();
     if (!lastCompExt || hecl::StrCmp(lastCompExt, _S("blend")))
         return false;
-    FILE* fp = hecl::Fopen(usePath.getAbsolutePath().c_str(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;
     uint32_t buf;
