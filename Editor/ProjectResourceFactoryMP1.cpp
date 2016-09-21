@@ -64,10 +64,16 @@ SObjectTag ProjectResourceFactoryMP1::BuildTagFromPath(const hecl::ProjectPath& 
     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
         return SObjectTag(SBIG('ANIM'), path.hash().val32());
 
-    if (hecl::IsPathBlend(path))
+    hecl::ProjectPath asBlend;
+    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+        asBlend = path.getWithExtension(_S(".blend"), true);
+    else
+        asBlend = path;
+
+    if (hecl::IsPathBlend(asBlend))
     {
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(path))
+        if (!conn.openBlend(asBlend))
             return {};
 
         switch (conn.getBlendType())
@@ -113,49 +119,75 @@ SObjectTag ProjectResourceFactoryMP1::BuildTagFromPath(const hecl::ProjectPath& 
         yaml_parser_set_input_file(reader.getParser(), fp);
 
         SObjectTag resTag;
-        if (reader.ClassTypeOperation([&](const char* className) -> bool {
-                if (!strcmp(className, "GPSM"))
-                {
-                    resTag.type = SBIG('PART');
-                    return true;
-                }
-                else if (!strcmp(className, "FONT"))
-                {
-                    resTag.type = SBIG('FONT');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DNAMP1::EVNT"))
-                {
-                    resTag.type = SBIG('EVNT');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DGRP"))
-                {
-                    resTag.type = SBIG('DGRP');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DNAMP1::STRG"))
-                {
-                    resTag.type = SBIG('STRG');
-                    return true;
-                }
-                else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob"))
-                {
-                    resTag.type = SBIG('CTWK');
-                    return true;
-                }
-                else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
-                {
-                    resTag.type = SBIG('HINT');
-                    return true;
-                }
+        if (reader.ClassTypeOperation([&](const char* className) -> bool
+        {
+            if (!strcmp(className, "GPSM"))
+            {
+                resTag.type = SBIG('PART');
+                return true;
+            }
+            if (!strcmp(className, "SWSH"))
+            {
+                resTag.type = SBIG('SWHC');
+                return true;
+            }
+            if (!strcmp(className, "ELSM"))
+            {
+                resTag.type = SBIG('ELSC');
+                return true;
+            }
+            if (!strcmp(className, "WPSM"))
+            {
+                resTag.type = SBIG('WPSC');
+                return true;
+            }
+            if (!strcmp(className, "CRSM"))
+            {
+                resTag.type = SBIG('CRSC');
+                return true;
+            }
+            if (!strcmp(className, "DPSM"))
+            {
+                resTag.type = SBIG('DPSC');
+                return true;
+            }
+            else if (!strcmp(className, "FONT"))
+            {
+                resTag.type = SBIG('FONT');
+                return true;
+            }
+            else if (!strcmp(className, "urde::DNAMP1::EVNT"))
+            {
+                resTag.type = SBIG('EVNT');
+                return true;
+            }
+            else if (!strcmp(className, "urde::DGRP"))
+            {
+                resTag.type = SBIG('DGRP');
+                return true;
+            }
+            else if (!strcmp(className, "urde::DNAMP1::STRG"))
+            {
+                resTag.type = SBIG('STRG');
+                return true;
+            }
+            else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
+                     !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
+                     !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
+                     !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
+                     !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob"))
+            {
+                resTag.type = SBIG('CTWK');
+                return true;
+            }
+            else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
+            {
+                resTag.type = SBIG('HINT');
+                return true;
+            }
 
-                return false;
-            }))
+            return false;
+        }))
         {
             resTag.id = path.hash().val32();
             fclose(fp);

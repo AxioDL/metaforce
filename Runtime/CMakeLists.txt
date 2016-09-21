@@ -85,7 +85,7 @@ add_library(RuntimeCommon
             IObj.hpp
             IVParamObj.hpp
             CTimeProvider.hpp CTimeProvider.cpp
-            CToken.hpp
+            CToken.hpp CToken.cpp
             CFactoryMgr.hpp CFactoryMgr.cpp
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp

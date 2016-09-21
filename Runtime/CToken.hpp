@@ -27,27 +27,11 @@ class CObjectReference
 
     /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
      *  Reaching 0 indicates the CToken should delete the CObjectReference */
-    u16 RemoveReference()
-    {
-        --x0_refCount;
-        if (x0_refCount == 0)
-        {
-            if (x10_object)
-                Unload();
-            if (IsLoading())
-                CancelLoad();
-            if (xC_objectStore)
-                xC_objectStore->ObjectUnreferenced(x4_objTag);
-        }
-        return x0_refCount;
-    }
+    u16 RemoveReference();
 
     CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj,
-                     const SObjectTag& objTag, CVParamTransfer buildParams)
-    : x4_objTag(objTag), xC_objectStore(&objStore),
-      x10_object(obj.release()), x14_params(buildParams) {}
-    CObjectReference(std::unique_ptr<IObj>&& obj)
-    : x10_object(obj.release()) {}
+                     const SObjectTag& objTag, CVParamTransfer buildParams);
+    CObjectReference(std::unique_ptr<IObj>&& obj);
 
     /** Indicates an asynchronous load transaction has been submitted and is not yet finished */
     bool IsLoading() const {return x3_loading;}
@@ -56,70 +40,26 @@ class CObjectReference
     bool IsLoaded() const {return x10_object != nullptr;}
 
     /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
-    void Unlock()
-    {
-        --x2_lockCount;
-        if (x2_lockCount)
-            return;
-        if (x10_object && xC_objectStore)
-            Unload();
-        else if (IsLoading())
-            CancelLoad();
-    }
+    void Unlock();
 
     /** Increments 2nd ref-count, performing async-factory-load if needed */
-    void Lock()
-    {
-        ++x2_lockCount;
-        if (!x10_object && !x3_loading)
-        {
-            IFactory& fac = xC_objectStore->GetFactory();
-            fac.BuildAsync(x4_objTag, x14_params, &x10_object, this);
-            x3_loading = true;
-        }
-    }
+    void Lock();
 
-    void CancelLoad()
-    {
-        if (xC_objectStore && IsLoading())
-        {
-            xC_objectStore->GetFactory().CancelBuild(x4_objTag);
-            x3_loading = false;
-        }
-    }
+    void CancelLoad();
 
     /** Pointer-synchronized object-destructor, another building Lock cycle may be performed after */
-    void Unload()
-    {
-        std::default_delete<IObj>()(x10_object);
-        x10_object = nullptr;
-        x3_loading = false;
-    }
+    void Unload();
 
     /** Synchronous object-fetch, guaranteed to return complete object on-demand, blocking build if not ready */
-    IObj* GetObject()
-    {
-        if (!x10_object)
-        {
-            IFactory& factory = xC_objectStore->GetFactory();
-            x10_object = factory.Build(x4_objTag, x14_params, this).release();
-        }
-        x3_loading = false;
-        return x10_object;
-    }
+    IObj* GetObject();
+
     const SObjectTag& GetObjectTag() const
     {
         return x4_objTag;
     }
 
 public:
-    ~CObjectReference()
-    {
-        if (x10_object)
-            std::default_delete<IObj>()(x10_object);
-        else if (x3_loading)
-            xC_objectStore->GetFactory().CancelBuild(x4_objTag);
-    }
+    ~CObjectReference();
 };
 
 /** Counted meta-object, reference-counting against a shared CObjectReference
@@ -132,121 +72,31 @@ class CToken
     CObjectReference* x0_objRef = nullptr;
     bool x4_lockHeld = false;
 
-    void RemoveRef()
-    {
-        if (x0_objRef && x0_objRef->RemoveReference() == 0)
-        {
-            std::default_delete<CObjectReference>()(x0_objRef);
-            x0_objRef = nullptr;
-        }
-    }
+    void RemoveRef();
 
-    CToken(CObjectReference* obj)
-    {
-        x0_objRef = obj;
-        ++x0_objRef->x0_refCount;
-    }
+    CToken(CObjectReference* obj);
 
 public:
     /* Added to test for non-null state */
     operator bool() const {return x0_objRef != nullptr;}
-    void Unlock()
-    {
-        if (x0_objRef && x4_lockHeld)
-        {
-            x0_objRef->Unlock();
-            x4_lockHeld = false;
-        }
-    }
-    void Lock()
-    {
-        if (x0_objRef && !x4_lockHeld)
-        {
-            x0_objRef->Lock();
-            x4_lockHeld = true;
-        }
-    }
+    void Unlock();
+    void Lock();
     bool IsLocked() const {return x4_lockHeld;}
-    bool IsLoaded() const
-    {
-        if (!x0_objRef)
-            return false;
-        return x0_objRef->IsLoaded();
-    }
-    IObj* GetObj()
-    {
-        if (!x0_objRef)
-            return nullptr;
-        Lock();
-        return x0_objRef->GetObject();
-    }
+    bool IsLoaded() const;
+    IObj* GetObj();
     const IObj* GetObj() const
     {
         return const_cast<CToken*>(this)->GetObj();
     }
-    CToken& operator=(const CToken& other)
-    {
-        Unlock();
-        RemoveRef();
-        x0_objRef = other.x0_objRef;
-        if (x0_objRef)
-        {
-            ++x0_objRef->x0_refCount;
-            if (other.x4_lockHeld)
-                Lock();
-        }
-        return *this;
-    }
-    CToken& operator=(CToken&& other)
-    {
-        Unlock();
-        RemoveRef();
-        x0_objRef = other.x0_objRef;
-        other.x0_objRef = nullptr;
-        x4_lockHeld = other.x4_lockHeld;
-        other.x4_lockHeld = false;
-        return *this;
-    }
+    CToken& operator=(const CToken& other);
+    CToken& operator=(CToken&& other);
     CToken() = default;
-    CToken(const CToken& other)
-    : x0_objRef(other.x0_objRef)
-    {
-        if (x0_objRef)
-            ++x0_objRef->x0_refCount;
-    }
-    CToken(CToken&& other)
-    : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld)
-    {
-        other.x0_objRef = nullptr;
-        other.x4_lockHeld = false;
-    }
-    CToken(IObj* obj)
-    {
-        x0_objRef = new CObjectReference(std::unique_ptr<IObj>(obj));
-        ++x0_objRef->x0_refCount;
-        Lock();
-    }
-    CToken(std::unique_ptr<IObj>&& obj)
-    {
-        x0_objRef = new CObjectReference(std::move(obj));
-        ++x0_objRef->x0_refCount;
-        Lock();
-    }
-    const SObjectTag* GetObjectTag() const
-    {
-        if (!x0_objRef)
-            return nullptr;
-        return &x0_objRef->GetObjectTag();
-    }
-    ~CToken()
-    {
-        if (x0_objRef)
-        {
-            if (x4_lockHeld)
-                x0_objRef->Unlock();
-            RemoveRef();
-        }
-    }
+    CToken(const CToken& other);
+    CToken(CToken&& other);
+    CToken(IObj* obj);
+    CToken(std::unique_ptr<IObj>&& obj);
+    const SObjectTag* GetObjectTag() const;
+    ~CToken();
 };
 
 template <class T>

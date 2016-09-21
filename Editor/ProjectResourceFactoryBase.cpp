@@ -60,12 +60,18 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
     const athena::io::YAMLNode* root = reader.getRootNode();
     for (const auto& p : root->m_mapChildren)
     {
+        /* Hash as lowercase since lookup is case-insensitive */
+        std::string pLower = p.first;
+        std::transform(pLower.cbegin(), pLower.cend(), pLower.begin(), tolower);
+
         /* Avoid redundant filesystem access for re-caches */
-        if (m_catalogNameToTag.find(p.first) != m_catalogNameToTag.cend())
+        if (m_catalogNameToTag.find(pLower) != m_catalogNameToTag.cend())
             continue;
 
         athena::io::YAMLNode& node = *p.second;
         hecl::ProjectPath path(m_proj->getProjectWorkingPath(), node.m_scalarString);
+        if (node.m_scalarString == "MP1/SamGunFx/PowerBeam.wpsm.yaml")
+            printf("");
         if (node.m_type == YAML_SCALAR_NODE)
         {
             path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_scalarString);
@@ -84,7 +90,7 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
         if (pathTag)
         {            
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-            m_catalogNameToTag[p.first] = pathTag;
+            m_catalogNameToTag[pLower] = pathTag;
             WriteNameTag(nameWriter, pathTag, p.first);
 #if 0
             fprintf(stderr, "%s %s %08X\n",
@@ -144,24 +150,28 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
     if (m_pathToTag.find(path.hash()) != m_pathToTag.cend())
         return true;
 
+    /* Try as glob */
+    hecl::ProjectPath asGlob = path.getWithExtension(_S(".*"), true);
+    if (m_pathToTag.find(asGlob.hash()) != m_pathToTag.cend())
+        return true;
+
     /* Classify intermediate into tag */
     SObjectTag pathTag = BuildTagFromPath(path, m_backgroundBlender);
     if (pathTag)
     {
         std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        m_tagToPath[pathTag] = path;
-        m_pathToTag[path.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, path);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, path);
-#endif
+        bool useGlob = false;
 
         /* Special multi-resource intermediates */
         if (pathTag.type == SBIG('ANCS'))
-        {
+        {            
             hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
             if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
                 return false;
+
+            /* Transform tag to glob */
+            pathTag = {SBIG('ANCS'), asGlob.hash().val32()};
+            useGlob = true;
 
             hecl::BlenderConnection::DataStream ds = conn.beginData();
             std::vector<std::string> armatureNames = ds.getArmatureNames();
@@ -171,7 +181,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             for (const std::string& arm : armatureNames)
             {
                 hecl::SystemStringView sysStr(arm);
-                hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
                 SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;
@@ -184,7 +194,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             for (const std::string& sub : subtypeNames)
             {
                 hecl::SystemStringView sysStr(sub);
-                hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
                 SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;
@@ -197,7 +207,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             for (const std::string& act : actionNames)
             {
                 hecl::SystemStringView sysStr(act);
-                hecl::ProjectPath subPath = path.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
                 SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;
@@ -207,6 +217,15 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
 #endif
             }
         }
+
+        /* Cache in-memory */
+        const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
+        m_tagToPath[pathTag] = usePath;
+        m_pathToTag[usePath.hash()] = pathTag;
+        WriteTag(cacheWriter, pathTag, usePath);
+#if DUMP_CACHE_FILL
+        DumpCacheAdd(pathTag, usePath);
+#endif
     }
 
     return true;
@@ -239,6 +258,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                 continue;
             }
 
+            /* Index the regular file */
             AddFileToIndex(path, cacheWriter);
         }
 
@@ -286,7 +306,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                         path = path.ensureAuxInfo(sys.sys_str());
                     }
 
-                    if (path.isFile())
+                    if (path.isFileOrGlob())
                     {
                         SObjectTag pathTag(type, id);
                         m_tagToPath[pathTag] = path;
@@ -317,8 +337,10 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                         auto search = m_tagToPath.find(SObjectTag(FourCC(), uint32_t(id)));
                         if (search != m_tagToPath.cend())
                         {
-                            m_catalogNameToTag[child.first] = search->first;
-                            WriteNameTag(nameWriter, search->first, child.first);
+                            std::string chLower = child.first;
+                            std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);
+                            m_catalogNameToTag[chLower] = search->first;
+                            WriteNameTag(nameWriter, search->first, chLower);
                         }
                     }
                 }
@@ -412,7 +434,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
         m_workingPath = path;
 
         /* Ensure requested resource is on the filesystem */
-        if (!path.isFile())
+        if (!path.isFileOrGlob())
         {
             Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
                        path.getRelativePath().c_str());
@@ -523,7 +545,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
                                             std::experimental::optional<athena::io::FileReader>& fr)
 {
     /* Ensure requested resource is on the filesystem */
-    if (!path.isFile())
+    if (!path.isFileOrGlob())
     {
         Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
                    path.getAbsolutePath().c_str());
@@ -724,8 +746,11 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
 
 const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const char* name) const
 {
+    std::string lower = name;
+    std::transform(lower.cbegin(), lower.cend(), lower.begin(), tolower);
+
     std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
-    auto search = m_catalogNameToTag.find(name);
+    auto search = m_catalogNameToTag.find(lower);
     if (search == m_catalogNameToTag.end())
     {
         if (m_backgroundRunning)
@@ -734,7 +759,7 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
             {
                 lk.unlock();
                 lk.lock();
-                search = m_catalogNameToTag.find(name);
+                search = m_catalogNameToTag.find(lower);
                 if (search != m_catalogNameToTag.end())
                     break;
             }
