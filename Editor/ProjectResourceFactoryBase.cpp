@@ -70,8 +70,6 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
 
         athena::io::YAMLNode& node = *p.second;
         hecl::ProjectPath path(m_proj->getProjectWorkingPath(), node.m_scalarString);
-        if (node.m_scalarString == "MP1/SamGunFx/PowerBeam.wpsm.yaml")
-            printf("");
         if (node.m_type == YAML_SCALAR_NODE)
         {
             path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_scalarString);

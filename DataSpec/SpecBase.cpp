@@ -147,10 +147,17 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 {
     if (!checkPathPrefix(path))
         return false;
-    if (hecl::IsPathBlend(path))
+
+    hecl::ProjectPath asBlend;
+    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+        asBlend = path.getWithExtension(_S(".blend"), true);
+    else
+        asBlend = path;
+
+    if (hecl::IsPathBlend(asBlend))
     {
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(path))
+        if (!conn.openBlend(asBlend))
             return false;
         if (conn.getBlendType() != hecl::BlenderConnection::BlendType::None)
             return true;
@@ -182,14 +189,21 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 {
     if (!checkPathPrefix(path))
         return nullptr;
-    if (hecl::IsPathBlend(path))
+
+    hecl::ProjectPath asBlend;
+    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+        asBlend = path.getWithExtension(_S(".blend"), true);
+    else
+        asBlend = path;
+
+    if (hecl::IsPathBlend(asBlend))
     {
         if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")) ||
             hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
             return oldEntry;
 
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(path))
+        if (!conn.openBlend(asBlend))
         {
             Log.report(logvisor::Error, _S("unable to cook '%s'"),
                        path.getAbsolutePath().c_str());
@@ -211,10 +225,17 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
                       bool fast, hecl::BlenderToken& btok, FCookProgress progress)
 {
     DataSpec::g_curSpec.reset(this);
-    if (hecl::IsPathBlend(path))
+
+    hecl::ProjectPath asBlend;
+    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+        asBlend = path.getWithExtension(_S(".blend"), true);
+    else
+        asBlend = path;
+
+    if (hecl::IsPathBlend(asBlend))
     {
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(path))
+        if (!conn.openBlend(asBlend))
             return;
         switch (conn.getBlendType())
         {
