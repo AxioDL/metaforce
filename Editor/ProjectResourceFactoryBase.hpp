@@ -14,7 +14,7 @@
 namespace urde
 {
 
-class ProjectResourceFactoryBase : public urde::IFactory
+class ProjectResourceFactoryBase : public IFactory
 {
     friend class ProjectResourcePool;
     hecl::ClientProcess& m_clientProc;
@@ -120,6 +120,9 @@ public:
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;
     FourCC GetResourceTypeById(ResId id) const;
+
+    void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
+    void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
 
     u32 ResourceSize(const SObjectTag& tag);
     std::shared_ptr<AsyncTask> LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);

@@ -2,6 +2,7 @@
 #define __URDE_IFACTORY_HPP__
 
 #include <memory>
+#include <functional>
 #include "RetroTypes.hpp"
 
 namespace urde
@@ -30,6 +31,8 @@ public:
     virtual bool CanBuild(const SObjectTag&)=0;
     virtual const SObjectTag* GetResourceIdByName(const char*) const=0;
     virtual FourCC GetResourceTypeById(ResId id) const=0;
+    virtual void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const=0;
+    virtual void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const=0;
 
     /* Non-factory versions, replaces CResLoader */
     virtual u32 ResourceSize(const urde::SObjectTag& tag)=0;

@@ -56,6 +56,14 @@ public:
         std::vector<std::pair<std::string, SObjectTag>> retval;
         return retval;
     }
+
+    void EnumerateResources(std::function<bool(const SObjectTag&)> lambda) const
+    {
+    }
+
+    void EnumerateNamedResources(std::function<bool(const std::string&, const SObjectTag&)> lambda) const
+    {
+    }
 };
 
 }

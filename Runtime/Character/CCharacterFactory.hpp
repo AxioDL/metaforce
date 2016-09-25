@@ -33,6 +33,9 @@ public:
         const SObjectTag* GetResourceIdByName(const char*) const;
         FourCC GetResourceTypeById(ResId id) const;
 
+        void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
+        void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
+
         u32 ResourceSize(const urde::SObjectTag& tag);
         bool LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
         bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);

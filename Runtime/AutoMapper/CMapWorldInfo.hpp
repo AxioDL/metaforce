@@ -5,13 +5,16 @@
 
 namespace urde
 {
+class CSaveWorld;
+
 class CMapWorldInfo
 {
     std::vector<u32> x4_visitedAreas;
     std::map<TEditorId, bool> x14_;
+    std::vector<u32> x18_visitedAreas;
 public:
     CMapWorldInfo()=default;
-    CMapWorldInfo(CInputStream&);
+    CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, ResId mlvlId);
     void PutTo(COutputStream&);
     bool IsMapped() const;
     void SetIsMapped(bool) const;

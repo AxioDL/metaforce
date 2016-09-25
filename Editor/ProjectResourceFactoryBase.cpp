@@ -521,6 +521,7 @@ bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag, co
             while (m_backgroundRunning)
             {
                 lk.unlock();
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 lk.lock();
                 search = m_tagToPath.find(tag);
                 if (search != m_tagToPath.end())
@@ -756,6 +757,7 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
             while (m_backgroundRunning)
             {
                 lk.unlock();
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 lk.lock();
                 search = m_catalogNameToTag.find(lower);
                 if (search != m_catalogNameToTag.end())
@@ -782,6 +784,7 @@ FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
             while (m_backgroundRunning)
             {
                 lk.unlock();
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 lk.lock();
                 search = m_tagToPath.find(searchTag);
                 if (search != m_tagToPath.end())
@@ -795,6 +798,39 @@ FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
     }
 
     return search->first.type;
+}
+
+void ProjectResourceFactoryBase::EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const
+{
+    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
+    while (m_backgroundRunning)
+    {
+        lk.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        lk.lock();
+    }
+    for (const auto& pair : m_tagToPath)
+    {
+        if (!lambda(pair.first))
+            break;
+    }
+}
+
+void ProjectResourceFactoryBase::EnumerateNamedResources(
+        const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+{
+    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
+    while (m_backgroundRunning)
+    {
+        lk.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        lk.lock();
+    }
+    for (const auto& pair : m_catalogNameToTag)
+    {
+        if (!lambda(pair.first, pair.second))
+            break;
+    }
 }
 
 void ProjectResourceFactoryBase::AsyncIdle()

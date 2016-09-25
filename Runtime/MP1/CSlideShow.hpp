@@ -12,6 +12,7 @@ namespace urde
 {
 class CTexture;
 class CSfxHandle;
+class CDependencyGroup;
 
 class CSlideShow : public CIOWin
 {
@@ -55,9 +56,7 @@ public:
 
 private:
     Phase x14_phase = Phase::Zero;
-    u32 x1c_ = 0;
-    u32 x20_ = 0;
-    u32 x24_ = 0;
+    std::vector<TLockedToken<CDependencyGroup>> x18_galleryTXTRDeps;
     u32 x2c_ = 0;
     u32 x30_ = 0;
     u32 x34_ = 0;
@@ -86,8 +85,8 @@ private:
     u32 xec_ = 0;
     u32 xf0_ = 0;
     u32 xf4_ = 0;
-    std::vector<CToken> xf8_;
-    std::vector<CToken> x108_;
+    std::vector<TLockedToken<CTexture>> xf8_stickTextures; /* (9 LStick, 9 CStick) */
+    std::vector<CToken> x108_buttonTextures; /* (2L, 2R, 2B, 2Y) */
     u32 x11c_ = 0;
     u32 x120_ = 0;
     u32 x124_ = 0;
@@ -111,6 +110,10 @@ private:
         };
         u32 dummy = 0;
     };
+
+    bool LoadTXTRDep(const std::string& name);
+    static bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps);
+
 public:
     CSlideShow();
     EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);

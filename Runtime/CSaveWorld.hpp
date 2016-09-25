@@ -35,6 +35,7 @@ public:
     u32 GetAreaCount() const;
     u32 GetCinematicCount() const;
     s32 GetCinematicIndex(const TEditorId& id) const;
+    const std::vector<TEditorId>& GetCinematics() const { return x4_cinematics; }
     u32 GetRelayCount() const;
     s32 GetRelayIndex(const TEditorId& id) const;
     TEditorId GetRelayEditorId(u32 idx) const;

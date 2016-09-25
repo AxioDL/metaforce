@@ -1,9 +1,23 @@
 #include "CGameState.hpp"
 #include "IOStreams.hpp"
 #include "zeus/Math.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CMemoryCardSys.hpp"
+#include "CSimplePool.hpp"
+#include "CSaveWorld.hpp"
 
 namespace urde
 {
+
+CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld)
+: x0_mlvlId(mlvlId)
+{
+    x4_areaId = reader.ReadEncoded(32);
+    x10_ = reader.ReadEncoded(32);
+    x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
+    xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
+    x14_ = std::make_shared<CWorldSomethingState>(reader, saveWorld);
+}
 
 CGameState::CGameState()
 {
@@ -29,8 +43,20 @@ CGameState::CGameState(CBitStreamReader& stream)
     tmp = stream.ReadEncoded(32);
     double val5 = *(reinterpret_cast<float*>(&tmp));
 
-    CPlayerState tmpPlayer(stream);
-    float currentHealth = tmpPlayer.GetHealthInfo().GetHP();
+    x98_playerState = std::make_shared<CPlayerState>(stream);
+    float currentHealth = x98_playerState->GetHealthInfo().GetHP();
+
+    x17c_gameOptions = CGameOptions(stream);
+    x1f8_hintOptions = CHintOptions(stream);
+
+    const std::vector<CSaveWorldMemory>& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    x88_worldStates.reserve(memWorlds.size());
+    for (const CSaveWorldMemory& memWorld : memWorlds)
+    {
+        TLockedToken<CSaveWorld> saveWorld =
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.GetSaveWorldAssetId()});
+        x88_worldStates.emplace_back(stream, memWorld.GetWorldAssetId(), *saveWorld);
+    }
 }
 
 void CGameState::SetCurrentWorldId(unsigned int id)

@@ -3,6 +3,11 @@
 namespace urde
 {
 
+CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWorld, ResId mlvlId)
+{
+    /* TODO: implement */
+}
+
 void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited)
 {
     x14_[eid] = visited;

@@ -48,7 +48,7 @@ add_library(RuntimeCommon
             #CMemory.hpp CMemory.cpp
             ITweak.hpp
             IMain.hpp
-            CMemoryCardSys.hpp
+            CMemoryCardSys.hpp CMemoryCardSys.cpp
             CScannableObjectInfo.hpp CScannableObjectInfo.cpp
             CSaveWorld.hpp CSaveWorld.cpp
             IAllocator.hpp IAllocator.cpp

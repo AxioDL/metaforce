@@ -75,6 +75,15 @@ FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(ResId id) const
     return {};
 }
 
+void CCharacterFactory::CDummyFactory::EnumerateResources(
+        const std::function<bool(const SObjectTag&)>& lambda) const
+{
+}
+void CCharacterFactory::CDummyFactory::EnumerateNamedResources(
+        const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+{
+}
+
 u32 CCharacterFactory::CDummyFactory::ResourceSize(const urde::SObjectTag& tag)
 {
     return 0;

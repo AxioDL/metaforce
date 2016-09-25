@@ -10,6 +10,7 @@ enum class EClientFlowStates
 {
     Unspecified = -1,
     FrontEnd = 7,
+    StateLoad = 8,
     GameLoad = 13,
     MoviePlay = 14
 };

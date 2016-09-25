@@ -34,6 +34,7 @@ private:
     std::vector<CGameHint> x0_hints;
 public:
     CGameHintInfo(CInputStream&, s32);
+    const std::vector<CGameHint>& GetHints() const { return x0_hints; }
 };
 
 CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer, CObjectReference*);
