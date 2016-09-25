@@ -655,7 +655,7 @@ public:
 std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations();
 
 /**
- * @brief Special ProjectRootPath class for opening HECLDatabase::IProject instances
+ * @brief Special ProjectRootPath class for opening Database::Project instances
  *
  * Constructing a ProjectPath requires supplying a ProjectRootPath to consistently
  * resolve canonicalized relative paths.

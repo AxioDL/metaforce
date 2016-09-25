@@ -18,7 +18,7 @@
 #include "hecl/Blender/BlenderConnection.hpp"
 #include "logvisor/logvisor.hpp"
 
-logvisor::Module LogModule("HECLDriver");
+logvisor::Module LogModule("hecl::Driver");
 
 #include "ToolBase.hpp"
 #include "ToolInit.hpp"

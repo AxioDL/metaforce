@@ -4,7 +4,6 @@
 
 namespace hecl
 {
-static const SystemRegex regGLOB(_S("\\*"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
 static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
@@ -133,7 +132,7 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 
 ProjectPath::Type ProjectPath::getPathType() const
 {
-    if (std::regex_search(m_absPath, regGLOB))
+    if (m_absPath.find(_S('*')) != SystemString::npos)
         return Type::Glob;
     Sstat theStat;
     if (hecl::Stat(m_absPath.c_str(), &theStat))
@@ -149,7 +148,7 @@ Time ProjectPath::getModtime() const
 {
     Sstat theStat;
     time_t latestTime = 0;
-    if (std::regex_search(m_absPath, regGLOB))
+    if (m_absPath.find(_S('*')) != SystemString::npos)
     {
         std::vector<ProjectPath> globResults;
         getGlobResults(globResults);
@@ -198,7 +197,7 @@ static void _recursiveGlob(Database::Project& proj,
         return;
 
     const SystemString& comp = matches[1];
-    if (!std::regex_search(comp, regGLOB))
+    if (comp.find(_S('*')) != SystemString::npos)
     {
         SystemString nextItStr = itStr;
         if (needSlash)

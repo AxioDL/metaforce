@@ -428,9 +428,9 @@ public:
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)
      *
-     * Database corruption is bad! sqlite is pretty robust at avoiding data corruption,
-     * but HECL spreads its data objects through the filesystem; this ensures that
-     * those objects are cleanly finalized or discarded before stopping.
+     * Database corruption is bad! HECL spreads its data objects through
+     * the filesystem; this ensures that open objects are cleanly
+     * finalized or discarded before stopping.
      *
      * Note that this method returns immediately; the resumed cookPath()
      * call will return as quickly as possible.
