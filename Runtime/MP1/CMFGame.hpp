@@ -55,6 +55,7 @@ public:
     CMFGameLoader();
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Draw() const;
+    void Touch();
 };
 
 }

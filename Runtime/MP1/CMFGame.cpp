@@ -2,6 +2,8 @@
 #include "CArchitectureQueue.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
+#include "CStateManager.hpp"
+#include "World/CPlayer.hpp"
 #include "MP1.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 
@@ -61,5 +63,12 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 }
 
 void CMFGameLoader::Draw() const { g_GameState->GetWorldTransitionManager()->Draw(); }
+
+void CMFGameLoader::Touch()
+{
+    x14_stateMgr->TouchSky();
+    x14_stateMgr->TouchPlayerActor();
+    x14_stateMgr->Player()->Touch();
+}
 }
 }

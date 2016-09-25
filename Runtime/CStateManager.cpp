@@ -8,6 +8,7 @@
 #include "World/CEnvFxManager.hpp"
 #include "World/CActorModelParticles.hpp"
 #include "World/CTeamAiTypes.hpp"
+#include "World/CScriptPlayerActor.hpp"
 #include "Input/CRumbleManager.hpp"
 #include "World/CWorld.hpp"
 #include "Graphics/CLight.hpp"
@@ -301,6 +302,18 @@ void CStateManager::SetActorAreaId(CActor& actor, TAreaId)
 
 void CStateManager::TouchSky() const
 {
+}
+
+void CStateManager::TouchPlayerActor()
+{
+    if (xf6c_playerActor == kInvalidUniqueId)
+        return;
+
+#if 0
+    CScriptPlayerActor* spa = dynamic_cast<CScriptPlayerActor*>(GetObjectById(xf6c_playerActor));
+    if (spa)
+        spa->TouchModels();
+#endif
 }
 
 void CStateManager::DrawSpaceWarp(const zeus::CVector3f& v, float strength) const

@@ -18,7 +18,6 @@ CMemoryCardSys::CMemoryCardSys()
 {
     xc_memoryWorlds.reserve(16);
     x1c_.reserve(16);
-
     g_ResFactory->EnumerateNamedResources([&](const std::string& name, const SObjectTag& tag) -> bool
     {
         if (tag.type == FOURCC('MLVL'))

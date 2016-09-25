@@ -77,6 +77,7 @@ public:
 };
 
 using CMemoryInStream = athena::io::MemoryReader;
+using CMemoryOutStream = athena::io::MemoryWriter;
 
 class CZipInputStream : public CInputStream
 {

@@ -3,6 +3,8 @@
 #include "CMorphBall.hpp"
 #include "CPlayerGun.hpp"
 #include "CStateManager.hpp"
+#include "CSimplePool.hpp"
+#include "GameGlobalObjects.hpp"
 #include "Particle/CGenDescription.hpp"
 
 namespace urde
@@ -16,16 +18,16 @@ static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
 CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, unsigned int resId,
                  const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float f4,
                  const CMaterialList& ml)
-: CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList),
-                xf, MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(),
-                stepUp, stepDown)
+    : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList),
+                    xf, MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(),
+                    stepUp, stepDown)
 {
     x768_morphball.reset(new CMorphBall(*this, f4));
 }
 
 bool CPlayer::IsTransparent() const
 {
-    return false;
+    return x588_alpha < 1.f;
 }
 
 void CPlayer::Update(float, CStateManager& mgr)
@@ -34,8 +36,12 @@ void CPlayer::Update(float, CStateManager& mgr)
 
 bool CPlayer::IsPlayerDeadEnough() const
 {
-    return false;
-}
+    if (x2f8_morphTransState == 0)
+        return x9f4_ < 2.5f;
+    else if (x2f8_morphTransState == 1)
+        return x9f4_ < 6.f;
+
+    return false;}
 
 void CPlayer::AsyncLoadSuit(CStateManager& mgr)
 {
@@ -197,8 +203,13 @@ void CPlayer::Think(float, CStateManager&)
 {
 }
 
-void CPlayer::PreThink(float, CStateManager&)
+void CPlayer::PreThink(float dt, CStateManager& mgr)
 {
+    x558_ = false;
+    x55c_ = 0.f;
+    x560_ = 0.f;
+    x564_ = zeus::CVector3f::skZero;
+    xa04_ = dt;
 }
 
 void CPlayer::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
@@ -554,4 +565,67 @@ float CPlayer::GetDampedClampedVelocityWR() const
     return 0.f;
 }
 
+void CPlayer::Touch()
+{
+
+}
+
+void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId d, bool e)
+{
+    if (x1c_ == -1 || a > x10_)
+    {
+        x10_ = a;
+        x14_ = b;
+        x18_ = c;
+        x1c_ = d;
+    }
+    x28_ = e;
+}
+
+ResId CPlayer::CVisorSteam::GetTextureId() const
+{
+    return xc_;
+}
+
+void CPlayer::CVisorSteam::Update(float dt)
+{
+    if (x1c_ == -1)
+        x0_ = 0.f;
+    else
+    {
+        x0_ = x10_;
+        x4_ = x14_;
+        x8_ = x18_;
+        xc_ = x1c_;
+    }
+
+    x1c_ = -1;
+    if ((x20_ - x0_) < 0.000009999f || std::fabs(x20_) > 0.000009999f)
+        return;
+
+    if (x20_ > x0_)
+    {
+        if (x24_ <= 0.f)
+        {
+            x20_ -= (dt / x8_);
+            x20_ = std::min(x20_, x0_);
+        }
+        else
+        {
+            x24_ = x0_ - dt;
+            x24_ = zeus::max(0.f, x24_);
+        }
+        return;
+    }
+
+    CToken tmpTex = g_SimplePool->GetObj({SBIG('TXTR'), xc_});
+    if (!tmpTex)
+        return;
+
+    x20_ += (x20_ + (dt / x4_));
+    if (x20_ > x0_)
+        x20_ = x0_;
+
+    x24_ = 0.1f;
+}
 }

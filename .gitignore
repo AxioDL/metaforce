@@ -2,3 +2,4 @@ version.h
 *.user
 .DS_Store
 *.autosave
+docs/*

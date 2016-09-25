@@ -4,6 +4,8 @@ set(WORLD_SOURCES
     IGameArea.hpp IGameArea.cpp
     CGameArea.hpp CGameArea.cpp
     CPlayer.hpp CPlayer.cpp
+    CPlayerEnergyDrain.hpp CPlayerEnergyDrain.cpp
+    CEnergyDrainSource.hpp CEnergyDrainSource.cpp
     CPlayerCameraBob.hpp CPlayerCameraBob.cpp
     CPlayerGun.hpp CPlayerGun.cpp
     CGunWeapon.hpp CGunWeapon.cpp
@@ -71,6 +73,7 @@ set(WORLD_SOURCES
     CScriptDistanceFog.hpp CScriptDistanceFog.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
+    CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp

@@ -79,22 +79,39 @@ public:
 };
 #endif
 
-#if 0
-template <class T, size_t N>
-class TReservedAverage
+template <class T>
+T GetAverage(const T* v, s32 count)
 {
-    rstl::reserved_vector<T, N> x0_values;
+    T r = v[0];
+    for (s32 i = 1; i < count; ++i)
+        r += v[i];
+
+    return r / float(count);
+}
+
+template <class T, size_t N>
+class TReservedAverage : rstl::reserved_vector<T, N>
+{
 public:
     TReservedAverage() = default;
-    TReservedAverage(const T& v) { x0_values.resize(N, v); }
+    TReservedAverage(const T& t) { resize(N, t); }
 
-    void AddValue(const T&)
+    void AddValue(const T& t)
     {
-
+        if (this->size() < N)
+            this->push_back(t);
     }
-};
 
-#endif
+    rstl::optional_object<T> GetAverage() const
+    {
+        if (this->empty())
+            return {};
+
+        return {::GetAverage<T>(this->data(), this->size()) };
+    }
+
+    void Clear() { this->clear(); }
+};
 
 namespace std
 {

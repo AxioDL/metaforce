@@ -33,6 +33,7 @@ add_subdirectory(MP2)
 add_subdirectory(MP3)
 
 add_library(RuntimeCommon
+            RetroTypes.hpp RetroTypes.cpp
             ${CLIENT_SOURCES}
             ${MP1_SOURCES}
             ${AUDIO_SOURCES}
@@ -99,6 +100,5 @@ add_library(RuntimeCommon
             CGameHintInfo.hpp CGameHintInfo.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp GameGlobalObjects.cpp
-            RetroTypes.hpp
             GCNTypes.hpp
             ${PLAT_SRCS})

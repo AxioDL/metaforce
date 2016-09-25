@@ -108,7 +108,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             rVec = v;
         }
     }
-    else if (player->x304_ == 0 && player->x2f8_morphTransState != 0 && player->x3dc_ && x1c4_ == kInvalidUniqueId)
+    else if (player->x304_ == 0 && player->x2f8_morphTransState == 0 && player->x3dc_ && x1c4_ == kInvalidUniqueId)
     {
         if (player->x294_ > 0.f)
         {
@@ -233,7 +233,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
-    if (player->x2f8_morphTransState == 1 || player->x304_ == 5 || player->x3d8_ == 0 || mgr.x904_ == 1 ||
+    if (player->x2f8_morphTransState == 1 || player->x304_ == 5 || player->x3b8_ == 0 || mgr.x904_ == 1 ||
         mgr.GetCameraManager()->IsInCinematicCamera())
     {
         bobXf = zeus::CTransform::Identity();

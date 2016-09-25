@@ -47,7 +47,7 @@ namespace MP1
 {
 class CGameGlobalObjects
 {
-    CMemoryCardSys x0_memoryCardSys;
+    std::unique_ptr<CMemoryCardSys> x0_memoryCardSys;
     IFactory& x4_resFactory;
     CSimplePool& xcc_simplePool;
     CCharacterFactoryBuilder xec_charFactoryBuilder;
@@ -71,8 +71,9 @@ public:
                        CSimplePool& objStore)
     : x4_resFactory(resFactory), xcc_simplePool(objStore)
     {
-        g_MemoryCardSys = &x0_memoryCardSys;
         g_ResFactory = &x4_resFactory;
+        x0_memoryCardSys.reset(new CMemoryCardSys());
+        g_MemoryCardSys = x0_memoryCardSys.get();
         g_SimplePool = &xcc_simplePool;
         g_CharFactoryBuilder = &xec_charFactoryBuilder;
         g_AiFuncMap = &x110_aiFuncMap;

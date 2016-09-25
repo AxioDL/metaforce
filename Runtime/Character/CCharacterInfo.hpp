@@ -53,6 +53,7 @@ public:
 
     const CParticleResData& GetParticleResData() const {return x44_partRes;}
     u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs[idx]; }
+    const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
 };
 
 }

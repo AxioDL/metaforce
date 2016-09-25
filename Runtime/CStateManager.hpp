@@ -158,7 +158,7 @@ class CStateManager
     float xf28_thermColdScale2 = 0.f;
     float xf2c_ = 1.f;
     float xf30_ = 1.f;
-
+    TUniqueId xf6c_playerActor;
     void UpdateThermalVisor();
 
 public:
@@ -189,6 +189,7 @@ public:
     const std::string* HashInstanceName(CInputStream& in);
     void SetActorAreaId(CActor& actor, TAreaId);
     void TouchSky() const;
+    void TouchPlayerActor();
     void DrawSpaceWarp(const zeus::CVector3f&, float) const;
     void DrawReflection(const zeus::CVector3f&);
     void CacheReflection();
@@ -288,6 +289,7 @@ public:
     bool IsLayerActive(TAreaId area, int layerIdx) { return false; }
 
     CPlayer& GetPlayer() const { return *x84c_player; }
+    CPlayer* Player() const { return x84c_player.get(); }
 
     CObjectList& GetAllObjectList() const { return *x80c_allObjs; }
     CActorList& GetActorObjectList() const { return *x814_actorObjs; }
