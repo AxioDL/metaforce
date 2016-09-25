@@ -41,7 +41,8 @@ bool CPlayer::IsPlayerDeadEnough() const
     else if (x2f8_morphTransState == 1)
         return x9f4_ < 6.f;
 
-    return false;}
+    return false;
+}
 
 void CPlayer::AsyncLoadSuit(CStateManager& mgr)
 {
