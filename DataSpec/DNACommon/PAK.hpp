@@ -105,6 +105,25 @@ struct ResExtractor
                  std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
                                     typename PAKBRIDGE::PAKType::Entry&)> nfunc={})
     : func_b(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
+
+    bool IsFullyExtracted(const hecl::ProjectPath& path) const
+    {
+        hecl::ProjectPath::Type tp = path.getPathType();
+        if (tp == hecl::ProjectPath::Type::None)
+            return false;
+        else if (tp == hecl::ProjectPath::Type::Glob)
+        {
+            for (int i=0 ; i<6 ; ++i)
+            {
+                if (!fileExts[i])
+                    break;
+                hecl::ProjectPath withExt = path.getWithExtension(fileExts[i], true);
+                if (withExt.isNone())
+                    return false;
+            }
+        }
+        return true;
+    }
 };
 
 /** Level hierarchy representation */

@@ -523,7 +523,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
 
             if (extractor.func_a) /* Doesn't need PAKRouter access */
             {
-                if (force || working.isNone())
+                if (force || !extractor.IsFullyExtracted(working))
                 {
                     PAKEntryReadStream s = item->beginReadStream(*node);
                     extractor.func_a(s, working);
@@ -531,7 +531,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             }
             else if (extractor.func_b) /* Needs PAKRouter access */
             {
-                if (force || working.isNone())
+                if (force || !extractor.IsFullyExtracted(working))
                 {
                     PAKEntryReadStream s = item->beginReadStream(*node);
                     extractor.func_b(m_dataSpec, s, working, *this, *item, force, btok,
