@@ -15,7 +15,7 @@ public:
     void SetEnergyDrainIntensity(float);
     float GetEnergyDrainIntensity() const;
 
-    bool operator<(const CEnergyDrainSource& other);
+    bool operator<(const CEnergyDrainSource& other) const;
 };
 }
 #endif // __URDE_CENERGYDRAINSOURCE_HPP__

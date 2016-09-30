@@ -24,7 +24,7 @@ float CEnergyDrainSource::GetEnergyDrainIntensity() const
     return x4_intensity;
 }
 
-bool CEnergyDrainSource::operator<(const CEnergyDrainSource& other)
+bool CEnergyDrainSource::operator<(const CEnergyDrainSource& other) const
 {
     return x0_source < other.x0_source;
 }
