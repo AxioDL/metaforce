@@ -1001,6 +1001,10 @@ BlenderConnection::DataStream::ColMesh::Triangle::Triangle(BlenderConnection& co
     conn._readBuf(this, 16);
 }
 
+BlenderConnection::DataStream::World::World(BlenderConnection& conn)
+{
+}
+
 BlenderConnection::DataStream::Light::Light(BlenderConnection& conn)
 : sceneXf(conn), color(conn)
 {
@@ -1304,6 +1308,23 @@ BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor
         BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
 
     return Actor(*m_parent);
+}
+
+BlenderConnection::DataStream::World
+BlenderConnection::DataStream::compileWorld()
+{
+    if (m_parent->m_loadedType != BlendType::World)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an WORLD blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("WORLDCOMPILE");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile world: %s", readBuf);
+
+    return World(*m_parent);
 }
 
 std::vector<std::string> BlenderConnection::DataStream::getArmatureNames()

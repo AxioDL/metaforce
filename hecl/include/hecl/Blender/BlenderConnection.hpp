@@ -581,6 +581,12 @@ public:
             ColMesh(BlenderConnection& conn);
         };
 
+        /** Intermediate world representation */
+        struct World
+        {
+            World(BlenderConnection& conn);
+        };
+
         /** Intermediate lamp representation */
         struct Light
         {
@@ -629,6 +635,9 @@ public:
         /** Compile all meshes into one (AREA blends only) */
         Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,
                               Mesh::SurfProgFunc surfProg=[](int){});
+
+        /** Compile world intermediate (WORLD blends only) */
+        World compileWorld();
 
         /** Gather all lights in scene (AREA blends only) */
         std::vector<Light> compileLights();
