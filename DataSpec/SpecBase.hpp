@@ -67,6 +67,9 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                           FCookProgress progress)=0;
+    virtual void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                           FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           athena::io::IStreamReader& fin, FCookProgress progress)=0;
     virtual void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

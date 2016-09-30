@@ -15,6 +15,7 @@ class CSaveWorldMemory;
 /* TODO: Figure out */
 class CWorldSomethingState
 {
+    friend class CSaveWorldIntermediate;
     std::vector<u32> x0_;
     u32 x10_bitCount = 0;
     std::vector<u32> x14_;
@@ -50,9 +51,10 @@ public:
     CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
     ResId GetWorldAssetId() const {return x0_mlvlId;}
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
-    const TAreaId& GetCurrentAreaId() const { return x4_areaId; }
-    std::shared_ptr<CRelayTracker> RelayTracker() { return x8_relayTracker; }
-    std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return xc_mapWorldInfo; }
+    TAreaId GetCurrentAreaId() const { return x4_areaId; }
+    const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
+    const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
+    const std::shared_ptr<CWorldSomethingState>& GetSomethingElse() const { return x14_; }
 };
 
 class CGameState

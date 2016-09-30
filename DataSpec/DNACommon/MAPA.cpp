@@ -92,18 +92,10 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const typename PAKRouter::EntryType& entry,
                        bool force)
 {
-    hecl::ProjectPath mapaPath;
-    if (pakRouter.isShared())
-        /* Rename MAPA for consistency */
-        mapaPath = hecl::ProjectPath(outPath.getParentPath(), _S("!map.blend"));
-    else
-        /* We're not in a world pak, so lets keep the original name */
-        mapaPath = outPath;
-
-    if (!force && mapaPath.isFile())
+    if (!force && outPath.isFile())
         return true;
 
-    if (!conn.createBlend(mapaPath, hecl::BlenderConnection::BlendType::MapArea))
+    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::MapArea))
         return false;
     hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
 

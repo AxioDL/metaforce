@@ -1,4 +1,6 @@
 #include "CMapWorldInfo.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CMemoryCardSys.hpp"
 
 namespace urde
 {
@@ -6,6 +8,15 @@ namespace urde
 CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWorld, ResId mlvlId)
 {
     /* TODO: implement */
+
+    const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    auto saveWorldMem = std::find_if(memWorlds.cbegin(), memWorlds.cend(),
+    [&](const auto& test) -> bool { return test.first == mlvlId; });
+
+    if (saveWorldMem != memWorlds.cend())
+    {
+    }
+
 }
 
 void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited)

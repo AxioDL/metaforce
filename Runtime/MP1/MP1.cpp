@@ -23,8 +23,9 @@ URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 namespace MP1
 {
 
-CGameArchitectureSupport::CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend)
-: m_audioSys(backend, 0,0,0,0,0),
+CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, amuse::IBackendVoiceAllocator& backend)
+: m_parent(parent),
+  m_audioSys(backend, 0,0,0,0,0),
   m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
                    g_tweakPlayer->GetRightLogicalThreshold()),
   m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
@@ -51,6 +52,9 @@ CGameArchitectureSupport::CGameArchitectureSupport(amuse::IBackendVoiceAllocator
 
 bool CGameArchitectureSupport::Update()
 {
+    if (!g_MemoryCardSys)
+        m_parent.x128_globalObjects.MemoryCardInitializePump();
+
     bool finished = false;
     m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
 
@@ -146,7 +150,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     x70_tweaks.RegisterResourceTweaks();
-    m_archSupport.reset(new CGameArchitectureSupport(backend));
+    m_archSupport.reset(new CGameArchitectureSupport(*this, backend));
     g_archSupport = m_archSupport.get();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();

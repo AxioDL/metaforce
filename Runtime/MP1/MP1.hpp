@@ -45,6 +45,8 @@ class IObjectStore;
 
 namespace MP1
 {
+class CMain;
+
 class CGameGlobalObjects
 {
     std::unique_ptr<CMemoryCardSys> x0_memoryCardSys;
@@ -72,8 +74,6 @@ public:
     : x4_resFactory(resFactory), xcc_simplePool(objStore)
     {
         g_ResFactory = &x4_resFactory;
-        x0_memoryCardSys.reset(new CMemoryCardSys());
-        g_MemoryCardSys = x0_memoryCardSys.get();
         g_SimplePool = &xcc_simplePool;
         g_CharFactoryBuilder = &xec_charFactoryBuilder;
         g_AiFuncMap = &x110_aiFuncMap;
@@ -86,6 +86,17 @@ public:
         LoadStringTable();
         m_renderer.reset(AllocateRenderer(xcc_simplePool, x4_resFactory));
     }
+
+    void MemoryCardInitializePump()
+    {
+        if (!g_MemoryCardSys)
+        {
+            if (!x0_memoryCardSys)
+                x0_memoryCardSys.reset(new CMemoryCardSys());
+            if (x0_memoryCardSys->InitializePump())
+                g_MemoryCardSys = x0_memoryCardSys.get();
+        }
+    }
 };
 
 #if MP1_USE_BOO
@@ -94,6 +105,7 @@ class CGameArchitectureSupport : public boo::IWindowCallback
 class CGameArchitectureSupport
 #endif
 {
+    CMain& m_parent;
     CArchitectureQueue m_archQueue;
     CAudioSys m_audioSys;
     CInputGenerator m_inputGenerator;
@@ -132,7 +144,7 @@ class CGameArchitectureSupport
     }
 
 public:
-    CGameArchitectureSupport(amuse::IBackendVoiceAllocator& backend);
+    CGameArchitectureSupport(CMain& parent, amuse::IBackendVoiceAllocator& backend);
     void PreloadAudio();
     bool Update();
     void Draw();
@@ -151,6 +163,7 @@ class CMain : public boo::IApplicationCallback, public IMain
 class CMain : public IMain
 #endif
 {
+    friend class CGameArchitectureSupport;
 #if MP1_USE_BOO
     boo::IWindow* mainWindow;
     int appMain(boo::IApplication* app);

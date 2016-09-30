@@ -78,15 +78,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     using RigPair = std::pair<CSKR*, CINF*>;
     RigPair dummy(nullptr, nullptr);
 
-    hecl::ProjectPath mreaPath;
-    if (pakRouter.isShared())
-        /* Rename MREA for consistency */
-        mreaPath = hecl::ProjectPath(outPath.getParentPath(), _S("!area.blend"));
-    else
-        /* We're not in a world pak, so lets keep the original name */
-        mreaPath = outPath;
-
-    if (!force && mreaPath.isFile())
+    if (!force && outPath.isFile())
         return true;
 
     /* Do extract */
@@ -111,7 +103,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* Start up blender connection */
     hecl::BlenderConnection& conn = btok.getBlenderConnection();
-    if (!conn.createBlend(mreaPath, hecl::BlenderConnection::BlendType::Area))
+    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */

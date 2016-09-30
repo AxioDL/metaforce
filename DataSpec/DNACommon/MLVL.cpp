@@ -17,18 +17,11 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                        bool force,
                        std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    hecl::ProjectPath mlvlPath;
-    if (pakRouter.isShared())
-        /* Rename MLVL for consistency */
-        mlvlPath = hecl::ProjectPath(outPath.getParentPath(), _S("!world.blend"));
-    else
-        /* We're not in a world pak, so lets keep the original name */
-        mlvlPath = outPath;
-    if (!force && mlvlPath.isFile())
+    if (!force && outPath.isFile())
         return true;
 
     /* Create World Blend */
-    if (!conn.createBlend(mlvlPath, hecl::BlenderConnection::BlendType::World))
+    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::World))
         return false;
     hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"

@@ -321,6 +321,12 @@ struct SpecMP2 : SpecBase
     {
     }
 
+    void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   FCookProgress progress)
+    {
+    }
+
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {

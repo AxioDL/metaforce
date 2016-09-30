@@ -257,6 +257,12 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
             cookArea(cookedPath, path, ds, fast, btok, progress);
             break;
         }
+        case hecl::BlenderConnection::BlendType::World:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            cookWorld(cookedPath, path, ds, fast, btok, progress);
+            break;
+        }
         default: break;
         }
     }

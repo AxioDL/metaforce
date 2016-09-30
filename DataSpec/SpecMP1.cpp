@@ -444,6 +444,14 @@ struct SpecMP1 : SpecBase
             DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
     }
 
+    void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   FCookProgress progress)
+    {
+        BlendStream::World world = ds.compileWorld();
+
+    }
+
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {

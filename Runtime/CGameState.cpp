@@ -33,15 +33,15 @@ CGameState::CGameState(CBitStreamReader& stream)
     for (u32 i = 0; i < 128; i++)
         stream.ReadEncoded(8);
     u32 tmp = stream.ReadEncoded(32);
-    double val1 = *(reinterpret_cast<float*>(&tmp));
+    float val1 = reinterpret_cast<float&>(tmp);
     bool val2 = stream.ReadEncoded(1);
     stream.ReadEncoded(1);
     tmp = stream.ReadEncoded(32);
-    double val3 = *(reinterpret_cast<float*>(&tmp));
+    float val3 = reinterpret_cast<float&>(tmp);
     tmp = stream.ReadEncoded(32);
-    double val4 = *(reinterpret_cast<float*>(&tmp));
+    float val4 = reinterpret_cast<float&>(tmp);
     tmp = stream.ReadEncoded(32);
-    double val5 = *(reinterpret_cast<float*>(&tmp));
+    float val5 = reinterpret_cast<float&>(tmp);
 
     x98_playerState = std::make_shared<CPlayerState>(stream);
     float currentHealth = x98_playerState->GetHealthInfo().GetHP();
@@ -49,13 +49,13 @@ CGameState::CGameState(CBitStreamReader& stream)
     x17c_gameOptions = CGameOptions(stream);
     x1f8_hintOptions = CHintOptions(stream);
 
-    const std::vector<CSaveWorldMemory>& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
     x88_worldStates.reserve(memWorlds.size());
-    for (const CSaveWorldMemory& memWorld : memWorlds)
+    for (const auto& memWorld : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.GetSaveWorldAssetId()});
-        x88_worldStates.emplace_back(stream, memWorld.GetWorldAssetId(), *saveWorld);
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
+        x88_worldStates.emplace_back(stream, memWorld.first, *saveWorld);
     }
 }
 

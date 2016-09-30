@@ -457,6 +457,17 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry) cons
     for (const BRIDGETYPE& bridge : *m_bridges)
     {
         const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
+
+        if (isShared())
+        {
+            if (entry.type == FOURCC('MLVL'))
+                return "!world";
+            else if (entry.type == FOURCC('MREA'))
+                return "!area";
+            else if (entry.type == FOURCC('MAPA'))
+                return "!map";
+        }
+
         bool named;
         name = pak.bestEntryName(entry, named);
         if (named)
@@ -475,6 +486,17 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry) const
         const typename BRIDGETYPE::PAKType::Entry* e = pak.lookupEntry(entry);
         if (!e)
             continue;
+
+        if (isShared())
+        {
+            if (e->type == FOURCC('MLVL'))
+                return "!world";
+            else if (e->type == FOURCC('MREA'))
+                return "!area";
+            else if (e->type == FOURCC('MAPA'))
+                return "!map";
+        }
+
         bool named;
         name = pak.bestEntryName(*e, named);
         if (named)
