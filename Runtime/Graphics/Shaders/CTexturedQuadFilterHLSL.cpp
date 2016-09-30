@@ -5,7 +5,36 @@
 namespace urde
 {
 
-static const char* VS =
+static const char* VSFlip =
+"struct VertData\n"
+"{\n"
+"    float4 posIn : POSITION;\n"
+"    float4 uvIn : UV;\n"
+"};\n"
+"\n"
+"cbuffer TexuredQuadUniform : register(b0)\n"
+"{\n"
+"    float4x4 mat;\n"
+"    float4 color;\n"
+"};\n"
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    float4 position : SV_Position;\n"
+"    float4 color : COLOR;\n"
+"    float2 uv : UV;\n"
+"};\n"
+"\n"
+"VertToFrag main(in VertData v)\n"
+"{\n"
+"    VertToFrag vtf;\n"
+"    vtf.color = color;\n"
+"    vtf.uv = v.uvIn.xy;\n"
+"    vtf.position = mul(mat, float4(v.posIn.xyz, 1.0));\n"
+"    return vtf;\n"
+"}\n";
+
+static const char* VSNoFlip =
 "struct VertData\n"
 "{\n"
 "    float4 posIn : POSITION;\n"
@@ -99,13 +128,13 @@ CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    alphaPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                          vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    additivePipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                             vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  vtxFmtOut, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterD3DDataBindingFactory;
@@ -141,13 +170,13 @@ CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    alphaPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                          vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    additivePipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                             vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  vtxFmtOut, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterAlphaD3DDataBindingFactory;

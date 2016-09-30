@@ -5,7 +5,7 @@
 namespace urde
 {
 
-static const char* VS =
+static const char* VSFlip =
 "#version 330\n"
 BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
@@ -29,6 +29,34 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vtf.color = color;\n"
 "    vtf.uv = uvIn.xy * uvScale;\n"
+"    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
+"    gl_Position = FLIPFROMGL(gl_Position);\n"
+"}\n";
+
+static const char* VSNoFlip =
+"#version 330\n"
+BOO_GLSL_BINDING_HEAD
+"layout(location=0) in vec4 posIn;\n"
+"layout(location=1) in vec4 uvIn;\n"
+"\n"
+"UBINDING0 uniform TexuredQuadUniform\n"
+"{\n"
+"    mat4 mtx;\n"
+"    vec4 color;\n"
+"    float uvScale;\n"
+"};\n"
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec4 color;\n"
+"    vec2 uv;\n"
+"};\n"
+"\n"
+"SBINDING(0) out VertToFrag vtf;\n"
+"void main()\n"
+"{\n"
+"    vtf.color = color;\n"
+"    vtf.uv = -uvIn.xy * uvScale;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
@@ -119,11 +147,11 @@ CTexturedQuadFilter::Initialize(boo::GLDataFactory::Context& ctx,
 {
     const char* texNames[] = {"tex"};
     const char* uniNames[] = {"TexuredQuadUniform"};
-    alphaPipeOut = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSNoFlip, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterGLDataBindingFactory;
 }
@@ -142,11 +170,11 @@ CTexturedQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterVulkanDataBindingFactory;
 }
@@ -204,11 +232,11 @@ CTexturedQuadFilterAlpha::Initialize(boo::GLDataFactory::Context& ctx,
 {
     const char* texNames[] = {"tex"};
     const char* uniNames[] = {"TexuredQuadUniform"};
-    alphaPipeOut = ctx.newShaderPipeline(VS, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterAlphaGLDataBindingFactory;
 }
@@ -227,11 +255,11 @@ CTexturedQuadFilterAlpha::Initialize(boo::VulkanDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterAlphaVulkanDataBindingFactory;
 }

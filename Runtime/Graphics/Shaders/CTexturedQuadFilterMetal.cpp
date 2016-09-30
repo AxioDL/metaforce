@@ -5,7 +5,38 @@
 namespace urde
 {
 
-static const char* VS =
+static const char* VSFlip =
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"struct VertData\n"
+"{\n"
+"    float4 posIn [[ attribute(0) ]];\n"
+"    float4 uvIn [[ attribute(1) ]];\n"
+"};\n"
+"\n"
+"struct TexuredQuadUniform\n"
+"{\n"
+"    float4x4 mat;\n"
+"    float4 color;\n"
+"};\n"
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
+"    float2 uv;\n"
+"};\n"
+"\n"
+"vertex VertToFrag vmain(VertData v [[ stage_in ]], constant TexuredQuadUniform& tqu [[ buffer(2) ]])\n"
+"{\n"
+"    VertToFrag vtf;\n"
+"    vtf.color = tqu.color;\n"
+"    vtf.uv = v.uvIn.xy;\n"
+"    vtf.position = tqu.mat * float4(v.posIn.xyz, 1.0);\n"
+"    return vtf;\n"
+"}\n";
+
+static const char* VSNoFlip =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
 "struct VertData\n"
@@ -36,6 +67,7 @@ static const char* VS =
 "    vtf.position = tqu.mat * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
+
 
 static const char* FS =
 "#include <metal_stdlib>\n"
@@ -101,11 +133,11 @@ CTexturedQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterMetalDataBindingFactory;
 }
@@ -140,11 +172,11 @@ CTexturedQuadFilterAlpha::Initialize(boo::MetalDataFactory::Context& ctx,
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    alphaPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    additivePipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
+    colorMultiplyPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
                                                  boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterAlphaMetalDataBindingFactory;
 }
