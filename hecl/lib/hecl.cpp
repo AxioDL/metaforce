@@ -505,7 +505,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
     {
         hecl::Sstat theStat;
         const char* home = getenv("HOME");
-        
+
         if (home)
         {
             ret.push_back(NameFromPath(home));
@@ -514,7 +514,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
             if (!hecl::Stat(desktop.c_str(), &theStat))
                 ret.push_back(NameFromPath(desktop));
         }
-        
+
         /* Get mounted volumes better method OSX 10.6 and higher, see: */
         /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
         /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
@@ -525,13 +525,13 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
 
         while (result != kCFURLEnumeratorEnd)
         {
-            char defPath[MAXPATHLEN];
+            char defPath[1024];
 
             result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, NULL);
             if (result != kCFURLEnumeratorSuccess)
                 continue;
 
-            CFURLGetFileSystemRepresentation(cfURL, false, (UInt8 *)defPath, MAXPATHLEN);
+            CFURLGetFileSystemRepresentation(cfURL, false, (UInt8 *)defPath, 1024);
             ret.push_back(NameFromPath(defPath));
         }
 
