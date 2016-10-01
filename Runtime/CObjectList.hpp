@@ -58,7 +58,7 @@ public:
     CEntity* GetObjectById(TUniqueId uid);
     TUniqueId GetFirstObjectIndex() const { return m_firstId; }
     TUniqueId GetNextObjectIndex(TUniqueId prev) const { return m_list[prev].next; }
-    virtual bool IsQualified();
+    virtual bool IsQualified(const CEntity&);
 };
 
 }

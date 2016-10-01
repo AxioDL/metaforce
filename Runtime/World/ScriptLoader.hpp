@@ -117,7 +117,7 @@ public:
     static CEntity* LoadPlayerStateChange(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadThardus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* LoadAIJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+    static CEntity* LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadRoomAcoustics(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadColorModulate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

@@ -130,7 +130,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
     x90c_loaderFuncs[int(EScriptObjectType::PlayerStateChange)] = ScriptLoader::LoadPlayerStateChange;
     x90c_loaderFuncs[int(EScriptObjectType::Thardus)] = ScriptLoader::LoadThardus;
     x90c_loaderFuncs[int(EScriptObjectType::WallCrawlerSwarm)] = ScriptLoader::LoadWallCrawlerSwarm;
-    x90c_loaderFuncs[int(EScriptObjectType::AIJumpPoint)] = ScriptLoader::LoadAIJumpPoint;
+    x90c_loaderFuncs[int(EScriptObjectType::AIJumpPoint)] = ScriptLoader::LoadAiJumpPoint;
     x90c_loaderFuncs[int(EScriptObjectType::FlaahgraTentacle)] = ScriptLoader::LoadFlaahgraTentacle;
     x90c_loaderFuncs[int(EScriptObjectType::RoomAcoustics)] = ScriptLoader::LoadRoomAcoustics;
     x90c_loaderFuncs[int(EScriptObjectType::ColorModulate)] = ScriptLoader::LoadColorModulate;
@@ -644,6 +644,11 @@ const CObjectList* CStateManager::GetObjectListById(EGameObjectList type) const
 
 void CStateManager::RemoveObject(TUniqueId)
 {
+}
+
+void CStateManager::RemoveActor(TUniqueId)
+{
+
 }
 
 void CStateManager::UpdateRoomAcoustics(TAreaId)

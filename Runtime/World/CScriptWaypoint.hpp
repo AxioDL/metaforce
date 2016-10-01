@@ -12,6 +12,8 @@ public:
     CScriptWaypoint(TUniqueId, const std::string&, const CEntityInfo&,
                     const zeus::CTransform&, bool, float, float,
                     u32, u32, u32, u32, u32, u32, u32);
+
+    const CScriptWaypoint* NextWaypoint(CStateManager&) const { return nullptr; }
 };
 }
 

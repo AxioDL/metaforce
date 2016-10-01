@@ -246,6 +246,7 @@ public:
     CObjectList* ObjectListById(EGameObjectList type);
     const CObjectList* GetObjectListById(EGameObjectList type) const;
     void RemoveObject(TUniqueId);
+    void RemoveActor(TUniqueId);
     void UpdateRoomAcoustics(TAreaId);
     void SetCurrentAreaId(TAreaId);
     void ClearGraveyard();

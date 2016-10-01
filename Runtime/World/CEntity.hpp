@@ -21,8 +21,8 @@ class CEntityInfo
     std::vector<SConnection> x4_conns;
     TEditorId x14_editorId;
 public:
-    CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns, ResId savwId=-1)
-    : x0_areaId(aid), x4_conns(conns) {}
+    CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns, TEditorId eid = kInvalidEditorId)
+    : x0_areaId(aid), x4_conns(conns), x14_editorId(eid) {}
     TAreaId GetAreaId() const {return x0_areaId;}
     std::vector<SConnection> GetConnectionList() const { return x4_conns; }
     TEditorId GetEditorId() const { return x14_editorId; }

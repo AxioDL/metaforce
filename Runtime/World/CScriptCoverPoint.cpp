@@ -14,9 +14,7 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const std::string &name, con
 {
     xec_cosHorizontalAngle = std::cos(zeus::degToRad(horizontalAngle) * 0.5f);
     xf0_sinVerticalAngle = std::sin(zeus::degToRad(verticalAngle) * 0.5f);
-    zeus::CMatrix4f mtx = xf.toMatrix4f().transposed();
-    x100_touchBounds.emplace(zeus::CAABox({mtx.vec[1].x, mtx.vec[2].y, mtx.vec[3].z},
-    {mtx.vec[1].x, mtx.vec[2].y, mtx.vec[3].z}));
+    x100_touchBounds.emplace(xf.origin, xf.origin);
 }
 
 void CScriptCoverPoint::Think(float delta, CStateManager&)
@@ -60,16 +58,14 @@ bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const
 
     if (ShouldWallHang())
     {
-        zeus::CMatrix4f mtx = x34_transform.toMatrix4f().transposed();
-        zeus::CVector3f posDif = point - zeus::CVector3f(mtx.vec[1].x, mtx.vec[2].y, mtx.vec[3].z);
+        zeus::CVector3f posDif = point - x34_transform.origin;
         posDif *= (1.0 / posDif.magnitude());
         zeus::CVector3f normDif = posDif.normalized();
 
-        /* zeus::CVector3f unkVec(mtx.vec[0].y, mtx.vec[1].z, mtx.vec[3].x); */
-        zeus::CVector3f unkVec2(mtx.vec[1].z, mtx.vec[0].y, 0.f);
-        unkVec2.normalize();
+        zeus::CVector3f frontVec = x34_transform.frontVector();
+        frontVec.normalize();
 
-        if (unkVec2.dot(normDif) <= GetCosHorizontalAngle() || (posDif.z * posDif.z) >= GetSinSqVerticalAngle())
+        if (frontVec.dot(normDif) <= GetCosHorizontalAngle() || (posDif.z * posDif.z) >= GetSinSqVerticalAngle())
             return true;
     }
     return false;
