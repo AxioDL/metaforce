@@ -85,7 +85,7 @@ struct MLVL : BigYAML
     struct AudioGroup : BigYAML
     {
         DECL_YAML
-        Value<atUint32> unknown;
+        Value<atUint32> groupId;
         UniqueID32 agscId;
     };
     Vector<AudioGroup, DNA_COUNT(audioGroupCount)> audioGroups;
