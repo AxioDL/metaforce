@@ -9,7 +9,7 @@ CObjectList::CObjectList(EGameObjectList listEnum)
 
 void CObjectList::AddObject(CEntity& entity)
 {
-    if (IsQualified())
+    if (IsQualified(entity))
     {
         if (m_firstId != -1)
             m_list[m_firstId].prev = entity.GetUniqueId() & 0x3ff;
@@ -67,6 +67,6 @@ CEntity* CObjectList::GetObjectById(TUniqueId uid)
     return ent.entity;
 }
 
-bool CObjectList::IsQualified() {return true;}
+bool CObjectList::IsQualified(const CEntity&) {return true;}
 
 }

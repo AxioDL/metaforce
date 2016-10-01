@@ -74,6 +74,7 @@ set(WORLD_SOURCES
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
+    CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
@@ -89,6 +90,7 @@ set(WORLD_SOURCES
     CPatterned.hpp CPatterned.cpp
     CHUDMemoParms.hpp CHUDMemoParms.cpp
     CWorldShadow.hpp CWorldShadow.cpp
+    CGameLight.hpp CGameLight.cpp
     CFluidPlane.hpp)
 
 runtime_add_list(World WORLD_SOURCES)

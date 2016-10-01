@@ -28,6 +28,7 @@ class CLight
     friend class CGuiLight;
     friend class CBooModel;
     friend class CBooRenderer;
+    friend class CGameLight;
 
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_dir;
@@ -67,10 +68,14 @@ public:
         x0_pos = pos;
     }
 
+    const zeus::CVector3f& GetPosition() const { return x0_pos; }
+
     void SetDirection(const zeus::CVector3f& dir)
     {
         xc_dir = dir;
     }
+
+    const zeus::CVector3f& GetDirection() const { return xc_dir; }
 
     void SetColor(const zeus::CColor& col)
     {
@@ -106,6 +111,8 @@ public:
         }
         return x44_cachedRadius;
     }
+
+    ELightType GetType() const { return x1c_type; }
 
     float GetIntensity() const;
     const zeus::CColor& GetColor() const { return x18_color; }

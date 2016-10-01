@@ -42,6 +42,7 @@
 #include "CScriptDistanceFog.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
+#include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
@@ -1346,15 +1347,15 @@ CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in, int 
         return nullptr;
 
     SActorHead head = LoadActorHead(in, mgr);
-    bool b1 = in.readBool();
-    u32 w1 = in.readUint32Big();
-    bool b2 = in.readBool();
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
+    bool active = in.readBool();
+    u32 flags = in.readUint32Big();
+    bool crouch = in.readBool();
+    float horizontalAngle = in.readFloatBig();
+    float verticalAngle = in.readFloatBig();
+    float coverTime = in.readFloatBig();
 
-    return new CScriptCoverPoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, w1, b2, f1, f2,
-                                 f3);
+    return new CScriptCoverPoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, flags, crouch,
+                                 horizontalAngle, verticalAngle, coverTime);
 }
 
 CEntity* ScriptLoader::LoadSpiderBallWaypoint(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1677,9 +1678,16 @@ CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadAIJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 5, "AiJumpPoint"))
+      return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    float f1 =  in.readFloat();
+
+    return new CScriptAiJumpPoint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, f1);
 }
 
 CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount,
