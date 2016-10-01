@@ -1001,8 +1001,46 @@ BlenderConnection::DataStream::ColMesh::Triangle::Triangle(BlenderConnection& co
     conn._readBuf(this, 16);
 }
 
+BlenderConnection::DataStream::World::Area::Dock::Dock(BlenderConnection& conn)
+{
+    verts[0].read(conn);
+    verts[1].read(conn);
+    verts[2].read(conn);
+    verts[3].read(conn);
+    targetArea.read(conn);
+    targetDock.read(conn);
+}
+
+BlenderConnection::DataStream::World::Area::Area(BlenderConnection& conn)
+{
+    std::string name;
+    uint32_t nameLen;
+    conn._readBuf(&nameLen, 4);
+    if (nameLen)
+    {
+        name.assign(nameLen, '\0');
+        conn._readBuf(&name[0], nameLen);
+    }
+
+    path.assign(conn.m_loadedBlend.getParentPath(), name);
+    aabb[0].read(conn);
+    aabb[1].read(conn);
+    transform.read(conn);
+
+    uint32_t dockCount;
+    conn._readBuf(&dockCount, 4);
+    docks.reserve(dockCount);
+    for (uint32_t i=0 ; i<dockCount ; ++i)
+        docks.emplace_back(conn);
+}
+
 BlenderConnection::DataStream::World::World(BlenderConnection& conn)
 {
+    uint32_t areaCount;
+    conn._readBuf(&areaCount, 4);
+    areas.reserve(areaCount);
+    for (uint32_t i=0 ; i<areaCount ; ++i)
+        areas.emplace_back(conn);
 }
 
 BlenderConnection::DataStream::Light::Light(BlenderConnection& conn)

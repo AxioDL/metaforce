@@ -584,6 +584,22 @@ public:
         /** Intermediate world representation */
         struct World
         {
+            struct Area
+            {
+                ProjectPath path;
+                Vector3f aabb[2];
+                Matrix4f transform;
+                struct Dock
+                {
+                    Vector3f verts[4];
+                    Index targetArea;
+                    Index targetDock;
+                    Dock(BlenderConnection& conn);
+                };
+                std::vector<Dock> docks;
+                Area(BlenderConnection& conn);
+            };
+            std::vector<Area> areas;
             World(BlenderConnection& conn);
         };
 

@@ -401,6 +401,15 @@ static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2)
 #endif
 }
 
+static inline unsigned long StrToUl(const SystemChar* str, SystemChar** endPtr, int base)
+{
+#if HECL_UCS2
+    return wcstoul(str, endPtr, base);
+#else
+    return strtoul(str, endPtr, base);
+#endif
+}
+
 #define FORMAT_BUF_SZ 1024
 
 #if __GNUC__
@@ -1270,6 +1279,17 @@ public:
         return !StrCmp(&*(str.end() - len), test);
     }
 
+    static std::string TrimWhitespace(const std::string& str)
+    {
+        auto bit = str.begin();
+        while (bit != str.cend() && isspace(*bit))
+            ++bit;
+        auto eit = str.end();
+        while (eit != str.cbegin() && isspace(*(eit-1)))
+            --eit;
+        return {bit, eit};
+    }
+
 #if HECL_UCS2
     static bool BeginsWith(const std::string& str, const char* test)
     {
@@ -1285,6 +1305,17 @@ public:
         if (len > str.size())
             return false;
         return !strcmp(&*(str.end() - len), test);
+    }
+
+    static SystemString TrimWhitespace(const SystemString& str)
+    {
+        auto bit = str.begin();
+        while (bit != str.cend() && iswspace(*bit))
+            ++bit;
+        auto eit = str.end();
+        while (eit != str.cbegin() && iswspace(*(eit-1)))
+            --eit;
+        return {bit, eit};
     }
 #endif
 };

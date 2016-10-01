@@ -1,7 +1,74 @@
+import bpy
+from mathutils import Vector
+
+def build_dock_connections():
+    areas = []
+    docks = []
+
+    for obj in bpy.context.scene.objects:
+        if obj.type == 'MESH' and obj.parent is None:
+            dock_list = []
+            for ch in obj.children:
+                if ch.type == 'MESH':
+                    docks.append((len(areas), len(dock_list), ch))
+                    dock_list.append(ch)
+            areas.append((obj, dock_list))
+
+    dock_dict = dict()
+
+    for dockA in docks:
+        mtxA = dockA[2].matrix_world
+        locA = Vector((mtxA[0][3], mtxA[1][3], mtxA[2][3]))
+        match = False
+        for dockB in docks:
+            if dockA == dockB:
+                continue
+            mtxB = dockB[2].matrix_world
+            locB = Vector((mtxB[0][3], mtxB[1][3], mtxB[2][3]))
+            if (locA - locB).magnitude < 0.1:
+                dock_dict[dockA[2].name] = dockB
+                match = True
+                break
+        if not match:
+            raise RuntimeError('No dock match for %s' % dockA[2].name)
+
+    return (areas, dock_dict)
 
 # Cook
 def cook(writebuf):
-    pass
+    areas, dock_conns = build_dock_connections()
+    writebuf(struct.pack('I', len(areas)))
+    for area in areas:
+        obj = area[0]
+        dock_list = area[1]
+        writebuf(struct.pack('I', len(obj.name)))
+        writebuf(obj.name.encode())
+
+        pt = Vector(copy_obj.bound_box[0])
+        writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+        pt = Vector(copy_obj.bound_box[6])
+        writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
+
+        wmtx = obj.matrix_world
+        writebuf(struct.pack('ffffffffffffffff',
+        wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+        wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+        wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+        wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
+
+        wmtx_inv = wmtx.inverted()
+
+        writebuf(struct.pack('I', len(dock_list)))
+        for ch in dock_list:
+            if len(ch.data.vertices) < 4:
+                raise RuntimeError('Not enough vertices in dock %s' % ch.name)
+            wmtx = wmtx_inv * ch.matrix_world
+            for vi in range(4):
+                v = wmtx * ch.data.vertices[vi].co
+                writebuf(struct.pack('fff', v[0], v[1], v[2]))
+            conn_dock = dock_conns[ch.name]
+            writebuf(struct.pack('II', conn_dock[0], conn_dock[1]))
+
 
 # Panel draw
 def draw(layout, context):

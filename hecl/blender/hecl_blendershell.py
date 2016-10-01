@@ -216,6 +216,10 @@ def dataout_loop():
             bpy.data.objects.remove(join_obj)
             bpy.data.meshes.remove(join_mesh)
 
+        elif cmdargs[0] == 'WORLDCOMPILE':
+            writepipeline(b'OK')
+            hecl.swld.cook(writepipebuf)
+
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipeline(b'OK')
             lampCount = 0;
