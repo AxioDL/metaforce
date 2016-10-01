@@ -2,6 +2,7 @@
 #include "../DNAMP1/DNAMP1.hpp"
 #include "../DNAMP2/DNAMP2.hpp"
 #include "../DNAMP3/DNAMP3.hpp"
+#include "zeus/CTransform.hpp"
 
 namespace DataSpec
 {
@@ -285,6 +286,18 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
           "bm.to_mesh(mesh)\n"
           "bpy.context.scene.objects.link(obj)\n"
           "bm.free()\n";
+
+    const zeus::CMatrix4f* tmpMtx = pakRouter.lookupMAPATransform(entry.id);
+    const zeus::CMatrix4f& mtx = tmpMtx ? *tmpMtx : zeus::CMatrix4f::skIdentityMatrix4f;
+    os.format("mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+              "mtxd = mtx.decompose()\n"
+              "obj.rotation_mode = 'QUATERNION'\n"
+              "obj.location = mtxd[0]\n"
+              "obj.rotation_quaternion = mtxd[1]\n"
+              "obj.scale = mtxd[2]\n",
+              mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0],
+              mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1],
+              mtx[0][2], mtx[1][2], mtx[2][2], mtx[3][2]);
 
     /* World background */
     hecl::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");

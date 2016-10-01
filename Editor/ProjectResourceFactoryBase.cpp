@@ -119,7 +119,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::Pr
                 continue;
 
             /* Read catalog.yaml for .pak directory if exists */
-            if (level == 1 && !ent.m_name.compare(_S("catalog.yaml")))
+            if (level == 1 && !ent.m_name.compare(_S("!catalog.yaml")))
             {
                 ReadCatalog(path, nameWriter);
                 continue;
@@ -228,6 +228,14 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
 #if DUMP_CACHE_FILL
             DumpCacheAdd(pathTag, subPath);
 #endif
+
+            subPath = asGlob.ensureAuxInfo(_S(".SAVW"));
+            pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
+            m_tagToPath[pathTag] = subPath;
+            m_pathToTag[subPath.hash()] = pathTag;
+#if DUMP_CACHE_FILL
+            DumpCacheAdd(pathTag, subPath);
+#endif
         }
 
         /* Cache in-memory */
@@ -264,7 +272,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
                 continue;
 
             /* Read catalog.yaml for .pak directory if exists */
-            if (level == 1 && !ent.m_name.compare(_S("catalog.yaml")))
+            if (level == 1 && !ent.m_name.compare(_S("!catalog.yaml")))
             {
                 ReadCatalog(path, nameWriter);
                 continue;

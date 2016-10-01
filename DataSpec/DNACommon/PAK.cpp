@@ -202,6 +202,10 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         athena::io::YAMLDocWriter catalogWriter(nullptr);
 
         enterPAKBridge(bridge);
+
+        /* Add MAPA transforms to global map */
+        bridge.addMAPATransforms(*this, m_mapaTransforms, m_overrideEntries);
+
         const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
         for (const auto& namedEntry : pak.m_nameEntries)
         {
@@ -224,7 +228,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         /* Write catalog */
         intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
         const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
-        hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "catalog.yaml").getAbsolutePath();
+        hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "!catalog.yaml").getAbsolutePath();
         athena::io::FileWriter writer(catalogPath);
         catalogWriter.finish(&writer);
     }
@@ -274,6 +278,11 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 {
     if (!entry)
         return hecl::ProjectPath();
+
+    auto overrideSearch = m_overrideEntries.find(entry->id);
+    if (overrideSearch != m_overrideEntries.end())
+        return overrideSearch->second;
+
     const PAKType* pak = m_pak.get();
     intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
     if (!pak)
@@ -384,6 +393,16 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
 {
     if (!entry)
         return hecl::ProjectPath();
+
+    auto overrideSearch = m_overrideEntries.find(entry->id);
+    if (overrideSearch != m_overrideEntries.end())
+    {
+        return overrideSearch->second.getCookedPath(
+                    *m_dataSpec.overrideDataSpec(overrideSearch->second,
+                                                 m_dataSpec.getDataSpecEntry(),
+                                                 hecl::SharedBlenderToken));
+    }
+
     const PAKType* pak = m_pak.get();
     intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
     if (!pak)
@@ -632,6 +651,15 @@ const typename PAKRouter<BRIDGETYPE>::RigPair* PAKRouter<BRIDGETYPE>::lookupCMDL
 {
     auto search = m_cmdlRigs.find(id);
     if (search == m_cmdlRigs.end())
+        return nullptr;
+    return &search->second;
+}
+
+template <class BRIDGETYPE>
+const zeus::CMatrix4f* PAKRouter<BRIDGETYPE>::lookupMAPATransform(const IDType& id) const
+{
+    auto search = m_mapaTransforms.find(id);
+    if (search == m_mapaTransforms.end())
         return nullptr;
     return &search->second;
 }

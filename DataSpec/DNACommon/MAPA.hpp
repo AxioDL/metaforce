@@ -4,6 +4,7 @@
 #include "DNACommon.hpp"
 #include "GX.hpp"
 
+
 namespace DataSpec
 {
 namespace DNAMAPA

@@ -16,6 +16,7 @@
 #include "../DNACommon/FONT.hpp"
 #include "../DNACommon/DGRP.hpp"
 #include "../DNACommon/ATBL.hpp"
+#include "Runtime/GCNTypes.hpp"
 
 namespace DataSpec
 {
@@ -121,13 +122,7 @@ void PAKBridge::build()
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
 
                     /* Trim possible trailing whitespace */
-#if HECL_UCS2
-                    while (areaDeps.name.size() && iswspace(areaDeps.name.back()))
-                        areaDeps.name.pop_back();
-#else
-                    while (areaDeps.name.size() && isspace(areaDeps.name.back()))
-                        areaDeps.name.pop_back();
-#endif
+                    areaDeps.name = hecl::StringUtils::TrimWhitespace(areaDeps.name);
                 }
                 if (areaDeps.name.empty())
                 {
@@ -203,6 +198,63 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
                     cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second->id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
+                }
+            }
+        }
+    }
+}
+
+static const atVec4f BottomRow = {0.f, 0.f, 0.f, 1.f};
+
+void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
+        std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
+        std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const
+{
+    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& entry : m_pak.m_idMap)
+    {
+        if (entry.second->type == FOURCC('MLVL'))
+        {
+            MLVL mlvl;
+            {
+                PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+                mlvl.read(rs);
+            }
+            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(entry.second).getParentPath();
+
+            if (mlvl.worldNameId)
+                pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _S("!name.yaml"));
+
+            for (const MLVL::Area& area : mlvl.areas)
+            {
+                hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
+                if (area.areaNameId)
+                    pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _S("!name.yaml"));
+            }
+
+            if (mlvl.worldMap)
+            {
+                const nod::Node* mapNode;
+                const DNAMP1::PAK::Entry* mapEntry = pakRouter.lookupEntry(mlvl.worldMap, &mapNode);
+                if (mapEntry)
+                {
+                    PAKEntryReadStream rs = mapEntry->beginReadStream(*mapNode);
+                    u32 magic = rs.readUint32Big();
+                    if (magic == 0xDEADF00D)
+                    {
+                        rs.readUint32Big();
+                        u32 count = rs.readUint32Big();
+                        for (u32 i=0 ; i<count && i<mlvl.areas.size() ; ++i)
+                        {
+                            MLVL::Area& areaData = mlvl.areas[i];
+                            UniqueID32 mapaId;
+                            mapaId.read(rs);
+                            addTo[mapaId] = zeus::CMatrix4f(
+                                    areaData.transformMtx[0],
+                                    areaData.transformMtx[1],
+                                    areaData.transformMtx[2],
+                                    BottomRow).transposed();
+                        }
+                    }
                 }
             }
         }

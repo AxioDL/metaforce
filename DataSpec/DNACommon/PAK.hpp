@@ -4,6 +4,7 @@
 #include "DNACommon.hpp"
 #include "boo/ThreadLocalPtr.hpp"
 #include <array>
+#include "zeus/CMatrix4f.hpp"
 
 namespace DataSpec
 {
@@ -168,8 +169,10 @@ private:
     ThreadLocalPtr<const nod::Node> m_node;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
+    std::unordered_map<IDType, hecl::ProjectPath> m_overrideEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
     std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;
+    std::unordered_map<IDType, zeus::CMatrix4f> m_mapaTransforms;
 
     hecl::ProjectPath getCharacterWorking(const EntryType* entry) const;
 
@@ -221,6 +224,7 @@ public:
     }
 
     const RigPair* lookupCMDLRigPair(const IDType& id) const;
+    const zeus::CMatrix4f* lookupMAPATransform(const IDType& mapaId) const;
 
     hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const;
     hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx, bool& activeOut) const;

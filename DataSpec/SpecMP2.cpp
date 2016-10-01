@@ -282,7 +282,7 @@ struct SpecMP2 : SpecBase
         return m_pakRouter.getWorking(id);
     }
 
-    bool checkPathPrefix(const hecl::ProjectPath& path)
+    bool checkPathPrefix(const hecl::ProjectPath& path) const
     {
         return path.getRelativePath().compare(0, 4, _S("MP2/")) == 0;
     }

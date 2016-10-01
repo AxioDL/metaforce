@@ -38,6 +38,10 @@ public:
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
             std::unordered_map<UniqueID64, std::pair<UniqueID64, std::string>>& cskrCinfToChar) const;
+
+    void addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID64, zeus::CMatrix4f>& addTo,
+            std::unordered_map<UniqueID64, hecl::ProjectPath>& pathOverrides) const;
 };
 
 }

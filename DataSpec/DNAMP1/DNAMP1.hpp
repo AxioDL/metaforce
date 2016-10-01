@@ -3,6 +3,7 @@
 
 #include "../DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
+#include "zeus/CMatrix4f.hpp"
 
 namespace DataSpec
 {
@@ -37,6 +38,10 @@ public:
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const;
+
+    void addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
+            std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
+            std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const;
 };
 
 }

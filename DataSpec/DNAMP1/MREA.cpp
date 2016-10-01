@@ -262,7 +262,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                                         false, false, true);
         for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
         {
-            hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _S("/objects.yaml"));
+            hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _S("/!objects.yaml"));
             if (layerScriptPath.isFile())
                 layerScriptPaths.push_back(std::move(layerScriptPath));
         }

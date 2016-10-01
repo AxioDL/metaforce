@@ -185,7 +185,7 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 
 const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::ProjectPath& path,
                                                                 const hecl::Database::DataSpecEntry* oldEntry,
-                                                                hecl::BlenderToken& btok)
+                                                                hecl::BlenderToken& btok) const
 {
     if (!checkPathPrefix(path))
         return nullptr;

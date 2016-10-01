@@ -51,7 +51,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
             fclose(hecl::Fopen(activePath.getAbsolutePath().c_str(), _S("wb")));
         }
 
-        hecl::ProjectPath yamlFile(layerPath, _S("objects.yaml"));
+        hecl::ProjectPath yamlFile(layerPath, _S("!objects.yaml"));
         if (force || yamlFile.isNone())
         {
             athena::io::FileWriter writer(yamlFile.getAbsolutePath());

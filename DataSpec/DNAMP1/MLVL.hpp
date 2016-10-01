@@ -108,8 +108,6 @@ struct MLVL : BigYAML
 
     void readMeta(athena::io::YAMLDocReader& __dna_docin)
     {
-        /* worldNameId */
-        __dna_docin.enumerate("worldNameId", worldNameId);
         /* worldSkyboxId */
         __dna_docin.enumerate("worldSkyboxId", worldSkyboxId);
         /* audioGroupCount squelched */
@@ -119,8 +117,6 @@ struct MLVL : BigYAML
 
     void writeMeta(athena::io::YAMLDocWriter& __dna_docout) const
     {
-        /* worldNameId */
-        __dna_docout.enumerate("worldNameId", worldNameId);
         /* worldSkyboxId */
         __dna_docout.enumerate("worldSkyboxId", worldSkyboxId);
         /* audioGroupCount squelched */
@@ -135,16 +131,13 @@ struct MLVL : BigYAML
                         const PAK::Entry& entry,
                         bool force,
                         hecl::BlenderToken& btok,
-                        std::function<void(const hecl::SystemChar*)> fileChanged)
-    {
-        MLVL mlvl;
-        mlvl.read(rs);
-        athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
-        mlvl.toYAMLStream(writer, static_cast<YAMLWriteMemFn>(&MLVL::writeMeta));
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
-                                          entry, force, fileChanged);
-    }
+                        std::function<void(const hecl::SystemChar*)> fileChanged);
+
+    using World = hecl::BlenderConnection::DataStream::World;
+
+    static bool Cook(const hecl::ProjectPath& outPath,
+                     const hecl::ProjectPath& inPath,
+                     const World& wld);
 };
 
 }

@@ -324,7 +324,7 @@ struct SpecMP1 : SpecBase
         return m_pakRouter.getWorking(id);
     }
 
-    bool checkPathPrefix(const hecl::ProjectPath& path)
+    bool checkPathPrefix(const hecl::ProjectPath& path) const
     {
         return path.getRelativePath().compare(0, 4, _S("MP1/")) == 0;
     }
@@ -449,7 +449,7 @@ struct SpecMP1 : SpecBase
                    FCookProgress progress)
     {
         BlendStream::World world = ds.compileWorld();
-
+        DNAMP1::MLVL::Cook(out, in, world);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

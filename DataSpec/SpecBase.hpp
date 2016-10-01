@@ -20,7 +20,7 @@ struct SpecBase : hecl::Database::IDataSpec
     bool canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok);
     const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
                                                           const hecl::Database::DataSpecEntry* oldEntry,
-                                                          hecl::BlenderToken& btok);
+                                                          hecl::BlenderToken& btok) const;
     void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
                 bool fast, hecl::BlenderToken& btok, FCookProgress progress);
 
@@ -46,7 +46,7 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual const hecl::Database::DataSpecEntry* getOriginalSpec() const=0;
 
     /* Basic path check (game directory matching) */
-    virtual bool checkPathPrefix(const hecl::ProjectPath& path)=0;
+    virtual bool checkPathPrefix(const hecl::ProjectPath& path) const=0;
 
     /* Pre-cook handlers */
     virtual bool validateYAMLDNAType(athena::io::IStreamReader& fp) const=0;
