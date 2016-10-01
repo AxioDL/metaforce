@@ -296,7 +296,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     case SBIG('ANCS'):
         return {ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
-        return {MLVL::Extract, {_S(".blend")}, 3};
+        return {MLVL::Extract, {_S(".yaml"), _S(".blend")}, 3};
     case SBIG('MREA'):
         return {MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):

@@ -17,11 +17,12 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                        bool force,
                        std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    if (!force && outPath.isFile())
+    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+    if (!force && blendPath.isFile())
         return true;
 
     /* Create World Blend */
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::World))
+    if (!conn.createBlend(blendPath, hecl::BlenderConnection::BlendType::World))
         return false;
     hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"

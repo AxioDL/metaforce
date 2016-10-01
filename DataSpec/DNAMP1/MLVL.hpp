@@ -106,6 +106,28 @@ struct MLVL : BigYAML
     Value<atUint32> layerNameOffsetCount;
     Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 
+    void readMeta(athena::io::YAMLDocReader& __dna_docin)
+    {
+        /* worldNameId */
+        __dna_docin.enumerate("worldNameId", worldNameId);
+        /* worldSkyboxId */
+        __dna_docin.enumerate("worldSkyboxId", worldSkyboxId);
+        /* audioGroupCount squelched */
+        /* audioGroups */
+        audioGroupCount = __dna_docin.enumerate("audioGroups", audioGroups);
+    }
+
+    void writeMeta(athena::io::YAMLDocWriter& __dna_docout) const
+    {
+        /* worldNameId */
+        __dna_docout.enumerate("worldNameId", worldNameId);
+        /* worldSkyboxId */
+        __dna_docout.enumerate("worldSkyboxId", worldSkyboxId);
+        /* audioGroupCount squelched */
+        /* audioGroups */
+        __dna_docout.enumerate("audioGroups", audioGroups);
+    }
+
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
                         const hecl::ProjectPath& outPath,
@@ -118,7 +140,7 @@ struct MLVL : BigYAML
         MLVL mlvl;
         mlvl.read(rs);
         athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
-        mlvl.toYAMLStream(writer);
+        mlvl.toYAMLStream(writer, static_cast<YAMLWriteMemFn>(&MLVL::writeMeta));
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);

@@ -94,7 +94,12 @@ SObjectTag ProjectResourceFactoryMP1::BuildTagFromPath(const hecl::ProjectPath& 
         case hecl::BlenderConnection::BlendType::Area:
             return {SBIG('MREA'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::World:
+        {
+            if (path.getAuxInfo().size())
+                if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".MAPW")))
+                    return {SBIG('MAPW'), path.hash().val32()};
             return {SBIG('MLVL'), path.hash().val32()};
+        }
         case hecl::BlenderConnection::BlendType::MapArea:
             return {SBIG('MAPA'), path.hash().val32()};
         case hecl::BlenderConnection::BlendType::MapUniverse:

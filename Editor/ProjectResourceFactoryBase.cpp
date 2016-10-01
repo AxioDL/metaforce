@@ -215,6 +215,20 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
 #endif
             }
         }
+        else if (pathTag.type == SBIG('MLVL'))
+        {
+            /* Transform tag to glob */
+            pathTag = {SBIG('MLVL'), asGlob.hash().val32()};
+            useGlob = true;
+
+            hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_S(".MAPW"));
+            SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
+            m_tagToPath[pathTag] = subPath;
+            m_pathToTag[subPath.hash()] = pathTag;
+#if DUMP_CACHE_FILL
+            DumpCacheAdd(pathTag, subPath);
+#endif
+        }
 
         /* Cache in-memory */
         const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
