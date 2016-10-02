@@ -132,9 +132,6 @@ public:
     virtual bool canPackage(const PackagePassInfo& info,
                             SystemString& reasonNo)
     {(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void gatherDependencies(const PackagePassInfo& info,
-                                    std::unordered_set<ProjectPath>& implicitsOut)
-    {(void)info;(void)implicitsOut;}
     virtual void doPackage(const PackagePassInfo& info)
     {(void)info;}
 
@@ -273,6 +270,7 @@ private:
     ProjectPath m_dotPath;
     ProjectPath m_cookedRoot;
     std::vector<ProjectDataSpec> m_compiledSpecs;
+    std::unordered_map<uint64_t, ProjectPath> m_bridgePathCache;
     bool m_valid = false;
 public:
     Project(const hecl::ProjectRootPath& rootPath);
@@ -454,6 +452,21 @@ public:
      * @return Populated depsgraph ready to traverse
      */
     PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
+
+    /** Add ProjectPath to bridge cache */
+    void addBridgePathToCache(uint64_t id, const ProjectPath& path) { m_bridgePathCache[id] = path; }
+
+    /** Clear all ProjectPaths in bridge cache */
+    void clearBridgePathCache() { m_bridgePathCache.clear(); }
+
+    /** Lookup ProjectPath from bridge cache */
+    const ProjectPath* lookupBridgePath(uint64_t id) const
+    {
+        auto search = m_bridgePathCache.find(id);
+        if (search == m_bridgePathCache.cend())
+            return nullptr;
+        return &search->second;
+    }
 
 };
 

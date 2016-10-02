@@ -658,6 +658,9 @@ public:
         /** Gather all lights in scene (AREA blends only) */
         std::vector<Light> compileLights();
 
+        /** Gather all texture paths in scene */
+        std::vector<ProjectPath> getTextures();
+
         /** Intermediate actor representation prepared by blender from a single HECL actor blend */
         struct Actor
         {

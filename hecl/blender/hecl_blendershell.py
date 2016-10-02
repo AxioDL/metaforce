@@ -291,6 +291,21 @@ def dataout_loop():
                     writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
                                                          castShadow))
 
+        elif cmdargs[0] == 'GETTEXTURES':
+            writepipeline(b'OK')
+
+            img_count = 0
+            for img in bpy.data.images:
+                if img.type == 'IMAGE':
+                    img_count += 1
+            writepipebuf(struct.pack('I', img_count))
+
+            for img in bpy.data.images:
+                if img.type == 'IMAGE':
+                    path = os.path.normpath(bpy.path.abspath(img.filepath))
+                    writepipebuf(struct.pack('I', len(path)))
+                    writepipebuf(path.encode())
+
         elif cmdargs[0] == 'ACTORCOMPILE':
             writepipeline(b'OK')
             hecl.sact.cook(writepipebuf)

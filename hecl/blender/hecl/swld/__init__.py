@@ -1,4 +1,4 @@
-import bpy
+import bpy, struct
 from mathutils import Vector
 
 def build_dock_connections():
@@ -44,9 +44,9 @@ def cook(writebuf):
         writebuf(struct.pack('I', len(obj.name)))
         writebuf(obj.name.encode())
 
-        pt = Vector(copy_obj.bound_box[0])
+        pt = Vector(obj.bound_box[0])
         writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
-        pt = Vector(copy_obj.bound_box[6])
+        pt = Vector(obj.bound_box[6])
         writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
 
         wmtx = obj.matrix_world
@@ -67,7 +67,8 @@ def cook(writebuf):
                 v = wmtx * ch.data.vertices[vi].co
                 writebuf(struct.pack('fff', v[0], v[1], v[2]))
             conn_dock = dock_conns[ch.name]
-            writebuf(struct.pack('II', conn_dock[0], conn_dock[1]))
+            writebuf(struct.pack('I', conn_dock[0]))
+            writebuf(struct.pack('I', conn_dock[1]))
 
 
 # Panel draw

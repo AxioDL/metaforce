@@ -1332,6 +1332,35 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     return ret;
 }
 
+std::vector<ProjectPath> BlenderConnection::DataStream::getTextures()
+{
+    m_parent->_writeLine("GETTEXTURES");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get textures: %s", readBuf);
+
+    uint32_t texCount;
+    m_parent->_readBuf(&texCount, 4);
+    std::vector<ProjectPath> texs;
+    texs.reserve(texCount);
+    for (uint32_t i=0 ; i<texCount ; ++i)
+    {
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        std::string readStr(bufSz, ' ');
+        m_parent->_readBuf(&readStr[0], bufSz);
+        SystemStringView absolute(readStr);
+
+        SystemString relative =
+        m_parent->m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+        texs.emplace_back(m_parent->m_loadedBlend.getProject().getProjectWorkingPath(), relative);
+    }
+
+    return texs;
+}
+
 BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor()
 {
     if (m_parent->m_loadedType != BlendType::Actor)
