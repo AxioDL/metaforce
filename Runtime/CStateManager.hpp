@@ -281,6 +281,7 @@ public:
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
+    CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
     CWorld* GetWorld() {return x850_world.get();}
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
     CCameraManager* GetCameraManager() const { return x870_cameraManager; }
