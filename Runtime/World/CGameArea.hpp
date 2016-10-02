@@ -20,7 +20,7 @@
 namespace urde
 {
 class CStateManager;
-
+class CScriptAreaAttributes;
 class CDummyGameArea : public IGameArea
 {
     friend class CDummyWorld;
@@ -175,7 +175,7 @@ public:
         std::unique_ptr<u8[]> x10c8_sclyBuf;
         u32 x10d0_sclySize = 0;
         u32 x10d4_ = 0;
-        u32 x10d8_ = 0;
+        const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
         EOcclusionState x10dc_occlusionState = EOcclusionState::NotOccluded;
         u32 x10e0_ = 0;
         float x10e4_ = 5.f;
@@ -202,7 +202,7 @@ public:
         float x111c_thermalCurrent = 0.f;
         float x1120_thermalSpeed = 0.f;
         float x1124_thermalTarget = 0.f;
-        float x1128_ = 1.f;
+        float x1128_worldLightingLevel = 1.f;
         float x112c_xraySpeed = 0.f;
         float x1130_xrayTarget = 1.f;
         float x1134_ = 0.f;
@@ -304,6 +304,8 @@ public:
 
     bool IsPostConstructed() const {return xf0_24_postConstructed;}
     const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}
+
+    void SetAreaAttributes(const CScriptAreaAttributes* areaAttributes);
 
 };
 

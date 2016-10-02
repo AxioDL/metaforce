@@ -3,6 +3,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
+#include "World/CScriptAreaAttributes.hpp"
 
 namespace urde
 {
@@ -901,6 +902,16 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
         header.secSizes.push_back(r.readUint32Big());
 
     return header;
+}
+
+void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)
+{
+    x12c_postConstructed->x10d8_areaAttributes = areaAttributes;
+    if (areaAttributes == nullptr)
+        return;
+
+    x12c_postConstructed->x111c_thermalCurrent = areaAttributes->GetThermalHeat();
+    x12c_postConstructed->x1128_worldLightingLevel = areaAttributes->GetWorldLightingLevel();
 }
 
 }

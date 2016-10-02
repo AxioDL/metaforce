@@ -21,6 +21,13 @@ public:
                           float envFxDensity, float thermalHeat, float xrayFogDistance,
                           float worldLightingLevel, ResId skybox, EPhazonType phazonType);
 
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+
+    bool GetNeedsSky() const;
+    bool GetNeedsEnvFx() const;
+    float GetEnvFxDensity() const;
+    float GetThermalHeat() const;
+    float GetWorldLightingLevel() const;
 };
 }
 
