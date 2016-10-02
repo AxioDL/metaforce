@@ -291,6 +291,15 @@ void CRSM<IDType>::write(athena::io::IStreamWriter& w) const
 }
 
 template <class IDType>
+void CRSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    for (const auto& p : x0_generators)
+        g_curSpec->flattenDependencies(p.second.id, pathsOut);
+    for (const auto& p : x20_decals)
+        g_curSpec->flattenDependencies(p.second.id, pathsOut);
+}
+
+template <class IDType>
 CRSM<IDType>::CRSM()
     : x30_RNGE(50.f),
       x34_FOFF(0.2f)

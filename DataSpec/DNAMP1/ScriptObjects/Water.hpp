@@ -157,6 +157,22 @@ struct Water : IScriptObject
             ent->name = name + "_part5";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(texture1, pathsOut);
+        g_curSpec->flattenDependencies(texture2, pathsOut);
+        g_curSpec->flattenDependencies(texture3, pathsOut);
+        g_curSpec->flattenDependencies(texture4, pathsOut);
+        g_curSpec->flattenDependencies(texture5, pathsOut);
+        g_curSpec->flattenDependencies(texture6, pathsOut);
+        g_curSpec->flattenDependencies(texture34, pathsOut);
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+        g_curSpec->flattenDependencies(particle3, pathsOut);
+        g_curSpec->flattenDependencies(particle4, pathsOut);
+        g_curSpec->flattenDependencies(particle5, pathsOut);
+    }
 };
 }
 }

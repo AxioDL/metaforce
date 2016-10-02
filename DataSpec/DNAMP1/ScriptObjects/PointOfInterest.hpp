@@ -23,6 +23,16 @@ struct PointOfInterest : IScriptObject
     {
         scannableParameters.nameIDs(pakRouter, name + "_scanp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        scannableParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        scannableParameters.scanIDs(scansOut);
+    }
 };
 }
 }

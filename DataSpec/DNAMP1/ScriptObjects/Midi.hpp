@@ -27,6 +27,11 @@ struct Midi : IScriptObject
             ent->name = name + "_song";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        g_curSpec->flattenDependencies(song, pathsOut);
+    }
 };
 }
 }

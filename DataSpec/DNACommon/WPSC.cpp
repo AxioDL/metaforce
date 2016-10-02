@@ -719,6 +719,18 @@ void WPSM<IDType>::write(athena::io::IStreamWriter &w) const
     w.writeBytes("_END", 4);
 }
 
+template <class IDType>
+void WPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    g_curSpec->flattenDependencies(x34_APSM.id, pathsOut);
+    g_curSpec->flattenDependencies(x44_APS2.id, pathsOut);
+    g_curSpec->flattenDependencies(x54_ASW1.id, pathsOut);
+    g_curSpec->flattenDependencies(x64_ASW2.id, pathsOut);
+    g_curSpec->flattenDependencies(x74_ASW3.id, pathsOut);
+    g_curSpec->flattenDependencies(x84_OHEF.id, pathsOut);
+    g_curSpec->flattenDependencies(x94_COLR.id, pathsOut);
+}
+
 template struct WPSM<UniqueID32>;
 template struct WPSM<UniqueID64>;
 

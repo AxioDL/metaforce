@@ -6,6 +6,11 @@
 namespace DataSpec
 {
 
+void ISTRG::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    /* TODO: parse out resource tokens */
+}
+
 std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader)
 {
     uint32_t magic = reader.readUint32Big();

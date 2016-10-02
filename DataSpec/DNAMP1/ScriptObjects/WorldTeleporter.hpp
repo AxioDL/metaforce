@@ -321,6 +321,13 @@ struct WorldTeleporter : IScriptObject
             ent->name = name + "_strg";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(model1, pathsOut);
+        g_curSpec->flattenDependencies(model2, pathsOut);
+        g_curSpec->flattenDependencies(strg, pathsOut);
+    }
 };
 
 }

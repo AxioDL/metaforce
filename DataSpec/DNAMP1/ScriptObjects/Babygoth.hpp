@@ -115,6 +115,28 @@ struct Babygoth : IScriptObject
         patternedInfo.nameIDs(pakRouter, name + "_patterned");
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(wpsc1, pathsOut);
+        g_curSpec->flattenDependencies(wpsc2, pathsOut);
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(model, pathsOut);
+        g_curSpec->flattenDependencies(skin, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+        g_curSpec->flattenDependencies(particle3, pathsOut);
+        g_curSpec->flattenDependencies(particle4, pathsOut);
+        g_curSpec->flattenDependencies(particle5, pathsOut);
+        g_curSpec->flattenDependencies(texture, pathsOut);
+        g_curSpec->flattenDependencies(particle6, pathsOut);
+        patternedInfo.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

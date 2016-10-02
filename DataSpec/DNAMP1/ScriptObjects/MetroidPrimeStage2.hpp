@@ -50,6 +50,20 @@ struct MetroidPrimeStage2 : IScriptObject
         patternedInfo.nameIDs(pakRouter, name + "_patterned");
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+        g_curSpec->flattenDependencies(elsc, pathsOut);
+        patternedInfo.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

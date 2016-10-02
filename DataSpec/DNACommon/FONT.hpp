@@ -109,6 +109,11 @@ struct FONT : BigYAML
     std::vector<std::unique_ptr<IGlyph>> glyphs;
     Value<atUint32> kerningInfoCount;
     Vector<KerningInfo, DNA_COUNT(kerningInfoCount)> kerningInfo;
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(textureId, pathsOut);
+    }
 };
 
 template <class IDType>

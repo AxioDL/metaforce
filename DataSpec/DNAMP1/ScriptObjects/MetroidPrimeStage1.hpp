@@ -144,6 +144,13 @@ struct MetroidPrimeStage1 : IScriptObject
                         ent->name = name + "_unk4";
                     }
                 }
+
+                void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+                {
+                    g_curSpec->flattenDependencies(unknown1, pathsOut);
+                    g_curSpec->flattenDependencies(unknown3, pathsOut);
+                    g_curSpec->flattenDependencies(unknown4, pathsOut);
+                }
             } primeStruct5;
             Value<float> unknown14;
             DamageInfo damageInfo2;
@@ -176,6 +183,16 @@ struct MetroidPrimeStage1 : IScriptObject
                     ent->name = name + "_wpsc";
                 }
                 primeStruct5.nameIDs(pakRouter, name + "_prime5");
+            }
+
+            void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+            {
+                g_curSpec->flattenDependencies(particle1, pathsOut);
+                g_curSpec->flattenDependencies(particle2, pathsOut);
+                g_curSpec->flattenDependencies(texture1, pathsOut);
+                g_curSpec->flattenDependencies(texture2, pathsOut);
+                g_curSpec->flattenDependencies(wpsc, pathsOut);
+                primeStruct5.depIDs(pathsOut);
             }
         } primeStruct4_1, primeStruct4_2, primeStruct4_3, primeStruct4_4;
 
@@ -287,6 +304,34 @@ struct MetroidPrimeStage1 : IScriptObject
             primeStruct4_3.nameIDs(pakRouter, name + "_prime43");
             primeStruct4_4.nameIDs(pakRouter, name + "_prime44");
         }
+
+        void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+        {
+            g_curSpec->flattenDependencies(particle1, pathsOut);
+            g_curSpec->flattenDependencies(particle2, pathsOut);
+            g_curSpec->flattenDependencies(particle3, pathsOut);
+            g_curSpec->flattenDependencies(particle4, pathsOut);
+            g_curSpec->flattenDependencies(particle5, pathsOut);
+            g_curSpec->flattenDependencies(particle6, pathsOut);
+            g_curSpec->flattenDependencies(particle7, pathsOut);
+            g_curSpec->flattenDependencies(particle8, pathsOut);
+            g_curSpec->flattenDependencies(swhc, pathsOut);
+            g_curSpec->flattenDependencies(texture1, pathsOut);
+            g_curSpec->flattenDependencies(texture2, pathsOut);
+            g_curSpec->flattenDependencies(wpsc1, pathsOut);
+            g_curSpec->flattenDependencies(wpsc2, pathsOut);
+            patternedInfo.depIDs(pathsOut);
+            actorParameters.depIDs(pathsOut);
+            primeStruct4_1.depIDs(pathsOut);
+            primeStruct4_2.depIDs(pathsOut);
+            primeStruct4_3.depIDs(pathsOut);
+            primeStruct4_4.depIDs(pathsOut);
+        }
+
+        void scanIDs(std::vector<Scan>& scansOut) const
+        {
+            actorParameters.scanIDs(scansOut);
+        }
     } massivePrimeStruct;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
@@ -299,6 +344,16 @@ struct MetroidPrimeStage1 : IScriptObject
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {
         massivePrimeStruct.nameIDs(pakRouter, name + "_massiveStruct");
+    }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        massivePrimeStruct.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        massivePrimeStruct.scanIDs(scansOut);
     }
 };
 }

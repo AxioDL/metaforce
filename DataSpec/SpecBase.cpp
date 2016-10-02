@@ -288,14 +288,95 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     }
 }
 
+void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
+                                   std::vector<hecl::ProjectPath>& pathsOut,
+                                   hecl::BlenderToken& btok)
+{
+    DataSpec::g_curSpec.reset(this);
+
+    hecl::ProjectPath asBlend;
+    if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+        asBlend = path.getWithExtension(_S(".blend"), true);
+    else
+        asBlend = path;
+
+    if (hecl::IsPathBlend(asBlend))
+    {
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        if (!conn.openBlend(asBlend))
+            return;
+        switch (conn.getBlendType())
+        {
+        case hecl::BlenderConnection::BlendType::Mesh:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            std::vector<hecl::ProjectPath> texs = ds.getTextures();
+            for (const hecl::ProjectPath& tex : texs)
+                pathsOut.push_back(tex);
+            break;
+        }
+        case hecl::BlenderConnection::BlendType::Actor:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::BlenderConnection::DataStream::Actor actor = ds.compileActor();
+            for (auto& sub : actor.subtypes)
+            {
+                if (sub.armature >= 0)
+                {
+                    pathsOut.push_back(sub.mesh);
+
+                    hecl::SystemStringView chSysName(sub.name);
+                    pathsOut.push_back(path.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR")));
+
+                    const auto& arm = actor.armatures[sub.armature];
+                    hecl::SystemStringView armSysName(arm.name);
+                    pathsOut.push_back(path.ensureAuxInfo(armSysName.sys_str() + _S(".CINF")));
+                    if (sub.overlayMeshes.size())
+                    {
+                        pathsOut.push_back(sub.overlayMeshes[0].second);
+                        pathsOut.push_back(path.ensureAuxInfo(chSysName.sys_str() + _S(".over.CSKR")));
+                    }
+                }
+            }
+            break;
+        }
+        case hecl::BlenderConnection::BlendType::Area:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            std::vector<hecl::ProjectPath> texs = ds.getTextures();
+            for (const hecl::ProjectPath& tex : texs)
+                pathsOut.push_back(tex);
+            break;
+        }
+        default: break;
+        }
+    }
+    else if (hecl::IsPathYAML(path))
+    {
+        athena::io::FileReader reader(path.getAbsolutePath());
+        flattenDependenciesYAML(reader, pathsOut);
+    }
+
+    pathsOut.push_back(path);
+}
+
+void SpecBase::flattenDependencies(const UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut)
+{
+    hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
+    if (path)
+        flattenDependencies(path, pathsOut, hecl::SharedBlenderToken);
+}
+
+void SpecBase::flattenDependencies(const UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut)
+{
+    hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
+    if (path)
+        flattenDependencies(path, pathsOut, hecl::SharedBlenderToken);
+}
+
 bool SpecBase::canPackage(const PackagePassInfo& info)
 {
     return false;
-}
-
-void SpecBase::gatherDependencies(const PackagePassInfo& info,
-                                  std::unordered_set<hecl::ProjectPath>& implicitsOut)
-{
 }
 
 void SpecBase::doPackage(const PackagePassInfo& info)

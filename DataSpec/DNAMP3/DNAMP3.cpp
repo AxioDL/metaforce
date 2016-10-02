@@ -126,8 +126,6 @@ void PAKBridge::build()
                         areaName.read(rs);
                     }
                     areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
-
-                    /* Trim possible trailing whitespace */
                     areaDeps.name = hecl::StringUtils::TrimWhitespace(areaDeps.name);
                 }
                 if (areaDeps.name.empty())
@@ -153,14 +151,7 @@ void PAKBridge::build()
                         Level::Area::Layer& layer = areaDeps.layers.back();
                         layer.name = LayerName(mlvl.layerNames[layerIdx++]);
                         layer.active = layerFlags.flags >> (l-1) & 0x1;
-                        /* Trim possible trailing whitespace */
-#if HECL_UCS2
-                        while (layer.name.size() && iswspace(layer.name.back()))
-                            layer.name.pop_back();
-#else
-                        while (layer.name.size() && isspace(layer.name.back()))
-                            layer.name.pop_back();
-#endif
+                        layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
                         hecl::SNPrintf(num, 16, _S("%02u "), l-1);
                         layer.name = num + layer.name;
                     }

@@ -27,6 +27,11 @@ struct HUDMemo : IScriptObject
             ent->name = name + "_message";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        g_curSpec->flattenDependencies(message, pathsOut);
+    }
 };
 }
 }

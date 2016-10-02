@@ -117,6 +117,26 @@ struct GunTurret : IScriptObject
         animationParameters.nameANCS(pakRouter, name + "_animp");
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        g_curSpec->flattenDependencies(unknown18, pathsOut);
+        g_curSpec->flattenDependencies(model, pathsOut);
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+        g_curSpec->flattenDependencies(particle3, pathsOut);
+        g_curSpec->flattenDependencies(particle4, pathsOut);
+        g_curSpec->flattenDependencies(particle5, pathsOut);
+        g_curSpec->flattenDependencies(particle6, pathsOut);
+        g_curSpec->flattenDependencies(particle7, pathsOut);
+        animationParameters.depANCS(pathsOut);
+        actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

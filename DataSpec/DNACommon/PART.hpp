@@ -112,6 +112,8 @@ struct GPSM : BigYAML
     size_t binarySize(size_t __isz) const;
     void read(athena::io::IStreamReader& r);
     void write(athena::io::IStreamWriter& w) const;
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 
 template <class IDType>

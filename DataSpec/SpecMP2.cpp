@@ -10,6 +10,8 @@
 
 #include "hecl/ClientProcess.hpp"
 
+#include "Runtime/RetroTypes.hpp"
+
 namespace DataSpec
 {
 
@@ -303,6 +305,11 @@ struct SpecMP2 : SpecBase
         });
     }
 
+    urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    {
+        return {};
+    }
+
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                   FCookProgress progress)
@@ -329,6 +336,10 @@ struct SpecMP2 : SpecBase
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
+    {
+    }
+
+    void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
     {
     }
 

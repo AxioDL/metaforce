@@ -45,6 +45,18 @@ struct Debris : IScriptObject
         }
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(model, pathsOut);
+        g_curSpec->flattenDependencies(particle, pathsOut);
+        actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

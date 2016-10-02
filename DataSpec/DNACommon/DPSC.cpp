@@ -404,6 +404,16 @@ void DPSM<IDType>::writeQuadDecalInfo(athena::io::IStreamWriter& w,
     }
 }
 
+template <class IDType>
+void DPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    if (x0_quad.x14_TEX.m_elem)
+        x0_quad.x14_TEX.m_elem->gatherDependencies(pathsOut);
+    if (x1c_quad.x14_TEX.m_elem)
+        x1c_quad.x14_TEX.m_elem->gatherDependencies(pathsOut);
+    g_curSpec->flattenDependencies(x38_DMDL.id, pathsOut);
+}
+
 template struct DPSM<UniqueID32>;
 template struct DPSM<UniqueID64>;
 

@@ -54,6 +54,14 @@ struct PhazonPool : IScriptObject
             ent->name = name + "_model2";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+        g_curSpec->flattenDependencies(model1, pathsOut);
+        g_curSpec->flattenDependencies(model2, pathsOut);
+    }
 };
 }
 }

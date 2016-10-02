@@ -81,6 +81,14 @@ struct Ridley : IScriptObject
                 ent->name = name + "_tex2";
             }
         }
+
+        void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+        {
+            g_curSpec->flattenDependencies(particle1, pathsOut);
+            g_curSpec->flattenDependencies(particle2, pathsOut);
+            g_curSpec->flattenDependencies(texture1, pathsOut);
+            g_curSpec->flattenDependencies(texture2, pathsOut);
+        }
     } ridleyStruct1;
 
     Value<atUint32> soundID1;
@@ -715,6 +723,36 @@ struct Ridley : IScriptObject
         patternedInfo.nameIDs(pakRouter, name + "_patterned");
         actorParameters.nameIDs(pakRouter, name + "_actp");
         ridleyStruct1.nameIDs(pakRouter, name + "_ridley1");
+    }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(particle, pathsOut);
+        g_curSpec->flattenDependencies(model1, pathsOut);
+        g_curSpec->flattenDependencies(model2, pathsOut);
+        g_curSpec->flattenDependencies(model3, pathsOut);
+        g_curSpec->flattenDependencies(model4, pathsOut);
+        g_curSpec->flattenDependencies(model5, pathsOut);
+        g_curSpec->flattenDependencies(model6, pathsOut);
+        g_curSpec->flattenDependencies(model7, pathsOut);
+        g_curSpec->flattenDependencies(model8, pathsOut);
+        g_curSpec->flattenDependencies(model9, pathsOut);
+        g_curSpec->flattenDependencies(model10, pathsOut);
+        g_curSpec->flattenDependencies(model11, pathsOut);
+        g_curSpec->flattenDependencies(model12, pathsOut);
+        g_curSpec->flattenDependencies(wpsc1, pathsOut);
+        g_curSpec->flattenDependencies(wpsc2, pathsOut);
+        g_curSpec->flattenDependencies(wpsc3, pathsOut);
+        g_curSpec->flattenDependencies(wpsc4, pathsOut);
+        g_curSpec->flattenDependencies(elsc, pathsOut);
+        patternedInfo.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut);
+        ridleyStruct1.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
     }
 };
 }

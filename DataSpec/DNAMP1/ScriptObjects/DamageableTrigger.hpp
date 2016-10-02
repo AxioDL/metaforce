@@ -43,6 +43,13 @@ struct DamageableTrigger : IScriptObject
             ent->name = name + "_texture3";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(texture1, pathsOut);
+        g_curSpec->flattenDependencies(texture2, pathsOut);
+        g_curSpec->flattenDependencies(texture3, pathsOut);
+    }
 };
 }
 }

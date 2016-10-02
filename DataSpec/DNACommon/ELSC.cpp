@@ -444,6 +444,14 @@ void ELSM<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+template <class IDType>
+void ELSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    g_curSpec->flattenDependencies(x40_SSWH.id, pathsOut);
+    g_curSpec->flattenDependencies(x50_GPSM.id, pathsOut);
+    g_curSpec->flattenDependencies(x60_EPSM.id, pathsOut);
+}
+
 template struct ELSM<UniqueID32>;
 template struct ELSM<UniqueID64>;
 

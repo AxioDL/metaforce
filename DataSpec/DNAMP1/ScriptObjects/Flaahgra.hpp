@@ -70,6 +70,24 @@ struct Flaahgra : IScriptObject
         actorParameters2.nameIDs(pakRouter, name + "_actp2");
         animationParameters.nameANCS(pakRouter, name + "_animp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(wpsc1, pathsOut);
+        g_curSpec->flattenDependencies(wpsc2, pathsOut);
+        g_curSpec->flattenDependencies(particle, pathsOut);
+        g_curSpec->flattenDependencies(dependencyGroup, pathsOut);
+        patternedInfo.depIDs(pathsOut);
+        actorParameters1.depIDs(pathsOut);
+        actorParameters2.depIDs(pathsOut);
+        animationParameters.depANCS(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters1.scanIDs(scansOut);
+        actorParameters2.scanIDs(scansOut);
+    }
 };
 }
 }

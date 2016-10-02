@@ -1532,6 +1532,23 @@ void GPSM<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+template <class IDType>
+void GPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    if (x54_TEXR.m_elem)
+        x54_TEXR.m_elem->gatherDependencies(pathsOut);
+    if (x58_TIND.m_elem)
+        x58_TIND.m_elem->gatherDependencies(pathsOut);
+    g_curSpec->flattenDependencies(x5c_PMDL.id, pathsOut);
+    g_curSpec->flattenDependencies(x8c_ICTS.id, pathsOut);
+    g_curSpec->flattenDependencies(xa4_IDTS.id, pathsOut);
+    g_curSpec->flattenDependencies(xb8_IITS.id, pathsOut);
+    xd0_KSSM.gatherDependencies(pathsOut);
+    g_curSpec->flattenDependencies(xd4_SSWH.id, pathsOut);
+    g_curSpec->flattenDependencies(xec_PMLC.id, pathsOut);
+    g_curSpec->flattenDependencies(xd8_SELC.id, pathsOut);
+}
+
 template struct GPSM<UniqueID32>;
 template struct GPSM<UniqueID64>;
 

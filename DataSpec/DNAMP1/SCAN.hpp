@@ -171,6 +171,17 @@ struct SCAN : BigYAML
         return true;
     }
 
+    static Category GetCategory(const hecl::ProjectPath& inPath)
+    {
+        SCAN scan;
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        if (reader.hasError())
+            return Category::None;
+        if (!scan.fromYAMLStream(reader))
+            return Category::None;
+        return scan.category;
+    }
+
     static void Name(const SpecBase& dataSpec,
                      PAKEntryReadStream& rs,
                      PAKRouter<PAKBridge>& pakRouter,

@@ -51,6 +51,10 @@ struct MLVL : BigYAML
             DECL_YAML
             UniqueID32 id;
             DNAFourCC type;
+
+            Dependency() = default;
+            Dependency(const UniqueID32& idin, const hecl::FourCC& fcc)
+            : id(idin), type(fcc) {}
         };
         Vector<Dependency, DNA_COUNT(depCount)> deps;
 

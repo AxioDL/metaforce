@@ -79,6 +79,23 @@ struct Drone : IScriptObject
         patternedInfo.nameIDs(pakRouter, name + "_patterned");
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(crsc, pathsOut);
+        flareDefinition1.depIDs(pathsOut);
+        flareDefinition2.depIDs(pathsOut);
+        flareDefinition3.depIDs(pathsOut);
+        flareDefinition4.depIDs(pathsOut);
+        flareDefinition5.depIDs(pathsOut);
+        patternedInfo.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

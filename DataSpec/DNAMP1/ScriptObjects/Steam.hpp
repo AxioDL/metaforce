@@ -34,6 +34,11 @@ struct Steam : IScriptObject
             ent->name = name + "_texture";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(texture, pathsOut);
+    }
 };
 }
 }

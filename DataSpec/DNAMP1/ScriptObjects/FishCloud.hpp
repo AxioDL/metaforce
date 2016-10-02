@@ -58,6 +58,12 @@ struct FishCloud : IScriptObject
         }
         animationParameters.nameANCS(pakRouter, name + "_animp");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(model, pathsOut);
+        animationParameters.depANCS(pathsOut);
+    }
 };
 }
 }

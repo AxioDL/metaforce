@@ -48,6 +48,21 @@ struct MetroidAlpha : IScriptObject
         animationParameters3.nameANCS(pakRouter, name + "_animp3");
         animationParameters4.nameANCS(pakRouter, name + "_animp4");
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    {
+        patternedInfo.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut);
+        animationParameters1.depANCS(pathsOut);
+        animationParameters2.depANCS(pathsOut);
+        animationParameters3.depANCS(pathsOut);
+        animationParameters4.depANCS(pathsOut);
+    }
+
+    void gatherScans(std::vector<Scan>& scansOut) const
+    {
+        actorParameters.scanIDs(scansOut);
+    }
 };
 }
 }

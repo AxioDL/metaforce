@@ -29,6 +29,8 @@ struct CRSM : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 
     CRSM();
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 template <class IDType>
 bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);

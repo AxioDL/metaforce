@@ -13,6 +13,9 @@ struct Scan : BigYAML
     DECL_YAML
     UniqueID32 scanId;
     Value<SAVWCommon::EScanCategory> category;
+
+    Scan() = default;
+    Scan(const UniqueID32& id) : scanId(id), category(SAVWCommon::EScanCategory::None) {}
 };
 
 struct SAVW : BigYAML

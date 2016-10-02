@@ -7,6 +7,11 @@
 #include <nod/nod.hpp>
 #include "hecl/Blender/BlenderConnection.hpp"
 
+namespace urde
+{
+struct SObjectTag;
+}
+
 namespace DataSpec
 {
 
@@ -25,8 +30,6 @@ struct SpecBase : hecl::Database::IDataSpec
                 bool fast, hecl::BlenderToken& btok, FCookProgress progress);
 
     bool canPackage(const PackagePassInfo& info);
-    void gatherDependencies(const PackagePassInfo& info,
-                            std::unordered_set<hecl::ProjectPath>& implicitsOut);
     void doPackage(const PackagePassInfo& info);
 
     /* Extract handlers */
@@ -41,6 +44,10 @@ struct SpecBase : hecl::Database::IDataSpec
                                       std::vector<ExtractReport>& reps)=0;
     virtual bool extractFromDisc(nod::DiscBase& disc, bool force,
                                  FProgress progress)=0;
+
+    /* Convert path to object tag */
+    virtual urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path,
+                                              hecl::BlenderToken& btok) const=0;
 
     /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
     virtual const hecl::Database::DataSpecEntry* getOriginalSpec() const=0;
@@ -76,6 +83,14 @@ struct SpecBase : hecl::Database::IDataSpec
                                 FCookProgress progress)=0;
     virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           FCookProgress progress)=0;
+
+    /* Dependency flatteners */
+    void flattenDependencies(const hecl::ProjectPath& in,
+                             std::vector<hecl::ProjectPath>& pathsOut,
+                             hecl::BlenderToken& btok);
+    void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut);
+    void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut);
+    virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
 
     const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
 

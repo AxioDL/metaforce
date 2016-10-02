@@ -55,6 +55,8 @@ struct SWSH : public BigYAML
     {
         x44_25_CROS = true;
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 
 template <class IDType>

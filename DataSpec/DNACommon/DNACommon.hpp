@@ -127,19 +127,42 @@ public:
     template <class IDType>
     static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings=false)
     {
+        /* Try PAKRouter first (only available at extract) */
         PAKRouterBase* pakRouter = g_PakRouter.get();
-        if (!pakRouter)
+        if (pakRouter)
+        {
+            hecl::ProjectPath path = pakRouter->getWorking(id, silenceWarnings);
+            if (path)
+                return path;
+        }
+
+        /* Try project cache second (populated with paths read from YAML resources) */
+        hecl::Database::Project* project = s_Project.get();
+        if (!project)
             LogDNACommon.report(logvisor::Fatal,
-            "g_PakRouter must be set to non-null before calling UniqueIDBridge::TranslatePakIdToPath");
-        return pakRouter->getWorking(id, silenceWarnings);
+            "g_PakRouter or s_Project must be set to non-null before "
+            "calling UniqueIDBridge::TranslatePakIdToPath");
+
+        const hecl::ProjectPath* search = project->lookupBridgePath(id.toUint64());
+        if (!search)
+        {
+            if (!silenceWarnings)
+                LogDNACommon.report(logvisor::Warning,
+                                    "unable to translate %s to path", id.toString().c_str());
+            return {};
+        }
+        return *search;
     }
+    template <class IDType>
     static hecl::ProjectPath MakePathFromString(const std::string& str)
     {
         hecl::Database::Project* project = s_Project.get();
         if (!project)
             LogDNACommon.report(logvisor::Fatal,
                                 "UniqueIDBridge::setGlobalProject must be called before MakePathFromString");
-        return hecl::ProjectPath(*project, str);
+        hecl::ProjectPath path = hecl::ProjectPath(*project, str);
+        project->addBridgePathToCache(IDType(path), path);
+        return path;
     }
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id)
@@ -168,7 +191,7 @@ public:
     {writer.writeUint32Big(m_id);}
     void read(athena::io::YAMLDocReader& reader)
     {
-        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+        *this = UniqueIDBridge::MakePathFromString<UniqueID32>(reader.readString(nullptr));
     }
     void write(athena::io::YAMLDocWriter& writer) const
     {
@@ -198,6 +221,7 @@ public:
     void clear() {m_id = 0xffffffff;}
 
     UniqueID32() = default;
+    UniqueID32(uint32_t idin) : m_id(idin) {}
     UniqueID32(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID32(const hecl::ProjectPath& path) {*this = path;}
     UniqueID32(const char* hexStr)
@@ -260,7 +284,7 @@ public:
 
     void read(athena::io::YAMLDocReader& reader)
     {
-        hecl::ProjectPath readPath = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+        hecl::ProjectPath readPath = UniqueIDBridge::MakePathFromString<UniqueID32>(reader.readString(nullptr));
         *this = readPath.ensureAuxInfo(m_auxStr);
     }
 
@@ -295,7 +319,7 @@ public:
     {writer.writeUint64Big(m_id);}
     void read(athena::io::YAMLDocReader& reader)
     {
-        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+        *this = UniqueIDBridge::MakePathFromString<UniqueID64>(reader.readString(nullptr));
     }
     void write(athena::io::YAMLDocWriter& writer) const
     {
@@ -324,6 +348,7 @@ public:
     void clear() {m_id = 0xffffffffffffffff;}
 
     UniqueID64() = default;
+    UniqueID64(uint64_t idin) : m_id(idin) {}
     UniqueID64(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID64(const hecl::ProjectPath& path) {*this = path;}
     UniqueID64(const char* hexStr)
@@ -379,7 +404,7 @@ public:
     }
     void read(athena::io::YAMLDocReader& reader)
     {
-        *this = UniqueIDBridge::MakePathFromString(reader.readString(nullptr));
+        *this = UniqueIDBridge::MakePathFromString<UniqueID128>(reader.readString(nullptr));
     }
     void write(athena::io::YAMLDocWriter& writer) const
     {
@@ -399,6 +424,7 @@ public:
         m_id[1] = 0;
         return *this;
     }
+    UniqueID128(const hecl::ProjectPath& path) {*this = path;}
 
     bool operator!=(const UniqueID128& other) const
     {
@@ -421,6 +447,7 @@ public:
 #endif
     }
     void clear() {m_id[0] = 0xffffffffffffffff; m_id[1] = 0xffffffffffffffff;}
+    uint64_t toUint64() const {return m_id[0];}
     uint64_t toHighUint64() const {return m_id[0];}
     uint64_t toLowUint64() const {return m_id[1];}
     std::string toString() const

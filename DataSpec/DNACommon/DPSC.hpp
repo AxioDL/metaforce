@@ -50,6 +50,8 @@ struct DPSM : BigYAML
     void read(athena::io::IStreamReader& r);
     void write(athena::io::IStreamWriter& w) const;
     void writeQuadDecalInfo(athena::io::IStreamWriter& w, const SQuadDescr& quad, bool first) const;
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 
 template <class IDType>

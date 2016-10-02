@@ -28,6 +28,11 @@ struct AreaAttributes : IScriptObject
     Value<float>        unknown5;
     UniqueID32          skybox;
     Value<atUint32>     unknown6;
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(skybox, pathsOut);
+    }
 };
 }
 }

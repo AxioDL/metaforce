@@ -538,6 +538,13 @@ void SWSH<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+template <class IDType>
+void SWSH<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    if (x3c_TEXR.m_elem)
+        x3c_TEXR.m_elem->gatherDependencies(pathsOut);
+}
+
 template struct SWSH<UniqueID32>;
 template struct SWSH<UniqueID64>;
 

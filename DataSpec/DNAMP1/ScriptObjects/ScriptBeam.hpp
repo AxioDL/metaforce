@@ -61,6 +61,14 @@ struct ScriptBeam : IScriptObject
                 ent->name = name + "_tex2";
             }
         }
+
+        void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+        {
+            g_curSpec->flattenDependencies(particle1, pathsOut);
+            g_curSpec->flattenDependencies(particle2, pathsOut);
+            g_curSpec->flattenDependencies(texture1, pathsOut);
+            g_curSpec->flattenDependencies(texture2, pathsOut);
+        }
     } beamParametrs;
     DamageInfo damageInfo;
 
@@ -72,6 +80,12 @@ struct ScriptBeam : IScriptObject
             ent->name = name + "_wpsc";
         }
         beamParametrs.nameIDs(pakRouter, name + "_beamp");
+    }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(wpsc, pathsOut);
+        beamParametrs.depIDs(pathsOut);
     }
 };
 }

@@ -3,6 +3,7 @@
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
+#include "../SAVW.hpp"
 
 namespace DataSpec
 {
@@ -68,7 +69,7 @@ enum class ESpecialFunctionType : atUint32
     EndGame,
     HUDFadeIn,
     CinematicSkip,
-    ScriptLyaerController,
+    ScriptLayerController,
     RainSimulator,
     AreaDamage,
     ObjectFollowObject,
@@ -103,6 +104,11 @@ struct AnimationParameters : BigYAML
         PAK::Entry* ancsEnt = (PAK::Entry*)pakRouter.lookupEntry(animationCharacterSet);
         if (ancsEnt->name.empty())
             ancsEnt->name = name;
+    }
+
+    void depANCS(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(animationCharacterSet, pathsOut);
     }
 };
 
@@ -188,6 +194,11 @@ struct FlareDefinition : BigYAML
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
             ent->name = name + "_texture";
         }
+    }
+
+    void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(texture, pathsOut);
     }
 };
 
@@ -299,6 +310,14 @@ struct PatternedInfo : BigYAML
             ent->name = name + "_part2";
         }
     }
+
+    void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        animationParameters.depANCS(pathsOut);
+        g_curSpec->flattenDependencies(stateMachine, pathsOut);
+        g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(particle2, pathsOut);
+    }
 };
 
 struct PlayerHintParameters : BigYAML
@@ -335,6 +354,16 @@ struct ScannableParameters : BigYAML
             PAK::Entry* scanEnt = (PAK::Entry*)pakRouter.lookupEntry(scanId);
             scanEnt->name = name + "_scan";
         }
+    }
+
+    void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(scanId, pathsOut);
+    }
+
+    void scanIDs(std::vector<Scan>& scansOut) const
+    {
+        scansOut.emplace_back(scanId);
     }
 };
 
@@ -406,6 +435,20 @@ struct ActorParameters : BigYAML
             PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(thermalSkin);
             xsEnt->name = name + "_thermalskin";
         }
+    }
+
+    void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        scannableParameters.depIDs(pathsOut);
+        g_curSpec->flattenDependencies(xrayModel, pathsOut);
+        g_curSpec->flattenDependencies(xraySkin, pathsOut);
+        g_curSpec->flattenDependencies(thermalModel, pathsOut);
+        g_curSpec->flattenDependencies(thermalSkin, pathsOut);
+    }
+
+    void scanIDs(std::vector<Scan>& scansOut) const
+    {
+        scannableParameters.scanIDs(scansOut);
     }
 };
 }

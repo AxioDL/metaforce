@@ -59,6 +59,8 @@ struct WPSM : BigYAML
     {
         xa4_EWTR = true; xa5_LWTR = true; xa6_SWTR = true;
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 
 template <class IDType>

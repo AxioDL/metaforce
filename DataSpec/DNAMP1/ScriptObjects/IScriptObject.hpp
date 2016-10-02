@@ -2,6 +2,7 @@
 #define __DNAMP1_SCRIPTOBJECT_HPP
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
+#include "../SAVW.hpp"
 #include <stdio.h>
 
 namespace DataSpec
@@ -27,10 +28,10 @@ struct IScriptObject : BigYAML
     virtual ~IScriptObject() = default;
 
     virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&,
-                                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const
-    {
-    }
+                                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const {}
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
+    virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {}
+    virtual void gatherScans(std::vector<Scan>& scansOut) const {}
 };
 }
 }

@@ -86,8 +86,11 @@ protected:
                     const hecl::ProjectPath& path,
                     std::experimental::optional<athena::io::FileReader>& fr);
 
-    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;
-    virtual SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const=0;
+    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;    
+    SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    {
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).BuildTagFromPath(path, btok);
+    }
 
     void ReadCatalog(const hecl::ProjectPath& catalogPath,
                      athena::io::YAMLDocWriter& nameWriter);

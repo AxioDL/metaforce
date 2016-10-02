@@ -32,6 +32,11 @@ struct VisorGoo : IScriptObject
             ent->name = name + "_part";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(particle, pathsOut);
+    }
 };
 }
 }

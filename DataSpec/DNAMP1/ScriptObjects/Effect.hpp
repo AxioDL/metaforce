@@ -50,6 +50,12 @@ struct Effect : IScriptObject
             ent->name = name + "_elsc";
         }
     }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(part, pathsOut);
+        g_curSpec->flattenDependencies(elsc, pathsOut);
+    }
 };
 }
 }

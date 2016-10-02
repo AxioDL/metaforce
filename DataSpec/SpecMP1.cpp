@@ -373,6 +373,158 @@ struct SpecMP1 : SpecBase
         });
     }
 
+    urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    {
+        if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
+            return {SBIG('CINF'), path.hash().val32()};
+        else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
+            return {SBIG('CSKR'), path.hash().val32()};
+        else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
+            return {SBIG('ANIM'), path.hash().val32()};
+
+        hecl::ProjectPath asBlend;
+        if (path.getPathType() == hecl::ProjectPath::Type::Glob)
+            asBlend = path.getWithExtension(_S(".blend"), true);
+        else
+            asBlend = path;
+
+        if (hecl::IsPathBlend(asBlend))
+        {
+            hecl::BlenderConnection& conn = btok.getBlenderConnection();
+            if (!conn.openBlend(asBlend))
+                return {};
+
+            switch (conn.getBlendType())
+            {
+            case hecl::BlenderConnection::BlendType::Mesh:
+                return {SBIG('CMDL'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::Actor:
+                if (path.getAuxInfo().size())
+                {
+                    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
+                        return {SBIG('CINF'), path.hash().val32()};
+                    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
+                        return {SBIG('CSKR'), path.hash().val32()};
+                    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
+                        return {SBIG('ANIM'), path.hash().val32()};
+                }
+                return {SBIG('ANCS'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::Area:
+                return {SBIG('MREA'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::World:
+            {
+                if (path.getAuxInfo().size())
+                {
+                    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".MAPW")))
+                        return {SBIG('MAPW'), path.hash().val32()};
+                    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".SAVW")))
+                        return {SBIG('SAVW'), path.hash().val32()};
+                }
+                return {SBIG('MLVL'), path.hash().val32()};
+            }
+            case hecl::BlenderConnection::BlendType::MapArea:
+                return {SBIG('MAPA'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::MapUniverse:
+                return {SBIG('MAPU'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::Frame:
+                return {SBIG('FRME'), path.hash().val32()};
+            default:
+                return {};
+            }
+        }
+        else if (hecl::IsPathPNG(path))
+        {
+            return {SBIG('TXTR'), path.hash().val32()};
+        }
+        else if (hecl::IsPathYAML(path))
+        {
+            FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+            if (!fp)
+                return {};
+
+            athena::io::YAMLDocReader reader;
+            yaml_parser_set_input_file(reader.getParser(), fp);
+
+            urde::SObjectTag resTag;
+            if (reader.ClassTypeOperation([&](const char* className) -> bool
+            {
+                if (!strcmp(className, "GPSM"))
+                {
+                    resTag.type = SBIG('PART');
+                    return true;
+                }
+                if (!strcmp(className, "SWSH"))
+                {
+                    resTag.type = SBIG('SWHC');
+                    return true;
+                }
+                if (!strcmp(className, "ELSM"))
+                {
+                    resTag.type = SBIG('ELSC');
+                    return true;
+                }
+                if (!strcmp(className, "WPSM"))
+                {
+                    resTag.type = SBIG('WPSC');
+                    return true;
+                }
+                if (!strcmp(className, "CRSM"))
+                {
+                    resTag.type = SBIG('CRSC');
+                    return true;
+                }
+                if (!strcmp(className, "DPSM"))
+                {
+                    resTag.type = SBIG('DPSC');
+                    return true;
+                }
+                else if (!strcmp(className, "FONT"))
+                {
+                    resTag.type = SBIG('FONT');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DNAMP1::EVNT"))
+                {
+                    resTag.type = SBIG('EVNT');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DGRP"))
+                {
+                    resTag.type = SBIG('DGRP');
+                    return true;
+                }
+                else if (!strcmp(className, "urde::DNAMP1::STRG"))
+                {
+                    resTag.type = SBIG('STRG');
+                    return true;
+                }
+                else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob"))
+                {
+                    resTag.type = SBIG('CTWK');
+                    return true;
+                }
+                else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
+                {
+                    resTag.type = SBIG('HINT');
+                    return true;
+                }
+
+                return false;
+            }))
+            {
+                resTag.id = path.hash().val32();
+                fclose(fp);
+                return resTag;
+            }
+            fclose(fp);
+        }
+        return {};
+    }
+
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                   FCookProgress progress)
@@ -552,6 +704,66 @@ struct SpecMP1 : SpecBase
             }
         }
         progress(_S("Done"));
+    }
+
+    void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    {
+        athena::io::YAMLDocReader reader;
+        if (reader.parse(&fin))
+        {
+            std::string classStr = reader.readString("DNAType");
+            if (classStr.empty())
+                return;
+
+            if (!classStr.compare(DNAMP1::STRG::DNAType()))
+            {
+                DNAMP1::STRG strg;
+                strg.read(reader);
+                strg.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::GPSM<UniqueID32> gpsm;
+                gpsm.read(reader);
+                gpsm.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::SWSH<UniqueID32>::DNAType()))
+            {
+                DNAParticle::SWSH<UniqueID32> swsh;
+                swsh.read(reader);
+                swsh.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::ELSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::ELSM<UniqueID32> elsm;
+                elsm.read(reader);
+                elsm.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::WPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::WPSM<UniqueID32> wpsm;
+                wpsm.read(reader);
+                wpsm.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::CRSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::CRSM<UniqueID32> crsm;
+                crsm.read(reader);
+                crsm.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAParticle::DPSM<UniqueID32>::DNAType()))
+            {
+                DNAParticle::DPSM<UniqueID32> dpsm;
+                dpsm.read(reader);
+                dpsm.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAFont::FONT<UniqueID32>::DNAType()))
+            {
+                DNAFont::FONT<UniqueID32> font;
+                font.read(reader);
+                font.gatherDependencies(pathsOut);
+            }
+        }
     }
 
     void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

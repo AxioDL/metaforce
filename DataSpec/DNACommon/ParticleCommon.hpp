@@ -100,7 +100,11 @@ struct EmitterElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IUVElement : IElement {Delete _d;};
+struct IUVElement : IElement
+{
+    Delete _d;
+    virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const=0;
+};
 
 struct BoolHelper : IElement
 {
@@ -1135,6 +1139,11 @@ struct UVEConstant : IUVElement
         tex.write(w);
     }
     const char* ClassID() const {return "CNST";}
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(tex, pathsOut);
+    }
 };
 
 template <class IDType>
@@ -1249,6 +1258,11 @@ struct UVEAnimTexture : IUVElement
         w.writeBool(loop);
     }
     const char* ClassID() const {return "ATEX";}
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        g_curSpec->flattenDependencies(tex, pathsOut);
+    }
 };
 
 template <class IDType>
@@ -1535,6 +1549,13 @@ struct SpawnSystemKeyframeData : BigYAML
     }
 
     operator bool() const {return spawns.size() != 0;}
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        for (const auto& p : spawns)
+            for (const SpawnSystemKeyframeInfo& info : p.second)
+                g_curSpec->flattenDependencies(info.id, pathsOut);
+    }
 };
 
 template <class IDType>
