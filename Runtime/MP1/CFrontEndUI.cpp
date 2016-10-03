@@ -63,7 +63,7 @@ void CFrontEndUI::OnMainMenuAdvance(CGuiTableGroup* grp)
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)
 {
-    queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CSlideShow())));
+    queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CSlideShow()));
 }
 
 std::string CFrontEndUI::GetAttractMovieFileName(int idx)

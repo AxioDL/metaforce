@@ -59,7 +59,7 @@ CInputStream* CResLoader::LoadResourceFromMemorySync(const SObjectTag& tag, cons
     if (x50_cachedResInfo->xb_compressed)
     {
         newStrm->readUint32Big();
-        newStrm = new CZipInputStream(std::move(std::unique_ptr<CInputStream>(newStrm)));
+        newStrm = new CZipInputStream(std::unique_ptr<CInputStream>(newStrm));
     }
     return newStrm;
 }
@@ -76,7 +76,7 @@ CInputStream* CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBu
     if (x50_cachedResInfo->xb_compressed)
     {
         newStrm->readUint32Big();
-        newStrm = new CZipInputStream(std::move(std::unique_ptr<CInputStream>(newStrm)));
+        newStrm = new CZipInputStream(std::unique_ptr<CInputStream>(newStrm));
     }
     return newStrm;
 }

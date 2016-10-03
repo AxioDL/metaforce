@@ -12,7 +12,7 @@ std::vector<std::shared_ptr<IMetaAnim>> CMetaAnimSequence::CreateSequence(CInput
     ret.reserve(seqCount);
 
     for (u32 i=0 ; i<seqCount ; ++i)
-        ret.push_back(std::move(CMetaAnimFactory::CreateMetaAnim(in)));
+        ret.push_back(CMetaAnimFactory::CreateMetaAnim(in));
 
     return ret;
 }

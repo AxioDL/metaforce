@@ -135,7 +135,7 @@ class CGameArchitectureSupport
     void modKeyUp(boo::EModifierKey mod)
     { m_inputGenerator.modKeyUp(mod); }
 
-    void destroyed() { m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport))); }
+    void destroyed() { m_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
 
     void resized(const boo::SWindowRect &rect)
     {

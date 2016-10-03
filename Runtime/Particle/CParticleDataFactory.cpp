@@ -44,13 +44,13 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
     ResId id = in.readUint32Big();
     if (!id)
         return {};
-    return {std::move(resPool->GetObj({FOURCC('CMDL'), id})), true};
+    return {resPool->GetObj({FOURCC('CMDL'), id}), true};
 }
 
 SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(ResId res, CSimplePool* resPool, const std::vector<ResId>& tracker)
 {
     if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
-        return {std::move(resPool->GetObj({FOURCC('PART'), res})), true};
+        return {resPool->GetObj({FOURCC('PART'), res}), true};
     return {};
 }
 
@@ -73,7 +73,7 @@ SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& 
     ResId id = in.readUint32Big();
     if (!id)
         return {};
-    return {std::move(resPool->GetObj({FOURCC('SWHC'), id})), true};
+    return {resPool->GetObj({FOURCC('SWHC'), id}), true};
 }
 
 SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool)
@@ -84,7 +84,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
     ResId id = in.readUint32Big();
     if (!id)
         return {};
-    return {std::move(resPool->GetObj({FOURCC('ELSC'), id})), true};
+    return {resPool->GetObj({FOURCC('ELSC'), id}), true};
 }
 
 CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool)

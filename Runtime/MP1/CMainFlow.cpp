@@ -50,12 +50,12 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         */
         g_Main->LoadAudio();
         g_Main->RegisterResourceTweaks();
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI(queue))));
+        queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CFrontEndUI(queue)));
         break;
     }
     case EClientFlowStates::GameLoad:
     {
-        queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000, new CMFGameLoader())));
+        queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000, new CMFGameLoader()));
         break;
     }
     case EClientFlowStates::MoviePlay:
@@ -63,10 +63,10 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         switch (g_Main->GetGameplayResult())
         {
         case EGameplayResult::Win:
-            queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::WinGame))));
+            queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::WinGame)));
             break;
         case EGameplayResult::Lose:
-            queue.Push(std::move(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::LoseGame))));
+            queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CPlayMovie(CPlayMovie::EWhichMovie::LoseGame)));
             break;
         default: break;
         }

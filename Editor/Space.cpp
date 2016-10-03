@@ -148,7 +148,7 @@ specter::ISplitSpaceController* Space::spaceSplit(specter::SplitView::Axis axis,
         }
 
         SplitSpace* ss = new SplitSpace(m_vm, m_parent, axis);
-        ss->setChildSlot(thisSlot, std::move(m_parent->exchangeSpaceSplitJoin(this, std::unique_ptr<Space>(ss))));
+        ss->setChildSlot(thisSlot, m_parent->exchangeSpaceSplitJoin(this, std::unique_ptr<Space>(ss)));
         ss->setChildSlot(thisSlot ^ 1, std::unique_ptr<Space>(copy(ss)));
         m_vm.BuildSpaceViews();
         return ss;

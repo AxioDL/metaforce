@@ -60,8 +60,8 @@ bool CGameArchitectureSupport::Update()
 
     g_GameState->GetWorldTransitionManager()->TouchModels();
     int unk = 0;
-    m_archQueue.Push(std::move(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk)));
-    m_archQueue.Push(std::move(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f)));
+    m_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk));
+    m_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
 
     m_ioWinManager.PumpMessages(m_archQueue);
 
