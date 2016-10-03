@@ -334,7 +334,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(const hecl::SystemChar* path, Mod
             else
                 continue;
 
-            m_entries.push_back(std::move(Entry(std::move(fp), d->d_name, sz, isDir)));
+            m_entries.push_back(Entry(std::move(fp), d->d_name, sz, isDir));
         }
         break;
     case Mode::DirsThenFilesSorted:

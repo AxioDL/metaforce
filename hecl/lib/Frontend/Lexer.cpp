@@ -168,8 +168,8 @@ void Lexer::consumeAllTokens(Parser& parser)
                     m_diag.reportLexerErr(n->m_next->m_tok.m_location, "empty function arg");
                     return;
                 }
-                m_pool.emplace_front(std::move(
-                Parser::Token(Parser::TokenType::EvalGroupStart, n->m_next->m_tok.m_location)));
+                m_pool.emplace_front(
+                Parser::Token(Parser::TokenType::EvalGroupStart, n->m_next->m_tok.m_location));
                 Lexer::OperationNode* grp = &m_pool.front();
                 grp->m_next = n->m_next;
                 grp->m_prev = n;
@@ -181,8 +181,8 @@ void Lexer::consumeAllTokens(Parser& parser)
         {
             if (n->m_prev->m_tok.m_type != Parser::TokenType::FunctionStart)
             {
-                m_pool.emplace_front(std::move(
-                Parser::Token(Parser::TokenType::EvalGroupEnd, n->m_tok.m_location)));
+                m_pool.emplace_front(
+                Parser::Token(Parser::TokenType::EvalGroupEnd, n->m_tok.m_location));
                 Lexer::OperationNode* grp = &m_pool.front();
                 grp->m_next = n;
                 grp->m_prev = n->m_prev;
@@ -199,12 +199,12 @@ void Lexer::consumeAllTokens(Parser& parser)
                 return;
             }
 
-            m_pool.emplace_front(std::move(
-            Parser::Token(Parser::TokenType::EvalGroupEnd, n->m_tok.m_location)));
+            m_pool.emplace_front(
+            Parser::Token(Parser::TokenType::EvalGroupEnd, n->m_tok.m_location));
             Lexer::OperationNode* egrp = &m_pool.front();
 
-            m_pool.emplace_front(std::move(
-            Parser::Token(Parser::TokenType::EvalGroupStart, n->m_next->m_tok.m_location)));
+            m_pool.emplace_front(
+            Parser::Token(Parser::TokenType::EvalGroupStart, n->m_next->m_tok.m_location));
             Lexer::OperationNode* sgrp = &m_pool.front();
 
             egrp->m_next = sgrp;
