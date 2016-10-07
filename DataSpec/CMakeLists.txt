@@ -16,6 +16,19 @@ macro(make_dnalist outlist)
   endforeach()
 endmacro()
 
+# Assembles source files together for the main DataSpecCommon library
+macro(dataspec_add_list rel_path a_list)
+  unset(tmp_list)
+  foreach(path IN LISTS ${a_list})
+    if (IS_ABSOLUTE ${path})
+      list(APPEND tmp_list "${path}")
+    else()
+      list(APPEND tmp_list "${rel_path}/${path}")
+    endif()
+  endforeach(path)
+  set(${a_list} "${tmp_list}" PARENT_SCOPE)
+endmacro(dataspec_add_list)
+
 include_directories(${ZLIB_INCLUDE_DIR} ${LZO_INCLUDE_DIR})
 
 # Each game's DNA library
@@ -30,9 +43,13 @@ bintoc(RetroMasterShader.c Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
 # Each game's DataSpec implementation
 add_library(RetroDataSpec
             SpecBase.cpp
+            ${DNACOMMON_SOURCES}
             SpecMP1.cpp
+            ${DNAMP1_SOURCES}
             SpecMP2.cpp
+            ${DNAMP2_SOURCES}
             SpecMP3.cpp
+            ${DNAMP3_SOURCES}
             Blender/BlenderSupport.hpp
             Blender/BlenderSupport.cpp
             Blender/RetroMasterShader.py

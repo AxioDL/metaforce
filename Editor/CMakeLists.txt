@@ -39,8 +39,7 @@ target_link_libraries(urde
                       UrdeIcons
                       UrdeBadging
                       RuntimeCommon
-                      DNAMP3 DNAMP2 DNAMP1
-                      DNACommon specter specter-fonts freetype ${DATA_SPEC_LIBS}
+                      specter specter-fonts freetype ${DATA_SPEC_LIBS}
                       hecl-common hecl-blender-addon
                       athena-core nod logvisor athena-libyaml amuse boo ${PNG_LIB} libjpeg-turbo squish xxhash zeus
                       kabufuda ${ZLIB_LIBRARIES} ${LZO_LIB}

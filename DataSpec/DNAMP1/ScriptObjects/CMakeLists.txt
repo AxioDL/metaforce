@@ -128,8 +128,10 @@ make_dnalist(liblist
         WorldLightFader
         WorldTeleporter)
 
-add_library(ScriptObjectsMP1
-            ${liblist}
-            ScriptTypes.hpp
-            IScriptObject.cpp
-            Parameters.cpp)
+set(ScriptObjectsMP1_SOURCES
+    ${liblist}
+    ScriptTypes.hpp
+    IScriptObject.cpp
+    Parameters.cpp)
+
+dataspec_add_list(ScriptObjects ScriptObjectsMP1_SOURCES)

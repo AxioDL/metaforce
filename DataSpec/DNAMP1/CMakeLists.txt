@@ -30,23 +30,26 @@ make_dnalist(liblist
              Tweaks/CTweakSlideShow
              Tweaks/CTweakCameraBob)
 
-add_library(DNAMP1
-            DNAMP1.hpp DNAMP1.cpp
-            ${liblist}
-            PAK.cpp
-            MLVL.cpp
-            STRG.hpp STRG.cpp
-            AGSC.cpp
-            CSNG.cpp
-            ANCS.cpp
-            ANIM.cpp
-            CINF.cpp
-            EVNT.cpp
-            CMDL.hpp
-            CMDLMaterials.cpp
-            MAPA.hpp
-            MREA.cpp
-            SCLY.hpp SCLY.cpp
-            FRME.cpp
-            DeafBabe.cpp
-            Tweaks/CTweakPlayer.cpp)
+set(DNAMP1_SOURCES
+    DNAMP1.hpp DNAMP1.cpp
+    ${liblist}
+    PAK.cpp
+    MLVL.cpp
+    STRG.hpp STRG.cpp
+    AGSC.cpp
+    CSNG.cpp
+    ANCS.cpp
+    ANIM.cpp
+    CINF.cpp
+    EVNT.cpp
+    CMDL.hpp
+    CMDLMaterials.cpp
+    MAPA.hpp
+    MREA.cpp
+    SCLY.hpp SCLY.cpp
+    FRME.cpp
+    DeafBabe.cpp
+    Tweaks/CTweakPlayer.cpp
+    ${ScriptObjectsMP1_SOURCES})
+
+dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
