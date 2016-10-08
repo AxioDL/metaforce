@@ -9,6 +9,15 @@
 namespace urde
 {
 
+CWorldState::CWorldState(ResId id)
+: x0_mlvlId(id), x4_areaId(0)
+{
+    x8_relayTracker = std::make_shared<CRelayTracker>();
+    xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
+    x10_ = -1;
+    x14_ = std::make_shared<CWorldSomethingState>();
+}
+
 CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld)
 : x0_mlvlId(mlvlId)
 {

@@ -20,6 +20,7 @@ class CWorldSomethingState
     u32 x10_bitCount = 0;
     std::vector<u32> x14_;
 public:
+    CWorldSomethingState() = default;
     CWorldSomethingState(CBitStreamReader& reader, const CSaveWorld& saveWorld)
     {
         u32 bitCount = reader.ReadEncoded(10);
@@ -47,7 +48,7 @@ class CWorldState
     u32 x10_;
     std::shared_ptr<CWorldSomethingState> x14_;
 public:
-    CWorldState(ResId id) : x0_mlvlId(id) {}
+    CWorldState(ResId id);
     CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
     ResId GetWorldAssetId() const {return x0_mlvlId;}
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }

@@ -17,6 +17,8 @@
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 #include "Runtime/Character/CAnimPOIData.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/AutoMapper/CMapWorld.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
@@ -48,6 +50,8 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('AGSC'), FMemFactoryFunc(FAudioGroupSetDataFactory));
     m_factoryMgr.AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
     m_factoryMgr.AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
+    m_factoryMgr.AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
+    m_factoryMgr.AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj)

@@ -54,6 +54,7 @@ bool CSaveWorldIntermediate::InitializePump()
 
 CMemoryCardSys::CMemoryCardSys()
 {
+    x0_hints = g_SimplePool->GetObj("HINT_Hints");
     xc_memoryWorlds.reserve(16);
     x1c_worldInter.emplace();
     x1c_worldInter->reserve(16);
@@ -81,6 +82,8 @@ bool CMemoryCardSys::InitializePump()
         for (const auto& world : xc_memoryWorlds)
         {
             const CSaveWorldMemory& wld = world.second;
+            if (!wld.GetWorldName())
+                continue;
             if (!wld.GetWorldName().IsLoaded() ||
                 !wld.GetWorldName().GetObj())
                 return false;

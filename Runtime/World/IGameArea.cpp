@@ -16,7 +16,7 @@ IGameArea::Dock::Dock(urde::CInputStream& in, const zeus::CTransform& xf)
 
     u32 vertCount = in.readUint32Big();
 
-    for (u32 i =  0 ; i < vertCount ; i++)
+    for (u32 i = 0 ; i < vertCount ; i++)
     {
         zeus::CVector3f vert;
         vert.readBig(in);

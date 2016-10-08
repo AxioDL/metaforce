@@ -105,6 +105,9 @@ public:
     void ClearTraversedFlags() const;
 };
 
+CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+                                  CObjectReference* selfRef);
+
 }
 
 #endif // __URDE_CMAPWORLD_HPP__

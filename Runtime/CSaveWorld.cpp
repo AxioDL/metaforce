@@ -1,4 +1,5 @@
 #include "CSaveWorld.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
@@ -96,6 +97,12 @@ s32 CSaveWorld::GetDoorIndex(const TEditorId &id) const
     if (it == x34_doors.end())
         return -1;
     return x34_doors.begin() - it;
+}
+
+CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+                                   CObjectReference* selfRef)
+{
+    return TToken<CSaveWorld>::GetIObjObjectFor(std::make_unique<CSaveWorld>(in));
 }
 
 }

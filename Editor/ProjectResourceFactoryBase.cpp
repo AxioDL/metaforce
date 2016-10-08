@@ -225,6 +225,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
             m_tagToPath[pathTag] = subPath;
             m_pathToTag[subPath.hash()] = pathTag;
+            WriteTag(cacheWriter, pathTag, subPath);
 #if DUMP_CACHE_FILL
             DumpCacheAdd(pathTag, subPath);
 #endif
@@ -233,6 +234,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
             m_tagToPath[pathTag] = subPath;
             m_pathToTag[subPath.hash()] = pathTag;
+            WriteTag(cacheWriter, pathTag, subPath);
 #if DUMP_CACHE_FILL
             DumpCacheAdd(pathTag, subPath);
 #endif
@@ -610,6 +612,9 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                                                               const urde::CVParamTransfer& paramXfer,
                                                               CObjectReference* selfRef)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
         return {};
@@ -673,11 +678,17 @@ void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             urde::IObj** objOut,
                                             CObjectReference* selfRef)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     BuildAsyncInternal(tag, paramXfer, objOut, selfRef);
 }
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     /* Ensure resource at requested path is indexed and not cooking */
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
@@ -695,6 +706,8 @@ std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
 ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
                                               std::unique_ptr<u8[]>& target)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
     return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target))).first->second;
@@ -705,6 +718,8 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
                                                   u32 size, u32 off,
                                                   std::unique_ptr<u8[]>& target)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
     return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
@@ -712,6 +727,9 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     /* Ensure resource at requested path is indexed and not cooking */
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
@@ -728,6 +746,9 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourcePartSync(const urde::SObjectTag& tag,
                                                                        u32 size, u32 off)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     /* Ensure resource at requested path is indexed and not cooking */
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
@@ -750,6 +771,9 @@ void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
 
 bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
 {
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
         return false;
@@ -791,6 +815,9 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
 
 FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
 {
+    if ((id & 0xffffffff) == 0xffffffff || !id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+
     std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
     SObjectTag searchTag = {FourCC(), id};
     auto search = m_tagToPath.find(searchTag);

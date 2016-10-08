@@ -17,7 +17,7 @@ CWorld::CSoundGroupData::CSoundGroupData(int grpId, ResId agsc)
 }
 
 CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap)
-: x4_loadMap(loadMap)
+: x4_loadMap(loadMap), xc_mlvlId(mlvlId)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->LoadResourceAsync(tag, x34_loadBuf);
@@ -145,6 +145,9 @@ bool CDummyWorld::ICheckWorldComplete()
         x28_mapWorldId = r.readUint32Big();
         if (x4_loadMap)
             x2c_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x28_mapWorldId});
+
+        r.readByte();
+        r.readUint32Big();
 
         if (version > 10)
         {

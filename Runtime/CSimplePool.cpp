@@ -11,6 +11,9 @@ CSimplePool::CSimplePool(IFactory& factory)
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
 {
+    if (!tag)
+        return {};
+
     auto iter = x4_resources.find(tag);
     if (iter != x4_resources.end())
         return CToken(iter->second);

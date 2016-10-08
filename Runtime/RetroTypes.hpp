@@ -19,7 +19,7 @@ struct SObjectTag
 {
     FourCC type;
     ResId id = -1;
-    operator bool() const { return id != -1; }
+    operator bool() const { return (id & 0xffffffff) != 0xffffffff; }
     bool operator!=(const SObjectTag& other) const { return id != other.id; }
     bool operator==(const SObjectTag& other) const { return id == other.id; }
     SObjectTag() = default;

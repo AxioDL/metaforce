@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "DNACommon/SAVWCommon.hpp"
+#include "CFactoryMgr.hpp"
 
 namespace urde
 {
@@ -43,6 +44,10 @@ public:
     u32 GetDoorCount() const;
     s32 GetDoorIndex(const TEditorId &id) const;
 };
+
+CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+                                   CObjectReference* selfRef);
+
 }
 
 #endif // __URDE_CSAVEWORLD_HPP__

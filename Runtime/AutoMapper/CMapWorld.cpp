@@ -2,6 +2,11 @@
 
 namespace urde
 {
+
+CMapWorld::CMapWorld(CInputStream& in)
+{
+}
+
 u32 CMapWorld::GetNumAreas() const
 {
     return x0_areas.size();
@@ -79,6 +84,12 @@ void CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f &, const zeus::CVec
 void CMapWorld::ClearTraversedFlags() const
 {
 
+}
+
+CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+                                  CObjectReference* selfRef)
+{
+    return TToken<CMapWorld>::GetIObjObjectFor(std::make_unique<CMapWorld>(in));
 }
 
 }
