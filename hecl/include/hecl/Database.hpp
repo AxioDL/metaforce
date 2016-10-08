@@ -110,7 +110,7 @@ public:
     {(void)path;LogModule.report(logvisor::Error, "not implemented");return false;}
     virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,
                                                   const Database::DataSpecEntry* oldEntry,
-                                                  BlenderToken& btok)
+                                                  BlenderToken& btok) const
     {(void)path;return oldEntry;}
     virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
                         bool fast, BlenderToken& btok, FCookProgress progress)
@@ -454,19 +454,13 @@ public:
     PackageDepsgraph buildPackageDepsgraph(const ProjectPath& path);
 
     /** Add ProjectPath to bridge cache */
-    void addBridgePathToCache(uint64_t id, const ProjectPath& path) { m_bridgePathCache[id] = path; }
+    void addBridgePathToCache(uint64_t id, const ProjectPath& path);
 
     /** Clear all ProjectPaths in bridge cache */
-    void clearBridgePathCache() { m_bridgePathCache.clear(); }
+    void clearBridgePathCache();
 
     /** Lookup ProjectPath from bridge cache */
-    const ProjectPath* lookupBridgePath(uint64_t id) const
-    {
-        auto search = m_bridgePathCache.find(id);
-        if (search == m_bridgePathCache.cend())
-            return nullptr;
-        return &search->second;
-    }
+    const ProjectPath* lookupBridgePath(uint64_t id) const;
 
 };
 

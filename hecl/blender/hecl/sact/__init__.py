@@ -204,12 +204,7 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
                          root_aabb_min[0], root_aabb_min[1], root_aabb_min[2],
                          root_aabb_max[0], root_aabb_max[1], root_aabb_max[2]))
 
-# Cook
-def cook(writebuf):
-    bpy.context.scene.hecl_auto_remap = False
-    sact_data = bpy.context.scene.hecl_sact_data
-
-    # Output armatures
+def _out_armatures(sact_data, writebuf):
     writebuf(struct.pack('I', len(bpy.data.armatures)))
     for arm in bpy.data.armatures:
         writebuf(struct.pack('I', len(arm.name)))
@@ -231,7 +226,7 @@ def cook(writebuf):
             for child in bone.children:
                 writebuf(struct.pack('i', arm.bones.find(child.name)))
 
-    # Output subtypes
+def _out_subtypes(sact_data, writebuf):
     writebuf(struct.pack('I', len(sact_data.subtypes)))
     for subtype in sact_data.subtypes:
         writebuf(struct.pack('I', len(subtype.name)))
@@ -273,8 +268,7 @@ def cook(writebuf):
             else:
                 writebuf(struct.pack('I', 0))
 
-
-    # Output actions
+def _out_actions(sact_data, writebuf):
     writebuf(struct.pack('I', len(sact_data.actions)))
     for action_idx in range(len(sact_data.actions)):
         sact_data.active_action = action_idx
@@ -305,6 +299,33 @@ def cook(writebuf):
                 raise RuntimeError('mesh %s not found' % subtype.linked_mesh)
             mesh = bpy.data.objects[subtype.linked_mesh]
             write_action_aabb(writebuf, arm, mesh)
+
+# Cook
+def cook(writebuf):
+    bpy.context.scene.hecl_auto_remap = False
+    sact_data = bpy.context.scene.hecl_sact_data
+
+    # Output armatures
+    _out_armatures(sact_data, writebuf)
+
+    # Output subtypes
+    _out_subtypes(sact_data, writebuf)
+
+    # Output actions
+    _out_actions(sact_data, writebuf)
+
+# Cook Character Data only
+def cook_character_only(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
+
+    # Output armatures
+    _out_armatures(sact_data, writebuf)
+
+    # Output subtypes
+    _out_subtypes(sact_data, writebuf)
+
+    # Output no actions
+    writebuf(struct.pack('I', 0))
 
 # Access actor's contained armature names
 def get_armature_names(writebuf):

@@ -5,7 +5,7 @@ def build_dock_connections():
     areas = []
     docks = []
 
-    for obj in bpy.context.scene.objects:
+    for obj in sorted(bpy.context.scene.objects, key=lambda x: x.name):
         if obj.type == 'MESH' and obj.parent is None:
             dock_list = []
             for ch in obj.children:
@@ -29,8 +29,8 @@ def build_dock_connections():
                 dock_dict[dockA[2].name] = dockB
                 match = True
                 break
-        if not match:
-            raise RuntimeError('No dock match for %s' % dockA[2].name)
+        #if not match:
+        #    raise RuntimeError('No dock match for %s' % dockA[2].name)
 
     return (areas, dock_dict)
 
@@ -66,10 +66,13 @@ def cook(writebuf):
             for vi in range(4):
                 v = wmtx * ch.data.vertices[vi].co
                 writebuf(struct.pack('fff', v[0], v[1], v[2]))
-            conn_dock = dock_conns[ch.name]
-            writebuf(struct.pack('I', conn_dock[0]))
-            writebuf(struct.pack('I', conn_dock[1]))
-
+            if ch.name in dock_conns:
+                conn_dock = dock_conns[ch.name]
+                writebuf(struct.pack('I', conn_dock[0]))
+                writebuf(struct.pack('I', conn_dock[1]))
+            else:
+                writebuf(struct.pack('I', 0xffffffff))
+                writebuf(struct.pack('I', 0xffffffff))
 
 # Panel draw
 def draw(layout, context):

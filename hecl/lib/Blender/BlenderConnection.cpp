@@ -1377,6 +1377,23 @@ BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor
     return Actor(*m_parent);
 }
 
+BlenderConnection::DataStream::Actor
+BlenderConnection::DataStream::compileActorCharacterOnly()
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeLine("ACTORCOMPILECHARACTERONLY");
+
+    char readBuf[256];
+    m_parent->_readLine(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
+
+    return Actor(*m_parent);
+}
+
 BlenderConnection::DataStream::World
 BlenderConnection::DataStream::compileWorld()
 {

@@ -750,6 +750,7 @@ public:
         };
 
         Actor compileActor();
+        Actor compileActorCharacterOnly();
         std::vector<std::string> getArmatureNames();
         std::vector<std::string> getSubtypeNames();
         std::vector<std::string> getActionNames();

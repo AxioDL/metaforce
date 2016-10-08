@@ -310,6 +310,10 @@ def dataout_loop():
             writepipeline(b'OK')
             hecl.sact.cook(writepipebuf)
 
+        elif cmdargs[0] == 'ACTORCOMPILECHARACTERONLY':
+            writepipeline(b'OK')
+            hecl.sact.cook_character_only(writepipebuf)
+
         elif cmdargs[0] == 'GETARMATURENAMES':
             writepipeline(b'OK')
             hecl.sact.get_armature_names(writepipebuf)

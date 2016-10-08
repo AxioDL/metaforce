@@ -543,5 +543,23 @@ PackageDepsgraph Project::buildPackageDepsgraph(const ProjectPath& path)
     return PackageDepsgraph();
 }
 
+void Project::addBridgePathToCache(uint64_t id, const ProjectPath& path)
+{
+    m_bridgePathCache[id] = path;
+}
+
+void Project::clearBridgePathCache()
+{
+    m_bridgePathCache.clear();
+}
+
+const ProjectPath* Project::lookupBridgePath(uint64_t id) const
+{
+    auto search = m_bridgePathCache.find(id);
+    if (search == m_bridgePathCache.cend())
+        return nullptr;
+    return &search->second;
+}
+
 }
 }
