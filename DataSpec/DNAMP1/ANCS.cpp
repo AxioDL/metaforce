@@ -1156,6 +1156,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     {        
         hecl::SystemStringView sysStr(arm.name);
         hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CINF")).getCookedPath(SpecEntMP1);
+        pathOut.makeDirChain(false);
         athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1227,6 +1228,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
 
         hecl::SystemStringView sysStr(ch.name);
         hecl::ProjectPath skinPath = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR")).getCookedPath(SpecEntMP1PC);
+        skinPath.makeDirChain(false);
         athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
         if (skinOut.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1255,6 +1257,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         hecl::SystemStringView sysStr(act.name);
         hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
         hecl::ProjectPath cookedOut = pathOut.getCookedPath(SpecEntMP1PC);
+        cookedOut.makeDirChain(false);
         athena::io::FileWriter w(cookedOut.getAbsolutePath(), true, false);
         if (w.hasError())
             Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
@@ -1277,6 +1280,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 evnt.fromYAMLStream(reader);
 
                 hecl::ProjectPath evntCookedOut = evntYamlPath.getCookedPath(SpecEntMP1);
+                evntCookedOut.makeDirChain(false);
                 athena::io::FileWriter w(evntCookedOut.getAbsolutePath(), true, false);
                 if (w.hasError())
                     Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),

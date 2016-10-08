@@ -48,9 +48,12 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     mlvl.magic = 0xDEAFBABE;
     mlvl.version = 0x11;
-    hecl::ProjectPath savwPath = inPath.ensureAuxInfo(_S(".SAVW"));
+    hecl::ProjectPath namePath(inPath.getParentPath(), _S("!name.yaml"));
+    if (namePath.isFile())
+        mlvl.worldNameId = namePath;
+    hecl::ProjectPath savwPath = inPath.ensureAuxInfo(_S("SAVW"));
     mlvl.saveWorldId = savwPath;
-    hecl::ProjectPath mapwPath = inPath.ensureAuxInfo(_S(".MAPW"));
+    hecl::ProjectPath mapwPath = inPath.ensureAuxInfo(_S("MAPW"));
     mlvl.worldMap = mapwPath;
 
     std::vector<urde::SObjectTag> mapaTags;
@@ -112,14 +115,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             if (!areaInit)
             {
                 /* Finish last area */
-                if (mlvl.areas.size())
-                {
-                    MLVL::Area& areaLast = mlvl.areas.back();
-                    areaLast.attachedAreaCount = areaLast.attachedAreas.size();
-                    areaLast.depCount = areaLast.deps.size();
-                    areaLast.depLayerCount = areaLast.depLayers.size();
-                    areaLast.dockCount = areaLast.docks.size();
-                }
+                mlvl.finishLastArea();
 
                 /* Area map */
                 hecl::ProjectPath mapPath(area.path, _S("/!map.blend"));
@@ -143,7 +139,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 areaOut.areaId = 0xffffffff;
 
                 hecl::ProjectPath memIdPath(area.path, _S("/!memoryid.yaml"));
-                if (namePath.isFile())
+                if (memIdPath.isFile())
                 {
                     athena::io::FileReader fr(memIdPath.getAbsolutePath());
                     athena::io::YAMLDocReader r;
@@ -159,22 +155,31 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     {
                         areaOut.docks.emplace_back();
                         MLVL::Area::Dock& dockOut = areaOut.docks.back();
-                        dockOut.endpointCount = 1;
-                        dockOut.endpoints.emplace_back();
-                        MLVL::Area::Dock::Endpoint& ep = dockOut.endpoints.back();
-                        ep.areaIdx = dock.targetArea;
-                        ep.dockIdx = dock.targetDock;
+
+                        if (dock.targetArea != -1 && dock.targetDock != -1)
+                        {
+                            dockOut.endpointCount = 1;
+                            dockOut.endpoints.emplace_back();
+                            MLVL::Area::Dock::Endpoint& ep = dockOut.endpoints.back();
+                            ep.areaIdx = dock.targetArea;
+                            ep.dockIdx = dock.targetDock;
+
+                            if (addedAreas.find(dock.targetArea) == addedAreas.cend())
+                            {
+                                addedAreas.insert(dock.targetArea);
+                                areaOut.attachedAreas.push_back(dock.targetArea);
+                            }
+                        }
+                        else
+                        {
+                            dockOut.endpointCount = 0;
+                        }
+
                         dockOut.planeVertCount = 4;
                         dockOut.planeVerts.push_back(dock.verts[0]);
                         dockOut.planeVerts.push_back(dock.verts[1]);
                         dockOut.planeVerts.push_back(dock.verts[2]);
                         dockOut.planeVerts.push_back(dock.verts[3]);
-
-                        if (addedAreas.find(dock.targetArea) == addedAreas.cend())
-                        {
-                            addedAreas.insert(dock.targetArea);
-                            areaOut.attachedAreas.push_back(dock.targetArea);
-                        }
                     }
                     areaOut.attachedAreaCount = areaOut.attachedAreas.size();
                 }
@@ -252,6 +257,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 std::unordered_set<UniqueID32> addedScans;
                 for (const Scan& scan : scans)
                 {
+                    if (!scan.scanId)
+                        continue;
                     if (addedScans.find(scan.scanId) == addedScans.cend())
                     {
                         addedScans.insert(scan.scanId);
@@ -275,8 +282,38 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
             ++layerIdx;
         }
+
+        /* Cull duplicate area paths and add typed hash to list */
+        auto& conn = hecl::BlenderConnection::SharedConnection();
+        if (conn.openBlend(areaPath))
+        {
+            MLVL::Area& areaOut = mlvl.areas.back();
+            areaOut.depLayers.push_back(areaOut.deps.size());
+
+            auto ds = conn.beginData();
+            std::vector<hecl::ProjectPath> texs = ds.getTextures();
+            ds.close();
+
+            std::unordered_set<hecl::Hash> addedPaths;
+            for (const hecl::ProjectPath& path : texs)
+            {
+                if (addedPaths.find(path.hash()) == addedPaths.cend())
+                {
+                    addedPaths.insert(path.hash());
+                    urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, hecl::SharedBlenderToken);
+                    areaOut.deps.emplace_back(tag.id, tag.type);
+                }
+            }
+
+            urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, hecl::SharedBlenderToken);
+            areaOut.deps.emplace_back(tag.id, tag.type);
+        }
+
         ++areaIdx;
     }
+
+    /* Finish last area */
+    mlvl.finishLastArea();
 
     mlvl.memRelayLinkCount = mlvl.memRelayLinks.size();
     mlvl.areaCount = mlvl.areas.size();
@@ -294,6 +331,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     {
         hecl::ProjectPath mapwCooked =
             mapwPath.getCookedPath(*g_curSpec->overrideDataSpec(mapwPath, nullptr, hecl::SharedBlenderToken));
+        mapwCooked.makeDirChain(false);
         athena::io::FileWriter fo(mapwCooked.getAbsolutePath());
         fo.writeUint32Big(0xDEADF00D);
         fo.writeUint32Big(1);
@@ -313,6 +351,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
         hecl::ProjectPath savwCooked =
             savwPath.getCookedPath(*g_curSpec->overrideDataSpec(savwPath, nullptr, hecl::SharedBlenderToken));
+        savwCooked.makeDirChain(false);
         athena::io::FileWriter fo(savwCooked.getAbsolutePath());
         savw.write(fo);
     }

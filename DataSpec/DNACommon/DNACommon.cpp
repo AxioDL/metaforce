@@ -57,12 +57,14 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const UniqueID64& id, boo
 template <class IDType>
 hecl::ProjectPath UniqueIDBridge::MakePathFromString(const std::string& str)
 {
+    if (str.empty())
+        return {};
     hecl::Database::Project* project = s_Project.get();
     if (!project)
         LogDNACommon.report(logvisor::Fatal,
                             "UniqueIDBridge::setGlobalProject must be called before MakePathFromString");
     hecl::ProjectPath path = hecl::ProjectPath(*project, str);
-    project->addBridgePathToCache(IDType(path), path);
+    project->addBridgePathToCache(IDType(path).toUint64(), path);
     return path;
 }
 template
@@ -101,7 +103,9 @@ void UniqueID32::write(athena::io::YAMLDocWriter& writer) const
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
     if (!path)
         return;
-    writer.writeString(nullptr, path.getRelativePathUTF8());
+    writer.writeString(nullptr, path.getAuxInfo().size() ?
+        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+         path.getRelativePathUTF8());
 }
 size_t UniqueID32::binarySize(size_t __isz) const
 {return __isz + 4;}
@@ -181,7 +185,9 @@ void UniqueID64::write(athena::io::YAMLDocWriter& writer) const
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
     if (!path)
         return;
-    writer.writeString(nullptr, path.getRelativePathUTF8());
+    writer.writeString(nullptr, path.getAuxInfo().size() ?
+        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+         path.getRelativePathUTF8());
 }
 size_t UniqueID64::binarySize(size_t __isz) const
 {return __isz + 8;}
@@ -215,7 +221,9 @@ void UniqueID128::write(athena::io::YAMLDocWriter& writer) const
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
     if (!path)
         return;
-    writer.writeString(nullptr, path.getRelativePathUTF8());
+    writer.writeString(nullptr, path.getAuxInfo().size() ?
+        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+         path.getRelativePathUTF8());
 }
 size_t UniqueID128::binarySize(size_t __isz) const
 {return __isz + 16;}

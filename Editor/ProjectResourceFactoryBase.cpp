@@ -14,9 +14,9 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
     snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
     cacheWriter.enterSubVector(idStr);
     cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
-    cacheWriter.writeString(nullptr, path.getRelativePathUTF8().c_str());
-    if (path.getAuxInfo().size())
-        cacheWriter.writeString(nullptr, path.getAuxInfoUTF8().c_str());
+    cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
+        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+         path.getRelativePathUTF8());
     cacheWriter.leaveSubVector();
 }
 
@@ -221,7 +221,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             pathTag = {SBIG('MLVL'), asGlob.hash().val32()};
             useGlob = true;
 
-            hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_S(".MAPW"));
+            hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_S("MAPW"));
             SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
             m_tagToPath[pathTag] = subPath;
             m_pathToTag[subPath.hash()] = pathTag;
@@ -229,7 +229,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             DumpCacheAdd(pathTag, subPath);
 #endif
 
-            subPath = asGlob.ensureAuxInfo(_S(".SAVW"));
+            subPath = asGlob.ensureAuxInfo(_S("SAVW"));
             pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
             m_tagToPath[pathTag] = subPath;
             m_pathToTag[subPath.hash()] = pathTag;
@@ -320,11 +320,6 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                     hecl::FourCC type(node.m_seqChildren.at(0)->m_scalarString.c_str());
                     hecl::ProjectPath path(m_proj->getProjectWorkingPath(),
                         node.m_seqChildren.at(1)->m_scalarString);
-                    if (node.m_seqChildren.size() >= 3)
-                    {
-                        hecl::SystemStringView sys(node.m_seqChildren[2]->m_scalarString);
-                        path = path.ensureAuxInfo(sys.sys_str());
-                    }
 
                     if (path.isFileOrGlob())
                     {

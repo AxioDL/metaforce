@@ -318,7 +318,7 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
         case hecl::BlenderConnection::BlendType::Actor:
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();
-            hecl::BlenderConnection::DataStream::Actor actor = ds.compileActor();
+            hecl::BlenderConnection::DataStream::Actor actor = ds.compileActorCharacterOnly();
             for (auto& sub : actor.subtypes)
             {
                 if (sub.armature >= 0)

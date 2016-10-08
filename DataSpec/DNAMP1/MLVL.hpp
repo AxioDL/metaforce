@@ -81,6 +81,18 @@ struct MLVL : BigYAML
     };
     Vector<Area, DNA_COUNT(areaCount)> areas;
 
+    void finishLastArea()
+    {
+        if (areas.size())
+        {
+            MLVL::Area& areaLast = areas.back();
+            areaLast.attachedAreaCount = areaLast.attachedAreas.size();
+            areaLast.depCount = areaLast.deps.size();
+            areaLast.depLayerCount = areaLast.depLayers.size();
+            areaLast.dockCount = areaLast.docks.size();
+        }
+    }
+
     UniqueID32 worldMap;
     Value<atUint8> unknown2;
     Value<atUint32> unknown3;
