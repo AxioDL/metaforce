@@ -291,8 +291,6 @@ public:
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }
 
-    bool IsLayerActive(TAreaId area, int layerIdx) { return false; }
-
     CPlayer& GetPlayer() const { return *x84c_player; }
     CPlayer* Player() const { return x84c_player.get(); }
 

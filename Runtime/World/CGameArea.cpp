@@ -4,6 +4,7 @@
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "World/CScriptAreaAttributes.hpp"
+#include "CGameState.hpp"
 
 namespace urde
 {
@@ -841,7 +842,7 @@ void CGameArea::VerifyTokenList(CStateManager& stateMgr)
     int lidx = 0;
     for (u32 off : xbc_layerDepOffsets)
     {
-        if (stateMgr.IsLayerActive(x4_selfIdx, lidx))
+        if (stateMgr.LayerState()->IsLayerActive(x4_selfIdx, lidx))
         {
             auto it = xac_deps2.begin() + lastOff;
             auto end = xac_deps2.begin() + off;

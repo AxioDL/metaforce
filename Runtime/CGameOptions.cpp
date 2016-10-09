@@ -91,6 +91,29 @@ CGameOptions::CGameOptions(CBitStreamReader& stream)
     x68_27_ = stream.ReadEncoded(1);
 }
 
+void CGameOptions::PutTo(CBitStreamWriter& writer) const
+{
+    for (int b=0 ; b<64 ; ++b)
+        writer.WriteEncoded(x0_[b], 1);
+
+    writer.WriteEncoded(u32(x44_soundMode), 2);
+    writer.WriteEncoded(x48_, 4);
+
+    writer.WriteEncoded(x4c_, 6);
+    writer.WriteEncoded(x50_, 6);
+    writer.WriteEncoded(x54_, 5);
+    writer.WriteEncoded(x58_, 7);
+    writer.WriteEncoded(x5c_, 7);
+    writer.WriteEncoded(x60_, 8);
+    writer.WriteEncoded(x64_, 8);
+
+    writer.WriteEncoded(x68_24_, 1);
+    writer.WriteEncoded(x68_28_, 1);
+    writer.WriteEncoded(x68_25_, 1);
+    writer.WriteEncoded(x68_26_, 1);
+    writer.WriteEncoded(x68_27_, 1);
+}
+
 CGameOptions::CGameOptions()
 {
     x68_24_ = true;
@@ -123,6 +146,15 @@ CHintOptions::CHintOptions(CBitStreamReader& stream)
         if (x10_nextHintIdx == -1 && state == EHintState::Two)
             x10_nextHintIdx = hintIdx;
         ++hintIdx;
+    }
+}
+
+void CHintOptions::PutTo(CBitStreamWriter& writer) const
+{
+    for (const SHintState& hint : x0_hintStates)
+    {
+        writer.WriteEncoded(u32(hint.x0_state), 2);
+        writer.WriteEncoded(reinterpret_cast<const u32&>(hint.x4_time), 32);
     }
 }
 

@@ -24,6 +24,22 @@ CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& s
     }
 }
 
+void CWorldLayerState::PutTo(CBitStreamWriter& writer) const
+{
+    u32 totalLayerCount = 0;
+    for (int i=0 ; i<x0_areaLayers.size() ; ++i)
+        totalLayerCount += GetAreaLayerCount(i) - 1;
+
+    writer.WriteEncoded(totalLayerCount, 10);
+
+    for (int i=0 ; i<x0_areaLayers.size() ; ++i)
+    {
+        u32 count = GetAreaLayerCount(i);
+        for (u32 l=1 ; l<count ; ++l)
+            writer.WriteEncoded(IsLayerActive(i, l), 1);
+    }
+}
+
 void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers)
 {
     if (x0_areaLayers.size())
@@ -63,6 +79,15 @@ CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorl
     x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);
 }
 
+void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
+{
+    writer.WriteEncoded(x4_areaId, 32);
+    writer.WriteEncoded(x10_, 32);
+    x8_relayTracker->PutTo(writer, savw);
+    xc_mapWorldInfo->PutTo(writer, savw);
+    x14_layerState->PutTo(writer);
+}
+
 CGameState::CGameState()
 {
     x98_playerState.reset(new CPlayerState());
@@ -75,17 +100,26 @@ CGameState::CGameState(CBitStreamReader& stream)
     x228_25_deferPowerupInit = true;
 
     for (u32 i = 0; i < 128; i++)
-        stream.ReadEncoded(8);
-    u32 tmp = stream.ReadEncoded(32);
-    float val1 = reinterpret_cast<float&>(tmp);
-    bool val2 = stream.ReadEncoded(1);
-    stream.ReadEncoded(1);
-    tmp = stream.ReadEncoded(32);
-    float val3 = reinterpret_cast<float&>(tmp);
-    tmp = stream.ReadEncoded(32);
-    float val4 = reinterpret_cast<float&>(tmp);
-    tmp = stream.ReadEncoded(32);
-    float val5 = reinterpret_cast<float&>(tmp);
+        x0_[i] = stream.ReadEncoded(8);
+    u32 tsSeconds = stream.ReadEncoded(32);
+
+    x228_24_ = stream.ReadEncoded(1);
+    x228_25_deferPowerupInit = stream.ReadEncoded(1);
+    x84_mlvlId = stream.ReadEncoded(32);
+    EnsureWorldPakReady(x84_mlvlId);
+
+    union BitsToDouble
+    {
+        struct
+        {
+            u32 low;
+            u32 high;
+        };
+        double doub;
+    } conv;
+    conv.low = stream.ReadEncoded(32);
+    conv.high = stream.ReadEncoded(32);
+    xa0_playTime = conv.doub;
 
     x98_playerState = std::make_shared<CPlayerState>(stream);
     float currentHealth = x98_playerState->GetHealthInfo().GetHP();
@@ -103,8 +137,54 @@ CGameState::CGameState(CBitStreamReader& stream)
     }
 }
 
-void CGameState::SetCurrentWorldId(unsigned int id)
+
+void CGameState::PutTo(CBitStreamWriter& writer) const
 {
+    for (u32 i = 0; i < 128; i++)
+        writer.WriteEncoded(x0_[i], 8);
+
+    writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
+    writer.WriteEncoded(x228_24_, 1);
+    writer.WriteEncoded(x228_25_deferPowerupInit, 1);
+    writer.WriteEncoded(x84_mlvlId, 32);
+
+    union BitsToDouble
+    {
+        struct
+        {
+            u32 low;
+            u32 high;
+        };
+        double doub;
+    } conv;
+    conv.doub = xa0_playTime;
+    writer.WriteEncoded(conv.low, 32);
+    writer.WriteEncoded(conv.high, 32);
+
+    x98_playerState->PutTo(writer);
+    x17c_gameOptions.PutTo(writer);
+    x1f8_hintOptions.PutTo(writer);
+
+    const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    for (const auto& memWorld : memWorlds)
+    {
+        TLockedToken<CSaveWorld> saveWorld =
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
+        const CWorldState& wld = const_cast<CGameState&>(*this).StateForWorld(memWorld.first);
+        wld.PutTo(writer, *saveWorld);
+    }
+}
+
+void CGameState::EnsureWorldPakReady(ResId mlvl)
+{
+    /* TODO: Schedule resource list load for World Pak containing mlvl */
+}
+
+void CGameState::SetCurrentWorldId(ResId id)
+{
+    StateForWorld(id);
+    x84_mlvlId = id;
+    EnsureWorldPakReady(x84_mlvlId);
 }
 
 void CGameState::SetTotalPlayTime(float time)

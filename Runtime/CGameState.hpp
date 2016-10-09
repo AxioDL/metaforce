@@ -38,6 +38,13 @@ public:
     }
 
     void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
+
+    u32 GetAreaLayerCount(int areaIdx) const
+    {
+        return x0_areaLayers[areaIdx].m_layerCount;
+    }
+
+    void PutTo(CBitStreamWriter& writer) const;
 };
 
 class CWorldState
@@ -57,6 +64,7 @@ public:
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }
+    void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const;
 };
 
 class CGameState
@@ -83,10 +91,12 @@ class CGameState
         u8 _dummy = 0;
     };
 
+    static void EnsureWorldPakReady(ResId mlvl);
+
 public:
     CGameState();
     CGameState(CBitStreamReader& stream);
-    void SetCurrentWorldId(unsigned int id);
+    void SetCurrentWorldId(ResId id);
     std::shared_ptr<CPlayerState> GetPlayerState() {return x98_playerState;}
     std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
@@ -95,6 +105,7 @@ public:
     CWorldState& StateForWorld(ResId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
+    void PutTo(CBitStreamWriter& writer) const;
 };
 
 }

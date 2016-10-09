@@ -86,6 +86,7 @@ public:
     CGameOptions();
     CGameOptions(CBitStreamReader& stream);
     void InitSoundMode();
+    void PutTo(CBitStreamWriter& writer) const;
 };
 
 class CHintOptions
@@ -113,6 +114,7 @@ private:
 public:
     CHintOptions() = default;
     CHintOptions(CBitStreamReader& stream);
+    void PutTo(CBitStreamWriter& writer) const;
 };
 
 }

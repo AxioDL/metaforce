@@ -19,6 +19,11 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWor
 
 }
 
+void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
+{
+
+}
+
 void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited)
 {
     x14_[eid] = visited;
