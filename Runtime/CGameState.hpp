@@ -8,35 +8,36 @@
 #include "CRelayTracker.hpp"
 #include "World/CWorldTransManager.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
+#include "World/CWorld.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
 namespace urde
 {
 class CSaveWorldMemory;
 
-/* TODO: Figure out */
-class CWorldSomethingState
+class CWorldLayerState
 {
     friend class CSaveWorldIntermediate;
-    std::vector<u32> x0_;
-    u32 x10_bitCount = 0;
-    std::vector<u32> x14_;
+    std::vector<CWorldLayers::Area> x0_areaLayers;
+    DataSpec::WordBitmap x10_saveLayers;
 public:
-    CWorldSomethingState() = default;
-    CWorldSomethingState(CBitStreamReader& reader, const CSaveWorld& saveWorld)
-    {
-        u32 bitCount = reader.ReadEncoded(10);
-        u32 wordCount = (bitCount + 31) / 32;
-        x14_.resize(wordCount);
+    CWorldLayerState() = default;
+    CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld);
 
-        for (u32 i=0 ; i<bitCount ; ++i)
-        {
-            ++x10_bitCount;
-            bool bit = reader.ReadEncoded(1);
-            if (bit)
-                x14_[i / 32] |= 1 << (i % 32);
-            else
-                x14_[i / 32] &= ~(1 << (i % 32));
-        }
+    bool IsLayerActive(int areaIdx, int layerIdx) const
+    {
+        return (x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1;
     }
+
+    void SetLayerActive(int areaIdx, int layerIdx, bool active)
+    {
+        if (active)
+            x0_areaLayers[areaIdx].m_layerBits |= 1 << layerIdx;
+        else
+            x0_areaLayers[areaIdx].m_layerBits &= ~(1 << layerIdx);
+    }
+
+    void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
 };
 
 class CWorldState
@@ -46,7 +47,7 @@ class CWorldState
     std::shared_ptr<CRelayTracker> x8_relayTracker;
     std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
     u32 x10_;
-    std::shared_ptr<CWorldSomethingState> x14_;
+    std::shared_ptr<CWorldLayerState> x14_layerState;
 public:
     CWorldState(ResId id);
     CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
@@ -55,7 +56,7 @@ public:
     TAreaId GetCurrentAreaId() const { return x4_areaId; }
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
-    const std::shared_ptr<CWorldSomethingState>& GetSomethingElse() const { return x14_; }
+    const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }
 };
 
 class CGameState

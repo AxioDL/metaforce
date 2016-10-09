@@ -1,4 +1,4 @@
-make_dnalist(liblist
+make_dnalist(liblist DNAMP3
              PAK
              MLVL
              ANIM
@@ -12,7 +12,6 @@ make_dnalist(liblist
              HINT)
 set(DNAMP3_SOURCES
     DNAMP3.hpp DNAMP3.cpp
-    ${liblist}
     PAK.cpp
     ANIM.cpp
     CINF.cpp
@@ -24,3 +23,4 @@ set(DNAMP3_SOURCES
     MREA.cpp)
 
 dataspec_add_list(DNAMP3 DNAMP3_SOURCES)
+list(APPEND DNAMP3_SOURCES ${liblist})

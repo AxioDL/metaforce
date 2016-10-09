@@ -367,7 +367,6 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     else
         x1c_bgHeight = 0.f;
 
-    StartTransition();
     TouchModels();
 }
 
@@ -391,7 +390,6 @@ void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, bool b1,
     x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
     xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});
     x8_textData->SetText(L"");
-    StartTransition();
 }
 
 void CWorldTransManager::DisableTransition()

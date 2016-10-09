@@ -1,4 +1,4 @@
-make_dnalist(liblist
+make_dnalist(liblist DNACommon
              CMDL
              MAPA
              EGMC
@@ -7,7 +7,6 @@ make_dnalist(liblist
 
 set(DNACOMMON_SOURCES
     DNACommon.hpp DNACommon.cpp
-    ${liblist}
     PAK.hpp PAK.cpp
     GX.hpp
     FSM2.hpp FSM2.cpp
@@ -44,3 +43,4 @@ set(DNACOMMON_SOURCES
     Tweaks/ITweakSlideShow.hpp)
 
 dataspec_add_list(DNACommon DNACOMMON_SOURCES)
+list(APPEND DNACOMMON_SOURCES ${liblist})

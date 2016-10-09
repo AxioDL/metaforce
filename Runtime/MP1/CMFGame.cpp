@@ -46,6 +46,11 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
     }
 }
 
+void CMFGameLoader::MakeLoadDependencyList()
+{
+
+}
+
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
     std::shared_ptr<CWorldTransManager> wtMgr = g_GameState->GetWorldTransitionManager();
@@ -55,6 +60,17 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
     case EArchMsgType::TimerTick:
     {
         const CArchMsgParmReal32& tick = MakeMsg::GetParmTimerTick(msg);
+        float dt = tick.x4_parm;
+        if (!x2c_24_initialized)
+        {
+            if (x1c_.empty())
+                MakeLoadDependencyList();
+            wtMgr->StartTransition();
+        }
+        else
+        {
+            wtMgr->Update(dt);
+        }
     }
     default:
         break;

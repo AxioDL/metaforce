@@ -45,11 +45,13 @@ class CMFGameLoader : public CMFGameLoaderBase
     {
         struct
         {
-            bool x2c_24_ : 1;
+            bool x2c_24_initialized : 1;
             bool x2c_25_ : 1;
         };
         u8 _dummy = 0;
     };
+
+    void MakeLoadDependencyList();
 
 public:
     CMFGameLoader();

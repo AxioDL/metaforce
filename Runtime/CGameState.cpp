@@ -9,13 +9,48 @@
 namespace urde
 {
 
+CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld)
+{
+    u32 bitCount = reader.ReadEncoded(10);
+    x10_saveLayers.reserve(bitCount);
+
+    for (u32 i=0 ; i<bitCount ; ++i)
+    {
+        bool bit = reader.ReadEncoded(1);
+        if (bit)
+            x10_saveLayers.setBit(i);
+        else
+            x10_saveLayers.unsetBit(i);
+    }
+}
+
+void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers)
+{
+    if (x0_areaLayers.size())
+        return;
+    x0_areaLayers = layers;
+    if (x10_saveLayers.getBitCount() == 0)
+        return;
+
+    u32 a = 0;
+    u32 b = 0;
+    for (const CWorldLayers::Area& area : x0_areaLayers)
+    {
+        for (u32 l=0 ; l<area.m_layerCount ; ++l)
+            SetLayerActive(a, l, x10_saveLayers.getBit(b++));
+        ++a;
+    }
+
+    x10_saveLayers.clear();
+}
+
 CWorldState::CWorldState(ResId id)
 : x0_mlvlId(id), x4_areaId(0)
 {
     x8_relayTracker = std::make_shared<CRelayTracker>();
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
     x10_ = -1;
-    x14_ = std::make_shared<CWorldSomethingState>();
+    x14_layerState = std::make_shared<CWorldLayerState>();
 }
 
 CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld)
@@ -25,7 +60,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorl
     x10_ = reader.ReadEncoded(32);
     x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
-    x14_ = std::make_shared<CWorldSomethingState>(reader, saveWorld);
+    x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);
 }
 
 CGameState::CGameState()

@@ -1,6 +1,6 @@
-add_subdirectory(ScriptObjects)
+include(DNAMP1/ScriptObjects/CMakeLists.txt)
 
-make_dnalist(liblist
+make_dnalist(liblist DNAMP1
              PAK
              MLVL
              AGSC
@@ -32,7 +32,6 @@ make_dnalist(liblist
 
 set(DNAMP1_SOURCES
     DNAMP1.hpp DNAMP1.cpp
-    ${liblist}
     PAK.cpp
     MLVL.cpp
     STRG.hpp STRG.cpp
@@ -49,7 +48,7 @@ set(DNAMP1_SOURCES
     SCLY.hpp SCLY.cpp
     FRME.cpp
     DeafBabe.cpp
-    Tweaks/CTweakPlayer.cpp
-    ${ScriptObjectsMP1_SOURCES})
+    Tweaks/CTweakPlayer.cpp)
 
 dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
+list(APPEND DNAMP1_SOURCES ${liblist})

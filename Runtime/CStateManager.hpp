@@ -42,6 +42,7 @@ class CFinalInput;
 class CPlayer;
 class CWorld;
 class CTexture;
+class CWorldLayerState;
 
 struct SScriptObjectStream
 {
@@ -99,10 +100,10 @@ class CStateManager
     std::shared_ptr<CRelayTracker> x8bc_relayTracker;
     std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
     std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
+    std::shared_ptr<CWorldLayerState> x8c8_worldLayerState;
 
-    TAreaId x8c8_currentAreaId;
-    TAreaId x8cc_nextAreaId;
-    TAreaId x8d0_prevAreaId;
+    TAreaId x8cc_nextAreaId = 0;
+    TAreaId x8d0_prevAreaId = kInvalidAreaId;
     //u32 x8d0_extFrameIdx = 0;
     //u32 x8d4_updateFrameIdx = 0;
     //u32 x8d8_drawFrameIdx = 0;
@@ -172,7 +173,8 @@ public:
     CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
-                  const std::weak_ptr<CWorldTransManager>&);
+                  const std::weak_ptr<CWorldTransManager>&,
+                  const std::weak_ptr<CWorldLayerState>&);
 
     bool RenderLast(TUniqueId);
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
@@ -286,7 +288,8 @@ public:
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
     CCameraManager* GetCameraManager() const { return x870_cameraManager; }
 
-    std::shared_ptr<CMapWorldInfo> MapWorldInfo() { return x8c0_mapWorldInfo; }
+    const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
+    const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }
 
     bool IsLayerActive(TAreaId area, int layerIdx) { return false; }
 

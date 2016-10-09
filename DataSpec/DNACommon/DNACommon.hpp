@@ -318,6 +318,7 @@ class WordBitmap
 public:
     void read(athena::io::IStreamReader& reader, size_t bitCount);
     void write(athena::io::IStreamWriter& writer) const;
+    void reserve(size_t bitCount) { m_words.reserve((bitCount + 31) / 32); }
     size_t binarySize(size_t __isz) const;
     size_t getBitCount() const {return m_bitCount;}
     bool getBit(size_t idx) const
@@ -335,6 +336,7 @@ public:
             m_words.push_back(0);
         size_t wordCur = idx % 32;
         m_words[wordIdx] |= (1 << wordCur);
+        m_bitCount = std::max(m_bitCount, idx + 1);
     }
     void unsetBit(size_t idx)
     {
@@ -343,8 +345,9 @@ public:
             m_words.push_back(0);
         size_t wordCur = idx % 32;
         m_words[wordIdx] &= ~(1 << wordCur);
+        m_bitCount = std::max(m_bitCount, idx + 1);
     }
-    void clear() {m_words.clear();}
+    void clear() { m_words.clear(); m_bitCount = 0; }
 
     class Iterator : public std::iterator<std::forward_iterator_tag, bool>
     {

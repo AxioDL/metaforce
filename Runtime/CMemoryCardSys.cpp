@@ -36,7 +36,7 @@ bool CSaveWorldIntermediate::InitializePump()
 
         ResId mlvlId = wld.IGetWorldAssetId();
         CWorldState& mlvlState = g_GameState->StateForWorld(mlvlId);
-        x1c_ = mlvlState.GetSomethingElse()->x0_;
+        x1c_defaultLayerStates = mlvlState.GetLayerState()->x0_areaLayers;
 
         x34_saveWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), x8_savwId});
         x2c_dummyWorld.reset();
@@ -109,7 +109,7 @@ bool CMemoryCardSys::InitializePump()
             wldMemOut.x4_savwId = world.x8_savwId;
             wldMemOut.x0_strgId = world.x4_strgId;
             wldMemOut.xc_areaIds = world.xc_areaIds;
-            wldMemOut.x1c_ = world.x1c_;
+            wldMemOut.x1c_defaultLayerStates = world.x1c_defaultLayerStates;
 
             CSaveWorld& savw = *world.x34_saveWorld;
             wldMemOut.x8_areaCount = savw.GetAreaCount();

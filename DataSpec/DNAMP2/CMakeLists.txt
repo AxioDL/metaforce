@@ -1,4 +1,4 @@
-make_dnalist(liblist
+make_dnalist(liblist DNAMP2
              MLVL
              ANIM
              AGSC
@@ -12,7 +12,6 @@ make_dnalist(liblist
              DeafBabe)
 set(DNAMP2_SOURCES
     DNAMP2.hpp DNAMP2.cpp
-    ${liblist}
     ANIM.cpp
     AGSC.cpp
     CINF.cpp
@@ -24,3 +23,4 @@ set(DNAMP2_SOURCES
     STRG.hpp STRG.cpp)
 
 dataspec_add_list(DNAMP2 DNAMP2_SOURCES)
+list(APPEND DNAMP2_SOURCES ${liblist})

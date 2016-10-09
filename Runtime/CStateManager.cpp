@@ -28,10 +28,11 @@
 namespace urde
 {
 
-CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
-                             const std::weak_ptr<CMapWorldInfo>&,
-                             const std::weak_ptr<CPlayerState>&,
-                             const std::weak_ptr<CWorldTransManager>&)
+CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
+                             const std::weak_ptr<CMapWorldInfo>& mwInfo,
+                             const std::weak_ptr<CPlayerState>& playerState,
+                             const std::weak_ptr<CWorldTransManager>& wtMgr,
+                             const std::weak_ptr<CWorldLayerState>& layerState)
 : x80c_allObjs(new CObjectList(EGameObjectList::All)),
   x814_actorObjs(new CActorList()),
   x81c_physActorObjs(new CPhysicsActorList()),
@@ -39,7 +40,12 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>&,
   x82c_lightObjs(new CGameLightList()),
   x834_listenAiObjs(new CListeningAiList()),
   x83c_aiWaypointObjs(new CAiWaypointList()),
-  x844_platformAndDoorObjs(new CPlatformAndDoorList())
+  x844_platformAndDoorObjs(new CPlatformAndDoorList()),
+  x8b8_playerState(playerState),
+  x8bc_relayTracker(relayTracker),
+  x8c0_mapWorldInfo(mwInfo),
+  x8c4_worldTransManager(wtMgr),
+  x8c8_worldLayerState(layerState)
 {
     x86c_stateManagerContainer.reset(new CStateManagerContainer);
     x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
