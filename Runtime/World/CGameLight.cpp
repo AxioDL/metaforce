@@ -7,7 +7,7 @@ namespace urde
 
 CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, const std::string& name, const zeus::CTransform& xf,
                        TUniqueId parentId, const CLight& light, u32 w1, u32 w2, float f1)
-: CActor(uid, active, name, CEntityInfo::CEntityInfo(aid, CEntity::NullConnectionList), xf,
+: CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(), kInvalidUniqueId),
   xe8_parentId(parentId), xec_light(light), x13c_(w1), x140_(w2), x144_(f1)
 {
