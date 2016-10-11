@@ -25,6 +25,46 @@ unsigned VerbosityLevel = 0;
 logvisor::Module LogModule("hecl");
 static const std::string Illegals {"<>?\"|"};
 
+#if __GNUC__
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
+SystemString SysFormat(const SystemChar* format, ...)
+{
+    SystemChar resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+#if HECL_UCS2
+    int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+#else
+    int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+#endif
+    va_end(va);
+    return SystemString(resultBuf, printSz);
+}
+
+#if __GNUC__
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
+std::string Format(const char* format, ...)
+{
+    char resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+    int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+    va_end(va);
+    return std::string(resultBuf, printSz);
+}
+
+std::wstring WideFormat(const wchar_t* format, ...)
+{
+    wchar_t resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+    int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+    va_end(va);
+    return std::wstring(resultBuf, printSz);
+}
+
 void SanitizePath(std::string& path)
 {
     if (path.empty())
