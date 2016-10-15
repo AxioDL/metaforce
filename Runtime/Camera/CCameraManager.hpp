@@ -48,11 +48,7 @@ public:
     static float DefaultThirdPersonFOV() {return 60.0f;}
 
     void ResetCameras(CStateManager& mgr);
-    void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball)
-    {
-        x7c_fpCamera = &fp;
-        x80_ballCamera = &ball;
-    }
+    void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball);
     bool IsInCinematicCamera() const {return x4_cineCameras.size() != 0;}
     zeus::CVector3f GetGlobalCameraTranslation(const CStateManager& stateMgr) const;
     zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
@@ -73,6 +69,8 @@ public:
 
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
+    CBallCamera* BallCamera(CStateManager&) const;
+    CGameArea::CAreaFog Fog() { return x3c_fog; }
 
     float sub80009148() const;
 };
