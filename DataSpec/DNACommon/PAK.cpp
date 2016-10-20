@@ -266,7 +266,10 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* en
     {
         hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
         if (entry->type == FOURCC('EVNT'))
-            return characterPath.getWithExtension((_S(".") + characterSearch->second.second).c_str(), true);
+        {
+            hecl::SystemStringView wideStr(characterSearch->second.second);
+            return characterPath.getWithExtension((_S(".") + wideStr.sys_str()).c_str(), true);
+        }
         return characterPath.ensureAuxInfo(characterSearch->second.second);
     }
     return {};

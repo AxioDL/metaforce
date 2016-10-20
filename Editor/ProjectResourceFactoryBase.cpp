@@ -15,7 +15,7 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
     cacheWriter.enterSubVector(idStr);
     cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
     cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
          path.getRelativePathUTF8());
     cacheWriter.leaveSubVector();
 }
@@ -86,7 +86,7 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
             continue;
         SObjectTag pathTag = TagFromPath(path, m_backgroundBlender);
         if (pathTag)
-        {            
+        {
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
             m_catalogNameToTag[pLower] = pathTag;
             WriteNameTag(nameWriter, pathTag, p.first);
@@ -162,7 +162,7 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
 
         /* Special multi-resource intermediates */
         if (pathTag.type == SBIG('ANCS'))
-        {            
+        {
             hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
             if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
                 return false;

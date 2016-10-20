@@ -104,7 +104,7 @@ void UniqueID32::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID32::binarySize(size_t __isz) const
@@ -186,7 +186,7 @@ void UniqueID64::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID64::binarySize(size_t __isz) const
@@ -222,7 +222,7 @@ void UniqueID128::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + _S('|') + path.getAuxInfoUTF8()) :
+        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID128::binarySize(size_t __isz) const
