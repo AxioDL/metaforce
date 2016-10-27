@@ -32,6 +32,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 include_directories(/usr/local/include)
+link_directories(/usr/local/lib)
 endif()
 
 if(("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
