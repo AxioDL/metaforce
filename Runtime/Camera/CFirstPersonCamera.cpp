@@ -75,13 +75,13 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     if (player->x3dc_)
     {
         float angle = player->x3ec_;
-        if (std::fabs(player->x3ec_) > (g_tweakPlayer->GetPlayerSomething4() - std::fabs(x1c0_)))
+        if (std::fabs(player->x3ec_) > (g_tweakPlayer->GetX124() - std::fabs(x1c0_)))
             angle = (player->x3ec_ > -0.f ? -1.f : 1.f);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);
         vec.y = std::cos(-player->x3e4_) * std::cos(angle);
         vec.x = std::sin(-player->x3e4_) * std::cos(angle);
-        if (g_tweakPlayer->GetPlayerSomething5() && !zeus::close_enough(vec, zeus::CVector3f::skZero))
+        if (g_tweakPlayer->GetX228_24() && !zeus::close_enough(vec, zeus::CVector3f::skZero))
             vec.normalize();
 
         rVec = zeus::CQuaternion::lookAt({0.f, 1.f, 0.f}, rVec, zeus::CRelAngle::FromDegrees(360.f)).transform(vec);
@@ -112,10 +112,10 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     {
         if (player->x294_ > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x294_ - g_tweakPlayer->GetPlayerSomething6()) /
-                                               g_tweakPlayer->GetPlayerSomething7(),
+            float angle = zeus::clamp(0.f, (player->x294_ - g_tweakPlayer->GetX288()) /
+                                               g_tweakPlayer->GetX28c(),
                                       1.f) *
-                          g_tweakPlayer->GetPlayerSomething8();
+                          g_tweakPlayer->GetX290();
             angle += x1c0_;
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
@@ -125,10 +125,10 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         }
         else if (player->x29c_ > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x29c_ - g_tweakPlayer->GetPlayerSomething9()) /
-                                               g_tweakPlayer->GetPlayerSomething10(),
+            float angle = zeus::clamp(0.f, (player->x29c_ - g_tweakPlayer->GetX294()) /
+                                               g_tweakPlayer->GetX298(),
                                       1.f) *
-                          g_tweakPlayer->GetPlayerSomething11();
+                          g_tweakPlayer->GetX29C();
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
             rVec.z = -std::sin(angle);
@@ -152,7 +152,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             if (gunFrontVec.canBeNormalized())
                 gunFrontVec.normalize();
 
-            float scaledDt = (dt * g_tweakPlayer->GetPlayerSomething14());
+            float scaledDt = (dt * g_tweakPlayer->GetX184());
             float angle = gunFrontVec.dot(rVec);
             if (std::fabs(angle) > 1.f)
                 angle = (angle > -0.f ? -1.f : 1.f);
@@ -183,7 +183,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
                 /* BUG: This is exactly what the runtime is doing, should we restore the intended behavior? */
                 float angle = gunFrontVec.dot(rVec);
-                float sdt = dt * g_tweakPlayer->GetPlayerSomething13();
+                float sdt = dt * g_tweakPlayer->GetX2B0();
 
                 if (std::fabs(angle) > 1.0f)
                     angle = (angle > -0.f ? -1.f : 1.f);
@@ -194,17 +194,17 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         }
         else if (player->x304_ == 2 || player->x304_ == 3)
         {
-            dt *= g_tweakPlayer->GetPlayerSomething14();
+            dt *= g_tweakPlayer->GetX184();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
         else if (player->x304_ == 5)
         {
-            dt *= g_tweakPlayer->GetPlayerSomething13();
+            dt *= g_tweakPlayer->GetX2B0();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
         else
         {
-            dt *= g_tweakPlayer->GetPlayerSomething12();
+            dt *= g_tweakPlayer->GetX280();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
     }
@@ -227,9 +227,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         float angle = gunFront.dot(rVec);
         if (std::fabs(angle) > 1.f)
             angle = (angle > -0.f ? -1.f : 1.f);
-        float sdt = dt * g_tweakPlayer->GetPlayerSomething15();
+        float sdt = dt * g_tweakPlayer->GetX138();
         qGun = zeus::CQuaternion::lookAt(
-            rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetPlayerSomething16() * (std::acos(angle) / sdt), 1.f));
+            rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetX14C() * (std::acos(angle) / sdt), 1.f));
     }
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 

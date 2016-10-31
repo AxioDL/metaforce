@@ -12,9 +12,15 @@ class CBallCamera;
 class CStateManager;
 class CGameCamera;
 class CCameraShakeData;
+class CScriptWater;
 
 class CCameraManager
 {
+    static float sAspect;
+    static float sFarPlane;
+    static float sNearPlane;
+    static float sFirstPersonFOV;
+    static float sThirdPersonFOV;
     TUniqueId x0_curCameraId;
     std::vector<TUniqueId> x4_cineCameras;
     std::list<CCameraShakeData> x18_shakers;
@@ -26,26 +32,44 @@ class CCameraManager
     CFirstPersonCamera* x7c_fpCamera = nullptr;
     CBallCamera* x80_ballCamera = nullptr;
     s16 x84_rumbleId = -1;
+    float x94_;
 
     union
     {
         struct
         {
-            bool x86_24_ : 1;
-            bool x86_25_rumbling : 1;
-            bool x86_26_inWater : 1;
+            bool xa0_24_ : 1;
+            bool xa0_25_rumbling : 1;
+            bool xa0_26_inWater : 1;
         };
-        u8 _dummy = 0;
+        u8 _dummy1 = 0;
     };
 
+    TUniqueId xa2_ = kInvalidUniqueId;
+    TUniqueId xa4_ = kInvalidUniqueId;
+    TUniqueId xa6_ = kInvalidUniqueId;
+    u32 xa8_ = 1000;
+    u32 xac_ = 0;
+
+    union
+    {
+        struct
+        {
+            bool x3b8_24_ : 1;
+            bool x3b8_25_ : 1;
+        };
+        u8 _dummy2;
+    };
+
+    float x3bc_curFov = 60.f;
 public:
     CCameraManager(TUniqueId curCameraId=kInvalidUniqueId);
 
-    static float DefaultAspect() {return 1.42f;}
-    static float DefaultFarPlane() {return 750.0f;}
-    static float DefaultNearPlane() {return 0.2f;}
-    static float DefaultFirstPersonFOV() {return 55.0f;}
-    static float DefaultThirdPersonFOV() {return 60.0f;}
+    static float Aspect() {return sAspect;}
+    static float FarPlane() {return sFarPlane;}
+    static float NearPlane() {return sNearPlane;}
+    static float FirstPersonFOV() {return sFirstPersonFOV;}
+    static float ThirdPersonFOV() {return sThirdPersonFOV;}
 
     void ResetCameras(CStateManager& mgr);
     void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball);
@@ -66,6 +90,12 @@ public:
             return x4_cineCameras.back();
         return x0_curCameraId;
     }
+    TUniqueId GetLastCameraId() const
+    {
+        if (x4_cineCameras.size())
+            return x4_cineCameras.back();
+        return kInvalidUniqueId;
+    }
 
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
@@ -73,6 +103,14 @@ public:
     CGameArea::CAreaFog Fog() { return x3c_fog; }
 
     float sub80009148() const;
+
+    void sub800097AC(float, CStateManager&);
+    void ThinkCameras(float, CStateManager&);
+    void UpdateFog(float, CStateManager&);
+    void UpdateRumble(float, CStateManager&);
+    void UpdateListener(CStateManager&);
+
+    float CalculateFogDensity(CStateManager&, const CScriptWater*);
 };
 
 }

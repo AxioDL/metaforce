@@ -28,6 +28,7 @@ zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
 SClipScreenRect CGraphics::g_CroppedViewport;
 int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
+SViewport gViewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
 
 void CGraphics::DisableAllLights()
 {

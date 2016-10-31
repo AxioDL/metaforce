@@ -742,8 +742,8 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
     u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
 
     return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
-                                f2 / CCameraManager::DefaultAspect(), CCameraManager::DefaultNearPlane(),
-                                CCameraManager::DefaultFarPlane(), CCameraManager::DefaultAspect(), flags);
+                                f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(),
+                                CCameraManager::FarPlane(), CCameraManager::Aspect(), flags);
 }
 
 CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

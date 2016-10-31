@@ -175,24 +175,28 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x300_;
     Value<float> x304_;
     Value<float> x308_;
+    float GetX50() const { return x44_[3]; }
+    float GetX54() const { return x44_[4]; }
+    float GetX58() const { return x44_[5]; }
+    float GetX5C() const { return x44_[6]; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
-    float GetPlayerSomething1() const { return x274_; }
-    float GetPlayerSomething2() const { return x278_; }
-    float GetPlayerSomething3() const { return x27c_; }
-    float GetPlayerSomething4() const { return x134_; }
-    bool GetPlayerSomething5() const { return x228_24_; }
-    float GetPlayerSomething6() const { return x288_; }
-    float GetPlayerSomething7() const { return x28c_; }
-    float GetPlayerSomething8() const { return x290_; }
-    float GetPlayerSomething9() const { return x294_; }
-    float GetPlayerSomething10() const { return x298_; }
-    float GetPlayerSomething11() const { return x29c_; }
-    float GetPlayerSomething12() const { return x280_; }
-    float GetPlayerSomething13() const { return x2b0_; }
-    float GetPlayerSomething14() const { return x184_; }
-    float GetPlayerSomething15() const { return x138_; }
-    float GetPlayerSomething16() const { return x14c_; }
+    float GetX274() const { return x274_; }
+    float GetX278() const { return x278_; }
+    float GetX27C() const { return x27c_; }
+    float GetX124() const { return x134_; }
+    bool GetX228_24() const { return x228_24_; }
+    float GetX288() const { return x288_; }
+    float GetX28c() const { return x28c_; }
+    float GetX290() const { return x290_; }
+    float GetX294() const { return x294_; }
+    float GetX298() const { return x298_; }
+    float GetX29C() const { return x29c_; }
+    float GetX280() const { return x280_; }
+    float GetX2B0() const { return x2b0_; }
+    float GetX184() const { return x184_; }
+    float GetX138() const { return x138_; }
+    float GetX14C() const { return x14c_; }
     float GetLeftLogicalThreshold() const {return x150_leftDiv;}
     float GetRightLogicalThreshold() const {return x154_rightDiv;}
     CTweakPlayer() = default;

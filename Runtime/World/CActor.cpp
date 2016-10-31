@@ -151,6 +151,16 @@ void CActor::RemoveEmitter()
     }
 }
 
+const zeus::CTransform CActor::GetScaledLocatorTransform(const std::string& segName) const
+{
+    return x64_modelData->GetScaledLocatorTransform(segName);
+}
+
+const zeus::CTransform CActor::GetLocatorTransform(const std::string& segName) const
+{
+    return x64_modelData->GetLocatorTransform(segName);
+}
+
 EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&,
                                                                const zeus::CVector3f&, CWeaponMode&, int)
 {
@@ -299,6 +309,16 @@ void CActor::SetTranslation(const zeus::CVector3f &tr)
     xe4_27_ = true;
     xe4_28_ = true;
     xe4_29_ = true;
+}
+
+float CActor::GetPitch() const
+{
+    return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch();
+}
+
+float CActor::GetYaw() const
+{
+    return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw();
 }
 
 }

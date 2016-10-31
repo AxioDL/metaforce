@@ -36,6 +36,7 @@ struct CTweakGame : ITweakGame
     Value<float> x68_hardmodeWeaponMult;
 
     virtual const std::string& GetWorldPrefix() const { return x4_worldPrefix; }
+    virtual float GetFirstPersonFOV() const { return x24_fov; }
     CTweakGame(athena::io::IStreamReader& in) { this->read(in); x2b_unknown4 = false; }
 };
 }

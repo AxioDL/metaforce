@@ -222,10 +222,10 @@ void CWorldTransManager::DrawEnabled()
 {
     float wsAspect = CWideScreenFilter::SetViewportToMatch(1.f);
 
-    g_Renderer->SetPerspective(CCameraManager::DefaultFirstPersonFOV(),
+    g_Renderer->SetPerspective(CCameraManager::FirstPersonFOV(),
                                wsAspect,
-                               CCameraManager::DefaultNearPlane(),
-                               CCameraManager::DefaultFarPlane());
+                               CCameraManager::NearPlane(),
+                               CCameraManager::FarPlane());
     g_Renderer->x318_26_ = true;
 
     if (x0_curTime <= x4_modelData->x1d0_dissolveStartTime)

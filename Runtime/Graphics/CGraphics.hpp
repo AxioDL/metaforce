@@ -139,6 +139,18 @@ enum class ERglFogMode
     OrthoRevExp2 = 0x0F
 };
 
+struct SViewport
+{
+    u32 x0_left;
+    u32 x4_top;
+    u32 x8_width;
+    u32 xc_height;
+    float x10_halfWidth;
+    float x14_halfHeight;
+};
+
+extern SViewport gViewport;
+
 struct SClipScreenRect
 {
     bool x0_valid = false;

@@ -7,14 +7,25 @@
 #include "Input/CRumbleManager.hpp"
 #include "World/CScriptWater.hpp"
 #include "World/CPlayer.hpp"
-
+#include "World/CScriptWater.hpp"
+#include "CPlayerState.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "CObjectList.hpp"
 namespace urde
 {
+float CCameraManager::sAspect = 1.42f;
+float CCameraManager::sFarPlane = 750.f;
+float CCameraManager::sNearPlane = 0.2f;
+float CCameraManager::sFirstPersonFOV = 55.f;
+float CCameraManager::sThirdPersonFOV = 60.f;
 
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId)
 {
     CSfxManager::AddListener(CSfxManager::ESfxChannels::One, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
                              {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 0x7f);
+    sAspect = float(gViewport.x8_width / gViewport.xc_height);
+    sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
 
 zeus::CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& stateMgr) const
@@ -61,6 +72,13 @@ void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId)
 
 void CCameraManager::Update(float dt, CStateManager& stateMgr)
 {
+    sub800097AC(dt, stateMgr);
+    ThinkCameras(dt, stateMgr);
+    UpdateListener(stateMgr);
+    UpdateRumble(dt, stateMgr);
+    UpdateFog(dt, stateMgr);
+
+#if 0
     const CGameCamera* camera = GetCurrentCamera(stateMgr);
     zeus::CVector3f heading = camera->GetTransform().basis * zeus::CVector3f{0.f, 1.f, 0.f};
     CSfxManager::UpdateListener(camera->GetTransform().origin, zeus::CVector3f::skZero, heading, {0.f, 0.f, 1.f}, 0x7f);
@@ -79,15 +97,15 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 
     if (x18_shakers.size())
     {
-        if (!x86_25_rumbling || x86_24_)
+        if (!xa0_25_rumbling || xa0_24_)
         {
             stateMgr.GetRumbleManager().Rumble(ERumbleFxId::Seven, stateMgr, ERumblePriority::Two);
-            x86_25_rumbling = true;
+            xa0_25_rumbling = true;
         }
     }
     else
     {
-        x86_25_rumbling = false;
+        xa0_25_rumbling = false;
         if (x84_rumbleId != -1)
         {
             stateMgr.GetRumbleManager().StopRumble(x84_rumbleId);
@@ -107,16 +125,17 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
             stateMgr.GetCameraFilterPass(4).SetFilter(CCameraFilterPass::EFilterType::Multiply,
                                                       CCameraFilterPass::EFilterShape::Fullscreen, 0.f, tmpColor, -1);
         }
-        x86_26_inWater = true;
+        xa0_26_inWater = true;
     }
     else
     {
-        x86_26_inWater = false;
+        xa0_26_inWater = false;
         x3c_fog.DisableFog();
         stateMgr.GetCameraFilterPass(4).DisableFilter(dt);
     }
 
     x3c_fog.Update(dt);
+#endif
 }
 
 CGameCamera* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
@@ -136,6 +155,61 @@ float CCameraManager::sub80009148() const
     const zeus::CVector3f uVec = x7c_fpCamera->GetTransform().upVector();
     return 1.f - std::min(std::fabs(std::min(std::fabs(uVec.dot(zeus::kUpVec)), 1.f) / std::cos(zeus::degToRad(30.f))),
                           1.f);
+}
+
+void CCameraManager::sub800097AC(float, CStateManager& mgr)
+{
+}
+
+void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
+{
+    CGameCameraList gcList = mgr.GetCameraObjectList();
+
+    for (CEntity* ent : gcList)
+    {
+        CGameCamera* gc = dynamic_cast<CGameCamera*>(ent);
+        if (gc)
+        {
+            gc->Think(dt, mgr);
+            gc->UpdatePerspective(dt);
+        }
+    }
+
+    if (IsInCinematicCamera())
+        return;
+
+    TUniqueId camId = GetLastCameraId();
+    const CGameCamera* cam = dynamic_cast<const CGameCamera*>(mgr.GetObjectById(camId));
+
+    if (cam)
+        x3bc_curFov = cam->GetFov();
+}
+
+void CCameraManager::UpdateFog(float, CStateManager&)
+{
+
+}
+
+void CCameraManager::UpdateRumble(float, CStateManager&)
+{
+}
+
+void CCameraManager::UpdateListener(CStateManager& mgr)
+{
+    const zeus::CTransform xf = GetCurrentCameraTransform(mgr);
+    CSfxManager::UpdateListener(xf.origin, zeus::CVector3f::skZero, xf.frontVector(), xf.upVector(), 127);
+}
+
+float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water)
+{
+    float f31 = 1.f /* 1.f - water->x1b4_->x40_; */;
+    float f1 = 0;
+    if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
+        f1 = (g_tweakPlayer->GetX54() * g_tweakPlayer->GetX50()) + f31;
+    else
+        f1 = (g_tweakPlayer->GetX5C() * g_tweakPlayer->GetX58()) + f31;
+
+    return f1 * x94_;
 }
 
 void CCameraManager::ResetCameras(CStateManager& mgr)

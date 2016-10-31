@@ -117,7 +117,8 @@ public:
 
     void RemoveEmitter();
     const zeus::CTransform& GetTransform() const {return x34_transform;}
-
+    const zeus::CTransform GetScaledLocatorTransform(const std::string& segName) const;
+    const zeus::CTransform GetLocatorTransform(const std::string& segName) const;
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -139,6 +140,9 @@ public:
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
     void SetTranslation(const zeus::CVector3f& tr);
+
+    float GetPitch() const;
+    float GetYaw() const;
 };
 }
 

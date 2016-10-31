@@ -13,7 +13,7 @@ class CGameCamera : public CActor
     TUniqueId xe8_watchedObject;
     zeus::CMatrix4f xec_perspectiveMatrix;
     zeus::CTransform x12c_;
-    float x15c_fov;
+    float x15c_currentFov;
     float x160_znear;
     float x164_zfar;
     float x168_aspect;
@@ -30,7 +30,7 @@ class CGameCamera : public CActor
     float x178_ = 0.f;
     float x17c_ = 0.f;
     float x180_;
-    float x184_;
+    float x184_fov;
 public:
     CGameCamera(TUniqueId, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
                 float fov, float nearz, float farz, float aspect, TUniqueId, bool, u32);
@@ -51,7 +51,7 @@ public:
     float GetFov() const;
     void GetControllerNumber() const;
     bool DisablesInput() const;
-    void sub8005AE3C(float);
+    void UpdatePerspective(float);
     void sub8005AF18(float, float, float, float);
     void sub8005AF88();
 };

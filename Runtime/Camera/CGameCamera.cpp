@@ -13,7 +13,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, const std::string& name, co
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_watchedObject(uid2)
 , x12c_(xf)
-, x15c_fov(fovy)
+, x15c_currentFov(fovy)
 , x160_znear(znear)
 , x164_zfar(zfar)
 , x168_aspect(aspect)
@@ -21,7 +21,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, const std::string& name, co
 , x170_24_perspDirty(true)
 , x170_25_disablesInput(b1)
 , x180_(fovy)
-, x184_(fovy)
+, x184_fov(fovy)
 {
 
     xe7_29_ = false;
@@ -54,7 +54,7 @@ zeus::CMatrix4f CGameCamera::GetPerspectiveMatrix() const
     if (x170_24_perspDirty)
     {
         const_cast<CGameCamera*>(this)->xec_perspectiveMatrix =
-            CGraphics::CalculatePerspectiveMatrix(x15c_fov, x168_aspect, x160_znear, x164_zfar, false);
+            CGraphics::CalculatePerspectiveMatrix(x15c_currentFov, x168_aspect, x160_znear, x164_zfar, false);
         const_cast<CGameCamera*>(this)->x170_24_perspDirty = false;
     }
 
@@ -108,40 +108,40 @@ float CGameCamera::GetAspectRatio() const { return x168_aspect; }
 
 TUniqueId CGameCamera::GetWatchedObject() const { return xe8_watchedObject; }
 
-float CGameCamera::GetFov() const { return x15c_fov; }
+float CGameCamera::GetFov() const { return x15c_currentFov; }
 
-void CGameCamera::sub8005AE3C(float f1)
+void CGameCamera::UpdatePerspective(float dt)
 {
     if (x174_ > 0.f)
     {
-        x174_ -= f1;
+        x174_ -= dt;
         return;
     }
 
     if (x178_ <= 0.f)
         return;
 
-    x178_ -= f1;
+    x178_ -= dt;
     if (x178_ > 0.f)
     {
-        x15c_fov = x184_;
+        x15c_currentFov = x184_fov;
         x170_24_perspDirty = true;
     }
     else
     {
-        x15c_fov = zeus::clamp(0.f, (f1 / x17c_), 1.f) + ((x180_ - x184_) * x184_);
+        x15c_currentFov = zeus::clamp(0.f, (dt / x17c_), 1.f) + ((x180_ - x184_fov) * x184_fov);
         x170_24_perspDirty = true;
     }
 }
 
-void CGameCamera::sub8005AF18(float f1, float f2, float f3, float f4)
+void CGameCamera::sub8005AF18(float f1, float fov, float f3, float f4)
 {
     if (f3 < 0.f)
     {
-        x15c_fov = f2;
+        x15c_currentFov = fov;
         x170_24_perspDirty = true;
-        x184_ = f2;
-        x184_ = x174_ = 0.f;
+        x184_fov = fov;
+        x178_ = x174_ = 0.f;
     }
     else
     {
@@ -149,8 +149,8 @@ void CGameCamera::sub8005AF18(float f1, float f2, float f3, float f4)
         x17c_ = f3;
         x178_ = f3;
         x180_ = f1;
-        x184_ = f2;
-        x15c_fov = f1;
+        x184_fov = fov;
+        x15c_currentFov = f1;
         x170_24_perspDirty = true;
     }
 }
@@ -159,7 +159,7 @@ void CGameCamera::sub8005AF88()
 {
     if (x178_ > 0)
     {
-        x15c_fov = x184_;
+        x15c_currentFov = x184_fov;
         x170_24_perspDirty = true;
     }
 

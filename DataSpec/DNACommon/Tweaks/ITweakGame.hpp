@@ -9,6 +9,7 @@ namespace DataSpec
 struct ITweakGame : BigYAML
 {
     virtual const std::string& GetWorldPrefix() const=0;
+    virtual float GetFirstPersonFOV() const =0;
 };
 
 }

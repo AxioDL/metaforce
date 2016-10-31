@@ -9,10 +9,10 @@ CPathCamera::CPathCamera(TUniqueId uid, const std::string& name, const CEntityIn
                          float, float, float, float, float, float, float, u32,
                          EInitialSplinePosition)
 : CGameCamera(uid, active, name, info, xf,
-              CCameraManager::DefaultThirdPersonFOV(),
-              CCameraManager::DefaultNearPlane(),
-              CCameraManager::DefaultFarPlane(),
-              CCameraManager::DefaultAspect(), kInvalidUniqueId, 0, 0)
+              CCameraManager::ThirdPersonFOV(),
+              CCameraManager::NearPlane(),
+              CCameraManager::FarPlane(),
+              CCameraManager::Aspect(), kInvalidUniqueId, 0, 0)
 {
 }
 

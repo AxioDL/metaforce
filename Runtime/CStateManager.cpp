@@ -624,9 +624,9 @@ void CStateManager::CreateStandardGameObjects()
 {
     float height = g_tweakPlayer->GetPlayerHeight();
     float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
-    float unk1 = g_tweakPlayer->GetPlayerSomething1();
-    float unk2 = g_tweakPlayer->GetPlayerSomething2();
-    float unk3 = g_tweakPlayer->GetPlayerSomething3();
+    float unk1 = g_tweakPlayer->GetX274();
+    float unk2 = g_tweakPlayer->GetX278();
+    float unk3 = g_tweakPlayer->GetX27C();
     zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
     x84c_player.reset(new CPlayer(AllocateUniqueId(), zeus::CTransform(q), pBounds, 0,
