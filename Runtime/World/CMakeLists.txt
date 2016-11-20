@@ -54,6 +54,7 @@ set(WORLD_SOURCES
     CScriptSound.hpp CScriptSound.cpp
     CScriptGenerator.hpp CScriptGenerator.cpp
     CScriptDock.hpp CScriptDock.cpp
+    CScriptActorKeyframe.hpp CScriptActorKeyframe.cpp
     CScriptWater.hpp CScriptWater.cpp
     CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
@@ -91,6 +92,10 @@ set(WORLD_SOURCES
     CHUDMemoParms.hpp CHUDMemoParms.cpp
     CWorldShadow.hpp CWorldShadow.cpp
     CGameLight.hpp CGameLight.cpp
-    CFluidPlane.hpp)
+    CFluidPlane.hpp CFluidPlane.cpp
+    CFluidPlaneCPU.hpp CFluidPlaneCPU.cpp
+    CFluidPlaneDoor.hpp CFluidPlaneDoor.cpp
+    CRippleManager.hpp CRippleManager.cpp
+    CRipple.hpp CRipple.cpp)
 
 runtime_add_list(World WORLD_SOURCES)

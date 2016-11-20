@@ -215,7 +215,7 @@ public:
     void Render(CStateManager& mgr) const;
     void RenderReflectedPlayer(CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum&);
-    zeus::CAABox CalculateRenderBounds();
+    void CalculateRenderBounds();
     void AddToRenderer(const zeus::CFrustum&, CStateManager&);
     void ComputeFreeLook(const CFinalInput& input);
     void UpdateFreeLook(float dt);

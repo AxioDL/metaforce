@@ -256,7 +256,7 @@ s32 CCollisionResponseData::GetSoundEffectId(EWeaponCollisionResponseTypes type)
 
 EWeaponCollisionResponseTypes CCollisionResponseData::GetWorldCollisionResponseType(s32 id)
 {
-    if (id < 0 || id >= 32)
+    if (id < 0 || id >= s32(EWeaponCollisionResponseTypes::Unknown32))
         return EWeaponCollisionResponseTypes::Default;
 
     return skWorldMaterialTable[id];

@@ -251,9 +251,22 @@ bool CStateManager::RenderLast(TUniqueId)
     return false;
 }
 
+void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane, const zeus::CAABox& aabb) const
+{
+#if 0
+    actor.SetAddedToken(x8dc_ + 1);
+#endif
+    g_Renderer->AddPlaneObject(static_cast<const void*>(&actor), aabb, plane, 0);
+}
+
 void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec,
                                      const zeus::CAABox& aabb) const
 {
+#if 0
+    actor.SetAddedToken(x8dc_ + 1);
+#endif
+    g_Renderer->AddDrawable(static_cast<const void*>(&actor), vec, aabb, 0,
+                            IRenderer::EDrawableSorting::SortedCallback);
 }
 
 void CStateManager::SpecialSkipCinematic()

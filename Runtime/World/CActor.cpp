@@ -61,10 +61,11 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     case EScriptObjectMessage::InternalMessage12: // 34
     {
         RemoveEmitter();
-        /* TODO: Not sure about this
-        if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->x28_)
-            x64_modelData->AnimationData().GetParticleDB().GetActiveParticleLightIds(mgr);
-        */
+#if 0
+        if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
+            x64_modelData->AnimationData()->GetParticleDB().GetActiveParticleLightIds(mgr);
+#endif
+
     }
         break;
     case EScriptObjectMessage::InternalMessage13: // 35
@@ -91,9 +92,12 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-zeus::CAABox CActor::CalculateRenderBounds()
+void CActor::CalculateRenderBounds()
 {
-    return {};
+    if (x64_modelData && (x64_modelData->AnimationData() || x64_modelData->GetNormalModel()))
+        x9c_aabox = x64_modelData->GetBounds(x34_transform);
+    else
+        x9c_aabox = zeus::CAABox(x34_transform.origin, x34_transform.origin);
 }
 
 const CHealthInfo* CActor::GetHealthInfo() const
@@ -183,7 +187,7 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 
 }
 
-zeus::CAABox CActor::GetSortingBounds(const zeus::CTransform &) const
+zeus::CAABox CActor::GetSortingBounds(const CStateManager &) const
 {
     return {};
 }
@@ -309,6 +313,11 @@ void CActor::SetTranslation(const zeus::CVector3f &tr)
     xe4_27_ = true;
     xe4_28_ = true;
     xe4_29_ = true;
+}
+
+void CActor::SetAddedToken(u32 tok)
+{
+    xcc_addedToken = tok;
 }
 
 float CActor::GetPitch() const

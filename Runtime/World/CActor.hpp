@@ -47,7 +47,7 @@ protected:
     TUniqueId xc4_fluidId = kInvalidUniqueId;
     TUniqueId xc6_ = kInvalidUniqueId;
     s32 xc8_ = -1;
-    s32 xcc_ = -1;
+    s32 xcc_addedToken = -1;
     float xd0_;
     u8 xd4_ = 0x7F;
     u32 xd8_ = 2;
@@ -97,7 +97,7 @@ public:
     virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
     virtual void Render(const CStateManager&) const {}
     virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
-    virtual zeus::CAABox CalculateRenderBounds();
+    virtual void CalculateRenderBounds();
     virtual const CHealthInfo* GetHealthInfo() const;
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&, const CDamageInfo&) const;
@@ -111,7 +111,7 @@ public:
                                                                    CWeaponMode&, int);
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
     virtual void OnScanStateChanged(EScanState, CStateManager&);
-    virtual zeus::CAABox GetSortingBounds(const zeus::CTransform&) const;
+    virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;
     virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType);
 
 
@@ -140,7 +140,7 @@ public:
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
     void SetTranslation(const zeus::CVector3f& tr);
-
+    void SetAddedToken(u32 tok);
     float GetPitch() const;
     float GetYaw() const;
 };

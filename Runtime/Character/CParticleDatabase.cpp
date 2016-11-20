@@ -29,4 +29,9 @@ void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum)
 {
 }
 
+void CParticleDatabase::GetActiveParticleLightIds(std::vector<TUniqueId>&)
+{
+
+}
+
 }

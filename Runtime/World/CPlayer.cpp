@@ -169,9 +169,8 @@ void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum&)
 {
 }
 
-zeus::CAABox CPlayer::CalculateRenderBounds()
+void CPlayer::CalculateRenderBounds()
 {
-    return {};
 }
 
 void CPlayer::AddToRenderer(const zeus::CFrustum&, CStateManager&)

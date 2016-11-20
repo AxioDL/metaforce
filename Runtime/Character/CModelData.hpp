@@ -140,6 +140,9 @@ public:
                 const CActorLights* lights, const CModelFlags& drawFlags);
 
     CAnimData* AnimationData() { return x10_animData.get(); }
+    const TLockedToken<CModel>& GetNormalModel() const { return x1c_normalModel; }
+    const TLockedToken<CModel>& GetXRayModel() const { return x2c_xrayModel; }
+    const TLockedToken<CModel>& GetThermalModel() const { return x3c_infraModel; }
     bool IsNull() { return !x10_animData && !x1c_normalModel; }
 };
 

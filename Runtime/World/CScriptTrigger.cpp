@@ -10,7 +10,7 @@ namespace urde
 CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds,
                                const CDamageInfo& dInfo, const zeus::CVector3f& forceField,
-                               u32 triggerFlags, bool active, bool b2, bool b3)
+                               ETriggerFlags triggerFlags, bool active, bool b2, bool b3)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::ThirtyFour), CActorParameters::None(), kInvalidUniqueId),
   x100_damageInfo(dInfo),
@@ -25,9 +25,8 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
 
 CScriptTrigger::CObjectTracker* CScriptTrigger::FindInhabitant(TUniqueId id)
 {
-    const auto& iter = std::find_if(xe8_inhabitants.begin(), xe8_inhabitants.end(), [&id](CObjectTracker& tr)->bool{
-            return tr.GetObjectId() == id;
-    });
+    const auto& iter = std::find(xe8_inhabitants.begin(), xe8_inhabitants.end(), id);
+
     if (iter != xe8_inhabitants.end())
         return &(*iter);
     return nullptr;

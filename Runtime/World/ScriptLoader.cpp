@@ -19,6 +19,7 @@
 #include "CScriptTimer.hpp"
 #include "CScriptCounter.hpp"
 #include "CScriptDock.hpp"
+#include "CScriptActorKeyframe.hpp"
 #include "CScriptWater.hpp"
 #include "CScriptEffect.hpp"
 #include "CScriptPlatform.hpp"
@@ -503,8 +504,8 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     zeus::CVector3f forceVec;
     forceVec.readBig(in);
 
-    u32 w1 = in.readUint32Big();
-    bool b1 = in.readBool();
+    ETriggerFlags flags = ETriggerFlags(in.readUint32Big());
+    bool active = in.readBool();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
 
@@ -513,7 +514,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
-    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, w1, b1, b2, b3);
+    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, flags, active, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1141,7 +1142,21 @@ CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, in
 
 CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "ActorKeyframe"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    s32 w1 = in.readInt32Big();
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    bool active = in.readBool();
+    u32 w2 = in.readUint32Big();
+    float f2 = in.readFloatBig();
+
+    if (w1 == -1)
+        return nullptr;
+
+    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), *name, info, w1, b1, f1, false, w2, active, f2);
 }
 
 CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1157,7 +1172,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     CDamageInfo dInfo(in);
     zeus::CVector3f orientedForce;
     orientedForce.readBig(in);
-    u32 triggerFlags = in.readUint32Big() | 2044;
+    ETriggerFlags triggerFlags = ETriggerFlags(in.readUint32Big()) | ETriggerFlags::DetectProjectiles1 |
+                                 ETriggerFlags::DetectProjectiles2 | ETriggerFlags::DetectProjectiles3 |
+                                 ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
+                                 ETriggerFlags::Unknown1           | ETriggerFlags::DetectProjectiles5 |
+                                 ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
     bool b1 = in.readBool();
     bool displaySurface = in.readBool();
     ResId textureId1 = in.readUint32Big();
