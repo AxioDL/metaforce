@@ -100,7 +100,7 @@ void CActor::CalculateRenderBounds()
         x9c_aabox = zeus::CAABox(x34_transform.origin, x34_transform.origin);
 }
 
-const CHealthInfo* CActor::GetHealthInfo() const
+CHealthInfo* CActor::HealthInfo()
 {
     return nullptr;
 }
@@ -178,18 +178,18 @@ void CActor::FluidFXThink(CActor::EFluidState, CScriptWater &, CStateManager &)
 
 void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 {
-    if (state == EScanState::Zero)
-        SendScriptMsgs(EScriptObjectState::UNKS7, mgr, EScriptObjectMessage::None);
-    else if (state == EScanState::One)
-        SendScriptMsgs(EScriptObjectState::UNKS8, mgr, EScriptObjectMessage::None);
-    else if (state == EScanState::Two)
+    if (state == EScanState::Start)
+        SendScriptMsgs(EScriptObjectState::ScanStart, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::Processing)
+        SendScriptMsgs(EScriptObjectState::ScanProcessing, mgr, EScriptObjectMessage::None);
+    else if (state == EScanState::Done)
         SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
 
 }
 
 zeus::CAABox CActor::GetSortingBounds(const CStateManager &) const
 {
-    return {};
+    return x9c_aabox;
 }
 
 void CActor::DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType)

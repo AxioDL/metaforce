@@ -1,7 +1,7 @@
 #include "CPlayer.hpp"
 #include "CActorParameters.hpp"
 #include "CMorphBall.hpp"
-#include "CPlayerGun.hpp"
+#include "Weapon/CPlayerGun.hpp"
 #include "CStateManager.hpp"
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"

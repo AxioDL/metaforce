@@ -3,7 +3,7 @@
 #include "Camera/CGameCamera.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "CSortedLists.hpp"
-#include "CWeaponMgr.hpp"
+#include "Weapon/CWeaponMgr.hpp"
 #include "CFluidPlaneManager.hpp"
 #include "World/CEnvFxManager.hpp"
 #include "World/CActorModelParticles.hpp"
@@ -17,7 +17,7 @@
 #include "CPlayerState.hpp"
 #include "CGameState.hpp"
 #include "World/CPlayer.hpp"
-#include "World/CPlayerGun.hpp"
+#include "Weapon/CPlayerGun.hpp"
 #include "World/CMorphBall.hpp"
 #include "World/CScriptSpawnPoint.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
@@ -492,14 +492,16 @@ void CStateManager::InformListeners(const zeus::CVector3f&, EListenNoiseType)
 {
 }
 
-void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info,
+bool CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info,
                                    const CDamageVulnerability&, const zeus::CVector3f&, float)
 {
+    return false;
 }
 
-void CStateManager::ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
+bool CStateManager::ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
                                        const CDamageInfo& info, const CMaterialFilter&)
 {
+    return false;
 }
 
 void CStateManager::ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&,
@@ -507,19 +509,46 @@ void CStateManager::ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVec
 {
 }
 
-void CStateManager::ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
+bool CStateManager::ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
                                       const CDamageInfo& info)
 {
+    return false;
 }
 
-void CStateManager::ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
-                                     const CWeaponMode&)
+bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& actor, float dt,
+                                     const CWeaponMode& weapMode)
 {
+    CHealthInfo* hInfo = actor.HealthInfo();
+    if (!hInfo || dt < 0.f)
+        return false;
+
+    if (hInfo->GetHP() <= 0.f)
+        return true;
+
+    float f30 = dt;
+
+    CPlayer* player = dynamic_cast<CPlayer*>(&actor);
+    CAi* ai = dynamic_cast<CAi*>(&actor);
+#if 0
+    CDestroyableRock* dRock = nullptr;
+    if (!ai)
+        dynamic_cast<CDestroyableRock*>(&actor);
+#endif
+
+    if (player)
+    {
+        if (x870_cameraManager->IsInCinematicCamera())
+        {
+
+        }
+    }
+    return false;
 }
 
-void CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
+bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
                                 const CMaterialFilter&)
 {
+    return false;
 }
 
 void CStateManager::UpdateAreaSounds()

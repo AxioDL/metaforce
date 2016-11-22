@@ -75,9 +75,9 @@ public:
 
     enum class EScanState
     {
-        Zero,
-        One,
-        Two,
+        Start,
+        Processing,
+        Done,
     };
 
     CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
@@ -98,7 +98,7 @@ public:
     virtual void Render(const CStateManager&) const {}
     virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
     virtual void CalculateRenderBounds();
-    virtual const CHealthInfo* GetHealthInfo() const;
+    virtual CHealthInfo* HealthInfo();
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&, const CDamageInfo&) const;
     virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const;

@@ -54,6 +54,7 @@ void CScriptWater::CalculateRenderBounds()
 
 zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager&) const
 {
+    return {};
 }
 
 EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int)

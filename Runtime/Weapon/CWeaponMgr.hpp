@@ -1,6 +1,8 @@
 #ifndef __URDE_CWEAPONMGR_HPP__
 #define __URDE_CWEAPONMGR_HPP__
 
+#include "RetroTypes.hpp"
+
 namespace urde
 {
 

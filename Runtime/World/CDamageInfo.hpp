@@ -2,7 +2,7 @@
 #define __URDE_CDAMAGEINFO_HPP__
 
 #include "RetroTypes.hpp"
-#include "CWeaponMgr.hpp"
+#include "Weapon/CWeaponMgr.hpp"
 
 namespace urde
 {

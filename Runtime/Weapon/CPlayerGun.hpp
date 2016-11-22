@@ -6,7 +6,7 @@
 #include "CFidget.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CAABox.hpp"
-#include "CPlayerCameraBob.hpp"
+#include "World/CPlayerCameraBob.hpp"
 #include "CGunMotion.hpp"
 #include "CGrappleArm.hpp"
 #include "CAuxWeapon.hpp"
@@ -17,7 +17,7 @@
 #include "CPhazonBeam.hpp"
 #include "Particle/CElementGen.hpp"
 #include "Character/CModelData.hpp"
-#include "CWorldShadow.hpp"
+#include "World/CWorldShadow.hpp"
 
 namespace urde
 {

@@ -4,7 +4,7 @@
 #include "CPhysicsActor.hpp"
 #include "zeus/CAABox.hpp"
 #include "zeus/CTransform.hpp"
-#include "CWeaponMgr.hpp"
+#include "Weapon/CWeaponMgr.hpp"
 #include "CPlayerEnergyDrain.hpp"
 
 namespace urde

@@ -10,7 +10,7 @@
 #include "Camera/CCameraFilter.hpp"
 #include "CRandom16.hpp"
 #include "zeus/CAABox.hpp"
-#include "CWeaponMgr.hpp"
+#include "Weapon/CWeaponMgr.hpp"
 #include "World/CAi.hpp"
 #include "CToken.hpp"
 #include "World/ScriptLoader.hpp"
@@ -224,17 +224,17 @@ public:
     void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
     void InitScriptObjects(std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
-    void ApplyKnockBack(CActor& actor, const CDamageInfo& info,
+    bool ApplyKnockBack(CActor& actor, const CDamageInfo& info,
                         const CDamageVulnerability&, const zeus::CVector3f&, float);
-    void ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
+    bool ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
                             const CDamageInfo& info, const CMaterialFilter&);
     void ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&,
                              const CDamageInfo& info, const CMaterialFilter&);
-    void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
+    bool ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
                            const CDamageInfo& info);
-    void ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
+    bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);
-    void ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
+    bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
                      const CMaterialFilter&);
     void UpdateAreaSounds();
     void FrameEnd();

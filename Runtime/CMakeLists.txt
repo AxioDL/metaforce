@@ -15,6 +15,7 @@ add_subdirectory(Graphics)
 add_subdirectory(Collision)
 add_subdirectory(Camera)
 add_subdirectory(World)
+add_subdirectory(Weapon)
 add_subdirectory(AutoMapper)
 add_subdirectory(GuiSys)
 add_subdirectory(Input)
@@ -46,6 +47,7 @@ add_library(RuntimeCommon
             ${INPUT_SOURCES}
             ${PARTICLE_SOURCES}
             ${WORLD_SOURCES}
+            ${WEAPON_SOURCES}
             #CMemory.hpp CMemory.cpp
             ITweak.hpp
             IMain.hpp
@@ -59,7 +61,6 @@ add_library(RuntimeCommon
             CIOWin.hpp
             CIOWinManager.hpp CIOWinManager.cpp
             CStateManager.hpp CStateManager.cpp
-            CWeaponMgr.hpp CWeaponMgr.cpp
             CFluidPlaneManager.hpp CFluidPlaneManager.cpp
             CGameState.hpp CGameState.cpp
             CScanDisplay.hpp CScanDisplay.cpp
