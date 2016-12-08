@@ -81,6 +81,11 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);")
 add_subdirectory(hecl)
+
+if(NOT TARGET atdna)
+  message(FATAL_ERROR "atdna required for building URDE; please verify LLVM installation")
+endif()
+
 add_definitions(${BOO_SYS_DEFINES})
 include_directories(${BOO_SYS_INCLUDES})
 add_subdirectory(amuse)

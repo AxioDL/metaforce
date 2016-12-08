@@ -12,6 +12,7 @@ if(WIN32)
                "$ENV{ProgramW6432}/Inkscape"
                "$ENV{PROGRAMFILES(X86)}/Inkscape")
 else()
+  set(CMAKE_FIND_APPBUNDLE FIRST)
   find_program(INKSCAPE_BIN inkscape)
 endif()
 if(INKSCAPE_BIN STREQUAL "INKSCAPE_BIN-NOTFOUND")
