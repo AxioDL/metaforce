@@ -333,7 +333,7 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 
-    float pixelFactor = 1.0;
+    float pixelFactor = m_mainWindow->getVirtualPixelFactor();
 
     m_mainBooFactory = m_mainWindow->getMainContextDataFactory();
     m_mainPlatformName = m_mainBooFactory->platformName();
