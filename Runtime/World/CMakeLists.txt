@@ -42,6 +42,8 @@ set(WORLD_SOURCES
     CScriptActorKeyframe.hpp CScriptActorKeyframe.cpp
     CScriptWater.hpp CScriptWater.cpp
     CScriptGrapplePoint.hpp CScriptGrapplePoint.cpp
+    CScriptPickupGenerator.hpp CScriptPickupGenerator.cpp
+    CScriptPointOfInterest.hpp CScriptPointOfInterest.cpp
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp

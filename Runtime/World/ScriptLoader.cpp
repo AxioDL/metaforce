@@ -26,6 +26,8 @@
 #include "CScriptSound.hpp"
 #include "CScriptGenerator.hpp"
 #include "CScriptGrapplePoint.hpp"
+#include "CScriptPickupGenerator.hpp"
+#include "CScriptPointOfInterest.hpp"
 #include "CScriptAreaAttributes.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptCoverPoint.hpp"
@@ -458,10 +460,10 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
     zeus::CVector3f offset;
     offset.readBig(in);
 
-    bool b1 = in.readBool();
-    bool b2 = in.readBool();
+    bool active = in.readBool();
+    bool open = in.readBool();
     bool b3 = in.readBool();
-    float f1 = in.readFloatBig();
+    float animationLength = in.readFloatBig();
 
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, offset);
 
@@ -483,7 +485,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
         isMorphballDoor = in.readBool();
 
     return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), actParms,
-                           v1, aabb, b1, b2, b3, f1, isMorphballDoor);
+                           v1, aabb, active, open, b3, animationLength, isMorphballDoor);
 }
 
 CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1548,7 +1550,14 @@ CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int prop
 
 CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "PickupGenerator"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    float f1 = in.readFloatBig();
+    return new CScriptPickupGenerator(mgr.AllocateUniqueId(), *name, info, pos, f1, active);
 }
 
 CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1558,7 +1567,15 @@ CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 6, "PointOfInterest"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    CScannableParameters sParms = LoadScannableParameters(in);
+    float f1 = in.readFloatBig();
+
+    return new CScriptPointOfInterest(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, sParms, f1);
 }
 
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

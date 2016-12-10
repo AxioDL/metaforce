@@ -161,6 +161,7 @@ public:
     void DelAdditiveAnimation(u32);
     void AddAdditiveAnimation(u32, float, bool, bool);
     std::shared_ptr<CAnimationManager> GetAnimationManager();
+    const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
     const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }
     void SetPhase(float);
     void Touch(const CSkinnedModel& model, int shaderIdx) const;

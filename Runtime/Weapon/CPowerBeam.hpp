@@ -8,6 +8,8 @@ namespace urde
 
 class CPowerBeam : public CGunWeapon
 {
+public:
+    CPowerBeam(u32, EWeaponType, TUniqueId, EMaterialTypes, const zeus::CVector3f&);
 };
 
 }

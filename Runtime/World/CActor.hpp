@@ -65,6 +65,8 @@ protected:
             bool xe6_26_inFluid : 1;
             bool xe6_30_enablePitchBend : 1;
             bool xe7_29_ : 1;
+            bool xe7_30_ : 1;
+            bool xe7_31_ : 1;
         };
         u32 dummy = 0;
     };

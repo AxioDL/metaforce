@@ -95,6 +95,10 @@ public:
         Phazon
     };
 
+    enum class EChargeState : u32
+    {
+    };
+
 private:
 
     static const u32 PowerUpMaxValues[41];
@@ -107,7 +111,7 @@ private:
     };
     union
     {
-        struct { bool x0_24_ : 1; bool x0_25_ : 1; bool x0_26_fusion; };
+        struct { bool x0_24_ : 1; bool x0_25_ : 1; bool x0_26_fusion : 1; };
         u32 dummy = 0;
     };
 
@@ -137,6 +141,7 @@ public:
     EPlayerSuit GetCurrentSuit() const;
     EBeamId GetCurrentBeam() const { return x8_currentBeam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;
+    EPlayerVisor GetCurrentVisor() const { return x14_currentVisor; }
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);
     void IncreaseScanTime(u32 time, float val);

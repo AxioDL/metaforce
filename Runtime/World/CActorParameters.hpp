@@ -32,6 +32,13 @@ public:
     : x4_lightParms(lightParms), x40_scanParms(scanParms),
       x44_xrayAssets(xrayAssets), x4c_thermalAssets(thermalAssets),
       x54_visorParms(visorParms), b1(a), b2(b), b3(c), b4(d) {}
+    CActorParameters Scannable(const CScannableParameters& sParms) const
+    {
+        CActorParameters aParms = *this;
+        aParms.x40_scanParms = sParms;
+        return aParms;
+    }
+
     static CActorParameters None() {return CActorParameters();}
 
     void SetVisorParameters(const CVisorParameters& vParams) { x54_visorParms = vParams; }

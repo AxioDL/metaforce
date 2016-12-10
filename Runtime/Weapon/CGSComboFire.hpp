@@ -6,6 +6,8 @@
 namespace urde
 {
 
+class CAnimData;
+class CStateManager;
 class CGSComboFire
 {
     float x0_ = 0.f;
@@ -22,6 +24,14 @@ class CGSComboFire
         };
         u8 _dummy = 0;
     };
+public:
+    bool IsComboOver() const;
+    s32 GetLoopState() const;
+    void SetLoopState(s32);
+    void SetIdle(bool);
+    void GetGunId() const;
+    bool Update(CAnimData&, float, CStateManager&);
+    void SetAnim(CAnimData&, s32, s32, s32, CStateManager&, float);
 };
 
 }

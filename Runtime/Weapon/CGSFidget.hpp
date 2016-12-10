@@ -5,7 +5,8 @@
 
 namespace urde
 {
-
+class CAnimData;
+class CStateManager;
 class CGSFidget
 {
     u32 x4_ = 0;
@@ -14,6 +15,12 @@ class CGSFidget
     u32 x10_ = -1;
     u32 x14_ = -1;
     u32 x18_ = -1;
+public:
+    bool Update(CAnimData&, float, CStateManager&);
+    void SetAnim(CAnimData&, s32, s32, s32, CStateManager&);
+    void LoadAnimAsync(CAnimData, s32, s32, s32, CStateManager&);
+    void UnLoadAnim();
+    bool IsAnimLoaded() const;
 };
 
 }
