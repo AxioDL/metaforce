@@ -2,11 +2,14 @@
 #define SPECTER_VIEW_HPP
 
 #include <boo/boo.hpp>
+#include "optional.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CColor.hpp"
 #include "hecl/CVar.hpp"
+#include "UniformBufferPool.hpp"
+#include "VertexBufferPool.hpp"
 
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
@@ -104,28 +107,57 @@ public:
         }
     };
 
+    template <typename VertStruct>
     struct VertexBufferBinding
     {
-        boo::IGraphicsBufferD* m_vertsBuf = nullptr;
+        std::experimental::optional<typename VertexBufferPool<VertStruct>::Token> m_vertsBuf;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
-        void initSolid(boo::IGraphicsDataFactory::Context& ctx,
-                       ViewResources& res, size_t count,
-                       boo::IGraphicsBuffer* viewBlockBuf);
-        void initTex(boo::IGraphicsDataFactory::Context& ctx,
-                     ViewResources& res, size_t count,
-                     boo::IGraphicsBuffer* viewBlockBuf,
-                     boo::ITexture* texture);
+        void load(const VertStruct* data, size_t count)
+        {
+            if (m_vertsBuf)
+            {
+                VertStruct* out = m_vertsBuf->access();
+                for (size_t i=0; i<count; ++i)
+                    out[i] = data[i];
+            }
+        }
+        template <typename VertArray>
+        void load(const VertArray data)
+        {
+            static_assert(std::is_same<std::remove_all_extents_t<VertArray>,
+                          VertStruct>::value, "mismatched type");
+            if (m_vertsBuf)
+            {
+                constexpr size_t count = sizeof(VertArray) / sizeof(VertStruct);
+                VertStruct* out = m_vertsBuf->access();
+                for (size_t i=0; i<count; ++i)
+                    out[i] = data[i];
+            }
+        }
 
-        void load(const void* data, size_t sz) {if (m_vertsBuf) m_vertsBuf->load(data, sz);}
-        operator boo::IShaderDataBinding*() {return m_shaderBinding;}
+        operator boo::IShaderDataBinding*() { return m_shaderBinding; }
     };
+    struct VertexBufferBindingSolid : VertexBufferBinding<SolidShaderVert>
+    {
+        void init(boo::IGraphicsDataFactory::Context& ctx,
+                  ViewResources& res, size_t count,
+                  const UniformBufferPool<ViewBlock>::Token& viewBlockBuf);
+    };
+    struct VertexBufferBindingTex : VertexBufferBinding<TexShaderVert>
+    {
+        void init(boo::IGraphicsDataFactory::Context& ctx,
+                  ViewResources& res, size_t count,
+                  const UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
+                  boo::ITexture* texture);
+    };
+
 private:
     RootView& m_rootView;
     View& m_parentView;
     boo::SWindowRect m_subRect;
-    VertexBufferBinding m_bgVertsBinding;
+    VertexBufferBindingSolid m_bgVertsBinding;
     SolidShaderVert m_bgRect[4];
     boo::GraphicsDataToken m_gfxData;
 
@@ -152,11 +184,22 @@ protected:
     "    float4x4 mv;\n"\
     "    float4 mulColor;\n"\
     "};\n"
-    boo::IGraphicsBufferD* m_viewVertBlockBuf = nullptr;
+    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
 
 public:
     struct Resources
     {
+        UniformBufferPool<ViewBlock> m_bufPool;
+        VertexBufferPool<SolidShaderVert> m_solidPool;
+        VertexBufferPool<TexShaderVert> m_texPool;
+
+        void updateBuffers()
+        {
+            m_bufPool.updateBuffers();
+            m_solidPool.updateBuffers();
+            m_texPool.updateBuffers();
+        }
+
         boo::IShaderPipeline* m_solidShader = nullptr;
         boo::IVertexFormat* m_solidVtxFmt = nullptr; /* Not OpenGL */
 
@@ -198,14 +241,14 @@ public:
     {
         for (int i=0 ; i<4 ; ++i)
             m_bgRect[i].m_color = color;
-        m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
+        m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
     }
 
     virtual void setMultiplyColor(const zeus::CColor& color)
     {
         m_viewVertBlock.m_color = color;
         if (m_viewVertBlockBuf)
-            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+            m_viewVertBlockBuf->access() = m_viewVertBlock;
     }
 
     virtual int nominalWidth() const {return 0;}

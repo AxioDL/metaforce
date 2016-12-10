@@ -22,15 +22,33 @@ public:
         Center,
         Right
     };
+    struct RenderGlyph
+    {
+        zeus::CVector3f m_pos[4];
+        zeus::CMatrix4f m_mv;
+        zeus::CVector3f m_uv[4];
+        zeus::CColor m_color;
+
+        RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const zeus::CColor& defaultColor);
+    };
+    struct RenderGlyphInfo
+    {
+        uint32_t m_char;
+        std::pair<int,int> m_dims;
+        int m_adv;
+        bool m_space = false;
+
+        RenderGlyphInfo(uint32_t ch, int width, int height, int adv)
+        : m_char(ch), m_dims(width, height), m_adv(adv), m_space(iswspace(ch) != 0) {}
+    };
 
 private:
     size_t m_capacity;
-    boo::IGraphicsBufferD* m_glyphBuf;
+    std::experimental::optional<VertexBufferPool<RenderGlyph>::Token> m_glyphBuf;
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding;
     const FontAtlas& m_fontAtlas;
     Alignment m_align;
-    bool m_valid = false;
     int m_width = 0;
 
     friend class MultiLineTextView;
@@ -42,6 +60,14 @@ public:
         friend class ViewResources;
         friend class TextView;
         friend class MultiLineTextView;
+
+        VertexBufferPool<RenderGlyph> m_glyphPool;
+
+        void updateBuffers()
+        {
+            m_glyphPool.updateBuffers();
+        }
+
         FontCache* m_fcache = nullptr;
         boo::IShaderPipeline* m_regular = nullptr;
         boo::IShaderPipeline* m_subpixel = nullptr;
@@ -62,33 +88,14 @@ public:
     TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align=Alignment::Left, size_t capacity=256);
     TextView(ViewResources& res, View& parentView, FontTag font, Alignment align=Alignment::Left, size_t capacity=256);
 
-    struct RenderGlyph
-    {
-        zeus::CVector3f m_pos[4];
-        zeus::CMatrix4f m_mv;
-        zeus::CVector3f m_uv[4];
-        zeus::CColor m_color;
-
-        RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const zeus::CColor& defaultColor);
-    };
-    struct RenderGlyphInfo
-    {
-        uint32_t m_char;
-        std::pair<int,int> m_dims;
-        int m_adv;
-        bool m_space = false;
-
-        RenderGlyphInfo(uint32_t ch, int width, int height, int adv)
-        : m_char(ch), m_dims(width, height), m_adv(adv), m_space(iswspace(ch) != 0) {}
-    };
     std::vector<RenderGlyph>& accessGlyphs() {return m_glyphs;}
     const std::vector<RenderGlyph>& accessGlyphs() const {return m_glyphs;}
-    void updateGlyphs() {m_valid = false;}
 
     void typesetGlyphs(const std::string& str,
                        const zeus::CColor& defaultColor=zeus::CColor::skWhite);
     void typesetGlyphs(const std::wstring& str,
                        const zeus::CColor& defaultColor=zeus::CColor::skWhite);
+    void invalidateGlyphs();
 
     void colorGlyphs(const zeus::CColor& newColor);
     void colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterval=0.2, float fadeTime=0.5);

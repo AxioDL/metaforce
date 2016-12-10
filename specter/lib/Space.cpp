@@ -40,7 +40,7 @@ Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CCol
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertexBinding.initSolid(ctx, res, 34, m_viewVertBlockBuf);
+        m_vertexBinding.init(ctx, res, 34, *m_viewVertBlockBuf);
         return true;
     });
     float pf = res.pixelFactor();
@@ -113,7 +113,7 @@ Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CCol
     verts[33].m_pos.assign((TRIANGLE_DIM5 + 1) * pf, 0, 0);
     verts[33].m_color = edgeColor2;
 
-    m_vertexBinding.load(verts, sizeof(verts));
+    m_vertexBinding.load<decltype(verts)>(verts);
 }
 
 View* Space::setContentView(View* view)

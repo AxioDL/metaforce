@@ -22,7 +22,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, maxColumns * 6, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, maxColumns * 6, *m_viewVertBlockBuf);
         return true;
     });
     m_scroll.m_view->setContentView(&m_rowsView);
@@ -36,7 +36,7 @@ Table::RowsView::RowsView(Table& t, ViewResources& res)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, *m_viewVertBlockBuf);
         return true;
     });
 }
@@ -120,7 +120,7 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub)
     }
 
     if (c)
-        m_vertsBinding.load(m_hVerts.get(), sizeof(SolidShaderVert) * 6 * c);
+        m_vertsBinding.load(m_hVerts.get(), 6 * c);
 
     m_headerNeedsUpdate = false;
 }
@@ -178,7 +178,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
     m_visibleStart = std::max(0, startIdx);
     m_visibleRows = r;
     if (r * c)
-        m_vertsBinding.load(m_verts.get(), sizeof(SolidShaderVert) * 6 * r * c);
+        m_vertsBinding.load(m_verts.get(), 6 * r * c);
 }
 
 void Table::cycleSortColumn(size_t c)

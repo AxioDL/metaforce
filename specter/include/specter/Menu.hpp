@@ -19,7 +19,7 @@ class Menu : public View
     int m_cWidth, m_cHeight, m_cTop;
 
     SolidShaderVert m_verts[8];
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
     void setVerts(int width, int height, float pf);
 
     struct ContentView : View
@@ -29,7 +29,7 @@ class Menu : public View
 
         boo::SWindowRect m_scissorRect;
         SolidShaderVert m_hlVerts[4];
-        VertexBufferBinding m_hlVertsBinding;
+        VertexBufferBindingSolid m_hlVertsBinding;
 
         size_t m_highlightedItem = -1;
         void setHighlightedItem(size_t idx);

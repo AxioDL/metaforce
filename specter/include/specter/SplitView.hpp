@@ -43,7 +43,7 @@ private:
 
     ViewChild<View*> m_views[2];
     ViewBlock m_splitBlock;
-    boo::IGraphicsBufferD* m_splitBlockBuf;
+    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_splitBlockBuf;
     TexShaderVert m_splitVerts[4];
 
     int m_clearanceA, m_clearanceB;
@@ -72,7 +72,7 @@ private:
         m_splitVerts[3].m_uv.assign(1, 0);
     }
 
-    VertexBufferBinding m_splitVertsBinding;
+    VertexBufferBindingTex m_splitVertsBinding;
 
 public:
     SplitView(ViewResources& res, View& parentView, ISplitSpaceController* controller,
@@ -104,7 +104,7 @@ public:
     {
         View::setMultiplyColor(color);
         m_splitBlock.m_color = color;
-        m_splitBlockBuf->load(&m_splitBlock, sizeof(m_splitBlock));
+        m_splitBlockBuf->access() = m_splitBlock;
 
         if (m_views[0].m_view)
             m_views[0].m_view->setMultiplyColor(color);

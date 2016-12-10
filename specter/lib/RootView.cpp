@@ -26,8 +26,9 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFacto
 : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
   m_splitActionNode(*this), m_joinActionNode(*this)
 {
-    m_viewVertBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(View::ViewBlock), 1);
-    m_vertsBinding.initSolid(ctx, *rv.m_viewRes, 32, m_viewVertBlockBuf);
+    ViewResources& res = *rv.m_viewRes;
+    m_viewVertBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
+    m_vertsBinding.init(ctx, res, 32, *m_viewVertBlockBuf);
 
     zeus::CColor col = {0.0,0.0,0.0,0.5};
     for (int i=0 ; i<32 ; ++i)
@@ -71,7 +72,7 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFacto
     m_verts[30].m_pos.assign(1.0, 1.0, 0);
     m_verts[31].m_pos.assign(1.0, -1.0, 0);
 
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 }
 
 RootView::SplitMenuSystem::SplitActionNode::SplitActionNode(SplitMenuSystem& smn)
@@ -105,7 +106,7 @@ void RootView::SplitMenuSystem::setArrowVerts(const boo::SWindowRect& rect, Spli
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + (dir == SplitView::ArrowDir::Down ? rect.size[1] : 0)) /
                                  float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf->load(&m_viewBlock, sizeof(m_viewBlock));
+    m_viewVertBlockBuf->access() = m_viewBlock;
 }
 
 void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis)
@@ -129,7 +130,7 @@ void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float
         m_viewBlock.m_mv[3][0] = (rect.location[0] + split * rect.size[0]) * m_viewBlock.m_mv[0][0] - 1.0f;
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + rect.size[1] / 2.0f) / float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf->load(&m_viewBlock, sizeof(m_viewBlock));
+    m_viewVertBlockBuf->access() = m_viewBlock;
 }
 
 void RootView::destroyed()
@@ -621,6 +622,7 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_resizeRTDirty = false;
         gfxQ->schedulePostFrameHandler([&](){m_events.m_resizeCv.notify_one();});
     }
+    m_viewRes->updateBuffers();
     gfxQ->setRenderTarget(m_renderTex);
     gfxQ->setViewport(m_rootRect);
     gfxQ->setScissor(m_rootRect);

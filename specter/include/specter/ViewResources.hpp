@@ -193,6 +193,12 @@ public:
         m_resData.doDestroy();
     }
 
+    void updateBuffers()
+    {
+        m_viewRes.updateBuffers();
+        m_textRes.updateBuffers();
+    }
+
     ~ViewResources()
     {
         if (m_fcacheThread.joinable())

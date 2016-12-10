@@ -28,8 +28,8 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_splitBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-        m_splitVertsBinding.initTex(ctx, res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
+        m_splitBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
+        m_splitVertsBinding.init(ctx, res, 4, *m_splitBlockBuf, res.m_splitRes.m_shadingTex);
         return true;
     });
 }
@@ -476,8 +476,8 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }
-    m_splitBlockBuf->load(&m_splitBlock, sizeof(ViewBlock));
-    m_splitVertsBinding.load(m_splitVerts, sizeof(m_splitVerts));
+    m_splitBlockBuf->access() = m_splitBlock;
+    m_splitVertsBinding.load<decltype(m_splitVerts)>(m_splitVerts);
 }
 
 void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -489,7 +489,6 @@ void SplitView::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_views[1].m_view->draw(gfxQ);
     gfxQ->setShaderDataBinding(m_splitVertsBinding);
     gfxQ->draw(0, 4);
-
 }
 
 }

@@ -27,7 +27,12 @@ private:
     std::unique_ptr<IconView> m_icon;
 
     SolidShaderVert m_verts[40];
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
+
+    void _loadVerts()
+    {
+        m_vertsBinding.load<decltype(m_verts)>(m_verts);
+    }
 
     RectangleConstraint m_constraint;
     int m_nomWidth, m_nomHeight;
@@ -117,7 +122,7 @@ public:
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;
         if (m_viewVertBlockBuf)
-            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+            m_viewVertBlockBuf->access() = m_viewVertBlock;
         m_text->setMultiplyColor(color);
         if (m_icon)
             m_icon->setMultiplyColor(color);

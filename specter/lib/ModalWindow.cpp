@@ -295,8 +295,8 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView,
     m_windowGfxData = res.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_viewBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-        m_vertsBinding.initSolid(ctx, res, 38, m_viewBlockBuf);
+        m_viewBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
+        m_vertsBinding.init(ctx, res, 38, *m_viewBlockBuf);
         return true;
     });
 
@@ -317,7 +317,7 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView,
     setLineColors(0.0);
     setFillColors(0.0);
 
-    m_vertsBinding.load(&m_verts, sizeof(m_verts));
+    _loadVerts();
 }
 
 static float CubicEase(float t)
@@ -372,7 +372,7 @@ void ModalWindow::think()
         if (doneCount == 3)
             m_phase = Phase::Showing;
         if (loadVerts)
-            m_vertsBinding.load(&m_verts, sizeof(m_verts));
+            _loadVerts();
         ++m_frame;
         break;
     }
@@ -407,7 +407,7 @@ void ModalWindow::think()
             tt = zeus::clamp(0.f, tt, 1.f);
             updateContentOpacity(tt);
         }
-        m_vertsBinding.load(&m_verts, sizeof(m_verts));
+        _loadVerts();
         ++m_frame;
         break;
     }
@@ -427,7 +427,7 @@ bool ModalWindow::skipBuildInAnimation()
     setLineVerts(m_width, m_height, pf, 1.0);
     setLineColors(2.0);
     setFillColors(2.0);
-    m_vertsBinding.load(&m_verts, sizeof(m_verts));
+    _loadVerts();
     m_phase = Phase::ResWait;
     return true;
 }
@@ -453,11 +453,11 @@ void ModalWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
     centerRect.location[1] = root.size[1] / 2 - m_height / 2.0;
     View::resized(root, centerRect);
     m_viewBlock.setViewRect(root, centerRect);
-    m_viewBlockBuf->load(&m_viewBlock, sizeof(m_viewBlock));
+    m_viewBlockBuf->access() = m_viewBlock;
 
     setLineVerts(m_width, m_height, pf, m_lineTime);
     setFillVerts(m_width, m_height, pf);
-    m_vertsBinding.load(&m_verts, sizeof(m_verts));
+    _loadVerts();
 
     boo::SWindowRect cornerRect = centerRect;
     cornerRect.size[0] = cornerRect.size[1] = 8 * pf;

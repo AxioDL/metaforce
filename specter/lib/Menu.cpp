@@ -14,7 +14,7 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, 8, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 8, *m_viewVertBlockBuf);
         return true;
     });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
@@ -32,7 +32,7 @@ void Menu::reset(IMenuNode* rootNode)
 
     for (int i=0 ; i<8 ; ++i)
         m_verts[i].m_color = res.themeData().tooltipBackground();
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     m_subMenu.reset();
 
@@ -75,7 +75,7 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode*
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, 8, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 8, *m_viewVertBlockBuf);
         return true;
     });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
@@ -90,7 +90,7 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_hlVertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
+        m_hlVertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
         return true;
     });
 
@@ -124,7 +124,7 @@ void Menu::setVerts(int width, int height, float pf)
     m_verts[6].m_pos.assign(width, height, 0);
     m_verts[7].m_pos.assign(width, height-m_cTop+pf, 0);
 
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 }
 
 void Menu::ContentView::setHighlightedItem(size_t idx)
@@ -152,7 +152,7 @@ void Menu::ContentView::setHighlightedItem(size_t idx)
     m_hlVerts[2].m_pos.assign(itemRect.size[0], y+itemRect.size[1], 0);
     m_hlVerts[3].m_pos.assign(itemRect.size[0], y, 0);
 
-    m_hlVertsBinding.load(m_hlVerts, sizeof(m_hlVerts));
+    m_hlVertsBinding.load<decltype(m_hlVerts)>(m_hlVerts);
 }
 
 void Menu::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod)

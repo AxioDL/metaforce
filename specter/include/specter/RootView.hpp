@@ -54,9 +54,9 @@ class RootView : public View
         float m_interactiveSplit = 0.5;
         bool m_interactiveDown = false;
 
-        VertexBufferBinding m_vertsBinding;
+        VertexBufferBindingSolid m_vertsBinding;
         ViewBlock m_viewBlock;
-        boo::IGraphicsBufferD* m_viewVertBlockBuf;
+        std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
         SolidShaderVert m_verts[32];
         void setArrowVerts(const boo::SWindowRect& rect, SplitView::ArrowDir dir);
         void setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis);

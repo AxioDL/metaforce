@@ -13,7 +13,7 @@ ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
         return true;
     });
 
@@ -277,7 +277,7 @@ void ScrollView::resized(const boo::SWindowRect& root, const boo::SWindowRect& s
                 const zeus::CColor& color = rootView().themeData().scrollIndicator();
                 for (int i=0 ; i<4 ; ++i)
                     m_verts[i].m_color = color;
-                m_vertsBinding.load(m_verts, sizeof(m_verts));
+                m_vertsBinding.load<decltype(m_verts)>(m_verts);
             }
         }
         else if (m_style == Style::SideButtons && m_drawSideButtons)

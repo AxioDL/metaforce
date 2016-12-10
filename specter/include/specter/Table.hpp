@@ -84,7 +84,7 @@ class Table : public View
     size_t m_hDraggingIdx = 0;
 
     std::unique_ptr<SolidShaderVert[]> m_hVerts;
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
     void _setHeaderVerts(const boo::SWindowRect& rect);
 
     std::vector<boo::SWindowRect> getCellRects(const boo::SWindowRect& tableRect) const;
@@ -96,7 +96,7 @@ class Table : public View
         Table& m_t;
 
         std::unique_ptr<SolidShaderVert[]> m_verts;
-        VertexBufferBinding m_vertsBinding;
+        VertexBufferBindingSolid m_vertsBinding;
         size_t m_visibleStart = 0;
         size_t m_visibleRows = 0;
         boo::SWindowRect m_scissorRect;

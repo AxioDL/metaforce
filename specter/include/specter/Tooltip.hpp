@@ -10,14 +10,14 @@ namespace specter
 class Tooltip : public View
 {
     ViewBlock m_ttBlock;
-    boo::IGraphicsBufferD* m_ttBlockBuf;
+    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_ttBlockBuf;
     SolidShaderVert m_ttVerts[16];
     int m_nomWidth = 25;
     int m_nomHeight = 25;
 
     void setVerts(int width, int height, float pf);
 
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
 
     std::string m_titleStr;
     std::unique_ptr<TextView> m_title;

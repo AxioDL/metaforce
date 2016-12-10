@@ -37,7 +37,7 @@ class Space : public View
     struct CornerView : View
     {
         Space& m_space;
-        VertexBufferBinding m_vertexBinding;
+        VertexBufferBindingSolid m_vertexBinding;
         bool m_flip;
         CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor);
         void mouseEnter(const boo::SWindowCoord&);

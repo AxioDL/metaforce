@@ -25,7 +25,7 @@ Button::Button(ViewResources& res, View& parentView,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, 40, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 40, *m_viewVertBlockBuf);
         return true;
     });
 
@@ -59,7 +59,7 @@ Button::Button(ViewResources& res, View& parentView,
     }
     for (int i=28 ; i<31 ; ++i)
         m_verts[i].m_color = m_textColor;
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    _loadVerts();
 
     if (controlBinding)
         m_menuStyle = controlBinding->menuStyle(this);
@@ -156,7 +156,7 @@ void Button::setText(const std::string& text, const zeus::CColor& textColor)
         m_verts[37].m_pos.assign(m_textIconWidth+1, height+1, 0);
         m_verts[38].m_pos.assign(m_textIconWidth+1, 1, 0);
 
-        m_vertsBinding.load(m_verts, sizeof(m_verts));
+        _loadVerts();
     }
     else
     {
@@ -191,7 +191,7 @@ void Button::setText(const std::string& text, const zeus::CColor& textColor)
         m_verts[33].m_pos.assign(arrowX + arrowLineWidth, -1*pf, 0);
         m_verts[34].m_pos.assign(arrowX + arrowLineWidth, -2*pf, 0);
 
-        m_vertsBinding.load(m_verts, sizeof(m_verts));
+        _loadVerts();
     }
 
     m_nomWidth = width;
@@ -214,7 +214,7 @@ void Button::colorGlyphs(const zeus::CColor& newColor)
     m_text->colorGlyphs(newColor);
     for (int i=28 ; i<31 ; ++i)
         m_verts[i].m_color = newColor;
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    _loadVerts();
 }
 
 void Button::ButtonTarget::setInactive()
@@ -228,13 +228,13 @@ void Button::ButtonTarget::setInactive()
         m_button.m_verts[2].m_color = c1;
         m_button.m_verts[3].m_color = c2;
         m_button.m_verts[4].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_button.m_verts[i].m_color = zeus::CColor::skClear;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
         m_button.m_text->colorGlyphs(m_button.m_textColor);
     }
 }
@@ -249,7 +249,7 @@ void Button::MenuTarget::setInactive()
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
         m_button.m_verts[34].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
@@ -257,7 +257,7 @@ void Button::MenuTarget::setInactive()
             m_button.m_verts[i].m_color = m_button.m_textColor;
         for (int i=31 ; i<35 ; ++i)
             m_button.m_verts[i].m_color = zeus::CColor::skClear;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
 }
 
@@ -272,13 +272,13 @@ void Button::ButtonTarget::setHover()
         m_button.m_verts[2].m_color = c1;
         m_button.m_verts[3].m_color = c2;
         m_button.m_verts[4].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_button.m_verts[i].m_color = m_button.m_textColor;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
         m_button.m_text->colorGlyphs(m_button.m_textColor);
     }
 }
@@ -293,7 +293,7 @@ void Button::MenuTarget::setHover()
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
         m_button.m_verts[34].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
@@ -301,7 +301,7 @@ void Button::MenuTarget::setHover()
             m_button.m_verts[i].m_color = m_button.m_textColor;
         for (int i=31 ; i<35 ; ++i)
             m_button.m_verts[i].m_color = m_button.m_textColor;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
 }
 
@@ -316,13 +316,13 @@ void Button::ButtonTarget::setPressed()
         m_button.m_verts[2].m_color = c1;
         m_button.m_verts[3].m_color = c2;
         m_button.m_verts[4].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_button.m_verts[i].m_color = m_button.m_textColor;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
         m_button.m_text->colorGlyphs(m_button.m_textColor);
     }
 }
@@ -337,7 +337,7 @@ void Button::MenuTarget::setPressed()
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
         m_button.m_verts[34].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
@@ -345,7 +345,7 @@ void Button::MenuTarget::setPressed()
             m_button.m_verts[i].m_color = m_button.m_textColor;
         for (int i=31 ; i<35 ; ++i)
             m_button.m_verts[i].m_color = m_button.m_textColor;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
 }
 
@@ -360,13 +360,13 @@ void Button::ButtonTarget::setDisabled()
         m_button.m_verts[2].m_color = c1;
         m_button.m_verts[3].m_color = c2;
         m_button.m_verts[4].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
         for (int i=0 ; i<4 ; ++i)
             m_button.m_verts[i].m_color = zeus::CColor::skClear;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
         zeus::CColor dimText = m_button.m_textColor;
         dimText[3] *= 0.5;
         m_button.m_text->colorGlyphs(dimText);
@@ -383,7 +383,7 @@ void Button::MenuTarget::setDisabled()
         m_button.m_verts[32].m_color = c2;
         m_button.m_verts[33].m_color = c1;
         m_button.m_verts[34].m_color = c2;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
     else
     {
@@ -393,7 +393,7 @@ void Button::MenuTarget::setDisabled()
             m_button.m_verts[i].m_color = dimText;
         for (int i=31 ; i<35 ; ++i)
             m_button.m_verts[i].m_color = zeus::CColor::skClear;
-        m_button.m_vertsBinding.load(m_button.m_verts, sizeof(m_button.m_verts));
+        m_button._loadVerts();
     }
 }
 

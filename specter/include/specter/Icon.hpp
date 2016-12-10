@@ -55,7 +55,7 @@ public:
 
 class IconView : public View
 {
-    VertexBufferBinding m_vertexBinding;
+    VertexBufferBindingTex m_vertexBinding;
 public:
     IconView(ViewResources& res, View& parentView, Icon& icon);
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);

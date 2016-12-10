@@ -19,7 +19,7 @@ class TextField : public ITextInputView
     std::unique_ptr<TextView> m_errText;
 
     SolidShaderVert m_verts[41];
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
 
     int m_nomWidth = 0;
     int m_nomHeight = 0;
@@ -118,7 +118,7 @@ public:
         View::setMultiplyColor(color);
         m_viewVertBlock.m_color = color;
         if (m_viewVertBlockBuf)
-            m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
+            m_viewVertBlockBuf->access() = m_viewVertBlock;
         m_text->setMultiplyColor(color);
         if (m_errText)
             m_errText->setMultiplyColor(color);

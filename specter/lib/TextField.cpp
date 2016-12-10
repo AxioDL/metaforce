@@ -11,14 +11,14 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.initSolid(ctx, res, 41, m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 41, *m_viewVertBlockBuf);
         return true;
     });
 
     for (int i=28 ; i<32 ; ++i)
         m_verts[i].m_color = res.themeData().textfieldSelection();
     setInactive();
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
     if (strBind)
@@ -90,7 +90,7 @@ void TextField::_setMarkedText()
         size_t defLen = UTF8Iterator(m_deferredMarkStr.cbegin()).countTo(m_deferredMarkStr.cend());
         for (auto it=glyphs.begin()+repPoint ; it<glyphs.begin()+repPoint+defLen ; ++it)
             it->m_color = rootView().themeData().fieldMarkedText();
-        m_text->updateGlyphs();
+        m_text->invalidateGlyphs();
 
         m_hasMarkSet = false;
 
@@ -131,7 +131,7 @@ void TextField::setInactive()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Inactive();
     }
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
     m_bgState = BGState::Inactive;
 }
 
@@ -158,7 +158,7 @@ void TextField::setHover()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Inactive();
     }
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
     m_bgState = BGState::Hover;
 }
 
@@ -185,7 +185,7 @@ void TextField::setDisabled()
         for (int i=5 ; i<28 ; ++i)
             m_verts[i].m_color = theme.textfield2Disabled();
     }
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
     m_bgState = BGState::Disabled;
 }
 
@@ -605,7 +605,7 @@ void TextField::think()
         }
         for (size_t i=32 ; i<41 ; ++i)
             m_verts[i].m_color = errBg;
-        m_vertsBinding.load(m_verts, sizeof(m_verts));
+        m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
         m_errText->setMultiplyColor(errMult);
     }
@@ -648,7 +648,7 @@ void TextField::_reallySetCursorPos(size_t pos)
     m_verts[30].m_color = selColor;
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -723,13 +723,13 @@ void TextField::_reallySetSelectionRange(size_t start, size_t len)
         else
             glyphs[i].m_color = deselColor;
     }
-    m_text->updateGlyphs();
+    m_text->invalidateGlyphs();
 
     m_verts[28].m_pos.assign(offset1, 18 * pf, 0);
     m_verts[29].m_pos.assign(offset1, 4 * pf, 0);
     m_verts[30].m_pos.assign(offset2, 18 * pf, 0);
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -754,7 +754,7 @@ void TextField::_reallySetMarkRange(size_t start, size_t len)
     m_verts[30].m_color = selColor;
     m_verts[31].m_pos.assign(offset2, 4 * pf, 0);
     m_verts[31].m_color = selColor;
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     int focusRect[2] = {subRect().location[0] + offset1, subRect().location[1]};
     rootView().window()->claimKeyboardFocus(focusRect);
@@ -803,7 +803,7 @@ void TextField::_clearSelectionRange()
         std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
         for (size_t i=0 ; i<glyphs.size() ; ++i)
             glyphs[i].m_color = deselColor;
-        m_text->updateGlyphs();
+        m_text->invalidateGlyphs();
 
         m_hasSelectionClear = false;
     }
@@ -884,7 +884,7 @@ void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
             m_verts[i].m_color = zeus::CColor::skClear;
     }
 
-    m_vertsBinding.load(m_verts, sizeof(m_verts));
+    m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
     m_nomWidth = width;
     m_nomHeight = height;

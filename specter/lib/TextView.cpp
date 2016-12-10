@@ -304,13 +304,16 @@ TextView::TextView(ViewResources& res,
   m_fontAtlas(font),
   m_align(align)
 {
+    if (VertexBufferPool<RenderGlyph>::bucketCapacity() < capacity)
+        Log.report(logvisor::Fatal, "bucket overflow [%" PRISize "/%" PRISize "]",
+                   capacity, VertexBufferPool<RenderGlyph>::bucketCapacity());
+
     m_glyphs.reserve(capacity);
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
 
-        m_glyphBuf =
-        ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(RenderGlyph), capacity);
+        m_glyphBuf.emplace(res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity));
 
         boo::IShaderPipeline* shader;
         if (font.subpixel())
@@ -318,38 +321,43 @@ TextView::TextView(ViewResources& res,
         else
             shader = res.m_textRes.m_regular;
 
+        auto vBufInfo = m_glyphBuf->getBufferInfo();
+        auto uBufInfo = m_viewVertBlockBuf->getBufferInfo();
+        boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
+        size_t uBufOffs[] = {uBufInfo.second};
+        size_t uBufSizes[] = {sizeof(ViewBlock)};
+        boo::ITexture* texs[] = {m_fontAtlas.texture()};
+
         if (!res.m_textRes.m_vtxFmt)
         {
             boo::VertexElementDescriptor vdescs[] =
             {
-                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                {m_glyphBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                {vBufInfo.first, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
             };
-            m_vtxFmt = ctx.newVertexFormat(13, vdescs);
-            boo::ITexture* texs[] = {m_fontAtlas.texture()};
+            m_vtxFmt = ctx.newVertexFormat(13, vdescs, 0, vBufInfo.second);
             m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
-                                                       nullptr, m_glyphBuf, nullptr, 1,
-                                                       (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                       nullptr, 1, texs);
+                                                       nullptr, vBufInfo.first, nullptr, 1,
+                                                       uBufs, nullptr, uBufOffs, uBufSizes,
+                                                       1, texs, 0, vBufInfo.second);
         }
         else
         {
-            boo::ITexture* texs[] = {m_fontAtlas.texture()};
             m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
-                                                       nullptr, m_glyphBuf, nullptr, 1,
-                                                       (boo::IGraphicsBuffer**)&m_viewVertBlockBuf,
-                                                       nullptr, 1, texs);
+                                                       nullptr, vBufInfo.first, nullptr, 1,
+                                                       uBufs, nullptr, uBufOffs, uBufSizes,
+                                                       1, texs, 0, vBufInfo.second);
         }
         return true;
     });
@@ -453,7 +461,7 @@ void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& default
     }
 
     m_width = adv;
-    m_valid = false;
+    invalidateGlyphs();
     updateSize();
 }
 
@@ -510,7 +518,7 @@ void TextView::typesetGlyphs(const std::wstring& str, const zeus::CColor& defaul
     }
 
     m_width = adv;
-    m_valid = false;
+    invalidateGlyphs();
     updateSize();
 }
 
@@ -518,11 +526,21 @@ void TextView::colorGlyphs(const zeus::CColor& newColor)
 {
     for (RenderGlyph& glyph : m_glyphs)
         glyph.m_color = newColor;
-    m_valid = false;
+    invalidateGlyphs();
 }
+
 void TextView::colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterval, float fadeTime)
 {
 }
+
+void TextView::invalidateGlyphs()
+{
+    RenderGlyph* out = m_glyphBuf->access();
+    size_t i = 0;
+    for (RenderGlyph& glyph : m_glyphs)
+        out[i++] = glyph;
+}
+
 void TextView::think()
 {
 }
@@ -537,11 +555,6 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ)
     View::draw(gfxQ);
     if (m_glyphs.size())
     {
-        if (!m_valid)
-        {
-            m_glyphBuf->load(m_glyphs.data(), m_glyphs.size() * sizeof(RenderGlyph));
-            m_valid = true;
-        }
         gfxQ->setShaderDataBinding(m_shaderBinding);
         gfxQ->drawInstances(0, 4, m_glyphs.size());
     }

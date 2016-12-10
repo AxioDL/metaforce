@@ -36,12 +36,16 @@ private:
     zeus::CColor m_line2Clear;
 
     ViewBlock m_viewBlock;
-    boo::IGraphicsBufferD* m_viewBlockBuf;
-    struct
+    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_viewBlockBuf;
+    union
     {
-        SolidShaderVert lineVerts[22];
-        SolidShaderVert fillVerts[16];
-    } m_verts;
+        struct
+        {
+            SolidShaderVert lineVerts[22];
+            SolidShaderVert fillVerts[16];
+        } m_verts;
+        SolidShaderVert _m_verts[38];
+    };
 
     void setLineVerts(int width, int height, float pf, float t);
     void setLineVertsOut(int width, int height, float pf, float t);
@@ -50,7 +54,11 @@ private:
     void setFillVerts(int width, int height, float pf);
     void setFillColors(float t);
 
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
+    void _loadVerts()
+    {
+        m_vertsBinding.load<decltype(_m_verts)>(_m_verts);
+    }
 
     boo::GraphicsDataToken m_windowGfxData;
 

@@ -322,9 +322,8 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
 
 void View::buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res)
 {
-    m_viewVertBlockBuf =
-    ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-    m_bgVertsBinding.initSolid(ctx, res, 4, m_viewVertBlockBuf);
+    m_viewVertBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
+    m_bgVertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
 }
 
 View::View(ViewResources& res)
@@ -349,8 +348,8 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf->load(&m_viewVertBlock, sizeof(ViewBlock));
-    m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
+        m_viewVertBlockBuf->access() = m_viewVertBlock;
+    m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 
 void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
@@ -361,8 +360,8 @@ void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf->load(&vb, sizeof(ViewBlock));
-    m_bgVertsBinding.load(m_bgRect, sizeof(m_bgRect));
+        m_viewVertBlockBuf->access() = vb;
+    m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 
 void View::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -381,64 +380,76 @@ void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& com
     m_gfxData = res.m_factory->commitTransaction(commitFunc);
 }
 
-void View::VertexBufferBinding::initSolid(boo::IGraphicsDataFactory::Context& ctx,
+
+void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,
                                           ViewResources& res, size_t count,
-                                          boo::IGraphicsBuffer* viewBlockBuf)
+                                          const UniformBufferPool<ViewBlock>::Token& viewBlockBuf)
 {
-    m_vertsBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SolidShaderVert), count);
+    m_vertsBuf.emplace(res.m_viewRes.m_solidPool.allocateBlock(res.m_factory, count));
+    auto vBufInfo = m_vertsBuf->getBufferInfo();
+    auto uBufInfo = viewBlockBuf.getBufferInfo();
+
+    boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
+    size_t bufOffs[] = {uBufInfo.second};
+    size_t bufSizes[] = {sizeof(ViewBlock)};
 
     if (!res.m_viewRes.m_solidVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Color}
+            {vBufInfo.first, nullptr, boo::VertexSemantic::Position4},
+            {vBufInfo.first, nullptr, boo::VertexSemantic::Color}
         };
-        m_vtxFmt = ctx.newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
+        m_vtxFmt = ctx.newVertexFormat(2, vdescs, vBufInfo.second);
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                   m_vtxFmt, m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, nullptr, 0, nullptr);
+                                                   m_vtxFmt, vBufInfo.first, nullptr,
+                                                   nullptr, 1, bufs, nullptr, bufOffs,
+                                                   bufSizes, 0, nullptr, vBufInfo.second);
     }
     else
     {
-        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                    res.m_viewRes.m_solidVtxFmt,
-                                                   m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, nullptr, 0, nullptr);
+                                                   vBufInfo.first, nullptr,
+                                                   nullptr, 1, bufs, nullptr, bufOffs,
+                                                   bufSizes, 0, nullptr, vBufInfo.second);
     }
 }
 
-void View::VertexBufferBinding::initTex(boo::IGraphicsDataFactory::Context& ctx,
+void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
                                         ViewResources& res, size_t count,
-                                        boo::IGraphicsBuffer* viewBlockBuf,
+                                        const UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
                                         boo::ITexture* texture)
 {
-    m_vertsBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), count);
+    m_vertsBuf.emplace(res.m_viewRes.m_texPool.allocateBlock(res.m_factory, count));
+    auto vBufInfo = m_vertsBuf->getBufferInfo();
+    auto uBufInfo = viewBlockBuf.getBufferInfo();
+
+    boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
+    size_t bufOffs[] = {uBufInfo.second};
+    size_t bufSizes[] = {sizeof(ViewBlock)};
+    boo::ITexture* tex[] = {texture};
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
-            {m_vertsBuf, nullptr, boo::VertexSemantic::Position4},
-            {m_vertsBuf, nullptr, boo::VertexSemantic::UV4}
+            {vBufInfo.first, nullptr, boo::VertexSemantic::Position4},
+            {vBufInfo.first, nullptr, boo::VertexSemantic::UV4}
         };
-        m_vtxFmt = ctx.newVertexFormat(2, vdescs);
-        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
-        boo::ITexture* tex[] = {texture};
+        m_vtxFmt = ctx.newVertexFormat(2, vdescs, vBufInfo.second);
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                   m_vtxFmt, m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, nullptr, 1, tex);
+                                                   m_vtxFmt, vBufInfo.first, nullptr,
+                                                   nullptr, 1, bufs, nullptr, bufOffs,
+                                                   bufSizes, 1, tex, vBufInfo.second);
     }
     else
     {
-        boo::IGraphicsBuffer* bufs[] = {viewBlockBuf};
-        boo::ITexture* tex[] = {texture};
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
                                                    res.m_viewRes.m_texVtxFmt,
-                                                   m_vertsBuf, nullptr,
-                                                   nullptr, 1, bufs, nullptr, 1, tex);
+                                                   vBufInfo.first, nullptr,
+                                                   nullptr, 1, bufs, nullptr, bufOffs,
+                                                   bufSizes, 1, tex, vBufInfo.second);
     }
 }
 

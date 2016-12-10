@@ -32,7 +32,7 @@ private:
     bool m_drawSideButtons = false;
 
     SolidShaderVert m_verts[4];
-    VertexBufferBinding m_vertsBinding;
+    VertexBufferBindingSolid m_vertsBinding;
 
     enum class SideButtonState
     {

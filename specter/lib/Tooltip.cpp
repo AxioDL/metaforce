@@ -18,8 +18,8 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_ttBlockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(ViewBlock), 1);
-        m_vertsBinding.initSolid(ctx, res, 16, m_ttBlockBuf);
+        m_ttBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
+        m_vertsBinding.init(ctx, res, 16, *m_ttBlockBuf);
         return true;
     });
 
@@ -75,7 +75,7 @@ void Tooltip::setVerts(int width, int height, float pf)
     m_ttVerts[14].m_pos.assign(width-margin.first, margin.second, 0);
     m_ttVerts[15].m_pos.assign(width-margin.first, 0, 0);
 
-    m_vertsBinding.load(m_ttVerts, sizeof(m_ttVerts));
+    m_vertsBinding.load<decltype(m_ttVerts)>(m_ttVerts);
 }
 
 void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -84,7 +84,7 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     float pf = rootView().viewRes().pixelFactor();
     setVerts(m_nomWidth, m_nomHeight, pf);
     m_ttBlock.setViewRect(root, sub);
-    m_ttBlockBuf->load(&m_ttBlock, sizeof(ViewBlock));
+    m_ttBlockBuf->access() = m_ttBlock;
 
     std::pair<int,int> margin = m_cornersFilled[0]->queryGlyphDimensions(0);
 
