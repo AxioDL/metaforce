@@ -47,6 +47,8 @@ add_library(hecl-common
             ../include/hecl/Database.hpp
             ../include/hecl/Runtime.hpp
             ../include/hecl/ClientProcess.hpp
+            ../include/hecl/BitVector.hpp
+            ../include/hecl/MathExtras.hpp
             ClientProcess.cpp
             atdna_HMDLMeta.cpp
             atdna_Frontend.cpp
