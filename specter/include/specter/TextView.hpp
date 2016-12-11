@@ -54,6 +54,8 @@ private:
     friend class MultiLineTextView;
     static int DoKern(FT_Pos val, const FontAtlas& atlas);
 
+    void _commitResources(size_t capacity);
+
 public:
     class Resources
     {

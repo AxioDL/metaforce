@@ -221,6 +221,7 @@ public:
 protected:
     View(ViewResources& res, View& parentView);
     void buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res);
+    void _commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc);
     void commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc);
 
 public:

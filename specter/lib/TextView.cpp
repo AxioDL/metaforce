@@ -1,3 +1,4 @@
+#include "specter/RootView.hpp"
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 #include "utf8proc.h"
@@ -296,6 +297,66 @@ void TextView::Resources::init(boo::VulkanDataFactory::Context& ctx, FontCache* 
 
 #endif
 
+void TextView::_commitResources(size_t capacity)
+{
+    auto& res = rootView().viewRes();
+    View::_commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        buildResources(ctx, res);
+
+        if (capacity)
+        {
+            m_glyphBuf.emplace(res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity));
+
+            boo::IShaderPipeline* shader;
+            if (m_fontAtlas.subpixel())
+                shader = res.m_textRes.m_subpixel;
+            else
+                shader = res.m_textRes.m_regular;
+
+            auto vBufInfo = m_glyphBuf->getBufferInfo();
+            auto uBufInfo = m_viewVertBlockBuf->getBufferInfo();
+            boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
+            size_t uBufOffs[] = {size_t(uBufInfo.second)};
+            size_t uBufSizes[] = {sizeof(ViewBlock)};
+            boo::ITexture* texs[] = {m_fontAtlas.texture()};
+
+            if (!res.m_textRes.m_vtxFmt)
+            {
+                boo::VertexElementDescriptor vdescs[] =
+                {
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                };
+                m_vtxFmt = ctx.newVertexFormat(13, vdescs, 0, vBufInfo.second);
+                m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
+                                                           nullptr, vBufInfo.first, nullptr, 1,
+                                                           uBufs, nullptr, uBufOffs, uBufSizes,
+                                                           1, texs, 0, vBufInfo.second);
+            }
+            else
+            {
+                m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
+                                                           nullptr, vBufInfo.first, nullptr, 1,
+                                                           uBufs, nullptr, uBufOffs, uBufSizes,
+                                                           1, texs, 0, vBufInfo.second);
+            }
+        }
+        return true;
+    });
+}
+
 TextView::TextView(ViewResources& res,
                    View& parentView, const FontAtlas& font,
                    Alignment align, size_t capacity)
@@ -308,59 +369,7 @@ TextView::TextView(ViewResources& res,
         Log.report(logvisor::Fatal, "bucket overflow [%" PRISize "/%" PRISize "]",
                    capacity, VertexBufferPool<RenderGlyph>::bucketCapacity());
 
-    m_glyphs.reserve(capacity);
-    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
-    {
-        buildResources(ctx, res);
-
-        m_glyphBuf.emplace(res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity));
-
-        boo::IShaderPipeline* shader;
-        if (font.subpixel())
-            shader = res.m_textRes.m_subpixel;
-        else
-            shader = res.m_textRes.m_regular;
-
-        auto vBufInfo = m_glyphBuf->getBufferInfo();
-        auto uBufInfo = m_viewVertBlockBuf->getBufferInfo();
-        boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
-        size_t uBufOffs[] = {size_t(uBufInfo.second)};
-        size_t uBufSizes[] = {sizeof(ViewBlock)};
-        boo::ITexture* texs[] = {m_fontAtlas.texture()};
-
-        if (!res.m_textRes.m_vtxFmt)
-        {
-            boo::VertexElementDescriptor vdescs[] =
-            {
-                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                {vBufInfo.first, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
-            };
-            m_vtxFmt = ctx.newVertexFormat(13, vdescs, 0, vBufInfo.second);
-            m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
-                                                       nullptr, vBufInfo.first, nullptr, 1,
-                                                       uBufs, nullptr, uBufOffs, uBufSizes,
-                                                       1, texs, 0, vBufInfo.second);
-        }
-        else
-        {
-            m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
-                                                       nullptr, vBufInfo.first, nullptr, 1,
-                                                       uBufs, nullptr, uBufOffs, uBufSizes,
-                                                       1, texs, 0, vBufInfo.second);
-        }
-        return true;
-    });
+    _commitResources(0);
 }
 
 TextView::TextView(ViewResources& res, View& parentView, FontTag font, Alignment align, size_t capacity)
@@ -398,43 +407,44 @@ int TextView::DoKern(FT_Pos val, const FontAtlas& atlas)
 
 void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& defaultColor)
 {
-    size_t rem = str.size();
-    const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
+    UTF8Iterator it(str.begin());
+    size_t charLen = str.size() ? std::min(it.countTo(str.end()), size_t(1024)) : 0;
+    _commitResources(charLen);
+
     uint32_t lCh = -1;
     m_glyphs.clear();
-    m_glyphs.reserve(str.size());
+    m_glyphs.reserve(charLen);
     m_glyphInfo.clear();
-    m_glyphInfo.reserve(str.size());
+    m_glyphInfo.reserve(charLen);
     int adv = 0;
 
-    while (rem)
+    if (charLen)
     {
-        utf8proc_int32_t ch;
-        utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
-        if (sz < 0)
-            Log.report(logvisor::Fatal, "invalid UTF-8 char");
-        if (ch == '\n')
-            break;
-
-        const FontAtlas::Glyph* glyph = m_fontAtlas.lookupGlyph(ch);
-        if (!glyph)
+        for (; it.iter() < str.end() ; ++it)
         {
-            rem -= sz;
-            it += sz;
-            continue;
+            utf8proc_int32_t ch = *it;
+            if (ch == -1)
+            {
+                Log.report(logvisor::Warning, "invalid UTF-8 char");
+                break;
+            }
+            if (ch == '\n' || ch == '\0')
+                break;
+
+            const FontAtlas::Glyph* glyph = m_fontAtlas.lookupGlyph(ch);
+            if (!glyph)
+                continue;
+
+            if (lCh != -1)
+                adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
+            m_glyphs.emplace_back(adv, *glyph, defaultColor);
+            m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);
+
+            lCh = glyph->m_glyphIdx;
+
+            if (m_glyphs.size() == m_capacity)
+                break;
         }
-
-        if (lCh != -1)
-            adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
-        m_glyphs.emplace_back(adv, *glyph, defaultColor);
-        m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);
-
-        lCh = glyph->m_glyphIdx;
-        rem -= sz;
-        it += sz;
-
-        if (m_glyphs.size() == m_capacity)
-            break;
     }
 
     if (m_align == Alignment::Right)
@@ -467,6 +477,8 @@ void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& default
 
 void TextView::typesetGlyphs(const std::wstring& str, const zeus::CColor& defaultColor)
 {
+    _commitResources(str.size());
+
     uint32_t lCh = -1;
     m_glyphs.clear();
     m_glyphs.reserve(str.size());
@@ -535,10 +547,13 @@ void TextView::colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterv
 
 void TextView::invalidateGlyphs()
 {
-    RenderGlyph* out = m_glyphBuf->access();
-    size_t i = 0;
-    for (RenderGlyph& glyph : m_glyphs)
-        out[i++] = glyph;
+    if (m_glyphBuf)
+    {
+        RenderGlyph* out = m_glyphBuf->access();
+        size_t i = 0;
+        for (RenderGlyph& glyph : m_glyphs)
+            out[i++] = glyph;
+    }
 }
 
 void TextView::think()

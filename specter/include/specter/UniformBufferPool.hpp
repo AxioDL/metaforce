@@ -56,20 +56,37 @@ class UniformBufferPool
     {
         boo::IGraphicsBufferD* buffer;
         uint8_t* cpuBuffer = nullptr;
+        size_t useCount = 0;
         bool dirty = false;
+        Bucket() = default;
         Bucket(const Bucket& other) = delete;
         Bucket& operator=(const Bucket& other) = delete;
         Bucket(Bucket&& other) = default;
         Bucket& operator=(Bucket&& other) = default;
-        Bucket(UniformBufferPool& pool)
-        {
-            buffer = pool.m_token.newPoolBuffer(boo::BufferUse::Uniform, pool.m_stride, pool.m_countPerBucket);
-        }
+
         void updateBuffer()
         {
             buffer->unmap();
             cpuBuffer = nullptr;
             dirty = false;
+        }
+
+        void increment(UniformBufferPool& pool)
+        {
+            if (!useCount)
+                buffer = pool.m_token.newPoolBuffer(boo::BufferUse::Uniform,
+                                                    pool.m_stride, pool.m_countPerBucket);
+            ++useCount;
+        }
+
+        void decrement(UniformBufferPool& pool)
+        {
+            --useCount;
+            if (!useCount)
+            {
+                pool.m_token.deletePoolBuffer(buffer);
+                buffer = nullptr;
+            }
         }
     };
     std::vector<Bucket> m_buckets;
@@ -90,7 +107,7 @@ public:
             int idx = freeSpaces.find_first();
             if (idx == -1)
             {
-                buckets.emplace_back(pool);
+                buckets.emplace_back();
                 m_index = freeSpaces.size();
                 freeSpaces.resize(freeSpaces.size() + pool.m_countPerBucket, true);
             }
@@ -100,6 +117,9 @@ public:
             }
             freeSpaces.reset(m_index);
             m_div = pool.getBucketDiv(m_index);
+
+            Bucket& bucket = m_pool.m_buckets[m_div.quot];
+            bucket.increment(m_pool);
         }
 
     public:
@@ -116,7 +136,11 @@ public:
         ~Token()
         {
             if (m_index != -1)
+            {
                 m_pool.m_freeBlocks.set(m_index);
+                Bucket& bucket = m_pool.m_buckets[m_div.quot];
+                bucket.decrement(m_pool);
+            }
         }
 
         UniformStruct& access()

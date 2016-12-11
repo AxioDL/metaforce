@@ -373,13 +373,17 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
     }
 }
 
+void View::_commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
+{
+    m_gfxData = res.m_factory->commitTransaction(commitFunc);
+}
+
 void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
 {
     if (m_gfxData)
         Log.report(logvisor::Fatal, "multiple resource commits not allowed");
-    m_gfxData = res.m_factory->commitTransaction(commitFunc);
+    _commitResources(res, commitFunc);
 }
-
 
 void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,
                                           ViewResources& res, size_t count,
