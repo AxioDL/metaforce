@@ -41,7 +41,7 @@ const u8* CFBStreamedCompression::GetBitstreamPointer() const
 
     if (m_pc)
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             chans += 20;
 
@@ -53,7 +53,7 @@ const u8* CFBStreamedCompression::GetBitstreamPointer() const
     }
     else
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             chans += 15;
 
@@ -102,7 +102,7 @@ u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in
 
     if (m_pc)
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             *reinterpret_cast<u32*>(out) = in.readUint32Big();
             out += 4;
@@ -132,7 +132,7 @@ u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in
     }
     else
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             *reinterpret_cast<u32*>(out) = in.readUint32Big();
             out += 4;

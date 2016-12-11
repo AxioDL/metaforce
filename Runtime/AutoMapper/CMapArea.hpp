@@ -32,7 +32,7 @@ private:
     u32 x34_size;
     u8* x38_moStart;
     u8* x3c_vertexStart;
-    u32 x40_surfaceStart;
+    u8* x40_surfaceStart;
     std::unique_ptr<u8[]> x44_buf;
 public:
     CMapArea(CInputStream&, u32);

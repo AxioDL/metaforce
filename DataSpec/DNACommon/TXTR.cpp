@@ -889,7 +889,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         switch (colorType)
         {
         case PNG_COLOR_TYPE_GRAY:
-            for (int i=0 ; i<width ; ++i)
+            for (unsigned i=0 ; i<width ; ++i)
             {
                 size_t outbase = (r*width+i)*4;
                 bufOut[outbase] = rowBuf[i];

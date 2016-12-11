@@ -15,10 +15,9 @@ else()
   set(CMAKE_FIND_APPBUNDLE FIRST)
   find_program(INKSCAPE_BIN inkscape)
 endif()
-if(INKSCAPE_BIN STREQUAL "INKSCAPE_BIN-NOTFOUND")
-  message(STATUS "Inkscape not found; downloading icons")
-  file(DOWNLOAD "https://www.dropbox.com/s/wnj17dwgcsky0o9/icons.bin"
-       ${CMAKE_CURRENT_BINARY_DIR}/icons.bin SHOW_PROGRESS)
+if(NOT INKSCAPE_BIN)
+  add_custom_command(OUTPUT icons.bin COMMAND ${CMAKE_COMMAND} ARGS -P
+      ${CMAKE_CURRENT_SOURCE_DIR}/IconDownload.cmake)
 else()
   message(STATUS "Inkscape found; will render icons locally")
   add_custom_command(OUTPUT icons.bin COMMAND $<TARGET_FILE:packicons>

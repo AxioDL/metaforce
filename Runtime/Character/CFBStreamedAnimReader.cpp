@@ -29,7 +29,7 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
 
     if (source.m_pc)
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             xc_segIds2[b] = *reinterpret_cast<const u32*>(chans);
             chans += 8;
@@ -59,7 +59,7 @@ void CFBStreamedAnimReaderTotals::Initialize(const CFBStreamedCompression& sourc
     }
     else
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             xc_segIds2[b] = *reinterpret_cast<const u32*>(chans);
             chans += 6;
@@ -111,7 +111,7 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader,
 
     if (source.m_pc)
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             chans += 8;
 
@@ -138,7 +138,7 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader,
     }
     else
     {
-        for (int b=0 ; b<boneChanCount ; ++b)
+        for (unsigned b=0 ; b<boneChanCount ; ++b)
         {
             chans += 6;
 
@@ -167,7 +167,7 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader,
 
 void CFBStreamedAnimReaderTotals::CalculateDown()
 {
-    for (int b=0 ; b<x24_boneChanCount ; ++b)
+    for (unsigned b=0 ; b<x24_boneChanCount ; ++b)
     {
         const s32* cumulativesIn = &x4_cumulativeInts32[8*b];
         float* compOut = &x10_computedFloats32[8*b];
@@ -213,7 +213,7 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
     int prior = -1;
     int next = -1;
     int cur = 0;
-    for (int b=0 ; b<timeBitmap[0] ; ++b)
+    for (unsigned b=0 ; b<timeBitmap[0] ; ++b)
     {
         int word = b / 32;
         int bit = b % 32;
@@ -243,7 +243,7 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
         curTime += interval;
     }
 
-    if (prior != -1 && prior < Prior().x1c_curKey)
+    if (prior != -1 && u32(prior) < Prior().x1c_curKey)
     {
         Prior().Initialize(*x0_source);
         Next().Initialize(*x0_source);
@@ -251,7 +251,7 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
     }
 
     if (next != -1)
-        while (next > Next().x1c_curKey)
+        while (u32(next) > Next().x1c_curKey)
             DoIncrement(loader);
 
     if (!Prior().IsCalculated())

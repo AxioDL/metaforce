@@ -21,7 +21,7 @@ enum class EGunAnimType
 
 class CActorLights;
 class CGunController;
-class CModelFlags;
+struct CModelFlags;
 class CStateManager;
 class CGunWeapon
 {

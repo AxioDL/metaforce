@@ -240,8 +240,8 @@ void SplashScreen::resized(const boo::SWindowRect& root, const boo::SWindowRect&
     boo::SWindowRect badgeRect = centerRect;
     badgeRect.location[0] += LINE_WIDTH * pf;
     badgeRect.location[1] += BADGE_MARGIN * pf;
-    badgeRect.size[0] = BADGE_WIDTH;
-    badgeRect.size[1] = BADGE_HEIGHT;
+    badgeRect.size[0] = BADGE_WIDTH * pf;
+    badgeRect.size[1] = BADGE_HEIGHT * pf;
 
     boo::SWindowRect textRect = centerRect;
     textRect.location[0] += TEXT_MARGIN * pf;

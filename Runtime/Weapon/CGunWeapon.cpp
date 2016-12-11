@@ -1,6 +1,7 @@
 #include "CGunWeapon.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -42,7 +43,7 @@ s32 GetWeaponIndex(EWeaponType type)
 
 CGunWeapon::CGunWeapon(ResId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes mType, const zeus::CVector3f& vec)
     : x4_(vec),
-      x104_gunCharacter(g_SimplePool->GetObj({ancsId, FOURCC('ANCS')})),
+      x104_gunCharacter(g_SimplePool->GetObj(SObjectTag{FOURCC('ANCS'), ancsId})),
       x13c_armCharacter(g_SimplePool->GetObj(skSuitArmNames[0])),
       x1c0_weaponType(type),
       x1c4_uid(uid),

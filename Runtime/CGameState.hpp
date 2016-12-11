@@ -32,9 +32,9 @@ public:
     void SetLayerActive(int areaIdx, int layerIdx, bool active)
     {
         if (active)
-            x0_areaLayers[areaIdx].m_layerBits |= 1 << layerIdx;
+            x0_areaLayers[areaIdx].m_layerBits |= uint64_t(1) << layerIdx;
         else
-            x0_areaLayers[areaIdx].m_layerBits &= ~(1 << layerIdx);
+            x0_areaLayers[areaIdx].m_layerBits &= ~(uint64_t(1) << layerIdx);
     }
 
     void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);

@@ -1,4 +1,5 @@
 #include "CPowerBeam.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
