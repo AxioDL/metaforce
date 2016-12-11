@@ -192,7 +192,7 @@ public:
       if (idx + Length > size())
         return -1;
       bool good = true;
-      for (int i = 0; i < Length; ++i) {
+      for (unsigned i = 0; i < Length; ++i) {
         int ThisIdx = idx + i;
         if (!test(ThisIdx)) {
           good = false;
