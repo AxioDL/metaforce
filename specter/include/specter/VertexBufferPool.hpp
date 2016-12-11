@@ -12,7 +12,7 @@ namespace specter
 #define SPECTER_VBUFPOOL_ALLOCATION_BLOCK 262144
 
 /** This class provides a uniform structure for packing instanced vertex-buffer
- *  data with consistent stride into a vector of 64K 'Buckets'.
+ *  data with consistent stride into a vector of 256K 'Buckets'.
  *
  *  This results in a space-efficient way of managing GPU data of things like UI
  *  widgets. These can potentially have numerous binding instances, so this avoids
@@ -21,7 +21,11 @@ template <typename VertStruct>
 class VertexBufferPool
 {
     /* Resolve div_t type using ssize_t as basis */
+#if _WIN32
+    using IndexTp = SSIZE_T;
+#else
     using IndexTp = ssize_t;
+#endif
     struct InvalidTp {};
     using DivTp = std::conditional_t<std::is_same<IndexTp, long long>::value, std::lldiv_t,
                   std::conditional_t<std::is_same<IndexTp, long>::value, std::ldiv_t,
@@ -32,10 +36,10 @@ class VertexBufferPool
     static constexpr IndexTp m_stride = sizeof(VertStruct);
     static_assert(m_stride <= SPECTER_VBUFPOOL_ALLOCATION_BLOCK, "Stride too large for vertex pool");
 
-    /** Number of elements per 64K bucket */
+    /** Number of elements per 256K bucket */
     static constexpr IndexTp m_countPerBucket = SPECTER_VBUFPOOL_ALLOCATION_BLOCK / m_stride;
 
-    /** Buffer size per bucket (ideally 64K) */
+    /** Buffer size per bucket (ideally 256K) */
     static constexpr IndexTp m_sizePerBucket = m_stride * m_countPerBucket;
 
     /** BitVector indicating free allocation elements */
@@ -51,20 +55,20 @@ class VertexBufferPool
     struct Bucket
     {
         boo::IGraphicsBufferD* buffer;
-        std::unique_ptr<uint8_t[]> cpuBuffer;
+        uint8_t* cpuBuffer = nullptr;
         bool dirty = false;
         Bucket(const Bucket& other) = delete;
         Bucket& operator=(const Bucket& other) = delete;
         Bucket(Bucket&& other) = default;
         Bucket& operator=(Bucket&& other) = default;
         Bucket(VertexBufferPool& pool)
-        : cpuBuffer(new uint8_t[pool.m_sizePerBucket])
         {
             buffer = pool.m_token.newPoolBuffer(boo::BufferUse::Vertex, pool.m_stride, pool.m_countPerBucket);
         }
-        void updateBuffer(VertexBufferPool& pool)
+        void updateBuffer()
         {
-            buffer->load(cpuBuffer.get(), pool.m_sizePerBucket);
+            buffer->unmap();
+            cpuBuffer = nullptr;
             dirty = false;
         }
     };
@@ -119,6 +123,8 @@ public:
         VertStruct* access()
         {
             Bucket& bucket = m_pool.m_buckets[m_div.quot];
+            if (!bucket.cpuBuffer)
+                bucket.cpuBuffer = reinterpret_cast<uint8_t*>(bucket.buffer->map(m_sizePerBucket));
             bucket.dirty = true;
             return reinterpret_cast<VertStruct*>(&bucket.cpuBuffer[m_div.rem * m_pool.m_stride]);
         }
@@ -139,7 +145,7 @@ public:
     {
         for (Bucket& bucket : m_buckets)
             if (bucket.dirty)
-                bucket.updateBuffer(*this);
+                bucket.updateBuffer();
     }
 
     /** Allocate free block into client-owned Token */

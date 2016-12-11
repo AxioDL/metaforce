@@ -390,7 +390,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
     boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
-    size_t bufOffs[] = {uBufInfo.second};
+    size_t bufOffs[] = {size_t(uBufInfo.second)};
     size_t bufSizes[] = {sizeof(ViewBlock)};
 
     if (!res.m_viewRes.m_solidVtxFmt)
@@ -426,7 +426,7 @@ void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
     boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
-    size_t bufOffs[] = {uBufInfo.second};
+    size_t bufOffs[] = {size_t(uBufInfo.second)};
     size_t bufSizes[] = {sizeof(ViewBlock)};
     boo::ITexture* tex[] = {texture};
 

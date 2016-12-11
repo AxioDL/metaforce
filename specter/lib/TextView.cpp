@@ -304,7 +304,7 @@ TextView::TextView(ViewResources& res,
   m_fontAtlas(font),
   m_align(align)
 {
-    if (VertexBufferPool<RenderGlyph>::bucketCapacity() < capacity)
+    if (size_t(VertexBufferPool<RenderGlyph>::bucketCapacity()) < capacity)
         Log.report(logvisor::Fatal, "bucket overflow [%" PRISize "/%" PRISize "]",
                    capacity, VertexBufferPool<RenderGlyph>::bucketCapacity());
 
@@ -324,7 +324,7 @@ TextView::TextView(ViewResources& res,
         auto vBufInfo = m_glyphBuf->getBufferInfo();
         auto uBufInfo = m_viewVertBlockBuf->getBufferInfo();
         boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
-        size_t uBufOffs[] = {uBufInfo.second};
+        size_t uBufOffs[] = {size_t(uBufInfo.second)};
         size_t uBufSizes[] = {sizeof(ViewBlock)};
         boo::ITexture* texs[] = {m_fontAtlas.texture()};
 
