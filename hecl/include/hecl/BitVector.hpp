@@ -187,7 +187,7 @@ public:
 
   /// find_first_contiguous - Returns the index of the first contiguous
   /// set of bits of "Length", -1 if no contiguous bits found.
-  int find_first_contiguous(unsigned Length) const {
+  int find_first_contiguous(unsigned Length, unsigned BucketSz) const {
     for (int idx = find_first(); idx != -1; idx = find_next(idx)) {
       if (idx + Length > size())
         return -1;
@@ -201,7 +201,11 @@ public:
         }
       }
       if (good)
-        return idx;
+      {
+        unsigned space = BucketSz - (idx % BucketSz);
+        if (space >= Length)
+          return idx;
+      }
     }
     return -1;
   }
