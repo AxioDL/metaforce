@@ -66,7 +66,8 @@ class UniformBufferPool
 
         void updateBuffer()
         {
-            buffer->unmap();
+            if (buffer)
+                buffer->unmap();
             cpuBuffer = nullptr;
             dirty = false;
         }

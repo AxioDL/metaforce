@@ -66,7 +66,8 @@ class VertexBufferPool
 
         void updateBuffer()
         {
-            buffer->unmap();
+            if (buffer)
+                buffer->unmap();
             cpuBuffer = nullptr;
             dirty = false;
         }
@@ -106,7 +107,7 @@ public:
             assert(count <= pool.m_countPerBucket && "unable to fit in bucket");
             auto& freeSpaces = pool.m_freeElements;
             auto& buckets = pool.m_buckets;
-            int idx = freeSpaces.find_first_contiguous(count);
+            int idx = freeSpaces.find_first_contiguous(count, pool.m_countPerBucket);
             if (idx == -1)
             {
                 buckets.emplace_back();
