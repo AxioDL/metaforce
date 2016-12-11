@@ -22,8 +22,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
 
 void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
 {
-    if (x44_25_)
-        ;
+    if (x44_25_) {}
 }
 
 void CScriptActorKeyframe::UpdateEntity(TUniqueId, CStateManager&)
