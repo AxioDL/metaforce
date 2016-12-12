@@ -46,7 +46,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 
     //m_modelTest = objStore.GetObj("CMDL_GameCube");
 
-    //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x972A5CD2});
+    //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x0deb9456});
     //m_partGenDesc = objStore.GetObj("PowerCharge");
     //m_partGen.reset(new urde::CElementGen(m_partGenDesc,
     //                                       urde::CElementGen::EModelOrientationType::Normal,
