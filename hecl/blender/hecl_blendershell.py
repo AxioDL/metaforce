@@ -24,24 +24,21 @@ if 'TMPDIR' in os.environ:
 
 err_path += "/hecl_%016X.derp" % os.getpid()
 
-def readpipeline():
-    retval = bytearray()
-    while True:
-        ch = os.read(readfd, 1)
-        if ch == b'\n' or ch == b'':
-            return retval
-        retval += ch
+def readpipestr():
+    read_len = struct.unpack('I', os.read(readfd, 4))[0]
+    return os.read(readfd, read_len)
 
-def writepipeline(linebytes):
+def writepipestr(linebytes):
     #print('LINE', linebytes)
-    os.write(writefd, linebytes + b'\n')
+    os.write(writefd, struct.pack('I', len(linebytes)))
+    os.write(writefd, linebytes)
 
 def writepipebuf(linebytes):
     #print('BUF', linebytes)
     os.write(writefd, linebytes)
 
 def quitblender():
-    writepipeline(b'QUITTING')
+    writepipestr(b'QUITTING')
     bpy.ops.wm.quit_blender()
 
 # If there's a third argument, use it as the .zip path containing the addon
@@ -61,17 +58,17 @@ if bpy.context.user_preferences.addons.find('hecl') == -1:
 try:
     import hecl
 except:
-    writepipeline(b'NOADDON')
+    writepipestr(b'NOADDON')
     bpy.ops.wm.quit_blender()
 
 # Quit if just installed
 if did_install:
-    writepipeline(b'ADDONINSTALLED')
+    writepipestr(b'ADDONINSTALLED')
     bpy.ops.wm.quit_blender()
 
 # Intro handshake
-writepipeline(b'READY')
-ackbytes = readpipeline()
+writepipestr(b'READY')
+ackbytes = readpipestr()
 if ackbytes != b'ACK':
     quitblender()
 
@@ -79,9 +76,9 @@ if ackbytes != b'ACK':
 orig_rot = bpy.context.object.rotation_mode
 try:
     bpy.context.object.rotation_mode = 'QUATERNION_SLERP'
-    writepipeline(b'SLERP1')
+    writepipestr(b'SLERP1')
 except:
-    writepipeline(b'SLERP0')
+    writepipestr(b'SLERP0')
 bpy.context.object.rotation_mode = orig_rot
 
 # Count brackets
@@ -96,7 +93,7 @@ def count_brackets(linestr):
 
 # Read line of space-separated/quoted arguments
 def read_cmdargs():
-    cmdline = readpipeline()
+    cmdline = readpipestr()
     if cmdline == b'':
         print('HECL connection lost')
         bpy.ops.wm.quit_blender()
@@ -114,11 +111,11 @@ def exec_compbuf(compbuf, globals):
 
 # Command loop for writing animation key data to blender
 def animin_loop(globals):
-    writepipeline(b'ANIMREADY')
+    writepipestr(b'ANIMREADY')
     while True:
         crv_type = struct.unpack('b', os.read(readfd, 1))
         if crv_type[0] < 0:
-            writepipeline(b'ANIMDONE')
+            writepipestr(b'ANIMDONE')
             return
         elif crv_type[0] == 0:
             crvs = globals['rotCurves']
@@ -146,13 +143,13 @@ def animin_loop(globals):
 
 # Command loop for reading data from blender
 def dataout_loop():
-    writepipeline(b'READY')
+    writepipestr(b'READY')
     while True:
         cmdargs = read_cmdargs()
         print(cmdargs)
 
         if cmdargs[0] == 'DATAEND':
-            writepipeline(b'DONE')
+            writepipestr(b'DONE')
             return
 
         elif cmdargs[0] == 'MESHLIST':
@@ -163,17 +160,17 @@ def dataout_loop():
             writepipebuf(struct.pack('I', meshCount))
             for meshobj in bpy.data.objects:
                 if meshobj.type == 'MESH' and not meshobj.library:
-                    writepipeline(meshobj.name.encode())
+                    writepipestr(meshobj.name.encode())
 
         elif cmdargs[0] == 'MESHCOMPILE':
             maxSkinBanks = int(cmdargs[2])
 
             meshName = bpy.context.scene.hecl_mesh_obj
             if meshName not in bpy.data.objects:
-                writepipeline(('mesh %s not found' % meshName).encode())
+                writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[1], maxSkinBanks)
 
         elif cmdargs[0] == 'MESHCOMPILENAME':
@@ -181,20 +178,20 @@ def dataout_loop():
             maxSkinBanks = int(cmdargs[3])
 
             if meshName not in bpy.data.objects:
-                writepipeline(('mesh %s not found' % meshName).encode())
+                writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks)
 
         elif cmdargs[0] == 'MESHCOMPILENAMECOLLISION':
             meshName = cmdargs[1]
 
             if meshName not in bpy.data.objects:
-                writepipeline(('mesh %s not found' % meshName).encode())
+                writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.hmdl.cookcol(writepipebuf, bpy.data.objects[meshName])
 
         elif cmdargs[0] == 'MESHCOMPILEALL':
@@ -209,7 +206,7 @@ def dataout_loop():
             bpy.context.scene.objects.active = join_obj
             bpy.ops.object.join()
 
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.hmdl.cook(writepipebuf, join_obj, cmdargs[1], maxSkinBanks, maxOctantLength)
 
             bpy.context.scene.objects.unlink(join_obj)
@@ -217,11 +214,11 @@ def dataout_loop():
             bpy.data.meshes.remove(join_mesh)
 
         elif cmdargs[0] == 'WORLDCOMPILE':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.swld.cook(writepipebuf)
 
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             lampCount = 0;
             for obj in bpy.context.scene.objects:
                 if obj.type == 'LAMP':
@@ -292,7 +289,7 @@ def dataout_loop():
                                                          castShadow))
 
         elif cmdargs[0] == 'GETTEXTURES':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
 
             img_count = 0
             for img in bpy.data.images:
@@ -307,38 +304,38 @@ def dataout_loop():
                     writepipebuf(path.encode())
 
         elif cmdargs[0] == 'ACTORCOMPILE':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.sact.cook(writepipebuf)
 
         elif cmdargs[0] == 'ACTORCOMPILECHARACTERONLY':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.sact.cook_character_only(writepipebuf)
 
         elif cmdargs[0] == 'GETARMATURENAMES':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.sact.get_armature_names(writepipebuf)
 
         elif cmdargs[0] == 'GETSUBTYPENAMES':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.sact.get_subtype_names(writepipebuf)
 
         elif cmdargs[0] == 'GETACTIONNAMES':
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             hecl.sact.get_action_names(writepipebuf)
 
         elif cmdargs[0] == 'GETBONEMATRICES':
             armName = cmdargs[1]
 
             if armName not in bpy.data.objects:
-                writepipeline(('armature %s not found' % armName).encode())
+                writepipestr(('armature %s not found' % armName).encode())
                 continue
 
             armObj = bpy.data.objects[armName]
             if armObj.type != 'ARMATURE':
-                writepipeline(('object %s not an ARMATURE' % armName).encode())
+                writepipestr(('object %s not an ARMATURE' % armName).encode())
                 continue
 
-            writepipeline(b'OK')
+            writepipestr(b'OK')
             writepipebuf(struct.pack('I', len(armObj.data.bones)))
             for bone in armObj.data.bones:
                 writepipebuf(struct.pack('I', len(bone.name)))
@@ -364,9 +361,9 @@ try:
                 if bpy.ops.object.mode_set.poll():
                     bpy.ops.object.mode_set(mode = 'OBJECT')
                 loaded_blend = cmdargs[1]
-                writepipeline(b'FINISHED')
+                writepipestr(b'FINISHED')
             else:
-                writepipeline(b'CANCELLED')
+                writepipestr(b'CANCELLED')
 
         elif cmdargs[0] == 'CREATE':
             if len(cmdargs) >= 4:
@@ -379,40 +376,40 @@ try:
             if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
                 bpy.ops.file.hecl_patching_load()
                 bpy.context.scene.hecl_type = cmdargs[2]
-                writepipeline(b'FINISHED')
+                writepipestr(b'FINISHED')
             else:
-                writepipeline(b'CANCELLED')
+                writepipestr(b'CANCELLED')
 
         elif cmdargs[0] == 'GETTYPE':
-            writepipeline(bpy.context.scene.hecl_type.encode())
+            writepipestr(bpy.context.scene.hecl_type.encode())
 
         elif cmdargs[0] == 'GETMESHRIGGED':
             meshName = bpy.context.scene.hecl_mesh_obj
             if meshName not in bpy.data.objects:
-                writepipeline(b'FALSE')
+                writepipestr(b'FALSE')
             else:
                 if len(bpy.data.objects[meshName].vertex_groups):
-                    writepipeline(b'TRUE')
+                    writepipestr(b'TRUE')
                 else:
-                    writepipeline(b'FALSE')
+                    writepipestr(b'FALSE')
 
         elif cmdargs[0] == 'SAVE':
             bpy.context.user_preferences.filepaths.save_version = 0
             print('SAVING %s' % loaded_blend)
             if loaded_blend:
                 if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True):
-                    writepipeline(b'FINISHED')
+                    writepipestr(b'FINISHED')
                 else:
-                    writepipeline(b'CANCELLED')
+                    writepipestr(b'CANCELLED')
 
         elif cmdargs[0] == 'PYBEGIN':
-            writepipeline(b'READY')
+            writepipestr(b'READY')
             globals = {'hecl':hecl}
             compbuf = str()
             bracket_count = 0
             while True:
                 try:
-                    line = readpipeline()
+                    line = readpipestr()
 
                     # ANIM check
                     if line == b'PYANIM':
@@ -429,13 +426,13 @@ try:
                         if len(compbuf):
                             exec_compbuf(compbuf, globals)
                             compbuf = str()
-                        writepipeline(b'DONE')
+                        writepipestr(b'DONE')
                         break
 
                     # Syntax filter
                     linestr = line.decode().rstrip()
                     if not len(linestr) or linestr.lstrip()[0] == '#':
-                        writepipeline(b'OK')
+                        writepipestr(b'OK')
                         continue
                     leading_spaces = len(linestr) - len(linestr.lstrip())
 
@@ -445,7 +442,7 @@ try:
                             compbuf += '\n'
                         compbuf += linestr
                         bracket_count += count_brackets(linestr)
-                        writepipeline(b'OK')
+                        writepipestr(b'OK')
                         continue
 
                     # Complete non-block statement in compbuf
@@ -457,26 +454,26 @@ try:
                     bracket_count += count_brackets(linestr)
 
                 except Exception as e:
-                    writepipeline(b'EXCEPTION')
+                    writepipestr(b'EXCEPTION')
                     raise
                     break
-                writepipeline(b'OK')
+                writepipestr(b'OK')
 
         elif cmdargs[0] == 'PYEND':
-            writepipeline(b'ERROR')
+            writepipestr(b'ERROR')
 
         elif cmdargs[0] == 'DATABEGIN':
             try:
                 dataout_loop()
             except Exception as e:
-                writepipeline(b'EXCEPTION')
+                writepipestr(b'EXCEPTION')
                 raise
 
         elif cmdargs[0] == 'DATAEND':
-            writepipeline(b'ERROR')
+            writepipestr(b'ERROR')
 
         else:
-            hecl.command(cmdargs, writepipeline, writepipebuf)
+            hecl.command(cmdargs, writepipestr, writepipebuf)
 
 except Exception:
     import traceback

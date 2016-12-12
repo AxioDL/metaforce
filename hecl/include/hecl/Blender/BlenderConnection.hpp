@@ -66,8 +66,10 @@ private:
     ProjectPath m_loadedBlend;
     std::string m_startupBlend;
     hecl::SystemString m_errPath;
-    size_t _readLine(char* buf, size_t bufSz);
-    size_t _writeLine(const char* buf);
+    uint32_t _readStr(char* buf, uint32_t bufSz);
+    uint32_t _writeStr(const char* str, uint32_t len, int wpipe);
+    uint32_t _writeStr(const char* str, uint32_t len) { return _writeStr(str, len, m_writepipe[1]); }
+    uint32_t _writeStr(const char* str) { return _writeStr(str, strlen(str)); }
     size_t _readBuf(void* buf, size_t len);
     size_t _writeBuf(const void* buf, size_t len);
     void _closePipe();
@@ -121,9 +123,9 @@ public:
           m_sbuf(*this, deleteOnError)
         {
             m_parent->m_lock = true;
-            m_parent->_writeLine("PYBEGIN");
+            m_parent->_writeStr("PYBEGIN");
             char readBuf[16];
-            m_parent->_readLine(readBuf, 16);
+            m_parent->_readStr(readBuf, 16);
             if (strcmp(readBuf, "READY"))
                 BlenderLog.report(logvisor::Fatal, "unable to open PyOutStream with blender");
         }
@@ -137,9 +139,9 @@ public:
         {
             if (m_parent && m_parent->m_lock)
             {
-                m_parent->_writeLine("PYEND");
+                m_parent->_writeStr("PYEND");
                 char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
+                m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(logvisor::Fatal, "unable to close PyOutStream with blender");
                 m_parent->m_lock = false;
@@ -237,9 +239,9 @@ public:
             ANIMOutStream(BlenderConnection* parent)
             : m_parent(parent)
             {
-                m_parent->_writeLine("PYANIM");
+                m_parent->_writeStr("PYANIM");
                 char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
+                m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "ANIMREADY"))
                     BlenderLog.report(logvisor::Fatal, "unable to open ANIMOutStream");
             }
@@ -248,7 +250,7 @@ public:
                 char tp = -1;
                 m_parent->_writeBuf(&tp, 1);
                 char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
+                m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "ANIMDONE"))
                     BlenderLog.report(logvisor::Fatal, "unable to close ANIMOutStream");
             }
@@ -307,9 +309,9 @@ public:
         : m_parent(parent)
         {
             m_parent->m_lock = true;
-            m_parent->_writeLine("DATABEGIN");
+            m_parent->_writeStr("DATABEGIN");
             char readBuf[16];
-            m_parent->_readLine(readBuf, 16);
+            m_parent->_readStr(readBuf, 16);
             if (strcmp(readBuf, "READY"))
                 BlenderLog.report(logvisor::Fatal, "unable to open DataStream with blender");
         }
@@ -322,9 +324,9 @@ public:
         {
             if (m_parent && m_parent->m_lock)
             {
-                m_parent->_writeLine("DATAEND");
+                m_parent->_writeStr("DATAEND");
                 char readBuf[16];
-                m_parent->_readLine(readBuf, 16);
+                m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(logvisor::Fatal, "unable to close DataStream with blender");
                 m_parent->m_lock = false;
@@ -333,7 +335,7 @@ public:
 
         std::vector<std::string> getMeshList()
         {
-            m_parent->_writeLine("MESHLIST");
+            m_parent->_writeStr("MESHLIST");
             uint32_t count;
             m_parent->_readBuf(&count, 4);
             std::vector<std::string> retval;
@@ -341,7 +343,7 @@ public:
             for (uint32_t i=0 ; i<count ; ++i)
             {
                 char name[128];
-                m_parent->_readLine(name, 128);
+                m_parent->_readStr(name, 128);
                 retval.push_back(name);
             }
             return retval;
