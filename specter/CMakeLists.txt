@@ -60,9 +60,7 @@ list(APPEND SPECTER_HEADERS
      include/specter/FileBrowser.hpp
      include/specter/Icon.hpp
      include/specter/FontCache.hpp
-     include/specter/Translator.hpp
-     include/specter/UniformBufferPool.hpp
-     include/specter/VertexBufferPool.hpp)
+     include/specter/Translator.hpp)
 
 atdna(atdna_FontCache.cpp include/specter/FontCache.hpp)
 

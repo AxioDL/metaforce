@@ -43,7 +43,7 @@ private:
 
     ViewChild<View*> m_views[2];
     ViewBlock m_splitBlock;
-    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_splitBlockBuf;
+    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_splitBlockBuf;
     TexShaderVert m_splitVerts[4];
 
     int m_clearanceA, m_clearanceB;

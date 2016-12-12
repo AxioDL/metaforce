@@ -56,7 +56,7 @@ class RootView : public View
 
         VertexBufferBindingSolid m_vertsBinding;
         ViewBlock m_viewBlock;
-        std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
+        std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
         SolidShaderVert m_verts[32];
         void setArrowVerts(const boo::SWindowRect& rect, SplitView::ArrowDir dir);
         void setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis);

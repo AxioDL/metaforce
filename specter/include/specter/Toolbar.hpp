@@ -31,7 +31,7 @@ private:
     std::vector<std::vector<ViewChild<View*>>> m_children;
 
     ViewBlock m_tbBlock;
-    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_tbBlockBuf;
+    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_tbBlockBuf;
     TexShaderVert m_tbVerts[10];
     int m_nomGauge = 25;
     int m_padding = 10;

@@ -10,7 +10,7 @@ namespace specter
 class Tooltip : public View
 {
     ViewBlock m_ttBlock;
-    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_ttBlockBuf;
+    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_ttBlockBuf;
     SolidShaderVert m_ttVerts[16];
     int m_nomWidth = 25;
     int m_nomHeight = 25;

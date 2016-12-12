@@ -8,8 +8,8 @@
 #include "zeus/CTransform.hpp"
 #include "zeus/CColor.hpp"
 #include "hecl/CVar.hpp"
-#include "UniformBufferPool.hpp"
-#include "VertexBufferPool.hpp"
+#include "hecl/UniformBufferPool.hpp"
+#include "hecl/VertexBufferPool.hpp"
 
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/D3D.hpp>
@@ -110,7 +110,7 @@ public:
     template <typename VertStruct>
     struct VertexBufferBinding
     {
-        std::experimental::optional<typename VertexBufferPool<VertStruct>::Token> m_vertsBuf;
+        std::experimental::optional<typename hecl::VertexBufferPool<VertStruct>::Token> m_vertsBuf;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
@@ -143,13 +143,13 @@ public:
     {
         void init(boo::IGraphicsDataFactory::Context& ctx,
                   ViewResources& res, size_t count,
-                  const UniformBufferPool<ViewBlock>::Token& viewBlockBuf);
+                  const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf);
     };
     struct VertexBufferBindingTex : VertexBufferBinding<TexShaderVert>
     {
         void init(boo::IGraphicsDataFactory::Context& ctx,
                   ViewResources& res, size_t count,
-                  const UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
+                  const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
                   boo::ITexture* texture);
     };
 
@@ -184,14 +184,14 @@ protected:
     "    float4x4 mv;\n"\
     "    float4 mulColor;\n"\
     "};\n"
-    std::experimental::optional<UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
+    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
 
 public:
     struct Resources
     {
-        UniformBufferPool<ViewBlock> m_bufPool;
-        VertexBufferPool<SolidShaderVert> m_solidPool;
-        VertexBufferPool<TexShaderVert> m_texPool;
+        hecl::UniformBufferPool<ViewBlock> m_bufPool;
+        hecl::VertexBufferPool<SolidShaderVert> m_solidPool;
+        hecl::VertexBufferPool<TexShaderVert> m_texPool;
 
         void updateBuffers()
         {

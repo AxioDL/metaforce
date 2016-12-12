@@ -387,7 +387,7 @@ void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& com
 
 void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,
                                           ViewResources& res, size_t count,
-                                          const UniformBufferPool<ViewBlock>::Token& viewBlockBuf)
+                                          const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf)
 {
     m_vertsBuf.emplace(res.m_viewRes.m_solidPool.allocateBlock(res.m_factory, count));
     auto vBufInfo = m_vertsBuf->getBufferInfo();
@@ -422,7 +422,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
 
 void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
                                         ViewResources& res, size_t count,
-                                        const UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
+                                        const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
                                         boo::ITexture* texture)
 {
     m_vertsBuf.emplace(res.m_viewRes.m_texPool.allocateBlock(res.m_factory, count));

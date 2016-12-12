@@ -365,9 +365,9 @@ TextView::TextView(ViewResources& res,
   m_fontAtlas(font),
   m_align(align)
 {
-    if (size_t(VertexBufferPool<RenderGlyph>::bucketCapacity()) < capacity)
+    if (size_t(hecl::VertexBufferPool<RenderGlyph>::bucketCapacity()) < capacity)
         Log.report(logvisor::Fatal, "bucket overflow [%" PRISize "/%" PRISize "]",
-                   capacity, VertexBufferPool<RenderGlyph>::bucketCapacity());
+                   capacity, hecl::VertexBufferPool<RenderGlyph>::bucketCapacity());
 
     _commitResources(0);
 }
@@ -408,7 +408,7 @@ int TextView::DoKern(FT_Pos val, const FontAtlas& atlas)
 void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& defaultColor)
 {
     UTF8Iterator it(str.begin());
-    size_t charLen = str.size() ? std::min(it.countTo(str.end()), size_t(1024)) : 0;
+    size_t charLen = str.size() ? std::min(it.countTo(str.end()), m_capacity) : 0;
     _commitResources(charLen);
 
     uint32_t lCh = -1;
@@ -477,13 +477,14 @@ void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& default
 
 void TextView::typesetGlyphs(const std::wstring& str, const zeus::CColor& defaultColor)
 {
-    _commitResources(str.size());
+    size_t charLen = std::min(str.size(), m_capacity);
+    _commitResources(charLen);
 
     uint32_t lCh = -1;
     m_glyphs.clear();
-    m_glyphs.reserve(str.size());
+    m_glyphs.reserve(charLen);
     m_glyphInfo.clear();
-    m_glyphInfo.reserve(str.size());
+    m_glyphInfo.reserve(charLen);
     int adv = 0;
 
     for (wchar_t ch : str)
