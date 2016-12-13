@@ -35,7 +35,8 @@ public:
         ResourceBrowser,
         ModelViewer,
         EffectEditor,
-        InformationCenter
+        InformationCenter,
+        GameMode
     };
 
     struct State : athena::io::DNAYaml<athena::BigEndian> {Delete _d;};

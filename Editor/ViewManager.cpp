@@ -69,7 +69,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_videoVoice = m_voiceEngine->allocateNewStereoVoice(32000, &m_voiceCallback);
     m_videoVoice->start();
 
-    m_rootView->accessContentViews().clear();
+    //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
     m_rootView->updateSize();
 }

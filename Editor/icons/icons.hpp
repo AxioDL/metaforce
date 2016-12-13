@@ -14,7 +14,8 @@ enum class SpaceIcon
     ParticleEditor,
     WorldEditor,
     ModelViewer,
-    InformationCenter
+    InformationCenter,
+    GameMode
 };
 specter::Icon& GetIcon(SpaceIcon icon);
 

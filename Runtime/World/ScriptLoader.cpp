@@ -47,6 +47,7 @@
 #include "CScriptSpecialFunction.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
+#include "CScriptCameraHintTrigger.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CBeetle.hpp"
@@ -1867,7 +1868,20 @@ CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int
 CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "CameraHintTrigger"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    zeus::CVector3f scale = 0.5f * zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+
+    zeus::CTransform xfRot = aHead.x10_transform.getRotation();
+    if (xfRot == zeus::CTransform::Identity())
+        return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin, zeus::CAABox(-scale, scale), CDamageInfo(), zeus::CVector3f::skZero, ETriggerFlags::DetectPlayer, active, b2, b3);
+
+    return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
