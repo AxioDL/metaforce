@@ -37,7 +37,7 @@ CSfxHandle CSfxManager::SfxStop(const CSfxHandle& handle)
     return {};
 }
 
-CSfxHandle CSfxManager::SfxStart(u16 id, s16 vol, s16 pan, bool active, s16 prio, bool inArea, s32 areaId)
+CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool active, s16 prio, bool inArea, s32 areaId)
 {
     return {};
 }

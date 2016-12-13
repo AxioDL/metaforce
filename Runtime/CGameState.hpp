@@ -80,6 +80,8 @@ class CGameState
     CPersistentOptions xa8_systemOptions;
     CGameOptions x17c_gameOptions;
     CHintOptions x1f8_hintOptions;
+    u32 x210_;
+    u32 x214_;
 
     union
     {

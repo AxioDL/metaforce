@@ -155,7 +155,7 @@ public:
     static void PitchBend(const CSfxHandle&, s32) {}
     static u16 TranslateSFXID(u16);
     static CSfxHandle SfxStop(const CSfxHandle& handle);
-    static CSfxHandle SfxStart(u16 id, s16 vol, s16 pan, bool active, s16 prio, bool inArea, s32 areaId);
+    static CSfxHandle SfxStart(u16 id, float vol, float pan, bool active, s16 prio, bool inArea, s32 areaId);
 };
 
 }
