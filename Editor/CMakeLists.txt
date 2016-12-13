@@ -8,6 +8,7 @@ atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
 atdna(atdna_ParticleEditor.cpp ParticleEditor.hpp)
 atdna(atdna_InformationCenter.cpp InformationCenter.hpp)
+atdna(atdna_GameMode.cpp GameMode.hpp)
 
 if(WIN32)
   set(PLAT_SRCS platforms/win/urde.rc)
@@ -32,7 +33,8 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp
                Resource.hpp Resource.cpp
-               Camera.hpp Camera.cpp)
+               Camera.hpp Camera.cpp
+               GameMode.hpp GameMode.cpp atdna_GameMode.cpp)
 
 target_link_libraries(urde
                       UrdeLocales

@@ -64,6 +64,7 @@ set(WORLD_SOURCES
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
+    CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

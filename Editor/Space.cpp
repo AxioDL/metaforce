@@ -4,6 +4,7 @@
 #include "ParticleEditor.hpp"
 #include "ModelViewer.hpp"
 #include "InformationCenter.hpp"
+#include "GameMode.hpp"
 #include "icons/icons.hpp"
 
 namespace urde
@@ -46,7 +47,8 @@ std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDa
     {Class::ResourceBrowser, "resource_browser", "Resource Browser", GetIcon(SpaceIcon::ResourceBrowser), {0.0f, 1.0f, 0.0f, 1.0f}},
     {Class::EffectEditor, "effect_editor", "Effect Editor", GetIcon(SpaceIcon::ParticleEditor), {1.0f, 0.5f, 0.0f, 1.0f}},
     {Class::ModelViewer, "model_viewer", "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.95f, 0.95f, 0.95f, 1.0f}},
-    {Class::InformationCenter, "information_center", "Information Center", GetIcon(SpaceIcon::InformationCenter), {0.0f, 1.0f, 1.0f, 1.0f}}
+    {Class::InformationCenter, "information_center", "Information Center", GetIcon(SpaceIcon::InformationCenter), {0.0f, 1.0f, 1.0f, 1.0f}},
+    {Class::GameMode, "game_mode", "Game Mode", GetIcon(SpaceIcon::GameMode), {}}
 };
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 
@@ -207,6 +209,8 @@ static Space* BuildNewSpace(ViewManager& vm, Space::Class cls, Space* parent, Re
         return new ModelViewer(vm, parent, r);
     case Class::InformationCenter:
         return new InformationCenter(vm, parent, r);
+    case Class::GameMode:
+        return new GameMode(vm, parent, r);
     default: break;
     }
     return nullptr;
@@ -258,6 +262,10 @@ void Space::SpaceMenuNode::SubNode::activated(const boo::SWindowCoord &coord)
     case Class::ModelViewer:
         if (typeid(ModelViewer) != typeid(m_space))
             newSpace.reset(new ModelViewer(m_space.m_parent->m_vm, m_space.m_parent));
+        break;
+    case Class::GameMode:
+        if (typeid(GameMode) != typeid(m_space))
+            newSpace.reset(new GameMode(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     default: break;
     }

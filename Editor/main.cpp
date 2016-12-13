@@ -47,6 +47,7 @@ struct Application : boo::IApplicationCallback
                 break;
         }
         m_viewManager->stop();
+        m_viewManager->projectManager().saveProject();
         m_cvarManager.serialize();
         m_viewManager.reset();
         return 0;
