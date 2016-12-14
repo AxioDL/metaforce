@@ -4,6 +4,7 @@
 #include <boo/boo.hpp>
 #include <vector>
 #include <cstdlib>
+#include <atomic>
 #include "BitVector.hpp"
 
 namespace hecl
@@ -56,7 +57,7 @@ class UniformBufferPool
     {
         boo::IGraphicsBufferD* buffer;
         uint8_t* cpuBuffer = nullptr;
-        size_t useCount = 0;
+        std::atomic_size_t useCount = {};
         bool dirty = false;
         Bucket() = default;
         Bucket(const Bucket& other) = delete;
@@ -74,23 +75,21 @@ class UniformBufferPool
 
         void increment(UniformBufferPool& pool)
         {
-            if (!useCount)
+            if (useCount.fetch_add(1) == 0)
                 buffer = pool.m_token.newPoolBuffer(boo::BufferUse::Uniform,
                                                     pool.m_stride, pool.m_countPerBucket);
-            ++useCount;
         }
 
         void decrement(UniformBufferPool& pool)
         {
-            --useCount;
-            if (!useCount)
+            if (useCount.fetch_sub(1) == 1)
             {
                 pool.m_token.deletePoolBuffer(buffer);
                 buffer = nullptr;
             }
         }
     };
-    std::vector<Bucket> m_buckets;
+    std::vector<std::unique_ptr<Bucket>> m_buckets;
 
 public:
     /** User block-owning token */
@@ -104,11 +103,10 @@ public:
         : m_pool(pool)
         {
             auto& freeSpaces = pool.m_freeBlocks;
-            auto& buckets = pool.m_buckets;
             int idx = freeSpaces.find_first();
             if (idx == -1)
             {
-                buckets.emplace_back();
+                pool.m_buckets.push_back(std::make_unique<Bucket>());
                 m_index = freeSpaces.size();
                 freeSpaces.resize(freeSpaces.size() + pool.m_countPerBucket, true);
             }
@@ -119,7 +117,7 @@ public:
             freeSpaces.reset(m_index);
             m_div = pool.getBucketDiv(m_index);
 
-            Bucket& bucket = m_pool.m_buckets[m_div.quot];
+            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
             bucket.increment(m_pool);
         }
 
@@ -139,14 +137,14 @@ public:
             if (m_index != -1)
             {
                 m_pool.m_freeBlocks.set(m_index);
-                Bucket& bucket = m_pool.m_buckets[m_div.quot];
+                Bucket& bucket = *m_pool.m_buckets[m_div.quot];
                 bucket.decrement(m_pool);
             }
         }
 
         UniformStruct& access()
         {
-            Bucket& bucket = m_pool.m_buckets[m_div.quot];
+            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
             if (!bucket.cpuBuffer)
                 bucket.cpuBuffer = reinterpret_cast<uint8_t*>(bucket.buffer->map(m_sizePerBucket));
             bucket.dirty = true;
@@ -155,7 +153,7 @@ public:
 
         std::pair<boo::IGraphicsBufferD*, IndexTp> getBufferInfo() const
         {
-            Bucket& bucket = m_pool.m_buckets[m_div.quot];
+            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
             return {bucket.buffer, m_div.rem * m_pool.m_stride};
         }
     };
@@ -167,9 +165,9 @@ public:
     /** Load dirty buffer data into GPU */
     void updateBuffers()
     {
-        for (Bucket& bucket : m_buckets)
-            if (bucket.dirty)
-                bucket.updateBuffer();
+        for (auto& bucket : m_buckets)
+            if (bucket->dirty)
+                bucket->updateBuffer();
     }
 
     /** Allocate free block into client-owned Token */
