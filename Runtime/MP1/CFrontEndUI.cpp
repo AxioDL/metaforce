@@ -230,7 +230,7 @@ void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArch
 
 void CFrontEndUI::Draw() const
 {
-    printf("DRAW\n");
+    //printf("DRAW\n");
 }
 
 void CFrontEndUI::UpdateMovies(float dt)
@@ -285,7 +285,7 @@ void CFrontEndUI::TransitionToFive()
 
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {
-    printf("UPDATE\n");
+    //printf("UPDATE\n");
 
     if (xdc_saveUI && x50_curScreen >= EScreen::Three)
     {

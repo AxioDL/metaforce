@@ -8,7 +8,7 @@ hecl::ProjectPath CDvdFile::m_DvdRoot;
 
 class CFileDvdRequest : public IDvdRequest
 {
-    CDvdFile& m_dvdFile;
+    std::shared_ptr<athena::io::FileReader> m_reader;
     void* m_buf;
     u32 m_len;
     ESeekOrigin m_whence;
@@ -41,18 +41,18 @@ public:
     }
 
     CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off)
-    : m_dvdFile(file), m_buf(buf), m_len(len), m_whence(whence), m_offset(off) {}
+    : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off) {}
 
     void DoRequest()
     {
         if (m_cancel)
             return;
         if (m_whence == ESeekOrigin::Cur && m_offset == 0)
-            m_dvdFile.m_reader.readBytesToBuf(m_buf, m_len);
+            m_reader->readBytesToBuf(m_buf, m_len);
         else
         {
-            m_dvdFile.m_reader.seek(m_offset, athena::SeekOrigin(m_whence));
-            m_dvdFile.m_reader.readBytesToBuf(m_buf, m_len);
+            m_reader->seek(m_offset, athena::SeekOrigin(m_whence));
+            m_reader->readBytesToBuf(m_buf, m_len);
         }
         m_complete = true;
     }

@@ -56,18 +56,21 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView, xrayPalette));
 
-    //m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
-    //m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
-    /*
+#if 0
+    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
+    m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     CDvdFile testRSF("Audio/frontend_1.rsf");
     u64 rsfLen = testRSF.Length();
     m_rsfBuf.reset(new u8[rsfLen]);
     testRSF.SyncRead(m_rsfBuf.get(), rsfLen);
-    */
-    //CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
+    CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
 
     m_videoVoice = m_voiceEngine->allocateNewStereoVoice(32000, &m_voiceCallback);
     m_videoVoice->start();
+#endif
+
+    m_newAudioPlayer.emplace(*m_voiceEngine, "Audio/frontend_1.rsf", 416480, 1973664);
+    m_newAudioPlayer->StartMixing();
 
     //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());

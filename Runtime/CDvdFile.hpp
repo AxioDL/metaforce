@@ -39,17 +39,19 @@ class CDvdFile
     static void WorkerProc();
 
     std::string x18_path;
-    athena::io::FileReader m_reader;
+    std::shared_ptr<athena::io::FileReader> m_reader;
 
 public:
     static void Initialize(const hecl::ProjectPath& path);
     static void Shutdown();
 
     CDvdFile(const char* path)
-    : x18_path(path), m_reader(hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath()) {}
+        : x18_path(path),
+          m_reader(std::make_shared<athena::io::FileReader>(
+                   hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath())) {}
     void UpdateFilePos(int pos)
     {
-        m_reader.seek(pos, athena::SeekOrigin::Begin);
+        m_reader->seek(pos, athena::SeekOrigin::Begin);
     }
     static bool FileExists(const char* path)
     {
@@ -57,13 +59,13 @@ public:
     }
     void CloseFile()
     {
-        m_reader.close();
+        m_reader->close();
     }
     std::shared_ptr<IDvdRequest> AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off);
     void SyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int offset)
     {
-        m_reader.seek(offset, athena::SeekOrigin(whence));
-        m_reader.readBytesToBuf(buf, len);
+        m_reader->seek(offset, athena::SeekOrigin(whence));
+        m_reader->readBytesToBuf(buf, len);
     }
     std::shared_ptr<IDvdRequest> AsyncRead(void* buf, u32 len)
     {
@@ -71,9 +73,9 @@ public:
     }
     void SyncRead(void* buf, u32 len)
     {
-        m_reader.readBytesToBuf(buf, len);
+        m_reader->readBytesToBuf(buf, len);
     }
-    u64 Length() {return m_reader.length();}
+    u64 Length() {return m_reader->length();}
 };
 }
 

@@ -17,6 +17,7 @@
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Runtime/Audio/CStaticAudioPlayer.hpp"
 
 namespace urde
 {
@@ -90,6 +91,8 @@ class ViewManager : public specter::IViewManager
         }
         AudioVoiceCallback(ViewManager& vm) : m_vm(vm) {}
     } m_voiceCallback;
+
+    std::experimental::optional<CStaticAudioPlayer> m_newAudioPlayer;
 
     hecl::SystemString m_recentProjectsPath;
     std::vector<hecl::SystemString> m_recentProjects;
