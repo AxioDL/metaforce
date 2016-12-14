@@ -1,6 +1,7 @@
 #ifndef __URDE_CSTATICAUDIOPLAYER_HPP__
 #define __URDE_CSTATICAUDIOPLAYER_HPP__
 
+#include "CAudioSys.hpp"
 #include "RetroTypes.hpp"
 #include "g721.h"
 #include "boo/audiodev/IAudioVoice.hpp"
@@ -43,7 +44,10 @@ class CStaticAudioPlayer
         size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
         {
             if (m_parent.IsReady())
+            {
+                m_parent.x38_dvdRequests.clear();
                 m_parent.Decode(data, frames);
+            }
             else
                 memset(data, 0, 4 * frames);
             return frames;
@@ -55,12 +59,20 @@ class CStaticAudioPlayer
 public:
     CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std::string& path,
                        int loopStart, int loopEnd);
+    CStaticAudioPlayer(const std::string& path,
+                       int loopStart, int loopEnd)
+    : CStaticAudioPlayer(*CAudioSys::GetVoiceEngine(), path, loopStart, loopEnd) {}
+
     bool IsReady();
     void DecodeMonoAndMix(s16* bufOut, u32 numSamples,
                           u32 cur, u32 loopEndCur, u32 loopStartCur,
                           int vol, g72x_state& state,
                           std::experimental::optional<g72x_state>& loopState) const;
     void Decode(s16* bufOut, u32 numSamples);
+    void SetVolume(float vol)
+    {
+        xc0_volume = zeus::clamp(0.f, vol, 1.f) / 32768.f;
+    }
 
     void StartMixing()
     {

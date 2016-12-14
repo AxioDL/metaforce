@@ -5,6 +5,8 @@
 namespace urde
 {
 
+#define RSF_BUFFER_SIZE 0x20000
+
 CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std::string& path,
                                        int loopStart, int loopEnd)
 : x0_path(path), x1c_loopStartSamp(loopStart & 0xfffffffe), x20_loopEndSamp(loopEnd & 0xfffffffe),
@@ -18,14 +20,14 @@ CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std
     x10_rsfRem = file.Length();
     x14_rsfLength = x10_rsfRem;
 
-    u32 bufCount = (x10_rsfRem + 0x20000 - 1) / 0x20000;
+    u32 bufCount = (x10_rsfRem + RSF_BUFFER_SIZE - 1) / RSF_BUFFER_SIZE;
     x48_buffers.reserve(bufCount);
     x38_dvdRequests.reserve(bufCount);
 
-    for (int remBytes = x10_rsfRem; remBytes > 0; remBytes -= 0x20000)
+    for (int remBytes = x10_rsfRem; remBytes > 0; remBytes -= RSF_BUFFER_SIZE)
     {
-        u32 thisSz = 0x20000;
-        if (remBytes < 0x20000)
+        u32 thisSz = RSF_BUFFER_SIZE;
+        if (remBytes < RSF_BUFFER_SIZE)
             thisSz = ROUND_UP_32(remBytes);
 
         x48_buffers.emplace_back(new u8[thisSz]);
@@ -50,14 +52,14 @@ void CStaticAudioPlayer::DecodeMonoAndMix(s16* bufOut, u32 numSamples,
 {
     for (u32 remBytes = numSamples / 2; remBytes;)
     {
-        u32 curBuf = cur / 0x20000;
-        u32 thisBytes = (curBuf + 1) * 0x20000 - cur;
+        u32 curBuf = cur / RSF_BUFFER_SIZE;
+        u32 thisBytes = (curBuf + 1) * RSF_BUFFER_SIZE - cur;
         thisBytes = std::min(thisBytes, remBytes);
         u32 remTillLoop = loopEndCur - cur;
         remTillLoop = std::min(remTillLoop, thisBytes);
 
         const std::unique_ptr<u8[]>& buf = x48_buffers[curBuf];
-        const u8* byte = &buf[cur - curBuf * 0x20000];
+        const u8* byte = &buf[cur - curBuf * RSF_BUFFER_SIZE];
 
         for (int i=0; i<remTillLoop; ++i, ++byte)
         {

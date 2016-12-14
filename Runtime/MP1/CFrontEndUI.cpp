@@ -9,11 +9,23 @@
 #include "Audio/CSfxManager.hpp"
 #include "Graphics/CMoviePlayer.hpp"
 #include "GuiSys/CSaveUI.hpp"
+#include "GuiSys/CGuiTextPane.hpp"
+#include "GuiSys/CGuiFrame.hpp"
+#include "GuiSys/CStringTable.hpp"
+#include "GuiSys/CGuiTableGroup.hpp"
+#include "CGameState.hpp"
+#include "CDependencyGroup.hpp"
+#include "Audio/CAudioGroupSet.hpp"
+#include "CNESEmulator.hpp"
 
 namespace urde
 {
 namespace MP1
 {
+
+/* Music volume constants */
+#define FE1_VOL 0.7421875f
+#define FE2_VOL 0.7421875f
 
 /* L/R Stereo transition cues */
 static const u16 FETransitionBackSFX[3][2] =
@@ -50,6 +62,116 @@ static const FEMovie FEMovies[] =
 };
 
 SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+
+CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd)
+: x0_rnd(rnd), x4_saveUI(sui)
+{
+    x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
+
+}
+
+bool CFrontEndUI::SNewFileSelectFrame::PumpLoad()
+{
+    return false;
+}
+
+void CFrontEndUI::SGuiTextPair::SetPairText(const std::wstring& str)
+{
+    x0_panes[0]->TextSupport()->SetText(str);
+    x0_panes[1]->TextSupport()->SetText(str);
+}
+
+void CFrontEndUI::SFrontEndFrame::FinishedLoading()
+{
+    x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
+    x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
+    x1c_gbaPair.SetPairText(g_MainStringTable->GetString(37));
+    x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
+    x24_cheatPair.SetPairText(g_MainStringTable->GetString(96));
+    FindAndSetPairText(x14_loadedFrme, "textpane_start", g_MainStringTable->GetString(67));
+    FindAndSetPairText(x14_loadedFrme, "textpane_options", g_MainStringTable->GetString(94));
+    FindAndSetPairText(x14_loadedFrme, "textpane_title", g_MainStringTable->GetString(98));
+    CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x14_loadedFrme->FindWidget("textpane_proceed"));
+    if (proceed)
+        proceed->TextSupport()->SetText(g_MainStringTable->GetString(85));
+
+    /* These appear to be unused leftovers from the CGuiFrame scripting system */
+    x18_tablegroup_mainmenu->SetMenuAdvanceCallback(
+        std::bind(&SFrontEndFrame::DoMenuAdvance, this, std::placeholders::_1));
+    x18_tablegroup_mainmenu->SetMenuSelectionChangeCallback(
+        std::bind(&SFrontEndFrame::DoMenuSelectionChange, this, std::placeholders::_1));
+    x18_tablegroup_mainmenu->SetMenuCancelCallback(
+        std::bind(&SFrontEndFrame::DoMenuAdvance, this, std::placeholders::_1));
+}
+
+bool CFrontEndUI::SFrontEndFrame::PumpLoad()
+{
+    if (x14_loadedFrme)
+        return true;
+    if (x8_frme.IsLoaded())
+    {
+        if (CGuiFrame* frme = x8_frme.GetObj())
+        {
+            if (frme->GetIsFinishedLoading())
+            {
+                x14_loadedFrme = frme;
+                FinishedLoading();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+CFrontEndUI::SGuiTextPair CFrontEndUI::SFrontEndFrame::FindTextPanePair(CGuiFrame* frame, const char* name)
+{
+    SGuiTextPair ret;
+    ret.x0_panes[0] = static_cast<CGuiTextPane*>(frame->FindWidget(name));
+    ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(hecl::Format("%sb", name).c_str()));
+    return ret;
+}
+
+void CFrontEndUI::SFrontEndFrame::FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str)
+{
+    CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
+    w1->TextSupport()->SetText(str);
+    CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(hecl::Format("%sb", name).c_str()));
+    w2->TextSupport()->SetText(str);
+}
+
+void CFrontEndUI::SFrontEndFrame::DoMenuSelectionChange(const CGuiTableGroup* caller)
+{
+}
+
+void CFrontEndUI::SFrontEndFrame::DoMenuAdvance(const CGuiTableGroup* caller)
+{
+
+}
+
+CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd)
+: x0_rnd(rnd)
+{
+    x8_frme = g_SimplePool->GetObj("FRME_FrontEndPL");
+}
+
+CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
+{
+    x4_nesEmu = std::make_unique<CNESEmulator>();
+
+    const SObjectTag* deface = g_ResFactory->GetResourceIdByName("FONT_Deface14B");
+    CGuiTextProperties props(false, true, EJustification::Left,
+                             EVerticalJustification::Center,
+                             ETextDirection::Horizontal);
+    xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::CColor::skWhite,
+                                                       zeus::CColor::skBlack, zeus::CColor::skWhite,
+                                                       0, 0, g_SimplePool);
+}
+
+CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame()
+{
+    x4_frme = g_SimplePool->GetObj("FRME_OptionsFrontEnd");
+    x10_pauseScreen = g_SimplePool->GetObj("STRG_PauseScreen");
+}
 
 CFrontEndUI::CFrontEndUI(CArchitectureQueue& queue)
 : CIOWin("FrontEndUI")
@@ -249,6 +371,15 @@ void CFrontEndUI::UpdateMovies(float dt)
         xc4_attractMovie->Update(dt);
 }
 
+void CFrontEndUI::FinishedLoadingDepsGroup()
+{
+}
+
+bool CFrontEndUI::PumpLoad()
+{
+    return false;
+}
+
 bool CFrontEndUI::PumpMovieLoad()
 {
     if (xd1_moviesLoaded)
@@ -257,7 +388,8 @@ bool CFrontEndUI::PumpMovieLoad()
     {
         if (!x70_menuMovies[i])
         {
-            x70_menuMovies[i] = std::make_unique<CMoviePlayer>(FEMovies[i].path, 0.05f, FEMovies[i].loop, false);
+            const FEMovie& movie = FEMovies[i];
+            x70_menuMovies[i] = std::make_unique<CMoviePlayer>(movie.path, 0.05f, movie.loop, false);
             x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
             return false;
         }
@@ -283,10 +415,18 @@ void CFrontEndUI::TransitionToFive()
     StartStateTransition(EScreen::Five);
 }
 
+void CFrontEndUI::UpdateMusicVolume()
+{
+    float volMul = (xf4_curAudio == xd4_audio1.get()) ? FE1_VOL : FE2_VOL;
+    if (xf4_curAudio)
+    {
+        float vol = volMul * x68_musicVol * (g_GameState->GameOptions().GetMusicVolume() / 127.f);
+        xf4_curAudio->SetVolume(vol);
+    }
+}
+
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {
-    //printf("UPDATE\n");
-
     if (xdc_saveUI && x50_curScreen >= EScreen::Three)
     {
         switch (xdc_saveUI->Update(dt))
@@ -302,6 +442,73 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
         }
     }
 
+    UpdateMusicVolume();
+
+    switch (x14_screen)
+    {
+    case EScreen::Zero:
+        if (!x20_depsGroup.IsLoaded())
+            return EMessageReturn::Exit;
+        FinishedLoadingDepsGroup();
+        x20_depsGroup.Unlock();
+        x14_screen = EScreen::One;
+
+    case EScreen::One:
+        if (PumpLoad())
+        {
+            xe0_newFileSel = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB);
+            xe4_gbaSupport = std::make_unique<CGBASupport>();
+            xe8_frontendFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
+            x38_pressStart.GetObj();
+            CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+            xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
+            xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
+            x14_screen = EScreen::Two;
+        }
+        if (x14_screen == EScreen::One)
+            return EMessageReturn::Exit;
+
+    case EScreen::Two:
+        if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() ||
+            !xe0_newFileSel->PumpLoad() || !xe4_gbaSupport->PumpLoad() ||
+            !xe8_frontendFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
+            return EMessageReturn::Exit;
+        xf4_curAudio = xd4_audio1.get();
+        xf4_curAudio->StartMixing();
+        x14_screen = EScreen::Three;
+
+    case EScreen::Three:
+    {
+        bool moviesReady = true;
+        if (PumpMovieLoad())
+        {
+            UpdateMovies(dt);
+            for (int i=0 ; i<9 ; ++i)
+            {
+                if (!x70_menuMovies[i]->GetIsFullyCached())
+                {
+                    moviesReady = false;
+                    break;
+                }
+            }
+        }
+        else
+            moviesReady = false;
+
+        if (moviesReady)
+        {
+            x14_screen = EScreen::Four;
+            StartStateTransition(EScreen::One);
+        }
+        else
+            return EMessageReturn::Exit;
+    }
+    case EScreen::Four:
+        if (xec_)
+        {
+            xdc_saveUI->Update(dt);
+        }
+    }
 
     return EMessageReturn::Exit;
 }

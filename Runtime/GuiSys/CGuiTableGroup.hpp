@@ -49,6 +49,9 @@ public:
     {
     };
 private:
+    std::function<void(const CGuiTableGroup*)> xd4_doMenuAdvance;
+    std::function<void(const CGuiTableGroup*)> xec_doMenuCancel;
+    std::function<void(const CGuiTableGroup*)> x104_doMenuSelChange;
     int xf8_;
     int xfc_;
     int x100_[3][2];
@@ -80,6 +83,21 @@ public:
     bool MAF_InitializeTable(CGuiFunctionDef* def, CGuiControllerInfo* info);
     bool MAF_MenuAdvance(CGuiFunctionDef* def, CGuiControllerInfo* info);
     bool MAF_MenuCancel(CGuiFunctionDef* def, CGuiControllerInfo* info);
+
+    void SetMenuAdvanceCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    {
+        xd4_doMenuAdvance = std::move(cb);
+    }
+
+    void SetMenuCancelCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    {
+        xec_doMenuCancel = std::move(cb);
+    }
+
+    void SetMenuSelectionChangeCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    {
+        x104_doMenuSelChange = std::move(cb);
+    }
 
     static CGuiTableGroup* Create(CGuiFrame* frame, CInputStream& in, bool);
 };

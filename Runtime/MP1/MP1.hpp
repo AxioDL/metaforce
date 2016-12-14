@@ -55,11 +55,14 @@ class CGameGlobalObjects
     CCharacterFactoryBuilder xec_charFactoryBuilder;
     CAiFuncMap x110_aiFuncMap;
     CGameState x134_gameState;
+    TLockedToken<CStringTable> x13c_mainStringTable;
     CInGameTweakManager x150_tweakManager;
     std::unique_ptr<CBooRenderer> m_renderer;
 
     void LoadStringTable()
     {
+        x13c_mainStringTable = g_SimplePool->GetObj("STRG_Main");
+        g_MainStringTable = x13c_mainStringTable.GetObj();
     }
     static CBooRenderer*
     AllocateRenderer(IObjectStore& store, IFactory& resFactory)
@@ -144,7 +147,8 @@ class CGameArchitectureSupport
     }
 
 public:
-    CGameArchitectureSupport(CMain& parent, amuse::IBackendVoiceAllocator& backend);
+    CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+                             amuse::IBackendVoiceAllocator& backend);
     void PreloadAudio();
     bool Update();
     void Draw();
@@ -218,8 +222,7 @@ private:
 
     u32 x164_ = 0;
 
-    void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr,
-                              boo::IAudioVoiceEngine* voiceEngine);
+    void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
 public:
     CMain(IFactory& resFactory, CSimplePool& resStore,

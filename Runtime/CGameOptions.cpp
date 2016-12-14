@@ -80,7 +80,7 @@ CGameOptions::CGameOptions(CBitStreamReader& stream)
     x50_ = stream.ReadEncoded(6);
     x54_ = stream.ReadEncoded(5);
     x58_ = stream.ReadEncoded(7);
-    x5c_ = stream.ReadEncoded(7);
+    x5c_musicVol = stream.ReadEncoded(7);
     x60_ = stream.ReadEncoded(8);
     x64_ = stream.ReadEncoded(8);
 
@@ -103,7 +103,7 @@ void CGameOptions::PutTo(CBitStreamWriter& writer) const
     writer.WriteEncoded(x50_, 6);
     writer.WriteEncoded(x54_, 5);
     writer.WriteEncoded(x58_, 7);
-    writer.WriteEncoded(x5c_, 7);
+    writer.WriteEncoded(x5c_musicVol, 7);
     writer.WriteEncoded(x60_, 8);
     writer.WriteEncoded(x64_, 8);
 

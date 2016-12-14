@@ -5,6 +5,11 @@
 #include "CGameDebug.hpp"
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
+#include "Audio/CStaticAudioPlayer.hpp"
+#include "CGBASupport.hpp"
+#include "zeus/CVector3f.hpp"
+#include "Input/CRumbleGenerator.hpp"
+#include "GuiSys/CGuiTextSupport.hpp"
 
 namespace urde
 {
@@ -19,9 +24,13 @@ class CSaveWorld;
 class CStringTable;
 class CGuiFrame;
 class CSaveUI;
+class CGuiTextPane;
+class CGuiWidget;
+class CGuiTableGroup;
 
 namespace MP1
 {
+class CNESEmulator;
 
 class CFrontEndUI : public CIOWin
 {
@@ -35,10 +44,6 @@ public:
         Four,
         Five,
         Six
-    };
-    struct SNewFileSelect
-    {
-
     };
     enum class EMenuMovie
     {
@@ -54,6 +59,97 @@ public:
         GBAFileSelectB
     };
 
+    struct SGuiTextPair
+    {
+        CGuiTextPane* x0_panes[2] = {};
+        void SetPairText(const std::wstring& str);
+    };
+
+    struct SNewFileSelectFrame
+    {
+        u32 x0_rnd;
+        CSaveUI* x4_saveUI;
+        TLockedToken<CGuiFrame> x10_frme;
+        CGuiFrame* x1c_ = nullptr;
+        CGuiWidget* x20_ = nullptr;
+        CGuiWidget* x24_ = nullptr;
+        SGuiTextPair x28_;
+        SGuiTextPair x30_;
+        SGuiTextPair x38_;
+        CGuiWidget* x40_ = nullptr;
+        CGuiWidget* x44_ = nullptr;
+        SGuiTextPair x48_;
+        SGuiTextPair x50_;
+        SGuiTextPair x58_;
+        CGuiWidget* x60_ = nullptr;
+        CGuiWidget* x64_ = nullptr;
+        zeus::CVector3f xf8_;
+        float x104_ = 0.f;
+        float x108_ = 0.f;
+        bool x10c_ = false;
+        bool x10d_ = false;
+        bool x10e_ = false;
+        SNewFileSelectFrame(CSaveUI* sui, u32 rnd);
+        bool PumpLoad();
+    };
+
+    struct SFrontEndFrame
+    {
+        u32 x0_rnd;
+        TLockedToken<CGuiFrame> x8_frme;
+        CGuiFrame* x14_loadedFrme = nullptr;
+        CGuiTableGroup* x18_tablegroup_mainmenu = nullptr;
+        SGuiTextPair x1c_gbaPair;
+        SGuiTextPair x24_cheatPair;
+        SFrontEndFrame(u32 rnd);
+        void FinishedLoading();
+        bool PumpLoad();
+        static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
+        static void FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str);
+
+        void DoMenuSelectionChange(const CGuiTableGroup* caller);
+        void DoMenuAdvance(const CGuiTableGroup* caller);
+    };
+
+    struct SFusionBonusFrame
+    {
+        u32 x0_ = 0;
+        std::unique_ptr<CNESEmulator> x4_nesEmu;
+        std::unique_ptr<CGuiTextSupport> xc_textSupport;
+        float x10_ = 8.f;
+        bool x14_ = false;
+        bool x15_ = true;
+
+        SFusionBonusFrame();
+    };
+
+    struct SOptionsFrontEndFrame
+    {
+        float x0_ = 0.f;
+        TLockedToken<CGuiFrame> x4_frme;
+        TLockedToken<CStringTable> x10_pauseScreen;
+        u32 x1c_ = 0;
+        u32 x20_ = 0;
+        u32 x24_ = 0;
+        u32 x28_ = 0;
+        u32 x2c_ = 0;
+        u32 x30_ = 0;
+        u32 x34_ = 0;
+        float x38_ = 0.f;
+        u32 x3c_ = 0;
+        CRumbleGenerator x40_rumbleGen;
+        union
+        {
+            u8 _dummy = 0;
+            struct
+            {
+                bool x134_24_;
+                bool x134_25_;
+            };
+        };
+        SOptionsFrontEndFrame();
+    };
+
 private:
     EScreen x14_screen = EScreen::Zero;
     u32 x18_rndA;
@@ -67,7 +163,7 @@ private:
     bool x5c_movieSecondsNeeded = false;
     float x60_ = 0.f;
     float x64_ = 0.f;
-    float x68_ = 1.f;
+    float x68_musicVol = 1.f;
     u32 x6c_;
     std::unique_ptr<CMoviePlayer> x70_menuMovies[9];
     EMenuMovie xb8_curMovie = EMenuMovie::Stopped;
@@ -78,14 +174,15 @@ private:
     bool xd0_ = false;
     bool xd1_moviesLoaded = false;
     bool xd2_ = false;
-    u32 xd4_ = 0;
-    u32 xd8_ = 0;
+    std::unique_ptr<CStaticAudioPlayer> xd4_audio1;
+    std::unique_ptr<CStaticAudioPlayer> xd8_audio2;
     std::unique_ptr<CSaveUI> xdc_saveUI;
-    std::unique_ptr<SNewFileSelect> xe0_newFileSel;
-    u32 xe4_ = 0;
+    std::unique_ptr<SNewFileSelectFrame> xe0_newFileSel;
+    std::unique_ptr<CGBASupport> xe4_gbaSupport;
+    std::unique_ptr<SFrontEndFrame> xe8_frontendFrme;
     u32 xec_ = 0;
     u32 xf0_ = 0;
-    u32 xf4_ = 0;
+    CStaticAudioPlayer* xf4_curAudio = nullptr;
 
     void SetMovieSecondsDeferred()
     {
@@ -100,6 +197,9 @@ private:
     }
 
     void TransitionToFive();
+    void UpdateMusicVolume();
+    void FinishedLoadingDepsGroup();
+    bool PumpLoad();
 public:
 
     CFrontEndUI(CArchitectureQueue& queue);

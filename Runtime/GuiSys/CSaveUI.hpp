@@ -36,6 +36,7 @@ struct CSaveUI
     bool x93_secondaryInst;
 
     CIOWin::EMessageReturn Update(float dt);
+    bool PumpLoad();
     CSaveUI(u32 inst, u32 a, u32 b);
 };
 

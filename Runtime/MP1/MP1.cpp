@@ -23,9 +23,10 @@ URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 namespace MP1
 {
 
-CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, amuse::IBackendVoiceAllocator& backend)
+CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+                                                   amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent),
-  m_audioSys(backend, 0,0,0,0,0),
+  m_audioSys(voiceEngine, backend, 0,0,0,0,0),
   m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
                    g_tweakPlayer->GetRightLogicalThreshold()),
   m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
@@ -124,8 +125,7 @@ void CMain::ResetGameState()
 {
 }
 
-void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr,
-                                 boo::IAudioVoiceEngine* voiceEngine)
+void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr)
 {
     CModelShaders::Initialize(storeMgr, CGraphics::g_BooFactory);
     CMoviePlayer::Initialize();
@@ -146,11 +146,11 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
                  boo::IAudioVoiceEngine* voiceEngine,
                  amuse::IBackendVoiceAllocator& backend)
 {
-    InitializeSubsystems(storeMgr, voiceEngine);
+    InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     x70_tweaks.RegisterResourceTweaks();
-    m_archSupport.reset(new CGameArchitectureSupport(*this, backend));
+    m_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
     g_archSupport = m_archSupport.get();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();

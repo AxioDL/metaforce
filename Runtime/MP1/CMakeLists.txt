@@ -5,6 +5,8 @@ set(MP1_SOURCES
     Tweaks/CTweakAutoMapper.hpp Tweaks/CTweakAutoMapper.cpp
     Tweaks/CTweakPlayer.hpp Tweaks/CTweakPlayer.cpp
     Tweaks/CTweakGui.hpp Tweaks/CTweakGui.cpp
+    CGBASupport.hpp CGBASupport.cpp
+    CNESEmulator.hpp CNESEmulator.cpp
     CMainFlow.hpp CMainFlow.cpp
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp

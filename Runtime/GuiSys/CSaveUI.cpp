@@ -11,6 +11,11 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
 
 }
 
+bool CSaveUI::PumpLoad()
+{
+    return false;
+}
+
 CSaveUI::CSaveUI(u32 instIdx, u32 a, u32 b)
 : x0_instIdx(instIdx), x8_a(a), xc_b(b)
 {

@@ -61,7 +61,7 @@ private:
     u32 x50_ = 0;
     u32 x54_ = 0;
     u32 x58_ = 0x7f;
-    u32 x5c_ = 0x7f;
+    u32 x5c_musicVol = 0x7f;
     u32 x60_ = 0xff;
     u32 x64_ = 0xff;
 
@@ -87,6 +87,7 @@ public:
     CGameOptions(CBitStreamReader& stream);
     void InitSoundMode();
     void PutTo(CBitStreamWriter& writer) const;
+    u32 GetMusicVolume() const { return x5c_musicVol; }
 };
 
 class CHintOptions

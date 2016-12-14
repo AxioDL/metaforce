@@ -27,6 +27,7 @@ extern class CAiFuncMap* g_AiFuncMap;
 extern class CGameState* g_GameState;
 extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
+extern class CStringTable* g_MainStringTable;
 
 extern DataSpec::ITweakGame*   g_tweakGame;
 extern DataSpec::ITweakPlayer* g_tweakPlayer;
