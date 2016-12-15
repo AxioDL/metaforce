@@ -19,11 +19,8 @@ class CGuiSliderGroup : public CGuiCompoundWidget
 public:
     CGuiSliderGroup(const CGuiWidgetParms& parms, float a, float b, float c, float d);
     FourCC GetWidgetTypeID() const {return FOURCC('SLGP');}
-    static void LoadWidgetFnMap();
 
     void SetSelectionChangedCallback(std::function<void(const CGuiSliderGroup*, float)>&& func);
-    bool MAF_Increment(CGuiFunctionDef* def, CGuiControllerInfo* info);
-    bool MAF_Decrement(CGuiFunctionDef* def, CGuiControllerInfo* info);
     void SetIncrement(float inc) {x104_increment = inc;}
     void SetMinVal(float min) {xf8_minVal = min; SetCurVal(x100_curVal);}
     void SetMaxVal(float max) {xfc_maxVal = max; SetCurVal(x100_curVal);}

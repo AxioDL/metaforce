@@ -15,24 +15,14 @@ set(GUISYS_SOURCES
     CConsoleOutputWindow.hpp
     CErrorOutputWindow.cpp
     CErrorOutputWindow.hpp
-    CGuiAnimBase.cpp
-    CGuiAnimBase.hpp
-    CGuiAnimController.cpp
-    CGuiAnimController.hpp
-    CGuiAutoRepeatData.cpp
-    CGuiAutoRepeatData.hpp
     CGuiCamera.cpp
     CGuiCamera.hpp
-    CGuiFactories.cpp
-    CGuiFactories.hpp
     CGuiFrame.cpp
     CGuiFrame.hpp
     CGuiLight.cpp
     CGuiLight.hpp
     CGuiModel.cpp
     CGuiModel.hpp
-    CGuiRandomVar.cpp
-    CGuiRandomVar.hpp
     CGuiSliderGroup.cpp
     CGuiSliderGroup.hpp
     CGuiStaticImage.cpp
@@ -62,15 +52,6 @@ set(GUISYS_SOURCES
     CRasterFont.hpp
     CGuiGroup.cpp
     CGuiGroup.hpp
-    CGuiFunctionDef.cpp
-    CGuiFunctionDef.hpp
-    CGuiFuncParm.cpp
-    CGuiFuncParm.hpp
-    CGuiPhysicalMsg.cpp
-    CGuiPhysicalMsg.hpp
-    CGuiControllerInfo.hpp
-    CGuiLogicalEventTrigger.cpp
-    CGuiLogicalEventTrigger.hpp
     CGuiWidgetIdDB.cpp
     CGuiWidgetIdDB.hpp
     CGuiHeadWidget.cpp
@@ -79,8 +60,6 @@ set(GUISYS_SOURCES
     CGuiBackground.hpp
     CGuiPane.cpp
     CGuiPane.hpp
-    CGuiMessage.cpp
-    CGuiMessage.hpp
     CFontRenderState.cpp
     CFontRenderState.hpp
     CTextExecuteBuffer.cpp

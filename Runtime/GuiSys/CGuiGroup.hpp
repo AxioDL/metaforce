@@ -18,10 +18,7 @@ public:
     void SelectWorkerWidget(int workerId, bool setActive, bool setVisible);
     CGuiWidget* GetSelectedWidget();
     bool AddWorkerWidget(CGuiWidget* worker);
-    void OnDeActivate();
-    void OnActivate(bool flag);
-    bool DoUnregisterEventHandler();
-    bool DoRegisterEventHandler();
+    void OnActiveChange();
 
     static CGuiGroup* Create(CGuiFrame* frame, CInputStream& in, bool flag);
     static void LoadWidgetFnMap();

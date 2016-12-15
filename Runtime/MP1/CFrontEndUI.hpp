@@ -27,6 +27,7 @@ class CSaveUI;
 class CGuiTextPane;
 class CGuiWidget;
 class CGuiTableGroup;
+class CGuiModel;
 
 namespace MP1
 {
@@ -35,6 +36,16 @@ class CNESEmulator;
 class CFrontEndUI : public CIOWin
 {
 public:
+    enum class EPhase
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six
+    };
     enum class EScreen
     {
         Zero,
@@ -64,32 +75,66 @@ public:
         CGuiTextPane* x0_panes[2] = {};
         void SetPairText(const std::wstring& str);
     };
+    static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
+    static void FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str);
+
+    struct SFileSelectOption
+    {
+        CGuiWidget* x0_base;
+
+        /* filename, world, playtime, date */
+        SGuiTextPair x4_textpanes[4];
+    };
+    static SFileSelectOption FindFileSelectOption(CGuiFrame* frame, int idx);
 
     struct SNewFileSelectFrame
     {
         u32 x0_rnd;
         CSaveUI* x4_saveUI;
         TLockedToken<CGuiFrame> x10_frme;
-        CGuiFrame* x1c_ = nullptr;
-        CGuiWidget* x20_ = nullptr;
-        CGuiWidget* x24_ = nullptr;
-        SGuiTextPair x28_;
+        CGuiFrame* x1c_loadedFrame = nullptr;
+        CGuiTableGroup* x20_tablegroup_fileselect = nullptr;
+        CGuiModel* x24_model_erase = nullptr;
+        SGuiTextPair x28_textpane_erase;
         SGuiTextPair x30_;
         SGuiTextPair x38_;
-        CGuiWidget* x40_ = nullptr;
-        CGuiWidget* x44_ = nullptr;
+        CGuiTableGroup* x40_tablegroup_popup = nullptr;
+        CGuiModel* x44_model_dash7 = nullptr;
         SGuiTextPair x48_;
         SGuiTextPair x50_;
-        SGuiTextPair x58_;
-        CGuiWidget* x60_ = nullptr;
-        CGuiWidget* x64_ = nullptr;
-        zeus::CVector3f xf8_;
-        float x104_ = 0.f;
+        SGuiTextPair x58_textpane_popupextra;
+        CGuiTextPane* x60_textpane_cancel = nullptr;
+        SFileSelectOption x64_fileSelections[3];
+        zeus::CVector3f xf8_model_erase_position;
+        float x104_rowPitch = 0.f;
         float x108_ = 0.f;
         bool x10c_ = false;
         bool x10d_ = false;
         bool x10e_ = false;
         SNewFileSelectFrame(CSaveUI* sui, u32 rnd);
+        void FinishedLoading();
+        bool PumpLoad();
+
+        void DoMenuSelectionChange(const CGuiTableGroup* caller);
+        void DoMenuAdvance(const CGuiTableGroup* caller);
+    };
+
+    struct SGBASupportFrame
+    {
+        u32 x0_ = 0;
+        std::unique_ptr<CGBASupport> x4_gbaSupport;
+        TLockedToken<CGuiFrame> xc_gbaScreen;
+        TLockedToken<CGuiFrame> x18_gbaLink;
+        CGuiFrame* x24_loadedFrame = nullptr;
+        CGuiWidget* x28_ = nullptr;
+        CGuiWidget* x2c_ = nullptr;
+        SGuiTextPair x30_;
+        bool x38_ = false;
+        bool x39_ = false;
+        bool x3a_ = false;
+
+        SGBASupportFrame();
+        void FinishedLoading();
         bool PumpLoad();
     };
 
@@ -104,8 +149,6 @@ public:
         SFrontEndFrame(u32 rnd);
         void FinishedLoading();
         bool PumpLoad();
-        static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
-        static void FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str);
 
         void DoMenuSelectionChange(const CGuiTableGroup* caller);
         void DoMenuAdvance(const CGuiTableGroup* caller);
@@ -116,11 +159,12 @@ public:
         u32 x0_ = 0;
         std::unique_ptr<CNESEmulator> x4_nesEmu;
         std::unique_ptr<CGuiTextSupport> xc_textSupport;
-        float x10_ = 8.f;
+        float x10_remTime = 8.f;
         bool x14_ = false;
         bool x15_ = true;
 
         SFusionBonusFrame();
+        bool DoUpdateWithSaveUI(float dt, CSaveUI* saveUi);
     };
 
     struct SOptionsFrontEndFrame
@@ -151,7 +195,7 @@ public:
     };
 
 private:
-    EScreen x14_screen = EScreen::Zero;
+    EPhase x14_phase = EPhase::Zero;
     u32 x18_rndA;
     u32 x1c_rndB;
     TLockedToken<CDependencyGroup> x20_depsGroup;
@@ -178,10 +222,10 @@ private:
     std::unique_ptr<CStaticAudioPlayer> xd8_audio2;
     std::unique_ptr<CSaveUI> xdc_saveUI;
     std::unique_ptr<SNewFileSelectFrame> xe0_newFileSel;
-    std::unique_ptr<CGBASupport> xe4_gbaSupport;
+    std::unique_ptr<SGBASupportFrame> xe4_gbaSupportFrme;
     std::unique_ptr<SFrontEndFrame> xe8_frontendFrme;
-    u32 xec_ = 0;
-    u32 xf0_ = 0;
+    std::unique_ptr<SFusionBonusFrame> xec_fusionFrme;
+    std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
     CStaticAudioPlayer* xf4_curAudio = nullptr;
 
     void SetMovieSecondsDeferred()

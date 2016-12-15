@@ -1,6 +1,4 @@
 #include "CGuiBackground.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {

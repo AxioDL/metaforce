@@ -2,7 +2,6 @@
 #include "CGuiFrame.hpp"
 #include "CGuiSys.hpp"
 #include "CSimplePool.hpp"
-#include "CGuiAnimController.hpp"
 #include "CGuiWidgetDrawParms.hpp"
 #include "Graphics/CGraphics.hpp"
 
@@ -55,13 +54,13 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
 
     if (GetIsVisible())
     {
-        zeus::CColor moduCol = xb4_;
+        zeus::CColor moduCol = xa8_color2;
         moduCol.a *= parms.x0_alphaMod;
-        xc8_frame->EnableLights(x10c_lightMask);
-        if (xf6_29_cullFaces)
+        xb0_frame->EnableLights(x10c_lightMask);
+        if (xb6_29_cullFaces)
             CGraphics::SetCullMode(ERglCullMode::Front);
 
-        switch (xc4_drawFlags)
+        switch (xac_drawFlags)
         {
         case EGuiModelDrawFlags::Shadeless:
         {
@@ -77,24 +76,24 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         }
         case EGuiModelDrawFlags::Alpha:
         {
-            CModelFlags flags(4, 0, (xf7_24_depthWrite << 1) | xf6_31_depthTest, moduCol);
+            CModelFlags flags(4, 0, (xb7_24_depthWrite << 1) | xb6_31_depthTest, moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
-            CModelFlags flags(3, 0, (xf7_24_depthWrite << 1) | xf6_31_depthTest, moduCol);
+            CModelFlags flags(3, 0, (xb7_24_depthWrite << 1) | xb6_31_depthTest, moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
-            CModelFlags flags(4, 0, xf6_31_depthTest, moduCol);
+            CModelFlags flags(4, 0, xb6_31_depthTest, moduCol);
             model->Draw(flags);
 
             flags.m_blendMode = 5;
             flags.m_matSetIdx = 0;
-            flags.m_flags = (xf7_24_depthWrite << 1) | xf6_31_depthTest;
+            flags.m_flags = (xb7_24_depthWrite << 1) | xb6_31_depthTest;
             flags.color = moduCol;
             model->Draw(flags);
             break;
@@ -102,9 +101,9 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         default: break;
         }
 
-        if (xf6_29_cullFaces)
+        if (xb6_29_cullFaces)
             CGraphics::SetCullMode(ERglCullMode::None);
-        xc8_frame->DisableLights();
+        xb0_frame->DisableLights();
     }
 
     CGuiWidget::Draw(parms);

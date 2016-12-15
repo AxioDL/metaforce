@@ -1,7 +1,4 @@
 #include "CGuiGroup.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
-#include "CGuiControllerInfo.hpp"
 
 namespace urde
 {
@@ -25,8 +22,8 @@ void CGuiGroup::SelectWorkerWidget(int workerId, bool setActive, bool setVisible
             CGuiWidget* sel = GetSelectedWidget();
             if (setActive)
             {
-                sel->SetIsActive(false, false);
-                child->SetIsActive(true, false);
+                sel->SetIsActive(false);
+                child->SetIsActive(true);
             }
             if (setVisible)
             {
@@ -50,42 +47,11 @@ bool CGuiGroup::AddWorkerWidget(CGuiWidget* worker)
     return true;
 }
 
-void CGuiGroup::OnDeActivate()
+void CGuiGroup::OnActiveChange()
 {
     CGuiWidget* sel = GetSelectedWidget();
     if (sel)
-        sel->SetIsActive(false, true);
-}
-
-void CGuiGroup::OnActivate(bool flag)
-{
-    CGuiWidget* sel = GetSelectedWidget();
-    if (sel)
-        sel->SetIsActive(true, flag);
-}
-
-bool CGuiGroup::DoUnregisterEventHandler()
-{
-    CGuiWidget::DoUnregisterEventHandler();
-    GetSelectedWidget()->UnregisterEventHandler(ETraversalMode::Children);
-    return true;
-}
-
-bool CGuiGroup::DoRegisterEventHandler()
-{
-    CGuiWidget::DoRegisterEventHandler();
-    CGuiWidget* sel = GetSelectedWidget();
-    if (GetIsActive() && sel)
-    {
-        CGuiFuncParm a((intptr_t(sel->GetSelfId())));
-        CGuiFuncParm b((intptr_t(3)));
-        CGuiFunctionDef def(0, false, a, b);
-        CGuiControllerInfo cInfo;
-        MAF_SendMessage(&def, &cInfo);
-    }
-    if (sel)
-        sel->RegisterEventHandler(ETraversalMode::Children);
-    return true;
+        sel->SetIsActive(true);
 }
 
 CGuiGroup* CGuiGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)

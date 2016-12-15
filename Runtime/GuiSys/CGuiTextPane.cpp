@@ -1,6 +1,4 @@
 #include "CGuiTextPane.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 #include "CFontImageDef.hpp"
 #include "CGuiFrame.hpp"
 #include "CGuiSys.hpp"
@@ -63,13 +61,13 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
         zeus::CTransform::Scale(dims.x, 1.f, dims.y);
     CGraphics::SetModelMatrix(x34_worldXF * local);
 
-    zeus::CColor geomCol = xb4_;
+    zeus::CColor geomCol = xa8_color2;
     geomCol.a *= parms.x0_alphaMod;
     const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
 
-    CGraphics::SetDepthWriteMode(xf6_31_depthTest, ERglEnum::LEqual, xf7_24_depthWrite);
+    CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
 
-    switch (xc4_drawFlags)
+    switch (xac_drawFlags)
     {
     case EGuiModelDrawFlags::Shadeless:
     case EGuiModelDrawFlags::Opaque:

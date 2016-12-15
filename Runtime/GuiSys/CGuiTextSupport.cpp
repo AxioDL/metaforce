@@ -176,7 +176,7 @@ void CGuiTextSupport::AddText(const std::wstring& str)
     ClearBuffer();
 }
 
-void CGuiTextSupport::SetText(const std::wstring& str)
+void CGuiTextSupport::SetText(const std::wstring& str, bool scanFlag)
 {
     if (x0_string.compare(str))
     {
@@ -184,12 +184,14 @@ void CGuiTextSupport::SetText(const std::wstring& str)
         x3c_curTime = 0.f;
         x0_string = str;
         ClearBuffer();
+        x308_scanFlag = scanFlag;
+        x304_scanCounter = 0;
     }
 }
 
-void CGuiTextSupport::SetText(const std::string& str)
+void CGuiTextSupport::SetText(const std::string& str, bool scanFlag)
 {
-    SetText(hecl::UTF8ToWide(str));
+    SetText(hecl::UTF8ToWide(str), scanFlag);
 }
 
 bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const

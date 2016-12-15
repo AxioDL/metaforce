@@ -1,6 +1,4 @@
 #include "CGuiLight.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 #include "CGuiFrame.hpp"
 
 namespace urde
@@ -21,7 +19,7 @@ CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
 
 CGuiLight::~CGuiLight()
 {
-    xc8_frame->RemoveLight(this);
+    xb0_frame->RemoveLight(this);
 }
 
 CLight CGuiLight::BuildLight() const
@@ -31,13 +29,13 @@ CLight CGuiLight::BuildLight() const
     switch (xf8_type)
     {
     case ELightType::Spot:
-        ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.basis[1], xbc_color, xfc_spotCutoff);
+        ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.basis[1], xa4_color, xfc_spotCutoff);
         break;
     case ELightType::Point:
-        ret = CLight::BuildPoint(GetWorldPosition(), xbc_color);
+        ret = CLight::BuildPoint(GetWorldPosition(), xa4_color);
         break;
     case ELightType::Directional:
-        ret = CLight::BuildDirectional(x34_worldXF.basis[1], xbc_color);
+        ret = CLight::BuildDirectional(x34_worldXF.basis[1], xa4_color);
         break;
     default: break;
     }
@@ -50,9 +48,9 @@ CLight CGuiLight::BuildLight() const
 void CGuiLight::SetIsVisible(bool vis)
 {
     if (vis)
-        xc8_frame->AddLight(this);
+        xb0_frame->AddLight(this);
     else
-        xc8_frame->RemoveLight(this);
+        xb0_frame->RemoveLight(this);
     CGuiWidget::SetIsVisible(vis);
 }
 

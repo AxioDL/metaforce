@@ -100,8 +100,8 @@ class CGuiTextSupport
 
     std::list<u8> x2f0_;
     u32 x300_ = 0;
-    u32 x304_ = 0;
-    u32 x308_ = 0;
+    u32 x304_scanCounter = 0;
+    bool x308_scanFlag = false;
 
 public:
     CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
@@ -119,8 +119,8 @@ public:
     void SetOutlineColor(const zeus::CColor& col);
     void SetFontColor(const zeus::CColor& col);
     void AddText(const std::wstring& str);
-    void SetText(const std::wstring& str);
-    void SetText(const std::string& str);
+    void SetText(const std::wstring& str, bool scanFlag=false); // Flag set for scan write effect
+    void SetText(const std::string& str, bool scanFlag=false);
     bool GetIsTextSupportFinishedLoading() const;
 };
 

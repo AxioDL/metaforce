@@ -1,6 +1,4 @@
 #include "CGuiStaticImage.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 #include "CGuiFrame.hpp"
 #include "CGuiSys.hpp"
 #include "CSimplePool.hpp"

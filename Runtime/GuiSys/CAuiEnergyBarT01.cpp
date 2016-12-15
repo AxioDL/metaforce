@@ -1,6 +1,4 @@
 #include "CAuiEnergyBarT01.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {

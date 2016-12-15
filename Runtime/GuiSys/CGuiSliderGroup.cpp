@@ -1,18 +1,7 @@
 #include "CGuiSliderGroup.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
-
-typedef bool(CGuiSliderGroup::*FMAF)(CGuiFunctionDef* def, CGuiControllerInfo* info);
-static std::unordered_map<u32, FMAF> WidgetFnMap;
-
-void CGuiSliderGroup::LoadWidgetFnMap()
-{
-    WidgetFnMap.emplace(std::make_pair(18, &CGuiSliderGroup::MAF_Increment));
-    WidgetFnMap.emplace(std::make_pair(19, &CGuiSliderGroup::MAF_Decrement));
-}
 
 CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float a, float b, float c, float d)
 : CGuiCompoundWidget(parms), xf8_minVal(a), xfc_maxVal(b), x100_curVal(c), x104_increment(d)
@@ -23,22 +12,6 @@ void CGuiSliderGroup::SetSelectionChangedCallback
     (std::function<void(const CGuiSliderGroup*, float)>&& func)
 {
     x114_changeCallback = std::move(func);
-}
-
-bool CGuiSliderGroup::MAF_Increment(CGuiFunctionDef*, CGuiControllerInfo*)
-{
-    float oldVal = x100_curVal;
-    SetCurVal(x100_curVal + x104_increment);
-    x114_changeCallback(this, oldVal);
-    return true;
-}
-
-bool CGuiSliderGroup::MAF_Decrement(CGuiFunctionDef*, CGuiControllerInfo*)
-{
-    float oldVal = x100_curVal;
-    SetCurVal(x100_curVal - x104_increment);
-    x114_changeCallback(this, oldVal);
-    return true;
 }
 
 void CGuiSliderGroup::SetCurVal(float cur)

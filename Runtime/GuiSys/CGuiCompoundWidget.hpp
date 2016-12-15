@@ -12,10 +12,8 @@ public:
     CGuiCompoundWidget(const CGuiWidgetParms& parms);
     FourCC GetWidgetTypeID() const {return FourCC(-1);}
 
-    void OnInvisible();
-    void OnVisible();
-    void OnDeActivate();
-    void OnActivate(bool);
+    void OnVisibleChange();
+    void OnActiveChange();
     virtual CGuiWidget* GetWorkerWidget(int id);
 };
 

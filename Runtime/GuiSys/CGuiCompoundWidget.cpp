@@ -1,6 +1,4 @@
 #include "CGuiCompoundWidget.hpp"
-#include "CGuiAnimController.hpp"
-#include "CGuiLogicalEventTrigger.hpp"
 
 namespace urde
 {
@@ -10,18 +8,7 @@ CGuiCompoundWidget::CGuiCompoundWidget(const CGuiWidgetParms& parms)
 {
 }
 
-void CGuiCompoundWidget::OnInvisible()
-{
-    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
-    while (child)
-    {
-        child->SetIsVisible(false);
-        child = static_cast<CGuiWidget*>(child->GetNextSibling());
-    }
-    CGuiWidget::OnInvisible();
-}
-
-void CGuiCompoundWidget::OnVisible()
+void CGuiCompoundWidget::OnVisibleChange()
 {
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     while (child)
@@ -29,29 +16,18 @@ void CGuiCompoundWidget::OnVisible()
         child->SetIsVisible(true);
         child = static_cast<CGuiWidget*>(child->GetNextSibling());
     }
-    CGuiWidget::OnVisible();
+    CGuiWidget::OnVisibleChange();
 }
 
-void CGuiCompoundWidget::OnDeActivate()
+void CGuiCompoundWidget::OnActiveChange()
 {
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     while (child)
     {
-        child->SetIsActive(false, false);
+        child->SetIsActive(true);
         child = static_cast<CGuiWidget*>(child->GetNextSibling());
     }
-    CGuiWidget::OnDeActivate();
-}
-
-void CGuiCompoundWidget::OnActivate(bool flag)
-{
-    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
-    while (child)
-    {
-        child->SetIsActive(true, flag);
-        child = static_cast<CGuiWidget*>(child->GetNextSibling());
-    }
-    CGuiWidget::OnDeActivate();
+    CGuiWidget::OnActiveChange();
 }
 
 CGuiWidget* CGuiCompoundWidget::GetWorkerWidget(int id)

@@ -9,9 +9,6 @@
 namespace urde
 {
 struct CGuiWidgetDrawParms;
-class CGuiMessage;
-class CGuiFunctionDef;
-struct CGuiControllerInfo;
 
 class CGuiObject
 {
@@ -26,7 +23,7 @@ public:
     virtual ~CGuiObject();
     virtual void Update(float dt);
     virtual void Draw(const CGuiWidgetDrawParms& parms) const;
-    virtual bool Message(const CGuiMessage& msg)=0;
+    virtual bool Message()=0;
 
     void MoveInWorld(const zeus::CVector3f& vec);
     const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.origin;}

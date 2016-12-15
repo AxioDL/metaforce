@@ -5,9 +5,21 @@ namespace urde
 namespace MP1
 {
 
-bool CGBASupport::PumpLoad()
+CGBASupport* CGBASupport::SharedInstance = nullptr;
+
+CGBASupport::CGBASupport()
+: CDvdFile("client_pad.bin")
 {
-    return false;
+    x28_fileSize = ROUND_UP_32(Length());
+    x2c_buffer.reset(new u8[x28_fileSize]);
+    x30_dvdReq = AsyncRead(x2c_buffer.get(), x28_fileSize);
+    //InitDSPComm();
+    SharedInstance = this;
+}
+
+CGBASupport::~CGBASupport()
+{
+    SharedInstance = nullptr;
 }
 
 }
