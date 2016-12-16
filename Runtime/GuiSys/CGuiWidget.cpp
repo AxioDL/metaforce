@@ -47,9 +47,8 @@ CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     return ret;
 }
 
-bool CGuiWidget::Message()
+void CGuiWidget::Initialize()
 {
-    return false;
 }
 
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms)
@@ -89,7 +88,7 @@ void CGuiWidget::Update(float dt)
 }
 
 void CGuiWidget::Draw(const CGuiWidgetDrawParms&) const {}
-void CGuiWidget::Initialize() {}
+void CGuiWidget::ProcessUserInput(const CFinalInput& input) {}
 void CGuiWidget::Touch() const {}
 
 bool CGuiWidget::GetIsVisible() const
@@ -219,15 +218,15 @@ bool CGuiWidget::GetIsFinishedLoading() const
     return GetIsFinishedLoadingWidgetSpecific();
 }
 
-void CGuiWidget::InitializeRecursive()
+void CGuiWidget::DispatchInitialize()
 {
     Initialize();
     CGuiWidget* ch = static_cast<CGuiWidget*>(GetChildObject());
     if (ch)
-        ch->InitializeRecursive();
+        ch->DispatchInitialize();
     CGuiWidget* sib = static_cast<CGuiWidget*>(GetNextSibling());
     if (sib)
-        sib->InitializeRecursive();
+        sib->DispatchInitialize();
 }
 
 void CGuiWidget::SetColor(const zeus::CColor& color)

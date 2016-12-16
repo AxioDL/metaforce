@@ -11,6 +11,7 @@ class CTexture;
 class CStringTable;
 class CGuiFrame;
 class CSaveWorld;
+class CFinalInput;
 
 struct CSaveUI
 {
@@ -37,6 +38,7 @@ struct CSaveUI
 
     CIOWin::EMessageReturn Update(float dt);
     bool PumpLoad();
+    void ProcessUserInput(const CFinalInput& input);
     CSaveUI(u32 inst, u32 a, u32 b);
 };
 

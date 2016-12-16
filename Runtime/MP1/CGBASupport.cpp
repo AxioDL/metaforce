@@ -22,5 +22,10 @@ CGBASupport::~CGBASupport()
     SharedInstance = nullptr;
 }
 
+bool CGBASupport::IsReady() const
+{
+    return false;
+}
+
 }
 }

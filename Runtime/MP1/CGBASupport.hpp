@@ -23,6 +23,7 @@ class CGBASupport : public CDvdFile
 public:
     CGBASupport();
     ~CGBASupport();
+    bool IsReady() const;
 };
 
 }

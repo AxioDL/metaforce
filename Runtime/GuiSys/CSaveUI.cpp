@@ -16,6 +16,11 @@ bool CSaveUI::PumpLoad()
     return false;
 }
 
+void CSaveUI::ProcessUserInput(const CFinalInput& input)
+{
+
+}
+
 CSaveUI::CSaveUI(u32 instIdx, u32 a, u32 b)
 : x0_instIdx(instIdx), x8_a(a), xc_b(b)
 {

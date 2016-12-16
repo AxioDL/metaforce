@@ -53,6 +53,11 @@ float CGuiTextSupport::GetTotalAnimationTime() const
     return x60_renderBuf->GetPrimitiveCount() / x58_chRate;
 }
 
+bool CGuiTextSupport::AnimationDone() const
+{
+    return x3c_curTime >= GetTotalAnimationTime();
+}
+
 void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate)
 {
     x50_typeEnable = enable;

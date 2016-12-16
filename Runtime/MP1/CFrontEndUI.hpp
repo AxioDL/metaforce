@@ -84,13 +84,30 @@ public:
 
         /* filename, world, playtime, date */
         SGuiTextPair x4_textpanes[4];
+
+        u32 x28_ = 0;
+        float x2c_ = ComputeRandom();
+
+        static float ComputeRandom()
+        {
+            return rand() / float(RAND_MAX) * 30.f + 30.f;
+        }
     };
     static SFileSelectOption FindFileSelectOption(CGuiFrame* frame, int idx);
 
     struct SNewFileSelectFrame
     {
+        enum class EPhase
+        {
+            Zero,
+            One,
+            Two
+        };
+
         u32 x0_rnd;
         CSaveUI* x4_saveUI;
+        u32 x8_ = 0;
+        EPhase xc_phase = EPhase::Zero;
         TLockedToken<CGuiFrame> x10_frme;
         CGuiFrame* x1c_loadedFrame = nullptr;
         CGuiTableGroup* x20_tablegroup_fileselect = nullptr;
@@ -107,16 +124,26 @@ public:
         SFileSelectOption x64_fileSelections[3];
         zeus::CVector3f xf8_model_erase_position;
         float x104_rowPitch = 0.f;
-        float x108_ = 0.f;
-        bool x10c_ = false;
-        bool x10d_ = false;
+        float x108_curTime = 0.f;
+        bool x10c_inputEnable = false;
+        bool x10d_needsToggle = false;
         bool x10e_ = false;
+
         SNewFileSelectFrame(CSaveUI* sui, u32 rnd);
         void FinishedLoading();
         bool PumpLoad();
+        bool IsTextDoneAnimating() const;
+        EPhase ProcessUserInput(const CFinalInput& input);
 
-        void DoMenuSelectionChange(const CGuiTableGroup* caller);
-        void DoMenuAdvance(const CGuiTableGroup* caller);
+        void HandleActiveChange(CGuiTableGroup* active);
+        void DeactivatePopup();
+        void ActivatePopup();
+
+        void DoPopupCancel(const CGuiTableGroup* caller);
+        void DoPopupAdvance(const CGuiTableGroup* caller);
+        void DoFileselectCancel(const CGuiTableGroup* caller);
+        void DoSelectionChange(const CGuiTableGroup* caller);
+        void DoFileselectAdvance(const CGuiTableGroup* caller);
     };
 
     struct SGBASupportFrame
@@ -126,9 +153,9 @@ public:
         TLockedToken<CGuiFrame> xc_gbaScreen;
         TLockedToken<CGuiFrame> x18_gbaLink;
         CGuiFrame* x24_loadedFrame = nullptr;
-        CGuiWidget* x28_ = nullptr;
-        CGuiWidget* x2c_ = nullptr;
-        SGuiTextPair x30_;
+        CGuiTableGroup* x28_tablegroup_options = nullptr;
+        CGuiTableGroup* x2c_tablegroup_fusionsuit = nullptr;
+        SGuiTextPair x30_textpane_instructions;
         bool x38_ = false;
         bool x39_ = false;
         bool x3a_ = false;
@@ -136,6 +163,12 @@ public:
         SGBASupportFrame();
         void FinishedLoading();
         bool PumpLoad();
+        void SetTableColors(CGuiTableGroup* tbgp) const;
+        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+
+        void DoOptionsCancel(const CGuiTableGroup* caller);
+        void DoSelectionChange(const CGuiTableGroup* caller);
+        void DoOptionsAdvance(const CGuiTableGroup* caller);
     };
 
     struct SFrontEndFrame
@@ -149,9 +182,11 @@ public:
         SFrontEndFrame(u32 rnd);
         void FinishedLoading();
         bool PumpLoad();
+        void ProcessUserInput(const CFinalInput& input);
 
-        void DoMenuSelectionChange(const CGuiTableGroup* caller);
-        void DoMenuAdvance(const CGuiTableGroup* caller);
+        void DoCancel(const CGuiTableGroup* caller);
+        void DoSelectionChange(const CGuiTableGroup* caller);
+        void DoAdvance(const CGuiTableGroup* caller);
     };
 
     struct SFusionBonusFrame
@@ -164,6 +199,7 @@ public:
         bool x15_ = true;
 
         SFusionBonusFrame();
+        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         bool DoUpdateWithSaveUI(float dt, CSaveUI* saveUi);
     };
 
@@ -192,6 +228,7 @@ public:
             };
         };
         SOptionsFrontEndFrame();
+        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
     };
 
 private:

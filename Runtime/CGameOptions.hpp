@@ -29,7 +29,7 @@ class CPersistentOptions
             bool xd0_25_;
             bool xd0_26_;
             bool xd0_27_;
-            bool xd0_28_;
+            bool xd0_28_hasFusion;
             bool xd0_29_;
         };
         u16 _dummy = 0;
@@ -40,6 +40,7 @@ public:
     CPersistentOptions(CBitStreamReader& stream);
 
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
+    bool PlayerHasFusion() const { return xd0_28_hasFusion; }
 };
 
 /** Options tracked per game session */

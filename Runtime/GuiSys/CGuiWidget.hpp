@@ -9,6 +9,7 @@ namespace urde
 {
 class CGuiFrame;
 class CGuiTextSupport;
+class CFinalInput;
 
 enum class ETraversalMode
 {
@@ -94,8 +95,8 @@ public:
 
     virtual void Update(float dt);
     virtual void Draw(const CGuiWidgetDrawParms& drawParms) const;
-    virtual bool Message();
     virtual void Initialize();
+    virtual void ProcessUserInput(const CFinalInput& input);
     virtual void Touch() const;
     virtual bool GetIsVisible() const;
     virtual bool GetIsActive() const;
@@ -109,6 +110,7 @@ public:
     s16 GetParentId() const {return x72_parentId;}
     s16 GetWorkerId() const {return xb4_workerId;}
     const zeus::CTransform& GetTransform() const {return x74_transform;}
+    zeus::CTransform& GetTransform() {return x74_transform;}
     const zeus::CVector3f& GetIdlePosition() const {return x74_transform.origin;}
     void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
     void ReapplyXform();
@@ -125,7 +127,7 @@ public:
     void InitializeRGBAFactor();
     CGuiWidget* FindWidget(s16 id);
     bool GetIsFinishedLoading() const;
-    void InitializeRecursive();
+    void DispatchInitialize();
 };
 
 }

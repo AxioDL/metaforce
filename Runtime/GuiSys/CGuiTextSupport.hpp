@@ -110,6 +110,7 @@ public:
     float GetCurrentAnimationOverAge() const;
     float GetNumCharsPrinted() const;
     float GetTotalAnimationTime() const;
+    bool AnimationDone() const;
     void SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate);
     void Update(float dt);
     void ClearBuffer();

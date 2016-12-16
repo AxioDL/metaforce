@@ -3,23 +3,24 @@
 namespace urde
 {
 
-CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int a, int b, bool c)
+CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int elementCount,
+                               int defaultSel, bool selectWraparound)
 : CGuiCompoundWidget(parms),
-  xc0_(a), xc4_(b),
-  xc8_(b), xcc_(b),
-  xd0_(c)
+  xc0_elementCount(elementCount), xc4_userSelection(defaultSel),
+  xc8_prevUserSelection(defaultSel), xcc_defaultUserSelection(defaultSel),
+  xd0_selectWraparound(selectWraparound)
 {}
 
 CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
 
-    int a = in.readInt16Big();
+    int elementCount = in.readInt16Big();
     in.readInt16Big();
     in.readUint32Big();
-    int b = in.readInt16Big();
+    int defaultSel = in.readInt16Big();
     in.readInt16Big();
-    bool c = in.readBool();
+    bool selectWraparound = in.readBool();
     in.readBool();
     in.readFloatBig();
     in.readFloatBig();
@@ -30,7 +31,7 @@ CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, bool 
     in.readInt16Big();
     in.readInt16Big();
 
-    CGuiTableGroup* ret = new CGuiTableGroup(parms, a, b, c);
+    CGuiTableGroup* ret = new CGuiTableGroup(parms, elementCount, defaultSel, selectWraparound);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

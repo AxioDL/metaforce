@@ -163,4 +163,10 @@ void CGuiObject::SetO2WTransform(const zeus::CTransform& xf)
     RecalculateTransforms();
 }
 
+void CGuiObject::SetLocalTransform(const zeus::CTransform& xf)
+{
+    x4_localXF = xf;
+    RecalculateTransforms();
+}
+
 }

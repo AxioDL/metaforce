@@ -56,6 +56,7 @@ public:
     void Draw(const CGuiWidgetDrawParms& parms) const;
     void Initialize();
     void LoadWidgetsInGame(CInputStream& in);
+    void ProcessUserInput(const CFinalInput& input) const;
 
     CGuiWidgetIdDB& GetWidgetIdDB() {return x18_idDB;}
 

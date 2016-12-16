@@ -164,12 +164,12 @@ struct FRME : BigDNA
         struct TBGPInfo : IWidgetInfo
         {
             DECL_DNA
-            Value<atUint16> unk1;
+            Value<atUint16> elementCount;
             Value<atUint16> unk2;
             Value<atUint32> unkEnum;
-            Value<atUint16> unk3;
+            Value<atUint16> defaultSelection;
             Value<atUint16> un4;
-            Value<bool>  unk5;
+            Value<bool>  selectWraparound;
             Value<bool>  unk6;
             Value<float> unkFloat1;
             Value<float> unkFloat2;

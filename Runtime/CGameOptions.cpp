@@ -24,7 +24,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xd0_25_ = stream.ReadEncoded(1);
     xd0_26_ = stream.ReadEncoded(1);
     xd0_27_ = stream.ReadEncoded(1);
-    xd0_28_ = stream.ReadEncoded(1);
+    xd0_28_hasFusion = stream.ReadEncoded(1);
     xd0_29_ = stream.ReadEncoded(1);
     xbc_ = stream.ReadEncoded(2);
 

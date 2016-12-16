@@ -131,7 +131,7 @@ void CGuiFrame::Initialize()
 {
     SortDrawOrder();
     xc_headWidget->SetColor(xc_headWidget->xa4_color);
-    xc_headWidget->InitializeRecursive();
+    xc_headWidget->DispatchInitialize();
 }
 
 void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
@@ -155,6 +155,17 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
         }
     }
     Initialize();
+}
+
+void CGuiFrame::ProcessUserInput(const CFinalInput& input) const
+{
+    if (x4_)
+        return;
+    for (CGuiWidget* widget : x2c_widgets)
+    {
+        if (widget->GetIsActive())
+            widget->ProcessUserInput(input);
+    }
 }
 
 CGuiFrame* CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp)
