@@ -20,20 +20,22 @@ class CTextExecuteBuffer
     std::list<std::shared_ptr<CInstruction>> x0_instList;
     u32 x14_ = 0;
     CSaveableState x18_textState;
-    CBlockInstruction* x6c_curBlock = nullptr;
-    CLineInstruction* x70_curLine = nullptr;
-    std::list<std::shared_ptr<CInstruction>>::iterator x74_curWordIt;
-    s32 x78_curY;
-    s32 x7c_curX;
-    s32 x80_ = 0;
-    s32 x84_ = 0;
-    s32 x88_spaceDistance = 0;
-    std::vector<CSaveableState> x8c_stateStack;
+    CBlockInstruction* xa0_curBlock = nullptr;
+    CLineInstruction* xa4_curLine = nullptr;
+    std::list<std::shared_ptr<CInstruction>>::iterator xa8_curWordIt;
+    s32 xac_curY;
+    s32 xb0_curX;
+    s32 xb4_ = 0;
+    s32 xb8_ = 0;
+    s32 xbc_spaceDistance = 0;
+    bool xc0_ = false;
+    std::list<CSaveableState> xc4_stateStack;
+    u32 xd8_ = 0;
 
 public:
     CTextExecuteBuffer()
     {
-        x74_curWordIt = x0_instList.begin();
+        xa8_curWordIt = x0_instList.begin();
     }
 
     CTextRenderBuffer CreateTextRenderBuffer() const;

@@ -23,20 +23,20 @@ class CSaveableState
     friend class CGuiTextSupport;
 protected:
     CDrawStringOptions x0_drawStrOpts;
-    TToken<CRasterFont> x14_font;
-    std::vector<CTextColor> x20_;
-    std::vector<bool> x30_colorOverrides;
-    float x40_lineSpacing = 1.f;
-    s32 x44_extraLineSpace = 0;
-    bool x48_enableWordWrap = false;
-    EJustification x4c_just = EJustification::Left;
-    EVerticalJustification x50_vjust = EVerticalJustification::Top;
+    TLockedToken<CRasterFont> x48_font;
+    std::vector<CTextColor> x54_;
+    std::vector<bool> x64_colorOverrides;
+    float x74_lineSpacing = 1.f;
+    s32 x78_extraLineSpace = 0;
+    bool x7c_enableWordWrap = false;
+    EJustification x80_just = EJustification::Left;
+    EVerticalJustification x84_vjust = EVerticalJustification::Top;
 
 public:
     CSaveableState()
     {
-        x20_.resize(3, zeus::CColor::skBlack);
-        x30_colorOverrides.resize(16);
+        x54_.resize(3, zeus::CColor::skBlack);
+        x64_colorOverrides.resize(16);
     }
 };
 

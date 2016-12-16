@@ -71,7 +71,7 @@ public:
     void Decode(s16* bufOut, u32 numSamples);
     void SetVolume(float vol)
     {
-        xc0_volume = zeus::clamp(0.f, vol, 1.f) / 32768.f;
+        xc0_volume = zeus::clamp(0.f, vol, 1.f) * 32768.f;
     }
 
     void StartMixing()

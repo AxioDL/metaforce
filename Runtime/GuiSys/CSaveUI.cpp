@@ -21,6 +21,21 @@ void CSaveUI::ProcessUserInput(const CFinalInput& input)
 
 }
 
+void CSaveUI::StartGame(int idx)
+{
+
+}
+
+void CSaveUI::EraseGame(int idx)
+{
+
+}
+
+void* CSaveUI::GetGameData(int idx) const
+{
+    return nullptr;
+}
+
 CSaveUI::CSaveUI(u32 instIdx, u32 a, u32 b)
 : x0_instIdx(instIdx), x8_a(a), xc_b(b)
 {

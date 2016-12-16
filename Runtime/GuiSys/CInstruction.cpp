@@ -23,7 +23,7 @@ void CColorInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
 
 void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x30_colorOverrides[x4_overrideIdx] = true;
+    state.x64_colorOverrides[x4_overrideIdx] = true;
     zeus::CColor convCol = state.ConvertToTextureSpace(x8_color);
     state.x0_drawStrOpts.x4_colors[x4_overrideIdx] = convCol;
 }
@@ -31,7 +31,7 @@ void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffe
 void CFontInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     buf->AddFontChange(x4_font);
-    state.x14_font = x4_font;
+    state.x48_font = x4_font;
     state.RefreshPalette();
 }
 
@@ -47,7 +47,7 @@ size_t CFontInstruction::GetAssetCount() const
 
 void CLineExtraSpaceInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x44_extraLineSpace = x4_extraSpace;
+    state.x78_extraLineSpace = x4_extraSpace;
 }
 
 void CLineInstruction::TestLargestFont(s32 monoW, s32 monoH, s32 baseline)
@@ -141,7 +141,7 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
         }
 
         if (state.x54_curBlock->x1c_vertJustification != EVerticalJustification::Full)
-            val = val * state.x40_lineSpacing + state.x44_extraLineSpace;
+            val = val * state.x74_lineSpacing + state.x78_extraLineSpace;
 
         state.x70_curY += val;
     }
@@ -156,7 +156,7 @@ void CLineInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) c
 
 void CLineSpacingInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x40_lineSpacing = x4_lineSpacing;
+    state.x74_lineSpacing = x4_lineSpacing;
 }
 
 void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -171,7 +171,7 @@ void CPushStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* b
 
 void CRemoveColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x30_colorOverrides[x4_idx] = false;
+    state.x64_colorOverrides[x4_idx] = false;
 }
 
 void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -196,7 +196,7 @@ void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
 void CTextInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     int xOut, yOut;
-    state.x14_font.GetObj()->DrawString(state.x0_drawStrOpts, state.x6c_curX,
+    state.x48_font.GetObj()->DrawString(state.x0_drawStrOpts, state.x6c_curX,
                                         state.x74_currentLineInst->x18_largestBaseline + state.x70_curY,
                                         xOut, yOut, buf, x4_str.c_str(), x4_str.size());
     state.x6c_curX = xOut;
@@ -254,7 +254,7 @@ void CBlockInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
 
 void CWordInstruction::InvokeLTR(CFontRenderState& state) const
 {
-    CRasterFont* font = state.x14_font.GetObj();
+    CRasterFont* font = state.x48_font.GetObj();
     wchar_t space = L' ';
     int w, h;
     font->GetSize(state.x0_drawStrOpts, w, h, &space, 1);

@@ -29,25 +29,25 @@ private:
     int xcc_defaultUserSelection;
     bool xd0_selectWraparound;
     bool xd1_ = true;
-    std::function<void(const CGuiTableGroup*)> xd4_doMenuAdvance;
-    std::function<void(const CGuiTableGroup*)> xec_doMenuCancel;
-    std::function<void(const CGuiTableGroup*)> x104_doMenuSelChange;
+    std::function<void(CGuiTableGroup*)> xd4_doMenuAdvance;
+    std::function<void(CGuiTableGroup*)> xec_doMenuCancel;
+    std::function<void(CGuiTableGroup*)> x104_doMenuSelChange;
 
 public:
     CGuiTableGroup(const CGuiWidgetParms& parms, int, int, bool);
     FourCC GetWidgetTypeID() const {return FOURCC('TBGP');}
 
-    void SetMenuAdvanceCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    void SetMenuAdvanceCallback(std::function<void(CGuiTableGroup*)>&& cb)
     {
         xd4_doMenuAdvance = std::move(cb);
     }
 
-    void SetMenuCancelCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    void SetMenuCancelCallback(std::function<void(CGuiTableGroup*)>&& cb)
     {
         xec_doMenuCancel = std::move(cb);
     }
 
-    void SetMenuSelectionChangeCallback(std::function<void(const CGuiTableGroup*)>&& cb)
+    void SetMenuSelectionChangeCallback(std::function<void(CGuiTableGroup*)>&& cb)
     {
         x104_doMenuSelChange = std::move(cb);
     }

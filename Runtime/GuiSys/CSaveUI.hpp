@@ -39,6 +39,9 @@ struct CSaveUI
     CIOWin::EMessageReturn Update(float dt);
     bool PumpLoad();
     void ProcessUserInput(const CFinalInput& input);
+    void StartGame(int idx);
+    void EraseGame(int idx);
+    void* GetGameData(int idx) const;
     CSaveUI(u32 inst, u32 a, u32 b);
 };
 

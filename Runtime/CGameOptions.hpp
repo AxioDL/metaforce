@@ -19,18 +19,18 @@ class CPersistentOptions
     u32 xc0_ = 0;
     u32 xc4_ = 0;
     u32 xc8_ = 0;
-    u32 xcc_ = 0;
+    u32 xcc_logScanCount = 0;
 
     union
     {
         struct
         {
-            bool xd0_24_;
-            bool xd0_25_;
-            bool xd0_26_;
-            bool xd0_27_;
-            bool xd0_28_hasFusion;
-            bool xd0_29_;
+            bool xd0_24_ : 1;
+            bool xd0_25_hasHardMode : 1;
+            bool xd0_26_hardModeBeat : 1;
+            bool xd0_27_ : 1;
+            bool xd0_28_hasFusion : 1;
+            bool xd0_29_allItemsCollected : 1;
         };
         u16 _dummy = 0;
     };
@@ -40,7 +40,11 @@ public:
     CPersistentOptions(CBitStreamReader& stream);
 
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
+    bool PlayerHasHardMode() const { return xd0_25_hasHardMode; }
+    bool PlayerBeatHardMode() const { return xd0_26_hardModeBeat; }
     bool PlayerHasFusion() const { return xd0_28_hasFusion; }
+    bool AllItemsCollected() const { return xd0_29_allItemsCollected; }
+    u32 GetLogScanCount() const { return xcc_logScanCount; }
 };
 
 /** Options tracked per game session */
@@ -70,11 +74,11 @@ private:
     {
         struct
         {
-            bool x68_24_;
-            bool x68_25_;
-            bool x68_26_;
-            bool x68_27_;
-            bool x68_28_;
+            bool x68_24_ : 1;
+            bool x68_25_ : 1;
+            bool x68_26_ : 1;
+            bool x68_27_ : 1;
+            bool x68_28_ : 1;
         };
         u16 _dummy = 0;
     };

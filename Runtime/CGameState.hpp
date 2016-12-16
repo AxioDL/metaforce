@@ -87,7 +87,7 @@ class CGameState
     {
         struct
         {
-            bool x228_24_;
+            bool x228_24_hardMode;
             bool x228_25_deferPowerupInit;
         };
         u8 _dummy = 0;
@@ -107,6 +107,7 @@ public:
     CWorldState& StateForWorld(ResId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
+    void SetHardMode(bool v) { x228_24_hardMode = v; }
     void PutTo(CBitStreamWriter& writer) const;
 };
 

@@ -64,21 +64,16 @@ static const FEMovie FEMovies[] =
 
 SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
 
+void CFrontEndUI::PlayAdvanceSfx()
+{
+    CSfxManager::SfxStart(1096, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+}
+
 CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd)
 : x0_rnd(rnd), x4_saveUI(sui)
 {
     x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
-}
-
-CFrontEndUI::SFileSelectOption CFrontEndUI::FindFileSelectOption(CGuiFrame* frame, int idx)
-{
-    SFileSelectOption ret;
-    ret.x0_base = frame->FindWidget(hecl::Format("basewidget_file%d", idx).c_str());
-    ret.x4_textpanes[0] = FindTextPanePair(frame, hecl::Format("textpane_filename%d", idx).c_str());
-    ret.x4_textpanes[1] = FindTextPanePair(frame, hecl::Format("textpane_world%d", idx).c_str());
-    ret.x4_textpanes[2] = FindTextPanePair(frame, hecl::Format("textpane_playtime%d", idx).c_str());
-    ret.x4_textpanes[3] = FindTextPanePair(frame, hecl::Format("textpane_date%d", idx).c_str());
-    return ret;
 }
 
 void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
@@ -87,6 +82,10 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
     x24_model_erase = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_erase"));
     xf8_model_erase_position = x24_model_erase->GetLocalPosition();
     x28_textpane_erase = FindTextPanePair(x1c_loadedFrame, "textpane_erase");
+    x38_textpane_gba = FindTextPanePair(x1c_loadedFrame, "textpane_gba");
+    x30_textpane_cheats = FindTextPanePair(x1c_loadedFrame, "textpane_cheats");
+    x48_textpane_popupadvance = FindTextPanePair(x1c_loadedFrame, "textpane_popupadvance");
+    x50_textpane_popupcancel = FindTextPanePair(x1c_loadedFrame, "textpane_popupcancel");
     x58_textpane_popupextra = FindTextPanePair(x1c_loadedFrame, "textpane_popupextra");
     x40_tablegroup_popup = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_popup"));
     x44_model_dash7 = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_dash7"));
@@ -146,9 +145,9 @@ bool CFrontEndUI::SNewFileSelectFrame::IsTextDoneAnimating() const
         return false;
     if (x64_fileSelections[2].x28_ != 4)
         return false;
-    if (!x28_textpane_erase.x0_panes[0]->GetTextSupport()->AnimationDone())
+    if (!x28_textpane_erase.x0_panes[0]->GetTextSupport()->IsAnimationDone())
         return false;
-    return x38_.x0_panes[0]->GetTextSupport()->AnimationDone();
+    return x38_textpane_gba.x0_panes[0]->GetTextSupport()->IsAnimationDone();
 }
 
 CFrontEndUI::SNewFileSelectFrame::EPhase
@@ -162,12 +161,21 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
         return xc_phase;
     if (x10c_inputEnable)
         x1c_loadedFrame->ProcessUserInput(input);
-    if (x10d_needsToggle)
+    if (x10d_needsExistingToggle)
     {
         if (x40_tablegroup_popup->GetIsActive())
-            DeactivatePopup();
+            DeactivateExistingGamePopup();
         else
-            ActivatePopup();
+            ActivateExistingGamePopup();
+        x10d_needsExistingToggle = false;
+    }
+    if (x10e_needsNewToggle)
+    {
+        if (x40_tablegroup_popup->GetIsActive())
+            DeactivateNewGamePopup();
+        else
+            ActivateNewGamePopup();
+        x10e_needsNewToggle = false;
     }
     return xc_phase;
 }
@@ -189,7 +197,7 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
         x24_model_erase->SetIsVisible(true);
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DeactivatePopup()
+void CFrontEndUI::SNewFileSelectFrame::DeactivateExistingGamePopup()
 {
     x40_tablegroup_popup->SetIsActive(false);
     x40_tablegroup_popup->SetIsVisible(false);
@@ -199,7 +207,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivatePopup()
         x0_base->SetColor(zeus::CColor::skWhite);
 }
 
-void CFrontEndUI::SNewFileSelectFrame::ActivatePopup()
+void CFrontEndUI::SNewFileSelectFrame::ActivateExistingGamePopup()
 {
     x40_tablegroup_popup->SetIsActive(true);
     x40_tablegroup_popup->SetIsVisible(true);
@@ -209,36 +217,234 @@ void CFrontEndUI::SNewFileSelectFrame::ActivatePopup()
     x20_tablegroup_fileselect->SetIsActive(false);
     x8_ = 2;
     HandleActiveChange(x40_tablegroup_popup);
-    x48_.SetPairText(g_MainStringTable->GetString(95));
-    x50_.SetPairText(g_MainStringTable->GetString(38));
+    x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(95));
+    x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(38));
     x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
         x0_base->SetColor(zeus::CColor{1.f, 1.f, 1.f, 0.f});
     x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DoPopupCancel(const CGuiTableGroup* caller)
+void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup()
+{
+    x40_tablegroup_popup->SetIsActive(false);
+    x40_tablegroup_popup->SetIsVisible(false);
+    x20_tablegroup_fileselect->SetIsActive(true);
+    CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
+    worker->SetB627(false);
+    worker->SetVisibility(false, ETraversalMode::Children);
+    x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
+    HandleActiveChange(x20_tablegroup_fileselect);
+    x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
+        x0_base->SetColor(zeus::CColor::skWhite);
+    x60_textpane_cancel->TextSupport()->SetText("");
+}
+
+void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
+{
+    x40_tablegroup_popup->SetIsActive(true);
+    x40_tablegroup_popup->SetIsVisible(true);
+    x40_tablegroup_popup->SetUserSelection(0);
+    x40_tablegroup_popup->SetLocalTransform(
+        zeus::CTransform::Translate(0.f, 0.f, x20_tablegroup_fileselect->GetUserSelection() * x104_rowPitch) *
+            x40_tablegroup_popup->GetTransform());
+    x20_tablegroup_fileselect->SetIsActive(false);
+    x8_ = 3;
+    HandleActiveChange(x40_tablegroup_popup);
+    x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
+        x0_base->SetColor(zeus::CColor{1.f, 1.f, 1.f, 0.f});
+    PlayAdvanceSfx();
+    if (g_GameState->SystemOptions().PlayerHasHardMode())
+    {
+        x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(102));
+        x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
+        x58_textpane_popupextra.SetPairText(g_MainStringTable->GetString(101));
+        CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
+        worker->SetB627(true);
+        worker->SetVisibility(true, ETraversalMode::Children);
+        x44_model_dash7->SetVisibility(true, ETraversalMode::Children);
+    }
+    else
+    {
+        x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(67));
+        x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
+        x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
+    }
+    x60_textpane_cancel->TextSupport()->SetText(g_MainStringTable->GetString(82));
+}
+
+void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
+{
+    x8_ = 0;
+    x38_textpane_gba.x0_panes[0]->SetB627(true);
+    x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    x30_textpane_cheats.x0_panes[0]->SetB627(true);
+    x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    ClearFrameContents();
+    for (int i=2 ; i>=0 ; --i)
+        x20_tablegroup_fileselect->GetWorkerWidget(i)->SetB627(true);
+    x60_textpane_cancel->TextSupport()->SetText("");
+}
+
+void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
+{
+    x108_curTime = 0.f;
+    bool hasSave = false;
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (x4_saveUI->GetGameData(i))
+            hasSave = true;
+        SFileSelectOption& option = x64_fileSelections[i];
+        option.x2c_ = SFileSelectOption::ComputeRandom();
+        option.x28_ = -1;
+        for (int j=0 ; j<4 ; ++j)
+            option.x4_textpanes[j].SetPairText(L"");
+    }
+
+    StartTextAnimating(x28_textpane_erase.x0_panes[0], g_MainStringTable->GetString(38), 60.f);
+    StartTextAnimating(x38_textpane_gba.x0_panes[0], g_MainStringTable->GetString(37), 60.f);
+    StartTextAnimating(x30_textpane_cheats.x0_panes[0], g_MainStringTable->GetString(96), 60.f);
+
+    StartTextAnimating(x28_textpane_erase.x0_panes[1], g_MainStringTable->GetString(38), 60.f);
+    StartTextAnimating(x38_textpane_gba.x0_panes[1], g_MainStringTable->GetString(37), 60.f);
+    StartTextAnimating(x30_textpane_cheats.x0_panes[1], g_MainStringTable->GetString(96), 60.f);
+
+    if (hasSave)
+    {
+        x28_textpane_erase.x0_panes[0]->SetB627(true);
+        x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    }
+    else
+    {
+        x28_textpane_erase.x0_panes[0]->SetB627(false);
+        zeus::CColor color = zeus::CColor::skGrey;
+        color.a = 0.5f;
+        x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
+    }
+
+    x20_tablegroup_fileselect->SetUserSelection(0);
+    CGuiTextPane* cheats = static_cast<CGuiTextPane*>(x20_tablegroup_fileselect->GetWorkerWidget(5));
+    if (CSlideShow::SlideShowGalleryFlags())
+    {
+        cheats->SetB627(true);
+        x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    }
+    else
+    {
+        cheats->SetB627(false);
+        zeus::CColor color = zeus::CColor::skGrey;
+        color.a = 0.5f;
+        x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
+    }
+
+    HandleActiveChange(x20_tablegroup_fileselect);
+}
+
+void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
+{
+    for (int i=0 ; i<3 ; ++i)
+    {
+        SFileSelectOption& option = x64_fileSelections[i];
+        if (option.x28_ == 4)
+            continue;
+        SGuiTextPair* pair = (option.x28_ == -1) ? nullptr : &option.x4_textpanes[option.x28_];
+        if (pair)
+        {
+            //pair->x0_panes[0]->GetTextSupport()->GetNumCharsPrinted()
+        }
+
+    }
+}
+
+void CFrontEndUI::SNewFileSelectFrame::DoPopupCancel(CGuiTableGroup* caller)
+{
+    if (x8_ == 2)
+    {
+        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        x8_ = 1;
+        x10d_needsExistingToggle = true;
+    }
+    else
+    {
+        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        x8_ = 0;
+        x10e_needsNewToggle = true;
+    }
+}
+
+void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
+{
+    if (x8_ == 2)
+    {
+        if (x40_tablegroup_popup->GetUserSelection() == 1)
+        {
+            x4_saveUI->EraseGame(x20_tablegroup_fileselect->GetUserSelection());
+            ResetFrame();
+        }
+        else
+            x8_ = 1;
+        x10d_needsExistingToggle = true;
+    }
+    else
+    {
+        if (g_GameState->SystemOptions().PlayerHasHardMode())
+        {
+            if (x40_tablegroup_popup->GetUserSelection() == 1)
+            {
+                PlayAdvanceSfx();
+                xc_phase = EPhase::One;
+                return;
+            }
+            g_GameState->SetHardMode(x20_tablegroup_fileselect->GetUserSelection());
+            x4_saveUI->StartGame(x40_tablegroup_popup->GetUserSelection());
+        }
+        else
+        {
+            if (x40_tablegroup_popup->GetUserSelection() == 1)
+            {
+                PlayAdvanceSfx();
+                xc_phase = EPhase::One;
+                return;
+            }
+            x4_saveUI->StartGame(x40_tablegroup_popup->GetUserSelection());
+        }
+    }
+}
+
+void CFrontEndUI::SNewFileSelectFrame::DoFileselectCancel(CGuiTableGroup* caller)
+{
+    if (x8_ == 1)
+    {
+        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        ResetFrame();
+    }
+}
+
+void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller)
+{
+    HandleActiveChange(caller);
+    CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+}
+
+void CFrontEndUI::SNewFileSelectFrame::DoFileselectAdvance(CGuiTableGroup* caller)
 {
 
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(const CGuiTableGroup* caller)
+CFrontEndUI::SFileSelectOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOption(CGuiFrame* frame, int idx)
 {
-
+    SFileSelectOption ret;
+    ret.x0_base = frame->FindWidget(hecl::Format("basewidget_file%d", idx).c_str());
+    ret.x4_textpanes[0] = FindTextPanePair(frame, hecl::Format("textpane_filename%d", idx).c_str());
+    ret.x4_textpanes[1] = FindTextPanePair(frame, hecl::Format("textpane_world%d", idx).c_str());
+    ret.x4_textpanes[2] = FindTextPanePair(frame, hecl::Format("textpane_playtime%d", idx).c_str());
+    ret.x4_textpanes[3] = FindTextPanePair(frame, hecl::Format("textpane_date%d", idx).c_str());
+    return ret;
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DoFileselectCancel(const CGuiTableGroup* caller)
+void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, const std::wstring& str, float chRate)
 {
-
-}
-
-void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(const CGuiTableGroup* caller)
-{
-
-}
-
-void CFrontEndUI::SNewFileSelectFrame::DoFileselectAdvance(const CGuiTableGroup* caller)
-{
-
+    text->TextSupport()->SetText(str);
+    text->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, chRate);
 }
 
 CFrontEndUI::SGBASupportFrame::SGBASupportFrame()
@@ -308,17 +514,17 @@ void CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, C
 
 }
 
-void CFrontEndUI::SGBASupportFrame::DoOptionsCancel(const CGuiTableGroup* caller)
+void CFrontEndUI::SGBASupportFrame::DoOptionsCancel(CGuiTableGroup* caller)
 {
 
 }
 
-void CFrontEndUI::SGBASupportFrame::DoSelectionChange(const CGuiTableGroup* caller)
+void CFrontEndUI::SGBASupportFrame::DoSelectionChange(CGuiTableGroup* caller)
 {
 
 }
 
-void CFrontEndUI::SGBASupportFrame::DoOptionsAdvance(const CGuiTableGroup* caller)
+void CFrontEndUI::SGBASupportFrame::DoOptionsAdvance(CGuiTableGroup* caller)
 {
 
 }
@@ -391,17 +597,17 @@ void CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input)
 
 }
 
-void CFrontEndUI::SFrontEndFrame::DoCancel(const CGuiTableGroup* caller)
+void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller)
 {
 
 }
 
-void CFrontEndUI::SFrontEndFrame::DoSelectionChange(const CGuiTableGroup* caller)
+void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller)
 {
 
 }
 
-void CFrontEndUI::SFrontEndFrame::DoAdvance(const CGuiTableGroup* caller)
+void CFrontEndUI::SFrontEndFrame::DoAdvance(CGuiTableGroup* caller)
 {
 
 }

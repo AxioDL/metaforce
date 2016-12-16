@@ -19,13 +19,13 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xc0_ = stream.ReadEncoded(2);
     xc4_ = stream.ReadEncoded(2);
     xc8_ = stream.ReadEncoded(1);
-    xcc_ = stream.ReadEncoded(7);
+    xcc_logScanCount = stream.ReadEncoded(7);
     xd0_24_ = stream.ReadEncoded(1);
-    xd0_25_ = stream.ReadEncoded(1);
-    xd0_26_ = stream.ReadEncoded(1);
+    xd0_25_hasHardMode = stream.ReadEncoded(1);
+    xd0_26_hardModeBeat = stream.ReadEncoded(1);
     xd0_27_ = stream.ReadEncoded(1);
     xd0_28_hasFusion = stream.ReadEncoded(1);
-    xd0_29_ = stream.ReadEncoded(1);
+    xd0_29_allItemsCollected = stream.ReadEncoded(1);
     xbc_ = stream.ReadEncoded(2);
 
     auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();

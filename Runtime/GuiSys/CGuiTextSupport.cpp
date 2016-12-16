@@ -20,40 +20,62 @@ CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
     x2cc_font = store->GetObj({SBIG('FONT'), fontId});
 }
 
+CTextRenderBuffer* CGuiTextSupport::GetCurrentLineRenderBuffer() const
+{
+    if (x60_renderBuf && !x308_multilineFlag)
+        return const_cast<CTextRenderBuffer*>(&*x60_renderBuf);
+    if (!x308_multilineFlag || x300_ <= x304_lineCounter)
+        return nullptr;
+    int idx = 0;
+    for (const CTextRenderBuffer& buf : x2f0_lineRenderBufs)
+        if (idx++ == x304_lineCounter)
+            return const_cast<CTextRenderBuffer*>(&buf);
+    return nullptr;
+}
+
 float CGuiTextSupport::GetCurrentAnimationOverAge() const
 {
-    if (!x2ac_active || !x50_typeEnable)
-        return 0.f;
-
-    if (x44_primStartTimes.size())
+    float ret = 0.f;
+    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
     {
-        float val = (x60_renderBuf->GetPrimitiveCount() - x44_primStartTimes.back().second) /
-                    x58_chRate + x44_primStartTimes.back().first;
-        return std::max(0.f, val);
+        if (x50_typeEnable)
+        {
+            if (x40_primStartTimes.size())
+            {
+                auto& lastTime = x40_primStartTimes.back();
+                ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
+            }
+            else
+            {
+                ret = std::max(ret, buf->GetPrimitiveCount() / x58_chRate);
+            }
+        }
     }
-    else
-    {
-        float val = x60_renderBuf->GetPrimitiveCount() / x58_chRate;
-        return std::max(0.f, val);
-    }
+    return ret;
 }
 
 float CGuiTextSupport::GetNumCharsPrinted() const
 {
-    if (x2ac_active)
-        return std::min(x3c_curTime * x58_chRate, float(x60_renderBuf->GetPrimitiveCount()));
+    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+    {
+        if (x50_typeEnable)
+        {
+            float charsPrinted = x3c_curTime * x58_chRate;
+            return std::min(charsPrinted, float(buf->GetPrimitiveCount()));
+        }
+    }
     return 0.f;
 }
 
 float CGuiTextSupport::GetTotalAnimationTime() const
 {
-    if (!x2ac_active || !x50_typeEnable)
-        return 0.f;
-
-    return x60_renderBuf->GetPrimitiveCount() / x58_chRate;
+    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+        if (x50_typeEnable)
+            return buf->GetPrimitiveCount() / x58_chRate;
+    return 0.f;
 }
 
-bool CGuiTextSupport::AnimationDone() const
+bool CGuiTextSupport::IsAnimationDone() const
 {
     return x3c_curTime >= GetTotalAnimationTime();
 }
@@ -67,50 +89,48 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
 
 void CGuiTextSupport::Update(float dt)
 {
-    if (!x2ac_active)
-        return;
-
     if (x50_typeEnable)
     {
-        for (int i=0 ; i<x60_renderBuf->GetPrimitiveCount() ; ++i)
+        if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
         {
-            float chStartTime = 0.f;
-            for (const std::pair<float, int>& p : x44_primStartTimes)
+            for (int i=0 ; i<buf->GetPrimitiveCount() ; ++i)
             {
-                if (p.second < i)
-                    continue;
-                if (p.second != i)
+                float chStartTime = 0.f;
+                for (const std::pair<float, int>& p : x40_primStartTimes)
+                {
+                    if (p.second < i)
+                        continue;
+                    if (p.second != i)
+                        break;
+                    chStartTime = p.first;
                     break;
-                chStartTime = p.first;
-                break;
-            }
+                }
 
 #if 0
-            CTextRenderBuffer::Primitive prim = x54_renderBuf->GetPrimitive(i);
-            prim.x0_color1.a = std::min(std::max(0.f, (x30_curTime - chStartTime) / x48_chFadeTime), 1.f);
-            x54_renderBuf->SetPrimitive(prim, i);
+                CTextRenderBuffer::Primitive prim = x54_renderBuf->GetPrimitive(i);
+                prim.x0_color1.a = std::min(std::max(0.f, (x30_curTime - chStartTime) / x48_chFadeTime), 1.f);
+                x54_renderBuf->SetPrimitive(prim, i);
 #else
-            x60_renderBuf->SetPrimitiveOpacity(i,
-                std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+                buf->SetPrimitiveOpacity(i,
+                    std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
 #endif
+            }
         }
+        x3c_curTime += dt;
     }
 
-    x3c_curTime += dt;
+    x10_curTimeMod900 = std::fmod(x10_curTimeMod900 + dt, 900.f);
 }
 
-void CGuiTextSupport::ClearBuffer()
+void CGuiTextSupport::ClearRenderBuffer()
 {
     x60_renderBuf = std::experimental::nullopt;
 }
 
 void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
 {
-    if (x2ac_active)
-        return;
-
     g_TextExecuteBuf->Clear();
-    g_TextExecuteBuf->x18_textState.x48_enableWordWrap = x14_props.x0_wordWrap;
+    g_TextExecuteBuf->x18_textState.x7c_enableWordWrap = x14_props.x0_wordWrap;
     g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x14_props.xc_direction,
                                  x14_props.x4_justification, x14_props.x8_vertJustification);
     g_TextExecuteBuf->AddColor(EColorType::Main, x24_fontColor);
@@ -124,24 +144,15 @@ void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
     g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size());
 
     g_TextExecuteBuf->EndBlock();
-    x2b0_assets = g_TextExecuteBuf->GetAssets();
-
-    if (GetIsTextSupportFinishedLoading())
-    {
-        x60_renderBuf = g_TextExecuteBuf->CreateTextRenderBuffer();
-        g_TextExecuteBuf->Clear();
-    }
-
-    Update(0.f);
 }
 
 void CGuiTextSupport::Render() const
 {
-    if (x2ac_active)
+    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
     {
         zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;
         CGraphics::SetModelMatrix(oldModel * zeus::CTransform::Scale(1.f, 1.f, -1.f));
-        x60_renderBuf->Render(x2c_geometryColor, x3c_curTime);
+        buf->Render(x2c_geometryColor, x10_curTimeMod900);
         CGraphics::SetModelMatrix(oldModel);
     }
 }
@@ -155,7 +166,7 @@ void CGuiTextSupport::SetOutlineColor(const zeus::CColor& col)
 {
     if (col != x28_outlineColor)
     {
-        ClearBuffer();
+        ClearRenderBuffer();
         x28_outlineColor = col;
     }
 }
@@ -164,44 +175,44 @@ void CGuiTextSupport::SetFontColor(const zeus::CColor& col)
 {
     if (col != x24_fontColor)
     {
-        ClearBuffer();
+        ClearRenderBuffer();
         x24_fontColor = col;
     }
 }
 
 void CGuiTextSupport::AddText(const std::wstring& str)
 {
-    if (x2ac_active)
+    if (x60_renderBuf)
     {
         float t = GetCurrentAnimationOverAge();
-        x44_primStartTimes.push_back(std::make_pair(std::max(t, x3c_curTime),
+        x40_primStartTimes.push_back(std::make_pair(std::max(t, x3c_curTime),
                                                     x60_renderBuf->GetPrimitiveCount()));
     }
     x0_string += str;
-    ClearBuffer();
+    ClearRenderBuffer();
 }
 
-void CGuiTextSupport::SetText(const std::wstring& str, bool scanFlag)
+void CGuiTextSupport::SetText(const std::wstring& str, bool multiline)
 {
     if (x0_string.compare(str))
     {
-        x44_primStartTimes.clear();
+        x40_primStartTimes.clear();
         x3c_curTime = 0.f;
         x0_string = str;
-        ClearBuffer();
-        x308_scanFlag = scanFlag;
-        x304_scanCounter = 0;
+        ClearRenderBuffer();
+        x308_multilineFlag = multiline;
+        x304_lineCounter = 0;
     }
 }
 
-void CGuiTextSupport::SetText(const std::string& str, bool scanFlag)
+void CGuiTextSupport::SetText(const std::string& str, bool multiline)
 {
-    SetText(hecl::UTF8ToWide(str), scanFlag);
+    SetText(hecl::UTF8ToWide(str), multiline);
 }
 
 bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
 {
-    for (const CToken& tok : x2b0_assets)
+    for (const CToken& tok : x2bc_assets)
     {
         ((CToken&)tok).Lock();
         if (!tok.IsLoaded())

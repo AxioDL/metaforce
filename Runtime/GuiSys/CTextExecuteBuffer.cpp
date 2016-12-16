@@ -49,7 +49,7 @@ std::vector<CToken> CTextExecuteBuffer::GetAssets() const
 
 void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
 {
-    if (!x70_curLine)
+    if (!xa4_curLine)
         StartNewLine();
 
     const wchar_t* charCur = str;
@@ -70,17 +70,17 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
                 StartNewWord();
                 int w, h;
                 wchar_t space = L' ';
-                x18_textState.x14_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
+                x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
                                                           w, h, &space, 1);
-                if (x6c_curBlock->x14_direction == ETextDirection::Horizontal)
+                if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
                 {
-                    x70_curLine->x8_curX += w;
-                    x88_spaceDistance = w;
+                    xa4_curLine->x8_curX += w;
+                    xbc_spaceDistance = w;
                 }
                 else
                 {
-                    x70_curLine->xc_curY += h;
-                    x88_spaceDistance = h;
+                    xa4_curLine->xc_curY += h;
+                    xbc_spaceDistance = h;
                 }
             }
         }
@@ -92,31 +92,31 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
 
 void CTextExecuteBuffer::AddStringFragment(const wchar_t* str, int len)
 {
-    if (x6c_curBlock->x14_direction == ETextDirection::Horizontal)
+    if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
         for (int i=0 ; i<len ;)
             i += WrapOneLTR(str + i, len - i);
 }
 
 int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
 {
-    if (!x18_textState.x14_font)
+    if (!x18_textState.x48_font)
         return len;
 
-    CRasterFont* font = x18_textState.x14_font.GetObj();
+    CRasterFont* font = x18_textState.x48_font.GetObj();
     int rem = len;
     int w, h;
-    x18_textState.x14_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
+    x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
                                               w, h, str, len);
 
-    if (x18_textState.x48_enableWordWrap)
+    if (x18_textState.x7c_enableWordWrap)
     {
-        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX &&
-            x70_curLine->x4_wordCount > 1 &&
-            x7c_curX + w < x6c_curBlock->xc_blockExtentX)
+        if (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX &&
+            xa4_curLine->x4_wordCount > 1 &&
+            xb0_curX + w < xa0_curBlock->xc_blockExtentX)
         {
             MoveWordLTR();
         }
-        if (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX && len > 1)
+        if (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX && len > 1)
         {
             const wchar_t* strEnd = str + len;
             int aRank = 5;
@@ -137,23 +137,23 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
                 }
                 else
                 {
-                    x18_textState.x14_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
+                    x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
                                                               w, h, str, rem);
                 }
 
-            } while (w + x70_curLine->x8_curX > x6c_curBlock->xc_blockExtentX && rem > 1);
+            } while (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX && rem > 1);
         }
     }
 
-    x78_curY = std::max(x78_curY, font->GetMonoHeight());
+    xac_curY = std::max(xac_curY, font->GetMonoHeight());
 
-    x70_curLine->TestLargestFont(font->GetMonoWidth(),
+    xa4_curLine->TestLargestFont(font->GetMonoWidth(),
                                  font->GetMonoHeight(),
                                  font->GetBaseline());
 
-    x70_curLine->x8_curX += w;
-    x6c_curBlock->x2c_lineX = std::max(x6c_curBlock->x2c_lineX, x70_curLine->x8_curX);
-    x7c_curX += w;
+    xa4_curLine->x8_curX += w;
+    xa0_curBlock->x2c_lineX = std::max(xa0_curBlock->x2c_lineX, xa4_curLine->x8_curX);
+    xb0_curX += w;
 
     x0_instList.emplace(x0_instList.cend(), new CTextInstruction(str, rem));
 
@@ -165,63 +165,63 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
 
 void CTextExecuteBuffer::MoveWordLTR()
 {
-    x70_curLine->xc_curY = std::min(x70_curLine->xc_curY, x84_);
-    x88_spaceDistance = 0;
-    --x70_curLine->x4_wordCount;
+    xa4_curLine->xc_curY = std::min(xa4_curLine->xc_curY, xb8_);
+    xbc_spaceDistance = 0;
+    --xa4_curLine->x4_wordCount;
     TerminateLineLTR();
 
-    x70_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(x74_curWordIt,
-        new CLineInstruction(x18_textState.x4c_just, x18_textState.x50_vjust))->get());
+    xa4_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(xa8_curWordIt,
+        new CLineInstruction(x18_textState.x80_just, x18_textState.x84_vjust))->get());
 
-    x0_instList.emplace(x74_curWordIt, new CWordInstruction());
+    x0_instList.emplace(xa8_curWordIt, new CWordInstruction());
 
-    ++x6c_curBlock->x34_lineCount;
+    ++xa0_curBlock->x34_lineCount;
 }
 
 void CTextExecuteBuffer::StartNewLine()
 {
-    if (x70_curLine)
+    if (xa4_curLine)
         TerminateLine();
 
-    x74_curWordIt = x0_instList.emplace(x0_instList.cend(),
-        new CLineInstruction(x18_textState.x4c_just, x18_textState.x50_vjust));
-    x88_spaceDistance = 0;
+    xa8_curWordIt = x0_instList.emplace(x0_instList.cend(),
+        new CLineInstruction(x18_textState.x80_just, x18_textState.x84_vjust));
+    xbc_spaceDistance = 0;
 
     StartNewWord();
-    ++x6c_curBlock->x34_lineCount;
+    ++xa0_curBlock->x34_lineCount;
 }
 
 void CTextExecuteBuffer::StartNewWord()
 {
-    x74_curWordIt = x0_instList.emplace(x0_instList.cend(), new CWordInstruction());
-    x7c_curX = 0;
-    x78_curY = 0;
-    x80_ = x70_curLine->x8_curX;
-    x84_ = x70_curLine->xc_curY;
-    ++x70_curLine->x4_wordCount;
+    xa8_curWordIt = x0_instList.emplace(x0_instList.cend(), new CWordInstruction());
+    xb0_curX = 0;
+    xac_curY = 0;
+    xb4_ = xa4_curLine->x8_curX;
+    xb8_ = xa4_curLine->xc_curY;
+    ++xa4_curLine->x4_wordCount;
 }
 
 void CTextExecuteBuffer::TerminateLine()
 {
-    if (x6c_curBlock->x14_direction == ETextDirection::Horizontal)
+    if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
         TerminateLineLTR();
 }
 
 void CTextExecuteBuffer::TerminateLineLTR()
 {
-    if (!x70_curLine->xc_curY && x18_textState.x14_font)
+    if (!xa4_curLine->xc_curY && x18_textState.x48_font)
     {
-        x70_curLine->xc_curY = x70_curLine->x10_largestMonoHeight;
+        xa4_curLine->xc_curY = xa4_curLine->x10_largestMonoHeight;
     }
 
-    if (x6c_curBlock->x1c_vertJustification == EVerticalJustification::Full)
+    if (xa0_curBlock->x1c_vertJustification == EVerticalJustification::Full)
     {
-        x6c_curBlock->x30_lineY += x70_curLine->xc_curY;
+        xa0_curBlock->x30_lineY += xa4_curLine->xc_curY;
     }
     else
     {
-        x6c_curBlock->x30_lineY += x18_textState.x44_extraLineSpace +
-                                   x70_curLine->xc_curY * x18_textState.x40_lineSpacing;
+        xa0_curBlock->x30_lineY += x18_textState.x78_extraLineSpace +
+                                   xa4_curLine->xc_curY * x18_textState.x74_lineSpacing;
     }
 }
 
@@ -229,52 +229,52 @@ void CTextExecuteBuffer::AddPopState()
 {
     x0_instList.emplace(x0_instList.cend(), new CPopStateInstruction());
 
-    x18_textState = x8c_stateStack.back();
-    x8c_stateStack.pop_back();
+    x18_textState = xc4_stateStack.back();
+    xc4_stateStack.pop_back();
 
-    if (!x70_curLine->x8_curX)
+    if (!xa4_curLine->x8_curX)
     {
-        x70_curLine->x1c_just = x18_textState.x4c_just;
-        x70_curLine->x20_vjust = x18_textState.x50_vjust;
+        xa4_curLine->x1c_just = x18_textState.x80_just;
+        xa4_curLine->x20_vjust = x18_textState.x84_vjust;
     }
 }
 
 void CTextExecuteBuffer::AddPushState()
 {
     x0_instList.emplace(x0_instList.cend(), new CPushStateInstruction());
-    x8c_stateStack.push_back(x18_textState);
+    xc4_stateStack.push_back(x18_textState);
 }
 
 void CTextExecuteBuffer::AddVerticalJustification(EVerticalJustification vjust)
 {
-    x18_textState.x50_vjust = vjust;
-    if (!x70_curLine)
+    x18_textState.x84_vjust = vjust;
+    if (!xa4_curLine)
         return;
-    if (x70_curLine->x8_curX)
+    if (xa4_curLine->x8_curX)
         return;
-    x70_curLine->x20_vjust = vjust;
+    xa4_curLine->x20_vjust = vjust;
 }
 
 void CTextExecuteBuffer::AddJustification(EJustification just)
 {
-    x18_textState.x4c_just = just;
-    if (!x70_curLine)
+    x18_textState.x80_just = just;
+    if (!xa4_curLine)
         return;
-    if (x70_curLine->x8_curX)
+    if (xa4_curLine->x8_curX)
         return;
-    x70_curLine->x1c_just = just;
+    xa4_curLine->x1c_just = just;
 }
 
 void CTextExecuteBuffer::AddLineExtraSpace(s32 space)
 {
     x0_instList.emplace(x0_instList.cend(), new CLineExtraSpaceInstruction(space));
-    x18_textState.x44_extraLineSpace = space;
+    x18_textState.x78_extraLineSpace = space;
 }
 
 void CTextExecuteBuffer::AddLineSpacing(float spacing)
 {
     x0_instList.emplace(x0_instList.cend(), new CLineSpacingInstruction(spacing));
-    x18_textState.x40_lineSpacing = spacing;
+    x18_textState.x74_lineSpacing = spacing;
 }
 
 void CTextExecuteBuffer::AddRemoveColorOverride(int idx)
@@ -294,19 +294,19 @@ void CTextExecuteBuffer::AddColor(EColorType tp, const CTextColor& color)
 
 void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
 {
-    if (!x70_curLine)
+    if (!xa4_curLine)
         StartNewLine();
 
-    if (x6c_curBlock)
+    if (xa0_curBlock)
     {
         const CTexture* tex = image.x4_texs[0].GetObj();
         int width = tex->GetWidth() * image.x14_pointsPerTexel.x;
         int height = tex->GetHeight() * image.x14_pointsPerTexel.y;
-        x70_curLine->TestLargestFont(width, height, height);
+        xa4_curLine->TestLargestFont(width, height, height);
 
-        if (x6c_curBlock->x14_direction == ETextDirection::Horizontal)
-            if (x70_curLine->x8_curX > width)
-                x6c_curBlock->x2c_lineX = x70_curLine->x8_curX;
+        if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
+            if (xa4_curLine->x8_curX > width)
+                xa0_curBlock->x2c_lineX = xa4_curLine->x8_curX;
     }
 
     x0_instList.emplace(x0_instList.cend(), new CImageInstruction(image));
@@ -315,25 +315,25 @@ void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
 void CTextExecuteBuffer::AddFont(const TToken<CRasterFont>& font)
 {
     x0_instList.emplace(x0_instList.cend(), new CFontInstruction(font));
-    x18_textState.x14_font = font;
+    x18_textState.x48_font = font;
 
-    if (x6c_curBlock)
-        x6c_curBlock->TestLargestFont(font->GetMonoWidth(),
+    if (xa0_curBlock)
+        xa0_curBlock->TestLargestFont(font->GetMonoWidth(),
                                       font->GetMonoHeight(),
                                       font->GetBaseline());
 
-    if (x70_curLine)
-        x70_curLine->TestLargestFont(font->GetMonoWidth(),
+    if (xa4_curLine)
+        xa4_curLine->TestLargestFont(font->GetMonoWidth(),
                                      font->GetMonoHeight(),
                                      font->GetBaseline());
 }
 
 void CTextExecuteBuffer::EndBlock()
 {
-    if (x70_curLine)
+    if (xa4_curLine)
         TerminateLine();
-    x70_curLine = nullptr;
-    x6c_curBlock = nullptr;
+    xa4_curLine = nullptr;
+    xa0_curBlock = nullptr;
 }
 
 void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
@@ -343,9 +343,9 @@ void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
     x0_instList.emplace(x0_instList.cend(),
         new CBlockInstruction(offX, offY, padX, padY, dir, just, vjust));
 
-    if (x18_textState.x14_font)
+    if (x18_textState.x48_font)
     {
-        CRasterFont* font = x18_textState.x14_font.GetObj();
+        CRasterFont* font = x18_textState.x48_font.GetObj();
         s32 baseline = font->GetBaseline();
         s32 monoH = font->GetMonoHeight();
         s32 monoW = font->GetMonoWidth();
@@ -354,20 +354,20 @@ void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
     }
 
     x18_textState.x0_drawStrOpts.x0_direction = dir;
-    x18_textState.x4c_just = just;
-    x18_textState.x50_vjust = vjust;
+    x18_textState.x80_just = just;
+    x18_textState.x84_vjust = vjust;
 }
 
 void CTextExecuteBuffer::Clear()
 {
     x0_instList.clear();
     x18_textState = CSaveableState();
-    x6c_curBlock = nullptr;
-    x70_curLine = nullptr;
-    x74_curWordIt = x0_instList.begin();
-    x80_ = 0;
-    x84_ = 0;
-    x88_spaceDistance = 0;
+    xa0_curBlock = nullptr;
+    xa4_curLine = nullptr;
+    xa8_curWordIt = x0_instList.begin();
+    xb4_ = 0;
+    xb8_ = 0;
+    xbc_spaceDistance = 0;
 }
 
 }

@@ -77,7 +77,7 @@ class CGuiTextSupport
 {
     friend class CGuiTextPane;
     std::wstring x0_string;
-    float x10_ = 0.f;
+    float x10_curTimeMod900 = 0.f;
     CGuiTextProperties x14_props;
     zeus::CColor x24_fontColor;
     zeus::CColor x28_outlineColor;
@@ -85,23 +85,24 @@ class CGuiTextSupport
     s32 x34_extentX;
     s32 x38_extentY;
     float x3c_curTime = 0.f;
-    std::vector<std::pair<float, int>> x44_primStartTimes;
+    std::vector<std::pair<float, int>> x40_primStartTimes;
     bool x50_typeEnable = false;
     float x54_chFadeTime = 0.1f;
     float x58_chRate = 10.0f;
     ResId x5c_fontId;
     std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
-    bool x2ac_active = false;
-    std::vector<CToken> x2b0_assets;
+    std::vector<CToken> x2bc_assets;
     TLockedToken<CRasterFont> x2cc_font;
 
     zeus::CVector2f x2dc_;
     zeus::CVector2f x2e4_;
 
-    std::list<u8> x2f0_;
+    std::list<CTextRenderBuffer> x2f0_lineRenderBufs;
     u32 x300_ = 0;
-    u32 x304_scanCounter = 0;
-    bool x308_scanFlag = false;
+    u32 x304_lineCounter = 0;
+    bool x308_multilineFlag = false;
+
+    CTextRenderBuffer* GetCurrentLineRenderBuffer() const;
 
 public:
     CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
@@ -110,18 +111,18 @@ public:
     float GetCurrentAnimationOverAge() const;
     float GetNumCharsPrinted() const;
     float GetTotalAnimationTime() const;
-    bool AnimationDone() const;
+    bool IsAnimationDone() const;
     void SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate);
     void Update(float dt);
-    void ClearBuffer();
+    void ClearRenderBuffer();
     void CheckAndRebuildTextRenderBuffer();
     void Render() const;
     void SetGeometryColor(const zeus::CColor& col);
     void SetOutlineColor(const zeus::CColor& col);
     void SetFontColor(const zeus::CColor& col);
     void AddText(const std::wstring& str);
-    void SetText(const std::wstring& str, bool scanFlag=false); // Flag set for scan write effect
-    void SetText(const std::string& str, bool scanFlag=false);
+    void SetText(const std::wstring& str, bool multiline=false);
+    void SetText(const std::string& str, bool multiline=false);
     bool GetIsTextSupportFinishedLoading() const;
 };
 

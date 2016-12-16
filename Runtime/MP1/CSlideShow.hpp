@@ -119,6 +119,8 @@ public:
     EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
     bool GetIsContinueDraw() const {return false;}
     void Draw() const;
+
+    static u32 SlideShowGalleryFlags();
 };
 
 }

@@ -70,6 +70,8 @@ public:
         GBAFileSelectB
     };
 
+    static void PlayAdvanceSfx();
+
     struct SGuiTextPair
     {
         CGuiTextPane* x0_panes[2] = {};
@@ -93,7 +95,6 @@ public:
             return rand() / float(RAND_MAX) * 30.f + 30.f;
         }
     };
-    static SFileSelectOption FindFileSelectOption(CGuiFrame* frame, int idx);
 
     struct SNewFileSelectFrame
     {
@@ -113,12 +114,12 @@ public:
         CGuiTableGroup* x20_tablegroup_fileselect = nullptr;
         CGuiModel* x24_model_erase = nullptr;
         SGuiTextPair x28_textpane_erase;
-        SGuiTextPair x30_;
-        SGuiTextPair x38_;
+        SGuiTextPair x30_textpane_cheats;
+        SGuiTextPair x38_textpane_gba;
         CGuiTableGroup* x40_tablegroup_popup = nullptr;
         CGuiModel* x44_model_dash7 = nullptr;
-        SGuiTextPair x48_;
-        SGuiTextPair x50_;
+        SGuiTextPair x48_textpane_popupadvance;
+        SGuiTextPair x50_textpane_popupcancel;
         SGuiTextPair x58_textpane_popupextra;
         CGuiTextPane* x60_textpane_cancel = nullptr;
         SFileSelectOption x64_fileSelections[3];
@@ -126,8 +127,8 @@ public:
         float x104_rowPitch = 0.f;
         float x108_curTime = 0.f;
         bool x10c_inputEnable = false;
-        bool x10d_needsToggle = false;
-        bool x10e_ = false;
+        bool x10d_needsExistingToggle = false;
+        bool x10e_needsNewToggle = false;
 
         SNewFileSelectFrame(CSaveUI* sui, u32 rnd);
         void FinishedLoading();
@@ -136,14 +137,23 @@ public:
         EPhase ProcessUserInput(const CFinalInput& input);
 
         void HandleActiveChange(CGuiTableGroup* active);
-        void DeactivatePopup();
-        void ActivatePopup();
+        void DeactivateExistingGamePopup();
+        void ActivateExistingGamePopup();
+        void DeactivateNewGamePopup();
+        void ActivateNewGamePopup();
 
-        void DoPopupCancel(const CGuiTableGroup* caller);
-        void DoPopupAdvance(const CGuiTableGroup* caller);
-        void DoFileselectCancel(const CGuiTableGroup* caller);
-        void DoSelectionChange(const CGuiTableGroup* caller);
-        void DoFileselectAdvance(const CGuiTableGroup* caller);
+        void ResetFrame();
+        void ClearFrameContents();
+        void SetupFrameContents();
+
+        void DoPopupCancel(CGuiTableGroup* caller);
+        void DoPopupAdvance(CGuiTableGroup* caller);
+        void DoFileselectCancel(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoFileselectAdvance(CGuiTableGroup* caller);
+
+        static SFileSelectOption FindFileSelectOption(CGuiFrame* frame, int idx);
+        static void StartTextAnimating(CGuiTextPane* text, const std::wstring& str, float chRate);
     };
 
     struct SGBASupportFrame
@@ -166,9 +176,9 @@ public:
         void SetTableColors(CGuiTableGroup* tbgp) const;
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
 
-        void DoOptionsCancel(const CGuiTableGroup* caller);
-        void DoSelectionChange(const CGuiTableGroup* caller);
-        void DoOptionsAdvance(const CGuiTableGroup* caller);
+        void DoOptionsCancel(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoOptionsAdvance(CGuiTableGroup* caller);
     };
 
     struct SFrontEndFrame
@@ -184,9 +194,9 @@ public:
         bool PumpLoad();
         void ProcessUserInput(const CFinalInput& input);
 
-        void DoCancel(const CGuiTableGroup* caller);
-        void DoSelectionChange(const CGuiTableGroup* caller);
-        void DoAdvance(const CGuiTableGroup* caller);
+        void DoCancel(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoAdvance(CGuiTableGroup* caller);
     };
 
     struct SFusionBonusFrame

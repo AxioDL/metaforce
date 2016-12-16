@@ -103,7 +103,7 @@ CGameState::CGameState(CBitStreamReader& stream)
         x0_[i] = stream.ReadEncoded(8);
     u32 tsSeconds = stream.ReadEncoded(32);
 
-    x228_24_ = stream.ReadEncoded(1);
+    x228_24_hardMode = stream.ReadEncoded(1);
     x228_25_deferPowerupInit = stream.ReadEncoded(1);
     x84_mlvlId = stream.ReadEncoded(32);
     EnsureWorldPakReady(x84_mlvlId);
@@ -144,7 +144,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const
         writer.WriteEncoded(x0_[i], 8);
 
     writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
-    writer.WriteEncoded(x228_24_, 1);
+    writer.WriteEncoded(x228_24_hardMode, 1);
     writer.WriteEncoded(x228_25_deferPowerupInit, 1);
     writer.WriteEncoded(x84_mlvlId, 32);
 
