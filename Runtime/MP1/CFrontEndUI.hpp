@@ -10,6 +10,8 @@
 #include "zeus/CVector3f.hpp"
 #include "Input/CRumbleGenerator.hpp"
 #include "GuiSys/CGuiTextSupport.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde
 {
@@ -80,7 +82,7 @@ public:
     static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
     static void FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str);
 
-    struct SFileSelectOption
+    struct SFileMenuOption
     {
         CGuiWidget* x0_base;
 
@@ -98,6 +100,14 @@ public:
 
     struct SNewFileSelectFrame
     {
+        enum class ESubMenu
+        {
+            Zero,
+            One,
+            Two,
+            Three
+        };
+
         enum class EPhase
         {
             Zero,
@@ -107,7 +117,7 @@ public:
 
         u32 x0_rnd;
         CSaveUI* x4_saveUI;
-        u32 x8_ = 0;
+        ESubMenu x8_subMenu = ESubMenu::Zero;
         EPhase xc_phase = EPhase::Zero;
         TLockedToken<CGuiFrame> x10_frme;
         CGuiFrame* x1c_loadedFrame = nullptr;
@@ -122,7 +132,7 @@ public:
         SGuiTextPair x50_textpane_popupcancel;
         SGuiTextPair x58_textpane_popupextra;
         CGuiTextPane* x60_textpane_cancel = nullptr;
-        SFileSelectOption x64_fileSelections[3];
+        SFileMenuOption x64_fileSelections[3];
         zeus::CVector3f xf8_model_erase_position;
         float x104_rowPitch = 0.f;
         float x108_curTime = 0.f;
@@ -135,6 +145,7 @@ public:
         bool PumpLoad();
         bool IsTextDoneAnimating() const;
         EPhase ProcessUserInput(const CFinalInput& input);
+        void Draw() const;
 
         void HandleActiveChange(CGuiTableGroup* active);
         void DeactivateExistingGamePopup();
@@ -148,11 +159,11 @@ public:
 
         void DoPopupCancel(CGuiTableGroup* caller);
         void DoPopupAdvance(CGuiTableGroup* caller);
-        void DoFileselectCancel(CGuiTableGroup* caller);
+        void DoFileMenuCancel(CGuiTableGroup* caller);
         void DoSelectionChange(CGuiTableGroup* caller);
-        void DoFileselectAdvance(CGuiTableGroup* caller);
+        void DoFileMenuAdvance(CGuiTableGroup* caller);
 
-        static SFileSelectOption FindFileSelectOption(CGuiFrame* frame, int idx);
+        static SFileMenuOption FindFileSelectOption(CGuiFrame* frame, int idx);
         static void StartTextAnimating(CGuiTextPane* text, const std::wstring& str, float chRate);
     };
 
@@ -175,6 +186,7 @@ public:
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        void Draw() const;
 
         void DoOptionsCancel(CGuiTableGroup* caller);
         void DoSelectionChange(CGuiTableGroup* caller);
@@ -193,6 +205,7 @@ public:
         void FinishedLoading();
         bool PumpLoad();
         void ProcessUserInput(const CFinalInput& input);
+        void Draw() const;
 
         void DoCancel(CGuiTableGroup* caller);
         void DoSelectionChange(CGuiTableGroup* caller);
@@ -211,6 +224,7 @@ public:
         SFusionBonusFrame();
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         bool DoUpdateWithSaveUI(float dt, CSaveUI* saveUi);
+        void Draw(CSaveUI* saveUi) const;
     };
 
     struct SOptionsFrontEndFrame
@@ -239,13 +253,24 @@ public:
         };
         SOptionsFrontEndFrame();
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        void Draw() const;
     };
+
+    bool IsSaveUIConditional() const
+    {
+        if (x50_curScreen != EScreen::Three && x50_curScreen != EScreen::Four)
+            return false;
+        if (x54_nextScreen != EScreen::Three && x54_nextScreen != EScreen::Four)
+            return false;
+        return true;
+    }
 
 private:
     EPhase x14_phase = EPhase::Zero;
     u32 x18_rndA;
     u32 x1c_rndB;
     TLockedToken<CDependencyGroup> x20_depsGroup;
+    std::vector<CToken> x2c_deps;
     TLockedToken<CTexture> x38_pressStart;
     TLockedToken<CAudioGroupSet> x44_frontendAudioGrp;
     EScreen x50_curScreen = EScreen::Zero;
@@ -253,7 +278,7 @@ private:
     float x58_movieSeconds = 0.f;
     bool x5c_movieSecondsNeeded = false;
     float x60_ = 0.f;
-    float x64_ = 0.f;
+    float x64_pressStartAlpha = 0.f;
     float x68_musicVol = 1.f;
     u32 x6c_;
     std::unique_ptr<CMoviePlayer> x70_menuMovies[9];
@@ -274,6 +299,9 @@ private:
     std::unique_ptr<SFusionBonusFrame> xec_fusionFrme;
     std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
     CStaticAudioPlayer* xf4_curAudio = nullptr;
+
+    CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Blend};
+    std::experimental::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
     void SetMovieSecondsDeferred()
     {

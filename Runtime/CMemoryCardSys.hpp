@@ -59,6 +59,37 @@ public:
     const std::vector<std::pair<ResId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
     CMemoryCardSys();
     bool InitializePump();
+
+    enum class EMemoryCardPort
+    {
+        SlotA,
+        SlotB
+    };
+
+    enum class ECardResult
+    {
+        CARD_RESULT_FATAL_ERROR = -128,
+        CARD_RESULT_ENCODING = -13,
+        CARD_RESULT_BROKEN = -6,
+        CARD_RESULT_IOERROR = -5,
+        CARD_RESULT_NOCARD = -3,
+        CARD_RESULT_WRONGDEVICE = -2,
+        CARD_RESULT_BUSY = -1,
+        CARD_RESULT_READY = 0
+    };
+
+    struct CardProbeResults
+    {
+        ECardResult x0_error;
+        u32 x4_cardSize; // in megabits
+        u32 x8_sectorSize; // in bytes
+    };
+
+    static CardProbeResults CardProbe(EMemoryCardPort port);
+    static ECardResult MountCard(EMemoryCardPort port);
+    static ECardResult CheckCard(EMemoryCardPort port);
+    static ECardResult GetNumFreeBytes(EMemoryCardPort port, s32& freeBytes, s32& freeFiles);
+    static ECardResult GetSerialNo(EMemoryCardPort port, u64& serialOut);
 };
 
 }

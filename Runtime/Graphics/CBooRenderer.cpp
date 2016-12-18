@@ -527,7 +527,7 @@ void CBooRenderer::SetPerspective(float fovy, float aspect, float znear, float z
     CGraphics::SetPerspective(fovy, aspect, znear, zfar);
 }
 
-void CBooRenderer::SetViewportOrtho(bool centered, float znear, float zfar)
+zeus::CRectangle CBooRenderer::SetViewportOrtho(bool centered, float znear, float zfar)
 {
     float left = centered ? CGraphics::g_ViewportResolutionHalf.x : 0;
     float bottom = centered ? CGraphics::g_ViewportResolutionHalf.y : 0;
@@ -537,6 +537,8 @@ void CBooRenderer::SetViewportOrtho(bool centered, float znear, float zfar)
     CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
     CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+
+    return zeus::CRectangle(left, bottom, right, top);
 }
 
 void CBooRenderer::SetClippingPlanes(const zeus::CFrustum& frustum)

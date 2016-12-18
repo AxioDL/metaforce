@@ -132,4 +132,29 @@ bool CMemoryCardSys::InitializePump()
     return false;
 }
 
+CMemoryCardSys::CardProbeResults CMemoryCardSys::CardProbe(EMemoryCardPort port)
+{
+    return {};
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::MountCard(EMemoryCardPort port)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::CheckCard(EMemoryCardPort port)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::GetNumFreeBytes(EMemoryCardPort port, s32& freeBytes, s32& freeFiles)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::GetSerialNo(EMemoryCardPort port, u64& serialOut)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
 }

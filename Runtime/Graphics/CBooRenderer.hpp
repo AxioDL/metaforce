@@ -157,7 +157,7 @@ public:
     void SetWorldViewpoint(const zeus::CTransform&);
     void SetPerspective(float, float, float, float, float);
     void SetPerspective(float, float, float, float);
-    void SetViewportOrtho(bool, float, float);
+    zeus::CRectangle SetViewportOrtho(bool, float, float);
     void SetClippingPlanes(const zeus::CFrustum& frustum);
     void SetViewport(int, int, int, int);
     //void SetDepthReadWrite(bool, bool);

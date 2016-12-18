@@ -164,6 +164,7 @@ public:
                   const zeus::CVector3f& c, const zeus::CVector3f& d);
     void DrawFrame();
     void Update(float dt);
+    std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
 
     static void Initialize();
     static void Shutdown();
