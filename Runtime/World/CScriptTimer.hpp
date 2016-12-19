@@ -21,7 +21,7 @@ public:
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     bool IsTiming() const;
-    void StartTiming(bool);
+    void StartTiming(bool isTiming);
     void Reset(CStateManager&);
     void ApplyTime(float, CStateManager&);
 };
