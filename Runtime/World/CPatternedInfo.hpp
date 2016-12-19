@@ -61,9 +61,8 @@ public:
     static std::pair<bool, u32> HasCorrectParameterCount(CInputStream& in);
 
     CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
-    const CAnimationParameters& GetAnimationParameters() const {return xec_animParams;}
+    const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
 };
-
 }
 
 #endif // __URDE_CPATTERNEDINFO_HPP__

@@ -108,7 +108,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             rVec = v;
         }
     }
-    else if (player->x304_ == 0 && player->x2f8_morphTransState == 0 && player->x3dc_ && x1c4_ == kInvalidUniqueId)
+    else if (player->x304_ == 0 && player->x2f8_morphTransState == 0 && player->x3dc_ && x1c4_pitchId == kInvalidUniqueId)
     {
         if (player->x294_ > 0.f)
         {

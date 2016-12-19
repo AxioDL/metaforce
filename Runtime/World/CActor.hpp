@@ -51,8 +51,7 @@ protected:
     float xd0_;
     u8 xd4_ = 0x7F;
     u32 xd8_ = 2;
-    union
-    {
+    union {
         struct
         {
             bool xe4_27_ : 1;
@@ -70,6 +69,7 @@ protected:
         };
         u32 dummy = 0;
     };
+
 public:
     enum class EFluidState
     {
@@ -82,9 +82,8 @@ public:
         Done,
     };
 
-    CActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
-           const zeus::CTransform&, CModelData&&, const CMaterialList&,
-           const CActorParameters&, TUniqueId);
+    CActor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+           const CMaterialList&, const CActorParameters&, TUniqueId);
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual void SetActive(bool active)
@@ -102,7 +101,8 @@ public:
     virtual void CalculateRenderBounds();
     virtual CHealthInfo* HealthInfo();
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
-    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&, const CDamageInfo&) const;
+    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                               const CDamageInfo&) const;
     virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     virtual void Touch(CActor&, CStateManager&);
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
@@ -116,9 +116,8 @@ public:
     virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;
     virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType);
 
-
     void RemoveEmitter();
-    const zeus::CTransform& GetTransform() const {return x34_transform;}
+    const zeus::CTransform& GetTransform() const { return x34_transform; }
     const zeus::CTransform GetScaledLocatorTransform(const std::string& segName) const;
     const zeus::CTransform GetLocatorTransform(const std::string& segName) const;
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);

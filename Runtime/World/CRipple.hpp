@@ -17,6 +17,7 @@ private:
     float x1c_ = 3.f;
     float x20_ = 0.25f;
     float x24_ = 0.00098039221f;
+
 public:
     CRipple(TUniqueId, const zeus::CVector3f&, float);
 

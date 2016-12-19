@@ -11,6 +11,7 @@ class CPlayerEnergyDrain
 {
     std::vector<CEnergyDrainSource> x0_sources;
     float x10_energyDrainTime;
+
 public:
     CPlayerEnergyDrain(u32);
     const std::vector<CEnergyDrainSource>& GetEnergyDrainSources() const;

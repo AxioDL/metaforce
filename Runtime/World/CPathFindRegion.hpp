@@ -22,6 +22,7 @@ class CPFRegion
     zeus::CVector3f x28_;
     zeus::CAABox x34_;
     u32 x4c_;
+
 public:
     CPFRegion() = default;
     void SetData(CPFRegionData*) {}
@@ -40,8 +41,8 @@ public:
     s32 GetNumNodes() const;
     void GetNode(s32) const;
     void PointHeight(const zeus::CVector3f&);
-    void FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&,
-                                   const zeus::CVector3f&, const zeus::CVector3f&, bool);
+    void FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&, const zeus::CVector3f&,
+                                   bool);
     void FindBestPoint(std::vector<zeus::CVector3f>&, const zeus::CVector3f&, u32, float);
     void SetLinkTo(s32);
     void DropToGround(zeus::CVector3f&) const;
@@ -61,6 +62,7 @@ class CPFRegionData
     CPFRegion* x24_openLess = nullptr;
     CPFRegion* x28_openMore = nullptr;
     s32 x2c_ = 0;
+
 public:
     CPFRegionData() = default;
     void SetOpenLess(CPFRegion*);

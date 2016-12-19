@@ -10,8 +10,7 @@ class CScriptAiJumpPoint : public CActor
 private:
     float xe8_;
     std::experimental::optional<zeus::CAABox> xec_;
-    union
-    {
+    union {
         struct
         {
             bool x108_24 : 1;
@@ -22,14 +21,14 @@ private:
     TUniqueId x10c_currentWaypoint = kInvalidUniqueId;
     TUniqueId x10e_nextWaypoint = kInvalidUniqueId;
     float x110_timeRemaining = 0.f;
+
 public:
     CScriptAiJumpPoint(TUniqueId, const std::string&, const CEntityInfo&, zeus::CTransform&, bool, float);
 
-
     void Think(float, CStateManager&);
-    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
-    void AddToRenderer(const zeus::CFrustum &, const CStateManager &) const {}
-    void Render(const CStateManager &) const {}
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
+    void Render(const CStateManager&) const {}
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     bool GetInUse(TUniqueId uid) const;
 };

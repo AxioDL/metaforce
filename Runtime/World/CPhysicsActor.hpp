@@ -26,13 +26,11 @@ struct CMotionState
     zeus::CNUQuaternion xc_orientation;
     zeus::CVector3f x1c_velocity;
     zeus::CAxisAngle x28_angularMomentum;
-    CMotionState(const zeus::CVector3f& origin, const zeus::CNUQuaternion& orientation,
-                 const zeus::CVector3f& velocity, const zeus::CAxisAngle& angle)
-        : x0_translation(origin)
-        , xc_orientation(orientation)
-        , x1c_velocity(velocity)
-        , x28_angularMomentum(angle)
-    {}
+    CMotionState(const zeus::CVector3f& origin, const zeus::CNUQuaternion& orientation, const zeus::CVector3f& velocity,
+                 const zeus::CAxisAngle& angle)
+    : x0_translation(origin), xc_orientation(orientation), x1c_velocity(velocity), x28_angularMomentum(angle)
+    {
+    }
 };
 
 class CPhysicsState
@@ -46,10 +44,11 @@ class CPhysicsState
     zeus::CVector3f x4c_impulse;
     zeus::CAxisAngle x58_torque;
     zeus::CAxisAngle x64_angularImpulse;
+
 public:
-    CPhysicsState(const zeus::CVector3f&, const zeus::CQuaternion&, const zeus::CVector3f&,
-                  const zeus::CAxisAngle&, const zeus::CVector3f&, const zeus::CVector3f&,
-                  const zeus::CVector3f&, const zeus::CAxisAngle&, const zeus::CAxisAngle&);
+    CPhysicsState(const zeus::CVector3f&, const zeus::CQuaternion&, const zeus::CVector3f&, const zeus::CAxisAngle&,
+                  const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CAxisAngle&,
+                  const zeus::CAxisAngle&);
 
     void SetOrientation(const zeus::CQuaternion&);
     const zeus::CQuaternion& GetOrientation() const;
@@ -71,8 +70,7 @@ protected:
     float xec_massRecip;
     float xf0_inertiaTensor;
     float xf4_inertiaTensorRecip;
-    union
-    {
+    union {
         struct
         {
             bool xf8_24_ : 1;
@@ -108,11 +106,10 @@ protected:
     float x248_collisionAccuracyModifier = 1.f;
     u32 x24c_;
     u32 x250_;
+
 public:
-    CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&,
-                  const zeus::CTransform&, CModelData&&, const CMaterialList&,
-                  const zeus::CAABox&, const SMoverData&, const CActorParameters&,
-                  float, float);
+    CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+                  const CMaterialList&, const zeus::CAABox&, const SMoverData&, const CActorParameters&, float, float);
 
     void Render(const CStateManager& mgr) const;
     zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
@@ -149,7 +146,7 @@ public:
     void MoveInOneFrameOR(const zeus::CVector3f& trans, float d);
     void RotateToOR(const zeus::CQuaternion& q, float d);
     void MoveToOR(const zeus::CVector3f& trans, float d);
-    void sub_8011B098(const zeus::CVector3f &v1, float d);
+    void sub_8011B098(const zeus::CVector3f& v1, float d);
     void MoveToWR(const zeus::CVector3f& trans, float d);
     zeus::CAxisAngle GetRotateToORAngularMomentumWR(const zeus::CQuaternion& q, float d) const;
     zeus::CVector3f GetMoveToORImpulseWR(const zeus::CVector3f& trans, float d) const;
@@ -165,7 +162,7 @@ public:
     CMotionState PredictMotion(float dt) const;
     CMotionState PredictLinearMotion(float dt) const;
     CMotionState PredictAngularMotion(float dt) const;
-    void ApplyForceOR(const zeus::CVector3f& force,  const zeus::CAxisAngle& angle);
+    void ApplyForceOR(const zeus::CVector3f& force, const zeus::CAxisAngle& angle);
     void ApplyForceWR(const zeus::CVector3f& force, const zeus::CAxisAngle& angle);
     void ApplyImpulseOR(const zeus::CVector3f& impulse, const zeus::CAxisAngle& angle);
     void ApplyImpulseWR(const zeus::CVector3f& impulse, const zeus::CAxisAngle& angle);
@@ -173,7 +170,6 @@ public:
 
     void UseCollisionImpulses();
 };
-
 }
 
 #endif // __URDE_CPHYSICSACTOR_HPP__

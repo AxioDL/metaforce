@@ -16,13 +16,12 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
     return ret;
 }
 
-CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info,
-               const zeus::CTransform&, CModelData&& mData, const CMaterialList& list,
-               const CActorParameters& params, TUniqueId otherUid)
-    : CEntity(uid, info, active, name),
-      x60_material(MakeActorMaterialList(list, params)),
-      x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero})),
-      xc6_(otherUid)
+CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform&,
+               CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
+: CEntity(uid, info, active, name)
+, x60_material(MakeActorMaterialList(list, params))
+, x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero}))
+, xc6_(otherUid)
 {
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
@@ -30,34 +29,31 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
 
 void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    switch(msg)
+    switch (msg)
     {
     case EScriptObjectMessage::Activate:
     {
         if (!x30_24_active)
             xbc_time = CGraphics::GetSecondsMod900();
     }
-        break;
+    break;
     case EScriptObjectMessage::Decrement:
         RemoveEmitter();
         break;
     case EScriptObjectMessage::InternalMessage11: // 33
     {
-        /*
         if (x94_simpleShadow)
             AddMaterial(EMaterialTypes::ThirtyNine, mgr);
         else
             RemoveMaterial(EMaterialTypes::ThirtyNine, mgr);
-        */
-
 
         if (HasModelData() && x64_modelData->AnimationData())
         {
             TAreaId aid = GetAreaId();
-            //x64_modelData->AnimationData()->sub_8002AE6C(mgr, aid, x64_modelData->x0_particleScale);
+            // x64_modelData->AnimationData()->sub_8002AE6C(mgr, aid, x64_modelData->x0_particleScale);
         }
     }
-        break;
+    break;
     case EScriptObjectMessage::InternalMessage12: // 34
     {
         RemoveEmitter();
@@ -65,9 +61,8 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
             x64_modelData->AnimationData()->GetParticleDB().GetActiveParticleLightIds(mgr);
 #endif
-
     }
-        break;
+    break;
     case EScriptObjectMessage::InternalMessage13: // 35
     {
         for (const SConnection& conn : x20_conns)
@@ -80,14 +75,15 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
                 xc6_ = act->GetUniqueId();
         }
     }
-        break;
+    break;
     case EScriptObjectMessage::InternalMessage15: // 37
         SetInFluid(true, uid);
         break;
     case EScriptObjectMessage::InternalMessage17: // 39
         SetInFluid(false, kInvalidUniqueId);
         break;
-    default:break;
+    default:
+        break;
     }
     CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
@@ -100,50 +96,27 @@ void CActor::CalculateRenderBounds()
         x9c_aabox = zeus::CAABox(x34_transform.origin, x34_transform.origin);
 }
 
-CHealthInfo* CActor::HealthInfo()
+CHealthInfo* CActor::HealthInfo() { return nullptr; }
+
+const CDamageVulnerability* CActor::GetDamageVulnerability() const { return nullptr; }
+
+const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                           const CDamageInfo&) const
 {
     return nullptr;
 }
 
-const CDamageVulnerability* CActor::GetDamageVulnerability() const
-{
-    return nullptr;
-}
+rstl::optional_object<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
 
-const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f &, const zeus::CVector3f &, const CDamageInfo &) const
-{
-    return nullptr;
-}
+void CActor::Touch(CActor&, CStateManager&) {}
 
-rstl::optional_object<zeus::CAABox> CActor::GetTouchBounds() const
-{
-    return {} ;
-}
+zeus::CVector3f CActor::GetOrbitPosition(const CStateManager&) const { return x34_transform.origin; }
 
-void CActor::Touch(CActor &, CStateManager &)
-{
+zeus::CVector3f CActor::GetAimPosition(const CStateManager&, float) const { return x34_transform.origin; }
 
-}
+zeus::CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const { return GetAimPosition(mgr, f); }
 
-zeus::CVector3f CActor::GetOrbitPosition(const CStateManager&) const
-{
-    return x34_transform.origin;
-}
-
-zeus::CVector3f CActor::GetAimPosition(const CStateManager &, float) const
-{
-    return x34_transform.origin;
-}
-
-zeus::CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const
-{
-    return GetAimPosition(mgr, f);
-}
-
-zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager &)
-{
-    return {};
-}
+zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager&) { return {}; }
 
 void CActor::RemoveEmitter()
 {
@@ -165,16 +138,13 @@ const zeus::CTransform CActor::GetLocatorTransform(const std::string& segName) c
     return x64_modelData->GetLocatorTransform(segName);
 }
 
-EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&,
-                                                               const zeus::CVector3f&, CWeaponMode&, int)
+EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                               CWeaponMode&, int)
 {
     return EWeaponCollisionResponseTypes::Unknown13;
 }
 
-void CActor::FluidFXThink(CActor::EFluidState, CScriptWater &, CStateManager &)
-{
-
-}
+void CActor::FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&) {}
 
 void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 {
@@ -184,34 +154,26 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
         SendScriptMsgs(EScriptObjectState::ScanProcessing, mgr, EScriptObjectMessage::None);
     else if (state == EScanState::Done)
         SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
-
 }
 
-zeus::CAABox CActor::GetSortingBounds(const CStateManager &) const
-{
-    return x9c_aabox;
-}
+zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_aabox; }
 
-void CActor::DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType)
-{
-}
+void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType) {}
 
-void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, CStateManager& mgr)
+void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4,
+                            CStateManager& mgr)
 {
     x60_material.Remove(t1);
     RemoveMaterial(t2, t3, t4, mgr);
 }
 
-void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, CStateManager & mgr)
+void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, CStateManager& mgr)
 {
     x60_material.Remove(t1);
     RemoveMaterial(t2, t3, mgr);
 }
 
-void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr)
-{
-    x60_material.Remove(t1);
-}
+void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr) { x60_material.Remove(t1); }
 
 void CActor::RemoveMaterial(EMaterialTypes t, CStateManager& mgr)
 {
@@ -219,7 +181,8 @@ void CActor::RemoveMaterial(EMaterialTypes t, CStateManager& mgr)
     mgr.UpdateObjectInLists(*this);
 }
 
-void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5, CStateManager& mgr)
+void CActor::AddMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5,
+                         CStateManager& mgr)
 {
     x60_material.Add(t1);
     AddMaterial(t2, t3, t4, t5, mgr);
@@ -249,25 +212,13 @@ void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr)
     mgr.UpdateObjectInLists(*this);
 }
 
-void CActor::SetCallTouch(bool callTouch)
-{
-    xe5_28_callTouch = callTouch;
-}
+void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
 
-bool CActor::GetCallTouch() const
-{
-    return xe5_28_callTouch;
-}
+bool CActor::GetCallTouch() const { return xe5_28_callTouch; }
 
-void CActor::SetUseInSortedList(bool use)
-{
-    xe5_27_useInSortedLists = use;
-}
+void CActor::SetUseInSortedList(bool use) { xe5_27_useInSortedLists = use; }
 
-bool CActor::GetUseInSortedLists() const
-{
-    return xe5_27_useInSortedLists;
-}
+bool CActor::GetUseInSortedLists() const { return xe5_27_useInSortedLists; }
 
 void CActor::SetInFluid(bool in, TUniqueId uid)
 {
@@ -287,15 +238,9 @@ void CActor::SetInFluid(bool in, TUniqueId uid)
     }
 }
 
-bool CActor::HasModelData() const
-{
-    return bool(x64_modelData);
-}
+bool CActor::HasModelData() const { return bool(x64_modelData); }
 
-const CSfxHandle* CActor::GetSfxHandle() const
-{
-    return x8c_sfxHandle.get();
-}
+const CSfxHandle* CActor::GetSfxHandle() const { return x8c_sfxHandle.get(); }
 
 void CActor::SetSfxPitchBend(s32 val)
 {
@@ -307,7 +252,7 @@ void CActor::SetSfxPitchBend(s32 val)
     CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
 }
 
-void CActor::SetTranslation(const zeus::CVector3f &tr)
+void CActor::SetTranslation(const zeus::CVector3f& tr)
 {
     x34_transform.origin = tr;
     xe4_27_ = true;
@@ -315,19 +260,9 @@ void CActor::SetTranslation(const zeus::CVector3f &tr)
     xe4_29_ = true;
 }
 
-void CActor::SetAddedToken(u32 tok)
-{
-    xcc_addedToken = tok;
-}
+void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }
 
-float CActor::GetPitch() const
-{
-    return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch();
-}
+float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch(); }
 
-float CActor::GetYaw() const
-{
-    return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw();
-}
-
+float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 }

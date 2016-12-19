@@ -33,16 +33,16 @@ public:
     {
         One = 1
     };
+
 private:
 public:
+    CPatterned(EUnknown unk, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
+               const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
+               CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
+               const CActorParameters& params, bool b1);
 
-    CPatterned(EUnknown unk, TUniqueId uid, const std::string& name, EFlavorType flavor,
-               const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
-               const CPatternedInfo& pinfo, CPatterned::EMovementType movement, EColliderType collider,
-               EBodyType body, const CActorParameters& params, bool b1);
-
-    virtual void Death(const zeus::CVector3f& , CStateManager& ) {}
-    virtual void KnockBack(const zeus::CVector3f &, CStateManager &) {}
+    virtual void Death(const zeus::CVector3f&, CStateManager&) {}
+    virtual void KnockBack(const zeus::CVector3f&, CStateManager&) {}
 };
 }
 

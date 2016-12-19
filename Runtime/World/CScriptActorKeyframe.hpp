@@ -12,8 +12,7 @@ private:
     float x38_;
     float x3c_;
     float x40_;
-    union
-    {
+    union {
         struct
         {
             bool x44_24_ : 1;
@@ -25,12 +24,13 @@ private:
         };
         u8 _dummy = 0;
     };
+
 public:
     CScriptActorKeyframe(TUniqueId uid, const std::string& name, const CEntityInfo& info, s32 w1, bool b1, float f1,
                          bool b2, u32 w2, bool active, float f2);
 
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-    void Think(float, CStateManager &);
+    void Think(float, CStateManager&);
     void UpdateEntity(TUniqueId, CStateManager&);
 };
 }

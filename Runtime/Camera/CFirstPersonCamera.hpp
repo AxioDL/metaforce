@@ -12,9 +12,8 @@ class CFirstPersonCamera : public CGameCamera
     u8 x18c_;
     zeus::CTransform x190_gunFollowXf;
     float x1c0_;
-    TUniqueId x1c4_;
-    union
-    {
+    TUniqueId x1c4_pitchId;
+    union {
         struct
         {
             bool x1c6_24_ : 1;
@@ -24,11 +23,12 @@ class CFirstPersonCamera : public CGameCamera
 
     zeus::CVector3f x1c8_;
     float x1d4_ = 0.f;
+
 public:
     CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float, float, float, float, float);
 
-    void PreThink(float, CStateManager &);
-    void Think(float, CStateManager &);
+    void PreThink(float, CStateManager&);
+    void Think(float, CStateManager&);
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
 
@@ -37,8 +37,8 @@ public:
     void UpdateTransform(CStateManager&, float dt);
     void UpdateElevation(CStateManager&);
     void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
+    void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
 };
-
 }
 
 #endif // __URDE_CFIRSTPERSONCAMERA_HPP__

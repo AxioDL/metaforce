@@ -24,6 +24,7 @@ class CPlayer : public CPhysicsActor
     friend class CStateManager;
     friend class CFirstPersonCamera;
     friend class CPlayerCameraBob;
+
 public:
     enum class EPlayerScanState
     {
@@ -45,7 +46,6 @@ public:
     };
 
 private:
-
     struct CVisorSteam
     {
         float x0_;
@@ -59,8 +59,9 @@ private:
         float x20_ = 0.f;
         float x24_ = 0.f;
         bool x28_ = false;
+
     public:
-        CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_(tex){}
+        CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_(tex) {}
         ResId GetTextureId() const;
         void SetSteam(float a, float b, float c, ResId d, bool e);
         void Update(float dt);
@@ -179,9 +180,10 @@ private:
     float xa04_;
     ResId xa08_steamTextureId;
     ResId xa0c_;
+
 public:
-    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int,
-            const zeus::CVector3f&, float, float, float, float, const CMaterialList&);
+    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int, const zeus::CVector3f&, float, float,
+            float, float, const CMaterialList&);
 
     bool IsTransparent() const;
     void Update(float, CStateManager& mgr);
@@ -189,9 +191,8 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void LoadAnimationTokens();
     virtual bool CanRenderUnsorted(CStateManager& mgr) const;
-    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1,
-                                                       const zeus::CVector3f& v2,
-                                                       const CDamageInfo& info) const;
+    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+                                                               const CDamageInfo& info) const;
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
     zeus::CVector3f GetAimPosition(CStateManager& mgr, float) const;
@@ -261,13 +262,13 @@ public:
     bool ValidateAimTargetId(TUniqueId, CStateManager& mgr);
     bool ValidateObjectForMode(TUniqueId, CStateManager& mgr) const;
     TUniqueId FindAimTargetId(CStateManager& mgr);
-    TUniqueId CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo,
-                                           EPlayerZoneType, CStateManager& mgr) const;
+    TUniqueId CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
+                                           CStateManager& mgr) const;
     TUniqueId FindOrbitTargetId(CStateManager& mgr);
     void UpdateOrbitableObjects(CStateManager& mgr);
     TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const;
-    void FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TUniqueId>&, EPlayerZoneInfo,
-                              EPlayerZoneType, CStateManager& mgr, bool) const;
+    void FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
+                              CStateManager& mgr, bool) const;
     bool WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const;
     bool WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const;
     void CheckOrbitDisableSourceList(CStateManager& mgr);
@@ -309,7 +310,6 @@ public:
     void Touch();
     const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }
 };
-
 }
 
 #endif // __URDE_CPLAYER_HPP__

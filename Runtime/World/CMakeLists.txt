@@ -62,8 +62,10 @@ set(WORLD_SOURCES
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
+    CScriptSwitch.hpp CScriptSwitch.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
+    CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp

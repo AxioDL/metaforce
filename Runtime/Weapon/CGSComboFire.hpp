@@ -10,7 +10,7 @@ class CAnimData;
 class CStateManager;
 class CGSComboFire
 {
-    float x0_ = 0.f;
+    float x0_timeRemaining = 0.f;
     u32 x4_ = -1;
     u32 x8_ = -1;
     u32 xc_ = -1;
@@ -31,7 +31,7 @@ public:
     void SetIdle(bool);
     void GetGunId() const;
     bool Update(CAnimData&, float, CStateManager&);
-    void SetAnim(CAnimData&, s32, s32, s32, CStateManager&, float);
+    void SetAnim(CAnimData&, s32, s32, CStateManager&, float);
 };
 
 }

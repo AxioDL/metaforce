@@ -13,8 +13,7 @@ class CScriptActorRotate : public CEntity
     float x44_;
     std::map<TUniqueId, zeus::CTransform> x48_actors;
 
-    union
-    {
+    union {
         struct
         {
             bool x58_24_ : 1;
@@ -24,8 +23,10 @@ class CScriptActorRotate : public CEntity
         };
         u32 dummy = 0;
     };
+
 public:
-    CScriptActorRotate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool, bool);
+    CScriptActorRotate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool,
+                       bool);
 };
 }
 

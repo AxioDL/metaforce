@@ -27,6 +27,7 @@ class CPFOpenList
     u32 x3c_ = 0;
     CPFRegion x40_region;
     CPFRegionData x90_regionData;
+
 public:
     CPFOpenList();
 

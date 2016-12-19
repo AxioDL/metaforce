@@ -16,9 +16,10 @@ class CScriptCameraFilterKeyframe : public CEntity
     float x48_;
     float x4c_;
     u32 x50_;
+
 public:
-    CScriptCameraFilterKeyframe(TUniqueId, const std::string&, const CEntityInfo&, u32, u32, u32, u32, const zeus::CColor&,
-                                float, float, u32, bool);
+    CScriptCameraFilterKeyframe(TUniqueId, const std::string&, const CEntityInfo&, u32, u32, u32, u32,
+                                const zeus::CColor&, float, float, u32, bool);
 };
 }
 

@@ -86,7 +86,7 @@ T GetAverage(const T* v, s32 count)
     for (s32 i = 1; i < count; ++i)
         r += v[i];
 
-    return r / float(count);
+    return r / count;
 }
 
 template <class T, size_t N>

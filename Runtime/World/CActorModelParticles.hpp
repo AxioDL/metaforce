@@ -7,7 +7,6 @@ namespace urde
 class CActorModelParticles
 {
 };
-
 }
 
 #endif // __URDE_CACTORMODELPARTICLES_HPP__

@@ -4,15 +4,9 @@
 namespace urde
 {
 
-CPlayerEnergyDrain::CPlayerEnergyDrain(u32 capacity)
-{
-    x0_sources.reserve(capacity);
-}
+CPlayerEnergyDrain::CPlayerEnergyDrain(u32 capacity) { x0_sources.reserve(capacity); }
 
-void CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity)
-{
-    x0_sources.emplace_back(id, intensity);
-}
+void CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity) { x0_sources.emplace_back(id, intensity); }
 
 void CPlayerEnergyDrain::RemoveEnergyDrainSource(TUniqueId id)
 {
@@ -31,10 +25,7 @@ float CPlayerEnergyDrain::GetEnergyDrainIntensity() const
     return intensity;
 }
 
-float CPlayerEnergyDrain::GetEnergyDrainTime() const
-{
-    return x10_energyDrainTime;
-}
+float CPlayerEnergyDrain::GetEnergyDrainTime() const { return x10_energyDrainTime; }
 
 void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt)
 {
@@ -51,5 +42,4 @@ void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt)
     else
         x10_energyDrainTime += dt;
 }
-
 }

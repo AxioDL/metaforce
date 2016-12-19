@@ -9,12 +9,10 @@ namespace urde
 class CScriptActor : public CPhysicsActor
 {
 public:
-    CScriptActor(TUniqueId, const std::string&, const CEntityInfo&,
-                 const zeus::CTransform&, CModelData&&, const zeus::CAABox& aabb, float, float,
-                 const CMaterialList& matList, const CHealthInfo&, const CDamageVulnerability&,
-                 const CActorParameters&, bool, bool, u32, float, bool, bool, bool, bool);
+    CScriptActor(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+                 const zeus::CAABox& aabb, float, float, const CMaterialList& matList, const CHealthInfo&,
+                 const CDamageVulnerability&, const CActorParameters&, bool, bool, u32, float, bool, bool, bool, bool);
 };
-
 }
 
 #endif // __URDE_CSCRIPTACTOR_HPP__

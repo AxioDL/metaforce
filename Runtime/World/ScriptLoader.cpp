@@ -45,8 +45,10 @@
 #include "CScriptDistanceFog.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
+#include "CScriptSwitch.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
+#include "CScriptCameraPitchVolume.hpp"
 #include "CScriptCameraHintTrigger.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
@@ -517,7 +519,8 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
-    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, flags, active, b2, b3);
+    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, flags, active,
+                              b2, b3);
 }
 
 CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -746,8 +749,8 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
     u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
 
     return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
-                                f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(),
-                                CCameraManager::FarPlane(), CCameraManager::Aspect(), flags);
+                                f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
+                                CCameraManager::Aspect(), flags);
 }
 
 CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1178,7 +1181,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     ETriggerFlags triggerFlags = ETriggerFlags(in.readUint32Big()) | ETriggerFlags::DetectProjectiles1 |
                                  ETriggerFlags::DetectProjectiles2 | ETriggerFlags::DetectProjectiles3 |
                                  ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
-                                 ETriggerFlags::Unknown1           | ETriggerFlags::DetectProjectiles5 |
+                                 ETriggerFlags::Unknown1 | ETriggerFlags::DetectProjectiles5 |
                                  ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
     bool b1 = in.readBool();
     bool displaySurface = in.readBool();
@@ -1576,7 +1579,8 @@ CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
     CScannableParameters sParms = LoadScannableParameters(in);
     float f1 = in.readFloatBig();
 
-    return new CScriptPointOfInterest(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, sParms, f1);
+    return new CScriptPointOfInterest(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, sParms,
+                                      f1);
 }
 
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1695,7 +1699,15 @@ CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in
 
 CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "Switch"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+
+    return new CScriptSwitch(mgr.AllocateUniqueId(), *name, info, active, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1718,11 +1730,11 @@ CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in
 CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 5, "AiJumpPoint"))
-      return nullptr;
+        return nullptr;
 
     SActorHead aHead = LoadActorHead(in, mgr);
     bool active = in.readBool();
-    float f1 =  in.readFloat();
+    float f1 = in.readFloat();
 
     return new CScriptAiJumpPoint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, f1);
 }
@@ -1804,13 +1816,35 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
 
 CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 5, "RadialDamage"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    CDamageInfo dInfo(in);
+    float radius = in.readFloatBig();
+    zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, center);
+
+    return new CScriptSpecialFunction(
+        mgr.AllocateUniqueId(), *name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius,
+        0.f, 0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1, -1, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 8, "CameraPitchVolume"))
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    bool active = in.readBool();
+    zeus::CRelAngle f1 = zeus::CRelAngle::FromDegrees(in.readFloatBig());
+    zeus::CRelAngle f2 = zeus::CRelAngle::FromDegrees(in.readFloatBig());
+    float f3 = in.readFloatBig();
+
+    return new CScriptCameraPitchVolume(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale,
+                                        aHead.x10_transform, f1, f2, f3);
 }
 
 CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1879,9 +1913,12 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
 
     zeus::CTransform xfRot = aHead.x10_transform.getRotation();
     if (xfRot == zeus::CTransform::Identity())
-        return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin, zeus::CAABox(-scale, scale), CDamageInfo(), zeus::CVector3f::skZero, ETriggerFlags::DetectPlayer, active, b2, b3);
+        return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
+                                  zeus::CAABox(-scale, scale), CDamageInfo(), zeus::CVector3f::skZero,
+                                  ETriggerFlags::DetectPlayer, active, b2, b3);
 
-    return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform, b2, b3);
+    return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform,
+                                        b2, b3);
 }
 
 CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

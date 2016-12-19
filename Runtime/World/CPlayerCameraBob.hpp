@@ -75,6 +75,7 @@ private:
     zeus::CTransform xd0_viewWanderXf;
     float x100_ = FLT_EPSILON;
     float x104_ = 0.f;
+
 public:
     CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float);
 
@@ -90,7 +91,7 @@ public:
     void SetState(ECameraBobState, CStateManager&);
     void InitViewWander(CStateManager&);
     void UpdateViewWander(float, CStateManager&);
-    void Update(float, CStateManager &);
+    void Update(float, CStateManager&);
     zeus::CVector3f CalculateRandomViewWanderPosition(CStateManager&);
     float CalculateRandomViewWanderPitch(CStateManager&);
     void CalculateMovingTranslation(float& x, float& y) const;
@@ -98,7 +99,6 @@ public:
     zeus::CTransform CalculateCameraBobTransformation() const;
     static void ReadTweaks(CInputStream& in);
 };
-
 }
 
 #endif // __URDE_CPLAYERCAMERABOB_HPP__

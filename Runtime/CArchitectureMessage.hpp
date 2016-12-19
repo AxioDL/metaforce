@@ -49,8 +49,7 @@ struct CArchMsgParmInt32 : IArchMsgParm
 struct CArchMsgParmVoidPtr : IArchMsgParm
 {
     void* x4_parm1;
-    CArchMsgParmVoidPtr(void* parm1)
-    : x4_parm1(parm1) {}
+    CArchMsgParmVoidPtr(void* parm1) : x4_parm1(parm1) {}
     virtual ~CArchMsgParmVoidPtr() {}
 };
 
@@ -59,8 +58,9 @@ struct CArchMsgParmInt32Int32VoidPtr : IArchMsgParm
     u32 x4_parm1;
     u32 x8_parm2;
     void* xc_parm3;
-    CArchMsgParmInt32Int32VoidPtr(u32 parm1, u32 parm2, void* parm3)
-    : x4_parm1(parm1), x8_parm2(parm2), xc_parm3(parm3) {}
+    CArchMsgParmInt32Int32VoidPtr(u32 parm1, u32 parm2, void* parm3) : x4_parm1(parm1), x8_parm2(parm2), xc_parm3(parm3)
+    {
+    }
     virtual ~CArchMsgParmInt32Int32VoidPtr() {}
 };
 
@@ -87,8 +87,7 @@ struct CArchMsgParmControllerStatus : IArchMsgParm
 {
     u16 x4_parm1;
     bool x6_parm2;
-    CArchMsgParmControllerStatus(u16 a, bool b)
-    : x4_parm1(a), x6_parm2(b) {}
+    CArchMsgParmControllerStatus(u16 a, bool b) : x4_parm1(a), x6_parm2(b) {}
 
     virtual ~CArchMsgParmControllerStatus() {}
 };
@@ -98,14 +97,20 @@ class CArchitectureMessage
     EArchMsgTarget x0_target;
     EArchMsgType x4_type;
     std::shared_ptr<IArchMsgParm> x8_parm;
+
 public:
     CArchitectureMessage(EArchMsgTarget target, EArchMsgType type, IArchMsgParm* parm)
-    : x0_target(target), x4_type(type), x8_parm(parm) {}
+    : x0_target(target), x4_type(type), x8_parm(parm)
+    {
+    }
 
-    EArchMsgTarget GetTarget() const {return x0_target;}
-    EArchMsgType GetType() const {return x4_type;}
+    EArchMsgTarget GetTarget() const { return x0_target; }
+    EArchMsgType GetType() const { return x4_type; }
     template <class T>
-    const T* GetParm() const {return dynamic_cast<T*>(x8_parm.get());}
+    const T* GetParm() const
+    {
+        return dynamic_cast<T*>(x8_parm.get());
+    }
 };
 
 class MakeMsg
@@ -149,7 +154,8 @@ public:
     }
     static CArchitectureMessage CreateCreateIOWin(EArchMsgTarget target, int pmin, int pmax, CIOWin* iowin)
     {
-        return CArchitectureMessage(target, EArchMsgType::CreateIOWin, new CArchMsgParmInt32Int32VoidPtr(pmin, pmax, iowin));
+        return CArchitectureMessage(target, EArchMsgType::CreateIOWin,
+                                    new CArchMsgParmInt32Int32VoidPtr(pmin, pmax, iowin));
     }
     static const CArchMsgParmVoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg)
     {
@@ -165,7 +171,6 @@ public:
         return CArchitectureMessage(target, EArchMsgType::ApplicationExit, new CArchMsgParmNull());
     }
 };
-
 }
 
 #endif // __URDE_CARCHITECTUREMESSAGE_HPP__
