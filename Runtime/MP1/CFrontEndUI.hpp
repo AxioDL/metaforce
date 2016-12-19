@@ -25,7 +25,6 @@ class CAudioGroupSet;
 class CSaveWorld;
 class CStringTable;
 class CGuiFrame;
-class CSaveUI;
 class CGuiTextPane;
 class CGuiWidget;
 class CGuiTableGroup;
@@ -34,6 +33,7 @@ class CGuiModel;
 namespace MP1
 {
 class CNESEmulator;
+class CSaveUI;
 
 class CFrontEndUI : public CIOWin
 {

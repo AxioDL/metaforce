@@ -8,19 +8,19 @@ namespace urde
 
 class CScriptTimer : public CEntity
 {
-    float x34_;
-    float x38_;
-    float x3c_;
-    bool x40_;
-    bool x41_;
-    bool x42_;
+    float x34_time;
+    float x38_startTime;
+    float x3c_maxRandDelay;
+    bool x40_loop;
+    bool x41_autoStart;
+    bool x42_isTiming;
 public:
     CScriptTimer(TUniqueId, const std::string& name, const CEntityInfo& info,
                  float, float, bool, bool, bool);
 
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
-    bool IsTiming();
+    bool IsTiming() const;
     void StartTiming(bool);
     void Reset(CStateManager&);
     void ApplyTime(float, CStateManager&);

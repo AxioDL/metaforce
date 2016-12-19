@@ -16,7 +16,7 @@ CScriptTimer::CScriptTimer(TUniqueId uid, const std::string& name, const CEntity
 {
 }
 
-void CScriptTimer::Think(float, CStateManager&)
+void CScriptTimer::Think(float dt, CStateManager& mgr)
 {
     if (GetActive() && IsTiming())
         ApplyTime(dt, mgr);

@@ -8,7 +8,7 @@
 #include "CSlideShow.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "Graphics/CMoviePlayer.hpp"
-#include "GuiSys/CSaveUI.hpp"
+#include "CSaveUI.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
 #include "GuiSys/CGuiFrame.hpp"
 #include "GuiSys/CStringTable.hpp"

@@ -7,8 +7,8 @@ namespace urde
 {
 class CScriptSwitch : public CEntity
 {
-    bool x34_;
-    bool x35_;
+    bool x34_opened;
+    bool x35_closeOnOpened;
 public:
     CScriptSwitch(TUniqueId, const std::string&, const CEntityInfo&, bool, bool, bool);
 

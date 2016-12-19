@@ -16,6 +16,8 @@ set(MP1_SOURCES
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
     CSpacePirate.hpp CSpacePirate.cpp
+    CSaveUI.hpp CSaveUI.cpp
+    CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)

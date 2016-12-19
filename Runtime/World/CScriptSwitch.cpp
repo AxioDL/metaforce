@@ -9,7 +9,7 @@ CScriptSwitch::CScriptSwitch(TUniqueId uid, const std::string& name, const CEnti
 {
 }
 
-void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
+void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr)
 {
     if (GetActive())
     {

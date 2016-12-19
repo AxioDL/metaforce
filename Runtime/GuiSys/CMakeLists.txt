@@ -76,8 +76,6 @@ set(GUISYS_SOURCES
     CFontImageDef.hpp
     ITweakGui.hpp
     CStringTable.cpp
-    CStringTable.hpp
-    CSaveUI.cpp
-    CSaveUI.hpp)
+    CStringTable.hpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)
